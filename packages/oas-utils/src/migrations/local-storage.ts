@@ -29,7 +29,7 @@ export const getLocalStorageVersion = (): string => {
 
   // Flatted + types means > 2.1.0 but we should have a data version
   try {
-    const [collection] = Object.values(parse(collectionStr) ?? {}) as v_2_1_0.Collection[]
+    const [collection]: v_2_1_0.Collection[] = Object.values(parse(collectionStr) ?? {})
     if (collection?.type === 'collection') {
       return '2.1.0'
     }

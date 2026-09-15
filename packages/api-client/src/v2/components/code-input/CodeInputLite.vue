@@ -114,7 +114,10 @@ const emit = defineEmits<{
   'navigate': [route: { page: 'document'; path: 'environment' }]
 }>()
 
-const attrs = useAttrs() as { 'id'?: string; 'aria-label'?: string }
+const attrs = useAttrs()
+const ariaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
 
 /**
  * The id only matters once the dropdown opens (`aria-controls` /
@@ -122,11 +125,16 @@ const attrs = useAttrs() as { 'id'?: string; 'aria-label'?: string }
  * keep idle instances cheap. A consumer-supplied `id` attr is preserved.
  */
 const generatedComponentId = ref<string | null>(null)
-const componentId = computed(
-  (): string | undefined => attrs.id ?? generatedComponentId.value ?? undefined,
+const componentId = computed((): string | undefined =>
+  typeof attrs.id === 'string'
+    ? attrs.id
+    : (generatedComponentId.value ?? undefined),
 )
 const ensureComponentId = (): void => {
-  if (!attrs.id && generatedComponentId.value === null) {
+  if (
+    (typeof attrs.id !== 'string' || !attrs.id) &&
+    generatedComponentId.value === null
+  ) {
     generatedComponentId.value = `id-${nanoid()}`
   }
 }
@@ -414,7 +422,7 @@ const getModelCaret = (): number | null => {
       i < range.startOffset && i < editor.childNodes.length;
       i++
     ) {
-      pos += modelLengthOf(editor.childNodes[i] as Node)
+      pos += modelLengthOf(editor.childNodes.item(i))
     }
     return pos
   }
@@ -702,9 +710,10 @@ const handleKeyDown = (event: KeyboardEvent): void => {
  * in one keystroke and typing replaces it — the usual chip/mention model.
  */
 const handleEditorClick = (event: MouseEvent): void => {
-  const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
-    '.scalar-pill',
-  )
+  const target =
+    event.target instanceof Element
+      ? event.target.closest<HTMLElement>('.scalar-pill')
+      : null
   if (!target) {
     return
   }
@@ -917,7 +926,7 @@ defineExpose({
       :aria-controls="displayVariablesDropdown ? listboxId : undefined"
       :aria-expanded="displayVariablesDropdown ? 'true' : undefined"
       :aria-invalid="error ? 'true' : undefined"
-      :aria-label="attrs['aria-label']"
+      :aria-label="ariaLabel"
       :aria-readonly="readOnly ? 'true' : undefined"
       :aria-required="required ? 'true' : undefined"
       class="code-input-lite__editor"

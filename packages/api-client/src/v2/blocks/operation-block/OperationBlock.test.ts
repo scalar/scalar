@@ -9,8 +9,8 @@ import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -1151,6 +1151,8 @@ describe('OperationBlock', () => {
 
     const { response } = getResponseBlockProps(wrapper)
     expect(response).toStrictEqual(mockResponse)
+    const responseHookCall = vi.mocked(executeHook).mock.calls.find((call) => call[1] === 'responseReceived')
+    expect(responseHookCall?.[0]).toHaveProperty('responseDuration', 150)
     expect(response?.status).toBe(200)
     expect(response && 'data' in response ? response.data : undefined).toBe('{"users": []}')
   })

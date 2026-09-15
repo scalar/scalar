@@ -1,7 +1,7 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { isParamDisabled } from '@/request-example/builder/header/is-param-disabled'
 
@@ -38,7 +38,7 @@ const getEnabledOperationHeaderParameterNames = (operation: OperationObject, exa
   const names = new Set<string>()
   for (const ref of operation.parameters ?? []) {
     const param = getResolvedRef(ref)
-    if (param.in !== 'header') {
+    if (!param || param.in !== 'header') {
       continue
     }
     const rawExample = 'examples' in param && param.examples?.[exampleName] ? param.examples[exampleName] : undefined

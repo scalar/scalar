@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 
 import type { WorkspaceStore } from '@/client'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import type { ServerWorkspaceStore } from '@/server'
 
 export async function allFilesMatch(fileList: { path: string; content: string }[]): Promise<boolean> {

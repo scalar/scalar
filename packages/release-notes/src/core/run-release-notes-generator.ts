@@ -66,7 +66,9 @@ const loadDependencyChangelog = async (changelogPath: string): Promise<Dependenc
   try {
     changelog = await readFile(resolvedPath, 'utf-8')
   } catch (error) {
-    console.warn(`Skipping dependency changelog ${changelogPath}: ${(error as Error).message}`)
+    console.warn(
+      `Skipping dependency changelog ${changelogPath}: ${error instanceof Error ? error.message : String(error)}`,
+    )
     return null
   }
 

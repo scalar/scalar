@@ -3,7 +3,7 @@ import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
-import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { type CustomCodeSampleId, getCustomClientIds } from './generate-client-options'
 import { getSnippet } from './get-snippet'

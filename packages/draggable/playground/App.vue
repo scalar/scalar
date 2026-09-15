@@ -75,23 +75,80 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 </script>
 
 <template>
-  <div>This is an example of Draggable</div>
-  <ul
-    @dragenter.prevent
-    @dragover.prevent>
-    <SidebarItem
-      v-for="id in sidebar.children"
-      :id="id"
-      :key="id"
-      :items="sidebar.items"
-      :parentIds="[]"
-      @onDragEnd="onDragEnd" />
-  </ul>
-  <div>#TODO make this pretty :)</div>
+  <main class="scalar-app light-mode bg-b-1 text-c-1 min-h-screen font-sans">
+    <div class="mx-auto max-w-5xl px-6 py-12 sm:px-10">
+      <header class="mb-10 border-b pb-8">
+        <p class="text-c-2 mb-3 text-sm font-medium">Scalar / Draggable</p>
+        <h1 class="mb-3 text-xl font-bold tracking-tight">
+          Make room for your teams.
+        </h1>
+        <p class="text-c-2 max-w-xl text-base leading-relaxed">
+          Try reordering a nested list. Move teams between groups or give them a
+          new place of their own.
+        </p>
+      </header>
+      <div class="grid items-start gap-10 sm:grid-cols-2">
+        <section
+          aria-labelledby="teams-heading"
+          class="overflow-hidden rounded-lg border">
+          <div
+            class="bg-b-2 flex items-center justify-between border-b px-4 py-3">
+            <h2
+              id="teams-heading"
+              class="text-base font-medium">
+              Your teams
+            </h2>
+            <span class="text-c-2 text-sm">
+              {{ sidebar.children.length }} at the top level
+            </span>
+          </div>
+          <div
+            aria-label="Draggable teams"
+            class="p-2"
+            @dragenter.prevent
+            @dragover.prevent>
+            <SidebarItem
+              v-for="id in sidebar.children"
+              :id="id"
+              :key="id"
+              :items="sidebar.items"
+              :parentIds="[]"
+              @onDragEnd="onDragEnd" />
+          </div>
+        </section>
+        <aside
+          aria-labelledby="instructions-heading"
+          class="py-2">
+          <h2
+            id="instructions-heading"
+            class="mb-5 text-lg font-medium">
+            Three ways to move
+          </h2>
+          <ol class="text-c-2 space-y-6 text-base leading-relaxed">
+            <li>
+              <h3 class="text-c-1 mb-1 font-medium">01 — Pick up a team</h3>
+              Drag any team row to start moving it. A group brings its nested
+              teams along.
+            </li>
+            <li>
+              <h3 class="text-c-1 mb-1 font-medium">
+                02 — Choose its position
+              </h3>
+              Hover near the top or bottom edge of another row to place it
+              before or after that team.
+            </li>
+            <li>
+              <h3 class="text-c-1 mb-1 font-medium">03 — Create a group</h3>
+              Hover over the center of a row to nest your team inside it.
+              Release to drop.
+            </li>
+          </ol>
+          <p class="text-c-3 mt-8 border-t pt-4 text-sm">
+            This playground uses mouse or trackpad dragging. Refresh to start
+            over.
+          </p>
+        </aside>
+      </div>
+    </div>
+  </main>
 </template>
-
-<style>
-:root {
-  --scalar-color-blue: #0000ff;
-}
-</style>

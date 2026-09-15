@@ -107,7 +107,7 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
   // Captured here so the descriptive error from a failing migration can be
   // surfaced through the `open` promise instead of the generic IDB
   // `AbortError` that follows `transaction.abort()`.
-  let migrationError: Error | undefined
+  let migrationError: unknown
 
   request.onupgradeneeded = (event) => {
     const transaction = request.transaction
@@ -144,13 +144,15 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
           await migration.up(context)
         } catch (error) {
           const label = migration.description ? `v${version} (${migration.description})` : `v${version}`
-          throw new Error(`Migration ${label} failed: ${(error as Error)?.message ?? error}`, { cause: error })
+          throw new Error(`Migration ${label} failed: ${error instanceof Error ? error.message : error}`, {
+            cause: error,
+          })
         }
       }
     }
 
     runMigrations().catch((error) => {
-      migrationError = error as Error
+      migrationError = error
       // Abort the upgrade transaction so we do not leave the DB in a half-
       // migrated state. Aborting fires `request.onerror`; the captured
       // `migrationError` takes precedence over the resulting `AbortError`.
@@ -182,7 +184,7 @@ export const createIndexDbConnection = async <T extends Record<string, TableEntr
       // Surface a helpful error if a caller asks for a table that is not in
       // the typed config — the underlying IDB call would otherwise throw a
       // generic `NotFoundError` from a lazy `transaction()`.
-      if (!Object.hasOwn(tables, tableName as string)) {
+      if (!Object.hasOwn(tables, tableName)) {
         throw new Error(`Unknown table "${String(tableName)}". Add it to the \`tables\` config of "${name}".`)
       }
       return createTableWrapper<T[Name]['schema'], T[Name]['keyPath'][number]>(tableName as string, request.result)
@@ -245,7 +247,7 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
    */
   function getRange(partialKey: IDBValidKey[], indexName?: string): Promise<Static<T>[]> {
     const store = getStore('readonly')
-    const objectStoreOrIndex = indexName ? store.index(indexName as string) : store
+    const objectStoreOrIndex = indexName ? store.index(indexName) : store
 
     const results: Static<T>[] = []
 
@@ -257,8 +259,8 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
     return new Promise((resolve, reject) => {
       const req = objectStoreOrIndex.openCursor(range)
       req.onerror = () => reject(req.error)
-      req.onsuccess = (event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+      req.onsuccess = () => {
+        const cursor = req.result
         if (cursor) {
           results.push(cursor.value)
           cursor.continue()
@@ -295,8 +297,8 @@ function createTableWrapper<T extends TRecord | TObject, const K extends keyof S
     return new Promise((resolve, reject) => {
       const req = store.openCursor(range)
       req.onerror = () => reject(req.error)
-      req.onsuccess = (event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result
+      req.onsuccess = () => {
+        const cursor = req.result
         if (cursor) {
           cursor.delete()
           deletedCount++

@@ -11,7 +11,7 @@ import { isAsyncApiDocument } from '@/schemas'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {
@@ -1121,6 +1121,19 @@ describe('create-server-store', () => {
 })
 
 describe('filter-http-methods-only', () => {
+  it('ignores Paths Object extensions even when they contain HTTP method names', () => {
+    const result = filterHttpMethodsOnly({
+      'x-metadata': { get: { description: 'Not an operation' } },
+      '/path': {
+        get: { description: 'List items' },
+        // @ts-expect-error Exercise an extension alongside a real operation.
+        'x-metadata': { post: { description: 'Not an operation either' } },
+      },
+    })
+
+    expect(result).toStrictEqual({ '/path': { get: { description: 'List items' } } })
+  })
+
   it('should only keep the http methods', () => {
     const result = filterHttpMethodsOnly({
       '/path': {

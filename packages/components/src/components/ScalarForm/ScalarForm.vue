@@ -27,7 +27,7 @@ const { cx } = useBindCx()
 <template>
   <form
     v-bind="cx('flex flex-col')"
-    @submit.prevent="$emit('submit', $event as SubmitEvent)">
+    @submit.prevent="$emit('submit', $event)">
     <slot />
   </form>
 </template>

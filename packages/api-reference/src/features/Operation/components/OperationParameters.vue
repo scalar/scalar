@@ -7,7 +7,7 @@ import type {
   ParameterObject,
   ReferenceType,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
@@ -42,24 +42,23 @@ type ParameterLocation = 'cookie' | 'header' | 'path' | 'query'
 
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
-  (parameters ?? []).reduce(
+  (parameters ?? []).reduce<Record<ParameterLocation, ParameterObject[]>>(
     (acc, p) => {
       const parameter = getResolvedRef(p)
       // Filter out ignored parameters
-      if (!isHidden(parameter)) {
+      if (parameter && !isHidden(parameter)) {
         const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
         flattenedParameters.forEach((flattenedParameter) => {
-          acc[flattenedParameter.in as ParameterLocation].push(
-            flattenedParameter,
-          )
+          const location =
+            flattenedParameter.in === 'querystring'
+              ? 'query'
+              : flattenedParameter.in
+          acc[location].push(flattenedParameter)
         })
       }
       return acc
     },
-    { cookie: [], header: [], path: [], query: [] } as Record<
-      'cookie' | 'header' | 'path' | 'query',
-      ParameterObject[]
-    >,
+    { cookie: [], header: [], path: [], query: [] },
   ),
 )
 </script>

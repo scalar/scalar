@@ -359,38 +359,11 @@ export type ApiReferenceTextDirectionPreference = ApiReferenceTextDirection | 'a
 /** User-facing UI copy for API Reference shell labels. */
 export type ApiReferenceTranslations = {
   common: {
-    additionalProperties: string
-    const: string
-    deprecated: string
     description: string
-    discriminator: string
-    enum: string
-    format: string
-    greaterThan: string
     httpMethod: string
-    keys: string
-    lessThan: string
-    max: string
-    min: string
-    maxLength: string
-    minLength: string
-    multipleOf: string
-    nullable: string
     path: string
-    pattern: string
-    copyPattern: string
     copyDefault: string
     copyExample: string
-    propertyNames: string
-    readOnly: string
-    recursive: string
-    required: string
-    hideValues: string
-    showAllValues: string
-    type: string
-    unique: string
-    values: string
-    writeOnly: string
   }
   search: {
     label: string
@@ -478,6 +451,33 @@ export type ApiReferenceTranslations = {
     propertyCount: string
     headerCount: string
     recursiveReference: string
+    recursive: string
+    additionalProperties: string
+    const: string
+    deprecated: string
+    discriminator: string
+    enum: string
+    format: string
+    greaterThan: string
+    keys: string
+    lessThan: string
+    max: string
+    min: string
+    maxLength: string
+    minLength: string
+    multipleOf: string
+    nullable: string
+    propertyNames: string
+    pattern: string
+    copyPattern: string
+    readOnly: string
+    required: string
+    hideValues: string
+    showAllValues: string
+    type: string
+    unique: string
+    values: string
+    writeOnly: string
   }
   download: {
     openapi: string

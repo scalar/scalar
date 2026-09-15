@@ -27,7 +27,7 @@ const getServerProtocols = (document: AsyncApiDocument): Map<string, string> => 
   const protocols = new Map<string, string>()
 
   for (const [name, serverNode] of objectEntries(document.servers ?? {})) {
-    const protocol = normalizeProtocol(getResolvedRef(serverNode).protocol)
+    const protocol = normalizeProtocol(getResolvedRef(serverNode)?.protocol)
     if (protocol) {
       protocols.set(name, protocol)
     }
@@ -70,7 +70,7 @@ export type AsyncApiServerOption = {
  */
 export const getAsyncApiServerOptions = (document: AsyncApiDocument): AsyncApiServerOption[] => {
   const options: AsyncApiServerOption[] = objectEntries(document.servers ?? {}).map(([name, serverNode]) => {
-    const protocol = normalizeProtocol(getResolvedRef(serverNode).protocol)
+    const protocol = normalizeProtocol(getResolvedRef(serverNode)?.protocol)
     return { id: name, label: protocol ? `${name} (${protocol})` : name }
   })
 

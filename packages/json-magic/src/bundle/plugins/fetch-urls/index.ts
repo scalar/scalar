@@ -6,6 +6,7 @@ import { normalize } from '@/helpers/normalize'
 
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
+  /** Custom transports cannot be combined with blockPrivateNetworks. */
   fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
   /**
    * When true, refuse to fetch URLs that resolve to a private, loopback, link-local, or otherwise
@@ -22,17 +23,6 @@ type FetchConfig = Partial<{
 const getHost = (url: string): string | null => {
   try {
     return new URL(url).host
-  } catch {
-    return null
-  }
-}
-
-/**
- * Safely reads the hostname (without port) from a URL, for the private-address check.
- */
-const getHostname = (url: string): string | null => {
-  try {
-    return new URL(url).hostname
   } catch {
     return null
   }
@@ -58,42 +48,22 @@ export async function fetchUrl(
   config?: FetchConfig,
 ): Promise<ResolveResult> {
   try {
-    // SSRF guard: optionally refuse to fetch internal or private targets before making the request.
-    // Only runs in Node, since the browser build has no DNS access and its own network isolation.
-    if (config?.blockPrivateNetworks && typeof window === 'undefined') {
-      const hostname = getHostname(url)
-
-      if (hostname) {
-        const { isBlockedHost } = await import('./is-blocked-host')
-
-        if (await isBlockedHost(hostname)) {
-          console.warn(`[WARN] Refused to fetch a private or internal address: ${url}`)
-          return {
-            ok: false,
-          }
-        }
-      }
-    }
-
     const host = getHost(url)
-
-    // Get the headers that match the domain
     const headers = config?.headers?.find((a) => a.domains.find((d) => d === host) !== undefined)?.headers
+    const guarded = config?.blockPrivateNetworks && typeof window === 'undefined'
 
-    const exec = config?.fetch ?? fetch
+    const result = await limiter(async () => {
+      if (guarded) {
+        // A custom fetch can ignore the pinned connection and resolve the host again.
+        if (config?.fetch) {
+          throw new Error('Custom fetch cannot be combined with private network blocking')
+        }
+        const { fetchPublicUrl } = await import('./fetch-public-url')
+        return fetchPublicUrl(url, headers)
+      }
 
-    // Under the SSRF guard, do not follow redirects. Otherwise a public URL that passes the host
-    // check above could redirect to an internal target (for example the metadata endpoint) that
-    // the redirect would reach without being re-validated.
-    const redirect: RequestRedirect | undefined =
-      config?.blockPrivateNetworks && typeof window === 'undefined' ? 'error' : undefined
-
-    const result = await limiter(() =>
-      exec(url, {
-        headers,
-        redirect,
-      }),
-    )
+      return (config?.fetch ?? fetch)(url, { headers })
+    })
 
     if (result.ok) {
       const body = await result.text()

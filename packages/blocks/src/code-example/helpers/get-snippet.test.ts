@@ -19,7 +19,7 @@ const makeHarRequest = (overrides: Partial<HarRequest> = {}): HarRequest => ({
 })
 
 describe('getSnippet', () => {
-  it('generates a basic shell/curl example (httpsnippet-lite)', () => {
+  it('generates a basic shell/curl example (@scalar/snippetz)', () => {
     const [error, result] = getSnippet('shell', 'curl', makeHarRequest())
 
     expect(error).toBeNull()
@@ -37,22 +37,18 @@ describe('getSnippet', () => {
     `)
   })
 
-  it('generates a basic javascript/jquery example (httpsnippet-lite)', () => {
+  it('generates a basic javascript/jquery example (@scalar/snippetz)', () => {
     const [error, result] = getSnippet('javascript', 'jquery', makeHarRequest())
 
     expect(error).toBeNull()
     expect(result).toMatchInlineSnapshot(`
-      "const settings = {
-        async: true,
-        crossDomain: true,
-        url: 'https://example.com/users',
-        method: 'GET',
-        headers: {}
-      };
-
-      $.ajax(settings).done(function (response) {
-        console.log(response);
-      });"
+      "$.ajax({
+        url: "https://example.com/users",
+        method: "GET",
+        processData: false,
+        contentType: false,
+        data: null
+      }).done((response) => console.log(response));"
     `)
   })
 

@@ -6,7 +6,7 @@ import {
   xScalarCookieSchema,
 } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 
@@ -48,10 +48,10 @@ export const buildRequestParameters = (
   allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
 } => {
-  const result = {
-    cookies: [] as XScalarCookie[],
-    headers: {} as Record<string, string>,
-    pathVariables: {} as Record<string, string>,
+  const result: ReturnType<typeof buildRequestParameters> = {
+    cookies: [],
+    headers: {},
+    pathVariables: {},
     allowReservedQueryParameters: new Set<string>(),
     urlParams: new URLSearchParams(),
   }
@@ -64,6 +64,7 @@ export const buildRequestParameters = (
   // Second pass: process all parameters
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
+    if (!param) continue
     const example = getExample(param, exampleName, undefined)
 
     // Skip disabled examples
@@ -115,7 +116,11 @@ export const buildRequestParameters = (
         break
       }
 
-      case 'query': {
+      // The 3.2 `querystring` location represents the whole query string. Handle it like a
+      // regular query parameter so schema-based values still expand into the query string
+      // instead of being silently dropped.
+      case 'query':
+      case 'querystring': {
         processQueryParameter(
           param,
           paramName,

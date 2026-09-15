@@ -184,28 +184,15 @@ describe('fetchUrl blockPrivateNetworks', () => {
     expect(fetch).not.toHaveBeenCalled()
   })
 
-  it('still fetches a public address', async () => {
-    const fetch = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }))
+  it('rejects custom transports that could bypass the guarded connection', async () => {
+    const fetch = vi.fn(async () => new Response('{}', { status: 200 }))
 
     const result = await fetchUrl('http://93.184.216.34/', noLimit, {
       blockPrivateNetworks: true,
       fetch,
     })
 
-    expect(fetch).toHaveBeenCalled()
-    expect(result.ok).toBe(true)
-  })
-
-  it('does not follow redirects under the guard', async () => {
-    let receivedInit: RequestInit | undefined
-    const fetch = vi.fn((_url: string | URL | Request, init?: RequestInit) => {
-      receivedInit = init
-      return Promise.resolve(new Response('{}', { status: 200 }))
-    })
-
-    await fetchUrl('http://93.184.216.34/', noLimit, { blockPrivateNetworks: true, fetch })
-
-    // A redirect would otherwise let a public URL bounce to an internal target.
-    expect(receivedInit?.redirect).toBe('error')
+    expect(result).toStrictEqual({ ok: false })
+    expect(fetch).not.toHaveBeenCalled()
   })
 })

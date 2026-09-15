@@ -27,7 +27,7 @@ import type {
   ApiKeyObject,
   SecurityRequirementObject,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { capitalize, computed, ref } from 'vue'
 
 import { refreshOauth2Token } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
@@ -503,7 +503,7 @@ const handleConfigAuthorize = (): void => {
         <RequestAuthDataTableInput
           :containerClass="getStaticBorderClass()"
           :environment
-          :modelValue="scheme.name"
+          :modelValue="scheme.name ?? ''"
           placeholder="api-key"
           @update:modelValue="
             (v) => handleApiKeySecuritySchemeUpdate({ name: v }, name)

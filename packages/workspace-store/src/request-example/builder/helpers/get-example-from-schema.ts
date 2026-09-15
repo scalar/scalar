@@ -1,9 +1,10 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
-import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
@@ -101,11 +102,24 @@ const guessFromFormat = (
  */
 const resultCache = new WeakMap<object, Map<string, unknown>>()
 
+/**
+ * Set once the depth cap has truncated something in the current top-level call.
+ *
+ * A truncated value only holds at the level it was produced at, but `resultCache` keys carry no level,
+ * so a value assembled around one must not be stored. Composition reaches that case: an `allOf` member
+ * climbs a level without growing `schemaPath`, so a schema rendered just above the cap in one chain
+ * shares its key with the same schema used at the top of a document, and the shallow use is served the
+ * truncated result. Widening the key would cost the cache its hits everywhere, so storing simply stops
+ * for the rest of the call instead. The walk is synchronous, so resetting at level 0 scopes this to one
+ * top-level call.
+ */
+let truncated = false
+
 /** Cache required property names per parent schema for O(1) membership checks */
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
 /** Normalize schema identity for cache and cycle tracking */
-const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 }) as object
+const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 })
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -143,7 +157,7 @@ const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<s
  * identity would leak one scope's result into another.
  */
 const cache = (schema: SchemaObject, result: unknown, cacheKey: string, skip = false) => {
-  if (skip || typeof result !== 'object' || result === null) {
+  if (skip || truncated || typeof result !== 'object' || result === null) {
     return result
   }
   const rawSchema = getSchemaCacheTarget(schema)
@@ -170,11 +184,13 @@ const shouldOmitProperty = (
   schema: SchemaObject,
   parentSchema: SchemaObject | undefined,
   propertyName: string | undefined,
-  options: Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode'> | undefined,
+  options:
+    | Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode' | 'includeDeprecated'>
+    | undefined,
 ): boolean => {
-  // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly)
+  // Early exits for schemas that should not be included (deprecated unless opted in, readOnly, writeOnly)
   if (
-    schema.deprecated ||
+    (schema.deprecated && options?.includeDeprecated !== true) ||
     (options?.mode === 'write' && schema.readOnly) ||
     (options?.mode === 'read' && schema.writeOnly)
   ) {
@@ -227,7 +243,7 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
     return [...baseValue, ...newValue]
   }
   if (baseValue && typeof baseValue === 'object' && newValue && typeof newValue === 'object') {
-    return { ...(baseValue as Record<string, unknown>), ...(newValue as Record<string, unknown>) }
+    return { ...baseValue, ...newValue }
   }
   return newValue
 }
@@ -379,12 +395,62 @@ const getCompositionSelectionIndex = (
 }
 
 /**
+ * Use the discriminator as a generation hint. Only referenced variants have
+ * implicit names; inline titles are display labels, not discriminator mappings.
+ */
+const getDiscriminatorSelectionIndex = (
+  schema: SchemaObject,
+  variants: NonNullable<SchemaObject['oneOf']>,
+  options: GetExampleFromSchemaOptions | undefined,
+  value?: Record<string, unknown>,
+): number | undefined => {
+  const discriminator = schema.discriminator
+  if (discriminator?.defaultMapping === undefined) {
+    return undefined
+  }
+
+  const property = 'properties' in schema ? schema.properties?.[discriminator.propertyName] : undefined
+  const resolvedProperty = property ? resolve.schema(property) : undefined
+  const propertyName =
+    options?.xml && resolvedProperty && 'xml' in resolvedProperty
+      ? (resolvedProperty.xml?.name ?? discriminator.propertyName)
+      : discriminator.propertyName
+  const variableValue = resolvedProperty?.['x-variable']
+    ? options?.variables?.[resolvedProperty['x-variable']]
+    : undefined
+  const declaredValue = resolvedProperty ? getDeclaredValue(resolvedProperty) : undefined
+  const schemaValue = variableValue !== undefined ? variableValue : declaredValue
+  const tag = value ? value[propertyName] : schemaValue
+  const findReference = (reference: string): number =>
+    variants.findIndex((variant) => '$ref' in variant && variant.$ref === reference)
+  const findComponent = (name: string): number => findReference(`#/components/schemas/${escapeJsonPointer(name)}`)
+  const findTarget = (target: string): number => {
+    // Prefer a component name when the same string could also be a relative URI.
+    const componentIndex = findComponent(target)
+    return componentIndex >= 0 ? componentIndex : findReference(target)
+  }
+
+  if (typeof tag === 'string') {
+    const explicit =
+      discriminator.mapping && Object.hasOwn(discriminator.mapping, tag) ? discriminator.mapping[tag] : undefined
+    const mappedIndex = explicit === undefined ? findComponent(tag) : findTarget(explicit)
+    // A broken explicit mapping must not silently select the fallback.
+    if (explicit !== undefined || mappedIndex >= 0) {
+      return mappedIndex >= 0 ? mappedIndex : undefined
+    }
+  }
+
+  const fallbackIndex = findTarget(discriminator.defaultMapping)
+  return fallbackIndex >= 0 ? fallbackIndex : undefined
+}
+
+/**
  * Read the numeric `x-order` extension value from a raw property entry, if present.
  * The entry may be a schema or a `$ref` object, so we check membership before reading.
  */
 const getXOrder = (property: unknown): number | undefined => {
   if (property && typeof property === 'object' && 'x-order' in property) {
-    const order = Number((property as Record<string, unknown>)['x-order'])
+    const order = Number(property['x-order'])
     return Number.isNaN(order) ? undefined : order
   }
   return undefined
@@ -485,18 +551,16 @@ const handleObjectSchema = (
       (typeof schema.additionalProperties === 'object' && Object.keys(schema.additionalProperties).length === 0)
 
     // Check for explicit x-additionalPropertiesName first
-    const hasCustomName =
-      typeof additional === 'object' &&
-      'x-additionalPropertiesName' in additional &&
-      typeof additional['x-additionalPropertiesName'] === 'string' &&
-      additional['x-additionalPropertiesName'].trim().length > 0
+    const customName =
+      typeof additional === 'object' && 'x-additionalPropertiesName' in additional
+        ? additional['x-additionalPropertiesName']
+        : undefined
+    const hasCustomName = typeof customName === 'string' && customName.trim().length > 0
 
     // Use propertyNames enum values as example keys when no custom name is set
     const propertyNamesEnum = hasCustomName ? undefined : getPropertyNamesEnumValues(schema)
 
-    const additionalName = hasCustomName
-      ? (additional as unknown as Record<string, string>)['x-additionalPropertiesName']!.trim()
-      : DEFAULT_ADDITIONAL_PROPERTIES_NAME
+    const additionalName = hasCustomName ? customName.trim() : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
     const additionalValue = isAnyType
       ? 'anything'
@@ -520,7 +584,10 @@ const handleObjectSchema = (
   const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
   const oneOfAnyOf = compositionKeyword ? schema[compositionKeyword] : undefined
   if (compositionKeyword && oneOfAnyOf?.length) {
-    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, oneOfAnyOf.length) ?? 0
+    const index =
+      getCompositionSelectionIndex(schemaPath, compositionKeyword, options, oneOfAnyOf.length) ??
+      getDiscriminatorSelectionIndex(schema, oneOfAnyOf, options, response) ??
+      0
     const chosen = resolve.schema(oneOfAnyOf[index])
     if (chosen) {
       Object.assign(
@@ -555,7 +622,7 @@ const handleObjectSchema = (
       merged = mergeExamples(merged, ex)
     }
     if (merged && typeof merged === 'object') {
-      Object.assign(response, merged as Record<string, unknown>)
+      Object.assign(response, merged)
     }
   }
 
@@ -600,12 +667,7 @@ const handleArraySchema = (
   const wrapItems = !!(options?.xml && 'xml' in schema && schema.xml?.wrapped && itemsXmlTagName)
 
   if (schema.example !== undefined) {
-    return cache(
-      schema,
-      wrapItems ? { [itemsXmlTagName as string]: schema.example } : schema.example,
-      cacheKey,
-      skipCache,
-    )
+    return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example, cacheKey, skipCache)
   }
 
   if (items && typeof items === 'object') {
@@ -622,7 +684,7 @@ const handleArraySchema = (
           seen: itemsSeen,
           dynamicScope: childScope,
         })
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: merged }] : [merged], cacheKey, skipCache)
+        return cache(schema, wrapItems ? [{ [itemsXmlTagName]: merged }] : [merged], cacheKey, skipCache)
       }
 
       const examples = allOf
@@ -636,19 +698,16 @@ const handleArraySchema = (
           }),
         )
         .filter(isDefined)
-      return cache(
-        schema,
-        wrapItems ? (examples as unknown[]).map((e) => ({ [itemsXmlTagName as string]: e })) : examples,
-        cacheKey,
-        skipCache,
-      )
+      return cache(schema, wrapItems ? examples.map((e) => ({ [itemsXmlTagName]: e })) : examples, cacheKey, skipCache)
     }
 
     const compositionKeyword = items.oneOf ? 'oneOf' : items.anyOf ? 'anyOf' : undefined
     const union = compositionKeyword ? items[compositionKeyword] : undefined
     if (compositionKeyword && union && union.length > 0) {
       const selectedIndex =
-        getCompositionSelectionIndex(itemsSchemaPath, compositionKeyword, options, union.length) ?? 0
+        getCompositionSelectionIndex(itemsSchemaPath, compositionKeyword, options, union.length) ??
+        getDiscriminatorSelectionIndex(items, union, options) ??
+        0
       const selected = union[selectedIndex]!
       const ex = getExampleFromSchema(resolve.schema(selected), options, {
         level: level + 1,
@@ -657,7 +716,7 @@ const handleArraySchema = (
         seen: itemsSeen,
         dynamicScope: childScope,
       })
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
     }
   }
 
@@ -667,13 +726,13 @@ const handleArraySchema = (
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
   if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
-    const ex = getExampleFromSchema(items as SchemaObject, options, {
+    const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
       seen: itemsSeen,
       dynamicScope: childScope,
     })
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName as string]: ex }] : [ex], cacheKey, skipCache)
+    return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
   }
 
   return cache(schema, [], cacheKey, skipCache)
@@ -739,6 +798,14 @@ type GetExampleFromSchemaOptions = {
   variables?: Record<string, unknown>
   /** Whether to omit empty and optional properties. */
   omitEmptyAndOptionalProperties?: boolean
+  /**
+   * Whether to keep schemas annotated `deprecated: true`.
+   *
+   * `deprecated` says a field is discouraged, not that it is absent from the wire, so a caller
+   * that must produce a value satisfying the schema — a mock server response, for instance —
+   * sets this. Defaults to omitting, which is what a request-body form-filler wants.
+   */
+  includeDeprecated?: boolean
   /** Selected oneOf/anyOf variants keyed by schema path. */
   compositionSelection?: Record<string, number>
 }
@@ -751,10 +818,218 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
     mode: options?.mode,
     variables: options?.variables,
     omitEmptyAndOptionalProperties: options?.omitEmptyAndOptionalProperties,
+    // Load-bearing: `resultCache` is a module global keyed by schema identity plus this string, and
+    // the lookup happens before `shouldOmitProperty` runs. Without this entry an include-caller's
+    // populated object could be handed back to a default caller, and vice versa. `JSON.stringify`
+    // drops `undefined`, so existing callers' keys stay byte-identical.
+    includeDeprecated: options?.includeDeprecated,
     compositionSelection: options?.compositionSelection
       ? Object.entries(options.compositionSelection).sort(([a], [b]) => a.localeCompare(b))
       : undefined,
   })
+
+/** Stand-in for a truncated schema whose shape cannot be read off the document. */
+const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
+
+/** How long a chain of composition wrappers may be unwrapped before the stack becomes the concern. */
+const MAX_COMPOSITION_DEPTH = MAX_LEVELS_DEEP * 5
+
+/** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
+const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
+  if (!('type' in schema) || !schema.type) {
+    return []
+  }
+  return Array.isArray(schema.type) ? schema.type : [schema.type]
+}
+
+/** Return the empty container a schema declares, or `undefined` when it declares neither. */
+const getEmptyContainer = (schema: SchemaObject): Record<string, never> | never[] | undefined => {
+  const types = getDeclaredTypes(schema)
+
+  if ('properties' in schema || types.includes('object')) {
+    return {}
+  }
+  if ('items' in schema || types.includes('array')) {
+    return []
+  }
+  return undefined
+}
+
+/** Pick the `oneOf`/`anyOf` variant the walk itself would have rendered, honoring an explicit selection. */
+const getSelectedVariant = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+): SchemaObject | undefined => {
+  const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
+  const variants = compositionKeyword ? schema[compositionKeyword] : undefined
+  if (!compositionKeyword || !Array.isArray(variants) || variants.length === 0) {
+    return undefined
+  }
+
+  const index =
+    getCompositionSelectionIndex(schemaPath, compositionKeyword, options, variants.length) ??
+    getDiscriminatorSelectionIndex(schema, variants, options)
+  const candidate =
+    index !== undefined
+      ? variants[index]
+      : variants.find((variant) => {
+          const resolved = resolve.schema(variant)
+          return resolved && (!('type' in resolved) || resolved.type !== 'null')
+        })
+
+  return candidate ? resolve.schema(candidate) : undefined
+}
+
+/**
+ * Return the value a schema states outright, in the order the walk prefers them.
+ *
+ * The walk applies this before the cap, so a truncated schema has already had its turn — but a
+ * composition member reached from below the cap has not, and answering an `allOf`-wrapped enum with an
+ * empty string hands back a value that very schema forbids.
+ */
+const getDeclaredValue = (schema: SchemaObject): unknown => {
+  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
+    return schema.examples[0]
+  }
+  if (schema.example !== undefined) {
+    return schema.example
+  }
+  if (schema.default !== undefined) {
+    const normalizedDefault = normalizeSchemaDefault(schema)
+    if (normalizedDefault !== INVALID_DEFAULT) {
+      return normalizedDefault
+    }
+  }
+  if (schema.const !== undefined) {
+    return schema.const
+  }
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+    return schema.enum[0]
+  }
+  return undefined
+}
+
+/**
+ * Describe a composed schema by the member the walk itself would have rendered.
+ * Returns `undefined` when no member describes a shape.
+ */
+const describeComposition = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  seen: Set<object>,
+): unknown => {
+  const variant = getSelectedVariant(schema, options, schemaPath)
+  if (variant) {
+    return getMaxDepthValue(variant, options, schemaPath, seen)
+  }
+
+  if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
+    return undefined
+  }
+
+  // `allOf` merges every member, so merge their truncated values the same way. Members that describe
+  // nothing contribute nothing rather than clobbering the ones that do.
+  let merged: unknown = undefined
+  let choiceIndex = 0
+  for (const member of schema.allOf) {
+    const resolved = resolve.schema(member)
+    // Each direct choice member gets its own ordinal in the path, the same way the walk keys them, so
+    // an explicit selection on an `allOf`-wrapped `oneOf` still resolves here.
+    const isChoiceMember = !!resolved && (Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf))
+    const memberSchemaPath = isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath
+    const value = resolved ? getMaxDepthValue(resolved, options, memberSchemaPath, seen) : undefined
+    if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
+      merged = mergeExamples(merged, value)
+    }
+  }
+
+  return merged
+}
+
+/**
+ * Build the value that stands in for a schema the recursion depth cap cut off.
+ *
+ * The stand-in is still read as an example of the schema it replaced, so a plain string makes the
+ * example contradict its own type: a mock server answering a `type: object` field with
+ * `[Max Depth Exceeded]` hands a strict SDK decoder a body it cannot parse. Describe the declared
+ * type instead, dispatching in the order the walk does, so a truncated value differs from a full render
+ * in having no children. A schema that describes no shape at all keeps the sentinel, which is then the
+ * only signal that truncation happened.
+ *
+ * Two deliberate departures from the walk, both answering with the declared container where the walk
+ * answers `null`: a container spelled as a list (`type: ['object']`, or `['object', 'null']`) is read
+ * here as the container it names, where the walk's strict comparison misses it.
+ *
+ * The value is empty rather than complete: satisfying `required` or `minItems` means descending
+ * again, which is exactly what the cap exists to prevent.
+ */
+const getMaxDepthValue = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  seen: Set<object> = new Set(),
+): unknown => {
+  // A stated value beats any stand-in, and matches what a full render would have produced.
+  const declared = getDeclaredValue(schema)
+  if (declared !== undefined) {
+    return declared
+  }
+
+  const container = getEmptyContainer(schema)
+  if (container !== undefined) {
+    // Children were dropped here, so anything assembled around this value is level-bound too.
+    truncated = true
+    return container
+  }
+
+  // A schema with no children renders the same at every level, so nothing is lost and the cache stays
+  // usable for the rest of the call.
+  const makeUpRandomData = !!options?.emptyString
+  const primitive = getPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  if (primitive !== undefined) {
+    return primitive
+  }
+
+  // A wrapper such as `allOf: [$ref]` declares no type of its own, so describe its members instead.
+  // Unwrapping runs outside the walk's own cycle guard, so it carries one: refusing to re-enter a
+  // wrapper already on the path terminates a self-reference without capping how long a legitimate
+  // inheritance chain may be. `seen` holds exactly the path, so its size bounds the stack against a
+  // pathological chain, the way `schemaAllowsValue` bounds its own recursion.
+  const target = getSchemaCacheTarget(schema)
+  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH) {
+    seen.add(target)
+    const composed = describeComposition(schema, options, schemaPath, seen)
+    seen.delete(target)
+
+    if (composed !== undefined) {
+      return composed
+    }
+  } else {
+    // A description declined is never the value a full render would have produced.
+    truncated = true
+  }
+
+  const unionPrimitive = getUnionPrimitiveValue(schema, makeUpRandomData, options?.emptyString)
+  if (unionPrimitive !== undefined) {
+    return unionPrimitive
+  }
+
+  // A schema that declares `null` has exactly one valid value, which is what the walk falls back to.
+  if (getDeclaredTypes(schema).includes('null')) {
+    return null
+  }
+
+  // A composition or a negative constraint none of the above could describe still says something about
+  // the value, and the walk answers both with `null` rather than a value of no particular type.
+  if (isComposed(schema) || 'not' in schema) {
+    return null
+  }
+
+  truncated = true
+  return MAX_DEPTH_EXCEEDED
+}
 
 /**
  * Generate an example value from a given OpenAPI SchemaObject.
@@ -792,6 +1067,11 @@ export const getExampleFromSchema = (
     dynamicScope: DynamicScope
   }> = {},
 ): unknown => {
+  // A truncation only taints the call it happened in, so every top-level call starts clean.
+  if (level === 0) {
+    truncated = false
+  }
+
   // Resolve any $ref references to get the actual schema
   const _schema = resolve.schema(schema)
   if (!isDefined(_schema)) {
@@ -842,16 +1122,10 @@ export const getExampleFromSchema = (
     }
   }
 
-  // Prevent infinite recursion in circular references
-  if (level > MAX_LEVELS_DEEP) {
-    seen.delete(targetValue)
-    return '[Max Depth Exceeded]'
-  }
-
   // Determine if we should generate realistic example data
   const makeUpRandomData = !!options?.emptyString
 
-  // Early exits for schemas that should not be included (deprecated, readOnly, writeOnly, omitEmptyAndOptionalProperties)
+  // Early exits for schemas that should not be included (deprecated unless opted in, readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (shouldOmitProperty(_schema, parentSchema, name, options)) {
     seen.delete(targetValue)
     return undefined
@@ -897,6 +1171,16 @@ export const getExampleFromSchema = (
     return cache(_schema, _schema.enum[0], cacheKey, skipCache)
   }
 
+  // Stop descending once the walk is too deep to keep going, which also breaks circular references.
+  // Everything above still applied, so an explicit example, `const` or `enum` wins here as it would at
+  // any other level; only the children are given up on.
+  if (level > MAX_LEVELS_DEEP) {
+    seen.delete(targetValue)
+
+    // Deliberately not cached: the value holds only at this level, and the cache key carries none.
+    return getMaxDepthValue(_schema, options, schemaPath)
+  }
+
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
     const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
@@ -922,7 +1206,9 @@ export const getExampleFromSchema = (
   const compositionKeyword = _schema.oneOf ? 'oneOf' : _schema.anyOf ? 'anyOf' : undefined
   const discriminate = compositionKeyword ? _schema[compositionKeyword] : undefined
   if (compositionKeyword && Array.isArray(discriminate) && discriminate.length > 0) {
-    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, discriminate.length)
+    const index =
+      getCompositionSelectionIndex(schemaPath, compositionKeyword, options, discriminate.length) ??
+      getDiscriminatorSelectionIndex(_schema, discriminate, options)
     const candidate =
       index !== undefined
         ? discriminate[index]

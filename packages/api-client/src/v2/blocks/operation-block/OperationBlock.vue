@@ -125,8 +125,8 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type {
   OpenApiDocument,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
@@ -465,6 +465,7 @@ const handleExecute = async () => {
     await executeHook(
       {
         response: sendResult.originalResponse.clone(),
+        responseDuration: sendResult.response.duration,
         requestBuilder,
         request: buildSafeBodyRequest(...sendResult.requestPayload),
         document,

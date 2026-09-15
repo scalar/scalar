@@ -58,7 +58,7 @@ const getPathsChangedSinceBase = async (baseBranch: string): Promise<Set<string>
     return new Set(paths)
   } catch (error) {
     console.warn(
-      `Could not read git diff for release-notes filtering: ${(error as Error).message}. Generating for all registered products.`,
+      `Could not read git diff for release-notes filtering: ${error instanceof Error ? error.message : String(error)}. Generating for all registered products.`,
     )
     return null
   }

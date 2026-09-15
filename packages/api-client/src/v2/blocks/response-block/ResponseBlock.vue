@@ -65,12 +65,12 @@ const activeFilter = ref<Filter>('All')
 
 const filters = computed<Filter[]>(() => ['All', ...responseSections])
 
-const filterIds = computed(
-  () =>
-    Object.fromEntries(
-      filters.value.map((section) => [section, useId()]),
-    ) as Record<Filter, string>,
-)
+const filterIds = computed<Record<Filter, string>>(() => ({
+  All: useId(),
+  Cookies: useId(),
+  Headers: useId(),
+  Body: useId(),
+}))
 
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000

@@ -49,7 +49,7 @@ const headingId = useId()
     :static="isStatic">
     <!-- We use this hack to emit the slot value back to the parent -->
     <ValueEmitter
-      :value="open as boolean"
+      :value="open"
       @change="(value) => emit('update:modelValue', value)" />
 
     <section

@@ -101,7 +101,10 @@ function handleFileList(fileList?: FileList | null) {
 
 /** Handles the change event from the input */
 function handleChange(event: Event) {
-  const f = (event.target as HTMLInputElement).files
+  if (!(event.target instanceof HTMLInputElement)) {
+    return
+  }
+  const f = event.target.files
   handleFileList(f)
 }
 

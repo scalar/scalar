@@ -72,7 +72,7 @@ export const createApiClientModal = ({
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
 
   /** This is to ensure that the options are a ref if they are not already, useful for react */
-  const optionsRef = (isRef(options) ? options : ref(toValue(options))) as ApiClientOptionsRef
+  const optionsRef: ApiClientOptionsRef = isRef(options) ? options : ref(toValue(options))
 
   const defaultEntities: DefaultEntities = {
     path: 'default',

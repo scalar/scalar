@@ -4,7 +4,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   HeaderObject,
   OpenApiDocument,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 

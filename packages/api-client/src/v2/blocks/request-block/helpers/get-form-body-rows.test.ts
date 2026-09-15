@@ -1,9 +1,42 @@
-import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
-import { getFormBodyRows } from './get-form-body-rows'
+import { getFormBodyRows, getFormBodyValue } from './get-form-body-rows'
 
 describe('getFormBodyRows', () => {
+  it.each(
+    (['allOf', 'oneOf', 'anyOf'] as const).flatMap((composition) =>
+      ['multipart/form-data', 'application/x-www-form-urlencoded'].map((contentType) => ({
+        composition,
+        contentType,
+      })),
+    ),
+  )('keeps $composition fields enabled for $contentType until explicitly disabled', ({ composition, contentType }) => {
+    const modeSchema: SchemaObject = { type: 'string', enum: ['none', 'fast'], description: 'Processing mode' }
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: { mode: modeSchema },
+      // The builder preserves composed fields because a member can require them.
+      [composition]: [{ required: ['mode'] }],
+    }
+
+    expect(getFormBodyRows({ value: { mode: 'none' } }, contentType, schema)).toStrictEqual([
+      {
+        name: 'mode',
+        value: 'none',
+        isDisabled: false,
+        schema: modeSchema,
+        description: 'Processing mode',
+        isRequired: false,
+      },
+    ])
+    expect(
+      getFormBodyRows({ value: [{ name: 'mode', value: 'fast', isDisabled: true }] }, contentType, schema).map(
+        ({ name, value, isDisabled }) => ({ name, value, isDisabled }),
+      ),
+    ).toStrictEqual([{ name: 'mode', value: 'fast', isDisabled: true }])
+  })
+
   it('returns empty array when example is null, undefined, or missing value', () => {
     expect(getFormBodyRows(null, 'multipart/form-data')).toEqual([])
     expect(getFormBodyRows(undefined, 'multipart/form-data')).toEqual([])
@@ -323,6 +356,46 @@ describe('getFormBodyRows', () => {
       expect(byName['mode']?.isDisabled).toBe(true)
     })
 
+    it('marks auto-disabled optional properties as disabled by default so typing enables them (issue #10145)', () => {
+      // isDisabledByDefault lets RequestTableRow auto-enable a row when the user types a value,
+      // mirroring how optional parameters behave. Required rows are enabled, so it stays unset.
+      const example: ExampleObject = { value: { name: '', note: '' } }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          note: { type: 'string' },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      const byName = Object.fromEntries(result.map((row) => [row.name, row]))
+
+      expect(byName['note']?.isDisabledByDefault).toBe(true)
+      expect(byName['name']?.isDisabledByDefault).toBe(false)
+    })
+
+    it('does not mark a row from a stored form-row array as disabled by default (issue #10145)', () => {
+      // An explicit isDisabled means the user already decided, so the row is not disabled by
+      // default and must not auto-enable on typing.
+      const example: ExampleObject = {
+        value: [{ name: 'note', value: '', isDisabled: true }],
+      }
+      const formBodySchema: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          note: { type: 'string' },
+        },
+      }
+
+      const result = getFormBodyRows(example, 'application/x-www-form-urlencoded', formBodySchema)
+      expect(result[0]?.isDisabled).toBe(true)
+      expect(result[0]?.isDisabledByDefault).toBeUndefined()
+    })
+
     it('keeps an explicit isDisabled from a stored form-row array (issue #10045)', () => {
       // Once the user checks an optional box the value is stored as a row array with an
       // explicit isDisabled, which must win over the schema-derived default.
@@ -624,4 +697,43 @@ describe('getFormBodyRows', () => {
       expect(result[0].isRequired).toBe(false)
     })
   })
+  it('retains example-only arrays through repeated form-table round trips', () => {
+    const original = { value: { tags: ['a', 'b'], items: [{ id: 1 }, { id: 2 }], empty: [] } }
+    const first = getFormBodyRows(original, 'multipart/form-data')
+    const stored = first.map((row) => ({ name: row.name, value: getFormBodyValue(row), isDisabled: false }))
+    expect(stored).toEqual([
+      { name: 'tags', value: ['a', 'b'], isDisabled: false },
+      { name: 'items', value: [{ id: 1 }, { id: 2 }], isDisabled: false },
+      { name: 'empty', value: [], isDisabled: false },
+    ])
+    expect(getFormBodyRows({ value: stored }, 'multipart/form-data')).toEqual(first)
+  })
+
+  it('preserves invalid array text and literal JSON string fields', () => {
+    expect(getFormBodyValue({ name: 'items', value: '[invalid', schema: { type: 'array' } })).toBe('[invalid')
+    expect(getFormBodyValue({ name: 'literal', value: '["a"]', schema: { type: 'string' } })).toBe('["a"]')
+    expect(getFormBodyValue({ name: 'literal', value: '["a"]' })).toBe('["a"]')
+  })
+
+  it('renders an array of files as repeated rows retaining the actual files', () => {
+    const first = new File(['one'], 'one.txt')
+    const second = new File(['two'], 'two.txt')
+    const rows = getFormBodyRows({ value: { files: [first, second] } }, 'multipart/form-data')
+    expect(rows).toEqual([
+      { name: 'files', value: first, isDisabled: false },
+      { name: 'files', value: second, isDisabled: false },
+    ])
+    expect(rows.map(getFormBodyValue)).toEqual([first, second])
+  })
+  it.each([{}, { oneOf: [{ type: 'array' }, { type: 'string' }] }, { type: ['array', 'string'] }])(
+    'retains actual arrays with an unconstrained or union schema %j',
+    (schema) => {
+      const rows = getFormBodyRows({ value: { tags: ['a', 'b'] } }, 'multipart/form-data', {
+        type: 'object',
+        // OpenAPI permits schemas without a type, unlike the normalized internal type.
+        properties: { tags: schema as SchemaObject },
+      })
+      expect(rows.map(getFormBodyValue)).toEqual([['a', 'b']])
+    },
+  )
 })

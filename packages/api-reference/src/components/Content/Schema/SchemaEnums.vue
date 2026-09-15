@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, ref } from 'vue'
 
 import { useLocalization } from '@/features/localization'
@@ -122,7 +122,7 @@ const getEnumValueDescription = (
   }
 
   if (typeof descriptions === 'object' && descriptions !== null) {
-    return (descriptions as Record<string, string>)[String(enumValue)]
+    return descriptions[String(enumValue)]
   }
 
   return undefined
@@ -160,8 +160,8 @@ const toggleExpanded = () => {
     <div class="property-enum-header text-c-2 px-3 py-2 text-sm capitalize">
       {{
         propertyNames
-          ? translate('common.propertyNames')
-          : translate('common.values')
+          ? translate('schema.propertyNames')
+          : translate('schema.values')
       }}
     </div>
     <div
@@ -212,8 +212,8 @@ const toggleExpanded = () => {
             :open="isExpanded" />
           {{
             isExpanded
-              ? translate('common.hideValues')
-              : translate('common.showAllValues')
+              ? translate('schema.hideValues')
+              : translate('schema.showAllValues')
           }}
         </button>
       </li>

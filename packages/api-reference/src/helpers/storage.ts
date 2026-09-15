@@ -23,7 +23,7 @@ export const clientStorage = () => {
      * @param value The value to store
      */
     set: (value: string) => {
-      storage.setItem(key, value as string)
+      storage.setItem(key, value)
     },
   }
 }

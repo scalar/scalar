@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
 import { compareVersions } from '@scalar/helpers/general/compare-versions'
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 
 import { type ReleaseNote, releaseNoteSchema } from '../types'
 
@@ -25,7 +26,7 @@ export const readReleaseNotesJsonFile = async (path: string): Promise<ReleaseNot
   try {
     raw = await readFile(path, 'utf-8')
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if (isObjectLike(error) && error.code === 'ENOENT') {
       throw new Error(`Release notes JSON not found: ${path}`)
     }
     throw error
@@ -35,7 +36,7 @@ export const readReleaseNotesJsonFile = async (path: string): Promise<ReleaseNot
   try {
     parsed = JSON.parse(raw)
   } catch (error) {
-    throw new Error(`Could not parse ${path} as JSON: ${(error as Error).message}`)
+    throw new Error(`Could not parse ${path} as JSON: ${error instanceof Error ? error.message : String(error)}`)
   }
 
   if (!Array.isArray(parsed)) {
@@ -118,7 +119,7 @@ const readJsonIfExists = async (path: string): Promise<ReleaseNote[] | null> => 
   try {
     raw = await readFile(path, 'utf-8')
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if (isObjectLike(error) && error.code === 'ENOENT') {
       return null
     }
     throw error
@@ -128,7 +129,9 @@ const readJsonIfExists = async (path: string): Promise<ReleaseNote[] | null> => 
   try {
     parsed = JSON.parse(raw)
   } catch (error) {
-    console.warn(`Could not parse ${path} as JSON; treating as empty. ${(error as Error).message}`)
+    console.warn(
+      `Could not parse ${path} as JSON; treating as empty. ${error instanceof Error ? error.message : String(error)}`,
+    )
     return []
   }
 

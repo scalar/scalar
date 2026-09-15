@@ -7,7 +7,7 @@ import {
   pathItemIsEmpty,
 } from '@/helpers/for-each-path-item-operation'
 import type { NodeInput } from '@/helpers/get-resolved-ref'
-import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
+import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
 
 describe('getResolvedPathItem', () => {
   it('includes parameters declared alongside a path $ref on the paths map', () => {

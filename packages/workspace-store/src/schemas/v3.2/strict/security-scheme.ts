@@ -1,23 +1,29 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
 import type { OAuthFlowsObject } from '@/schemas/v3.2/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.2/strict/ref-definitions'
 
-const DescriptionSchema = Type.Object({
-  /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-  description: Type.Optional(Type.String()),
-  /** Declares this security scheme to be deprecated. Consumers SHOULD refrain from usage of the declared scheme. Added in OpenAPI 3.2. */
-  deprecated: Type.Optional(Type.Boolean()),
-})
+// Shared base for every security scheme: a description plus the ignore extension, so any
+// scheme can be hidden from the auth UI with `x-scalar-ignore`. See documentation/openapi.md.
+const DescriptionSchema = compose(
+  Type.Object({
+    /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
+    description: Type.Optional(Type.String()),
+    /** Declares this security scheme to be deprecated. Consumers SHOULD refrain from usage of the declared scheme. Added in OpenAPI 3.2. */
+    deprecated: Type.Optional(Type.Boolean()),
+  }),
+  XScalarIgnoreSchema,
+)
 
 type Description = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   /** Declares this security scheme to be deprecated. Consumers SHOULD refrain from usage of the declared scheme. Added in OpenAPI 3.2. */
   deprecated?: boolean
-}
+} & XScalarIgnore
 
 const ApiKeySchema = compose(
   DescriptionSchema,

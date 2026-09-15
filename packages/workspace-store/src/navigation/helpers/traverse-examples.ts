@@ -1,5 +1,5 @@
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { OperationObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /**
  * Traverse the OpenAPI operation object and extract all example values.
@@ -14,7 +14,7 @@ export const traverseOperationExamples = (operation: OperationObject) => {
   if (operation.requestBody) {
     const requestBody = getResolvedRef(operation.requestBody)
 
-    Object.values(requestBody.content ?? {}).forEach((mediaType) => {
+    Object.values(requestBody?.content ?? {}).forEach((mediaType) => {
       Object.keys(mediaType.examples ?? {}).forEach((key) => {
         examples.add(key)
       })

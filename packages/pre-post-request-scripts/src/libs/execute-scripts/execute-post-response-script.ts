@@ -16,6 +16,8 @@ export const executePostResponseScript = async (
   data: {
     requestBuilder: RequestFactory
     response: Response
+    /** Request duration in milliseconds. */
+    responseDuration?: number
     onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
     variablesStore?: VariablesStore
   },
@@ -29,6 +31,7 @@ export const executePostResponseScript = async (
     context: {
       requestBuilder: data.requestBuilder,
       response: data.response,
+      responseDuration: data.responseDuration,
       scriptConsole: createConsoleContext(),
       variablesStore: data.variablesStore,
     },

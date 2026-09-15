@@ -40,7 +40,7 @@ export const getSnippet = <T extends TargetId>(
     const snippetzTargetKey = target.replace('javascript', 'js') as TargetId
 
     if (snippetz().hasPlugin(snippetzTargetKey, client)) {
-      const payload = snippetz().print(snippetzTargetKey, client as ClientId<TargetId>, harRequest)
+      const payload = snippetz().print(snippetzTargetKey, client, harRequest)
       if (!payload) {
         return [new Error('Error generating snippet'), null]
       }

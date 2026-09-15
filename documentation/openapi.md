@@ -1,6 +1,6 @@
 # OpenAPI Specification
 
-We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
+We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0, OpenAPI 3.1 or OpenAPI 3.2 specification](https://github.com/OAI/OpenAPI-Specification).
 
 On top of that, we've added a few things for your convenience:
 
@@ -213,6 +213,49 @@ A few things to keep in mind:
 - Relative URLs (like the one above) are resolved against the URL your document was loaded from.
 - The referenced URL must be reachable by the browser (CORS applies), and should return JSON or YAML.
 
+## Nested tags (OpenAPI 3.2)
+
+In OpenAPI 3.2, you can nest tags with the native `parent` field instead of `x-tagGroups`. Set `parent` to the `name` of another tag declared in the document. Tags can be nested across multiple levels, and a parent tag can have operations of its own alongside its child tags.
+
+Use `summary` for a readable tag title in the navigation and section headings. Operations still reference the tag's `name`. If `x-displayName` is also set, it takes precedence over `summary`.
+
+```yaml
+openapi: 3.2.0
+info:
+  title: Example
+  version: '1.0.0'
+tags:
+  - name: galaxy
+    summary: Galaxy
+  - name: planets
+    summary: Planets
+    parent: galaxy
+  - name: moons
+    summary: Moons
+    parent: planets
+paths:
+  /planets:
+    get:
+      summary: Get all planets
+      tags:
+        - planets
+      responses:
+        '200':
+          description: A list of planets
+  /moons:
+    get:
+      summary: Get all moons
+      tags:
+        - moons
+      responses:
+        '200':
+          description: A list of moons
+```
+
+This creates the hierarchy **Galaxy → Planets → Moons**. The Planets section contains both its own operation and the nested Moons section.
+
+When at least one `parent` relationship points to a declared tag without forming a cycle, Scalar uses native nesting for the document instead of `x-tagGroups`. Unknown parents, self-references, and circular relationships do not create nesting. If no valid nesting relationship remains, Scalar falls back to `x-tagGroups`.
+
 ## x-displayName
 
 You can overwrite tag names with `x-displayName`.
@@ -235,7 +278,7 @@ paths:
 
 ## x-tagGroups
 
-You can group your tags with `x-tagGroups`.
+You can group your tags with `x-tagGroups`. This remains supported for existing API descriptions and OpenAPI versions before 3.2. For OpenAPI 3.2, use [native nested tags](#nested-tags-openapi-32) with `parent` instead.
 
 ```diff
 openapi: 3.1.0

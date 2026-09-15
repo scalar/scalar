@@ -53,15 +53,6 @@ export default defineConfig({
     baseURL: CI || isLinux ? 'http://localhost:6006/' : 'http://host.docker.internal:6006/',
     /** Use a smaller viewport for isolated components */
     viewport: { width: 800, height: 600 },
-    /**
-     * Render text the same way on every machine so screenshots do not flake when a job
-     * lands on a different CI host. Turning off font hinting and Skia runtime optimizations
-     * keeps text rasterization identical across CPUs, and pinning the color profile keeps
-     * colors stable.
-     */
-    launchOptions: {
-      args: ['--font-render-hinting=none', '--disable-skia-runtime-opts', '--force-color-profile=srgb'],
-    },
     /** Save a screenshot on failure */
     screenshot: { mode: 'only-on-failure' },
   },

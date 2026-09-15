@@ -44,8 +44,9 @@ export type ValidateResult =
     }
 
 export type UpgradeResult<T extends OpenApiDocument = OpenApiDocument> = {
-  specification: T
-  version: '3.1'
+  specification: T | null
+  /** The resulting version, absent when the input has no supported version. */
+  version?: '3.1' | '3.2'
 }
 
 export type FilterResult = {

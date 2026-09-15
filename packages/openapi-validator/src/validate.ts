@@ -3,6 +3,7 @@ import type { AnyObject } from '@scalar/types/utils'
 
 import { detectVersion } from '@/detect-version'
 import { ERRORS } from '@/errors'
+import { explainComponentReferences } from '@/explain-component-references'
 import { OpenApiSpecifications, type OpenApiVersion } from '@/specifications'
 import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
 import { validatePathParameters } from '@/validate-path-parameters'
@@ -30,6 +31,7 @@ const validateDocument = createSpecificationValidator<OpenApiVersion, ValidateOp
   // OpenAPI 3.1 and 3.2 use the media-range format.
   formats: (version) => (version === '3.1' || version === '3.2' ? { 'media-range': true } : undefined),
   errors: { emptyOrInvalid: ERRORS.EMPTY_OR_INVALID, versionNotSupported: ERRORS.OPENAPI_VERSION_NOT_SUPPORTED },
+  transformErrors: explainComponentReferences,
   // Path-template semantics that the JSON schema cannot express. These need a
   // fully resolved document (a path parameter can be declared via `$ref`), so
   // they are opt-in: callers that resolve references first can enable them.

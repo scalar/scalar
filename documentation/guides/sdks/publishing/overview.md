@@ -156,4 +156,9 @@ Connect each target to a repository so builds sync to it. See [GitHub Repositori
 Register a trusted publisher or add the required secrets for your registry. See [Package Registries](registries.md).
 
   </scalar-step>
+  <scalar-step id="next-private" title="Publish to an internal registry" interactivity="none">
+
+Artifactory, AWS CodeArtifact, Nexus, and the like are published from a workflow your repository owns, which Scalar carries forward on every build. See [Private Registries](private-registries.md).
+
+  </scalar-step>
 </scalar-steps>

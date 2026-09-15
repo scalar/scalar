@@ -4,7 +4,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   HeaderObject,
   OpenApiDocument,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
 import {
@@ -34,6 +34,17 @@ const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
     hideModels: boolean | undefined
   }>()
 const { translate } = useLocalization()
+
+const resolvedHeaders = computed(() =>
+  Object.fromEntries(
+    Object.entries(headers).flatMap(
+      ([name, header]): [string, HeaderObject][] => {
+        const resolved = getResolvedRef(header)
+        return resolved ? [[name, resolved]] : []
+      },
+    ),
+  ),
+)
 
 /**
  * This group owns tree rows but sits beside the schema tree rather than inside
@@ -80,7 +91,7 @@ const countId = useId()
 
 const countLabel = computed(() =>
   translate('schema.headerCount', {
-    count: String(Object.keys(headers).length),
+    count: String(Object.keys(resolvedHeaders.value).length),
   }),
 )
 </script>
@@ -131,14 +142,14 @@ const countLabel = computed(() =>
            list semantics. -->
       <ul role="list">
         <template
-          v-for="(header, key) in headers"
+          v-for="(header, key) in resolvedHeaders"
           :key="key">
           <Header
             :breadcrumb="headersBreadcrumb"
             :document="document"
             :eventBus="eventBus"
             :expandAllSchemaProperties="expandAllSchemaProperties"
-            :header="getResolvedRef(header)"
+            :header="header"
             :hideModels="hideModels"
             :name="key"
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"

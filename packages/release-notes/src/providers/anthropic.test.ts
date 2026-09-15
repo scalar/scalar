@@ -40,4 +40,21 @@ describe('anthropic', () => {
       }),
     ).rejects.toThrow('Anthropic API call failed (429): rate limited')
   })
+  it.each([null, { content: 'invalid' }, { content: [{ type: 'text', text: 42 }] }])(
+    'rejects malformed response fields: %j',
+    async (body) => {
+      const provider = createAnthropicProvider({
+        apiKey: 'test-key',
+        fetchImpl: async () => new Response(JSON.stringify(body)),
+      })
+      await expect(
+        provider.generateJson({
+          systemPrompt: 'system',
+          userPrompt: 'user',
+          schema: {},
+          maxOutputTokens: 1024,
+        }),
+      ).rejects.toThrow('Anthropic API returned a malformed response')
+    },
+  )
 })

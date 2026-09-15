@@ -143,10 +143,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
   // Only the instructions honor `logger` (on by default); the util still prints warnings and errors
   // about security schemes the mock server cannot handle, which a silenced startup should surface.
-  logAuthenticationInstructions(
-    schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
-    resolveLogger(configuration.logger, true),
-  )
+  logAuthenticationInstructions(schema?.components?.securitySchemes || {}, resolveLogger(configuration.logger, true))
 
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}

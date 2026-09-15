@@ -1,0 +1,10 @@
+@import "@scalar/themes/style.css";
+@import "@scalar/themes/tailwind.css";
+
+.scalar-app {
+  @import "tailwindcss/utilities.css";
+}
+
+body {
+  margin: 0;
+}

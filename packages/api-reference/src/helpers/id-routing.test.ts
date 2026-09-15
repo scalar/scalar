@@ -10,6 +10,7 @@ import {
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
+  resolveHashPrefix,
   sanitizeBasePath,
 } from './id-routing'
 
@@ -838,6 +839,35 @@ describe('makeUrlFromId', () => {
     const result = makeUrlFromId('///', undefined, true)
     expect(result?.hash).toBe('#///')
   })
+
+  it('replaces the previous section in ordinary hash routing', () => {
+    window.location.href = 'https://example.com/#tag/users'
+    expect(makeUrlFromId('doc/tag/payers', undefined, false)?.hash).toBe('#tag/payers')
+  })
+
+  it.each([false, true])('preserves the detected host prefix across navigation (multi-document: %s)', (multi) => {
+    const ids = ['doc', 'doc/tag/users', 'doc/tag/payers']
+    const prefix = resolveHashPrefix('docs/api-spec', ids, multi)
+    const basePath = `#${prefix}`
+    window.location.href = 'https://example.com/#docs/api-spec'
+
+    const first = makeUrlFromId('doc/tag/users', basePath, multi)!
+    window.location.href = first.href
+    const next = makeUrlFromId('doc/tag/payers', basePath, multi)!
+    expect(next.hash).toBe(multi ? '#docs/api-spec/doc/tag/payers' : '#docs/api-spec/tag/payers')
+    expect(makeHrefFromId('doc/tag/payers', basePath, multi)).toBe(next.hash)
+
+    // Reopening a copied link resolves to the same navigation entry.
+    const reopenedPrefix = resolveHashPrefix(decodeURIComponent(next.hash.slice(1)), ids, multi)
+    expect(reopenedPrefix).toBe(prefix)
+    expect(getIdFromUrl(next, `#${reopenedPrefix}`, multi ? undefined : 'doc')).toBe('doc/tag/payers')
+    expect(getIdFromUrl(first, basePath, multi ? undefined : 'doc')).toBe('doc/tag/users')
+
+    window.location.href = next.href
+    const overview = makeUrlFromId('doc', basePath, multi)!
+    expect(overview.hash).toBe(multi ? '#docs/api-spec/doc' : '#docs/api-spec')
+    expect(getIdFromUrl(overview, basePath, multi ? undefined : 'doc')).toBe('doc')
+  })
 })
 
 describe('makeHrefFromId', () => {
@@ -1296,5 +1326,24 @@ describe('redirectUrl', () => {
 
   it('returns null when the document slug is empty', () => {
     expect(redirectUrl('https://example.com/#default/model/User', 'models', '', true)).toBeNull()
+  })
+})
+
+describe('resolveHashPrefix', () => {
+  it.each([
+    ['', ['doc/tag/users'], false, ''],
+    ['tag/users', ['doc/tag/users'], false, ''],
+    ['docs/api-spec', ['doc', 'doc/tag/users'], false, 'docs/api-spec'],
+    ['docs/api-spec/tag/users', ['doc/tag/users'], false, 'docs/api-spec'],
+    ['docs/api-spec/doc/tag/users', ['doc/tag/users'], true, 'docs/api-spec'],
+    ['docs/api-spec/doc', ['doc'], true, 'docs/api-spec'],
+    ['docs/api-spec', ['doc'], false, 'docs/api-spec'],
+    ['app/docs/custom-heading', ['doc/custom-heading'], false, 'app/docs'],
+    ['app/tag/parent/tag/child', ['doc/tag/child', 'doc/tag/parent/tag/child'], false, 'app'],
+    ['docs/api-spec/tag/users/GET/users.responses.200.name', ['doc/tag/users/GET/users'], false, 'docs/api-spec'],
+    ['tag/users-extra', ['doc/tag/users'], false, 'tag/users-extra'],
+    ['docs/my api/tag/users', ['doc/tag/users'], false, 'docs/my api'],
+  ])('resolves %s against known navigation IDs', (hash, ids, multi, expected) => {
+    expect(resolveHashPrefix(hash, ids, multi)).toBe(expected)
   })
 })

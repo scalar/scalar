@@ -52,7 +52,10 @@ const setRailHover = (event: Event, on: boolean): void => {
     return
   }
 
-  const panel = (event.currentTarget as HTMLElement).parentElement
+  const panel =
+    event.currentTarget instanceof HTMLElement
+      ? event.currentTarget.parentElement
+      : null
 
   if (!panel) {
     return

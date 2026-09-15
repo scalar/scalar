@@ -1,6 +1,6 @@
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * Processes a server URL by replacing variables with their default values and merging with the path
@@ -16,14 +16,14 @@ export const processServerUrl = (server: ServerObject | null, path: string): str
     const variables = Object.entries(server.variables)
 
     // Extract default values from server variables
-    const defaultValues = variables.reduce(
+    const defaultValues = variables.reduce<Record<string, string | number>>(
       (defaults, [variableName, variableConfig]) => {
         if (variableConfig.default !== undefined) {
           defaults[variableName] = variableConfig.default
         }
         return defaults
       },
-      {} as Record<string, string | number>,
+      {},
     )
 
     // Replace variables in the server URL with their default values

@@ -81,7 +81,11 @@ export const fetchRequestToHar = async ({
   // Read the request body if requested
   const bodyDetails = await (async () => {
     if (includeBody && requestInit.body != null) {
-      const details = await processRequestBody(requestInit.body, mimeType)
+      const details = await processRequestBody(
+        requestInit.body,
+        _headers.get('content-type') ?? mimeType,
+        bodySizeLimit,
+      )
       if (details.size <= bodySizeLimit) {
         return details
       }
@@ -122,7 +126,18 @@ type BodyDetails = { text: string; size: number } | { params: { name: string; va
  * Because we own the RequestInit tuple we can inspect the body by type directly —
  * no stream cloning or header sniffing required.
  */
-const processRequestBody = async (body: BodyInit, contentType: string): Promise<BodyDetails> => {
+const processRequestBody = async (body: BodyInit, contentType: string, bodySizeLimit: number): Promise<BodyDetails> => {
+  if (body instanceof Blob && contentType.toLowerCase().startsWith('multipart/form-data;')) {
+    if (body.size > bodySizeLimit) {
+      return { text: '', size: -1 }
+    }
+    // Raw uploads can contain malformed multipart data. History must still record the response.
+    const form = await new Response(body, { headers: { 'content-type': contentType } })
+      .formData()
+      .catch(() => undefined)
+    return form ? { ...extractFormDataParams(form), size: body.size } : { text: '', size: -1 }
+  }
+
   // Structured form payloads become a params array so HAR viewers can render them as key/value tables
   if (body instanceof FormData) {
     return extractFormDataParams(body)

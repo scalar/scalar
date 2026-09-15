@@ -18,14 +18,14 @@ import type {
   OAuthFlowClientCredentials,
   OAuthFlowImplicit,
   OAuthFlowPassword,
-} from '@/schemas/v3.1/strict/oauth-flow'
+} from '@/schemas/v3.2/strict/oauth-flow'
 import type {
   ApiKeyObject,
   HttpObject,
   MutualTlsObject,
   OAuth2Object,
   OpenIdConnectObject,
-} from '@/schemas/v3.1/strict/security-scheme'
+} from '@/schemas/v3.2/strict/security-scheme'
 
 type OAuthFlowCommonSecret = XScalarSecretClientId &
   XScalarSecretToken &
@@ -59,7 +59,15 @@ export type OAuthFlowsObjectSecret = {
   authorizationCode?: OAuthFlowAuthorizationCodeSecret
 }
 
-export type ApiKeyObjectSecret = ApiKeyObject & XScalarSecretToken
+/** AsyncAPI API keys occupy broker credentials instead of an HTTP parameter. */
+export type BrokerApiKeyObject = {
+  type: 'apiKey'
+  in: 'user' | 'password'
+  name?: string
+  description?: string
+}
+
+export type ApiKeyObjectSecret = (ApiKeyObject | BrokerApiKeyObject) & XScalarSecretToken
 export type HttpObjectSecret = HttpObject & XScalarSecretHTTP & XScalarSecretToken
 /** Mutual TLS: the client certificate is presented at the TLS layer, so there is no secret to enter. */
 export type MutualTlsObjectSecret = MutualTlsObject

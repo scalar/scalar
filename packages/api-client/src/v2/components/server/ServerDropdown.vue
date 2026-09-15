@@ -29,7 +29,7 @@ import type {
   ApiReferenceEvents,
   ServerMeta,
 } from '@scalar/workspace-store/events'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'

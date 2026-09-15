@@ -12,7 +12,7 @@ import type {
   ParameterObject,
   ResponseObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
@@ -64,7 +64,7 @@ const truncated = ref(false)
 /** Responses and params may both have a schema */
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
-    ? getResolvedRef(parameter.schema)
+    ? (getResolvedRef(parameter.schema) ?? null)
     : null,
 )
 

@@ -41,7 +41,7 @@ export const getAsyncApiServerVariables = (server: AsyncApiServerObject | null):
 
   return objectEntries(server.variables).reduce<Record<string, string>>((acc, [name, variable]) => {
     const resolved = getResolvedRef(variable)
-    if (resolved.default != null) {
+    if (resolved?.default != null) {
       acc[String(name)] = String(resolved.default)
     }
     return acc
@@ -81,7 +81,7 @@ export const normalizeProtocol = (protocol: string | undefined): string | undefi
 export const getUrlSchemeFromProtocol = (protocol: string): string => protocol.trim().toLowerCase()
 
 export const isWebSocketProtocol = (protocol: string): protocol is AsyncApiWebSocketProtocol =>
-  (ASYNCAPI_WEBSOCKET_PROTOCOLS as readonly string[]).includes(protocol.trim().toLowerCase())
+  ASYNCAPI_WEBSOCKET_PROTOCOLS.some((scheme) => scheme === protocol.trim().toLowerCase())
 
 /**
  * Builds the server base URL: scheme, host, and optional pathname (no channel address).
@@ -111,7 +111,7 @@ const resolveWsBinding = (
   }
 
   const resolved = getResolvedRef(bindings)
-  return resolved.ws
+  return resolved?.ws
 }
 
 /** Merges channel and operation WebSocket bindings; operation fields override channel. */

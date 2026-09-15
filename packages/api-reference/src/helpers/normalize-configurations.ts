@@ -65,7 +65,7 @@ export const normalizeConfigurations = (
       // If config doesn't have sources array, treat the config itself as a source
       return [c]
     })
-    .map((source) => apiReferenceConfigurationWithSourceSchema(source) as ApiReferenceConfigurationWithSource)
+    .map<ApiReferenceConfigurationWithSource>((source) => apiReferenceConfigurationWithSourceSchema(source))
     /** Filter out configurations that failed validation or don't have a url or content */
     .filter(isConfigWithRequiredSource)
     /** Add required attributes to the source */

@@ -1,7 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import { getRefName } from './get-ref-name'
 import { type CompositionKeyword, compositions } from './schema-composition'
@@ -75,7 +75,7 @@ export const inferDiscriminatorMappingComposition = (
 
   return {
     ...resolve.schema(value),
-    oneOf: refs as NonNullable<SchemaObject['oneOf']>,
+    oneOf: refs,
   }
 }
 
@@ -88,12 +88,19 @@ export const inferDiscriminatorMappingComposition = (
 export const getCompositionsToRender = (
   value: SchemaObject | undefined,
   document?: DocumentSchemaLookup,
+  /**
+   * The `oneOf` inferred from a bare `discriminator.mapping`, when the caller has
+   * already computed it. `SchemaProperty` needs the same value to decide whether
+   * to suppress the duplicate base object block, so it passes it here to avoid
+   * inferring twice. Omit it and it is inferred from `value`.
+   */
+  inferredDiscriminatorComposition: SchemaObject | null = value
+    ? inferDiscriminatorMappingComposition(value, document)
+    : null,
 ): CompositionToRender[] => {
   if (!value) {
     return []
   }
-
-  const inferredDiscriminatorComposition = inferDiscriminatorMappingComposition(value, document)
 
   return compositions
     .map((composition) => {

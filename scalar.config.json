@@ -2507,6 +2507,12 @@
                         "title": "Package Registries",
                         "description": "Set up trusted publishing or secrets for npm, PyPI, Maven Central, and every supported registry."
                       },
+                      "private-registries": {
+                        "filepath": "documentation/guides/sdks/publishing/private-registries.md",
+                        "type": "page",
+                        "title": "Private Registries",
+                        "description": "Publish to Artifactory, AWS CodeArtifact, or any internal registry with a copy-paste workflow your repository owns."
+                      },
                       "typescript": {
                         "filepath": "documentation/guides/sdks/publishing/typescript.md",
                         "type": "page",
@@ -2672,6 +2678,30 @@
                     "type": "page",
                     "title": "Custom Code",
                     "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
+                  },
+                  "diagnostics": {
+                    "filepath": "documentation/guides/sdks/diagnostics.md",
+                    "type": "page",
+                    "title": "Diagnostics",
+                    "description": "How Scalar analyzes your OpenAPI document and SDK configuration on every build, what each rule checks for, and how to grade or suppress findings.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/diagnostics"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "How Scalar analyzes your OpenAPI document and SDK configuration on every build, what each rule checks for, and how to grade or suppress findings."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   },
                   "asyncapi": {
                     "filepath": "documentation/guides/sdks/asyncapi.md",

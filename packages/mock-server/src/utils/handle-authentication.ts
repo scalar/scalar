@@ -166,7 +166,7 @@ export function handleAuthentication(schema?: OpenAPIV3_1.Document, operation?: 
           return false
         }
 
-        return isSchemeSatisfied(scheme as OpenAPIV3_1.SecuritySchemeObject, c)
+        return isSchemeSatisfied(scheme, c)
       })
     })
 

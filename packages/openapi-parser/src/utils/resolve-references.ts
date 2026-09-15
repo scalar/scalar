@@ -1,4 +1,4 @@
-import { isObject } from '@scalar/helpers/object/is-object'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 import type { AnyObject, UnknownObject } from '@scalar/types/utils'
 
 import { ERRORS } from '@/configuration'
@@ -82,7 +82,7 @@ export function resolveReferences(
   return {
     valid: errors.length === 0,
     errors,
-    schema: finalInput as UnknownObject,
+    schema: finalInput,
   }
 }
 
@@ -239,17 +239,17 @@ function resolveUri(
     return resolveUri(`#${path}`, options, resolve(externalReference), filesystem, resolve, errors)
   }
 
-  // Pointers
-  const segments = getSegmentsFromPath(path)
-
   // Try to find the URI
   try {
+    // Decoding malformed percent escapes can throw before the target is read.
+    const segments = getSegmentsFromPath(path)
+
     return segments.reduce<unknown>((acc, key) => {
-      if (typeof acc !== 'object' || acc === null || !(key in acc)) {
+      if (!isObjectLike(acc) || !(key in acc)) {
         throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))
       }
 
-      return (acc as Record<string, unknown>)[key]
+      return acc[key]
     }, file.specification)
   } catch (_error) {
     if (options?.throwOnError) {

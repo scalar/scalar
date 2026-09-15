@@ -259,13 +259,17 @@ export type LoaderPlugin = {
  *
  * - `path`: The JSON pointer path (as an array of strings) from the document root to the current node.
  * - `resolutionCache`: A cache for storing promises of resolved references.
+ * - `origin`: The origin (URL or file path) of the document this node lives in. Lifecycle plugins can
+ *   use it to resolve relative references (for example an example's `externalValue`) into absolute URLs.
  */
 type NodeProcessContext = {
   path: readonly string[]
+  referencedFromPath?: readonly string[]
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
   parentNode: UnknownObject | null
   rootNode: UnknownObject
   loaders: LoaderPlugin[]
+  origin: string
 }
 
 /**
@@ -621,6 +625,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     depth = 0,
     currentPath: readonly string[] = [],
     parent: UnknownObject = null,
+    referencedFromPath?: readonly string[],
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
     if (config.depth !== undefined && depth > config.depth) {
@@ -639,17 +644,21 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // Mark this node as processed before continuing
     processedNodes.add(root)
 
+    // A node with its own `$id` establishes a new base for resolving relative references within it.
+    // Fall back to the origin inherited from the parent document otherwise.
+    const id = getId(root)
+
     const context = {
       path: currentPath,
+      referencedFromPath,
       resolutionCache: cache,
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
       loaders: loaderPlugins,
+      origin: id ?? origin,
     }
 
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
-
-    const id = getId(root)
 
     if (hasRef(root)) {
       const ref = root['$ref']
@@ -675,9 +684,17 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(targetValue.value, targetValue.context, isChunkParent, depth + 1, segments, parent)
+          await bundler(
+            targetValue.value,
+            targetValue.context,
+            isChunkParent,
+            depth + 1,
+            segments,
+            parent,
+            referencedFromPath,
+          )
         }
-        await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+        await executeHooks('onAfterNodeProcess', root, context)
         return
       }
 
@@ -727,11 +744,16 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk, depth + 1, [
-            config.externalDocumentsKey,
-            compressedPath,
-            documentRoot[config.externalDocumentsMappingsKey],
-          ])
+          await bundler(
+            result.data,
+            isChunk ? origin : resolvedPath,
+            isChunk,
+            depth + 1,
+            [config.externalDocumentsKey, compressedPath],
+            null,
+            // Keep the referring document path across external hops, replacing the storage wrapper.
+            referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+          )
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -769,13 +791,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
         await executeHooks('onResolveSuccess', root)
 
-        await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+        await executeHooks('onAfterNodeProcess', root, context)
         return
       }
 
       await executeHooks('onResolveError', root)
 
-      await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+      await executeHooks('onAfterNodeProcess', root, context)
       return console.warn(
         `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
@@ -789,7 +811,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         continue
       }
 
-      await bundler(root[key], id ?? origin, isChunkParent, depth + 1, [...currentPath, key], root as UnknownObject)
+      await bundler(
+        root[key],
+        id ?? origin,
+        isChunkParent,
+        depth + 1,
+        [...currentPath, key],
+        root as UnknownObject,
+        referencedFromPath,
+      )
     }
 
     await executeHooks('onAfterNodeProcess', root as UnknownObject, context)

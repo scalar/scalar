@@ -8,7 +8,7 @@ import type {
   CallbackObject,
   OpenApiDocument,
   OperationObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { SectionHeaderTag } from '@/components/Section'
@@ -53,7 +53,7 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
   // Loop over the name level
   objectEntries(callbacks).forEach(([name, pathItem]) => {
     // Loop over the url level
-    objectEntries(getResolvedRef(pathItem)).forEach(([url, methods]) => {
+    objectEntries(getResolvedRef(pathItem) ?? {}).forEach(([url, methods]) => {
       if (typeof methods !== 'object' || !methods) {
         return
       }

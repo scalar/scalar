@@ -5,7 +5,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import {
   type OpenApiDocument,
   type OperationObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
 import {
@@ -110,9 +110,7 @@ const toggle = (): void => {
         :document="document"
         :eventBus="eventBus"
         :options="options"
-        :parameters="
-          callback.parameters?.map((param) => getResolvedRef(param)) ?? []
-        "
+        :parameters="callback.parameters ?? []"
         :requestBody="getResolvedRef(callback.requestBody)" />
 
       <OperationResponses

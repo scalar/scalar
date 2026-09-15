@@ -4,21 +4,26 @@ import {
   forEachPathItemOperation,
   getResolvedPathItem,
 } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  getResolvedRef,
+  mergeSiblingReferences,
+} from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   OpenApiDocument,
   OperationObject,
   ParameterObject,
+  PathItemObject,
   RequestBodyObject,
   ResponseObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 // import { snippetz, type HarRequest } from '@scalar/snippetz'
 
 import Schema from './Schema.vue'
+import Security from './Security.vue'
 import XmlOrJson from './XmlOrJson.vue'
 
 type MarkdownDocument = Partial<OpenApiDocument> &
@@ -29,6 +34,8 @@ type SchemaView = {
   type?: string | string[]
 }
 type RequestBodyView = {
+  description?: string
+  required?: boolean
   content?: Record<string, { schema?: unknown }>
 }
 type ParameterView = {
@@ -53,6 +60,8 @@ type OperationEntry = {
   path: string
   method: string
   operation: OperationObject
+  servers: OpenApiDocument['servers']
+  security: OpenApiDocument['security']
   parameters: ParameterView[]
   requestBody: RequestBodyView | null
   responses: Array<{
@@ -83,7 +92,14 @@ const { content } = defineProps<{
 const resolveRefAs = <TResolved extends object>(
   reference: unknown,
 ): TResolved | null => {
-  const resolved = getResolvedRef(reference as never)
+  const resolved = getResolvedRef(reference as never, (node) => {
+    const resolved = mergeSiblingReferences(node)
+    // The merged value is already resolved; do not leave a dangling reference for child renderers.
+    if (resolved && typeof resolved === 'object') {
+      Reflect.deleteProperty(resolved, '$ref')
+    }
+    return resolved
+  })
 
   return resolved && typeof resolved === 'object'
     ? (resolved as TResolved)
@@ -147,8 +163,9 @@ const getParameters = (
   return Array.from(parameters.values())
 }
 
-const operations = computed<OperationEntry[]>(() => {
-  const paths = content?.paths ?? {}
+const getEntries = (
+  paths: Record<string, PathItemObject>,
+): OperationEntry[] => {
   const entries: OperationEntry[] = []
 
   for (const [path, pathItemRef] of Object.entries(paths)) {
@@ -182,6 +199,11 @@ const operations = computed<OperationEntry[]>(() => {
         path,
         method,
         operation: resolvedOperation,
+        servers:
+          resolvedOperation.servers ??
+          resolvedPathItem?.servers ??
+          content.servers,
+        security: resolvedOperation.security ?? content.security,
         parameters,
         requestBody,
         responses,
@@ -190,30 +212,20 @@ const operations = computed<OperationEntry[]>(() => {
   }
 
   return entries
-})
+}
 
-const webhooks = computed(() => {
-  const webhookItems = content?.webhooks ?? {}
-  const entries: {
-    name: string
-    method: string
-    operation: OperationObject
-  }[] = []
-
-  for (const [name, pathItemRef] of Object.entries(webhookItems)) {
-    forEachPathItemOperation(pathItemRef, (method, operation) => {
-      const resolvedOperation = resolveOperation(operation)
-
-      if (!resolvedOperation) {
-        return
-      }
-
-      entries.push({ name, method, operation: resolvedOperation })
-    })
-  }
-
-  return entries
-})
+const groups = computed(() => [
+  {
+    title: 'Operations',
+    webhook: false,
+    entries: getEntries(content.paths ?? {}),
+  },
+  {
+    title: 'Webhooks',
+    webhook: true,
+    entries: getEntries(content.webhooks ?? {}),
+  },
+])
 
 const componentSchemas = computed(() => {
   const schemas = content?.components?.schemas ?? {}
@@ -247,6 +259,33 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
           <strong>API Version:</strong>&nbsp;<code>{{
             content?.info?.version
           }}</code>
+        </li>
+        <li v-if="content.info.termsOfService">
+          <strong>Terms of service:</strong>
+          <a :href="content.info.termsOfService">{{
+            content.info.termsOfService
+          }}</a>
+        </li>
+        <li v-if="content.info.contact">
+          <strong>Contact:</strong> {{ content.info.contact.name }}
+          <a
+            v-if="content.info.contact.url"
+            :href="content.info.contact.url"
+            >{{ content.info.contact.url }}</a
+          >
+          <a
+            v-if="content.info.contact.email"
+            :href="`mailto:${content.info.contact.email}`"
+            >{{ content.info.contact.email }}</a
+          >
+        </li>
+        <li v-if="content.info.license">
+          <strong>License:</strong>
+          <a
+            v-if="content.info.license.url"
+            :href="content.info.license.url"
+            >{{ content.info.license.name }}</a
+          ><template v-else>{{ content.info.license.name }}</template>
         </li>
       </ul>
     </header>
@@ -294,59 +333,101 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
       </ul>
     </section>
 
-    <section v-if="operations.length">
-      <h2>Operations</h2>
+    <Security
+      :requirements="content.security"
+      :schemes="content.components?.securitySchemes" />
+    <section v-if="content.tags?.length">
+      <h2>Tags</h2>
+      <section
+        v-for="tag in content.tags"
+        :key="tag.name">
+        <h3>{{ tag.name }}</h3>
+        <ScalarMarkdown :value="tag.description" />
+        <a
+          v-if="tag.externalDocs"
+          :href="tag.externalDocs.url"
+          >{{ tag.externalDocs.description ?? tag.externalDocs.url }}</a
+        >
+      </section>
+    </section>
+    <template
+      v-for="group in groups"
+      :key="group.title">
+      <section v-if="group.entries.length">
+        <h2>{{ group.title }}</h2>
 
-      <template
-        v-for="entry in operations"
-        :key="`${entry.method}:${entry.path}`">
-        <section>
-          <header>
-            <h3>
-              <template v-if="entry.operation.summary">
-                {{ entry.operation.summary }}
-              </template>
-              <template v-else>
-                {{ entry.method.toString().toUpperCase() }} {{ entry.path }}
+        <template
+          v-for="entry in group.entries"
+          :key="`${entry.method}:${entry.path}`">
+          <section>
+            <header>
+              <h3>
+                <template v-if="entry.operation.summary">
+                  {{ entry.operation.summary }}
+                </template>
+                <template v-else>
+                  {{ entry.method.toString().toUpperCase() }} {{ entry.path }}
+                </template>
+                <template v-if="entry.operation['x-scalar-stability']">
+                  ({{ entry.operation['x-scalar-stability'] }})
+                </template>
+                <template v-else-if="entry.operation.deprecated">
+                  ⚠️ Deprecated
+                </template>
+              </h3>
+            </header>
+
+            <ul>
+              <li>
+                <strong>Method:</strong>&nbsp;<code>{{
+                  entry.method.toString().toUpperCase()
+                }}</code>
+              </li>
+              <li>
+                <strong>{{ group.webhook ? 'Webhook:' : 'Path:' }}</strong
+                >&nbsp;<code>{{ entry.path }}</code>
+              </li>
+              <template v-if="entry.operation.tags">
+                <li>
+                  <strong>Tags:</strong>&nbsp;{{
+                    entry.operation.tags.join(', ')
+                  }}
+                </li>
               </template>
               <template v-if="entry.operation['x-scalar-stability']">
-                ({{ entry.operation['x-scalar-stability'] }})
+                <li>
+                  <strong>Stability:</strong>&nbsp;{{
+                    entry.operation['x-scalar-stability']
+                  }}
+                </li>
               </template>
-              <template v-else-if="entry.operation.deprecated">
-                ⚠️ Deprecated
-              </template>
-            </h3>
-          </header>
+            </ul>
 
-          <ul>
-            <li>
-              <strong>Method:</strong>&nbsp;<code>{{
-                entry.method.toString().toUpperCase()
-              }}</code>
-            </li>
-            <li>
-              <strong>Path:</strong>&nbsp;<code>{{ entry.path }}</code>
-            </li>
-            <template v-if="entry.operation.tags">
-              <li>
-                <strong>Tags:</strong>&nbsp;{{
-                  entry.operation.tags.join(', ')
-                }}
-              </li>
-            </template>
-            <template v-if="entry.operation['x-scalar-stability']">
-              <li>
-                <strong>Stability:</strong>&nbsp;{{
-                  entry.operation['x-scalar-stability']
-                }}
-              </li>
-            </template>
-          </ul>
+            <ScalarMarkdown :value="entry.operation.description" />
+            <section v-if="entry.servers?.length">
+              <h4>Effective servers</h4>
+              <ul>
+                <li
+                  v-for="server in entry.servers"
+                  :key="server.url">
+                  <code>{{ server.url }}</code
+                  ><ScalarMarkdown :value="server.description" />
+                  <ul v-if="server.variables">
+                    <li
+                      v-for="(variable, name) in server.variables"
+                      :key="name">
+                      {{ name }}: <code>{{ variable.default }}</code>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </section>
+            <Security
+              :requirements="entry.security"
+              :schemes="content.components?.securitySchemes" />
 
-          <ScalarMarkdown :value="entry.operation.description" />
-
-          <!-- TODO: We need way more context to generate proper request examples -->
-          <!-- <section>
+            <!-- TODO: We need way more context to generate proper request examples -->
+            <!-- <section>
               <h4>Request Example</h4>
               <pre><code>{{ getRequestExample({
                 method: method.toString(),
@@ -354,197 +435,156 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
               }) }}</code></pre>
             </section> -->
 
-          <template v-if="entry.parameters.length">
-            <section>
-              <h4>Parameters</h4>
+            <template v-if="entry.parameters.length">
+              <section>
+                <h4>Parameters</h4>
 
-              <template
-                v-for="parameter in entry.parameters"
-                :key="`${parameter.in}:${parameter.name}`">
-                <section>
-                  <h5>
-                    <code>{{ parameter.name }}</code>
-                    <template v-if="parameter.required"> required</template>
-                    <template v-if="parameter.deprecated"> deprecated</template>
-                  </h5>
-                  <ul>
-                    <li>
-                      <strong>In:</strong>&nbsp;<code>{{ parameter.in }}</code>
-                    </li>
-                    <template v-if="parameter.style">
-                      <li>
-                        <strong>Style:</strong>&nbsp;<code>{{
-                          parameter.style
-                        }}</code>
-                      </li>
-                    </template>
-                    <template v-if="typeof parameter.explode === 'boolean'">
-                      <li>
-                        <strong>Explode:</strong>&nbsp;<code>{{
-                          parameter.explode
-                        }}</code>
-                      </li>
-                    </template>
-                    <template v-if="parameter.allowEmptyValue">
-                      <li><strong>Allow Empty Value:</strong>&nbsp;true</li>
-                    </template>
-                    <template v-if="parameter.allowReserved">
-                      <li><strong>Allow Reserved:</strong>&nbsp;true</li>
-                    </template>
-                  </ul>
-
-                  <ScalarMarkdown
-                    v-if="parameter.description"
-                    :value="parameter.description" />
-
-                  <template v-if="resolveSchema(parameter.schema)">
-                    <Schema :schema="resolveSchema(parameter.schema)!" />
-                  </template>
-
-                  <template v-if="parameter.content">
-                    <template
-                      v-for="(parameterContent, mediaType) in parameter.content"
-                      :key="mediaType">
-                      <h6>Content-Type: {{ mediaType }}</h6>
-                      <template v-if="resolveSchema(parameterContent.schema)">
-                        <Schema
-                          :schema="resolveSchema(parameterContent.schema)!" />
-                      </template>
-                    </template>
-                  </template>
-                </section>
-              </template>
-            </section>
-          </template>
-
-          <template v-if="entry.requestBody?.content">
-            <section>
-              <h4>Request Body</h4>
-              <template
-                v-for="(bodyContent, mediaType) in entry.requestBody.content"
-                :key="mediaType">
-                <h5>Content-Type: {{ mediaType }}</h5>
-                <template v-if="resolveSchema(bodyContent.schema)">
-                  <Schema :schema="resolveSchema(bodyContent.schema)!" />
-                  <p><strong>Example:</strong></p>
-                  <XmlOrJson
-                    :modelValue="
-                      getExampleFromSchema(resolveSchema(bodyContent.schema)!, {
-                        xml: mediaType?.toString().includes('xml'),
-                      })
-                    "
-                    :xml="mediaType?.toString().includes('xml')" />
-                </template>
-              </template>
-            </section>
-          </template>
-
-          <template v-if="entry.responses.length">
-            <section>
-              <h4>Responses</h4>
-
-              <template
-                v-for="entryResponse in entry.responses"
-                :key="entryResponse.statusCode">
-                <section>
-                  <header>
+                <template
+                  v-for="parameter in entry.parameters"
+                  :key="`${parameter.in}:${parameter.name}`">
+                  <section>
                     <h5>
-                      Status: {{ entryResponse.statusCode }}
-                      <template v-if="entryResponse.response.description">
-                        {{ entryResponse.response.description }}
+                      <code>{{ parameter.name }}</code>
+                      <template v-if="parameter.required"> required</template>
+                      <template v-if="parameter.deprecated">
+                        deprecated
                       </template>
                     </h5>
-                  </header>
-                  <template v-if="entryResponse.response.content">
-                    <template
-                      v-for="(responseContent, mediaType) in entryResponse
-                        .response.content"
-                      :key="mediaType">
-                      <section>
-                        <h6>Content-Type: {{ mediaType }}</h6>
-                        <template v-if="resolveSchema(responseContent.schema)">
-                          <Schema
-                            :schema="resolveSchema(responseContent.schema)!" />
-                          <p><strong>Example:</strong></p>
-                          <XmlOrJson
-                            :modelValue="
-                              getExampleFromSchema(
-                                resolveSchema(responseContent.schema)!,
-                                {
-                                  xml: mediaType?.toString().includes('xml'),
-                                },
-                              )
-                            "
-                            :xml="mediaType?.toString().includes('xml')" />
-                        </template>
-                      </section>
+                    <ul>
+                      <li>
+                        <strong>In:</strong>&nbsp;<code>{{
+                          parameter.in
+                        }}</code>
+                      </li>
+                      <template v-if="parameter.style">
+                        <li>
+                          <strong>Style:</strong>&nbsp;<code>{{
+                            parameter.style
+                          }}</code>
+                        </li>
+                      </template>
+                      <template v-if="typeof parameter.explode === 'boolean'">
+                        <li>
+                          <strong>Explode:</strong>&nbsp;<code>{{
+                            parameter.explode
+                          }}</code>
+                        </li>
+                      </template>
+                      <template v-if="parameter.allowEmptyValue">
+                        <li><strong>Allow Empty Value:</strong>&nbsp;true</li>
+                      </template>
+                      <template v-if="parameter.allowReserved">
+                        <li><strong>Allow Reserved:</strong>&nbsp;true</li>
+                      </template>
+                    </ul>
+
+                    <ScalarMarkdown
+                      v-if="parameter.description"
+                      :value="parameter.description" />
+
+                    <template v-if="resolveSchema(parameter.schema)">
+                      <Schema :schema="resolveSchema(parameter.schema)!" />
                     </template>
+
+                    <template v-if="parameter.content">
+                      <template
+                        v-for="(
+                          parameterContent, mediaType
+                        ) in parameter.content"
+                        :key="mediaType">
+                        <h6>Content-Type: {{ mediaType }}</h6>
+                        <template v-if="resolveSchema(parameterContent.schema)">
+                          <Schema
+                            :schema="resolveSchema(parameterContent.schema)!" />
+                        </template>
+                      </template>
+                    </template>
+                  </section>
+                </template>
+              </section>
+            </template>
+
+            <template v-if="entry.requestBody?.content">
+              <section>
+                <h4>Request Body</h4>
+                <ScalarMarkdown :value="entry.requestBody.description" />
+                <p v-if="entry.requestBody.required">
+                  <strong>Required:</strong> true
+                </p>
+                <template
+                  v-for="(bodyContent, mediaType) in entry.requestBody.content"
+                  :key="mediaType">
+                  <h5>Content-Type: {{ mediaType }}</h5>
+                  <template v-if="resolveSchema(bodyContent.schema)">
+                    <Schema :schema="resolveSchema(bodyContent.schema)!" />
+                    <p><strong>Example:</strong></p>
+                    <XmlOrJson
+                      :modelValue="
+                        getExampleFromSchema(
+                          resolveSchema(bodyContent.schema)!,
+                          {
+                            xml: mediaType?.toString().includes('xml'),
+                          },
+                        )
+                      "
+                      :xml="mediaType?.toString().includes('xml')" />
                   </template>
-                </section>
-              </template>
-            </section>
-          </template>
-        </section>
-      </template>
-    </section>
-
-    <section v-if="webhooks.length">
-      <h2>Webhooks</h2>
-
-      <template
-        v-for="webhook in webhooks"
-        :key="`${webhook.name}:${webhook.method}`">
-        <section>
-          <header>
-            <h3>
-              <template v-if="webhook.operation.summary">
-                {{ webhook.operation.summary }}
-              </template>
-              <template v-else>
-                {{ webhook.name }}
-              </template>
-              <template v-if="webhook.operation['x-scalar-stability']">
-                <span>({{ webhook.operation['x-scalar-stability'] }})</span>
-              </template>
-              <template v-else-if="webhook.operation.deprecated">
-                <span>⚠️ Deprecated</span>
-              </template>
-            </h3>
-          </header>
-
-          <ul>
-            <li>
-              <strong>Method:</strong>
-              <code>{{ webhook.method.toString().toUpperCase() }}</code>
-            </li>
-            <li>
-              <strong>Path:</strong>
-              <code>/webhooks/{{ webhook.name }}</code>
-            </li>
-            <template v-if="webhook.operation.tags">
-              <li>
-                <strong>Tags:</strong>
-                {{ webhook.operation.tags.join(', ') }}
-              </li>
+                </template>
+              </section>
             </template>
-            <template v-if="webhook.operation.deprecated">
-              <li><strong>Deprecated</strong></li>
+
+            <template v-if="entry.responses.length">
+              <section>
+                <h4>Responses</h4>
+
+                <template
+                  v-for="entryResponse in entry.responses"
+                  :key="entryResponse.statusCode">
+                  <section>
+                    <header>
+                      <h5>
+                        Status: {{ entryResponse.statusCode }}
+                        <template v-if="entryResponse.response.description">
+                          {{ entryResponse.response.description }}
+                        </template>
+                      </h5>
+                    </header>
+                    <template v-if="entryResponse.response.content">
+                      <template
+                        v-for="(responseContent, mediaType) in entryResponse
+                          .response.content"
+                        :key="mediaType">
+                        <section>
+                          <h6>Content-Type: {{ mediaType }}</h6>
+                          <template
+                            v-if="resolveSchema(responseContent.schema)">
+                            <Schema
+                              :schema="
+                                resolveSchema(responseContent.schema)!
+                              " />
+                            <p><strong>Example:</strong></p>
+                            <XmlOrJson
+                              :modelValue="
+                                getExampleFromSchema(
+                                  resolveSchema(responseContent.schema)!,
+                                  {
+                                    xml: mediaType?.toString().includes('xml'),
+                                  },
+                                )
+                              "
+                              :xml="mediaType?.toString().includes('xml')" />
+                          </template>
+                        </section>
+                      </template>
+                    </template>
+                  </section>
+                </template>
+              </section>
             </template>
-          </ul>
-
-          <ScalarMarkdown :value="webhook.operation.description" />
-
-          <!-- TODO: We need way more context to generate proper request examples -->
-          <!-- <section>
-              <h4>Request Example</h4>
-              <pre><code>{{ getRequestExample({
-                method: method.toString(),
-                url: content.servers?.[0]?.url + '/webhooks/' + name,
-              }) }}</code></pre>
-            </section> -->
-        </section>
-      </template>
-    </section>
+          </section>
+        </template>
+      </section>
+    </template>
 
     <section v-if="componentSchemas.length">
       <h2>Schemas</h2>
@@ -564,11 +604,9 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
           <template v-if="getSchemaView(entry.schema).description">
             <ScalarMarkdown :value="getSchemaView(entry.schema).description" />
           </template>
-          <Schema
-            v-if="getSchemaView(entry.schema).type === 'object'"
-            :schema="entry.schema" />
-          <p><strong>Example:</strong></p>
+          <Schema :schema="entry.schema" />
           <template v-if="getSchemaView(entry.schema).type === 'object'">
+            <p><strong>Example:</strong></p>
             <XmlOrJson :modelValue="getExampleFromSchema(entry.schema)" />
           </template>
         </section>

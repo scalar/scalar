@@ -20,8 +20,8 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import {
   computed,
   inject,
@@ -52,7 +52,10 @@ import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
-import { getCompositionsToRender } from './helpers/get-compositions-to-render'
+import {
+  getCompositionsToRender,
+  inferDiscriminatorMappingComposition,
+} from './helpers/get-compositions-to-render'
 import { getEnumValues } from './helpers/get-enum-values'
 import { getPropertyDescription } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
@@ -213,6 +216,21 @@ const hasComplexArrayItemsComputed = computed(() =>
 /** Check if enum should be displayed (from value schema or from propertyNames) */
 const hasEnum = computed(() => enumValues.value.length > 0)
 
+/**
+ * The `oneOf` inferred from a bare `discriminator.mapping`, or `null` when there
+ * is nothing to infer. Computed once and shared: `shouldRenderObjectProperties`
+ * uses it to suppress the duplicate base object block, and `compositionsToRender`
+ * passes it on so the inference does not run twice per render.
+ */
+const inferredDiscriminatorComposition = computed(() =>
+  optimizedValue.value
+    ? inferDiscriminatorMappingComposition(
+        optimizedValue.value,
+        props.options.document,
+      )
+    : null,
+)
+
 /** Determine if object properties should be displayed */
 const shouldRenderObjectProperties = computed(() => {
   const value = optimizedValue.value
@@ -231,6 +249,34 @@ const shouldRenderObjectProperties = computed(() => {
     return false
   }
 
+  // A *plain* bare `discriminator.mapping` base (no explicit `oneOf`/`anyOf` and
+  // no `allOf` of its own) is rendered as an inferred `oneOf` composition below,
+  // whose variants `allOf` back to this base type and therefore already include
+  // its properties (including the discriminator property). Rendering the base
+  // object block here as well would show those properties a second time, outside
+  // the selector. `Schema.vue` renders the two mutually exclusively; mirror that
+  // here so the property and the model render the base identically.
+  // See https://github.com/scalar/scalar/issues/9861
+  //
+  // This intentionally shows the base only through its variants, matching the
+  // discriminator contract that each mapped variant extends the base. A malformed
+  // mapping whose variants do not include the base (or a base carrying only
+  // `additionalProperties`/`patternProperties`) would surface those fields solely
+  // via the variants — the same behavior `Schema.vue` already has for the model.
+  //
+  // A base that composes itself via `allOf` is excluded: `optimizeValueForDisplay`
+  // flattens its members up into `properties`, and those contribute fields the
+  // inferred variants do not carry, so the block must still render them. The check
+  // reads the raw `props.schema` because the flattening has already erased `allOf`
+  // from the optimized `value`.
+  const composesWithAllOf =
+    !!props.schema &&
+    typeof props.schema === 'object' &&
+    'allOf' in props.schema
+  if (!composesWithAllOf && inferredDiscriminatorComposition.value) {
+    return false
+  }
+
   // A schema may factor its common `properties` out to the top level alongside
   // a composition keyword (anyOf/oneOf/not), as described in the JSON Schema
   // "factoring schemas" guide. `isTypeObject` deliberately rejects such schemas
@@ -238,7 +284,7 @@ const shouldRenderObjectProperties = computed(() => {
   // show. Unlike `allOf`, these compositions do not merge sibling properties.
   // Render them unless the schema is an explicit non-object (scalar or array)
   // type. See https://github.com/scalar/scalar/issues/8593
-  const type = (value as { type?: unknown }).type
+  const type = 'type' in value ? value.type : undefined
   const isExplicitNonObject = typeof type === 'string' && type !== 'object'
 
   return isTypeObject(value) || !isExplicitNonObject
@@ -295,15 +341,15 @@ const objectSchemaForChildren = computed(() => {
     not: _not,
     discriminator: _discriminator,
     ...objectSchema
-  } = value as Record<string, unknown>
+  } = value
 
   if (displayDescription.value && 'description' in objectSchema) {
     const { description: _description, ...schemaWithoutDescription } =
       objectSchema
-    return schemaWithoutDescription as SchemaObject
+    return schemaWithoutDescription
   }
 
-  return objectSchema as SchemaObject
+  return objectSchema
 })
 
 /** Determine if property heading should be displayed */
@@ -313,7 +359,11 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(optimizedValue.value, props.options.document),
+  getCompositionsToRender(
+    optimizedValue.value,
+    props.options.document,
+    inferredDiscriminatorComposition.value,
+  ),
 )
 
 /**
@@ -635,7 +685,10 @@ const treeHeadingHoverListeners = {
   pointerenter: (event: Event): void => {
     clearHeadingHover()
 
-    const row = (event.currentTarget as HTMLElement).parentElement
+    const row =
+      event.currentTarget instanceof HTMLElement
+        ? event.currentTarget.parentElement
+        : null
 
     if (!row) {
       return
@@ -1068,6 +1121,7 @@ const onBeforeMatch = (): void => {
     <!-- Compositions -->
     <!-- This row's own breadcrumb, so sibling compositions do not collide on
          anchors and expansion keys. -->
+    <!-- Fall back to the inherited discriminator to label the property inside an allOf variant (#9674) -->
     <SchemaComposition
       v-for="compositionData in compositionsToRender"
       :key="compositionData.composition"

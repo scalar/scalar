@@ -7,6 +7,7 @@ export {
   resolveLeafSchema,
 } from './body/schema-value-coercion'
 export { type SerializedFormProperty, serializeFormPropertyWithEncoding } from './body/serialize-form-property'
+export { serializeMultipartArray } from './body/serialize-multipart-array'
 export {
   BUILD_REQUEST_FAILED,
   type BuildRequestData,

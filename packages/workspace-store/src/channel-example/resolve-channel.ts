@@ -18,6 +18,7 @@ export const resolveChannel = (document: AsyncApiDocument, channelName: string):
   }
 
   const channel = getResolvedRef(channelNode)
+  if (!channel) return undefined
   const channelAddress =
     typeof channel.address === 'string' && channel.address.length > 0 ? channel.address : channelName
 

@@ -56,7 +56,7 @@ export function validate(
       return Promise.resolve({ valid: false, errors: [{ message: ERRORS.EMPTY_OR_INVALID }] })
     }
 
-    const specification = entrypoint.specification as UnknownObject
+    const specification: UnknownObject = entrypoint.specification
 
     // Be lenient about a missing `info.version`: default it before validation so
     // documents that omit this required field still validate. The standalone
@@ -87,9 +87,7 @@ export function validate(
     // Path-template semantics run on the resolved document (schema validation
     // stays on the unresolved one to avoid following circular references). This
     // matches the previous validator, which merged reference and semantic errors.
-    const semanticErrors = passedSchemaValidation
-      ? validatePathParameters((schema ?? specification) as UnknownObject)
-      : []
+    const semanticErrors = passedSchemaValidation ? validatePathParameters(schema ?? specification) : []
 
     const errors = [...(outcome.errors ?? []), ...referenceErrors, ...semanticErrors]
     const valid = outcome.valid && referenceErrors.length === 0 && semanticErrors.length === 0
@@ -123,7 +121,7 @@ export function validate(
     return Promise.resolve({
       valid: true,
       errors,
-      schema: schema as StrictOpenApiDocument,
+      schema: schema,
       specification: strictSpecification,
       version: outcome.version,
     })

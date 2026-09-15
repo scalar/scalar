@@ -99,4 +99,83 @@ describe('validate', () => {
     // validation result.
     expect(() => createValidator({ type: 'string', pattern: '(' })).toThrow()
   })
+  it.each([
+    ['#/Användare', '$ref "#/Användare" contains non-ASCII characters. Percent-encode them using UTF-8 (RFC 3986).'],
+    [
+      '#/bad%ZZ',
+      '$ref "#/bad%ZZ" contains invalid percent-encoding. Each "%" must be followed by two hexadecimal digits; encode a literal "%" as "%25".',
+    ],
+    [
+      '#/bad%',
+      '$ref "#/bad%" contains invalid percent-encoding. Each "%" must be followed by two hexadecimal digits; encode a literal "%" as "%25".',
+    ],
+    [
+      '#/bad%2',
+      '$ref "#/bad%2" contains invalid percent-encoding. Each "%" must be followed by two hexadecimal digits; encode a literal "%" as "%25".',
+    ],
+    [
+      '#/has space',
+      '$ref "#/has space" contains whitespace. Remove it or percent-encode it (for example, use "%20" for a space).',
+    ],
+    ['#/bad<value>', '$ref "#/bad<value>" is not a valid URI reference'],
+  ])('explains an invalid URI reference: %s', (reference, message) => {
+    const referenceSchema = { type: 'object', properties: { $ref: { type: 'string', format: 'uri-reference' } } }
+    const result = validate({ $ref: reference }, referenceSchema)
+
+    expect(result).toStrictEqual({ valid: false, errors: [{ message, path: '/$ref' }] })
+    expect(() => validate({ $ref: reference }, referenceSchema, { throwOnError: true })).toThrow(message)
+  })
+
+  it.each(['#/Anv%C3%A4ndare', '#/has%20space', '#/literal%25', '#/valid-name'])(
+    'accepts a valid URI reference: %s',
+    (reference) => {
+      const result = validate(
+        { $ref: reference },
+        { type: 'object', properties: { $ref: { type: 'string', format: 'uri-reference' } } },
+      )
+
+      expect(result).toStrictEqual({ valid: true, errors: [] })
+    },
+  )
+
+  it('preserves the fallback for other formats and properties', () => {
+    const result = validate(
+      { email: 'invalid', url: 'has space' },
+      { type: 'object', properties: { email: { format: 'email' }, url: { format: 'uri-reference' } } },
+    )
+
+    expect(result).toStrictEqual({
+      valid: false,
+      errors: [
+        { message: 'format must match format "email"', path: '/email' },
+        { message: 'format must match format "uri-reference"', path: '/url' },
+      ],
+    })
+  })
+
+  it('reads references through escaped and empty JSON Pointer segments', () => {
+    const result = validate(
+      { 'a/b~c%': { '': { $ref: '#/has space' } } },
+      {
+        type: 'object',
+        properties: {
+          'a/b~c%': {
+            type: 'object',
+            properties: { '': { type: 'object', properties: { $ref: { format: 'uri-reference' } } } },
+          },
+        },
+      },
+    )
+
+    expect(result).toStrictEqual({
+      valid: false,
+      errors: [
+        {
+          message:
+            '$ref "#/has space" contains whitespace. Remove it or percent-encode it (for example, use "%20" for a space).',
+          path: '/a~1b~0c%//$ref',
+        },
+      ],
+    })
+  })
 })

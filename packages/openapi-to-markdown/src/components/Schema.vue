@@ -1,19 +1,28 @@
 <script setup lang="ts">
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
+import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
 
-const MAX_DEPTH = 10
-
-const { schema, depth = 0 } = defineProps<{
+const {
+  schema,
+  depth = 0,
+  ancestors = [],
+} = defineProps<{
   schema: MaybeRefSchemaObject
   depth?: number
+  ancestors?: unknown[]
 }>()
+
+const MAX_DEPTH = 10
 
 type ResolvedSchema = NonNullable<
   ReturnType<typeof resolve.schema<MaybeRefSchemaObject>>
 >
 
 const resolvedSchema = resolve.schema(schema)
+// Coercion creates new objects, so reference strings identify repeated ancestors.
+const identity = '$ref' in schema ? schema.$ref : schema
+const circular = ancestors.includes(identity)
+const childAncestors = [...ancestors, identity]
 
 const resolveNestedSchema = (
   value: MaybeRefSchemaObject | undefined,
@@ -185,7 +194,7 @@ const sortProperties = (
 </script>
 
 <template>
-  <section v-if="depth >= MAX_DEPTH">
+  <section v-if="circular || depth >= MAX_DEPTH">
     <p><em>[Circular Reference]</em></p>
   </section>
   <section v-else-if="resolvedSchema">
@@ -199,8 +208,9 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'allOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -214,8 +224,9 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'anyOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -229,8 +240,9 @@ const sortProperties = (
           v-for="(subSchema, index) in getSchemaArray(resolvedSchema, 'oneOf')"
           :key="index">
           <Schema
-            :schema="subSchema"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -242,8 +254,9 @@ const sortProperties = (
         </header>
         <section>
           <Schema
-            :schema="getSchemaNot(resolvedSchema)!"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="getSchemaNot(resolvedSchema)!" />
         </section>
       </section>
     </template>
@@ -306,8 +319,9 @@ const sortProperties = (
                   getResolvedSchemaType(propSchema) === 'object' ||
                   Object.keys(getResolvedSchemaProperties(propSchema)).length
                 "
-                :schema="propSchema"
-                :depth="depth + 1" />
+                :ancestors="childAncestors"
+                :depth="depth + 1"
+                :schema="propSchema" />
               <template
                 v-if="
                   getResolvedSchemaType(propSchema) === 'array' &&
@@ -318,8 +332,9 @@ const sortProperties = (
                     <strong>Items:</strong>
                   </header>
                   <Schema
-                    :schema="getResolvedSchemaItems(propSchema)!"
-                    :depth="depth + 1" />
+                    :ancestors="childAncestors"
+                    :depth="depth + 1"
+                    :schema="getResolvedSchemaItems(propSchema)!" />
                 </section>
               </template>
             </li>
@@ -340,8 +355,9 @@ const sortProperties = (
         </header>
         <section>
           <Schema
-            :schema="getSchemaItems(resolvedSchema)!"
-            :depth="depth + 1" />
+            :ancestors="childAncestors"
+            :depth="depth + 1"
+            :schema="getSchemaItems(resolvedSchema)!" />
         </section>
         <ul
           v-if="

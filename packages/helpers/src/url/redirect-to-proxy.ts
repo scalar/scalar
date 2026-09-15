@@ -10,7 +10,7 @@ import { isRelativePath } from './is-relative-path'
  **/
 export const redirectToProxy = (proxyUrl?: string, url?: string): string => {
   try {
-    if (!shouldUseProxy(proxyUrl, url)) {
+    if (!proxyUrl || !shouldUseProxy(proxyUrl, url)) {
       return url ?? ''
     }
 
@@ -19,13 +19,10 @@ export const redirectToProxy = (proxyUrl?: string, url?: string): string => {
 
     // Add temporary domain for relative proxy URLs
     //
-    // Q: Why isn't proxyUrl type guarded?
-    // A: Type guarding works for one parameter only (as of now).
-    //
     // Q: Why do we need to add http://localhost to relative proxy URLs?
     // A: Because the `new URL()` would otherwise fail.
     //
-    const temporaryProxyUrl = isRelativePath(proxyUrl as string) ? `http://localhost${proxyUrl}` : (proxyUrl as string)
+    const temporaryProxyUrl = isRelativePath(proxyUrl) ? `http://localhost${proxyUrl}` : proxyUrl
 
     // Rewrite the URL with the proxy
     newUrl.href = temporaryProxyUrl
@@ -34,9 +31,7 @@ export const redirectToProxy = (proxyUrl?: string, url?: string): string => {
     newUrl.searchParams.append('scalar_url', url)
 
     // Remove the temporary domain if we added it, but only from the start of the URL
-    const result = isRelativePath(proxyUrl as string)
-      ? newUrl.toString().replace(/^http:\/\/localhost/, '')
-      : newUrl.toString()
+    const result = isRelativePath(proxyUrl) ? newUrl.toString().replace(/^http:\/\/localhost/, '') : newUrl.toString()
 
     return result
   } catch {

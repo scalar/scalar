@@ -268,7 +268,7 @@ A channel the document declares but no method binds is reported as `AsyncApi/Cha
 
 ## Diagnostics
 
-Every AsyncAPI-specific rule, gradable and suppressible through the [`diagnostics`](configuration.md#diagnostics) config like any other:
+Every AsyncAPI-specific rule, gradable and suppressible through the [`diagnostics`](configuration.md#diagnostics) config like any other. See [Diagnostics](diagnostics.md) for how findings are graded, located, and suppressed, and for the rules that run on every build:
 
 | Rule | Default | Fires when |
 | ---- | ------- | ---------- |

@@ -1,0 +1,55 @@
+{
+  "name": "@scalar/localization",
+  "description": "Framework-agnostic localization engine for Scalar packages",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/localization"
+  },
+  "keywords": [
+    "scalar",
+    "localization",
+    "i18n",
+    "translations"
+  ],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@scalar/helpers": "workspace:*",
+    "type-fest": "catalog:*",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "catalog:*",
+    "jsdom": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}

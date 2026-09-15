@@ -7,8 +7,8 @@ import type {
   ParameterWithSchemaObject,
   ReferenceType,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema, isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema, isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import type { TableRow } from '../components/RequestTableRow.vue'
 import { getParameterSchema } from './get-parameter-schema'
@@ -26,7 +26,7 @@ const isParameterWithSchema = (parameter: ParameterObject): parameter is Paramet
 const resolveSchema = (schema: unknown): SchemaObject | undefined => {
   const resolvedSchema = getResolvedRef(schema as SchemaObject | { '$ref': string; '$ref-value': SchemaObject })
 
-  return resolvedSchema as SchemaObject | undefined
+  return resolvedSchema
 }
 
 /**

@@ -19,20 +19,20 @@ export function upgrade(
   // Swagger 2.0 -> OpenAPI 3.0
   const openapi30 = upgradeFromTwoToThree(value)
   if (targetVersion === '3.0') {
-    return openapi30 as OpenAPIV3.Document
+    return openapi30
   }
 
   // OpenAPI 3.0 -> OpenAPI 3.1
   const openapi31 = upgradeFromThreeToThreeOne(openapi30)
   if (targetVersion === '3.1') {
-    return openapi31 as OpenAPIV3_1.Document
+    return openapi31
   }
 
   // OpenAPI 3.1 -> OpenAPI 3.2
   const openapi32 = upgradeFromThreeOneToThreeTwo(openapi31)
   if (targetVersion === '3.2') {
-    return openapi32 as OpenAPIV3_2.Document
+    return openapi32
   }
 
-  return openapi32 as OpenAPIV3_2.Document
+  return openapi32
 }

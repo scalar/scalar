@@ -104,6 +104,7 @@ import {
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
+  resolveHashPrefix,
   type WebhookRedirectSource,
 } from '@/helpers/id-routing'
 import {
@@ -353,8 +354,13 @@ const documentLang = computed(() =>
   apiReferenceLocalization.locale.value.replace('_', '-'),
 )
 
-/** Convenience break out var to determine which routing mode we are using */
-const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
+/** Keep the detected host route stable while navigation changes the section hash. */
+const inferredHashBasePath = ref<string>()
+
+/** Explicit routing always takes precedence over automatic host-prefix detection. */
+const basePath = computed(
+  () => mergedConfig.value.pathRouting?.basePath ?? inferredHashBasePath.value,
+)
 
 /**
  * Builds the href for a sidebar item so the sidebar renders real anchor tags.
@@ -420,7 +426,7 @@ if (typeof window !== 'undefined') {
     ),
     activeSlug.value,
     isMultiDocument.value,
-    mergedConfig.value.pathRouting?.basePath,
+    basePath.value,
   )
   if (canonical) {
     window.history.replaceState({}, '', canonical.toString())
@@ -451,7 +457,7 @@ function syncSlugAndUrlWithDocument(
   // We create a new URL and go to the root element if an ID is not provided
   const url = makeUrlFromId(
     elementId || slug,
-    config.pathRouting?.basePath,
+    config.pathRouting?.basePath ?? inferredHashBasePath.value,
     isMultiDocument.value,
   )
 
@@ -1161,7 +1167,7 @@ const changeSelectedDocument = async (
       slugify(config.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL),
       slug,
       isMultiDocument.value,
-      config.pathRouting?.basePath,
+      config.pathRouting?.basePath ?? inferredHashBasePath.value,
       collectWebhooks(
         workspaceStore.workspace.activeDocument?.['x-scalar-navigation']
           ?.children ?? [],
@@ -1172,7 +1178,7 @@ const changeSelectedDocument = async (
       elementId =
         getIdFromUrl(
           canonical.href,
-          config.pathRouting?.basePath,
+          config.pathRouting?.basePath ?? inferredHashBasePath.value,
           isMultiDocument.value ? undefined : slug,
         ) || elementId
     }
@@ -1311,11 +1317,38 @@ onBeforeMount(async () => {
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
+  if (basePath.value === undefined && window.location.hash) {
+    const hash = decodeURIComponent(window.location.hash.slice(1))
+    // Only load documents that could be named in the link, plus the default document.
+    const segments = new Set(hash.split('/'))
+    const candidates = Object.keys(configList.value).filter(
+      (slug) =>
+        slug === activeSlug.value ||
+        (isMultiDocument.value && segments.has(slug)),
+    )
+    await Promise.all(candidates.map((slug) => ensureDocumentLoaded(slug)))
+
+    const prefix = resolveHashPrefix(
+      hash,
+      sidebarState.index.value.keys(),
+      isMultiDocument.value,
+    )
+    inferredHashBasePath.value = prefix ? `#${prefix}` : undefined
+
+    if (isMultiDocument.value) {
+      const id = getIdFromUrl(window.location.href, basePath.value, undefined)
+      const slug = id.split('/')[0]
+      if (slug && configList.value[slug]) {
+        activeSlug.value = slug
+      }
+    }
+  }
+
   await changeSelectedDocument(
     activeSlug.value,
     getIdFromUrl(
       window.location.href,
-      configList.value[activeSlug.value]?.config.pathRouting?.basePath,
+      basePath.value,
       isMultiDocument.value ? undefined : activeSlug.value,
     ),
   )
@@ -1552,7 +1585,7 @@ onBeforeMount(() => {
   window.addEventListener('popstate', () => {
     const id = getIdFromUrl(
       window.location.href,
-      mergedConfig.value.pathRouting?.basePath,
+      basePath.value,
       isMultiDocument.value ? undefined : activeSlug.value,
     )
     if (id) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
-import { isObject } from '@scalar/helpers/object/is-object'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { onClickOutside, onKeyStroke } from '@vueuse/core'
 import { computed, ref, useId } from 'vue'
@@ -23,8 +23,8 @@ const { translate } = useLocalization()
 const hasSingleExample = computed(() => example !== undefined)
 
 const normalizedExamples = computed<Record<string, unknown>>(() => {
-  if (examples && typeof examples === 'object') {
-    return examples as Record<string, unknown>
+  if (isObjectLike(examples)) {
+    return examples
   }
 
   return {}
@@ -50,7 +50,7 @@ function unwrapExampleObject(value: unknown): unknown {
       return value.value
     }
     if ('externalValue' in value) {
-      return (value as { externalValue: unknown }).externalValue
+      return value.externalValue
     }
   }
   return value
@@ -157,8 +157,7 @@ const closeAndRestore = (
 
   if (wasInside) {
     const element = trigger.value
-    const focusable =
-      element instanceof HTMLElement ? element : (element?.$el as HTMLElement)
+    const focusable = element instanceof HTMLElement ? element : element?.$el
 
     restoringFocus = true
     focusable?.focus?.()

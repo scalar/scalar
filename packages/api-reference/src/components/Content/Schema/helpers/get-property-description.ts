@@ -1,5 +1,5 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 // Type descriptions for built-in types
 const TYPE_DESCRIPTIONS: Record<string, Record<string, string>> = {

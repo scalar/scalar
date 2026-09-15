@@ -24,12 +24,19 @@ const DEFAULT_OPTS = {
  *
  * **Important:** The `version` must stay aligned with the workspace `@playwright/test` major/minor
  * so the client and container speak the same protocol.
+ *
+ * The server runs with `--unsafe` so that it honours the launch options the test runner sends it.
+ * Playwright always forwards the config's `launchOptions` across the connection as an
+ * `x-playwright-launch-options` header, but the server discards the risky fields — `args` among
+ * them — unless it was started with `--unsafe`. Without it, anything set in `use.launchOptions`
+ * takes effect in CI, where the browser is launched directly, and is silently ignored locally,
+ * so the same test renders two different ways and snapshots taken locally do not match CI.
  */
 export const getDockerServer = (opts: Partial<GetDockerServerOptions> = {}): WebServer => {
   const { version, port, ...rest } = { ...DEFAULT_OPTS, ...opts }
   return {
     name: 'Playwright',
-    command: `docker run --name scalar-playwright --rm --platform linux/amd64 --entrypoint="playwright" --network=host scalarapi/playwright-runner:${version} run-server --port ${port} --host 0.0.0.0`,
+    command: `docker run --name scalar-playwright --rm --platform linux/amd64 --entrypoint="playwright" --network=host scalarapi/playwright-runner:${version} run-server --port ${port} --host 0.0.0.0 --unsafe`,
     url: `http://localhost:${port}`,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,

@@ -64,27 +64,26 @@ export const buildRequestSecurity = (
   selectedSecuritySchemes.forEach((scheme) => {
     // Api key
     if (scheme.type === 'apiKey') {
-      const name = scheme.name
       const value = scheme['x-scalar-secret-token'] || emptyTokenPlaceholder
 
       if (scheme.in === 'header') {
         return result.push({
           in: scheme.in,
-          name,
+          name: scheme.name,
           value,
         })
       }
       if (scheme.in === 'query') {
         return result.push({
           in: 'query',
-          name,
+          name: scheme.name,
           value,
         })
       }
       if (scheme.in === 'cookie') {
         return result.push({
           in: 'cookie',
-          name,
+          name: scheme.name,
           value,
         })
       }

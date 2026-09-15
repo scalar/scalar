@@ -4,7 +4,7 @@ import { useLoadingState } from '@scalar/components/loading'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { type OpenIdConnectObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type OpenIdConnectObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import { fetchOpenIDConnectDiscovery } from '@/v2/blocks/scalar-auth-selector-block/helpers/fetch-openid-connect-discovery'

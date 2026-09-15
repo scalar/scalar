@@ -18,5 +18,5 @@ export function getHeadingsFromMarkdown(input: string): Heading[] {
 
   const headings = getHeadings(input)
 
-  return withSlugs(headings as Heading[], slug)
+  return withSlugs(headings, slug)
 }

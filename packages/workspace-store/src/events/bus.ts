@@ -291,10 +291,10 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
 
   const once = <E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe => {
     const wrapper = (payload: ApiReferenceEvents[E] | undefined): void => {
-      off(event, wrapper as EventListener<E>)
+      off(event, wrapper)
       ;(listener as (payload: ApiReferenceEvents[E] | undefined) => void)(payload)
     }
-    return on(event, wrapper as EventListener<E>)
+    return on(event, wrapper)
   }
 
   const on = <E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe => {

@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
@@ -8,13 +7,16 @@ import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { type LoaderPlugin, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
+import { unescapeJsonPointer } from '@scalar/json-magic/helpers/unescape-json-pointer'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { type Schema, coerce } from '@scalar/validation'
 
+import { createChunkWriter } from '@/helpers/create-chunk-writer'
 import { deepClone } from '@/helpers/deep-clone'
+import { encodeChunkName } from '@/helpers/encode-chunk-name'
 import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-each-path-item-operation'
 import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -22,7 +24,6 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { extensions } from '@/schemas/extensions'
-import type { TraversedDocument } from '@/schemas/navigation'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import {
@@ -31,7 +32,7 @@ import {
   type OpenApiDocument,
   type OperationObject,
   type PathsObject,
-} from '@/schemas/v3.1/strict/openapi-document'
+} from '@/schemas/v3.2/strict/openapi-document'
 
 import type { Workspace, WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 
@@ -147,8 +148,12 @@ const preserveBundledExternals = (source: Record<string, unknown>, target: Recor
 export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record<string, OperationObject>> {
   const result: Record<string, Record<string, OperationObject>> = {}
 
-  // Todo: skip extension properties
   for (const [path, pathItemRef] of Object.entries(paths)) {
+    // Paths Object extensions can contain objects that resemble HTTP operations.
+    if (path.startsWith('x-')) {
+      continue
+    }
+
     const filteredMethods: Record<string, OperationObject> = {}
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
@@ -216,10 +221,7 @@ export function externalizeComponentReferences(
       const ref =
         meta.mode === 'ssr'
           ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
-          : // Escape the type and name so the static reference matches the escaped filename written
-            // by generateWorkspaceChunks, and so a key like `../../evil` cannot point outside the
-            // chunks directory.
-            `./chunks/${meta.name}/components/${escapeJsonPointer(type)}/${escapeJsonPointer(name)}.json#`
+          : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
 
       result[type][name] = { '$ref': ref, $global: true }
     })
@@ -247,7 +249,7 @@ export function externalizePathReferences(
       return
     }
 
-    const pathItemRecord = pathItem as Record<string, unknown>
+    const pathItemRecord: Record<string, unknown> = pathItem
 
     result[path] = {}
 
@@ -258,7 +260,7 @@ export function externalizePathReferences(
         const ref =
           meta.mode === 'ssr'
             ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`
-            : `./chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
+            : `./chunks/${encodeChunkName(meta.name)}/operations/${encodeChunkName(path)}/${type}.json#`
 
         result[path][type] = { '$ref': ref, $global: true }
       } else if (type !== '$ref' && type !== '$ref-value') {
@@ -426,7 +428,7 @@ export async function createServerWorkspaceStore(
    */
   const workspace: ServerWorkspace = {
     ...workspaceProps.meta,
-    documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedDocument }>,
+    documents: {},
   }
 
   /**
@@ -435,10 +437,10 @@ export async function createServerWorkspaceStore(
    * The keys are document names and values contain the components and operations
    * for that document.
    */
-  const assets = {} as Record<
+  const assets: Record<
     string,
     { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
-  >
+  > = {}
 
   /**
    * Adds an AsyncAPI document to the workspace.
@@ -471,7 +473,7 @@ export async function createServerWorkspaceStore(
     // leaves `info` missing on a partial document (which the traversal reads unguarded) and passes
     // shapes like `channels: null` straight through to the browser. Merged rather than assigned, so
     // nothing the schema does not model is dropped.
-    mergeObjects(asyncApiDocument, coerce(asyncApiObjectSchema as Schema, deepClone(asyncApiDocument)))
+    mergeObjects(asyncApiDocument, coerce<Schema>(asyncApiObjectSchema, deepClone(asyncApiDocument)))
 
     // Nothing is externalized, so the document owns no chunks. The empty entry keeps `get()` and
     // chunk generation well defined for the document name.
@@ -633,37 +635,34 @@ export async function createServerWorkspaceStore(
 
       // Write the workspace document
       const basePath = `${cwd()}/${workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER}`
-      await fs.mkdir(basePath, { recursive: true })
+      const writeChunk = await createChunkWriter(basePath)
+      await writeChunk([WORKSPACE_FILE_NAME], workspace)
 
-      // Write the workspace contents on the file system
-      await fs.writeFile(`${basePath}/${WORKSPACE_FILE_NAME}`, JSON.stringify(workspace))
-
-      // Write the chunks
       for (const [name, { components, operations }] of Object.entries(assets)) {
-        // Write the components chunks
         if (components) {
-          for (const [type, component] of Object.entries(components as Record<string, Record<string, unknown>>)) {
-            // Escape the component type and key the same way operation paths are escaped. Component
-            // keys come from the OpenAPI document, so a key like `../../evil` would otherwise let a
-            // document write chunk files outside the assets directory. escapeJsonPointer turns every
-            // `/` into `~1`, collapsing the value into a single safe path segment.
-            const componentPath = `${basePath}/chunks/${name}/components/${escapeJsonPointer(type)}`
-            await fs.mkdir(componentPath, { recursive: true })
-
+          for (const [type, component] of Object.entries(components)) {
             for (const [key, value] of Object.entries(component)) {
-              await fs.writeFile(`${componentPath}/${escapeJsonPointer(key)}.json`, JSON.stringify(value))
+              await writeChunk(
+                ['chunks', encodeChunkName(name), 'components', encodeChunkName(type), `${encodeChunkName(key)}.json`],
+                value,
+              )
             }
           }
         }
 
-        // Write the operations chunks
         if (operations) {
           for (const [path, methods] of Object.entries(operations)) {
-            const operationPath = `${basePath}/chunks/${name}/operations/${path}`
-            await fs.mkdir(operationPath, { recursive: true })
-
             for (const [method, operation] of Object.entries(methods)) {
-              await fs.writeFile(`${operationPath}/${method}.json`, JSON.stringify(operation))
+              await writeChunk(
+                [
+                  'chunks',
+                  encodeChunkName(name),
+                  'operations',
+                  encodeChunkName(unescapeJsonPointer(path)),
+                  `${encodeChunkName(method)}.json`,
+                ],
+                operation,
+              )
             }
           }
         }
