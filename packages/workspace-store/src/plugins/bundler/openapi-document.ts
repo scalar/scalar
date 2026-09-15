@@ -6,8 +6,11 @@ export const resolveOpenApiDocument: DocumentResolver = (document, retrievalUri)
   if (!isObject(document) || typeof document.openapi !== 'string' || typeof document.$self !== 'string') {
     return undefined
   }
-  const baseUri = resolveReferencePath(retrievalUri, document.$self)
-  return { baseUri, metadata: { openapi: document.openapi, $self: baseUri } }
+  const self = resolveReferencePath(retrievalUri, document.$self)
+  // RFC 3986 requires a fragment-free base, while the declared identity can retain its fragment.
+  const fragmentIndex = self.indexOf('#')
+  const baseUri = fragmentIndex === -1 ? self : self.slice(0, fragmentIndex)
+  return { baseUri, metadata: { openapi: document.openapi, $self: self } }
 }
 
 /** Honors `$self` for complete OpenAPI documents, including external and cached documents. */
