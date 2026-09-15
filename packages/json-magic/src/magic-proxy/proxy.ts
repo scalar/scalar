@@ -186,7 +186,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   // — documents without any never pay for it. Grown scopes are interned so the same `(parentScope,
   // resource)` yields one stable array identity for the caches.
   const childScope: DynamicScope =
-    carriesDynamicAnchor(target as UnknownObject) && hasDynamicRefs() && !args.dynamicScope.includes(target)
+    carriesDynamicAnchor(target as UnknownObject, args.dynamicScope) &&
+    hasDynamicRefs() &&
+    !args.dynamicScope.includes(target)
       ? internScope(args.scopeCache, args.dynamicScope, target as UnknownObject)
       : args.dynamicScope
 
