@@ -817,7 +817,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         in: union([literal('query'), literal('querystring'), literal('header'), literal('path'), literal('cookie')], {
           typeName: 'ParameterLocation',
           typeComment:
-            'REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie".',
+            'REQUIRED. The location of the parameter. Possible values are "query", "querystring", "header", "path" or "cookie".',
         }),
         description: optional(
           string({
@@ -881,7 +881,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         in: union([literal('query'), literal('querystring'), literal('header'), literal('path'), literal('cookie')], {
           typeName: 'ParameterLocation',
           typeComment:
-            'REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie".',
+            'REQUIRED. The location of the parameter. Possible values are "query", "querystring", "header", "path" or "cookie".',
         }),
         description: optional(
           string({

@@ -1,3 +1,5 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -44,7 +46,7 @@ export const getQuerystringJsonSchema = (
   parameter: OpenAPIV3_2.ParameterObject | undefined,
 ): Record<string, unknown> | null => {
   const [contentType, media] = Object.entries(parameter?.content ?? {})[0] ?? []
-  if (contentType?.split(';')[0]?.trim().toLowerCase() !== 'application/x-www-form-urlencoded') {
+  if (parseMimeType(contentType).essence !== 'application/x-www-form-urlencoded') {
     return null
   }
   const selectJsonProperties = (schema: Record<string, unknown> | undefined): Record<string, unknown> => {
@@ -56,7 +58,7 @@ export const getQuerystringJsonSchema = (
           return false
         }
         const item = isArraySchema(property) ? (property.items as Record<string, unknown> | undefined) : property
-        return /(?:\/|\+)json(?:;|$)/i.test(encoding?.contentType ?? '') || isObjectSchema(item) || isArraySchema(item)
+        return isJsonMediaType(encoding?.contentType) || isObjectSchema(item) || isArraySchema(item)
       }),
     )
     const result: Record<string, unknown> = { properties: jsonProperties }
@@ -85,10 +87,10 @@ export const parseQuerystringParameter = (url: string, parameter: OpenAPIV3_2.Pa
     return undefined
   }
   const [contentType, media] = Object.entries(parameter.content ?? {})[0] ?? []
-  const mediaType = contentType?.split(';')[0]?.trim().toLowerCase()
+  const mediaType = parseMimeType(contentType).essence
   if (mediaType !== 'application/x-www-form-urlencoded') {
     const decoded = decodeURIComponent(query)
-    return /(?:\/|\+)json$/.test(mediaType ?? '') ? JSON.parse(decoded) : decoded
+    return isJsonMediaType(mediaType) ? JSON.parse(decoded) : decoded
   }
 
   const params = new URLSearchParams(query)
@@ -145,7 +147,7 @@ export const parseQuerystringParameter = (url: string, parameter: OpenAPIV3_2.Pa
     if (single === undefined) {
       continue
     }
-    const json = /(?:\/|\+)json(?:;|$)/i.test(encoding?.contentType ?? '')
+    const json = isJsonMediaType(encoding?.contentType)
     const decode = (value: string, itemSchema: Record<string, unknown> | undefined): unknown =>
       json || isObjectSchema(itemSchema) || isArraySchema(itemSchema) ? JSON.parse(value) : value
     result[name] = isArraySchema(property)

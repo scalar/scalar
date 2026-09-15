@@ -1,3 +1,5 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 
@@ -14,10 +16,8 @@ export type QuerystringParameter = {
   value: unknown
   contentType: string
   encoding?: Record<string, EncodingObject>
-  /** Parameter-level serialized examples already include URI escaping. */
-  uriEncoded: boolean
-  /** Media-level serialized examples need URI escaping, but no media serialization. */
-  serialized: boolean
+  /** URI-ready parameter examples, serialized media examples, or data requiring media serialization. */
+  kind: 'uri-ready' | 'serialized' | 'data'
 }
 
 /** Resolve the selected whole-query example, including content-schema defaults. */
@@ -52,9 +52,12 @@ export const getQuerystringParameter = (
     value: value !== undefined ? value : schema ? getExampleFromSchema(schema) : '',
     contentType,
     encoding: mediaType?.encoding,
-    uriEncoded: example?.serializedValue !== undefined && parameterExample === example,
-    serialized:
-      example?.serializedValue !== undefined || (example?.dataValue === undefined && typeof value === 'string'),
+    kind:
+      parameterExample?.serializedValue !== undefined
+        ? 'uri-ready'
+        : example?.serializedValue !== undefined || (example?.dataValue === undefined && typeof value === 'string')
+          ? 'serialized'
+          : 'data',
   }
 }
 
@@ -78,10 +81,10 @@ export const serializeQuerystringParameter = (
     return value
   }
   const value = replace(parameter.value)
-  if (parameter.uriEncoded) {
+  if (parameter.kind === 'uri-ready') {
     return String(value)
   }
-  const contentType = parameter.contentType.split(';')[0]?.trim().toLowerCase()
+  const contentType = parseMimeType(parameter.contentType).essence
   if (contentType === 'application/x-www-form-urlencoded') {
     if (typeof value === 'string') {
       return value
@@ -104,8 +107,7 @@ export const serializeQuerystringParameter = (
         encoding?.style !== undefined || encoding?.explode !== undefined || encoding?.allowReserved !== undefined
       for (const part of Array.isArray(item) ? item : [item]) {
         const json =
-          !styleBased &&
-          (/(?:\/|\+)json(?:;|$)/i.test(encoding?.contentType ?? '') || (part !== null && typeof part === 'object'))
+          !styleBased && (isJsonMediaType(encoding?.contentType) || (part !== null && typeof part === 'object'))
         params.append(key, json ? JSON.stringify(part) : String(part ?? ''))
       }
       if (encoding?.allowReserved) {
@@ -114,11 +116,12 @@ export const serializeQuerystringParameter = (
     }
     return applyAllowReservedToUrl(`?${params}`, reservedKeys).slice(1)
   }
-  const serialized = parameter.serialized
-    ? String(value)
-    : /(?:\/|\+)json$/.test(contentType ?? '')
-      ? JSON.stringify(value)
-      : String(value)
+  const serialized =
+    parameter.kind === 'serialized'
+      ? String(value)
+      : isJsonMediaType(contentType)
+        ? JSON.stringify(value)
+        : String(value)
   return encodeURIComponent(serialized).replace(
     /[!'()*]/g,
     (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,
