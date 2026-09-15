@@ -77,10 +77,11 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
         if (schemaReference && isObject(value) && (value.$id !== undefined || value.$schema !== undefined)) {
           return undefined
         }
-        if (Array.isArray(value)) {
-          return /^(0|[1-9]\d*)$/.test(key) ? value[Number(key)] : undefined
+        if (Array.isArray(value) && !/^(0|[1-9]\d*)$/.test(key)) {
+          return undefined
         }
-        return isObject(value) && Object.hasOwn(value, key) ? value[key] : undefined
+        // Read only stored values, never inherited properties or accessors.
+        return isObject(value) || Array.isArray(value) ? Object.getOwnPropertyDescriptor(value, key)?.value : undefined
       }, document)
     } catch {
       return undefined
