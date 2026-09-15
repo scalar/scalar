@@ -21,6 +21,7 @@ import {
   ScalarColorModeToggleIcon,
 } from '@scalar/components/color-mode-toggle'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
+import { MARKDOWN_RENDER_HOOKS } from '@scalar/components/markdown'
 import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
@@ -569,6 +570,7 @@ const pluginManager = createPluginManager({
   },
 })
 provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
 
 pluginManager.notifyInit(mergedConfig.value)
 
@@ -1505,8 +1507,9 @@ const apiClient = useLazyApiClient({
         return null
       }
       stopReferenceClientEvents()
-      return createApiClientModal({
+      const client = createApiClientModal({
         el: modal.value,
+        mountOnInitialize: false,
         eventBus,
         workspaceStore: clientStore,
         options: runtimeConfig,
@@ -1515,6 +1518,12 @@ const apiClient = useLazyApiClient({
           ...mapConfigPlugins(mergedConfig, environment),
         ],
       })
+      client.app.provide(
+        MARKDOWN_RENDER_HOOKS,
+        pluginManager.getMarkdownRenderHooks(),
+      )
+      client.mount(modal.value)
+      return client
     }
   },
 })
