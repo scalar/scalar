@@ -7,6 +7,7 @@ import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
+import { openApiDocument, resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
 
 /**
  * Processes an OpenAPI document by bundling external references, upgrading to OpenAPI 3.2,
@@ -52,7 +53,13 @@ export async function processOpenApiDocument(
     // Include parseJson and parseYaml to handle string inputs
     bundled = await bundle(document, {
       origin,
-      plugins: [parseJson(), parseYaml(), readFiles({ basePath }), fetchUrls({ blockPrivateNetworks: true })],
+      plugins: [
+        openApiDocument(),
+        parseJson(),
+        parseYaml(),
+        readFiles({ basePath }),
+        fetchUrls({ blockPrivateNetworks: true }),
+      ],
       treeShake: false,
     })
   } catch (error) {
@@ -80,5 +87,5 @@ export async function processOpenApiDocument(
 
   // Wrap the document in a magic proxy so internal references resolve lazily via `$ref-value`.
   // External references were already pulled inline by `bundle` above, so only local `$ref`s remain.
-  return createMagicProxy(upgraded)
+  return createMagicProxy(upgraded, { documentUri: resolveOpenApiDocument(upgraded, '/')?.baseUri })
 }

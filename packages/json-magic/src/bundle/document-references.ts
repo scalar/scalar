@@ -6,6 +6,17 @@ import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
+/** Format-specific document identity, supplied by the caller. */
+export type DocumentIdentity = {
+  /** Declared base URI, resolved relative to the retrieval URI when necessary. */
+  baseUri: string
+  /** Root properties applied before indexing and retained when copying a subtree. */
+  metadata?: Record<string, unknown>
+}
+
+/** Reads document identity without imposing a document format on the bundler. */
+export type DocumentResolver = (document: unknown, retrievalUri: string) => DocumentIdentity | undefined
+
 /** A loaded resource and its location in the output document. */
 type Resource = {
   value: unknown
@@ -19,6 +30,7 @@ type Resource = {
 
 /** Resolution metadata survives moving documents into the bundle. */
 type DocumentReferences = {
+  identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[]) => void
   isSchemaResource: (uri: string) => boolean
   origin: (node: object) => string | undefined
@@ -34,17 +46,24 @@ type DocumentReferences = {
  * Indexes complete documents before following their references. A declared identity
  * can point to content already in memory even when that URI cannot be fetched.
  */
-export const documentReferences = (externalDocumentsKey: string): DocumentReferences => {
+export const documentReferences = (
+  externalDocumentsKey: string,
+  resolveDocument?: DocumentResolver,
+): DocumentReferences => {
+  const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
   const origins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
 
   const register = (document: unknown, retrievalUri: string, path: string[] = []): void => {
-    const self =
-      isObject(document) && typeof document.openapi === 'string' && typeof document.$self === 'string'
-        ? document.$self
-        : undefined
-    const base = self === undefined ? retrievalUri : resolveReferencePath(retrievalUri, self)
+    const identity = resolveDocument?.(document, retrievalUri)
+    const base = identity === undefined ? retrievalUri : resolveReferencePath(retrievalUri, identity.baseUri)
+    if (identity !== undefined) {
+      identities.set(document, { ...identity, baseUri: base })
+      if (isObject(document) && identity.metadata) {
+        Object.assign(document, identity.metadata)
+      }
+    }
     const resource = { value: document, path, schema: false, embedded: path.length > 0, document, documentPath: path }
     // Retrieval aliases retain compatibility with callers that supply local copies.
     resources.set(retrievalUri, resource)
@@ -91,6 +110,7 @@ export const documentReferences = (externalDocumentsKey: string): DocumentRefere
   }
 
   return {
+    identity: (document) => identities.get(document),
     register,
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),

@@ -11,7 +11,7 @@ import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
-import { documentReferences } from './document-references'
+import { type DocumentResolver, documentReferences } from './document-references'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -172,6 +172,7 @@ export const resolveAndCopyReferences = (
   documentKey: string,
   bundleLocalRefs = false,
   processedNodes = new Set(),
+  documentMetadata: Record<string, unknown> = {},
 ) => {
   const referencedValue = getValueByPath(sourceDocument, getSegmentsFromPath(referencePath)).value
 
@@ -191,11 +192,13 @@ export const resolveAndCopyReferences = (
     if (!isObject(ancestor)) {
       continue
     }
-    const keys = length === 2 ? ['$self', 'openapi', '$id'] : ['$id']
-    for (const key of keys) {
-      if (typeof ancestor[key] === 'string') {
-        setValueAtPath(targetDocument, `/${[...ancestorPath, key].map(escapeJsonPointer).join('/')}`, ancestor[key])
+    if (length === 2) {
+      for (const [key, value] of Object.entries(documentMetadata)) {
+        setValueAtPath(targetDocument, `/${[...ancestorPath, key].map(escapeJsonPointer).join('/')}`, value)
       }
+    }
+    if (typeof ancestor.$id === 'string') {
+      setValueAtPath(targetDocument, `/${[...ancestorPath, '$id'].map(escapeJsonPointer).join('/')}`, ancestor.$id)
     }
   }
 
@@ -219,6 +222,7 @@ export const resolveAndCopyReferences = (
           documentKey,
           bundleLocalRefs,
           processedNodes,
+          documentMetadata,
         )
       }
       // Bundle the local refs as well
@@ -231,6 +235,7 @@ export const resolveAndCopyReferences = (
           documentKey,
           bundleLocalRefs,
           processedNodes,
+          documentMetadata,
         )
       }
     }
@@ -399,6 +404,11 @@ type Config = {
    * Allows tracking the progress and status of reference resolution.
    */
   hooks?: Partial<{
+    /** Called once a complete document is available, including cached and saved documents.
+     * The first resolver returning an identity supplies its base URI and retained metadata.
+     * This hook is synchronous because identities are indexed before following references.
+     */
+    resolveDocument: DocumentResolver
     /**
      * Optional hook called when the bundler starts resolving a $ref.
      * Useful for tracking or logging the beginning of a reference resolution.
@@ -586,16 +596,22 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     return '/'
   }
 
-  const references = documentReferences(config.externalDocumentsKey)
+  const references = documentReferences(config.externalDocumentsKey, (document, retrievalUri) => {
+    for (const resolver of [
+      config.hooks?.resolveDocument,
+      ...lifecyclePlugin.map((plugin) => plugin.resolveDocument),
+    ]) {
+      const identity = resolver?.(document, retrievalUri)
+      if (identity !== undefined) {
+        return identity
+      }
+    }
+    return undefined
+  })
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
-  // Qualified references must keep identifying this document after it is moved.
-  if (isObject(documentRoot) && typeof documentRoot.openapi === 'string' && typeof documentRoot.$self === 'string') {
-    documentRoot.$self = defaultOrigin
-  }
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
-    const hasIdentity =
-      (isObject(documentRoot) && typeof documentRoot.$self === 'string') || getId(documentRoot) !== undefined
+    const hasIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
     return hasIdentity && references.isSchemaResource(sourceOrigin) && sourceOrigin !== defaultOrigin
       ? `${defaultOrigin}${pointer}`
       : pointer
@@ -761,6 +777,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
               `/${localRef}`,
               key,
               documentKey,
+              false,
+              new Set(),
+              references.identity(local.document)?.metadata,
             )
           } else {
             setValueAtPath(documentRoot, `/${local.documentPath.map(escapeJsonPointer).join('/')}`, local.document)
@@ -837,6 +856,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath]).substring(1),
             config.externalDocumentsKey,
             compressedPath,
+            false,
+            new Set(),
+            references.identity(result.data)?.metadata,
           )
         } else if (!seen) {
           // Store the external document in the main document's x-ext key

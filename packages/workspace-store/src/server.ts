@@ -31,6 +31,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
+import { resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -102,7 +103,9 @@ type CreateServerWorkspaceStoreProps =
  * enumerable on a proxy and serializing one would inline every referenced value beside its `$ref`.
  */
 const resolveLocalReferences = <T extends object>(document: T): T =>
-  createMagicProxy(document as Record<string, never>) as T
+  createMagicProxy(document as Record<string, never>, {
+    documentUri: resolveOpenApiDocument(document, '/')?.baseUri,
+  }) as T
 
 /**
  * The keys `@scalar/json-magic` bundling parks external documents under.

@@ -3,6 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { createMagicProxy, getRaw } from './proxy'
 
 describe('createMagicProxy', () => {
+  it('resolves a qualified root pointer using the supplied document URI', () => {
+    const input = { value: { type: 'string' }, item: { $ref: 'https://example.com/document.json#/value' } }
+    const proxy = createMagicProxy(input, { documentUri: 'https://example.com/document.json' })
+    expect(proxy.item).toStrictEqual({
+      $ref: 'https://example.com/document.json#/value',
+      '$ref-value': { type: 'string' },
+    })
+  })
+
   describe('get', () => {
     it('should correctly proxy internal refs', () => {
       const input = {

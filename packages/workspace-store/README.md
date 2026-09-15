@@ -574,3 +574,26 @@ await result.applyChanges({ resolvedDocument: newDocument })
 ```
 
 After `applyChanges` returns, the merged document becomes both the new active document and the new saved baseline, so a subsequent `revertDocumentChanges` rolls back to the post-rebase state rather than the pre-rebase original.
+
+## OpenAPI document identity
+
+The store honors `$self` when resolving relative references in an OpenAPI description. Relative identities resolve against the document source URL. External documents keep their own identities, including across partial bundles.
+
+Other OpenAPI bundling callers can opt in with the same plugin:
+
+```ts
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
+import { openApiDocument, resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
+
+const document = await bundle('https://example.com/openapi.json', {
+  plugins: [fetchUrls(), openApiDocument()],
+  treeShake: false,
+})
+const resolved = createMagicProxy(document, {
+  documentUri: resolveOpenApiDocument(document, '/')?.baseUri,
+})
+```
+
+The plugin interprets `$self` only on complete OpenAPI documents. Example payloads and API server URLs are unchanged.

@@ -399,3 +399,5 @@ export const removeExtraScalarKeys = (): LifecyclePlugin => {
     },
   }
 }
+
+export { openApiDocument, resolveOpenApiDocument } from './openapi-document'

@@ -37,8 +37,10 @@ import {
   loadingStatus,
   normalizeAuthSchemes,
   normalizeRefs,
+  openApiDocument,
   refsEverywhere,
   removeExtraScalarKeys,
+  resolveOpenApiDocument,
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
@@ -1142,7 +1144,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },
-      { showInternal: true },
+      { showInternal: true, documentUri: resolveOpenApiDocument(inputDocument, input.documentSource ?? '/')?.baseUri },
     )
 
     // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -1156,6 +1158,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             treeShake: false,
             plugins: [
               ...loaders,
+              openApiDocument(),
               normalizeRefs(),
               externalValueResolver({ lazy: true }),
               refsEverywhere(),
@@ -1198,7 +1201,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // We create a new proxy here in order to hide internal properties after validation and processing
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
     const documentOverrides = unpackProxyObject(overrides[name])
-    const magicDocument = createMagicProxy(getRaw(strictDocument)) as OpenApiDocument
+    const magicDocument = createMagicProxy(getRaw(strictDocument), {
+      documentUri: resolveOpenApiDocument(getRaw(strictDocument), '/')?.baseUri,
+    }) as OpenApiDocument
     workspace.documents[name] = needsOverridesProxy(documentOverrides)
       ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
       : magicDocument
@@ -1323,7 +1328,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
     // Reverse all external references and restore original $refs
     const original = (await bundle(deepClone(rawDocument), {
-      plugins: [restoreOriginalRefs(), removeExtraScalarKeys()],
+      plugins: [openApiDocument(), restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
       urlMap: true,
     })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
@@ -1469,6 +1474,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
         plugins: [
+          openApiDocument(),
           fetchUrls({
             fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
             limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
@@ -1592,7 +1598,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           Object.entries(input.documents).map(([name, doc]) => {
             // Hydration only rewraps: an exported document has already been upgraded, bundled, coerced
             // and given its navigation, so nothing here re-processes it.
-            const magicDocument = createMagicProxy(doc)
+            const magicDocument = createMagicProxy(doc, { documentUri: resolveOpenApiDocument(doc, '/')?.baseUri })
             const documentOverrides = input.overrides[name]
 
             return [
