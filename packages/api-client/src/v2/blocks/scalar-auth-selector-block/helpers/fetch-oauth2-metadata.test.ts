@@ -32,20 +32,34 @@ describe('fetch-oauth2-metadata', () => {
     },
   )
 
-  it.each([
-    {},
-    null,
-    { token_endpoint: 123 },
-    { token_endpoint: 'http://example.com/token' },
-    { token_endpoint: 'https://example.com/token', scopes_supported: 'read' },
-  ])('rejects invalid metadata %j', async (metadata) => {
-    const [error, data] = await fetchOAuth2Metadata(
+  it.each([{}, null, { token_endpoint: 123 }, { token_endpoint: 'http://example.com/token' }])(
+    'rejects invalid metadata %j',
+    async (metadata) => {
+      const [error, data] = await fetchOAuth2Metadata(
+        'https://example.com/metadata',
+        '',
+        vi.fn().mockResolvedValue(Response.json(metadata)),
+      )
+      expect(error).toBeInstanceOf(Error)
+      expect(data).toBeNull()
+    },
+  )
+
+  it.each(['localhost', '127.0.0.1', '[::1]'])('accepts HTTP metadata and endpoints on %s', async (host) => {
+    const metadata = { token_endpoint: `http://${host}:5052/token` }
+    expect(
+      await fetchOAuth2Metadata(`http://${host}:5052/metadata`, '', vi.fn().mockResolvedValue(Response.json(metadata))),
+    ).toStrictEqual([null, metadata])
+  })
+
+  it('coerces metadata like OpenID Connect discovery', async () => {
+    const metadata = { token_endpoint: 'https://example.com/token', scopes_supported: 'read' }
+    const [, data] = await fetchOAuth2Metadata(
       'https://example.com/metadata',
       '',
       vi.fn().mockResolvedValue(Response.json(metadata)),
     )
-    expect(error).toBeInstanceOf(Error)
-    expect(data).toBeNull()
+    expect(data).toStrictEqual({ token_endpoint: metadata.token_endpoint, scopes_supported: [] })
   })
 
   it('returns HTTP failures', async () => {

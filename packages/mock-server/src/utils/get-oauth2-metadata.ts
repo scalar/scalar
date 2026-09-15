@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 
 import { getPathFromUrl } from './get-open-auth-token-urls'
 
@@ -13,7 +13,7 @@ type OAuth2Metadata = {
 }
 
 /** Advertises local mock endpoints instead of sending clients to the real authorization server. */
-export const getOAuth2Metadata = (flows: OpenAPIV3_1.OAuth2SecurityScheme['flows'], origin: string): OAuth2Metadata => {
+export const getOAuth2Metadata = (flows: OpenAPIV3_2.OAuth2SecurityScheme['flows'], origin: string): OAuth2Metadata => {
   const authorizationFlow = flows?.authorizationCode ?? flows?.implicit
   const tokenFlow = flows?.authorizationCode ?? flows?.clientCredentials ?? flows?.password
   const localUrl = (url: string): string => new URL(getPathFromUrl(url), origin).href
