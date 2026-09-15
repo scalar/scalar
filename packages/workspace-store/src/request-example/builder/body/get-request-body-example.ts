@@ -25,7 +25,9 @@ export const getSchemaExampleFromBody = (
   contentType: string,
   requestBodyCompositionSelection?: Record<string, number>,
 ): unknown => {
-  const schema = getResolvedRef(requestBody.content?.[contentType]?.schema)
+  const media = requestBody.content?.[contentType]
+  const schema =
+    getResolvedRef(media?.schema) ?? (media?.itemSchema ? { type: 'array', items: media.itemSchema } : undefined)
   if (!schema) {
     return undefined
   }
