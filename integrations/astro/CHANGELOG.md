@@ -1,5 +1,11 @@
 # @scalar/astro
 
+## 0.4.19
+
+### Patch Changes
+
+- [#10132](https://github.com/scalar/scalar/pull/10132): Set Astro attribution by default. Add render tests and a repeatable type check.
+
 ## 0.4.18
 
 ## 0.4.17

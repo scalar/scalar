@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.4.5
+
+### Patch Changes
+
+- [#10134](https://github.com/scalar/scalar/pull/10134): Add Scalar styling, drag instructions, and a responsive layout to the playground.
+
 ## 0.4.4
 
 ### Patch Changes
