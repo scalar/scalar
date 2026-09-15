@@ -5,6 +5,14 @@ import { type ApiReferenceConfigurationRaw, DEFAULT_MODELS_SECTION_LABEL } from 
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { IdGenerator } from '@/schemas/navigation'
 
+/** Fixed fields retain their existing links; authored variants need a distinct namespace. */
+const getMethodId = (method: string | undefined): string | undefined =>
+  isHttpMethod(method)
+    ? method === method.toLowerCase()
+      ? method.toUpperCase()
+      : `additionalOperations/${method}`
+    : method
+
 export type NavigationOptions =
   | Partial<
       Pick<
@@ -100,12 +108,15 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
         return `${prefixTag}${options.generateOperationSlug({
           path: props.path,
           operationId: props.operation.operationId,
-          method: isHttpMethod(props.method) ? props.method.toUpperCase() : props.method,
+          method:
+            isHttpMethod(props.method) && props.method === props.method.toLowerCase()
+              ? props.method.toUpperCase()
+              : props.method,
           summary: props.operation.summary,
         })}`
       }
 
-      return `${prefixTag}${isHttpMethod(props.method) ? props.method.toUpperCase() : props.method}${props.path}`
+      return `${prefixTag}${getMethodId(props.method)}${props.path}`
     }
 
     // -------- Default webhook id generation logic --------
@@ -121,14 +132,17 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
       if (options?.generateWebhookSlug) {
         return `${prefixTag}webhook/${options.generateWebhookSlug({
           name: props.name,
-          method: isHttpMethod(props.method) ? props.method.toUpperCase() : props.method,
+          method:
+            isHttpMethod(props.method) && props.method === props.method.toLowerCase()
+              ? props.method.toUpperCase()
+              : props.method,
         })}`
       }
 
       // Webhook events are commonly named with dots (e.g. "account_holder.created").
       // Keep the dot so the deep link stays close to the event name, instead of
       // dropping it and joining adjacent words ("account-holdercreated").
-      return `${prefixTag}webhook/${isHttpMethod(props.method) ? props.method.toUpperCase() : props.method}/${slugify(props.name, { allowedSpecialChars: '.' })}`
+      return `${prefixTag}webhook/${getMethodId(props.method)}/${slugify(props.name, { allowedSpecialChars: '.' })}`
     }
 
     // -------- Default model id generation logic --------
