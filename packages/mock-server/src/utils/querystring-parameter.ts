@@ -1,3 +1,4 @@
+import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
@@ -45,7 +46,7 @@ const getPropertySchemas = (schema: Record<string, unknown> | undefined): Record
 export const getQuerystringJsonSchema = (
   parameter: OpenAPIV3_2.ParameterObject | undefined,
 ): Record<string, unknown> | null => {
-  const [contentType, media] = Object.entries(parameter?.content ?? {})[0] ?? []
+  const [contentType, media] = getFirstMediaType(parameter?.content) ?? []
   if (parseMimeType(contentType).essence !== 'application/x-www-form-urlencoded') {
     return null
   }
@@ -86,7 +87,7 @@ export const parseQuerystringParameter = (url: string, parameter: OpenAPIV3_2.Pa
   if (!query) {
     return undefined
   }
-  const [contentType, media] = Object.entries(parameter.content ?? {})[0] ?? []
+  const [contentType, media] = getFirstMediaType(parameter.content) ?? []
   const mediaType = parseMimeType(contentType).essence
   if (mediaType !== 'application/x-www-form-urlencoded') {
     const decoded = decodeURIComponent(query)
