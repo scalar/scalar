@@ -167,21 +167,8 @@ jobs:
         run: git status
       - name: Stash changes
         run: git stash
-      # `pnpm publish` has no OIDC support of its own: it packs a tarball and
-      # shells out to `npm publish`, and it is npm that trades the id-token for
-      # a publish token. That exchange landed in npm 11.5.1, which is newer than
-      # the npm bundled with some Node 24.x releases, so pin the floor here
-      # rather than inherit whatever .nvmrc resolves to this week.
-      - name: Ensure npm supports trusted publishing
-        run: |
-          MINIMUM=11.5.1
-          CURRENT=$(npm --version)
-          if [ "$(printf '%s\n' "$MINIMUM" "$CURRENT" | sort -V | head -n1)" != "$MINIMUM" ]; then
-            echo "npm $CURRENT is older than $MINIMUM, upgrading"
-            npm install --global npm@latest
-          fi
-          echo "npm $(npm --version)"
-
+      # pnpm 12 publishes natively and only reads auth/registry settings from .npmrc.
+      # Request provenance explicitly to retain the previous provenance=true behavior.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
@@ -201,7 +188,7 @@ jobs:
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages.
-          publish: 'pnpm -r publish --access public --no-git-checks'
+          publish: 'pnpm -r publish --access public --no-git-checks --provenance'
         env:
           # The app token (not GITHUB_TOKEN) is what makes the release PR
           # trigger CI — see the "Generate GitHub App token" step above.
