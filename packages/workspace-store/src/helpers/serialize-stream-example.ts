@@ -1,16 +1,22 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-/** Recognize the sequential media types whose examples have record framing. */
-export const isStreamingMediaType = (contentType: string): boolean => {
+/** Keep detection and framing aligned on the same supported media formats. */
+const getStreamFormat = (contentType: string): 'json-lines' | 'json-seq' | 'sse' | undefined => {
   const { essence, subtype } = parseMimeType(contentType)
-  return (
-    essence === 'text/event-stream' ||
-    subtype === 'json-seq' ||
-    subtype.endsWith('+json-seq') ||
-    ['application/jsonl', 'application/x-ndjson', 'application/json-lines'].includes(essence)
-  )
+  if (essence === 'text/event-stream') {
+    return 'sse'
+  }
+  if (essence === 'application/json-seq' || subtype.endsWith('+json-seq')) {
+    return 'json-seq'
+  }
+  return ['application/jsonl', 'application/x-ndjson', 'application/json-lines'].includes(essence)
+    ? 'json-lines'
+    : undefined
 }
+
+/** Recognize the sequential media types whose examples have record framing. */
+export const isStreamingMediaType = (contentType: string): boolean => getStreamFormat(contentType) !== undefined
 
 /** Serialize generated sequential content; explicit wire-format examples bypass this helper. */
 export const serializeStreamExample = (
@@ -21,19 +27,15 @@ export const serializeStreamExample = (
   if (value === undefined) {
     return undefined
   }
-  const { essence: mimeType } = parseMimeType(contentType)
+  const format = getStreamFormat(contentType)
   const items = singleItem ? [value] : Array.isArray(value) ? value : [value]
-  if (
-    mimeType === 'application/jsonl' ||
-    mimeType === 'application/x-ndjson' ||
-    mimeType === 'application/json-lines'
-  ) {
+  if (format === 'json-lines') {
     return items.map((item) => `${JSON.stringify(item)}\n`).join('')
   }
-  if (mimeType === 'application/json-seq' || mimeType.endsWith('+json-seq')) {
+  if (format === 'json-seq') {
     return items.map((item) => `\u001e${JSON.stringify(item)}\n`).join('')
   }
-  if (mimeType === 'text/event-stream') {
+  if (format === 'sse') {
     return items
       .map((item) => {
         if (!isObject(item)) {

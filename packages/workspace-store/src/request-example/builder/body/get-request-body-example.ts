@@ -62,6 +62,10 @@ export const getExampleFromBody = (
   const example = getExample(requestBody, exampleName, contentType)
   const selected = getExampleValue(example)
   if (example && selected) {
+    const stream = typeof selected.value === 'string' ? undefined : serializeStreamExample(selected.value, contentType, false)
+    if (stream !== undefined) {
+      return { ...example, value: stream, serializedValue: stream }
+    }
     return selected.source === 'value' ? example : { ...example, value: selected.value }
   }
 
