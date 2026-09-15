@@ -37,6 +37,7 @@ export const createResponseStreamParser = (contentType: string, emit: (text: str
   }
   const decoder = new TextDecoder('utf-8', { fatal: format !== 'text' && format !== undefined })
   let buffer = ''
+  let recordBytes = 0
   let started = false
   let depth = 0
   let quoted = false
@@ -45,6 +46,7 @@ export const createResponseStreamParser = (contentType: string, emit: (text: str
   const flush = (): void => {
     const record = buffer
     buffer = ''
+    recordBytes = 0
     depth = 0
     quoted = false
     escaped = false
@@ -86,7 +88,10 @@ export const createResponseStreamParser = (contentType: string, emit: (text: str
         continue
       }
       buffer += char
-      if (buffer.length > MAX_STREAM_RECORD_SIZE) {
+      // Iteration yields complete code points, so surrogate pairs occupy four UTF-8 bytes.
+      const codeUnit = char.charCodeAt(0)
+      recordBytes += char.length === 2 ? 4 : codeUnit <= 0x7f ? 1 : codeUnit <= 0x7ff ? 2 : 3
+      if (recordBytes > MAX_STREAM_RECORD_SIZE) {
         throw new Error('Stream record exceeds the 8 MiB display limit.')
       }
       if (format === 'json-lines') {

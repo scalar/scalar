@@ -34,6 +34,26 @@ describe('ResponseBodyStreaming', () => {
     expect(wrapper.text()).not.toContain('Listening')
   })
 
+  it('cancels with a visible error when multibyte output exceeds 16 MiB', async () => {
+    let cancelled = false
+    const chunk = new TextEncoder().encode('月'.repeat(2 * 1024 * 1024))
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controller.enqueue(chunk)
+        controller.enqueue(chunk)
+        controller.enqueue(chunk)
+      },
+      cancel: () => {
+        cancelled = true
+      },
+    })
+    const wrapper = mount(ResponseBodyStreaming, { props: { reader: stream.getReader() } })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Stream display reached its 16 MiB limit.')
+    expect(wrapper.text()).not.toContain('Listening')
+    expect(cancelled).toBe(true)
+  })
+
   let mockReader: ReadableStreamDefaultReader<Uint8Array>
 
   beforeEach(() => {
