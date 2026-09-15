@@ -241,7 +241,10 @@ export const processBody = ({
 
     return {
       mimeType: harMimeType,
-      text: typeof exampleValue === 'string' ? exampleValue : JSON.stringify(exampleValue),
+      text:
+        typeof exampleValue === 'string'
+          ? exampleValue
+          : (serializeStreamExample(exampleValue, _contentType, false) ?? JSON.stringify(exampleValue)),
     }
   }
 

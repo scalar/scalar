@@ -60,7 +60,9 @@ export const getExampleFromBody = (
   // schema-generated example instead of building an empty request body.
   const example = getExample(requestBody, exampleName, contentType)
   if (example && example.value !== undefined) {
-    return example
+    const stream =
+      typeof example.value === 'string' ? undefined : serializeStreamExample(example.value, contentType, false)
+    return stream === undefined ? example : { ...example, value: stream }
   }
 
   // Generate an example from the schema
