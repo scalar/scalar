@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { rustReqwest } from './reqwest'
 
 describe('rustReqwest', () => {
+  it.each(['customMethod', 'COPY', 'Get'])('uses a generic request for %s', (method) => {
+    expect(rustReqwest.generate({ url: 'https://example.com', method })).toBe(`let client = reqwest::Client::new();
+
+let request = client.request(reqwest::Method::from_bytes("${method}".as_bytes())?, "https://example.com");
+
+let response = request.send().await?;`)
+  })
+
   it('returns a basic request', () => {
     const result = rustReqwest.generate({
       url: 'https://example.com',

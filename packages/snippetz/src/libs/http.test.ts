@@ -101,6 +101,10 @@ describe('accumulateRepeatedValue', () => {
 })
 
 describe('normalizeMethod', () => {
+  it.each(['COPY', 'copy', 'customMethod', 'Get', 'pAtCh'])('preserves the case of %s', (method) => {
+    expect(normalizeMethod(method)).toBe(method)
+  })
+
   it('uppercases an explicit method', () => {
     expect(normalizeMethod('post')).toBe('POST')
   })

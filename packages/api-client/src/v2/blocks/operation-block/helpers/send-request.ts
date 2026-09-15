@@ -1,7 +1,6 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
 import { X_SCALAR_SET_COOKIE } from '@scalar/helpers/http/scalar-headers'
@@ -32,7 +31,7 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   /** The response status text */
   statusText: string
   /** The response method */
-  method: HttpMethod
+  method: string
   /** The request path */
   path: string
 } & (
@@ -114,7 +113,7 @@ export const sendRequest = async ({
     const responseUrl = new URL(response.url || requestPayload[0])
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
-    const method = (requestPayload[1].method ?? 'GET') as HttpMethod
+    const method = (requestPayload[1].method ?? 'GET') as string
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
@@ -195,7 +194,7 @@ const buildStreamingResponse = ({
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
-  method: HttpMethod
+  method: string
   fullPath: string
 }): ErrorResponse<{
   response: ResponseInstance
@@ -254,7 +253,7 @@ const buildStandardResponse = async ({
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
-  method: HttpMethod
+  method: string
   fullPath: string
   contentType: string | null
   shouldSkipBody: boolean

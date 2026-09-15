@@ -22,6 +22,19 @@ describe('OpenApiClientButton', () => {
     expect(href.searchParams.get('operation_method')).toBe('get')
   })
 
+  it.each(['COPY', 'copy', 'customMethod', 'pAtCh'])('preserves the custom method %s in the import link', (method) => {
+    const wrapper = mount(OpenApiClientButton, {
+      props: {
+        buttonSource: 'modal',
+        url: 'https://example.com/openapi.json',
+        operationPath: '/pets',
+        operationMethod: method,
+      },
+    })
+    const href = new URL(wrapper.get('a').attributes('href')!)
+    expect(href.searchParams.get('operation_method')).toBe(method)
+  })
+
   it('does not add operation query params when path or method is missing', () => {
     const wrapper = mount(OpenApiClientButton, {
       props: {

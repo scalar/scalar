@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
 import { computed } from 'vue'
@@ -52,7 +53,13 @@ const href = computed((): string | undefined => {
 
   if (operationPath?.length && operationMethod?.length) {
     link.searchParams.set('operation_path', operationPath)
-    link.searchParams.set('operation_method', operationMethod.toLowerCase())
+    link.searchParams.set(
+      'operation_method',
+      operationMethod === operationMethod.toUpperCase() &&
+        isHttpMethod(operationMethod)
+        ? operationMethod.toLowerCase()
+        : operationMethod,
+    )
   }
 
   // Integration identifier

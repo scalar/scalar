@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString } from '@/libs/http'
+import { buildQueryString, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
 /**
@@ -20,7 +20,7 @@ export const nodeFetch: Plugin = {
     let prefix = ''
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Reset fetch defaults
     const options: Record<string, any> = {

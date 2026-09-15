@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { canMethodHaveBody } from './can-method-have-body'
+import { buildSafeBodyRequest, canMethodHaveBody } from './can-method-have-body'
 import type { HttpMethod } from './http-methods'
 
 vi.mock('@/general/is-electron', () => ({
@@ -11,6 +11,16 @@ const { isElectron } = await import('@/general/is-electron')
 const mockedIsElectron = vi.mocked(isElectron)
 
 describe('can-method-have-body', () => {
+  it.each(['QUERY', 'PROPFIND', 'customMethod'])('preserves the body of extension method %s', async (method) => {
+    expect(canMethodHaveBody(method)).toBe(true)
+    const request = buildSafeBodyRequest('https://example.com', { method, body: 'payload' })
+    expect(await request.text()).toBe('payload')
+  })
+
+  it.each(['CONNECT', 'TRACK'])('rejects browser-forbidden method %s', (method) => {
+    expect(canMethodHaveBody(method, true)).toBe(false)
+  })
+
   beforeEach(() => {
     mockedIsElectron.mockReturnValue(false)
   })
@@ -79,7 +89,7 @@ describe('can-method-have-body', () => {
     })
 
     it('handles invalid HTTP methods', () => {
-      expect(canMethodHaveBody('invalid' as HttpMethod)).toBe(false)
+      expect(canMethodHaveBody('invalid method')).toBe(false)
     })
 
     it('handles whitespace-only strings', () => {

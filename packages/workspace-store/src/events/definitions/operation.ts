@@ -1,5 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
 import type { OperationObject, ParameterObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /**
@@ -12,7 +10,7 @@ import type { OperationObject, ParameterObject } from '@/schemas/v3.2/strict/ope
  * ```
  */
 export type OperationMeta = {
-  method: HttpMethod
+  method: string
   path: string
 }
 
@@ -64,7 +62,7 @@ export type OperationEvents = {
     /** The path for the new operation (will be normalized to start with /) */
     path: string
     /** The HTTP method for the operation */
-    method: HttpMethod
+    method: string
     /** The operation object to create */
     operation: OperationObject
     /** The callback to call when the operation is created */
@@ -91,7 +89,7 @@ export type OperationEvents = {
   'operation:update:pathMethod': {
     payload: {
       /** The new or old method for the operation */
-      method: HttpMethod
+      method: string
       /** The new or old path for the operation */
       path: string
     }

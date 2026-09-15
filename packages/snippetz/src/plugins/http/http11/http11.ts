@@ -1,5 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { normalizeMethod } from '@/libs/http'
+
 /**
  * http/http1.1
  */
@@ -17,7 +19,7 @@ export const httpHttp11: Plugin = {
     }
 
     // Normalize method
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Parse URL with error handling
     let url

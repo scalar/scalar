@@ -1,7 +1,7 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { HarRequest, Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
-import { reduceQueryParams } from '@/libs/http'
+import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /**
  * Formats JSON text as an R list structure
@@ -63,7 +63,7 @@ export const rHttr2: Plugin = {
       ...request,
     }
 
-    const method = normalizedRequest.method.toUpperCase()
+    const method = normalizeMethod(normalizedRequest.method)
     const lines: string[] = ['library(httr2)', '']
 
     // Start the pipe chain

@@ -32,7 +32,7 @@ export type OperationBlockProps = {
   /** Current request path */
   path: string
   /** Current request method */
-  method: HttpMethodType
+  method: string
   /** Whether `path` identifies an OpenAPI webhook. */
   isWebhook?: boolean
   /** HTTP clients */
@@ -94,7 +94,6 @@ import { generateClientOptions } from '@scalar/blocks/code-example'
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
@@ -542,7 +541,7 @@ onBeforeUnmount(() => {
 const operationHistory = computed<History[]>(() =>
   history
     .map((entry) => ({
-      method: entry.request.method as HttpMethodType,
+      method: entry.request.method as string,
       path: entry.request.url,
       duration: entry.time,
       status: entry.response.status,

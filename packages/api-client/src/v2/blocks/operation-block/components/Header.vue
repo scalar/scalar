@@ -10,7 +10,7 @@ export type HeaderProps = {
   /** Current request path */
   path: string
   /** Current request method */
-  method: HttpMethod
+  method: string
   /** Whether this request comes from an OpenAPI webhook. */
   isWebhook?: boolean
   /** Client layout */
@@ -49,7 +49,6 @@ export type HeaderProps = {
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarIconButton } from '@scalar/components/icon-button'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconGearSix } from '@scalar/icons'
 import type {
   ServerMeta,

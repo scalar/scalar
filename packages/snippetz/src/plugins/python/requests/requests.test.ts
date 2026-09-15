@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { pythonRequests } from './requests'
 
 describe('pythonRequests', () => {
+  it.each(['customMethod', 'COPY', 'Get'])('uses a generic request for %s', (method) => {
+    expect(pythonRequests.generate({ url: 'https://example.com', method })).toBe(
+      `requests.request("${method}", "https://example.com")`,
+    )
+  })
+
   it('returns a basic request', () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',

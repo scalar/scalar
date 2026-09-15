@@ -3,6 +3,16 @@ import { describe, expect, it } from 'vitest'
 import { dartHttp } from './http'
 
 describe('dartHttp', () => {
+  it.each(['customMethod', 'COPY', 'Get'])('uses a generic request for %s', (method) => {
+    expect(dartHttp.generate({ url: 'https://example.com', method })).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final request = http.Request('${method}', Uri.parse('https://example.com'));
+  final response = await http.Response.fromStream(await request.send());
+  print(response.body);
+}`)
+  })
+
   it('returns a basic request', () => {
     const result = dartHttp.generate({
       url: 'https://example.com',

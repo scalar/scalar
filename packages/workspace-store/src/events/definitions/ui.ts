@@ -1,5 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
 import type { TraversedExample, TraversedTag } from '@/schemas/navigation'
 
 /**
@@ -199,7 +197,7 @@ export type UIEvents = {
       }
     | {
         /** The HTTP method of the operation to load (e.g., GET, POST) */
-        method: HttpMethod
+        method: string
         /** The path of the operation to load (e.g., /users/{id}) */
         path: string
         /** Optional example name to load for this operation */
@@ -320,14 +318,14 @@ export type UIEvents = {
         page: 'example'
         documentSlug?: string
         path: string
-        method: HttpMethod
+        method: string
         exampleName: string
       }
     | {
         page: 'operation'
         path: 'overview' | 'servers' | 'authentication' | 'editor'
         operationPath: string
-        method: HttpMethod
+        method: string
         documentSlug?: string
       }
   )
