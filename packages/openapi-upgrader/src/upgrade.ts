@@ -5,6 +5,7 @@ import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2'
 
 import { upgradeFromTwoToThree } from './2.0-to-3.0'
 import { upgradeFromThreeToThreeOne } from './3.0-to-3.1'
+import { cloneDocument } from './3.1-to-3.2/clone-document'
 
 /**
  * Upgrade OpenAPI documents from Swagger 2.0 or OpenAPI 3.0 to the specified target version
@@ -17,7 +18,8 @@ export function upgrade(
   targetVersion: '3.0' | '3.1' | '3.2',
 ): OpenAPIV3.Document | OpenAPIV3_1.Document | OpenAPIV3_2.Document {
   // Swagger 2.0 -> OpenAPI 3.0
-  const openapi30 = upgradeFromTwoToThree(value)
+  const input = targetVersion === '3.2' ? cloneDocument(value) : value
+  const openapi30 = upgradeFromTwoToThree(input)
   if (targetVersion === '3.0') {
     return openapi30
   }
