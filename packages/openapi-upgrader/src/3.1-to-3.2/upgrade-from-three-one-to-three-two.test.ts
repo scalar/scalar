@@ -1,648 +1,696 @@
-import type { OpenAPIV3_2 } from '@scalar/openapi-types'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
+import { isObject } from '@scalar/helpers/object/is-object'
+import type { UnknownObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
 
-import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-one-to-three-two'
+import { upgradeFromThreeOneToThreeTwo as upgrade } from './upgrade-from-three-one-to-three-two'
 
-describe('upgradeFromThreeOneToThreeTwo', () => {
-  describe('version', () => {
-    it(`doesn't modify Swagger 2.0 files`, () => {
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
-        swagger: '2.0',
-        info: {
-          title: 'Hello World',
-          version: '1.0.0',
-        },
-        paths: {},
-      })
+const at = (value: unknown, ...keys: (string | number)[]): UnknownObject => {
+  const result = getValueAtPath(value, keys.map(String))
+  if (!isObject(result)) {
+    throw new Error('Expected an object at ' + keys.join('/'))
+  }
+  return result
+}
 
-      expect(result.swagger).toBe('2.0')
+const document = (fields: UnknownObject = {}): UnknownObject => ({
+  openapi: '3.1.2',
+  info: { title: 'API', version: '1.0' },
+  paths: {},
+  ...fields,
+})
+
+const withSchemas = (schemas: UnknownObject): UnknownObject => document({ components: { schemas } })
+
+const attribute = (): UnknownObject => ({ type: 'string', xml: { attribute: true } })
+
+const operation = (parameters: unknown[] = []): UnknownObject => ({
+  parameters,
+  responses: { '200': { description: 'OK' } },
+})
+
+describe('upgrade-from-three-one-to-three-two', () => {
+  it.each(['3.1.0', '3.1.1', '3.1.2', '3.1.99'])('upgrades %s without changing the input', (openapi) => {
+    const input = document({ openapi })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    expect(input.openapi).toBe(openapi)
+  })
+
+  it.each(['3.0.4', '3.2.0', '3.10.0', '3.1', '3.1.invalid', '3.1.2-extra'])('leaves %s unchanged', (openapi) => {
+    const input = document({ openapi })
+    expect(upgrade(input)).toBe(input)
+  })
+
+  it('leaves Swagger and null unchanged', () => {
+    const input = { swagger: '2.0', paths: {} }
+    expect(upgrade(input)).toBe(input)
+    expect(upgrade(null as unknown as UnknownObject)).toBe(null)
+  })
+
+  it('preserves literal data and extensions even when they contain XML-looking fields', () => {
+    const literal = { xml: { wrapped: true, attribute: true } }
+    const input = withSchemas({
+      Payload: {
+        const: literal,
+        enum: [literal],
+        default: literal,
+        example: literal,
+        examples: [literal],
+        'x-custom': literal,
+        properties: { xml: { type: 'object', properties: { attribute: { type: 'boolean' } } } },
+      },
     })
-
-    it('changes the version to from 3.1.0 to 3.2.0', () => {
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
-        openapi: '3.1.0',
-        info: {
-          title: 'Hello World',
-          version: '1.0.0',
+    at(input, 'components').examples = { payload: { value: literal } }
+    input['x-custom'] = literal
+    at(input, 'paths')['/data'] = {
+      get: {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: { 'application/json': { example: literal, examples: { named: { value: literal } } } },
+          },
         },
-        paths: {},
-      })
+      },
+    }
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
 
-      expect(result.openapi).toBe('3.2.0')
-    })
+  it.each([
+    [{ wrapped: true }, { nodeType: 'element' }],
+    [{ wrapped: true, attribute: false }, { nodeType: 'element' }],
+    [
+      { attribute: false, wrapped: false },
+      { attribute: false, wrapped: false },
+    ],
+  ])('migrates array XML %j without incompatible legacy fields', (xml, expected) => {
+    const input = withSchemas({ Books: { type: 'array', items: { type: 'string' }, xml } })
+    expect(at(upgrade(input), 'components', 'schemas', 'Books').xml).toStrictEqual(expected)
+  })
 
-    it('changes the version to 3.1.1 to 3.2.0', () => {
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo({
-        openapi: '3.1.1',
-        info: {
-          title: 'Hello World',
-          version: '1.0.0',
-        },
-        paths: {},
-      })
-
-      expect(result.openapi).toBe('3.2.0')
+  it('preserves XML names, namespaces, prefixes, and extensions', () => {
+    const xml = { attribute: true, name: 'id', namespace: 'urn:example', prefix: 'a', 'x-extra': true }
+    const result = upgrade(withSchemas({ Id: { type: 'string', xml } }))
+    expect(at(result, 'components', 'schemas', 'Id').xml).toStrictEqual({
+      nodeType: 'attribute',
+      name: 'id',
+      namespace: 'urn:example',
+      prefix: 'a',
+      'x-extra': true,
     })
   })
 
-  describe('x-tagGroups migration', () => {
-    it('migrates x-tagGroups to kind property for navigation groups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'account-updates',
-            summary: 'Account Updates',
-            description: 'Account update operations',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['account-updates'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'account-updates',
-        summary: 'Account Updates',
-        description: 'Account update operations',
-        kind: 'nav',
-      })
+  it('visits nested schema keywords without interpreting property names as keywords', () => {
+    const input = withSchemas({
+      Root: {
+        properties: { example: attribute(), default: attribute(), xml: attribute() },
+        patternProperties: { '^a': attribute() },
+        $defs: { local: attribute() },
+        dependentSchemas: { name: { properties: { id: attribute() } } },
+        allOf: [attribute()],
+        anyOf: [attribute()],
+        oneOf: [attribute()],
+        prefixItems: [attribute()],
+        items: attribute(),
+        contains: attribute(),
+        additionalProperties: attribute(),
+        unevaluatedProperties: attribute(),
+        unevaluatedItems: attribute(),
+        propertyNames: attribute(),
+        not: attribute(),
+        if: attribute(),
+        // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then for conditional subschemas.
+        then: attribute(),
+        else: attribute(),
+        contentSchema: attribute(),
+      },
+      Yes: true,
+      No: false,
     })
-
-    it('migrates x-tagGroups to kind property for audience groups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'partner',
-            summary: 'Partner',
-            description: 'Operations available to the partners network',
-          },
-          {
-            name: 'external',
-            summary: 'External',
-            description: 'Operations available to external consumers',
-            externalDocs: {
-              description: 'Find more info here',
-              url: 'https://example.com',
-            },
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Audience',
-            tags: ['partner', 'external'],
-          },
-        ],
+    const result = at(upgrade(input), 'components', 'schemas')
+    for (const keyword of ['properties', 'patternProperties', '$defs']) {
+      for (const schema of Object.values(at(result, 'Root', keyword)) as UnknownObject[]) {
+        expect(schema.xml).toStrictEqual({ nodeType: 'attribute' })
       }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'partner',
-        summary: 'Partner',
-        description: 'Operations available to the partners network',
-        kind: 'audience',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'external',
-        summary: 'External',
-        description: 'Operations available to external consumers',
-        kind: 'audience',
-        externalDocs: {
-          description: 'Find more info here',
-          url: 'https://example.com',
-        },
-      })
+    }
+    expect(at(result, 'Root', 'dependentSchemas', 'name', 'properties', 'id').xml).toStrictEqual({
+      nodeType: 'attribute',
     })
+    for (const keyword of ['allOf', 'anyOf', 'oneOf', 'prefixItems']) {
+      expect(at(result, 'Root', keyword, 0).xml).toStrictEqual({ nodeType: 'attribute' })
+    }
+    for (const keyword of [
+      'items',
+      'contains',
+      'additionalProperties',
+      'unevaluatedProperties',
+      'unevaluatedItems',
+      'propertyNames',
+      'not',
+      'if',
+      'then',
+      'else',
+      'contentSchema',
+    ]) {
+      expect(at(result, 'Root', keyword).xml).toStrictEqual({ nodeType: 'attribute' })
+    }
+    expect(result.Yes).toBe(true)
+    expect(result.No).toBe(false)
+  })
 
-    it('migrates x-tagGroups to kind property for badge groups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'beta',
-            summary: 'Beta Features',
-            description: 'Experimental features',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Badge',
-            tags: ['beta'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags![0]).toMatchObject({
-        name: 'beta',
-        summary: 'Beta Features',
-        description: 'Experimental features',
-        kind: 'badge',
-      })
+  it('visits parameters, headers, request bodies, responses, webhooks, and callbacks', () => {
+    const media = { schema: attribute() }
+    const response = {
+      description: 'OK',
+      headers: { id: { schema: attribute() } },
+      content: { 'application/json': media },
+    }
+    const requestBody = { content: { 'application/json': media } }
+    const pathItem = {
+      parameters: [{ name: 'id', in: 'query', schema: attribute() }],
+      post: { requestBody, responses: { '200': response } },
+    }
+    const input = document({
+      paths: { '/data': pathItem },
+      webhooks: { received: pathItem },
+      components: {
+        pathItems: { shared: pathItem },
+        requestBodies: { body: requestBody },
+        responses: { response },
+        headers: { id: { schema: attribute() } },
+        callbacks: { notify: { '{$request.body#/url}': pathItem } },
+      },
     })
-
-    it('handles multiple tag groups with different kinds', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'account-updates',
-            summary: 'Account Updates',
-            description: 'Account update operations',
-          },
-          {
-            name: 'partner',
-            summary: 'Partner',
-            description: 'Operations available to the partners network',
-          },
-          {
-            name: 'beta',
-            summary: 'Beta Features',
-            description: 'Experimental features',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['account-updates'],
-          },
-          {
-            name: 'Audience',
-            tags: ['partner'],
-          },
-          {
-            name: 'Badge',
-            tags: ['beta'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(3)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'account-updates',
-        kind: 'nav',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'partner',
-        kind: 'audience',
-      })
-      expect(result.tags?.[2]).toMatchObject({
-        name: 'beta',
-        kind: 'badge',
-      })
-    })
-
-    it('defaults to nav kind for unknown group types', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'custom-tag',
-            summary: 'Custom Tag',
-            description: 'A custom tag',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'CustomGroup',
-            tags: ['custom-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'custom-tag',
-        summary: 'Custom Tag',
-        description: 'A custom tag',
-        kind: 'nav',
-      })
-    })
-
-    it('handles case-insensitive group name matching', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'nav-tag',
-            summary: 'Navigation Tag',
-            description: 'A navigation tag',
-          },
-          {
-            name: 'audience-tag',
-            summary: 'Audience Tag',
-            description: 'An audience tag',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'NAVIGATION',
-            tags: ['nav-tag'],
-          },
-          {
-            name: 'AUDIENCE',
-            tags: ['audience-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'nav-tag',
-        kind: 'nav',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'audience-tag',
-        kind: 'audience',
-      })
-    })
-
-    it('handles partial group name matching', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'nav-tag',
-            summary: 'Navigation Tag',
-            description: 'A navigation tag',
-          },
-          {
-            name: 'audience-tag',
-            summary: 'Audience Tag',
-            description: 'An audience tag',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Main Navigation',
-            tags: ['nav-tag'],
-          },
-          {
-            name: 'User Audience',
-            tags: ['audience-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'nav-tag',
-        kind: 'nav',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'audience-tag',
-        kind: 'audience',
-      })
-    })
-
-    it('does not modify tags that are not in x-tagGroups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'ungrouped-tag',
-            summary: 'Ungrouped Tag',
-            description: 'A tag not in any group',
-          },
-          {
-            name: 'grouped-tag',
-            summary: 'Grouped Tag',
-            description: 'A tag in a group',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['grouped-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags![0]).toMatchObject({
-        name: 'ungrouped-tag',
-        summary: 'Ungrouped Tag',
-        description: 'A tag not in any group',
-        // No kind property should be added
-      })
-      expect(result.tags![0]!.kind).toBeUndefined()
-      expect(result.tags![1]).toMatchObject({
-        name: 'grouped-tag',
-        summary: 'Grouped Tag',
-        description: 'A tag in a group',
-        kind: 'nav',
-      })
-    })
-
-    it('handles documents without x-tagGroups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'simple-tag',
-            summary: 'Simple Tag',
-            description: 'A simple tag',
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags![0]).toMatchObject({
-        name: 'simple-tag',
-        summary: 'Simple Tag',
-        description: 'A simple tag',
-      })
-      expect(result.tags![0]?.kind).toBeUndefined()
-    })
-
-    it('handles documents without tags array', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['missing-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toEqual([])
-    })
-
-    it('handles empty x-tagGroups array', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'simple-tag',
-            summary: 'Simple Tag',
-            description: 'A simple tag',
-          },
-        ],
-        'x-tagGroups': [],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags![0]?.kind).toBeUndefined()
-    })
-
-    it('preserves existing tag properties when adding kind', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'complex-tag',
-            summary: 'Complex Tag',
-            description: 'A complex tag with many properties',
-            externalDocs: {
-              description: 'External documentation',
-              url: 'https://example.com/docs',
-            },
-            'x-custom-extension': 'custom-value',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['complex-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'complex-tag',
-        summary: 'Complex Tag',
-        description: 'A complex tag with many properties',
-        kind: 'nav',
-        externalDocs: {
-          description: 'External documentation',
-          url: 'https://example.com/docs',
-        },
-        'x-custom-extension': 'custom-value',
-      })
+    const result = upgrade(input)
+    expect(at(result, 'webhooks', 'received', 'parameters', 0, 'schema').xml).toStrictEqual({ nodeType: 'attribute' })
+    expect(
+      at(
+        result,
+        'components',
+        'callbacks',
+        'notify',
+        '{$request.body#/url}',
+        'post',
+        'requestBody',
+        'content',
+        'application/json',
+        'schema',
+      ).xml,
+    ).toStrictEqual({ nodeType: 'attribute' })
+    expect(at(result, 'components', 'headers', 'id', 'schema').xml).toStrictEqual({ nodeType: 'attribute' })
+    expect(at(result, 'paths', '/data', 'post', 'responses', '200', 'headers', 'id', 'schema').xml).toStrictEqual({
+      nodeType: 'attribute',
     })
   })
 
-  describe('xmlNode attribute and element migration', () => {
-    it('migrates xmlNode attribute from wrapped to element', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
+  it('follows local schema references only when used as schemas', () => {
+    const input = withSchemas({ Alias: { $ref: '#/x-schemas/0' } })
+    input['x-schemas'] = [attribute()]
+    input['x-unreferenced'] = attribute()
+    const result = upgrade(input)
+    expect(at(result, 'x-schemas', 0).xml).toStrictEqual({ nodeType: 'attribute' })
+    expect(result['x-unreferenced']).toStrictEqual(attribute())
+  })
+
+  it('preserves pinned schema dialects and does not resolve through a changed base URI', () => {
+    const input = withSchemas({
+      Custom: { $schema: 'https://example.com/dialect', properties: { id: attribute() } },
+      Pinned: { $schema: 'https://spec.openapis.org/oas/3.1/dialect/base', ...attribute() },
+      Relative: { $id: 'https://example.com/schema', $ref: '#/x-other' },
+    })
+    input['x-other'] = attribute()
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    const pinned = {
+      ...withSchemas({ Id: attribute() }),
+      jsonSchemaDialect: 'https://spec.openapis.org/oas/3.1/dialect/base',
+    }
+    expect(upgrade(pinned)).toStrictEqual({ ...pinned, openapi: '3.2.0' })
+  })
+
+  it('creates ordered parents and missing tags without guessing kinds from group names', () => {
+    const input = document({
+      tags: [
+        { name: 'invoices', description: 'Bills' },
+        { name: 'users', 'x-displayName': 'Users' },
+        { name: 'other' },
+      ],
+      'x-tagGroups': [
+        { name: 'Audience', tags: ['users', 'profiles'] },
+        { name: 'Badge', tags: ['invoices'] },
+      ],
+    })
+    const result = upgrade(input)
+    expect(result.tags).toStrictEqual([
+      { name: 'Audience', kind: 'nav' },
+      { name: 'users', 'x-displayName': 'Users', parent: 'Audience' },
+      { name: 'profiles', parent: 'Audience' },
+      { name: 'Badge', kind: 'nav' },
+      { name: 'invoices', description: 'Bills', parent: 'Badge' },
+      { name: 'other' },
+    ])
+    expect(result['x-tagGroups']).toStrictEqual(input['x-tagGroups'])
+  })
+
+  it('materializes operation-only tags', () => {
+    const input = document({
+      paths: { '/users': { get: { tags: ['users'], ...operation() } } },
+      'x-tagGroups': [{ name: 'Accounts', tags: ['users'] }],
+    })
+    expect(upgrade(input).tags).toStrictEqual([
+      { name: 'Accounts', kind: 'nav' },
+      { name: 'users', parent: 'Accounts' },
+    ])
+  })
+
+  it.each(
+    [
+      [
+        { name: 'A', tags: ['users'] },
+        { name: 'B', tags: ['users'] },
+      ],
+      [{ name: 'A', tags: ['A'] }],
+      [
+        { name: 'A', tags: ['B'] },
+        { name: 'B', tags: ['users'] },
+      ],
+      [{ name: 'users', tags: ['other'] }],
+      [{ name: 'A', tags: ['users'], 'x-extra': true }],
+      [null],
+      [{ name: 'A' }],
+      [],
+    ].map((groups) => [groups]),
+  )('preserves groups that cannot be safely converted: %j', (groups) => {
+    const input = document({ tags: [{ name: 'users' }], 'x-tagGroups': groups })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('preserves existing parent relationships', () => {
+    const input = document({
+      tags: [{ name: 'users', parent: 'existing' }, { name: 'existing' }],
+      'x-tagGroups': [{ name: 'A', tags: ['users'] }],
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('leaves the input intact after errors and permits a corrected retry', () => {
+    const input = withSchemas({
+      Invalid: { type: 'array', items: { type: 'string' }, xml: { wrapped: true, attribute: true } },
+    })
+    input['x-tagGroups'] = [{ name: 'A', tags: ['users'] }]
+    const before = structuredClone(input)
+    expect(() => upgrade(input)).toThrow('#/components/schemas/Invalid/xml')
+    expect(input).toStrictEqual(before)
+    at(input, 'components', 'schemas', 'Invalid', 'xml').attribute = false
+    expect(at(upgrade(input), 'components', 'schemas', 'Invalid').xml).toStrictEqual({ nodeType: 'element' })
+    expect(input.openapi).toBe('3.1.2')
+  })
+
+  it('rejects an optional discriminator without a fallback', () => {
+    const input = withSchemas({
+      Pet: {
+        properties: { kind: { type: 'string' } },
+        oneOf: [{ properties: { a: { type: 'string' } } }, { properties: { b: { type: 'string' } } }],
+        discriminator: { propertyName: 'kind' },
+      },
+    })
+    expect(() => upgrade(input)).toThrow(
+      '#/components/schemas/Pet/discriminator: An optional discriminating property needs an explicit defaultMapping.',
+    )
+    at(input, 'components', 'schemas', 'Pet', 'discriminator').defaultMapping = 'Other'
+    expect(at(upgrade(input), 'components', 'schemas').Pet).toStrictEqual(at(input, 'components', 'schemas').Pet)
+  })
+
+  it('recognizes required discriminator properties inherited through references and composition', () => {
+    const input = withSchemas({
+      Base: { required: ['kind'] },
+      Pet: { allOf: [{ $ref: '#/components/schemas/Base' }], discriminator: { propertyName: 'kind' } },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    at(input, 'components', 'schemas').Pet = {
+      oneOf: [{ required: ['kind'] }, { required: ['kind'] }],
+      discriminator: { propertyName: 'kind' },
+    }
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('does not guess requiredness for external or cyclic references', () => {
+    const input = withSchemas({
+      External: { allOf: [{ $ref: 'other.yaml' }], discriminator: { propertyName: 'kind' } },
+      Cycle: { $ref: '#/components/schemas/Cycle', discriminator: { propertyName: 'kind' } },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('rejects repeated path variables with an escaped JSON pointer', () => {
+    const input = document({
+      paths: {
+        '/{id}/related/{id}': {
+          get: operation([{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }]),
         },
-        paths: {},
-        components: {
-          schemas: {
-            SampleSchema: {
-              type: 'object',
-              properties: {
-                sampleProperty: {
-                  type: 'string',
-                  xml: { wrapped: true },
-                },
+      },
+    })
+    expect(() => upgrade(input)).toThrow('#/paths/~1{id}~1related~1{id}')
+    expect(input.openapi).toBe('3.1.2')
+  })
+
+  it('rejects repeated server variables at operation level', () => {
+    const input = document({
+      paths: {
+        '/users': {
+          get: { ...operation(), servers: [{ url: 'https://{host}/{host}', variables: { host: { default: 'api' } } }] },
+        },
+      },
+    })
+    expect(() => upgrade(input)).toThrow('#/paths/~1users/get/servers/0/url')
+  })
+
+  it('requires names for inline XML elements and wrapped arrays', () => {
+    for (const schema of [{ type: 'object' }, { type: 'array', items: { type: 'string' }, xml: { wrapped: true } }]) {
+      const input = document({
+        paths: {
+          '/data': {
+            get: {
+              responses: {
+                '200': { description: 'OK', content: { 'application/vnd.example+xml; charset=utf-8': { schema } } },
               },
             },
           },
         },
-      }
+      })
+      expect(() => upgrade(input)).toThrow('An inline XML element needs an explicit xml.name.')
+    }
+  })
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result.components?.schemas?.SampleSchema).toBeDefined()
-      expect(result.components?.schemas?.SampleSchema).toMatchObject({
-        type: 'object',
-        properties: {
-          sampleProperty: {
-            type: 'string',
-            xml: { nodeType: 'element' },
+  it('accepts named inline XML schemas and referenced XML components', () => {
+    const input = withSchemas({ Data: { type: 'object' } })
+    at(input, 'paths')['/data'] = {
+      get: {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/xml': { schema: { type: 'object', xml: { name: 'data' } } },
+              'text/xml': { schema: { $ref: '#/components/schemas/Data' } },
+            },
           },
         },
-      } as OpenAPIV3_2.SchemaObject)
-    })
+      },
+    }
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
 
-    it('migrates xmlNode attribute from attribute to attribute type', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
+  it('removes previously inactive allowReserved settings only from parameters', () => {
+    const parameters = ['path', 'cookie', 'query'].map((location) => ({
+      name: 'id',
+      in: location,
+      allowReserved: true,
+      schema: { type: 'string' },
+    }))
+    const input = document({
+      paths: { '/{id}': { parameters, get: operation() } },
+      components: { parameters: { Cookie: parameters[1] } },
+    })
+    const result = upgrade(input)
+    expect(at(result, 'paths', '/{id}').parameters).toStrictEqual([
+      { name: 'id', in: 'path', schema: { type: 'string' } },
+      { name: 'id', in: 'cookie', schema: { type: 'string' } },
+      { name: 'id', in: 'query', allowReserved: true, schema: { type: 'string' } },
+    ])
+    expect(at(result, 'components', 'parameters', 'Cookie').allowReserved).toBeUndefined()
+    expect(at(input, 'paths', '/{id}', 'parameters', 0).allowReserved).toBe(true)
+  })
+  it('does not follow references across a pinned schema resource', () => {
+    const input = withSchemas({
+      Pinned: { $schema: 'https://example.com/dialect', $defs: { Id: attribute() } },
+      Alias: { $ref: '#/components/schemas/Pinned/$defs/Id' },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('preserves response-map extensions', () => {
+    const input = document({
+      paths: {
+        '/data': {
+          get: {
+            responses: {
+              '200': { description: 'OK' },
+              'x-custom': { content: { 'application/json': { schema: attribute() } } },
+            },
+          },
         },
-        paths: {},
+      },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('does not mistake constant-constrained discriminator properties for optional properties', () => {
+    const input = withSchemas({
+      Pet: { const: { kind: 'dog' }, oneOf: [{ type: 'object' }], discriminator: { propertyName: 'kind' } },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+  it('isolates shared YAML aliases from examples and other literal data', () => {
+    const shared = attribute()
+    const input = withSchemas({ Id: shared, Payload: { const: shared, examples: [shared] } })
+    const result = upgrade(input)
+    expect(at(result, 'components', 'schemas', 'Id').xml).toStrictEqual({ nodeType: 'attribute' })
+    expect(at(result, 'components', 'schemas', 'Payload')).toStrictEqual({ const: shared, examples: [shared] })
+    expect(at(input, 'components', 'schemas', 'Id')).toStrictEqual(attribute())
+  })
+
+  it('rejects object cycles without mutating the input', () => {
+    const input = document()
+    input['x-cycle'] = input
+    expect(() => upgrade(input)).toThrow('cyclic objects cannot be represented in JSON')
+    expect(input.openapi).toBe('3.1.2')
+    expect(input['x-cycle']).toBe(input)
+  })
+  it.each([
+    { type: 'array', items: { type: 'string' } },
+    { type: 'array', xml: { wrapped: true, name: 'Root' }, items: { type: 'string' } },
+  ])('rejects unnamed root XML array items: %j', (schema) => {
+    const input = document({
+      components: { responses: { Xml: { description: 'OK', content: { 'application/xml': { schema } } } } },
+    })
+    expect(() => upgrade(input)).toThrow('#/components/responses/Xml/content/application~1xml/schema/items')
+    expect(input.openapi).toBe('3.1.2')
+  })
+
+  it.each([
+    { type: 'array', items: { type: 'string', xml: { name: 'Item' } } },
+    { type: 'array', items: { $ref: '#/components/schemas/Item' } },
+    { type: 'array', items: { type: 'string', xml: { nodeType: 'text' } } },
+    { type: 'array', items: { $schema: 'https://example.com/dialect', type: 'string' } },
+    { type: 'object', xml: { name: 'Root' }, properties: { items: { type: 'array', items: { type: 'string' } } } },
+  ])('accepts XML items with explicit, inferred, or dialect-specific naming: %j', (schema) => {
+    const input = document({
+      components: {
+        schemas: { Item: { type: 'string' } },
+        responses: { Xml: { description: 'OK', content: { 'application/xml': { schema } } } },
+      },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it.each(['path', 'webhook', 'callback', 'reference'])(
+    'preserves a tag group colliding with an operation-only tag in a %s',
+    (location) => {
+      const pathItem = { get: { ...operation(), tags: ['Animals'] } }
+      const input = document({ 'x-tagGroups': [{ name: 'Animals', tags: ['Dogs'] }] })
+      if (location === 'path') {
+        input.paths = { '/animals': pathItem }
+      }
+      if (location === 'webhook') {
+        input.webhooks = { animals: pathItem }
+      }
+      if (location === 'callback') {
+        input.components = { callbacks: { callback: { '{$request.body#/url}': pathItem } } }
+      }
+      if (location === 'reference') {
+        input.paths = { '/animals': { $ref: '#/x-path-item' } }
+        input['x-path-item'] = pathItem
+      }
+      expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    },
+  )
+
+  it('bounds expansion of compact acyclic alias graphs', () => {
+    const schema = Array.from({ length: 30 }).reduce<UnknownObject>((previous) => ({ allOf: [previous, previous] }), {
+      type: 'string',
+    })
+    const input = withSchemas({ Alias: schema })
+    expect(() => upgrade(input)).toThrow('excessive YAML alias expansion')
+    expect(input.openapi).toBe('3.1.2')
+  })
+  it('bounds alias expansion of wide arrays of scalar values', () => {
+    const leaf = Array.from({ length: 2000 }, () => 'x')
+    const input = document({ 'x-aliases': Array.from({ length: 1001 }, () => leaf) })
+    expect(() => upgrade(input)).toThrow('excessive YAML alias expansion')
+    expect(input.openapi).toBe('3.1.2')
+  })
+
+  it('preserves large arrays that do not expand aliases', () => {
+    const input = document({ 'x-values': Array.from({ length: 100_001 }, () => 'x') })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('validates XML names in local referenced array components', () => {
+    const input = document({
+      components: {
+        schemas: { Items: { type: 'array', items: { type: 'string' } } },
+        responses: {
+          Xml: {
+            description: 'OK',
+            content: { 'application/xml': { schema: { $ref: '#/components/schemas/Items' } } },
+          },
+        },
+      },
+    })
+    expect(() => upgrade(input)).toThrow('#/components/schemas/Items/items')
+    at(input, 'components', 'schemas', 'Items', 'items').xml = { name: 'Item' }
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('retains property naming context and terminates cycles in XML references', () => {
+    const input = document({
+      components: {
+        schemas: {
+          Root: {
+            type: 'object',
+            properties: {
+              names: { type: 'array', items: { type: 'string' } },
+              child: { $ref: '#/components/schemas/Root' },
+            },
+          },
+        },
+        responses: {
+          Xml: {
+            description: 'OK',
+            content: { 'application/xml': { schema: { $ref: '#/components/schemas/Root/properties/names' } } },
+          },
+        },
+      },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    at(input, 'components', 'responses', 'Xml', 'content', 'application/xml').schema = {
+      $ref: '#/components/schemas/Root',
+    }
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it('does not resolve XML references against the wrong schema base URI', () => {
+    const input = document({
+      components: {
+        schemas: {
+          Names: { $id: 'https://example.com/schema', type: 'array', items: { $ref: '#/components/schemas/Other' } },
+          Other: { type: 'array', items: { type: 'string' } },
+        },
+        responses: {
+          Xml: {
+            description: 'OK',
+            content: { 'application/xml': { schema: { $ref: '#/components/schemas/Names' } } },
+          },
+        },
+      },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+  it('memoizes XML analysis of branching local references', () => {
+    const schemas: UnknownObject = { S0: { type: 'string' } }
+    for (const index of Array.from({ length: 30 }, (_, value) => value + 1)) {
+      const reference = { $ref: '#/components/schemas/S' + (index - 1) }
+      schemas['S' + index] = { type: 'object', properties: { left: { ...reference }, right: { ...reference } } }
+    }
+    const input = document({
+      components: {
+        schemas,
+        responses: {
+          Xml: { description: 'OK', content: { 'application/xml': { schema: { $ref: '#/components/schemas/S30' } } } },
+        },
+      },
+    })
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it.each(['required', 'external', 'cycle'])('bounds discriminator analysis of branching %s references', (kind) => {
+    const schemas: UnknownObject = { S0: { required: ['kind'] } }
+    if (kind === 'external') {
+      schemas.S0 = { $ref: 'other.yaml' }
+    }
+    if (kind === 'cycle') {
+      schemas.S0 = { $ref: '#/components/schemas/S0' }
+    }
+    for (const index of Array.from({ length: 30 }, (_, value) => value + 1)) {
+      const reference = { $ref: '#/components/schemas/S' + (index - 1) }
+      schemas['S' + index] = { allOf: [{ ...reference }, { ...reference }] }
+    }
+    at(schemas, 'S30').discriminator = { propertyName: 'kind' }
+    const input = withSchemas(schemas)
+    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it.each(['allOf', 'anyOf', 'oneOf'])('requires explicit XML names in inline %s branches', (keyword) => {
+    const schema = { type: 'object', xml: { name: 'Root' }, [keyword]: [{ type: 'object' }] }
+    const input = document({
+      components: { responses: { Xml: { description: 'OK', content: { 'application/xml': { schema } } } } },
+    })
+    expect(() => upgrade(input)).toThrow('#/components/responses/Xml/content/application~1xml/schema/' + keyword + '/0')
+  })
+
+  it.each(['allOf', 'anyOf', 'oneOf'])('preserves valid XML naming in %s branches', (keyword) => {
+    for (const branch of [
+      { type: 'object', xml: { name: 'Branch' } },
+      { type: 'object', xml: { nodeType: 'none' }, properties: { id: { type: 'string' } } },
+      { $ref: '#/components/schemas/Branch' },
+      { $schema: 'https://example.com/dialect', type: 'object' },
+    ]) {
+      const schema = { type: 'object', xml: { name: 'Root' }, [keyword]: [branch] }
+      const input = document({
         components: {
-          schemas: {
-            SampleSchema: {
-              type: 'object',
-              properties: {
-                sampleProperty: {
-                  type: 'string',
-                  xml: { attribute: true },
+          schemas: { Branch: { type: 'object' } },
+          responses: { Xml: { description: 'OK', content: { 'application/xml': { schema } } } },
+        },
+      })
+      expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    }
+  })
+  it.each(['properties', 'items', 'prefixItems'])('infers XML names from a property literally named %s', (name) => {
+    for (const suffix of ['', '/items', '/prefixItems/0']) {
+      const property = { type: 'array', items: { type: 'string' }, prefixItems: [{ type: 'string' }] }
+      const input = document({
+        components: {
+          responses: {
+            Xml: {
+              description: 'OK',
+              content: {
+                'application/xml': {
+                  schema: { $ref: '#/components/schemas/Root/properties/' + name + suffix },
                 },
               },
             },
           },
+          schemas: { Root: { type: 'object', properties: { [name]: property } } },
         },
-      }
+      })
+      expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    }
+  })
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result.components?.schemas?.SampleSchema).toBeDefined()
-      expect(result.components?.schemas?.SampleSchema).toMatchObject({
-        type: 'object',
-        properties: {
-          sampleProperty: {
-            type: 'string',
-            xml: { nodeType: 'attribute' },
-          },
-        },
-      } as OpenAPIV3_2.SchemaObject)
-    })
-
-    it('throws an error when both fields are true', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        components: {
-          schemas: {
-            SampleSchema: {
-              type: 'object',
-              properties: {
-                sampleProperty: {
-                  type: 'string',
-                  xml: { wrapped: true, attribute: true },
-                },
+  it.each(['properties', 'List'])('does not infer XML item names from component %s', (name) => {
+    const input = document({
+      components: {
+        schemas: { [name]: { type: 'array', items: { type: 'string' } } },
+        responses: {
+          Xml: {
+            description: 'OK',
+            content: {
+              'application/xml': {
+                schema: { $ref: '#/components/schemas/' + name + '/items' },
               },
             },
           },
         },
-      }
-
-      expect(() => upgradeFromThreeOneToThreeTwo(input)).toThrowError(
-        'Invalid XML configuration: wrapped and attribute cannot be true at the same time.',
-      )
+      },
     })
+    expect(() => upgrade(input)).toThrow('#/components/schemas/' + name + '/items')
   })
 })

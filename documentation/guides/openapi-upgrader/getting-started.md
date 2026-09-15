@@ -124,3 +124,36 @@ const document = upgradeFromThreeOneToThreeTwo({
 console.log(document.openapi)
 // Output: 3.2.0
 ```
+
+#### Compatibility and errors
+
+Upgrading to `3.2` returns a new document and leaves the input unchanged, including
+when conversion fails. This applies to both `upgrade(input, '3.2')` and
+`upgradeFromThreeOneToThreeTwo(input)` for OpenAPI 3.1 input. Excessive YAML alias
+expansion is rejected before it can exhaust memory; use `$ref` for heavily shared
+schemas.
+
+The conversion:
+
+- Migrates XML metadata only within Schema Objects, preserving examples, defaults,
+  constants, enum values, and unrelated extension data.
+- Removes both legacy XML flags when introducing `nodeType`.
+- Adds native parent tags for unambiguous `x-tagGroups`. The extension is retained
+  to preserve ordering and visibility in existing renderers. Groups with duplicate
+  membership, naming conflicts (including operation-only tags), or existing parent relationships are left intact.
+- Removes `allowReserved` from path and cookie parameters, where it was ignored in
+  OpenAPI 3.1, so it does not unexpectedly affect serialization in OpenAPI 3.2.
+
+Conversion throws an `Error` with a JSON pointer when it detects an incompatibility
+that needs an author's decision: repeated path or server variables, an optional
+discriminator property without `defaultMapping`, or an unnamed inline XML element.
+Resolve the reported issue in the original document and retry. The upgrader does
+not choose fallback schemas, XML element names, or replacement parameter names.
+
+These checks are not a complete OpenAPI validator. External references are not
+loaded, and requiredness is not inferred from ambiguous schema constraints.
+Requiredness analysis also stops conservatively when its work budget is exhausted.
+Schemas with an explicit `jsonSchemaDialect` or `$schema` keep their dialect and
+legacy XML metadata. References crossing schema resource boundaries are not used
+to infer requiredness. Validate the resulting description with tooling that
+supports its declared dialects and referenced documents.
