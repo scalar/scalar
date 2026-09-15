@@ -122,11 +122,16 @@ export const shellCurl: Plugin = {
           }
         }
       } else if (
-        ['application/jsonl', 'application/x-ndjson'].includes(
-          parseMimeType(normalizedRequest.postData.mimeType ?? '').essence,
-        )
+        [
+          'application/jsonl',
+          'application/x-ndjson',
+          'application/json-lines',
+          'application/json-seq',
+          'text/event-stream',
+        ].includes(parseMimeType(normalizedRequest.postData.mimeType ?? '').essence) ||
+        parseMimeType(normalizedRequest.postData.mimeType ?? '').subtype.endsWith('+json-seq')
       ) {
-        // Preserve line framing for generated stream items, even when one item is valid JSON.
+        // Use the explicit binary mode consistently for framed streaming media types.
         const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
         parts.push(`--data-binary '${escapedText}'`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {

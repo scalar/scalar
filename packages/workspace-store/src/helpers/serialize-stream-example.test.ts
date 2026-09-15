@@ -34,7 +34,9 @@ describe('serialize-stream-example', () => {
   })
 
   it('ignores invalid SSE field values', () => {
-    expect(serializeStreamExample({ id: 'bad\0id', retry: -1, data: { x: 1 } }, 'text/event-stream', true)).toBe('')
+    expect(serializeStreamExample({ id: 'bad\0id', retry: -1, data: { x: 1 } }, 'text/event-stream', true)).toBe(
+      'data: {"x":1}\n\n',
+    )
   })
 
   it('leaves other media types to their existing serializer', () => {

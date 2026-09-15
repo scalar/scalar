@@ -237,9 +237,11 @@ const showSchema = ref(false)
           :id="id"
           :schema="currentResponseContent.schema" />
         <template v-if="currentResponseContent?.itemSchema">
-          <p class="text-c-2 px-3 pt-2 text-sm">Stream item</p>
+          <p class="text-c-2 px-3 pt-2 text-sm">
+            {{ translate('common.streamItem') }}
+          </p>
           <ExampleSchema
-            :id="currentResponseContent.schema ? `${id}-item` : id"
+            :id="`${id}-item`"
             :schema="currentResponseContent.itemSchema" />
         </template>
       </template>

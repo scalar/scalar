@@ -212,7 +212,7 @@ const shouldRenderRequestBody = computed(
         !requestBody.content?.[selectedContentType]?.schema
       "
       class="text-c-2 pt-2 text-sm">
-      Stream item
+      {{ translate('common.streamItem') }}
     </p>
 
     <Schema
@@ -222,7 +222,7 @@ const shouldRenderRequestBody = computed(
       "
       compact
       :eventBus="eventBus"
-      name="Stream item"
+      :name="translate('common.streamItem')"
       noncollapsible
       :options="{ ...options, hideReadOnly: true, document }"
       :schema="

@@ -1,6 +1,17 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 
+/** Recognize the sequential media types whose examples have record framing. */
+export const isStreamingMediaType = (contentType: string): boolean => {
+  const { essence, subtype } = parseMimeType(contentType)
+  return (
+    essence === 'text/event-stream' ||
+    subtype === 'json-seq' ||
+    subtype.endsWith('+json-seq') ||
+    ['application/jsonl', 'application/x-ndjson', 'application/json-lines'].includes(essence)
+  )
+}
+
 /** Serialize generated sequential content; explicit wire-format examples bypass this helper. */
 export const serializeStreamExample = (
   value: unknown,
@@ -12,7 +23,11 @@ export const serializeStreamExample = (
   }
   const { essence: mimeType } = parseMimeType(contentType)
   const items = singleItem ? [value] : Array.isArray(value) ? value : [value]
-  if (mimeType === 'application/jsonl' || mimeType === 'application/x-ndjson') {
+  if (
+    mimeType === 'application/jsonl' ||
+    mimeType === 'application/x-ndjson' ||
+    mimeType === 'application/json-lines'
+  ) {
     return items.map((item) => `${JSON.stringify(item)}\n`).join('')
   }
   if (mimeType === 'application/json-seq' || mimeType.endsWith('+json-seq')) {
@@ -22,7 +37,7 @@ export const serializeStreamExample = (
     return items
       .map((item) => {
         if (!isObject(item)) {
-          return ''
+          return `data: ${JSON.stringify(item)}\n\n`
         }
         const fields = ['event', 'id', 'retry', 'data'].flatMap((field) => {
           const fieldValue = item[field]
@@ -31,15 +46,15 @@ export const serializeStreamExample = (
               ? [`retry: ${fieldValue}`]
               : []
           }
+          if (field === 'data' && fieldValue !== undefined) {
+            const data = typeof fieldValue === 'string' ? fieldValue : JSON.stringify(fieldValue)
+            return data.split(/\r\n|\r|\n/).map((line) => `data: ${line}`)
+          }
           if (typeof fieldValue !== 'string' || (field === 'id' && fieldValue.includes('\0'))) {
             return []
           }
           const lines = fieldValue.split(/\r\n|\r|\n/)
-          return field === 'data'
-            ? lines.map((line) => `data: ${line}`)
-            : lines.length === 1
-              ? [`${field}: ${fieldValue}`]
-              : []
+          return lines.length === 1 ? [`${field}: ${fieldValue}`] : []
         })
         return fields.length ? `${fields.join('\n')}\n\n` : ''
       })
