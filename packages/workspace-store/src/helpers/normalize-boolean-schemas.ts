@@ -1,5 +1,8 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
+import { setValueAtPath } from '@scalar/json-magic/helpers/set-value-at-path'
 
 const schemaMaps = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'])
 const schemaArrays = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems'])
@@ -28,10 +31,12 @@ const openApiMaps = new Set([
   'requestBodies',
   'securitySchemes',
   'pathItems',
+  'mediaTypes',
+  'additionalOperations',
   'callbacks',
   'x-ext',
 ])
-const opaqueValues = new Set(['example', 'examples', 'default', 'enum', 'const', 'value'])
+const opaqueValues = new Set(['example', 'examples', 'default', 'enum', 'const', 'value', 'dataValue'])
 
 /**
  * Normalize boolean schemas in place before the store's object-only coercion.
@@ -48,6 +53,14 @@ export const normalizeBooleanSchemas = <T extends Record<string, unknown>>(docum
     }
     if (!isObject(value) || visitedSchemas.has(value)) return value
     visitedSchemas.add(value)
+    // Bundled targets retain their original shape until a schema reference supplies the context.
+    if (typeof value.$ref === 'string' && value.$ref.startsWith('#/')) {
+      const pointer = value.$ref.slice(1)
+      const target = getValueAtPath(document, parseJsonPointerSegments(pointer))
+      if (typeof target === 'boolean' || isObject(target)) {
+        setValueAtPath(document, pointer, normalizeSchema(target))
+      }
+    }
     for (const [key, child] of Object.entries(value)) {
       if (schemaMaps.has(key) && isObject(child)) {
         for (const name of Object.keys(child)) child[name] = normalizeSchema(child[name])
@@ -72,7 +85,7 @@ export const normalizeBooleanSchemas = <T extends Record<string, unknown>>(docum
       const isMapEntry = openApiMaps.has(path.at(-1) ?? '') || path.at(-2) === 'callbacks'
       if (key === 'schemas' && path.at(-1) === 'components' && isObject(child)) {
         for (const name of Object.keys(child)) child[name] = normalizeSchema(child[name])
-      } else if (key === 'schema' && isSchemaPath(childPath)) {
+      } else if ((key === 'schema' || key === 'itemSchema') && !isMapEntry && isSchemaPath(childPath)) {
         ;(value as Record<string, unknown>)[key] = normalizeSchema(child)
       } else if (isMapEntry || (!opaqueValues.has(key) && (!key.startsWith('x-') || key === 'x-ext'))) {
         visit(child, childPath)
