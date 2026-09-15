@@ -25,6 +25,7 @@ describe('useColorMode', () => {
 
     // Reset the DOM
     document.body.classList.remove('dark-mode', 'light-mode')
+    document.documentElement.style.removeProperty('color-scheme')
 
     // Clear localStorage
     localStorage.clear()
@@ -303,5 +304,51 @@ describe('useColorMode', () => {
 
     const { darkLightMode } = useColorMode()
     expect(darkLightMode.value).toBe('dark') // Should default to dark when matchMedia is unavailable
+  })
+
+  it.each(['light', 'dark'] as const)('pins color-scheme on the document element for %s', async (mode) => {
+    const { setColorMode } = useColorMode()
+
+    setColorMode(mode)
+    await nextTick()
+
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe(mode)
+  })
+
+  it('leaves color-scheme unset in system mode so the stylesheet follows the OS', async () => {
+    const { setColorMode } = useColorMode()
+
+    setColorMode('system')
+    await nextTick()
+
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('')
+  })
+
+  it('clears the pinned color-scheme when switching from an explicit mode back to system', async () => {
+    const { setColorMode } = useColorMode()
+
+    setColorMode('dark')
+    await nextTick()
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('dark')
+
+    setColorMode('system')
+    await nextTick()
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('')
+  })
+
+  it.each(['light', 'dark'] as const)('pins color-scheme from overrideColorMode: %s', (overrideColorMode) => {
+    useColorMode({ overrideColorMode })
+
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe(overrideColorMode)
+  })
+
+  it('pins color-scheme from a stored preference that disagrees with the system', () => {
+    vi.spyOn(window, 'matchMedia').mockImplementation(createMatchMediaMock('dark'))
+    localStorage.setItem('colorMode', 'light')
+
+    useColorMode()
+
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('light')
   })
 })
