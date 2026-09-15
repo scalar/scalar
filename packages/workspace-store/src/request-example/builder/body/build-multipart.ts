@@ -102,10 +102,12 @@ export const getMultipartItemSchema = (
   ) as SchemaObject | undefined
 
 /** Serialize structured values to the selected part format; strings already containing XML stay intact. */
-const serializePartValue = (value: unknown, contentType?: string): string => {
+const serializePartValue = (value: unknown, contentType?: string, schema?: SchemaObject): string => {
   const subtype = contentType ? parseMimeType(contentType).subtype : undefined
   if ((subtype === 'xml' || subtype?.endsWith('+xml')) && isObject(value)) {
-    return json2xml(unpackProxyObject(value))
+    // XML documents need one root. A single existing key can supply it when no schema name is given.
+    const rootName = schema?.xml?.name ?? (Object.keys(value).length === 1 ? undefined : 'root')
+    return json2xml(rootName ? { [rootName]: unpackProxyObject(value) } : unpackProxyObject(value))
   }
   const json = subtype === 'json' || subtype?.endsWith('+json')
   return json || (value !== null && typeof value === 'object')
@@ -239,6 +241,6 @@ export const buildMultipart = (
     if (item instanceof Blob) {
       return [{ ...metadata, type: 'blob', value: unpackProxyObject(item) }]
     }
-    return [{ ...metadata, type: 'text', value: serializePartValue(item, partContentType) }]
+    return [{ ...metadata, type: 'text', value: serializePartValue(item, partContentType, partSchema) }]
   })
 }
