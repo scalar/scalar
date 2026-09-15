@@ -1,3 +1,4 @@
+import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -36,11 +37,11 @@ export const getQuerystringParameter = (
   if (parameter.in !== 'querystring' || !('content' in parameter) || !parameter.content) {
     return undefined
   }
-  const contentType = Object.keys(parameter.content)[0]
+  const [contentType, media] = getFirstMediaType(parameter.content) ?? []
   if (!contentType) {
     return undefined
   }
-  const mediaType = getResolvedRef(parameter.content[contentType])
+  const mediaType = getResolvedRef(media)
   const example = getExample(parameter, exampleName, contentType)
   if (!includeDisabled && isParamDisabled(parameter, example, defaultDisabled)) {
     return undefined
