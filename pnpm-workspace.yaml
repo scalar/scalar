@@ -72,7 +72,7 @@ catalogs:
     fastify: ^5.11.2
     flatted: ^3.4.0
     fuse.js: ^7.5.0
-    hono: ^4.12.7
+    hono: ^4.13.7
     get-port-please: 3.2.0
     github-slugger: 2.0.0
     highlight.js: ^11.11.1
