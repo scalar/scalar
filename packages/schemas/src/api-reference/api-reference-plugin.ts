@@ -1,3 +1,4 @@
+import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import { type Static, any, array, boolean, fn, object, optional, record, string, unknown } from '@scalar/validation'
 
 const openApiExtensionSchema = object({
@@ -60,5 +61,6 @@ export const apiReferencePluginSchema =
       views: Static<typeof viewsSchema>
       hooks: Static<typeof lifecycleHooksSchema>
       apiClientPlugins: any[]
+      markdown?: MarkdownRenderHook
     }
   >()
