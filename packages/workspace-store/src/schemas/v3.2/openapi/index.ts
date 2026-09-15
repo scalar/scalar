@@ -620,6 +620,11 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         ...securitySchemeBase.properties,
         type: literal('oauth2'),
         flows: oauth2Flows,
+        oauth2MetadataUrl: optional(
+          string({
+            typeComment: 'URL to the OAuth2 authorization server metadata (RFC8414). TLS is required.',
+          }),
+        ),
       },
       { typeName: 'OAuth2SecuritySchemeObject' },
     ),

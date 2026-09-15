@@ -74,6 +74,15 @@ export function logAuthenticationInstructions(
 
         break
       case 'oauth2':
+        if (
+          'oauth2MetadataUrl' in scheme &&
+          typeof scheme.oauth2MetadataUrl === 'string' &&
+          scheme.oauth2MetadataUrl.trim()
+        ) {
+          log('✅ OAuth 2.0 Authorization Server Metadata')
+          log(`   GET ${getPathFromUrl(scheme.oauth2MetadataUrl, true)}`)
+          log('')
+        }
         if (scheme.flows) {
           Object.keys(scheme.flows).forEach((flow) => {
             switch (flow) {

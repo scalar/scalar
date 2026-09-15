@@ -2,16 +2,17 @@ import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /**
- * Extract path from URL
+ * Extract path from URL. Metadata is fetched at its exact declared URL, so its routes
+ * preserve trailing slashes instead of using the token-route normalization.
  */
-export function getPathFromUrl(url: string): string {
+export function getPathFromUrl(url: string, preserveTrailingSlash = false): string {
   try {
     // Handle relative URLs by prepending a base
     const urlObject = url.startsWith('http') ? new URL(url) : new URL(url, 'http://example.com')
 
     // Normalize: remove trailing slash except for root path
     const path = urlObject.pathname
-    return path === '/' ? path : path.replace(/\/$/, '')
+    return preserveTrailingSlash || path === '/' ? path : path.replace(/\/$/, '')
   } catch {
     // If URL is invalid, return the original string
     return url
