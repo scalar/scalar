@@ -1,6 +1,7 @@
+import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
@@ -1786,75 +1787,69 @@ describe('RequestBody', () => {
     expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
   })
 
-  describe('copy button', () => {
-    const stubs = {
-      ScalarButton: {
-        template: '<button><slot /></button>',
-        props: ['variant', 'size', 'fullWidth'],
-      },
-      ScalarIcon: true,
-      ScalarListbox: {
-        template: '<div><slot /></div>',
-        props: ['modelValue', 'options', 'teleport'],
-        emits: ['update:modelValue'],
-      },
-      CollapsibleSection: {
-        template: '<div><slot name="title" /><slot /></div>',
-      },
-      DataTable: { template: '<div><slot /></div>' },
-      DataTableHeader: { template: '<div><slot /></div>' },
-      DataTableRow: { template: '<div><slot /></div>' },
-      CodeInput: {
-        template: '<div data-testid="code-input"></div>',
-        props: ['modelValue', 'language', 'environment'],
-        emits: ['update:modelValue'],
-      },
-      ScalarCodeBlockCopy: {
-        template: '<button data-testid="copy-button" :data-content="content" />',
-        props: ['content', 'lang', 'showLang'],
+  it('copies the serialized body shown in the editor', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          example: { hello: 'world' },
+        },
       },
     }
 
-    it('copies the serialized body shown in the editor', async () => {
-      const requestBody: RequestBodyObject = {
-        content: {
-          'application/json': {
-            schema: { type: 'object' },
-            example: { hello: 'world' },
-          },
-        },
-      }
-
-      const wrapper = mount(RequestBody, {
-        props: { ...defaultProps, requestBody },
-        global: { stubs },
-      })
-      await nextTick()
-
-      const copy = wrapper.find('[data-testid="copy-button"]')
-      expect(copy.exists()).toBe(true)
-      // The button copies exactly what the editor renders.
-      expect(copy.attributes('data-content')).toBe(JSON.stringify({ hello: 'world' }, null, 2))
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    const execCommandDescriptor = Object.getOwnPropertyDescriptor(document, 'execCommand')
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: (command: string): boolean => {
+        if (command === 'copy') {
+          void writeText(document.querySelector('textarea')?.value)
+        }
+        return true
+      },
     })
-
-    it('hides the copy button when the body is empty', async () => {
-      const requestBody: RequestBodyObject = {
-        content: {
-          'application/json': {
-            schema: { type: 'string' },
-            example: '',
-          },
-        },
-      }
-
-      const wrapper = mount(RequestBody, {
-        props: { ...defaultProps, requestBody },
-        global: { stubs },
-      })
-      await nextTick()
-
-      expect(wrapper.find('[data-testid="code-input"]').exists()).toBe(true)
-      expect(wrapper.find('[data-testid="copy-button"]').exists()).toBe(false)
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
     })
+    await nextTick()
+
+    try {
+      await wrapper.getComponent(ScalarCodeBlockCopy).get('button').trigger('click')
+      await flushPromises()
+      expect(writeText).toHaveBeenCalledExactlyOnceWith(JSON.stringify({ hello: 'world' }, null, 2))
+    } finally {
+      wrapper.unmount()
+      if (execCommandDescriptor) {
+        Object.defineProperty(document, 'execCommand', execCommandDescriptor)
+      } else {
+        Reflect.deleteProperty(document, 'execCommand')
+      }
+      if (clipboardDescriptor) {
+        Object.defineProperty(navigator, 'clipboard', clipboardDescriptor)
+      } else {
+        Reflect.deleteProperty(navigator, 'clipboard')
+      }
+    }
+  })
+
+  it('hides the copy button when the body is empty', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: { type: 'string' },
+          example: '',
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+    })
+    await nextTick()
+
+    expect(wrapper.findComponent({ name: 'CodeInput' }).exists()).toBe(true)
+    expect(wrapper.findComponent(ScalarCodeBlockCopy).exists()).toBe(false)
   })
 })
