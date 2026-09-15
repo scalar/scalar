@@ -693,4 +693,43 @@ describe('upgrade-from-three-one-to-three-two', () => {
     })
     expect(() => upgrade(input)).toThrow('#/components/schemas/' + name + '/items')
   })
+  it.each(['#/__proto__', '#/constructor/prototype', '#/components/parameters/__proto__'])(
+    'does not follow inherited reference %s',
+    ($ref) => {
+      const input = document({
+        components: { parameters: { Ref: { $ref } } },
+      })
+      const prototype = Object.entries(Object.getOwnPropertyDescriptors(Object.prototype))
+      expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+      expect(Object.entries(Object.getOwnPropertyDescriptors(Object.prototype))).toStrictEqual(prototype)
+    },
+  )
+
+  it('migrates own reference targets named __proto__ and constructor', () => {
+    const parameters: UnknownObject = JSON.parse(
+      '{"__proto__":{"name":"id","in":"path","required":true,"allowReserved":true},"constructor":{"name":"token","in":"cookie","allowReserved":true}}',
+    )
+    const input = document({
+      'x-parameters': parameters,
+      components: {
+        parameters: {
+          Id: { $ref: '#/x-parameters/__proto__' },
+          Token: { $ref: '#/x-parameters/constructor' },
+        },
+      },
+    })
+    const prototype = Object.entries(Object.getOwnPropertyDescriptors(Object.prototype))
+    expect(JSON.stringify(upgrade(input))).toBe(
+      JSON.stringify({
+        ...input,
+        openapi: '3.2.0',
+        'x-parameters': JSON.parse(
+          '{"__proto__":{"name":"id","in":"path","required":true},"constructor":{"name":"token","in":"cookie"}}',
+        ),
+      }),
+    )
+    expect(at(parameters, '__proto__').allowReserved).toBe(true)
+    expect(at(parameters, 'constructor').allowReserved).toBe(true)
+    expect(Object.entries(Object.getOwnPropertyDescriptors(Object.prototype))).toStrictEqual(prototype)
+  })
 })
