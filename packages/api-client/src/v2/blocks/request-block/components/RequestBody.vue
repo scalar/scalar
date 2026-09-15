@@ -11,6 +11,10 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { ScalarIconMagicWand } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import {
+  getExampleValue,
+  getJsonExampleText,
+} from '@scalar/workspace-store/helpers/get-example-value'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
@@ -204,7 +208,16 @@ const bodyValue = computed(() => {
     return ''
   }
 
-  const value = example.value.value
+  const selected = getExampleValue(example.value)
+  const explicitText = getJsonExampleText(
+    selected,
+    selectedContentType.value,
+    2,
+  )
+  if (explicitText !== undefined) {
+    return explicitText
+  }
+  const value = selected?.value
   if (typeof value === 'string') {
     return value
   }
