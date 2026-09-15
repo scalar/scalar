@@ -42,7 +42,7 @@ describe('create-mock-server additional operations', () => {
     })
     expect(preflight.status).toBe(204)
     expect(preflight.headers.get('Access-Control-Allow-Methods')).toBe(
-      'GET,HEAD,PUT,POST,DELETE,PATCH,COPY,copy,customMethod',
+      'GET,HEAD,PUT,POST,DELETE,PATCH,QUERY,COPY,copy,customMethod',
     )
   })
 
