@@ -29,7 +29,6 @@ const { toast } = useToasts()
 const fetchConfiguration = async (): Promise<void> => {
   const url = scheme.oauth2MetadataUrl
   const schemeName = name
-  const currentScheme = scheme
   if (!url || loader.isLoading) {
     return
   }
@@ -40,11 +39,8 @@ const fetchConfiguration = async (): Promise<void> => {
     customFetch,
   )
   await loader.clear()
-  if (
-    name !== schemeName ||
-    scheme !== currentScheme ||
-    scheme.oauth2MetadataUrl !== url
-  ) {
+  // Store updates can replace the proxy without changing the selected authorization server.
+  if (name !== schemeName || scheme.oauth2MetadataUrl !== url) {
     return
   }
   if (error) {
