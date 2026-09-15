@@ -58,7 +58,12 @@ describe('prepare-api-reference', () => {
       'https://example.com/openapi.json',
       'https://example.com/model.json',
     ])
-    expect(JSON.stringify(prepared.workspace.documents.selected)).toContain('Resolved model')
+    expect(prepared.workspace.documents.selected?.components?.schemas?.Thing).toStrictEqual({
+      $ref: '#/x-ext/67d5c21',
+    })
+    expect(prepared.workspace.documents.selected?.['x-ext']).toStrictEqual({
+      '67d5c21': { type: 'string', description: 'Resolved model' },
+    })
   })
 
   it('rejects preparation when the initial source cannot be loaded', async () => {
