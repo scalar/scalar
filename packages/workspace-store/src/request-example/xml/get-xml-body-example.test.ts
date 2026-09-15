@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getXmlBodyExample } from './get-xml-body-example'
 
