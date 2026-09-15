@@ -33,6 +33,15 @@ describe('write-xml', () => {
     })
   })
 
+  it('formats element-only descendants without adding whitespace to mixed content', () => {
+    expect(
+      writeXml([element('root', [text('before'), element('group', [element('leaf')]), text('after')])], options),
+    ).toStrictEqual({
+      xml: '<root>before<group>\n    <leaf/>\n  </group>after</root>',
+      diagnostics: [],
+    })
+  })
+
   it('only indents element-only content', () => {
     expect(writeXml([element('root', [element('a'), element('b', [text('x')])])], options).xml).toBe(
       '<root>\n  <a/>\n  <b>x</b>\n</root>',

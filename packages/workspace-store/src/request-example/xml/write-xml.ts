@@ -116,7 +116,7 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
     }
     const indentChildren = pretty && node.children.every((child) => child.type === 'element')
     const children = node.children.map((child, index) =>
-      render(child, bindings, depth + 1, [...path, String(index)], indentChildren),
+      render(child, bindings, depth + 1, [...path, String(index)], pretty),
     )
     if (indentChildren) {
       return `${opening}>\n${children.map((child) => `${'  '.repeat(depth + 1)}${child}`).join('\n')}\n${'  '.repeat(depth)}</${element.name}>`

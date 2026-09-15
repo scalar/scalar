@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getExampleFromSchema } from '../builder/helpers/get-example-from-schema'
 import { getXmlExampleFromSchema, serializeXmlExample } from './get-xml-example'
@@ -9,6 +9,46 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it('reports a failed serialization when consumers only read xml', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      expect(
+        serializeXmlExample('value', schema({ type: 'string', xml: { name: '1invalid' } }), compact).xml,
+      ).toBeUndefined()
+      expect(warn.mock.calls).toStrictEqual([
+        [
+          'Unable to generate an XML example:',
+          {
+            severity: 'error',
+            code: 'invalid-name',
+            message: 'Invalid XML name: 1invalid',
+            path: [],
+          },
+        ],
+      ])
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('allows consumers to handle diagnostics without console output', () => {
+    const onDiagnostic = vi.fn()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const result = serializeXmlExample('value', schema({ type: 'string', xml: { name: '1invalid' } }), {
+        ...compact,
+        onDiagnostic,
+      })
+      expect(result.xml).toBeUndefined()
+      expect(onDiagnostic.mock.calls).toStrictEqual([
+        [{ severity: 'error', code: 'invalid-name', message: 'Invalid XML name: 1invalid', path: [] }],
+      ])
+      expect(warn.mock.calls).toStrictEqual([])
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('renders renamed children, attributes, namespaces, and duplicate sibling names', () => {
     const input = schema({
       type: 'object',
