@@ -54,6 +54,8 @@ There is no root export. Every module is imported from its own entry point, so y
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
+For OpenAPI documents, `$self` declares the base URI for relative references. A relative `$self` is resolved against `origin` or the input URL. Each loaded document has its own base, and schema `$id` values resolve against their enclosing base. Documents supplied through `cache` can be referenced by their declared identity, even when their retrieval location differs. API server URLs are unchanged.
+
 External documents are stored under the `x-ext` key, and the mapping between the generated keys and their original URLs is stored under `x-ext-urls`. Both keys are configurable, see [Options](#options).
 
 ### Quick start
