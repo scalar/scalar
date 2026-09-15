@@ -23,6 +23,33 @@ describe('parameter styles', () => {
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
 
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black'], expected: 'color=blue; color=black' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+  ])('preserves cookie style in the HAR header: $expected', ({ value, expected }) => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/'),
+      parameters: [{ name: 'color', in: 'cookie', style: 'cookie', required: true, example: value }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'Cookie', value: expected }])
+    expect(result.cookies).toStrictEqual([])
+  })
+
+  it('merges cookie style with existing headers and legacy cookies without changing the input header', () => {
+    const harRequest = createHarRequest('/')
+    harRequest.headers = [{ name: 'cookie', value: 'session=abc' }]
+    harRequest.cookies = [{ name: 'legacy', value: 'a b' }]
+    const result = runProcessParameters({
+      harRequest,
+      parameters: [{ name: 'token', in: 'cookie', style: 'cookie', required: true, example: '%2F+==' }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc; legacy=a%20b; token=%2F+==' }])
+    expect(result.cookies).toStrictEqual([])
+    expect(harRequest.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc' }])
+  })
+
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
       const result = runProcessParameters({

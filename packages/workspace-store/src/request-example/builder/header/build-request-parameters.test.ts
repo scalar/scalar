@@ -2,6 +2,7 @@ import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
+import { getCookieHeader } from './build-request-cookie-header'
 import { buildRequestParameters } from './build-request-parameters'
 
 /**
@@ -42,6 +43,40 @@ describe('buildRequestParameters', () => {
     expect(result.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
       { name: 'active', value: 'false' },
     ])
+  })
+
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black', 'brown'], expected: 'color=blue; color=black; color=brown' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+    { value: [], expected: '' },
+    { value: {}, expected: '' },
+  ])('serializes cookie style $expected', ({ value, expected }) => {
+    const result = buildRequestParameters([
+      {
+        name: 'color',
+        in: 'cookie',
+        style: 'cookie',
+        required: true,
+        examples: { default: { value } },
+      },
+    ])
+    expect(getCookieHeader(result.cookies, undefined)).toBe(expected)
+  })
+
+  it('expands cookie arrays even when the invalid explode: false is provided', () => {
+    const result = buildRequestParameters([
+      {
+        name: 'color',
+        in: 'cookie',
+        style: 'cookie',
+        explode: false,
+        required: true,
+        examples: { default: { value: ['blue', 'black'] } },
+      },
+    ])
+    expect(getCookieHeader(result.cookies, undefined)).toBe('color=blue; color=black')
   })
 
   describe('getExample (internal helper)', () => {

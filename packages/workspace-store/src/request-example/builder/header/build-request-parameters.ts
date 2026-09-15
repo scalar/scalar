@@ -14,6 +14,7 @@ import { getExample } from '../helpers/get-example'
 import { isParamDisabled } from './is-param-disabled'
 import {
   serializeContentValue,
+  serializeCookieStyle,
   serializeDeepObjectStyle,
   serializeFormStyle,
   serializeFormStyleForCookies,
@@ -132,6 +133,14 @@ export const buildRequestParameters = (
       }
 
       case 'cookie': {
+        if ('style' in param && param.style === 'cookie') {
+          result.cookies.push(
+            ...serializeCookieStyle(paramName, deSerializedValue).map((cookie) =>
+              coerceValue(xScalarCookieSchema, { ...cookie, path: '/' }),
+            ),
+          )
+          break
+        }
         processCookieParameter(paramName, deSerializedValue, getExplode(param, true), result.cookies)
         break
       }
