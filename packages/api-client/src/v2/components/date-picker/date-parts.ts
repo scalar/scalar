@@ -13,7 +13,7 @@ export type DatePickerType = 'date' | 'date-time' | 'time'
 /**
  * A date/time broken into its editable fields.
  *
- * `offset` only matters for `date-time` values: it holds the timezone
+ * `offset` applies to both time and date-time values: it holds the timezone
  * designator (`Z` or `±HH:MM`) so a round-trip preserves whatever the user
  * originally typed instead of silently rewriting it to the local zone.
  */
@@ -25,8 +25,10 @@ export type DateParts = {
   hour: number
   minute: number
   second: number
-  /** Timezone designator for `date-time`, e.g. `Z` or `+02:00`. Empty otherwise. */
+  /** Timezone designator, e.g. `Z` or `+02:00`, when present in the original value. */
   offset: string
+  /** Fractional seconds, including the leading decimal point, preserved during edits. */
+  fraction?: string
 }
 
 /** Zero-pad a number to two digits. */
@@ -36,8 +38,8 @@ const pad2 = (value: number): string => String(Math.abs(value)).padStart(2, '0')
 const pad4 = (value: number): string => String(value).padStart(4, '0')
 
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/
-const TIME_RE = /^(\d{2}):(\d{2})(?::(\d{2}))?$/
-const DATE_TIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(Z|[+-]\d{2}:\d{2})?$/
+const TIME_RE = /^(\d{2}):(\d{2})(?::(\d{2})(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/
+const DATE_TIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/
 
 /**
  * Parse a formatted value into editable fields, or return `null` when it does
@@ -76,7 +78,8 @@ export const parseValue = (value: string, type: DatePickerType): DateParts | nul
       hour: Number(match[1]),
       minute: Number(match[2]),
       second: Number(match[3] ?? 0),
-      offset: '',
+      offset: match[5] ?? '',
+      ...(match[4] ? { fraction: match[4] } : {}),
     }
   }
 
@@ -91,7 +94,8 @@ export const parseValue = (value: string, type: DatePickerType): DateParts | nul
     hour: Number(match[4]),
     minute: Number(match[5]),
     second: Number(match[6] ?? 0),
-    offset: match[7] ?? '',
+    offset: match[8] ?? '',
+    ...(match[7] ? { fraction: match[7] } : {}),
   }
 }
 
@@ -100,7 +104,7 @@ export const formatDate = (parts: DateParts): string => `${pad4(parts.year)}-${p
 
 /** Format the time portion as `HH:MM:SS`. */
 export const formatTime = (parts: DateParts): string =>
-  `${pad2(parts.hour)}:${pad2(parts.minute)}:${pad2(parts.second)}`
+  `${pad2(parts.hour)}:${pad2(parts.minute)}:${pad2(parts.second)}${parts.fraction ?? ''}`
 
 /**
  * Format editable fields back into the string the request expects.
@@ -114,7 +118,7 @@ export const formatValue = (parts: DateParts, type: DatePickerType): string => {
     return formatDate(parts)
   }
   if (type === 'time') {
-    return formatTime(parts)
+    return `${formatTime(parts)}${parts.offset}`
   }
   return `${formatDate(parts)}T${formatTime(parts)}${parts.offset}`
 }
