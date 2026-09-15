@@ -465,6 +465,7 @@ const handleExecute = async () => {
     await executeHook(
       {
         response: sendResult.originalResponse.clone(),
+        responseDuration: sendResult.response.duration,
         requestBuilder,
         request: buildSafeBodyRequest(...sendResult.requestPayload),
         document,

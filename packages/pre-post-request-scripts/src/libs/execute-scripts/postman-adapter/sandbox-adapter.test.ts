@@ -28,6 +28,11 @@ describe('sandbox-adapter', () => {
     expect(result.stream).toEqual({ type: 'Buffer', data: Array.from(new TextEncoder().encode('{"ok":true}')) })
   })
 
+  it('leaves response timing absent when it is unavailable', async () => {
+    const result = await toPostmanResponse(new Response('{}'))
+    expect(result).not.toHaveProperty('responseTime')
+  })
+
   it('falls back to the numeric status when statusText is empty', async () => {
     const result = await toPostmanResponse(new Response(null, { status: 204 }))
     expect(result.status).toBe('204')
