@@ -32,7 +32,7 @@ describe('for-each-path-item-operation', () => {
     }
     const methods: string[] = []
     forEachPathItemOperation(pathItem, (method) => methods.push(method))
-    expect(methods).toStrictEqual(['patch', 'pAtCh'])
+    expect(methods).toStrictEqual(['patch', 'pAtCh', 'PATCH'])
     expect(getPathItemOperation(pathItem, 'pAtCh')).toStrictEqual({ summary: 'Custom pAtCh' })
     expect(getPathItemOperationKey('pAtCh')).toBe('additionalOperations/pAtCh')
     setPathItemOperation(pathItem, 'pAtCh', { summary: 'Updated custom operation' })
@@ -40,6 +40,13 @@ describe('for-each-path-item-operation', () => {
     deletePathItemOperation(pathItem, 'pAtCh')
     expect(getPathItemOperation(pathItem, 'pAtCh')).toBeUndefined()
     expect(pathItem.patch).toStrictEqual({ summary: 'Standard PATCH' })
+  })
+
+  it('preserves uppercase and mixed-case explicitly authored operations', () => {
+    const methods: string[] = []
+    forEachPathItemOperation({ additionalOperations: { GET: {}, Get: {} } }, (method) => methods.push(method))
+    expect(methods).toStrictEqual(['GET', 'Get'])
+    expect(getPathItemOperationKey('custom/~method')).toBe('additionalOperations/custom~1~0method')
   })
 
   it('traverses and edits additional operations without changing their case', () => {
