@@ -11,6 +11,14 @@ const { isElectron } = await import('@/general/is-electron')
 const mockedIsElectron = vi.mocked(isElectron)
 
 describe('can-method-have-body', () => {
+  beforeEach(() => {
+    mockedIsElectron.mockReturnValue(false)
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('preserves a QUERY body in the final request', async () => {
     const request = buildSafeBodyRequest('https://example.com/search', {
       method: 'QUERY',
@@ -20,14 +28,6 @@ describe('can-method-have-body', () => {
     expect(request.method).toBe('QUERY')
     expect(request.headers.get('Content-Type')).toBe('application/json')
     expect(await request.text()).toBe('{"name":"Ada"}')
-  })
-
-  beforeEach(() => {
-    mockedIsElectron.mockReturnValue(false)
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
   })
 
   describe('HTTP methods with body support', () => {
