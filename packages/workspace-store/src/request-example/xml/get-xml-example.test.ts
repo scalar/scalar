@@ -9,6 +9,42 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it.each([
+    {
+      xml: { nodeType: 'element', name: 'wrapper', namespace: 'relative' },
+      code: 'relative-namespace',
+      message: 'XML namespaces must be non-relative IRIs.',
+    },
+    {
+      xml: { nodeType: 'element', name: 'wrapper', attribute: true },
+      code: 'conflicting-node-type',
+      message: 'xml.nodeType cannot be combined with xml.attribute or xml.wrapped.',
+    },
+    {
+      xml: { nodeType: 'element', name: 'wrapper', wrapped: true },
+      code: 'conflicting-node-type',
+      message: 'xml.nodeType cannot be combined with xml.attribute or xml.wrapped.',
+    },
+  ])('rejects invalid reference-site XML metadata: $xml', ({ xml, code, message }) => {
+    const input = schema({
+      '$ref': '#/components/schemas/Child',
+      '$ref-value': {
+        type: 'object',
+        xml: { nodeType: 'none' },
+        properties: { name: { type: 'string', example: 'a' } },
+      },
+      xml,
+    })
+    const options = { ...compact, openapiVersion: '3.2.0', onDiagnostic: vi.fn() }
+    const expected = {
+      xml: undefined,
+      diagnostics: [{ severity: 'error', code, message, path: [] }],
+    }
+
+    expect(serializeXmlExample({ name: 'a' }, input, options)).toStrictEqual(expected)
+    expect(getXmlExampleFromSchema(input, options)).toStrictEqual(expected)
+  })
+
   it('decodes component names with the shared JSON pointer helper', () => {
     const target = schema({ type: 'string' })
     expect(
@@ -343,7 +379,7 @@ describe('get-xml-example', () => {
         items: { type: 'array', items: { $dynamicRef: '#item' } },
       },
     }
-    const bind = (name: string, attribute: boolean) =>
+    const bind = (name: string, attribute: boolean): SchemaObject =>
       schema({
         '$ref': 'urn:template',
         '$ref-value': template,

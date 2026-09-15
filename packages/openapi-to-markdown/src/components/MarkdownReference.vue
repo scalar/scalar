@@ -99,7 +99,9 @@ const resolveOperation = (operation: unknown): OperationObject | null =>
   resolveRefAs<OperationObject>(operation)
 
 /** Only media-level examples are serialized payloads; schema examples remain data. */
-const getMediaExample = (media: MediaTypeObject) =>
+const getMediaExample = (
+  media: MediaTypeObject,
+): ReturnType<typeof getExample> =>
   getExample(
     { content: { 'application/xml': media } },
     undefined,

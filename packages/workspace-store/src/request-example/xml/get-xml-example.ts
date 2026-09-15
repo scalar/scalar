@@ -110,6 +110,22 @@ const buildXmlExample = (
     return { ...base, ...next }
   }
   const version32 = options.openapiVersion !== undefined && /^3\.[2-9](?:\.|$)/.test(options.openapiVersion)
+  const validateXmlMetadata = (xml: XMLObject, path: string[]): void => {
+    if (xml.namespace !== undefined && !/^[A-Za-z][A-Za-z0-9+.-]*:/.test(xml.namespace)) {
+      report('error', 'relative-namespace', 'XML namespaces must be non-relative IRIs.', path)
+    }
+    if (xml.nodeType !== undefined && (xml.attribute !== undefined || xml.wrapped !== undefined)) {
+      report(
+        'error',
+        'conflicting-node-type',
+        'xml.nodeType cannot be combined with xml.attribute or xml.wrapped.',
+        path,
+      )
+    }
+    if (xml.nodeType && options.openapiVersion && !/^3\.[2-9](?:\.|$)/.test(options.openapiVersion)) {
+      report('warning', 'xml-version', 'xml.nodeType requires OpenAPI 3.2.', path)
+    }
+  }
   // Flatten composition contributions, keeping the evaluator's property provenance and branch choices.
   const shape = (source: SchemaObject, context: Context, seen = new Set<object>()): Shape => {
     if (!source || typeof source !== 'object' || seen.has(source) || seen.size > 50) {
@@ -222,6 +238,7 @@ const buildXmlExample = (
     const target = referenceTarget ?? dynamicTarget
     if (version32 && target && typeof target === 'object') {
       const localXml = (source as XmlSchema).xml ?? {}
+      validateXmlMetadata(localXml, context.path)
       const localKind = localXml.nodeType ?? (localXml.attribute ? 'attribute' : 'none')
       const referenceName =
         '$ref' in source && typeof source.$ref === 'string'
@@ -281,20 +298,7 @@ const buildXmlExample = (
       return []
     }
     const xml = schema.xml ?? {}
-    if (xml.namespace !== undefined && !/^[A-Za-z][A-Za-z0-9+.-]*:/.test(xml.namespace)) {
-      report('error', 'relative-namespace', 'XML namespaces must be non-relative IRIs.', context.path)
-    }
-    if (xml.nodeType !== undefined && (xml.attribute !== undefined || xml.wrapped !== undefined)) {
-      report(
-        'error',
-        'conflicting-node-type',
-        'xml.nodeType cannot be combined with xml.attribute or xml.wrapped.',
-        context.path,
-      )
-    }
-    if (xml.nodeType && options.openapiVersion && !/^3\.[2-9](?:\.|$)/.test(options.openapiVersion)) {
-      report('warning', 'xml-version', 'xml.nodeType requires OpenAPI 3.2.', context.path)
-    }
+    validateXmlMetadata(xml, context.path)
     const kind =
       xml.nodeType ?? (xml.attribute ? 'attribute' : Array.isArray(data) && !xml.wrapped ? 'none' : 'element')
     const selectedComponentName =
