@@ -1,8 +1,9 @@
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
 import { afterEach, describe, expect, it } from 'vitest'
-import { effectScope, ref } from 'vue'
+import { type Ref, effectScope, ref } from 'vue'
 
 import { normalizeConfigurations } from '@/helpers/normalize-configurations'
 
@@ -11,7 +12,7 @@ import { useConfiguredServers } from './use-configured-servers'
 const scopes: ReturnType<typeof effectScope>[] = []
 afterEach(() => scopes.splice(0).forEach((scope) => scope.stop()))
 
-const server = (value = 'prod', url = 'https://{env}.example.com') => ({
+const server = (value = 'prod', url = 'https://{env}.example.com'): ServerObject => ({
   url,
   variables: { env: { default: value } },
 })
@@ -22,7 +23,13 @@ const content = {
   servers: [server('original', 'https://{env}.other.example.com')],
 }
 
-const setup = async () => {
+const setup = async (): Promise<{
+  configurations: Ref<ReturnType<typeof normalizeConfigurations>>
+  sourceStore: WorkspaceStore
+  clientStore: WorkspaceStore
+  document: OpenApiDocument
+  edit: () => void
+}> => {
   const configurations = ref(normalizeConfigurations({ slug: 'test', content, servers: [server()] }))
   const sourceStore = createWorkspaceStore()
   const clientStore = createWorkspaceStore()
@@ -35,7 +42,7 @@ const setup = async () => {
   if (!isOpenApiDocument(document)) {
     throw new Error('Expected an OpenAPI document')
   }
-  const edit = () =>
+  const edit = (): void => {
     generateClientMutators(clientStore)
       .doc('test')
       .server.updateServerVariables({
@@ -44,6 +51,7 @@ const setup = async () => {
         value: 'staging',
         meta: { type: 'document' },
       })
+  }
   return { configurations, sourceStore, clientStore, document, edit }
 }
 
