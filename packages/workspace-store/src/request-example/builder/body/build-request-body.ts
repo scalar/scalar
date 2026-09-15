@@ -1,4 +1,5 @@
 // import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -7,6 +8,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.2/strict/request-body'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
+import { type MultipartPart, buildMultipart, getMultipartItemSchema, needsMultipartEncoding } from './build-multipart'
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
 import { buildDottedNestedRowPredicate, coerceLeafValueToSchemaType, resolveLeafSchema } from './schema-value-coercion'
@@ -73,10 +75,52 @@ type Raw = {
   contentType?: string
 }
 
-export type RequestBody = FormData | UrlEncoded | Raw
+export type RequestBody =
+  | FormData
+  | UrlEncoded
+  | Raw
+  | { mode: 'multipart'; contentType: string; value: MultipartPart[] }
 
 const getMultipartEncodingContentType = (requestBody: RequestBodyObject, bodyContentType: string, fieldName: string) =>
   requestBody.content[bodyContentType]?.encoding?.[fieldName]?.contentType
+
+/** Preserve schema-backed nested objects and repeated flat fields from form editor rows. */
+const regroupMultipartRows = (
+  rows: { name: string; value: unknown }[],
+  multipartSchema: SchemaObject | undefined,
+): { name: string; value: unknown }[] => {
+  const isDottedNestedRow = buildDottedNestedRowPredicate(multipartSchema)
+
+  const entries: { name: string; value: unknown }[] = []
+  const regroupedByTopKey = new Map<string, Record<string, unknown>>()
+
+  for (const row of rows) {
+    if (!isDottedNestedRow(row.name, row.value)) {
+      entries.push(row)
+      continue
+    }
+    const segments = row.name.split('.')
+    const topKey = segments[0]
+    if (!topKey) {
+      continue
+    }
+    let target = regroupedByTopKey.get(topKey)
+    if (!target) {
+      target = {}
+      regroupedByTopKey.set(topKey, target)
+      entries.push({ name: topKey, value: target })
+    }
+    // The form table stringifies leaf values; restore the schema-declared type so the
+    // regrouped JSON part keeps booleans/numbers/arrays instead of string-typing them.
+    setValueAtPath(
+      target,
+      segments.slice(1),
+      coerceLeafValueToSchemaType(row.value, resolveLeafSchema(multipartSchema, segments)),
+    )
+  }
+
+  return entries
+}
 
 /**
  * Create the fetch request body
@@ -125,6 +169,73 @@ export const buildRequestBody = (
   const isOptionalBodyProperty = (key: string) =>
     Boolean(bodyProperties && Object.hasOwn(bodyProperties, key) && !requiredBodyProperties.has(key))
 
+  const media = requestBody.content[bodyContentType]
+  if (media && needsMultipartEncoding(bodyContentType, media)) {
+    // Raw editors store JSON text, while form editors store named rows.
+    const value: unknown = (() => {
+      if (typeof example.value !== 'string') {
+        return example.value
+      }
+      try {
+        return JSON.parse(example.value)
+      } catch {
+        return example.value
+      }
+    })()
+    // Already serialized payloads and uploaded bodies retain their bytes.
+    if (typeof value === 'string' || value instanceof Blob) {
+      return { mode: 'raw', value, contentType: bodyContentType }
+    }
+    const positional =
+      parseMimeType(bodyContentType).essence !== 'multipart/form-data' ||
+      media.prefixEncoding !== undefined ||
+      media.itemEncoding !== undefined ||
+      (resolvedBodySchema && 'type' in resolvedBodySchema && resolvedBodySchema.type === 'array') ||
+      media.itemSchema !== undefined
+    const orderedValue =
+      positional && parseMimeType(bodyContentType).essence === 'multipart/form-data' && Array.isArray(value)
+        ? value
+            .filter((item) => !(isObject(item) && typeof item.name === 'string' && 'value' in item && item.isDisabled))
+            .map((item, index) => {
+              if (!isObject(item) || typeof item.name !== 'string' || !('value' in item)) {
+                return item
+              }
+              const itemSchema = getMultipartItemSchema(resolvedBodySchema, index, media.itemSchema)
+              return {
+                [item.name]: coerceLeafValueToSchemaType(item.value, resolveLeafSchema(itemSchema, [item.name])),
+              }
+            })
+        : value
+    const multipartParts =
+      !positional && Array.isArray(value)
+        ? regroupMultipartRows(
+            value.filter((row) => !row.isDisabled),
+            resolvedBodySchema,
+          ).flatMap((row) =>
+            buildMultipart(
+              {
+                [row.name]: coerceLeafValueToSchemaType(row.value, resolveLeafSchema(resolvedBodySchema, [row.name])),
+              },
+              bodyContentType,
+              media,
+              resolvedBodySchema,
+            ),
+          )
+        : buildMultipart(
+            !positional && isObject(value)
+              ? Object.fromEntries(Object.entries(value).filter(([key]) => !isOptionalBodyProperty(key)))
+              : orderedValue,
+            bodyContentType,
+            media,
+            resolvedBodySchema,
+          )
+    return {
+      mode: 'multipart',
+      contentType: bodyContentType,
+      value: multipartParts,
+    }
+  }
+
   // Form data - array format (from UI editor)
   if (
     (bodyContentType === 'multipart/form-data' || bodyContentType === 'application/x-www-form-urlencoded') &&
@@ -159,35 +270,7 @@ export const buildRequestBody = (
       result.mode === 'formdata'
         ? getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences)
         : undefined
-    const isDottedNestedRow = result.mode === 'formdata' ? buildDottedNestedRowPredicate(multipartSchema) : () => false
-
-    const entries: { name: string; value: unknown }[] = []
-    const regroupedByTopKey = new Map<string, Record<string, unknown>>()
-
-    for (const row of exampleValue) {
-      if (!isDottedNestedRow(row.name, row.value)) {
-        entries.push(row)
-        continue
-      }
-      const segments = row.name.split('.')
-      const topKey = segments[0]
-      if (!topKey) {
-        continue
-      }
-      let target = regroupedByTopKey.get(topKey)
-      if (!target) {
-        target = {}
-        regroupedByTopKey.set(topKey, target)
-        entries.push({ name: topKey, value: target })
-      }
-      // The form table stringifies leaf values; restore the schema-declared type so the
-      // regrouped JSON part keeps booleans/numbers/arrays instead of string-typing them.
-      setValueAtPath(
-        target,
-        segments.slice(1),
-        coerceLeafValueToSchemaType(row.value, resolveLeafSchema(multipartSchema, segments)),
-      )
-    }
+    const entries = result.mode === 'formdata' ? regroupMultipartRows(exampleValue, multipartSchema) : exampleValue
 
     // Loop over all entries and add them to the form
     entries.forEach(({ name, value }) => {
