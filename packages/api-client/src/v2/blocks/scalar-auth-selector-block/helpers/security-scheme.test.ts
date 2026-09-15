@@ -291,6 +291,18 @@ describe('security-scheme', () => {
               isDeletable: false,
             },
             {
+              id: 'oauth2DeviceAuthorization',
+              label: 'OAuth2 Device Authorization',
+              value: { oauth2DeviceAuthorization: [] },
+              payload: {
+                type: 'oauth2',
+                flows: {
+                  deviceAuthorization: { deviceAuthorizationUrl: '', tokenUrl: '', refreshUrl: '', scopes: {} },
+                },
+              },
+              isDeletable: false,
+            },
+            {
               id: 'oauth2Implicit',
               label: 'Oauth2 Implicit Flow',
               value: { oauth2Implicit: [] },

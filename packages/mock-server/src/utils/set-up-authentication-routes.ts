@@ -7,6 +7,7 @@ import { respondWithToken } from '@/routes/respond-with-token'
 
 import { getOAuth2Metadata } from './get-oauth2-metadata'
 import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls'
+import { setUpDeviceAuthorization } from './set-up-device-authorization'
 
 /**
  * Helper function to set up authentication routes for OAuth 2.0 flows
@@ -14,6 +15,8 @@ import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls
 export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) {
   const securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject> =
     schema?.components?.securitySchemes || {}
+
+  setUpDeviceAuthorization(app, schema)
 
   // Set up authentication routes for OAuth 2.0 flows
   getOpenAuthTokenUrls(schema).forEach((tokenUrl) => {

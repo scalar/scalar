@@ -16,6 +16,7 @@ import {
 import {
   OAuthFlowAuthorizationCodeSchema,
   OAuthFlowClientCredentialsSchema,
+  OAuthFlowDeviceAuthorizationSchema,
   OAuthFlowImplicitSchema,
   OAuthFlowPasswordSchema,
 } from '@/schemas/v3.2/strict/oauth-flow'
@@ -47,6 +48,9 @@ const SecretsOAuthFlowCommonSchema = compose(
 )
 
 const SecretsOAuthFlowsSchema = Type.Object({
+  deviceAuthorization: Type.Optional(
+    compose(SecretsOAuthFlowCommonSchema, XScalarSecretClientSecretSchema, XScalarCredentialsLocationSchema),
+  ),
   implicit: Type.Optional(compose(SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema)),
   password: Type.Optional(
     compose(
@@ -82,6 +86,14 @@ export type SecretsOAuth = Static<typeof OAuthSchema>
 
 /** OpenID Connect schema contain the base flows as well since it doesn't exist in the spec */
 export const OpenIDConnectSchema = Type.Object({
+  deviceAuthorization: Type.Optional(
+    compose(
+      OAuthFlowDeviceAuthorizationSchema,
+      SecretsOAuthFlowCommonSchema,
+      XScalarSecretClientSecretSchema,
+      XScalarCredentialsLocationSchema,
+    ),
+  ),
   type: Type.Literal('openIdConnect'),
   implicit: Type.Optional(
     compose(OAuthFlowImplicitSchema, SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema),

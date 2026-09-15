@@ -16,6 +16,7 @@ import type {
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
+  OAuthFlowDeviceAuthorization,
   OAuthFlowImplicit,
   OAuthFlowPassword,
 } from '@/schemas/v3.2/strict/oauth-flow'
@@ -52,7 +53,13 @@ export type OAuthFlowAuthorizationCodeSecret = OAuthFlowAuthorizationCode &
   XScalarSecretRedirectUri &
   XScalarCredentialsLocation
 
+/** Device authorization credentials and tokens shared by the auth UI and request builder. */
+export type OAuthFlowDeviceAuthorizationSecret = OAuthFlowDeviceAuthorization &
+  OAuthFlowCommonSecret &
+  XScalarSecretClientSecret
+
 export type OAuthFlowsObjectSecret = {
+  deviceAuthorization?: OAuthFlowDeviceAuthorizationSecret
   implicit?: OAuthFlowImplicitSecret
   password?: OAuthFlowPasswordSecret
   clientCredentials?: OAuthFlowClientCredentialsSecret
