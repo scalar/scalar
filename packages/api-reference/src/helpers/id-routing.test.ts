@@ -9,6 +9,7 @@ import {
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
+  resolveHashPrefix,
   sanitizeBasePath,
 } from './id-routing'
 
@@ -1164,5 +1165,102 @@ describe('redirectUrl', () => {
 
   it('returns null when the document slug is empty', () => {
     expect(redirectUrl('https://example.com/#default/model/User', 'models', '', true)).toBeNull()
+  })
+})
+
+describe('resolveHashPrefix', () => {
+  it('returns empty string when currentHash is empty', () => {
+    expect(resolveHashPrefix('', 'tag/payer-list')).toBe('')
+  })
+
+  it('returns empty string when currentHash equals the id', () => {
+    expect(resolveHashPrefix('tag/payer-list', 'tag/payer-list')).toBe('')
+  })
+
+  it('extracts prefix when currentHash ends with /id', () => {
+    expect(resolveHashPrefix('docs/api-spec/tag/payer-list', 'tag/payer-list')).toBe('docs/api-spec')
+  })
+
+  it('returns the full currentHash as prefix when id is not present', () => {
+    expect(resolveHashPrefix('docs/api-spec', 'tag/payer-list')).toBe('docs/api-spec')
+  })
+
+  it('returns empty string when id is empty', () => {
+    expect(resolveHashPrefix('docs/api-spec', '')).toBe('docs/api-spec')
+  })
+
+  it('handles nested prefix correctly', () => {
+    expect(resolveHashPrefix('app/section/docs/api-spec/tag/payer-list', 'tag/payer-list')).toBe(
+      'app/section/docs/api-spec',
+    )
+  })
+})
+
+describe('makeUrlFromId with host-app hash prefix preservation', () => {
+  const createLocationMock = (overrides: Partial<Location> = {}): Partial<Location> => ({
+    href: 'https://example.com/',
+    protocol: 'https:',
+    host: 'example.com',
+    pathname: '/',
+    search: '',
+    hash: '',
+    ...overrides,
+  })
+
+  beforeEach(() => {
+    vi.unstubAllGlobals()
+    vi.stubGlobal('window', {
+      location: createLocationMock() as Location,
+    })
+  })
+
+  it('preserves host-app hash prefix when navigating to a section', () => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({
+        href: 'https://example.com/#docs/api-spec',
+        hash: '#docs/api-spec',
+      }) as Location,
+    })
+
+    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, false)
+    // single-doc mode strips first segment: api-spec/tag/payer-list → tag/payer-list
+    // host-app prefix 'docs/api-spec' is preserved
+    expect(result?.hash).toBe('#docs/api-spec/tag/payer-list')
+  })
+
+  it('preserves host-app hash prefix in multi-document mode', () => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({
+        href: 'https://example.com/#docs/api-spec',
+        hash: '#docs/api-spec',
+      }) as Location,
+    })
+
+    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, true)
+    expect(result?.hash).toBe('#docs/api-spec/api-spec/tag/payer-list')
+  })
+
+  it('does not duplicate prefix when navigating between sections', () => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({
+        href: 'https://example.com/#docs/api-spec/tag/users',
+        hash: '#docs/api-spec/tag/users',
+      }) as Location,
+    })
+
+    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, false)
+    expect(result?.hash).toBe('#docs/api-spec/tag/payer-list')
+  })
+
+  it('works normally when there is no host-app prefix', () => {
+    vi.stubGlobal('window', {
+      location: createLocationMock({
+        href: 'https://example.com/',
+        hash: '',
+      }) as Location,
+    })
+
+    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, false)
+    expect(result?.hash).toBe('#tag/payer-list')
   })
 })
