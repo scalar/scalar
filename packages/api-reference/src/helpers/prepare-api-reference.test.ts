@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { describe, expect, it, vi } from 'vitest'
 
 import { prepareApiReference } from './prepare-api-reference'
@@ -58,10 +59,14 @@ describe('prepare-api-reference', () => {
       'https://example.com/openapi.json',
       'https://example.com/model.json',
     ])
-    expect(prepared.workspace.documents.selected?.components?.schemas?.Thing).toStrictEqual({
+    const document = prepared.workspace.documents.selected
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected the prepared OpenAPI document')
+    }
+    expect(document.components?.schemas?.Thing).toStrictEqual({
       $ref: '#/x-ext/67d5c21',
     })
-    expect(prepared.workspace.documents.selected?.['x-ext']).toStrictEqual({
+    expect('x-ext' in document ? document['x-ext'] : undefined).toStrictEqual({
       '67d5c21': { type: 'string', description: 'Resolved model' },
     })
   })
