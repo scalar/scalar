@@ -21,17 +21,25 @@ const parts = (overrides: Partial<DateParts> = {}): DateParts => ({
   ...overrides,
 })
 
-describe('parseValue', () => {
+describe('date-parts', () => {
   it('parses a date value', () => {
-    expect(parseValue('2024-03-20', 'date')).toMatchObject({
+    expect(parseValue('2024-03-20', 'date')).toStrictEqual({
       year: 2024,
       month: 3,
       day: 20,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      offset: '',
     })
   })
 
   it('parses a time value with seconds', () => {
-    expect(parseValue('13:45:30', 'time')).toMatchObject({
+    expect(parseValue('13:45:30', 'time')).toStrictEqual({
+      year: 0,
+      month: 0,
+      day: 0,
+      offset: '',
       hour: 13,
       minute: 45,
       second: 30,
@@ -39,7 +47,11 @@ describe('parseValue', () => {
   })
 
   it('parses a time value without seconds', () => {
-    expect(parseValue('09:05', 'time')).toMatchObject({
+    expect(parseValue('09:05', 'time')).toStrictEqual({
+      year: 0,
+      month: 0,
+      day: 0,
+      offset: '',
       hour: 9,
       minute: 5,
       second: 0,
@@ -47,7 +59,7 @@ describe('parseValue', () => {
   })
 
   it('parses a date-time value and keeps the offset', () => {
-    expect(parseValue('2024-03-20T13:45:30+02:00', 'date-time')).toMatchObject({
+    expect(parseValue('2024-03-20T13:45:30+02:00', 'date-time')).toStrictEqual({
       year: 2024,
       month: 3,
       day: 20,
@@ -59,7 +71,11 @@ describe('parseValue', () => {
   })
 
   it('parses a date-time value with a Z offset and fractional seconds', () => {
-    expect(parseValue('2024-03-20T13:45:30.123Z', 'date-time')).toMatchObject({
+    expect(parseValue('2024-03-20T13:45:30.123Z', 'date-time')).toStrictEqual({
+      year: 2024,
+      month: 3,
+      day: 20,
+      fraction: '.123',
       hour: 13,
       minute: 45,
       second: 30,
@@ -94,9 +110,6 @@ describe('parseValue', () => {
   it('does not treat a bare date as a date-time', () => {
     expect(parseValue('2024-03-20', 'date-time')).toBeNull()
   })
-})
-
-describe('formatValue', () => {
   it('formats a date', () => {
     expect(formatValue(parts(), 'date')).toBe('2024-03-20')
   })
@@ -119,9 +132,6 @@ describe('formatValue', () => {
     expect(parsed).not.toBeNull()
     expect(formatValue(parsed!, 'date-time')).toBe(value)
   })
-})
-
-describe('formatDate / formatTime', () => {
   it('formats the date portion', () => {
     expect(formatDate(parts())).toBe('2024-03-20')
   })
@@ -129,9 +139,6 @@ describe('formatDate / formatTime', () => {
   it('formats the time portion', () => {
     expect(formatTime(parts())).toBe('13:45:30')
   })
-})
-
-describe('getLocalTimezoneOffset', () => {
   it('formats a positive offset', () => {
     // -120 minutes reported → UTC+02:00
     const date = { getTimezoneOffset: () => -120 } as Date
@@ -147,12 +154,10 @@ describe('getLocalTimezoneOffset', () => {
     const date = { getTimezoneOffset: () => 0 } as Date
     expect(getLocalTimezoneOffset(date)).toBe('+00:00')
   })
-})
-
-describe('partsFromDate', () => {
   it('reads the local fields from a date', () => {
     const date = new Date(2024, 2, 20, 13, 45, 30)
-    expect(partsFromDate(date)).toMatchObject({
+    expect(partsFromDate(date)).toStrictEqual({
+      offset: getLocalTimezoneOffset(date),
       year: 2024,
       month: 3,
       day: 20,
