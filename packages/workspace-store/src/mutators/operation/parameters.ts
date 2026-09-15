@@ -105,12 +105,13 @@ export const upsertOperationParameter = (
       // The whole-query editor displays the URI-ready value, including percent encoding.
       delete example.value
       delete example.dataValue
+      // Inline edits replace the external example source as well as its cached representation.
       delete example.externalValue
       delete example.serializedValue
       // Toggling an unchanged preview must preserve data and environment placeholders
       // so future environment changes still happen before serialization.
-      if (preserveQuerystringValue && !querystring.uriEncoded) {
-        if (querystring.serialized) {
+      if (preserveQuerystringValue && querystring.kind !== 'uri-ready') {
+        if (querystring.kind === 'serialized') {
           example.value = querystring.value
         } else {
           example.dataValue = querystring.value

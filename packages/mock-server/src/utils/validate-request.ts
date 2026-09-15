@@ -1,3 +1,4 @@
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -200,10 +201,10 @@ const mergeParameters = (
  */
 const compileSchema = (
   ajv: Ajv2020,
-  schema: Record<string, unknown> | null,
+  schema: Record<string, unknown> | null | undefined,
   label: string,
 ): ValidateFunction | null => {
-  if (schema === null) {
+  if (schema === null || schema === undefined) {
     return null
   }
 
@@ -260,9 +261,7 @@ const compileValidators = (
       'querystring JSON properties',
     ),
     querystring: compileSchema(
-      querystringContentType?.split(';')[0]?.trim().toLowerCase() === 'application/x-www-form-urlencoded'
-        ? parameterAjv
-        : bodyAjv,
+      parseMimeType(querystringContentType).essence === 'application/x-www-form-urlencoded' ? parameterAjv : bodyAjv,
       querystringSchema === undefined ? null : asCompilableSchema(getResolvedRefDeep(querystringSchema)),
       'querystring parameter',
     ),
