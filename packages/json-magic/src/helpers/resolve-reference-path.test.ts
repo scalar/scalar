@@ -112,20 +112,20 @@ describe('resolveReferencePath', () => {
       expect(result).toContain('https://example.com/api/user.json')
     })
 
-    it('handles relative path with query parameters (gets URL-encoded)', () => {
+    it('handles relative path with query parameters', () => {
       const base = 'https://example.com/api/openapi.json'
       const relativePath = 'user.json?version=v1'
       const result = resolveReferencePath(base, relativePath)
-      // Query parameters in relativePath are treated as part of the pathname and get encoded
-      expect(result).toBe('https://example.com/api/user.json%3Fversion=v1')
+      // Relative queries belong to the target URI.
+      expect(result).toBe('https://example.com/api/user.json?version=v1')
     })
 
-    it('handles relative path with hash fragment (gets URL-encoded)', () => {
+    it('handles relative path with hash fragment', () => {
       const base = 'https://example.com/api/openapi.json'
       const relativePath = 'user.json#UserSchema'
       const result = resolveReferencePath(base, relativePath)
-      // Hash fragments in relativePath are treated as part of the pathname and get encoded
-      expect(result).toBe('https://example.com/api/user.json%23UserSchema')
+      // Fragments belong to the target URI.
+      expect(result).toBe('https://example.com/api/user.json#UserSchema')
     })
   })
 
@@ -352,7 +352,7 @@ describe('resolveReferencePath', () => {
       const base = '/path/to/openapi.json'
       const relativePath = '../'
       const result = resolveReferencePath(base, relativePath)
-      expect(result).toBe('/path')
+      expect(result).toBe('/path/')
     })
 
     it('handles windows style paths', () => {

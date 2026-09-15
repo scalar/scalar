@@ -133,7 +133,7 @@ describe('dereference', () => {
       const sensorData = { temperature: 97 }
       const plugin: Plugin = {
         type: 'loader',
-        validate: (v) => v === '/workspace:foo-xyz',
+        validate: (v) => v === 'workspace:foo-xyz',
         exec: () =>
           Promise.resolve({
             ok: true,
