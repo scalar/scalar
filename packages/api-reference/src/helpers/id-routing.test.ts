@@ -839,6 +839,35 @@ describe('makeUrlFromId', () => {
     const result = makeUrlFromId('///', undefined, true)
     expect(result?.hash).toBe('#///')
   })
+
+  it('replaces the previous section in ordinary hash routing', () => {
+    window.location.href = 'https://example.com/#tag/users'
+    expect(makeUrlFromId('doc/tag/payers', undefined, false)?.hash).toBe('#tag/payers')
+  })
+
+  it.each([false, true])('preserves the detected host prefix across navigation (multi-document: %s)', (multi) => {
+    const ids = ['doc', 'doc/tag/users', 'doc/tag/payers']
+    const prefix = resolveHashPrefix('docs/api-spec', ids, multi)
+    const basePath = `#${prefix}`
+    window.location.href = 'https://example.com/#docs/api-spec'
+
+    const first = makeUrlFromId('doc/tag/users', basePath, multi)!
+    window.location.href = first.href
+    const next = makeUrlFromId('doc/tag/payers', basePath, multi)!
+    expect(next.hash).toBe(multi ? '#docs/api-spec/doc/tag/payers' : '#docs/api-spec/tag/payers')
+    expect(makeHrefFromId('doc/tag/payers', basePath, multi)).toBe(next.hash)
+
+    // Reopening a copied link resolves to the same navigation entry.
+    const reopenedPrefix = resolveHashPrefix(decodeURIComponent(next.hash.slice(1)), ids, multi)
+    expect(reopenedPrefix).toBe(prefix)
+    expect(getIdFromUrl(next, `#${reopenedPrefix}`, multi ? undefined : 'doc')).toBe('doc/tag/payers')
+    expect(getIdFromUrl(first, basePath, multi ? undefined : 'doc')).toBe('doc/tag/users')
+
+    window.location.href = next.href
+    const overview = makeUrlFromId('doc', basePath, multi)!
+    expect(overview.hash).toBe(multi ? '#docs/api-spec/doc' : '#docs/api-spec')
+    expect(getIdFromUrl(overview, basePath, multi ? undefined : 'doc')).toBe('doc')
+  })
 })
 
 describe('makeHrefFromId', () => {
@@ -1301,98 +1330,20 @@ describe('redirectUrl', () => {
 })
 
 describe('resolveHashPrefix', () => {
-  it('returns empty string when currentHash is empty', () => {
-    expect(resolveHashPrefix('', 'tag/payer-list')).toBe('')
-  })
-
-  it('returns empty string when currentHash equals the id', () => {
-    expect(resolveHashPrefix('tag/payer-list', 'tag/payer-list')).toBe('')
-  })
-
-  it('extracts prefix when currentHash ends with /id', () => {
-    expect(resolveHashPrefix('docs/api-spec/tag/payer-list', 'tag/payer-list')).toBe('docs/api-spec')
-  })
-
-  it('returns the full currentHash as prefix when id is not present', () => {
-    expect(resolveHashPrefix('docs/api-spec', 'tag/payer-list')).toBe('docs/api-spec')
-  })
-
-  it('returns empty string when id is empty', () => {
-    expect(resolveHashPrefix('docs/api-spec', '')).toBe('docs/api-spec')
-  })
-
-  it('handles nested prefix correctly', () => {
-    expect(resolveHashPrefix('app/section/docs/api-spec/tag/payer-list', 'tag/payer-list')).toBe(
-      'app/section/docs/api-spec',
-    )
-  })
-})
-
-describe('makeUrlFromId with host-app hash prefix preservation', () => {
-  const createLocationMock = (overrides: Partial<Location> = {}): Partial<Location> => ({
-    href: 'https://example.com/',
-    protocol: 'https:',
-    host: 'example.com',
-    pathname: '/',
-    search: '',
-    hash: '',
-    ...overrides,
-  })
-
-  beforeEach(() => {
-    vi.unstubAllGlobals()
-    vi.stubGlobal('window', {
-      location: createLocationMock() as Location,
-    })
-  })
-
-  it('preserves host-app hash prefix when navigating to a section', () => {
-    vi.stubGlobal('window', {
-      location: createLocationMock({
-        href: 'https://example.com/#docs/api-spec',
-        hash: '#docs/api-spec',
-      }) as Location,
-    })
-
-    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, false)
-    // single-doc mode strips first segment: api-spec/tag/payer-list → tag/payer-list
-    // host-app prefix 'docs/api-spec' is preserved
-    expect(result?.hash).toBe('#docs/api-spec/tag/payer-list')
-  })
-
-  it('preserves host-app hash prefix in multi-document mode', () => {
-    vi.stubGlobal('window', {
-      location: createLocationMock({
-        href: 'https://example.com/#docs/api-spec',
-        hash: '#docs/api-spec',
-      }) as Location,
-    })
-
-    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, true)
-    expect(result?.hash).toBe('#docs/api-spec/api-spec/tag/payer-list')
-  })
-
-  it('does not duplicate prefix when navigating between sections', () => {
-    vi.stubGlobal('window', {
-      location: createLocationMock({
-        href: 'https://example.com/#docs/api-spec/tag/users',
-        hash: '#docs/api-spec/tag/users',
-      }) as Location,
-    })
-
-    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, false)
-    expect(result?.hash).toBe('#docs/api-spec/tag/payer-list')
-  })
-
-  it('works normally when there is no host-app prefix', () => {
-    vi.stubGlobal('window', {
-      location: createLocationMock({
-        href: 'https://example.com/',
-        hash: '',
-      }) as Location,
-    })
-
-    const result = makeUrlFromId('api-spec/tag/payer-list', undefined, false)
-    expect(result?.hash).toBe('#tag/payer-list')
+  it.each([
+    ['', ['doc/tag/users'], false, ''],
+    ['tag/users', ['doc/tag/users'], false, ''],
+    ['docs/api-spec', ['doc', 'doc/tag/users'], false, 'docs/api-spec'],
+    ['docs/api-spec/tag/users', ['doc/tag/users'], false, 'docs/api-spec'],
+    ['docs/api-spec/doc/tag/users', ['doc/tag/users'], true, 'docs/api-spec'],
+    ['docs/api-spec/doc', ['doc'], true, 'docs/api-spec'],
+    ['docs/api-spec', ['doc'], false, 'docs/api-spec'],
+    ['app/docs/custom-heading', ['doc/custom-heading'], false, 'app/docs'],
+    ['app/tag/parent/tag/child', ['doc/tag/child', 'doc/tag/parent/tag/child'], false, 'app'],
+    ['docs/api-spec/tag/users/GET/users.responses.200.name', ['doc/tag/users/GET/users'], false, 'docs/api-spec'],
+    ['tag/users-extra', ['doc/tag/users'], false, 'tag/users-extra'],
+    ['docs/my api/tag/users', ['doc/tag/users'], false, 'docs/my api'],
+  ])('resolves %s against known navigation IDs', (hash, ids, multi, expected) => {
+    expect(resolveHashPrefix(hash, ids, multi)).toBe(expected)
   })
 })

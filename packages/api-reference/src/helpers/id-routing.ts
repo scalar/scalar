@@ -184,45 +184,38 @@ export const makeUrlFromId = (_id: string, basePath: string | undefined, isMulti
       url.pathname = `${base}/${id}`
     }
   } else {
-    // Bare hash routing: preserve any host-app hash prefix that scalar does not own.
-    // e.g. current URL is http://localhost:3000/#docs/api-spec and id is tag/payer-list
-    // → result should be http://localhost:3000/#docs/api-spec/tag/payer-list, not /#tag/payer-list
-    const currentHash = decodeURIComponent(url.hash.slice(1))
-    const hashPrefix = resolveHashPrefix(currentHash, id)
-    url.hash = hashPrefix ? `${hashPrefix}/${id}` : id
+    url.hash = id
   }
 
   return url
 }
 
 /**
- * When using bare hash routing (no basePath configured), detects whether the current hash
- * contains a host-app prefix that scalar does not own, so it can be preserved in the new URL.
- *
- * The prefix is the portion of the current hash that comes before the scalar section id.
- * If the current hash already ends with the id, the prefix is extracted by stripping the id.
- * If the current hash does not contain the id at all, the entire current hash is treated as
- * the prefix (the host app owns it and scalar appends its id after a slash).
- *
- * Returns an empty string when there is no prefix to preserve (the hash is already just the id,
- * or the hash is empty).
+ * Identifies the host hash prefix against the loaded navigation, before Scalar changes the URL.
+ * Matching the longest known section suffix handles custom slugs and nested tags without
+ * mistaking the previous section for part of the host route. Explicit basePath configuration
+ * remains necessary when a host route is indistinguishable from a Scalar section.
  */
-export const resolveHashPrefix = (currentHash: string, id: string): string => {
-  if (!currentHash || currentHash === id) {
-    return ''
+export const resolveHashPrefix = (
+  currentHash: string,
+  navigationIds: Iterable<string>,
+  isMultiDocument: boolean,
+): string => {
+  const ids = new Set(Array.from(navigationIds, (id) => (isMultiDocument ? id : stripFirstSegment(id))).filter(Boolean))
+
+  const { rawId: sectionHash } = getSchemaParamsFromId(currentHash)
+
+  // Check longest suffixes first so a nested tag takes precedence over its child name.
+  for (let start = 0; start < sectionHash.length; start = sectionHash.indexOf('/', start) + 1) {
+    if (ids.has(sectionHash.slice(start))) {
+      return start === 0 ? '' : currentHash.slice(0, start - 1)
+    }
+    if (sectionHash.indexOf('/', start) === -1) {
+      break
+    }
   }
 
-  // The current hash already ends with /id — extract the prefix before it
-  if (currentHash.endsWith(`/${id}`)) {
-    return currentHash.slice(0, currentHash.length - id.length - 1)
-  }
-
-  // The id is not in the current hash at all — the whole current hash is the host-app prefix
-  if (!currentHash.includes(`/${id}`) && currentHash !== id) {
-    return currentHash
-  }
-
-  return ''
+  return currentHash
 }
 
 /**
