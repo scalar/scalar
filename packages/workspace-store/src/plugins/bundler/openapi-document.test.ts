@@ -8,6 +8,69 @@ import { describe, expect, it } from 'vitest'
 import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
 
 describe('openapi-document', () => {
+  it.each([
+    ['https://example.com/api.json#here', 'https://example.com/api.json'],
+    ['./api.json?version=2#here', 'https://example.com/api.json?version=2'],
+    ['#here', 'https://example.com/input.json'],
+    ['https://example.com/api%23name.json#here', 'https://example.com/api%23name.json'],
+    ['urn:example:orders#here', 'urn:example:orders'],
+  ])('removes the fragment from the base of %s', (self, baseUri) => {
+    expect(resolveOpenApiDocument({ openapi: '3.2.1', $self: self }, 'https://example.com/input.json')).toStrictEqual({
+      baseUri,
+      metadata: { openapi: '3.2.1', $self: `${baseUri}#here` },
+    })
+  })
+
+  it.each([false, true])('resolves a fragment-bearing document identity with treeShake %s', async (treeShake) => {
+    const input = {
+      openapi: '3.2.1',
+      $self: 'https://example.com/api.json#here',
+      components: {
+        schemas: {
+          Value: { type: 'string' },
+          Ref: { $ref: 'api.json#/components/schemas/Value' },
+          Model: { $id: 'model.json', properties: { value: { $ref: 'api.json#/components/schemas/Value' } } },
+        },
+      },
+    }
+    const requested: string[] = []
+    const errors: unknown[] = []
+    await bundle(input, {
+      treeShake,
+      plugins: [
+        openApiDocument(),
+        {
+          type: 'loader',
+          validate: () => true,
+          exec: (uri) => {
+            requested.push(uri)
+            return Promise.resolve({ ok: false })
+          },
+        },
+      ],
+      hooks: {
+        onResolveError: (node) => {
+          errors.push(node.$ref)
+        },
+      },
+    })
+    expect(requested).toStrictEqual([])
+    expect(errors).toStrictEqual([])
+    expect(input.components.schemas.Ref.$ref).toBe('#/components/schemas/Value')
+    expect(input.components.schemas.Model.properties.value.$ref).toBe(
+      'https://example.com/api.json#/components/schemas/Value',
+    )
+    expect(
+      createMagicProxy(input, {
+        documentUri: resolveOpenApiDocument(input, '/')?.baseUri,
+      }).components.schemas.Model.properties.value,
+    ).toStrictEqual({
+      $ref: 'https://example.com/api.json#/components/schemas/Value',
+      '$ref-value': { type: 'string' },
+    })
+    expect(input.$self).toBe('https://example.com/api.json#here')
+  })
+
   it.each([false, true])(
     'qualifies cross-resource pointers from a schema base with external target %s',
     async (external) => {
