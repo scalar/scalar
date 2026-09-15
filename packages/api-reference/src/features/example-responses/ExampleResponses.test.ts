@@ -19,6 +19,47 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Deletion completed')
   })
 
+  it('selects variants when the response array type is inferred from items', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      items: { type: 'string' },
+      oneOf: [{ items: { type: 'string', const: 'phone' } }, { items: { type: 'string', const: 'email' } }],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual(['email'])
+  })
+
+  it.each([
+    { variant: { type: 'null' }, expected: 'null' },
+    { variant: { type: 'string', default: 'unavailable' }, expected: 'unavailable' },
+    {
+      variant: { type: 'array', items: { type: 'string', const: 'unavailable' } },
+      expected: JSON.stringify(['unavailable'], null, 2),
+    },
+  ])(
+    'selects a non-object variant alongside shared object properties: $variant.type',
+    async ({ variant, expected }) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        properties: { shared: { type: 'boolean', default: true } },
+        anyOf: [{ type: 'object', required: ['shared'] }, variant],
+      })
+      const wrapper = mount(ExampleResponses, {
+        props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+      })
+      const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+      await picker.vm.$emit('update:modelValue', '1')
+      await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+      expect(mockCopyToClipboard).toHaveBeenLastCalledWith(expected)
+      expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe(expected)
+      await picker.vm.$emit('update:modelValue', '0')
+      await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+      expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual({ shared: true })
+    },
+  )
+
   it('renders an empty response when its schema reference is unresolved', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
