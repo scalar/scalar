@@ -1,6 +1,7 @@
+import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
@@ -1784,5 +1785,71 @@ describe('RequestBody', () => {
     await nextTick()
     expect(rawWrapper.find('[data-testid="code-input"]').exists()).toBe(true)
     expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
+  })
+
+  it('copies the serialized body shown in the editor', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          example: { hello: 'world' },
+        },
+      },
+    }
+
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    const execCommandDescriptor = Object.getOwnPropertyDescriptor(document, 'execCommand')
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: (command: string): boolean => {
+        if (command === 'copy') {
+          void writeText(document.querySelector('textarea')?.value)
+        }
+        return true
+      },
+    })
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+    })
+    await nextTick()
+
+    try {
+      await wrapper.getComponent(ScalarCodeBlockCopy).get('button').trigger('click')
+      await flushPromises()
+      expect(writeText).toHaveBeenCalledExactlyOnceWith(JSON.stringify({ hello: 'world' }, null, 2))
+    } finally {
+      wrapper.unmount()
+      if (execCommandDescriptor) {
+        Object.defineProperty(document, 'execCommand', execCommandDescriptor)
+      } else {
+        Reflect.deleteProperty(document, 'execCommand')
+      }
+      if (clipboardDescriptor) {
+        Object.defineProperty(navigator, 'clipboard', clipboardDescriptor)
+      } else {
+        Reflect.deleteProperty(navigator, 'clipboard')
+      }
+    }
+  })
+
+  it('hides the copy button when the body is empty', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: { type: 'string' },
+          example: '',
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+    })
+    await nextTick()
+
+    expect(wrapper.findComponent({ name: 'CodeInput' }).exists()).toBe(true)
+    expect(wrapper.findComponent(ScalarCodeBlockCopy).exists()).toBe(false)
   })
 })
