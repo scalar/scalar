@@ -183,12 +183,10 @@ export const forEachPathItemOperation = (
     callback(key, operation as NodeInput<OperationObject>)
   }
 
+  // Preserve explicitly authored wire methods, including uppercase standard names.
+  // Schema validation can flag their placement without silently removing them from navigation.
   for (const [method, operation] of Object.entries(resolvedPathItem.additionalOperations ?? {})) {
-    if (
-      operation !== undefined &&
-      !isFixedOperationKey(method) &&
-      !(method === method.toUpperCase() && isHttpMethod(method))
-    ) {
+    if (operation !== undefined && !isFixedOperationKey(method)) {
       callback(method, operation)
     }
   }
