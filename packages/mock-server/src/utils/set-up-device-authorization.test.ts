@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createMockServer } from '@/create-mock-server'
 
-const createServer = () =>
+const createServer = (): ReturnType<typeof createMockServer> =>
   createMockServer({
     logger: false,
     document: {
@@ -31,6 +31,32 @@ const post = (body: Record<string, string>): RequestInit => ({
 
 describe('set-up-device-authorization', () => {
   afterEach(() => vi.useRealTimers())
+
+  it.each([true, false])(
+    'matches body and form-encoded Basic client IDs (Basic issuance: %s)',
+    async (basicIssuance) => {
+      const server = await createServer()
+      const clientId = 'client: with+symbols'
+      const basic = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${btoa('client%3A+with%2Bsymbols:secret')}`,
+      }
+      const device = await (
+        await server.request('/device', basicIssuance ? { ...post({}), headers: basic } : post({ client_id: clientId }))
+      ).json()
+      await server.request('/device/verify', post({ user_code: device.user_code, decision: 'approve' }))
+      const tokenBody = {
+        grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+        device_code: device.device_code,
+      }
+      const response = await server.request(
+        '/token',
+        basicIssuance ? post({ ...tokenBody, client_id: clientId }) : { ...post(tokenBody), headers: basic },
+      )
+      expect(response.status).toBe(200)
+      expect((await response.json()).access_token).toBe('super-secret-access-token')
+    },
+  )
 
   it('requires approval before issuing a token and supports shared token routes', async () => {
     vi.useFakeTimers({ toFake: ['Date'] })

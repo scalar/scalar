@@ -5,8 +5,8 @@ import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 
 import Auth from './Auth.vue'
 
@@ -39,10 +39,10 @@ const asyncApiDocument = {
 
 const config = coerce(apiReferenceConfigurationSchema, { layout: 'modern' })
 
-const mountAuth = (securitySchemes: MergedSecuritySchemes, document = asyncApiDocument) =>
+const mountAuth = (securitySchemes: MergedSecuritySchemes, document = asyncApiDocument, options = config) =>
   mount(Auth, {
     props: {
-      options: config,
+      options,
       authStore: workspaceStore.auth,
       document,
       eventBus,
@@ -52,7 +52,45 @@ const mountAuth = (securitySchemes: MergedSecuritySchemes, document = asyncApiDo
     },
   })
 
-describe('Auth (AsyncAPI document)', () => {
+describe('Auth', () => {
+  it('fetches OAuth2 metadata with the configured custom fetch', async () => {
+    const customFetch = vi
+      .fn()
+      .mockResolvedValue(
+        Response.json({ token_endpoint: 'https://example.com/token', grant_types_supported: ['client_credentials'] }),
+      )
+    const document = {
+      openapi: '3.2.1',
+      'x-scalar-original-document-hash': '',
+      info: { title: 'OAuth metadata', version: '1.0' },
+      'x-scalar-navigation': {
+        name: 'oauth-metadata',
+        id: 'oauth-metadata',
+        title: 'OAuth metadata',
+        type: 'document',
+      },
+      security: [{ oauth: [] }],
+    } satisfies WorkspaceDocument
+    const wrapper = mountAuth(
+      {
+        oauth: {
+          type: 'oauth2',
+          flows: {},
+          oauth2MetadataUrl: 'https://example.com/metadata',
+        },
+      },
+      document,
+      { ...config, customFetch },
+    )
+    expect(wrapper.text()).toContain('Metadata URL')
+    expect(wrapper.text()).toContain('Fetch Configuration')
+    const fetchButton = wrapper.findAll('button').find((button) => button.text() === 'Fetch Configuration')
+    await fetchButton!.trigger('click')
+    await flushPromises()
+    expect(customFetch).toHaveBeenCalledExactlyOnceWith('https://example.com/metadata')
+    wrapper.unmount()
+  })
+
   it('renders the auth selector for an AsyncAPI document with security schemes', () => {
     const wrapper = mountAuth({
       bearerAuth: { type: 'http', scheme: 'bearer' },
