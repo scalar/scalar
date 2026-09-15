@@ -3,7 +3,7 @@ import { isDeepStrictEqual } from 'node:util'
 import type { OpenApiRenderOptions } from '../src/create-markdown-from-openapi'
 
 /** Bump whenever fixture inputs, assertions, or scoring semantics change. */
-export const corpusVersion = '2.1.0'
+export const corpusVersion = '2.1.1'
 
 /** Each heading selects exactly one section inside its parent, excluding peer sections. */
 export type Check = {
@@ -89,7 +89,10 @@ export const evaluateFixture = async (
   let deterministic = false
   try {
     markdown = await render(fixture.document, fixture.options)
-    deterministic = markdown === (await render(fixture.document, fixture.options))
+    // An expected failure is decided by the first render; a later failure cannot excuse initial success.
+    if (!fixture.expectedError) {
+      deterministic = markdown === (await render(fixture.document, fixture.options))
+    }
   } catch (cause) {
     error = cause instanceof Error ? cause.message : String(cause)
   }

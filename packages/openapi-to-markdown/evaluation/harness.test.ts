@@ -81,6 +81,16 @@ describe('harness', () => {
     expect(expected.checks.map((check) => check.passed)).toStrictEqual([true])
     expect(next.markdown).toBe('OK')
   })
+  it('rejects initial success even when a later render would throw the expected error', async () => {
+    const outcomes = [() => Promise.resolve('Unexpected success'), () => Promise.reject(new Error('broken'))]
+    const result = await evaluateFixture(
+      { name: 'error', group: 'errors', document: {}, expectedError: /broken/, checks: [] },
+      () => outcomes.shift()!(),
+    )
+    expect(result.checks).toStrictEqual([{ name: 'render outcome', passed: false, required: true }])
+    expect(outcomes.length).toBe(1)
+  })
+
   it('rejects unexpected success for an expected rendering error', async () => {
     const result = await evaluateFixture(
       { name: 'error', group: 'errors', document: {}, expectedError: /broken/, checks: [] },
