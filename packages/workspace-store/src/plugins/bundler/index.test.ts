@@ -1213,7 +1213,7 @@ describe('normalizeRefs', () => {
 
     server.get('/paginated-planets', () => ({
       $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
-      $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' } },
+      $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' }, Paginated: {} },
       $ref: '#/$defs/Paginated',
     }))
 
@@ -1267,7 +1267,7 @@ describe('normalizeRefs', () => {
       'x-ext': {
         [urlHash]: {
           $id: 'https://galaxy.scalar.com/schemas/PaginatedPlanets',
-          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' } },
+          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object' }, Paginated: {} },
           $ref: `#/x-ext/${urlHash}/$defs/Paginated`,
         },
       },
