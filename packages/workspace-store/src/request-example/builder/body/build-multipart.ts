@@ -1,4 +1,6 @@
+import { json2xml } from '@scalar/helpers/file/json2xml'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type {
@@ -9,7 +11,7 @@ import type {
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import { resolveLeafSchema } from './schema-value-coercion'
-import { serializeFormPropertyWithEncoding } from './serialize-form-property'
+import { hasEncodingStyle, serializeFormPropertyWithEncoding } from './serialize-form-property'
 
 /** Multipart parts stay structured until sending so nested text can resolve environment variables. */
 export type MultipartPart = {
@@ -23,17 +25,24 @@ export type MultipartPart = {
   | { type: 'multipart'; value: MultipartPart[]; contentType: string }
 )
 
+/** Identify ordered multipart independently of the editor's row representation. */
+export const isPositionalMultipart = (contentType: string, media: MediaTypeObject): boolean => {
+  const schema = getResolvedRef(media.schema)
+  return (
+    parseMimeType(contentType).essence !== 'multipart/form-data' ||
+    media.prefixEncoding !== undefined ||
+    media.itemEncoding !== undefined ||
+    (schema !== undefined && isArraySchema(schema)) ||
+    media.itemSchema !== undefined
+  )
+}
+
 /** Whether a media type needs ordered or nested multipart serialization. */
 export const needsMultipartEncoding = (contentType: string, media: MediaTypeObject): boolean => {
   const mime = parseMimeType(contentType)
-  const schema = getResolvedRef(media.schema)
   return (
     mime.type === 'multipart' &&
-    (mime.essence !== 'multipart/form-data' ||
-      media.prefixEncoding !== undefined ||
-      media.itemEncoding !== undefined ||
-      (schema && 'type' in schema && schema.type === 'array') ||
-      media.itemSchema !== undefined ||
+    (isPositionalMultipart(contentType, media) ||
       Object.values(media.encoding ?? {}).some(
         (encoding) => parseMimeType(encoding.contentType).type === 'multipart' || encoding.encoding !== undefined,
       ))
@@ -92,6 +101,18 @@ export const getMultipartItemSchema = (
     mergeSiblingReferences,
   ) as SchemaObject | undefined
 
+/** Serialize structured values to the selected part format; strings already containing XML stay intact. */
+const serializePartValue = (value: unknown, contentType?: string): string => {
+  const subtype = contentType ? parseMimeType(contentType).subtype : undefined
+  if ((subtype === 'xml' || subtype?.endsWith('+xml')) && isObject(value)) {
+    return json2xml(unpackProxyObject(value))
+  }
+  const json = subtype === 'json' || subtype?.endsWith('+json')
+  return json || (value !== null && typeof value === 'object')
+    ? JSON.stringify(unpackProxyObject(value))
+    : String(value ?? '')
+}
+
 /** Build ordered parts, applying prefix encodings independently of schema prefix lengths. */
 export const buildMultipart = (
   value: unknown,
@@ -130,11 +151,7 @@ export const buildMultipart = (
       : []
 
   return entries.flatMap(([key, item, partEncoding, partSchema]): MultipartPart[] => {
-    const style =
-      named &&
-      (partEncoding?.style !== undefined ||
-        partEncoding?.explode !== undefined ||
-        partEncoding?.allowReserved !== undefined)
+    const style = named && hasEncodingStyle(partEncoding)
     const styleParts = style ? serializeFormPropertyWithEncoding(key ?? '', item, partEncoding) : null
     const partContentType = style ? undefined : selectContentType(partEncoding?.contentType, partSchema, item)
     const headers = Object.fromEntries(
@@ -155,6 +172,12 @@ export const buildMultipart = (
         return example === undefined ? [] : [[name, String(example)]]
       }),
     )
+    if (
+      partSchema?.contentEncoding &&
+      !Object.keys(headers).some((name) => name.toLowerCase() === 'content-transfer-encoding')
+    ) {
+      headers['Content-Transfer-Encoding'] = partSchema.contentEncoding
+    }
     const metadata = {
       ...(key === undefined ? {} : { key }),
       ...(partContentType ? { contentType: partContentType } : {}),
@@ -191,20 +214,13 @@ export const buildMultipart = (
           if (styled) {
             return styled
           }
-          const fieldStyle =
-            fieldEncoding?.style !== undefined ||
-            fieldEncoding?.explode !== undefined ||
-            fieldEncoding?.allowReserved !== undefined
-          const subtype =
-            !fieldStyle && fieldEncoding?.contentType ? parseMimeType(fieldEncoding.contentType).subtype : undefined
-          const json = subtype === 'json' || subtype?.endsWith('+json')
           return [
             {
               key: name,
-              value:
-                json || (field !== null && typeof field === 'object')
-                  ? JSON.stringify(unpackProxyObject(field))
-                  : String(field ?? ''),
+              value: serializePartValue(
+                field,
+                hasEncodingStyle(fieldEncoding) ? undefined : fieldEncoding?.contentType,
+              ),
             },
           ]
         }),
@@ -223,17 +239,6 @@ export const buildMultipart = (
     if (item instanceof Blob) {
       return [{ ...metadata, type: 'blob', value: unpackProxyObject(item) }]
     }
-    const subtype = partContentType ? parseMimeType(partContentType).subtype : undefined
-    const json = subtype === 'json' || subtype?.endsWith('+json')
-    return [
-      {
-        ...metadata,
-        type: 'text',
-        value:
-          json || (item !== null && typeof item === 'object')
-            ? JSON.stringify(unpackProxyObject(item))
-            : String(item ?? ''),
-      },
-    ]
+    return [{ ...metadata, type: 'text', value: serializePartValue(item, partContentType) }]
   })
 }

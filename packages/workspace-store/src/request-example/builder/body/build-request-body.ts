@@ -10,7 +10,13 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type
 
 import { getExampleValue, getExplicitExampleText } from '@/helpers/get-example-value'
 
-import { type MultipartPart, buildMultipart, getMultipartItemSchema, needsMultipartEncoding } from './build-multipart'
+import {
+  type MultipartPart,
+  buildMultipart,
+  getMultipartItemSchema,
+  isPositionalMultipart,
+  needsMultipartEncoding,
+} from './build-multipart'
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
 import { buildDottedNestedRowPredicate, coerceLeafValueToSchemaType, resolveLeafSchema } from './schema-value-coercion'
@@ -193,12 +199,7 @@ export const buildRequestBody = (
     if (typeof value === 'string' || value instanceof Blob) {
       return { mode: 'raw', value, contentType: bodyContentType }
     }
-    const positional =
-      parseMimeType(bodyContentType).essence !== 'multipart/form-data' ||
-      media.prefixEncoding !== undefined ||
-      media.itemEncoding !== undefined ||
-      (resolvedBodySchema && 'type' in resolvedBodySchema && resolvedBodySchema.type === 'array') ||
-      media.itemSchema !== undefined
+    const positional = isPositionalMultipart(bodyContentType, media)
     const orderedValue =
       positional && parseMimeType(bodyContentType).essence === 'multipart/form-data' && Array.isArray(value)
         ? value
