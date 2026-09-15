@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 import type { MockServerLogger } from '@/types'
@@ -13,7 +13,7 @@ import { getPathFromUrl } from './get-open-auth-token-urls'
  * still surfaces schemes that will not work.
  */
 export function logAuthenticationInstructions(
-  securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>,
+  securitySchemes: Record<string, OpenAPIV3_2.SecuritySchemeObject>,
   log: MockServerLogger = (line) => console.log(line),
 ) {
   if (!securitySchemes || Object.keys(securitySchemes).length === 0) {
@@ -86,6 +86,17 @@ export function logAuthenticationInstructions(
         if (scheme.flows) {
           Object.keys(scheme.flows).forEach((flow) => {
             switch (flow) {
+              case 'deviceAuthorization':
+                log('✅ OAuth 2.0 Device Authorization Flow')
+                log(
+                  `   POST ${getPathFromUrl(scheme.flows?.deviceAuthorization?.deviceAuthorizationUrl || '/oauth/device')}`,
+                )
+                log('   Send client_id and scope as form data, open verification_uri, and enter user_code.')
+                log(
+                  `   Poll ${getPathFromUrl(scheme.flows?.deviceAuthorization?.tokenUrl || '/oauth/token')} with grant_type=urn:ietf:params:oauth:grant-type:device_code and device_code.`,
+                )
+                log('')
+                break
               case 'implicit':
                 log('✅ OAuth 2.0 Implicit Flow')
                 log('   Use the following URL to initiate the OAuth 2.0 Implicit Flow:')

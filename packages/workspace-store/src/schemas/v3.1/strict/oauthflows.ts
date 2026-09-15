@@ -1,5 +1,7 @@
 import { Type } from '@scalar/typebox'
 
+import { type OAuthFlowDeviceAuthorization, OAuthFlowDeviceAuthorizationSchema } from '@/schemas/v3.2/strict/oauth-flow'
+
 import {
   type OAuthFlowAuthorizationCode,
   OAuthFlowAuthorizationCodeSchema,
@@ -16,6 +18,8 @@ import {
  */
 export const OAuthFlowsObjectSchemaDefinition = Type.Object({
   /** Configuration for the OAuth Implicit flow */
+  /** Device authorization is retained by the shared runtime model for OpenAPI 3.2 documents. */
+  deviceAuthorization: Type.Optional(OAuthFlowDeviceAuthorizationSchema),
   implicit: Type.Optional(OAuthFlowImplicitSchema),
   /** Configuration for the OAuth Resource Owner Password flow */
   password: Type.Optional(OAuthFlowPasswordSchema),
@@ -27,6 +31,7 @@ export const OAuthFlowsObjectSchemaDefinition = Type.Object({
 
 export type OAuthFlowsObject = {
   /** Configuration for the OAuth Implicit flow */
+  deviceAuthorization?: OAuthFlowDeviceAuthorization
   implicit?: OAuthFlowImplicit
   /** Configuration for the OAuth Resource Owner Password flow */
   password?: OAuthFlowPassword

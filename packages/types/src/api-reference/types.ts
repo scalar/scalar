@@ -94,6 +94,13 @@ type OasSecurityOauth2FlowImplicit = {
   type: 'oauth2'
   'x-default-scopes'?: string[]
   flows: {
+    deviceAuthorization: FlowsCommon & {
+      type: 'deviceAuthorization'
+      deviceAuthorizationUrl: string
+      tokenUrl: string
+      clientSecret: string
+      'x-scalar-credentials-location'?: CredentialsLocationExtension
+    }
     implicit: FlowsCommon & {
       type: 'implicit'
       authorizationUrl: string

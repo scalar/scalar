@@ -42,6 +42,13 @@ export const authOptions: Record<string, AuthOption> = {
       scheme: 'bearer',
     },
   },
+  oauth2DeviceAuthorization: {
+    label: 'OAuth2 Device Authorization',
+    payload: {
+      type: 'oauth2',
+      flows: { deviceAuthorization: { deviceAuthorizationUrl: '', tokenUrl: '', refreshUrl: '', scopes: {} } },
+    },
+  },
   oauth2Implicit: {
     label: 'Oauth2 Implicit Flow',
     payload: {

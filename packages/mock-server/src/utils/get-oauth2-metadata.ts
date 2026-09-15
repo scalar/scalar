@@ -6,6 +6,7 @@ import { getPathFromUrl } from './get-open-auth-token-urls'
 type OAuth2Metadata = {
   issuer: string
   authorization_endpoint?: string
+  device_authorization_endpoint?: string
   token_endpoint?: string
   response_types_supported: string[]
   grant_types_supported: string[]
@@ -15,17 +16,22 @@ type OAuth2Metadata = {
 /** Advertises local mock endpoints instead of sending clients to the real authorization server. */
 export const getOAuth2Metadata = (flows: OpenAPIV3_2.OAuth2SecurityScheme['flows'], origin: string): OAuth2Metadata => {
   const authorizationFlow = flows?.authorizationCode ?? flows?.implicit
-  const tokenFlow = flows?.authorizationCode ?? flows?.clientCredentials ?? flows?.password
+  const tokenFlow =
+    flows?.authorizationCode ?? flows?.clientCredentials ?? flows?.password ?? flows?.deviceAuthorization
   const localUrl = (url: string): string => new URL(getPathFromUrl(url), origin).href
   const supportedFlows = [
     { flow: flows?.authorizationCode, grant: 'authorization_code', response: 'code' },
     { flow: flows?.implicit, grant: 'implicit', response: 'token' },
     { flow: flows?.clientCredentials, grant: 'client_credentials' },
     { flow: flows?.password, grant: 'password' },
+    { flow: flows?.deviceAuthorization, grant: 'urn:ietf:params:oauth:grant-type:device_code' },
   ].filter(({ flow }) => flow)
 
   return {
     issuer: origin,
+    ...(flows?.deviceAuthorization
+      ? { device_authorization_endpoint: localUrl(flows.deviceAuthorization.deviceAuthorizationUrl || '/oauth/device') }
+      : {}),
     ...(authorizationFlow
       ? { authorization_endpoint: localUrl(authorizationFlow.authorizationUrl ?? '/oauth/authorize') }
       : {}),

@@ -18,6 +18,18 @@ export const openIDDiscoveryToFlows = (discovery: OpenIDConnectDiscovery): Secre
       : 'no'
 
   const flows: OAuthFlowsObject = {}
+  if (
+    grantTypes.has('urn:ietf:params:oauth:grant-type:device_code') &&
+    discovery.device_authorization_endpoint &&
+    tokenUrl
+  ) {
+    flows.deviceAuthorization = {
+      deviceAuthorizationUrl: discovery.device_authorization_endpoint,
+      tokenUrl,
+      refreshUrl: tokenUrl,
+      scopes,
+    }
+  }
 
   // Implicit
   if (grantTypes.has('implicit') && authorizationUrl) {

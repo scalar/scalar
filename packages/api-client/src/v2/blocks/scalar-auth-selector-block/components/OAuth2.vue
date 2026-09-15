@@ -37,7 +37,7 @@ import type {
   OAuthFlow,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import {
@@ -48,6 +48,7 @@ import {
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
 
+import type { DeviceAuthorizationPrompt } from '../helpers/oauth-device-authorization'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 const {
@@ -105,6 +106,15 @@ const emits = defineEmits<{
   ): void
 }>()
 
+const devicePrompt = ref<DeviceAuthorizationPrompt | null>(null)
+let deviceController: AbortController | undefined
+const cancelDeviceAuthorization = (): void => {
+  deviceController?.abort()
+  devicePrompt.value = null
+}
+onBeforeUnmount(cancelDeviceAuthorization)
+watch(() => [type, name, flows], cancelDeviceAuthorization)
+
 const loader = useLoadingState()
 const { toast } = useToasts()
 
@@ -142,7 +152,9 @@ const clientSecretValue = computed((): string => {
 
 /** Updates the security scheme base */
 const handleOauth2Update = (
-  payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
+  payload: Partial<OAuthFlow & XScalarCredentialsLocation> & {
+    deviceAuthorizationUrl?: string
+  },
 ): void => {
   // OpenIdConnect uses the secrets update for all
   if (scheme.type === 'openIdConnect') {
@@ -278,6 +290,8 @@ const handleAuthorize = async (): Promise<void> => {
   }
 
   loader.start()
+  const controller = new AbortController()
+  deviceController = controller
 
   const [error, tokens] = await authorizeOauth2(
     flows,
@@ -288,9 +302,19 @@ const handleAuthorize = async (): Promise<void> => {
     getEnvironmentVariables(environment),
     options.customFetch,
     options.captureOAuth2Callback,
+    {
+      signal: controller.signal,
+      onPrompt: (prompt) => {
+        devicePrompt.value = prompt
+      },
+    },
   )
+  devicePrompt.value = null
 
   await loader.clear()
+  if (controller.signal.aborted) {
+    return
+  }
 
   if (tokens?.accessToken) {
     handleOauth2SecretsUpdate({
@@ -425,6 +449,50 @@ const handleSecretLocationUpdate = (value: string): void => {
 
   <!-- Authorization Form: Shows when user needs to authorize -->
   <template v-else>
+    <DataTableRow v-if="'deviceAuthorizationUrl' in flow">
+      <RequestAuthDataTableInput
+        :environment
+        :modelValue="flow.deviceAuthorizationUrl"
+        @update:modelValue="
+          (v) => handleOauth2Update({ deviceAuthorizationUrl: v })
+        ">
+        Device Authorization URL
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+    <DataTableRow v-if="devicePrompt">
+      <div class="w-full p-2">
+        <div
+          class="bg-b-2 flex flex-col gap-3 rounded-lg border p-3 text-sm"
+          role="status">
+          <p class="text-c-2 text-xs leading-normal">
+            Open the verification page and enter this code:
+          </p>
+          <strong
+            class="bg-b-1 font-code w-fit max-w-full rounded border px-3 py-2 text-base font-medium tracking-widest break-all select-all">
+            {{ devicePrompt.userCode }}
+          </strong>
+          <a
+            class="text-c-accent w-fit max-w-full text-xs break-all underline underline-offset-2"
+            :href="
+              devicePrompt.verificationUriComplete ||
+              devicePrompt.verificationUri
+            "
+            rel="noopener noreferrer"
+            target="_blank">
+            {{ devicePrompt.verificationUri }}
+          </a>
+          <div class="flex items-center justify-between gap-3">
+            <p class="text-c-2 text-xs">Waiting for authorization…</p>
+            <ScalarButton
+              size="xs"
+              variant="outlined"
+              @click="cancelDeviceAuthorization">
+              Cancel
+            </ScalarButton>
+          </div>
+        </div>
+      </div>
+    </DataTableRow>
     <DataTableRow>
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
@@ -569,9 +637,9 @@ const handleSecretLocationUpdate = (value: string): void => {
         :flow
         :flowType="type"
         :selectedScopes
+        @delete:scope="(v) => emits('delete:scope', v)"
         @update:selectedScopes="(v) => emits('update:selectedScopes', v)"
-        @upsert:scope="(v) => emits('upsert:scope', v)"
-        @delete:scope="(v) => emits('delete:scope', v)" />
+        @upsert:scope="(v) => emits('upsert:scope', v)" />
     </DataTableRow>
 
     <DataTableRow
