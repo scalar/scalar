@@ -1,4 +1,5 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
+import { getExampleValue, getJsonExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -205,7 +206,12 @@ export const processBody = ({
   const isXml = _contentType === 'application/xml'
 
   // Get the example value
-  const _example = getExample(requestBody, example, contentType)?.value
+  const selected = getExampleValue(getExample(requestBody, example, contentType))
+  const explicitText = getJsonExampleText(selected, _contentType)
+  if (explicitText !== undefined) {
+    return { mimeType: harMimeType, text: explicitText }
+  }
+  const _example = selected?.value
 
   // Return the provided top level example
   if (typeof _example !== 'undefined') {
