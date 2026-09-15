@@ -293,7 +293,7 @@ export const requestFactory = ({
     },
     query: params.urlParams,
     ...(querystring ? { querystring } : {}),
-    method: isHttpMethod(method) ? method.toUpperCase() : method,
+    method: isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method,
     headers,
     body,
     cookies: cookiesList,

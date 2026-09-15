@@ -73,7 +73,7 @@ describe('requestFactory', () => {
     expect(request.query.toString()).toBe('')
   })
 
-  it.each(['COPY', 'copy', 'customMethod'])('preserves additional method %s', (method) => {
+  it.each(['COPY', 'copy', 'customMethod', 'Get', 'pAtCh'])('preserves additional method %s', (method) => {
     const { request } = requestFactory(createBaseArgs({ method }))
     expect(request.method).toBe(method)
   })

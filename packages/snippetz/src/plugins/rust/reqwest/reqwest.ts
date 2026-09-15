@@ -153,16 +153,19 @@ const createBodyCall = (postData: any): string | null => {
  */
 const buildRustCode = (url: string, method: string, chainedCalls: string[]): string => {
   const code = ['let client = reqwest::Client::new();', '']
+  const request = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(method)
+    ? `${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`
+    : `request(reqwest::Method::from_bytes(${wrapInDoubleQuotes(method)}.as_bytes())?, ${wrapInDoubleQuotes(url)})`
 
   // Add chained calls with proper formatting
   if (chainedCalls.length > 0) {
     code.push('let request = client')
-    code.push(indent(1, `.${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`))
+    code.push(indent(1, `.${request}`))
 
     // Add a newline before the first chained call
     code.push(...chainedCalls)
   } else {
-    code.push(`let request = client.${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`)
+    code.push(`let request = client.${request}`)
   }
 
   // Add semicolon to the last chained call

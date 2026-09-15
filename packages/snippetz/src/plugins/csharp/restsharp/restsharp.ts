@@ -55,6 +55,13 @@ export const csharpRestsharp: Plugin = {
 
     // Normalization
     normalizedRequest.method = normalizeMethod(normalizedRequest.method)
+    if (
+      !['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'COPY', 'SEARCH', 'MERGE'].includes(
+        normalizedRequest.method,
+      )
+    ) {
+      return '// RestSharp does not support this HTTP method. Select HttpClient for a custom method.'
+    }
 
     // Build the full URL, appending the query string with the correct separator
     // (joinUrlAndQuery uses `&` when the URL already carries a query string)
