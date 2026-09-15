@@ -7,6 +7,7 @@ import { accepts } from 'hono/accepts'
 import { store } from '../libs/store'
 import { generateResponseExample } from './generate-response-example'
 import { normalizeResponseBody } from './normalize-response-body'
+import { parsePreferHeader } from './parse-prefer-header'
 import { pathParameters } from './path-parameters'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 import { getStreamingResponse } from './streaming-response'
@@ -75,6 +76,7 @@ function getExampleFromResponse(
   }
 
   const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
+    exampleName: parsePreferHeader(c.req.header('Prefer')).example,
     variables: pathParameters(c),
   })
   if (streamingResponse) {
