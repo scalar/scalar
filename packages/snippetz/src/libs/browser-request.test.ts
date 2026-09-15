@@ -3,6 +3,30 @@ import { describe, expect, it } from 'vitest'
 import { prepareBrowserRequest } from './browser-request'
 
 describe('browser-request', () => {
+  it('moves raw Cookie headers into the cookie store without decoding or encoding them', () => {
+    const request = {
+      headers: [
+        { name: 'cOoKiE', value: 'greeting=Hello%2C%20world!; token=a+b==; empty=' },
+        { name: 'X-Test', value: 'kept' },
+      ],
+      cookies: [{ name: 'legacy', value: 'a b' }],
+    }
+    const prepared = prepareBrowserRequest(request)
+    expect(prepared.headers).toStrictEqual([{ name: 'X-Test', value: 'kept' }])
+    expect(prepared.withCredentials).toBe(true)
+    expect(prepared.setup).toStrictEqual([
+      '// Run on the request origin to set these cookies in the browser.',
+      'document.cookie = "legacy=a%20b; path=/";',
+      'document.cookie = "greeting=Hello%2C%20world!; path=/";',
+      'document.cookie = "token=a+b==; path=/";',
+      'document.cookie = "empty=; path=/";',
+    ])
+    expect(request.headers).toStrictEqual([
+      { name: 'cOoKiE', value: 'greeting=Hello%2C%20world!; token=a+b==; empty=' },
+      { name: 'X-Test', value: 'kept' },
+    ])
+  })
+
   it('uses the browser cookie store and enables credentialed requests', () => {
     const prepared = prepareBrowserRequest({ cookies: [{ name: 'a;b', value: 'c d' }] })
     expect(prepared.headers).toStrictEqual([])

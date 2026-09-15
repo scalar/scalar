@@ -15,7 +15,16 @@ export const prepareBrowserRequest = (
   body: string
   withCredentials: boolean
 } => {
-  const headers = [...(request.headers ?? [])]
+  // Browsers forbid setting Cookie directly. Header values are already serialized,
+  // so preserve their escaping when transferring them to the browser cookie store.
+  const cookieValues = [
+    ...(request.cookies ?? []).map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`),
+    ...(request.headers ?? [])
+      .filter(({ name }) => name.toLowerCase() === 'cookie')
+      .flatMap(({ value }) => (value ?? '').split(';').map((cookie) => cookie.trim()))
+      .filter((cookie) => cookie.includes('=')),
+  ]
+  const headers = (request.headers ?? []).filter(({ name }) => name.toLowerCase() !== 'cookie')
   if (configuration?.auth?.username && configuration.auth.password) {
     headers.push({
       name: 'Authorization',
@@ -23,12 +32,10 @@ export const prepareBrowserRequest = (
     })
   }
   const setup: string[] = []
-  if (request.cookies?.length) {
+  if (cookieValues.length) {
     setup.push('// Run on the request origin to set these cookies in the browser.')
-    for (const { name, value } of request.cookies) {
-      setup.push(
-        `document.cookie = ${JSON.stringify(`${encodeURIComponent(name)}=${encodeURIComponent(value)}; path=/`)};`,
-      )
+    for (const cookie of cookieValues) {
+      setup.push(`document.cookie = ${JSON.stringify(`${cookie}; path=/`)};`)
     }
   }
   const postData = request.postData
@@ -72,7 +79,7 @@ export const prepareBrowserRequest = (
     // The browser must supply the boundary matching its FormData serialization.
     headers: multipart ? headers.filter(({ name }) => name.toLowerCase() !== 'content-type') : headers,
     setup,
-    withCredentials: Boolean(request.cookies?.length),
+    withCredentials: Boolean(cookieValues.length),
     body: multipart ? 'body' : formBody,
   }
 }

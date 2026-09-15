@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { snippetz } from '@scalar/snippetz'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -8,6 +9,42 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it('keeps cookie style, global cookies, and authentication in a single raw header', () => {
+    const result = operationToHar({
+      method: 'get',
+      path: '/',
+      includeDefaultHeaders: false,
+      server: { url: 'https://example.com' },
+      operation: {
+        parameters: [{ name: 'greeting', in: 'cookie', style: 'cookie', required: true, example: 'Hello%2C%20world!' }],
+      },
+      globalCookies: [{ name: 'global', value: 'a b', domain: 'example.com', path: '/' }],
+      securitySchemes: [{ type: 'apiKey', name: 'token', in: 'cookie', 'x-scalar-secret-token': 'secret' }],
+    })
+    expect(result.headers).toStrictEqual([
+      { name: 'Cookie', value: 'greeting=Hello%2C%20world!; global=a%20b; token=secret' },
+    ])
+    expect(result.cookies).toStrictEqual([])
+    expect(snippetz().print('shell', 'curl', result)).toContain(
+      'greeting=Hello%2C%20world!; global=a%20b; token=secret',
+    )
+  })
+
+  it.each(['xhr', 'jquery'] as const)('sets cookie-style values through the browser cookie store in %s', (client) => {
+    const result = operationToHar({
+      method: 'get',
+      path: '/',
+      includeDefaultHeaders: false,
+      operation: {
+        parameters: [{ name: 'greeting', in: 'cookie', style: 'cookie', required: true, example: 'Hello%2C%20world!' }],
+      },
+    })
+    const snippet = snippetz().print('js', client, result)
+    expect(snippet).toContain('document.cookie = "greeting=Hello%2C%20world!; path=/";')
+    expect(snippet).not.toContain('setRequestHeader("Cookie"')
+    expect(snippet).toContain(client === 'xhr' ? 'xhr.withCredentials = true;' : 'xhrFields: { withCredentials: true }')
+  })
+
   describe('basic functionality', () => {
     it('should convert a basic operation to HAR format', () => {
       const operation: OperationObject = {
