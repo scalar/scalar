@@ -355,6 +355,26 @@ describe('executeHook', () => {
     await expect.poll(() => cancelled).toBe(true)
   })
 
+  it('cancels discarded stream branches when a response hook rejects', async () => {
+    const cancellations: unknown[] = []
+    const response = new Response(
+      new ReadableStream({
+        cancel: (reason) => {
+          cancellations.push(reason)
+        },
+      }),
+    )
+    const error = new Error('interception failed')
+    await expect(
+      executeHook(
+        { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
+        'responseReceived',
+        [{ hooks: { responseReceived: () => Promise.reject(error) } }],
+      ),
+    ).rejects.toBe(error)
+    await expect.poll(() => cancellations.length).toBe(1)
+  })
+
   it('propagates response hook errors', async () => {
     await expect(
       executeHook(
