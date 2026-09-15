@@ -297,6 +297,7 @@ export const createApiReference: CreateApiReference = (
   // Track whether this instance mounted so `destroy` only releases the shared
   // standalone styles for instances that actually retained them.
   let hasMounted = false
+  let retryPreparation: (() => void) | undefined
 
   if (optionalConfiguration) {
     if (mountElement) {
@@ -344,14 +345,26 @@ export const createApiReference: CreateApiReference = (
             return
           }
         }
-        // Run after initialization so cancellation is available even for inline documents.
-        void Promise.resolve()
-          .then(prepareAndMount)
-          .catch((error: unknown) => {
-            if (!abortController.signal.aborted) {
-              console.error('Could not prepare API References:', error)
-            }
-          })
+        let preparing = false
+        retryPreparation = (): void => {
+          if (preparing || hasMounted || abortController.signal.aborted) {
+            return
+          }
+          preparing = true
+          // Defer preparation so instance initialization completes before loading starts.
+          void Promise.resolve()
+            .then(prepareAndMount)
+            .catch((error: unknown) => {
+              if (!abortController.signal.aborted) {
+                console.error('Could not prepare API References:', error)
+              }
+            })
+            .finally(() => {
+              preparing = false
+            })
+        }
+        // Cancellation is initialized below before this microtask runs.
+        void Promise.resolve().then(retryPreparation)
       } else {
         mount()
       }
@@ -448,6 +461,7 @@ export const createApiReference: CreateApiReference = (
       )
       if ('detail' in ev) {
         Object.assign(props, ev.detail)
+        retryPreparation?.()
       }
     },
     listenerOptions,
@@ -460,6 +474,7 @@ export const createApiReference: CreateApiReference = (
     getConfiguration: () => props.configuration ?? {},
     updateConfiguration: (newConfig: AnyApiReferenceConfiguration) => {
       props.configuration = newConfig
+      retryPreparation?.()
     },
     destroy,
   }
