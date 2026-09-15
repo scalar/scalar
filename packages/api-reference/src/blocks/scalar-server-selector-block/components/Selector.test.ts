@@ -1,3 +1,4 @@
+import { ScalarListbox } from '@scalar/components/listbox'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -41,6 +42,16 @@ describe('Selector', () => {
       },
     },
   ]
+
+  it('labels named servers and preserves URL selection values', () => {
+    const servers = [{ name: 'Production', url: 'https://api.example.com' }, { url: 'https://fallback.example.com' }]
+    const wrapper = mount(Selector, { props: { servers, selectedServer: servers[0]!, target: 'test-target' } })
+    const listbox = wrapper.getComponent(ScalarListbox)
+    expect(listbox.props('options')).toStrictEqual([
+      { id: 'https://api.example.com', label: 'Production (https://api.example.com)' },
+      { id: 'https://fallback.example.com', label: 'https://fallback.example.com' },
+    ])
+  })
 
   it('renders with default state for multiple servers', () => {
     const wrapper = mount(Selector, {

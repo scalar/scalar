@@ -14,6 +14,11 @@ vi.mock('@scalar/use-hooks/useClipboard', () => ({
 }))
 
 describe('ExampleResponses', () => {
+  it('renders a response summary without a description or examples', () => {
+    const wrapper = mount(ExampleResponses, { props: { responses: { '204': { summary: 'Deletion completed' } } } })
+    expect(wrapper.text()).toContain('Deletion completed')
+  })
+
   it('renders a single example correctly', () => {
     const wrapper = mount(ExampleResponses, {
       props: {

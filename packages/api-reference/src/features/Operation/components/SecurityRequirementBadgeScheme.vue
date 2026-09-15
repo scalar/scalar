@@ -13,7 +13,7 @@ const { is = 'li', scheme } = defineProps<{
     :is
     class="markdown">
     <!-- Strike through the scheme name when the scheme is deprecated (OpenAPI 3.2) -->
-    <span :class="{ 'scheme-deprecated': scheme.scheme?.deprecated }">
+    <span :class="{ 'line-through': scheme.scheme?.deprecated }">
       {{ scheme.name }}
     </span>
     <code v-if="scheme.scheme?.type">{{ scheme.scheme.type }}</code>
@@ -27,9 +27,3 @@ const { is = 'li', scheme } = defineProps<{
     </ul>
   </component>
 </template>
-
-<style scoped>
-.scheme-deprecated {
-  text-decoration: line-through;
-}
-</style>
