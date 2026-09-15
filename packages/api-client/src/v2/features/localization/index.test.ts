@@ -22,7 +22,7 @@ const Consumer = defineComponent({
   },
 })
 
-describe('localization', () => {
+describe('index', () => {
   it.each(Object.entries({ en, ru, es, fr, de, 'zh-CN': zhCn, ar, pt }))(
     'includes every client key and preserves interpolation placeholders in %s',
     (_locale, dictionary) => {
