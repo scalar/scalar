@@ -401,6 +401,7 @@ const getCompositionSelectionIndex = (
 const getDiscriminatorSelectionIndex = (
   schema: SchemaObject,
   variants: NonNullable<SchemaObject['oneOf']>,
+  options: GetExampleFromSchemaOptions | undefined,
   value?: Record<string, unknown>,
 ): number | undefined => {
   const discriminator = schema.discriminator
@@ -410,11 +411,16 @@ const getDiscriminatorSelectionIndex = (
 
   const property = 'properties' in schema ? schema.properties?.[discriminator.propertyName] : undefined
   const resolvedProperty = property ? resolve.schema(property) : undefined
-  const tag = value
-    ? value[discriminator.propertyName]
-    : resolvedProperty
-      ? getDeclaredValue(resolvedProperty)
-      : undefined
+  const propertyName =
+    options?.xml && resolvedProperty && 'xml' in resolvedProperty
+      ? (resolvedProperty.xml?.name ?? discriminator.propertyName)
+      : discriminator.propertyName
+  const variableValue = resolvedProperty?.['x-variable']
+    ? options?.variables?.[resolvedProperty['x-variable']]
+    : undefined
+  const declaredValue = resolvedProperty ? getDeclaredValue(resolvedProperty) : undefined
+  const schemaValue = variableValue !== undefined ? variableValue : declaredValue
+  const tag = value ? value[propertyName] : schemaValue
   const findReference = (reference: string): number =>
     variants.findIndex((variant) => '$ref' in variant && variant.$ref === reference)
   const findComponent = (name: string): number => findReference(`#/components/schemas/${escapeJsonPointer(name)}`)
@@ -580,7 +586,7 @@ const handleObjectSchema = (
   if (compositionKeyword && oneOfAnyOf?.length) {
     const index =
       getCompositionSelectionIndex(schemaPath, compositionKeyword, options, oneOfAnyOf.length) ??
-      getDiscriminatorSelectionIndex(schema, oneOfAnyOf, response) ??
+      getDiscriminatorSelectionIndex(schema, oneOfAnyOf, options, response) ??
       0
     const chosen = resolve.schema(oneOfAnyOf[index])
     if (chosen) {
@@ -700,7 +706,7 @@ const handleArraySchema = (
     if (compositionKeyword && union && union.length > 0) {
       const selectedIndex =
         getCompositionSelectionIndex(itemsSchemaPath, compositionKeyword, options, union.length) ??
-        getDiscriminatorSelectionIndex(items, union) ??
+        getDiscriminatorSelectionIndex(items, union, options) ??
         0
       const selected = union[selectedIndex]!
       const ex = getExampleFromSchema(resolve.schema(selected), options, {
@@ -863,7 +869,7 @@ const getSelectedVariant = (
 
   const index =
     getCompositionSelectionIndex(schemaPath, compositionKeyword, options, variants.length) ??
-    getDiscriminatorSelectionIndex(schema, variants)
+    getDiscriminatorSelectionIndex(schema, variants, options)
   const candidate =
     index !== undefined
       ? variants[index]
@@ -1202,7 +1208,7 @@ export const getExampleFromSchema = (
   if (compositionKeyword && Array.isArray(discriminate) && discriminate.length > 0) {
     const index =
       getCompositionSelectionIndex(schemaPath, compositionKeyword, options, discriminate.length) ??
-      getDiscriminatorSelectionIndex(_schema, discriminate)
+      getDiscriminatorSelectionIndex(_schema, discriminate, options)
     const candidate =
       index !== undefined
         ? discriminate[index]

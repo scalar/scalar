@@ -80,6 +80,37 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual({ kind: 'Cat', result: 'Dog' })
   })
 
+  it('preserves matching discriminator values with XML property names', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { kind: { const: 'Cat', xml: { name: 'animalKind' } } },
+      oneOf: ['Cat', 'Other'].map((name) => ({
+        $ref: '#/components/schemas/' + name,
+        '$ref-value': { properties: { result: { const: name } } },
+      })),
+      discriminator: { propertyName: 'kind', defaultMapping: 'Other' },
+    })
+
+    expect(getExampleFromSchema(schema, { xml: true })).toStrictEqual({ animalKind: 'Cat', result: 'Cat' })
+  })
+
+  it('uses variable-provided discriminator values for array items', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { kind: { type: 'string', 'x-variable': 'petKind' } },
+        oneOf: ['Cat', 'Other'].map((name) => ({
+          $ref: '#/components/schemas/' + name,
+          '$ref-value': { properties: { result: { const: name } } },
+        })),
+        discriminator: { propertyName: 'kind', defaultMapping: 'Other' },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { variables: { petKind: 'Cat' } })).toStrictEqual([{ result: 'Cat' }])
+  })
+
   it('does not infer discriminator mappings from inline schema titles', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
