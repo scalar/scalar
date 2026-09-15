@@ -105,6 +105,10 @@ export const updateOperationRequestBodyExample = (
     return
   }
 
+  // An edit replaces the authored source, otherwise the old serialized/data value wins.
+  delete example.serializedValue
+  delete example.dataValue
+  delete example.externalValue
   example.value = payload
 }
 
@@ -123,5 +127,9 @@ export const updateOperationRequestBodyFormValue = (
     return
   }
 
+  // An edit replaces the authored source, otherwise the old serialized/data value wins.
+  delete example.serializedValue
+  delete example.dataValue
+  delete example.externalValue
   example.value = unpackProxyObject(payload, { depth: 3 })
 }

@@ -1,19 +1,30 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
+import { getExampleValue, getJsonExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Keep the displayed response and its clipboard action on the same resolved, formatted value. */
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
+  contentType = 'application/json',
 ): string | undefined => {
   if (example !== undefined) {
-    return prettyPrintJson(getResolvedRefDeep(example)?.value ?? '')
+    const selected = getExampleValue(getResolvedRefDeep(example))
+    const explicitText = getJsonExampleText(selected, contentType, 2)
+    if (explicitText !== undefined) {
+      return explicitText
+    }
+    const value = selected?.value
+    if (selected?.source === 'value' && value == null) {
+      return ''
+    }
+    return typeof value === 'string' ? prettyPrintJson(value) : (JSON.stringify(value, null, 2) ?? '')
   }
 
   if (response?.schema) {

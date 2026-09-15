@@ -5,6 +5,7 @@ import type {
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { getExampleValue } from '@/helpers/get-example-value'
 import { getResolvedRefDeep } from '@/helpers/get-resolved-ref-deep'
 import { getExample } from '@/request-example/builder/helpers/get-example'
 import { getExampleFromSchema } from '@/request-example/builder/helpers/get-example-from-schema'
@@ -57,8 +58,9 @@ export const getExampleFromBody = (
   // `externalValue` (not yet resolved to a `value`) is treated as missing, so we fall back to a
   // schema-generated example instead of building an empty request body.
   const example = getExample(requestBody, exampleName, contentType)
-  if (example && example.value !== undefined) {
-    return example
+  const selected = getExampleValue(example)
+  if (example && selected) {
+    return selected.source === 'value' ? example : { ...example, value: selected.value }
   }
 
   // Generate an example from the schema
