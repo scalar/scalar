@@ -246,7 +246,12 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
     return { ok: false }
   }
 
-  const raw = example.value?.value
+  const selected = getExampleValue(example.value ?? undefined)
+  // Structured data is already parsed; parsing strings again changes the payload type.
+  if (selected?.source === 'data') {
+    return { ok: true, value: selected.value }
+  }
+  const raw = selected?.value
   // An empty body is still form-editable: rows come from the schema.
   if (raw === undefined || raw === null || raw === '') {
     return { ok: true, value: {} }
