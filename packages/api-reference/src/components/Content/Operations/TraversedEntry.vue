@@ -20,6 +20,7 @@ import type {
   SchemaObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { computed } from 'vue'
 
 import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'
@@ -115,13 +116,10 @@ const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
   entry['type'] === 'model'
 
 /**
- * Narrows a stored schema value to the `SchemaObject` the Model component renders.
- *
- * `components.schemas` values are typed as `SchemaObject | ReferenceObject`, so we guard the union
- * instead of casting it away.
+ * Keep schema wrappers with resolved targets while excluding unresolved sparse chunk references.
  */
 const isSchemaObject = (value: unknown): value is SchemaObject =>
-  isObject(value)
+  isObject(value) && (!('$ref' in value) || '$ref-value' in value)
 
 /**
  * Resolves a model entry to the schema the Model component renders.
@@ -131,10 +129,14 @@ const isSchemaObject = (value: unknown): value is SchemaObject =>
  * dynamic binding survives and the shared Schema renderer can bind the item type for display — see
  * #9883.
  */
-const getModelSchema = (name: string): SchemaObject | undefined => {
-  const schema = document.components?.schemas?.[name]
-  return isSchemaObject(schema) ? schema : undefined
-}
+const modelSchemas = computed<Record<string, SchemaObject | undefined>>(() =>
+  Object.fromEntries(
+    Object.entries(document.components?.schemas ?? {}).map(([name, schema]) => [
+      name,
+      isSchemaObject(schema) ? schema : undefined,
+    ]),
+  ),
+)
 
 function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   return isWebhook(entry)
@@ -255,14 +257,14 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     </ModelTag>
 
     <Model
-      v-else-if="isModel(entry) && getModelSchema(entry.name)"
+      v-else-if="isModel(entry) && modelSchemas[entry.name]"
       :id="entry.id"
       :document
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
       :options
-      :schema="getModelSchema(entry.name)">
+      :schema="modelSchemas[entry.name]">
     </Model>
   </Lazy>
 </template>

@@ -1,5 +1,6 @@
 ---
 '@scalar/api-reference': patch
+'@scalar/openapi-types': patch
 ---
 
 Fix empty `$dynamicRef` array items in the Models section. A model that binds a
