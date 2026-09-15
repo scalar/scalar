@@ -57,7 +57,8 @@ const emit = defineEmits<{
 const requestServerOptions = computed(() =>
   servers.map((s) => ({
     id: s.url,
-    label: s.url ?? 'Unknown server',
+    // Prefer the server name (OpenAPI 3.2) as a friendly label, falling back to the URL
+    label: s.name ? `${s.name} (${s.url})` : (s.url ?? 'Unknown server'),
   })),
 )
 
