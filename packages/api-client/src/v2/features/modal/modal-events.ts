@@ -31,7 +31,23 @@ export function initializeModalEvents({
   initializeWorkspaceEventHandlers({
     eventBus,
     store: ref(store),
-    hooks: {},
+    hooks: {
+      'operation:create:draft-example': {
+        onAfterExecute: ({ documentName, meta: { path, method }, exampleName }): void => {
+          // The new example must be in the sidebar before its location can be selected.
+          store.buildSidebar(documentName)
+          const entry = sidebarState.getEntryByLocation({
+            document: documentName,
+            path,
+            method,
+            example: exampleName,
+          })
+          if (entry) {
+            sidebarState.handleSelectItem(entry.id)
+          }
+        },
+      },
+    },
   })
 
   //------------------------------------------------------------------------------------

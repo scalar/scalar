@@ -594,6 +594,11 @@ const handleGenerateExample = ({
     meta: exampleMeta,
   })
 
+  // The modal selects the example after its creation hook rebuilds the sidebar.
+  if (layout === 'modal') {
+    return
+  }
+
   eventBus.emit('ui:navigate', {
     page: 'example',
     documentSlug,
