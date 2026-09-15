@@ -76,7 +76,7 @@ catalogs:
     get-port-please: 3.2.0
     github-slugger: 2.0.0
     highlight.js: ^11.11.1
-    js-base64: ^3.9.2
+    js-base64: ^3.9.3
     jsdom: 27.4.0
     jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
@@ -93,7 +93,7 @@ catalogs:
     react-dom: ^19.2.3
     react: ^19.2.3
     rolldown: 1.1.5
-    set-cookie-parser: 3.1.0
+    set-cookie-parser: 3.1.2
     semver: 7.7.2
     shx: ^0.4.0
     supertest: '7.2.2'
@@ -112,8 +112,8 @@ catalogs:
     vue-tsc: ^3.3.8
     vue: ^3.5.40
     yaml: ^2.9.0
-    zod: ^4.4.3
-    posthog-js: 1.407.5
+    zod: ^4.6.1
+    posthog-js: 1.429.2
     ws: 8.21.0
 ignoredBuiltDependencies:
   - '@firebase/util'
