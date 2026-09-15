@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
 
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
+import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 
@@ -40,6 +41,28 @@ const defaultProps = {
 } satisfies RequestBlockProps
 
 describe('RequestBlock', () => {
+  it('renders a whole-query editor and disables adding named query parameters', () => {
+    const parameter = {
+      name: 'json',
+      in: 'querystring' as const,
+      required: true,
+      content: { 'application/json': { example: { term: 'hello' } } },
+    }
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        operation: { parameters: [parameter] },
+        exampleKey: 'default',
+      },
+    })
+    const querySection = wrapper
+      .findAllComponents(RequestParams)
+      .find((section) => section.props('title') === 'Query String')!
+    expect(querySection.props('showAddRowPlaceholder')).toBe(false)
+    expect(querySection.props('rows').map((row) => row.value)).toStrictEqual(['%7B%22term%22%3A%22hello%22%7D'])
+    wrapper.unmount()
+  })
+
   it('renders request name input and emits on change for non-modal layout', async () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()

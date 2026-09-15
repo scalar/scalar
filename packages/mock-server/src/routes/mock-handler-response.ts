@@ -133,7 +133,11 @@ function determineStatusCode(tracking: {
  * Mock response using x-handler code.
  * Executes the handler and returns its result as the response.
  */
-export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.OperationObject) {
+export async function mockHandlerResponse(
+  c: Context,
+  operation: OpenAPIV3_1.OperationObject,
+  pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
+) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
 
@@ -147,7 +151,7 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.Ope
 
   try {
     // Build handler context with tracking
-    const { context, tracking } = await buildHandlerContext(c, operation)
+    const { context, tracking } = await buildHandlerContext(c, operation, pathItemParameters)
 
     // Execute handler
     const { result } = await executeHandler(handlerCode, context)

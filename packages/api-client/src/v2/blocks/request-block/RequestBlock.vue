@@ -192,6 +192,14 @@ const recordExpandedRowRename = (
   }
 }
 
+/** Whole-query parameters share the Query section but retain their original identity. */
+const hasQuerystringParameter = computed(
+  () =>
+    operation.parameters?.some(
+      (parameter) => getResolvedRef(parameter)?.in === 'querystring',
+    ) ?? false,
+)
+
 /** Parameters grouped by type (path, query, header, cookie) */
 const sections = computed(() =>
   groupBy(
@@ -206,7 +214,7 @@ const sections = computed(() =>
             param.in === 'query' ? getRenamedValuePaths(param) : [],
         }).map((row) => ({
           ...row,
-          in: param.in,
+          in: param.in === 'querystring' ? 'query' : param.in,
         })),
       ) ?? [],
     'in',
@@ -637,7 +645,8 @@ const updateOperationExtension = (
         :eventBus
         :exampleKey
         :rows="sections.query ?? []"
-        title="Query Parameters"
+        :showAddRowPlaceholder="!hasQuerystringParameter"
+        :title="hasQuerystringParameter ? 'Query String' : 'Query Parameters'"
         v-on="parameterHandlers.query" />
 
       <!-- Request Body -->

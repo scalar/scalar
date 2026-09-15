@@ -69,7 +69,6 @@ describe('content-based parameters', () => {
     const param = {
       name: 'q',
       in: 'query',
-      // @ts-expect-error - this is a test
       examples: {
         a: { value: 'nope' },
       },
