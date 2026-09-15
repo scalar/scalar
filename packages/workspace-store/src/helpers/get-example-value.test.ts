@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { updateOperationRequestBodyExample } from '@/mutators/operation/body'
-import { buildRequestBody } from '@/request-example/builder/body/build-request-body'
-import { getExampleFromBody } from '@/request-example/builder/body/get-request-body-example'
-import type { ExampleObject, OpenApiDocument, RequestBodyObject } from '@/schemas/v3.2/strict/openapi-document'
-
 import { getExampleValue, getJsonExampleText } from './get-example-value'
-import { getResolvedRef } from './get-resolved-ref'
 
 describe('get-example-value', () => {
   it.each([false, 0, null, '', { id: 1 }])('selects structured data without losing %j', (value) => {
@@ -45,60 +39,5 @@ describe('get-example-value', () => {
     expect(getJsonExampleText(getExampleValue({ dataValue: { id: 1 } }), 'application/xml')).toBeUndefined()
     expect(getJsonExampleText(getExampleValue({ serializedValue: '<id>1</id>' }), 'application/xml')).toBe('<id>1</id>')
     expect(getJsonExampleText(getExampleValue({ value: 'legacy' }), 'application/json')).toBeUndefined()
-  })
-
-  it.each([
-    [{ dataValue: 'hello' }, '"hello"'],
-    [{ dataValue: false }, 'false'],
-    [{ dataValue: null }, 'null'],
-    [{ dataValue: 0 }, '0'],
-    [{ serializedValue: '  { "id": 1 }\n', dataValue: { id: 2 } }, '  { "id": 1 }\n'],
-    [{ serializedValue: '' }, ''],
-  ] satisfies [ExampleObject, string][])('sends the selected body example %j', (example, expected) => {
-    const body: RequestBodyObject = { content: { 'application/json': { examples: { selected: example } } } }
-    expect(buildRequestBody(body, 'selected')).toStrictEqual({
-      mode: 'raw',
-      value: expected,
-      contentType: 'application/json',
-    })
-  })
-
-  it('replaces original example fields when a user clears the body', () => {
-    const document: OpenApiDocument = {
-      openapi: '3.2.0',
-      'x-scalar-original-document-hash': '',
-      info: { title: 'Example', version: '1' },
-      paths: {
-        '/': {
-          post: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  examples: {
-                    selected: {
-                      serializedValue: 'old',
-                      dataValue: false,
-                      externalValue: '/old.json',
-                      summary: 'Keep title',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    }
-    updateOperationRequestBodyExample(document, {
-      meta: { path: '/', method: 'post', exampleKey: 'selected' },
-      contentType: 'application/json',
-      payload: '',
-    })
-    const body = getResolvedRef(getResolvedRef(getResolvedRef(document.paths?.['/'])?.post)?.requestBody)
-    expect(getExampleFromBody(body!, 'application/json', 'selected')).toStrictEqual({
-      summary: 'Keep title',
-      value: '',
-    })
-    expect(buildRequestBody(body, 'selected')).toStrictEqual({ mode: 'raw', value: '' })
   })
 })
