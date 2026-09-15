@@ -37,6 +37,36 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it('renders inherited headers alongside message headers and uses the message title', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          title: 'Local title',
+          traits: [
+            {
+              $ref: '#/components/messageTraits/common',
+              '$ref-value': {
+                title: 'Trait title',
+                description: 'Shared message description',
+                headers: { type: 'object', properties: { correlationId: { type: 'string' } } },
+              },
+            },
+          ],
+          headers: { type: 'object', properties: { tenantId: { type: 'string' } } },
+        }),
+        expandedItems: expanded,
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('Local title')
+    expect(wrapper.text()).not.toContain('Trait title')
+    expect(wrapper.text()).toContain('Shared message description')
+    expect(wrapper.text()).toContain('correlationId')
+    expect(wrapper.text()).toContain('tenantId')
+  })
+
   it('renders the message title in the collapsed header', () => {
     const wrapper = mount(Message, {
       props: {
