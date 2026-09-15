@@ -392,12 +392,36 @@ const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions
   const needed = new Set<string>(options.model !== undefined ? [options.model] : [])
   const visited = new WeakSet<object>()
   const references = new Set<string>()
-  const visit = (value: unknown): void => {
+  const opaqueValues = new Set(['example', 'examples', 'default', 'enum', 'const', 'value', 'dataValue'])
+  const namedMaps = new Set([
+    'paths',
+    'webhooks',
+    'responses',
+    'content',
+    'headers',
+    'links',
+    'encoding',
+    'variables',
+    'parameters',
+    'requestBodies',
+    'securitySchemes',
+    'pathItems',
+    'callbacks',
+    'mediaTypes',
+    'additionalOperations',
+    'schemas',
+    'properties',
+    'patternProperties',
+    '$defs',
+    'definitions',
+    'dependentSchemas',
+  ])
+  const visit = (value: unknown, namedLevels = 0): void => {
     if (!value || typeof value !== 'object' || visited.has(value)) {
       return
     }
     visited.add(value)
-    if ('$ref' in value && typeof value.$ref === 'string') {
+    if (!namedLevels && '$ref' in value && typeof value.$ref === 'string') {
       const ref = value.$ref
       if (!references.has(ref)) {
         references.add(ref)
@@ -408,16 +432,21 @@ const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions
             visit(schemas[name])
           }
         }
-        visit(getResolvedRef(value as never))
+        visit(getResolvedRef(value as never), namedLevels)
       }
     }
     for (const [key, child] of Object.entries(value)) {
-      if (key !== '$ref-value') {
-        visit(child)
+      // Names such as "example" are valid map entries; only keyword positions hold opaque data.
+      if (key !== '$ref-value' && (namedLevels || (!opaqueValues.has(key) && !key.startsWith('x-')))) {
+        const childNamedLevels = namedLevels ? namedLevels - 1 : key === 'callbacks' ? 2 : namedMaps.has(key) ? 1 : 0
+        visit(child, childNamedLevels)
       }
     }
   }
-  visit([selected.paths, selected.webhooks, ...modelRoots])
+  visit({ paths: selected.paths, webhooks: selected.webhooks })
+  for (const root of modelRoots) {
+    visit(root)
+  }
   selected.components = {
     ...document.components,
     schemas: Object.fromEntries(Object.entries(schemas).filter(([name]) => needed.has(name))),

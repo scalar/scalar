@@ -429,6 +429,56 @@ const section = (markdown: string, heading: string): string => {
 }
 
 describe('selection', () => {
+  it.each([createMarkdownFromOpenApi, createHtmlFromOpenApi])(
+    'excludes literal data references while retaining schemas under arbitrary property names',
+    async (render) => {
+      const output = await render(
+        {
+          openapi: '3.1.1',
+          info: { title: 'API', version: '1' },
+          paths: {
+            '/test': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'OK',
+                    content: {
+                      'application/json': {
+                        schema: {
+                          type: 'object',
+                          example: { $ref: '#/components/schemas/Unrelated' },
+                          properties: {
+                            example: { $ref: '#/components/schemas/Needed' },
+                            default: { $ref: '#/components/schemas/DefaultField' },
+                            'x-field': { $ref: '#/components/schemas/ExtensionField' },
+                            properties: { type: 'string', default: { $ref: '#/components/schemas/Unrelated' } },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          components: {
+            schemas: {
+              Needed: { type: 'string' },
+              DefaultField: { type: 'string' },
+              ExtensionField: { type: 'string' },
+              Unrelated: { type: 'string' },
+            },
+          },
+        },
+        { operation: { path: '/test', method: 'get' } },
+      )
+      expect(output).toMatch(/### Needed|<h3>Needed<\/h3>/)
+      expect(output).toMatch(/### DefaultField|<h3>DefaultField<\/h3>/)
+      expect(output).toMatch(/### ExtensionField|<h3>ExtensionField<\/h3>/)
+      expect(output).not.toMatch(/### Unrelated|<h3>Unrelated<\/h3>/)
+    },
+  )
+
   it.each(selectionFixtures)('renders scoped Markdown: $name', async (fixture) => {
     const input = {
       ...('swagger' in fixture.document ? {} : { openapi: '3.1.1' }),
