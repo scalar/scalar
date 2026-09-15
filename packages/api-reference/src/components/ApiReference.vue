@@ -129,6 +129,7 @@ import {
 } from '@/helpers/normalize-configurations'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
+import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
@@ -490,6 +491,21 @@ const clientStore = createWorkspaceStore({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
     }),
   ],
+})
+
+useConfiguredServers({
+  configurations: configList,
+  sourceStore: workspaceStore,
+  clientStore,
+})
+
+/** Preserve config server precedence while reading the values users edit in the client store. */
+const runtimeConfig = computed<ApiReferenceConfiguration>(() => {
+  const config = mergedConfig.value
+  const document = clientStore.workspace.documents[activeSlug.value]
+  return config.servers !== undefined && isOpenApiDocument(document)
+    ? { ...config, servers: document.servers }
+    : config
 })
 
 /**
@@ -1011,13 +1027,10 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
       // Set the active server if the document is loaded successfully. Resolve relative servers
       // against this document's own base URL, not the active document's, so a background preload
       // does not derive its server from whichever document happens to be active.
-      const servers = getServers(
-        normalized.config.servers ?? document.servers,
-        {
-          baseServerUrl: config.baseServerURL,
-          documentUrl: normalized.source.url,
-        },
-      )
+      const servers = getServers(document.servers, {
+        baseServerUrl: config.baseServerURL,
+        documentUrl: normalized.source.url,
+      })
       if (servers.length > 0) {
         clientStore.updateDocument(
           slug,
@@ -1413,7 +1426,7 @@ onMounted(async () => {
     el: modal.value,
     eventBus,
     workspaceStore: clientStore,
-    options: mergedConfig,
+    options: runtimeConfig,
     plugins: [
       ...pluginManager.getApiClientPlugins(),
       ...mapConfigPlugins(mergedConfig, environment),
@@ -1860,7 +1873,7 @@ const showMCPButton = computed(() => {
           "
           :infoSectionId
           :items="sidebarItems"
-          :options="mergedConfig"
+          :options="runtimeConfig"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
           "
