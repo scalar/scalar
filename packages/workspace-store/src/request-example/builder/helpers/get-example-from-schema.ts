@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -394,6 +395,56 @@ const getCompositionSelectionIndex = (
 }
 
 /**
+ * Use the discriminator as a generation hint. Only referenced variants have
+ * implicit names; inline titles are display labels, not discriminator mappings.
+ */
+const getDiscriminatorSelectionIndex = (
+  schema: SchemaObject,
+  variants: NonNullable<SchemaObject['oneOf']>,
+  options: GetExampleFromSchemaOptions | undefined,
+  value?: Record<string, unknown>,
+): number | undefined => {
+  const discriminator = schema.discriminator
+  if (discriminator?.defaultMapping === undefined) {
+    return undefined
+  }
+
+  const property = 'properties' in schema ? schema.properties?.[discriminator.propertyName] : undefined
+  const resolvedProperty = property ? resolve.schema(property) : undefined
+  const propertyName =
+    options?.xml && resolvedProperty && 'xml' in resolvedProperty
+      ? (resolvedProperty.xml?.name ?? discriminator.propertyName)
+      : discriminator.propertyName
+  const variableValue = resolvedProperty?.['x-variable']
+    ? options?.variables?.[resolvedProperty['x-variable']]
+    : undefined
+  const declaredValue = resolvedProperty ? getDeclaredValue(resolvedProperty) : undefined
+  const schemaValue = variableValue !== undefined ? variableValue : declaredValue
+  const tag = value ? value[propertyName] : schemaValue
+  const findReference = (reference: string): number =>
+    variants.findIndex((variant) => '$ref' in variant && variant.$ref === reference)
+  const findComponent = (name: string): number => findReference(`#/components/schemas/${escapeJsonPointer(name)}`)
+  const findTarget = (target: string): number => {
+    // Prefer a component name when the same string could also be a relative URI.
+    const componentIndex = findComponent(target)
+    return componentIndex >= 0 ? componentIndex : findReference(target)
+  }
+
+  if (typeof tag === 'string') {
+    const explicit =
+      discriminator.mapping && Object.hasOwn(discriminator.mapping, tag) ? discriminator.mapping[tag] : undefined
+    const mappedIndex = explicit === undefined ? findComponent(tag) : findTarget(explicit)
+    // A broken explicit mapping must not silently select the fallback.
+    if (explicit !== undefined || mappedIndex >= 0) {
+      return mappedIndex >= 0 ? mappedIndex : undefined
+    }
+  }
+
+  const fallbackIndex = findTarget(discriminator.defaultMapping)
+  return fallbackIndex >= 0 ? fallbackIndex : undefined
+}
+
+/**
  * Read the numeric `x-order` extension value from a raw property entry, if present.
  * The entry may be a schema or a `$ref` object, so we check membership before reading.
  */
@@ -533,7 +584,10 @@ const handleObjectSchema = (
   const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
   const oneOfAnyOf = compositionKeyword ? schema[compositionKeyword] : undefined
   if (compositionKeyword && oneOfAnyOf?.length) {
-    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, oneOfAnyOf.length) ?? 0
+    const index =
+      getCompositionSelectionIndex(schemaPath, compositionKeyword, options, oneOfAnyOf.length) ??
+      getDiscriminatorSelectionIndex(schema, oneOfAnyOf, options, response) ??
+      0
     const chosen = resolve.schema(oneOfAnyOf[index])
     if (chosen) {
       Object.assign(
@@ -651,7 +705,9 @@ const handleArraySchema = (
     const union = compositionKeyword ? items[compositionKeyword] : undefined
     if (compositionKeyword && union && union.length > 0) {
       const selectedIndex =
-        getCompositionSelectionIndex(itemsSchemaPath, compositionKeyword, options, union.length) ?? 0
+        getCompositionSelectionIndex(itemsSchemaPath, compositionKeyword, options, union.length) ??
+        getDiscriminatorSelectionIndex(items, union, options) ??
+        0
       const selected = union[selectedIndex]!
       const ex = getExampleFromSchema(resolve.schema(selected), options, {
         level: level + 1,
@@ -811,7 +867,9 @@ const getSelectedVariant = (
     return undefined
   }
 
-  const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, variants.length)
+  const index =
+    getCompositionSelectionIndex(schemaPath, compositionKeyword, options, variants.length) ??
+    getDiscriminatorSelectionIndex(schema, variants, options)
   const candidate =
     index !== undefined
       ? variants[index]
@@ -1148,7 +1206,9 @@ export const getExampleFromSchema = (
   const compositionKeyword = _schema.oneOf ? 'oneOf' : _schema.anyOf ? 'anyOf' : undefined
   const discriminate = compositionKeyword ? _schema[compositionKeyword] : undefined
   if (compositionKeyword && Array.isArray(discriminate) && discriminate.length > 0) {
-    const index = getCompositionSelectionIndex(schemaPath, compositionKeyword, options, discriminate.length)
+    const index =
+      getCompositionSelectionIndex(schemaPath, compositionKeyword, options, discriminate.length) ??
+      getDiscriminatorSelectionIndex(_schema, discriminate, options)
     const candidate =
       index !== undefined
         ? discriminate[index]

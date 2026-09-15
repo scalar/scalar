@@ -6,6 +6,141 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it.each(['oneOf', 'anyOf'] as const)('uses discriminator fallback in %s examples', (composition) => {
+    const variants = ['Cat', 'Dog', 'OtherPet'].map((name) => ({
+      $ref: '#/components/schemas/' + name,
+      '$ref-value': { type: 'object' as const, properties: { result: { const: name } } },
+    }))
+    const schema = coerceValue(SchemaObjectSchema, {
+      [composition]: variants,
+      discriminator: { propertyName: 'petType', defaultMapping: 'OtherPet' },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ result: 'OtherPet' })
+    expect(getExampleFromSchema({ type: 'array', items: schema })).toStrictEqual([{ result: 'OtherPet' }])
+    expect(getExampleFromSchema({ type: 'object', properties: { pet: schema } })).toStrictEqual({
+      pet: { result: 'OtherPet' },
+    })
+    expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 0 } })).toStrictEqual({
+      result: 'Cat',
+    })
+  })
+
+  it.each([
+    { tag: undefined, result: 'OtherPet' },
+    { tag: 'unknown', result: 'OtherPet' },
+    { tag: '', result: 'OtherPet' },
+    { tag: 'toString', result: 'OtherPet' },
+    { tag: 'Cat', result: 'Cat' },
+    { tag: 'dog', result: 'Dog' },
+    { tag: 'Dog', result: 'Dog' },
+    { tag: 'alias', result: 'Dog' },
+  ])('selects $result for discriminator value $tag', ({ tag, result }) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: tag === undefined ? {} : { petType: { const: tag } },
+      oneOf: ['Cat', 'Dog', 'OtherPet'].map((name) => ({
+        $ref: '#/components/schemas/' + name,
+        '$ref-value': { type: 'object', properties: { result: { const: name } } },
+      })),
+      discriminator: {
+        propertyName: 'petType',
+        mapping: { dog: 'Dog', alias: '#/components/schemas/Dog' },
+        defaultMapping: '#/components/schemas/OtherPet',
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(tag === undefined ? { result } : { petType: tag, result })
+  })
+
+  it.each(['./other.json', 'https://example.com/other.json', '#/components/schemas/Other~1Pet'])(
+    'resolves fallback reference %s',
+    (reference) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          { type: 'object', properties: { result: { const: 'first' } } },
+          { $ref: reference, '$ref-value': { type: 'object', properties: { result: { const: 'fallback' } } } },
+        ],
+        discriminator: { propertyName: 'kind', defaultMapping: reference },
+      })
+      expect(getExampleFromSchema(schema)).toStrictEqual({ result: 'fallback' })
+    },
+  )
+
+  it('prefers explicit mappings to implicit schema names', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { kind: { const: 'Cat' } },
+      oneOf: ['Cat', 'Dog', 'Other'].map((name) => ({
+        $ref: '#/components/schemas/' + name,
+        '$ref-value': { properties: { result: { const: name } } },
+      })),
+      discriminator: { propertyName: 'kind', mapping: { Cat: 'Dog' }, defaultMapping: 'Other' },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ kind: 'Cat', result: 'Dog' })
+  })
+
+  it('preserves matching discriminator values with XML property names', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { kind: { const: 'Cat', xml: { name: 'animalKind' } } },
+      oneOf: ['Cat', 'Other'].map((name) => ({
+        $ref: '#/components/schemas/' + name,
+        '$ref-value': { properties: { result: { const: name } } },
+      })),
+      discriminator: { propertyName: 'kind', defaultMapping: 'Other' },
+    })
+
+    expect(getExampleFromSchema(schema, { xml: true })).toStrictEqual({ animalKind: 'Cat', result: 'Cat' })
+  })
+
+  it('uses variable-provided discriminator values for array items', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { kind: { type: 'string', 'x-variable': 'petKind' } },
+        oneOf: ['Cat', 'Other'].map((name) => ({
+          $ref: '#/components/schemas/' + name,
+          '$ref-value': { properties: { result: { const: name } } },
+        })),
+        discriminator: { propertyName: 'kind', defaultMapping: 'Other' },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { variables: { petKind: 'Cat' } })).toStrictEqual([{ result: 'Cat' }])
+  })
+
+  it('does not infer discriminator mappings from inline schema titles', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { kind: { const: 'Cat' } },
+      oneOf: [
+        { title: 'Cat', properties: { result: { const: 'Cat' } } },
+        { $ref: '#/components/schemas/Other', '$ref-value': { properties: { result: { const: 'Other' } } } },
+      ],
+      discriminator: { propertyName: 'kind', defaultMapping: 'Other' },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ kind: 'Cat', result: 'Other' })
+  })
+
+  it.each([undefined, 'Missing'])('retains ordinary selection with fallback %s', (defaultMapping) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [{ properties: { result: { const: 'first' } } }],
+      discriminator: { propertyName: 'kind', defaultMapping },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ result: 'first' })
+  })
+
+  it('preserves explicit payload examples over discriminator generation', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      example: { petType: 'unknown', custom: true },
+      oneOf: [{ type: 'object' }],
+      discriminator: { propertyName: 'petType', defaultMapping: 'OtherPet' },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ petType: 'unknown', custom: true })
+  })
+
   it('sets example values', () => {
     expect(
       getExampleFromSchema(
