@@ -1387,16 +1387,18 @@ describe('evaluate', () => {
 })
 
 describe('cyclic structures', () => {
+  type NamedNode<Name extends string | number = string | number> = { name: Name; child?: NamedNode<Name> | null }
+  type KindA = { kind: 'a'; next?: KindB }
+  type KindB = { kind: 'b'; next?: KindA | null }
+
   it('terminates on a self-referential value paired with a recursive lazy schema', () => {
     // Cyclic reference to the same schema
     const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
 
-    const node = { name: 'root' }
-    // @ts-expect-error - we want to create a cyclic reference
+    const node: NamedNode = { name: 'root' }
     node.child = node
 
-    const expected = { name: 'root', child: null }
-    // @ts-expect-error - we want to create a cyclic reference
+    const expected: NamedNode<string> = { name: 'root', child: null }
     expected.child = expected
 
     expect(() => coerce(T, node)).not.toThrow()
@@ -1410,14 +1412,12 @@ describe('cyclic structures', () => {
   it('coerces properties before returning the original reference on a cycle', () => {
     const T = lazy(() => object({ name: string({ default: 'Marc' }), child: optional(lazy(() => T)) }))
 
-    const node = { name: 42 }
-    // @ts-expect-error - we want to create a cyclic reference
+    const node: NamedNode = { name: 42 }
     node.child = node
 
     const result = coerce(T, node)
 
-    const expected = { name: 'Marc', child: null }
-    // @ts-expect-error - we want to create a cyclic reference
+    const expected: NamedNode<string> = { name: 'Marc', child: null }
     expected.child = expected
 
     expect(result).toStrictEqual(expected)
@@ -1428,14 +1428,12 @@ describe('cyclic structures', () => {
     const SchemaA = lazy(() => object({ kind: literal('a'), next: optional(lazy(() => SchemaB)) }))
     const SchemaB = lazy(() => object({ kind: literal('b'), next: optional(lazy(() => SchemaA)) }))
 
-    const a = { kind: 'a' }
-    const b = { kind: 'b' }
-    // @ts-expect-error - we want to create a cyclic reference
+    const a: KindA = { kind: 'a' }
+    const b: KindB = { kind: 'b' }
     a.next = b
-    // @ts-expect-error - we want to create a cyclic reference
     b.next = a
 
-    const expected = {
+    const expected: KindA & { next: KindB } = {
       kind: 'a',
       next: {
         kind: 'b',
@@ -1443,7 +1441,6 @@ describe('cyclic structures', () => {
       },
     }
 
-    // @ts-expect-error - we want to create a cyclic reference
     expected.next.next = expected
 
     expect(() => coerce(SchemaA, a)).not.toThrow()
@@ -1490,8 +1487,8 @@ describe('cyclic structures', () => {
       union([object({ type: literal('a'), a: string() }), object({ type: literal('b'), b: string() })]),
       object({ c: string() }),
     ])
-    const input = { hello: '', a: undefined }
-    // @ts-expect-error
+    type CyclicInput = { hello: string; a?: CyclicInput }
+    const input: CyclicInput = { hello: '', a: undefined }
     input.a = input
     expect(() => coerce(T, input)).not.toThrow()
     const result = coerce(T, input)
@@ -1500,15 +1497,19 @@ describe('cyclic structures', () => {
 
   it('coerces a recursive schema', () => {
     const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
-    const input = { name: 1, child: { name: 'child', child: { name: 'grandchild' } } }
-    // @ts-expect-error
+    const input: NamedNode & { child: NamedNode & { child: NamedNode } } = {
+      name: 1,
+      child: { name: 'child', child: { name: 'grandchild' } },
+    }
     input.child.child.child = input
 
     const result = coerce(T, input)
 
-    const expected = { name: '', child: { name: 'child', child: { name: 'grandchild' } } }
+    const expected: NamedNode<string> & { child: NamedNode<string> & { child: NamedNode<string> } } = {
+      name: '',
+      child: { name: 'child', child: { name: 'grandchild' } },
+    }
 
-    // @ts-expect-error - we want to create a cyclic reference
     expected.child.child.child = expected
 
     expect(result).toStrictEqual(expected)
