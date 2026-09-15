@@ -7,6 +7,10 @@ import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import {
+  getExampleValue,
+  getJsonExampleText,
+} from '@scalar/workspace-store/helpers/get-example-value'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
@@ -185,7 +189,16 @@ const bodyValue = computed(() => {
     return ''
   }
 
-  const value = example.value.value
+  const selected = getExampleValue(example.value)
+  const explicitText = getJsonExampleText(
+    selected,
+    selectedContentType.value,
+    2,
+  )
+  if (explicitText !== undefined) {
+    return explicitText
+  }
+  const value = selected?.value
   if (typeof value === 'string') {
     return value
   }
@@ -214,7 +227,12 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
     return { ok: false }
   }
 
-  const raw = example.value?.value
+  const selected = getExampleValue(example.value ?? undefined)
+  // Structured data is already parsed; parsing strings again changes the payload type.
+  if (selected?.source === 'data') {
+    return { ok: true, value: selected.value }
+  }
+  const raw = selected?.value
   // An empty body is still form-editable: rows come from the schema.
   if (raw === undefined || raw === null || raw === '') {
     return { ok: true, value: {} }

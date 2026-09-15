@@ -5,6 +5,21 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it.each([
+    [{ dataValue: 'hello' }, '"hello"'],
+    [{ dataValue: false }, 'false'],
+    [{ dataValue: null }, 'null'],
+    [{ serializedValue: ' { "id": 1 }\n' }, ' { "id": 1 }\n'],
+  ])('preserves the selected example source %j in snippets', (example, expected) => {
+    expect(
+      processBody({
+        requestBody: { content: { 'application/json': { examples: { selected: example } } } },
+        contentType: 'application/json',
+        example: 'selected',
+      }),
+    ).toStrictEqual({ mimeType: 'application/json', text: expected })
+  })
+
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {
