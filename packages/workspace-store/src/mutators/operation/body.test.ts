@@ -7,6 +7,8 @@ import {
   updateOperationRequestBodyExample,
   updateOperationRequestBodyFormValue,
 } from '@/mutators/operation/body'
+import { buildRequestBody } from '@/request-example/builder/body/build-request-body'
+import { getExampleFromBody } from '@/request-example/builder/body/get-request-body-example'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
@@ -96,6 +98,45 @@ describe('updateOperationRequestBodyContentType', () => {
 })
 
 describe('updateOperationRequestBodyExample', () => {
+  it('replaces original example fields when a user clears the body', () => {
+    const document: OpenApiDocument = {
+      openapi: '3.2.0',
+      'x-scalar-original-document-hash': '',
+      info: { title: 'Example', version: '1' },
+      paths: {
+        '/': {
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    selected: {
+                      serializedValue: 'old',
+                      dataValue: false,
+                      externalValue: '/old.json',
+                      summary: 'Keep title',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    updateOperationRequestBodyExample(document, {
+      meta: { path: '/', method: 'post', exampleKey: 'selected' },
+      contentType: 'application/json',
+      payload: '',
+    })
+    const body = getResolvedRef(getResolvedRef(getResolvedRef(document.paths?.['/'])?.post)?.requestBody)
+    expect(getExampleFromBody(body!, 'application/json', 'selected')).toStrictEqual({
+      summary: 'Keep title',
+      value: '',
+    })
+    expect(buildRequestBody(body, 'selected')).toStrictEqual({ mode: 'raw', value: '' })
+  })
+
   it('creates requestBody, contentType entry and example when missing', () => {
     const document = createDocument({
       paths: {

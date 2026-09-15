@@ -21,8 +21,9 @@ export const getExampleContent = (
       return explicitText
     }
     const value = selected?.value
-    if (selected?.source === 'value' && value == null) {
-      return ''
+    if (selected?.source === 'value') {
+      // Keep the formatter's expansion budget for shared, resolved legacy examples.
+      return prettyPrintJson((value ?? '') as Parameters<typeof prettyPrintJson>[0])
     }
     return typeof value === 'string' ? prettyPrintJson(value) : (JSON.stringify(value, null, 2) ?? '')
   }

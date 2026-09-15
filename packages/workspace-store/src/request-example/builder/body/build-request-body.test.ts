@@ -2,9 +2,27 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
+import type { ExampleObject, RequestBodyObject } from '@/schemas/v3.2/strict/openapi-document'
+
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
+  it.each([
+    [{ dataValue: 'hello' }, '"hello"'],
+    [{ dataValue: false }, 'false'],
+    [{ dataValue: null }, 'null'],
+    [{ dataValue: 0 }, '0'],
+    [{ serializedValue: '  { "id": 1 }\n', dataValue: { id: 2 } }, '  { "id": 1 }\n'],
+    [{ serializedValue: '' }, ''],
+  ] satisfies [ExampleObject, string][])('sends the selected body example %j', (example, expected) => {
+    const body: RequestBodyObject = { content: { 'application/json': { examples: { selected: example } } } }
+    expect(buildRequestBody(body, 'selected')).toStrictEqual({
+      mode: 'raw',
+      value: expected,
+      contentType: 'application/json',
+    })
+  })
+
   it('returns null when requestBody is undefined', () => {
     const result = buildRequestBody(undefined, 'default')
     expect(result).toBe(null)
