@@ -73,8 +73,8 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 You use the package with any Node.js framework. Here is an example for [Hono](https://hono.dev/):
 
 ```ts
-import { Hono } from 'hono'
 import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
+import { Hono } from 'hono'
 
 // Generate Markdown from an OpenAPI document
 const markdown = await createMarkdownFromOpenApi(content)
@@ -102,8 +102,8 @@ transforms the HTML to Markdown then.
 So if you'd like to have a really light-weight HTML API Reference, here you are:
 
 ```ts
-import { Hono } from 'hono'
 import { createHtmlFromOpenApi } from '@scalar/openapi-to-markdown'
+import { Hono } from 'hono'
 
 // Generate HTML from an OpenAPI document
 const html = await createHtmlFromOpenApi(content)
@@ -139,3 +139,33 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
+
+## Individual reference pages
+
+Both `createMarkdownFromOpenApi` and `createHtmlFromOpenApi` accept the same options. Choose one selector per call:
+
+```ts
+await createMarkdownFromOpenApi(content, { tag: 'pets' })
+await createMarkdownFromOpenApi(content, { model: 'Pet' })
+await createMarkdownFromOpenApi(content, {
+  webhook: { name: 'petCreated', method: 'post' },
+})
+await createMarkdownFromOpenApi(content, { introduction: true })
+await createHtmlFromOpenApi(content, { operation: { operationId: 'getUser' } })
+```
+
+- **Operation:** One operation, effective parameters, servers and authentication, its tags, and referenced component schemas. Existing path/method, operation ID, and JSON pointer selectors still work. Methods are case insensitive.
+- **Tag:** Tag metadata and all path operations with that exact tag, plus their context and schema dependencies. A tag used only by operations is supported. A declared tag with no operations renders its metadata. Operations with multiple tags appear once, with only the selected tag shown.
+- **Model:** One component schema and its referenced schemas. Primitive, array, composed, and recursive models use the shared schema renderer.
+- **Webhook:** One operation selected by its exact OpenAPI webhook name and method, including parameters, payload and responses. The name is a label, not a delivery URL.
+- **Introduction:** API title, versions, description, contact, license, terms of service, servers and global authentication requirements. No operations, tags, models or webhooks.
+
+Selected pages retain API title, versions and description. They exclude unrelated reference content. Operation servers override path servers, which override document servers. Operation security overrides document security, including `security: []` for anonymous access. Parameter overrides use the parameter name and location. Required schemas are collected after reference resolution, so dependencies remain available even when their original section is omitted.
+
+Omitting options, or passing `{}`, renders the whole document. OpenAPI 2.0 inputs are migrated before selection: use definition names with `model`. Webhooks require OpenAPI 3.1 or later.
+
+### Errors and limitations
+
+Invalid, combined, or missing selectors reject the returned promise with an error. Duplicate operation IDs are ambiguous and list matching paths and methods; use a path/method selector instead. Duplicate tag declarations are also rejected. Names are case sensitive. Operation JSON pointers must target `/paths/{path}/{method}`, with an optional leading `#` and standard `~0`/`~1` escaping.
+
+Selection does not add support for every OpenAPI or JSON Schema keyword. Callbacks are not selectable pages. External references follow the existing workspace loader behavior. Recursive schema expansion stops on a repeated ancestor, with a depth limit of ten as a fallback. Shared dependencies have one component section, but may also appear inline where used. Authentication lists alternatives separately; schemes within one requirement must be used together.
