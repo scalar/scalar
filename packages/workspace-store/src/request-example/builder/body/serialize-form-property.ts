@@ -8,6 +8,10 @@ import {
   serializeSpaceDelimitedStyle,
 } from '../header/serialize-parameter'
 
+/** Explicit RFC6570 fields select style serialization instead of media-type encoding. */
+export const hasEncodingStyle = (encoding: EncodingObject | undefined): boolean =>
+  !!encoding && (encoding.style !== undefined || encoding.explode !== undefined || encoding.allowReserved !== undefined)
+
 /** A single serialized form field, ready to become a multipart part or a urlencoded pair. */
 export type SerializedFormProperty = { key: string; value: string }
 
@@ -47,9 +51,7 @@ export const serializeFormPropertyWithEncoding = (
    * Per OpenAPI 3.1.x: when style, explode, or allowReserved is explicitly set, the value
    * is serialized as if it were a query-style parameter and contentType is ignored.
    */
-  const hasFormStyle =
-    !!encoding &&
-    (encoding.style !== undefined || encoding.explode !== undefined || encoding.allowReserved !== undefined)
+  const hasFormStyle = hasEncodingStyle(encoding)
 
   if (!hasFormStyle) {
     return null
