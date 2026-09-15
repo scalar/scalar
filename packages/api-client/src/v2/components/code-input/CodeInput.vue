@@ -95,8 +95,6 @@ type Props = {
   lint?: boolean
   /** Enable line wrapping */
   lineWrapping?: boolean
-  /** Show wrap toggle button */
-  withWrapButton?: boolean
   /** CodeMirror language mode */
   language?: CodeMirrorLanguage
   /** Additional CodeMirror extensions */
@@ -140,7 +138,6 @@ const {
   lineNumbers = false,
   lint = false,
   lineWrapping = false,
-  withWrapButton,
   language,
   extensions = [],
   disableTabIndent = false,
@@ -459,8 +456,6 @@ defineExpose({
   setCodeMirrorContent,
   cursorPosition: () => codeMirror.value?.state.selection.main.head,
   serializeValue,
-  isLineWrapping,
-  toggleLineWrapping,
 })
 </script>
 
@@ -522,7 +517,7 @@ defineExpose({
     @keydown.up.stop="handleKeyDown('up', $event)">
     <!-- Wrap toggle button for multi-line editor (e.g. Request Body) -->
     <div
-      v-if="lineNumbers || withWrapButton"
+      v-if="lineNumbers"
       class="absolute top-2 right-2 z-10 flex items-center opacity-0 transition-opacity duration-150 group-hover/input:opacity-100 group-has-focus-visible/input:opacity-100">
       <ScalarIconButton
         class="bg-b-2 text-c-2 hover:text-c-1"
