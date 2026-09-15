@@ -16,6 +16,7 @@ import {
   resolveResponseContentType,
   resolveResponseMimeType,
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
+import { getResponseStreamFormat } from '@/v2/blocks/response-block/helpers/response-stream'
 
 import { decodeBuffer } from './decode-buffer'
 
@@ -124,11 +125,11 @@ export const sendRequest = async ({
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
-     * Handle server-sent event streams separately.
+     * Handle sequential response formats without buffering the complete body.
      * These responses need a reader instead of buffered data.
      * We check this early to avoid unnecessary body reading.
      */
-    if (contentType?.startsWith('text/event-stream') && response.body) {
+    if (!shouldSkipBody && contentType && getResponseStreamFormat(contentType) && response.body) {
       return buildStreamingResponse({
         response,
         requestPayload,
@@ -182,7 +183,7 @@ const getCustomCookie = (response: Response): string[] | null => {
 }
 
 /**
- * Build a streaming response for server-sent events.
+ * Build a streaming response for sequential media types.
  * Streaming responses use a reader instead of buffering the entire body.
  */
 const buildStreamingResponse = ({

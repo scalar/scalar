@@ -17,6 +17,29 @@ afterEach(() => {
 })
 
 describe('sendRequest', () => {
+  it.each(['application/jsonl', 'application/json-seq', 'multipart/mixed; boundary=x', 'Text/Event-Stream'])(
+    'returns a reader before the %s response body finishes',
+    async (contentType) => {
+      let cancelled = false
+      const stream = new ReadableStream<Uint8Array>({
+        cancel: () => {
+          cancelled = true
+        },
+      })
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, { method: 'GET' }],
+        customFetch: () => Promise.resolve(new Response(stream, { headers: { 'Content-Type': contentType } })),
+      })
+      expect(error).toBeNull()
+      if (!result || !('reader' in result.response)) {
+        throw new Error('Expected a live reader')
+      }
+      await result.response.reader.cancel()
+      expect(cancelled).toBe(true)
+    },
+  )
+
   /**
    * Adds a URL property to a Response object and ensures it persists through cloning.
    * This is needed because Response objects created in tests don't have a URL by default.
