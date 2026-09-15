@@ -47,18 +47,12 @@ import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  getActiveEnvironment,
-  getServers,
-} from '@scalar/workspace-store/request-example'
+import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
-import {
-  isAsyncApiDocument,
-  isOpenApiDocument,
-} from '@scalar/workspace-store/schemas/type-guards'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
@@ -97,7 +91,9 @@ import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
+import { createReferenceDocumentLoader } from '@/helpers/create-reference-document-loader'
 import { downloadDocument } from '@/helpers/download'
+import { HYDRATING_REFERENCE } from '@/helpers/hydrating-reference'
 import {
   getIdFromUrl,
   makeHrefFromId,
@@ -127,7 +123,7 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
-import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import type { PreparedApiReference } from '@/helpers/prepare-api-reference'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
@@ -139,6 +135,8 @@ const props = defineProps<{
    * Can be a single configuration or an array of configurations for multiple documents.
    */
   configuration?: AnyApiReferenceConfiguration
+  /** Prepared initial state for SSR hydration. Await prepareApiReference before mounting. */
+  prepared?: PreparedApiReference
 }>()
 
 defineSlots<{
@@ -166,8 +164,10 @@ const isDevelopment = import.meta.env.DEV
  * there is no DOM to measure). The real value is resolved in `onMounted` to
  * avoid a hydration mismatch on the root class.
  */
+const clientMounted = ref(false)
 const obtrusiveScrollbars = ref(false)
 onMounted(() => {
+  clientMounted.value = true
   obtrusiveScrollbars.value = hasObtrusiveScrollbars()
 })
 
@@ -199,11 +199,19 @@ provideSchemaExpansion()
  */
 const configList = computed(() => normalizeConfigurations(props.configuration))
 
+/** Scoped to this instance so normal client mounts keep lazy rendering. */
+const hydrating = ref(!!props.prepared)
+provide(HYDRATING_REFERENCE, hydrating)
+onMounted(() => {
+  hydrating.value = false
+})
+
 const isMultiDocument = computed(() => Object.keys(configList.value).length > 1)
 
 /** Search for the source with a default attribute or use the first one */
 const activeSlug = ref<string>(
-  Object.values(configList.value).find((c) => c.default)?.slug ??
+  props.prepared?.slug ??
+    Object.values(configList.value).find((c) => c.default)?.slug ??
     configList.value[Object.keys(configList.value)?.[0] ?? '']?.slug ??
     '',
 )
@@ -213,7 +221,7 @@ const activeSlug = ref<string>(
  *
  * If there is we set the active slug to the document slug
  */
-if (typeof window !== 'undefined') {
+const selectDocumentFromUrl = (): void => {
   const url = new URL(window.location.href)
 
   // To handle legacy query parameter multi-document support we redirect
@@ -261,6 +269,10 @@ if (typeof window !== 'undefined') {
   if (documentSlug && configList.value[documentSlug]) {
     activeSlug.value = documentSlug
   }
+}
+
+if (typeof window !== 'undefined' && !props.prepared) {
+  selectDocumentFromUrl()
 }
 
 /** Computed document options list for the selector logic */
@@ -492,6 +504,11 @@ const clientStore = createWorkspaceStore({
   ],
 })
 
+if (props.prepared) {
+  workspaceStore.loadWorkspace(props.prepared.workspace)
+  clientStore.loadWorkspace(props.prepared.clientWorkspace)
+}
+
 /**
  * Plugin injection is not reactive. All plugins must be provided at first render.
  *
@@ -531,7 +548,7 @@ watch(mergedConfig, (config) => pluginManager.notifyConfigChange(config))
 
 // TODO: persistence should be hoisted into standalone
 // Client side integrations will want to handle dark mode externally
-const { toggleColorMode, isDarkMode } = useColorMode({
+const { toggleColorMode, isDarkMode: browserIsDarkMode } = useColorMode({
   initialColorMode: {
     true: 'dark' as const,
     false: 'light' as const,
@@ -539,6 +556,13 @@ const { toggleColorMode, isDarkMode } = useColorMode({
   }[String(mergedConfig.value.darkMode)],
   overrideColorMode: mergedConfig.value.forceDarkModeState,
 })
+
+/** Match the server's color-mode controls before applying the saved browser preference. */
+const isDarkMode = computed(() =>
+  hydrating.value
+    ? mergedConfig.value.forceDarkModeState === 'dark'
+    : browserIsDarkMode.value,
+)
 
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
@@ -738,6 +762,14 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   return docItems
 })
 
+/** Match the tag that onServerPrefetch opens before the server renders. */
+if (props.prepared && mergedConfig.value.defaultOpenFirstTag) {
+  const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
+  if (firstTag) {
+    sidebarState.setExpanded(firstTag.id, true)
+  }
+}
+
 /** Find the sidebar entry that represents the introduction section */
 const infoSectionId = computed(
   () =>
@@ -895,160 +927,17 @@ eventBus.on('scroll-to:model-by-name', ({ name }) => {
   }
 })
 
-const addDocument: typeof workspaceStore.addDocument = async (
-  input,
-  navigationOptions,
-) => {
-  const result = await workspaceStore.addDocument(input, navigationOptions)
-
-  // The selected server lives only on the client store document. The user picks it in the
-  // reference, it is never part of the imported source. Reloading the freshly imported document
-  // below would drop it, so any config update that rebases the document — a new auth token,
-  // reordered servers, an edited spec — would otherwise reset the server back to the first one.
-  // Capture it here and re-apply it after the reload so the user's choice survives. See #5071.
-  const previousDocument = clientStore.workspace.documents[input.name]
-  const selectedServer =
-    previousDocument && typeof previousDocument === 'object'
-      ? (previousDocument as Record<string, unknown>)[
-          'x-scalar-selected-server'
-        ]
-      : undefined
-
-  // Now add it to the client store
-  const state = workspaceStore.exportWorkspace()
-  const nextDocument = safeDeepClone(state.documents[input.name]) ?? {
-    'openapi': '3.1.0',
-    'info': {
-      title: '',
-      version: '',
-    },
-    'x-scalar-original-document-hash': '',
-  }
-
-  // Carry the user's server selection over to the reloaded document. An empty string is a
-  // deliberate "no server selected" state, so it is preserved too; only `undefined` (a first
-  // load with no prior selection) falls through to the default-server logic elsewhere.
-  if (typeof selectedServer === 'string') {
-    Object.assign(nextDocument, { 'x-scalar-selected-server': selectedServer })
-  }
-
-  clientStore.loadWorkspace({
-    auth: {},
-    documents: {
-      [input.name]: nextDocument,
-    },
-    intermediateDocuments: {},
-    originalDocuments: {},
-    overrides: {},
-    history: {},
-    meta: {},
+const { addDocument, ensureDocumentLoaded, documentLoadPromises } =
+  createReferenceDocumentLoader({
+    workspaceStore,
+    clientStore,
+    getConfigurations: () => configList.value,
+    getConfiguration: (normalized) =>
+      withLocalizedConfigurationDefaults(
+        { ...normalized.config, ...configurationOverrides.value },
+        normalized.config,
+      ),
   })
-  return result
-}
-
-// ---------------------------------------------------------------------------
-// Document Management
-
-/** In-flight document loads, so a background preload and a user selection never load the same document twice */
-const documentLoadPromises = new Map<string, Promise<void>>()
-
-/**
- * Load a document into the workspace store by slug, fetching URL sources or using inline content.
- *
- * This does not change the active document, so it is safe to call in the background to warm up
- * documents the user has not selected yet. Repeated calls are deduplicated and it becomes a no-op
- * once the document is loaded.
- */
-const ensureDocumentLoaded = (slug: string): Promise<void> => {
-  // Already loaded, nothing to do
-  if (workspaceStore.workspace.documents[slug]) {
-    return Promise.resolve()
-  }
-
-  // A load is already in flight, reuse it
-  const pending = documentLoadPromises.get(slug)
-  if (pending) {
-    return pending
-  }
-
-  const normalized = configList.value[slug]
-
-  if (!normalized) {
-    return Promise.resolve()
-  }
-
-  const config = withLocalizedConfigurationDefaults(
-    {
-      ...normalized.config,
-      ...configurationOverrides.value,
-    },
-    normalized.config,
-  )
-
-  const promise = (async () => {
-    const result = await addDocument(
-      normalized.source.url
-        ? {
-            name: slug,
-            url: normalized.source.url,
-            fetch: config.customFetch,
-          }
-        : {
-            name: slug,
-            document: normalized.source.content ?? {},
-          },
-      config,
-    )
-
-    const document = clientStore.workspace.documents[slug]
-
-    // If the document does not have a selected server we set it to the first server
-    if (
-      result === true &&
-      isOpenApiDocument(document) &&
-      document['x-scalar-selected-server'] === undefined
-    ) {
-      // Set the active server if the document is loaded successfully. Resolve relative servers
-      // against this document's own base URL, not the active document's, so a background preload
-      // does not derive its server from whichever document happens to be active.
-      const servers = getServers(
-        normalized.config.servers ?? document.servers,
-        {
-          baseServerUrl: config.baseServerURL,
-          documentUrl: normalized.source.url,
-        },
-      )
-      if (servers.length > 0) {
-        clientStore.updateDocument(
-          slug,
-          'x-scalar-selected-server',
-          servers[0]!.url,
-        )
-      }
-    }
-
-    // Seed the request body editor view from config, unless the document already sets it
-    // explicitly via the `x-scalar-default-request-body-view` extension.
-    if (
-      result === true &&
-      config.defaultRequestBodyView &&
-      isOpenApiDocument(document) &&
-      document['x-scalar-default-request-body-view'] === undefined
-    ) {
-      clientStore.updateDocument(
-        slug,
-        'x-scalar-default-request-body-view',
-        config.defaultRequestBodyView,
-      )
-    }
-  })().finally(() => {
-    documentLoadPromises.delete(slug)
-  })
-
-  documentLoadPromises.set(slug, promise)
-
-  return promise
-}
 
 /** Whether idle preloading has been stopped, for example when the component unmounts */
 let isPreloadStopped = false
@@ -1312,8 +1201,11 @@ watch(
 /** Preload the first document during SSR */
 onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
 
-/** Load the first document on page load */
-onBeforeMount(async () => {
+/** Apply browser preferences and navigation after hydration has matched the server tree. */
+const loadInitialDocument = async (): Promise<void> => {
+  if (props.prepared) {
+    selectDocumentFromUrl()
+  }
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
@@ -1355,7 +1247,13 @@ onBeforeMount(async () => {
 
   // Warm up the remaining documents in the background so switching between them is instant
   preloadDocumentsWhenIdle()
-})
+}
+
+if (props.prepared) {
+  onMounted(loadInitialDocument)
+} else {
+  onBeforeMount(loadInitialDocument)
+}
 
 const documentUrl = computed(() => {
   return configList.value[activeSlug.value]?.source?.url
@@ -1379,7 +1277,7 @@ const agent = useAgent({
       return false
     }
 
-    if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    if (clientMounted.value && isLocalUrl(window.location.href)) {
       return true
     }
 
@@ -1651,7 +1549,7 @@ const showMCPButton = computed(() => {
     return false
   }
 
-  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+  if (clientMounted.value && isLocalUrl(window.location.href)) {
     return true
   }
 
