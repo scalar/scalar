@@ -1,3 +1,4 @@
+import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
@@ -77,6 +78,19 @@ const buildXmlExample = (
   const report = (severity: XmlDiagnostic['severity'], code: string, message: string, path: string[]): void => {
     diagnostics.push({ severity, code, message, path })
   }
+  const componentNameFromRef = (reference: string | undefined, path: string[]): string | undefined => {
+    const name = reference?.match(/\/schemas\/([^/]+)$/)?.[1]
+    if (name === undefined) {
+      return undefined
+    }
+    try {
+      return unescapeJsonPointer(name)
+    } catch {
+      report('error', 'invalid-reference', 'The component reference contains invalid URI escaping.', path)
+      return undefined
+    }
+  }
+
   const mergeXml = (
     base: XMLObject | undefined,
     next: XMLObject | undefined,
@@ -211,10 +225,7 @@ const buildXmlExample = (
       const localKind = localXml.nodeType ?? (localXml.attribute ? 'attribute' : 'none')
       const referenceName =
         '$ref' in source && typeof source.$ref === 'string'
-          ? source.$ref
-              .match(/\/schemas\/([^/]+)$/)?.[1]
-              ?.replace(/~1/g, '/')
-              .replace(/~0/g, '~')
+          ? componentNameFromRef(source.$ref, context.path)
           : undefined
       const attributes: XmlAttribute[] = localKind === 'none' ? parentAttributes : []
       const children = map(
@@ -288,10 +299,7 @@ const buildXmlExample = (
       xml.nodeType ?? (xml.attribute ? 'attribute' : Array.isArray(data) && !xml.wrapped ? 'none' : 'element')
     const selectedComponentName =
       context.depth === 0 && '$ref' in schema && typeof schema.$ref === 'string'
-        ? schema.$ref
-            .match(/\/schemas\/([^/]+)$/)?.[1]
-            ?.replace(/~1/g, '/')
-            .replace(/~0/g, '~')
+        ? componentNameFromRef(schema.$ref, context.path)
         : undefined
     const nodeName =
       kind === 'none' || kind === 'text' || kind === 'cdata'
@@ -419,10 +427,7 @@ const buildXmlExample = (
     return kind === 'none' ? children : [{ type: 'element', ...name, attributes, children }]
   }
   const reference = input && '$ref' in input && typeof input.$ref === 'string' ? input.$ref : undefined
-  const componentName = reference
-    ?.match(/\/schemas\/([^/]+)$/)?.[1]
-    ?.replace(/~1/g, '/')
-    .replace(/~0/g, '~')
+  const componentName = componentNameFromRef(reference, options.schemaPath ?? [])
   const rootName = options.rootName ?? componentName
   const rootAttributes: XmlAttribute[] = []
   const nodes = map(

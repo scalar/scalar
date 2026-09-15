@@ -2,13 +2,15 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
 
+type SelectedResponseExample = ExampleObject & { value: unknown; provenance?: 'serialized' | 'data' }
+
 /** Keep serialized/data examples distinguishable until the media serializer runs. */
-const exampleValue = (example: ExampleObject | undefined): (ExampleObject & { value: unknown }) | undefined => {
+const exampleValue = (example: ExampleObject | undefined): SelectedResponseExample | undefined => {
   if (example?.serializedValue !== undefined) {
-    return { serializedValue: example.serializedValue, value: example.serializedValue }
+    return { serializedValue: example.serializedValue, value: example.serializedValue, provenance: 'serialized' }
   }
   if (example?.dataValue !== undefined) {
-    return { dataValue: example.dataValue, value: example.dataValue }
+    return { dataValue: example.dataValue, value: example.dataValue, provenance: 'data' }
   }
   return example?.value !== undefined ? { value: example.value } : undefined
 }
@@ -33,7 +35,7 @@ const exampleValue = (example: ExampleObject | undefined): (ExampleObject & { va
 export const selectResponseExample = (
   mediaType: OpenAPIV3_1.MediaTypeObject | undefined,
   exampleName?: string,
-): (ExampleObject & { value: unknown }) | undefined => {
+): SelectedResponseExample | undefined => {
   if (!mediaType) {
     return undefined
   }

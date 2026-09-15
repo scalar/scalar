@@ -141,12 +141,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
     return result.xml === undefined ? c.body(null) : c.body(result.xml)
   }
 
-  const provenance =
-    selectedExample?.serializedValue !== undefined
-      ? 'serialized'
-      : selectedExample?.dataValue !== undefined
-        ? 'data'
-        : undefined
+  const provenance = selectedExample?.provenance
   const body = selectedExample
     ? provenance
       ? selectedExample.value

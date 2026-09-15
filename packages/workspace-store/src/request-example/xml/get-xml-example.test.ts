@@ -9,6 +9,25 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it('decodes component names with the shared JSON pointer helper', () => {
+    const target = schema({ type: 'string' })
+    expect(
+      serializeXmlExample('value', schema({ $ref: '#/components/schemas/Mess%61ge', '$ref-value': target }), compact)
+        .xml,
+    ).toBe('<Message>value</Message>')
+  })
+
+  it('returns a diagnostic for malformed component URI escapes', () => {
+    const target = schema({ type: 'string' })
+    const onDiagnostic = vi.fn()
+    const result = serializeXmlExample('value', schema({ $ref: '#/components/schemas/Bad%ZZ', '$ref-value': target }), {
+      ...compact,
+      onDiagnostic,
+    })
+    expect(result.xml).toBeUndefined()
+    expect(result.diagnostics.some((diagnostic) => diagnostic.code === 'invalid-reference')).toBe(true)
+  })
+
   it('reports a failed serialization when consumers only read xml', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     try {
