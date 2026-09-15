@@ -40,8 +40,11 @@ const readStream = async (
   streamReader: ReadableStreamDefaultReader<Uint8Array>,
 ): Promise<void> => {
   try {
+    const encoder = new TextEncoder()
+    let displayedBytes = 0
     const parser = createResponseStreamParser(contentType, (text) => {
-      if (textContent.value.length + text.length > MAX_DISPLAY_SIZE) {
+      displayedBytes += encoder.encode(text).byteLength
+      if (displayedBytes > MAX_DISPLAY_SIZE) {
         throw new Error(
           'Stream display reached its 16 MiB limit. Cancelled further reading.',
         )

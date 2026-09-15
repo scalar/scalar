@@ -93,6 +93,14 @@ describe('response-stream', () => {
     ).toBe('data: 月\n\n')
   })
 
+  it.each(['application/jsonl', 'application/json-seq'])('bounds unfinished %s records in UTF-8 bytes', (type) => {
+    const parser = createResponseStreamParser(type, () => {})
+    const prefix = type === 'application/json-seq' ? '\x1e"' : '"'
+    const bytes = encode(`${prefix}${'月'.repeat(2_796_202)}`)
+    parser.push(bytes)
+    expect(() => parser.push(encode('月'))).toThrow('8 MiB display limit')
+  })
+
   it('rejects invalid UTF-8 JSON instead of silently changing its data', () => {
     expect(() => parseChunks('application/jsonl', [Uint8Array.of(0xff)])).toThrow()
   })
