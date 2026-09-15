@@ -140,4 +140,35 @@ describe('validate', () => {
   it('exposes the supported versions', () => {
     expect(supportedVersions).toEqual(['2.0', '3.0', '3.1', '3.2'])
   })
+  it('explains why encoding alone does not fix a Unicode component name', () => {
+    const document = {
+      openapi: '3.0.3',
+      info: { title: 'Users', version: '1.0.0' },
+      components: { schemas: { Användare: { type: 'object' } } },
+      paths: {
+        '/users': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/Användare' } } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const message =
+      '$ref "#/components/schemas/Användare" contains non-ASCII characters. Percent-encode them using UTF-8 (RFC 3986). OpenAPI component names must match "^[a-zA-Z0-9._-]+$". Rename the component and update its references; percent-encoding alone does not fix the component name.'
+    const result = validate(document)
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      {
+        message,
+        path: '/paths/~1users/get/responses/200/content/application~1json/schema/$ref',
+      },
+    ])
+    expect(() => validate(document, { throwOnError: true })).toThrow(message)
+  })
 })
