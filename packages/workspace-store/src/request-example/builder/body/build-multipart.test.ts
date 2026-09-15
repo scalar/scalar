@@ -14,6 +14,51 @@ const wireParts = async (body: Blob): Promise<string[]> => {
 }
 
 describe('build-multipart', () => {
+  it('serializes XML objects inside nested multipart while escaping text', async () => {
+    const parts = buildMultipart([[{ info: 'a & b' }]], 'multipart/mixed', {
+      itemEncoding: { contentType: 'multipart/mixed', itemEncoding: { contentType: 'application/xml' } },
+    })
+    const wire = await encodeMultipartBody(parts, 'multipart/mixed').text()
+    expect(wire).toContain(
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<info>a &amp; b</info>\r\n',
+    )
+    expect(wire).not.toContain('{"info"')
+  })
+
+  it('maps contentEncoding to a transfer header without modifying encoded bytes', async () => {
+    const parts = buildMultipart(
+      ['aGVsbG8='],
+      'multipart/mixed',
+      {},
+      { type: 'array', items: { type: 'string', contentEncoding: 'base64' } },
+    )
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      'Content-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\naGVsbG8=',
+    ])
+  })
+
+  it('does not duplicate an explicitly configured transfer header', () => {
+    expect(
+      buildMultipart(
+        ['aGVsbG8='],
+        'multipart/mixed',
+        {
+          itemEncoding: {
+            headers: { 'content-transfer-encoding': { schema: { type: 'string', const: 'base64' } } },
+          },
+        },
+        { type: 'array', items: { type: 'string', contentEncoding: 'base64' } },
+      ),
+    ).toStrictEqual([
+      {
+        type: 'text',
+        value: 'aGVsbG8=',
+        contentType: 'application/octet-stream',
+        headers: { 'content-transfer-encoding': 'base64' },
+      },
+    ])
+  })
+
   it('keeps a positional data property named isDisabled', () => {
     expect(
       buildRequestBody({
