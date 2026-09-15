@@ -1,7 +1,7 @@
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { afterEach, describe, expect, it } from 'vitest'
 import { type Ref, effectScope, ref } from 'vue'
 
