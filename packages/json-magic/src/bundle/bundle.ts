@@ -589,6 +589,17 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   const references = documentReferences(config.externalDocumentsKey)
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
+  // Qualified references must keep identifying this document after it is moved.
+  if (isObject(documentRoot) && typeof documentRoot.openapi === 'string' && typeof documentRoot.$self === 'string') {
+    documentRoot.$self = defaultOrigin
+  }
+  const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
+    const hasIdentity =
+      (isObject(documentRoot) && typeof documentRoot.$self === 'string') || getId(documentRoot) !== undefined
+    return hasIdentity && references.isSchemaResource(sourceOrigin) && sourceOrigin !== defaultOrigin
+      ? `${defaultOrigin}${pointer}`
+      : pointer
+  }
 
   // Create the cache to store the compressed values to their map values
   if (documentRoot[config.externalDocumentsMappingsKey] === undefined) {
@@ -707,8 +718,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const localRef = local?.path
 
       if (localRef !== undefined) {
-        if (!local.preserve) {
-          root.$ref = localRef ? `#/${localRef}` : '#'
+        if (!local.preserveReference) {
+          root.$ref = referenceToRoot(localRef ? `#/${localRef}` : '#', nodeOrigin)
         }
         if (isPartialBundling) {
           const segments = getSegmentsFromPath(`/${localRef}`)
@@ -734,26 +745,21 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           )
         }
         if (local.documentPath.length > 0) {
-          await bundler(
-            local.document,
-            references.origin(local.document as object),
-            isChunkParent,
-            depth + 1,
-            local.documentPath,
-          )
-        }
-        if (config.treeShake && local.documentPath.length > 0) {
-          const [key, documentKey] = local.documentPath
-          resolveAndCopyReferences(
-            documentRoot,
-            { [key]: { [documentKey]: local.document } },
-            `/${localRef}`,
-            key,
-            documentKey,
-          )
-        }
-        if (!config.treeShake && local.documentPath.length > 0) {
-          setValueAtPath(documentRoot, `/${local.documentPath.map(escapeJsonPointer).join('/')}`, local.document)
+          const origin =
+            isObject(local.document) || Array.isArray(local.document) ? references.origin(local.document) : nodeOrigin
+          await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          if (config.treeShake) {
+            const [key, documentKey] = local.documentPath
+            resolveAndCopyReferences(
+              documentRoot,
+              { [key]: { [documentKey]: local.document } },
+              `/${localRef}`,
+              key,
+              documentKey,
+            )
+          } else {
+            setValueAtPath(documentRoot, `/${local.documentPath.map(escapeJsonPointer).join('/')}`, local.document)
+          }
         }
         await executeHooks('onAfterNodeProcess', root, context)
         return
@@ -839,7 +845,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
-        root.$ref = prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
+        root.$ref = referenceToRoot(
+          prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath]),
+          nodeOrigin,
+        )
 
         await executeHooks('onResolveSuccess', root)
 

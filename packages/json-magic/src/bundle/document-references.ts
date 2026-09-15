@@ -20,11 +20,14 @@ type Resource = {
 /** Resolution metadata survives moving documents into the bundle. */
 type DocumentReferences = {
   register: (document: unknown, retrievalUri: string, path?: string[]) => void
+  isSchemaResource: (uri: string) => boolean
   origin: (node: object) => string | undefined
   resolve: (
     ref: string,
     base: string,
-  ) => { path: string; value: unknown; preserve: boolean; document: unknown; documentPath: string[] } | undefined
+  ) =>
+    | { path: string; value: unknown; preserveReference: boolean; document: unknown; documentPath: string[] }
+    | undefined
 }
 
 /**
@@ -60,8 +63,9 @@ export const documentReferences = (externalDocumentsKey: string): DocumentRefere
       const identifier = id ?? inheritedIdentifier
       const current = id === undefined ? origin : resolveReferencePath(origin, id)
       origins.set(value, current)
-      if (id !== undefined) {
-        resources.set(current, {
+      const anchor = isObject(value) && typeof value.$anchor === 'string' ? value.$anchor : undefined
+      if (id !== undefined || anchor !== undefined) {
+        const schemaResource = {
           value,
           path: location,
           schema: true,
@@ -69,18 +73,13 @@ export const documentReferences = (externalDocumentsKey: string): DocumentRefere
           embedded: path.length > 0,
           document,
           documentPath: path,
-        })
-      }
-      if (isObject(value) && typeof value.$anchor === 'string') {
-        resources.set(`${current}#${value.$anchor}`, {
-          value,
-          path: location,
-          schema: true,
-          identifier,
-          embedded: path.length > 0,
-          document,
-          documentPath: path,
-        })
+        }
+        if (id !== undefined) {
+          resources.set(current, schemaResource)
+        }
+        if (anchor !== undefined) {
+          resources.set(`${current}#${anchor}`, schemaResource)
+        }
       }
       for (const [key, child] of Object.entries(value)) {
         if (key !== externalDocumentsKey) {
@@ -93,12 +92,16 @@ export const documentReferences = (externalDocumentsKey: string): DocumentRefere
 
   return {
     register,
+    isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
     resolve: (ref, base) => {
       const [prefix, fragment = ''] = ref.split('#', 2)
       const uri = prefix ? resolveReferencePath(base, prefix) : base
       const pointer = fragment.startsWith('/') ? getSegmentsFromPath(fragment) : []
-      const bundled = !prefix && pointer[0] === externalDocumentsKey ? bundledResources.get(pointer[1]) : undefined
+      const bundled =
+        (!prefix || resources.get(uri)?.path.length === 0) && pointer[0] === externalDocumentsKey
+          ? bundledResources.get(pointer[1])
+          : undefined
       const resource = bundled ?? resources.get(fragment && !fragment.startsWith('/') ? `${uri}#${fragment}` : uri)
       if (!resource) {
         return undefined
@@ -112,8 +115,9 @@ export const documentReferences = (externalDocumentsKey: string): DocumentRefere
         document: resource.document,
         documentPath: resource.documentPath,
         // Existing absolute schema identifiers remain usable by downstream consumers.
-        preserve:
+        preserveReference:
           value === undefined ||
+          (resource.schema && !prefix) ||
           (!resource.embedded &&
             resource.schema &&
             ((prefix === uri && resource.identifier === uri) || (!prefix && !fragment.startsWith('/')))) ||
