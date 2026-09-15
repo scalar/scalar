@@ -42,120 +42,124 @@ const isDiscriminatorProperty = (schema: Schema): boolean => {
   return false
 }
 
+/** Scores are shared across every union selection in one coercion call. */
+type ScoringContext = {
+  active: WeakMap<object, Set<Schema>>
+  completed: WeakMap<object, Map<Schema, number>>
+  depth: number
+  encounteredCycle: boolean
+}
+
 /**
- * Computes a "score" indicating how well a value matches a schema,
- * used for picking the best branch in union coercion.
- *
- * Higher score means a closer match. Literals and matching object shapes
- * are weighted more heavily. Objects are scored by shape/literals;
- * arrays/records by structural type; primitives by validation; unions try all branches.
- *
- * The `scoringCache` tracks `(value, schema)` pairs that are currently being
- * scored higher up the call stack. Without it, a recursive lazy schema such as
- * `lazy(() => union([object({ child: optional(lazy(() => T)) }), …]))` scored
- * against a self-referential value would recurse forever through
- * `lazy → union → object → property → lazy → …` and overflow the stack.
- *
- * On re-entry of a pair we return `1` rather than `0` — a neutral positive
- * score consistent with `validateInner` short-circuiting cycles to `true`.
- * Markers are removed in `finally` so sibling union branches that share a
- * schema reference are scored independently rather than inheriting a stale
- * "in cycle" marker.
+ * Reuses completed scores without confusing them with the neutral score used
+ * to break cycles. Once a traversal encounters a cycle, its scores can depend
+ * on the active ancestors, so none are memoized until that traversal unwinds.
  */
-const scoreUnion = (
-  schema: Schema,
-  value: unknown,
-  lazyCache: LazyCache,
-  scoringCache: WeakMap<object, Set<Schema>> = new WeakMap(),
-): number => {
-  // Short-circuit on cycles: this exact (value, schema) pair is already being
-  // scored higher up the call stack. The enclosing call's score subsumes any
-  // contribution we could compute here, so return a neutral positive score.
-  if (isObject(value) && scoringCache.get(value)?.has(schema)) {
+const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache, scoring: ScoringContext): number => {
+  const trackable = isObject(value)
+  if (trackable && scoring.active.get(value)?.has(schema)) {
+    scoring.encounteredCycle = true
     return 1
   }
 
-  const trackable = isObject(value)
-  if (trackable) {
-    const schemas = scoringCache.get(value) ?? new Set<Schema>()
-    schemas.add(schema)
-    scoringCache.set(value, schemas)
+  const completed = trackable ? scoring.completed.get(value)?.get(schema) : undefined
+  if (completed !== undefined) {
+    return completed
   }
+
+  if (trackable) {
+    const schemas = scoring.active.get(value) ?? new Set<Schema>()
+    schemas.add(schema)
+    scoring.active.set(value, schemas)
+  }
+  scoring.depth++
 
   try {
-    if (schema.type === 'object') {
-      if (!isObject(value)) {
-        return 0
-      }
-
-      const keys = Object.keys(schema.properties)
-
-      // If there are no properties, we want to score 1 since we want to outscore if there are inline primitives
-      if (keys.length === 0) {
-        return 1
-      }
-
-      // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
-      // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
-      // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
-      // on another branch; mismatches score 0 (no "key present" tie-break).
-      // Other properties: scoreUnion plus +1 when the value fails validation so `{ a: null }`
-      // can still prefer the branch that declares `a`.
-      return keys.reduce<number>((acc, key) => {
-        if (!(key in value)) {
-          return acc
-        }
-        const propSchema = schema.properties[key]
-        const raw = value[key as keyof typeof value]
-        const base = scoreUnion(propSchema, raw, lazyCache, scoringCache)
-        if (isDiscriminatorProperty(propSchema)) {
-          return acc + (base > 0 ? base * 10 : 0)
-        }
-        return acc + (base > 0 ? base : 1)
-      }, 0)
+    const score = scoreUnionInner(schema, value, lazyCache, scoring)
+    if (trackable && !scoring.encounteredCycle) {
+      const schemas = scoring.completed.get(value) ?? new Map<Schema, number>()
+      schemas.set(schema, score)
+      scoring.completed.set(value, schemas)
     }
-    if (schema.type === 'array') {
-      // Score 1 if value is an array, otherwise 0
-      return Array.isArray(value) ? 1 : 0
-    }
-    if (schema.type === 'record') {
-      // TODO: implement smarter scoring for records (just a placeholder for now)
-      return isObject(value) ? 1 : 0
-    }
-    if (schema.type === 'optional') {
-      return value === undefined ? 1 : scoreUnion(schema.schema, value, lazyCache, scoringCache)
-    }
-    if (schema.type === 'union') {
-      // For a union, use the highest score among all sub-schemas
-      return Math.max(...schema.schemas.map((branch) => scoreUnion(branch, value, lazyCache, scoringCache)))
-    }
-    if (schema.type === 'intersection') {
-      if (schema.schemas.length === 0) {
-        return 1
-      }
-      return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value, lazyCache, scoringCache), 0)
-    }
-
-    if (schema.type === 'lazy') {
-      // For a lazy schema, evaluate the inner schema and recurse
-      return scoreUnion(resolveLazy(schema, lazyCache), value, lazyCache, scoringCache)
-    }
-
-    if (schema.type === 'evaluate') {
-      // For an evaluate schema, evaluate the expression and recurse
-      return scoreUnion(schema.schema, schema.expression(value), lazyCache, scoringCache)
-    }
-
-    // For primitives and any other type, return 1 if valid, otherwise 0
-    return validate(schema, value) ? 1 : 0
+    return score
   } finally {
-    // Clear the in-progress marker so sibling union branches that reference
-    // the same schema are scored independently rather than short-circuiting
-    // to the cycle-neutral score.
     if (trackable) {
-      scoringCache.get(value)?.delete(schema)
+      scoring.active.get(value)?.delete(schema)
+    }
+    scoring.depth--
+    if (scoring.depth === 0) {
+      scoring.encounteredCycle = false
     }
   }
+}
+
+/** Computes branch scores using the existing shape and discriminator weights. */
+const scoreUnionInner = (schema: Schema, value: unknown, lazyCache: LazyCache, scoring: ScoringContext): number => {
+  if (schema.type === 'object') {
+    if (!isObject(value)) {
+      return 0
+    }
+
+    const keys = Object.keys(schema.properties)
+
+    // If there are no properties, we want to score 1 since we want to outscore if there are inline primitives
+    if (keys.length === 0) {
+      return 1
+    }
+
+    // Missing keys contribute 0 (including optional keys — matches prior union heuristics).
+    // Discriminator properties (`literal` or `union` of literals): recurse with scoreUnion;
+    // matching values get a high weight (×10) so `type: literal('A')` beats unrelated fields
+    // on another branch; mismatches score 0 (no "key present" tie-break).
+    // Other properties: scoreUnion plus +1 when the value fails validation so `{ a: null }`
+    // can still prefer the branch that declares `a`.
+    return keys.reduce<number>((acc, key) => {
+      if (!(key in value)) {
+        return acc
+      }
+      const propSchema = schema.properties[key]
+      const raw = value[key as keyof typeof value]
+      const base = scoreUnion(propSchema, raw, lazyCache, scoring)
+      if (isDiscriminatorProperty(propSchema)) {
+        return acc + (base > 0 ? base * 10 : 0)
+      }
+      return acc + (base > 0 ? base : 1)
+    }, 0)
+  }
+  if (schema.type === 'array') {
+    // Score 1 if value is an array, otherwise 0
+    return Array.isArray(value) ? 1 : 0
+  }
+  if (schema.type === 'record') {
+    // TODO: implement smarter scoring for records (just a placeholder for now)
+    return isObject(value) ? 1 : 0
+  }
+  if (schema.type === 'optional') {
+    return value === undefined ? 1 : scoreUnion(schema.schema, value, lazyCache, scoring)
+  }
+  if (schema.type === 'union') {
+    // For a union, use the highest score among all sub-schemas
+    return Math.max(...schema.schemas.map((branch) => scoreUnion(branch, value, lazyCache, scoring)))
+  }
+  if (schema.type === 'intersection') {
+    if (schema.schemas.length === 0) {
+      return 1
+    }
+    return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value, lazyCache, scoring), 0)
+  }
+
+  if (schema.type === 'lazy') {
+    // For a lazy schema, evaluate the inner schema and recurse
+    return scoreUnion(resolveLazy(schema, lazyCache), value, lazyCache, scoring)
+  }
+
+  if (schema.type === 'evaluate') {
+    // For an evaluate schema, evaluate the expression and recurse
+    return scoreUnion(schema.schema, schema.expression(value), lazyCache, scoring)
+  }
+
+  // For primitives and any other type, return 1 if valid, otherwise 0
+  return validate(schema, value) ? 1 : 0
 }
 
 /**
@@ -188,6 +192,7 @@ const coerceInner = (
   value: unknown,
   cache: WeakMap<object, Map<Schema, unknown>>,
   lazyCache: LazyCache,
+  scoring: ScoringContext,
 ): unknown => {
   // Prevent infinite recursion by returning the in-progress result that was
   // staged by an enclosing call via trackCycle.
@@ -237,7 +242,7 @@ const coerceInner = (
     if (value === undefined) {
       return undefined
     }
-    return coerceInner(schema.schema, value, cache, lazyCache)
+    return coerceInner(schema.schema, value, cache, lazyCache, scoring)
   }
   if (schema.type === 'array') {
     if (!Array.isArray(value)) {
@@ -248,7 +253,7 @@ const coerceInner = (
     const result: unknown[] = new Array(value.length)
     trackCycle(value, schema, result, cache)
     for (let i = 0; i < value.length; i++) {
-      result[i] = coerceInner(schema.items, value[i], cache, lazyCache)
+      result[i] = coerceInner(schema.items, value[i], cache, lazyCache, scoring)
     }
     return result
   }
@@ -261,7 +266,7 @@ const coerceInner = (
     const result: Record<string, unknown> = {}
     trackCycle(value, schema, result, cache)
     for (const key of Object.keys(value)) {
-      result[key] = coerceInner(schema.value, value[key], cache, lazyCache)
+      result[key] = coerceInner(schema.value, value[key], cache, lazyCache, scoring)
     }
     return result
   }
@@ -278,25 +283,25 @@ const coerceInner = (
       if (propSchema.type === 'optional' && raw === undefined) {
         continue
       }
-      result[key] = coerceInner(propSchema, raw, cache, lazyCache)
+      result[key] = coerceInner(propSchema, raw, cache, lazyCache, scoring)
     }
     return result
   }
   if (schema.type === 'union') {
     const branch = schema.schemas.reduce(
       (acc, branchSchema) => {
-        const score = scoreUnion(branchSchema, value, lazyCache)
+        const score = scoreUnion(branchSchema, value, lazyCache, scoring)
         return score > acc.score ? { schema: branchSchema, score } : acc
       },
       { schema: schema.schemas[0]!, score: 0 },
     )
     // We need some way to pick one of the union values
-    return coerceInner(branch.schema, value, cache, lazyCache)
+    return coerceInner(branch.schema, value, cache, lazyCache, scoring)
   }
   if (schema.type === 'intersection') {
     return schema.schemas.reduce<Record<string, unknown>>(
       (acc, subSchema) =>
-        Object.assign(acc, coerceInner(subSchema, value, cache, lazyCache) as Record<string, unknown>),
+        Object.assign(acc, coerceInner(subSchema, value, cache, lazyCache, scoring) as Record<string, unknown>),
       {},
     )
   }
@@ -304,10 +309,10 @@ const coerceInner = (
     return schema.value
   }
   if (schema.type === 'lazy') {
-    return coerceInner(resolveLazy(schema, lazyCache), value, cache, lazyCache)
+    return coerceInner(resolveLazy(schema, lazyCache), value, cache, lazyCache, scoring)
   }
   if (schema.type === 'evaluate') {
-    return coerceInner(schema.schema, schema.expression(value), cache, lazyCache)
+    return coerceInner(schema.schema, schema.expression(value), cache, lazyCache, scoring)
   }
 
   // We need to assert here that schema has the type never so we know we handle all cases
@@ -355,4 +360,10 @@ export const coerce = <S extends Schema>(
   value: unknown,
   cache: WeakMap<object, Map<Schema, unknown>> = new WeakMap(),
   lazyCache: LazyCache = new WeakMap(),
-): SafeStatic<S> => coerceInner(schema, value, cache, lazyCache) as SafeStatic<S>
+): SafeStatic<S> =>
+  coerceInner(schema, value, cache, lazyCache, {
+    active: new WeakMap(),
+    completed: new WeakMap(),
+    depth: 0,
+    encounteredCycle: false,
+  }) as SafeStatic<S>
