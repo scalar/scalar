@@ -491,6 +491,8 @@ After `applyChanges` returns, the merged document becomes both the new active do
 
 The store honors `$self` when resolving relative references in an OpenAPI description. Relative identities resolve against the document source URL. External documents keep their own identities, including across partial bundles.
 
+See [a complete example](./examples/openapi-self.yaml). Its relative `$ref` resolves to `https://example.com/descriptions/openapi-self.yaml#/components/schemas/Pet`, even when the document is loaded from `https://mirror.example.com/download.yaml`. The target is already in the document, so no extra fetch is needed.
+
 Other OpenAPI bundling callers can opt in with the same plugin:
 
 ```ts
