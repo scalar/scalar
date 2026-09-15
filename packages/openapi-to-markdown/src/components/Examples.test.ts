@@ -5,6 +5,11 @@ import { describe, expect, it } from 'vitest'
 import Examples from './Examples.vue'
 
 describe('Examples', () => {
+  it.each([null, false, 0])('preserves a supplied %j XML example', (value) => {
+    const wrapper = mount(Examples, { props: { source: { example: value }, mediaType: 'application/xml' } })
+    expect(wrapper.get('pre').text()).toBe(String(value))
+  })
+
   it('renders literal XML without turning its characters into element names', () => {
     const xml = '<Pet id="42"><name>A &amp; B</name></Pet>'
     const wrapper = mount(Examples, { props: { source: { example: xml }, mediaType: 'application/xml' } })

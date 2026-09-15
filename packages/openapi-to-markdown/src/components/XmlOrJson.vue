@@ -8,9 +8,9 @@ const { xml = false, modelValue } = defineProps<{
 }>()
 
 const xmlContent = computed(() =>
-  typeof modelValue === 'string'
-    ? modelValue
-    : json2xml(modelValue as Record<string, unknown>),
+  modelValue !== null && typeof modelValue === 'object'
+    ? json2xml(modelValue as Record<string, unknown>)
+    : String(modelValue),
 )
 </script>
 <template>
