@@ -1397,4 +1397,71 @@ describe('sendRequest', () => {
       expect(initArg.body).toBe(body)
     })
   })
+  it('uses intercepted body, status and headers while retaining the fetched URL', async () => {
+    globalFetchSpy.mockResolvedValueOnce(addUrlToResponse(new Response('original'), `${MOCK_URL}/redirected?q=1`))
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [`${MOCK_URL}/start`, { method: 'GET' }],
+      onResponseReceived: async (response) => {
+        expect(await response.text()).toBe('original')
+        return Response.json({ replaced: true }, { status: 202, headers: { 'x-intercepted': 'yes' } })
+      },
+    })
+
+    expect(error).toBeNull()
+    expect(result?.response.status).toBe(202)
+    expect(result?.response.statusText).toBe('Accepted')
+    expect(result?.response.headers).toStrictEqual({ 'Content-Type': 'application/json', 'X-Intercepted': 'yes' })
+    expect(result?.response.path).toBe('/redirected?q=1')
+    expect(result?.response && 'data' in result.response ? result.response.data : undefined).toBe('{"replaced":true}')
+    expect(await result?.originalResponse.json()).toStrictEqual({ replaced: true })
+  })
+
+  it('uses intercepted no-content status without rendering a body', async () => {
+    globalFetchSpy.mockResolvedValueOnce(addUrlToResponse(Response.json({ original: true }), MOCK_URL))
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, { method: 'GET' }],
+      onResponseReceived: () => Promise.resolve(new Response(null, { status: 204 })),
+    })
+
+    expect(error).toBeNull()
+    expect(result?.response.status).toBe(204)
+    expect(await result?.originalResponse.text()).toBe('')
+  })
+
+  it('processes an intercepted response as a stream based on its new content type', async () => {
+    globalFetchSpy.mockResolvedValueOnce(addUrlToResponse(new Response('original'), MOCK_URL))
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, { method: 'GET' }],
+      onResponseReceived: () =>
+        Promise.resolve(
+          new Response('data: replaced\n\n', {
+            headers: { 'content-type': 'text/event-stream' },
+          }),
+        ),
+    })
+
+    expect(error).toBeNull()
+    if (!result || !('reader' in result.response)) {
+      throw new Error('Expected a streaming response')
+    }
+    const chunk = await result.response.reader.read()
+    expect(new TextDecoder().decode(chunk.value)).toBe('data: replaced\n\n')
+    expect(await result.response.reader.read()).toStrictEqual({ value: undefined, done: true })
+  })
+
+  it('reports interception errors as request failures', async () => {
+    globalFetchSpy.mockResolvedValueOnce(addUrlToResponse(new Response('original'), MOCK_URL))
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, { method: 'GET' }],
+      onResponseReceived: () => Promise.reject(new Error('interception failed')),
+    })
+
+    expect(result).toBeNull()
+    expect(error?.message).toBe('interception failed')
+  })
 })

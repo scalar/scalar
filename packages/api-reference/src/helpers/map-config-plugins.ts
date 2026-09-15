@@ -8,7 +8,7 @@ import { type ComputedRef, watch } from 'vue'
 /**
  * Maps API reference configuration callbacks to client plugins.
  *
- * This function transforms the onBeforeRequest, onRequestBuilt, and onRequestSent
+ * This function transforms the onBeforeRequest, onRequestBuilt, onResponseReceived, and onRequestSent
  * callbacks into the new plugin hook system. The mapping is reactive, so changes
  * to the configuration will automatically update the plugin hooks.
  *
@@ -26,7 +26,9 @@ import { type ComputedRef, watch } from 'vue'
  * @returns Array containing a single plugin with the mapped hooks
  */
 export const mapConfigPlugins = (
-  config: ComputedRef<ApiReferenceConfiguration>,
+  config: ComputedRef<
+    Pick<ApiReferenceConfiguration, 'onBeforeRequest' | 'onRequestBuilt' | 'onRequestSent' | 'onResponseReceived'>
+  >,
   environment: ComputedRef<XScalarEnvironment>,
 ): ClientPlugin[] => {
   // Create a new plugin with the hooks which is going to be updated by the watcher when config changes
@@ -37,9 +39,10 @@ export const mapConfigPlugins = (
       () => config.value.onBeforeRequest,
       () => config.value.onRequestBuilt,
       () => config.value.onRequestSent,
+      () => config.value.onResponseReceived,
       () => environment.value,
     ],
-    ([onBeforeRequest, onRequestBuilt, onRequestSent, environment]) => {
+    ([onBeforeRequest, onRequestBuilt, onRequestSent, onResponseReceived, environment]) => {
       // Get the environment variables for the current environment
       const envVariables = getEnvironmentVariables(environment)
 
@@ -89,11 +92,13 @@ export const mapConfigPlugins = (
        * Maps onRequestSent to responseReceived hook.
        * The old API only passed the URL string, so we extract it from the request.
        */
-      plugin.hooks.responseReceived = onRequestSent
-        ? (payload) => {
-            onRequestSent(payload.request.url)
-          }
-        : undefined
+      plugin.hooks.responseReceived =
+        onRequestSent || onResponseReceived
+          ? (payload) => {
+              onRequestSent?.(payload.request.url)
+              return onResponseReceived?.({ response: payload.response, request: payload.request })
+            }
+          : undefined
     },
     { immediate: true },
   )

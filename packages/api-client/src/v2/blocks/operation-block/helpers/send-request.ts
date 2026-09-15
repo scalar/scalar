@@ -73,6 +73,7 @@ export const sendRequest = async ({
   request,
   plugins = [],
   customFetch = fetch,
+  onResponseReceived,
 }: {
   isUsingProxy: boolean
   requestPayload: RequestPayload
@@ -86,6 +87,8 @@ export const sendRequest = async ({
   plugins?: ClientPlugin[]
   /** Optional custom fetch implementation, overrides the global fetch */
   customFetch?: CustomFetch
+  /** Runs before response processing and returns the response to use. */
+  onResponseReceived?: (response: Response) => Promise<Response>
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -99,7 +102,7 @@ export const sendRequest = async ({
     const startTime = performance.now()
 
     // In electron we allow GET requests to have a body
-    const response = isElectron()
+    const fetchedResponse = isElectron()
       ? await customFetch(...requestPayload)
       : await customFetch(request ?? buildSafeBodyRequest(...requestPayload))
 
@@ -107,11 +110,14 @@ export const sendRequest = async ({
     const timestamp = Date.now()
     const duration = endTime - startTime
 
+    const response = onResponseReceived ? await onResponseReceived(fetchedResponse) : fetchedResponse
+
     // Extract response metadata early for reuse
     const contentType = response.headers.get('content-type')
     const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
-    // A Response built with the Response constructor has an empty url, so fall back to the requested one
-    const responseUrl = new URL(response.url || requestPayload[0])
+    // A Response built with the Response constructor has an empty url. For intercepted responses,
+    // fall back to the original network response destination, and finally to the requested URL.
+    const responseUrl = new URL(response.url || fetchedResponse.url || requestPayload[0])
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
     const method = (requestPayload[1].method ?? 'GET') as HttpMethod
@@ -219,6 +225,8 @@ const buildStreamingResponse = ({
       requestPayload,
       response: {
         ...normalizedResponse,
+        status: response.status,
+        statusText,
         headers: responseHeaders,
         cookieHeaderKeys,
         reader: response.body!.getReader(),
@@ -298,13 +306,14 @@ const buildStandardResponse = async ({
       requestPayload,
       response: {
         ...normalizedResponse,
+        status: response.status,
+        statusText,
         headers: responseHeaders,
         cookieHeaderKeys,
         data: responseData,
         size: arrayBuffer.byteLength,
         duration,
         method,
-        status: response.status,
         path: fullPath,
       },
       originalResponse: response.clone(),

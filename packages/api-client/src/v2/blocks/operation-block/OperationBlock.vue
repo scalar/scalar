@@ -458,23 +458,22 @@ const handleExecute = async () => {
     request,
     plugins,
     customFetch: toValue(options)?.customFetch,
+    onResponseReceived: async (response) => {
+      const result = await executeHook(
+        {
+          response,
+          requestBuilder,
+          request: buildSafeBodyRequest(...built.data.requestPayload),
+          document,
+          operation,
+          variablesStore,
+        },
+        'responseReceived',
+        plugins,
+      )
+      return result.response
+    },
   })
-
-  if (sendResult) {
-    // Execute the responseReceived hook
-    await executeHook(
-      {
-        response: sendResult.originalResponse.clone(),
-        requestBuilder,
-        request: buildSafeBodyRequest(...sendResult.requestPayload),
-        document,
-        operation,
-        variablesStore,
-      },
-      'responseReceived',
-      plugins,
-    )
-  }
 
   // Save script environment writes (pre-request and, on success, post-response) back to the
   // active environment. Runs even when the send fails so a pre-request set is not lost.

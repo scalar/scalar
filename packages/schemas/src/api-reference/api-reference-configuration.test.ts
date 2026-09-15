@@ -400,6 +400,18 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
     })
 
+    it('preserves synchronous and async response replacements through configuration coercion', async () => {
+      const response = Response.json({ replaced: true })
+      const input = { response: new Response('original'), request: new Request('https://example.com') }
+      const syncConfig = coerce(apiReferenceConfigurationSchema, { onResponseReceived: () => response })
+      const asyncConfig = coerce(apiReferenceConfigurationSchema, {
+        onResponseReceived: () => Promise.resolve(response),
+      })
+
+      expect(syncConfig.onResponseReceived?.(input)).toBe(response)
+      expect(await asyncConfig.onResponseReceived?.(input)).toBe(response)
+    })
+
     it('allows a function as onBeforeRequest', () => {
       const config = {
         onBeforeRequest: vi.fn().mockReturnValue(undefined),

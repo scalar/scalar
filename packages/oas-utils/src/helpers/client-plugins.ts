@@ -71,8 +71,10 @@ type ClientPluginHooks = {
     variablesStore?: VariablesStore
   }) => void | Promise<void>
   /**
-   * Runs after a response is received. Receives the current document and operation so plugins can
-   * modify the response after it is received (for example, adding headers or modifying the body).
+   * Runs before response metadata and body processing. Return a Response to replace the response
+   * used by subsequent plugins and the client. Return nothing to keep the current response.
+   * Each hook receives a clone, so reading its body does not consume the client response.
+   * For streaming responses, avoid reading the entire body unless the stream is finite.
    */
   responseReceived: (payload: {
     response: Response
@@ -83,7 +85,7 @@ type ClientPluginHooks = {
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
-  }) => void | Promise<void>
+  }) => Response | void | Promise<Response | void>
 }
 
 /** Direction of a WebSocket message frame */
@@ -273,6 +275,33 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
   hookName: K,
   plugins: ClientPlugin[],
 ): Promise<HookPayloadMap[K]> => {
+  if (hookName === 'responseReceived') {
+    let current = payload as HookPayloadMap['responseReceived']
+    for (const plugin of plugins) {
+      const hook = plugin.hooks?.responseReceived
+      if (hook) {
+        const previousResponse = current.response
+        const clone = previousResponse.clone()
+        let nextResponse: Response | undefined
+        try {
+          const response = await hook({ ...current, response: clone })
+          nextResponse = response ?? previousResponse
+          current = { ...current, response: nextResponse }
+        } finally {
+          // Release discarded tee branches on success or failure so open streams cannot buffer
+          // without a consumer. A transformed stream owns its locked input.
+          // Do not await cancellation: it can wait for the retained branch to finish.
+          for (const body of [previousResponse.body, clone.body]) {
+            if (body && body !== nextResponse?.body && !body.locked) {
+              void body.cancel().catch(() => {})
+            }
+          }
+        }
+      }
+    }
+    return current as HookPayloadMap[K]
+  }
+
   let currentPayload = payload
 
   for (const plugin of plugins) {
