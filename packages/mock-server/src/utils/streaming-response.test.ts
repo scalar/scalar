@@ -74,6 +74,29 @@ describe('streaming-response', () => {
     ).toStrictEqual(['data: safe\n\n'])
   })
 
+  it('serializes object-valued SSE data as JSON', () => {
+    expect(
+      getStreamingResponse({ itemSchema: {}, example: [{ event: 'update', data: { id: '42' } }] }, 'text/event-stream')
+        ?.chunks,
+    ).toStrictEqual(['event: update\ndata: {"id":"42"}\n\n'])
+  })
+
+  it('emits primitive SSE items as data', () => {
+    expect(getStreamingResponse({ itemSchema: { type: 'string' } }, 'text/event-stream')?.chunks).toStrictEqual([
+      'data: "string"\n\n',
+      'data: "string"\n\n',
+      'data: "string"\n\n',
+    ])
+  })
+
+  it('generates legal values for an unconstrained boolean schema', () => {
+    expect(getStreamingResponse({ itemSchema: true }, 'application/jsonl')?.chunks).toStrictEqual([
+      'null\n',
+      'null\n',
+      'null\n',
+    ])
+  })
+
   it('does not generate items for a false schema', () => {
     expect(getStreamingResponse({ itemSchema: false }, 'application/jsonl')?.chunks).toStrictEqual([])
   })
