@@ -8,6 +8,52 @@ import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
 enableAutoUnmount(afterEach)
 
 describe('ResponseBodyStreaming', () => {
+  it('renders complete records while a real stream is open and cancels pending reads', async () => {
+    const controllers: ReadableStreamDefaultController<Uint8Array>[] = []
+    let cancelled = false
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controllers.push(controller)
+      },
+      cancel: () => {
+        cancelled = true
+      },
+    })
+    const wrapper = mount(ResponseBodyStreaming, {
+      props: { reader: stream.getReader(), contentType: 'application/jsonl' },
+    })
+    controllers[0]!.enqueue(new TextEncoder().encode('{"id":1}\n{"id":'))
+    await flushPromises()
+    expect(wrapper.text()).toContain('"id": 1')
+    expect(wrapper.text()).toContain('Listening')
+    expect(wrapper.text()).not.toContain('{"id":')
+    await wrapper.findComponent(ScalarButton).trigger('click')
+    await flushPromises()
+    expect(cancelled).toBe(true)
+    expect(wrapper.text()).toContain('"id": 1')
+    expect(wrapper.text()).not.toContain('Listening')
+  })
+
+  it('cancels with a visible error when multibyte output exceeds 16 MiB', async () => {
+    let cancelled = false
+    const chunk = new TextEncoder().encode('月'.repeat(2 * 1024 * 1024))
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controller.enqueue(chunk)
+        controller.enqueue(chunk)
+        controller.enqueue(chunk)
+      },
+      cancel: () => {
+        cancelled = true
+      },
+    })
+    const wrapper = mount(ResponseBodyStreaming, { props: { reader: stream.getReader() } })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Stream display reached its 16 MiB limit.')
+    expect(wrapper.text()).not.toContain('Listening')
+    expect(cancelled).toBe(true)
+  })
+
   let mockReader: ReadableStreamDefaultReader<Uint8Array>
 
   beforeEach(() => {
