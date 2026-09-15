@@ -282,18 +282,23 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
     for (const plugin of plugins) {
       const hook = plugin.hooks?.responseReceived
       if (hook) {
-        const clone = current.response.clone()
-        const response = await hook({ ...current, response: clone })
-        const nextResponse = response ?? current.response
-        // Release discarded tee branches so they cannot buffer an open stream or prevent
-        // cancellation from reaching its source. A transformed stream owns its locked input.
-        // Do not await cancellation: it can wait for the retained branch to finish.
-        for (const body of [current.response.body, clone.body]) {
-          if (body && body !== nextResponse.body && !body.locked) {
-            void body.cancel().catch(() => {})
+        const previousResponse = current.response
+        const clone = previousResponse.clone()
+        let nextResponse: Response | undefined
+        try {
+          const response = await hook({ ...current, response: clone })
+          nextResponse = response ?? previousResponse
+          current = { ...current, response: nextResponse }
+        } finally {
+          // Release discarded tee branches on success or failure so open streams cannot buffer
+          // without a consumer. A transformed stream owns its locked input.
+          // Do not await cancellation: it can wait for the retained branch to finish.
+          for (const body of [previousResponse.body, clone.body]) {
+            if (body && body !== nextResponse?.body && !body.locked) {
+              void body.cancel().catch(() => {})
+            }
           }
         }
-        current = { ...current, response: nextResponse }
       }
     }
     return current as HookPayloadMap[K]
