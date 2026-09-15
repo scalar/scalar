@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { pushDynamicScope, resolveDynamicRef } from '@/magic-proxy/dynamic-ref'
 import { createMagicProxy } from '@/magic-proxy/proxy'
 
 /**
@@ -7,7 +8,52 @@ import { createMagicProxy } from '@/magic-proxy/proxy'
  * `$dynamicRef-value` property, threading the dynamic scope as the document is walked. These tests
  * exercise that behavior through the proxy itself (not the standalone resolver). See #9414.
  */
-describe('magic proxy $dynamicRef-value', () => {
+describe('proxy-dynamic-ref', () => {
+  it.each([{ $dynamicAnchor: 'other' }, { $defs: {} }])(
+    'keeps inline anchor containers in their enclosing resource: %j',
+    (container) => {
+      const document = {
+        $id: 'urn:resource',
+        properties: {
+          target: { $dynamicAnchor: 'node', type: 'string' },
+          nested: { ...container, properties: { use: { $dynamicRef: '#node' } } },
+        },
+      }
+      const proxy = createMagicProxy(document)
+      const scope = pushDynamicScope(pushDynamicScope([], document), document.properties.nested)
+
+      expect(resolveDynamicRef('#node', scope)).toStrictEqual(document.properties.target)
+      expect(Reflect.get(proxy.properties.nested.properties.use, '$dynamicRef-value')).toStrictEqual({
+        $dynamicAnchor: 'node',
+        type: 'string',
+      })
+    },
+  )
+
+  it('requires a bookend in a nested explicit resource', () => {
+    const proxy = createMagicProxy({
+      $id: 'urn:outer',
+      properties: {
+        target: { $dynamicAnchor: 'node', type: 'string' },
+        nested: { $id: 'urn:inner', properties: { use: { $dynamicRef: '#node' } } },
+      },
+    })
+
+    expect(Reflect.get(proxy.properties.nested.properties.use, '$dynamicRef-value')).toBeUndefined()
+  })
+
+  it('resolves an anchor at the root without an explicit resource identifier', () => {
+    const proxy = createMagicProxy({
+      $dynamicAnchor: 'node',
+      type: 'object',
+      properties: { use: { $dynamicRef: '#node' } },
+    })
+
+    const bound = Reflect.get(proxy.properties.use, '$dynamicRef-value')
+    expect(bound.type).toBe('object')
+    expect(bound.$dynamicAnchor).toBe('node')
+  })
+
   it('resolves a $dynamicRef against an anchor in the same resource', () => {
     const document = {
       // A recursive category tree: the anchor sits nested under `properties.root`, the ref under
