@@ -53,6 +53,10 @@ import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import { APP_VERSION } from '@/v2/constants'
+import {
+  provideLocalization,
+  useLocalization,
+} from '@/v2/features/localization'
 import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
 import type { ClientLayout } from '@/v2/types/layout'
 import type { ApiClientOptions } from '@/v2/types/options'
@@ -76,6 +80,16 @@ const {
     requestBodyCompositionSelection?: Record<string, number>
   }
 >()
+
+const inheritedLocalization = useLocalization()
+const { translate, locale, direction } = provideLocalization(
+  () =>
+    toValue(options)?.localization ?? {
+      locale: inheritedLocalization.locale.value,
+      direction: inheritedLocalization.direction.value,
+      translations: inheritedLocalization.translations.value,
+    },
+)
 
 /**
  * Shared request-example context (operation, servers, auth scope, cookies). Recomputed when any
@@ -172,6 +186,7 @@ const httpClients = computed(() =>
       :appVersion="APP_VERSION"
       :authMeta
       :defaultHeaders
+      :dir="direction"
       :document
       :documentCookies
       :documentSecurity="document?.security ?? []"
@@ -184,9 +199,10 @@ const httpClients = computed(() =>
       :hideClientButton="toValue(options)?.hideClientButton ?? false"
       :history="workspaceStore.history.getHistory(documentSlug, path, method)"
       :httpClients
+      :isWebhook
+      :lang="locale"
       :layout
       :method
-      :isWebhook
       :operation
       :options
       :path
@@ -212,7 +228,11 @@ const httpClients = computed(() =>
   <!-- Empty state -->
   <div
     v-else
-    class="flex h-full w-full items-center justify-center">
-    <span class="text-c-3">Select an operation to view details</span>
+    class="flex h-full w-full items-center justify-center"
+    :dir="direction"
+    :lang="locale">
+    <span class="text-c-3">{{
+      translate('apiClient.operation.selectAnOperationToViewDetails')
+    }}</span>
   </div>
 </template>

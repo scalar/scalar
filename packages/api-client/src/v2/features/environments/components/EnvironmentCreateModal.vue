@@ -11,6 +11,7 @@ import {
   CommandActionForm,
   CommandActionInput,
 } from '@/v2/features/command-palette'
+import { useLocalization } from '@/v2/features/localization'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
@@ -28,6 +29,8 @@ const {
     eventBus: WorkspaceEventBus
   } & CollectionType
 >()
+
+const { translate } = useLocalization()
 
 /** Default color for new environments. */
 const DEFAULT_COLOR = '#FFFFFF'
@@ -124,19 +127,29 @@ const isDuplicateName = computed(() => {
         <CommandActionInput
           v-model="name"
           class="-mt-[.5px] !p-0 peer-has-[.color-selector]:hidden"
-          placeholder="Environment name" />
+          :placeholder="
+            translate('apiClient.environmentCreateModal.environmentName')
+          " />
       </div>
 
       <!-- Error message -->
       <div
         v-if="isDuplicateName"
         class="text-red text-xs">
-        This environment name is already in use.
+        {{
+          translate(
+            'apiClient.environmentCreateModal.thisEnvironmentNameIsAlreadyInUse',
+          )
+        }}
       </div>
 
       <!-- Submit button -->
       <template #submit>
-        {{ selectedEnvironmentName ? 'Update' : 'Add' }} Environment
+        {{
+          selectedEnvironmentName
+            ? translate('apiClient.environmentCreateModal.update')
+            : translate('apiClient.environmentCreateModal.add')
+        }}
       </template>
     </CommandActionForm>
   </ScalarModal>

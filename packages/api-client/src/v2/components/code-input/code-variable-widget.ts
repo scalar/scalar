@@ -1,4 +1,5 @@
 import { REGEX } from '@scalar/helpers/regex/regex-helpers'
+import type { TranslateFn } from '@scalar/localization'
 import {
   Decoration,
   type DecorationSet,
@@ -11,6 +12,8 @@ import {
 import { type ContextFunctionName, getContextFunctionComment } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { createApp } from 'vue'
+
+import type { ApiClientTranslationKey } from '@/v2/features/localization'
 
 import PillTooltipHost from './PillTooltipHost.vue'
 import type { PillContext } from './pill-context'
@@ -28,6 +31,7 @@ class PillWidget extends WidgetType {
     private readonly variableName: string,
     environment: XScalarEnvironment | undefined,
     variant: PillContext['type'],
+    private readonly translate?: TranslateFn<ApiClientTranslationKey>,
   ) {
     super()
     if (variant === 'contextFunction') {
@@ -69,6 +73,7 @@ class PillWidget extends WidgetType {
     this.app = createApp(PillTooltipHost, {
       context: this.variableInfo,
       target: span,
+      translate: this.translate,
     })
     this.app.mount(document.createElement('div'))
 
@@ -120,6 +125,7 @@ export const pillPlugin = (props: {
   environment: XScalarEnvironment | undefined
   isReadOnly: boolean | undefined
   isContextFunctionName?: (name: string) => boolean
+  translate?: TranslateFn<ApiClientTranslationKey>
 }) =>
   ViewPlugin.fromClass(
     class {
@@ -173,7 +179,7 @@ export const pillPlugin = (props: {
               start,
               end,
               Decoration.widget({
-                widget: new PillWidget(variableName, props.environment, variant),
+                widget: new PillWidget(variableName, props.environment, variant, props.translate),
                 side: 1,
               }),
             )

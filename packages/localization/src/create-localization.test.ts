@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { createLocalization } from './create-localization'
 
@@ -28,6 +28,19 @@ const { resolveLocalization, provideLocalization, useLocalization } = createLoca
 })
 
 describe('create-localization', () => {
+  it.each(['$&', "$'", '$`', '$$', '$1'])('preserves literal replacement patterns in parameters: %s', (name) => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const { translate } = useLocalization()
+          return () => h('span', translate('schema.save', { name }))
+        },
+      }),
+    )
+    expect(wrapper.text()).toBe(`Save ${name}`)
+    wrapper.unmount()
+  })
+
   it('uses the default locale when none is provided', () => {
     const resolved = resolveLocalization()
 
@@ -95,5 +108,42 @@ describe('create-localization', () => {
     })
 
     expect(mount(Parent).text()).toBe('schema.missing')
+  })
+
+  it('merges a consumer dictionary with reactive translations from a different package', async () => {
+    const other = createLocalization<{ client: { send: string; cancel: string } }, 'client.send' | 'client.cancel'>({
+      localeTranslations: { en: { client: { send: 'Send', cancel: 'Cancel' } } },
+      defaultLocale: 'en',
+      rtlLocales: new Set(['ar']),
+    })
+    const overrides = ref({ client: { send: 'Senden' } })
+    const contexts: ReturnType<typeof other.useLocalization>[] = []
+    const Child = defineComponent({
+      setup() {
+        const context = other.useLocalization()
+        contexts.push(context)
+        return () => h('span', `${context.translate('client.send')} / ${context.translate('client.cancel')}`)
+      },
+    })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization(() => ({
+            locale: 'de',
+            translations: { ...overrides.value, common: { greeting: 'Hallo' } },
+          }))
+          return () => h('div', [h(Child), h(Child)])
+        },
+      }),
+    )
+    expect(wrapper.findAll('span').map((span) => span.text())).toStrictEqual(['Senden / Cancel', 'Senden / Cancel'])
+    expect(contexts[0]).toBe(contexts[1])
+    overrides.value = { client: { send: 'Abschicken' } }
+    await nextTick()
+    expect(wrapper.findAll('span').map((span) => span.text())).toStrictEqual([
+      'Abschicken / Cancel',
+      'Abschicken / Cancel',
+    ])
+    wrapper.unmount()
   })
 })
