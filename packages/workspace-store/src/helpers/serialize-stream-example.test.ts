@@ -1,8 +1,29 @@
 import { describe, expect, it } from 'vitest'
 
-import { serializeStreamExample } from './serialize-stream-example'
+import { isStreamingMediaType, serializeStreamExample } from './serialize-stream-example'
 
 describe('serialize-stream-example', () => {
+  it.each([
+    ['text/event-stream', 'data: 1\n\n'],
+    ['application/jsonl', '1\n'],
+    ['application/x-ndjson', '1\n'],
+    ['application/json-lines', '1\n'],
+    ['Application/JSONL; charset=utf-8', '1\n'],
+    ['application/json-seq', '\u001e1\n'],
+    ['application/geo+json-seq', '\u001e1\n'],
+  ])('recognizes and serializes %s', (contentType, expected) => {
+    expect(isStreamingMediaType(contentType)).toBe(true)
+    expect(serializeStreamExample(1, contentType, true)).toBe(expected)
+  })
+
+  it.each(['text/json-seq', 'application/json', 'application/custom+jsonl', 'multipart/mixed'])(
+    'leaves unsupported media type %s to the existing response path',
+    (contentType) => {
+      expect(isStreamingMediaType(contentType)).toBe(false)
+      expect(serializeStreamExample(1, contentType, true)).toBeUndefined()
+    },
+  )
+
   it('does not serialize an absent example as an undefined JSON record', () => {
     expect(serializeStreamExample(undefined, 'application/jsonl', true)).toBeUndefined()
   })

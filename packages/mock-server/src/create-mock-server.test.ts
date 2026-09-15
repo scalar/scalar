@@ -135,6 +135,41 @@ describe('createMockServer', () => {
     },
   )
 
+  it.each([
+    ['application/jsonl', '1\n', '2\n'],
+    ['text/event-stream', 'data: first\n\n', 'data: second\n\n'],
+  ])('honors named stream examples returned by custom handlers as %s', async (contentType, first, second) => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            get: {
+              'x-handler': "return res['200']",
+              responses: {
+                '200': {
+                  description: 'Events',
+                  content: {
+                    [contentType]: {
+                      itemSchema: {},
+                      examples: { first: { value: first }, second: { value: second } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { headers: { Prefer: 'example=second' } })
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe(contentType)
+    expect(await response.text()).toBe(second)
+  })
+
   it('keeps explicit examples and response headers for itemSchema streams', async () => {
     const server = await createMockServer({
       logger: false,
