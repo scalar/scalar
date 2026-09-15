@@ -40,7 +40,7 @@ describe('oauth2-metadata-to-flows', () => {
       oauth2MetadataToFlows(metadata, {
         clientCredentials: { tokenUrl: 'https://explicit.example.com/token', refreshUrl: '', scopes: {} },
       }),
-    ).toStrictEqual({ clientCredentials: {} })
+    ).toStrictEqual({})
   })
 
   it('uses the RFC8414 default grants when grant types are omitted', () => {

@@ -4,7 +4,7 @@ import type { OpenIDConnectDiscovery } from './fetch-openid-connect-discovery'
 
 type FlowUpdates = { [Key in keyof OAuthFlowsObject]?: Partial<NonNullable<OAuthFlowsObject[Key]>> }
 
-/** Supplements declared flows without replacing their endpoints, scopes, or extensions. */
+/** Supplements endpoints in declared flows. Explicit scopes, including an empty scope set, remain authoritative. */
 export const oauth2MetadataToFlows = (metadata: OpenIDConnectDiscovery, flows: OAuthFlowsObject): FlowUpdates => {
   const scopes = Object.fromEntries((metadata.scopes_supported ?? []).map((scope) => [scope, '']))
   const grants = new Set(metadata.grant_types_supported ?? ['authorization_code', 'implicit'])
@@ -25,12 +25,13 @@ export const oauth2MetadataToFlows = (metadata: OpenIDConnectDiscovery, flows: O
   return Object.fromEntries(
     Object.entries(flows)
       .filter(([, flow]) => flow)
-      .map(([key, flow]) => [
+      .map(([key, flow]): [string, Record<string, string>] => [
         key,
         {
           ...('authorizationUrl' in flow && !flow.authorizationUrl && authorizationUrl ? { authorizationUrl } : {}),
           ...('tokenUrl' in flow && !flow.tokenUrl && tokenUrl ? { tokenUrl } : {}),
         },
-      ]),
+      ])
+      .filter(([, update]) => Object.keys(update).length > 0),
   )
 }
