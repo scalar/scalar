@@ -20,7 +20,9 @@ const parameter: OpenAPIV3_2.ParameterObject = {
   },
 }
 
-const documentWith = (query: OpenAPIV3_2.ParameterObject) => ({
+const documentWith = (
+  query: OpenAPIV3_2.ParameterObject,
+): OpenAPIV3_2.Document & { paths: OpenAPIV3_2.PathsObject } => ({
   openapi: '3.2.0',
   info: { title: 'Whole query', version: '1' },
   paths: {
