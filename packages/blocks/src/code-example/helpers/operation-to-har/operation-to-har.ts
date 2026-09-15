@@ -191,6 +191,17 @@ export const operationToHar = ({
     harRequest.cookies.push(...cookies)
   }
 
+  // Keep authentication and global cookies in the explicit header as well, so
+  // snippet generators cannot replace cookie-style parameters with their own header.
+  const cookieHeader = harRequest.headers.find((header) => header.name.toLowerCase() === 'cookie')
+  if (cookieHeader && harRequest.cookies.length) {
+    const extraCookies = harRequest.cookies
+      .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
+      .join('; ')
+    cookieHeader.value = cookieHeader.value ? `${cookieHeader.value}; ${extraCookies}` : extraCookies
+    harRequest.cookies = []
+  }
+
   // Calculate headers size without allocating a large joined string
   let headersSize = 0
   for (const h of harRequest.headers) {
