@@ -3,6 +3,35 @@ import { describe, expect, it } from 'vitest'
 import { encodeMultipartBody } from './encode-multipart-body'
 
 describe('encode-multipart-body', () => {
+  it('rejects nested header injection after environment replacement', () => {
+    expect(() =>
+      encodeMultipartBody(
+        [
+          {
+            type: 'multipart',
+            contentType: 'multipart/mixed',
+            value: [{ type: 'text', value: 'safe', headers: { 'Content-ID': '{{id}}' } }],
+          },
+        ],
+        'multipart/mixed',
+        () => 'id\r\nInjected: yes',
+      ),
+    ).toThrow('Invalid multipart header')
+  })
+
+  it('replaces supplied boundaries while preserving other media type parameters', async () => {
+    const body = encodeMultipartBody(
+      [{ type: 'text', value: 'html', contentType: 'text/html' }],
+      'multipart/related; type="text/html"; boundary=old',
+    )
+    expect(body.type).toContain('type="text/html"')
+    expect(body.type).not.toContain('boundary=old')
+    const boundary = body.type.match(/boundary="?([^";]+)/)?.[1]
+    expect(await body.text()).toBe(
+      '--' + boundary + '\r\nContent-Type: text/html\r\n\r\nhtml\r\n--' + boundary + '--\r\n',
+    )
+  })
+
   it('sends JSON as fields and preserves binary files, repeated names, and empty values', async () => {
     const bytes = new Uint8Array([0, 255, 13, 10, 128])
     const body = encodeMultipartBody([

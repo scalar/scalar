@@ -98,6 +98,66 @@ describe('processBody', () => {
     ).toStrictEqual({ mimeType: 'application/json', text: expected })
   })
 
+  it('uses the first named multipart example when no name is selected', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { upload: { value: ['provided'] } },
+            schema: { type: 'array', items: { type: 'string', default: 'generated' } },
+            itemEncoding: { contentType: 'text/plain' },
+          },
+        },
+      },
+    })
+    expect(result?.text).toContain('Content-Type: text/plain\r\n\r\nprovided')
+    expect(result?.text).not.toContain('generated')
+  })
+
+  it('serializes positional multipart snippets with a matching boundary', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { default: { value: [{ id: 1 }, 'hello'] } },
+            prefixEncoding: [{ contentType: 'application/json' }],
+            itemEncoding: { contentType: 'text/plain' },
+          },
+        },
+      },
+      example: 'default',
+    })
+    const boundary = result?.mimeType.match(/boundary="?([^";]+)/)?.[1]
+    expect(result?.text).toBe(
+      '--' +
+        boundary +
+        '\r\nContent-Type: application/json\r\n\r\n{"id":1}\r\n--' +
+        boundary +
+        '\r\nContent-Type: text/plain\r\n\r\nhello\r\n--' +
+        boundary +
+        '--\r\n',
+    )
+  })
+
+  it('serializes nested multipart snippets as MIME text', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            examples: { default: { value: { batch: [['hello']] } } },
+            encoding: { batch: { contentType: 'multipart/mixed', itemEncoding: { contentType: 'text/plain' } } },
+          },
+        },
+      },
+      example: 'default',
+    })
+    expect(result?.text).toContain(
+      'Content-Disposition: form-data; name="batch"\r\nContent-Type: multipart/mixed; boundary=',
+    )
+    expect(result?.text).toContain('Content-Type: text/plain\r\n\r\nhello')
+    expect(result?.params).toBeUndefined()
+  })
+
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {

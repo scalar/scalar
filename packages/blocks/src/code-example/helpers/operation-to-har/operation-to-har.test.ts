@@ -118,6 +118,30 @@ describe('operationToHar', () => {
     expect(snippet).toContain(client === 'xhr' ? 'xhr.withCredentials = true;' : 'xhrFields: { withCredentials: true }')
   })
 
+  it('preserves the supplied boundary for already serialized multipart bodies', () => {
+    const result = operationToHar({
+      method: 'post',
+      path: '/upload',
+      operation: {
+        parameters: [
+          {
+            in: 'header',
+            name: 'Content-Type',
+            schema: { type: 'string', default: 'multipart/mixed; boundary=example' },
+          },
+        ],
+        requestBody: {
+          content: {
+            'multipart/mixed': { example: '--example\r\nContent-Type: text/plain\r\n\r\nhello\r\n--example--\r\n' },
+          },
+        },
+      },
+    })
+    expect(result.headers.find((header) => header.name.toLowerCase() === 'content-type')?.value).toBe(
+      'multipart/mixed; boundary=example',
+    )
+  })
+
   describe('basic functionality', () => {
     it('should convert a basic operation to HAR format', () => {
       const operation: OperationObject = {

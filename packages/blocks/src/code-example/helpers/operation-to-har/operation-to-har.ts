@@ -178,7 +178,13 @@ export const operationToHar = ({
           (header) => header.name.toLowerCase() === 'content-type',
         )
         // Update existing header if it has an empty value
-        if (existingContentTypeHeader && !existingContentTypeHeader.value) {
+        if (
+          existingContentTypeHeader &&
+          (!existingContentTypeHeader.value ||
+            (postData.mimeType.startsWith('multipart/') &&
+              postData.mimeType.includes('boundary=') &&
+              postData.text !== undefined))
+        ) {
           existingContentTypeHeader.value = postData.mimeType
         }
         // Add new header if none exists

@@ -1,3 +1,4 @@
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type {
   ExampleObject,
   RequestBodyObject,
@@ -27,7 +28,11 @@ export const getSchemaExampleFromBody = (
   requestBodyCompositionSelection?: Record<string, number>,
 ): unknown => {
   const mediaType = requestBody.content?.[contentType]
-  const schema = mediaType?.schema ?? mediaType?.itemSchema
+  const schema =
+    mediaType?.schema ??
+    (mediaType?.itemSchema && parseMimeType(contentType).type === 'multipart'
+      ? { type: 'array' as const, items: mediaType.itemSchema }
+      : mediaType?.itemSchema)
   if (!schema) {
     return undefined
   }
