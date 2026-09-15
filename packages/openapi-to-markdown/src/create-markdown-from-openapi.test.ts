@@ -955,4 +955,127 @@ paths:
       })
     }
   })
+  it('preserves an optional request body description without inventing an operation ID', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Optional body', version: '1' },
+      paths: {
+        '/pets': {
+          post: {
+            requestBody: { required: false, description: 'Optional pet data.', content: {} },
+            responses: { '204': { description: 'Saved' } },
+          },
+        },
+      },
+    })
+    expect(result).toContain('Optional pet data.')
+    expect(result).toMatch(/Required:.*`false`/)
+    expect(result).not.toContain('Operation ID:')
+  })
+  it('renders a primitive component description once with its Markdown formatting', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Components', version: '1' },
+      components: { schemas: { Status: { type: 'string', description: 'A **unique status**.', enum: ['ready'] } } },
+    })
+    expect(result.match(/unique status/g)).toStrictEqual(['unique status'])
+    expect(result).toContain('**unique status**')
+    expect(result).toContain('"ready"')
+    expect(result).not.toContain('Example:')
+  })
+  it('preserves request and response examples independently, including falsy values without schemas', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Examples', version: '1' },
+      components: { examples: { Response: { summary: 'Referenced response', value: false } } },
+      paths: {
+        '/examples': {
+          post: {
+            requestBody: { content: { 'application/json': { example: 0 } } },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'string', example: 'generated replacement' },
+                    examples: { supplied: { $ref: '#/components/examples/Response' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+      0,
+      false,
+    ])
+    expect(markdown).toContain('Referenced response')
+    expect(markdown).not.toContain('generated replacement')
+  })
+
+  it('preserves referenced response headers, response links, and multipart encoding', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Details', version: '1' },
+      components: {
+        headers: { Rate: { description: 'Remaining calls', schema: { type: 'integer' }, example: 0 } },
+        links: {
+          Next: {
+            operationRef: '#/paths/~1next/get',
+            parameters: { cursor: '$response.body#/cursor' },
+            requestBody: false,
+          },
+        },
+      },
+      paths: {
+        '/upload': {
+          post: {
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: { type: 'object', properties: { file: { type: 'string' } } },
+                  encoding: {
+                    file: {
+                      contentType: 'text/plain',
+                      style: 'form',
+                      explode: false,
+                      allowReserved: false,
+                      headers: { 'X-Part': { schema: { type: 'string' }, example: 'part-value' } },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                headers: { 'X-Rate': { $ref: '#/components/headers/Rate' }, 'X-Empty': { example: null } },
+                links: { next: { $ref: '#/components/links/Next' } },
+              },
+            },
+          },
+        },
+      },
+    })
+    const request = markdown.split('#### Request Body')[1]!.split('#### Responses')[0]!
+    for (const expected of ['text/plain', 'Explode: `false`', 'Allow reserved: `false`', 'X-Part', 'part-value'])
+      expect(request).toContain(expected)
+    expect(request).not.toContain('X-Rate')
+    const response = markdown.split('#### Responses')[1]!
+    for (const expected of [
+      'X-Rate',
+      'Remaining calls',
+      '#/paths/~1next/get',
+      '$response.body#/cursor',
+      '**Request body:**`false`',
+    ])
+      expect(response).toContain(expected)
+    expect(response).not.toContain('X-Part')
+    expect(response).toContain('X-Empty')
+    expect(
+      [...response.matchAll(/```json\s*\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!)),
+    ).toStrictEqual([0, null])
+  })
 })

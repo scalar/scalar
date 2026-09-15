@@ -5,8 +5,8 @@ import {
   getResolvedPathItem,
 } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
+  EncodingObject,
   OpenApiDocument,
   OperationObject,
   ParameterObject,
@@ -18,8 +18,12 @@ import { computed } from 'vue'
 
 // import { snippetz, type HarRequest } from '@scalar/snippetz'
 
+import type { ExampleSource } from '../helpers/get-markdown-examples'
+import Encoding from './Encoding.vue'
+import Examples from './Examples.vue'
+import Headers from './Headers.vue'
+import ResponseLinks from './ResponseLinks.vue'
 import Schema from './Schema.vue'
-import XmlOrJson from './XmlOrJson.vue'
 
 type MarkdownDocument = Partial<OpenApiDocument> &
   Pick<OpenApiDocument, 'openapi' | 'info'>
@@ -28,10 +32,15 @@ type SchemaView = {
   title?: string
   type?: string | string[]
 }
-type RequestBodyView = {
-  content?: Record<string, { schema?: unknown }>
+type MediaTypeView = ExampleSource & {
+  encoding?: Record<string, EncodingObject>
 }
-type ParameterView = {
+type RequestBodyView = {
+  description?: string
+  required?: boolean
+  content?: Record<string, MediaTypeView>
+}
+type ParameterView = ExampleSource & {
   name: string
   in: string
   description?: string
@@ -42,11 +51,13 @@ type ParameterView = {
   style?: string
   explode?: boolean
   schema?: unknown
-  content?: Record<string, { schema?: unknown }>
+  content?: Record<string, MediaTypeView>
 }
 type ResponseView = {
+  headers?: Record<string, unknown>
+  links?: Record<string, unknown>
   description?: string
-  content?: Record<string, { schema?: unknown }>
+  content?: Record<string, MediaTypeView>
 }
 
 type OperationEntry = {
@@ -93,8 +104,12 @@ const resolveRefAs = <TResolved extends object>(
 const resolveOperation = (operation: unknown): OperationObject | null =>
   resolveRefAs<OperationObject>(operation)
 
-const resolveSchema = (schema: unknown): SchemaObject | null =>
-  resolveRefAs<SchemaObject>(schema)
+const resolveSchema = (schema: unknown): SchemaObject | boolean | null => {
+  const resolved = getResolvedRef<unknown>(schema)
+  return typeof resolved === 'boolean'
+    ? resolved
+    : resolveRefAs<SchemaObject>(schema)
+}
 
 const resolveRequestBody = (body: unknown): RequestBodyObject | null =>
   resolveRefAs<RequestBodyObject>(body)
@@ -221,7 +236,7 @@ const componentSchemas = computed(() => {
   return Object.entries(schemas).flatMap(([name, schema]) => {
     const resolvedSchema = resolveSchema(schema)
 
-    if (!resolvedSchema) {
+    if (resolvedSchema === null) {
       return []
     }
 
@@ -229,8 +244,10 @@ const componentSchemas = computed(() => {
   })
 })
 
-const getSchemaView = (schema: SchemaObject): SchemaView =>
-  schema as unknown as SchemaView
+const getSchemaView = (schema: SchemaObject | boolean): SchemaView =>
+  typeof schema === 'boolean'
+    ? { type: schema ? 'any' : 'never' }
+    : (schema as unknown as SchemaView)
 </script>
 
 <template>
@@ -327,6 +344,11 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
             <li>
               <strong>Path:</strong>&nbsp;<code>{{ entry.path }}</code>
             </li>
+            <li v-if="entry.operation.operationId">
+              <strong>Operation ID:</strong>&nbsp;<code>{{
+                entry.operation.operationId
+              }}</code>
+            </li>
             <template v-if="entry.operation.tags">
               <li>
                 <strong>Tags:</strong>&nbsp;{{
@@ -397,19 +419,28 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                     v-if="parameter.description"
                     :value="parameter.description" />
 
-                  <template v-if="resolveSchema(parameter.schema)">
+                  <template v-if="resolveSchema(parameter.schema) !== null">
                     <Schema :schema="resolveSchema(parameter.schema)!" />
                   </template>
 
+                  <Examples
+                    v-if="parameter.example !== undefined || parameter.examples"
+                    mode="write"
+                    :source="parameter" />
                   <template v-if="parameter.content">
                     <template
                       v-for="(parameterContent, mediaType) in parameter.content"
                       :key="mediaType">
                       <h6>Content-Type: {{ mediaType }}</h6>
-                      <template v-if="resolveSchema(parameterContent.schema)">
+                      <template
+                        v-if="resolveSchema(parameterContent.schema) !== null">
                         <Schema
                           :schema="resolveSchema(parameterContent.schema)!" />
                       </template>
+                      <Examples
+                        :mediaType="mediaType.toString()"
+                        mode="write"
+                        :source="parameterContent" />
                     </template>
                   </template>
                 </section>
@@ -417,24 +448,29 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
             </section>
           </template>
 
-          <template v-if="entry.requestBody?.content">
+          <template v-if="entry.requestBody">
             <section>
               <h4>Request Body</h4>
+              <p v-if="typeof entry.requestBody.required === 'boolean'">
+                <strong>Required:</strong>&nbsp;<code>{{
+                  entry.requestBody.required
+                }}</code>
+              </p>
+              <ScalarMarkdown
+                v-if="entry.requestBody.description"
+                :value="entry.requestBody.description" />
               <template
                 v-for="(bodyContent, mediaType) in entry.requestBody.content"
                 :key="mediaType">
                 <h5>Content-Type: {{ mediaType }}</h5>
-                <template v-if="resolveSchema(bodyContent.schema)">
+                <template v-if="resolveSchema(bodyContent.schema) !== null">
                   <Schema :schema="resolveSchema(bodyContent.schema)!" />
-                  <p><strong>Example:</strong></p>
-                  <XmlOrJson
-                    :modelValue="
-                      getExampleFromSchema(resolveSchema(bodyContent.schema)!, {
-                        xml: mediaType?.toString().includes('xml'),
-                      })
-                    "
-                    :xml="mediaType?.toString().includes('xml')" />
                 </template>
+                <Examples
+                  :mediaType="mediaType.toString()"
+                  mode="write"
+                  :source="bodyContent" />
+                <Encoding :encoding="bodyContent.encoding" />
               </template>
             </section>
           </template>
@@ -455,6 +491,8 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                       </template>
                     </h5>
                   </header>
+                  <Headers :headers="entryResponse.response.headers" />
+                  <ResponseLinks :links="entryResponse.response.links" />
                   <template v-if="entryResponse.response.content">
                     <template
                       v-for="(responseContent, mediaType) in entryResponse
@@ -462,21 +500,15 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
                       :key="mediaType">
                       <section>
                         <h6>Content-Type: {{ mediaType }}</h6>
-                        <template v-if="resolveSchema(responseContent.schema)">
+                        <template
+                          v-if="resolveSchema(responseContent.schema) !== null">
                           <Schema
                             :schema="resolveSchema(responseContent.schema)!" />
-                          <p><strong>Example:</strong></p>
-                          <XmlOrJson
-                            :modelValue="
-                              getExampleFromSchema(
-                                resolveSchema(responseContent.schema)!,
-                                {
-                                  xml: mediaType?.toString().includes('xml'),
-                                },
-                              )
-                            "
-                            :xml="mediaType?.toString().includes('xml')" />
                         </template>
+                        <Examples
+                          :mediaType="mediaType.toString()"
+                          mode="read"
+                          :source="responseContent" />
                       </section>
                     </template>
                   </template>
@@ -565,11 +597,10 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
             <ScalarMarkdown :value="getSchemaView(entry.schema).description" />
           </template>
           <Schema
-            v-if="getSchemaView(entry.schema).type === 'object'"
+            hideDescription
             :schema="entry.schema" />
-          <p><strong>Example:</strong></p>
           <template v-if="getSchemaView(entry.schema).type === 'object'">
-            <XmlOrJson :modelValue="getExampleFromSchema(entry.schema)" />
+            <Examples :source="{ schema: entry.schema }" />
           </template>
         </section>
       </template>
