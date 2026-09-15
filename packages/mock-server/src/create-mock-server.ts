@@ -135,7 +135,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   }
 
   // CORS headers
-  const allowedMethods = new Set(['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'])
+  const allowedMethods = new Set(['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'QUERY'])
   for (const pathItem of Object.values(schema?.paths ?? {})) {
     for (const method of Object.keys(getOperations(getResolvedRef(pathItem)))) {
       allowedMethods.add(method)
