@@ -64,6 +64,15 @@ describe('response-stream', () => {
     expect(output.length).toBe(2)
   })
 
+  it('accepts leading newlines inside JSON sequence records across byte splits', () => {
+    const bytes = encode('\x1e\n {"ok":true}\n\x1e\r\nfalse\n')
+    for (let split = 0; split <= bytes.length; split++) {
+      expect(parseChunks('application/json-seq', [bytes.slice(0, split), bytes.slice(split)])).toBe(
+        '{\n  "ok": true\n}\nfalse\n',
+      )
+    }
+  })
+
   it('recovers at a record separator and rejects truncated primitives', () => {
     expect(parseChunks('application/json-seq', [encode('\x1e{broken\x1e123\x1enull\x1e0\n')])).toBe(
       '[Invalid JSON record]\n{broken\n[Invalid JSON record]\n123\n[Invalid JSON record]\nnull\n0\n',
