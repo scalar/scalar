@@ -1,3 +1,4 @@
+import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -240,7 +241,7 @@ const compileValidators = (
   const cookieParameters = buildParameterSchema(parameters, 'cookie')
 
   const querystringParameter = findQuerystringParameter(operation, pathItemParameters)
-  const [querystringContentType, querystringMedia] = Object.entries(querystringParameter?.content ?? {})[0] ?? []
+  const [querystringContentType, querystringMedia] = getFirstMediaType(querystringParameter?.content) ?? []
   const querystringSchema = querystringMedia?.schema
 
   const requestBody = getResolvedRef(operation.requestBody)
