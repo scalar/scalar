@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
 import RequestBody from './RequestBody.vue'
+import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
 
 // Mock the useFileDialog hook
@@ -50,6 +51,28 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it.each(['{"id":1}', '', null, false, 0])('keeps structured primitive %j in the raw editor', async (dataValue) => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        defaultView: 'form',
+        requestBody: {
+          content: {
+            'application/json': {
+              examples: { 'example-1': { dataValue } },
+            },
+          },
+        },
+      },
+    })
+    await nextTick()
+
+    expect(wrapper.findComponent(RequestBodyStructured).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe(JSON.stringify(dataValue, null, 2))
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    wrapper.unmount()
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
     mockFiles.value = null
