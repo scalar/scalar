@@ -15,8 +15,15 @@ export const getExampleContent = (
   contentType = '',
 ): string | undefined => {
   if (example !== undefined) {
-    const value = getResolvedRefDeep(example)?.value ?? ''
-    return typeof value === 'string' && isStreamingMediaType(contentType) ? value : prettyPrintJson(value)
+    const value = getResolvedRefDeep(example)?.value
+    if (isStreamingMediaType(contentType)) {
+      return value === undefined
+        ? ''
+        : typeof value === 'string'
+          ? value
+          : serializeStreamExample(value, contentType, false)
+    }
+    return prettyPrintJson(value ?? '')
   }
 
   const schema = response?.schema ?? response?.itemSchema

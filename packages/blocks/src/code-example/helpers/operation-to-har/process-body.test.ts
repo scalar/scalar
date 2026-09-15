@@ -5,6 +5,23 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it.each([
+    {
+      contentType: 'text/event-stream',
+      value: { event: 'update', data: 'hello' },
+      expected: 'event: update\ndata: hello\n\n',
+    },
+    { contentType: 'application/jsonl', value: [{ id: 1 }, { id: 2 }], expected: '{"id":1}\n{"id":2}\n' },
+    { contentType: 'application/json-seq', value: [false, 0, null], expected: '\u001efalse\n\u001e0\n\u001enull\n' },
+    { contentType: 'application/jsonl', value: null, expected: 'null\n' },
+    { contentType: 'application/jsonl', value: false, expected: 'false\n' },
+    { contentType: 'application/jsonl', value: 0, expected: '0\n' },
+    { contentType: 'text/event-stream', value: 'data: unchanged\n\n', expected: 'data: unchanged\n\n' },
+  ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
+    const requestBody = { content: { [contentType]: { example: value } } }
+    expect(processBody({ requestBody, contentType })).toStrictEqual({ mimeType: contentType, text: expected })
+  })
+
   it('includes a framed streaming body in generated code samples', () => {
     expect(
       processBody({
