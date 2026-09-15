@@ -926,6 +926,7 @@ describe('RequestExample', () => {
             summary: 'Referenced operation',
             requestBody: {
               $ref: '#/components/requestBodies/TestBody',
+              // @ts-expect-error - Deliberately test an unresolved request body reference.
               '$ref-value': undefined,
             },
           },
