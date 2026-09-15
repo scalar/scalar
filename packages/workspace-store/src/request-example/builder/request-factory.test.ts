@@ -45,7 +45,7 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
-  it.each(['COPY', 'copy', 'customMethod'])('preserves additional method %s', (method) => {
+  it.each(['COPY', 'copy', 'customMethod', 'Get', 'pAtCh'])('preserves additional method %s', (method) => {
     const { request } = requestFactory(createBaseArgs({ method }))
     expect(request.method).toBe(method)
   })

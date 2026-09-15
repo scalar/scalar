@@ -1,6 +1,6 @@
 import type { HarRequest, Plugin } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
+import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { LENGTH_CONSIDERED_AS_SHORT, formatPythonValue } from '@/plugins/python/requestsLike'
 
 const indent = (value: string, prefix = '    '): string =>
@@ -11,16 +11,20 @@ const indent = (value: string, prefix = '    '): string =>
 
 const formatRequestCall = (clientVar: string, method: string, url: string, args: string[]): string => {
   const urlParam = JSON.stringify(url)
+  if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'].includes(method)) {
+    return `${clientVar}.request(${[JSON.stringify(method), urlParam, ...args].join(', ')})`
+  }
+  const shortcut = method.toLowerCase()
 
   if (url.length > LENGTH_CONSIDERED_AS_SHORT) {
-    return `${clientVar}.${method}(\n    ${[urlParam, ...args].join(',\n    ')}\n)`
+    return `${clientVar}.${shortcut}(\n    ${[urlParam, ...args].join(',\n    ')}\n)`
   }
 
   if (args.length === 0) {
-    return `${clientVar}.${method}(${urlParam})`
+    return `${clientVar}.${shortcut}(${urlParam})`
   }
 
-  return `${clientVar}.${method}(${urlParam},\n    ${args.join(',\n    ')}\n)`
+  return `${clientVar}.${shortcut}(${urlParam},\n    ${args.join(',\n    ')}\n)`
 }
 
 /**
@@ -37,7 +41,7 @@ export const pythonAiohttp: Plugin = {
       ...request,
     }
 
-    const method = normalizedRequest.method?.toLowerCase() ?? 'get'
+    const method = normalizeMethod(normalizedRequest.method)
     const requestArgs: string[] = []
     const sessionArgs: string[] = []
     const setupLines: string[] = []

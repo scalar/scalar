@@ -1,6 +1,6 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
+import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 export const LENGTH_CONSIDERED_AS_SHORT = 40
 
@@ -46,7 +46,8 @@ export function requestsLikeGenerate(
   }
 
   // Normalize method to lowercase for requests library
-  const method = normalizedRequest.method.toLowerCase()
+  const wireMethod = normalizeMethod(normalizedRequest.method)
+  const method = wireMethod.toLowerCase()
 
   // Build options object
   const options: Record<string, any> = {}
@@ -164,6 +165,10 @@ export function requestsLikeGenerate(
       const str = formatPythonValue(value)
       formattedParams.push(`${key}=${str}`)
     }
+  }
+
+  if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'].includes(wireMethod)) {
+    return `${clientVar}.request(${[JSON.stringify(wireMethod), urlParam, ...formattedParams.slice(1)].join(', ')})`
   }
 
   // Build the final request string with conditional URL formatting
