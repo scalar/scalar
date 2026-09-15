@@ -119,7 +119,7 @@ const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
  * Keep schema wrappers with resolved targets while excluding unresolved sparse chunk references.
  */
 const isSchemaObject = (value: unknown): value is SchemaObject =>
-  isObject(value) && (!('$ref' in value) || '$ref-value' in value)
+  isObject(value) && (!('$ref' in value) || value['$ref-value'] !== undefined)
 
 /**
  * Resolves a model entry to the schema the Model component renders.
