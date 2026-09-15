@@ -1,10 +1,12 @@
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { isStreamingMediaType, serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
 import { stream } from 'hono/streaming'
 
-import { type ExampleSchema, generateResponseExample } from './generate-response-example'
+import { generateResponseExample } from './generate-response-example'
 import { selectResponseExample } from './select-response-example'
 
 /** A finite mock stream, with its data-model value available to custom handlers. */
@@ -41,28 +43,30 @@ export const getStreamingResponse = (
     return { body: example.value, chunks: [example.value], contentType }
   }
 
-  const itemSchema = getResolvedRefDeep(mediaType.itemSchema) as ExampleSchema | boolean
-  const completeSchema =
-    mediaType.schema === undefined ? undefined : (getResolvedRefDeep(mediaType.schema) as ExampleSchema | boolean)
+  const itemSchema =
+    typeof mediaType.itemSchema === 'boolean' ? mediaType.itemSchema : getResolvedRefDeep(mediaType.itemSchema)
+  const completeSchema = typeof mediaType.schema === 'boolean' ? mediaType.schema : getResolvedRefDeep(mediaType.schema)
   const generateBody = (): unknown => {
     if (itemSchema === false || completeSchema === false) {
       return []
     }
     if (completeSchema === undefined) {
       return Array.from({ length: 3 }, () =>
-        itemSchema === true ? null : generateResponseExample(itemSchema, options.variables),
+        itemSchema === true
+          ? null
+          : generateResponseExample(coerceValue(SchemaObjectSchema, itemSchema), options.variables),
       )
     }
     if (typeof completeSchema === 'object' && 'type' in completeSchema && completeSchema.type === 'array') {
       return generateResponseExample(
-        {
+        coerceValue(SchemaObjectSchema, {
           ...completeSchema,
           items: ('items' in completeSchema ? completeSchema.items : undefined) ?? itemSchema,
-        } as ExampleSchema,
+        }),
         options.variables,
       )
     }
-    return generateResponseExample(completeSchema as ExampleSchema, options.variables)
+    return generateResponseExample(coerceValue(SchemaObjectSchema, completeSchema), options.variables)
   }
   const body = example ? example.value : generateBody()
   const items = body === undefined ? [] : Array.isArray(body) ? body : [body]
