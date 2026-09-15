@@ -11,7 +11,7 @@ import {
 import type { NodeInput } from '@/helpers/get-resolved-ref'
 import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
 
-describe('getResolvedPathItem', () => {
+describe('for-each-path-item-operation', () => {
   it('creates, traverses, reads, and deletes a QUERY operation', () => {
     const pathItem: PathItemObject = {}
     const operation = { summary: 'Search planets' }
