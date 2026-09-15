@@ -105,6 +105,14 @@ const selectedContentType = computed(
   () => getSelectedBodyContentType(requestBody, exampleKey) ?? 'none',
 )
 
+/** Keep the editor and copy label aligned with the selected content type. */
+const selectedLanguage = computed(
+  () =>
+    contentTypeToLanguageMap[
+      selectedContentType.value as keyof typeof contentTypeToLanguageMap
+    ] ?? 'plaintext',
+)
+
 /**
  * Strips MIME parameters (such as `charset=utf-8`) for dropdown labels, aligned with how we treat
  * media types elsewhere (see api-reference `normalizeMimeType` / WHATWG essence).
@@ -491,11 +499,7 @@ const canGenerateExample = computed(() =>
               class="px-3"
               content=""
               :environment="environment"
-              :language="
-                contentTypeToLanguageMap[
-                  selectedContentType as keyof typeof contentTypeToLanguageMap
-                ] ?? 'plaintext'
-              "
+              :language="selectedLanguage"
               lineNumbers
               lint
               :modelValue="bodyValue"
@@ -511,11 +515,7 @@ const canGenerateExample = computed(() =>
               v-if="bodyValue"
               class="absolute top-1.5 right-1.5"
               :content="bodyValue"
-              :lang="
-                contentTypeToLanguageMap[
-                  selectedContentType as keyof typeof contentTypeToLanguageMap
-                ] ?? 'plaintext'
-              "
+              :lang="selectedLanguage"
               showLang>
               <template #backdrop>
                 <ScalarCopyBackdrop class="-top-1 -right-1.5" />
