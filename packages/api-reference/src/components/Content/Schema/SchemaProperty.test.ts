@@ -13,6 +13,67 @@ import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
 describe('SchemaProperty', () => {
+  it('renders nested composition selectors with correct titles', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        eventBus: null,
+        schema: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            { type: 'object', properties: { customerComment: { type: 'string' } } },
+            {
+              oneOf: [
+                { title: 'Guest', type: 'object', properties: { guestName: { type: 'string' } } },
+                {
+                  title: 'Member',
+                  allOf: [
+                    { type: 'object', properties: { memberId: { type: 'string' } } },
+                    {
+                      anyOf: [
+                        { title: 'Email', type: 'object', properties: { email: { type: 'string' } } },
+                        { title: 'Phone', type: 'object', properties: { phone: { type: 'string' } } },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }),
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+
+    const outerSelector = wrapper.getComponent(ScalarListbox)
+    expect(outerSelector.props('options')).toStrictEqual([
+      { id: '0', label: 'Guest' },
+      { id: '1', label: 'Member' },
+    ])
+    expect(outerSelector.text()).toBe('One of·Guest')
+    expect(wrapper.text()).toContain('guestName')
+
+    outerSelector.vm.$emit('update:modelValue', { id: '1', label: 'Member' })
+    await wrapper.vm.$nextTick()
+
+    const selectors = wrapper.findAllComponents(ScalarListbox)
+    expect(selectors.map((selector) => selector.text())).toStrictEqual(['One of·Member', 'Any of·Email'])
+    const innerSelector = selectors[1]!
+    expect(innerSelector.props('options')).toStrictEqual([
+      { id: '0', label: 'Email' },
+      { id: '1', label: 'Phone' },
+    ])
+    expect(wrapper.text()).toContain('memberId')
+    expect(wrapper.text()).not.toContain('guestName')
+
+    innerSelector.vm.$emit('update:modelValue', { id: '1', label: 'Phone' })
+    await wrapper.vm.$nextTick()
+
+    expect(selectors.map((selector) => selector.text())).toStrictEqual(['One of·Member', 'Any of·Phone'])
+    expect(wrapper.text()).toContain('phone')
+    expect(wrapper.text()).not.toContain('email')
+    expect(wrapper.text()).toContain('customerComment')
+    wrapper.unmount()
+  })
+
   describe('expandable schema behavior', () => {
     describe('object types', () => {
       it('displays expandable sub-schema for object with additional properties', async () => {
@@ -943,62 +1004,6 @@ describe('SchemaProperty', () => {
         // Check that both properties are rendered with their descriptions
         expect(html).toContain('button')
         expect(html).toContain('object')
-      })
-    })
-
-    describe('nested compositions', () => {
-      // change the way we render compositions
-      it.todo('renders nested composition selectors with correct titles', async () => {
-        const wrapper = mount(SchemaProperty, {
-          props: {
-            eventBus: null,
-            schema: coerceValue(SchemaObjectSchema, {
-              allOf: [
-                {
-                  type: 'object',
-                  properties: {
-                    customerComment: {
-                      type: 'string',
-                    },
-                  },
-                },
-                {
-                  oneOf: [
-                    {
-                      allOf: [
-                        {
-                          title: 'foo (1)',
-                          type: 'object',
-                        },
-                        {
-                          oneOf: [
-                            {
-                              title: 'bar (1)',
-                              type: 'object',
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            }),
-            options: {},
-          },
-        })
-
-        // Check that the first level composition is rendered
-        const firstLevelSelector = wrapper.find('.composition-selector')
-        expect(firstLevelSelector.exists()).toBe(true)
-        expect(firstLevelSelector.text()).toContain('All of')
-
-        // Select the second option
-        const dropdown = wrapper.findComponent(ScalarListbox)
-        await dropdown.vm.$emit('update:modelValue', { id: '1', label: 'One of' })
-        await wrapper.vm.$nextTick()
-
-        expect(wrapper.text()).toBe('All ofOne ofAll offoo (1)')
       })
     })
 
