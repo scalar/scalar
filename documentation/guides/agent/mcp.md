@@ -14,7 +14,7 @@ The **Installation MCP** lives at `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID` a
 
 Create a new MCP Server for your API in under a minute (I promise):
 
-1. Open the [Scalar Dashboard](https://dashboard.scalar.com) and go to *MCP*.
+1. Open the [Scalar Dashboard](https://dashboard.scalar.com) and go to _MCP_.
 2. Create an MCP Server.
 3. Configure your tools, select your API and decide which endpoints to expose.
 4. Create an installation.
@@ -47,20 +47,15 @@ claude mcp add \
 
 Tools are the individual capabilities your MCP exposes. Each tool maps to an operation (endpoint) in your OpenAPI document. To configure your tools:
 
-1. Open the [Scalar Dashboard](https://dashboard.scalar.com) and go to *Registry*
-2. Select your API
-3. Scroll to MCP, and click on "Configure Tools"
+1. Open [APIs](https://dashboard.scalar.com/apis) in the Scalar Dashboard.
+2. Select your API.
+3. Open **Settings > MCP tools**.
+4. Select which operations can be searched or executed.
 
-<br>
-
-![UI to enable/disable endpoints for your MCP server](./configure-mcp-tools.png)
-
-<br>
-
-| Mode    | Description                                                            |
-| ------- | ---------------------------------------------------------------------- |
+| Mode    | Description                                                             |
+| ------- | ----------------------------------------------------------------------- |
 | Search  | Exposes the endpoint for lookup only (no requests are sent to your API) |
-| Execute | Makes real, authenticated requests to your API                         |
+| Execute | Makes real, authenticated requests to your API                          |
 
 ## API Authentication
 

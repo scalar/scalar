@@ -1,34 +1,37 @@
 # Upload API documents
-This guide will help you interact with our registry with our [dashboard on scalar.com](https://dashboard.scalar.com), which can be done alongside [our command-line interface](cli.md).
 
-Make sure you have created a Scalar Account & are logged in ([see create account guide](getting-started.md#create-your-scalar-account))
+Manage API descriptions in the registry from the [Scalar Dashboard](https://dashboard.scalar.com/apis), alongside [the command-line interface](cli.md).
+
+Before you begin, [create a Scalar account](getting-started.md#create-your-scalar-account) and sign in.
 
 ## Add an API Document
-Now let's add an API document to the registry ✨
 
-From the [dashboard](https://dashboard.scalar.com) click Import API from the right hand pane, or navigate to registry in the sidebar under Products then click Create new API
+1. Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis) and click **Import API**.
+2. Upload or paste your API description, or import it from a URL. You can import OpenAPI, AsyncAPI, or a Postman Collection.
+3. Review the registry path, version, and public or private access setting, then complete the import.
 
-![Scalar Import OpenAPI Document Modal](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/WnMVG8hrR_f-6t-lOtDYb.png "Scalar Import OpenAPI Document")
+Your API is now available in the registry under your team's namespace.
 
-You can upload any version of OpenAPI or AsyncAPI (even Swagger) or a Postman Collection!
+### Re-upload an existing API
 
-![Scalar Importing OpenAPI Document](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/RWZLxUdaySzCyELtwopSq.png "Scalar Importing OpenAPI Document")
+When an upload matches an API in the selected namespace, the import form displays **This API already exists**. Under **Add to existing API?**, select the API to update, or choose **Or create new API** to keep it separate.
 
-![Scalar Imported OpenAPI Document](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/glhdU91VygnDIlywcnUsL.png "Scalar Imported OpenAPI Document")
+Before adding to an existing API:
 
-Awesome, now your API document is in the Registry under your company's namespace!
+- Review the destination and its access setting. Adding a version keeps the existing API's public or private access.
+- Review the **Version** and any overwrite warnings. Uploading an existing version replaces that version's content.
+- Review **Set as the current version**. A newer version is selected as current by default; re-uploading the current version keeps it current. An older version is not promoted by default.
 
+APIs linked to Git or a URL, and APIs with a different document type, cannot receive the upload as a new version through this flow. The form explains the conflict and offers **Or create new API**. A registry path collision alone also does not qualify as a matching API.
 
 ## Update an API Document
-You can use our [OpenAPI Editor](https://editor.scalar.com) to make changes to your API document, or click Edit Document from the [Registry Page](https://dashboard.scalar.com/registry).
 
-![Registry Overview](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/glhdU91VygnDIlywcnUsL.png "Registry Overview")
+1. Open [APIs](https://dashboard.scalar.com/apis) and select your API.
+2. Open **Document** to edit the API description.
+3. Make your changes and click **Publish** to open the publishing flow. Review the version before publishing to the registry.
 
-![Scalar Document Editor](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/azzKtVC0Ew1_94JdMKTc9.png "Scalar Document Editor")
-
-Once you make edits, you can click Publish in the top right to upsert a new version to the registry
-
-![Scalar Upsert Document](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/ToaCj4ycSecX799jl6DZ7.png "Scalar Upsert Document")
+You can also use the standalone [OpenAPI Editor](https://editor.scalar.com) to edit an API description and [upload it with the CLI](cli.md).
 
 ## Delete an API Document
-You can delete an API document from the Registry > Overview page, however please consider the downstream effects of which products are depending on that API document before deleting that resource.
+
+Open [APIs](https://dashboard.scalar.com/apis), select your API, and go to **Settings > Danger zone > Delete API**. Before confirming deletion, check which documentation sites, SDKs, or MCP servers depend on the API.
