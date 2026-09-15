@@ -6,6 +6,14 @@ import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { ExampleObject } from '@/schemas/v3.2/strict/example'
 
+/** An edit replaces the authored source so the old serialized/data value cannot win. */
+const replaceExampleValue = (example: ExampleObject, value: unknown): void => {
+  delete example.serializedValue
+  delete example.dataValue
+  delete example.externalValue
+  example.value = value
+}
+
 /** Ensure the json that we need exists up to the example object in the request body */
 const findOrCreateRequestBodyExample = (
   document: WorkspaceDocument | null,
@@ -105,11 +113,7 @@ export const updateOperationRequestBodyExample = (
     return
   }
 
-  // An edit replaces the authored source, otherwise the old serialized/data value wins.
-  delete example.serializedValue
-  delete example.dataValue
-  delete example.externalValue
-  example.value = payload
+  replaceExampleValue(example, payload)
 }
 
 /**
@@ -127,9 +131,5 @@ export const updateOperationRequestBodyFormValue = (
     return
   }
 
-  // An edit replaces the authored source, otherwise the old serialized/data value wins.
-  delete example.serializedValue
-  delete example.dataValue
-  delete example.externalValue
-  example.value = unpackProxyObject(payload, { depth: 3 })
+  replaceExampleValue(example, unpackProxyObject(payload, { depth: 3 }))
 }
