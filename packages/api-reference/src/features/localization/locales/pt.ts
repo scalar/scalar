@@ -2,6 +2,7 @@ import type { ApiReferenceTranslations } from '@scalar/types/api-reference'
 
 export const pt = {
   common: {
+    streamItem: 'Item do fluxo',
     description: 'Descrição',
     httpMethod: 'Método HTTP',
     path: 'Caminho',

@@ -8,6 +8,49 @@ import { describe, expect, it } from 'vitest'
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
+  it.each([
+    {
+      contentType: 'text/event-stream',
+      value: { event: 'update', data: 'hello' },
+      expected: 'event: update\ndata: hello\n\n',
+    },
+    { contentType: 'application/jsonl', value: [{ id: 1 }, { id: 2 }], expected: '{"id":1}\n{"id":2}\n' },
+    { contentType: 'application/json-seq', value: [false, 0, null], expected: '\u001efalse\n\u001e0\n\u001enull\n' },
+    { contentType: 'application/jsonl', value: null, expected: 'null\n' },
+    { contentType: 'application/jsonl', value: false, expected: 'false\n' },
+    { contentType: 'application/jsonl', value: 0, expected: '0\n' },
+    { contentType: 'text/event-stream', value: 'data: unchanged\n\n', expected: 'data: unchanged\n\n' },
+  ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
+    const body = { content: { [contentType]: { example: value } } }
+    expect(getExampleFromBody(body, contentType, 'default')).toStrictEqual({ value: expected })
+  })
+
+  it('generates a framed example from a referenced stream item schema', () => {
+    const body = {
+      content: {
+        'application/jsonl': {
+          itemSchema: {
+            $ref: '#/components/schemas/Entry',
+            '$ref-value': { type: 'object' as const, properties: { id: { type: 'integer' as const, const: 42 } } },
+          },
+        },
+      },
+    }
+    expect(getExampleFromBody(body, 'application/jsonl', 'default')).toStrictEqual({ value: '{"id":42}\n' })
+  })
+
+  it('keeps explicit stream examples unchanged', () => {
+    const body = {
+      content: {
+        'application/jsonl': {
+          itemSchema: { type: 'integer' as const },
+          example: '1\n2\n',
+        },
+      },
+    }
+    expect(getExampleFromBody(body, 'application/jsonl', 'default')?.value).toBe('1\n2\n')
+  })
+
   it('returns existing example when found in content.examples', () => {
     const requestBody = {
       content: {

@@ -1,21 +1,9 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { Plugin } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
 import { joinUrlAndQuery } from '@/libs/http'
-
-/**
- * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
- * (e.g. `application/vnd.api+json`), and parameterized variants
- * (e.g. `application/json;charset=utf-8`). Case-insensitive.
- */
-const isJsonContentType = (value: string | undefined): boolean => {
-  if (!value) {
-    return false
-  }
-  const { subtype } = parseMimeType(value)
-  return subtype === 'json' || subtype.endsWith('+json')
-}
 
 /**
  * Maps an HTTP method to a RestSharp `Method` enum member. The enum uses
@@ -117,7 +105,7 @@ export const csharpRestsharp: Plugin = {
       // `charset`) still match the form, multipart, and octet-stream branches.
       const essence = mimeType ? parseMimeType(mimeType).essence : undefined
 
-      if (isJsonContentType(mimeType)) {
+      if (isJsonMediaType(mimeType)) {
         if (text) {
           let body = text
           try {

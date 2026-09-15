@@ -1,23 +1,34 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
+import { isStreamingMediaType, serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Keep the displayed response and its clipboard action on the same resolved, formatted value. */
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
+  contentType = '',
 ): string | undefined => {
   if (example !== undefined) {
-    return prettyPrintJson(getResolvedRefDeep(example)?.value ?? '')
+    const value = getResolvedRefDeep(example)?.value
+    if (isStreamingMediaType(contentType)) {
+      return value === undefined
+        ? ''
+        : typeof value === 'string'
+          ? value
+          : serializeStreamExample(value, contentType, false)
+    }
+    return prettyPrintJson(value ?? '')
   }
 
-  if (response?.schema) {
-    const content = getExampleFromSchema(getResolvedRefDeep(response.schema) as SchemaObject, {
+  const schema = response?.schema ?? response?.itemSchema
+  if (schema) {
+    const content = getExampleFromSchema(getResolvedRefDeep(schema) as SchemaObject, {
       emptyString: 'string',
       mode: 'read',
     })
@@ -25,7 +36,10 @@ export const getExampleContent = (
       return undefined
     }
     // Schema generation returns unknown, but produces JSON values supported by the formatter.
-    return prettyPrintJson(content as Parameters<typeof prettyPrintJson>[0])
+    return (
+      serializeStreamExample(content, contentType, response?.schema === undefined) ??
+      prettyPrintJson(content as Parameters<typeof prettyPrintJson>[0])
+    )
   }
 
   return undefined
