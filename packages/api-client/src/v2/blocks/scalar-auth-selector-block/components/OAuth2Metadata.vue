@@ -25,6 +25,12 @@ const { scheme, name, environment, eventBus, proxyUrl, customFetch } =
 const loader = useLoadingState()
 const { toast } = useToasts()
 
+const updateMetadataUrl = (oauth2MetadataUrl: string): void =>
+  eventBus.emit('auth:update:security-scheme', {
+    name,
+    payload: { type: 'oauth2', oauth2MetadataUrl },
+  })
+
 /** Apply metadata only to the scheme and URL that initiated the request. */
 const fetchConfiguration = async (): Promise<void> => {
   const url = scheme.oauth2MetadataUrl
@@ -63,13 +69,7 @@ const fetchConfiguration = async (): Promise<void> => {
       :environment
       :modelValue="scheme.oauth2MetadataUrl ?? ''"
       placeholder="https://example.com/.well-known/oauth-authorization-server"
-      @update:modelValue="
-        (oauth2MetadataUrl) =>
-          eventBus.emit('auth:update:security-scheme', {
-            name,
-            payload: { type: 'oauth2', oauth2MetadataUrl },
-          })
-      ">
+      @update:modelValue="updateMetadataUrl">
       Metadata URL
     </RequestAuthDataTableInput>
   </DataTableRow>
