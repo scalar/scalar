@@ -9,6 +9,7 @@ import type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
+  OAuthFlowDeviceAuthorizationSecret,
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
@@ -18,6 +19,7 @@ import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
+  OAuthFlowDeviceAuthorization,
   OAuthFlowImplicit,
   OAuthFlowPassword,
 } from '@scalar/workspace-store/schemas/v3.2/strict/oauth-flow'
@@ -175,6 +177,25 @@ const extractOAuthFlowSecrets = (
       } satisfies OAuthFlowClientCredentialsSecret
     }
 
+    // Device authorization flow
+    if (key === 'deviceAuthorization') {
+      acc[key] = {
+        ...(flow as OAuthFlowDeviceAuthorization),
+        ...mergeFlowSecrets(
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-client-secret',
+            'x-scalar-secret-token',
+            'x-scalar-secret-token-url',
+          ],
+          flow,
+          storeSecrets?.deviceAuthorization,
+        ),
+        ...extractCredentialsLocation(flow, storeSecrets?.deviceAuthorization),
+        ...extractRefreshTokenSecret(storeSecrets?.deviceAuthorization),
+      } satisfies OAuthFlowDeviceAuthorizationSecret
+    }
+
     // Authorization code flow
     if (key === 'authorizationCode') {
       acc[key] = {
@@ -257,6 +278,7 @@ export const extractSecuritySchemeSecrets = (
         password: storeSecrets?.password,
         clientCredentials: storeSecrets?.clientCredentials,
         authorizationCode: storeSecrets?.authorizationCode,
+        deviceAuthorization: storeSecrets?.deviceAuthorization,
       },
       storeSecrets,
     )
