@@ -1,5 +1,7 @@
 import { isElectron } from '@/general/is-electron'
 
+import { HTTP_TOKEN } from './http-token'
+import { isForbiddenHttpMethod } from './is-forbidden-http-method'
 import { isHttpMethod } from './is-http-method'
 
 /** HTTP Methods which can have a body */
@@ -21,10 +23,9 @@ export const canMethodHaveBody = (method: string, skipElectron: boolean = false)
   }
 
   // Extension methods can carry bodies too; keep the existing policy for standard OpenAPI methods.
-  const isExtensionMethod =
-    !isHttpMethod(method) && /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(method) && !['connect', 'track'].includes(normalized)
+  const isExtensionMethod = !isHttpMethod(method) && HTTP_TOKEN.test(method)
 
-  return BODY_METHODS.has(normalized) || isExtensionMethod
+  return !isForbiddenHttpMethod(method) && (BODY_METHODS.has(normalized) || isExtensionMethod)
 }
 
 /*** We must purge body from requests that cannot accept it, skips the electron check */
