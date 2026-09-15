@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { generateSchema } from './index'
 import { normalRef } from './reference'
 
-describe('generateSchema', () => {
+describe('index', () => {
   const schema = generateSchema(normalRef)
   const mediaType = {
     description: 'A stream of users',
