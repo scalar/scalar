@@ -1,46 +1,84 @@
-import { renderApiReference } from '@scalar/client-side-rendering'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import { ApiReference } from '../src/ApiReference'
-
-vi.mock('@scalar/client-side-rendering', { spy: true })
-vi.mock('../src/custom-theme', () => ({ customTheme: '___customTheme___' }))
-
-const renderApiReferenceSpy = vi.mocked(renderApiReference)
-
-beforeEach(() => {
-  renderApiReferenceSpy.mockReset()
-})
+import { ApiReference, type ApiReferenceConfiguration, type ApiReferenceOptions } from '../src'
 
 describe('ApiReference', () => {
-  it('should return a function', () => {
-    const handler = ApiReference({})
-    expect(handler).toBeInstanceOf(Function)
+  it('returns a synchronous handler for static configuration', async () => {
+    const configuration = {
+      pageTitle: 'My API',
+      content: { openapi: '3.1.0' },
+    } satisfies Partial<ApiReferenceConfiguration>
+    const handler = ApiReference(configuration)
+    expectTypeOf(handler).returns.toEqualTypeOf<Response>()
+    const response = handler()
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toBe('text/html; charset=utf-8')
+    const html = await response.text()
+    expect(html).toContain('<title>My API</title>')
+    expect(html).toContain('"_integration": "nextjs"')
+    expect(html).toContain('"openapi": "3.1.0"')
   })
 
-  it('should return a Response with correct headers and body', async () => {
-    renderApiReferenceSpy.mockReturnValueOnce('___HTMLDoc___')
+  it('passes the incoming request to a synchronous configuration factory', async () => {
+    const handler = ApiReference((request) => ({ pageTitle: new URL(request.url).pathname }))
+    expectTypeOf(handler).returns.toEqualTypeOf<Promise<Response>>()
+    const response = await handler(new Request('https://example.com/scalar'))
+    expect(await response.text()).toContain('<title>/scalar</title>')
+  })
 
-    const handler = ApiReference({ title: 'Test API' })
-    const response = handler()
-
-    expect(response).toBeInstanceOf(Response)
-    expect(response.status).toBe(200)
-    expect(response.headers.get('Content-Type')).toBe('text/html')
-
-    expect(renderApiReferenceSpy).toHaveBeenCalledOnce()
-    expect(renderApiReferenceSpy).toHaveBeenCalledWith(
-      {
-        config: expect.objectContaining({
-          title: 'Test API',
-          _integration: 'nextjs', // default should be merged in
-        }),
-        cdn: undefined,
-        pageTitle: undefined,
-      },
-      '___customTheme___',
+  it('keeps concurrent asynchronous configurations separate', async () => {
+    const handler = ApiReference(async (request) => ({
+      pageTitle: await request.text(),
+      nonce: request.headers.get('x-nonce') ?? undefined,
+    }))
+    const responses = await Promise.all(
+      ['first', 'second'].map((value) =>
+        handler(
+          new Request('https://example.com/scalar', {
+            method: 'POST',
+            body: value,
+            headers: { 'x-nonce': value },
+          }),
+        ),
+      ),
     )
+    const bodies = await Promise.all(responses.map((response) => response.text()))
+    expect(bodies[0]).toContain('<title>first</title>')
+    expect(bodies[0]).toContain('nonce="first"')
+    expect(bodies[0]).not.toContain('second')
+    expect(bodies[1]).toContain('<title>second</title>')
+    expect(bodies[1]).toContain('nonce="second"')
+    expect(bodies[1]).not.toContain('first')
+  })
 
-    await expect(response.text()).resolves.toBe('___HTMLDoc___')
+  it('creates independent response headers and retains the HTML content type', () => {
+    const options = {
+      headers: new Headers({ 'Cache-Control': 'private, no-store', 'Content-Type': 'application/json' }),
+    } satisfies ApiReferenceOptions
+    const handler = ApiReference({}, options)
+    const response = handler()
+    response.headers.set('Cache-Control', 'public')
+    expect(handler().headers.get('Cache-Control')).toBe('private, no-store')
+    expect(response.headers.get('Content-Type')).toBe('text/html; charset=utf-8')
+    expect(options.headers.get('Content-Type')).toBe('application/json')
+  })
+
+  it('accepts header tuples with an asynchronous factory', async () => {
+    const handler = ApiReference(() => Promise.resolve({}), { headers: [['Cache-Control', 'no-store']] })
+    expect((await handler(new Request('https://example.com/scalar'))).headers.get('Cache-Control')).toBe('no-store')
+  })
+
+  it('propagates configuration failures', async () => {
+    const error = new Error('Configuration unavailable')
+    const handler = ApiReference(() => Promise.reject(error))
+    await expect(handler(new Request('https://example.com/scalar'))).rejects.toBe(error)
+  })
+
+  it('turns synchronous factory failures into rejected responses', async () => {
+    const error = new Error('Configuration unavailable')
+    const handler = ApiReference(() => {
+      throw error
+    })
+    await expect(handler(new Request('https://example.com/scalar'))).rejects.toBe(error)
   })
 })

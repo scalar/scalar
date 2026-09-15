@@ -15,11 +15,14 @@ import {
 const {
   data,
   hasCheckboxDisabled,
+  deferKeyUpdates,
   showUploadButton,
   showAddRowPlaceholder = true,
   environment,
 } = defineProps<{
   data: TableRow[]
+  /** Save key edits on blur so changing a body name does not replace the focused row. */
+  deferKeyUpdates?: boolean
   /** Hide the enabled column */
   hasCheckboxDisabled?: boolean
   invalidParams?: Set<string>
@@ -70,6 +73,30 @@ const displayData = computed(() => {
 
   return data
 })
+
+/**
+ * Stable identity key for each row so Vue never reuses a RequestTableRow instance for a different
+ * parameter or the appended placeholder row. Parameter rows are keyed by their parameter identity —
+ * the name plus the value path for expanded object parameters. The parts are combined through
+ * JSON.stringify so the name/path boundary is unambiguous (for example `ab` + `['c']` never
+ * collides with `a` + `['bc']`). Form rows use the name and its occurrence so repeated
+ * multipart fields remain distinct while unrelated rows can move without losing their identity.
+ */
+const getRowKey = (row: TableRow, index: number): string => {
+  if (row.originalParameter) {
+    return JSON.stringify([
+      row.originalParameter.name,
+      ...(row.sourceParameterValuePath ?? []),
+    ])
+  }
+
+  const occurrence = displayData.value
+    .slice(0, index)
+    .filter(
+      (other) => !other.originalParameter && other.name === row.name,
+    ).length
+  return `row:${JSON.stringify([row.name, occurrence])}`
+}
 </script>
 <template>
   <DataTable
@@ -83,8 +110,9 @@ const displayData = computed(() => {
 
     <RequestTableRow
       v-for="(row, index) in displayData"
-      :key="index"
+      :key="getRowKey(row, index)"
       :data="row"
+      :deferKeyUpdates="deferKeyUpdates"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
       :invalidParams="invalidParams"

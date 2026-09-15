@@ -4,12 +4,13 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
 import { defineConfig } from 'vite'
-import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 import { name, version } from './package.json'
 
-const licenseBannerTemplate = String.raw`/**
+// Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
+// when `output.comments.legal` is enabled. See the `banner`/`comments` output options.
+const licenseBannerTemplate = String.raw`/*!
  *    _____ _________    __    ___    ____
  *   / ___// ____/   |  / /   /   |  / __ \
  *   \__ \/ /   / /| | / /   / /| | / /_/ /
@@ -55,18 +56,16 @@ export default defineConfig({
     // Content Security Policy. See the `nonce` option in @scalar/client-side-rendering.
     cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' }, useStrictCSP: true }),
     webpackStats({ fileName: 'webpack-stats.esm.json' }),
-    banner({
-      outDir: 'dist/browser',
-      content: replaceVariables(licenseBannerTemplate, {
-        packageName: name,
-        version: version,
-      }),
-    }),
   ],
   build: {
     emptyOutDir: false,
     outDir: 'dist/browser',
     cssCodeSplit: false,
+    // Ship linked source maps (external `.map` + a `//# sourceMappingURL=` comment)
+    // so consumers can debug config errors against readable source. Browsers only
+    // fetch the map when devtools is open and downstream bundlers strip the link, so
+    // this does not affect production page weight.
+    sourcemap: true,
     lib: {
       entry: { 'standalone.esm': 'src/standalone.esm.ts' },
       name: '@scalar/api-reference',
@@ -83,6 +82,13 @@ export default defineConfig({
       },
       output: {
         entryFileNames: '[name].js',
+        // Prepend the license banner through Rolldown (not vite-plugin-banner) so the
+        // source map stays aligned: Rolldown accounts for the banner in the map,
+        // whereas vite-plugin-banner rewrites the file after the map is emitted.
+        banner: replaceVariables(licenseBannerTemplate, { packageName: name, version }),
+        // Keep the `/*!` license banner through minification. Vite defaults oxc to
+        // `legalComments: 'none'`, which would otherwise strip it.
+        comments: { legal: true },
         // Rolldown names a shared chunk after an arbitrary member module. The large
         // eager chunk that holds the rendering core (highlight.js, zod, typebox, yaml,
         // parse5, plus the shared workspace-store/components code) would otherwise be

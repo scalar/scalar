@@ -49,9 +49,7 @@ test.describe('layout', () => {
 
     await page.goto(example)
 
-    // We need another selector here, because the layout is just different.
-    // TODO: Ideally, we'd have the same 'region' selector for both layouts.
-    await expect(page.locator('.section-accordion-wrapper')).toBeVisible()
-    await expect(page.locator('.section-accordion-wrapper')).toHaveAttribute('layout', 'classic')
+    await expect(page.getByRole('region', { name: 'user-tag', exact: true })).toBeVisible()
+    await expect(page.getByRole('region', { name: 'user-tag', exact: true })).toHaveAttribute('layout', 'classic')
   })
 })

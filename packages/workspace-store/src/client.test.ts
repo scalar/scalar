@@ -10,8 +10,8 @@ import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isAsyncApiDocument } from '@/schemas'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
 // Test document
@@ -4342,13 +4342,13 @@ describe('create-workspace-store', () => {
                 'children': [
                   {
                     'channelName': 'chat',
-                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage/asyncapi-message/sendmessage',
+                    'id': 'chatapp/channel/chat/operation/sendchatmessage/message/sendmessage',
                     'messageName': 'sendMessage',
                     'title': 'Send a chat message',
                     'type': 'asyncapi-message',
                   },
                 ],
-                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage',
+                'id': 'chatapp/channel/chat/operation/sendchatmessage',
                 'operationName': 'sendChatMessage',
                 'title': 'sendChatMessage',
                 'type': 'asyncapi-operation',
@@ -4360,19 +4360,19 @@ describe('create-workspace-store', () => {
                 'children': [
                   {
                     'channelName': 'chat',
-                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage/asyncapi-message/receivemessage',
+                    'id': 'chatapp/channel/chat/operation/receivechatmessage/message/receivemessage',
                     'messageName': 'receiveMessage',
                     'title': 'Receive a chat message',
                     'type': 'asyncapi-message',
                   },
                 ],
-                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage',
+                'id': 'chatapp/channel/chat/operation/receivechatmessage',
                 'operationName': 'receiveChatMessage',
                 'title': 'receiveChatMessage',
                 'type': 'asyncapi-operation',
               },
             ],
-            'id': 'chatapp/asyncapi-channel/chat',
+            'id': 'chatapp/channel/chat',
             'title': '/chat',
             'type': 'asyncapi-channel',
           },
@@ -4382,6 +4382,37 @@ describe('create-workspace-store', () => {
         'title': 'Simple Chat WebSocket API',
         'type': 'document',
       })
+    })
+  })
+
+  describe('openapi security schemes', () => {
+    it('preserves a mutualTLS security scheme during ingestion', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'mtls',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Example', version: '1.0' },
+          paths: {
+            '/ping': { get: { security: [{ mutualTLS: [] }], responses: { '200': { description: 'OK' } } } },
+          },
+          components: {
+            securitySchemes: {
+              mutualTLS: { type: 'mutualTLS', description: 'some desc' },
+            },
+          },
+        },
+      })
+
+      const document = store.workspace.documents['mtls']
+      assert(document && isOpenApiDocument(document))
+
+      // Coercion used to downgrade the unknown type to the first union member (apiKey), which is
+      // why the UI rendered a Name/Value form. The type must survive so the auth UI can react to it.
+      const scheme = getResolvedRef(getResolvedRef(document.components)?.securitySchemes?.mutualTLS)
+      expect(scheme?.type).toBe('mutualTLS')
+      expect(scheme?.description).toBe('some desc')
     })
   })
 })

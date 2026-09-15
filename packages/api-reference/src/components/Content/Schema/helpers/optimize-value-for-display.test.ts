@@ -1,5 +1,5 @@
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { optimizeValueForDisplay } from './optimize-value-for-display'
@@ -382,6 +382,142 @@ describe('optimizeValueForDisplay', () => {
             name: { type: 'string' },
           },
           required: ['name'],
+        },
+      ],
+    })
+  })
+
+  it('drops a flattened allOf base $ref so it does not overwrite the variant (#9964)', () => {
+    // Mirrors the reported bug: a oneOf variant (Cat) extends a base (Animal)
+    // through a single-$ref allOf. Flattening that allOf must not leave the
+    // base's own $ref on the variant, or the selector shows the base's name
+    // instead of the variant's.
+    const input = {
+      oneOf: [
+        {
+          type: 'object',
+          allOf: [
+            {
+              '$ref': '#/components/schemas/Animal',
+              '$ref-value': {
+                type: 'object',
+                properties: { id: { type: 'string' } },
+              },
+            },
+          ],
+          properties: { type: { type: 'string', const: 'cat' } },
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            type: { type: 'string', const: 'cat' },
+          },
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    })
+  })
+
+  it('keeps the allOf base $ref when the variant is a bare wrapper with no identity of its own (#9964)', () => {
+    // A variant that only wraps a single allOf member, with no properties,
+    // required, or $ref of its own, has nothing to protect from the base's
+    // $ref, so the base's $ref is kept as a fallback label instead of being
+    // dropped and leaving the variant unlabeled.
+    const input = {
+      oneOf: [
+        {
+          allOf: [
+            {
+              '$ref': '#/components/schemas/Animal',
+              '$ref-value': {
+                type: 'object',
+                properties: { id: { type: 'string' } },
+              },
+            },
+          ],
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          '$ref': '#/components/schemas/Animal',
+          type: 'object',
+          properties: { id: { type: 'string' } },
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'dog' } },
+        },
+      ],
+    })
+  })
+
+  it('drops a flattened allOf base title/name so it does not overwrite the variant (#9964)', () => {
+    // The base's identity is not only its `$ref`: `getModelNameFromSchema`
+    // prefers `title` (then `name`) over `$ref`, so a base that carries a
+    // `title` would still mislabel every variant even after the base's `$ref`
+    // is dropped. Here the variant (Cat) keeps its own `$ref`, and the base
+    // (Animal) contributes only its properties, not its title.
+    const input = {
+      oneOf: [
+        {
+          '$ref': '#/components/schemas/Cat',
+          type: 'object',
+          allOf: [
+            {
+              '$ref': '#/components/schemas/Animal',
+              title: 'Animal',
+              type: 'object',
+              properties: { id: { type: 'string' } },
+            },
+          ],
+          properties: { meow: { type: 'boolean' } },
+        },
+        {
+          type: 'object',
+          properties: { bark: { type: 'boolean' } },
+        },
+      ],
+    } as unknown as SchemaObject
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result).toEqual({
+      oneOf: [
+        {
+          '$ref': '#/components/schemas/Cat',
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            meow: { type: 'boolean' },
+          },
+        },
+        {
+          type: 'object',
+          properties: { bark: { type: 'boolean' } },
         },
       ],
     })

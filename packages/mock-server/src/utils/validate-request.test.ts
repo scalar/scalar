@@ -23,6 +23,38 @@ const documentWith = (path: string, method: string, operation: OpenAPIV3_1.Opera
   },
 })
 
+/**
+ * Post a JSON body to an operation whose request body is `#/components/schemas/Root`, so a recursive
+ * schema can be exercised end to end. Cutting the cycle makes a subschema accept more, which under
+ * `not`, `if`, `oneOf` or `contains` would make the operation reject more than the document does.
+ */
+const postRecursiveBody = async (schemas: Record<string, unknown>, body: unknown) => {
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'Validation', version: '1.0.0' },
+    components: { schemas },
+    paths: {
+      '/nodes': {
+        post: {
+          requestBody: {
+            required: true,
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Root' } } },
+          },
+          responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+        },
+      },
+    },
+  }
+
+  const server = await createMockServer({ document, validateRequest: true })
+
+  return server.request('/nodes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
 describe('validate-request', () => {
   it('passes a valid request through to the normal mock response', async () => {
     const document = documentWith('/items', 'get', {
@@ -793,6 +825,240 @@ describe('validate-request', () => {
     expect((await response.json()).violations[0]).toMatchObject({ location: 'query', path: '/limit' })
 
     consoleErrorSpy.mockRestore()
+  })
+
+  it('validates a recursive request body instead of falling open on the circular marker', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Validation', version: '1.0.0' },
+      components: {
+        schemas: {
+          Node: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: { type: 'string' },
+              // Resolving this cycle leaves a `'[circular]'` marker that Ajv refuses to compile.
+              child: { $ref: '#/components/schemas/Node' },
+            },
+          },
+        },
+      },
+      paths: {
+        '/nodes': {
+          post: {
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/Node' } } },
+            },
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const post = (body: unknown) =>
+      server.request('/nodes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    const invalid = await post({ child: { name: 'leaf' } })
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations).toStrictEqual([
+      { location: 'body', path: '/name', message: "must have required property 'name'" },
+    ])
+
+    // The recursion point accepts anything, so a nested value never turns a valid body into a 422.
+    const valid = await post({ name: 'root', child: { anything: true } })
+    expect(valid.status).toBe(200)
+
+    // Compiling the schema no longer fails, so no error is logged for it either.
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('validates a recursive parameter schema instead of falling open on the circular marker', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Validation', version: '1.0.0' },
+      components: {
+        schemas: {
+          Filter: {
+            type: 'object',
+            required: ['name'],
+            properties: { name: { type: 'string' }, parent: { $ref: '#/components/schemas/Filter' } },
+          },
+        },
+      },
+      paths: {
+        '/items': {
+          get: {
+            parameters: [
+              {
+                name: 'filter',
+                in: 'query',
+                required: true,
+                style: 'deepObject',
+                explode: true,
+                schema: { $ref: '#/components/schemas/Filter' },
+              },
+            ],
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const invalid = await server.request('/items?filter[parent]=x')
+    expect(invalid.status).toBe(422)
+    expect((await invalid.json()).violations).toStrictEqual([
+      { location: 'query', path: '/filter', message: "filter must have required property 'name'" },
+    ])
+
+    const valid = await server.request('/items?filter[name]=a')
+    expect(valid.status).toBe(200)
+
+    // Compiling the schema no longer fails, so no error is logged for it either.
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('still deserializes an object parameter whose recursive composition the rewrite drops', async () => {
+    // The rewrite drops the `oneOf` the cycle ran through, which would leave the parameter looking
+    // like a plain string: it would never be gathered from `filter[name]`, and the request would be
+    // rejected as missing. Only the validator sees the rewritten schema, so the shape survives.
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Validation', version: '1.0.0' },
+      components: {
+        schemas: {
+          Filter: {
+            oneOf: [
+              { type: 'object', required: ['name'], properties: { name: { type: 'string' } } },
+              {
+                type: 'object',
+                required: ['parent'],
+                properties: { parent: { $ref: '#/components/schemas/Filter' } },
+              },
+            ],
+          },
+        },
+      },
+      paths: {
+        '/items': {
+          get: {
+            parameters: [
+              {
+                name: 'filter',
+                in: 'query',
+                required: true,
+                style: 'deepObject',
+                explode: true,
+                schema: { $ref: '#/components/schemas/Filter' },
+              },
+            ],
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request('/items?filter[name]=a')
+    expect(response.status).toBe(200)
+  })
+
+  it('accepts a body whose recursive oneOf branch still matches exactly once', async () => {
+    // A union whose branches only differ in what `next` may be: `5` is a leaf, never a node. Relaxing
+    // the recursive branch would let the body match both branches, which `oneOf` reports as a
+    // violation — so the composition is dropped instead of inverted.
+    const response = await postRecursiveBody(
+      {
+        Root: {
+          type: 'object',
+          oneOf: [
+            { required: ['next'], properties: { next: { $ref: '#/components/schemas/Root' } } },
+            { required: ['next'], properties: { next: { type: 'integer' } } },
+          ],
+        },
+      },
+      { next: 5 },
+    )
+
+    expect(response.status).toBe(200)
+  })
+
+  it('validates a body whose recursion sits under the draft-07 dependencies keyword', async () => {
+    // Naming an owner is only required once the node has a name, and an owner is a node in turn.
+    const recursiveDependency = {
+      Root: {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        dependencies: {
+          name: { required: ['owner'], properties: { owner: { $ref: '#/components/schemas/Root' } } },
+        },
+      },
+    }
+
+    const missingOwner = await postRecursiveBody(recursiveDependency, { name: 'a' })
+    expect(missingOwner.status).toBe(422)
+    expect((await missingOwner.json()).violations).toStrictEqual([
+      { location: 'body', path: '/owner', message: "must have required property 'owner'" },
+    ])
+
+    const withOwner = await postRecursiveBody(recursiveDependency, { name: 'a', owner: { name: 'b', owner: {} } })
+    expect(withOwner.status).toBe(200)
+  })
+
+  it('accepts a body a recursive not allows', async () => {
+    // The body is not a Banned value, because its `next` is not an object.
+    const response = await postRecursiveBody(
+      {
+        Root: { type: 'object', not: { $ref: '#/components/schemas/Banned' } },
+        Banned: {
+          type: 'object',
+          required: ['next'],
+          properties: { next: { $ref: '#/components/schemas/Root' } },
+        },
+      },
+      { a: 'nope', next: 5 },
+    )
+
+    expect(response.status).toBe(200)
+  })
+
+  it('accepts a body a recursive if condition never applies to', async () => {
+    // The body does not match `Cond`, so the `extra` property `then` asks for is not required.
+    const response = await postRecursiveBody(
+      {
+        Root: {
+          type: 'object',
+          if: { $ref: '#/components/schemas/Cond' },
+          then: { required: ['extra'] },
+        },
+        Cond: {
+          type: 'object',
+          required: ['next'],
+          properties: { next: { $ref: '#/components/schemas/Root' } },
+        },
+      },
+      { kind: 'special', next: 5 },
+    )
+
+    expect(response.status).toBe(200)
   })
 
   it('validates and delivers a JSON body sent without a Content-Type header', async () => {

@@ -19,9 +19,9 @@ import type { RequestExampleMeta, Result } from '@/request-example/types'
 import type { XScalarEnvironment } from '@/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@/schemas/extensions/general/x-scalar-cookies'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
-import type { ServerObject } from '@/schemas/v3.1/strict/server'
+import type { OperationObject } from '@/schemas/v3.2/strict/operation'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
+import type { ServerObject } from '@/schemas/v3.2/strict/server'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
 export type BuildRequestExampleContext = {
@@ -74,7 +74,7 @@ export const getRequestExampleContext = (
     fallbackDocument: WorkspaceDocument | null
   }> = {},
 ): Result<BuildRequestExampleContext> => {
-  const { path, method, exampleName } = requestExampleMeta
+  const { path, method, exampleName, isWebhook = false } = requestExampleMeta
   const document = workspaceStore.workspace.documents[documentName] ?? options.fallbackDocument ?? undefined
   if (!document) {
     return {
@@ -89,19 +89,19 @@ export const getRequestExampleContext = (
     }
   }
 
-  const pathItem = getResolvedPathItem(document.paths?.[path])
+  const pathItem = getResolvedPathItem(isWebhook ? document.webhooks?.[path] : document.paths?.[path])
   if (!pathItem) {
     return {
       ok: false,
-      error: `Path ${path} not found`,
+      error: isWebhook ? `Webhook ${path} not found` : `Path ${path} not found`,
     }
   }
 
-  const resolvedOperation = getResolvedRef(getPathItemOperation(document.paths?.[path], method))
+  const resolvedOperation = getResolvedRef(getPathItemOperation(pathItem, method))
   if (!resolvedOperation) {
     return {
       ok: false,
-      error: `Method ${method} not found on path ${path}`,
+      error: isWebhook ? `Method ${method} not found on webhook ${path}` : `Method ${method} not found on path ${path}`,
     }
   }
 
@@ -121,7 +121,10 @@ export const getRequestExampleContext = (
   //                                 SERVER CONTEXT
   //------------------------------------------------------------------------------------------------
   // Get server context for the request example
-  const serverList = getServers(options.servers ?? operation.servers ?? document.servers, {
+  const configuredServers = isWebhook
+    ? (options.servers ?? operation.servers)
+    : (options.servers ?? operation.servers ?? document.servers)
+  const serverList = getServers(configuredServers, {
     baseServerUrl: options.baseServerUrl,
     documentUrl: document['x-scalar-original-source-url'],
   })
@@ -165,7 +168,9 @@ export const getRequestExampleContext = (
   )
 
   const serverMeta: ServerMeta =
-    operation.servers != null ? { type: 'operation', path: path ?? '', method: method ?? 'get' } : { type: 'document' }
+    !isWebhook && operation.servers != null
+      ? { type: 'operation', path: path ?? '', method: method ?? 'get' }
+      : { type: 'document' }
 
   const authMeta: AuthMeta =
     operationSelectedSecurity !== undefined

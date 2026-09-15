@@ -29,6 +29,8 @@ const LANGUAGE_LABELS: Record<string, string> = {
   javascript: 'JavaScript',
   js: 'JavaScript',
   json: 'JSON',
+  jl: 'Julia',
+  julia: 'Julia',
   kotlin: 'Kotlin',
   node: 'Node.js',
   nodejs: 'Node.js',

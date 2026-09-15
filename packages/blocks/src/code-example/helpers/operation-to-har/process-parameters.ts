@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   deSerializeParameter,
@@ -12,7 +13,7 @@ import {
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from '@scalar/workspace-store/request-example'
-import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
 type ProcessedParameters = {
@@ -24,7 +25,7 @@ type ProcessedParameters = {
 
 /** Ensures we don't have any references in the parameters */
 const deReferenceParams = (params: OperationObject['parameters']): ParameterObject[] =>
-  (params ?? []).map((param) => getResolvedRef(param))
+  (params ?? []).map((param) => getResolvedRef(param)).filter((param) => param !== undefined)
 
 /** Whether the parameter allows reserved characters (from param or schema). */
 const isAllowReserved = (param: ParameterObject): boolean => {
@@ -62,12 +63,17 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
     return { style: 'form', explode }
   }
 
-  const defaultStyle = {
-    path: 'simple',
-    query: 'form',
-    header: 'simple',
-    cookie: 'form',
-  }[param.in]
+  // The 3.2 `querystring` location has no style/explode of its own, so it falls through to the
+  // `form` default here and is then serialized like a regular query parameter (see the switch below).
+  const defaultStyle =
+    (
+      {
+        path: 'simple',
+        query: 'form',
+        header: 'simple',
+        cookie: 'form',
+      } as Record<string, string>
+    )[param.in] ?? 'form'
 
   // Use provided style or default based on location
   const style = 'style' in param && param.style ? param.style : defaultStyle
@@ -108,7 +114,8 @@ const getParameterValue = (
   }
 
   const options = param.in === 'path' ? { emptyString: `{${param.name}}` } : {}
-  return getExampleFromSchema(getResolvedRef(param.schema), options)
+  const schema = getResolvedRef(param.schema)
+  return schema ? getExampleFromSchema(schema, options) : undefined
 }
 
 /**
@@ -156,7 +163,11 @@ export const processParameters = ({
         break
       }
 
-      case 'query': {
+      // The 3.2 `querystring` location represents the whole query string. Handle it like a
+      // regular query parameter so its value still lands in the query string instead of
+      // being silently dropped.
+      case 'query':
+      case 'querystring': {
         // Content type parameters should be serialized according to the parameter's own content type
         if ('content' in param && param.content) {
           // We grab the first for now but eventually we should support selecting the content type per parameter
@@ -287,13 +298,13 @@ const processPathParameters = (
       if (explode) {
         // Matrix explode array: ;color=blue;color=black;color=brown
         if (Array.isArray(paramValue)) {
-          const values = (paramValue as unknown[]).map((v) => `${param.name}=${v}`).join(';')
+          const values = paramValue.map((v: unknown) => `${param.name}=${v}`).join(';')
           return url.replace(`{;${param.name}}`, `;${values}`)
         }
 
         // Matrix explode object: ;R=100;G=200;B=150
-        if (typeof paramValue === 'object' && paramValue !== null) {
-          const values = Object.entries(paramValue as Record<string, unknown>)
+        if (isObjectLike(paramValue)) {
+          const values = Object.entries(paramValue)
             .map(([k, v]) => `${k}=${v}`)
             .join(';')
           return url.replace(`{;${param.name}}`, `;${values}`)
@@ -305,12 +316,12 @@ const processPathParameters = (
 
       // Matrix no explode array: ;color=blue,black,brown
       if (Array.isArray(paramValue)) {
-        return url.replace(`{;${param.name}}`, `;${param.name}=${(paramValue as unknown[]).join(',')}`)
+        return url.replace(`{;${param.name}}`, `;${param.name}=${paramValue.join(',')}`)
       }
 
       // Matrix no explode object: ;color=R,100,G,200,B,150
-      if (typeof paramValue === 'object' && paramValue !== null) {
-        const values = Object.entries(paramValue as Record<string, unknown>)
+      if (isObjectLike(paramValue)) {
+        const values = Object.entries(paramValue)
           .map(([k, v]) => `${k},${v}`)
           .join(',')
         return url.replace(`{;${param.name}}`, `;${param.name}=${values}`)
@@ -323,12 +334,12 @@ const processPathParameters = (
       if (explode) {
         // Label explode array: .blue.black.brown
         if (Array.isArray(paramValue)) {
-          return url.replace(`{.${param.name}}`, `.${(paramValue as unknown[]).join('.')}`)
+          return url.replace(`{.${param.name}}`, `.${paramValue.join('.')}`)
         }
 
         // Label explode object: .R=100.G=200.B=150
-        if (typeof paramValue === 'object' && paramValue !== null) {
-          const values = Object.entries(paramValue as Record<string, unknown>)
+        if (isObjectLike(paramValue)) {
+          const values = Object.entries(paramValue)
             .map(([k, v]) => `${k}=${v}`)
             .join('.')
 
@@ -341,12 +352,12 @@ const processPathParameters = (
 
       // Label no explode array: .blue,black,brown
       if (Array.isArray(paramValue)) {
-        return url.replace(`{.${param.name}}`, `.${(paramValue as unknown[]).join(',')}`)
+        return url.replace(`{.${param.name}}`, `.${paramValue.join(',')}`)
       }
 
       // Label no explode object: .R,100,G,200,B,150
-      if (typeof paramValue === 'object' && paramValue !== null) {
-        const values = Object.entries(paramValue as Record<string, unknown>)
+      if (isObjectLike(paramValue)) {
+        const values = Object.entries(paramValue)
           .map(([k, v]) => `${k},${v}`)
           .join(',')
 

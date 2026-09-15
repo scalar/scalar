@@ -1,6 +1,7 @@
 import { defineReleaseNotesConfig } from './packages/release-notes/dist/index.js'
 
 export default defineReleaseNotesConfig({
+  provider: 'anthropic',
   products: [
     {
       slug: 'api-client',

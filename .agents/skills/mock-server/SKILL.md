@@ -53,6 +53,8 @@ At least one of the following is required:
 Optional:
 
 - `onRequest({ context, operation })`: callback before each request is processed
+- `validateRequest`: set to `false` to always return a mock response instead of rejecting contract violations with `422` (default: `true`)
+- `logger`: pass `false` to silence the authentication instructions printed on startup, or a `(line) => void` sink to redirect them (default: logs to the console)
 
 ## Built-in Behavior
 
@@ -126,3 +128,4 @@ Useful routes:
 - If seeded data is missing, check `x-seed` exists on schema keys and the collection was empty on startup.
 - If auth-protected routes return unauthorized responses, verify matching `securitySchemes` and request credentials.
 - If custom logic fails, inspect `x-handler` runtime errors (mock server returns `500` with handler error details).
+- For an unhandled `500` (one whose `error` is `Internal Server Error`), read its `operation` object — it names the method and OpenAPI path that failed, plus the `operationId` when the document declares one.

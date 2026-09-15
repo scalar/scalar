@@ -4,9 +4,11 @@ import { cors } from 'hono/cors'
 
 import { defaultTransports } from '@/transports'
 import type { MessageDirection, MockTransport, TransportContext } from '@/transports/types'
+import type { MockServerLogger } from '@/types'
 import { generateMessage } from '@/utils/generate-message'
 import { processAsyncApiDocument } from '@/utils/process-asyncapi-document'
 import { resolveChannels } from '@/utils/resolve-channels'
+import { resolveLogger } from '@/utils/resolve-logger'
 
 /** Options for {@link createAsyncApiMockServer}. */
 export type AsyncApiMockServerOptions = {
@@ -26,8 +28,13 @@ export type AsyncApiMockServerOptions = {
   /** Called for every message flowing in or out of the mock, for logging or inspection. */
   onMessage?: (event: { channel: string; direction: MessageDirection; payload: unknown }) => void
 
-  /** Optional sink for transport lifecycle log lines. Defaults to no-op. */
-  logger?: (line: string) => void
+  /**
+   * Control the transport lifecycle log lines the server prints. Pass `true` to log them to the
+   * console, a `(line) => void` sink to route them elsewhere, or `false` (the default) to stay silent.
+   *
+   * Diagnostics such as a channel with no matching transport are printed either way.
+   */
+  logger?: boolean | MockServerLogger
 }
 
 /** The result of {@link createAsyncApiMockServer}. */
@@ -67,7 +74,7 @@ export async function createAsyncApiMockServer(options: AsyncApiMockServerOption
   const channels = resolveChannels(document)
 
   const transports = [...defaultTransports, ...(options.transports ?? [])]
-  const log = options.logger ?? (() => undefined)
+  const log = resolveLogger(options.logger, false)
 
   // CORS for the SSE/HTTP routes (WebSocket upgrades are not subject to CORS).
   app.use(cors())
@@ -84,7 +91,11 @@ export async function createAsyncApiMockServer(options: AsyncApiMockServerOption
     const transport = transports.find((candidate) => candidate.supports(channel))
 
     if (!transport) {
-      log(`[asyncapi] no transport for channel "${channel.id}" (protocols: ${channel.protocols.join(', ') || 'none'})`)
+      // A channel with no matching transport is a configuration problem, so surface it through the
+      // console unconditionally rather than the (silenceable) logger.
+      console.warn(
+        `[asyncapi] no transport for channel "${channel.id}" (protocols: ${channel.protocols.join(', ') || 'none'})`,
+      )
       continue
     }
 

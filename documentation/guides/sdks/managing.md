@@ -37,6 +37,8 @@ Click **Build**, or **Save and Build** after editing the configuration. Scalar g
 
 Each target shows a live status: **pending** while it generates, **generated** on success, or **failed**. Open the logs to see the output or the error for a target.
 
+Every build analyzes your OpenAPI document and configuration before it generates anything, and the [diagnostics](diagnostics.md) report is part of that output. A build that trips your diagnostics gate fails without writing files.
+
   </scalar-step>
 
   <scalar-step id="build-sync" title="Builds sync to GitHub">
@@ -47,7 +49,7 @@ If a target is [linked to a repository](publishing/github.md), the build pushes 
 </scalar-steps>
 
 > [!NOTE]
-> SDK generation is part of our paid plans at $100 per month per target. When you add a new target on a paid plan, the dashboard shows a cost confirmation before the first build.
+> Every plan includes one SDK target; additional targets start at $150 per month each. When you add a new target on a paid plan, the dashboard shows a cost confirmation before the first build.
 
 ## Versions
 
@@ -66,4 +68,4 @@ You do not need a GitHub repository to use a generated SDK. From a version's det
 
 ## Settings
 
-From the SDK settings you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.
+From the SDK settings — the **General** card on the studio's **Advanced** tab — you can rename the SDK, edit its description and namespace, set its registry visibility to public or private, manage which groups can access a private SDK, and delete the SDK. Renaming changes the display name only; the package names, registry URLs, and slug stay the same. Deleting an SDK removes its versions and registry entries; code already pushed to GitHub or published to a registry is not affected.

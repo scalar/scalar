@@ -90,6 +90,16 @@ const isContentValid = computed(() => {
   )
 })
 
+/** Whether the copy button is rendered on top of the code */
+const showCopy = computed(() => copy && isContentValid.value)
+
+/**
+ * A one-liner has the copy button floating over the end of the line, so the line needs room to
+ * scroll clear of the button. The padding goes on the `w-fit` <pre> because browsers disagree about
+ * whether trailing padding on an `overflow-x` container is scrollable.
+ */
+const reserveCopySpace = computed(() => isOneLine.value && showCopy.value)
+
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
@@ -108,10 +118,11 @@ const { cx } = useBindCx()
       <pre
         :id="id"
         class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
+        :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
     <ScalarCodeBlockCopy
-      v-if="copy && isContentValid"
+      v-if="showCopy"
       class="scalar-code-copy absolute"
       :class="[
         isOneLine

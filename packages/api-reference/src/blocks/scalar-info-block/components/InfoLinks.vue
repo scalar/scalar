@@ -4,7 +4,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   ExternalDocumentationObject,
   InfoObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { LinkList } from '@/components/LinkList'
@@ -23,7 +23,7 @@ const { info, externalDocs } = defineProps<{
 
 /** Additional named links from the `x-scalar-links` extension (e.g. privacy policy, imprint) */
 const links = computed(() => {
-  const value = (info as InfoObject)['x-scalar-links']
+  const value = 'x-scalar-links' in info ? info['x-scalar-links'] : undefined
 
   // Guard against malformed extension values from the OpenAPI document (a string, a single object, …)
   // so we only ever render well-formed `{ name, url }` entries.

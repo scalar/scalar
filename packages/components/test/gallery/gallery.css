@@ -1,0 +1,38 @@
+/**
+ * Body geometry, transplanted from Storybook.
+ *
+ * Storybook applies these to the preview iframe's body from its own
+ * `assets/server/base-preview-head.html`, and 129 of the committed snapshots are pinned to the
+ * padding they produce. The gallery has to reproduce them exactly or every body-cropped baseline
+ * shifts, so they are copied verbatim rather than approximated.
+ *
+ * `1rem` resolves to 13px because `.storybook/preview.css` sets `html { font-size:
+ * var(--scalar-font-size-4) }`, which the gallery imports as well. That is why the padding stays a
+ * relative unit here instead of being hard coded.
+ */
+.sb-show-main.sb-main-centered {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.sb-show-main.sb-main-centered #root {
+  box-sizing: border-box;
+  margin: auto;
+  padding: 1rem;
+  max-height: 100%;
+}
+
+.sb-show-main.sb-main-fullscreen {
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.sb-show-main.sb-main-padded {
+  margin: 0;
+  padding: 1rem;
+  display: block;
+  box-sizing: border-box;
+}

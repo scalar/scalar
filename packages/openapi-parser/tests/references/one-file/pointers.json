@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "name": { "$ref": "#/$defs/nonEmptyString" },
+    "alias": { "$ref": "#/properties/name", "description": "An alternate name" }
+  },
+  "$defs": {
+    "nonEmptyString": { "type": "string", "minLength": 1 }
+  }
+}

@@ -1,0 +1,69 @@
+openapi: 3.2.0
+info:
+  title: Tag Nesting (OpenAPI 3.2)
+  version: 1.0.0
+  description: |
+    Demonstrates deeply nested tags via the OpenAPI 3.2 `parent` field. Each
+    nested section shows a breadcrumb of its ancestors instead of indenting, so
+    the hierarchy stays readable no matter how deep it goes.
+tags:
+  - name: galaxy
+    summary: Galaxy
+  - name: planets
+    summary: Planets
+    parent: galaxy
+    description: Planet operations
+  - name: moons
+    summary: Moons
+    parent: planets
+    description: Natural satellites
+  - name: craters
+    summary: Craters
+    parent: moons
+    description: Impact craters on moons
+  - name: regolith
+    summary: Regolith
+    parent: craters
+    description: Loose surface material inside craters
+  - name: deep-space
+    summary: Deep space
+  - name: stars
+    summary: Stars
+    parent: deep-space
+    description: Distant suns
+paths:
+  /planets:
+    get:
+      tags: [planets]
+      summary: List planets
+      responses:
+        '200':
+          description: OK
+  /planets/moons:
+    get:
+      tags: [moons]
+      summary: List moons
+      responses:
+        '200':
+          description: OK
+  /planets/moons/craters:
+    get:
+      tags: [craters]
+      summary: List craters
+      responses:
+        '200':
+          description: OK
+  /planets/moons/craters/regolith:
+    get:
+      tags: [regolith]
+      summary: List regolith samples
+      responses:
+        '200':
+          description: OK
+  /stars:
+    get:
+      tags: [stars]
+      summary: List stars
+      responses:
+        '200':
+          description: OK

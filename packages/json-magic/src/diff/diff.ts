@@ -25,6 +25,13 @@ export type Difference<_T> = { path: string[]; changes: any; type: ChangeType }
  * Keys that reach the prototype chain (`__proto__`, `constructor` and `prototype`) are skipped, so
  * an untrusted document cannot produce a diff that poisons `Object.prototype` once applied.
  *
+ * ⚠️ The returned `changes` are live references into the documents, not clones. An `add` or an
+ * `update` carries the very subtree `doc2` holds, and a `delete` carries the subtree from `doc1`,
+ * so writing into a change writes into the document it came from. This matters downstream:
+ * `merge` merges values into these objects, and `apply` writes them into its target document,
+ * which leaves the result structurally shared with `doc2`. Callers that need isolation have to
+ * deep clone the documents before diffing them, or the changes afterwards.
+ *
  * @param doc1 - The source object to compare from
  * @param doc2 - The target object to compare to
  * @returns A list of operations (add/update/delete) with their paths and changes

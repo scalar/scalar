@@ -1,6 +1,9 @@
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
+
+import { provideDocumentOutline } from '@/features/document-outline'
 
 import ClassicLayout from './ClassicLayout.vue'
 
@@ -163,16 +166,36 @@ describe('ClassicLayout', () => {
       expect(wrapper.element.tagName).toBe('SECTION') // Vue test utils wraps in div
     })
 
-    it('renders SectionHeaderTag with level 2', () => {
-      const mockTag = createMockTag()
-
+    it('renders SectionHeaderTag with level 1 when rendered on its own', () => {
+      // A block assumes it is the top of the page unless something composes it.
       const wrapper = mount(ClassicLayout, {
         props: {
           eventBus: null,
-          tag: mockTag,
+          tag: createMockTag(),
           isCollapsed: false,
         },
       })
+
+      const sectionHeaderTag = wrapper.findComponent({ name: 'SectionHeaderTag' })
+      expect(sectionHeaderTag.props('level')).toBe(1)
+    })
+
+    it('renders SectionHeaderTag with level 2 inside a document outline', () => {
+      // What Content does: it renders the info block above the tags, so a tag
+      // resolves one level beneath the document.
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            provideDocumentOutline('document')
+            return () =>
+              h(ClassicLayout, {
+                eventBus: null,
+                tag: createMockTag(),
+                isCollapsed: false,
+              })
+          },
+        }),
+      )
 
       const sectionHeaderTag = wrapper.findComponent({ name: 'SectionHeaderTag' })
       expect(sectionHeaderTag.props('level')).toBe(2)

@@ -1,6 +1,6 @@
 # Getting Started
 
-Create and publish your first documentation site with Scalar Docs in minutes. Write guides in Markdown or MDX, add OpenAPI documents for interactive API references, and deploy from GitHub, the CLI, or the web editor.
+Create and publish your first documentation site with Scalar Docs in minutes. Write guides in Markdown or MDX, add API documents for interactive API references, and deploy from GitHub, the CLI, or the web editor.
 
 ## Create docs in three steps
 
@@ -14,7 +14,7 @@ npx @scalar/cli project preview
   </scalar-step>
 
   <scalar-step title="Add guides and APIs" icon="phosphor/regular/book-open">
-Write guides in Markdown or MDX, then add OpenAPI documents for interactive API references.
+Write guides in Markdown or MDX, then add API documents for interactive API references.
 
 ```json
 {
@@ -43,7 +43,7 @@ npx @scalar/cli project publish
 
 | Source | Description |
 | ------ | ----------- |
-| **GitHub** | Keep content and OpenAPI documents in your repository. Use [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), and [scalar.config.json](configuration/scalar.config.json.md). |
+| **GitHub** | Keep content and API documents in your repository. Use [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), and [scalar.config.json](configuration/scalar.config.json.md). |
 | **Any folder or CLI** | Work from any folder or repository without granting repository access. Publish with [`npx @scalar/cli project publish`](deployment/cli.md). |
 | **Web editor** | Edit and store docs at [docs.scalar.com](https://docs.scalar.com). No Git required. |
 

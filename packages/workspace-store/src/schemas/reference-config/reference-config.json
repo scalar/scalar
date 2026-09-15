@@ -222,6 +222,10 @@
             "type": "string"
           },
           {
+            "const": "julia/http",
+            "type": "string"
+          },
+          {
             "const": "kotlin/okhttp",
             "type": "string"
           },

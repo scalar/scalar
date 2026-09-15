@@ -19,5 +19,5 @@ export const safeDeepClone = <T>(value: T): T => {
   if (typeof window === 'undefined') {
     return deepClone(value)
   }
-  return window.structuredClone(value) as T
+  return window.structuredClone(value)
 }

@@ -70,7 +70,7 @@ pm.request.method = 'POST'
 
 ## Adding Scripts to OpenAPI Documents
 
-Add pre-request scripts to your OpenAPI description using the `x-pre-request` extension. Scripts can be set at the operation level, the document level, or both. When both are present, the document-level script runs first.
+Add pre-request scripts to your OpenAPI document using the `x-pre-request` extension. Scripts can be set at the operation level, the document level, or both. When both are present, the document-level script runs first.
 
 ### Operation level
 

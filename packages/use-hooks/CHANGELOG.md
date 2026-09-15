@@ -1,5 +1,17 @@
 # @scalar/use-hooks
 
+## 0.4.11
+
+### Patch Changes
+
+- [#10058](https://github.com/scalar/scalar/pull/10058): feat(helpers): add applyColorMode and the DarkLightMode type, and use them from useColorMode
+
+## 0.4.10
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.4.9
 
 ### Patch Changes

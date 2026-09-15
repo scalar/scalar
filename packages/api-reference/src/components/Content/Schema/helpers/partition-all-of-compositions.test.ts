@@ -1,4 +1,4 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { partitionAllOfCompositions } from './partition-all-of-compositions'
@@ -77,6 +77,51 @@ describe('partitionAllOfCompositions', () => {
     // Terminates and still surfaces the concrete object member.
     expect(segments.some((segment) => segment.kind === 'object')).toBe(true)
   })
+
+  it.each(['oneOf', 'anyOf'] as const)(
+    'keeps base fields and independent choices when an inherited %s points back to the variant',
+    (composition) => {
+      const independentChoice = [{ type: 'string' }, { type: 'number' }]
+      const schema = {
+        $ref: '#/components/schemas/Variant',
+        type: 'object',
+        allOf: [
+          {
+            $ref: '#/components/schemas/Base',
+            '$ref-value': {
+              type: 'object',
+              properties: { id: { type: 'string' } },
+              required: ['id'],
+              [composition]: [{ $ref: '#/components/schemas/Variant' }, { $ref: '#/components/schemas/OtherVariant' }],
+            },
+          },
+          { oneOf: independentChoice },
+          { type: 'object', properties: { value: { type: 'number' } } },
+        ],
+      } as SchemaObject
+      const original = structuredClone(schema)
+
+      const { segments } = partitionAllOfCompositions(schema)
+      expect(segments.map((segment) => segment.kind)).toEqual(['object', 'choice', 'object'])
+      const base = segments[0]
+      expect(base?.kind).toBe('object')
+      if (base?.kind === 'object') {
+        expect(base.schema).toHaveProperty('properties', { id: { type: 'string' } })
+        expect(base.schema).toHaveProperty('required', ['id'])
+      }
+      expect(segments[1]).toEqual({
+        kind: 'choice',
+        composition: 'oneOf',
+        value: { oneOf: independentChoice },
+        choiceIndex: 1,
+      })
+      expect(segments[2]).toEqual({
+        kind: 'object',
+        schema: { type: 'object', properties: { value: { type: 'number' } } },
+      })
+      expect(schema).toEqual(original)
+    },
+  )
 
   it('drops pure-constraint members (not / if-then-else) from object segments', () => {
     const schema = {

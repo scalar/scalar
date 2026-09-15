@@ -13,7 +13,7 @@
   "keywords": [
     "vue drag and drop draggable html"
   ],
-  "version": "0.4.3",
+  "version": "0.4.4",
   "engines": {
     "node": ">=22"
   },
@@ -51,6 +51,8 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
+    "@scalar/themes": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vue": "catalog:*"

@@ -3,7 +3,7 @@ const nextConfig = {
   redirects: () => [
     {
       source: '/',
-      destination: '/reference',
+      destination: '/scalar',
       permanent: true,
     },
   ],

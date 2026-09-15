@@ -1,7 +1,7 @@
 import type { AnyEventListener, ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import type { Component, DefineComponent } from 'vue'
 
 /** Shared fields present on every response body handler variant */
@@ -279,7 +279,7 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
     const hook = plugin.hooks?.[hookName]
     if (hook) {
       const modifiedPayload = await hook(currentPayload as any)
-      currentPayload = (modifiedPayload ?? currentPayload) as HookPayloadMap[K]
+      currentPayload = modifiedPayload ?? currentPayload
     }
   }
 
@@ -309,7 +309,7 @@ export const executeWebSocketHook = async <K extends keyof WebSocketHookPayloadM
     if (hook) {
       const result = await (hook as (p: WebSocketHookPayloadMap[K]) => unknown)(currentPayload)
       if (hookName === 'beforeConnect' && typeof result === 'string') {
-        currentPayload = { ...currentPayload, url: result } as WebSocketHookPayloadMap[K]
+        currentPayload = { ...currentPayload, url: result }
       }
     }
   }

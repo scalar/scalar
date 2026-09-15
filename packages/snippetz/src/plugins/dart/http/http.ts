@@ -32,15 +32,12 @@ export const dartHttp: Plugin = {
 
     // Handle headers
     const headers =
-      normalizedRequest.headers?.reduce(
-        (acc, header) => {
-          if (header.value && !/[; ]/.test(header.name)) {
-            acc[header.name] = header.value
-          }
-          return acc
-        },
-        {} as Record<string, string>,
-      ) || {}
+      normalizedRequest.headers?.reduce<Record<string, string>>((acc, header) => {
+        if (header.value && !/[; ]/.test(header.name)) {
+          acc[header.name] = header.value
+        }
+        return acc
+      }, {}) || {}
 
     // Add Authorization header if credentials are provided
     if (options?.auth) {

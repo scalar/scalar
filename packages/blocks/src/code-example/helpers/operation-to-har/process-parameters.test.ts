@@ -1,5 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 import { describe, expect, it } from 'vitest'
 
@@ -1681,6 +1681,49 @@ describe('parameter styles', () => {
       // Form style query parameters default to explode: true
       // Object values without schema should be serialized as JSON string and URL encoded
       expect(result.queryString).toEqual([{ name: 'user', value: '%7B%22name%22%3A%22John%22%2C%22age%22%3A30%7D' }])
+    })
+  })
+
+  // The OpenAPI 3.2 `querystring` location is serialized like a regular query parameter so its
+  // value still lands in the query string instead of being silently dropped.
+  describe('querystring parameters', () => {
+    it('serializes a scalar querystring parameter into the query string', () => {
+      const result = runProcessParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'q',
+            in: 'querystring',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hello' }),
+          },
+        ],
+      })
+
+      expect(result.queryString).toEqual([{ name: 'q', value: 'hello' }])
+    })
+
+    it('expands an object querystring parameter into individual query params', () => {
+      const result = runProcessParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'filter',
+            in: 'querystring',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              example: { page: '1', limit: '10' },
+            }),
+          },
+        ],
+      })
+
+      // Form style defaults to explode: true, so the object expands into individual query params
+      expect(result.queryString).toEqual([
+        { name: 'page', value: '1' },
+        { name: 'limit', value: '10' },
+      ])
     })
   })
 

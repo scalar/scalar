@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from 'vitest'
 
 import { InvalidChangesDetectedError, apply } from '@/diff/apply'
+import { diff } from '@/diff/diff'
 
 const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
 
@@ -319,6 +320,61 @@ describe('apply', () => {
       expect(() => apply({}, [{ path: ['info', 'constructor'], changes: 'yes', type: 'add' }])).toThrowError(
         'Process aborted. Path info.constructor contains the unsafe segment "constructor", which can modify the prototype chain',
       )
+    })
+  })
+
+  describe('rejects root level changes', () => {
+    test('explains that the document itself cannot be replaced', () => {
+      expect(() => apply({ name: 'John' }, [{ path: [], changes: { name: 'Jeremy' }, type: 'update' }])).toThrowError(
+        'Process aborted. Root-level replacement is not supported, the change targets the document itself instead of a property inside it',
+      )
+    })
+
+    test('rejects the root level change a container type swap produces', () => {
+      const doc = { name: 'John' }
+
+      expect(() => apply(doc, diff(doc, [1, 2] as unknown as Record<string, unknown>))).toThrowError(
+        'Process aborted. Root-level replacement is not supported, the change targets the document itself instead of a property inside it',
+      )
+    })
+
+    test('leaves the document untouched when a later change targets the root', () => {
+      const doc = { name: 'John' }
+
+      expect(() =>
+        apply(doc, [
+          { path: ['age'], changes: 25, type: 'add' },
+          { path: [], changes: { name: 'Jeremy' }, type: 'update' },
+        ]),
+      ).toThrowError(InvalidChangesDetectedError)
+      expect(doc).toEqual({ name: 'John' })
+    })
+  })
+
+  // `apply` writes changes in by reference, so the result stays structurally shared with the
+  // documents the diff was built from. The behavior is pinned here so a future switch to cloning
+  // is a deliberate change rather than a silent one.
+  describe('shares structure with the documents the diff came from', () => {
+    test('returns the document it was given', () => {
+      const doc = { name: 'John' }
+
+      expect(apply(doc, [{ path: ['age'], changes: 25, type: 'add' }])).toBe(doc)
+      expect(doc).toEqual({ name: 'John', age: 25 })
+    })
+
+    test('writes the change in by reference', () => {
+      const location = { city: 'New York' }
+      const result = apply({ name: 'John' }, [{ path: ['location'], changes: location, type: 'add' }])
+
+      expect(result.location).toBe(location)
+    })
+
+    test('a full diff and apply round trip aliases the target document', () => {
+      const doc2 = { nested: { value: 1 } }
+      const result = apply({}, diff({}, doc2))
+
+      result.nested.value = 999
+      expect(doc2.nested.value).toBe(999)
     })
   })
 })

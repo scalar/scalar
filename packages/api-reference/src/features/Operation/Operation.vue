@@ -17,6 +17,7 @@ export type OperationProps = {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
     | 'showOperationId'
   >
   /** Document object */
@@ -63,7 +64,7 @@ import type {
   OpenApiDocument,
   PathItemObject,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { filterSelectedSecurity } from '@/features/Operation/helpers/filter-selected-security'

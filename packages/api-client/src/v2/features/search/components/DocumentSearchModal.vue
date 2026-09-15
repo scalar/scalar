@@ -2,7 +2,7 @@
 import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import { ScalarSearchInput } from '@scalar/components/search-input'
 import { ScalarSearchResultList } from '@scalar/components/search-results'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { nanoid } from 'nanoid'
 import { computed, ref, watch } from 'vue'
 

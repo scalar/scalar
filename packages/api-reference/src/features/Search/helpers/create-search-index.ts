@@ -11,7 +11,7 @@ import type {
   OperationObject,
   ResponsesObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
@@ -173,8 +173,8 @@ function addEntryToIndex(
   // Operation
   if (entry.type === 'operation') {
     const pathItem = getResolvedPathItem(openApiDocument?.paths?.[entry.path])
-    const operation = (getResolvedRef(getPathItemOperation(openApiDocument?.paths?.[entry.path], entry.method)) ??
-      {}) as OperationObject
+    const operation: OperationObject =
+      getResolvedRef(getPathItemOperation(openApiDocument?.paths?.[entry.path], entry.method)) ?? {}
     const operationWithPathParams = {
       ...operation,
       parameters: combineParams(pathItem?.parameters, operation.parameters),
@@ -273,7 +273,9 @@ function addEntryToIndex(
     return
   }
 
-  if (entry.type === 'tag' && entry.isGroup === false) {
+  // Regular tags, including OpenAPI 3.2 operation-less parent sections (which are `isGroup: true`
+  // but real tags), keep their own description.
+  if (entry.type === 'tag' && entry.isTagGroup !== true) {
     index.push({
       id: entry.id,
       title: entry.title,
@@ -286,8 +288,8 @@ function addEntryToIndex(
     return
   }
 
-  // Tag group
-  if (entry.type === 'tag' && entry.isGroup === true) {
+  // Legacy `x-tagGroups` wrappers are not real tags, so they carry the generic group label.
+  if (entry.type === 'tag' && entry.isTagGroup === true) {
     index.push({
       id: entry.id,
       title: entry.title,

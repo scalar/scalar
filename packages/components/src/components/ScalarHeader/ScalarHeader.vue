@@ -2,22 +2,23 @@
 /**
  * Scalar header component
  *
- * Used to create a standardized header for Scalar applications
+ * Provides the header chrome; layout is left to the consumer. Columns hug their
+ * content, so give the content-bearing one `flex-1` to take the free space - that
+ * is also the column that absorbs the shrinking when space runs out.
+ *
+ * Headers that used the old middle slot are no longer centred: wrap that content
+ * in a `ScalarHeaderColumn` with `justify-center` and give both side columns
+ * `flex-1`.
  *
  * @example
  * ```html
  * <ScalarHeader>
- *   <template #start>
+ *   <ScalarHeaderColumn class="flex-1">
  *     <ScalarMenu />
- *     <ScalarHeaderButton>Login</ScalarHeaderButton>
- *     <ScalarHeaderButton>Register</ScalarHeaderButton>
- *   </template>
- *   <template #default>
- *     <ScalarHeaderButton>Middle thing</ScalarHeaderButton>
- *   </template>
- *   <template #end>
- *     <ScalarHeaderButton>Call to Action</ScalarHeaderButton>
- *   </template>
+ *   </ScalarHeaderColumn>
+ *   <ScalarHeaderColumn class="justify-end">
+ *     <ScalarHeaderButton cta>Register</ScalarHeaderButton>
+ *   </ScalarHeaderColumn>
  * </ScalarHeader>
  * ```
  */
@@ -25,33 +26,39 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { type Component, useSlots } from 'vue'
 
-const { cx } = useBindCx()
+const { is = 'header' } = defineProps<{
+  /** Render as a `div` when nested inside an existing `header` landmark */
+  is?: string | Component
+}>()
 
 defineSlots<{
-  /** The first section of the header, typically on the left */
-  start?(): unknown
-  /** The middle section of the header */
+  /** The contents of the header, typically `ScalarHeaderColumn` children */
   default?(): unknown
-  /** The last section of the header, typically on the right */
-  end?(): unknown
 }>()
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
+const slots = useSlots()
+
+// Vue drops content for slots we no longer render, so an unmigrated consumer
+// would otherwise just get an empty header.
+if (slots.start || slots.end) {
+  console.warn(
+    'ScalarHeader: the `start` and `end` slots have been removed. Compose `ScalarHeaderColumn` children in the default slot instead.',
+  )
+}
 </script>
 <template>
-  <header
+  <component
+    :is
     v-bind="
       cx(
-        'flex min-h-header items-center justify-between gap-2 border-b px-3 min-w-min',
-        '*:flex *:flex-1 *:items-center *:gap-1',
+        'flex min-h-header min-w-0 items-center justify-between gap-2 border-b px-3',
         'bg-b-header-1 text-c-header border-border-header',
       )
     ">
-    <div class="justify-start"><slot name="start" /></div>
-    <div
-      v-if="$slots.default"
-      class="justify-center">
-      <slot />
-    </div>
-    <div class="justify-end"><slot name="end" /></div>
-  </header>
+    <slot />
+  </component>
 </template>

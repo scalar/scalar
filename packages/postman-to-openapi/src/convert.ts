@@ -616,7 +616,7 @@ const renameParameters = (
     })
   })
 
-  return [...mergedParameters.values()] as OpenAPIV3_1.PathItemObject['parameters']
+  return [...mergedParameters.values()]
 }
 
 const renamePathParametersForOperation = (
@@ -629,7 +629,7 @@ const renamePathParametersForOperation = (
 
   return {
     ...operation,
-    parameters: renameParameters(operation.parameters, renameMap) as OpenAPIV3_1.OperationObject['parameters'],
+    parameters: renameParameters(operation.parameters, renameMap),
   }
 }
 
@@ -1037,7 +1037,7 @@ export function convert(
       }
       for (const [method, servers] of methods.entries()) {
         if (method in pathItem) {
-          const operation = pathItem[method as keyof typeof pathItem]
+          const operation = pathItem[method]
           if (operation && typeof operation === 'object' && 'responses' in operation) {
             operation.servers = isMergingIntoBase ? mergeServerLists(operation.servers, servers) : servers
           }

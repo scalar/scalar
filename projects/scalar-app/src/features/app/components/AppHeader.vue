@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarHeader } from '@scalar/components/header'
+import { ScalarHeader, ScalarHeaderColumn } from '@scalar/components/header'
 import {
   ScalarMenu,
   ScalarMenuLink,
@@ -74,8 +74,8 @@ const switchTeam = async (t?: ScalarMenuTeamOption) => {
 </script>
 
 <template>
-  <ScalarHeader class="w-full pl-3 *:first:flex-none">
-    <template #start>
+  <ScalarHeader>
+    <ScalarHeaderColumn class="flex-1">
       <ScalarMenu>
         <template
           v-if="slots.logo"
@@ -113,11 +113,11 @@ const switchTeam = async (t?: ScalarMenuTeamOption) => {
       <slot
         v-if="slots.breadcrumb"
         name="breadcrumb" />
-    </template>
-    <template
+    </ScalarHeaderColumn>
+    <ScalarHeaderColumn
       v-if="slots.end"
-      #end>
+      class="justify-end">
       <slot name="end" />
-    </template>
+    </ScalarHeaderColumn>
   </ScalarHeader>
 </template>

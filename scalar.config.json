@@ -12,25 +12,32 @@
     "head": {
       "scripts": [
         {
-          "path": "documentation/assets/landing.js"
+          "path": "documentation/assets/landing.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/powered-by.js"
+          "path": "documentation/assets/powered-by.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/fathom.js"
+          "path": "documentation/assets/fathom.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/posthog.js"
+          "path": "documentation/assets/posthog.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/apollo.js"
+          "path": "documentation/assets/apollo.js",
+          "defer": true
         },
         {
-          "path": "documentation/assets/vector.js"
+          "path": "documentation/assets/vector.js",
+          "defer": true
         },
         {
-          "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js"
+          "url": "https://cdn-cookieyes.com/client_data/3515bc1505967122c1cef7c0f2247082/script.js",
+          "async": true
         }
       ],
       "styles": [
@@ -925,6 +932,11 @@
         "to": "/products"
       },
       {
+        "type": "link",
+        "title": "Pricing",
+        "to": "/pricing"
+      },
+      {
         "type": "spacer"
       },
       {
@@ -935,19 +947,57 @@
             "type": "link",
             "title": "Compare",
             "icon": "phosphor/regular/scales",
-            "to": "/resources/compare"
+            "to": "/resources/compare",
+            "section": "Resources"
           },
           {
             "type": "link",
             "title": "Migration",
             "icon": "phosphor/regular/arrows-split",
-            "to": "/resources/migration"
+            "to": "/resources/migration",
+            "section": "Resources"
           },
           {
             "type": "link",
             "title": "Blog",
             "icon": "phosphor/regular/newspaper",
-            "to": "/resources/blog"
+            "to": "/resources/blog",
+            "section": "Resources"
+          },
+          {
+            "type": "link",
+            "title": "Changelog",
+            "icon": "phosphor/regular/clock-counter-clockwise",
+            "to": "/resources/changelog",
+            "section": "Resources"
+          },
+          {
+            "type": "link",
+            "title": "About",
+            "icon": "phosphor/regular/buildings",
+            "to": "/company",
+            "section": "Company"
+          },
+          {
+            "type": "link",
+            "title": "Careers",
+            "icon": "phosphor/regular/briefcase",
+            "to": "/company#careers",
+            "section": "Company"
+          },
+          {
+            "type": "link",
+            "title": "Support",
+            "icon": "phosphor/regular/lifebuoy",
+            "to": "mailto:support@scalar.com",
+            "section": "Company"
+          },
+          {
+            "type": "link",
+            "title": "Security",
+            "icon": "phosphor/regular/shield-check",
+            "to": "/security",
+            "section": "Company"
           }
         ]
       },
@@ -966,12 +1016,12 @@
     "sidebar": [
       {
         "title": "Email",
-        "url": "mailto:support@scalar.com",
+        "to": "mailto:support@scalar.com",
         "icon": "phosphor/regular/envelope-simple-open"
       },
       {
         "title": "Demo",
-        "url": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
+        "to": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
         "icon": "phosphor/regular/user-rectangle",
         "newTab": true
       }
@@ -1050,9 +1100,11 @@
             "description": "Transparent pricing for developer documentation, SDKs, and API tools. Start free and scale as you grow.",
             "filepath": "documentation/guides/pricing.md",
             "type": "page",
+            "showInSidebar": false,
             "layout": {
               "toc": false,
-              "pageTitle": false
+              "pageTitle": false,
+              "sidebar": false
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
@@ -1087,7 +1139,7 @@
             "title": "Products",
             "icon": "phosphor/regular/compass",
             "mode": "folder",
-            "open": false,
+            "open": true,
             "children": {
               "docs": {
                 "type": "link",
@@ -1425,6 +1477,17 @@
               }
             }
           },
+          "/svg-playground": {
+            "title": "SVG Playground",
+            "description": "Scratch page for iterating on landing page artwork.",
+            "filepath": "documentation/guides/svg-playground.md",
+            "type": "page",
+            "showInSidebar": false,
+            "layout": {
+              "toc": false,
+              "pageTitle": false
+            }
+          },
           "/brand": {
             "title": "Brand",
             "description": "Scalar brand guidelines, logos, wordmark, icon, and color palette. Download official brand assets.",
@@ -1760,6 +1823,12 @@
                         "description": "Structure your documentation with navigation routes: pages, groups, tabs, links, and OpenAPI references.",
                         "filepath": "documentation/guides/docs/configuration/navigation.md"
                       },
+                      "mega-menus": {
+                        "title": "Mega Menus",
+                        "type": "page",
+                        "description": "Lay out a header or tab dropdown in titled columns by adding section to its links.",
+                        "filepath": "documentation/guides/docs/configuration/mega-menus.md"
+                      },
                       "versions": {
                         "title": "Versions",
                         "type": "page",
@@ -1812,6 +1881,30 @@
                             {
                               "name": "description",
                               "content": "AI-powered assistant that answers questions using your documentation content, with MCP integration for LLMs."
+                            },
+                            {
+                              "name": "robots",
+                              "content": "index, follow"
+                            }
+                          ]
+                        }
+                      },
+                      "llms-txt": {
+                        "title": "llms.txt",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/llms-txt.md",
+                        "description": "Every published Scalar Docs site automatically serves llms.txt and llms-full.txt so AI agents and LLMs can read your documentation.",
+                        "head": {
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/llms-txt"
+                            }
+                          ],
+                          "meta": [
+                            {
+                              "name": "description",
+                              "content": "Every published Scalar Docs site automatically serves llms.txt and llms-full.txt so AI agents and LLMs can read your documentation."
                             },
                             {
                               "name": "robots",
@@ -2414,6 +2507,12 @@
                         "title": "Package Registries",
                         "description": "Set up trusted publishing or secrets for npm, PyPI, Maven Central, and every supported registry."
                       },
+                      "private-registries": {
+                        "filepath": "documentation/guides/sdks/publishing/private-registries.md",
+                        "type": "page",
+                        "title": "Private Registries",
+                        "description": "Publish to Artifactory, AWS CodeArtifact, or any internal registry with a copy-paste workflow your repository owns."
+                      },
                       "typescript": {
                         "filepath": "documentation/guides/sdks/publishing/typescript.md",
                         "type": "page",
@@ -2579,6 +2678,54 @@
                     "type": "page",
                     "title": "Custom Code",
                     "description": "Customize generated SDKs and keep your changes across regenerations with a three-way merge."
+                  },
+                  "diagnostics": {
+                    "filepath": "documentation/guides/sdks/diagnostics.md",
+                    "type": "page",
+                    "title": "Diagnostics",
+                    "description": "How Scalar analyzes your OpenAPI document and SDK configuration on every build, what each rule checks for, and how to grade or suppress findings.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/diagnostics"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "How Scalar analyzes your OpenAPI document and SDK configuration on every build, what each rule checks for, and how to grade or suppress findings."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "asyncapi": {
+                    "filepath": "documentation/guides/sdks/asyncapi.md",
+                    "type": "page",
+                    "title": "AsyncAPI (Experimental)",
+                    "description": "Generate SDKs from AsyncAPI documents with the experimental AsyncAPI input: WebSocket connect methods, HTTP streaming channels, typed events, and authentication.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/asyncapi"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate SDKs from AsyncAPI documents: WebSocket connect methods, HTTP streaming channels, typed events, and authentication."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   }
                 }
               },
@@ -3118,7 +3265,7 @@
                         "title": "Next.js",
                         "filepath": "documentation/integrations/nextjs.md",
                         "type": "page",
-                        "description": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components.",
+                        "description": "Add interactive API documentation to Next.js with standalone handlers and embedded React components.",
                         "head": {
                           "links": [
                             {
@@ -3129,7 +3276,7 @@
                           "meta": [
                             {
                               "name": "description",
-                              "content": "Add beautiful API references to your Next.js application with automatic OpenAPI generation and React components."
+                              "content": "Add interactive API documentation to Next.js with standalone handlers and embedded React components."
                             },
                             {
                               "name": "robots",
@@ -3149,6 +3296,24 @@
                         "filepath": "documentation/integrations/nitro.md",
                         "description": "Add a Scalar API reference to your Nitro server for interactive OpenAPI documentation.",
                         "type": "page"
+                      },
+                      "nextjs-recipes/route-handlers": {
+                        "title": "Next.js with Zod",
+                        "filepath": "documentation/integrations/nextjs-recipes/route-handlers.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
+                      "nextjs-recipes/hono": {
+                        "title": "Next.js with Hono",
+                        "filepath": "documentation/integrations/nextjs-recipes/hono.md",
+                        "type": "page",
+                        "showInSidebar": false
+                      },
+                      "nextjs-recipes/orpc": {
+                        "title": "Next.js with oRPC",
+                        "filepath": "documentation/integrations/nextjs-recipes/orpc.md",
+                        "type": "page",
+                        "showInSidebar": false
                       },
                       "nuxt": {
                         "title": "Nuxt",
@@ -3245,6 +3410,12 @@
                         "title": "Spry",
                         "filepath": "documentation/integrations/spry.md",
                         "description": "Add a Scalar API reference to your Spry application for interactive OpenAPI documentation.",
+                        "type": "page"
+                      },
+                      "starlight": {
+                        "title": "Starlight",
+                        "filepath": "documentation/integrations/starlight.md",
+                        "description": "Add a Scalar API reference to your Astro Starlight docs for interactive OpenAPI documentation.",
                         "type": "page"
                       },
                       "sveltekit": {
@@ -3868,6 +4039,53 @@
                     "title": "Changelog",
                     "description": "Changelog for @scalar/openapi-upgrader releases.",
                     "filepath": "packages/openapi-upgrader/CHANGELOG.md",
+                    "type": "page"
+                  }
+                }
+              },
+              "../../tools/asyncapi-upgrader": {
+                "title": "AsyncAPI Upgrader",
+                "description": "Automatically upgrade your AsyncAPI documents from 1.x and 2.x to the latest 3.x version with zero manual work.",
+                "type": "group",
+                "mode": "nested",
+                "icon": "phosphor/regular/arrow-up-right",
+                "children": {
+                  "getting-started": {
+                    "title": "Getting Started",
+                    "filepath": "documentation/guides/asyncapi-upgrader/getting-started.md",
+                    "type": "page",
+                    "description": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/asyncapi-upgrader/getting-started"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Getting Started with AsyncAPI Upgrader - Upgrade to AsyncAPI 3.x"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Migrate legacy AsyncAPI 1.x and 2.x documents to the modern 3.x format automatically with our free conversion tool."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "changelog": {
+                    "title": "Changelog",
+                    "description": "Changelog for @scalar/asyncapi-upgrader releases.",
+                    "filepath": "packages/asyncapi-upgrader/CHANGELOG.md",
                     "type": "page"
                   }
                 }

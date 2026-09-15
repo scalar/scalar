@@ -11,6 +11,8 @@ export type HeaderProps = {
   path: string
   /** Current request method */
   method: HttpMethod
+  /** Whether this request comes from an OpenAPI webhook. */
+  isWebhook?: boolean
   /** Client layout */
   layout: ClientLayout
   /** Hides the client button on the header */
@@ -54,7 +56,7 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
@@ -78,6 +80,8 @@ const emit = defineEmits<{
   (e: 'add:environment'): void
   /** Navigate to the settings page for the current entity */
   (e: 'navigate:settings'): void
+  /** Update the full destination URL used to deliver a webhook. */
+  (e: 'update:webhook-url', url: string): void
 }>()
 
 const handleSelectEnvironment = (environmentName: string) => {
@@ -109,6 +113,7 @@ const handleAddEnvironment = () => {
       :eventBus
       :exampleKey
       :history
+      :isWebhook
       :layout
       :method
       :path
@@ -117,6 +122,7 @@ const handleAddEnvironment = () => {
       :servers
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
+      @update:webhook-url="(value) => emit('update:webhook-url', value)"
       @select:history:item="
         (payload) => emit('select:history:item', payload)
       " />
@@ -134,7 +140,7 @@ const handleAddEnvironment = () => {
         @select:environment="handleSelectEnvironment" />
       <!-- Operation settings -->
       <ScalarIconButton
-        v-if="layout !== 'modal'"
+        v-if="layout !== 'modal' && !isWebhook"
         :icon="ScalarIconGearSix"
         label="Operation settings"
         size="sm"

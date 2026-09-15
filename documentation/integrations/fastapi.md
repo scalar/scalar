@@ -12,17 +12,40 @@ pip install scalar-fastapi
 
 FastAPI makes it super easy to enable Scalar with their out of the box OpenAPI support.
 
-### Basic Usage
+### Quickstart
+
+The fastest way to add Scalar is a single call. `add_scalar_reference` registers the route for you and reads the title and OpenAPI URL from your app:
+
+```python
+from fastapi import FastAPI
+from scalar_fastapi import add_scalar_reference
+
+app = FastAPI()
+
+add_scalar_reference(app)
+```
+
+Now open `/scalar` in your browser.
+
+You can change the route and pass through any option that `get_scalar_api_reference` accepts:
+
+```python
+from scalar_fastapi import add_scalar_reference, Theme
+
+add_scalar_reference(app, route="/docs/scalar", theme=Theme.KEPLER)
+```
+
+`add_scalar_reference` accepts `route` (default `/scalar`) and `include_in_schema` (default `False`); every other keyword argument is forwarded to `get_scalar_api_reference`.
+
+### Custom route
+
+If you want full control over the route, add it yourself with `get_scalar_api_reference`:
 
 ```python
 from fastapi import FastAPI
 from scalar_fastapi import get_scalar_api_reference
 
 app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
 
 @app.get("/scalar", include_in_schema=False)
 async def scalar_html():
@@ -160,7 +183,7 @@ DocumentDownloadType.NONE    # Hide download button
 
 ### Theme and Appearance
 
-- `dark_mode` (default `True`)
+- `dark_mode` (default `None`) - Whether dark mode is on or off initially. When left unset, the reader's preference is used
 - `force_dark_mode_state` (default `None`) - Force dark mode state to always be this state. Can be 'dark' or 'light'
 - `hide_dark_mode_toggle` (default `False`) - Whether to show the dark mode toggle
 - `with_default_fonts` (default `True`) - Whether to use default fonts (Inter and JetBrains Mono)
@@ -190,8 +213,8 @@ DocumentDownloadType.NONE    # Hide download button
 ### Advanced
 
 - `scalar_js_url` (default `"https://cdn.jsdelivr.net/npm/@scalar/api-reference"`)
-- `scalar_proxy_url` (default `None`)
-- `integration` (default `None`)
+- `scalar_proxy_url` (default `""`)
+- `integration` (default `"fastapi"`) - Set to `None` to omit the integration marker
 - `theme` (default `Theme.DEFAULT`)
 - `agent` (default `None`) - Set to `AgentScalarConfig(disabled=True)` to disable Agent entirely, or use per-source `agent` on `OpenAPISource` for keys. See [Agent](../configuration.md#agent).
 - `overrides` (default `{}`) - Specific overrides directly to the `config` dictionary which is passed as `Scalar.createApiReference("#app", {json.dumps(config)})`
@@ -209,13 +232,15 @@ Layout.CLASSIC   # Classic layout
 
 ### SearchHotKey
 
+`SearchHotKey` has one member per letter, `SearchHotKey.A` through `SearchHotKey.Z`. The chosen key is combined with the platform modifier (Cmd on macOS, Ctrl elsewhere). The default is `SearchHotKey.K`.
+
 ```python
 from scalar_fastapi import SearchHotKey
 
-# Available options:
-SearchHotKey.K    # Use 'K' key
-SearchHotKey.CMD_K # Use 'Cmd+K' (Mac) / 'Ctrl+K' (Windows/Linux)
-SearchHotKey.NONE # Disable hotkey
+get_scalar_api_reference(
+    openapi_url="/openapi.json",
+    search_hot_key=SearchHotKey.S,  # Cmd/Ctrl + S
+)
 ```
 
 ### Theme
@@ -223,6 +248,17 @@ SearchHotKey.NONE # Disable hotkey
 ```python
 from scalar_fastapi import Theme
 
-# Available options:
-Theme.DEFAULT # Default theme
-Theme.NONE    # No theme
+# Available options (default is Theme.DEFAULT):
+Theme.DEFAULT
+Theme.ALTERNATE
+Theme.MOON
+Theme.PURPLE
+Theme.SOLARIZED
+Theme.BLUE_PLANET
+Theme.SATURN
+Theme.KEPLER
+Theme.MARS
+Theme.DEEP_SPACE
+Theme.LASERWAVE
+Theme.NONE  # Render without a Scalar theme
+```

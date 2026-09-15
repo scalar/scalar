@@ -99,7 +99,7 @@ Headline components (full list in [`references/components.md`](./references/comp
 - **Buttons & inputs:** `ScalarButton` (variant `solid` | `outlined` | `ghost` | `gradient` | `danger`; size `xs` | `sm` | `md`), `ScalarIconButton`, `ScalarTextInput`, `ScalarTextArea`, `ScalarToggle`, `ScalarCheckbox`, `ScalarSearchInput`, `ScalarFileUpload`.
 - **Selection / floating:** `ScalarCombobox`, `ScalarListbox`, `ScalarDropdown`, `ScalarPopover`, `ScalarTooltip` (all positioned with Floating UI).
 - **Overlays:** `ScalarModal` (sizes `xxs`–`full`).
-- **Layout / nav:** `ScalarHeader`, `ScalarSidebar`, `ScalarMenu`.
+- **Layout / nav:** `ScalarHeader` (+ `ScalarHeaderColumn`), `ScalarSidebar`, `ScalarMenu`.
 - **Content:** `ScalarCard`, `ScalarCodeBlock`, `ScalarMarkdown`, `ScalarForm`, `ScalarLoading`.
 
 **Icons** come from `@scalar/icons` (1,500+ Phosphor icons as `ScalarIcon<Name>` components). Size with `size-*` (`size-4`, `size-5`) and color with `text-*`. `ScalarButton` takes an `:icon` prop.

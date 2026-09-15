@@ -549,4 +549,42 @@ describe('diff', () => {
       expect(({} as Record<string, unknown>).pollutedByRoundTrip).toBeUndefined()
     })
   })
+
+  // The changes a diff carries are live references into the documents, never clones. The behavior
+  // is pinned here so a future switch to cloning is a deliberate change rather than a silent one.
+  describe('shares references with the source documents', () => {
+    test('an `add` carries the subtree of the target document', () => {
+      const doc2 = { info: { title: 'Pets' } }
+      const [change] = diff({}, doc2)
+
+      expect(change.changes).toBe(doc2.info)
+
+      // Writing into the change writes into the document it came from
+      change.changes.title = 'Rebased'
+      expect(doc2.info.title).toBe('Rebased')
+    })
+
+    test('an `update` carries the subtree of the target document', () => {
+      const doc2 = { info: { title: 'Pets' } }
+      const [change] = diff({ info: 'Pets' }, doc2)
+
+      expect(change).toEqual({ path: ['info'], changes: { title: 'Pets' }, type: 'update' })
+      expect(change.changes).toBe(doc2.info)
+    })
+
+    test('a `delete` carries the subtree of the source document', () => {
+      const doc1 = { info: { title: 'Pets' } }
+      const [change] = diff(doc1, {})
+
+      expect(change).toEqual({ path: ['info'], changes: { title: 'Pets' }, type: 'delete' })
+      expect(change.changes).toBe(doc1.info)
+    })
+
+    test('applying a diff leaves the result sharing structure with the target document', () => {
+      const doc2 = { info: { title: 'Pets' } }
+      const result = apply({}, diff({}, doc2))
+
+      expect(result.info).toBe(doc2.info)
+    })
+  })
 })

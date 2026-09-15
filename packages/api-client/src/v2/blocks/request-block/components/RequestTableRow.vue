@@ -10,7 +10,7 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type {
   ParameterObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
@@ -36,8 +36,12 @@ export type TableRow = {
   globalRoute?: ApiReferenceEvents['ui:navigate']
   /** Whether the parameter is disabled/inactive */
   isDisabled?: boolean
+  /** Whether an optional parameter is disabled because it has no explicit x-disabled value */
+  isDisabledByDefault?: boolean
   /** OpenAPI schema object with type, validation rules, examples, etc. */
   schema?: SchemaObject
+  /** Preserve array values even while their JSON text is temporarily invalid. */
+  isArray?: boolean
   /** Whether the parameter is required */
   isRequired?: boolean
   /**
@@ -70,10 +74,13 @@ const {
   data,
   environment,
   hasCheckboxDisabled,
+  deferKeyUpdates,
   invalidParams,
   showUploadButton,
 } = defineProps<{
   data: TableRow
+  /** Keep key edits local until blur when the row identity depends on its name. */
+  deferKeyUpdates?: boolean
   hasCheckboxDisabled?: boolean
   invalidParams?: Set<string>
   label?: string
@@ -106,7 +113,13 @@ const isDisabled = ref<boolean>(data.isDisabled ?? false)
 // Keep the above state synced with the data prop
 watch(
   () => data.name,
-  (newName) => (name.value = newName ?? ''),
+  (newName) => {
+    // Do not overwrite a valid local name with an empty incoming prop — this
+    // can happen when the placeholder row (appended by displayData) is briefly
+    // mapped onto this component instance before Vue re-keys the list.
+    if (!newName && name.value) return
+    name.value = newName ?? ''
+  },
 )
 watch(
   () => data.value,
@@ -163,7 +176,7 @@ const validationResult = computed(() =>
 /** Handle row updates while preserving existing properties */
 const handleUpdateRow = (
   payload: Partial<{ name: string; value: string; isDisabled: boolean }>,
-  options: { shouldRenameExpandedRow?: boolean } = {},
+  options: { shouldRenameExpandedRow?: boolean; commitKey?: boolean } = {},
 ): void => {
   // Update our local state
   if (payload.name !== undefined) {
@@ -171,6 +184,12 @@ const handleUpdateRow = (
   }
   if (payload.value !== undefined) {
     value.value = payload.value
+
+    // Optional parameters start unchecked, but entering a value expresses intent to send it.
+    // Explicit x-disabled values stay unchanged so a deliberate opt-out is preserved.
+    if (data.isDisabledByDefault) {
+      isDisabled.value = false
+    }
   }
 
   // Is disabled should only be updated when explicitly provided in the payload
@@ -180,8 +199,9 @@ const handleUpdateRow = (
 
   if (
     payload.name !== undefined &&
-    data.sourceParameterValuePath &&
-    !options.shouldRenameExpandedRow
+    (deferKeyUpdates || data.sourceParameterValuePath) &&
+    !options.shouldRenameExpandedRow &&
+    !options.commitKey
   ) {
     return
   }
@@ -198,8 +218,8 @@ const handleUpdateRow = (
 }
 
 /**
- * Commit a key edit when the input loses focus. Expanded-object rows defer their rename to blur (see
- * handleUpdateRow), so we only emit when the key actually changed — focusing and blurring the field
+ * Commit a key edit when the input loses focus. Body and expanded-object rows defer their rename to blur (see
+ * handleUpdateRow), so we only emit when the key actually changed. Focusing and blurring the field
  * without typing should not re-emit the row or silently reset its disabled state. The current
  * disabled state is passed through so a renamed row keeps it.
  */
@@ -207,11 +227,30 @@ const handleKeyBlur = (newName: string): void => {
   if (newName === data.name) {
     return
   }
+  // Do not emit an update that would blank the parameter name — this can fire
+  // when CodeInputLite blurs before it has rendered its initial value.
+  if (!newName && data.name) {
+    return
+  }
 
   handleUpdateRow(
     { name: newName, isDisabled: isDisabled.value },
-    { shouldRenameExpandedRow: Boolean(data.sourceParameterValuePath) },
+    {
+      shouldRenameExpandedRow: Boolean(data.sourceParameterValuePath),
+      commitKey: true,
+    },
   )
+}
+
+/** Save a pending body key before the send shortcut reaches the request handler. */
+const handleKeydown = (event: KeyboardEvent): void => {
+  if (
+    deferKeyUpdates &&
+    event.key === 'Enter' &&
+    (event.metaKey || event.ctrlKey)
+  ) {
+    handleKeyBlur(name.value)
+  }
 }
 </script>
 
@@ -239,6 +278,7 @@ const handleKeyBlur = (newName: string): void => {
         placeholder="Key"
         :required="Boolean(data.isRequired)"
         @blur="(v) => handleKeyBlur(v)"
+        @keydown.capture="handleKeydown"
         @navigate="(route) => emit('navigate', route)"
         @update:modelValue="(v) => handleUpdateRow({ name: v })" />
     </DataTableCell>

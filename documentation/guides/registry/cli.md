@@ -3,15 +3,21 @@ This guide will help you interact with our registry with our CLI, programmatical
 
 Before running any of the commands below, make sure you are [authenticated](../cli/authentication.md) with the Scalar CLI using your [API key](../cli/authentication.md#login-with-an-api-key).
 
-## Publishing OpenAPI Documents
-To add an OpenAPI document to the registry, use the `publish` command:
+## Publishing API Documents
+To add an API document to the registry, use the `publish` command:
 
 ```bash
 scalar registry publish ./openapi.yaml --namespace your-team --slug your-api
 ```
 
+`publish` accepts OpenAPI and [AsyncAPI](../../asyncapi.md) documents alike. The format is detected when the document reaches the registry, so the command is the same either way:
+
+```bash
+scalar registry publish ./asyncapi.yaml --namespace your-team --slug your-events-api
+```
+
 ### Required Parameters
-- `file`: Path to your OpenAPI file
+- `file`: Path to your API document
 - `--namespace`: Your Scalar team namespace
 - `--slug`: Unique identifier for the registry entry (defaults to title if not specified)
 
@@ -57,7 +63,7 @@ scalar registry delete your-team your-api
 ```
 
 ## Validation and Quality
-Before publishing, you can validate your OpenAPI document:
+Before publishing, you can validate your API document:
 
 ```bash
 scalar document validate ./openapi.yaml
@@ -74,6 +80,11 @@ And use Rules from the Registry:
 ```bash
 scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
 ```
+
+> [!NOTE]
+> `scalar document lint` also supports [AsyncAPI](../../asyncapi.md). It detects the document type and runs Spectral's `spectral:asyncapi` ruleset instead of `spectral:oas`, so linting an AsyncAPI document reports issues that actually apply to it. `scalar document validate` remains OpenAPI-only — pointed at an AsyncAPI document it stops with a clear message and suggests `lint` instead. Publishing an AsyncAPI document to the registry works as normal.
+>
+> Need AsyncAPI support for `validate` too? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
 
 ## Team Management
 If you're part of multiple teams, you can manage which team is active:

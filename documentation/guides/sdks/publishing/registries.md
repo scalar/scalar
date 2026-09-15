@@ -21,6 +21,9 @@ For how publishing works end to end, see [Publishing](overview.md).
 | [CLI](cli.md) | `npm`, `binaries`, `homebrew` | npm / GitHub Release / Homebrew | OIDC or token | none (npm OIDC) or `NPM_TOKEN`, plus `HOMEBREW_TAP_TOKEN` for Homebrew |
 | C++ | — | — | — | none (built in CI, no registry) |
 
+> [!NOTE]
+> Publishing to an internal registry instead — Artifactory, AWS CodeArtifact, Nexus, GitLab, Azure Artifacts — is not in this table, because it does not need a `publish` key. Add a workflow your repository owns; see [Private Registries](private-registries.md) for copy-paste examples.
+
 ## Two ways to authenticate
 
 Registries that support OIDC (`npm`, `pypi`, `cargo`, `nuget`, `pub`) default to it. Pick one option per target.

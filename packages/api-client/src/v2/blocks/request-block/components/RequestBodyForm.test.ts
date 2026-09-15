@@ -1,11 +1,14 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
+import { CodeInputLite } from '@/v2/components/code-input'
+
 import RequestBodyForm from './RequestBodyForm.vue'
 import RequestTable from './RequestTable.vue'
+import RequestTableRow from './RequestTableRow.vue'
 
 // Mock the useFileDialog hook
 const mockFiles = ref<FileList | null>(null)
@@ -424,4 +427,81 @@ describe('RequestBodyForm', () => {
       expect(newRow?.isDisabled).toBe(false)
     }
   })
+  it('emits typed arrays when another field changes or an array is edited', async () => {
+    const wrapper = mountRequestBodyForm({ example: { value: { tags: ['a', 'b'], other: 'old' } } })
+    const table = wrapper.findComponent(RequestTable)
+    table.vm.$emit('upsertRow', 1, { value: 'new' })
+    await nextTick()
+    expect(wrapper.emitted('update:formValue')?.[0]).toEqual([
+      [
+        { name: 'tags', value: ['a', 'b'], isDisabled: false, isArray: true },
+        { name: 'other', value: 'new', isDisabled: false },
+      ],
+    ])
+    table.vm.$emit('upsertRow', 0, { value: '["c","d"]' })
+    await nextTick()
+    expect(wrapper.emitted('update:formValue')?.[1]).toEqual([
+      [
+        { name: 'tags', value: ['c', 'd'], isDisabled: false, isArray: true },
+        { name: 'other', value: 'new', isDisabled: false },
+      ],
+    ])
+    wrapper.unmount()
+  })
+  it('retains example-only array types after saving invalid JSON and reopening', async () => {
+    const wrapper = mountRequestBodyForm({ example: { value: { tags: ['a'] } } })
+    wrapper.findComponent(RequestTable).vm.$emit('upsertRow', 0, { value: '[invalid' })
+    await nextTick()
+    const saved = [{ name: 'tags', value: '[invalid', isDisabled: false, isArray: true }]
+    expect(wrapper.emitted('update:formValue')?.[0]).toEqual([saved])
+    wrapper.unmount()
+
+    const reopened = mountRequestBodyForm({ example: { value: saved } })
+    reopened.findComponent(RequestTable).vm.$emit('upsertRow', 0, { value: '["repaired"]' })
+    await nextTick()
+    expect(reopened.emitted('update:formValue')?.[0]).toEqual([
+      [{ name: 'tags', value: ['repaired'], isDisabled: false, isArray: true }],
+    ])
+    reopened.unmount()
+  })
+  it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
+    'keeps body key focus and saves on blur or send for %s',
+    async (contentType) => {
+      const wrapper = mount(RequestBodyForm, {
+        attachTo: document.body,
+        props: {
+          example: { value: { existing: 'value' } },
+          selectedContentType: contentType,
+          environment: defaultEnvironment,
+        },
+      })
+      try {
+        for (const index of [0, 1]) {
+          const row = wrapper.findAllComponents(RequestTableRow)[index]!
+          const input = row.findAllComponents(CodeInputLite)[0]!
+          const editor = input.get('[contenteditable="true"]').element as HTMLElement
+          editor.focus()
+          const eventCount = wrapper.emitted('update:formValue')?.length ?? 0
+          let name = row.props('data').name
+          for (const character of 'note') {
+            name += character
+            input.vm.$emit('update:modelValue', name)
+            await nextTick()
+            expect(document.activeElement).toBe(editor)
+            expect(wrapper.emitted('update:formValue')?.length ?? 0).toBe(eventCount)
+          }
+          if (index === 0) {
+            input.vm.$emit('blur', name, new FocusEvent('blur'))
+          } else {
+            editor.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }))
+          }
+          await nextTick()
+          expect(wrapper.findComponent(RequestTable).props('data')[index]?.name).toBe(name)
+          expect(wrapper.emitted('update:formValue')?.length).toBe(eventCount + 1)
+        }
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
 })

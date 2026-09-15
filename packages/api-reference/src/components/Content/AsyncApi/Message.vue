@@ -10,6 +10,7 @@ import { Anchor } from '@/components/Anchor'
 import { Schema } from '@/components/Content/Schema'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import {
   getAsyncApiMessageHeadersSchema,
   getAsyncApiMessagePayloadSchema,
@@ -83,7 +84,7 @@ const messageBindingProtocols = computed(() => {
     return []
   }
   const resolved = getResolvedRef(bindings)
-  return Object.entries(resolved)
+  return Object.entries(resolved ?? {})
     .filter(([, value]) => value != null)
     .map(([protocol]) => protocol.toLowerCase())
 })
@@ -142,6 +143,8 @@ const onToggle = (open: boolean) => {
   isExpanded.value = open
   eventBus?.emit('toggle:nav-item', { id: message.id, open })
 }
+
+const { level: headingLevel } = useDocumentOutline('message')
 </script>
 
 <template>
@@ -162,7 +165,7 @@ const onToggle = (open: boolean) => {
             <SectionHeaderTag
               :id="headerId"
               class="message-title"
-              :level="4">
+              :level="headingLevel">
               {{ headingText }}
             </SectionHeaderTag>
             <AsyncApiLabels :protocols="protocolLabels" />
@@ -181,6 +184,7 @@ const onToggle = (open: boolean) => {
         class="message-schema">
         <div class="message-schema-title">Headers</div>
         <Schema
+          :breadcrumb="[message.id, 'headers']"
           compact
           :eventBus="eventBus"
           name="Headers"
@@ -194,6 +198,7 @@ const onToggle = (open: boolean) => {
         class="message-schema">
         <div class="message-schema-title">Payload</div>
         <Schema
+          :breadcrumb="[message.id, 'payload']"
           compact
           :eventBus="eventBus"
           name="Payload"

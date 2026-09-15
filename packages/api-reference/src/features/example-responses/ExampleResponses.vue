@@ -15,7 +15,7 @@ import { getExample } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   ResponsesObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, toValue, useId, watch } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -25,24 +25,27 @@ import { useLocalization } from '@/features/localization'
 import ExampleResponse from './ExampleResponse.vue'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 import ExampleResponseTabList from './ExampleResponseTabList.vue'
+import { getExampleContent } from './helpers/get-example-content'
 import { hasResponseContent } from './helpers/has-response-content'
 import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
 
-/**
- * TODO: copyToClipboard isn't using the right content if there are multiple examples
- */
-
-const { responses, selectedExample, eventBus } = defineProps<{
-  responses: ResponsesObject
-  /**
-   * The document-wide selected example key. Honored only when the current response defines an
-   * example with the same key, so response example pickers stay in sync between operations without
-   * blanking out responses that do not share that key.
-   */
-  selectedExample?: string
-  /** Event bus, used to broadcast the selected example so other operations can follow */
-  eventBus?: WorkspaceEventBus
-}>()
+const { responses, selectedExample, eventBus, selectedContentTypes } =
+  defineProps<{
+    responses: ResponsesObject
+    /**
+     * The document-wide selected example key. Honored only when the current response defines an
+     * example with the same key, so response example pickers stay in sync between operations without
+     * blanking out responses that do not share that key.
+     */
+    selectedExample?: string
+    /** Event bus, used to broadcast the selected example so other operations can follow */
+    eventBus?: WorkspaceEventBus
+    /**
+     * Selected response content type per status code, mirrored from the response list on the left
+     * so the displayed example matches the chosen content type. Keyed by status code (e.g. "200").
+     */
+    selectedContentTypes?: Record<string, string>
+  }>()
 const { translate } = useLocalization()
 
 const id = useId()
@@ -90,14 +93,22 @@ const currentResponse = computed(() => {
   return getResolvedRef(responses?.[currentStatusCode])
 })
 
-const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
-  const normalizedContent = normalizeMimeTypeObject(
-    currentResponse.value?.content,
-  )
+const normalizedResponseContent = computed(() =>
+  normalizeMimeTypeObject(currentResponse.value?.content),
+)
 
-  /** All the keys of the normalized content */
-  const keys = objectKeys(normalizedContent ?? {})
-  return normalizedContent?.[keys[0] ?? '']
+const currentResponseContent = computed<MediaTypeObject | undefined>(() => {
+  const content = normalizedResponseContent.value
+  if (!content) {
+    return undefined
+  }
+  const statusCode =
+    toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
+  const selected = selectedContentTypes?.[statusCode]
+  const keys = objectKeys(content)
+  return content[
+    selected && keys.includes(selected) ? selected : (keys[0] ?? '')
+  ]
 })
 
 const hasMultipleExamples = computed<boolean>(
@@ -159,6 +170,16 @@ const changeTab = (index: number) => {
   selectedExampleKey.value = resolveExampleKey(selectedExample)
 }
 
+const exampleContent = computed(() =>
+  getExampleContent(currentResponseContent.value, currentExample.value),
+)
+
+const copyExample = (): void => {
+  if (exampleContent.value !== undefined) {
+    copyToClipboard(exampleContent.value)
+  }
+}
+
 const showSchema = ref(false)
 </script>
 <template>
@@ -178,10 +199,11 @@ const showSchema = ref(false)
 
       <template #actions>
         <button
-          v-if="currentResponseContent?.example"
+          v-if="exampleContent !== undefined"
+          :aria-label="translate('common.copyExample')"
           class="code-copy"
           type="button"
-          @click="() => copyToClipboard(currentResponseContent?.example)">
+          @click="copyExample">
           <ScalarIcon
             icon="Clipboard"
             width="12px" />
@@ -210,6 +232,7 @@ const showSchema = ref(false)
       <ExampleResponse
         v-else
         :id="id"
+        :content="exampleContent"
         :example="currentExample"
         :response="currentResponseContent" />
     </ScalarCardSection>

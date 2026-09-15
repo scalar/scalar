@@ -7,7 +7,9 @@ import {
   type ParameterDeclaration,
   type Program,
   type SourceFile,
+  isArrowFunction,
   isFunctionDeclaration,
+  isFunctionExpression,
   isIdentifier,
   isParameter,
   isPropertySignature,
@@ -90,17 +92,24 @@ export const getPathSchema = (sourceFile: SourceFile, program: Program): OpenAPI
       }
     }
 
-    // TODO: variables
+    // A statement can declare several route handlers alongside other variables.
     else if (isVariableStatement(statement)) {
-      // TODO: Remove this typecast. It looks totally incompatible
-      const method = checkForMethod(statement.declarationList.declarations[0]?.name as Identifier)
-      if (method) {
+      for (const declaration of statement.declarationList.declarations) {
+        const method = isIdentifier(declaration.name) ? checkForMethod(declaration.name) : null
+        if (!method) {
+          continue
+        }
+
         const { title, description } = getJSDocFromNode(statement)
-        const responses = generateResponses(statement, typeChecker)
+        const initializer = declaration.initializer
+        const handler =
+          initializer && (isArrowFunction(initializer) || isFunctionExpression(initializer)) ? initializer : undefined
+
         path[method] = {
           summary: title,
           description,
-          responses,
+          ...(handler ? { parameters: extractPathParams(handler.parameters[1], program) } : {}),
+          responses: generateResponses(handler, typeChecker),
         } as OpenAPIV3_1.OperationObject
       }
     }

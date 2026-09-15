@@ -75,6 +75,19 @@ export const securityHttpSchema = oasSecuritySchemeHttp.merge(extendedSecuritySc
 export type SecuritySchemaHttp = z.infer<typeof securityHttpSchema>
 
 // ---------------------------------------------------------------------------
+// MUTUAL TLS
+
+// Mutual TLS presents a client certificate at the TLS layer, so there is no name/value pair or
+// token for the user to enter. The scheme is modeled so its type survives coercion and the auth UI
+// can react to it instead of falling back to the generic apiKey form.
+const oasSecuritySchemeMutualTls = commonProps.extend({
+  type: z.literal('mutualTLS'),
+})
+
+export const securityMutualTlsSchema = oasSecuritySchemeMutualTls.merge(extendedSecuritySchema)
+export type SecuritySchemeMutualTls = z.infer<typeof securityMutualTlsSchema>
+
+// ---------------------------------------------------------------------------
 // OPENID CONNECT
 const oasSecuritySchemeOpenId = commonProps.extend({
   type: z.literal('openIdConnect'),
@@ -229,13 +242,20 @@ export const oasSecurityRequirementSchema = z.record(z.string(), z.array(z.strin
 export const oasSecuritySchemeSchema = z.union([
   oasSecuritySchemeApiKey,
   oasSecuritySchemeHttp,
+  oasSecuritySchemeMutualTls,
   oasSecuritySchemeOauth2,
   oasSecuritySchemeOpenId,
 ])
 
 /** Extended security schemes for workspace usage */
 export const securitySchemeSchema = z
-  .discriminatedUnion('type', [securityApiKeySchema, securityHttpSchema, securityOpenIdSchema, securityOauthSchema])
+  .discriminatedUnion('type', [
+    securityApiKeySchema,
+    securityHttpSchema,
+    securityMutualTlsSchema,
+    securityOpenIdSchema,
+    securityOauthSchema,
+  ])
   .transform((data) => {
     // Set selected scopes from x-default-scopes
     if (data.type === 'oauth2' && data['x-default-scopes']?.length) {

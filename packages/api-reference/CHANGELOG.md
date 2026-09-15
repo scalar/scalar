@@ -1,5 +1,64 @@
 # @scalar/api-reference
 
+## 1.68.0
+
+### Minor Changes
+
+- [#9937](https://github.com/scalar/scalar/pull/9937): Add a way to open the request body editor in the Form view by default. Set the `defaultRequestBodyView: 'form'` config option, or the `x-scalar-default-request-body-view` extension in your OpenAPI document (which also works per source). Defaults to `raw`, and falls back to `raw` when a body cannot be shown as a form.
+
+### Patch Changes
+
+- [#10066](https://github.com/scalar/scalar/pull/10066): Show referenced model names for array branches in schema composition selectors.
+- [#10058](https://github.com/scalar/scalar/pull/10058): chore: upgrade to Storybook 10.5.10 and drop the third-party dark mode addon
+
+## 1.67.0
+
+### Minor Changes
+
+- [#10043](https://github.com/scalar/scalar/pull/10043): Resolve heading levels from a block's place in the page outline instead of hardcoding them, so a block rendered on its own starts at `h1`.
+
+  A block now assumes it is the top of the page: rendered alone, an operation's title is the `h1` and everything it contains follows beneath it. A component that renders several blocks alongside each other owns the relationship between them and anchors the outline — `Content` renders the info block above the tags and operations, so it declares `document` and the rest resolve against it. Composed into a full reference, every heading renders at the level it always has.
+
+  Also fixes two headings that never went through the heading components: the classic-layout operation title was a raw `h3`, and the classic-layout Models section label passed a `level` prop to a component that does not accept one, so it rendered no heading element at all.
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+### Patch Changes
+
+- [#9983](https://github.com/scalar/scalar/pull/9983): Bump the `zod` catalog to `^4.4.3` so the standalone bundle ships a single `zod` instead of two (`4.3.5` from `@scalar/types` plus `4.4.3` from the `ai` / `@ai-sdk` peer). This makes `standalone.js` ~68KB raw / ~18KB gzip smaller.
+- [#9965](https://github.com/scalar/scalar/pull/9965): Fix oneOf selector labels showing the shared allOf base name instead of the variant's own name. When a oneOf branch extended a common base through a single-`$ref` allOf (a common inheritance pattern), flattening that allOf for display left the base schema's own identity (`$ref`, `title`, or `name`) on the flattened variant, so the selector picked up the base's name for every branch instead of each branch's own name.
+- [#9973](https://github.com/scalar/scalar/pull/9973): Fix the "OAuth scopes" section rendering for any security scheme with a non-empty scope array, including `http` and `apiKey` schemes. Scopes are only meaningful for `oauth2` and `openIdConnect` schemes, so the section is now skipped when the resolved scheme is of a different type.
+- [#9289](https://github.com/scalar/scalar/pull/9289): fix response example panel to reflect selected content type from the response dropdown
+- [#9968](https://github.com/scalar/scalar/pull/9968): Move the schema `Pattern` hover chip next to the `Example` chip so it no longer collides with the preceding constraint (for example `max length: 26Pattern`). Real constraints like length and `nullable` now stay together in the dotted list.
+
+## 1.66.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 1.66.0
+
+### Minor Changes
+
+- [#9917](https://github.com/scalar/scalar/pull/9917): Expose every sidebar URL to crawlers in server-rendered HTML. The interactive sidebar keeps the children of collapsed groups out of the DOM, so links to operations and models inside collapsed tags were missing from server-rendered output unless `defaultOpenAllTags` was enabled. The server-rendered HTML now includes a hidden, flat list of plain anchors for every navigation entry, so crawlers can discover all deep links without executing JavaScript. The list is dropped right after hydration and never affects the interactive experience.
+- [#9918](https://github.com/scalar/scalar/pull/9918): Render sidebar navigation as anchor links instead of buttons.
+  - `@scalar/sidebar`: `ScalarSidebar` and `SidebarItem` accept a new `getHref` callback. When it returns a URL for an item, that item renders as a real link — this covers every entry except tag-group headings, which are section labels rather than navigation targets. Plain left clicks on the link still emit `selectItem` for in-app navigation (with the default navigation prevented), modified clicks are left to the browser so links can be opened in a new tab, and clicks on decorator content outside the link keep their native behavior. Items are built with the existing `button` slot on `ScalarSidebarItem` and `ScalarSidebarGroup`, so `@scalar/components` needs no new API to support this.
+  - `@scalar/api-reference`: the sidebar now passes `getHref` using the new SSR-safe `makeHrefFromId` helper, so the rendered sidebar contains real anchor tags whose paths match the URLs pushed to history (the hrefs are relative, so they do not carry the current query string). With path routing this makes the navigation crawlable and indexable by search engines; with hash routing and hash-base-path routing the fragment hrefs improve link semantics and open-in-new-tab behavior, but search engines do not treat fragments as separate URLs — configure `pathRouting` if URL discovery is the goal. Note that sidebar entries now follow standard link keyboard semantics (Enter activates them, Space scrolls the page), and links inside collapsed groups are only present in server-rendered HTML for groups that are expanded during SSR (for example via `defaultOpenAllTags`).
+  - `@scalar/helpers`: new `isPlainLeftClick` helper in `dom/is-plain-left-click` for deciding when a click should be hijacked for client-side navigation.
+
+### Patch Changes
+
+- [#9927](https://github.com/scalar/scalar/pull/9927): Show a composed schema's own description when it has no properties of its own. A schema that only carries `allOf` plus a top-level `description` dropped that description and rendered the first `allOf` member's description instead, which was visible when browsing the schema standalone in the Models section.
+- [#9936](https://github.com/scalar/scalar/pull/9936): Add bottom padding to the classic layout so the last section is no longer glued to the bottom edge of the screen
+- [#9406](https://github.com/scalar/scalar/pull/9406): feat: support OpenAPI 3.2 nested tags
+
+  The navigation tree now nests tags via the OpenAPI 3.2 `tag.parent` field, building an arbitrary-depth hierarchy. A parent tag with no operations of its own is treated as a section; a tag that has both operations and children renders as both. Native `parent` nesting takes precedence over `x-tagGroups`, which stays as the fallback for older documents. The `summary` field is used as the tag title (after `x-displayName`), and the new `parent`, `kind` and `summary` fields are recognized on the Tag Object (both in `@scalar/workspace-store` and `@scalar/schemas`). In the modern layout, operation-less parent tags now render their own summary and description header instead of being flattened like a legacy `x-tagGroups` wrapper.
+
+- [#9893](https://github.com/scalar/scalar/pull/9893): Show schema `pattern` as a hover dropdown in the API reference, similar to examples. Long regex patterns are now revealed on hover instead of being truncated inline.
+- [#9871](https://github.com/scalar/scalar/pull/9871): Add a short CDN URL for the ESM standalone build: `https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js`
+- [#9865](https://github.com/scalar/scalar/pull/9865): Ship source maps with the standalone browser build (`dist/browser`) so config errors are easier to debug
+
 ## 1.65.1
 
 ## 1.65.0

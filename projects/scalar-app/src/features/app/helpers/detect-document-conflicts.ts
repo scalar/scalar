@@ -14,8 +14,13 @@ import { diff, merge } from '@scalar/json-magic/diff'
  *     sides in incompatible ways. Any non-empty array means the user must
  *     resolve the conflicts manually.
  *
- * The function is pure - callers are responsible for fetching the remote
- * document and persisting the result on the workspace document.
+ * ⚠️ The check is not free of side effects. `merge` folds two compatible changes into one by
+ * merging in place, and the changes a diff carries are live references into the documents it
+ * compared, so detecting conflicts can write local values into the `remote` document. Pass a copy
+ * whenever the caller needs the remote document to stay untouched.
+ *
+ * Callers remain responsible for fetching the remote document and for merging
+ * and persisting it on the workspace document once the conflicts are settled.
  */
 export const detectDocumentConflicts = ({
   original,

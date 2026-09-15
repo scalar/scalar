@@ -1,12 +1,14 @@
 export { createReleaseNotesGeneratorCommand, releaseNotesGenerator } from './commands/generate'
 export { createSyncReleaseNotesMarkdownCommand, syncReleaseNotesMarkdown } from './commands/sync-markdown'
 export { defineReleaseNotesConfig } from './config/define-config'
-export { createBuiltInProvider, readReleaseNotesConfig } from './config/read-config'
+export { createBuiltInProvider, hasBuiltInProviderApiKey, readReleaseNotesConfig } from './config/read-config'
 export type {
   BuiltInProviderName,
   GithubOptions,
   ProductPromptContext,
+  PromptContext,
   PromptOptions,
+  ProviderOption,
   ReleaseNotesConfig,
   ReleaseNotesProduct,
   ReleaseNotesProvider,

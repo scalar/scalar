@@ -4,13 +4,16 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type {
   ExampleObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
-import { getFormBodyRows } from '@/v2/blocks/request-block/helpers/get-form-body-rows'
+import {
+  getFormBodyRows,
+  getFormBodyValue,
+} from '@/v2/blocks/request-block/helpers/get-form-body-rows'
 
 const { example, bodySchema, selectedContentType, environment } = defineProps<{
   example: ExampleObject | undefined | null
@@ -44,8 +47,14 @@ const handleUpdateFormValue = (rows: TableRow[]) => {
     'update:formValue',
     rows.map((row) => ({
       name: row.name,
-      value: row.value as string | File,
+      value:
+        selectedContentType === 'multipart/form-data'
+          ? getFormBodyValue(row)
+          : (row.value as string | File),
       isDisabled: row.isDisabled ?? false,
+      ...(selectedContentType === 'multipart/form-data' && row.isArray
+        ? { isArray: true }
+        : {}),
     })),
   )
 }
@@ -109,6 +118,7 @@ const handleFileUpload = (index: number) => {
   <template v-if="selectedContentType === 'multipart/form-data'">
     <RequestTable
       :data="localFormBodyRows"
+      deferKeyUpdates
       :environment="environment"
       showUploadButton
       @deleteRow="handleDeleteRow"
@@ -121,6 +131,7 @@ const handleFileUpload = (index: number) => {
   <template v-else>
     <RequestTable
       :data="localFormBodyRows"
+      deferKeyUpdates
       :environment="environment"
       @deleteRow="handleDeleteRow"
       @upsertRow="handleUpsertRow" />

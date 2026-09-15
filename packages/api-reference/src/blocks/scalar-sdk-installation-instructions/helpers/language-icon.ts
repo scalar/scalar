@@ -27,6 +27,8 @@ const LANGUAGE_ICONS: Record<string, Icon> = {
   javascript: 'programming-language-javascript',
   js: 'programming-language-javascript',
   json: 'programming-language-json',
+  julia: 'programming-language-julia',
+  jl: 'programming-language-julia',
   kotlin: 'programming-language-kotlin',
   node: 'programming-language-node',
   'node.js': 'programming-language-node',

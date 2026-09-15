@@ -168,3 +168,31 @@ describe('fetchUrls', () => {
     expect(fetch).toHaveBeenCalledTimes(6)
   })
 })
+
+describe('fetchUrl blockPrivateNetworks', () => {
+  const noLimit = <T>(fn: () => Promise<T>) => fn()
+
+  it('refuses a private or metadata address without calling fetch', async () => {
+    const fetch = vi.fn(async () => new Response('{}', { status: 200 }))
+
+    const result = await fetchUrl('http://169.254.169.254/latest/meta-data/', noLimit, {
+      blockPrivateNetworks: true,
+      fetch,
+    })
+
+    expect(result.ok).toBe(false)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('rejects custom transports that could bypass the guarded connection', async () => {
+    const fetch = vi.fn(async () => new Response('{}', { status: 200 }))
+
+    const result = await fetchUrl('http://93.184.216.34/', noLimit, {
+      blockPrivateNetworks: true,
+      fetch,
+    })
+
+    expect(result).toStrictEqual({ ok: false })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+})

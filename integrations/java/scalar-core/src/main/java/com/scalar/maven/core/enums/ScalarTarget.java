@@ -64,6 +64,11 @@ public enum ScalarTarget {
     JAVASCRIPT("js"),
 
     /**
+     * Julia.
+     */
+    JULIA("julia"),
+
+    /**
      * Kotlin.
      */
     KOTLIN("kotlin"),

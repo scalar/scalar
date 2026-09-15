@@ -11,6 +11,8 @@ const { tag, layout, moreThanOneTag } = defineProps<{
   moreThanOneTag: boolean
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
+  /** Whether this tag sits inside a parent tag's container (drops its own padding). */
+  nested?: boolean
 }>()
 </script>
 
@@ -20,6 +22,7 @@ const { tag, layout, moreThanOneTag } = defineProps<{
       :eventBus="eventBus"
       :isCollapsed="isCollapsed"
       :layout="layout"
+      :nested="nested"
       :tag="tag">
       <slot />
     </ClassicLayout>
@@ -30,6 +33,7 @@ const { tag, layout, moreThanOneTag } = defineProps<{
       :isCollapsed="isCollapsed"
       :layout="layout"
       :moreThanOneTag="moreThanOneTag"
+      :nested="nested"
       :tag="tag">
       <slot />
     </ModernLayout>

@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import type { ReleaseNotesProvider } from '../config/types'
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
@@ -10,10 +12,12 @@ type AnthropicProviderOptions = {
   fetchImpl?: typeof fetch
 }
 
-type AnthropicResponse = {
-  content?: Array<{ type: string; text?: string }>
-  error?: { message?: string }
-}
+const responseSchema = z.object({
+  content: z.array(z.object({ type: z.string(), text: z.string().optional() })).optional(),
+  error: z.object({ message: z.string().optional() }).optional(),
+})
+
+type AnthropicResponse = z.infer<typeof responseSchema>
 
 const extractText = (response: AnthropicResponse): string => {
   const block = response.content?.find((entry) => entry.type === 'text' && typeof entry.text === 'string')
@@ -61,7 +65,12 @@ export const createAnthropicProvider = (options: AnthropicProviderOptions = {}):
         throw new Error(`Anthropic API call failed (${response.status}): ${detail}`)
       }
 
-      const payload = (await response.json()) as AnthropicResponse
+      const body: unknown = await response.json()
+      const parsed = responseSchema.safeParse(body)
+      if (!parsed.success) {
+        throw new Error('Anthropic API returned a malformed response', { cause: parsed.error })
+      }
+      const payload = parsed.data
       if (payload.error?.message) {
         throw new Error(`Anthropic API returned an error: ${payload.error.message}`)
       }

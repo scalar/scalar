@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
@@ -131,9 +132,10 @@ export function serveHTMLExample(
  * Looks into the package.json and returns the path to the browser bundle.
  */
 function getPathToJavaScriptBundle() {
-  const pathToPackageJson = join(new URL('.', import.meta.url).pathname, '../../package.json')
+  const dir = fileURLToPath(new URL('.', import.meta.url))
+  const pathToPackageJson = join(dir, '../../package.json')
   const packageJson = readFileSync(pathToPackageJson, 'utf8')
   const { browser: bundlePath } = JSON.parse(packageJson)
 
-  return join(new URL('.', import.meta.url).pathname, '../../', bundlePath)
+  return join(dir, '../../', bundlePath)
 }

@@ -18,7 +18,7 @@ test.describe('setPageTitle', () => {
 
     await page.goto(example)
 
-    await page.getByRole('button', { name: 'Create a user' }).click()
+    await page.getByRole('complementary').getByRole('link', { name: 'Create a user' }).click()
 
     await expect(page).toHaveTitle('API Reference - Create a user')
   })

@@ -5,7 +5,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   ExternalDocumentationObject,
   InfoObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import {
   Section,
@@ -16,6 +16,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
@@ -38,6 +39,8 @@ defineProps<{
 }>()
 
 const { translate } = useLocalization()
+
+const { level: headingLevel } = useDocumentOutline('document')
 </script>
 
 <template>
@@ -64,7 +67,7 @@ const { translate } = useLocalization()
               :version="specificationVersion" />
           </div>
           <SectionHeader tight>
-            <SectionHeaderTag :level="1">
+            <SectionHeaderTag :level="headingLevel">
               {{ info?.title }}
             </SectionHeaderTag>
             <template #links>

@@ -1,5 +1,17 @@
 # @scalar/sveltekit
 
+## 0.3.18
+
+## 0.3.17
+
+## 0.3.16
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.3.15
+
 ## 0.3.14
 
 ## 0.3.13

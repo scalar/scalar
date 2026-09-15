@@ -1,4 +1,5 @@
-import { takeSnapshot, test, themes } from '@test/helpers'
+import { takeSnapshot, test } from '@test/helpers'
+import { themes } from '@test/shared'
 
 test.describe('ScalarTextInput', () => {
   test.use({ background: true })

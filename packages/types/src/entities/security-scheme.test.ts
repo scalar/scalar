@@ -339,6 +339,11 @@ describe('Security Schemas', () => {
         token: 'bearer-token',
       }
 
+      const mutualTls = {
+        type: 'mutualTLS',
+        uid: 'mutual-tls123',
+      }
+
       const openId = {
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
@@ -360,6 +365,7 @@ describe('Security Schemas', () => {
 
       expect(securitySchemeSchema.safeParse(apiKey).success).toBe(true)
       expect(securitySchemeSchema.safeParse(http).success).toBe(true)
+      expect(securitySchemeSchema.safeParse(mutualTls).success).toBe(true)
       expect(securitySchemeSchema.safeParse(openId).success).toBe(true)
       expect(securitySchemeSchema.safeParse(oauth2).success).toBe(true)
     })

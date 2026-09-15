@@ -58,7 +58,7 @@ export function getHeadingsFromMarkdown(input: string): Heading[] {
 
   const headings = getMarkdownHeadings(input)
 
-  return withSlugs(headings as Heading[], slug)
+  return withSlugs(headings, slug)
 }
 
 type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6

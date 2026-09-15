@@ -1,13 +1,13 @@
-import { faker } from '@faker-js/faker'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 
 import { store } from '../libs/store'
+import { generateResponseExample } from './generate-response-example'
 import { normalizeResponseBody } from './normalize-response-body'
+import { pathParameters } from './path-parameters'
 import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper'
 
 /**
@@ -15,7 +15,6 @@ import { type StoreOperationTracking, createStoreWrapper } from './store-wrapper
  */
 export type HandlerContext = {
   store: ReturnType<typeof createStoreWrapper>['wrappedStore']
-  faker: typeof faker
   req: {
     body: any
     params: Record<string, string>
@@ -80,14 +79,7 @@ function getExampleFromResponse(
   return acceptedResponse.example !== undefined
     ? normalizeResponseBody(acceptedResponse.example, responseSchema)
     : responseSchema
-      ? normalizeResponseBody(
-          getExampleFromSchema(responseSchema, {
-            emptyString: 'string',
-            variables: c.req.param(),
-            mode: 'read',
-          }),
-          responseSchema,
-        )
+      ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
       : null
 }
 
@@ -124,21 +116,16 @@ export async function buildHandlerContext(
   const res: Record<string, any> = {}
   if (operation?.responses) {
     for (const statusCode of Object.keys(operation.responses)) {
-      res[statusCode] = getExampleFromResponse(
-        c,
-        statusCode,
-        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
-      )
+      res[statusCode] = getExampleFromResponse(c, statusCode, operation.responses)
     }
   }
 
   return {
     context: {
       store: wrappedStore,
-      faker,
       req: {
         body,
-        params: c.req.param(),
+        params: pathParameters(c),
         query: Object.fromEntries(new URL(c.req.url).searchParams.entries()),
         headers: Object.fromEntries(Object.entries(c.req.header()).map(([key, value]) => [key, value ?? ''])),
       },

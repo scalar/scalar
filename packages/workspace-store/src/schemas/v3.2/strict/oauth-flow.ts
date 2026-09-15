@@ -1,6 +1,8 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
+import { type XOrder, XOrderSchema } from '@/schemas/extensions/schema/x-order'
 import {
   type XScalarCredentialsLocation,
   XScalarCredentialsLocationSchema,
@@ -35,6 +37,10 @@ const OAuthFlowCommonSchema = compose(
   XTokenNameSchema,
   XScalarAuthUrlSchema,
   XScalarTokenUrlSchema,
+  // Reuse the shared display-order and ignore extensions so authors can reorder and hide
+  // individual OAuth2 flow tabs in the auth UI. See documentation/openapi.md.
+  XOrderSchema,
+  XScalarIgnoreSchema,
 )
 
 /** Common properties used across all OAuth flows */
@@ -47,7 +53,9 @@ type OAuthFlowCommon = {
   XScalarSecurityBody &
   XTokenName &
   XScalarTokenUrl &
-  XScalarAuthUrl
+  XScalarAuthUrl &
+  XOrder &
+  XScalarIgnore
 
 /** Configuration for the OAuth Implicit flow */
 export const OAuthFlowImplicitSchema = compose(

@@ -1,4 +1,4 @@
-export { getExampleFromBody } from './body/get-request-body-example'
+export { getExampleFromBody, getSchemaExampleFromBody } from './body/get-request-body-example'
 export { getSelectedBodyContentType } from './body/get-selected-body-content-type'
 export {
   buildDottedNestedRowPredicate,
@@ -7,6 +7,7 @@ export {
   resolveLeafSchema,
 } from './body/schema-value-coercion'
 export { type SerializedFormProperty, serializeFormPropertyWithEncoding } from './body/serialize-form-property'
+export { serializeMultipartArray } from './body/serialize-multipart-array'
 export {
   BUILD_REQUEST_FAILED,
   type BuildRequestData,

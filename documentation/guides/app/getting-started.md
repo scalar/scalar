@@ -17,7 +17,7 @@ Enter a URL, choose an HTTP method, and send the request to inspect the response
 
   </scalar-step>
 
-  <scalar-step id="step-3" title="Import your OpenAPI description">
+  <scalar-step id="step-3" title="Import your OpenAPI document">
 
 Drag and drop an OpenAPI file or import from a URL to generate a complete collection with requests, authentication, and documentation.
 
@@ -25,7 +25,7 @@ Drag and drop an OpenAPI file or import from a URL to generate a complete collec
 
   <scalar-step id="step-4" title="Keep everything in sync">
 
-When your OpenAPI description changes on disk, API Client can watch for updates and keep requests and collections aligned.
+When your OpenAPI document changes on disk, API Client can watch for updates and keep requests and collections aligned.
 
   </scalar-step>
 
@@ -38,7 +38,7 @@ Use [post-response scripts](./testing.md) to validate responses and automate che
 
 ## Import and sync OpenAPI
 
-Bring an OpenAPI description into API Client to generate requests, authentication, and collection structure from the API your team already maintains.
+Bring an OpenAPI document into API Client to generate requests, authentication, and collection structure from the API your team already maintains.
 
 Use [Import](./import.md) to bring in local files or URLs, then use [environments](./environments.md) and [dynamic variables](./dynamic-variables.md) to move between local, staging, and production without duplicating requests.
 

@@ -353,6 +353,12 @@ type SecurityScheme =
     }
   | {
       description?: string | undefined
+      type: 'mutualTLS'
+      uid: string
+      nameKey: string
+    }
+  | {
+      description?: string | undefined
       type: 'openIdConnect'
       openIdConnectUrl: string
       uid: string

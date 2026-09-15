@@ -1,6 +1,6 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -14,6 +14,7 @@ describe('RequestBody', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaKeyboardNav: false,
   }
 
   it('renders request body with schema properties', () => {

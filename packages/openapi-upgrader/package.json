@@ -20,7 +20,7 @@
     "openapi 3.0",
     "openapi 3.1"
   ],
-  "version": "0.2.13",
+  "version": "0.2.15",
   "engines": {
     "node": ">=22"
   },
@@ -76,10 +76,10 @@
   },
   "sideEffects": false,
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
     "vite": "catalog:*"
   }

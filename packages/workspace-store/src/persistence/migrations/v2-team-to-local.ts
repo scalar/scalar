@@ -1,3 +1,5 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
+
 import type { Migration } from '@/persistence/indexdb'
 
 /**
@@ -181,10 +183,10 @@ const STALE_META_KEYS = ['x-scalar-tabs', 'x-scalar-active-tab'] as const
  * survive.
  */
 const stripStaleMetaFields = (meta: unknown): unknown => {
-  if (!meta || typeof meta !== 'object') {
+  if (!isObjectLike(meta)) {
     return meta
   }
-  const copy = { ...(meta as Record<string, unknown>) }
+  const copy = { ...meta }
   for (const key of STALE_META_KEYS) {
     delete copy[key]
   }
@@ -306,10 +308,7 @@ export const v2TeamToLocalMigration: Migration = {
         // longer routable after collapsing into the local team (and slugs
         // may have been suffixed on collision), so drop them here and
         // let the client rebuild tabs from the live route.
-        const nextData =
-          tableName === 'meta'
-            ? stripStaleMetaFields((rest as { data?: unknown }).data)
-            : (rest as { data?: unknown }).data
+        const nextData = tableName === 'meta' ? stripStaleMetaFields(rest.data) : rest.data
         store.put({ ...rest, data: nextData, workspaceUid })
       }
     }

@@ -5,10 +5,11 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   OpenApiDocument,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 
 import { SchemaHeading, SchemaProperty } from '../../Schema'
 
@@ -25,9 +26,12 @@ const { eventBus, id, options, document } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
     | 'hideModels'
   >
 }>()
+
+const { level: headingLevel } = useDocumentOutline('model')
 </script>
 <template>
   <SectionAccordion
@@ -41,7 +45,7 @@ const { eventBus, id, options, document } = defineProps<{
         class="reference-models-anchor"
         :eventBus="eventBus"
         @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
-        <SectionHeaderTag :level="3">
+        <SectionHeaderTag :level="headingLevel">
           <SchemaHeading
             class="reference-models-label"
             :name="schema.title ?? name"
@@ -56,6 +60,7 @@ const { eventBus, id, options, document } = defineProps<{
       <SchemaProperty
         v-for="[property, value] in Object.entries(schema.properties ?? {})"
         :key="property"
+        :breadcrumb="[id]"
         :eventBus="eventBus"
         :hideModelNames="options.hideModels"
         :name="property"
@@ -65,6 +70,7 @@ const { eventBus, id, options, document } = defineProps<{
     </div>
     <div v-else>
       <SchemaProperty
+        :breadcrumb="[id]"
         :eventBus="eventBus"
         :hideModelNames="options.hideModels"
         :options="{ ...options, document }"

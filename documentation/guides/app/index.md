@@ -31,7 +31,7 @@ A modern, open-source API client built on the OpenAPI standard. Send requests, o
         <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
         OpenAPI-native
       </b>
-      <p class="leading-6">Generate collections from OpenAPI descriptions and keep them close to your source of truth.</p>
+      <p class="leading-6">Generate collections from OpenAPI documents and keep them close to your source of truth.</p>
     </div>
     <div class="feature-item">
       <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-orange">

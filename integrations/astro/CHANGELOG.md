@@ -1,5 +1,21 @@
 # @scalar/astro
 
+## 0.4.18
+
+## 0.4.17
+
+## 0.4.16
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.4.15
+
+### Patch Changes
+
+- [#9866](https://github.com/scalar/scalar/pull/9866): Declare Astro 6 support in `peerDependencies` (already covered by the test matrix), so consumers on Astro 6 no longer get an unmet peer warning.
+
 ## 0.4.14
 
 ## 0.4.13

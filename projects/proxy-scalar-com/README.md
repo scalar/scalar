@@ -13,7 +13,7 @@ in browser environments.
 ## Features
 
 - Full CORS support
-- Handles HTTP redirects while preserving headers
+- Follows same-origin HTTP redirects while preserving headers. Redirects to another scheme, hostname, or effective port are rejected to protect credentials in headers and request bodies.
 - Supports HTTPS (and even self-signed certificates)
 - Request logging with method and target URL
 - Health check endpoint at `/ping`

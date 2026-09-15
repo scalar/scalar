@@ -243,6 +243,7 @@ Across a large API that consistency is the difference between guessing a method 
 - **Auto-paginating iterators** across ten pagination schemes: cursor, cursor id, cursor URL, offset, page number, `Link` header, header token, body link, compound cursor, and `hasMore`.
 - **Streaming responses** over server-sent events and newline-delimited JSON, with event metadata preserved.
 - **WebSockets** with separate Node and browser adapters.
+- **[AsyncAPI](asyncapi.md) channels** lowered into typed connect and streaming methods, with send and receive events discriminated by their event type. Experimental.
 - **File uploads** as multipart, URL-encoded, or raw binary.
 - **Multi-content-type operations** get a content-type selector instead of a guess.
 
@@ -285,7 +286,7 @@ Across a large API that consistency is the difference between guessing a method 
 <scalar-steps>
   <scalar-step id="step-openapi" title="Start from your OpenAPI document">
 
-Put your API description in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load.
+Put your API document in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method.
 
   </scalar-step>
 
@@ -393,14 +394,16 @@ Read the [Stainless migration guide](../../migration/stainless.md) for the pract
 
 ## Plans
 
-SDK generation is billed per target, at $100 per month or $1,000 per year.
+Every plan includes one SDK target, and pricing scales with the size of your SDK — measured by the number of endpoints in your OpenAPI document. Additional targets are $150 per month each on Pro and $600 per month each on Business.
 
-| | Free | Pro | Enterprise |
-| --- | --- | --- | --- |
-| SDKs | 1 | 3 | Unlimited |
-| Targets | 1 | Billed per target | Billed per target |
-| Every target free during your trial | Included | Included | Included |
-| SSO/SAML, RBAC, priority support, and dedicated Slack or Teams support | - | - | Included |
+| | Free | Pro | Business | Enterprise |
+| --- | --- | --- | --- | --- |
+| SDK targets included | 1 | 1 | 1 | Custom |
+| Included SDK size | Up to 25 endpoints | 100 endpoints | 250 endpoints | Custom |
+| Additional targets | - | $150 / month each | $600 / month each, volume discounts | Volume discounts |
+| Every target free during your trial | Included | Included | Included | Included |
+| SSO/SAML | - | - | Included | Included |
+| RBAC, priority support, and dedicated Slack or Teams support | - | - | - | Included |
 
 A target becomes billable when you save a version and queue its build. Drafts are never billed. [See the full comparison](../pricing.md) for SDKs and the other Scalar products.
 

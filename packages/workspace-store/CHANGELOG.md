@@ -1,5 +1,71 @@
 # @scalar/workspace-store
 
+## 0.60.0
+
+### Minor Changes
+
+- [#9937](https://github.com/scalar/scalar/pull/9937): Add a way to open the request body editor in the Form view by default. Set the `defaultRequestBodyView: 'form'` config option, or the `x-scalar-default-request-body-view` extension in your OpenAPI document (which also works per source). Defaults to `raw`, and falls back to `raw` when a body cannot be shown as a form.
+
+### Patch Changes
+
+- [#10046](https://github.com/scalar/scalar/pull/10046): Stop sending optional form-body properties by default. Optional `multipart/form-data` and `application/x-www-form-urlencoded` properties now start unchecked and are left out of the request unless you enable them, matching how optional parameters already behave. Required properties are unaffected.
+- [#10090](https://github.com/scalar/scalar/pull/10090): Stop truncating large numeric strings entered into `type: string` array query and header parameters. A value like a 20-digit reference number was accepted as valid JSON, parsed into a JS number, and lost precision beyond `Number.MAX_SAFE_INTEGER` before being sent. Such values now fall back to the comma-split string handling instead of being parsed as a number.
+- [#9938](https://github.com/scalar/scalar/pull/9938): Fix OAuth2 scope selection freezing in the API reference auth panel. Selecting or deselecting scopes (including Select All and Deselect All) now updates the counter and checkboxes after the first change instead of getting stuck.
+- [#10077](https://github.com/scalar/scalar/pull/10077): Escape OpenAPI component keys when writing static workspace chunks so a document with a key like `../../evil` cannot write files outside the assets directory
+
+## 0.59.0
+
+### Minor Changes
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+### Patch Changes
+
+- [#9950](https://github.com/scalar/scalar/pull/9950): Shorten AsyncAPI navigation id segments: `asyncapi-channel` → `channel`, `asyncapi-message` → `message`, and `asyncapi-operation` → `operation`. This makes the generated navigation ids (and the URLs, anchors, and DOM ids derived from them) shorter and consistent, e.g. `.../channel/planetevents/operation/subscribe/message/planetcreated`.
+
+## 0.58.1
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.58.0
+
+### Minor Changes
+
+- [#9406](https://github.com/scalar/scalar/pull/9406): feat: support OpenAPI 3.2 nested tags
+
+  The navigation tree now nests tags via the OpenAPI 3.2 `tag.parent` field, building an arbitrary-depth hierarchy. A parent tag with no operations of its own is treated as a section; a tag that has both operations and children renders as both. Native `parent` nesting takes precedence over `x-tagGroups`, which stays as the fallback for older documents. The `summary` field is used as the tag title (after `x-displayName`), and the new `parent`, `kind` and `summary` fields are recognized on the Tag Object (both in `@scalar/workspace-store` and `@scalar/schemas`). In the modern layout, operation-less parent tags now render their own summary and description header instead of being flattened like a legacy `x-tagGroups` wrapper.
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+- [#9896](https://github.com/scalar/scalar/pull/9896): Fix parameter name blanking in the Try It panel on first open.
+
+  Three related issues caused a parameter name (e.g. `x-scenario-id`) to appear
+  blank the first time the Try It panel was opened for a GET endpoint:
+  1. **`RequestTable` used `key: index`** — Vue reused the same `RequestTableRow`
+     component instance for the placeholder row `{ name: '' }` that `displayData`
+     appends, causing the component to receive an empty `data.name` prop and blank
+     its local `name` ref. Fixed by using a stable identity key derived from the
+     parameter name and value path.
+
+  2. **`RequestTableRow` watch and blur emitted empty names** — the `watch:name`
+     handler unconditionally synced the local ref to the incoming prop (including
+     `''`), and `handleKeyBlur` forwarded a blank name emitted by `CodeInputLite`
+     before it had rendered its initial value. Both now guard against overwriting
+     a valid name with an empty string.
+
+  3. **`upsertOperationParameter` mutated `param.name` unconditionally** — a
+     value-only update carrying `payload.name = ''` permanently blanked the
+     reactive parameter name in the store. The mutator now skips the name
+     assignment when the payload name is empty and the parameter already has one.
+
+- [#9913](https://github.com/scalar/scalar/pull/9913): Add Julia (HTTP.jl) as a code example target. The new `julia/http` client generates HTTP.jl snippets, including headers, query parameters, cookies, basic auth, JSON bodies (as `Dict`s serialized with `JSON.json`), url-encoded bodies and `HTTP.Form` multipart uploads. Julia syntax highlighting and a Julia icon are included, so the client shows up in the code example picker like any other language.
+- [#9930](https://github.com/scalar/scalar/pull/9930): Expose `getSchemaExampleFromBody` to generate a write-mode example from a request body's schema, ignoring any stored example.
+- [#9932](https://github.com/scalar/scalar/pull/9932): Keep AsyncAPI documents intact in the server workspace store. `createServerWorkspaceStore` ingested every document as OpenAPI, so an AsyncAPI document lost its `channels` and `operations`, had `asyncapi` replaced by an empty `openapi` string, and gained an empty `paths` object — leaving `x-scalar-navigation` with nothing but Introduction and Models. AsyncAPI documents now take their own ingestion path, mirroring the client store's: the AsyncAPI upgrader runs instead of the OpenAPI one, the document is coerced against the AsyncAPI schema rather than the OpenAPI one, `x-original-aas-version` is preserved, and navigation is built with `traverseAsyncApiDocument` so `asyncapi-channel` and `asyncapi-operation` entries reach the sidebar.
+- [#9934](https://github.com/scalar/scalar/pull/9934): Resolve local references when the server workspace store inspects a document. Navigation building and externalization both read through `getResolvedRef`, which needs the `$ref-value` the magic proxy supplies — without it a `$ref`'d path item read as a bare `{ $ref }`, so its operations reached neither the sidebar nor the generated chunks and vanished from the rendered document with no error. Split-file documents were affected too: bundling rewrites an external reference into a local pointer into `x-ext` rather than inlining it, and that bucket is not modelled by the OpenAPI schema, so coercion was dropping it and leaving every rewritten reference dangling. References are now followed through chains, since bundling a file that holds nothing but a `$ref` produces a bucket entry pointing at another bucket entry, and a reference whose target is not an object no longer spreads it key by key. Resolution stays lazy, local and synchronous, and resolved values are unwrapped before anything is stored, so the served document and its chunks keep their original `$ref`s. Note that `x-ext` and `x-ext-urls` now ship in the workspace payload: the generated chunks keep their `#/x-ext/…` pointers, so the client needs the buckets on the document root to resolve them.
+
 ## 0.57.1
 
 ## 0.57.0

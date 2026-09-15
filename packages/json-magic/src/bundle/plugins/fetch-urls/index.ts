@@ -6,7 +6,14 @@ import { normalize } from '@/helpers/normalize'
 
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
+  /** Custom transports cannot be combined with blockPrivateNetworks. */
   fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
+  /**
+   * When true, refuse to fetch URLs that resolve to a private, loopback, link-local, or otherwise
+   * internal address. Only enforced in Node, where DNS resolution is available. Off by default so
+   * existing callers keep working unchanged.
+   */
+  blockPrivateNetworks: boolean
 }>
 
 /**
@@ -42,17 +49,21 @@ export async function fetchUrl(
 ): Promise<ResolveResult> {
   try {
     const host = getHost(url)
-
-    // Get the headers that match the domain
     const headers = config?.headers?.find((a) => a.domains.find((d) => d === host) !== undefined)?.headers
+    const guarded = config?.blockPrivateNetworks && typeof window === 'undefined'
 
-    const exec = config?.fetch ?? fetch
+    const result = await limiter(async () => {
+      if (guarded) {
+        // A custom fetch can ignore the pinned connection and resolve the host again.
+        if (config?.fetch) {
+          throw new Error('Custom fetch cannot be combined with private network blocking')
+        }
+        const { fetchPublicUrl } = await import('./fetch-public-url')
+        return fetchPublicUrl(url, headers)
+      }
 
-    const result = await limiter(() =>
-      exec(url, {
-        headers,
-      }),
-    )
+      return (config?.fetch ?? fetch)(url, { headers })
+    })
 
     if (result.ok) {
       const body = await result.text()

@@ -114,7 +114,10 @@ const emit = defineEmits<{
   'navigate': [route: { page: 'document'; path: 'environment' }]
 }>()
 
-const attrs = useAttrs() as { 'id'?: string; 'aria-label'?: string }
+const attrs = useAttrs()
+const ariaLabel = computed(() =>
+  typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
+)
 
 /**
  * The id only matters once the dropdown opens (`aria-controls` /
@@ -122,11 +125,16 @@ const attrs = useAttrs() as { 'id'?: string; 'aria-label'?: string }
  * keep idle instances cheap. A consumer-supplied `id` attr is preserved.
  */
 const generatedComponentId = ref<string | null>(null)
-const componentId = computed(
-  (): string | undefined => attrs.id ?? generatedComponentId.value ?? undefined,
+const componentId = computed((): string | undefined =>
+  typeof attrs.id === 'string'
+    ? attrs.id
+    : (generatedComponentId.value ?? undefined),
 )
 const ensureComponentId = (): void => {
-  if (!attrs.id && generatedComponentId.value === null) {
+  if (
+    (typeof attrs.id !== 'string' || !attrs.id) &&
+    generatedComponentId.value === null
+  ) {
     generatedComponentId.value = `id-${nanoid()}`
   }
 }
@@ -414,7 +422,7 @@ const getModelCaret = (): number | null => {
       i < range.startOffset && i < editor.childNodes.length;
       i++
     ) {
-      pos += modelLengthOf(editor.childNodes[i] as Node)
+      pos += modelLengthOf(editor.childNodes.item(i))
     }
     return pos
   }
@@ -702,9 +710,10 @@ const handleKeyDown = (event: KeyboardEvent): void => {
  * in one keystroke and typing replaces it — the usual chip/mention model.
  */
 const handleEditorClick = (event: MouseEvent): void => {
-  const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
-    '.scalar-pill',
-  )
+  const target =
+    event.target instanceof Element
+      ? event.target.closest<HTMLElement>('.scalar-pill')
+      : null
   if (!target) {
     return
   }
@@ -750,6 +759,37 @@ watch(
     lastPillSignature = pillSignature(serialized, withVariables)
     renderModel(serialized)
   },
+)
+
+// The editable surface only exists in "editor mode" (see template). When a row switches into editor
+// mode after mount — most notably when this component instance is reused for a different table row —
+// `onMounted` has already run and the `modelValue` watch fired while `editorRef` was still null, so
+// the model was never painted into the freshly created element and the cell renders empty.
+//
+// Paint the model when the element appears, but only into a still-empty editor: an editor that
+// already holds text is either up to date or ahead of `modelValue` with an uncommitted edit/paste,
+// and must not be clobbered.
+//
+// `flush: 'sync'` makes the paint part of the same step that creates the element. Vue assigns a
+// non-null template ref from a post-render effect, so the element is already mounted and patched
+// when this runs — deferring any further (the `pre` default, or `post`) only pushes the paint past
+// the consumer effects that run later in the same flush. A parent that focuses the cell as it
+// switches into editor mode would then place the caret in a still-empty editor, and the paint's
+// `replaceChildren` would drop that selection.
+watch(
+  editorRef,
+  (editor) => {
+    if (!editor || !isBlankValue(serializeEditor())) {
+      return
+    }
+    const serialized = serializeValue(modelValue)
+    if (serialized === '') {
+      return
+    }
+    lastPillSignature = pillSignature(serialized, withVariables)
+    renderModel(serialized)
+  },
+  { flush: 'sync' },
 )
 
 watch(
@@ -886,7 +926,7 @@ defineExpose({
       :aria-controls="displayVariablesDropdown ? listboxId : undefined"
       :aria-expanded="displayVariablesDropdown ? 'true' : undefined"
       :aria-invalid="error ? 'true' : undefined"
-      :aria-label="attrs['aria-label']"
+      :aria-label="ariaLabel"
       :aria-readonly="readOnly ? 'true' : undefined"
       :aria-required="required ? 'true' : undefined"
       class="code-input-lite__editor"

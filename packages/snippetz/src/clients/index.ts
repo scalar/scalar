@@ -17,6 +17,7 @@ import { jsFetch } from '@/plugins/js/fetch'
 import { jsJquery } from '@/plugins/js/jquery'
 import { jsOfetch } from '@/plugins/js/ofetch'
 import { jsXhr } from '@/plugins/js/xhr'
+import { juliaHttp } from '@/plugins/julia/http'
 import { kotlinOkhttp } from '@/plugins/kotlin/okhttp'
 import { nodeAxios } from '@/plugins/node/axios'
 import { nodeFetch } from '@/plugins/node/fetch'
@@ -98,6 +99,12 @@ export const clients: Target[] = [
     title: 'JavaScript',
     default: 'fetch',
     clients: [jsFetch, jsAxios, jsOfetch, jsJquery, jsXhr],
+  },
+  {
+    key: 'julia',
+    title: 'Julia',
+    default: 'http',
+    clients: [juliaHttp],
   },
   {
     key: 'kotlin',

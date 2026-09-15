@@ -3,7 +3,7 @@ import type {
   MediaTypeObject,
   ParameterObject,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
@@ -13,7 +13,7 @@ const getExampleFromExamples = (
   exampleField: MediaTypeObject['example'],
   exampleName: string | undefined,
 ): ExampleObject | undefined => {
-  if (!examples && !exampleField) {
+  if (!examples && exampleField === undefined) {
     return undefined
   }
 
@@ -66,7 +66,7 @@ export const getExample = (
 
   // Derive value from the schema
   const resolvedParam = getResolvedRef(param)
-  if ('schema' in resolvedParam && resolvedParam.schema) {
+  if (resolvedParam && 'schema' in resolvedParam && resolvedParam.schema) {
     const schema = resolvedParam.schema
 
     // Default value

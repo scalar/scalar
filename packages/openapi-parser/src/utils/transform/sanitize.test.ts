@@ -1,5 +1,5 @@
+import type { AnyObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
-import type { AnyObject } from '@/types/index'
 
 import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, sanitize } from './sanitize'
 

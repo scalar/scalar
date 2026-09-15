@@ -211,7 +211,7 @@ Supported array formats are `comma`, `repeat`, `indices`, and `brackets`. Suppor
 
 ## OpenAPI Overrides
 
-Use `openapi` for SDK-specific overrides that sit next to the source API description.
+Use `openapi` for SDK-specific overrides that sit next to the source API document.
 
 ```json
 {
@@ -252,7 +252,7 @@ Use `openapi` for SDK-specific overrides that sit next to the source API descrip
 
 ## Diagnostics
 
-Generation reports diagnostics about your OpenAPI document. Use `diagnostics` to decide which of them fail the build.
+Every build analyzes your OpenAPI document and this configuration together and reports what generation had to skip, guess, or degrade. Use `diagnostics` to decide which of those findings fail the build. See [Diagnostics](diagnostics.md) for how the analysis works and the full list of rules.
 
 ```json
 {

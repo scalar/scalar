@@ -4,8 +4,8 @@ import type {
   ParameterWithSchemaObject,
   ReferenceType,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 type ParameterWithRequiredSchema = ParameterWithSchemaObject & {
   schema: ReferenceType<SchemaObject>
@@ -17,7 +17,7 @@ const isParameterWithSchema = (parameter: ParameterObject): parameter is Paramet
 const resolveSchema = (schema: unknown): SchemaObject | undefined => {
   const resolvedSchema = getResolvedRef(schema as SchemaObject | { '$ref': string; '$ref-value': SchemaObject })
 
-  return resolvedSchema as SchemaObject | undefined
+  return resolvedSchema
 }
 
 const toFlattenedDeepObjectParameter = (

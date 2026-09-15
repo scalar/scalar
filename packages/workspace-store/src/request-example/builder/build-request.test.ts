@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
+import { buildRequestBody } from './body/build-request-body'
 import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 import { INVALID_REQUEST_FACTORY_URL, MISSING_REQUEST_SERVER_BASE } from './resolve-request-factory-url'
 
@@ -771,5 +772,63 @@ describe('resolveExecutableRequestUrl', () => {
       proxyUrl: '',
     })
     expect(resolveExecutableRequestUrl(factory, {})).toBe(unwrap(factory, { envVariables: {} }).requestPayload[0])
+  })
+  it('sends repeated multipart parts with JSON media types, file bytes, and environment substitution', async () => {
+    const body = buildRequestBody({
+      content: {
+        'multipart/form-data': {
+          encoding: { files: { contentType: 'text/plain' } },
+          examples: {
+            default: {
+              value: {
+                tags: ['a', 'b'],
+                objects: [{ name: '{{name}}' }, { name: 'second' }],
+                files: [new File(['one'], 'one.txt'), new File(['two'], 'two.txt')],
+              },
+            },
+          },
+        },
+      },
+    })
+    const [url, init] = unwrap(createFactory({ method: 'POST', body }), {
+      envVariables: { name: 'first' },
+    }).requestPayload
+    const form = await new Request(url, init).formData()
+    expect(form.getAll('tags')).toEqual(['a', 'b'])
+    expect(form.getAll('objects')).toEqual(['{"name":"first"}', '{"name":"second"}'])
+    const wire = await new Request(url, init).text()
+    expect(wire).toContain('name="objects"\r\nContent-Type: application/json\r\n')
+    expect(wire).not.toContain('filename="blob"')
+    expect(
+      await Promise.all(
+        form.getAll('files').map(async (part) => {
+          if (typeof part === 'string') {
+            throw new Error('Expected an uploaded file')
+          }
+          return { name: part.name, type: part.type, text: await part.text() }
+        }),
+      ),
+    ).toEqual([
+      { name: 'one.txt', type: 'text/plain', text: 'one' },
+      { name: 'two.txt', type: 'text/plain', text: 'two' },
+    ])
+  })
+  it('keeps typed multipart fields and their boundary when routing through a proxy', async () => {
+    const result = unwrap(
+      createFactory({
+        method: 'POST',
+        proxyUrl: 'https://proxy.scalar.com',
+        body: {
+          mode: 'formdata',
+          value: [{ type: 'text', key: '{{field}}', value: '{"name":"{{name}}"}', contentType: 'application/json' }],
+        },
+      }),
+      { envVariables: { field: 'metadata', name: 'Ada' } },
+    )
+    expect(result.isUsingProxy).toBe(true)
+    const [url, init] = result.requestPayload
+    const request = new Request(url, init)
+    expect(request.headers.get('content-type')).toBe((init.body as Blob).type)
+    expect(Array.from((await request.formData()).entries())).toEqual([['metadata', '{"name":"Ada"}']])
   })
 })

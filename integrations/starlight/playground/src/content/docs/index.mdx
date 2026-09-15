@@ -1,0 +1,26 @@
+---
+title: Scalar + Starlight
+description: A demo docs site using the @scalar/starlight plugin.
+template: splash
+hero:
+  tagline: A Starlight docs site with a Scalar API reference, added by one plugin.
+  actions:
+    - text: View the API Reference
+      link: /api-reference
+      icon: right-arrow
+    - text: Getting started
+      link: /guides/getting-started
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components'
+
+<CardGrid>
+  <Card title="Your docs" icon="open-book">
+    Write pages in Markdown or MDX, exactly like any other Starlight site.
+  </Card>
+  <Card title="API Reference" icon="rocket">
+    The **API Reference** entry in the sidebar is rendered by the
+    `@scalar/starlight` plugin from an OpenAPI document.
+  </Card>
+</CardGrid>

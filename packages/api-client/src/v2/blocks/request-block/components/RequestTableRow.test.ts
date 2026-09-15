@@ -222,6 +222,39 @@ describe('RequestTableRow', () => {
     expect(wrapper.emitted('upsertRow')).toBeUndefined()
   })
 
+  it('does not emit when key input blurs with empty string but prop has a valid name', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: '200_success', isDisabled: false },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    await keyInput?.vm.$emit('blur', '')
+
+    // A blank blur from CodeInputLite initialisation must not blank the parameter name.
+    expect(wrapper.emitted('upsertRow')).toBeUndefined()
+  })
+
+  it('does not overwrite a valid local name when the data prop briefly becomes empty', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: { name: 'x-scenario-id', value: '200_success', isDisabled: false },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    // Simulate the placeholder row being mapped onto this component instance.
+    await wrapper.setProps({ data: { name: '', value: '', isDisabled: true } })
+
+    const keyInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[0]
+    // The key input should still show the original name, not the empty placeholder.
+    expect(keyInput?.props('modelValue')).toBe('x-scenario-id')
+  })
+
   it('keeps the disabled state when an expanded row key is renamed on blur', async () => {
     const wrapper = mount(RequestTableRow, {
       props: {
@@ -307,6 +340,59 @@ describe('RequestTableRow', () => {
     await valueInput?.vm.$emit('update:modelValue', 'scenario_b')
 
     expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toMatchObject({
+      value: 'scenario_b',
+      isDisabled: true,
+    })
+  })
+
+  it('enables an optional parameter disabled by default when its value is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'date',
+          value: '',
+          isDisabled: true,
+          isDisabledByDefault: true,
+          originalParameter: {
+            name: 'date',
+            in: 'query',
+            required: false,
+          },
+        },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', '2025-09-01')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'date',
+      value: '2025-09-01',
+      isDisabled: false,
+    })
+  })
+
+  it('keeps an explicitly disabled parameter disabled when its value is updated', async () => {
+    const wrapper = mount(RequestTableRow, {
+      props: {
+        data: {
+          name: 'x-scenario-id',
+          value: 'scenario_a',
+          isDisabled: true,
+          isDisabledByDefault: false,
+        },
+        environment,
+      },
+      global: { stubs: { RouterLink: true } },
+    })
+
+    const valueInput = wrapper.findAllComponents({ name: 'CodeInputLite' })[1]
+    await valueInput?.vm.$emit('update:modelValue', 'scenario_b')
+
+    expect(wrapper.emitted('upsertRow')?.[0]?.[0]).toStrictEqual({
+      name: 'x-scenario-id',
       value: 'scenario_b',
       isDisabled: true,
     })

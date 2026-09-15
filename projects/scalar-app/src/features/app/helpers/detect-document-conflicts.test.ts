@@ -63,4 +63,21 @@ describe('detectDocumentConflicts', () => {
       }),
     ).toBe(true)
   })
+
+  // The check is not free of side effects: `merge` folds two compatible changes together in place
+  // and the changes point straight into the documents, so local values land in the remote document.
+  // Pinned here so a future fix in `@scalar/json-magic` is a deliberate change, not a silent one.
+  it('writes auto-mergeable local values into the remote document', () => {
+    const remote = { info: { version: '1.1.0' } }
+
+    expect(
+      detectDocumentConflicts({
+        original: {},
+        local: { info: { title: 'Pets API' } },
+        remote,
+      }),
+    ).toBe(false)
+
+    expect(remote).toEqual({ info: { version: '1.1.0', title: 'Pets API' } })
+  })
 })

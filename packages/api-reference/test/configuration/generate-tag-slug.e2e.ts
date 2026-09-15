@@ -18,7 +18,7 @@ test.describe('generateTagSlug', () => {
     await page.goto(example)
 
     // Operation hashes are prefixed with `tag/<tag-slug>/`, so clicking one reveals the tag slug
-    await page.getByRole('complementary').getByRole('button', { name: 'Get all planets' }).click()
+    await page.getByRole('complementary').getByRole('link', { name: 'Get all planets' }).click()
 
     await expect(page).toHaveURL(/tag\/planets/)
   })
@@ -31,7 +31,7 @@ test.describe('generateTagSlug', () => {
 
     await page.goto(example)
 
-    await page.getByRole('complementary').getByRole('button', { name: 'Get all planets' }).click()
+    await page.getByRole('complementary').getByRole('link', { name: 'Get all planets' }).click()
 
     await expect(page).toHaveURL(/tag\/v1-planets/)
   })

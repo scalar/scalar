@@ -3,5 +3,7 @@
 /test-results-cdn
 /playwright-report
 /playwright-report-cdn
+/playwright-report-storybook
 /test/snapshots-cdn/*.snapshots
+/storybook-static
 content.json

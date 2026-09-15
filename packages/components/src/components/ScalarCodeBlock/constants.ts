@@ -24,6 +24,7 @@ export const LANGUAGE_LABELS = {
   java: 'Java',
   javascript: 'JavaScript',
   json: 'JSON',
+  julia: 'Julia',
   kotlin: 'Kotlin',
   less: 'Less',
   lua: 'Lua',

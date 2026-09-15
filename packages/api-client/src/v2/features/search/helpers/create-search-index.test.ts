@@ -1,5 +1,5 @@
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { createSearchIndex } from './create-search-index'
@@ -257,6 +257,9 @@ describe('createSearchIndex', () => {
         type: 'tag',
         name: 'animals',
         isGroup: true,
+        // Legacy `x-tagGroups` wrappers are flagged so they are not confused with
+        // OpenAPI 3.2 operation-less parent tags, which are real tags.
+        isTagGroup: true,
       }
 
       const document: OpenApiDocument = {
@@ -536,6 +539,9 @@ describe('createSearchIndex', () => {
         type: 'tag',
         name: 'animals',
         isGroup: true,
+        // Legacy `x-tagGroups` wrappers are flagged so they are not confused with
+        // OpenAPI 3.2 operation-less parent tags, which are real tags.
+        isTagGroup: true,
       }
 
       const headingEntry: TraversedEntry = {

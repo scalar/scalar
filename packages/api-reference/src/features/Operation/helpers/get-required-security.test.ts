@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRequiredSecurity } from './get-required-security'
+import { getRequiredScopeGroups, getRequiredSecurity } from './get-required-security'
 
 describe('getRequiredSecurity', () => {
   describe('fallback (operation.security ?? document.security)', () => {
@@ -235,6 +235,81 @@ describe('getRequiredSecurity', () => {
       expect(result.state).toBe('required')
       expect(result.requirements).toHaveLength(1)
       expect(result.requirements[0]?.schemes.map((s) => s.name)).toStrictEqual(['oauth2', 'apiKey'])
+    })
+  })
+
+  describe('getRequiredScopeGroups', () => {
+    it('collects scopes for oauth2 schemes', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read:items'] }] },
+        { components: { securitySchemes: { oauth2: { type: 'oauth2', flows: {} } } } },
+      )
+      expect(getRequiredScopeGroups(result)).toEqual([['read:items']])
+    })
+
+    it('collects scopes for openIdConnect schemes', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oidc: ['read:items'] }] },
+        {
+          components: { securitySchemes: { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com' } } },
+        },
+      )
+      expect(getRequiredScopeGroups(result)).toEqual([['read:items']])
+    })
+
+    it('ignores scope-shaped entries on http schemes', () => {
+      const result = getRequiredSecurity(
+        { security: [{ bearerToken: ['some:custom:scope'] }] },
+        { components: { securitySchemes: { bearerToken: { type: 'http', scheme: 'bearer' } } } },
+      )
+      expect(getRequiredScopeGroups(result)).toEqual([])
+    })
+
+    it('ignores scope-shaped entries on apiKey schemes', () => {
+      const result = getRequiredSecurity(
+        { security: [{ apiKey: ['some:custom:scope'] }] },
+        { components: { securitySchemes: { apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' } } } },
+      )
+      expect(getRequiredScopeGroups(result)).toEqual([])
+    })
+
+    it('keeps scopes for an unresolved scheme (e.g. the AsyncAPI path, which leaves schemes unresolved on purpose)', () => {
+      const result = getRequiredSecurity(
+        { security: [{ unknownScheme: ['some:custom:scope'] }] },
+        { components: { securitySchemes: {} } },
+      )
+      expect(getRequiredScopeGroups(result)).toEqual([['some:custom:scope']])
+    })
+
+    it('collects only the oauth2 scopes from an AND group mixing oauth2 and apiKey', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read:items'], apiKey: [] }] },
+        {
+          components: {
+            securitySchemes: {
+              oauth2: { type: 'oauth2', flows: {} },
+              apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+            },
+          },
+        },
+      )
+      expect(getRequiredScopeGroups(result)).toEqual([['read:items']])
+    })
+
+    it('returns one entry per OR alternative that has scopes, skipping scope-free ones', () => {
+      const result = getRequiredSecurity(
+        { security: [{ oauth2: ['read:items'] }, { bearerToken: ['some:custom:scope'] }, { apiKey: [] }] },
+        {
+          components: {
+            securitySchemes: {
+              oauth2: { type: 'oauth2', flows: {} },
+              bearerToken: { type: 'http', scheme: 'bearer' },
+              apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+            },
+          },
+        },
+      )
+      expect(getRequiredScopeGroups(result)).toEqual([['read:items']])
     })
   })
 })

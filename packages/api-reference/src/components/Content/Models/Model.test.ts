@@ -1,5 +1,5 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -54,6 +54,7 @@ describe('Model', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaKeyboardNav: false,
   }
 
   const mockConfigModern = {
@@ -62,6 +63,7 @@ describe('Model', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaKeyboardNav: false,
   }
 
   describe('layout rendering', () => {

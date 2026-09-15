@@ -28,7 +28,10 @@ test.describe('expandAllSchemaProperties', () => {
 
     await page.goto(`${example}#models`)
 
-    await expect(page.getByText('craterCount')).not.toBeVisible()
+    // A collapsed row names its children in an inline preview, so "collapsed"
+    // means the child ROW is not rendered — not that the name appears nowhere.
+    await expect(page.locator('.property-name', { hasText: 'craterCount' })).toHaveCount(0)
+    await expect(page.locator('.property-collapsed-preview')).toContainText('craterCount')
   })
 
   test('expands nested child properties when enabled', async ({ page }) => {

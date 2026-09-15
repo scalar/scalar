@@ -1,0 +1,981 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 765" width="1360" height="765" preserveAspectRatio="xMidYMid meet">
+  <foreignObject width="1360" height="765" class="fo">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="transform-rr">
+      <div class="ck-page rr">
+<div class="h-animation-ref-safari">
+                    <div class="dotted-top"></div>
+                    <div class="h-animation-ref-safari-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" fill="currentColor" viewBox="0 0 20 16">
+                            <path
+                                fill-rule="evenodd"
+                                d="M19.4 15.4a2 2 0 0 1-1.4.6H2a2 2 0 0 1-1.4-.6A2 2 0 0 1 0 14V2C0 1.4.2 1 .6.6A2 2 0 0 1 2 0h16c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v12c0 .6-.2 1-.6 1.4ZM2 14h5V2H2v12Zm7 0h9V2H9v12ZM3.3 3c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3Zm0 2c-.2 0-.3.2-.3.3v1c0 .2.1.3.3.3h2.5c.1 0 .2-.1.2-.3v-1l-.2-.2H3.3ZM3 7.4c0-.1.1-.2.3-.2h2.5c.1 0 .2 0 .2.2v1c0 .2-.1.3-.2.3H3.3a.3.3 0 0 1-.3-.3v-1Z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M16 22 6 12 16 2l1.8 1.8L9.5 12l8.3 8.2L16 22Z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="m8 22 10-10L8 2 6.2 3.8l8.3 8.2-8.3 8.2L8 22Z" /></svg>
+                    </div>
+                    <div class="h-animation-ref-safari-nav">
+                        <div class="h-animation-ref-safari-nav-url">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M7 10h8V6c0-.83-.3-1.54-.88-2.13A2.9 2.9 0 0 0 12 3c-.83 0-1.54.3-2.13.88A2.9 2.9 0 0 0 9 6v4H7V6c0-1.38.49-2.56 1.46-3.54A4.82 4.82 0 0 1 12 1c1.38 0 2.56.49 3.54 1.46A4.82 4.82 0 0 1 17 6v4c.55 0 1.02.2 1.41.59.4.39.59.86.59 1.41v8c0 .55-.2 1.02-.59 1.41-.39.4-.86.59-1.41.59H7c-.55 0-1.02-.2-1.41-.59-.4-.39-.59-.86-.59-1.41v-8c0-.55.2-1.02.59-1.41.39-.4.86-.59 1.41-.59Z"
+                                />
+                            </svg>
+                            clerk.com/docs/reference/frontend-api
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 22a8.7 8.7 0 0 0 6.4-2.6A9.1 9.1 0 0 0 21 13h-2c0 2-.7 3.6-2 5-1.4 1.3-3 2-5 2s-3.6-.7-5-2c-1.3-1.4-2-3-2-5s.7-3.6 2-5c1.4-1.3 3-2 5-2h.2l-1.6 1.5L12 9l4-4-4-4-1.4 1.5L12.2 4H12a8.7 8.7 0 0 0-6.4 2.6A9.1 9.1 0 0 0 3 13a8.7 8.7 0 0 0 2.6 6.4A9.1 9.1 0 0 0 12 22Z"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="h-animation-ref-safari-right">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+              <path d="M6 23a2 2 0 0 1-1.4-.6A2 2 0 0 1 4 21V10c0-.6.2-1 .6-1.4A2 2 0 0 1 6 8h3v2H6v11h12V10h-3V8h3c.6 0 1 .2 1.4.6.4.4.6.8.6 1.4v11c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H6Zm5-7V4.8L9.4 6.4 8 5l4-4 4 4-1.4 1.4L13 4.8V16h-2Z"/></svg><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+              <path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z"/></svg><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
+              <path d="M8 22a2 2 0 0 1-1.4-.6A2 2 0 0 1 6 20v-2H4a2 2 0 0 1-1.4-.6A2 2 0 0 1 2 16V6h2v10h2V8c0-.5.2-1 .6-1.4A2 2 0 0 1 8 6h8V4H6V2h10c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v2h2c.6 0 1 .2 1.4.6.4.4.6.9.6 1.4v12c0 .6-.2 1-.6 1.4a2 2 0 0 1-1.4.6H8Zm0-2h12V8H8v12ZM2 6V4c0-.5.2-1 .6-1.4A2 2 0 0 1 4 2h2v2H4v2H2Z"/>
+            </svg>
+          </div>
+                </div>
+        <div class="ck-card">
+          <!-- ================= Header: 64px, logo column 288px + version tabs ================= -->
+          <div class="ck-header">
+            <div class="ck-logo-col">
+              <svg viewBox="0 0 62 18" fill="none" class="ck-logo" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="8.99999" cy="9" rx="2.81249" ry="2.8125" fill="currentColor"/>
+                <path d="M14.0674 15.6591C14.3067 15.8984 14.2827 16.2945 14.0015 16.4829C12.571 17.4411 10.8504 17.9999 8.9993 17.9999C7.14818 17.9999 5.42758 17.4411 3.99704 16.4829C3.71589 16.2945 3.69186 15.8984 3.93115 15.6591L5.98648 13.6037C6.17225 13.418 6.46042 13.3886 6.69424 13.5084C7.3856 13.8626 8.16911 14.0624 8.9993 14.0624C9.82948 14.0624 10.613 13.8626 11.3044 13.5084C11.5382 13.3886 11.8263 13.418 12.0121 13.6037L14.0674 15.6591Z" fill="currentColor"/>
+                <path d="M14.0022 1.51706C14.2834 1.70539 14.3074 2.10155 14.0681 2.34084L12.0128 4.39619C11.827 4.58195 11.5388 4.61129 11.305 4.49151C10.6136 4.13733 9.83014 3.9375 8.99996 3.9375C6.20403 3.9375 3.93748 6.20406 3.93748 9C3.93748 9.83018 4.13731 10.6137 4.49149 11.3051C4.61127 11.5389 4.58193 11.827 4.39617 12.0128L2.34083 14.0682C2.10154 14.3074 1.70538 14.2834 1.51705 14.0023C0.558857 12.5717 0 10.8511 0 9C0 4.02944 4.02942 0 8.99996 0C10.8511 0 12.5717 0.55886 14.0022 1.51706Z" fill-opacity="0.5" fill="currentColor"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M29.3906 1.82813C29.3906 1.75046 29.4535 1.6875 29.5312 1.6875H31.6406C31.7182 1.6875 31.7812 1.75046 31.7812 1.82813V16.1719C31.7812 16.2495 31.7182 16.3125 31.6406 16.3125H29.5312C29.4535 16.3125 29.3906 16.2495 29.3906 16.1719V1.82813ZM26.4137 13.2701C26.3577 13.2217 26.2739 13.2253 26.2201 13.2761C25.8913 13.5864 25.5063 13.8347 25.0843 14.0078C24.6215 14.1979 24.1239 14.2936 23.622 14.2891C23.1982 14.3016 22.7762 14.2291 22.3821 14.076C21.988 13.9229 21.63 13.6925 21.3303 13.3989C20.7859 12.8431 20.4726 12.0496 20.4726 11.1037C20.4726 9.2101 21.7324 7.91491 23.622 7.91491C24.1289 7.90793 24.631 8.01058 25.0926 8.21543C25.5111 8.40122 25.8869 8.66683 26.1982 8.99629C26.2514 9.05264 26.3398 9.05916 26.3985 9.00842L27.8225 7.7762C27.8807 7.72586 27.8877 7.63797 27.8364 7.58065C26.7653 6.38368 25.0872 5.76563 23.4914 5.76563C20.2783 5.76563 18 7.93299 18 11.1217C18 12.6988 18.5662 14.0268 19.5211 14.9645C20.476 15.9023 21.8363 16.4531 23.4059 16.4531C25.3741 16.4531 26.9582 15.6984 27.8869 14.7302C27.9414 14.6734 27.9354 14.583 27.8758 14.5315L26.4137 13.2701ZM43.401 11.8056C43.3931 11.876 43.3332 11.9287 43.2623 11.9287H35.8731C35.7833 11.9287 35.7164 12.012 35.7398 12.0986C36.1074 13.4614 37.2035 14.286 38.6995 14.286C39.2038 14.2966 39.7037 14.1928 40.1605 13.9827C40.5862 13.787 40.9639 13.5038 41.2682 13.1528C41.305 13.1104 41.3691 13.1041 41.4122 13.1401L42.8978 14.4335C42.9547 14.483 42.9626 14.5687 42.9138 14.6262C42.0169 15.6843 40.5637 16.4531 38.5695 16.4531C35.5016 16.4531 33.1874 14.3286 33.1874 11.1009C33.1874 9.51732 33.7326 8.18944 34.6412 7.25179C35.1209 6.76963 35.6959 6.38911 36.3307 6.13368C36.9656 5.87826 37.6469 5.75332 38.3327 5.76658C41.4422 5.76658 43.453 7.95343 43.453 10.973C43.4491 11.2512 43.4317 11.5291 43.401 11.8056ZM35.7842 9.84589C35.7581 9.93268 35.8251 10.0172 35.9158 10.0172H40.829C40.9198 10.0172 40.9869 9.93217 40.9617 9.84491C40.6268 8.68592 39.7772 7.91244 38.4577 7.91244C38.0696 7.90013 37.6834 7.97039 37.3254 8.11832C36.9675 8.26633 36.6462 8.48856 36.3836 8.76977C36.1075 9.08283 35.9034 9.44988 35.7842 9.84589ZM50.7639 5.76717C50.8422 5.76632 50.9061 5.82952 50.9061 5.90779V8.26951C50.9061 8.35135 50.8365 8.41586 50.7548 8.40981C50.5269 8.39291 50.3114 8.37856 50.1701 8.37856C48.3301 8.37856 47.2499 9.67359 47.2499 11.3735V16.1719C47.2499 16.2495 47.1869 16.3125 47.1092 16.3125H44.9999C44.9222 16.3125 44.8592 16.2495 44.8592 16.1719V6.05379C44.8592 5.97613 44.9222 5.91317 44.9999 5.91317H47.1092C47.1869 5.91317 47.2499 5.97613 47.2499 6.05379V7.47394C47.2499 7.48196 47.2563 7.48845 47.2644 7.48845C47.2689 7.48845 47.2733 7.48627 47.276 7.48261C48.1006 6.38146 49.3176 5.76892 50.6033 5.76892L50.7639 5.76717ZM56.4778 11.9525C56.4864 11.9432 56.4985 11.938 56.5112 11.938C56.5269 11.938 56.5415 11.9461 56.5498 11.9595L59.217 16.2462C59.2426 16.2874 59.2878 16.3125 59.3364 16.3125L61.7342 16.3125C61.8445 16.3125 61.9118 16.1915 61.8538 16.0978L58.1947 10.1939C58.1616 10.1406 58.1679 10.0719 58.21 10.0254L61.7355 6.13573C61.8174 6.04534 61.7533 5.90066 61.6313 5.90066H59.1298C59.0904 5.90066 59.0528 5.91719 59.0261 5.94622L54.9472 10.3925C54.8605 10.487 54.7029 10.4257 54.7029 10.2974V1.82812C54.7029 1.75046 54.64 1.6875 54.5623 1.6875H52.453C52.3753 1.6875 52.3123 1.75046 52.3123 1.82812V16.1719C52.3123 16.2495 52.3753 16.3125 52.453 16.3125L54.5623 16.3125C54.64 16.3125 54.7029 16.2495 54.7029 16.1719V13.9147C54.7029 13.8792 54.7164 13.8449 54.7406 13.8189L56.4778 11.9525Z" fill="currentColor"/>
+              </svg>
+              <div class="ck-docs-badge">Docs</div>
+            </div>
+            <div class="ck-tabs">
+              <div class="ck-tab-wrap ck-tab-selected"><span class="ck-tab">Frontend API</span></div>
+              <div class="ck-tab-wrap"><span class="ck-tab">Backend API</span></div>
+              <div class="ck-tab-wrap"><span class="ck-tab">Platform API</span></div>
+            </div>
+          </div>
+          <!-- ================= Body: sidebar 288px + content ================= -->
+          <div class="ck-body">
+            <div class="ck-sidebar">
+              <div class="ck-search-row">
+                <div class="ck-search">
+                  <svg class="i16" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+                  <span class="ck-search-label">Search</span>
+                  <span class="ck-kbd">⌘ K</span>
+                </div>
+                <div class="ck-askai">
+                  <svg class="i14" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M197.58,129.06,146,110l-19-51.62a15.92,15.92,0,0,0-29.88,0L78,110l-51.62,19a15.92,15.92,0,0,0,0,29.88L78,178l19,51.62a15.92,15.92,0,0,0,29.88,0L146,178l51.62-19a15.92,15.92,0,0,0,0-29.88ZM137,164.22a8,8,0,0,0-4.74,4.74L112,223.85,91.78,169A8,8,0,0,0,87,164.22L32.15,144,87,123.78A8,8,0,0,0,91.78,119L112,64.15,132.22,119a8,8,0,0,0,4.74,4.74L191.85,144ZM144,40a8,8,0,0,1,8-8h16V16a8,8,0,0,1,16,0V32h16a8,8,0,0,1,0,16H184V64a8,8,0,0,1-16,0V48H152A8,8,0,0,1,144,40ZM248,88a8,8,0,0,1-8,8h-8v8a8,8,0,0,1-16,0V96h-8a8,8,0,0,1,0-16h8V72a8,8,0,0,1,16,0v8h8A8,8,0,0,1,248,88Z"/></svg>
+                  Ask AI
+                </div>
+              </div>
+              <div class="ck-nav">
+                <div class="ck-item"><span class="ck-item-label">Introduction</span><span class="ck-caret-box ck-caret-intro"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-sect-space"></div>
+                <div class="ck-heading">Environment</div>
+                <div class="ck-item"><span class="ck-item-label">Environment</span><span class="ck-caret-box ck-caret-open"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-sub-wrap">
+                  <div class="ck-sub"><span class="ck-item-label">Get environment</span><span class="ck-method ck-method-get">GET</span></div>
+                  <div class="ck-sub ck-sub-active"><span class="ck-item-label">Update environment</span><span class="ck-method ck-method-patch">PATCH</span></div>
+                </div>
+                <div class="ck-sect-space"></div>
+                <div class="ck-heading">Client</div>
+                <div class="ck-item"><span class="ck-item-label">Client</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Sessions</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Sign Ins</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Sign Ups</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-sect-space"></div>
+                <div class="ck-heading">User</div>
+                <div class="ck-item"><span class="ck-item-label">User</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Active Sessions</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Email Addresses</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Phone Numbers</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Web3 Wallets</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Passkeys</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Trusted Devices</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">External Accounts</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">TOTP</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+                <div class="ck-item"><span class="ck-item-label">Backup Codes</span><span class="ck-caret-box"><svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></div>
+              </div>
+            </div>
+            <div class="ck-content">
+              <div class="ck-section">
+                <div class="ck-op-title">Update environment</div>
+                <div class="ck-op-auth">
+                  <svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M208,76H100V56a28,28,0,0,1,28-28c13.51,0,25.65,9.62,28.24,22.39a12,12,0,1,0,23.52-4.78C174.87,21.5,153.1,4,128,4A52.06,52.06,0,0,0,76,56V76H48A20,20,0,0,0,28,96V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V96A20,20,0,0,0,208,76Zm-4,128H52V100H204Z"/></svg>
+                  Auth Optional
+                </div>
+                <div class="ck-op-desc">Update environment using request origin</div>
+                <div class="ck-op-details">
+                  <div class="ck-block-heading ck-block-heading-first">Headers</div>
+                  <div class="ck-params">
+                    <div class="ck-param">
+                      <div class="ck-param-head">
+                        <span class="ck-param-name">Origin</span>
+                        <span class="ck-param-type">string</span>
+                        <span class="ck-param-required">required</span>
+                      </div>
+                      <div class="ck-param-desc">Origin of the request</div>
+                    </div>
+                  </div>
+                  <div class="ck-block-heading">Responses</div>
+                  <div class="ck-resp-list">
+                    <div class="ck-resp-row">
+                      <svg class="i12 ck-resp-caret" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg>
+                      <span class="ck-resp-code">200</span>
+                      <span class="ck-resp-text">Returns the environment.</span>
+                    </div>
+                    <div class="ck-resp-row">
+                      <svg class="i12 ck-resp-caret" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg>
+                      <span class="ck-resp-code">400</span>
+                      <span class="ck-resp-text">Request was not successful</span>
+                    </div>
+                    <div class="ck-resp-row">
+                      <svg class="i12 ck-resp-caret" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg>
+                      <span class="ck-resp-code">401</span>
+                      <span class="ck-resp-text">Request was not successful</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="ck-op-examples">
+                  <!-- ============ Request card ============ -->
+                  <div class="ck-dark-card">
+                    <div class="ck-req-head">
+                      <span class="ck-req-method">PATCH</span>
+                      <span class="ck-req-path">/v1/environment</span>
+                      <span class="ck-req-lang">Shell Curl
+                        <svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z"/></svg>
+                      </span>
+                    </div>
+                    <div class="ck-code-panel">
+                      <div class="ck-code-scroll">
+                        <div class="ck-code-line"><em>1</em><span class="tk-keyword">curl</span> https://example-destined-camel-<span class="tk-number">13.</span>clerk.accounts.dev/v1/environment \</div>
+                        <div class="ck-code-line"><em>2</em>  <span class="tk-literal">--request</span> <span class="tk-symbol">PATCH</span> \</div>
+                        <div class="ck-code-line"><em>3</em>  <span class="tk-literal">--header</span> <span class="tk-string">'Origin: '</span></div>
+                      </div>
+                    </div>
+                    <div class="ck-req-foot">
+                      <span class="ck-dark-btn">
+                        <svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M208,144a15.78,15.78,0,0,1-10.42,14.94L146,178l-19,51.62a15.92,15.92,0,0,1-29.88,0L78,178l-51.62-19a15.92,15.92,0,0,1,0-29.88L78,110l19-51.62a15.92,15.92,0,0,1,29.88,0L146,110l51.62,19A15.78,15.78,0,0,1,208,144ZM152,48h16V64a8,8,0,0,0,16,0V48h16a8,8,0,0,0,0-16H184V16a8,8,0,0,0-16,0V32H152a8,8,0,0,0,0,16Zm88,32h-8V72a8,8,0,0,0-16,0v8h-8a8,8,0,0,0,0,16h8v8a8,8,0,0,0,16,0V96h8a8,8,0,0,0,0-16Z"/></svg>
+                        Ask AI Agent
+                      </span>
+                      <span class="ck-dark-btn">
+                        <svg class="i12" viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"/></svg>
+                        Test Request
+                      </span>
+                    </div>
+                  </div>
+                  <!-- ============ Response card ============ -->
+                  <div class="ck-dark-card ck-resp-card">
+                    <div class="ck-tabs-row">
+                      <div class="ck-tab-list">
+                        <span class="ck-rtab ck-rtab-selected">200</span>
+                        <span class="ck-rtab">400</span>
+                        <span class="ck-rtab">401</span>
+                      </div>
+                      <label class="ck-show-schema">Show Schema<span class="ck-checkbox"></span></label>
+                    </div>
+                    <div class="ck-code-panel ck-json-panel">
+                      <div class="ck-code-scroll">
+                        <div class="ck-code-line"><span class="tk-punct">{</span></div>
+                        <div class="ck-code-line">  <span class="tk-attr">"auth_config"</span><span class="tk-punct">: {</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"object"</span><span class="tk-punct">: </span><span class="tk-string">"auth_config"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"id"</span><span class="tk-punct">: </span><span class="tk-string">"string"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"first_name"</span><span class="tk-punct">: </span><span class="tk-string">"on"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"last_name"</span><span class="tk-punct">: </span><span class="tk-string">"on"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"email_address"</span><span class="tk-punct">: </span><span class="tk-string">"on"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"phone_number"</span><span class="tk-punct">: </span><span class="tk-string">"on"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"username"</span><span class="tk-punct">: </span><span class="tk-string">"on"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"password"</span><span class="tk-punct">: </span><span class="tk-string">"on"</span><span class="tk-punct">,</span></div>
+                        <div class="ck-code-line">    <span class="tk-attr">"identification_requirements"</span><span class="tk-punct">: [</span></div>
+                        <div class="ck-code-line">      <span class="tk-punct">[</span></div>
+                      </div>
+                    </div>
+                    <div class="ck-resp-foot">Returns the environment.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      svg { display: block; }
+      /* ============================================================
+         Tokens — extracted from clerk.com/docs (Scalar API reference
+         + Clerk theme override sheet css-10o8om7buk0wl.css), light mode
+         ============================================================ */
+      .ck-page {
+        /* page shell (Suisse Intl; metric fallback is Arial per Clerk's own @font-face) */
+        --font-shell: "Suisse Intl", "suisse", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+        /* .scalar-app: Inter (runtime-injected) */
+        --font-app: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        /* --scalar-font-code: JetBrains Mono */
+        --font-code: "JetBrains Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        --c-bg-1: #fff;            /* --scalar-background-1 */
+        --c-bg-2: #f6f6f6;         /* --scalar-background-2 */
+        --c-text-1: #131316;       /* --scalar-color-1 */
+        --c-text-2: #42434d;       /* --scalar-color-2 */
+        --c-text-3: #5e5f6e;       /* --scalar-color-3 */
+        --c-border: #eeeef0;       /* --scalar-border-color */
+        --c-orange: #f36b16;       /* --scalar-color-orange (required) */
+        --c-blue-500: #3b82f6;     /* GET badge */
+        --c-yellow-500: #eab308;   /* PATCH badge */
+        /* dark card context (.scalar-card): */
+        --d-card: #212126;         /* card bg (--scalar-background-2 dark) */
+        --d-panel: #2f3037;        /* inner panel (--scalar-background-3 dark) */
+        --d-text-1: #fff;
+        --d-text-2: #9394a1;
+        --d-blue: #93c5fd;         /* strings, method symbol (blue-300) */
+        --d-orange: #fdb674;       /* numbers (orange-300) */
+        --d-purple: #bab1ff;       /* curl keyword (purple-300) */
+        --d-yellow: #fde047;       /* PATCH in card header (yellow-300) */
+        --d-tab-active: #5de3ff;   /* Clerk: .tab-list{--scalar-color-1:#5de3ff} (sky-300) */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 765px;
+        background: #f7f7f8;       /* --root-bg: gray-50 */
+        font-family: var(--font-shell);
+        overflow: hidden;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+      /* The docs UI is a white card inset 4px from top/left/right (body:after frame) */
+      .ck-card {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        right: 4px;
+        bottom: 0;
+        background: var(--c-bg-1);
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        box-shadow: 0 0 0 1px #21212613, 0 1px 1px 0 #0000000d,
+          0 4px 6px 0 #202a360a, 0 24px 68px 0 #2f303826, 0 2px 3px 0 #00000017;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      /* ---------------- Header ---------------- */
+      .ck-header {
+        height: 64px;
+        flex-shrink: 0;
+        display: flex;
+      }
+      .ck-logo-col {
+        width: 288px;
+        flex-shrink: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        column-gap: 8px;
+        padding-left: 4px;
+        border-right: 1px solid var(--c-border);
+      }
+      .ck-logo {
+        height: 18px;
+        width: 62px;
+        color: var(--c-text-1);
+      }
+      .ck-docs-badge {
+        margin-top: 2px;
+        border-radius: 9999px;
+        background: var(--c-bg-2);
+        padding: 4px 8px;
+        font-size: 10px;
+        line-height: 12px;
+        font-weight: 500;
+        color: var(--c-text-2);
+        box-shadow: inset 0 0 0 1px var(--c-border);
+      }
+      .ck-tabs {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        display: flex;
+        align-items: stretch;
+        gap: 24px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--c-border);
+      }
+      .ck-tab-wrap {
+        display: flex;
+        align-items: center;
+        /* +1px so the selected underline overlaps (replaces) the row hairline */
+        height: calc(100% + 1px);
+        margin-bottom: -1px;
+        border-bottom: 1px solid transparent;
+      }
+      .ck-tab-selected {
+        border-bottom-color: var(--c-text-2);
+      }
+      .ck-tab {
+        font-size: 16px;
+        line-height: 1.5;
+        font-weight: 500;
+        color: var(--c-text-2);
+        white-space: nowrap;
+      }
+      /* ---------------- Body ---------------- */
+      .ck-body {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+      }
+      /* ---------------- Sidebar (Scalar, Inter) ---------------- */
+      .ck-sidebar {
+        width: 288px;
+        flex-shrink: 0;
+        border-right: 1px solid var(--c-border);
+        background: var(--c-bg-1);
+        font-family: var(--font-app);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .ck-search-row {
+        display: flex;
+        gap: 6px;
+        padding: 12px 12px 0;
+        flex-shrink: 0;
+      }
+      .ck-search {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 32px;
+        padding-left: 8px;
+        padding-right: 4px;
+        background: var(--c-bg-2);
+        border: 1px solid var(--c-border);
+        border-radius: 3px;
+        color: var(--c-text-3);
+        font-size: 14px;
+      }
+      .ck-search .i16 { color: var(--c-text-3); }
+      .ck-search-label { flex: 1; line-height: 1; }
+      .ck-kbd {
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1;
+        color: var(--c-text-3);
+        padding: 4px 5px;
+        border-radius: 3px;
+        border: 1px solid var(--c-border);
+      }
+      .ck-askai {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 8px;
+        background: var(--c-bg-2);
+        border: 1px solid var(--c-border);
+        border-radius: 3px;
+        color: var(--c-text-3);
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      .ck-nav {
+        flex: 1;
+        min-height: 0;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        overflow: hidden;
+      }
+      .ck-item,
+      .ck-sub {
+        display: flex;
+        align-items: flex-start;
+        padding: 8px;
+        border-radius: 3px;
+        font-size: 14px;
+        line-height: 16px;
+        font-weight: 400;
+        color: var(--c-text-3);
+      }
+      .ck-item-label { flex: 1; min-width: 0; }
+      .ck-caret-box {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--c-text-3);
+        flex-shrink: 0;
+      }
+      .ck-caret-open { transform: rotate(90deg); }
+      /* Introduction's toggle is an absolute button at right:5px (caret edge 8px in) */
+      .ck-caret-intro { margin-right: -2px; }
+      .ck-sect-space { height: 12px; flex-shrink: 0; }
+      .ck-heading {
+        padding: 7px 8px;
+        font-size: 13px;
+        line-height: 16px;
+        font-weight: 600;
+        color: var(--c-text-3);
+        border-radius: 3px;
+      }
+      .ck-sub-wrap {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      /* indent tree line: 1px at 16px from the item's left edge */
+      .ck-sub-wrap:before {
+        content: "";
+        position: absolute;
+        left: 16px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--c-border);
+      }
+      .ck-sub {
+        position: relative;
+        padding-left: 28px; /* 8px pad + 20px indent column */
+      }
+      .ck-sub-active {
+        background: var(--c-bg-2);
+        color: var(--c-text-1);
+        font-weight: 500;
+      }
+      /* active indicator: 1px --scalar-color-1 bar over the tree line */
+      .ck-sub-active:after {
+        content: "";
+        position: absolute;
+        left: 16px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--c-text-1);
+      }
+      .ck-method {
+        margin-left: 8px;
+        align-self: flex-start;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        font-family: var(--font-code);
+        font-size: 10px;
+        line-height: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .ck-method-get { color: var(--c-blue-500); }
+      .ck-method-patch { color: var(--c-yellow-500); }
+      /* ---------------- Content / operation section ---------------- */
+      .ck-content {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        font-family: var(--font-app);
+      }
+      .ck-section {
+        padding: 90px 60px 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto 1fr;
+        grid-template-areas:
+          "heading badge"
+          "description examples"
+          "details examples";
+        column-gap: 48px;
+        color: var(--c-text-1);
+      }
+      .ck-op-title {
+        grid-area: heading;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.45;
+        color: var(--c-text-1);
+        margin-bottom: 24px;
+        overflow-wrap: break-word;
+      }
+      .ck-op-auth {
+        grid-area: badge;
+        place-self: start end;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--c-text-2);
+      }
+      .ck-op-desc {
+        grid-area: description;
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--c-text-3);
+        margin-bottom: 24px;
+      }
+      .ck-op-details {
+        grid-area: details;
+        min-width: 0;
+      }
+      .ck-block-heading {
+        margin-top: 24px;
+        margin-bottom: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 1.45;
+        color: var(--c-text-1);
+      }
+      /* description (grid row 2) and details (row 3) margins don't collapse on the
+         real page either: 24px desc margin + 24px .mt-6 container = 48px gap */
+      .ck-block-heading-first { margin-top: 24px; }
+      .ck-param {
+        border-top: 1px solid var(--c-border);
+        padding: 10px 0;
+      }
+      .ck-param-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        white-space: nowrap;
+      }
+      .ck-param-head > * { margin-right: 9px; }
+      .ck-param-name {
+        font-family: var(--font-code);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--c-text-1);
+      }
+      .ck-param-type {
+        font-size: 13px;
+        color: var(--c-text-2);
+      }
+      .ck-param-required {
+        font-size: 13px;
+        color: var(--c-orange);
+      }
+      .ck-param-desc {
+        margin-top: 6px;
+        font-size: 14px;
+        line-height: 1.75;
+        color: var(--c-text-3);
+      }
+      .ck-resp-row {
+        position: relative;
+        border-top: 1px solid var(--c-border);
+        padding: 10px 0;
+      }
+      .ck-resp-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 6px;
+        line-height: 16px;
+      }
+      .ck-resp-caret {
+        position: absolute;
+        left: -19px;
+        top: 12px;
+        color: var(--c-text-3);
+      }
+      .ck-resp-code {
+        font-family: var(--font-code);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--c-text-1);
+      }
+      .ck-resp-text {
+        font-size: 13px;
+        color: var(--c-text-2);
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      /* ---------------- Examples column (dark cards) ---------------- */
+      .ck-op-examples {
+        grid-area: examples;
+        align-self: start;
+        min-width: 0;
+      }
+      .ck-dark-card {
+        background: var(--d-card);
+        border-radius: 8px;         /* --scalar-radius-xl */
+        padding: 4px;               /* Clerk .scalar-card override */
+        display: flex;
+        flex-direction: column;
+        color: var(--d-text-1);
+        font-size: 14px;
+        font-family: var(--font-app);
+        overflow: hidden;
+      }
+      .ck-req-head {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        padding: 6.75px 10px 6.75px 12px;
+        line-height: 22px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .ck-req-method {
+        font-family: var(--font-code);
+        text-transform: uppercase;
+        margin-right: 6px;
+        color: var(--d-yellow);      /* patch → --scalar-color-yellow (yellow-300) */
+      }
+      .ck-req-path {
+        font-family: var(--font-code);
+        font-weight: 500;
+        color: var(--d-text-2);
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        margin-right: 4px;
+      }
+      .ck-req-lang {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--d-text-2);
+      }
+      .ck-req-lang .i12 { margin-top: 1px; }
+      /* inner code panel: LIGHTER than the card, ring + drop shadow, r12 */
+      .ck-code-panel {
+        background: var(--d-panel);
+        border-radius: 12px;
+        box-shadow: 0 1.5px 2px 0 #00000052, 0 0 0 1px #ffffff1a, 0 -1px 0 0 #ffffff0a;
+        overflow: hidden;
+      }
+      .ck-code-scroll {
+        padding: 8px;
+        overflow: hidden;
+      }
+      .ck-code-line {
+        font-family: var(--font-code);
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: pre;
+        color: var(--d-text-2);      /* base code color */
+        font-variant-ligatures: none;
+      }
+      .ck-code-line em {
+        font-style: normal;
+        display: inline-block;
+        min-width: 1ch;
+        text-align: right;
+        margin-right: 14px;
+        color: var(--d-text-2);
+      }
+      .tk-keyword { color: var(--d-purple); }
+      .tk-literal { color: var(--d-text-1); }
+      .tk-symbol { color: var(--d-blue); }
+      .tk-string { color: var(--d-blue); }
+      .tk-number { color: var(--d-orange); }
+      .tk-attr { color: var(--d-text-1); }
+      .tk-punct { color: var(--d-text-2); }
+      .ck-req-foot {
+        flex-shrink: 0;
+        display: flex;
+        justify-content: flex-end;
+        padding: 6px;
+        gap: 6px;
+      }
+      .ck-dark-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--d-card);   /* --scalar-button-1 */
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 9px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 22px;
+        white-space: nowrap;
+        box-shadow: 0 0 0 1px #00000024, inset 0 1px #ffffff12, 0 1px 3px #21212633;
+      }
+      /* resting sheen — Clerk: :before{opacity:.5;background-image:linear-gradient(#fff3,#fff0)}
+         (opacity goes to 1 on hover) */
+      .ck-dark-btn:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
+        background-image: linear-gradient(#fff3, #fff0);
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .ck-dark-btn .i12 { margin-right: 4px; }
+      /* ---------------- Response card ---------------- */
+      .ck-resp-card { margin-top: 12px; }
+      .ck-tabs-row {
+        flex-shrink: 0;
+        display: flex;
+        align-items: stretch;
+        height: 36px;
+        /* Clerk: full-width divider under the tabs row */
+        box-shadow: inset 0 -1px #ffffff1a, inset 0 -2px #131316;
+        margin-bottom: 9px;
+      }
+      .ck-tab-list {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        gap: 9px;
+        padding: 7px 12px;
+      }
+      .ck-rtab {
+        position: relative;
+        font-size: 14px;
+        line-height: 22px;
+        font-weight: 400;
+        text-transform: uppercase;
+        color: var(--d-text-2);
+        white-space: nowrap;
+      }
+      .ck-rtab-selected {
+        color: var(--d-tab-active);
+        font-weight: 500;
+      }
+      /* active underline: 1px, text-width, flush with the row bottom (over the divider) */
+      .ck-rtab-selected:after {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        bottom: -7px;
+        background: currentColor;
+      }
+      .ck-show-schema {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 6px;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--d-text-2);
+        white-space: nowrap;
+      }
+      .ck-checkbox {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        background: var(--d-panel);
+        box-shadow: inset 0 0 0 1px #212126;
+        flex-shrink: 0;
+      }
+      .ck-json-panel {
+        flex: 1;
+        min-height: 0;
+      }
+      .ck-resp-foot {
+        flex-shrink: 0;
+        padding: 7px 12px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.75;
+        /* response card has no dark-mode class, so the light-page
+           .markdown p override (#5e5f6e) wins for the caption */
+        color: var(--c-text-3);
+      }
+      /* ---------------- Icon sizes ---------------- */
+      .i16 { width: 16px; height: 16px; flex-shrink: 0; }
+      .i14 { width: 14px; height: 14px; flex-shrink: 0; }
+      .i12 { width: 12px; height: 12px; flex-shrink: 0; }
+      /* ============================================================
+         Safari embed scaling (parity with the galaxy svg)
+         ============================================================ */
+      @supports (hanging-punctuation: first) and (font: -apple-system-body) and
+        (-webkit-appearance: none) {
+        .transform-rr {
+          --var: 1;
+          --varcalcx: calc(var(--var) * 1360px);
+          --xcalc: calc((100dvw - var(--varcalcx)) / 2);
+          --varcalcy: calc(var(--var) * 765px);
+          --ycalc: calc((100dvh - var(--varcalcy)) / 2);
+          transform: translate3d(var(--xcalc), var(--ycalc), 0);
+        }
+        * {
+          animation: none !important;
+        }
+        @media only screen and (max-width: 1360px) {
+          .transform-rr { --var: 0.95; }
+          .rr {
+            transform: scale(var(--var));
+            transform-origin: top left;
+            position: relative;
+            overflow: hidden;
+          }
+        }
+        @media only screen and (max-width: 1292px) { .transform-rr { --var: 0.9; } }
+        @media only screen and (max-width: 1224px) { .transform-rr { --var: 0.85; } }
+        @media only screen and (max-width: 1156px) { .transform-rr { --var: 0.8; } }
+        @media only screen and (max-width: 1088px) { .transform-rr { --var: 0.75; } }
+        @media only screen and (max-width: 1020px) { .transform-rr { --var: 0.7; } }
+        @media only screen and (max-width: 952px) { .transform-rr { --var: 0.65; } }
+        @media only screen and (max-width: 884px) { .transform-rr { --var: 0.6; } }
+        @media only screen and (max-width: 816px) { .transform-rr { --var: 0.55; } }
+        @media only screen and (max-width: 748px) { .transform-rr { --var: 0.5; } }
+        @media only screen and (max-width: 680px) { .transform-rr { --var: 0.45; } }
+        @media only screen and (max-width: 612px) { .transform-rr { --var: 0.4; } }
+        @media only screen and (max-width: 544px) { .transform-rr { --var: 0.35; } }
+        @media only screen and (max-width: 476px) { .transform-rr { --var: 0.3; } }
+        @media only screen and (max-width: 408px) { .transform-rr { --var: 0.25; } }
+        @media only screen and (max-width: 340px) { .transform-rr { --var: 0.2; } }
+        @media only screen and (max-width: 272px) { .transform-rr { --var: 0.15; } }
+      }
+    
+/* ============ Glass browser chrome (ported from the zoom mock) ============ */
+.dotted-top {
+        position: absolute;
+        top: 17px;
+        left: 12px;
+        background-color: rgba(255, 255, 255, 0.45);
+        border-radius: 50%;
+        width: 10px;
+        box-shadow: 14px 0 0 rgba(255, 255, 255, 0.45),
+          29px 0 0 rgba(255, 255, 255, 0.45);
+        height: 9px;
+      }
+.h-animation-ref-safari {
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.08);
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+        z-index: 1;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+.h-animation-ref-safari-left {
+        width: 150px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-left: 68px;
+        color: rgba(255, 255, 255, 0.75);
+      }
+.h-animation-ref-safari-nav {
+        width: 600px;
+        padding: 6px 0;
+      }
+.h-animation-ref-safari-right {
+        width: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        color: rgba(255, 255, 255, 0.75);
+        padding-right: 12px;
+      }
+.h-animation-ref-safari-right svg {
+        width: 17px;
+        height: 17px;
+      }
+.h-animation-ref-safari-left svg {
+        width: 16px;
+        height: 16px;
+      }
+.h-animation-ref-safari-left svg:last-of-type {
+        opacity: 0.5;
+      }
+.h-animation-ref-safari-nav-url {
+        width: 100%;
+        border-radius: 7px;
+        height: 100%;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        position: relative;
+        border: 0;
+        background: rgba(255, 255, 255, 0.14);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.9);
+      }
+.h-animation-ref-safari-nav-url svg {
+        width: 13px;
+        height: 13px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-right: 3px;
+      }
+.h-animation-ref-safari-nav-url svg:last-of-type {
+        position: absolute;
+        right: 4px;
+      }
+/* Glass shell: one continuous frosted slab wrapping the docs card, flowing
+   from the topbar down the gutters — no hard cutoff against the artwork. */
+.ck-page {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  border-radius: 16px; /* matches the overlay clip so the hairline ring is not cut */
+}
+/* The shell provides the frost; the topbar keeps only its icons.
+   backdrop-filter is inert in image embeds and triggers a Chromium SVG-image bug. */
+.h-animation-ref-safari {
+  background-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.ck-card {
+  top: 48px; /* 40px glass topbar + 8px gutter */
+  left: 10px;
+  right: 10px;
+}
+/* ZOOM-10 experiment (same as the zoom mock). Delete to revert. */
+.ck-page.rr {
+  width: calc(100% / 1.1);
+  height: calc(765px / 1.1);
+  transform: scale(calc(var(--var, 1) * 1.1));
+  transform-origin: top left;
+}
+
+/* Lock icon pinned to the omnibar's left edge (mirrors the refresh at right) */
+.h-animation-ref-safari-nav-url svg:first-of-type {
+  position: absolute;
+  left: 8px;
+}
+
+
+/* GLASS-LS: Lightspark's recipe -- transparent bar, hairline ring at 18% */
+.h-animation-ref-safari {
+  background-color: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18);
+}
+/* stoplights clear of the tighter outer corner radius */
+.dotted-top {
+  left: 20px;
+}
+</style>
+  </foreignObject>
+</svg>

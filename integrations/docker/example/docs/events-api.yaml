@@ -1,0 +1,26 @@
+asyncapi: 3.0.0
+info:
+  title: Scalar Events API
+  version: 1.0.0
+  description: A minimal AsyncAPI example used to verify the Docker integration detects and serves AsyncAPI documents.
+servers:
+  production:
+    host: events.example.com
+    protocol: wss
+channels:
+  userSignedUp:
+    address: user/signedup
+    messages:
+      userSignedUp:
+        payload:
+          type: object
+          properties:
+            userId:
+              type: string
+            email:
+              type: string
+operations:
+  onUserSignedUp:
+    action: receive
+    channel:
+      $ref: '#/channels/userSignedUp'

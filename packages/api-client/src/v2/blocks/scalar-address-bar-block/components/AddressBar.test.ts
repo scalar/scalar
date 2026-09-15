@@ -41,6 +41,7 @@ describe('AddressBar', () => {
       props: {
         path: custom.path ?? '/api/test',
         method: (custom.method ?? 'get') as HttpMethod,
+        isWebhook: custom.isWebhook ?? false,
         server: custom.server ?? baseServer,
         servers: custom.servers ?? [baseServer],
         history: custom.history ?? [],
@@ -149,6 +150,65 @@ describe('AddressBar', () => {
      * triggered via the event bus after the path update resolves.
      */
     expect(wrapper.emitted('execute')).toBeFalsy()
+  })
+
+  it('emits the full webhook URL locally and does not split it into a server', async () => {
+    const { wrapper, eventBus } = mountWithProps({
+      path: '',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      server: null,
+      servers: [],
+    })
+    const eventBusSpy = vi.spyOn(eventBus, 'emit')
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+    const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+
+    await codeInput.vm.$emit('submit', 'https://hooks.example.com/deliveries', submitEvent)
+    await nextTick()
+
+    // The whole URL is the destination — it is not split into server + path,
+    // and no server events leak into the document.
+    expect(wrapper.emitted('update:webhook-url')).toStrictEqual([['https://hooks.example.com/deliveries']])
+    expect(eventBusSpy).not.toHaveBeenCalledWith('operation:update:pathMethod', expect.anything())
+    expect(eventBusSpy).not.toHaveBeenCalledWith('server:add:server', expect.anything())
+    expect(eventBusSpy).not.toHaveBeenCalledWith('server:update:selected', expect.anything())
+    expect(codeInput.props('disabled')).toBe(false)
+  })
+
+  it('keeps an empty webhook destination empty on blur instead of inserting a slash', async () => {
+    const { wrapper } = mountWithProps({
+      path: '',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      servers: [],
+    })
+    await wrapper.setProps({ server: null })
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+
+    await codeInput.vm.$emit('blur', '', new FocusEvent('blur'))
+    await nextTick()
+
+    // An empty webhook field must stay empty, not normalize to "/", so the
+    // placeholder stays visible and the "URL required" guard reads correctly.
+    expect(wrapper.emitted('update:webhook-url')).toStrictEqual([['']])
+  })
+
+  it('hints that a webhook path field expects a full URL', async () => {
+    const { wrapper } = mountWithProps({
+      path: '/',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      servers: [],
+    })
+    // A fresh webhook has no server, so the path field doubles as the full URL.
+    await wrapper.setProps({ server: null })
+
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+    expect(codeInput.props('placeholder')).toContain('https://')
   })
 
   it('renders ServerDropdown only when servers are provided', () => {

@@ -2,12 +2,21 @@ import type {
   ParameterObject,
   ParameterWithContentObject,
   ParameterWithSchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getExample } from './get-example'
 
 describe('content-based parameters', () => {
+  it.each([0, false, ''])('keeps an explicit falsy example %s ahead of a schema default', (value) => {
+    expect(
+      getExample({ example: value, schema: { type: 'string', default: 'fallback' } }, undefined, undefined),
+    ).toStrictEqual({ value })
+    expect(
+      getExample({ content: { 'application/json': { example: value } } }, undefined, 'application/json'),
+    ).toStrictEqual({ value })
+  })
+
   it('returns example value when content param has application/json with object value', () => {
     const param = {
       content: {

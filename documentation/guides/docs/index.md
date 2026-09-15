@@ -111,7 +111,7 @@ Product guides and API references in one developer portal. Write in Markdown or 
 
 ## The modern API documentation
 
-Include interactive API references for a single API or hundreds of APIs. Everything is based on the OpenAPI standard, so your documentation can stay in sync with the API description your team already maintains.
+Include interactive API references for a single API or hundreds of APIs. Everything is based on the OpenAPI standard, so your documentation can stay in sync with the API document your team already maintains.
 
 <scalar-callout type="info" icon="phosphor/regular/info">
   Just need an API reference? Use the [API Reference](../../guides/api-references/getting-started.md). It is open source, free, and has integrations for REST API frameworks.

@@ -8,7 +8,7 @@ import type {
 
 import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { SecurityRequirementObject } from '@/schemas/v3.1/strict/security-requirement'
+import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
 import { dedupeRequirements } from './dedupe-requirements'
 
@@ -19,7 +19,7 @@ const getSecuritySchemeNameFromRef = (ref: string): string | undefined =>
 
 /** Strips requirement-only `scopes` so inline entries can match component scheme definitions. */
 const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecuritySchemeObject | undefined => {
-  const resolved = getResolvedRef(entry) as AsyncApiSecuritySchemeObject | undefined
+  const resolved: AsyncApiSecuritySchemeObject | undefined = getResolvedRef(entry)
   if (resolved == null) {
     return undefined
   }

@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/snippetz"
   },
-  "version": "0.9.26",
+  "version": "0.9.30",
   "engines": {
     "node": ">=22"
   },
@@ -120,6 +120,11 @@
       "import": "./dist/plugins/js/xhr/index.js",
       "types": "./dist/plugins/js/xhr/index.d.ts",
       "default": "./dist/plugins/js/xhr/index.js"
+    },
+    "./plugins/julia/http": {
+      "import": "./dist/plugins/julia/http/index.js",
+      "types": "./dist/plugins/julia/http/index.d.ts",
+      "default": "./dist/plugins/julia/http/index.js"
     },
     "./plugins/kotlin/okhttp": {
       "import": "./dist/plugins/kotlin/okhttp/index.js",
@@ -235,11 +240,6 @@
       "import": "./dist/plugins/swift/nsurlsession/index.js",
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
       "default": "./dist/plugins/swift/nsurlsession/index.js"
-    },
-    "./utils": {
-      "import": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
     }
   },
   "files": [
@@ -249,11 +249,9 @@
   "dependencies": {
     "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
-    "js-base64": "catalog:*",
-    "stringify-object": "^6.0.0"
+    "js-base64": "catalog:*"
   },
   "devDependencies": {
-    "@types/stringify-object": "^4.0.5",
     "vite": "catalog:*"
   }
 }

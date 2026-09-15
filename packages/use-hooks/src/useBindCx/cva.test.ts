@@ -29,6 +29,12 @@ describe('cx utility', () => {
     expect(cx('text-blue text-xl', 'text-red')).toBe('text-xl text-red')
   })
 
+  it('resolves the header column sizing conflicts', () => {
+    // ScalarHeaderColumn ships defaults that consumers override with a class.
+    expect(cx('shrink-0', 'flex-1')).toBe('flex-1')
+    expect(cx('justify-start', 'justify-end')).toBe('justify-end')
+  })
+
   it('should handle arrays of classes', () => {
     expect(cx(['foo', 'bar'], 'baz')).toBe('foo bar baz')
     expect(cx(['foo', null, undefined], ['bar', false])).toBe('foo bar')

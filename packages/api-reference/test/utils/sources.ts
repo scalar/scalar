@@ -22,6 +22,11 @@ export const sources = [
     content: galaxy,
   },
   {
+    title: 'Tag Nesting (OpenAPI 3.2)',
+    slug: 'tag-nesting',
+    url: 'examples/tag-nesting.yaml',
+  },
+  {
     title: 'Scalar Galaxy (Classic Layout)',
     slug: 'scalar-galaxy-classic',
     content: galaxy,

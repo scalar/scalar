@@ -15,6 +15,9 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyo
     [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
   }[Keys]
 
+/** A sink for the informational log lines the mock servers print while starting up. */
+export type MockServerLogger = (line: string) => void
+
 type BaseMockServerOptions = {
   /**
    * The OpenAPI document to use for mocking.
@@ -48,6 +51,20 @@ type BaseMockServerOptions = {
    * always return a mock response regardless of whether the request matches the contract.
    */
   validateRequest?: boolean
+
+  /**
+   * Control the informational output the server prints while starting up, which is currently the
+   * authentication instructions for the security schemes of the document. Defaults to logging to
+   * the console.
+   *
+   * Pass `false` to silence it — handy when the mock server runs inside a test harness or another
+   * program, where the instructions are noise — or a `(line) => void` sink to route the lines
+   * somewhere other than the console.
+   *
+   * Diagnostics are not affected: warnings and errors about security schemes the mock server cannot
+   * handle, request validator compilation errors, and `x-seed` errors are printed either way.
+   */
+  logger?: boolean | MockServerLogger
 }
 
 export type MockServerOptions = RequireAtLeastOne<BaseMockServerOptions, 'specification' | 'document'>

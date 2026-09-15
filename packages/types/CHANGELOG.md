@@ -1,5 +1,50 @@
 # @scalar/types
 
+## 0.19.0
+
+### Minor Changes
+
+- [#9981](https://github.com/scalar/scalar/pull/9981): Load the modern ESM build of the API Reference by default
+
+  The generated HTML now loads the code-split ESM build (`.../@scalar/api-reference/esm.js`, added in #9871) as a `<script type="module">` by default, instead of the monolithic UMD bundle. Because it is code-split, less JavaScript blocks the first render.
+
+  To keep the classic UMD bundle (loaded via `<script src>` and the `window.Scalar` global), set `cdn` to a UMD URL — for example to pin a version — or pass `bundle: false`. You can also pass `bundle: 'https://.../esm.js'` to load a specific ESM build.
+
+  When a `nonce` is set (a strict, nonce-based CSP) the UMD bundle is used automatically, because the ESM build's `import`-loaded chunks cannot be nonced. Pass `bundle: true` to force the ESM build if your CSP uses `'strict-dynamic'`.
+
+- [#9937](https://github.com/scalar/scalar/pull/9937): Add a way to open the request body editor in the Form view by default. Set the `defaultRequestBodyView: 'form'` config option, or the `x-scalar-default-request-body-view` extension in your OpenAPI document (which also works per source). Defaults to `raw`, and falls back to `raw` when a body cannot be shown as a form.
+
+### Patch Changes
+
+- [#9990](https://github.com/scalar/scalar/pull/9990): Fix `@scalar/types` leaking into the published type declarations. `@scalar/openapi-parser` referenced `@scalar/types` from its `.d.ts` files while only depending on it as a `devDependency`, so consumers hit `TS2307` (cannot find module). `@scalar/types` is now a regular dependency, and the package uses the shared `UnknownObject` and `AnyObject` utility types from `@scalar/types/utils` directly instead of defining its own local copies (`AnyObject` was added to `@scalar/types/utils` alongside the existing `UnknownObject`).
+
+  The generic `AnyObject` and `UnknownObject` types are no longer re-exported from `@scalar/openapi-parser`. Import them from `@scalar/types/utils` instead.
+
+## 0.18.3
+
+### Patch Changes
+
+- [#9983](https://github.com/scalar/scalar/pull/9983): Bump the `zod` catalog to `^4.4.3` so the standalone bundle ships a single `zod` instead of two (`4.3.5` from `@scalar/types` plus `4.4.3` from the `ai` / `@ai-sdk` peer). This makes `standalone.js` ~68KB raw / ~18KB gzip smaller.
+- [#9967](https://github.com/scalar/scalar/pull/9967): Add a new `@scalar/openapi-validator` package that validates OpenAPI documents on its own. `@scalar/openapi-parser` now uses it under the hood.
+
+  Two type-level changes in `@scalar/openapi-parser` are worth noting:
+  - `ErrorObject.path` is now `string | string[]` instead of `string[]`. Schema errors carry a JSON Pointer string, semantic errors carry path segments — both shapes were already produced at runtime, the type just says so now. Narrow with `Array.isArray` before treating it as a list.
+  - The unused `ValidationOutcome` type and the internal `OpenApiDocument` alias are no longer exported.
+
+## 0.18.2
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 0.18.1
+
+### Patch Changes
+
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+- [#9893](https://github.com/scalar/scalar/pull/9893): Show schema `pattern` as a hover dropdown in the API reference, similar to examples. Long regex patterns are now revealed on hover instead of being truncated inline.
+- [#9913](https://github.com/scalar/scalar/pull/9913): Add Julia (HTTP.jl) as a code example target. The new `julia/http` client generates HTTP.jl snippets, including headers, query parameters, cookies, basic auth, JSON bodies (as `Dict`s serialized with `JSON.json`), url-encoded bodies and `HTTP.Form` multipart uploads. Julia syntax highlighting and a Julia icon are included, so the client shows up in the code example picker like any other language.
+
 ## 0.18.0
 
 ### Minor Changes

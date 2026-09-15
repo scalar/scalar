@@ -1,5 +1,61 @@
 # @scalar/api-client
 
+## 3.18.0
+
+### Minor Changes
+
+- [#9937](https://github.com/scalar/scalar/pull/9937): Add a way to open the request body editor in the Form view by default. Set the `defaultRequestBodyView: 'form'` config option, or the `x-scalar-default-request-body-view` extension in your OpenAPI document (which also works per source). Defaults to `raw`, and falls back to `raw` when a body cannot be shown as a form.
+
+### Patch Changes
+
+- [#10046](https://github.com/scalar/scalar/pull/10046): Stop sending optional form-body properties by default. Optional `multipart/form-data` and `application/x-www-form-urlencoded` properties now start unchecked and are left out of the request unless you enable them, matching how optional parameters already behave. Required properties are unaffected.
+
+## 3.17.0
+
+### Minor Changes
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+### Patch Changes
+
+- [#9983](https://github.com/scalar/scalar/pull/9983): Bump the `zod` catalog to `^4.4.3` so the standalone bundle ships a single `zod` instead of two (`4.3.5` from `@scalar/types` plus `4.4.3` from the `ai` / `@ai-sdk` peer). This makes `standalone.js` ~68KB raw / ~18KB gzip smaller.
+- [#10024](https://github.com/scalar/scalar/pull/10024): Fix "Test Request" discarding an edited request body when the operation it opens is already the one on screen. Reopening the entry the modal already shows does not route anywhere, so the request body kept its edited value while the composition selection was replaced with whatever the reference page had selected. The request body read that as a manual `oneOf`/`anyOf` branch switch and regenerated itself from the schema. An open modal now keeps the selection it is already showing, while opening a different entry still re-establishes it.
+
+## 3.16.3
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
+## 3.16.2
+
+### Patch Changes
+
+- [#9930](https://github.com/scalar/scalar/pull/9930): Reset edited structured request bodies when a different `oneOf` or `anyOf` schema is selected, including compositions without discriminators.
+- [#9872](https://github.com/scalar/scalar/pull/9872): Bump shared runtime dependencies: `js-base64` (`^3.7.8` -> `^3.9.2`) and `type-fest` (`^5.3.1` -> `^5.8.0`).
+- [#9896](https://github.com/scalar/scalar/pull/9896): Fix parameter name blanking in the Try It panel on first open.
+
+  Three related issues caused a parameter name (e.g. `x-scenario-id`) to appear
+  blank the first time the Try It panel was opened for a GET endpoint:
+  1. **`RequestTable` used `key: index`** — Vue reused the same `RequestTableRow`
+     component instance for the placeholder row `{ name: '' }` that `displayData`
+     appends, causing the component to receive an empty `data.name` prop and blank
+     its local `name` ref. Fixed by using a stable identity key derived from the
+     parameter name and value path.
+
+  2. **`RequestTableRow` watch and blur emitted empty names** — the `watch:name`
+     handler unconditionally synced the local ref to the incoming prop (including
+     `''`), and `handleKeyBlur` forwarded a blank name emitted by `CodeInputLite`
+     before it had rendered its initial value. Both now guard against overwriting
+     a valid name with an empty string.
+
+  3. **`upsertOperationParameter` mutated `param.name` unconditionally** — a
+     value-only update carrying `payload.name = ''` permanently blanked the
+     reactive parameter name in the store. The mutator now skips the name
+     assignment when the payload name is empty and the parameter already has one.
+
+- [#9867](https://github.com/scalar/scalar/pull/9867): Fix header parameters showing as empty rows in the API client when an earlier operation has a request body
+
 ## 3.16.1
 
 ## 3.16.0

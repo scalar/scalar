@@ -70,8 +70,8 @@ function migrateTagGroups(document: UnknownObject) {
     // Update existing tags with kind property based on group name
     if (Array.isArray(document.tags)) {
       for (const tag of document.tags) {
-        if (typeof tag === 'object' && tag !== null && 'name' in tag) {
-          const groupName = tagGroupMap.get(tag.name as string)
+        if (typeof tag === 'object' && tag !== null && 'name' in tag && typeof tag.name === 'string') {
+          const groupName = tagGroupMap.get(tag.name)
           if (groupName) {
             // Map group names to kind values
             // This is a simplified mapping - in practice, you might want more sophisticated logic

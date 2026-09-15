@@ -5,7 +5,7 @@ import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import { isContentTypeParameterObject } from '@/schemas/v3.1/strict/type-guards'
+import { isContentTypeParameterObject } from '@/schemas/v3.2/strict/type-guards'
 
 import { fetchRequestToHar } from './helpers/fetch-request-to-har'
 import { fetchResponseToHar } from './helpers/fetch-response-to-har'
@@ -34,7 +34,7 @@ export const addResponseToHistory = async (
   // Get all the variables from the operation parameters
   const variables = operationParameters.reduce<Record<string, string>>((acc, param) => {
     const resolvedParam = getResolvedRef(param)
-    if (isContentTypeParameterObject(resolvedParam)) {
+    if (!resolvedParam || isContentTypeParameterObject(resolvedParam)) {
       return acc
     }
     if (resolvedParam.in === 'path') {

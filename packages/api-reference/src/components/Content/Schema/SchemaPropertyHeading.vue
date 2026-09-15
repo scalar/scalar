@@ -2,29 +2,29 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   isArraySchema,
   isNumberSchema,
   isStringSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, toRef } from 'vue'
 
 import { Badge } from '@/components/Badge'
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 import { getSchemaType } from './helpers/get-schema-type'
+import { getDisplayTypeSignatureTokens } from './helpers/get-type-signature-tokens'
 import {
   isModelLinkable,
   type ModelLinkOptions,
 } from './helpers/is-model-linkable'
-import { getModelNameFromSchema } from './helpers/schema-name'
+import { getModelNameWithArray } from './helpers/schema-name'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
+import SchemaPropertyPattern from './SchemaPropertyPattern.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -45,6 +45,19 @@ const props = withDefaults(
     /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
     propertyNames?: SchemaObject
     eventBus?: WorkspaceEventBus | null
+    /**
+     * The row's name is a stand-in for keys the caller chooses
+     * (`additionalProperties`) or keys matching a regex (`patternProperties`),
+     * not a literal property. The heading says so in the signature line, where
+     * the tree already describes shapes, instead of styling the name itself.
+     */
+    keyKind?: 'additional' | 'pattern'
+    /**
+     * The name of the schema this row loops back to. A cut cycle is a leaf, so
+     * the signature line says why it does not expand; the model link beside it
+     * already names the schema the loop returns to.
+     */
+    recursiveTo?: string
   }>(),
   {
     isDiscriminator: false,
@@ -113,7 +126,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (schema.minLength) {
       properties.push({
         key: 'min-length',
-        prefix: `${translate('common.minLength')}: `,
+        prefix: `${translate('schema.minLength')}: `,
         value: schema.minLength,
       })
     }
@@ -121,19 +134,12 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (schema.maxLength) {
       properties.push({
         key: 'max-length',
-        prefix: `${translate('common.maxLength')}: `,
+        prefix: `${translate('schema.maxLength')}: `,
         value: schema.maxLength,
       })
     }
 
-    if (schema.pattern) {
-      properties.push({
-        key: 'pattern',
-        value: schema.pattern,
-        code: true,
-        truncate: true,
-      })
-    }
+    // pattern is rendered via SchemaPropertyPattern (hover dropdown), skip here
   }
 
   if ((isStringSchema(schema) || isNumberSchema(schema)) && schema.format) {
@@ -148,7 +154,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.exclusiveMinimum)) {
       properties.push({
         key: 'exclusive-minimum',
-        prefix: `${translate('common.greaterThan')}: `,
+        prefix: `${translate('schema.greaterThan')}: `,
         value: schema.exclusiveMinimum,
       })
     }
@@ -156,7 +162,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.minimum)) {
       properties.push({
         key: 'minimum',
-        prefix: `${translate('common.min')}: `,
+        prefix: `${translate('schema.min')}: `,
         value: schema.minimum,
       })
     }
@@ -164,7 +170,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.exclusiveMaximum)) {
       properties.push({
         key: 'exclusive-maximum',
-        prefix: `${translate('common.lessThan')}: `,
+        prefix: `${translate('schema.lessThan')}: `,
         value: schema.exclusiveMaximum,
       })
     }
@@ -172,7 +178,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.maximum)) {
       properties.push({
         key: 'maximum',
-        prefix: `${translate('common.max')}: `,
+        prefix: `${translate('schema.max')}: `,
         value: schema.maximum,
       })
     }
@@ -180,7 +186,7 @@ const getLeafConstraints = (schema: SchemaObject) => {
     if (isDefined(schema.multipleOf)) {
       properties.push({
         key: 'multiple-of',
-        prefix: `${translate('common.multipleOf')}: `,
+        prefix: `${translate('schema.multipleOf')}: `,
         value: schema.multipleOf,
       })
     }
@@ -210,7 +216,7 @@ const validationProperties = computed(() => {
     if (schema.uniqueItems) {
       properties.push({
         key: 'unique-items',
-        value: `${translate('common.unique')}!`,
+        value: `${translate('schema.unique')}!`,
       })
     }
   }
@@ -240,24 +246,31 @@ const modelLink = computed(() => {
     return { schemaKey: props.modelName, label: props.modelName }
   }
 
-  const modelName = getModelNameFromSchema(props.value)
-  if (modelName) {
-    return { schemaKey: modelName.schemaKey, label: modelName.label }
-  }
-
-  if (isArraySchema(props.value) && props.value.items) {
-    const itemName = getModelNameFromSchema(props.value.items)
-    return itemName
-      ? { schemaKey: itemName.schemaKey, label: `${itemName.label}[]` }
-      : null
-  }
-
-  return null
+  return getModelNameWithArray(props.value)
 })
 
 /** Whether the model name links to the models section, or renders as plain text. */
 const modelLinkable = computed(() =>
   isModelLinkable(modelLink.value?.schemaKey, props.modelLinkOptions ?? {}),
+)
+
+/**
+ * The type as a run of tokens rather than a single string — identifiers in
+ * the code face, English words like `array of` in the sans face, and a muted
+ * `|` so `string | null` reads as one type with an alternative.
+ *
+ * The token run and the screen-reader label are written straight into the
+ * template instead of being their own components: the tree mounts one per
+ * typed row, and a component instance costs more to create than the span it
+ * renders. On a flat object the type cells would be most of the instance
+ * count. The linked and the plain copy of the token markup below must stay
+ * identical.
+ */
+const signatureTokens = computed(() =>
+  getDisplayTypeSignatureTokens(props.value, {
+    hideModelNames: props.hideModelNames,
+    modelName: modelLink.value?.label,
+  }),
 )
 
 /** Check if we should show the type information */
@@ -273,14 +286,6 @@ const shouldShowType = computed(() => {
 
   // For non-arrays, only show if no const value at the schema level
   return !constValue.value
-})
-
-/** Get the display type */
-const displayType = computed(() => {
-  if (!props.value) {
-    return ''
-  }
-  return getSchemaType(props.value)
 })
 
 /**
@@ -327,9 +332,65 @@ const exampleValue = computed(() => {
 
   return undefined
 })
+
+/**
+ * Whether the examples chip has anything to render.
+ *
+ * `SchemaPropertyExamples` already renders nothing without an example, but it
+ * still mounts, and mounting is what installs its popup's window-level click
+ * and keydown listeners. `withExamples` defaults to true, so without this gate
+ * every property row on the page — including a plain `{ type: 'string' }` —
+ * pays for a popup it never opens. Mirrors the component's own two branches.
+ */
+const hasExampleContent = computed((): boolean => {
+  if (exampleValue.value !== undefined) {
+    return true
+  }
+
+  const examples = props.value?.examples
+
+  return (
+    !!examples &&
+    typeof examples === 'object' &&
+    Object.keys(examples).length > 0
+  )
+})
+
+/**
+ * The regex `pattern` to surface via the hover dropdown. It lives on a string
+ * schema, or on the items of a primitive array (which is not rendered on its
+ * own, so its constraints are surfaced on the array heading — see
+ * https://github.com/scalar/scalar/issues/9690).
+ */
+const patternValue = computed(() => {
+  const schema = valueRef.value
+  if (!schema) {
+    return undefined
+  }
+
+  if (isStringSchema(schema) && schema.pattern) {
+    return schema.pattern
+  }
+
+  if (isArraySchema(schema) && schema.items) {
+    const items = resolve.schema(schema.items)
+    if (isStringSchema(items) && items.pattern) {
+      return items.pattern
+    }
+  }
+
+  return undefined
+})
 </script>
 <template>
-  <div class="property-heading">
+  <div
+    class="property-heading [&>.property-detail:has(+.property-detail)]:mr-0">
+    <!-- `:has(+.property-detail)`: only a detail FOLLOWED BY another detail
+         drops its right margin, because the `·` separator supplies the gap
+         there. Not `:not(:last-of-type)`, which matches by element type: the
+         collapsed preview and the trailing copy-link are spans as well, so it
+         would strip the margin from the final detail and glue "Addressrequired"
+         together on a collapsed row. -->
     <div
       v-if="$slots.name"
       class="property-name"
@@ -339,35 +400,99 @@ const exampleValue = computed(() => {
     <div
       v-if="props.isDiscriminator"
       class="property-discriminator">
-      {{ translate('common.discriminator') }}
+      {{ translate('schema.discriminator') }}
     </div>
     <template v-if="props.value">
+      <!-- A map key reads `additionalProperty · string`: the keyword leads the
+           detail list in the accent colour, like a type word, so the name
+           above it can look like every other name. -->
+      <SchemaPropertyDetail
+        v-if="props.keyKind"
+        class="property-key-kind">
+        <span class="font-code text-c-accent">{{
+          props.keyKind === 'pattern' ? 'patternProperty' : 'additionalProperty'
+        }}</span>
+      </SchemaPropertyDetail>
       <!-- Type information -->
       <SchemaPropertyDetail
         v-if="shouldShowType"
         truncate>
-        <ScreenReader>{{ translate('common.type') }}:</ScreenReader>
-        {{ displayType }}
-        <template v-if="modelLink">
-          ·
-          <LinkButton
-            v-if="props.eventBus && modelLink.schemaKey && modelLinkable"
-            @click="
-              props.eventBus.emit('scroll-to:model-by-name', {
-                name: modelLink.schemaKey,
-              })
-            ">
-            {{ modelLink.label }}
-          </LinkButton>
-          <template v-else>{{ modelLink.label }}</template>
-        </template>
+        <!-- The type is a token run (`array of Planet`) and a $ref link IS the
+             type, not an appended `· Account` -->
+        <!-- Written across lines on purpose: Vue drops whitespace-only text
+             between two elements, so a single-line label would read
+             `Type:string`. -->
+        <span class="screenreader-only"> {{ translate('schema.type') }}: </span>
+        <button
+          v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
+          class="text-c-3 hover:text-c-1 underline"
+          type="button"
+          @click="
+            props.eventBus.emit('scroll-to:model-by-name', {
+              name: modelLink.schemaKey,
+            })
+          ">
+          <span
+            v-if="signatureTokens.length"
+            class="property-type-signature text-c-2 text-(length:--scalar-mini)">
+            <template
+              v-for="(token, index) in signatureTokens"
+              :key="index">
+              {{ index > 0 ? ' ' : ''
+              }}<span
+                class="property-type-token"
+                :class="[
+                  `property-type-token--${token.kind}`,
+                  token.kind === 'word' ? 'font-sans' : '',
+                  token.kind === 'ident' || token.kind === 'literal'
+                    ? 'font-code'
+                    : '',
+                  token.kind === 'punctuation' ? 'text-c-3' : '',
+                ]"
+                >{{ token.text }}</span
+              >
+            </template>
+          </span>
+        </button>
+        <span
+          v-else-if="signatureTokens.length"
+          class="property-type-signature text-c-2 text-(length:--scalar-mini)">
+          <template
+            v-for="(token, index) in signatureTokens"
+            :key="index">
+            {{ index > 0 ? ' ' : ''
+            }}<span
+              class="property-type-token"
+              :class="[
+                `property-type-token--${token.kind}`,
+                token.kind === 'word' ? 'font-sans' : '',
+                token.kind === 'ident' || token.kind === 'literal'
+                  ? 'font-code'
+                  : '',
+                token.kind === 'punctuation' ? 'text-c-3' : '',
+              ]"
+              >{{ token.text }}</span
+            >
+          </template>
+        </span>
+      </SchemaPropertyDetail>
+
+      <!-- A cycle reads `array of Satellite · recursive`, a modifier like
+           `nullable`; the full sentence rides the tooltip. -->
+      <SchemaPropertyDetail
+        v-if="props.recursiveTo"
+        class="property-recursive"
+        :title="
+          translate('schema.recursiveReference', { name: props.recursiveTo })
+        ">
+        {{ translate('schema.recursive') }}
       </SchemaPropertyDetail>
 
       <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->
       <SchemaPropertyDetail
         v-if="propertyNamesDetail"
         truncate>
-        <template #prefix>{{ translate('common.keys') }}:</template>
+        <template #prefix>{{ translate('schema.keys') }}:</template>
         {{ propertyNamesDetail }}
       </SchemaPropertyDetail>
 
@@ -377,12 +502,11 @@ const exampleValue = computed(() => {
         :key="property.key"
         :code="property.code"
         :truncate="property.truncate">
-        <ScreenReader v-if="property.key === 'format'">
-          {{ translate('common.format') }}:
-        </ScreenReader>
-        <ScreenReader v-else-if="property.key === 'pattern'">
-          {{ translate('common.pattern') }}:
-        </ScreenReader>
+        <span
+          v-if="property.key === 'format'"
+          class="screenreader-only">
+          {{ translate('schema.format') }}:
+        </span>
         <template
           v-if="property.prefix"
           #prefix>
@@ -393,7 +517,7 @@ const exampleValue = computed(() => {
 
       <!-- Enum indicator -->
       <SchemaPropertyDetail v-if="props.enum">
-        {{ translate('common.enum') }}
+        {{ translate('schema.enum') }}
       </SchemaPropertyDetail>
     </template>
     <div
@@ -402,48 +526,67 @@ const exampleValue = computed(() => {
       <template v-if="props.value?.['x-additionalPropertiesName']">
         {{ props.value['x-additionalPropertiesName'] }}
       </template>
-      <template v-else>{{ translate('common.additionalProperties') }}</template>
+      <template v-else>{{ translate('schema.additionalProperties') }}</template>
     </div>
     <div
       v-if="props.value?.deprecated"
       class="property-deprecated">
-      <Badge>{{ translate('common.deprecated') }}</Badge>
+      <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
     <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
       v-if="constValue !== undefined"
       class="property-const">
       <SchemaPropertyDetail truncate>
-        <template #prefix>{{ translate('common.const') }}: </template>
+        <template #prefix>{{ translate('schema.const') }}: </template>
         <RenderString :value="constValue" />
       </SchemaPropertyDetail>
     </div>
     <template v-else>
       <!-- Shows only when a composition is used (so props.value?.type is undefined) -->
       <SchemaPropertyDetail v-if="(props.value as any)?.nullable === true">
-        {{ translate('common.nullable') }}
+        {{ translate('schema.nullable') }}
       </SchemaPropertyDetail>
     </template>
     <div
       v-if="props.value?.writeOnly"
       class="property-write-only">
-      {{ translate('common.writeOnly') }}
+      {{ translate('schema.writeOnly') }}
     </div>
     <div
       v-else-if="props.value?.readOnly"
       class="property-read-only">
-      {{ translate('common.readOnly') }}
+      {{ translate('schema.readOnly') }}
     </div>
     <div
       v-if="props.required"
       class="property-required">
-      {{ translate('common.required') }}
+      {{ translate('schema.required') }}
     </div>
-    <SchemaPropertyDefault :value="props.value?.default" />
+    <!-- Gated here, not only inside the component: each popup instance installs
+         window-level click and keydown listeners for its dismissal, so mounting
+         one per row costs the page a listener per row it never shows anything
+         for. Same reason `SchemaPropertyPattern` below is gated. -->
+    <SchemaPropertyDefault
+      v-if="props.value?.default !== undefined"
+      :value="props.value?.default" />
+    <!--
+      Pattern is a hover dropdown chip like Examples, not an inline constraint,
+      so it sits beside the example. This keeps the real constraints (length,
+      nullable, …) together in the dotted list. See #9966.
+    -->
+    <SchemaPropertyPattern
+      v-if="patternValue"
+      :pattern="patternValue" />
     <SchemaPropertyExamples
-      v-if="props.withExamples"
+      v-if="props.withExamples && hasExampleContent"
       :example="exampleValue"
       :examples="props.value?.examples" />
+    <!-- The collapsed preview rides the end of the heading line -->
+    <slot name="preview" />
+    <!-- Last so the tab order matches the visual order: the trailing copy-link
+         is painted at the row's right edge, after every control to its left -->
+    <slot name="trailing" />
   </div>
 </template>
 <style scoped>
@@ -465,10 +608,6 @@ const exampleValue = computed(() => {
 }
 
 .property-heading:last-child {
-  margin-right: 0;
-}
-
-.property-heading > .property-detail:not(:last-of-type) {
   margin-right: 0;
 }
 

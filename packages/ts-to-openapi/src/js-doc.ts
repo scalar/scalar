@@ -1,10 +1,9 @@
-import type { JSDoc, Node } from 'typescript'
+import { type Node, isJSDoc } from 'typescript'
 
 /**
  * Extract items from jsDoc comments
  *
  * TODO:
- * - figure out how to narrow type using helpers
  * - return all tags
  */
 export const getJSDocFromNode = (node: Node): { title: string; description: string } => {
@@ -12,12 +11,9 @@ export const getJSDocFromNode = (node: Node): { title: string; description: stri
   let title = 'use to set the summary'
   let description = 'use jsdoc tag to set the description'
 
-  // Check for jsDoc - todo properly narrow type using typescript lib
-  if ('jsDoc' in node && Array.isArray(node.jsDoc)) {
-    const jsDoc: JSDoc = node.jsDoc[0]
+  const jsDoc = 'jsDoc' in node && Array.isArray(node.jsDoc) ? node.jsDoc.find(isJSDoc) : undefined
+  if (jsDoc) {
     const comment = jsDoc.comment?.toString()
-
-    // getAllJSDocTags(node, predicate, tag)
 
     // Check for multiple lines to set both summary and description
     if (comment) {

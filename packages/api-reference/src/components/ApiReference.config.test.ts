@@ -188,14 +188,14 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       .findAll('.property-name')
       .map((item) => item.text().split(' ')[0])
     expect(propertyNames).toStrictEqual([
-      'isAdminCopy',
-      'phoneCopy',
-      'addressCopy',
-      'ageCopy',
-      'createdAtCopy',
-      'emailCopy',
-      'nameCopy',
-      'updatedAtCopy',
+      'isAdmin',
+      'phone',
+      'address',
+      'age',
+      'createdAt',
+      'email',
+      'name',
+      'updatedAt',
     ])
 
     // hideTestRequestButton: undefined -> false
@@ -559,7 +559,9 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     // onSidebarClick: function
     const sidebarItems = wrapper.findAllComponents({ name: 'ScalarSidebarItem' })
     const operationItem = sidebarItems.find((item) => item.text().includes('Get posts'))
-    await operationItem?.trigger('click')
+    // Entries render as anchors, so click the link rather than the surrounding
+    // list item — only clicks landing on the link drive in-app navigation
+    await operationItem?.find('a').trigger('click')
     expect(onSidebarClick).toHaveBeenCalled()
     expect(onSidebarClick).toHaveBeenCalledWith(expect.stringContaining('/posts'))
 
@@ -680,14 +682,14 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       .map((item) => item.text().split(' ')[0])
 
     expect(propertyNames).toStrictEqual([
-      'nameCopy',
-      'ageCopy',
-      'isAdminCopy',
-      'createdAtCopy',
-      'updatedAtCopy',
-      'addressCopy',
-      'phoneCopy',
-      'emailCopy',
+      'name',
+      'age',
+      'isAdmin',
+      'createdAt',
+      'updatedAt',
+      'address',
+      'phone',
+      'email',
     ])
 
     // expandAllModelSections: true

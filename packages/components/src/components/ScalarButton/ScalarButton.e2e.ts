@@ -1,4 +1,5 @@
-import { test, themes } from '@test/helpers'
+import { test } from '@test/helpers'
+import { themes } from '@test/shared'
 
 const stories = ['Base', 'With Icon']
 const sizes = { 'Extra Small': 'xs', 'Small': 'sm', 'Medium': 'md' } as const

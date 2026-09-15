@@ -1,3 +1,4 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, buildQueryString } from '@/libs/http'
@@ -14,14 +15,11 @@ const escapeObjectKeys = (value: unknown): unknown => {
     return value.map((item) => escapeObjectKeys(item))
   }
 
-  if (value && typeof value === 'object') {
-    return Object.entries(value as Record<string, unknown>).reduce(
-      (acc, [key, nestedValue]) => {
-        acc[escapePhpObjectKey(key)] = escapeObjectKeys(nestedValue)
-        return acc
-      },
-      {} as Record<string, unknown>,
-    )
+  if (isObjectLike(value)) {
+    return Object.entries(value).reduce<Record<string, unknown>>((acc, [key, nestedValue]) => {
+      acc[escapePhpObjectKey(key)] = escapeObjectKeys(nestedValue)
+      return acc
+    }, {})
   }
 
   return value

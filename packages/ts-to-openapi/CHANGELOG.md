@@ -1,5 +1,11 @@
 # @scalar/ts-to-openapi
 
+## 0.2.4
+
+### Patch Changes
+
+- [#9941](https://github.com/scalar/scalar/pull/9941): Republish every package through npm trusted publishing. No functional changes.
+
 ## 0.2.3
 
 ### Patch Changes

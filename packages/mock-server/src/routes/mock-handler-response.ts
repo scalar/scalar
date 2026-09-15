@@ -1,14 +1,15 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { buildHandlerContext } from '@/utils/build-handler-context'
 import { executeHandler } from '@/utils/execute-handler'
+import { generateResponseExample } from '@/utils/generate-response-example'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
+import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 
 /**
@@ -66,14 +67,7 @@ function getExampleFromResponse(
   return selectedExample
     ? normalizeResponseBody(selectedExample.value, responseSchema)
     : responseSchema
-      ? normalizeResponseBody(
-          getExampleFromSchema(responseSchema, {
-            emptyString: 'string',
-            variables: c.req.param(),
-            mode: 'read',
-          }),
-          responseSchema,
-        )
+      ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
       : null
 }
 
@@ -177,12 +171,7 @@ export async function mockHandlerResponse(c: Context, operation: OpenAPIV3_1.Ope
     if (result === undefined || result === null) {
       // Try to pick up example response from OpenAPI spec if available
       const prefer = parsePreferHeader(c.req.header('Prefer'))
-      const exampleResponse = getExampleFromResponse(
-        c,
-        statusCode,
-        operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
-        prefer.example,
-      )
+      const exampleResponse = getExampleFromResponse(c, statusCode, operation.responses, prefer.example)
       if (exampleResponse !== null) {
         return c.json(exampleResponse)
       }

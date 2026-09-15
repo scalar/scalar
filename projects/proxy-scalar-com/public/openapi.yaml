@@ -2,7 +2,7 @@ openapi: 3.1.1
 info:
   title: Scalar Proxy
   description: A proxy server that forwards requests to specified URLs, allowing cross-origin requests by handling CORS headers.
-  version: 1.0.0
+  version: __COMMIT_SHA__
 
 servers:
   - url: https://proxy.scalar.com

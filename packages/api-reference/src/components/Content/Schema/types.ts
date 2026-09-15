@@ -1,5 +1,5 @@
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * Options for the schema component tree
@@ -17,6 +17,8 @@ export type SchemaOptions = {
   orderRequiredPropertiesFirst?: ApiReferenceConfiguration['orderRequiredPropertiesFirst']
   /** Expand all nested schema properties by default while keeping the toggle available */
   expandAllSchemaProperties?: ApiReferenceConfiguration['expandAllSchemaProperties']
+  /** Arrow-key navigation over the row toggles */
+  schemaKeyboardNav?: ApiReferenceConfiguration['schemaKeyboardNav']
   /**
    * Whether the models section is hidden.
    *

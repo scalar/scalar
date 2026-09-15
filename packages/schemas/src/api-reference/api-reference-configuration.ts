@@ -135,6 +135,9 @@ export const apiReferenceConfigurationSchema = intersection([
         typeComment: 'Determine the HTTP client that is selected by default',
       },
     ),
+    defaultRequestBodyView: optional(union([literal('form'), literal('raw')]), {
+      typeComment: 'Initial view for the request body editor with structured (JSON/YAML) bodies',
+    }),
     customCss: optional(string(), {
       typeComment: 'Custom CSS to be added to the page',
     }),
@@ -254,7 +257,7 @@ export const apiReferenceConfigurationSchema = intersection([
     expandAllSchemaProperties: boolean({
       default: false,
       typeComment:
-        'Whether to expand all nested schema properties by default. The Show/Hide Child Attributes toggle remains available so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
+        'Whether to expand all nested schema properties by default. Each row keeps its own disclosure control, so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
     }),
     tagsSorter: optional(union([literal('alpha'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort tags',
@@ -264,6 +267,11 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     orderSchemaPropertiesBy: union([literal('alpha'), literal('preserve')], {
       typeComment: 'Order the schema properties by',
+    }),
+    schemaKeyboardNav: boolean({
+      default: false,
+      typeComment:
+        'Arrow-key navigation over the schema disclosure toggles (APG tree bindings). Off until screen-reader interaction questions are settled',
     }),
     orderRequiredPropertiesFirst: boolean({
       default: true,

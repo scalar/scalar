@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Scalar for Next.js
 
-## Getting Started
+Run a standalone reference or embed it in a Next.js application with navigation, page metadata, and a shared light/dark theme.
 
-First, run the development server:
+## Run from the Scalar repository
+
+Use Node.js 22 or newer and the repository's pnpm version. From the repository root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm turbo --filter @scalar-examples/nextjs-api-reference... build
+pnpm --filter @scalar-examples/nextjs-api-reference dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:5058/scalar>. The development server uses port **5058**.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Route                        | Purpose                                                        |
+| ---------------------------- | -------------------------------------------------------------- |
+| `/scalar`                    | Standalone HTML reference                                      |
+| `/embedded`                  | App Router page with application navigation and theme controls |
+| `/openapi.json`              | OpenAPI description used by both references                    |
+| `/api/planets`               | Working sample endpoint                                        |
+| `/client`, `/another-client` | Additional React API client examples                           |
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The root redirects to `/scalar`. The older `/another-reference` page redirects to `/embedded`.
 
-## Learn More
+## Try the API
 
-To learn more about Next.js, take a look at the following resources:
+Open **List planets**, select **Test Request**, then send the request. The response contains Earth and Mars. You can also run:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+curl http://localhost:5058/api/planets
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+The OpenAPI description is written explicitly in `app/openapi.json/route.ts`. The reference handler does not generate it from your routes.
 
-## Deploy on Vercel
+## Files to change
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `app/scalar/route.ts`: standalone reference configuration.
+- `app/embedded/page.tsx`: page metadata in a Server Component.
+- `app/embedded/reference.tsx`: Client Component and shared theme control.
+- `app/embedded/style.css`: application font and navigation styles.
+- `app/api/planets/route.ts`: sample API response.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+The standalone handler returns its own HTML document. The embedded page inherits `app/layout.tsx`. Both fetch the API description from this application, so requests work on localhost and preview deployments without a fixed hostname.
+
+## Production
+
+```bash
+pnpm --filter @scalar-examples/nextjs-api-reference build
+pnpm --filter @scalar-examples/nextjs-api-reference start
+```
+
+The production server defaults to port 3000. Open <http://localhost:3000/scalar>.
+
+## Preview
+
+![Embedded reference in light mode](./screenshots/embedded-light.png)
+
+![Embedded reference in dark mode](./screenshots/embedded-dark.png)

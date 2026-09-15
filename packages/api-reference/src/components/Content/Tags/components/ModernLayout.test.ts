@@ -127,6 +127,7 @@ describe('ShowMoreButton rendering', () => {
     })
 
     expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(true)
+    expect(wrapper.find('.tag-section-container').classes()).toContain('tag-section-collapsed')
   })
 
   it('does not render ShowMoreButton when tag is not collapsed', () => {
@@ -139,6 +140,7 @@ describe('ShowMoreButton rendering', () => {
     })
 
     expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
+    expect(wrapper.find('.tag-section-container').classes()).not.toContain('tag-section-collapsed')
   })
 
   it('does not render ShowMoreButton when moreThanOneTag is false', () => {
@@ -151,6 +153,32 @@ describe('ShowMoreButton rendering', () => {
     })
 
     expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(false)
+  })
+
+  it('renders ShowMoreButton for a collapsed nested tag without sibling tags', () => {
+    const wrapper = mount(ModernLayout, {
+      props: {
+        ...mockProps,
+        tag: createMockTag({
+          children: [
+            {
+              type: 'operation',
+              id: 'op-1',
+              title: 'Test Operation',
+              ref: '#/paths/test',
+              method: 'get',
+              path: '/test',
+            },
+          ],
+        }),
+        moreThanOneTag: false,
+        nested: true,
+        isCollapsed: true,
+      },
+    })
+
+    expect(wrapper.findComponent({ name: 'ShowMoreButton' }).exists()).toBe(true)
+    expect(wrapper.find('.tag-section-container').classes()).not.toContain('tag-section-collapsed')
   })
 
   it('does not render ShowMoreButton when tag has empty children array', () => {
@@ -195,6 +223,23 @@ describe('slot content rendering', () => {
 
     expect(wrapper.find('.slot-content').exists()).toBe(true)
     expect(wrapper.text()).toContain('Test content')
+  })
+
+  it('hides slot content for a collapsed nested tag without sibling tags', () => {
+    const wrapper = mount(ModernLayout, {
+      props: {
+        ...mockProps,
+        tag: createMockTag(),
+        moreThanOneTag: false,
+        nested: true,
+        isCollapsed: true,
+      },
+      slots: {
+        default: '<div class="slot-content">Test content</div>',
+      },
+    })
+
+    expect(wrapper.find('.slot-content').exists()).toBe(false)
   })
 })
 
