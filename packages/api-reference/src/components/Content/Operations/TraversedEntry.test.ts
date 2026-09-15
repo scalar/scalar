@@ -198,7 +198,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('operation rendering', () => {
+describe('TraversedEntry', () => {
   it('renders a single operation correctly', () => {
     const operation = createMockOperation()
     const entries: TraversedEntry[] = [operation]
@@ -227,9 +227,7 @@ describe('operation rendering', () => {
     expect(wrapper.text()).toContain('Get Users')
     expect(wrapper.text()).toContain('Create User')
   })
-})
 
-describe('webhook rendering', () => {
   it('renders a single webhook correctly', () => {
     const webhook = createMockWebhook()
     const entries: TraversedEntry[] = [webhook]
@@ -258,9 +256,7 @@ describe('webhook rendering', () => {
     expect(wrapper.text()).toContain('User Created')
     expect(wrapper.text()).toContain('User Updated')
   })
-})
 
-describe('tag rendering', () => {
   it('renders a regular tag correctly', () => {
     const tag = createMockTag()
     const entries: TraversedEntry[] = [tag]
@@ -300,9 +296,7 @@ describe('tag rendering', () => {
     expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
   })
-})
 
-describe('tag group rendering', () => {
   it('renders tag group correctly', () => {
     const tagGroup = createMockTagGroup({
       children: [createMockOperation({ id: 'group-op-1', title: 'Get Users', path: '/users', method: 'get' })],
@@ -346,9 +340,7 @@ describe('tag group rendering', () => {
     // Empty tag groups should not render anything
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
   })
-})
 
-describe('webhook group rendering', () => {
   it('renders webhook group correctly', () => {
     const webhookGroup = createMockWebhookGroup({
       children: [createMockWebhook({ id: 'group-webhook-1', name: 'user.created', method: 'post' })],
@@ -375,9 +367,7 @@ describe('webhook group rendering', () => {
     expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
   })
-})
 
-describe('mixed entry types', () => {
   it('renders mixed entry types correctly', () => {
     const entries: TraversedEntry[] = [
       createMockOperation({ id: 'op-1', title: 'Get Users', path: '/users', method: 'get' }),
@@ -402,9 +392,7 @@ describe('mixed entry types', () => {
     expect(wrapper.findComponent({ name: 'Tag' }).exists()).toBe(true)
     expect(wrapper.text()).toContain('Users')
   })
-})
 
-describe('moreThanOneTag prop', () => {
   it('passes moreThanOneTag as true when multiple tags exist', () => {
     const entries: TraversedEntry[] = [
       createMockTag({ id: 'tag-1', title: 'Users' }),
@@ -435,9 +423,7 @@ describe('moreThanOneTag prop', () => {
     expect(tagComponent.exists()).toBe(true)
     expect(tagComponent.props('moreThanOneTag')).toBe(false)
   })
-})
 
-describe('edge cases', () => {
   it('handles empty entries array', () => {
     const entries: TraversedEntry[] = []
 
@@ -471,9 +457,7 @@ describe('edge cases', () => {
 
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
   })
-})
 
-describe('props passing', () => {
   it('passes correct props to Operation component', () => {
     const operation = createMockOperation()
     const entries: TraversedEntry[] = [operation]
@@ -501,10 +485,8 @@ describe('props passing', () => {
     expect(tagComponent.props('tag')).toEqual(tag)
     expect(tagComponent.props('moreThanOneTag')).toBe(false)
   })
-})
 
-describe('model rendering', () => {
-  it('does not render an unresolved sparse model reference', () => {
+  it('does not render an unresolved sparse model reference', async () => {
     const model: TraversedSchema = {
       type: 'model',
       id: 'sparse-model',
@@ -513,10 +495,18 @@ describe('model rendering', () => {
       ref: '#/components/schemas/SparseModel',
     }
     const props = makeMockProps([model])
-    // Sparse chunks arrive before their referenced document has been loaded.
-    const document = Object.assign(props.document, {
-      components: { schemas: { SparseModel: { $ref: './unloaded.json' } } },
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'sparse',
+      document: { openapi: '3.1.0', info: { title: 'Sparse models', version: '1' }, components: { schemas: {} } },
     })
+    const document = store.workspace.documents.sparse as OpenApiDocument
+    // Sparse chunks arrive before their referenced document has been loaded. Workspace proxies
+    // expose a virtual $ref-value property even when its target is still unavailable.
+    Object.assign(document.components?.schemas ?? {}, { SparseModel: { $ref: './unloaded.json' } })
+    const sparse = document.components!.schemas!.SparseModel!
+    expect('$ref-value' in sparse).toBe(true)
+    expect(Reflect.get(sparse, '$ref-value')).toBeUndefined()
     const wrapper = mount(TraversedEntryComponent, { props: { ...props, document } })
     expect(wrapper.findComponent({ name: 'Model' }).exists()).toBe(false)
   })
