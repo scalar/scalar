@@ -105,10 +105,33 @@ const createTestSetup = async () => {
     await waitForUpdates()
   }
 
-  return { getEntryId, modalState, openClientModal, requestBodyCompositionSelection, route }
+  return { getEntryId, handlers, modalState, openClientModal, requestBodyCompositionSelection, route }
 }
 
 describe('modal-events', () => {
+  it('selects a newly created example after rebuilding the sidebar', async () => {
+    const { getEntryId, handlers, openClientModal, requestBodyCompositionSelection, route } = await createTestSetup()
+    await openClientModal({
+      id: getEntryId({ path: '/pets' }),
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+
+    handlers['operation:create:draft-example']?.({
+      documentName: 'test-doc',
+      meta: { path: '/pets', method: 'post' },
+      exampleName: 'Generated from schema',
+    })
+    await waitForUpdates()
+
+    expect(route).toHaveBeenLastCalledWith({
+      documentSlug: 'test-doc',
+      path: '/pets',
+      method: 'post',
+      example: 'Generated from schema',
+    })
+    expect(requestBodyCompositionSelection.value).toEqual({ 'requestBody.oneOf': 1 })
+  })
+
   it('keeps the request body composition selection when the operation is already open', async () => {
     const { getEntryId, openClientModal, requestBodyCompositionSelection, route } = await createTestSetup()
     const id = getEntryId({ path: '/pets' })
