@@ -222,6 +222,7 @@ defineExpose({
             v-if="'reader' in response"
             :id="filterIds.Body"
             class="response-section-content-body"
+            :contentType="response.headers['content-type']"
             :reader="response.reader" />
 
           <!-- Virtualized Text for massive responses -->
