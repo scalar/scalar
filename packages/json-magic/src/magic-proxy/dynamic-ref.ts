@@ -37,10 +37,13 @@ export const isDynamicRef = (schema: unknown): schema is UnknownObject & { $dyna
  *
  * We only grow the dynamic scope with schemas that could hold a `$dynamicAnchor`: those declaring one
  * directly, or resource boundaries (`$id`) / definition containers (`$defs`) that may hold one. Plain
- * subschemas are skipped to keep the scope small.
+ * subschemas are skipped to keep the scope small. Inside an explicit `$id` resource, inline anchors
+ * and definition containers stay in that resource; only another `$id` grows the scope.
  */
-export const carriesDynamicAnchor = (schema: UnknownObject): boolean =>
-  '$dynamicAnchor' in schema || '$id' in schema || '$defs' in schema
+export const carriesDynamicAnchor = (schema: UnknownObject, scope: DynamicScope = []): boolean =>
+  '$id' in schema ||
+  // Inline anchors and definition containers belong to their enclosing explicit resource.
+  (!scope.some((resource) => '$id' in resource) && ('$dynamicAnchor' in schema || '$defs' in schema))
 
 /**
  * Subschema-bearing keywords we descend into when collecting anchors. Covers the object, array and
@@ -111,7 +114,7 @@ export const collectDynamicAnchors = (resource: UnknownObject, unwrap: Unwrap = 
   const anchors = new Map<string, UnknownObject>()
   const seen = new WeakSet<object>()
 
-  const visit = (node: unknown, isRoot: boolean) => {
+  const visit = (node: unknown, isRoot: boolean): void => {
     if (!node || typeof node !== 'object') {
       return
     }
@@ -196,7 +199,7 @@ export const containsDynamicRef = (input: unknown, seen = new WeakSet<object>())
 
 /** Append a schema to the dynamic scope when it could hold a `$dynamicAnchor`, otherwise return it unchanged. */
 export const pushDynamicScope = (scope: DynamicScope, schema: UnknownObject): DynamicScope =>
-  carriesDynamicAnchor(schema) ? [...scope, schema] : scope
+  carriesDynamicAnchor(schema, scope) ? [...scope, schema] : scope
 
 /**
  * Resolve a `$dynamicRef` fragment against the dynamic scope.
