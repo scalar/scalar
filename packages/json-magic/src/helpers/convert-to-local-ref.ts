@@ -25,7 +25,8 @@ export const convertToLocalRef = (
 
     // If the pathOrAnchor is a JSON pointer, we need to append it to the baseUrl
     if (pathOrAnchor.startsWith('/')) {
-      return `${schemas.get(baseUrl)}${pathOrAnchor}`
+      const rootPath = schemas.get(baseUrl)
+      return rootPath ? `${rootPath}${pathOrAnchor}` : pathOrAnchor.slice(1)
     }
 
     // If the pathOrAnchor is an anchor, we need to return the anchor

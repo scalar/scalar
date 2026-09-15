@@ -45,6 +45,11 @@ export const getSchemas = (
     return map
   }
 
+  // The bundled document can be referenced from a nested schema with its own base.
+  if (segments.length === 0 && typeof input['openapi'] === 'string' && typeof input['$self'] === 'string') {
+    map.set(input['$self'], '')
+  }
+
   // If the object has already been visited, return the map
   if (visited.has(input)) {
     return map
