@@ -5,7 +5,6 @@ import type { SchemaObject } from '@/schemas/v3.1/strict/openapi-document'
 export type ExampleEvaluation = {
   schema: SchemaObject
   value: unknown
-  origin: 'generated' | 'example' | 'default' | 'const' | 'enum' | 'variable'
   path: string[]
   name?: string
   dynamicScope: DynamicScope
@@ -20,14 +19,3 @@ export type ExampleEvaluationState = {
 
 /** Internal option: keep the default JSON generation path free of provenance allocations. */
 export const EXAMPLE_EVALUATION = Symbol('example-evaluation')
-
-/** Record precedence decisions without allocating metadata on the default JSON path. */
-export const setExampleOrigin = (
-  state: ExampleEvaluationState | undefined,
-  origin: ExampleEvaluation['origin'],
-): void => {
-  const current = state?.stack.at(-1)
-  if (current) {
-    current.origin = origin
-  }
-}

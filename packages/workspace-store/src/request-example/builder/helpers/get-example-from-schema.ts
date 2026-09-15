@@ -6,12 +6,7 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
-import {
-  EXAMPLE_EVALUATION,
-  type ExampleEvaluation,
-  type ExampleEvaluationState,
-  setExampleOrigin,
-} from './example-evaluation'
+import { EXAMPLE_EVALUATION, type ExampleEvaluation, type ExampleEvaluationState } from './example-evaluation'
 
 /** Maximum recursion depth to prevent infinite loops in circular references */
 const MAX_LEVELS_DEEP = 10
@@ -1223,7 +1218,6 @@ const generateExampleFromSchema = (
   if ('x-variable' in _schema && _schema['x-variable']) {
     const value = options?.variables?.[_schema['x-variable']]
     if (value !== undefined) {
-      setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'variable')
       // Type coercion for numeric types
       if ('type' in _schema && (_schema.type === 'number' || _schema.type === 'integer')) {
         seen.delete(targetValue)
@@ -1236,12 +1230,10 @@ const generateExampleFromSchema = (
 
   // Priority order: examples > example > default > const > enum
   if (Array.isArray(_schema.examples) && _schema.examples.length > 0) {
-    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'example')
     seen.delete(targetValue)
     return cache(_schema, _schema.examples[0], cacheKey, skipCache)
   }
   if (_schema.example !== undefined) {
-    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'example')
     seen.delete(targetValue)
     return cache(_schema, _schema.example, cacheKey, skipCache)
   }
@@ -1249,18 +1241,15 @@ const generateExampleFromSchema = (
     const normalizedDefault = normalizeSchemaDefault(_schema)
 
     if (normalizedDefault !== INVALID_DEFAULT) {
-      setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'default')
       seen.delete(targetValue)
       return cache(_schema, normalizedDefault, cacheKey, skipCache)
     }
   }
   if (_schema.const !== undefined) {
-    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'const')
     seen.delete(targetValue)
     return cache(_schema, _schema.const, cacheKey, skipCache)
   }
   if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
-    setExampleOrigin(options?.[EXAMPLE_EVALUATION], 'enum')
     seen.delete(targetValue)
     return cache(_schema, _schema.enum[0], cacheKey, skipCache)
   }
@@ -1413,7 +1402,6 @@ export const getExampleFromSchema = (
   const node: ExampleEvaluation = {
     schema,
     value: undefined,
-    origin: 'generated',
     path: context.schemaPath ?? [],
     name: context.name,
     dynamicScope: context.dynamicScope ?? [],
