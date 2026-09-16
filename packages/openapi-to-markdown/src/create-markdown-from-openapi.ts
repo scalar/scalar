@@ -457,7 +457,17 @@ const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions
   return selected
 }
 
-export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenApiRenderOptions) {
+/** A resolved API description that can render multiple pages without loading it again. */
+export type OpenApiMarkdownRenderer = {
+  render: (options?: OpenApiRenderOptions) => Promise<string>
+  renderHtml: (options?: OpenApiRenderOptions) => Promise<string>
+}
+
+/**
+ * Load and resolve an API description once, then render any number of selections.
+ * Each renderer owns its document; create a new renderer to pick up source changes.
+ */
+export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise<OpenApiMarkdownRenderer> => {
   const workspaceStore = createWorkspaceStore({
     fileLoader: readFiles(),
   })
@@ -478,7 +488,17 @@ export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenAp
     throw new Error('OpenAPI document could not be resolved')
   }
 
-  const renderedContent = selectDocument(content as OpenApiDocument, options)
+  const renderHtml = (options?: OpenApiRenderOptions): Promise<string> =>
+    renderDocumentAsHtml(content as OpenApiDocument, options)
+
+  return {
+    renderHtml,
+    render: async (options) => markdownFromHtml(await renderHtml(options)),
+  }
+}
+
+const renderDocumentAsHtml = async (content: OpenApiDocument, options?: OpenApiRenderOptions): Promise<string> => {
+  const renderedContent = selectDocument(content, options)
 
   // Create and configure a server-side rendered Vue app
   const app = createSSRApp(MarkdownReference, {
@@ -502,8 +522,14 @@ export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenAp
   })
 }
 
-export async function createMarkdownFromOpenApi(content: AnyDocument, options?: OpenApiRenderOptions) {
-  return markdownFromHtml(await createHtmlFromOpenApi(content, options))
+export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenApiRenderOptions): Promise<string> {
+  const renderer = await createOpenApiMarkdownRenderer(input)
+  return renderer.renderHtml(options)
+}
+
+export async function createMarkdownFromOpenApi(content: AnyDocument, options?: OpenApiRenderOptions): Promise<string> {
+  const renderer = await createOpenApiMarkdownRenderer(content)
+  return renderer.render(options)
 }
 
 async function markdownFromHtml(html: string): Promise<string> {

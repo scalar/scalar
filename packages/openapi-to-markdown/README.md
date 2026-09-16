@@ -68,6 +68,32 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 })
 ```
 
+### Render multiple pages
+
+Create a reusable renderer when exporting several pages from the same API description.
+It loads, upgrades, and resolves the document once. Each call uses the same selectors as
+`createMarkdownFromOpenApi`, and omitting a selector renders the complete document.
+
+```ts
+import { createOpenApiMarkdownRenderer } from '@scalar/openapi-to-markdown'
+
+const renderer = await createOpenApiMarkdownRenderer(content)
+
+const introduction = await renderer.render({ introduction: true })
+const operation = await renderer.render({ operation: { path: '/users/{id}', method: 'get' } })
+const tag = await renderer.render({ tag: 'Users' })
+const model = await renderer.render({ model: 'User' })
+const webhook = await renderer.render({ webhook: { name: 'userCreated', method: 'post' } })
+const html = await renderer.renderHtml({ tag: 'Users' })
+```
+
+The factory accepts the same document objects, JSON/YAML strings, file paths, and URLs
+as the one-shot functions. Source files and URLs are read during creation, including
+references. Create a new renderer when the source changes. Reuse one renderer per API
+description during a build, then release it when the build finishes. Renderers do not
+share a global document cache. An invalid selection rejects that call without preventing
+later calls on the same renderer.
+
 ### With Hono
 
 You use the package with any Node.js framework. Here is an example for [Hono](https://hono.dev/):
@@ -169,3 +195,11 @@ Omitting options, or passing `{}`, renders the whole document. OpenAPI 2.0 input
 Invalid, combined, or missing selectors reject the returned promise with an error. Duplicate operation IDs are ambiguous and list matching paths and methods; use a path/method selector instead. Duplicate tag declarations are also rejected. Names are case sensitive. Operation JSON pointers must target `/paths/{path}/{method}`, with an optional leading `#` and standard `~0`/`~1` escaping.
 
 Selection does not add support for every OpenAPI or JSON Schema keyword. Callbacks are not selectable pages. External references follow the existing workspace loader behavior. Recursive schema expansion stops on a repeated ancestor, with a depth limit of ten as a fallback. Shared dependencies have one component section, but may also appear inline where used. Authentication lists alternatives separately; schemes within one requirement must be used together.
+
+### Benchmark reusable rendering
+
+After building the package, run `pnpm bench:reuse 1000` from
+this package directory. The benchmark alternates fresh and reused rendering,
+checks equal output, and measures a complete sequential pass through the chosen
+number of operation pages. Timings depend on the document and machine; they are
+not CI performance thresholds.
