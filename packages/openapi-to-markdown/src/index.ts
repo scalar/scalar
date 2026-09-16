@@ -6,4 +6,4 @@ export type {
   HttpMethod,
   OpenApiRenderOptions,
   OperationSelector,
-} from './create-markdown-from-openapi'
+} from './select-document'

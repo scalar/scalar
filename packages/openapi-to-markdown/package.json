@@ -44,6 +44,11 @@
       "import": "./dist/css/*.css",
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
+    },
+    "./browser": {
+      "import": "./dist/browser.js",
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
     }
   },
   "files": [
