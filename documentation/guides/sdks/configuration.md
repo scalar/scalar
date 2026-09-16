@@ -71,6 +71,8 @@ Supported target keys are `typescript`, `python`, `cli`, `go`, `rust`, `java`, `
 
 Set `skip: true` on a target to keep its config in place without generating it.
 
+Set `promotion: "manual"` on a target to hold each build at staging until you promote it, instead of pushing to its production repository automatically. See [GitHub Repositories](publishing/github.md#promotion).
+
 ## Resources
 
 The `resources` object defines the public client tree. Each resource can contain generated methods, public models, nested resources, default request options, and per-target visibility rules.
