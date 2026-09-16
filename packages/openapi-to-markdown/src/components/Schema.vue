@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { resolve } from '@scalar/workspace-store/resolve'
+import { isObject } from '@scalar/helpers/object/is-object'
+import {
+  getResolvedRef,
+  mergeSiblingReferences,
+} from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
 
 const {
@@ -14,19 +18,30 @@ const {
 
 const MAX_DEPTH = 10
 
-type ResolvedSchema = NonNullable<
-  ReturnType<typeof resolve.schema<MaybeRefSchemaObject>>
->
+type ResolvedSchema = Record<string, unknown>
 
-const resolvedSchema = resolve.schema(schema)
-// Coercion creates new objects, so reference strings identify repeated ancestors.
+// Reference strings identify repeated ancestors even when siblings are merged.
 const identity = '$ref' in schema ? schema.$ref : schema
 const circular = ancestors.includes(identity)
 const childAncestors = [...ancestors, identity]
 
+// Template metadata reads resolve the same property several times. Keep the cache
+// local to this component so it is released with the rendered section.
+const resolvedSchemas = new WeakMap<MaybeRefSchemaObject, ResolvedSchema>()
 const resolveNestedSchema = (
   value: MaybeRefSchemaObject | undefined,
-): ResolvedSchema | undefined => resolve.schema(value)
+): ResolvedSchema | undefined => {
+  if (!value) return undefined
+  const cached = resolvedSchemas.get(value)
+  if (cached) return cached
+  // The document is already parsed. Rendering only needs reference resolution,
+  // not another coercion and clone of every displayed schema.
+  const resolved = getResolvedRef(value, mergeSiblingReferences)
+  if (!isObject(resolved)) return undefined
+  resolvedSchemas.set(value, resolved)
+  return resolved
+}
+const resolvedSchema = resolveNestedSchema(schema)
 
 const asObject = (value: unknown): Record<string, unknown> | undefined =>
   value !== null && typeof value === 'object'

@@ -70,8 +70,14 @@ type OperationEntry = {
   }>
 }
 
-const { content } = defineProps<{
+const {
+  content,
+  part = false,
+  introduction = true,
+} = defineProps<{
   content: MarkdownDocument
+  part?: boolean
+  introduction?: boolean
 }>()
 
 // const getRequestExample = (harRequest: Partial<HarRequest>) => {
@@ -247,97 +253,101 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
 
 <template>
   <section>
-    <header>
-      <h1>{{ content?.info?.title }}</h1>
-      <ul>
-        <li>
-          <strong>OpenAPI Version:</strong>&nbsp;<code>{{
-            content?.openapi
-          }}</code>
-        </li>
-        <li>
-          <strong>API Version:</strong>&nbsp;<code>{{
-            content?.info?.version
-          }}</code>
-        </li>
-        <li v-if="content.info.termsOfService">
-          <strong>Terms of service:</strong>
-          <a :href="content.info.termsOfService">{{
-            content.info.termsOfService
-          }}</a>
-        </li>
-        <li v-if="content.info.contact">
-          <strong>Contact:</strong> {{ content.info.contact.name }}
-          <a
-            v-if="content.info.contact.url"
-            :href="content.info.contact.url"
-            >{{ content.info.contact.url }}</a
-          >
-          <a
-            v-if="content.info.contact.email"
-            :href="`mailto:${content.info.contact.email}`"
-            >{{ content.info.contact.email }}</a
-          >
-        </li>
-        <li v-if="content.info.license">
-          <strong>License:</strong>
-          <a
-            v-if="content.info.license.url"
-            :href="content.info.license.url"
-            >{{ content.info.license.name }}</a
-          ><template v-else>{{ content.info.license.name }}</template>
-        </li>
-      </ul>
-    </header>
-
-    <ScalarMarkdown
-      v-if="content?.info?.description"
-      :value="content?.info?.description" />
-
-    <section v-if="content?.servers?.length">
-      <h2>Servers</h2>
-      <ul>
-        <template
-          v-for="server in content.servers"
-          :key="server.url">
+    <template v-if="introduction">
+      <header>
+        <h1>{{ content?.info?.title }}</h1>
+        <ul>
           <li>
-            <strong>URL:</strong>&nbsp;<code>{{ server.url }}</code>
-            <ul>
-              <template v-if="server.description">
-                <li>
-                  <strong>Description:</strong>&nbsp;{{ server.description }}
-                </li>
-              </template>
-              <template
-                v-if="server.variables && Object.keys(server.variables).length">
-                <li>
-                  <strong>Variables:</strong>
-                  <ul>
-                    <template
-                      v-for="(variable, name) in server.variables"
-                      :key="name">
-                      <li>
-                        <code>{{ name }}</code> (default:
-                        <code>{{ variable.default }}</code
-                        >)<template v-if="variable.description"
-                          >: {{ variable.description }}
-                        </template>
-                      </li>
-                    </template>
-                  </ul>
-                </li>
-              </template>
-            </ul>
+            <strong>OpenAPI Version:</strong>&nbsp;<code>{{
+              content?.openapi
+            }}</code>
           </li>
-        </template>
-      </ul>
-    </section>
+          <li>
+            <strong>API Version:</strong>&nbsp;<code>{{
+              content?.info?.version
+            }}</code>
+          </li>
+          <li v-if="content.info.termsOfService">
+            <strong>Terms of service:</strong>
+            <a :href="content.info.termsOfService">{{
+              content.info.termsOfService
+            }}</a>
+          </li>
+          <li v-if="content.info.contact">
+            <strong>Contact:</strong> {{ content.info.contact.name }}
+            <a
+              v-if="content.info.contact.url"
+              :href="content.info.contact.url"
+              >{{ content.info.contact.url }}</a
+            >
+            <a
+              v-if="content.info.contact.email"
+              :href="`mailto:${content.info.contact.email}`"
+              >{{ content.info.contact.email }}</a
+            >
+          </li>
+          <li v-if="content.info.license">
+            <strong>License:</strong>
+            <a
+              v-if="content.info.license.url"
+              :href="content.info.license.url"
+              >{{ content.info.license.name }}</a
+            ><template v-else>{{ content.info.license.name }}</template>
+          </li>
+        </ul>
+      </header>
 
-    <Security
-      :requirements="content.security"
-      :schemes="content.components?.securitySchemes" />
+      <ScalarMarkdown
+        v-if="content?.info?.description"
+        :value="content?.info?.description" />
+
+      <section v-if="content?.servers?.length">
+        <h2>Servers</h2>
+        <ul>
+          <template
+            v-for="server in content.servers"
+            :key="server.url">
+            <li>
+              <strong>URL:</strong>&nbsp;<code>{{ server.url }}</code>
+              <ul>
+                <template v-if="server.description">
+                  <li>
+                    <strong>Description:</strong>&nbsp;{{ server.description }}
+                  </li>
+                </template>
+                <template
+                  v-if="
+                    server.variables && Object.keys(server.variables).length
+                  ">
+                  <li>
+                    <strong>Variables:</strong>
+                    <ul>
+                      <template
+                        v-for="(variable, name) in server.variables"
+                        :key="name">
+                        <li>
+                          <code>{{ name }}</code> (default:
+                          <code>{{ variable.default }}</code
+                          >)<template v-if="variable.description"
+                            >: {{ variable.description }}
+                          </template>
+                        </li>
+                      </template>
+                    </ul>
+                  </li>
+                </template>
+              </ul>
+            </li>
+          </template>
+        </ul>
+      </section>
+
+      <Security
+        :requirements="content.security"
+        :schemes="content.components?.securitySchemes" />
+    </template>
     <section v-if="content.tags?.length">
-      <h2>Tags</h2>
+      <h2 v-if="!part">Tags</h2>
       <section
         v-for="tag in content.tags"
         :key="tag.name">
@@ -354,7 +364,7 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
       v-for="group in groups"
       :key="group.title">
       <section v-if="group.entries.length">
-        <h2>{{ group.title }}</h2>
+        <h2 v-if="!part">{{ group.title }}</h2>
 
         <template
           v-for="entry in group.entries"
@@ -587,7 +597,7 @@ const getSchemaView = (schema: SchemaObject): SchemaView =>
     </template>
 
     <section v-if="componentSchemas.length">
-      <h2>Schemas</h2>
+      <h2 v-if="!part">Schemas</h2>
       <template
         v-for="entry in componentSchemas"
         :key="entry.name">
