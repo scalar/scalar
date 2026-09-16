@@ -21,6 +21,16 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 npm add @scalar/use-hooks
 ```
 
+## Testing
+
+The package runs browser tests in headless Chromium and server-side tests in Node.js.
+Install Chromium once before running the suite:
+
+```bash
+pnpm exec playwright install chromium
+pnpm --filter @scalar/use-hooks test
+```
+
 ## Available Hooks
 
 - [useClipboard](./src/useClipboard/README.md)

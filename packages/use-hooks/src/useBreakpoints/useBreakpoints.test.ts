@@ -1,69 +1,56 @@
-import { useMediaQuery } from '@vueuse/core'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, ref, toValue } from 'vue'
+import { describe, expect, it } from 'vitest'
+import { page } from 'vitest/browser'
+import { effectScope } from 'vue'
 
 import { screens } from './constants'
 import { useBreakpoints } from './useBreakpoints'
 
-vi.mock(import('@vueuse/core'), () => ({
-  useMediaQuery: vi.fn(),
-}))
-
 describe('useBreakpoints', () => {
-  beforeEach(() => {
-    vi.resetAllMocks()
+  it('exposes the screen sizes', ({ onTestFinished }) => {
+    const scope = effectScope()
+    onTestFinished(() => scope.stop())
+    const result = scope.run(() => useBreakpoints())!
+
+    expect(result.screens).toStrictEqual(screens)
   })
 
-  it('should expose the screen sizes', () => {
-    const { screens: exposedScreens } = useBreakpoints()
-    expect(exposedScreens).toEqual(screens)
+  it('updates media queries when the viewport crosses a breakpoint', async ({ onTestFinished }) => {
+    await page.viewport(799, 600)
+    const scope = effectScope()
+    onTestFinished(() => scope.stop())
+    const { mediaQueries, breakpoints } = scope.run(() => useBreakpoints())!
+
+    await expect
+      .poll(() => breakpoints.value)
+      .toStrictEqual({
+        xs: true,
+        sm: true,
+        md: false,
+        lg: false,
+        xl: false,
+        zoomed: false,
+      })
+
+    await page.viewport(800, 600)
+    await expect.poll(() => mediaQueries.md.value).toBe(true)
+    expect(breakpoints.value.md).toBe(true)
+
+    await page.viewport(799, 600)
+    await expect.poll(() => breakpoints.value.md).toBe(false)
   })
 
-  it('should expose media queries for a given screen size', () => {
-    vi.mocked(useMediaQuery).mockImplementation((query) => computed(() => toValue(query) === screens.md))
+  it('matches the zoomed breakpoint only when both dimensions fit', async ({ onTestFinished }) => {
+    const scope = effectScope()
+    onTestFinished(() => scope.stop())
+    const { breakpoints } = scope.run(() => useBreakpoints())!
 
-    const { mediaQueries } = useBreakpoints()
-    expect(mediaQueries.sm.value).toEqual(false)
-    expect(mediaQueries.md.value).toEqual(true)
-  })
+    await page.viewport(720, 480)
+    await expect.poll(() => breakpoints.value.zoomed).toBe(true)
 
-  it('should update breakpoints when the media query changes', () => {
-    const mdQuery = ref(false)
+    await page.viewport(721, 480)
+    await expect.poll(() => breakpoints.value.zoomed).toBe(false)
 
-    vi.mocked(useMediaQuery).mockImplementation((_query) => computed(() => mdQuery.value))
-
-    const { breakpoints } = useBreakpoints()
-
-    expect(breakpoints.value.md).toEqual(false)
-
-    mdQuery.value = true
-
-    expect(breakpoints.value.md).toEqual(true)
-  })
-
-  it('works in SSG environment without window', ({ onTestFinished }) => {
-    // Mock SSG environment by removing window
-    vi.stubGlobal('window', undefined)
-    onTestFinished(() => {
-      vi.unstubAllGlobals()
-    })
-
-    // Mock useMediaQuery to return false since there's no window
-    vi.mocked(useMediaQuery).mockImplementation(() => computed(() => false))
-
-    const { screens: exposedScreens, mediaQueries, breakpoints } = useBreakpoints()
-
-    // Screens should still be exposed since they're static
-    expect(exposedScreens).toEqual(screens)
-
-    // Media queries should all be false without window
-    Object.values(mediaQueries).forEach((query) => {
-      expect(query.value).toBe(false)
-    })
-
-    // Breakpoints should all be false without window
-    Object.values(breakpoints.value).forEach((value) => {
-      expect(value).toBe(false)
-    })
+    await page.viewport(720, 481)
+    await expect.poll(() => breakpoints.value.zoomed).toBe(false)
   })
 })

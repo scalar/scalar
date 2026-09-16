@@ -12,18 +12,12 @@ vi.mock(import('@scalar/use-toasts'), () => ({
 
 describe('useClipboard', () => {
   beforeEach(() => {
-    // Mock clipboard API
-    Object.defineProperty(navigator, 'clipboard', {
-      value: {
-        writeText: vi.fn().mockResolvedValue(undefined),
-      },
-      writable: true,
-    })
+    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
   })
 
   afterEach(() => {
     vi.clearAllMocks()
-    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
   it('copies text to clipboard', async () => {
@@ -59,15 +53,9 @@ describe('useClipboard', () => {
 
   it('handles clipboard errors gracefully', async () => {
     const mockConsole = vi.fn()
-    vi.stubGlobal('console', { error: mockConsole })
+    vi.spyOn(console, 'error').mockImplementation(mockConsole)
 
-    // Mock clipboard failure
-    Object.defineProperty(navigator, 'clipboard', {
-      value: {
-        writeText: vi.fn().mockRejectedValue(new Error('Clipboard error')),
-      },
-      writable: true,
-    })
+    vi.mocked(navigator.clipboard.writeText).mockRejectedValue(new Error('Clipboard error'))
 
     const notify = vi.fn()
     const { copyToClipboard } = useClipboard({ notify })
@@ -76,22 +64,6 @@ describe('useClipboard', () => {
 
     expect(notify).toHaveBeenCalledWith('Failed to copy to clipboard')
     expect(mockConsole).toHaveBeenCalledWith('Clipboard error')
-  })
-
-  it('works in SSG environment without navigator', async ({ onTestFinished }) => {
-    // Mock SSG environment by removing navigator
-    vi.stubGlobal('navigator', undefined)
-    onTestFinished(() => {
-      vi.unstubAllGlobals()
-    })
-
-    const notify = vi.fn()
-    const { copyToClipboard } = useClipboard({ notify })
-
-    await copyToClipboard('test text')
-
-    // Should show error notification since clipboard is not available
-    expect(notify).toHaveBeenCalledWith('Failed to copy to clipboard')
   })
 
   it('handles objects by stringifying them', async () => {

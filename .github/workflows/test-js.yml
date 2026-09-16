@@ -43,6 +43,9 @@ jobs:
           for i in "${!dirs[@]}"; do
             if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
               args+=(--filter "./${dirs[$i]%/}")
+              if [[ "${dirs[$i]}" == "packages/use-hooks/" ]]; then
+                pnpm exec playwright install --with-deps chromium
+              fi
             fi
           done
           if [ ${#args[@]} -eq 0 ]; then

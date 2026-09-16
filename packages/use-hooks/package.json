@@ -56,7 +56,7 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@vue/test-utils": "catalog:*",
-    "jsdom": "catalog:*"
+    "@vitest/browser-playwright": "catalog:*",
+    "@vue/test-utils": "catalog:*"
   }
 }

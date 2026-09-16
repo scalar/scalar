@@ -29,8 +29,8 @@ describe('useColorMode', () => {
     // Clear localStorage
     localStorage.clear()
 
-    // Provide a default matchMedia mock since jsdom does not implement it
-    window.matchMedia = vi.fn().mockImplementation(createMatchMediaMock('light'))
+    // Control the system preference independently of the host browser
+    vi.spyOn(window, 'matchMedia').mockImplementation(createMatchMediaMock('light'))
 
     // `systemPreference` is shared module state, so reset it to a fresh `'light'` baseline before
     // each test. A throwaway hook resolves it via the immediate (mocked) `onMounted` above.
@@ -196,37 +196,6 @@ describe('useColorMode', () => {
     await nextTick()
     expect(document.body.classList.contains('dark-mode')).toBe(true)
     expect(document.body.classList.contains('light-mode')).toBe(false)
-  })
-
-  it('works in SSG environment without window/document', ({ onTestFinished }) => {
-    vi.stubGlobal('window', undefined)
-    vi.stubGlobal('document', undefined)
-
-    onTestFinished(() => {
-      vi.unstubAllGlobals()
-    })
-
-    const { colorMode, darkLightMode, setColorMode, toggleColorMode } = useColorMode()
-
-    // Should default to light mode in SSG
-    expect(colorMode.value).toBe('system')
-    expect(darkLightMode.value).toBe('light')
-
-    // Methods should not throw without window/document
-    expect(() => setColorMode('dark')).not.toThrow()
-    expect(() => toggleColorMode()).not.toThrow()
-  })
-
-  it('uses system mode on SSG even when initialColorMode is set', ({ onTestFinished }) => {
-    vi.stubGlobal('window', undefined)
-    vi.stubGlobal('document', undefined)
-
-    onTestFinished(() => {
-      vi.unstubAllGlobals()
-    })
-
-    const { colorMode } = useColorMode({ initialColorMode: 'dark' })
-    expect(colorMode.value).toBe('system')
   })
 
   it('defers the system preference to onMounted to stay hydration-safe', async () => {

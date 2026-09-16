@@ -53,6 +53,7 @@ catalogs:
     '@typescript-eslint/parser': ^8.53.0
     '@vitejs/plugin-react': 6.0.1
     '@vitejs/plugin-vue': ^6.0.8
+    '@vitest/browser-playwright': 4.1.10
     '@vue/test-utils': 2.4.11
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
