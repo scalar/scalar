@@ -1,13 +1,87 @@
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas'
 import { describe, expect, it } from 'vitest'
 
 import { getGeneratedPayloadExample } from './get-generated-payload-example'
+import { getMessageExampleContent } from './get-message-example-content'
 
 /** Keep fixtures permissive enough to exercise unsupported input from user documents. */
 const generate = (message: Record<string, unknown>): unknown =>
   getGeneratedPayloadExample(message as AsyncApiMessageObject)
 
 describe('get-generated-payload-example', () => {
+  it('retains virtual targets for referenced schemas while hiding them in literal payload data', async () => {
+    const value = { $ref: '#/components/schemas/Name', id: 1 }
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.0.0',
+        info: { title: 'Events', version: '1.0.0' },
+        components: {
+          schemas: {
+            Name: { type: 'string', const: 'event-name' },
+            Data: { type: 'object', const: value },
+            Event: {
+              type: 'object',
+              properties: {
+                name: { $ref: '#/components/schemas/Name' },
+                data: { $ref: '#/components/schemas/Data' },
+              },
+            },
+          },
+        },
+        channels: {
+          events: { address: 'events', messages: { event: { payload: { $ref: '#/components/schemas/Event' } } } },
+        },
+      },
+    })
+    const document = store.workspace.documents.events
+    if (!document || !isAsyncApiDocument(document)) {
+      throw new Error('Expected an ingested AsyncAPI document')
+    }
+    const result = generate(getResolvedRef(document.channels?.events)?.messages?.event ?? {})
+    expect(getMessageExampleContent({ payload: result })).toBe(
+      JSON.stringify({ name: 'event-name', data: value }, null, 2),
+    )
+  })
+
+  it.each(['const', 'example', 'default', 'examples', 'enum'])(
+    'keeps virtual reference metadata out of ingested %s data',
+    async (keyword) => {
+      const value = { $ref: '#/components/schemas/Event', id: 1, nested: [{ $ref: '#/components/schemas/Event' }] }
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'events',
+        document: {
+          asyncapi: '3.0.0',
+          info: { title: 'Events', version: '1.0.0' },
+          components: { schemas: { Event: { type: 'string' } } },
+          channels: {
+            events: {
+              address: 'events',
+              messages: {
+                event: {
+                  payload: { type: 'object', [keyword]: ['examples', 'enum'].includes(keyword) ? [value] : value },
+                },
+              },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.events
+      if (!document || !isAsyncApiDocument(document)) {
+        throw new Error('Expected an ingested AsyncAPI document')
+      }
+      const message = getResolvedRef(document.channels?.events)?.messages?.event
+      const result = generate(message ?? {})
+      expect(JSON.stringify(result)).toBe(JSON.stringify(value))
+      expect(getMessageExampleContent({ payload: result })).toBe(JSON.stringify(value, null, 2))
+    },
+  )
+
   it.each(['const', 'example', 'default'])('preserves literal __proto__ fields in %s data', (keyword) => {
     const value = JSON.parse('{"__proto__":{"id":1},"normal":2}')
     expect(generate({ payload: { type: 'object', [keyword]: value } })).toStrictEqual(value)

@@ -2,9 +2,30 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
 import { getAsyncApiMessagePayloadSchema } from '@/helpers/get-async-api-message-payload-schema'
+
+/** Keep virtual reference targets usable by the generator without serializing them as payload data. */
+const hideVirtualReferenceValues = (source: object, snapshot: object, seen = new WeakSet<object>()): void => {
+  if (seen.has(snapshot)) {
+    return
+  }
+  seen.add(snapshot)
+
+  const raw = unpackProxyObject(source)
+  for (const key of Object.keys(snapshot)) {
+    if (key === '$ref-value' && !Object.hasOwn(raw, key)) {
+      Object.defineProperty(snapshot, key, { enumerable: false })
+    }
+    const original: unknown = Reflect.get(source, key)
+    const copy: unknown = Reflect.get(snapshot, key)
+    if (typeof original === 'object' && original !== null && typeof copy === 'object' && copy !== null) {
+      hideVirtualReferenceValues(original, copy, seen)
+    }
+  }
+}
 
 /** Generate a payload only when the document does not already provide one. */
 export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unknown => {
@@ -35,7 +56,9 @@ export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unkn
 
   // Snapshot reactive schemas so in-place edits do not reuse the generator's identity cache.
   // The generator resolves schema references itself, preserving literal $ref fields in payload data.
-  return getExampleFromSchema(deepClone(schema), {
+  const snapshot = deepClone(schema)
+  hideVirtualReferenceValues(schema, snapshot)
+  return getExampleFromSchema(snapshot, {
     emptyString: 'string',
     // Match the message schema, which displays fields regardless of their read/write annotations.
     includeDeprecated: true,
