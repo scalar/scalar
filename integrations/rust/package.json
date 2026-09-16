@@ -103,6 +103,8 @@
       "warp"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
   "devDependencies": {}
 }

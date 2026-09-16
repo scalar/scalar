@@ -68,6 +68,9 @@
     "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"]
   },
   "workspaces": {
+    "tooling/changelog-generator": {
+      "entry": ["src/index.ts", "src/version.ts"]
+    },
     "packages/api-client": {
       "entry": [
         "src/components/HttpMethod/index.ts",

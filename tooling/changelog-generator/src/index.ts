@@ -63,8 +63,8 @@ const changelogFunctions: ChangelogFunctions = {
     return formatReleaseLine(changeset, githubInfoWithPR)
   },
 
-  getDependencyReleaseLine: async (_changesets, _dependenciesUpdated, _options: Options) => {
-    // Skip dependency updates in changelog — they are noise
+  getDependencyReleaseLine: async (_changesets, _dependenciesUpdated, _options: Options): Promise<string> => {
+    // This hook has no consumer context. Bundle versions are added by the release wrapper instead.
     return await Promise.resolve('')
   },
 }
