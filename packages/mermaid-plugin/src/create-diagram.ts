@@ -10,6 +10,7 @@ export const createDiagram = (
   const document = source.ownerDocument
   const element = document.createElement('section')
   element.setAttribute('aria-label', 'Mermaid diagram')
+  element.setAttribute('data-markdown-block', '')
   element.style.cssText =
     'border:1px solid var(--scalar-border-color,#ddd);border-radius:var(--scalar-radius,3px);overflow:hidden;margin:16px 0;background:var(--scalar-background-1,#fff)'
   const toolbar = document.createElement('div')

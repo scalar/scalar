@@ -23,8 +23,12 @@ describe('render-mermaid', () => {
     const source = element.firstElementChild
     const controller = new AbortController()
     const cleanup = await renderMermaid({ element, source: 'graph LR; A-->B', signal: controller.signal })
-    expect(element.querySelectorAll('svg')).toHaveLength(1)
-    expect(element.querySelectorAll('button')).toHaveLength(3)
+    expect(Array.from(element.querySelectorAll('svg'), (svg) => svg.outerHTML)).toStrictEqual(['<svg></svg>'])
+    expect(Array.from(element.querySelectorAll('button'), (button) => button.textContent)).toStrictEqual([
+      'Zoom in',
+      'Zoom out',
+      'Reset view',
+    ])
     controller.abort()
     expect(element.firstElementChild).toBe(source)
     cleanup?.()
