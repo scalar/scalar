@@ -718,6 +718,7 @@ onBeforeUnmount(() => {
             document['x-scalar-default-request-body-view']
           "
           :documentCookies
+          :documentSlug
           :environment
           :eventBus
           :exampleKey
