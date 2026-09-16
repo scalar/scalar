@@ -486,6 +486,46 @@ describe('TraversedEntry', () => {
     expect(tagComponent.props('moreThanOneTag')).toBe(false)
   })
 
+  it('renders the target schema of a plain reference alias model', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'aliases',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Alias models', version: '1' },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              description: 'The aliased user record',
+              properties: { email: { type: 'string', description: 'The user contact address' } },
+            },
+            UserAlias: { $ref: '#/components/schemas/User' },
+          },
+        },
+      },
+    })
+    const model: TraversedSchema = {
+      type: 'model',
+      id: 'model-user-alias',
+      title: 'UserAlias',
+      name: 'UserAlias',
+      ref: '#/components/schemas/UserAlias',
+    }
+    const wrapper = mount(TraversedEntryComponent, {
+      props: {
+        ...makeMockProps([model]),
+        document: store.workspace.documents.aliases as OpenApiDocument,
+        expandedItems: { 'model-user-alias': true },
+      },
+    })
+
+    expect(wrapper.text()).toContain('UserAlias')
+    expect(wrapper.text()).toContain('The aliased user record')
+    expect(wrapper.text()).toContain('email')
+    expect(wrapper.text()).toContain('The user contact address')
+  })
+
   it('does not render an unresolved sparse model reference', async () => {
     const model: TraversedSchema = {
       type: 'model',
