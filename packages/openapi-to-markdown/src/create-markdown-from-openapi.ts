@@ -575,9 +575,9 @@ const renderPart = async (part: RenderPart, clean = true): Promise<string> => {
   })
 }
 
-/** Render an API description as HTML, releasing each section before rendering the next. */
-export const createHtmlFromOpenApi = async (input: AnyDocument, options?: OpenApiRenderOptions): Promise<string> => {
-  const content = selectDocument(await loadDocument(input), options)
+/** Render a prepared document as HTML, releasing each section before rendering the next. */
+const renderDocumentAsHtml = async (document: OpenApiDocument, options?: OpenApiRenderOptions): Promise<string> => {
+  const content = selectDocument(document, options)
   const output: string[] = []
   for (const part of getRenderParts(content)) {
     output.push(await renderPart(part))
@@ -587,11 +587,8 @@ export const createHtmlFromOpenApi = async (input: AnyDocument, options?: OpenAp
 }
 
 /** Convert sections sequentially so large documents do not require a whole-document syntax tree. */
-export const createMarkdownFromOpenApi = async (
-  input: AnyDocument,
-  options?: OpenApiRenderOptions,
-): Promise<string> => {
-  const content = selectDocument(await loadDocument(input), options)
+const renderDocumentAsMarkdown = async (document: OpenApiDocument, options?: OpenApiRenderOptions): Promise<string> => {
+  const content = selectDocument(document, options)
   const output: string[] = []
   for (const part of getRenderParts(content)) {
     const markdown = (await markdownFromHtml(await renderPart(part, false))).trim()
@@ -602,6 +599,39 @@ export const createMarkdownFromOpenApi = async (
     await setImmediate()
   }
   return `${output.join('\n\n')}\n`
+}
+
+/** A prepared API description that can render multiple pages without loading it again. */
+export type OpenApiMarkdownRenderer = {
+  render: (options?: OpenApiRenderOptions) => Promise<string>
+  renderHtml: (options?: OpenApiRenderOptions) => Promise<string>
+}
+
+/**
+ * Load a private plain document once and reuse it across independently selected pages.
+ * Each call converts sections sequentially without building a whole-document HTML tree.
+ */
+export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise<OpenApiMarkdownRenderer> => {
+  const document = await loadDocument(input)
+  return {
+    render: (options) => renderDocumentAsMarkdown(document, options),
+    renderHtml: (options) => renderDocumentAsHtml(document, options),
+  }
+}
+
+/** Render an API description as HTML with a temporary renderer. */
+export const createHtmlFromOpenApi = async (input: AnyDocument, options?: OpenApiRenderOptions): Promise<string> => {
+  const renderer = await createOpenApiMarkdownRenderer(input)
+  return renderer.renderHtml(options)
+}
+
+/** Render an API description as Markdown with a temporary renderer. */
+export const createMarkdownFromOpenApi = async (
+  input: AnyDocument,
+  options?: OpenApiRenderOptions,
+): Promise<string> => {
+  const renderer = await createOpenApiMarkdownRenderer(input)
+  return renderer.render(options)
 }
 
 const markdownProcessor = unified()
