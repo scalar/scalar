@@ -354,6 +354,10 @@ If a package version should bump, add a changeset:
 pnpm changeset
 ```
 
+Do not add a changeset for an **ignored package**. The `ignore` list in `.changeset/config.json` currently covers `proxy-scalar-com`, `@scalar-examples/*`, and `@scalar-internal/*`. These are private or deployed separately, so they are never published to npm.
+
+A changeset that targets only an ignored package is never consumed by `changeset version`, so it stays in `.changeset/` indefinitely. That pins the release workflow to the "version" path: it keeps opening a `chore: release` PR and never runs `publish`, silently blocking every other package from being released. If `pnpm changeset status` reports a bump for one of these packages, delete that changeset rather than merging it.
+
 ### After-change checklist
 
 After making **any** code changes, run lint, format, and type-check scoped to only the files and packages you touched. Do not run whole-repo checks.
