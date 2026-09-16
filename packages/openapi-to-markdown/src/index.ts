@@ -1,5 +1,4 @@
 export type { HttpMethod } from '@scalar/helpers/http/http-methods'
-export type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 export type { OpenApiMarkdownRenderer } from './create-markdown-from-openapi'
 export {

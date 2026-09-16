@@ -3,7 +3,7 @@ import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconCheck, ScalarIconCopy } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { useTimeoutFn } from '@vueuse/core'
-import { onScopeDispose, ref, watch } from 'vue'
+import { computed, onScopeDispose, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
@@ -15,9 +15,17 @@ const { document, path, method, isWebhook } =
 
 const { translate } = useLocalization()
 const { toast } = useToasts()
-const copied = ref(false)
-const copying = ref(false)
-const active = ref(true)
+const copied = ref<boolean>(false)
+const copying = ref<boolean>(false)
+const active = ref<boolean>(true)
+const icon = computed<typeof ScalarIconCheck>(() =>
+  copied.value ? ScalarIconCheck : ScalarIconCopy,
+)
+const label = computed<string>(() =>
+  copied.value
+    ? translate('actions.copied')
+    : translate('actions.copyAsMarkdown'),
+)
 onScopeDispose(() => (active.value = false))
 const { start, stop } = useTimeoutFn(() => (copied.value = false), 1000, {
   immediate: false,
@@ -92,12 +100,10 @@ const copyMarkdown = async (): Promise<void> => {
   <ScalarButton
     class="h-6 shrink-0 px-2"
     :disabled="copying"
-    :icon="copied ? ScalarIconCheck : ScalarIconCopy"
+    :icon
     size="sm"
     variant="outlined"
     @click.stop="copyMarkdown">
-    <span aria-live="polite">{{
-      copied ? translate('actions.copied') : translate('actions.copyAsMarkdown')
-    }}</span>
+    <span aria-live="polite">{{ label }}</span>
   </ScalarButton>
 </template>
