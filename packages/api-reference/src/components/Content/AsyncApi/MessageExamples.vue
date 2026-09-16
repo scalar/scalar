@@ -10,6 +10,7 @@ import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarCopy } from '@scalar/components/copy'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
+import { iterateTitle } from '@scalar/helpers/string/iterate-title'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { computed, ref, watch } from 'vue'
@@ -25,8 +26,8 @@ const { examples = [] } = defineProps<{
 const { translate } = useLocalization()
 
 /** Array positions keep duplicate names and generated labels from overwriting another example. */
-const availableExamples = computed(() =>
-  examples.flatMap((value, index) => {
+const availableExamples = computed(() => {
+  const entries = examples.flatMap((value, index) => {
     const example = getResolvedRef(value)
     if (
       !example ||
@@ -41,8 +42,20 @@ const availableExamples = computed(() =>
         label: example.name || `${translate('schema.example')} ${index + 1}`,
       },
     ]
-  }),
-)
+  })
+
+  // Reserve every authored name before generating labels, including names later in the list.
+  const labels = new Set(
+    entries.flatMap(({ example }) => (example.name ? [example.name] : [])),
+  )
+  return entries.map((entry) => {
+    const label =
+      entry.example.name ||
+      iterateTitle(entry.label, (value) => labels.has(value))
+    labels.add(label)
+    return { ...entry, label }
+  })
+})
 
 const selectedKey = ref('')
 watch(

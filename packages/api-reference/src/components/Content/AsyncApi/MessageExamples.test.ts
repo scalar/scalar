@@ -33,7 +33,7 @@ describe('MessageExamples', () => {
     expect(picker.props('examples')).toStrictEqual({
       '0': { summary: 'Example 3' },
       '1': { summary: 'Example 3' },
-      '2': { summary: 'Example 3' },
+      '2': { summary: 'Example 3 #2' },
     })
     for (const [key, expected] of [
       ['0', 'first'],
@@ -45,6 +45,25 @@ describe('MessageExamples', () => {
       expect(wrapper.get('pre').text()).toBe(expected)
       expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(expected)
     }
+  })
+
+  it('reserves later authored names and suffixes when generating unique labels', () => {
+    const wrapper = mount(MessageExamples, {
+      props: {
+        examples: [
+          { payload: 'unnamed' },
+          { name: 'Example 1', payload: 'named' },
+          { name: 'Example 1 #2', payload: 'suffixed' },
+          { payload: 'another unnamed' },
+        ],
+      },
+    })
+    expect(wrapper.getComponent(ExamplePicker).props('examples')).toStrictEqual({
+      '0': { summary: 'Example 1 #3' },
+      '1': { summary: 'Example 1' },
+      '2': { summary: 'Example 1 #2' },
+      '3': { summary: 'Example 4' },
+    })
   })
 
   it('selects the first remaining example when the selected entry disappears', async () => {
