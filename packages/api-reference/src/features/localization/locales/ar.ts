@@ -132,6 +132,10 @@ export const ar = {
     label: 'النماذج',
   },
   actions: {
+    copyAsMarkdown: 'نسخ بصيغة Markdown',
+    copied: 'تم النسخ',
+    copyMarkdownFailed: 'تعذر نسخ Markdown',
+
     copyLink: 'نسخ الرابط',
     copyLinkTo: 'نسخ الرابط إلى {name}',
     copyToClipboard: 'نسخ الرابط إلى الحافظة',

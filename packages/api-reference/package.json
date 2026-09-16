@@ -124,6 +124,7 @@
     "@scalar/icons": "workspace:*",
     "@scalar/localization": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
+    "@scalar/openapi-to-markdown": "workspace:*",
     "@scalar/schemas": "workspace:*",
     "@scalar/sidebar": "workspace:*",
     "@scalar/snippetz": "workspace:*",

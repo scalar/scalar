@@ -132,6 +132,10 @@ export const zhCn = {
     label: '模型',
   },
   actions: {
+    copyAsMarkdown: '复制为 Markdown',
+    copied: '已复制',
+    copyMarkdownFailed: '无法复制 Markdown',
+
     copyLink: '复制链接',
     copyLinkTo: '复制指向 {name} 的链接',
     copyToClipboard: '复制链接到剪贴板',

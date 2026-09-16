@@ -1,4 +1,4 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -32,7 +32,6 @@ type PageSelectors = {
 }
 type OperationMatch = { path: string; method: HttpMethod }
 
-const HTTP_METHODS: HttpMethod[] = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
 const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS)
 
 const normalizeHttpMethod = (method: string): HttpMethod | null => {
