@@ -6,10 +6,11 @@ export const openApiEditorSchema = {
   ...openApiSchema,
   $defs: {
     ...openApiSchema.$defs,
-    // Monaco does not track evaluated pattern properties across the extension $ref here.
-    // Keep the explicit path/extension patterns used by the previous editor schema.
+    // Monaco merges the extension $ref over sibling patternProperties, losing the path pattern.
+    // Inline the extension pattern while retaining the other upstream constraints.
     paths: {
       ...openApiSchema.$defs.paths,
+      $ref: undefined,
       patternProperties: {
         ...openApiSchema.$defs.paths.patternProperties,
         '^x-': true,
