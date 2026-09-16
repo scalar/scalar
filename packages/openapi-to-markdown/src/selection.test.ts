@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  type OpenApiRenderOptions,
-  createHtmlFromOpenApi,
-  createMarkdownFromOpenApi,
-} from './create-markdown-from-openapi'
+import { createHtmlFromOpenApi, createMarkdownFromOpenApi } from './create-markdown-from-openapi'
+import type { OpenApiRenderOptions } from './select-document'
 
 const invalidSelectorDocument = {
   openapi: '3.1.1',

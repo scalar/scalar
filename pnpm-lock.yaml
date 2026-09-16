@@ -1487,6 +1487,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/openapi-to-markdown':
+        specifier: workspace:*
+        version: link:../openapi-to-markdown
       '@scalar/schemas':
         specifier: workspace:*
         version: link:../schemas

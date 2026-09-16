@@ -29,6 +29,7 @@ import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
@@ -224,10 +225,18 @@ const { level: headingLevel } = useDocumentOutline('operation')
         variant="ghost"
         @click.stop="copyToClipboard(path)" />
     </template>
-    <template
-      v-if="operation.description"
-      #description>
+    <template #description>
+      <div
+        v-if="document"
+        class="mb-3 flex justify-end">
+        <CopyMarkdownButton
+          :document
+          :isWebhook
+          :method
+          :path />
+      </div>
       <ScalarMarkdown
+        v-if="operation.description"
         :anchorPrefix="id"
         :aria-label="translate('common.description')"
         role="group"
@@ -262,9 +271,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
           <!-- Responses are disclosures unless the configuration expands every
                response, in which case they render as static panels -->
           <OperationResponses
-            :collapsableItems="!options.expandAllResponses"
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
+            :collapsableItems="!options.expandAllResponses"
             :document
             :eventBus
             :options

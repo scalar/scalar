@@ -487,6 +487,9 @@ export type ApiReferenceTranslations = {
     label: string
   }
   actions: {
+    copyAsMarkdown: string
+    copied: string
+    copyMarkdownFailed: string
     copyLink: string
     copyLinkTo: string
     copyToClipboard: string
