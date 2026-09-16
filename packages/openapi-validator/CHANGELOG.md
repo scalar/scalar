@@ -1,5 +1,13 @@
 # @scalar/openapi-validator
 
+## 0.1.2
+
+### Patch Changes
+
+- [#10202](https://github.com/scalar/scalar/pull/10202): Explain invalid URI references and OpenAPI component names, and return parser errors for malformed reference escapes.
+- [#10158](https://github.com/scalar/scalar/pull/10158): Add regression coverage for duplicate required property names.
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+
 ## 0.1.1
 
 ## 0.1.0

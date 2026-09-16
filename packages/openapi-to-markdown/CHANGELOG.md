@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 0.6.0
+
+### Minor Changes
+
+- [#10169](https://github.com/scalar/scalar/pull/10169): Render scoped operation, tag, model, webhook, and introduction pages in Markdown and HTML while preserving referenced schemas and inherited context.
+
 ## 0.5.44
 
 ## 0.5.43
