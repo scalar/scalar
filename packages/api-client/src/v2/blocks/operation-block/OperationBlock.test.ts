@@ -315,6 +315,8 @@ describe('OperationBlock', () => {
       requestPayload: ['https://api.example.com/api/users', expect.objectContaining({ method: 'GET' })],
       request: expect.any(Request),
       plugins: [],
+      customFetch: undefined,
+      onResponseReceived: expect.any(Function),
     })
   })
 
@@ -1011,6 +1013,8 @@ describe('OperationBlock', () => {
       requestPayload: [expect.any(String), expect.any(Object)],
       request: expect.any(Request),
       plugins: [],
+      customFetch: undefined,
+      onResponseReceived: expect.any(Function),
     })
   })
 
@@ -1097,6 +1101,47 @@ describe('OperationBlock', () => {
     expect(await sha256Base64(rebuiltRequest)).not.toBe(hookHash)
   })
 
+  it('renders the intercepted response and persists tokens saved by response hooks', async () => {
+    const actual = await vi.importActual<typeof import('./helpers/send-request')>('./helpers/send-request')
+    vi.mocked(sendRequest).mockImplementationOnce(actual.sendRequest)
+    const durations: (number | undefined)[] = []
+    const eventBus = createMockEventBus()
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus,
+        activeEnvironment: 'default',
+        options: { customFetch: () => Promise.resolve(Response.json({ token: 'saved' })) },
+        plugins: [
+          {
+            hooks: {
+              responseReceived: async ({ response, responseDuration, variablesStore }) => {
+                durations.push(responseDuration)
+                const data = await response.json()
+                variablesStore?.setEnvironment?.([{ key: 'token', value: data.token }])
+                return Response.json({ loggedIn: true }, { status: 201 })
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    const { response } = getResponseBlockProps(wrapper)
+    expect(durations).toStrictEqual([response?.duration])
+    expect(typeof durations[0]).toBe('number')
+    expect(response?.status).toBe(201)
+    expect(response && 'data' in response ? response.data : undefined).toBe('{"loggedIn":true}')
+    expect(eventBus.emit).toHaveBeenCalledWith('environment:upsert:environment-variable', {
+      environmentName: 'default',
+      variable: { name: 'token', value: 'saved' },
+      index: undefined,
+      collectionType: 'workspace',
+    })
+  })
+
   it('stores response after successful request execution', async () => {
     const mockController = new AbortController()
 
@@ -1151,8 +1196,6 @@ describe('OperationBlock', () => {
 
     const { response } = getResponseBlockProps(wrapper)
     expect(response).toStrictEqual(mockResponse)
-    const responseHookCall = vi.mocked(executeHook).mock.calls.find((call) => call[1] === 'responseReceived')
-    expect(responseHookCall?.[0]).toHaveProperty('responseDuration', 150)
     expect(response?.status).toBe(200)
     expect(response && 'data' in response ? response.data : undefined).toBe('{"users": []}')
   })

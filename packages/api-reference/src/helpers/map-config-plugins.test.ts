@@ -601,4 +601,40 @@ describe('mapConfigPlugins', () => {
 
     expect(hooks.requestBuilt).toBeUndefined()
   })
+  it('returns response replacements and preserves the onRequestSent URL callback', async () => {
+    const replacement = Response.json({ replaced: true })
+    const onRequestSent = vi.fn()
+    const onResponseReceived = vi.fn(async ({ response }: { response: Response }) => {
+      expect(await response.json()).toStrictEqual({ data: 'test' })
+      return replacement
+    })
+    const config = computed(() => ({ onResponseReceived, onRequestSent }))
+    const [plugin] = mapConfigPlugins(config, createMockEnvironment())
+    const payload = responsePayload(createMockFactory(), new Request('https://example.com/api/test'))
+
+    expect(await plugin?.hooks?.responseReceived?.(payload)).toBe(replacement)
+    expect(onResponseReceived).toHaveBeenCalledExactlyOnceWith({ response: payload.response, request: payload.request })
+    expect(onRequestSent).toHaveBeenCalledExactlyOnceWith('https://example.com/api/test')
+  })
+
+  it('updates and removes the response callback when configuration changes', async () => {
+    const first = vi.fn(() => new Response('first'))
+    const second = vi.fn(() => new Response('second'))
+    const config = ref<Pick<ApiReferenceConfigurationRaw, 'onResponseReceived'>>({ onResponseReceived: first })
+    const [plugin] = mapConfigPlugins(
+      computed(() => config.value),
+      createMockEnvironment(),
+    )
+    const payload = responsePayload(createMockFactory(), new Request('https://example.com/api/test'))
+
+    expect(await (await plugin?.hooks?.responseReceived?.(payload))?.text()).toBe('first')
+    config.value.onResponseReceived = second
+    await nextTick()
+    expect(await (await plugin?.hooks?.responseReceived?.(payload))?.text()).toBe('second')
+    expect(first).toHaveBeenCalledTimes(1)
+    expect(second).toHaveBeenCalledTimes(1)
+    config.value.onResponseReceived = undefined
+    await nextTick()
+    expect(plugin?.hooks?.responseReceived).toBeUndefined()
+  })
 })

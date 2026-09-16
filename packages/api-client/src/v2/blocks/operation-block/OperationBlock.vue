@@ -95,7 +95,11 @@ import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
+import {
+  executeHook,
+  executeResponseHook,
+  type ClientPlugin,
+} from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
@@ -458,24 +462,22 @@ const handleExecute = async () => {
     request,
     plugins,
     customFetch: toValue(options)?.customFetch,
+    onResponseReceived: async (response, responseDuration) => {
+      const result = await executeResponseHook(
+        {
+          response,
+          responseDuration,
+          requestBuilder,
+          request: buildSafeBodyRequest(...built.data.requestPayload),
+          document,
+          operation,
+          variablesStore,
+        },
+        plugins,
+      )
+      return result.response
+    },
   })
-
-  if (sendResult) {
-    // Execute the responseReceived hook
-    await executeHook(
-      {
-        response: sendResult.originalResponse.clone(),
-        responseDuration: sendResult.response.duration,
-        requestBuilder,
-        request: buildSafeBodyRequest(...sendResult.requestPayload),
-        document,
-        operation,
-        variablesStore,
-      },
-      'responseReceived',
-      plugins,
-    )
-  }
 
   // Save script environment writes (pre-request and, on success, post-response) back to the
   // active environment. Runs even when the send fails so a pre-request set is not lost.

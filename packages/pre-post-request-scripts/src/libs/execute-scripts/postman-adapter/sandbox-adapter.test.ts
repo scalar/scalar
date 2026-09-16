@@ -33,6 +33,33 @@ describe('sandbox-adapter', () => {
     expect(result).not.toHaveProperty('responseTime')
   })
 
+  it.each([
+    'text/event-stream; charset=utf-8',
+    'application/jsonl',
+    'application/x-ndjson',
+    'application/json-lines',
+    'application/json-seq',
+    'application/vnd.example+json-seq',
+    'multipart/mixed; boundary=example',
+    'multipart/x-mixed-replace; boundary=example',
+    'Application/JSONL; charset=utf-8',
+  ])('serializes %s metadata without waiting for the stream to close', async (contentType) => {
+    const response = new Response(new ReadableStream(), {
+      status: 200,
+      statusText: 'OK',
+      headers: { 'content-type': contentType },
+    })
+
+    expect(await toPostmanResponse(response)).toStrictEqual({
+      code: 200,
+      status: 'OK',
+      header: [{ key: 'content-type', value: contentType }],
+      stream: { type: 'Buffer', data: [] },
+    })
+    expect(response.bodyUsed).toBe(false)
+    await response.body?.cancel()
+  })
+
   it('falls back to the numeric status when statusText is empty', async () => {
     const result = await toPostmanResponse(new Response(null, { status: 204 }))
     expect(result.status).toBe('204')

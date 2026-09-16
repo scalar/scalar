@@ -1566,6 +1566,38 @@ Use [`onBeforeRequest`](#onbeforerequest) instead when you need to mutate the re
 }
 ```
 
+### onResponseReceived
+
+**Type:** `({ response: Response; request: Request }) => Response | void | Promise<Response | void>`
+
+Runs when the embedded API client receives a response, before Scalar processes its body, status, and headers. Return a new `Response` to replace them, or return nothing to keep the current response. The callback receives a clone, so you can read its body to save a token without consuming the response shown in the client.
+
+```javascript
+{
+  onResponseReceived: async ({ response }) => {
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      return
+    }
+
+    const data = await response.json()
+    const headers = new Headers(response.headers)
+    headers.delete('content-length')
+
+    return Response.json({ ...data, additionalField: 'value' }, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    })
+  }
+}
+```
+
+Client plugins can use `hooks.responseReceived` with the same return behavior. Plugins run in order, and each receives a clone of the latest response. To change headers, return a new `Response`; mutating the clone and returning nothing leaves the response unchanged.
+
+For streaming responses, avoid `response.text()` or `response.json()` unless the stream is finite. To transform a stream, return a `Response` backed by a stream instead. Post-response scripts continue to receive stream status and headers with an empty body. Hook errors are reported as request failures.
+
+If a hook acquires a stream reader with `response.body.getReader()`, release its lock in a `finally` block with `reader.releaseLock()` before the hook returns or throws. Scalar cannot cancel a discarded clone while its body is locked. A returned streaming response may retain the reader while consuming the stream, but it must release the reader when it finishes or is canceled.
+
 ### onRequestSent
 
 **Type:** `(request: string) => void`
