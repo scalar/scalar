@@ -2430,12 +2430,6 @@ importers:
 
   packages/openapi-to-markdown:
     dependencies:
-      '@amritk/resolve-refs':
-        specifier: 0.2.0
-        version: 0.2.0
-      '@amritk/yaml':
-        specifier: 0.1.1
-        version: 0.1.1
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -2451,15 +2445,12 @@ importers:
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
-      hast-util-from-parse5:
-        specifier: ^8.0.1
-        version: 8.0.1
       html-minifier-terser:
         specifier: ^7.2.0
         version: 7.2.0
-      parse5:
-        specifier: ^7.3.0
-        version: 7.3.0
+      rehype-parse:
+        specifier: ^9.0.1
+        version: 9.0.1
       rehype-remark:
         specifier: ^10.0.1
         version: 10.0.1
@@ -2497,9 +2488,6 @@ importers:
       hono:
         specifier: catalog:*
         version: 4.13.7
-      rehype-parse:
-        specifier: ^9.0.1
-        version: 9.0.1
       vite:
         specifier: catalog:*
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
@@ -3311,12 +3299,6 @@ importers:
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
 packages:
-
-  '@amritk/resolve-refs@0.2.0':
-    resolution: {integrity: sha512-gDinmW1XqCKzxGOkz0+SIoRBMnhsgF1tMsUgPavasOxNvefwAKn1tCZ2XzDFg9nb2aGxvcNIwvhGzq983uEk6w==}
-
-  '@amritk/yaml@0.1.1':
-    resolution: {integrity: sha512-OrX40wXS4OnqXGuF9Dm/Nui1tSOBb8irN/sr3ehhvsnFhOhAZ6k5CEySqbZfwnSjCAvVn6GMe8WYQSX8K8ChJg==}
 
   '@acemir/cssom@0.9.31':
     resolution: {integrity: sha512-ZnR3GSaH+/vJ0YlHau21FjfLYjMpYVIzTD8M8vIEQvIGxeOXyXdzCI140rrCY862p/C/BbzWsjc1dgnM9mkoTA==}
@@ -19897,10 +19879,6 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
-
-  '@amritk/resolve-refs@0.2.0': {}
-
-  '@amritk/yaml@0.1.1': {}
 
   '@acemir/cssom@0.9.31': {}
 

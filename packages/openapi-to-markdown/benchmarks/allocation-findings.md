@@ -1,6 +1,6 @@
 # Cloudflare allocation investigation
 
-2026-09-16, Node 24.18.0, same Cloudflare fixture and source as `amritk-results.md`. Full correctness testing remains deferred. This investigation changes no package runtime behavior.
+2026-09-16, Node 24.18.0, the earlier @amritk experiment at commit `f10dca9bc` (preserved on `claude/openapi-markdown-amritk-pipeline`). Full correctness testing remains deferred. These historical measurements predate the minimal plain-object implementation. The whitespace optimization is now included at build time; the measurements below describe the earlier isolated experiment.
 
 ## Main finding
 
@@ -36,7 +36,7 @@ Temporarily replaced the three repeated `isElement(node, tags)` calls in `rehype
 
 Both produced 37,609,463 bytes of Markdown with SHA-256 `fe280545a7dbdf8c3c88b81ada51b5ecffc994b3f9c0de2d623a02281c698825`. This is an indicative single-run comparison; it confirms a useful optimization but does not establish a universal peak or achieve the 1 GB target with the larger heap allowance.
 
-The installed dependency was restored byte-for-byte after the experiment. A release needs an upstream dependency fix or a deliberate distribution strategy: a local pnpm patch alone would not automatically fix consumers installing the published package elsewhere.
+The installed dependency was restored byte-for-byte after the experiment. The minimal implementation now bundles the converter and applies the fix at build time: a local pnpm patch alone would not automatically fix consumers installing the published package elsewhere.
 
 Temporary artifacts: `/tmp/markdown-investigation/profile.mjs`, `instrumented.mjs`, `allocations.heapprofile`, `allocations.json`, `summary.txt`, `gc.json`, and `patched.json`. The heap profile is approximately 142 MB and is deliberately not committed.
 

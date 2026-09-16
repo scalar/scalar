@@ -2,18 +2,19 @@ import { readFile } from 'node:fs/promises'
 import { resolve as resolvePath } from 'node:path'
 import { setImmediate } from 'node:timers/promises'
 
-import { parse as parseYaml } from '@amritk/yaml'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { fromParse5 } from 'hast-util-from-parse5'
 import { minify } from 'html-minifier-terser'
-import { parseFragment } from 'parse5'
+import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
 import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
@@ -22,9 +23,7 @@ import { unified } from 'unified'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-import { attachRefValues } from './amritk/attach-ref-values'
-import { bundleExternalRefs } from './amritk/bundle-external-refs'
-import { parseOpenApiDocument } from './amritk/generated/openapidocument'
+import { attachRefValues } from './attach-ref-values'
 import MarkdownReference from './components/MarkdownReference.vue'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
@@ -54,7 +53,7 @@ type PageSelectors = {
   webhook: { name: string; method: HttpMethod | Uppercase<HttpMethod> }
   introduction: true
 }
-type WorkspaceInput =
+type DocumentInput =
   | {
       document: Record<string, unknown>
     }
@@ -81,18 +80,12 @@ const isHttpUrl = (value: string): boolean => {
   }
 }
 
-const toWorkspaceInput = (input: AnyDocument): WorkspaceInput => {
+const toDocumentInput = (input: AnyDocument): DocumentInput => {
   if (typeof input !== 'string') {
     return { document: input as Record<string, unknown> }
   }
 
-  const normalized = (() => {
-    try {
-      return parseContent(input)
-    } catch {
-      return input
-    }
-  })()
+  const normalized = normalize(input)
 
   if (isObject(normalized)) {
     return { document: normalized as Record<string, unknown> }
@@ -472,36 +465,37 @@ const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions
   return selected
 }
 
-/** Prefer JSON parsing before falling back to the same YAML parser as the experimental store. */
-const parseContent = (raw: string): unknown => {
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return parseYaml(raw)
-  }
-}
-
-/** Load, externally bundle and coerce a plain graph using the @amritk store pipeline. */
+/** Load and bundle a private plain graph without creating an editable workspace. */
 const loadDocument = async (input: AnyDocument): Promise<OpenApiDocument> => {
-  const source = toWorkspaceInput(input)
-  const load = async (): Promise<{ document: unknown; baseLocation?: string }> => {
+  const source = toDocumentInput(input)
+  const load = async (): Promise<{ document: unknown; origin?: string }> => {
     if ('document' in source) return { document: deepClone(getRaw(source.document)) }
     if ('path' in source) {
-      const baseLocation = resolvePath(source.path)
-      return { document: parseContent(await readFile(baseLocation, 'utf8')), baseLocation }
+      const origin = resolvePath(source.path)
+      return { document: normalize(await readFile(origin, 'utf8')), origin }
     }
     const response = await fetch(source.url)
     if (!response.ok) throw new Error(`Failed to load OpenAPI document (HTTP ${response.status})`)
-    return { document: parseContent(await response.text()), baseLocation: source.url }
+    return { document: normalize(await response.text()), origin: source.url }
   }
-  const { document: raw, baseLocation } = await load()
+  const { document: raw, origin } = await load()
   if (!isObject(raw)) throw new Error('Failed to load OpenAPI document')
-  // The experimental generated parser targets 3.1; retain the existing migration support.
   const upgraded = upgrade(raw, '3.1')
-  const bundled = await bundleExternalRefs(upgraded, { baseLocation, remote: true, allowPrivateHosts: true })
-  if (bundled.errors.length) throw new Error(bundled.errors.map(({ message }) => message).join('\n'))
-  const document = parseOpenApiDocument(bundled.document)
-  // Use the store's compatibility seam, avoiding an ambient active document shared between renders.
+  // Self-contained documents need no asynchronous bundler traversal.
+  if (!attachRefValues(upgraded)) return upgraded as unknown as OpenApiDocument
+  const errors: string[] = []
+  const document = await bundle(upgraded, {
+    plugins: [fetchUrls(), readFiles()],
+    origin,
+    treeShake: false,
+    hooks: {
+      onResolveError: (node) => {
+        errors.push(`Failed to resolve ${node.$ref}`)
+      },
+    },
+  })
+  if (errors.length) throw new Error(errors.join('\n'))
+  // The renderer reads shared reference values without wrapping the graph in proxies.
   attachRefValues(document)
   return document as unknown as OpenApiDocument
 }
@@ -611,16 +605,11 @@ export const createMarkdownFromOpenApi = async (
 }
 
 const markdownProcessor = unified()
+  .use(rehypeParse, { fragment: true })
   .use(remarkGfm)
   .use(rehypeSanitize)
   .use(rehypeRemark)
   .use(remarkStringify, { bullet: '-' })
   .freeze()
 
-const markdownFromHtml = async (html: string): Promise<string> => {
-  // Generated HTML needs no source locations. Avoid retaining offsets for both
-  // the HTML parser tree and the Markdown tree for every rendered node.
-  const tree = fromParse5(parseFragment(html, { sourceCodeLocationInfo: false, scriptingEnabled: false }))
-  if (tree.type !== 'root') throw new Error('Expected an HTML fragment')
-  return markdownProcessor.stringify(await markdownProcessor.run(tree))
-}
+const markdownFromHtml = async (html: string): Promise<string> => String(await markdownProcessor.process(html))
