@@ -68,6 +68,18 @@
     "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"]
   },
   "workspaces": {
+    ".": {
+      "ignoreDependencies": [
+        // Executed from the repo root by tooling/changelog-generator/src/version.ts.
+        "@changesets/cli"
+      ]
+    },
+    "integrations/rust": {
+      "ignoreDependencies": [
+        // The build copies the standalone bundle; Changesets tracks its version for Rust releases.
+        "@scalar/api-reference"
+      ]
+    },
     "tooling/changelog-generator": {
       "entry": ["src/index.ts", "src/version.ts"]
     },
