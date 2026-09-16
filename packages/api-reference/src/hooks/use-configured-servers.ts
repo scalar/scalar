@@ -21,6 +21,8 @@ export const useConfiguredServers = ({
       Object.values(toValue(configurations)).map(({ slug, config }) => ({
         slug,
         // Snapshot the input so in-place config updates can be compared without tracking user edits.
+        // Every getter run synchronously clones all configured servers across documents; keep this cost in mind
+        // for workspaces with many documents, even though typical configurations contain only a few servers.
         servers: deepClone(config.servers),
         document: clientStore.workspace.documents[slug],
       })),
@@ -42,6 +44,8 @@ export const useConfiguredServers = ({
         }
       }
     },
+    // ensureDocumentLoaded reads servers immediately after addDocument, so overrides must be applied
+    // synchronously when the document is added, before the initial server selection is computed.
     { immediate: true, flush: 'sync' },
   )
 }
