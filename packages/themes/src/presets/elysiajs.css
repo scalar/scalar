@@ -55,6 +55,7 @@
   --scalar-color-blue: #0082d0;
   --scalar-color-orange: #fb892c;
   --scalar-color-purple: #5203d1;
+  --scalar-color-query: #007b80;
 
   --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
   --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
@@ -70,6 +71,7 @@
   --scalar-color-blue: #a5d6ff;
   --scalar-color-orange: #e2ae83;
   --scalar-color-purple: #d2a8ff;
+  --scalar-color-query: #a5f3df;
 
   --scalar-scrollbar-color: rgba(255, 255, 255, 0.24);
   --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
