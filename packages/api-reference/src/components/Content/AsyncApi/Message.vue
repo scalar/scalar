@@ -147,7 +147,7 @@ const onToggle = (open: boolean) => {
 }
 
 // Computed lazily when the expanded accordion renders its examples, then cached until the message changes.
-const generatedPayload = computed(() =>
+const generatedPayload = computed<unknown>(() =>
   resolvedMessage.value
     ? getGeneratedPayloadExample(resolvedMessage.value)
     : undefined,
