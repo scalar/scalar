@@ -116,6 +116,7 @@
   --color-blue: var(--scalar-color-blue);
   --color-orange: var(--scalar-color-orange);
   --color-purple: var(--scalar-color-purple);
+  --color-query: var(--scalar-color-query);
   --color-grey: var(--scalar-color-3);
   --color-indigo: var(--scalar-color-blue);
   --color-pink: var(--scalar-color-pink);

@@ -18,6 +18,12 @@ export const REQUEST_METHODS = {
     colorVar: 'var(--scalar-color-blue)',
     backgroundColor: 'bg-blue/10',
   },
+  query: {
+    short: 'QUERY',
+    colorClass: 'text-query',
+    colorVar: 'var(--scalar-color-query)',
+    backgroundColor: 'bg-query/10',
+  },
   post: {
     short: 'POST',
     colorClass: 'text-green',

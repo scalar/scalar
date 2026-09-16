@@ -52,6 +52,49 @@ describe('create-server-store', () => {
     },
   })
 
+  it('stores QUERY operations as chunks and includes them in navigation', async () => {
+    const operation = {
+      summary: 'Search planets',
+      requestBody: {
+        content: { 'application/json': { schema: { type: 'object' } } },
+      },
+      responses: { '200': { description: 'Search results' } },
+    }
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'query-api',
+          document: {
+            openapi: '3.2.1',
+            info: { title: 'Search API', version: '1.0.0' },
+            paths: { '/planets': { query: operation } },
+          },
+        },
+      ],
+    })
+
+    expect(store.get('#/query-api/operations/~1planets/query')).toStrictEqual(operation)
+    const document = store.getWorkspace().documents['query-api']
+    assert(document && 'openapi' in document)
+    expect(document.paths?.['/planets']).toStrictEqual({
+      query: { $ref: 'https://example.com/query-api/operations/~1planets/query#', $global: true },
+    })
+    expect(document['x-scalar-navigation']?.children?.filter((entry) => entry.type === 'operation')).toStrictEqual([
+      {
+        id: 'query-api/QUERY/planets',
+        children: undefined,
+        method: 'query',
+        type: 'operation',
+        isDeprecated: false,
+        ref: '#/paths/~1planets/query',
+        path: '/planets',
+        title: 'Search planets',
+      },
+    ])
+  })
+
   describe('ssr', () => {
     it('should be able to pass a list of documents and get the workspace', async () => {
       const store = await createServerWorkspaceStore({

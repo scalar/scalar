@@ -3,7 +3,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import { refocusBlurTarget } from '@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target'
@@ -93,6 +93,27 @@ describe('AddressBar', () => {
     const el = document.createElement('div')
     el.id = 'address-bar-test-id'
     document.body.appendChild(el)
+  })
+
+  it('offers QUERY and updates the operation when selected', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const listener = vi.fn()
+    eventBus.on('operation:update:pathMethod', listener)
+    const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+    await httpMethod.find('button').trigger('click')
+    const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+    const option = listbox.props('options').find((option: { id: string }) => option.id === 'query')
+    assert(option)
+    expect(option.label).toBe('QUERY')
+    listbox.vm.$emit('update:modelValue', option)
+    await nextTick()
+
+    expect(listener).toHaveBeenCalledTimes(1)
+    const [event] = listener.mock.calls[0]!
+    expect(event.meta).toStrictEqual({ method: 'get', path: '/api/test' })
+    expect(event.payload).toStrictEqual({ method: 'query', path: '/api/test' })
+    await wrapper.setProps({ method: 'query' })
+    expect(httpMethod.find('button').text()).toBe('QUERY')
   })
 
   it('emits operation:update:pathMethod via eventBus when HttpMethod is clicked and changed', async () => {

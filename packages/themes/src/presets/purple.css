@@ -54,6 +54,7 @@
   --scalar-color-blue: #1763a6;
   --scalar-color-orange: #e25b09;
   --scalar-color-purple: #5c3993;
+  --scalar-color-query: #147873;
 
   --scalar-button-1: rgba(0, 0, 0, 1);
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
@@ -66,6 +67,7 @@
   --scalar-color-blue: #2b7abf;
   --scalar-color-orange: #f07528;
   --scalar-color-purple: #7a59b1;
+  --scalar-color-query: #4ac6b7;
 
   --scalar-button-1: rgba(255, 255, 255, 1);
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);

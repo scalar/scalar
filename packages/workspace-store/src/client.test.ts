@@ -117,6 +117,26 @@ describe('create-workspace-store', () => {
     }
   })
 
+  it('loads QUERY operations from OpenAPI 3.2 documents', async () => {
+    const store = createWorkspaceStore()
+    const operation = {
+      summary: 'Search planets',
+      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+      responses: { '200': { description: 'Search results' } },
+    }
+    await store.addDocument({
+      name: 'query-api',
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Search API', version: '1.0.0' },
+        paths: { '/planets': { query: operation } },
+      },
+    })
+    const document = getOpenApiDocument(store, 'query-api')
+    assert(document)
+    expect(getRaw(getPathItemOperation(document.paths?.['/planets'], 'query'))).toStrictEqual(operation)
+  })
+
   it('correctly update workspace metadata', () => {
     const store = createWorkspaceStore({
       meta: {
