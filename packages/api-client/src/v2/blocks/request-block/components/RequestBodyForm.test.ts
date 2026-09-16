@@ -1,9 +1,10 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
+import { useFileDialog } from '@/hooks/use-file-dialog'
 import { CodeInputLite } from '@/v2/components/code-input'
 
 import RequestBodyForm from './RequestBodyForm.vue'
@@ -504,4 +505,86 @@ describe('RequestBodyForm', () => {
       }
     },
   )
+
+  /** Build a FileList-like object from plain File instances for the file dialog mock. */
+  const toFileList = (files: File[]): FileList =>
+    ({
+      ...files,
+      length: files.length,
+      item: (index: number) => files[index] ?? null,
+      [Symbol.iterator]: function* () {
+        yield* files
+      },
+    }) as unknown as FileList
+
+  const arrayFieldSchema: SchemaObject = {
+    type: 'object',
+    properties: {
+      files: { type: 'array', items: { type: 'string', format: 'binary' } },
+    },
+  }
+
+  it('opens a multi-file picker for array-typed fields and adds one row per file', async () => {
+    vi.mocked(useFileDialog).mockImplementationOnce((options) => {
+      fileDialogOnChange = options?.onChange
+      return { files: readonly(mockFiles), open: mockOpen }
+    })
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: {
+          value: [
+            { name: 'files', value: '', isDisabled: false },
+            { name: 'note', value: 'Keep me', isDisabled: false },
+          ],
+        },
+        bodySchema: arrayFieldSchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    await nextTick()
+
+    await wrapper.findComponent(RequestTable).vm.$emit('uploadFile', 0)
+    await nextTick()
+
+    // The array field opts into a multi-select picker.
+    expect(vi.mocked(useFileDialog).mock.calls.at(-1)?.[0]?.multiple).toBe(true)
+
+    const files = [
+      new File(['a'], 'a.txt', { type: 'text/plain' }),
+      new File(['b'], 'b.txt', { type: 'text/plain' }),
+      new File(['c'], 'c.txt', { type: 'text/plain' }),
+    ]
+    fileDialogOnChange?.(toFileList(files))
+    await nextTick()
+
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          ...files.map((file) => ({ name: 'files', value: file, isDisabled: false })),
+          { name: 'note', value: 'Keep me', isDisabled: false },
+        ],
+      ],
+    ])
+  })
+
+  it('keeps the file picker single-select for non-array fields', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: [{ name: 'avatar', value: '', isDisabled: false }] },
+        bodySchema: {
+          type: 'object',
+          properties: { avatar: { type: 'string', format: 'binary' } },
+        },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    await nextTick()
+
+    await wrapper.findComponent(RequestTable).vm.$emit('uploadFile', 0)
+    await nextTick()
+
+    expect(vi.mocked(useFileDialog).mock.calls.at(-1)?.[0]?.multiple).toBe(false)
+  })
 })
