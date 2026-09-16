@@ -1,5 +1,12 @@
 # @scalar/void-server
 
+## 2.5.10
+
+### Patch Changes
+
+- [#10190](https://github.com/scalar/scalar/pull/10190): Update Hono to allow HTTP QUERY requests in default CORS preflight responses.
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+
 ## 2.5.9
 
 ## 2.5.8

@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.1.28
+
+### Patch Changes
+
+- [#10166](https://github.com/scalar/scalar/pull/10166): Fix the workspace settings options turning into an unreadable dark row while being clicked, give the selected option a visible highlight and make light theme swatches visible against the background
+
 ## 1.1.27
 
 ## 1.1.26

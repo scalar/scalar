@@ -1,5 +1,11 @@
 # @scalar/json-schema-validator
 
+## 0.1.2
+
+### Patch Changes
+
+- [#10202](https://github.com/scalar/scalar/pull/10202): Explain invalid URI references and OpenAPI component names, and return parser errors for malformed reference escapes.
+
 ## 0.1.1
 
 ## 0.1.0
