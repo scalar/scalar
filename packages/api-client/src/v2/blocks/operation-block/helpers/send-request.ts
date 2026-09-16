@@ -88,7 +88,7 @@ export const sendRequest = async ({
   /** Optional custom fetch implementation, overrides the global fetch */
   customFetch?: CustomFetch
   /** Runs before response processing and returns the response to use. */
-  onResponseReceived?: (response: Response) => Promise<Response>
+  onResponseReceived?: (response: Response, responseDuration: number) => Promise<Response>
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -110,7 +110,7 @@ export const sendRequest = async ({
     const timestamp = Date.now()
     const duration = endTime - startTime
 
-    const response = onResponseReceived ? await onResponseReceived(fetchedResponse) : fetchedResponse
+    const response = onResponseReceived ? await onResponseReceived(fetchedResponse, duration) : fetchedResponse
 
     // Extract response metadata early for reuse
     const contentType = response.headers.get('content-type')

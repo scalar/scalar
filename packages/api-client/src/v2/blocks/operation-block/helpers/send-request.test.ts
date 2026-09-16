@@ -1397,6 +1397,27 @@ describe('sendRequest', () => {
       expect(initArg.body).toBe(body)
     })
   })
+  it('passes the network duration to response hooks without including hook execution time', async () => {
+    const now = vi.spyOn(performance, 'now').mockReturnValueOnce(10).mockReturnValueOnce(135.5)
+    globalFetchSpy.mockResolvedValueOnce(addUrlToResponse(Response.json({ ok: true }), MOCK_URL))
+    const onResponseReceived = vi.fn((response: Response) => Promise.resolve(response))
+
+    try {
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, { method: 'GET' }],
+        onResponseReceived,
+      })
+
+      expect(error).toBeNull()
+      expect(onResponseReceived.mock.calls[0]?.[0]).toBeInstanceOf(Response)
+      expect(onResponseReceived).toHaveBeenCalledWith(expect.any(Response), 125.5)
+      expect(result?.response.duration).toBe(125.5)
+    } finally {
+      now.mockRestore()
+    }
+  })
+
   it('uses intercepted body, status and headers while retaining the fetched URL', async () => {
     globalFetchSpy.mockResolvedValueOnce(addUrlToResponse(new Response('original'), `${MOCK_URL}/redirected?q=1`))
 

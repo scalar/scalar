@@ -1,4 +1,5 @@
 ---
+'@scalar/helpers': patch
 '@scalar/api-client': minor
 '@scalar/api-reference': minor
 '@scalar/oas-utils': minor

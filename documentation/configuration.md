@@ -1596,6 +1596,8 @@ Client plugins can use `hooks.responseReceived` with the same return behavior. P
 
 For streaming responses, avoid `response.text()` or `response.json()` unless the stream is finite. To transform a stream, return a `Response` backed by a stream instead. Post-response scripts continue to receive stream status and headers with an empty body. Hook errors are reported as request failures.
 
+If a hook acquires a stream reader with `response.body.getReader()`, release its lock in a `finally` block with `reader.releaseLock()` before the hook returns or throws. Scalar cannot cancel a discarded clone while its body is locked. A returned streaming response may retain the reader while consuming the stream, but it must release the reader when it finishes or is canceled.
+
 ### onRequestSent
 
 **Type:** `(request: string) => void`

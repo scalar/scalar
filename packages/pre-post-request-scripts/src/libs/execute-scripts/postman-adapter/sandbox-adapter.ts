@@ -1,5 +1,6 @@
 import { normalizeError } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
+import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 
 import type { ConsoleContext } from '../context/console'
@@ -31,9 +32,9 @@ export const toPostmanResponse = async (
   // survive the trip through `postMessage` byte-for-byte. Round-tripping through `response.text()`
   // + `TextEncoder` corrupts any sequence that is not valid UTF-8 because the decoder replaces
   // invalid units with U+FFFD before we ever encode them back to bytes.
-  // Event streams may never finish. Keep post-response scripts limited to their metadata,
+  // Streaming responses may never finish. Keep post-response scripts limited to their metadata,
   // as before hooks moved ahead of response processing, so scripts cannot block the viewer.
-  const buffer = response.headers.get('content-type')?.startsWith('text/event-stream')
+  const buffer = isStreamingContentType(response.headers.get('content-type'))
     ? new ArrayBuffer(0)
     : await response.arrayBuffer()
   const responseBytes = Array.from(new Uint8Array(buffer))

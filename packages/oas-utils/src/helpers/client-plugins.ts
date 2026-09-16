@@ -269,41 +269,14 @@ type HookPayloadMap = {
 }
 
 /**
- * Execute any hook with type-safe payload handling.
+ * Execute a request hook with type-safe payload handling.
  * The payload type is inferred from the hook name to ensure correct usage.
  */
-export const executeHook = async <K extends keyof HookPayloadMap>(
+export const executeHook = async <K extends Exclude<keyof HookPayloadMap, 'responseReceived'>>(
   payload: HookPayloadMap[K],
   hookName: K,
   plugins: ClientPlugin[],
 ): Promise<HookPayloadMap[K]> => {
-  if (hookName === 'responseReceived') {
-    let current = payload as HookPayloadMap['responseReceived']
-    for (const plugin of plugins) {
-      const hook = plugin.hooks?.responseReceived
-      if (hook) {
-        const previousResponse = current.response
-        const clone = previousResponse.clone()
-        let nextResponse: Response | undefined
-        try {
-          const response = await hook({ ...current, response: clone })
-          nextResponse = response ?? previousResponse
-          current = { ...current, response: nextResponse }
-        } finally {
-          // Release discarded tee branches on success or failure so open streams cannot buffer
-          // without a consumer. A transformed stream owns its locked input.
-          // Do not await cancellation: it can wait for the retained branch to finish.
-          for (const body of [previousResponse.body, clone.body]) {
-            if (body && body !== nextResponse?.body && !body.locked) {
-              void body.cancel().catch(() => {})
-            }
-          }
-        }
-      }
-    }
-    return current as HookPayloadMap[K]
-  }
-
   let currentPayload = payload
 
   for (const plugin of plugins) {
@@ -315,6 +288,37 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
   }
 
   return currentPayload
+}
+
+/** Execute response hooks in order, releasing discarded stream branches after each hook. */
+export const executeResponseHook = async (
+  payload: HookPayloadMap['responseReceived'],
+  plugins: ClientPlugin[],
+): Promise<HookPayloadMap['responseReceived']> => {
+  let current = payload
+  for (const plugin of plugins) {
+    const hook = plugin.hooks?.responseReceived
+    if (hook) {
+      const previousResponse = current.response
+      const clone = previousResponse.clone()
+      let nextResponse: Response | undefined
+      try {
+        const response = await hook({ ...current, response: clone })
+        nextResponse = response ?? previousResponse
+        current = { ...current, response: nextResponse }
+      } finally {
+        // Release discarded tee branches on success or failure so open streams cannot buffer
+        // without a consumer. A transformed stream owns its locked input.
+        // Do not await cancellation: it can wait for the retained branch to finish.
+        for (const body of [previousResponse.body, clone.body]) {
+          if (body && body !== nextResponse?.body && !body.locked) {
+            void body.cancel().catch(() => {})
+          }
+        }
+      }
+    }
+  }
+  return current
 }
 
 type WebSocketHookPayloadMap = {

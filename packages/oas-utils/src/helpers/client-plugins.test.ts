@@ -2,7 +2,7 @@ import type { RequestFactory } from '@scalar/workspace-store/request-example'
 import { describe, expect, it } from 'vitest'
 
 import type { ClientPlugin } from './client-plugins'
-import { executeHook } from './client-plugins'
+import { executeHook, executeResponseHook } from './client-plugins'
 
 const createFactory = (headers?: Record<string, string>): RequestFactory => ({
   options: {},
@@ -207,7 +207,7 @@ describe('executeHook', () => {
       },
     }
 
-    const responseResult = await executeHook(responsePayload, 'responseReceived', [responsePlugin])
+    const responseResult = await executeResponseHook(responsePayload, [responsePlugin])
 
     expect(responseResult.response).toBeInstanceOf(Response)
     expect(responseResult.operation).toEqual(operation)
@@ -222,9 +222,8 @@ describe('executeHook', () => {
         },
       },
     }
-    const result = await executeHook(
+    const result = await executeResponseHook(
       { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
-      'responseReceived',
       [plugin, {}, plugin],
     )
 
@@ -235,13 +234,12 @@ describe('executeHook', () => {
 
   it('passes replacement responses to subsequent hooks in order', async () => {
     const first = Response.json({ count: 1 }, { status: 201 })
-    const result = await executeHook(
+    const result = await executeResponseHook(
       {
         ...beforePayload(createFactory()),
         request: new Request('https://example.com'),
         response: Response.json({ count: 0 }),
       },
-      'responseReceived',
       [
         { hooks: { responseReceived: () => first } },
         {
@@ -262,9 +260,8 @@ describe('executeHook', () => {
 
   it('preserves streaming bodies when an observer precedes a stream replacement', async () => {
     const response = new Response('data: original\n\n', { headers: { 'content-type': 'text/event-stream' } })
-    const result = await executeHook(
+    const result = await executeResponseHook(
       { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
-      'responseReceived',
       [
         {
           hooks: {
@@ -302,9 +299,8 @@ describe('executeHook', () => {
           },
         }),
       )
-      const result = await executeHook(
+      const result = await executeResponseHook(
         { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
-        'responseReceived',
         [
           {
             hooks: {
@@ -345,9 +341,8 @@ describe('executeHook', () => {
         },
       }),
     )
-    const result = await executeHook(
+    const result = await executeResponseHook(
       { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
-      'responseReceived',
       [{ hooks: { responseReceived: () => Response.json({ replaced: true }) } }],
     )
 
@@ -366,9 +361,8 @@ describe('executeHook', () => {
     )
     const error = new Error('interception failed')
     await expect(
-      executeHook(
+      executeResponseHook(
         { ...beforePayload(createFactory()), request: new Request('https://example.com'), response },
-        'responseReceived',
         [{ hooks: { responseReceived: () => Promise.reject(error) } }],
       ),
     ).rejects.toBe(error)
@@ -377,13 +371,12 @@ describe('executeHook', () => {
 
   it('propagates response hook errors', async () => {
     await expect(
-      executeHook(
+      executeResponseHook(
         {
           ...beforePayload(createFactory()),
           request: new Request('https://example.com'),
           response: new Response('original'),
         },
-        'responseReceived',
         [
           {
             hooks: {
