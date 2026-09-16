@@ -18,6 +18,8 @@ export default defineConfig({
     dedupe: ['vue'],
   },
   build: {
+    // This package only renders on the server; avoid building client-side VNode trees.
+    ssr: true,
     outDir: './dist',
     minify: false,
     sourcemap: true,

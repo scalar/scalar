@@ -51,12 +51,16 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
+    "@amritk/resolve-refs": "0.2.0",
+    "@amritk/yaml": "0.1.1",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
+    "hast-util-from-parse5": "^8.0.1",
     "html-minifier-terser": "^7.2.0",
-    "rehype-parse": "^9.0.1",
+    "parse5": "^7.3.0",
     "rehype-remark": "^10.0.1",
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
@@ -71,6 +75,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "hono": "catalog:*",
+    "rehype-parse": "^9.0.1",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*"

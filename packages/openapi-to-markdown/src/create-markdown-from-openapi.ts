@@ -1,13 +1,19 @@
+import { readFile } from 'node:fs/promises'
+import { resolve as resolvePath } from 'node:path'
+import { setImmediate } from 'node:timers/promises'
+
+import { parse as parseYaml } from '@amritk/yaml'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { normalize } from '@scalar/json-magic/helpers/normalize'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
+import { upgrade } from '@scalar/openapi-upgrader'
+import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { fromParse5 } from 'hast-util-from-parse5'
 import { minify } from 'html-minifier-terser'
-import rehypeParse from 'rehype-parse'
+import { parseFragment } from 'parse5'
 import rehypeRemark from 'rehype-remark'
 import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
@@ -16,6 +22,9 @@ import { unified } from 'unified'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
+import { attachRefValues } from './amritk/attach-ref-values'
+import { bundleExternalRefs } from './amritk/bundle-external-refs'
+import { parseOpenApiDocument } from './amritk/generated/openapidocument'
 import MarkdownReference from './components/MarkdownReference.vue'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
@@ -77,7 +86,13 @@ const toWorkspaceInput = (input: AnyDocument): WorkspaceInput => {
     return { document: input as Record<string, unknown> }
   }
 
-  const normalized = normalize(input)
+  const normalized = (() => {
+    try {
+      return parseContent(input)
+    } catch {
+      return input
+    }
+  })()
 
   if (isObject(normalized)) {
     return { document: normalized as Record<string, unknown> }
@@ -457,59 +472,103 @@ const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions
   return selected
 }
 
-/** A resolved API description that can render multiple pages without loading it again. */
-export type OpenApiMarkdownRenderer = {
-  render: (options?: OpenApiRenderOptions) => Promise<string>
-  renderHtml: (options?: OpenApiRenderOptions) => Promise<string>
-}
-
-/**
- * Load and resolve an API description once, then render any number of selections.
- * Each renderer owns its document; create a new renderer to pick up source changes.
- */
-export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise<OpenApiMarkdownRenderer> => {
-  const workspaceStore = createWorkspaceStore({
-    fileLoader: readFiles(),
-  })
-
-  const name = 'openapi-to-markdown'
-  const loaded = await workspaceStore.addDocument({
-    name,
-    ...toWorkspaceInput(input),
-  })
-
-  if (!loaded) {
-    throw new Error('Failed to load OpenAPI document')
-  }
-
-  const content = workspaceStore.workspace.documents[name]
-
-  if (!content) {
-    throw new Error('OpenAPI document could not be resolved')
-  }
-
-  const renderHtml = (options?: OpenApiRenderOptions): Promise<string> =>
-    renderDocumentAsHtml(content as OpenApiDocument, options)
-
-  return {
-    renderHtml,
-    render: async (options) => markdownFromHtml(await renderHtml(options)),
+/** Prefer JSON parsing before falling back to the same YAML parser as the experimental store. */
+const parseContent = (raw: string): unknown => {
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return parseYaml(raw)
   }
 }
 
-const renderDocumentAsHtml = async (content: OpenApiDocument, options?: OpenApiRenderOptions): Promise<string> => {
-  const renderedContent = selectDocument(content, options)
+/** Load, externally bundle and coerce a plain graph using the @amritk store pipeline. */
+const loadDocument = async (input: AnyDocument): Promise<OpenApiDocument> => {
+  const source = toWorkspaceInput(input)
+  const load = async (): Promise<{ document: unknown; baseLocation?: string }> => {
+    if ('document' in source) return { document: deepClone(getRaw(source.document)) }
+    if ('path' in source) {
+      const baseLocation = resolvePath(source.path)
+      return { document: parseContent(await readFile(baseLocation, 'utf8')), baseLocation }
+    }
+    const response = await fetch(source.url)
+    if (!response.ok) throw new Error(`Failed to load OpenAPI document (HTTP ${response.status})`)
+    return { document: parseContent(await response.text()), baseLocation: source.url }
+  }
+  const { document: raw, baseLocation } = await load()
+  if (!isObject(raw)) throw new Error('Failed to load OpenAPI document')
+  // The experimental generated parser targets 3.1; retain the existing migration support.
+  const upgraded = upgrade(raw, '3.1')
+  const bundled = await bundleExternalRefs(upgraded, { baseLocation, remote: true, allowPrivateHosts: true })
+  if (bundled.errors.length) throw new Error(bundled.errors.map(({ message }) => message).join('\n'))
+  const document = parseOpenApiDocument(bundled.document)
+  // Use the store's compatibility seam, avoiding an ambient active document shared between renders.
+  attachRefValues(document)
+  return document as unknown as OpenApiDocument
+}
 
-  // Create and configure a server-side rendered Vue app
+type RenderPart = { content: OpenApiDocument; introduction?: boolean; heading?: string }
+
+/** Keep each Vue tree and Markdown syntax tree limited to one reference section. */
+function* getRenderParts(content: OpenApiDocument): Generator<RenderPart> {
+  const empty = {
+    ...content,
+    paths: {},
+    webhooks: {},
+    tags: [],
+    components: { securitySchemes: content.components?.securitySchemes },
+  }
+  yield { content: empty, introduction: true }
+  for (const [index, tag] of (content.tags ?? []).entries()) {
+    yield { content: { ...empty, tags: [tag] }, heading: index === 0 ? 'Tags' : undefined }
+  }
+  for (const [key, heading] of [
+    ['paths', 'Operations'],
+    ['webhooks', 'Webhooks'],
+  ] as const) {
+    let first = true
+    for (const [path, ref] of Object.entries(content[key] ?? {})) {
+      const item = getResolvedPathItem(ref)
+      if (!item) {
+        continue
+      }
+      for (const methodKey of Object.keys(item)) {
+        const method = normalizeHttpMethod(methodKey)
+        if (!method || !getPathItemOperation(item, method)) {
+          continue
+        }
+        yield {
+          content: { ...empty, [key]: { [path]: filterPathItemToSingleOperation(item, method) } },
+          heading: first ? heading : undefined,
+        }
+        first = false
+      }
+    }
+  }
+  let firstSchema = true
+  for (const [name, schema] of Object.entries(content.components?.schemas ?? {})) {
+    if (!getResolvedRef(schema)) {
+      continue
+    }
+    yield {
+      content: { ...empty, components: { ...empty.components, schemas: { [name]: schema } } },
+      heading: firstSchema ? 'Schemas' : undefined,
+    }
+    firstSchema = false
+  }
+}
+
+const renderPart = async (part: RenderPart, clean = true): Promise<string> => {
   const app = createSSRApp(MarkdownReference, {
-    content: renderedContent,
+    content: part.content,
+    part: true,
+    introduction: part.introduction ?? false,
   })
-
-  // Get static HTML
   const html = await renderToString(app)
-
-  // Clean the output
-  return minify(html, {
+  const result = `${part.heading ? `<h2>${part.heading}</h2>` : ''}${html}`
+  if (!clean) {
+    return result
+  }
+  return minify(result, {
     removeComments: true,
     removeEmptyElements: true,
     collapseWhitespace: true,
@@ -522,26 +581,46 @@ const renderDocumentAsHtml = async (content: OpenApiDocument, options?: OpenApiR
   })
 }
 
-export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenApiRenderOptions): Promise<string> {
-  const renderer = await createOpenApiMarkdownRenderer(input)
-  return renderer.renderHtml(options)
+/** Render an API description as HTML, releasing each section before rendering the next. */
+export const createHtmlFromOpenApi = async (input: AnyDocument, options?: OpenApiRenderOptions): Promise<string> => {
+  const content = selectDocument(await loadDocument(input), options)
+  const output: string[] = []
+  for (const part of getRenderParts(content)) {
+    output.push(await renderPart(part))
+    await setImmediate()
+  }
+  return output.join('')
 }
 
-export async function createMarkdownFromOpenApi(content: AnyDocument, options?: OpenApiRenderOptions): Promise<string> {
-  const renderer = await createOpenApiMarkdownRenderer(content)
-  return renderer.render(options)
+/** Convert sections sequentially so large documents do not require a whole-document syntax tree. */
+export const createMarkdownFromOpenApi = async (
+  input: AnyDocument,
+  options?: OpenApiRenderOptions,
+): Promise<string> => {
+  const content = selectDocument(await loadDocument(input), options)
+  const output: string[] = []
+  for (const part of getRenderParts(content)) {
+    const markdown = (await markdownFromHtml(await renderPart(part, false))).trim()
+    if (markdown) {
+      output.push(markdown)
+    }
+    // Release the completed job before allocating the next section.
+    await setImmediate()
+  }
+  return `${output.join('\n\n')}\n`
 }
 
-async function markdownFromHtml(html: string): Promise<string> {
-  const file = await unified()
-    .use(rehypeParse, { fragment: true })
-    .use(remarkGfm)
-    .use(rehypeSanitize)
-    .use(rehypeRemark)
-    .use(remarkStringify, {
-      bullet: '-',
-    })
-    .process(html)
+const markdownProcessor = unified()
+  .use(remarkGfm)
+  .use(rehypeSanitize)
+  .use(rehypeRemark)
+  .use(remarkStringify, { bullet: '-' })
+  .freeze()
 
-  return String(file)
+const markdownFromHtml = async (html: string): Promise<string> => {
+  // Generated HTML needs no source locations. Avoid retaining offsets for both
+  // the HTML parser tree and the Markdown tree for every rendered node.
+  const tree = fromParse5(parseFragment(html, { sourceCodeLocationInfo: false, scriptingEnabled: false }))
+  if (tree.type !== 'root') throw new Error('Expected an HTML fragment')
+  return markdownProcessor.stringify(await markdownProcessor.run(tree))
 }
