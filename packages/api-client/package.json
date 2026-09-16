@@ -307,6 +307,7 @@
   "dependencies": {
     "@headlessui/tailwindcss": "catalog:*",
     "@headlessui/vue": "catalog:*",
+    "@internationalized/date": "catalog:*",
     "@scalar/blocks": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",

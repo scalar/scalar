@@ -1,0 +1,169 @@
+import { describe, expect, it } from 'vitest'
+
+import {
+  type DateParts,
+  formatDate,
+  formatTime,
+  formatValue,
+  getLocalTimezoneOffset,
+  parseValue,
+  partsFromDate,
+} from './date-parts'
+
+const parts = (overrides: Partial<DateParts> = {}): DateParts => ({
+  year: 2024,
+  month: 3,
+  day: 20,
+  hour: 13,
+  minute: 45,
+  second: 30,
+  offset: 'Z',
+  ...overrides,
+})
+
+describe('date-parts', () => {
+  it('parses a date value', () => {
+    expect(parseValue('2024-03-20', 'date')).toStrictEqual({
+      year: 2024,
+      month: 3,
+      day: 20,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      offset: '',
+    })
+  })
+
+  it('parses a time value with seconds', () => {
+    expect(parseValue('13:45:30', 'time')).toStrictEqual({
+      year: 0,
+      month: 0,
+      day: 0,
+      offset: '',
+      hour: 13,
+      minute: 45,
+      second: 30,
+    })
+  })
+
+  it('parses a time value without seconds', () => {
+    expect(parseValue('09:05', 'time')).toStrictEqual({
+      year: 0,
+      month: 0,
+      day: 0,
+      offset: '',
+      hour: 9,
+      minute: 5,
+      second: 0,
+    })
+  })
+
+  it('parses a date-time value and keeps the offset', () => {
+    expect(parseValue('2024-03-20T13:45:30+02:00', 'date-time')).toStrictEqual({
+      year: 2024,
+      month: 3,
+      day: 20,
+      hour: 13,
+      minute: 45,
+      second: 30,
+      offset: '+02:00',
+    })
+  })
+
+  it('parses a date-time value with a Z offset and fractional seconds', () => {
+    expect(parseValue('2024-03-20T13:45:30.123Z', 'date-time')).toStrictEqual({
+      year: 2024,
+      month: 3,
+      day: 20,
+      fraction: '.123',
+      hour: 13,
+      minute: 45,
+      second: 30,
+      offset: 'Z',
+    })
+  })
+
+  it.each(['13:45:30Z', '13:45:30+02:00', '13:45:30.123', '13:45:30.123Z'])(
+    'preserves time fields, fraction and offset in %s',
+    (value) => {
+      const parsed = parseValue(value, 'time')
+      expect(parsed).toStrictEqual({
+        year: 0,
+        month: 0,
+        day: 0,
+        hour: 13,
+        minute: 45,
+        second: 30,
+        offset: value.endsWith('Z') ? 'Z' : value.endsWith('+02:00') ? '+02:00' : '',
+        ...(value.includes('.123') ? { fraction: '.123' } : {}),
+      })
+      expect(formatValue(parsed!, 'time')).toBe(value)
+    },
+  )
+
+  it('returns null for free-text or variable values', () => {
+    expect(parseValue('not a date', 'date')).toBeNull()
+    expect(parseValue('{{myDate}}', 'date-time')).toBeNull()
+    expect(parseValue('', 'time')).toBeNull()
+  })
+
+  it('does not treat a bare date as a date-time', () => {
+    expect(parseValue('2024-03-20', 'date-time')).toBeNull()
+  })
+  it('formats a date', () => {
+    expect(formatValue(parts(), 'date')).toBe('2024-03-20')
+  })
+
+  it('formats a time', () => {
+    expect(formatValue(parts({ offset: '' }), 'time')).toBe('13:45:30')
+  })
+
+  it('formats a date-time with the supplied offset', () => {
+    expect(formatValue(parts({ offset: '+02:00' }), 'date-time')).toBe('2024-03-20T13:45:30+02:00')
+  })
+
+  it('zero-pads single-digit fields', () => {
+    expect(formatValue(parts({ month: 1, day: 5, hour: 9 }), 'date-time')).toBe('2024-01-05T09:45:30Z')
+  })
+
+  it('round-trips a parsed date-time', () => {
+    const value = '2024-03-20T13:45:30+02:00'
+    const parsed = parseValue(value, 'date-time')
+    expect(parsed).not.toBeNull()
+    expect(formatValue(parsed!, 'date-time')).toBe(value)
+  })
+  it('formats the date portion', () => {
+    expect(formatDate(parts())).toBe('2024-03-20')
+  })
+
+  it('formats the time portion', () => {
+    expect(formatTime(parts())).toBe('13:45:30')
+  })
+  it('formats a positive offset', () => {
+    // -120 minutes reported → UTC+02:00
+    const date = { getTimezoneOffset: () => -120 } as Date
+    expect(getLocalTimezoneOffset(date)).toBe('+02:00')
+  })
+
+  it('formats a negative offset', () => {
+    const date = { getTimezoneOffset: () => 300 } as Date
+    expect(getLocalTimezoneOffset(date)).toBe('-05:00')
+  })
+
+  it('formats UTC as +00:00', () => {
+    const date = { getTimezoneOffset: () => 0 } as Date
+    expect(getLocalTimezoneOffset(date)).toBe('+00:00')
+  })
+  it('reads the local fields from a date', () => {
+    const date = new Date(2024, 2, 20, 13, 45, 30)
+    expect(partsFromDate(date)).toStrictEqual({
+      offset: getLocalTimezoneOffset(date),
+      year: 2024,
+      month: 3,
+      day: 20,
+      hour: 13,
+      minute: 45,
+      second: 30,
+    })
+  })
+})
