@@ -45,6 +45,7 @@
     "test:e2e:cdn": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ TEST_MODE=CDN playwright test",
     "test:e2e:cdn:ci": "TEST_MODE=CDN playwright test",
     "test:e2e:ci": "playwright test",
+    "test:e2e:mermaid": "playwright test -c playwright.mermaid.config.ts",
     "test:e2e:storybook": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test -c playwright.storybook.config.ts",
     "test:e2e:storybook:ci": "playwright test -c playwright.storybook.config.ts",
     "test:e2e:storybook:update-snapshots": "pnpm test:e2e:storybook --update-snapshots",

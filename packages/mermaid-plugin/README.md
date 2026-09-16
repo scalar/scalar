@@ -52,4 +52,4 @@ const myPlugin = () => ({
 })
 ```
 
-The hook receives the original source, the rendered container, and a cancellation signal. It can return a cleanup callback or a promise for one. Hooks are scoped to their API Reference instance and must be registered in the initial configuration. Treat the Markdown source as untrusted and sanitize any HTML that your plugin adds.
+The hook receives the original source, the rendered container, and a cancellation signal. It can return a cleanup callback or a promise for one. Hooks are scoped to their API Reference instance and must be registered in the initial configuration. Mark block-level enhancements with `data-markdown-block` so collapsed Markdown summaries hide the complete block until expansion. Treat the Markdown source as untrusted and sanitize any HTML that your plugin adds.
