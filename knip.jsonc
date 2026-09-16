@@ -140,6 +140,7 @@
     "packages/api-reference": {
       "entry": [
         "playground/mermaid/main.ts",
+        "playground/mermaid/summary.ts",
         "src/index.ts",
         "src/components/index.ts",
         "src/blocks/index.ts",
