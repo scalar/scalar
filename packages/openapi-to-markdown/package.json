@@ -21,7 +21,6 @@
     "node": ">=22"
   },
   "scripts": {
-    "bench:reuse": "node benchmarks/reusable-renderer.mjs",
     "build": "vite build && vue-tsc -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
     "test": "vitest --run",
