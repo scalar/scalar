@@ -918,10 +918,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .t-editor.page {
     margin-right: unset;
   }
-  .t-editor .slider,
-  .t-editor .hero-visual {
-    margin-top: unset;
-  }
   .t-editor .editor-static .page-node,
   .t-editor .page-node,
   .t-editor .content {
@@ -979,7 +975,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   }
   .hero-visual {
     position: relative;
-    margin-top: 64px;
+    margin-top: 0;
     padding-top: 64px;
     /* 76px wider per side than the content column, so the cards line up with
        the product images below -- those sit at -76px (see
