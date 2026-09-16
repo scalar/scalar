@@ -23,6 +23,7 @@ import {
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
 import { getChannelServerLabels } from './helpers/get-async-api-labels'
+import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
 import {
   resolveAsyncApiChannel,
@@ -145,6 +146,13 @@ const onToggle = (open: boolean) => {
   eventBus?.emit('toggle:nav-item', { id: message.id, open })
 }
 
+// Computed lazily when the expanded accordion renders its examples, then cached until the message changes.
+const generatedPayload = computed(() =>
+  resolvedMessage.value
+    ? getGeneratedPayloadExample(resolvedMessage.value)
+    : undefined,
+)
+
 const { level: headingLevel } = useDocumentOutline('message')
 </script>
 
@@ -214,7 +222,8 @@ const { level: headingLevel } = useDocumentOutline('message')
         </div>
         <MessageExamples
           class="message-examples"
-          :examples="resolvedMessage?.examples" />
+          :examples="resolvedMessage?.examples"
+          :generatedPayload="isExpanded ? generatedPayload : undefined" />
       </div>
     </SectionAccordion>
   </div>

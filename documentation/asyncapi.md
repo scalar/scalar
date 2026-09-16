@@ -125,6 +125,14 @@ Rendering works in both the `modern` and `classic` layouts.
   size="full">
 </scalar-image>
 
+## Payload examples
+
+Message-level `examples` appear in a code panel with a copy button and a picker when there is more than one example. Examples inherited from message traits are supported too.
+
+When no message example contains a payload, Scalar generates a representative payload from its JSON Schema automatically. Schema examples, defaults, and enum values are used by the shared example generator. The panel labels this fallback **Generated example**. Header-only examples remain available separately.
+
+Generation supports native JSON Schema payloads and JSON Schema or AsyncAPI Schema wrappers. Other schema formats, such as Avro, and boolean payload schemas do not generate examples. Generated values illustrate the payload structure; they are not guaranteed to satisfy every JSON Schema constraint.
+
 ## Filtering by protocol and server
 
 When a document defines more than one protocol or server, **filter pickers** appear at the top of the sidebar, stacked beneath the document picker and working just like it:
