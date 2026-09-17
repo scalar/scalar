@@ -42,23 +42,26 @@ const isDiscriminatorProperty = (schema: Schema): boolean => {
   return false
 }
 
-/** Scores are shared across every union selection in one coercion call. */
+/**
+ * Scores are shared only within one coercion call. Evaluate expressions must not mutate their input
+ * during scoring: completed scores assume the value/schema pair stays unchanged for this call.
+ */
 type ScoringContext = {
   active: WeakMap<object, Set<Schema>>
   completed: WeakMap<object, Map<Schema, number>>
-  depth: number
-  encounteredCycle: boolean
+  cycleCount: number
 }
 
 /**
  * Reuses completed scores without confusing them with the neutral score used
- * to break cycles. Once a traversal encounters a cycle, its scores can depend
- * on the active ancestors, so none are memoized until that traversal unwinds.
+ * to break cycles. A frame is memoized only if its subtree never encountered an active ancestor.
+ * A cycle in a preceding sibling therefore does not prevent caching this independent subtree.
+ * Cyclic rings still depend on active ancestors and can require exponential scoring work.
  */
 const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache, scoring: ScoringContext): number => {
   const trackable = isObject(value)
   if (trackable && scoring.active.get(value)?.has(schema)) {
-    scoring.encounteredCycle = true
+    scoring.cycleCount++
     return 1
   }
 
@@ -72,11 +75,11 @@ const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache, scorin
     schemas.add(schema)
     scoring.active.set(value, schemas)
   }
-  scoring.depth++
+  const cycleCount = scoring.cycleCount
 
   try {
     const score = scoreUnionInner(schema, value, lazyCache, scoring)
-    if (trackable && !scoring.encounteredCycle) {
+    if (trackable && scoring.cycleCount === cycleCount) {
       const schemas = scoring.completed.get(value) ?? new Map<Schema, number>()
       schemas.set(schema, score)
       scoring.completed.set(value, schemas)
@@ -85,10 +88,6 @@ const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache, scorin
   } finally {
     if (trackable) {
       scoring.active.get(value)?.delete(schema)
-    }
-    scoring.depth--
-    if (scoring.depth === 0) {
-      scoring.encounteredCycle = false
     }
   }
 }
@@ -364,6 +363,5 @@ export const coerce = <S extends Schema>(
   coerceInner(schema, value, cache, lazyCache, {
     active: new WeakMap(),
     completed: new WeakMap(),
-    depth: 0,
-    encounteredCycle: false,
+    cycleCount: 0,
   }) as SafeStatic<S>

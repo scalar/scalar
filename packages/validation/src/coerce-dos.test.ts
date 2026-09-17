@@ -23,23 +23,7 @@ const buildChain = (depth: number): Record<string, unknown> => {
 }
 
 describe('coerce-dos', () => {
-  it('coerces a recursive union in roughly linear time (no exponential branch scoring)', () => {
-    // At depth 19 the input is ~600 bytes. Without memoization, scoring is
-    // ~2^19 work and takes several seconds; with memoization it is a few ms.
-    const value = buildChain(19)
-
-    const start = performance.now()
-    const result = coerce(node, value)
-    const elapsed = performance.now() - start
-
-    // Coercion still works: the value matches a branch and is returned intact.
-    expect(result).toStrictEqual(value)
-
-    // The actual regression: this must not blow up exponentially.
-    expect(elapsed).toBeLessThan(500)
-  }, 30_000)
-
-  it('keeps property reads linear across successive union selections', () => {
+  it.each([false, true])('keeps acyclic subtree reads linear after a preceding cycle: %s', (cyclicParent) => {
     const readsAtDepth = (depth: number): number => {
       const reads = { count: 0 }
       const chain = (remaining: number): Record<string, unknown> => ({
@@ -49,7 +33,17 @@ describe('coerce-dos', () => {
         },
         ...(remaining > 0 ? { next: chain(remaining - 1) } : {}),
       })
-      const result = coerce(node, chain(depth))
+      const parent: Schema = lazy(() =>
+        union([
+          object({ kind: literal('a'), next: optional(parent), payload: node }),
+          object({ kind: literal('b'), next: optional(parent), payload: node }),
+        ]),
+      )
+      const value: Record<string, unknown> = { kind: 'a', payload: chain(depth) }
+      value.next = value
+      const result = cyclicParent
+        ? (coerce(parent, value) as Record<string, unknown>).payload
+        : coerce(node, value.payload)
       expect(result).toStrictEqual(buildChain(depth))
       return reads.count
     }
@@ -72,6 +66,22 @@ describe('coerce-dos', () => {
     expect(result.kind).toBe('b')
     expect(next.kind).toBe('a')
     expect(next.next).toBe(next)
+  })
+
+  it('terminates a small cyclic ring without claiming linear scoring for cyclic input', () => {
+    // Every node depends on an active ancestor in a ring, so these scores cannot be reused safely.
+    // Keep the example small: the current cycle-neutral scoring still has exponential worst-case work.
+    const ring: Record<string, unknown>[] = Array.from({ length: 6 }, () => ({ kind: 'a' }))
+    for (const [index, entry] of ring.entries()) {
+      entry.next = ring[(index + 1) % ring.length]
+    }
+    const result = coerce(node, ring[0]) as Record<string, unknown>
+    let current = result
+    for (const _entry of ring) {
+      expect(current.kind).toBe('a')
+      current = current.next as Record<string, unknown>
+    }
+    expect(current).toBe(result)
   })
 
   it('recomputes scores when an input changes between coercion calls', () => {
