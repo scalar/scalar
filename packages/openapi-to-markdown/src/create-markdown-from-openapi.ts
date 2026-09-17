@@ -1,15 +1,10 @@
-import { readFile } from 'node:fs/promises'
-import { resolve as resolvePath } from 'node:path'
 import { setImmediate } from 'node:timers/promises'
 
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
-import { getRaw } from '@scalar/json-magic/magic-proxy'
-import { upgrade } from '@scalar/openapi-upgrader'
-import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -23,7 +18,6 @@ import { unified } from 'unified'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 
-import { attachRefValues } from './attach-ref-values'
 import MarkdownReference from './components/MarkdownReference.vue'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
@@ -53,7 +47,7 @@ type PageSelectors = {
   webhook: { name: string; method: HttpMethod | Uppercase<HttpMethod> }
   introduction: true
 }
-type DocumentInput =
+type WorkspaceInput =
   | {
       document: Record<string, unknown>
     }
@@ -80,7 +74,7 @@ const isHttpUrl = (value: string): boolean => {
   }
 }
 
-const toDocumentInput = (input: AnyDocument): DocumentInput => {
+const toWorkspaceInput = (input: AnyDocument): WorkspaceInput => {
   if (typeof input !== 'string') {
     return { document: input as Record<string, unknown> }
   }
@@ -465,41 +459,6 @@ const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions
   return selected
 }
 
-/** Load and bundle a private plain graph without creating an editable workspace. */
-const loadDocument = async (input: AnyDocument): Promise<OpenApiDocument> => {
-  const source = toDocumentInput(input)
-  const load = async (): Promise<{ document: unknown; origin?: string }> => {
-    if ('document' in source) return { document: deepClone(getRaw(source.document)) }
-    if ('path' in source) {
-      const origin = resolvePath(source.path)
-      return { document: normalize(await readFile(origin, 'utf8')), origin }
-    }
-    const response = await fetch(source.url)
-    if (!response.ok) throw new Error(`Failed to load OpenAPI document (HTTP ${response.status})`)
-    return { document: normalize(await response.text()), origin: source.url }
-  }
-  const { document: raw, origin } = await load()
-  if (!isObject(raw)) throw new Error('Failed to load OpenAPI document')
-  const upgraded = upgrade(raw, '3.1')
-  // Self-contained documents need no asynchronous bundler traversal.
-  if (!attachRefValues(upgraded)) return upgraded as unknown as OpenApiDocument
-  const errors: string[] = []
-  const document = await bundle(upgraded, {
-    plugins: [fetchUrls(), readFiles()],
-    origin,
-    treeShake: false,
-    hooks: {
-      onResolveError: (node) => {
-        errors.push(`Failed to resolve ${node.$ref}`)
-      },
-    },
-  })
-  if (errors.length) throw new Error(errors.join('\n'))
-  // The renderer reads shared reference values without wrapping the graph in proxies.
-  attachRefValues(document)
-  return document as unknown as OpenApiDocument
-}
-
 type RenderPart = { content: OpenApiDocument; introduction?: boolean; heading?: string }
 
 /** Keep each Vue tree and Markdown syntax tree limited to one reference section. */
@@ -608,14 +567,33 @@ export type OpenApiMarkdownRenderer = {
 }
 
 /**
- * Load a private plain document once and reuse it across independently selected pages.
+ * Load and resolve an API description once, then render any number of selections.
  * Each call converts sections sequentially without building a whole-document HTML tree.
  */
 export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise<OpenApiMarkdownRenderer> => {
-  const document = await loadDocument(input)
+  const workspaceStore = createWorkspaceStore({
+    fileLoader: readFiles(),
+  })
+
+  const name = 'openapi-to-markdown'
+  const loaded = await workspaceStore.addDocument({
+    name,
+    ...toWorkspaceInput(input),
+  })
+
+  if (!loaded) {
+    throw new Error('Failed to load OpenAPI document')
+  }
+
+  const content = workspaceStore.workspace.documents[name]
+
+  if (!content) {
+    throw new Error('OpenAPI document could not be resolved')
+  }
+
   return {
-    render: (options) => renderDocumentAsMarkdown(document, options),
-    renderHtml: (options) => renderDocumentAsHtml(document, options),
+    render: (options) => renderDocumentAsMarkdown(content as OpenApiDocument, options),
+    renderHtml: (options) => renderDocumentAsHtml(content as OpenApiDocument, options),
   }
 }
 

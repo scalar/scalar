@@ -51,11 +51,9 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@amritk/helpers": "0.21.0",
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.1",
