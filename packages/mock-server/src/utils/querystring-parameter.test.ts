@@ -53,6 +53,18 @@ describe('querystring-parameter', () => {
     },
   )
 
+  it.each(['%ZZ', '{broken'])('returns a validation response for malformed raw query %s', async (query) => {
+    const server = await createMockServer({ document: documentWith(parameter) })
+    // Do not encode the input: %ZZ must reach the URI decoder as an invalid escape.
+    const response = await server.request(`/search?${query}`)
+    expect(response.status).toBe(422)
+    expect(response.headers.get('content-type')).toBe('application/problem+json')
+    expect(await response.json()).toStrictEqual({
+      error: 'Request validation failed',
+      violations: [{ location: 'query', path: '', message: 'Query string could not be decoded' }],
+    })
+  })
+
   it('requires the query independently of its content schema', async () => {
     const server = await createMockServer({ document: documentWith({ ...parameter, content: { 'text/plain': {} } }) })
     const response = await server.request('/search')

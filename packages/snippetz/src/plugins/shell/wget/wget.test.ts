@@ -3,6 +3,17 @@ import { describe, expect, it } from 'vitest'
 import { shellWget } from './wget'
 
 describe('shellWget', () => {
+  it('preserves whole-query percent encoding when appending named parameters', () => {
+    const result = shellWget.generate({
+      url: 'https://example.com/search?%7b%22a%22%3a1%7d',
+      queryString: [{ name: 'token', value: 'secret' }],
+    })
+    expect(result).toBe(`wget --quiet \\
+  --method GET \\
+  --output-document \\
+  - 'https://example.com/search?%7b%22a%22%3a1%7d&token=secret'`)
+  })
+
   it('returns a basic request', () => {
     const result = shellWget.generate({
       url: 'https://example.com',

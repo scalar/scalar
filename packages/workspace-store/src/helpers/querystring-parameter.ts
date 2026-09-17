@@ -21,7 +21,10 @@ export type QuerystringParameter = {
   kind: 'uri-ready' | 'serialized' | 'data'
 }
 
-/** Resolve the selected whole-query example, including content-schema defaults. */
+/**
+ * Resolve the selected whole-query example, including content-schema defaults.
+ * This module serializes outgoing queries; mock-server/src/utils/querystring-parameter.ts decodes incoming ones.
+ */
 export const getQuerystringParameter = (
   parameter: ParameterObject,
   exampleName?: string,
