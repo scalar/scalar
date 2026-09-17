@@ -1,22 +1,5 @@
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { getStreamFormat } from '@scalar/helpers/http/is-streaming-media-type'
 import { isObject } from '@scalar/helpers/object/is-object'
-
-/** Keep detection and framing aligned on the same supported media formats. */
-const getStreamFormat = (contentType: string): 'json-lines' | 'json-seq' | 'sse' | undefined => {
-  const { essence, subtype } = parseMimeType(contentType)
-  if (essence === 'text/event-stream') {
-    return 'sse'
-  }
-  if (essence === 'application/json-seq' || subtype.endsWith('+json-seq')) {
-    return 'json-seq'
-  }
-  return ['application/jsonl', 'application/x-ndjson', 'application/json-lines'].includes(essence)
-    ? 'json-lines'
-    : undefined
-}
-
-/** Recognize the sequential media types whose examples have record framing. */
-export const isStreamingMediaType = (contentType: string): boolean => getStreamFormat(contentType) !== undefined
 
 /** Serialize generated sequential content; explicit wire-format examples bypass this helper. */
 export const serializeStreamExample = (

@@ -135,6 +135,37 @@ describe('createMockServer', () => {
     },
   )
 
+  it('preserves the created status for custom handler streams', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            post: {
+              'x-handler': "store.create('events', { id: 'created' }); return [{ data: 'created' }]",
+              responses: {
+                '201': {
+                  description: 'Created events',
+                  content: {
+                    'text/event-stream': {
+                      itemSchema: { type: 'object', properties: { data: { type: 'string' } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { method: 'POST' })
+    expect(response.status).toBe(201)
+    expect(response.headers.get('content-type')).toBe('text/event-stream')
+    expect(await response.text()).toBe('data: created\n\n')
+  })
+
   it.each([
     ['application/jsonl', '1\n', '2\n'],
     ['text/event-stream', 'data: first\n\n', 'data: second\n\n'],
