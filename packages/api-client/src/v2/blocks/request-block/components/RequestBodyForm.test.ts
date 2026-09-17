@@ -70,6 +70,38 @@ describe('RequestBodyForm', () => {
     fileDialogOnChange = undefined
   })
 
+  it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
+    'preserves external examples through render and focus until a form edit for %s',
+    async (selectedContentType) => {
+      const example: ExampleObject = { externalValue: '/examples/body.json', value: { field: 'original' } }
+      const wrapper = mount(RequestBodyForm, {
+        attachTo: document.body,
+        props: { example, selectedContentType, environment: defaultEnvironment },
+      })
+      try {
+        await nextTick()
+        expect(wrapper.emitted('update:formValue')).toBeUndefined()
+        const input = wrapper.findAllComponents(RequestTableRow)[0]!.findAllComponents(CodeInputLite)[0]!
+        const editor = input.get('[contenteditable="true"]').element as HTMLElement
+        editor.focus()
+        await nextTick()
+        editor.blur()
+        await nextTick()
+        expect(wrapper.emitted('update:formValue')).toBeUndefined()
+        expect(example).toStrictEqual({ externalValue: '/examples/body.json', value: { field: 'original' } })
+
+        input.vm.$emit('update:modelValue', 'edited')
+        input.vm.$emit('blur', 'edited', new FocusEvent('blur'))
+        await nextTick()
+        expect(wrapper.emitted('update:formValue')).toStrictEqual([
+          [[{ name: 'edited', value: 'original', isDisabled: false }]],
+        ])
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
   it('initializes localFormBodyRows from example prop and syncs on changes', async () => {
     const example: ExampleObject = {
       value: {
