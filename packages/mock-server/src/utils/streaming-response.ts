@@ -1,6 +1,7 @@
+import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
-import { isStreamingMediaType, serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'

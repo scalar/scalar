@@ -1,4 +1,5 @@
 ---
+'@scalar/helpers': patch
 '@scalar/mock-server': minor
 '@scalar/workspace-store': minor
 ---
