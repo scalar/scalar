@@ -13,9 +13,43 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-
  */
 const LAST_WINS_KEYS = new Set<string>(['description', 'title'])
 
-/** Every allOf member must accept a value, including structurally equal JSON values. */
-const intersectEnums = (existing: unknown[], incoming: unknown[]): unknown[] =>
-  existing.filter((value) => incoming.some((candidate) => isObjectEqual(value, candidate)))
+const ENUM_ANNOTATIONS = ['x-enum-varnames', 'x-enumNames', 'x-enum-descriptions', 'x-enumDescriptions'] as const
+
+/** Keep positional annotations attached to their values when intersecting enum constraints. */
+const mergeEnums = (
+  existing: SchemaObject,
+  incoming: SchemaObject,
+  override: boolean = false,
+): Partial<SchemaObject> => {
+  const values =
+    existing.enum === undefined
+      ? incoming.enum?.slice()
+      : incoming.enum === undefined
+        ? existing.enum.slice()
+        : existing.enum.filter((value) => incoming.enum?.some((candidate) => isObjectEqual(value, candidate)))
+
+  if (values === undefined) {
+    return {}
+  }
+
+  const merged: Partial<SchemaObject> = { enum: values }
+  for (const key of ENUM_ANNOTATIONS) {
+    const source = incoming[key] !== undefined && (override || existing[key] === undefined) ? incoming : existing
+    const annotation = source[key]
+    const sourceValues = source.enum
+    if (Array.isArray(annotation)) {
+      merged[key] =
+        sourceValues === undefined
+          ? annotation
+          : values.map(
+              (value) => annotation[sourceValues.findIndex((candidate) => isObjectEqual(value, candidate))] ?? '',
+            )
+    } else if (annotation !== undefined && (key === 'x-enum-descriptions' || key === 'x-enumDescriptions')) {
+      merged[key] = annotation
+    }
+  }
+  return merged
+}
 
 /**
  * Merges multiple OpenAPI schema objects into a single schema object.
@@ -111,6 +145,8 @@ const mergeSchemaIntoResult = (
     return
   }
 
+  const mergedEnums = mergeEnums(result, schema, override)
+
   // Loop through all schema properties and handle them appropriately
   for (const key of schemaKeys) {
     const propertyName: string = key
@@ -189,11 +225,9 @@ const mergeSchemaIntoResult = (
         }
       }
     }
-    // Enum
+    // Enum values and their annotations are applied together after the other keywords.
     else if (key === 'enum') {
-      if (Array.isArray(value)) {
-        result.enum = result.enum === undefined ? value.slice() : intersectEnums(result.enum, value)
-      }
+      continue
     }
     // OneOf/AnyOf
     else if (key === 'oneOf' || key === 'anyOf') {
@@ -220,6 +254,7 @@ const mergeSchemaIntoResult = (
       }
     }
   }
+  Object.assign(result, mergedEnums)
 }
 
 /**
@@ -292,7 +327,7 @@ const mergePropertiesIntoResult = (
     const nextSeenRefs = typeof schemaRef === 'string' ? new Set(seenRefs).add(schemaRef) : seenRefs
 
     if (schema.allOf) {
-      result[key] = mergeAllOfSchemas({ allOf: [existing, ...schema.allOf] } as SchemaObject, undefined, nextSeenRefs)
+      result[key] = mergeAllOfSchemas({ allOf: [existing, schema] } as SchemaObject, undefined, nextSeenRefs)
     } else if (isArraySchema(schema) && isArraySchema(existing) && schema.items) {
       const existingItems = resolve.schema(existing.items)
       result[key] = {
@@ -315,9 +350,7 @@ const mergePropertiesIntoResult = (
         result[key] = {
           ...schema,
           ...existing,
-          ...(existing.enum !== undefined && schema.enum !== undefined
-            ? { enum: intersectEnums(existing.enum, schema.enum) }
-            : {}),
+          ...mergeEnums(existing, schema),
         }
       }
     }

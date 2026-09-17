@@ -75,6 +75,61 @@ describe('mergeAllOfSchemas', () => {
     expect(items && 'properties' in items && resolve.schema(items.properties?.type)?.enum).toStrictEqual(['principals'])
   })
 
+  it.each([false, true])('preserves enum siblings of nested allOf with reversed order %s', (reverse) => {
+    const base = { type: 'object', properties: { type: { type: 'string', enum: ['resources', 'principals'] } } }
+    const narrow = { type: 'object', properties: { type: { enum: ['principals'], allOf: [{ type: 'string' }] } } }
+    const schema = coerceValue(SchemaObjectSchema, { allOf: reverse ? [narrow, base] : [base, narrow] })
+    const result = mergeAllOfSchemas(schema)
+    expect('properties' in result && resolve.schema(result.properties?.type)?.enum).toStrictEqual(['principals'])
+  })
+
+  it.each(['x-enum-varnames', 'x-enumNames', 'x-enum-descriptions', 'x-enumDescriptions'] as const)(
+    'keeps %s aligned when narrowing an inherited enum',
+    (extension) => {
+      const base = { type: 'string', enum: ['resources', 'principals'], [extension]: ['Resource', 'Principal'] }
+      const narrow = { type: 'string', enum: ['principals'] }
+      for (const members of [
+        [base, narrow],
+        [narrow, base],
+      ]) {
+        const direct = mergeAllOfSchemas(coerceValue(SchemaObjectSchema, { allOf: members }))
+        const inherited = mergeAllOfSchemas(
+          coerceValue(SchemaObjectSchema, {
+            allOf: members.map((type) => ({ type: 'object', properties: { type } })),
+          }),
+        )
+        const property = 'properties' in inherited ? resolve.schema(inherited.properties?.type) : undefined
+        expect(direct.enum).toStrictEqual(['principals'])
+        expect(direct[extension]).toStrictEqual(['Principal'])
+        expect(property?.enum).toStrictEqual(['principals'])
+        expect(property?.[extension]).toStrictEqual(['Principal'])
+        expect(base[extension]).toStrictEqual(['Resource', 'Principal'])
+      }
+    },
+  )
+
+  it('aligns later enum annotations to the retained enum order', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        { enum: ['principals', 'resources'] },
+        { enum: ['resources', 'principals'], 'x-enum-varnames': ['Resource', 'Principal'] },
+      ],
+    })
+    const result = mergeAllOfSchemas(schema)
+    expect(result.enum).toStrictEqual(['principals', 'resources'])
+    expect(result['x-enum-varnames']).toStrictEqual(['Principal', 'Resource'])
+  })
+
+  it('preserves value-keyed enum descriptions when narrowing', () => {
+    const descriptions = { resources: 'A resource', principals: 'A principal' }
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [{ enum: ['resources', 'principals'], 'x-enumDescriptions': descriptions }, { enum: ['principals'] }],
+    })
+    const result = mergeAllOfSchemas(schema)
+    expect(result.enum).toStrictEqual(['principals'])
+    expect(result['x-enumDescriptions']).toStrictEqual(descriptions)
+  })
+
   it('returns empty object for empty or invalid input', () => {
     expect(mergeAllOfSchemas({ allOf: [] } as any)).toEqual({})
     expect(mergeAllOfSchemas(null as any)).toEqual({})
