@@ -42,53 +42,127 @@ const isDiscriminatorProperty = (schema: Schema): boolean => {
   return false
 }
 
-/**
- * Scores are shared only within one coercion call. Evaluate expressions must not mutate their input
- * during scoring: completed scores assume the value/schema pair stays unchanged for this call.
- */
-type ScoringContext = {
-  active: WeakMap<object, Set<Schema>>
-  completed: WeakMap<object, Map<Schema, number>>
-  cycleCount: number
+/** Ancestor checks that must still hold when a cycle-dependent score is reused. */
+type ScoreDependencies = {
+  active: bigint
+  inactive: bigint
+}
+
+/** Tracks one object/schema pair for the lifetime of a coercion call. */
+type ScoringPair = {
+  active: boolean
+  bit?: bigint
+  completed?: number
+  contextual?: { score: number; dependencies: ScoreDependencies }
+}
+
+/** Records only ancestor checks that influence cycle-dependent scores. */
+type ScoringFrame = {
+  cyclic: boolean
+  dependencies: ScoreDependencies
 }
 
 /**
- * Reuses completed scores without confusing them with the neutral score used
- * to break cycles. A frame is memoized only if its subtree never encountered an active ancestor.
- * A cycle in a preceding sibling therefore does not prevent caching this independent subtree.
- * Cyclic rings still depend on active ancestors and can require exponential scoring work.
+ * Scores are shared only within one coercion call. Evaluate expressions must return stable results
+ * without mutating their input during scoring; completed scores assume unchanged value/schema pairs.
+ */
+type ScoringContext = {
+  pairs: WeakMap<object, Map<Schema, ScoringPair>>
+  active: bigint
+  nextBit: bigint
+  frame?: ScoringFrame
+}
+
+/**
+ * Assign bits only to cycle-dependent pairs so ordinary acyclic data does not build a growing bitset.
+ * Compact masks avoid repeatedly copying ancestor maps while scoring larger rings.
+ */
+const dependencyBit = (pair: ScoringPair, scoring: ScoringContext): bigint => {
+  if (pair.bit === undefined) {
+    pair.bit = scoring.nextBit
+    scoring.nextBit <<= 1n
+    if (pair.active) {
+      scoring.active |= pair.bit
+    }
+  }
+  return pair.bit
+}
+
+/**
+ * Both positive and negative checks matter: another ancestor becoming active can cut a previously
+ * completed traversal short, even when the ancestor that originally broke its cycle is unchanged.
+ */
+const propagateDependencies = (frame: ScoringFrame | undefined, dependencies: ScoreDependencies): void => {
+  if (frame) {
+    frame.cyclic = true
+    frame.dependencies.active |= dependencies.active
+    frame.dependencies.inactive |= dependencies.inactive
+  }
+}
+
+/**
+ * Acyclic scores can be reused directly. Cyclic scores record the ancestor checks that affected them,
+ * so equivalent paths through union alternatives share work without changing their branch scores.
+ * Keep only the latest cyclic result per pair; accumulating every context would grow the cache.
  */
 const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache, scoring: ScoringContext): number => {
-  const trackable = isObject(value)
-  if (trackable && scoring.active.get(value)?.has(schema)) {
-    scoring.cycleCount++
+  if (!isObject(value)) {
+    return scoreUnionInner(schema, value, lazyCache, scoring)
+  }
+
+  const schemas = scoring.pairs.get(value) ?? new Map<Schema, ScoringPair>()
+  const pair = schemas.get(schema) ?? { active: false }
+  schemas.set(schema, pair)
+  scoring.pairs.set(value, schemas)
+
+  if (pair.active) {
+    if (scoring.frame) {
+      scoring.frame.cyclic = true
+      scoring.frame.dependencies.active |= dependencyBit(pair, scoring)
+    }
     return 1
   }
-
-  const completed = trackable ? scoring.completed.get(value)?.get(schema) : undefined
-  if (completed !== undefined) {
-    return completed
+  if (pair.completed !== undefined) {
+    return pair.completed
   }
 
-  if (trackable) {
-    const schemas = scoring.active.get(value) ?? new Set<Schema>()
-    schemas.add(schema)
-    scoring.active.set(value, schemas)
+  const cached = pair.contextual
+  if (
+    cached &&
+    (scoring.active & cached.dependencies.active) === cached.dependencies.active &&
+    (scoring.active & cached.dependencies.inactive) === 0n
+  ) {
+    propagateDependencies(scoring.frame, cached.dependencies)
+    return cached.score
   }
-  const cycleCount = scoring.cycleCount
+
+  const parent = scoring.frame
+  const frame: ScoringFrame = { cyclic: false, dependencies: { active: 0n, inactive: 0n } }
+  scoring.frame = frame
+  pair.active = true
+  if (pair.bit !== undefined) {
+    scoring.active |= pair.bit
+  }
 
   try {
     const score = scoreUnionInner(schema, value, lazyCache, scoring)
-    if (trackable && scoring.cycleCount === cycleCount) {
-      const schemas = scoring.completed.get(value) ?? new Map<Schema, number>()
-      schemas.set(schema, score)
-      scoring.completed.set(value, schemas)
+    if (frame.cyclic) {
+      // This frame activates its own pair internally, but a caller must enter with that pair inactive.
+      const bit = dependencyBit(pair, scoring)
+      frame.dependencies.active &= ~bit
+      frame.dependencies.inactive |= bit
+      pair.contextual = { score, dependencies: frame.dependencies }
+      propagateDependencies(parent, frame.dependencies)
+    } else {
+      pair.completed = score
     }
     return score
   } finally {
-    if (trackable) {
-      scoring.active.get(value)?.delete(schema)
+    pair.active = false
+    if (pair.bit !== undefined) {
+      scoring.active &= ~pair.bit
     }
+    scoring.frame = parent
   }
 }
 
@@ -361,7 +435,7 @@ export const coerce = <S extends Schema>(
   lazyCache: LazyCache = new WeakMap(),
 ): SafeStatic<S> =>
   coerceInner(schema, value, cache, lazyCache, {
-    active: new WeakMap(),
-    completed: new WeakMap(),
-    cycleCount: 0,
+    pairs: new WeakMap(),
+    active: 0n,
+    nextBit: 1n,
   }) as SafeStatic<S>

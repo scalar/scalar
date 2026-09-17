@@ -68,20 +68,54 @@ describe('coerce-dos', () => {
     expect(next.next).toBe(next)
   })
 
-  it('terminates a small cyclic ring without claiming linear scoring for cyclic input', () => {
-    // Every node depends on an active ancestor in a ring, so these scores cannot be reused safely.
-    // Keep the example small: the current cycle-neutral scoring still has exponential worst-case work.
-    const ring: Record<string, unknown>[] = Array.from({ length: 6 }, () => ({ kind: 'a' }))
-    for (const [index, entry] of ring.entries()) {
-      entry.next = ring[(index + 1) % ring.length]
+  it('invalidates cyclic scores when a previously inactive ancestor becomes active', () => {
+    const value: Record<string, unknown> = { kind: 'b' }
+    value.next = value
+
+    const result = coerce(node, value) as Record<string, unknown>
+    // Reusing only by the ancestor that broke the previous cycle incorrectly selects branch b.
+    expect(result.kind).toBe('a')
+    expect(result.next).toBe(result)
+  })
+
+  it.each([0, 8])('shares cyclic scores in larger rings with a prefix of %s nodes', (prefixLength) => {
+    const readsAtSize = (size: number): number => {
+      const reads = { count: 0 }
+      const ring: Record<string, unknown>[] = Array.from({ length: size }, () => ({
+        get kind() {
+          // Fail promptly if a regression brings back exponential work; synchronous loops block timeouts.
+          if (++reads.count > size * size * 8) {
+            throw new Error('Cyclic union scoring exceeded its quadratic read budget')
+          }
+          return 'a'
+        },
+      }))
+      for (const [index, entry] of ring.entries()) {
+        entry.next = ring[(index + 1) % ring.length]
+      }
+      let value = ring[0]!
+      for (let index = 0; index < prefixLength; index++) {
+        value = { kind: 'a', next: value }
+      }
+      let current = coerce(node, value) as Record<string, unknown>
+      for (let index = 0; index < prefixLength; index++) {
+        expect(current.kind).toBe('a')
+        current = current.next as Record<string, unknown>
+      }
+      const ringStart = current
+      for (const _entry of ring) {
+        expect(current.kind).toBe('a')
+        current = current.next as Record<string, unknown>
+      }
+      expect(current).toBe(ringStart)
+      return reads.count
     }
-    const result = coerce(node, ring[0]) as Record<string, unknown>
-    let current = result
-    for (const _entry of ring) {
-      expect(current.kind).toBe('a')
-      current = current.next as Record<string, unknown>
-    }
-    expect(current).toBe(result)
+
+    const reads = [32, 64, 128].map(readsAtSize)
+    // Different ring roots can require different scores, but union alternatives must share them.
+    // Doubling the ring is at most quadratic in reads, instead of exponentially expanding branches.
+    expect(reads[1]!).toBeLessThan(reads[0]! * 4.2)
+    expect(reads[2]!).toBeLessThan(reads[1]! * 4.2)
   })
 
   it('recomputes scores when an input changes between coercion calls', () => {
