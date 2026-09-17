@@ -4,6 +4,8 @@ Scalar SDK generation is driven by a single config object that describes the SDK
 
 Use the config to keep SDK behavior predictable across generated targets. The top-level `targets` map controls which artifacts are generated, while `resources` controls the public client shape.
 
+For SDK-specific behavior embedded in an OpenAPI document, see [OpenAPI Extensions](openapi-extensions.md). Root-level Scalar extensions mirror the corresponding configuration blocks, while operation and schema extensions can refine individual generated methods and types.
+
 ## Minimal config
 
 ```json
@@ -275,4 +277,3 @@ Every build analyzes your OpenAPI document and this configuration together and r
 | `maxErrors`   | Maximum allowed errors before the build fails.                              |
 | `rules`       | Per-rule severity override keyed by rule id, such as `Endpoint/NotConfigured`. Set a rule to `off` to disable it. |
 | `ignored`     | Per-rule suppressions keyed by rule id.                                     |
-
