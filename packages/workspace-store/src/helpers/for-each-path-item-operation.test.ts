@@ -1,3 +1,5 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
@@ -47,6 +49,18 @@ describe('for-each-path-item-operation', () => {
     forEachPathItemOperation({ additionalOperations: { GET: {}, Get: {} } }, (method) => methods.push(method))
     expect(methods).toStrictEqual(['GET', 'Get'])
     expect(getPathItemOperationKey('custom/~method')).toBe('additionalOperations/custom~1~0method')
+  })
+
+  it('round-trips method names containing JSON pointer escape characters', () => {
+    const pathItem: PathItemObject = {}
+    const operation = { summary: 'Escaped method' }
+    setPathItemOperation(pathItem, 'custom/~method', operation)
+    const pointer = `/${getPathItemOperationKey('custom/~method')}`
+
+    expect(getValueAtPath(pathItem, parseJsonPointerSegments(pointer))).toStrictEqual(operation)
+    expect(getPathItemOperation(pathItem, 'custom/~method')).toStrictEqual(operation)
+    deletePathItemOperation(pathItem, 'custom/~method')
+    expect(pathItem).toStrictEqual({})
   })
 
   it('traverses and edits additional operations without changing their case', () => {
