@@ -78,6 +78,13 @@ describe('getSchemas', () => {
     expect(result.size).toBe(0)
   })
 
+  it('stops at circular object edges', () => {
+    const input: Record<string, unknown> = { $id: 'https://example.com/root' }
+    input.self = input
+
+    expect(getSchemas(input)).toStrictEqual(new Map([['https://example.com/root', '']]))
+  })
+
   it('returns empty map for array input', () => {
     const result = getSchemas([1, 2, 3])
     expect(result.size).toBe(0)

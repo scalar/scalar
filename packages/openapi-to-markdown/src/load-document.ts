@@ -14,8 +14,9 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-/** The loader only handles cloned JSON documents, which cannot contain object cycles. */
-const getDocumentSchemas = (document: unknown): Map<string, string> => getSchemas(document, '', [], new Map(), false)
+/** Limit cycle tracking to the active branch while indexing this private cloned document. */
+const getDocumentSchemas = (document: unknown): Map<string, string> =>
+  getSchemas(document, '', [], new Map(), new WeakSet(), true)
 
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
