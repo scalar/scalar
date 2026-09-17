@@ -14,9 +14,11 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-/** Limit cycle tracking to the active branch while indexing this private cloned document. */
-const getDocumentSchemas = (document: unknown): Map<string, string> =>
-  getSchemas(document, '', [], new Map(), new WeakSet(), true)
+/** Index schemas from this private cloned document before reference links are attached. */
+const getDocumentSchemas = (document: unknown): Map<string, string> => {
+  // The document is still an unlinked JSON tree, so the standard cycle tracking is sufficient.
+  return getSchemas(document)
+}
 
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
@@ -91,12 +93,16 @@ const attachRefValues = (document: unknown, enumerable = false, schemas = getDoc
 
 /** Remove cast-time reference links before rebuilding them against the coerced graph. */
 const removeRefValues = (document: unknown): void => {
+  // Shared and recursive targets make a single visit per object necessary.
   const seen = new WeakSet<object>()
+
   const visit = (node: unknown): void => {
     if (node === null || typeof node !== 'object' || seen.has(node)) {
       return
     }
     seen.add(node)
+
+    // TypeBox only needs these enumerable links while it builds the coerced graph.
     if (isObject(node) && '$ref-value' in node) {
       delete node['$ref-value']
     }
@@ -113,10 +119,16 @@ export const loadDocument = async (
 ): Promise<OpenApiDocument> => {
   let raw: unknown
   let origin: string | undefined
+
+  // Reference links are attached below, so never mutate the caller's document.
   if (typeof input !== 'string') {
     raw = deepClone(getRaw(input))
-  } else {
+  }
+
+  // Inline JSON and YAML avoid the I/O path; URLs and files are loaded afterward.
+  else {
     const normalized = normalize(input)
+
     if (isObject(normalized)) {
       raw = normalized
     } else if (/^https?:\/\//i.test(input)) {
@@ -135,11 +147,16 @@ export const loadDocument = async (
   if (!isObject(raw)) {
     throw new Error('Failed to load OpenAPI document')
   }
-  const upgraded = upgrade(raw, '3.1')
+
+  // Upgrade before indexing so reference resolution sees one consistent dialect.
+  const upgraded = upgrade(raw, '3.2')
   const upgradedSchemas = getDocumentSchemas(upgraded)
   const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
+
   let document = upgraded
   let schemas = upgradedSchemas
+
+  // Resolve external targets only when the initial local-reference pass finds them.
   if (hasExternalReferences) {
     const errors: string[] = []
     const plugins =
@@ -161,18 +178,27 @@ export const loadDocument = async (
     schemas = getDocumentSchemas(document)
     attachRefValues(document, false, schemas)
   }
+
   // TypeBox's reference branches require an enumerable $ref-value during casting.
   // Restore non-enumerable shared links afterward so rendering never expands the graph.
   attachRefValues(document, true, schemas)
   const coerced = coerceValue(OpenAPIDocumentSchema, document)
+
   // Keep extension resources that local and bundled references can target.
-  const extensions = coerced as Record<string, unknown>
   for (const [key, value] of Object.entries(document)) {
-    if (key.startsWith('x-') && !(key in extensions)) {
-      extensions[key] = value
+    if (key.startsWith('x-') && !(key in coerced)) {
+      Object.defineProperty(coerced, key, {
+        value,
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      })
     }
   }
+
+  // TypeBox can retain enumerable links to the input graph, so rebuild them on the coerced graph.
   removeRefValues(coerced)
   attachRefValues(coerced)
-  return coerced as OpenApiDocument
+
+  return coerced
 }
