@@ -535,6 +535,10 @@ export async function createServerWorkspaceStore(
     }
 
     const upgradedDocument = upgrade(document, '3.1')
+    // Normalization mutates schema positions, including referenced targets in x-ext. Clone the whole
+    // graph to preserve caller data and shared references; cloning only the root would still alias
+    // bundled targets. This deliberately adds O(document size) memory, including x-ext, and retains
+    // deepClone's recursive depth limit. A copy-on-write normalizer would avoid this ingestion cost.
     const normalizedDocument = normalizeBooleanSchemas(deepClone(upgradedDocument))
     const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizedDocument)
     preserveBundledExternals(normalizedDocument, documentV3)
