@@ -91,28 +91,6 @@ const attachRefValues = (document: unknown, enumerable = false, schemas = getDoc
   return hasExternalReferences
 }
 
-/** Remove cast-time reference links before rebuilding them against the coerced graph. */
-const removeRefValues = (document: unknown): void => {
-  // Shared and recursive targets make a single visit per object necessary.
-  const seen = new WeakSet<object>()
-
-  const visit = (node: unknown): void => {
-    if (node === null || typeof node !== 'object' || seen.has(node)) {
-      return
-    }
-    seen.add(node)
-
-    // TypeBox only needs these enumerable links while it builds the coerced graph.
-    if (isObject(node) && '$ref-value' in node) {
-      delete node['$ref-value']
-    }
-    for (const child of Object.values(node)) {
-      visit(child)
-    }
-  }
-  visit(document)
-}
-
 /** Coerce one plain document and keep references linked to shared targets. */
 export const loadDocument = async (
   input: OpenApiDocument | Record<string, unknown> | string,
@@ -196,9 +174,8 @@ export const loadDocument = async (
     }
   }
 
-  // TypeBox can retain enumerable links to the input graph, so rebuild them on the coerced graph.
-  removeRefValues(coerced)
-  attachRefValues(coerced)
+  // Redefine TypeBox's temporary links as non-enumerable links to coerced targets.
+  attachRefValues(coerced, false, schemas)
 
   return coerced
 }
