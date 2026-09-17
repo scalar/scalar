@@ -100,10 +100,12 @@ describe('openapi-document', () => {
         ],
       })
       const pointer = external ? `#/x-ext/${getHash('models/value.yaml')}` : '#/components/schemas/Value'
-      expect(input.$self).toBe('https://example.com/openapi.yaml')
+      expect(input.$self).toBe('./openapi.yaml')
       expect(input.components.schemas.Model.properties.value.$ref).toBe(`https://example.com/openapi.yaml${pointer}`)
       expect(
-        createMagicProxy(input, { documentUri: input.$self }).components.schemas.Model.properties.value,
+        createMagicProxy(input, {
+          documentUri: resolveOpenApiDocument(input, 'https://example.com/input.yaml')?.baseUri,
+        }).components.schemas.Model.properties.value,
       ).toStrictEqual({
         $ref: `https://example.com/openapi.yaml${pointer}`,
         '$ref-value': { type: 'string' },
@@ -460,4 +462,61 @@ describe('openapi-document', () => {
     expect(resolveOpenApiDocument({ $self: 'https://example.com/' }, '/input.json')).toBeUndefined()
     expect(resolveOpenApiDocument({ openapi: '3.2.1', $self: 42 }, '/input.json')).toBeUndefined()
   })
+
+  it('preserves the authored document when only indexing its relative identity', async () => {
+    const document = {
+      openapi: '3.2.1',
+      $self: './canonical/openapi.yaml#here',
+      components: { schemas: { Value: { type: 'string' }, Ref: { $ref: '#/components/schemas/Value' } } },
+    }
+    const original = structuredClone(document)
+    await bundle(document, { origin: 'https://example.com/input.yaml', plugins: [openApiDocument()], treeShake: false })
+    expect(document).toStrictEqual(original)
+  })
+
+  it.each([
+    [false, ''],
+    [true, ''],
+    [true, '#/components/schemas/Model'],
+  ] as const)(
+    'retains relocated relative identities across partial bundles with treeShake=%s and pointer=%s',
+    async (treeShake, pointer) => {
+      const external = {
+        openapi: '3.2.1',
+        $self: './canonical/openapi.yaml',
+        components: { schemas: { Model: { properties: { value: { $ref: 'value.yaml' } } } } },
+      }
+      const input = {
+        openapi: '3.2.1',
+        $self: './api/openapi.yaml',
+        item: { $ref: `https://mirror.example.com/models.yaml${pointer}` },
+      }
+      const requested: string[] = []
+      const loader: LoaderPlugin = {
+        type: 'loader',
+        validate: () => true,
+        exec: (uri) => {
+          requested.push(uri)
+          const data = uri === 'https://mirror.example.com/models.yaml' ? external : { type: 'string' }
+          return Promise.resolve({ ok: true, data, raw: JSON.stringify(data) })
+        },
+      }
+      const config = {
+        origin: 'https://example.com/input.yaml',
+        plugins: [openApiDocument(), loader],
+        treeShake,
+        urlMap: true,
+      }
+      await bundle(input, { ...config, depth: 1 })
+      expect(input.$self).toBe('./api/openapi.yaml')
+      expect(external.$self).toBe('./canonical/openapi.yaml')
+      await bundle(input, config)
+      expect(requested).toStrictEqual([
+        'https://mirror.example.com/models.yaml',
+        'https://mirror.example.com/canonical/value.yaml',
+      ])
+      expect(input.$self).toBe('./api/openapi.yaml')
+      expect(external.$self).toBe('./canonical/openapi.yaml')
+    },
+  )
 })
