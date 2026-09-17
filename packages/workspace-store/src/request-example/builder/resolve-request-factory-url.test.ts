@@ -50,6 +50,19 @@ describe('resolve-request-factory-url', () => {
     )
   })
 
+  it('appends named query parameters after whole-query content and before authentication', () => {
+    const request = createRequestFactory({
+      querystring: { value: '%7b%22a%22%3a1%7d', contentType: 'application/json', kind: 'uri-ready' },
+      query: new URLSearchParams([
+        ['tag', 'a+b'],
+        ['tag', 'c d'],
+      ]),
+    })
+    expect(unwrap(request, { envVariables: {}, securityQueryParams: new URLSearchParams({ token: 'secret' }) })).toBe(
+      'https://api.example.com/v1/users?%7b%22a%22%3a1%7d&tag=a%2Bb&tag=c+d&token=secret',
+    )
+  })
+
   it('an enabled empty querystring clears a query from the path', () => {
     const request = createRequestFactory({
       path: { raw: '/v1/users?old=true', variables: {} },

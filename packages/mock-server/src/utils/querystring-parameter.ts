@@ -14,7 +14,10 @@ import {
   resolveSerialization,
 } from './deserialize-parameter'
 
-/** Find the whole-query parameter, giving operation declarations precedence over path declarations. */
+/**
+ * Find the whole-query parameter, giving operation declarations precedence over path declarations.
+ * This module decodes incoming queries; workspace-store/src/helpers/querystring-parameter.ts serializes outgoing ones.
+ */
 export const findQuerystringParameter = (
   operation?: OpenAPIV3_2.OperationObject,
   pathParameters?: OpenAPIV3_2.PathItemObject['parameters'],

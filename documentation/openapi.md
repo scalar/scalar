@@ -12,6 +12,35 @@ For example, the editor accepts `itemSchema`, `additionalOperations`, and `style
 
 Before using OpenAPI 3.2-only fields, migrate the document to OpenAPI 3.2 and explicitly set a matching version such as `openapi: 3.2.0`. Check that your validators, generators, and other consumers support that version, and validate the resulting document with a validator that respects the declared version. If you need to remain compatible with OpenAPI 3.1 consumers, keep the declaration and field usage within OpenAPI 3.1.
 
+## Whole-query parameters (OpenAPI 3.2)
+
+An `in: querystring` parameter describes the entire query string. Its `name` is documentary and is not added to the request URL. Scalar uses the parameter's `content` media type to serialize its value.
+
+For content other than `application/x-www-form-urlencoded`, Scalar percent-encodes the serialized value, including JSON delimiters. For example, a JSON value of `{"limit":2}` produces `?%7B%22limit%22%3A2%7D` in both requests and generated code samples.
+
+To supply URI-ready content with its encoding preserved, set `serializedValue` in an example on the **parameter itself**:
+
+```yaml
+parameters:
+  - name: search
+    in: querystring
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            limit:
+              type: integer
+    examples:
+      default:
+        serializedValue: '%7B%22limit%22%3A2%7D'
+```
+
+A `serializedValue` under a media type describes serialized media content and still undergoes URI encoding. The parameter-level example bypasses that step; provide any escaping required by the target server and HTTP client yourself.
+
+OpenAPI 3.2 does not allow mixing `in: querystring` and named `in: query` parameters. For existing descriptions containing both, Scalar preserves the values and emits the whole-query content first, followed by named query parameters and query authentication parameters.
+
 ## Custom Specification Extensions
 
 You can add custom specification extensions (starting with a `x-`) through [our plugin API](configuration.md).

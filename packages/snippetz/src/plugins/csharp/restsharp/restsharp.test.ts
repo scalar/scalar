@@ -3,6 +3,16 @@ import { describe, expect, it } from 'vitest'
 import { csharpRestsharp } from './restsharp'
 
 describe('csharpRestsharp', () => {
+  it('preserves whole-query percent encoding when appending named parameters', () => {
+    const result = csharpRestsharp.generate({
+      url: 'https://example.com/search?%7b%22a%22%3a1%7d',
+      queryString: [{ name: 'token', value: 'secret' }],
+    })
+    expect(result).toBe(`var client = new RestClient("https://example.com/search?%7b%22a%22%3a1%7d&token=secret");
+var request = new RestRequest("", Method.Get);
+var response = await client.ExecuteAsync(request);`)
+  })
+
   it('returns a basic request', () => {
     const result = csharpRestsharp.generate({
       url: 'https://example.com',
