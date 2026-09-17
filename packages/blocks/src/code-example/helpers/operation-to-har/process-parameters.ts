@@ -22,6 +22,8 @@ type ProcessedParameters = {
   headers: HarRequest['headers']
   queryString: HarRequest['queryString']
   cookies: HarRequest['cookies']
+  /** Whether serialized cookie-style values require a complete Cookie header. */
+  hasCookieStyleEntries: boolean
 }
 
 /** Ensures we don't have any references in the parameters */
@@ -296,6 +298,7 @@ export const processParameters = ({
     headers: newHeaders,
     queryString: newQueryString,
     cookies: cookieStyleEntries.length ? [] : harRequest.cookies,
+    hasCookieStyleEntries: cookieStyleEntries.length > 0,
   }
 }
 

@@ -127,9 +127,17 @@ export const operationToHar = ({
     bodySize: -1,
   }
 
+  let hasCookieStyleEntries = false
+
   // Handle parameters
   if (operation.parameters) {
-    const { url, headers, queryString, cookies } = processParameters({
+    const {
+      url,
+      headers,
+      queryString,
+      cookies,
+      hasCookieStyleEntries: processedCookieStyleEntries,
+    } = processParameters({
       harRequest,
       parameters: operation.parameters,
       example,
@@ -142,6 +150,7 @@ export const operationToHar = ({
         ?.filter((cookie) => filterGlobalCookie({ cookie, url, disabledGlobalCookies }))
         ?.map((cookie) => ({ name: cookie.name, value: cookie.value })) ?? []
 
+    hasCookieStyleEntries = processedCookieStyleEntries
     harRequest.url = url
     harRequest.headers = headers
     harRequest.queryString = queryString
@@ -194,7 +203,7 @@ export const operationToHar = ({
   // Keep authentication and global cookies in the explicit header as well, so
   // snippet generators cannot replace cookie-style parameters with their own header.
   const cookieHeader = harRequest.headers.find((header) => header.name.toLowerCase() === 'cookie')
-  if (cookieHeader && harRequest.cookies.length) {
+  if (hasCookieStyleEntries && cookieHeader && harRequest.cookies.length) {
     const extraCookies = harRequest.cookies
       .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
       .join('; ')
