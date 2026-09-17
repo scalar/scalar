@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  type OpenApiRenderOptions,
-  createHtmlFromOpenApi,
-  createMarkdownFromOpenApi,
-} from './create-markdown-from-openapi'
+import { type OpenApiRenderOptions, createMarkdownFromOpenApi } from './index'
 
 const invalidSelectorDocument = {
   openapi: '3.1.1',
@@ -429,30 +425,27 @@ const section = (markdown: string, heading: string): string => {
 }
 
 describe('selection', () => {
-  it.each([createMarkdownFromOpenApi, createHtmlFromOpenApi])(
-    'excludes literal data references while retaining schemas under arbitrary property names',
-    async (render) => {
-      const output = await render(
-        {
-          openapi: '3.1.1',
-          info: { title: 'API', version: '1' },
-          paths: {
-            '/test': {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'OK',
-                    content: {
-                      'application/json': {
-                        schema: {
-                          type: 'object',
-                          example: { $ref: '#/components/schemas/Unrelated' },
-                          properties: {
-                            example: { $ref: '#/components/schemas/Needed' },
-                            default: { $ref: '#/components/schemas/DefaultField' },
-                            'x-field': { $ref: '#/components/schemas/ExtensionField' },
-                            properties: { type: 'string', default: { $ref: '#/components/schemas/Unrelated' } },
-                          },
+  it('excludes literal data references while retaining schemas under arbitrary property names', async () => {
+    const output = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.1.1',
+        info: { title: 'API', version: '1' },
+        paths: {
+          '/test': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        example: { $ref: '#/components/schemas/Unrelated' },
+                        properties: {
+                          example: { $ref: '#/components/schemas/Needed' },
+                          default: { $ref: '#/components/schemas/DefaultField' },
+                          'x-field': { $ref: '#/components/schemas/ExtensionField' },
+                          properties: { type: 'string', default: { $ref: '#/components/schemas/Unrelated' } },
                         },
                       },
                     },
@@ -461,23 +454,23 @@ describe('selection', () => {
               },
             },
           },
-          components: {
-            schemas: {
-              Needed: { type: 'string' },
-              DefaultField: { type: 'string' },
-              ExtensionField: { type: 'string' },
-              Unrelated: { type: 'string' },
-            },
+        },
+        components: {
+          schemas: {
+            Needed: { type: 'string' },
+            DefaultField: { type: 'string' },
+            ExtensionField: { type: 'string' },
+            Unrelated: { type: 'string' },
           },
         },
-        { operation: { path: '/test', method: 'get' } },
-      )
-      expect(output).toMatch(/### Needed|<h3>Needed<\/h3>/)
-      expect(output).toMatch(/### DefaultField|<h3>DefaultField<\/h3>/)
-      expect(output).toMatch(/### ExtensionField|<h3>ExtensionField<\/h3>/)
-      expect(output).not.toMatch(/### Unrelated|<h3>Unrelated<\/h3>/)
-    },
-  )
+      },
+      { operation: { path: '/test', method: 'get' } },
+    )
+    expect(output).toMatch(/### Needed/)
+    expect(output).toMatch(/### DefaultField/)
+    expect(output).toMatch(/### ExtensionField/)
+    expect(output).not.toMatch(/### Unrelated/)
+  })
 
   it.each(selectionFixtures)('renders scoped Markdown: $name', async (fixture) => {
     const input = {
@@ -511,53 +504,11 @@ describe('selection', () => {
     { webhook: { name: 'event' } },
     { webhook: { name: 'event', method: 'INVALID' } },
     { unknown: true },
-  ])('rejects invalid selectors in both exports: %j', async (options) => {
-    for (const render of [createHtmlFromOpenApi, createMarkdownFromOpenApi]) {
-      await expect(render(invalidSelectorDocument, options as unknown as OpenApiRenderOptions)).rejects.toThrow(
-        /selector|method|pointer|Specify|Introduction/i,
-      )
-    }
+  ])('rejects invalid selectors: %j', async (options) => {
+    await expect(
+      createMarkdownFromOpenApi(invalidSelectorDocument, options as unknown as OpenApiRenderOptions),
+    ).rejects.toThrow(/selector|method|pointer|Specify|Introduction/i)
   })
-
-  it.each(selectionFixtures.filter((fixture) => !fixture.error))('scopes HTML consistently: $name', async (fixture) => {
-    const input = {
-      ...('swagger' in fixture.document ? {} : { openapi: '3.1.1' }),
-      info: { title: 'API', version: '1' },
-      ...fixture.document,
-    }
-    const html = await createHtmlFromOpenApi(input, fixture.options)
-    expect(html).not.toContain('Unrelated operation')
-    expect(html).not.toContain('Unrelated webhook')
-    expect(html).not.toContain('unrelatedField')
-    expect(html).not.toContain('Legacy unused')
-    if (fixture.options?.model) {
-      expect(html).toContain(`<h3>${fixture.options.model}</h3>`)
-      expect(html).not.toContain('<h2>Operations</h2>')
-    }
-    if (fixture.options?.webhook) {
-      expect(html).toContain('<h2>Webhooks</h2>')
-      expect(html).toContain('Event accepted')
-      expect(html).toContain('delivery')
-      expect(html).not.toContain('/webhooks/petEvent')
-    }
-    if (fixture.options?.introduction) {
-      for (const heading of ['Operations', 'Schemas', 'Webhooks', 'Tags']) {
-        expect(html).not.toContain(`<h2>${heading}</h2>`)
-      }
-    }
-  })
-
-  it.each(selectionFixtures.filter((fixture) => fixture.error))(
-    'reports selector errors in HTML: $name',
-    async (fixture) => {
-      await expect(
-        createHtmlFromOpenApi(
-          { openapi: '3.1.1', info: { title: 'API', version: '1' }, ...fixture.document },
-          fixture.options,
-        ),
-      ).rejects.toThrow(fixture.error)
-    },
-  )
 
   it('bounds recursive model output', async () => {
     const fixture = selectionFixtures.find((entry) => entry.name === 'selected-model-Node')!
