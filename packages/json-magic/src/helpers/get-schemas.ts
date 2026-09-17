@@ -38,8 +38,7 @@ export const getSchemas = (
   base: string = '',
   segments: string[] = [],
   map = new Map<string, string>(),
-  visited = new WeakSet<object>(),
-  removeVisitedAfterTraversal = false,
+  visited = new WeakSet(),
 ) => {
   // Only process non-null objects
   if (typeof input !== 'object' || input === null) {
@@ -73,14 +72,8 @@ export const getSchemas = (
   // Recursively traverse all properties (DFS)
   for (const key in input) {
     if (typeof input[key] === 'object' && input[key] !== null) {
-      segments.push(key)
-      getSchemas(input[key], newBase, segments, map, visited, removeVisitedAfterTraversal)
-      segments.pop()
+      getSchemas(input[key], newBase, [...segments, key], map, visited)
     }
-  }
-
-  if (removeVisitedAfterTraversal) {
-    visited.delete(input)
   }
 
   return map

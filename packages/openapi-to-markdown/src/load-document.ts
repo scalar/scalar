@@ -14,10 +14,6 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-/** Index schemas from this private cloned document before reference links are attached. */
-const getDocumentSchemas = (document: unknown): Map<string, string> =>
-  getSchemas(document, '', [], new Map(), new WeakSet(), true)
-
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
  * JSON Magic owns `$id` and anchor indexing, which keeps local-reference behavior
@@ -26,7 +22,7 @@ const getDocumentSchemas = (document: unknown): Map<string, string> =>
  * Casting temporarily uses enumerable links to satisfy TypeBox reference branches.
  * Returns whether external references remain and require bundling.
  */
-const attachRefValues = (document: unknown, enumerable = false, schemas = getDocumentSchemas(document)): boolean => {
+const attachRefValues = (document: unknown, enumerable = false, schemas = getSchemas(document)): boolean => {
   // A single traversal covers both normal trees and previously linked recursive objects.
   const seen = new WeakSet<object>()
   let hasExternalReferences = false
@@ -126,7 +122,7 @@ export const loadDocument = async (
 
   // Upgrade before indexing so reference resolution sees one consistent dialect.
   const upgraded = upgrade(raw, '3.2')
-  const upgradedSchemas = getDocumentSchemas(upgraded)
+  const upgradedSchemas = getSchemas(upgraded)
   const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
 
   let document = upgraded
@@ -151,7 +147,7 @@ export const loadDocument = async (
     if (errors.length) {
       throw new Error(errors.join('\n'))
     }
-    schemas = getDocumentSchemas(document)
+    schemas = getSchemas(document)
     attachRefValues(document, false, schemas)
   }
 

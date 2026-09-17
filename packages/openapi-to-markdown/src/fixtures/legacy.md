@@ -1,6 +1,6 @@
 # Markdown benchmark
 
-- **OpenAPI Version:** `3.1.1`
+- **OpenAPI Version:** `3.2.0`
 - **API Version:** `1.0`
 - **Terms of service:**<https://example.com/terms>
 - **Contact:** API Team <https://example.com/contact><team@example.com>
@@ -562,4 +562,3 @@ A shared object used by this API.
   "name": ""
 }
 ```
-

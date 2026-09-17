@@ -21,7 +21,7 @@ describe('createMarkdownFromOpenApi', () => {
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
 Test description`
@@ -105,7 +105,7 @@ Test description`
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
 ## Servers
@@ -142,7 +142,7 @@ Test description`
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
 ## Operations
@@ -571,7 +571,7 @@ Test description`
     expect(resultJson).toMatchInlineSnapshot(`
       "# Test API
 
-      - **OpenAPI Version:** \`3.1.1\`
+      - **OpenAPI Version:** \`3.2.0\`
       - **API Version:** \`1.0.0\`
 
       ## Operations
@@ -611,7 +611,7 @@ Test description`
     expect(resultXml).toMatchInlineSnapshot(`
       "# Test API
 
-      - **OpenAPI Version:** \`3.1.1\`
+      - **OpenAPI Version:** \`3.2.0\`
       - **API Version:** \`1.0.0\`
 
       ## Operations
@@ -1004,7 +1004,7 @@ paths:
       components: { schemas: { Value: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
     })
     expect(output).toBe(
-      '# Composed\n\n- **OpenAPI Version:** `3.1.1`\n- **API Version:** `1`\n\n## Schemas\n\n### Value\n\n- **Type:**\n\n**One of:**\n\n`string`\n\n`number`\n',
+      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Schemas\n\n### Value\n\n- **Type:**\n\n**One of:**\n\n`string`\n\n`number`\n',
     )
   })
 })
