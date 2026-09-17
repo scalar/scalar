@@ -45,6 +45,7 @@ const schemaSingles = [
 /** Reject only incompatibilities that can be established within this document. */
 export const migrateObjects = (document: UnknownObject): Set<string> => {
   const operationTags = new Set<string>()
+  const errors: Error[] = []
   const requiredCache = new WeakMap<object, Map<string, boolean | undefined>>()
   const cyclicRequired = new WeakSet<object>()
   const requiredWork = { evaluations: 0 }
@@ -63,8 +64,8 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
   }
   const xmlCache = new WeakMap<object, Set<string>>()
   const visited = new WeakMap<object, Set<string>>()
-  const fail = (path: string, message: string): never => {
-    throw new Error(`Cannot upgrade to OpenAPI 3.2 at ${path}: ${message}`)
+  const fail = (path: string, message: string): void => {
+    errors.push(new Error(`Cannot upgrade to OpenAPI 3.2 at ${path}: ${message}`))
   }
   const resolve = (ref: unknown, schemaReference = false): unknown => {
     if (typeof ref !== 'string' || !ref.startsWith('#/')) {
@@ -123,6 +124,9 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
     // Cyclic or unusually large analyses remain uncertain rather than blocking
     // upgrading indefinitely. Completed acyclic subgraphs are memoized below.
     if (++requiredWork.evaluations > 100_000) {
+      if (requiredWork.evaluations === 100_001) {
+        fail('#', 'Discriminator requiredness analysis was truncated after 100,000 evaluations.')
+      }
       return undefined
     }
     const remember = (result: boolean | undefined): boolean | undefined => {
@@ -180,7 +184,7 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
       return
     }
     const changedBase = baseChanged || schema.$id !== undefined
-    const context = [inferredName, propertyName, dialect, changedBase].join(':')
+    const context = [inferredName, propertyName, changedBase].join(':')
     const completed = xmlCache.get(schema) ?? new Set<string>()
     if (completed.has(context)) {
       return
@@ -431,6 +435,9 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
   // Resolve naming after traversal, so forward references have their structural context.
   for (const { schema, path, dialect } of xmlRoots) {
     validateXmlNames(schema, path, { inferredName: false, propertyName: false, dialect })
+  }
+  if (errors.length > 0) {
+    throw new AggregateError(errors, errors.map((error) => error.message).join('\n'))
   }
   return operationTags
 }

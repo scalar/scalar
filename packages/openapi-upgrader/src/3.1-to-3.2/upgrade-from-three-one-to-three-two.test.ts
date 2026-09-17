@@ -30,6 +30,47 @@ const operation = (parameters: unknown[] = []): UnknownObject => ({
 })
 
 describe('upgrade-from-three-one-to-three-two', () => {
+  it('reports all incompatibilities together without changing the input', () => {
+    const input = document({
+      paths: { '/{id}/{id}': {} },
+      servers: [{ url: 'https://{host}/{host}' }],
+      components: { schemas: { Pet: { discriminator: { propertyName: 'kind' } } } },
+    })
+    const original = structuredClone(input)
+    const messages = [
+      'Cannot upgrade to OpenAPI 3.2 at #/paths/~1{id}~1{id}: Template variables must not be repeated. Rename the repeated variable and define it separately.',
+      'Cannot upgrade to OpenAPI 3.2 at #/servers/0/url: Template variables must not be repeated. Rename the repeated variable and define it separately.',
+      'Cannot upgrade to OpenAPI 3.2 at #/components/schemas/Pet/discriminator: An optional discriminating property needs an explicit defaultMapping.',
+    ]
+
+    expect(() => upgrade(input)).toThrow(
+      new AggregateError(
+        messages.map((message) => new Error(message)),
+        messages.join('\n'),
+      ),
+    )
+    try {
+      upgrade(input)
+    } catch (error) {
+      expect(error).toBeInstanceOf(AggregateError)
+      if (error instanceof AggregateError) {
+        expect(error.errors.map((issue: Error) => issue.message)).toStrictEqual(messages)
+      }
+    }
+    expect(input).toStrictEqual(original)
+  })
+
+  it('reports when discriminator analysis exhausts its work budget', () => {
+    const input = withSchemas({
+      Pet: {
+        discriminator: { propertyName: 'kind' },
+        allOf: Array.from({ length: 100_001 }, () => ({ type: 'object' })),
+      },
+    })
+
+    expect(() => upgrade(input)).toThrow('Discriminator requiredness analysis was truncated after 100,000 evaluations.')
+  })
+
   it.each(['3.1.0', '3.1.1', '3.1.2', '3.1.99'])('upgrades %s without changing the input', (openapi) => {
     const input = document({ openapi })
     expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
@@ -625,7 +666,13 @@ describe('upgrade-from-three-one-to-three-two', () => {
     }
     at(schemas, 'S30').discriminator = { propertyName: 'kind' }
     const input = withSchemas(schemas)
-    expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    if (kind === 'cycle') {
+      expect(() => upgrade(input)).toThrow(
+        'Discriminator requiredness analysis was truncated after 100,000 evaluations.',
+      )
+    } else {
+      expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+    }
   })
 
   it.each(['allOf', 'anyOf', 'oneOf'])('requires explicit XML names in inline %s branches', (keyword) => {
