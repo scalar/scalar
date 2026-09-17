@@ -1,3 +1,4 @@
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -11,6 +12,10 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-
  * OpenAPI/JSON Schema tooling like Swagger UI.
  */
 const LAST_WINS_KEYS = new Set<string>(['description', 'title'])
+
+/** Every allOf member must accept a value, including structurally equal JSON values. */
+const intersectEnums = (existing: unknown[], incoming: unknown[]): unknown[] =>
+  existing.filter((value) => incoming.some((candidate) => isObjectEqual(value, candidate)))
 
 /**
  * Merges multiple OpenAPI schema objects into a single schema object.
@@ -186,8 +191,8 @@ const mergeSchemaIntoResult = (
     }
     // Enum
     else if (key === 'enum') {
-      if (Array.isArray(value) && value.length > 0) {
-        result.enum = [...new Set([...(result.enum || []), ...value])]
+      if (Array.isArray(value)) {
+        result.enum = result.enum === undefined ? value.slice() : intersectEnums(result.enum, value)
       }
     }
     // OneOf/AnyOf
@@ -307,7 +312,13 @@ const mergePropertiesIntoResult = (
       }
       // Simple merge without property recursion
       else {
-        result[key] = { ...schema, ...existing }
+        result[key] = {
+          ...schema,
+          ...existing,
+          ...(existing.enum !== undefined && schema.enum !== undefined
+            ? { enum: intersectEnums(existing.enum, schema.enum) }
+            : {}),
+        }
       }
     }
   }

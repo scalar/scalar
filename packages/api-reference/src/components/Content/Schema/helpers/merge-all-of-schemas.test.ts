@@ -1,3 +1,4 @@
+import { resolve } from '@scalar/workspace-store/resolve'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -5,6 +6,75 @@ import { describe, expect, it } from 'vitest'
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
 
 describe('mergeAllOfSchemas', () => {
+  it.each([false, true])('narrows inherited property enums with reversed order %s', (reverse) => {
+    const base = {
+      $ref: '#/components/schemas/ResourceIdentifier',
+      '$ref-value': {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          type: { type: 'string', enum: ['resources', 'principals'] },
+        },
+      },
+    }
+    const narrow = { type: 'object', properties: { type: { enum: ['principals'] } } }
+    const schema = coerceValue(SchemaObjectSchema, { allOf: reverse ? [narrow, base] : [base, narrow] })
+    const original = structuredClone(schema)
+    const result = mergeAllOfSchemas(schema)
+
+    expect('properties' in result && resolve.schema(result.properties?.type)?.enum).toStrictEqual(['principals'])
+    expect(schema).toStrictEqual(original)
+  })
+
+  it.each([
+    { first: ['resources', 'principals'], second: ['principals'], expected: ['principals'] },
+    { first: ['resources'], second: ['principals'], expected: [] },
+    { first: [], second: ['principals'], expected: [] },
+    { first: ['principals'], second: [], expected: [] },
+    { first: [null, false, 0, '0'], second: [null, 0], expected: [null, 0] },
+    { first: [{ a: 1, b: 2 }, [1, 2]], second: [{ b: 2, a: 1 }, [1, 2]], expected: [{ a: 1, b: 2 }, [1, 2]] },
+  ])('intersects enum constraints $first and $second', ({ first, second, expected }) => {
+    const schema = coerceValue(SchemaObjectSchema, { allOf: [{ enum: first }, { enum: second }] })
+    expect(mergeAllOfSchemas(schema).enum).toStrictEqual(expected)
+  })
+
+  it('keeps an empty intersection when another branch adds enum values', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [{ enum: ['resources'] }, { enum: ['principals'] }, { enum: ['resources', 'principals'] }],
+    })
+    expect(mergeAllOfSchemas(schema).enum).toStrictEqual([])
+  })
+
+  it('preserves an enum when other branches do not constrain it', () => {
+    const schema = coerceValue(SchemaObjectSchema, { allOf: [{ type: 'string' }, { enum: ['principals'] }, {}] })
+    expect(mergeAllOfSchemas(schema).enum).toStrictEqual(['principals'])
+  })
+
+  it('narrows enums in array item properties', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        {
+          type: 'object',
+          properties: {
+            data: {
+              type: 'array',
+              items: {
+                allOf: [
+                  { type: 'object', properties: { type: { type: 'string', enum: ['resources', 'principals'] } } },
+                  { type: 'object', properties: { type: { enum: ['principals'] } } },
+                ],
+              },
+            },
+          },
+        },
+      ],
+    })
+    const result = mergeAllOfSchemas(schema)
+    const data = 'properties' in result ? resolve.schema(result.properties?.data) : undefined
+    const items = data && 'items' in data ? resolve.schema(data.items) : undefined
+    expect(items && 'properties' in items && resolve.schema(items.properties?.type)?.enum).toStrictEqual(['principals'])
+  })
+
   it('returns empty object for empty or invalid input', () => {
     expect(mergeAllOfSchemas({ allOf: [] } as any)).toEqual({})
     expect(mergeAllOfSchemas(null as any)).toEqual({})
@@ -970,7 +1040,7 @@ describe('mergeAllOfSchemas', () => {
       description: 'Third description',
       title: 'Second title',
       contentMediaType: 'application/json',
-      enum: ['value1', 'value2', 'value3', 'value4', 'value5', 'value6'],
+      enum: [],
       properties: { a: { type: 'string' }, b: { description: 'First b' } },
       maxProperties: 20,
       minProperties: 2,
