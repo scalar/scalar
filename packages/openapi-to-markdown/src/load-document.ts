@@ -15,10 +15,8 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Index schemas from this private cloned document before reference links are attached. */
-const getDocumentSchemas = (document: unknown): Map<string, string> => {
-  // The document is still an unlinked JSON tree, so the standard cycle tracking is sufficient.
-  return getSchemas(document)
-}
+const getDocumentSchemas = (document: unknown): Map<string, string> =>
+  getSchemas(document, '', [], new Map(), new WeakSet(), true)
 
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
