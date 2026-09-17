@@ -109,7 +109,10 @@ export const createDescriptionParser = (): (() => DescriptionParser) => {
       if (!value) return []
       const prefix = `description-${state.nextId++}-`
       const cached = cache.get(value) ?? parse(value)
-      cache.set(value, cached)
+      if (!cache.has(value)) {
+        if (cache.size >= 256) cache.clear()
+        cache.set(value, cached)
+      }
       const nodes = await cached
       // Ordinary Markdown can share immutable nodes. Reference definitions need a copy
       // so repeated descriptions and concurrent page renders cannot affect one another.

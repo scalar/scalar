@@ -2430,6 +2430,9 @@ importers:
 
   packages/openapi-to-markdown:
     dependencies:
+      '@amritk/helpers':
+        specifier: 0.21.0
+        version: 0.21.0
       '@scalar/code-highlight':
         specifier: workspace:*
         version: link:../code-highlight
@@ -2439,6 +2442,9 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/openapi-upgrader':
+        specifier: workspace:*
+        version: link:../openapi-upgrader
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
@@ -2451,12 +2457,18 @@ importers:
       rehype-sanitize:
         specifier: ^6.0.0
         version: 6.0.0
+      rehype-stringify:
+        specifier: ^10.0.1
+        version: 10.0.1
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
+      remark-rehype:
+        specifier: ^11.1.2
+        version: 11.1.2
       remark-stringify:
         specifier: ^11.0.0
         version: 11.0.0
@@ -3391,6 +3403,10 @@ packages:
   '@algolia/requester-node-http@5.47.0':
     resolution: {integrity: sha512-z1oyLq5/UVkohVXNDEY70mJbT/sv/t6HYtCvCwNrOri6pxBJDomP9R83KOlwcat+xqBQEdJHjbrPh36f1avmZA==}
     engines: {node: '>= 14.0.0'}
+
+  '@amritk/helpers@0.21.0':
+    resolution: {integrity: sha512-a+1MugaSbX8rD7hkBkCIbaOX9p/njkLq3Jhx5zZzYfuI/uB6RWt5tUDQvU38qV9I3ROEMD1yjVNnTL4BbG+ofA==}
+    engines: {node: '>=20'}
 
   '@angular-devkit/core@19.2.17':
     resolution: {integrity: sha512-Ah008x2RJkd0F+NLKqIpA34/vUGwjlprRCkvddjDopAWRzYn6xCkz1Tqwuhn0nR1Dy47wTLKYD999TYl5ONOAQ==}
@@ -14049,6 +14065,9 @@ packages:
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
+  json-schema-typed@8.0.2:
+    resolution: {integrity: sha512-fQhoXdcvc3V28x7C7BMs4P5+kNlgUURe2jmUT1T//oBRMDrqy1QPelJimwZGo7Hg9VPV3EQV5Bnq4hbFy2vetA==}
+
   json-schema-typed@7.0.3:
     resolution: {integrity: sha512-7DE8mpG+/fVw+dTpjbxnx47TaMnDfOI1jwft9g1VybltZCduyRQPJPvc+zzKY9WPHxhPWczyFuYa6I8Mw4iU5A==}
 
@@ -20009,6 +20028,10 @@ snapshots:
   '@algolia/requester-node-http@5.47.0':
     dependencies:
       '@algolia/client-common': 5.47.0
+
+  '@amritk/helpers@0.21.0':
+    dependencies:
+      json-schema-typed: 8.0.2
 
   '@angular-devkit/core@19.2.17(chokidar@4.0.3)':
     dependencies:
@@ -33292,6 +33315,8 @@ snapshots:
   json-schema-traverse@0.4.1: {}
 
   json-schema-traverse@1.0.0: {}
+
+  json-schema-typed@8.0.2: {}
 
   json-schema-typed@7.0.3: {}
 

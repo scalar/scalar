@@ -1,54 +1,14 @@
-import { isObject } from '@scalar/helpers/object/is-object'
-import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { normalize } from '@scalar/json-magic/helpers/normalize'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { loadDocument } from './load-document'
 import { createDocumentRenderer } from './render-document'
 import { type OpenApiRenderOptions, selectDocument } from './select-document'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
-type WorkspaceInput =
-  | {
-      document: Record<string, unknown>
-    }
-  | {
-      url: string
-    }
-  | {
-      path: string
-    }
-
-const isHttpUrl = (value: string): boolean => {
-  try {
-    const url = new URL(value)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-
-const toWorkspaceInput = (input: AnyDocument): WorkspaceInput => {
-  if (typeof input !== 'string') {
-    return { document: input as Record<string, unknown> }
-  }
-
-  const normalized = normalize(input)
-
-  if (isObject(normalized)) {
-    return { document: normalized as Record<string, unknown> }
-  }
-
-  if (isHttpUrl(input)) {
-    return { url: input }
-  }
-
-  return { path: input }
-}
-
 /** A resolved API description that can render multiple pages without loading it again. */
 export type OpenApiMarkdownRenderer = {
   render: (options?: OpenApiRenderOptions) => Promise<string>
+  renderHtml: (options?: OpenApiRenderOptions) => Promise<string>
 }
 
 /**
@@ -56,29 +16,24 @@ export type OpenApiMarkdownRenderer = {
  * Each renderer owns its document; create a new renderer to pick up source changes.
  */
 export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise<OpenApiMarkdownRenderer> => {
-  const workspaceStore = createWorkspaceStore({
-    fileLoader: readFiles(),
-  })
-
-  const name = 'openapi-to-markdown'
-  const loaded = await workspaceStore.addDocument({
-    name,
-    ...toWorkspaceInput(input),
-  })
-
-  if (!loaded) {
-    throw new Error('Failed to load OpenAPI document')
-  }
-
-  const content = workspaceStore.workspace.documents[name]
-
-  if (!content) {
-    throw new Error('OpenAPI document could not be resolved')
-  }
+  const content = await loadDocument(input)
 
   const renderDocument = createDocumentRenderer()
+  const render = async (options?: OpenApiRenderOptions): Promise<string> =>
+    await renderDocument(selectDocument(content, options))
   return {
-    render: async (options) => await renderDocument(selectDocument(content as OpenApiDocument, options)),
+    render,
+    renderHtml: async (options) => {
+      const [{ unified }, { default: remarkParse }, { default: remarkRehype }, { default: rehypeStringify }] =
+        await Promise.all([
+          import('unified'),
+          import('remark-parse'),
+          import('remark-rehype'),
+          import('rehype-stringify'),
+        ])
+      const processor = unified().use(remarkParse).use(remarkRehype).use(rehypeStringify)
+      return processor.processSync(await render(options)).toString()
+    },
   }
 }
 
@@ -89,4 +44,10 @@ export const createMarkdownFromOpenApi = async (
 ): Promise<string> => {
   const renderer = await createOpenApiMarkdownRenderer(input)
   return renderer.render(options)
+}
+
+/** Generate HTML through the optional Markdown conversion path. */
+export const createHtmlFromOpenApi = async (input: AnyDocument, options?: OpenApiRenderOptions): Promise<string> => {
+  const renderer = await createOpenApiMarkdownRenderer(input)
+  return renderer.renderHtml(options)
 }

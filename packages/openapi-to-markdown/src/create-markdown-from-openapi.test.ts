@@ -31,6 +31,17 @@ Test description`
     expect(result).toContain(markdown)
   })
 
+  it('coerces document metadata before rendering', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.0',
+      info: { title: 'Coerced API', version: 12 },
+      paths: {},
+    })
+
+    expect(markdown).toContain('# Coerced API')
+    expect(markdown).toContain('**API Version:** ``')
+  })
+
   it('renders servers', async () => {
     const content = {
       openapi: '3.1.1',
