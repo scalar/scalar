@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import {
   collectDynamicAnchors as collectDynamicAnchorsGeneric,
   isDynamicRef as isDynamicRefGeneric,
@@ -5,6 +6,7 @@ import {
   resolveDynamicRef as resolveDynamicRefGeneric,
 } from '@scalar/json-magic/magic-proxy'
 
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
 
@@ -33,8 +35,17 @@ export const collectDynamicAnchors = (resource: SchemaObject): Map<string, Schem
   ) as Map<string, SchemaObject>
 
 /** Append a schema to the dynamic scope when it could hold a `$dynamicAnchor`, otherwise return it unchanged. */
-export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): DynamicScope =>
-  pushDynamicScopeGeneric(scope as Record<string, unknown>[], schema as Record<string, unknown>) as DynamicScope
+export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): DynamicScope => {
+  const next = pushDynamicScopeGeneric(scope as Record<string, unknown>[], schema as Record<string, unknown>)
+  if (next !== scope) {
+    return next as DynamicScope
+  }
+  // Raw example generation may enter a named binding through a bare reference (#9883).
+  const resolved = getResolvedRef(schema)
+  return isObject(resolved) && resolved !== schema
+    ? (pushDynamicScopeGeneric(scope as Record<string, unknown>[], resolved) as DynamicScope)
+    : scope
+}
 
 /** Resolve a `$dynamicRef` fragment against the dynamic scope, outermost-first. */
 export const resolveDynamicRef = (dynamicRef: string, scope: DynamicScope): SchemaObject | undefined =>

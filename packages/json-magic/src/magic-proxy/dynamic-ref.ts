@@ -171,8 +171,8 @@ export const collectDynamicAnchors = (resource: UnknownObject, unwrap: Unwrap = 
 /**
  * Whether a document contains any `$dynamicRef` at all.
  *
- * The magic proxy uses this once, up front, as a gate: documents without dynamic references (the vast
- * majority) never grow a dynamic scope and never bypass the proxy cache, so their behavior is unchanged.
+ * The magic proxy uses this lazily, once per document, as a gate: documents without dynamic references (the vast
+ * majority) never grow a dynamic scope and retain the ordinary proxy cache, so their behavior is unchanged.
  * Only documents that actually use `$dynamicRef` pay for scope threading and path-dependent resolution.
  */
 export const containsDynamicRef = (input: unknown, seen = new WeakSet<object>()): boolean => {

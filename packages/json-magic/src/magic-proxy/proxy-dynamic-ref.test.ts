@@ -116,7 +116,7 @@ describe('proxy-dynamic-ref', () => {
     const groupItems = proxy.GroupPage['$ref-value'].properties.items.items
 
     // The very same template node resolves `#itemType` differently depending on the entry point — this
-    // only works because the proxy cache is bypassed while a dynamic scope is active.
+    // works because proxies are cached separately for each active dynamic scope.
     expect(userItems['$dynamicRef-value']).toMatchObject({ title: 'User' })
     expect(groupItems['$dynamicRef-value']).toMatchObject({ title: 'Group' })
   })
@@ -153,6 +153,24 @@ describe('proxy-dynamic-ref', () => {
     // Without dynamic refs the proxy cache is untouched, so repeated access yields the same proxy.
     expect(proxy.$defs.shared).toBe(proxy.$defs.shared)
     expect(proxy.a['$ref-value']).toBe(proxy.b['$ref-value'])
+  })
+
+  it('keeps ordinary shared targets stable when another branch uses dynamic references', () => {
+    const document = {
+      shared: { type: 'string' },
+      first: { $id: 'urn:first', properties: { value: { $ref: '#/shared' } } },
+      second: { $id: 'urn:second', properties: { value: { $ref: '#/shared' } } },
+      dynamic: {
+        $id: 'urn:dynamic',
+        $dynamicAnchor: 'node',
+        properties: { child: { $dynamicRef: '#node' } },
+      },
+    }
+    const proxy = createMagicProxy(document)
+    expect(Reflect.get(proxy.first.properties.value, '$ref-value')).toBe(
+      Reflect.get(proxy.second.properties.value, '$ref-value'),
+    )
+    expect(Reflect.get(proxy.first.properties.value, '$ref-value')).toBe(proxy.shared)
   })
 
   it('keeps referential stability within a dynamic scope while separating scopes', () => {
