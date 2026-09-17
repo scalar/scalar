@@ -46,9 +46,10 @@ export const loadingStatus = (): LifecyclePlugin => {
  *
  * This is useful for inlining external content (like examples or schemas) into the OpenAPI document during bundling.
  *
- * @param node - The node being processed, which may contain an 'externalValue' property.
+ * In lazy mode, preserve the absolute URL for on-demand client resolution without fetching a payload.
+ * The default eager mode remains available to existing bundler consumers.
  */
-export const externalValueResolver = (): LifecyclePlugin => {
+export const externalValueResolver = (options?: { lazy?: boolean }): LifecyclePlugin => {
   return {
     type: 'lifecycle',
     onAfterNodeProcess: async (node, context) => {
@@ -56,13 +57,21 @@ export const externalValueResolver = (): LifecyclePlugin => {
       const cache = context.resolutionCache
 
       // Only process if 'externalValue' is a string
-      if (typeof externalValue !== 'string') {
+      if (typeof externalValue !== 'string' || node['value'] !== undefined) {
         return
       }
 
       // `externalValue` may be relative (for example `/examples/pet.json`). Resolve it against the
       // origin of the document it lives in so it becomes an absolute URL a loader can fetch.
       const resolvedValue = resolveReferencePath(context.origin, externalValue)
+
+      if (options?.lazy) {
+        const path = context.path.at(-2) === 'examples' ? context.path : (context.referencedFromPath ?? context.path)
+        if (path.at(-2) !== 'examples' || isSchemaPath(path)) return
+        // Preserve the referenced document origin before bundling loses that context.
+        node['externalValue'] = resolvedValue
+        return
+      }
 
       const loader = context.loaders.find((it) => it.validate(resolvedValue))
 

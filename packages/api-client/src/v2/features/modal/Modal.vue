@@ -186,6 +186,7 @@ defineExpose({
         :environment
         :eventBus
         :exampleName="exampleName?.value"
+        :isActive="modalState.open"
         :isWebhook="isWebhook.value"
         layout="modal"
         :method="method?.value"
