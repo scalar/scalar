@@ -8,6 +8,7 @@ import { createPathFromSegments } from '@/helpers/json-path-utils'
 import {
   type DynamicScope,
   carriesDynamicAnchor,
+  collectDynamicAnchors,
   containsDynamicRef,
   resolveDynamicRef,
 } from '@/magic-proxy/dynamic-ref'
@@ -192,6 +193,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   const childScope: DynamicScope =
     carriesDynamicAnchor(target as UnknownObject, args.dynamicScope) &&
     hasDynamicRefs() &&
+    // An unrelated dynamic reference must not scope ordinary resources with no anchors. Once a
+    // scope is active, retain every resource boundary for correct bookending.
+    (dynamicScopeActive || collectDynamicAnchors(target as UnknownObject).size > 0) &&
     !args.dynamicScope.includes(target)
       ? internScope(args.scopeCache, args.dynamicScope, target as UnknownObject)
       : args.dynamicScope
