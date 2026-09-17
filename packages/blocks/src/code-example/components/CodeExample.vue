@@ -134,6 +134,14 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  getOperationExamples,
+  resolveOperationExamples,
+} from '@scalar/workspace-store/helpers/operation-examples'
+import {
+  useExampleVisibility,
+  useExternalExamples,
+} from '@scalar/workspace-store/helpers/use-external-examples'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
@@ -306,13 +314,29 @@ watch([() => selectedClient, clients], ([newClient]) => {
   }
 })
 
+const elem = ref<ComponentPublicInstance | null>(null)
+const visible = useExampleVisibility(elem)
+const externalExamples = useExternalExamples(
+  () =>
+    getOperationExamples(operation, localExampleKey.value, selectedContentType),
+  () => visible.value,
+)
+const resolvedOperation = computed(() =>
+  resolveOperationExamples(
+    operation,
+    localExampleKey.value,
+    selectedContentType,
+    externalExamples.resolve,
+  ),
+)
+
 /** Generate HAR data for webhook requests */
 const webhookHar = computed(() => {
   if (!isWebhook) return null
 
   try {
     return operationToHar({
-      operation,
+      operation: resolvedOperation.value,
       method,
       path,
       example: localExampleKey.value,
@@ -340,7 +364,7 @@ const generatedCode = computed<string>(() => {
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value.samples,
-    operation,
+    operation: resolvedOperation.value,
     method,
     path,
     contentType: selectedContentType,
@@ -378,9 +402,6 @@ const webhookLanguage = computed<string>(() => {
 /**  Block secrets from being shown in the code block */
 const secretCredentials = computed(() => getSecrets(securitySchemes))
 
-/** Grab the ref to freeze the ui as the clients change so there's no jump as the size of the dom changes */
-const elem = ref<ComponentPublicInstance | null>(null)
-
 /** Set custom example, or update the selected HTTP client globally */
 const selectClient = (option: ClientOption) => {
   // We need to freeze the ui to prevent scrolling as the clients change
@@ -414,7 +435,7 @@ const id = useId()
 </script>
 <template>
   <ScalarCard
-    v-if="generatedCode"
+    v-if="generatedCode || externalExamples.pending.value"
     ref="elem"
     class="request-card dark-mode">
     <!-- Header -->
@@ -465,6 +486,22 @@ const id = useId()
     <!-- Code snippet -->
     <ScalarCardSection class="request-editor-section custom-scroll p-0">
       <div
+        v-if="externalExamples.pending.value"
+        class="text-c-2 p-4"
+        role="status">
+        <template v-if="externalExamples.failed.value">
+          Could not load this example.
+          <ScalarButton
+            size="sm"
+            variant="ghost"
+            @click="externalExamples.retry">
+            Retry
+          </ScalarButton>
+        </template>
+        <template v-else>Loading example…</template>
+      </div>
+      <div
+        v-else
         :id="`${id}-example`"
         class="code-snippet">
         <ScalarCodeBlock

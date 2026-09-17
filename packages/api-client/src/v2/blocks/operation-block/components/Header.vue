@@ -7,6 +7,8 @@
   and close button for modal. Layout and visibility depend on `layout` and `source` props.
  */
 export type HeaderProps = {
+  /** An external example must finish loading before sending. */
+  executionDisabled?: boolean
   /** Current request path */
   path: string
   /** Current request method */
@@ -112,6 +114,7 @@ const handleAddEnvironment = () => {
       :environments
       :eventBus
       :exampleKey
+      :executionDisabled
       :history
       :isWebhook
       :layout
@@ -122,10 +125,8 @@ const handleAddEnvironment = () => {
       :servers
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
-      @update:webhook-url="(value) => emit('update:webhook-url', value)"
-      @select:history:item="
-        (payload) => emit('select:history:item', payload)
-      " />
+      @select:history:item="(payload) => emit('select:history:item', payload)"
+      @update:webhook-url="(value) => emit('update:webhook-url', value)" />
 
     <div class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl:mb-0">
       <!--

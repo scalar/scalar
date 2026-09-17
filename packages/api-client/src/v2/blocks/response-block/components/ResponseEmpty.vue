@@ -6,6 +6,8 @@ import { ScalarAsciiArt } from '@/components/ScalarAsciiArt'
 import type { ClientLayout } from '@/v2/types/layout'
 
 const { totalPerformedRequests, layout, appVersion } = defineProps<{
+  /** Wait for the selected external request example before sending. */
+  executionDisabled?: boolean
   /** Client layout */
   layout: ClientLayout
   /** Total number of performed requests */
@@ -72,6 +74,7 @@ const emits = defineEmits<{
       </button>
       <button
         class="flex items-center gap-1.5"
+        :disabled="executionDisabled"
         type="button"
         @click="emits('sendRequest')">
         Send Request

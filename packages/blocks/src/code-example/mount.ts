@@ -5,6 +5,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -187,6 +188,7 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
     ]),
   )
 
+  app.provide(EXTERNAL_EXAMPLES, () => options.store.externalExamples())
   app.mount(element)
 
   return {

@@ -8,6 +8,8 @@ export default {
   name: 'AddressBar',
 }
 export type AddressBarProps = {
+  /** An external example must finish loading before sending. */
+  executionDisabled?: boolean
   /** Current request path */
   path: string
   /** Current request method */
@@ -584,7 +586,7 @@ defineExpose({
         ref="sendButtonRef"
         class="relative hidden h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold @3xl:flex"
         data-addressbar-action="send"
-        :disabled="isLoading"
+        :disabled="isLoading || executionDisabled"
         @click="emit('execute')">
         <span
           aria-hidden="true"
@@ -626,7 +628,7 @@ defineExpose({
         ref="mobileSendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
         data-addressbar-action="send"
-        :disabled="isLoading"
+        :disabled="isLoading || executionDisabled"
         @click="emit('execute')">
         <span
           aria-hidden="true"

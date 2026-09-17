@@ -13,7 +13,8 @@ export const getExampleContent = (
   example: ExampleObject | undefined,
 ): string | undefined => {
   if (example !== undefined) {
-    return prettyPrintJson(getResolvedRefDeep(example)?.value ?? '')
+    const value = getResolvedRefDeep(example)?.value
+    return prettyPrintJson(value === undefined ? '' : value)
   }
 
   if (response?.schema) {

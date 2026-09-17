@@ -22,6 +22,7 @@ import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
+import { type ExternalExampleResolver, createExternalExampleResolver } from '@/helpers/external-examples'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -215,6 +216,9 @@ type WorkspaceProps = {
  * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
  */
 export type WorkspaceStore = {
+  /** Resolve external examples without mutating the document or its edit history. */
+  externalExamples: (documentName?: string) => ExternalExampleResolver
+
   /**
    * The history store for the workspace
    */
@@ -663,6 +667,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
+  const externalExampleResolvers = new WeakMap<object, ExternalExampleResolver>()
+  const fallbackExternalExamples = createExternalExampleResolver({
+    fetch: workspaceProps?.fetch,
+    fileLoader: workspaceProps?.fileLoader,
+  })
 
   /**
    * Notifies all workspace plugins of a workspace state change event.
@@ -1087,7 +1096,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             plugins: [
               ...loaders,
               normalizeRefs(),
-              externalValueResolver(),
+              externalValueResolver({ lazy: true }),
               refsEverywhere(),
               normalizeAuthSchemes(),
               syncPathParameters(),
@@ -1300,6 +1309,20 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const visitedNodesCache = new Set()
 
   return {
+    externalExamples: (documentName) => {
+      const name = documentName ?? getActiveDocumentName()
+      const document = workspace.documents[name]
+      if (!document) return fallbackExternalExamples
+      const existing = externalExampleResolvers.get(document)
+      if (existing) return existing
+      const resolver = createExternalExampleResolver({
+        origin: document['x-scalar-original-source-url'],
+        fileLoader: workspaceProps?.fileLoader,
+        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      })
+      externalExampleResolvers.set(document, resolver)
+      return resolver
+    },
     get workspace() {
       return workspace
     },
@@ -1376,7 +1399,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return bundle(target, {
         root: activeDocument,
         treeShake: false,
-        plugins: [fetchUrls(), loadingStatus(), externalValueResolver()],
+        plugins: [
+          fetchUrls({
+            fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
+            limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
+          }),
+          ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+          loadingStatus(),
+          externalValueResolver({ lazy: true }),
+        ],
+        origin: activeDocument?.['x-scalar-original-source-url'],
         urlMap: true,
         visitedNodes: visitedNodesCache,
       })
