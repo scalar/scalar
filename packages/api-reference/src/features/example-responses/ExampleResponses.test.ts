@@ -1,7 +1,9 @@
+import { createDetectChangesProxy } from '@scalar/workspace-store/helpers/detect-changes-proxy'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { nextTick, reactive } from 'vue'
 
 import ExampleResponses from './ExampleResponses.vue'
 
@@ -17,6 +19,46 @@ describe('ExampleResponses', () => {
   it('renders a response summary without a description or examples', () => {
     const wrapper = mount(ExampleResponses, { props: { responses: { '204': { summary: 'Deletion completed' } } } })
     expect(wrapper.text()).toContain('Deletion completed')
+  })
+
+  it('preserves the selected variant through unrelated workspace proxy updates', async () => {
+    const document = reactive(
+      createDetectChangesProxy({
+        info: { title: 'Before' },
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: coerceValue(SchemaObjectSchema, { oneOf: [{ const: 'first' }, { const: 'second' }] }),
+              },
+            },
+          },
+        },
+      }),
+    )
+    const wrapper = mount(ExampleResponses, { props: { responses: document.responses } })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    document.info.title = 'After'
+    document.responses['200'].description = 'Updated description'
+    await nextTick()
+    await wrapper.setProps({ responses: document.responses })
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).props('modelValue')).toBe('1')
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('second')
+  })
+
+  it('copies the first nested variant after selecting the second outer variant', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      oneOf: [{ const: 'outer' }, { oneOf: [{ const: 'nested first' }, { const: 'nested second' }] }],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('nested first')
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('nested first')
   })
 
   it('selects variants when the response array type is inferred from items', async () => {

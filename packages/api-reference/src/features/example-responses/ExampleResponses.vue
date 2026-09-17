@@ -202,15 +202,13 @@ watch(
 )
 
 const exampleContent = computed(() =>
-  getExampleContent(
-    currentResponseContent.value,
-    currentExample.value,
-    responseVariants.value
+  getExampleContent(currentResponseContent.value, currentExample.value, {
+    compositionSelection: responseVariants.value
       ? {
           [responseVariants.value.composition]: Number(currentVariantKey.value),
         }
       : undefined,
-  ),
+  }),
 )
 
 const copyExample = (): void => {
