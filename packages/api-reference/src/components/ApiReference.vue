@@ -1157,11 +1157,12 @@ const changeSelectedDocument = async (
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, config)
 
-  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  // Sync the modal to the new document without naming an operation. Leaving path and
+  // method out resolves them to the document's first operation instead of a route that
+  // does not exist, so the modal still has something valid to show if it opens before
+  // a specific operation is selected.
   apiClient.value?.route({
     documentSlug: slug,
-    method: 'get',
-    path: '/',
   })
 
   // Load the document if it is not in the store yet (a background preload may already be loading it)
