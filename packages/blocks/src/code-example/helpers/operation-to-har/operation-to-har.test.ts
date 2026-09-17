@@ -30,6 +30,48 @@ describe('operationToHar', () => {
     )
   })
 
+  it.each(['absent', 'disabled', 'empty'] as const)(
+    'preserves structured cookies alongside an explicit Cookie header when cookie style is %s',
+    (cookieStyle) => {
+      const result = operationToHar({
+        method: 'get',
+        path: '/',
+        server: { url: 'https://example.com' },
+        operation: {
+          parameters: [
+            { name: 'Cookie', in: 'header', required: true, example: 'session=abc' },
+            { name: 'legacy', in: 'cookie', required: true, example: 'a b' },
+            ...(cookieStyle === 'absent'
+              ? []
+              : [
+                  {
+                    name: 'styled',
+                    in: 'cookie' as const,
+                    style: 'cookie' as const,
+                    required: true,
+                    examples: {
+                      default: {
+                        value: cookieStyle === 'disabled' ? 'ignored' : [],
+                        'x-disabled': cookieStyle === 'disabled',
+                      },
+                    },
+                  },
+                ]),
+          ],
+        },
+        globalCookies: [{ name: 'global', value: 'c d', domain: 'example.com', path: '/' }],
+        securitySchemes: [{ type: 'apiKey', name: 'token', in: 'cookie', 'x-scalar-secret-token': 'secret' }],
+      })
+
+      expect(result.headers).toStrictEqual([{ name: 'Cookie', value: 'session=abc' }])
+      expect(result.cookies).toStrictEqual([
+        { name: 'global', value: 'c d' },
+        { name: 'legacy', value: 'a b' },
+        { name: 'token', value: 'secret' },
+      ])
+    },
+  )
+
   it.each(['xhr', 'jquery'] as const)('sets cookie-style values through the browser cookie store in %s', (client) => {
     const result = operationToHar({
       method: 'get',

@@ -27,6 +27,29 @@ describe('browser-request', () => {
     ])
   })
 
+  it('enables credentials for a Cookie header without structured cookies', () => {
+    const prepared = prepareBrowserRequest({
+      url: 'https://example.com',
+      headers: [{ name: 'Cookie', value: 'session=a%20b; token=c+d==' }],
+    })
+
+    expect(prepared.headers).toStrictEqual([])
+    expect(prepared.withCredentials).toBe(true)
+    expect(prepared.setup).toStrictEqual([
+      '// Run on the request origin to set these cookies in the browser.',
+      'document.cookie = "session=a%20b; path=/";',
+      'document.cookie = "token=c+d==; path=/";',
+    ])
+  })
+
+  it('leaves requests without cookies uncredentialed', () => {
+    const prepared = prepareBrowserRequest({ headers: [{ name: 'X-Test', value: 'kept' }] })
+
+    expect(prepared.headers).toStrictEqual([{ name: 'X-Test', value: 'kept' }])
+    expect(prepared.withCredentials).toBe(false)
+    expect(prepared.setup).toStrictEqual([])
+  })
+
   it('uses the browser cookie store and enables credentialed requests', () => {
     const prepared = prepareBrowserRequest({ cookies: [{ name: 'a;b', value: 'c d' }] })
     expect(prepared.headers).toStrictEqual([])
