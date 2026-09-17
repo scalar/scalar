@@ -13,6 +13,38 @@ const text = (value: string): XmlNode => ({ type: 'text', value })
 const options = { xmlDeclaration: false }
 
 describe('write-xml', () => {
+  it('serializes a large document at the node limit', () => {
+    const result = writeXml(
+      [
+        element(
+          'root',
+          Array.from({ length: 9999 }, () => element('item')),
+        ),
+      ],
+      {
+        ...options,
+        format: false,
+      },
+    )
+    expect(result).toStrictEqual({ xml: `<root>${'<item/>'.repeat(9999)}</root>`, diagnostics: [] })
+  })
+
+  it('rejects the complete document above the node limit with an actionable diagnostic', () => {
+    const result = writeXml(
+      [
+        element(
+          'root',
+          Array.from({ length: 10000 }, () => element('item')),
+        ),
+      ],
+      options,
+    )
+    expect(result.xml).toBeUndefined()
+    expect(result.diagnostics.map(({ severity, code, message }) => ({ severity, code, message }))).toStrictEqual([
+      { severity: 'error', code: 'limit-exceeded', message: 'The XML example exceeds the node or depth limit.' },
+    ])
+  })
+
   it('preserves mixed content, repeated names, and significant whitespace', () => {
     expect(
       writeXml(
