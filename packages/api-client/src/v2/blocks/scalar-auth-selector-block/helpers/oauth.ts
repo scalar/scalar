@@ -241,7 +241,7 @@ export const authorizeOauth2 = async (
     }
 
     // Common to all flows
-    url.searchParams.set('client_id', flow['x-scalar-secret-client-id'])
+    url.searchParams.set('client_id', flow['x-scalar-secret-client-id'].trim())
     url.searchParams.set('state', state)
     if (scopes) {
       url.searchParams.set('scope', scopes)
@@ -410,13 +410,16 @@ const authorizeServers = async (
     formData.set('scope', scopes)
   }
 
+  // Ignore surrounding copy/paste whitespace without changing stored credentials or other secrets.
+  const clientId = flow['x-scalar-secret-client-id'].trim()
+  const clientSecret = flow['x-scalar-secret-client-secret'].trim()
   /** Where to add the credentials */
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
   /**
    * PKCE and client authentication are independent: a confidential client may use both.
    * We send the client_secret whenever one is set, regardless of PKCE (see RFC 9700 Section 2.1.1).
    */
-  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  const hasClientSecret = Boolean(clientSecret)
   /**
    * Public authorization-code clients still need client_id in the token body.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.
@@ -424,10 +427,10 @@ const authorizeServers = async (
   const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
 
   if (shouldSendClientIdInBody) {
-    formData.set('client_id', flow['x-scalar-secret-client-id'])
+    formData.set('client_id', clientId)
   }
   if (addCredentialsToBody && hasClientSecret) {
-    formData.set('client_secret', flow['x-scalar-secret-client-secret'])
+    formData.set('client_secret', clientSecret)
   }
   if (redirectUri) {
     formData.set('redirect_uri', redirectUri)
@@ -473,7 +476,7 @@ const authorizeServers = async (
 
     // Add client id + secret to headers for confidential clients.
     if (!addCredentialsToBody && hasClientSecret) {
-      headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
+      headers.Authorization = `Basic ${encode(`${clientId}:${clientSecret}`)}`
     }
 
     // Check if we should use the proxy
@@ -546,9 +549,12 @@ export const refreshOauth2Token = async (
   formData.set('grant_type', 'refresh_token')
   formData.set('refresh_token', refreshToken)
 
+  // Ignore surrounding copy/paste whitespace without changing stored credentials or other secrets.
+  const clientId = flow['x-scalar-secret-client-id'].trim()
+  const clientSecret = flow['x-scalar-secret-client-secret'].trim()
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
   /** A confidential client keeps using its secret on refresh, even when PKCE is enabled. */
-  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  const hasClientSecret = Boolean(clientSecret)
   /**
    * Public authorization-code clients still need client_id in the refresh body per RFC 6749 Section 6.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.
@@ -556,10 +562,10 @@ export const refreshOauth2Token = async (
   const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
 
   if (shouldSendClientIdInBody) {
-    formData.set('client_id', flow['x-scalar-secret-client-id'])
+    formData.set('client_id', clientId)
   }
   if (addCredentialsToBody && hasClientSecret) {
-    formData.set('client_secret', flow['x-scalar-secret-client-secret'])
+    formData.set('client_secret', clientSecret)
   }
 
   if (flow['x-scalar-security-body']) {
@@ -576,7 +582,7 @@ export const refreshOauth2Token = async (
     }
 
     if (!addCredentialsToBody && hasClientSecret) {
-      headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
+      headers.Authorization = `Basic ${encode(`${clientId}:${clientSecret}`)}`
     }
 
     const refreshUrl = flow.refreshUrl || flow['x-scalar-secret-token-url'] || flow.tokenUrl
