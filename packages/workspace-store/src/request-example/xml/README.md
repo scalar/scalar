@@ -78,7 +78,18 @@ un-grouped `*`, `+`, or `?` quantifier, with both inputs limited to 256 characte
 Grouping, alternation, backreferences, counted repetitions, and larger inputs return
 an `unsupported-pattern` error; arbitrary JavaScript regexes could block rendering.
 Supplied data cycles are errors. Generation retains the existing generator's depth
-limit; mapping is bounded to 50 levels and 10,000 nodes.
+limit; mapping is bounded to 50 levels and 10,000 nodes. The writer independently
+limits the emitted tree to 100 levels and 10,000 nodes, including text and CDATA
+nodes. A flat document with 9,999 empty child elements plus its root fits the
+writer limit; adding text or nested elements consumes more nodes. These limits
+bound synchronous work, so sufficiently large legitimate examples can exceed them.
+
+Limit violations reject the complete document and return a `limit-exceeded` error.
+The generation helpers report errors to `console.warn` by default; an `onDiagnostic`
+callback can display them in an application. Current UI consumers fall back to
+their data representation and do not display a dedicated XML error message. To
+preserve a complete large payload without generating an XML tree, supply a
+media-level `serializedValue` (or a legacy string `value`).
 
 The legacy `xml: true` data-generator option is deprecated. The schema-free
 `json2xml` helper remains available for callers that intentionally use its object
