@@ -21,6 +21,9 @@ describe('response-stream', () => {
     ['application/json-seq', 'json-seq'],
     ['application/geo+json-seq', 'json-seq'],
     ['multipart/mixed; boundary=parts', 'multipart'],
+    ['multipart/x-mixed-replace; boundary=parts', 'multipart'],
+    ['multipart/form-data; boundary=parts', undefined],
+    ['multipart/related; boundary=parts', undefined],
     ['application/json', undefined],
     ['text/json-seq', undefined],
   ])('recognizes %s', (type, expected) => {

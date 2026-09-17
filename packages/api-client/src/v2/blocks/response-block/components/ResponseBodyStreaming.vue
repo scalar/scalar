@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarLoading, useLoadingState } from '@scalar/components/loading'
+import { getUtf8ByteLength } from '@scalar/helpers/string/get-utf8-byte-length'
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
@@ -40,10 +41,9 @@ const readStream = async (
   streamReader: ReadableStreamDefaultReader<Uint8Array>,
 ): Promise<void> => {
   try {
-    const encoder = new TextEncoder()
     let displayedBytes = 0
     const parser = createResponseStreamParser(contentType, (text) => {
-      displayedBytes += encoder.encode(text).byteLength
+      displayedBytes += getUtf8ByteLength(text)
       if (displayedBytes > MAX_DISPLAY_SIZE) {
         throw new Error(
           'Stream display reached its 16 MiB limit. Cancelled further reading.',

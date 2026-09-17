@@ -1,4 +1,6 @@
+import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { getUtf8ByteLength } from '@scalar/helpers/string/get-utf8-byte-length'
 
 import { createMultipartParser } from './response-stream-multipart'
 
@@ -7,6 +9,9 @@ type ResponseStreamFormat = 'text' | 'json-lines' | 'json-seq' | 'multipart'
 
 /** Only opt recognized streaming media types into the reader path. */
 export const getResponseStreamFormat = (contentType: string): ResponseStreamFormat | undefined => {
+  if (!isStreamingContentType(contentType)) {
+    return undefined
+  }
   const { essence, type, subtype } = parseMimeType(contentType)
   if (essence === 'text/event-stream') {
     return 'text'
@@ -14,7 +19,7 @@ export const getResponseStreamFormat = (contentType: string): ResponseStreamForm
   if (['application/jsonl', 'application/x-ndjson', 'application/json-lines'].includes(essence)) {
     return 'json-lines'
   }
-  if (type === 'application' && (subtype === 'json-seq' || subtype.endsWith('+json-seq'))) {
+  if (subtype === 'json-seq' || subtype.endsWith('+json-seq')) {
     return 'json-seq'
   }
   return type === 'multipart' ? 'multipart' : undefined
@@ -88,9 +93,7 @@ export const createResponseStreamParser = (contentType: string, emit: (text: str
         continue
       }
       buffer += char
-      // Iteration yields complete code points, so surrogate pairs occupy four UTF-8 bytes.
-      const codeUnit = char.charCodeAt(0)
-      recordBytes += char.length === 2 ? 4 : codeUnit <= 0x7f ? 1 : codeUnit <= 0x7ff ? 2 : 3
+      recordBytes += getUtf8ByteLength(char)
       if (recordBytes > MAX_STREAM_RECORD_SIZE) {
         throw new Error('Stream record exceeds the 8 MiB display limit.')
       }
