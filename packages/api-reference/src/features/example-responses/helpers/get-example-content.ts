@@ -36,30 +36,7 @@ export const getExampleContent = (
     if (!schema) {
       return undefined
     }
-    const composition = schema.oneOf ? 'oneOf' : 'anyOf'
-    const index = compositionSelection?.[composition]
-    const variant = index === undefined ? undefined : schema[composition]?.[index]
-    // The generator handles an explicit primitive/array type before its root union.
-    // Merge that selected branch with the common fields so its constraints still apply.
-    const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
-    const rootType = 'type' in schema ? schema.type : undefined
-    const variantType = variant && 'type' in variant ? variant.type : undefined
-    const selectedType =
-      variantType ?? rootType ?? ('items' in schema && !('properties' in schema) ? 'array' : undefined)
-    const selectedSchema =
-      variant && selectedType !== undefined && selectedType !== 'object' ? { ...base, ...variant } : schema
-
-    // Object and array keywords do not constrain other types. The generator infers
-    // those types from their keywords, so omit them from this fresh branch copy.
-    if (selectedSchema !== schema) {
-      if ('properties' in selectedSchema) {
-        delete selectedSchema.properties
-      }
-      if (selectedType !== 'array' && 'items' in selectedSchema) {
-        delete selectedSchema.items
-      }
-    }
-    const content = getExampleFromSchema(selectedSchema as SchemaObject, {
+    const content = getExampleFromSchema(schema, {
       emptyString: 'string',
       mode: 'read',
       compositionSelection,
