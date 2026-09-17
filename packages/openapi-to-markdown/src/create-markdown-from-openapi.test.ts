@@ -42,6 +42,41 @@ Test description`
     expect(markdown).toContain('**API Version:** ``')
   })
 
+  it('resolves an embedded schema resource without loading it as an external reference', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Embedded resource', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: 'https://schemas.example/pet.json#pet' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Pet: {
+            $id: 'https://schemas.example/pet.json',
+            $anchor: 'pet',
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+        },
+      },
+    })
+
+    expect(markdown).toContain('name')
+  })
+
   it('renders servers', async () => {
     const content = {
       openapi: '3.1.1',

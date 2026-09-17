@@ -41,7 +41,6 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@amritk/helpers": "0.21.0",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
