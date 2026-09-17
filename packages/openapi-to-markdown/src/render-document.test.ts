@@ -1,26 +1,29 @@
-// @vitest-environment jsdom
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import MarkdownReference from './MarkdownReference.vue'
+import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
+import { createDocumentRenderer } from './render-document'
 
-// Mock the ScalarMarkdown component
-vi.mock('@scalar/components/markdown', () => ({
-  ScalarMarkdown: {
-    name: 'ScalarMarkdown',
-    props: ['value'],
-    template: '<div class="scalar-markdown">{{ value }}</div>',
-  },
-}))
+describe('render-document', () => {
+  it('renders referenced operations and their sibling overrides in paths and webhooks', async () => {
+    const output = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'References', version: '1.0.0' },
+      paths: { '/a': { get: { $ref: '#/x-operation' } } },
+      webhooks: { event: { post: { $ref: '#/x-operation', summary: 'Webhook override' } } },
+      'x-operation': { summary: 'Shared operation', responses: { '200': { description: 'Success' } } },
+    })
+    expect(output.slice(output.indexOf('## Operations'))).toBe(
+      '## Operations\n\n### Shared operation\n\n- **Method:** `GET`\n- **Path:** `/a`\n\n#### Responses\n\n##### Status: 200 Success\n\n## Webhooks\n\n### Webhook override\n\n- **Method:** `POST`\n- **Webhook:** `event`\n\n#### Responses\n\n##### Status: 200 Success\n',
+    )
+  })
 
-describe('MarkdownReference', () => {
   const withMeta = (document: Omit<OpenApiDocument, 'x-scalar-original-document-hash'>): OpenApiDocument => ({
     ...document,
     'x-scalar-original-document-hash': 'test-hash',
   })
 
-  it('renders basic API information', () => {
+  it('renders basic API information', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: {
@@ -31,19 +34,17 @@ describe('MarkdownReference', () => {
       paths: {},
     })
 
-    const wrapper = mount(MarkdownReference, {
-      props: { content },
-    })
+    const output = await createDocumentRenderer()(content)
 
-    expect(wrapper.text()).toContain('Test API')
-    expect(wrapper.text()).toContain('OpenAPI Version:')
-    expect(wrapper.text()).toContain('3.1.1')
-    expect(wrapper.text()).toContain('API Version:')
-    expect(wrapper.text()).toContain('1.0.0')
-    expect(wrapper.text()).toContain('Test description')
+    expect(output.replaceAll('`', '')).toContain('Test API')
+    expect(output.replaceAll('`', '')).toContain('OpenAPI Version:')
+    expect(output.replaceAll('`', '')).toContain('3.1.1')
+    expect(output.replaceAll('`', '')).toContain('API Version:')
+    expect(output.replaceAll('`', '')).toContain('1.0.0')
+    expect(output.replaceAll('`', '')).toContain('Test description')
   })
 
-  it('renders servers section with variables', () => {
+  it('renders servers section with variables', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
@@ -66,18 +67,18 @@ describe('MarkdownReference', () => {
       paths: {},
     })
 
-    const wrapper = mount(MarkdownReference, { props: { content } })
-    expect(wrapper.text()).toContain('Servers')
-    expect(wrapper.text()).toContain('https://test.com')
-    expect(wrapper.text()).toContain('Test server')
-    expect(wrapper.text()).toContain('https://test.com/{version}')
-    expect(wrapper.text()).toContain('Test server v2')
-    expect(wrapper.text()).toContain('version')
-    expect(wrapper.text()).toContain('v2')
-    expect(wrapper.text()).toContain('Test version')
+    const output = await createDocumentRenderer()(content)
+    expect(output.replaceAll('`', '')).toContain('Servers')
+    expect(output.replaceAll('`', '')).toContain('https://test.com')
+    expect(output.replaceAll('`', '')).toContain('Test server')
+    expect(output.replaceAll('`', '')).toContain('https://test.com/{version}')
+    expect(output.replaceAll('`', '')).toContain('Test server v2')
+    expect(output.replaceAll('`', '')).toContain('version')
+    expect(output.replaceAll('`', '')).toContain('v2')
+    expect(output.replaceAll('`', '')).toContain('Test version')
   })
 
-  it('renders operations section with summary, tags, stability, and request/response', () => {
+  it('renders operations section with summary, tags, stability, and request/response', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
@@ -115,23 +116,23 @@ describe('MarkdownReference', () => {
         },
       },
     })
-    const wrapper = mount(MarkdownReference, { props: { content } })
-    expect(wrapper.text()).toContain('Operations')
-    expect(wrapper.text()).toContain('Get users')
-    expect(wrapper.text()).toContain('GET')
-    expect(wrapper.text()).toContain('/users')
-    expect(wrapper.text()).toContain('users')
-    expect(wrapper.text()).toContain('stable')
-    expect(wrapper.text()).toContain('Get all users')
-    expect(wrapper.text()).toContain('Request Body')
-    expect(wrapper.text()).toContain('filter')
-    expect(wrapper.text()).toContain('Responses')
-    expect(wrapper.text()).toContain('200')
-    expect(wrapper.text()).toContain('Array of:')
-    expect(wrapper.text()).toContain('string')
+    const output = await createDocumentRenderer()(content)
+    expect(output.replaceAll('`', '')).toContain('Operations')
+    expect(output.replaceAll('`', '')).toContain('Get users')
+    expect(output.replaceAll('`', '')).toContain('GET')
+    expect(output.replaceAll('`', '')).toContain('/users')
+    expect(output.replaceAll('`', '')).toContain('users')
+    expect(output.replaceAll('`', '')).toContain('stable')
+    expect(output.replaceAll('`', '')).toContain('Get all users')
+    expect(output.replaceAll('`', '')).toContain('Request Body')
+    expect(output.replaceAll('`', '')).toContain('filter')
+    expect(output.replaceAll('`', '')).toContain('Responses')
+    expect(output.replaceAll('`', '')).toContain('200')
+    expect(output.replaceAll('`', '')).toContain('Array of:')
+    expect(output.replaceAll('`', '')).toContain('string')
   })
 
-  it('renders path and operation parameters', () => {
+  it('renders path and operation parameters', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
@@ -187,8 +188,8 @@ describe('MarkdownReference', () => {
       },
     })
 
-    const wrapper = mount(MarkdownReference, { props: { content } })
-    const text = wrapper.text()
+    const output = await createDocumentRenderer()(content)
+    const text = output.replaceAll('`', '')
 
     expect(text).toContain('Parameters')
     expect(text).toContain('reportId required')
@@ -203,7 +204,7 @@ describe('MarkdownReference', () => {
     expect(text).not.toContain('Path trace identifier')
   })
 
-  it('renders deprecated operation', () => {
+  it('renders deprecated operation', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
@@ -216,12 +217,12 @@ describe('MarkdownReference', () => {
         },
       },
     })
-    const wrapper = mount(MarkdownReference, { props: { content } })
-    expect(wrapper.text()).toContain('Deprecated')
-    expect(wrapper.text()).toContain('Deprecated operation')
+    const output = await createDocumentRenderer()(content)
+    expect(output.replaceAll('`', '')).toContain('Deprecated')
+    expect(output.replaceAll('`', '')).toContain('Deprecated operation')
   })
 
-  it('does not treat connect as an operation method', () => {
+  it('does not treat connect as an operation method', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
@@ -240,13 +241,13 @@ describe('MarkdownReference', () => {
       },
     })
 
-    const wrapper = mount(MarkdownReference, { props: { content } })
-    expect(wrapper.text()).not.toContain('Should not render')
-    expect(wrapper.text()).not.toContain('CONNECT')
-    expect(wrapper.text()).not.toContain('/tunnel')
+    const output = await createDocumentRenderer()(content)
+    expect(output.replaceAll('`', '')).not.toContain('Should not render')
+    expect(output.replaceAll('`', '')).not.toContain('CONNECT')
+    expect(output.replaceAll('`', '')).not.toContain('/tunnel')
   })
 
-  it('renders webhooks section', () => {
+  it('renders webhooks section', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
@@ -261,15 +262,15 @@ describe('MarkdownReference', () => {
       },
       paths: {},
     })
-    const wrapper = mount(MarkdownReference, { props: { content } })
-    expect(wrapper.text()).toContain('Webhooks')
-    expect(wrapper.text()).toContain('New user webhook')
-    expect(wrapper.text()).toContain('newUser')
-    expect(wrapper.text()).toContain('webhook')
-    expect(wrapper.text()).toContain('Triggered when a new user is created')
+    const output = await createDocumentRenderer()(content)
+    expect(output.replaceAll('`', '')).toContain('Webhooks')
+    expect(output.replaceAll('`', '')).toContain('New user webhook')
+    expect(output.replaceAll('`', '')).toContain('newUser')
+    expect(output.replaceAll('`', '')).toContain('webhook')
+    expect(output.replaceAll('`', '')).toContain('Triggered when a new user is created')
   })
 
-  it('renders schemas section', () => {
+  it('renders schemas section', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',
       info: { title: 'Test API', version: '1.0.0' },
@@ -288,11 +289,11 @@ describe('MarkdownReference', () => {
       },
       paths: {},
     })
-    const wrapper = mount(MarkdownReference, { props: { content } })
-    expect(wrapper.text()).toContain('Schemas')
-    expect(wrapper.text()).toContain('User')
-    expect(wrapper.text()).toContain('A user object')
-    expect(wrapper.text()).toContain('id')
-    expect(wrapper.text()).toContain('name')
+    const output = await createDocumentRenderer()(content)
+    expect(output.replaceAll('`', '')).toContain('Schemas')
+    expect(output.replaceAll('`', '')).toContain('User')
+    expect(output.replaceAll('`', '')).toContain('A user object')
+    expect(output.replaceAll('`', '')).toContain('id')
+    expect(output.replaceAll('`', '')).toContain('name')
   })
 })
