@@ -49,9 +49,6 @@ import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/compo
 import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
-/** Base name for examples created by the "generate example from schema" button */
-const GENERATED_EXAMPLE_NAME = 'Generated from schema'
-
 type Filter =
   | 'All'
   | 'Auth'
@@ -118,6 +115,9 @@ const {
 } = defineProps<RequestBlockProps>()
 
 const { translate } = useLocalization()
+
+/** Base name for examples created by the "generate example from schema" button */
+const GENERATED_EXAMPLE_NAME = 'Generated from schema'
 
 /** Operation metadata used across event emissions */
 const meta = computed(() => ({
