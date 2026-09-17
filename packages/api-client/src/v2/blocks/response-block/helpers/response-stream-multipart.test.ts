@@ -58,7 +58,37 @@ describe('response-stream-multipart', () => {
       ),
     )
     parser.finish()
-    expect(output.join('')).toBe('Part 1\nContent-Type: multipart/mixed; boundary=inner\n\nPart 1\n\nhello\n')
+    expect(output.join('')).toBe('Part 1\nContent-Type: multipart/mixed; boundary=inner\n\nPart 1.1\n\nhello\n')
+  })
+
+  it('parses delimiters and padded delimiter lines delivered one byte at a time', () => {
+    const output: string[] = []
+    const parser = createMultipartParser('multipart/mixed; boundary=x', (text) => output.push(text))
+    const body = '--x \t\r\n\r\nfirst\r\n--xyz\r\n--x\t \r\n\r\nsecond\r\n--x-- \t\r\n'
+    for (const byte of encode(body)) {
+      parser.push(Uint8Array.of(byte))
+    }
+    parser.finish()
+    expect(output.join('')).toBe('Part 1\n\nfirst\r\n--xyz\nPart 2\n\nsecond\n')
+  })
+
+  it('accepts a nearly 8 MiB part delivered in 1 KiB chunks', () => {
+    const output: string[] = []
+    const parser = createMultipartParser('multipart/mixed; boundary=x', (text) => output.push(text))
+    const chunk = encode('a'.repeat(1024))
+    parser.push(encode('--x\r\n\r\n'))
+    for (let index = 0; index < 8191; index++) {
+      parser.push(chunk)
+    }
+    parser.push(encode('\r\n--x--\r\n'))
+    parser.finish()
+    expect(output.join('')).toBe(`Part 1\n\n${'a'.repeat(8191 * 1024)}\n`)
+  })
+
+  it('rejects oversized parts without waiting for the closing delimiter', () => {
+    const parser = createMultipartParser('multipart/mixed; boundary=x', vi.fn())
+    parser.push(encode('--x\r\n\r\n'))
+    expect(() => parser.push(new Uint8Array(8 * 1024 * 1024))).toThrow('8 MiB display limit')
   })
 
   it('reports truncated responses and invalid boundaries', () => {

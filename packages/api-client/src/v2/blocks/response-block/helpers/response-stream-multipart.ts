@@ -13,6 +13,7 @@ export const createMultipartParser = (
   contentType: string,
   emit: (text: string) => void,
   nesting = 0,
+  prefix = '',
 ): ResponseStreamParser => {
   const boundary = parseMimeType(contentType).parameters.get('boundary')
   if (!boundary || !/^[0-9A-Za-z'()+_,\-./:=? ]{1,70}$/.test(boundary) || boundary.endsWith(' ')) {
@@ -21,8 +22,11 @@ export const createMultipartParser = (
   if (nesting >= MAX_NESTING) {
     throw new Error('Multipart nesting exceeds the display limit.')
   }
-  const marker = `--${boundary}`
-  let buffer = ''
+  const marker = new TextEncoder().encode(`--${boundary}`)
+  let buffer = new Uint8Array(1024)
+  let length = 0
+  let offset = 0
+  let lineOffset = 0
   let started = false
   let closed = false
   let partNumber = 0
@@ -42,9 +46,10 @@ export const createMultipartParser = (
     const partType = unfolded.match(/^content-type:\s*(.+)$/im)?.[1]?.trim() ?? 'text/plain'
     const parsedType = parseMimeType(partType)
     partNumber++
-    emit(`Part ${partNumber}\n${headers ? `${headers}\n\n` : '\n'}`)
+    const label = `${prefix}${partNumber}`
+    emit(`Part ${label}\n${headers ? `${headers}\n\n` : '\n'}`)
     if (parsedType.type === 'multipart') {
-      const child = createMultipartParser(partType, emit, nesting + 1)
+      const child = createMultipartParser(partType, emit, nesting + 1, `${label}.`)
       child.push(decodeBytes(body))
       child.finish()
     } else if (parsedType.type === 'text' || /(?:json|xml)$/.test(parsedType.subtype)) {
@@ -62,37 +67,54 @@ export const createMultipartParser = (
     }
   }
 
+  // Convert only completed parts, in bounded slices that do not exceed argument limits.
+  const toByteString = (bytes: Uint8Array): string => {
+    const slices: string[] = []
+    for (let index = 0; index < bytes.length; index += 8192) {
+      slices.push(String.fromCharCode(...bytes.subarray(index, index + 8192)))
+    }
+    return slices.join('')
+  }
+
   const drain = (final: boolean): void => {
-    let offset = 0
-    while (!closed) {
-      const index = buffer.indexOf(marker, offset)
-      if (index < 0) {
-        break
-      }
-      if (index !== 0 && buffer.slice(index - 2, index) !== '\r\n') {
-        offset = index + marker.length
+    while (!closed && offset + marker.length <= length) {
+      const index = offset
+      const matches =
+        (index === 0 || (buffer[index - 2] === 13 && buffer[index - 1] === 10)) &&
+        marker.every((byte, position) => buffer[index + position] === byte)
+      if (!matches) {
+        offset++
         continue
       }
       const afterMarker = index + marker.length
-      const lineEnd = buffer.indexOf('\r\n', afterMarker)
+      // Remember incomplete delimiter lines too, including long transport padding.
+      lineOffset = Math.max(lineOffset, afterMarker)
+      while (lineOffset + 1 < length && !(buffer[lineOffset] === 13 && buffer[lineOffset + 1] === 10)) {
+        lineOffset++
+      }
+      const lineEnd = lineOffset + 1 < length ? lineOffset : -1
       if (lineEnd < 0 && !final) {
         break
       }
-      const suffix = buffer.slice(afterMarker, lineEnd < 0 ? undefined : lineEnd)
+      const suffix = toByteString(buffer.subarray(afterMarker, lineEnd < 0 ? length : lineEnd))
       const closing = /^--[ \t]*$/.test(suffix)
       if (!closing && !/^[ \t]*$/.test(suffix)) {
         offset = afterMarker
+        lineOffset = 0
         continue
       }
       if (started) {
-        emitPart(buffer.slice(0, Math.max(0, index - 2)))
+        emitPart(toByteString(buffer.subarray(0, Math.max(0, index - 2))))
       }
       started = true
-      buffer = lineEnd < 0 ? '' : buffer.slice(lineEnd + 2)
+      const consumed = lineEnd < 0 ? length : lineEnd + 2
+      buffer.copyWithin(0, consumed, length)
+      length -= consumed
       closed = closing
       offset = 0
+      lineOffset = 0
     }
-    if (buffer.length > MAX_PART_SIZE) {
+    if (length > MAX_PART_SIZE) {
       throw new Error('Multipart part exceeds the 8 MiB display limit.')
     }
     if (final && !closed) {
@@ -102,13 +124,18 @@ export const createMultipartParser = (
 
   return {
     push: (chunk) => {
-      if (closed) {
-        return
+      // Bound each append even when the transport delivers a very large chunk.
+      for (let index = 0; index < chunk.length && !closed; index += 65536) {
+        const slice = chunk.subarray(index, index + 65536)
+        if (length + slice.length > buffer.length) {
+          const grown = new Uint8Array(Math.max(buffer.length * 2, length + slice.length))
+          grown.set(buffer.subarray(0, length))
+          buffer = grown
+        }
+        buffer.set(slice, length)
+        length += slice.length
+        drain(false)
       }
-      for (const byte of chunk) {
-        buffer += String.fromCharCode(byte)
-      }
-      drain(false)
     },
     finish: () => drain(true),
   }
