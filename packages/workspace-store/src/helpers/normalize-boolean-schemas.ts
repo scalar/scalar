@@ -88,6 +88,8 @@ export const normalizeBooleanSchemas = <T extends Record<string, unknown>>(docum
       } else if ((key === 'schema' || key === 'itemSchema') && !isMapEntry && isSchemaPath(childPath)) {
         ;(value as Record<string, unknown>)[key] = normalizeSchema(child)
       } else if (isMapEntry || (!opaqueValues.has(key) && (!key.startsWith('x-') || key === 'x-ext'))) {
+        // Vendor extension payloads are opaque data. The bundler's x-ext is the exception because
+        // it contains external OpenAPI documents and targets reached through schema references.
         visit(child, childPath)
       }
     }
