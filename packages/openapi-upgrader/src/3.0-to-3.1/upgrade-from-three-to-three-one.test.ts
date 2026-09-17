@@ -5,7 +5,6 @@ import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
   it.each([
-    ['binary', { contentMediaType: 'application/octet-stream' }],
     ['base64', { contentEncoding: 'base64' }],
     ['byte', { contentEncoding: 'base64', contentMediaType: undefined }],
   ])('migrates nullable %s strings without losing null', (format, expected) => {
@@ -72,6 +71,121 @@ describe('upgradeFromThreeToThreeOne', () => {
         ? { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 0 }
         : { type: 'number', minimum: 0, maximum: 0 },
     )
+  })
+
+  it.each([false, true])('migrates reusable raw binary with nullable %s', (nullable) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Binary', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          File: {
+            type: 'string',
+            format: 'binary',
+            ...(nullable ? { nullable: true } : {}),
+            description: 'A file',
+            maxLength: 100,
+          },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.File).toStrictEqual({
+      contentMediaType: 'application/octet-stream',
+      description: 'A file',
+      maxLength: 100,
+    })
+  })
+
+  it.each(['application/octet-stream', 'image/png'])(
+    'preserves %s media metadata and binary constraints',
+    (mediaType) => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Binary', version: '1.0.0' },
+        paths: {
+          '/upload': {
+            post: {
+              requestBody: {
+                content: {
+                  [mediaType]: {
+                    schema: { type: 'string', format: 'binary', nullable: true, description: 'A file', maxLength: 100 },
+                    examples: { sample: { externalValue: 'https://example.com/file' } },
+                  },
+                },
+              },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      expect(result.paths?.['/upload']?.post?.requestBody?.content[mediaType]).toStrictEqual({
+        schema: { description: 'A file', maxLength: 100 },
+        examples: { sample: { externalValue: 'https://example.com/file' } },
+      })
+    },
+  )
+
+  it.each([false, true])('migrates multipart binary fields and array items with nullable %s', (nullable) => {
+    const file = { type: 'string', format: 'binary', ...(nullable ? { nullable: true } : {}) }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Multipart', version: '1.0.0' },
+      paths: {
+        '/upload': {
+          post: {
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: { type: 'object', properties: { file, files: { type: 'array', items: file } } },
+                  encoding: { file: { contentType: 'image/png' }, files: { contentType: 'image/jpeg' } },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/upload']?.post?.requestBody?.content['multipart/form-data']).toStrictEqual({
+      schema: {
+        type: 'object',
+        properties: {
+          file: { contentMediaType: 'application/octet-stream' },
+          files: { type: 'array', items: { contentMediaType: 'application/octet-stream' } },
+        },
+      },
+      encoding: { file: { contentType: 'image/png' }, files: { contentType: 'image/jpeg' } },
+    })
+  })
+
+  it('preserves non-binary schemas under application/octet-stream', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Binary', version: '1.0.0' },
+      paths: {
+        '/upload': {
+          post: {
+            requestBody: {
+              content: {
+                'application/octet-stream': {
+                  schema: { $ref: '#/components/schemas/File' },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: { schemas: { File: { type: 'string', format: 'binary' } } },
+    })
+
+    expect(result.paths?.['/upload']?.post?.requestBody?.content['application/octet-stream']).toStrictEqual({
+      schema: { $ref: '#/components/schemas/File' },
+    })
   })
 
   describe('version', () => {
@@ -869,7 +983,7 @@ describe('upgradeFromThreeToThreeOne', () => {
   })
 
   describe('describing File Upload Payloads', () => {
-    it('removes schema for binary file uploads', () => {
+    it('removes JSON type constraints for binary file uploads', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -894,7 +1008,9 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(result.paths?.['/upload']?.post?.requestBody?.content['application/octet-stream']).toEqual({})
+      expect(result.paths?.['/upload']?.post?.requestBody?.content['application/octet-stream']).toStrictEqual({
+        schema: {},
+      })
     })
 
     it('migrates base64 format to contentEncoding for image uploads', () => {
@@ -972,7 +1088,6 @@ describe('upgradeFromThreeToThreeOne', () => {
               type: 'integer',
             },
             fileName: {
-              type: 'string',
               description: 'The file name',
               contentMediaType: 'application/octet-stream',
             },
@@ -1081,8 +1196,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(
         result.paths?.['/images/edits']?.post?.requestBody?.content['multipart/form-data'].schema.properties.image
           .oneOf[0],
-      ).toEqual({
-        type: 'string',
+      ).toStrictEqual({
         contentMediaType: 'application/octet-stream',
       })
     })
