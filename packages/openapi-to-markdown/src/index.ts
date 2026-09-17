@@ -1,9 +1,11 @@
+export type {
+  HttpMethod,
+  OpenApiMarkdownRenderer,
+  OpenApiRenderOptions,
+  OperationSelector,
+} from './create-markdown-from-openapi'
 export {
   createHtmlFromOpenApi,
   createMarkdownFromOpenApi,
-} from './create-markdown-from-openapi'
-export type {
-  HttpMethod,
-  OpenApiRenderOptions,
-  OperationSelector,
+  createOpenApiMarkdownRenderer,
 } from './create-markdown-from-openapi'

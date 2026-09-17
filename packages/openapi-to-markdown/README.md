@@ -68,6 +68,32 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 })
 ```
 
+### Render multiple pages
+
+Create a reusable renderer when exporting several pages from the same API description.
+It loads, upgrades, and resolves the document once. Each call uses the same selectors as
+`createMarkdownFromOpenApi`, and omitting a selector renders the complete document.
+
+```ts
+import { createOpenApiMarkdownRenderer } from '@scalar/openapi-to-markdown'
+
+const renderer = await createOpenApiMarkdownRenderer(content)
+
+const introduction = await renderer.render({ introduction: true })
+const operation = await renderer.render({ operation: { path: '/users/{id}', method: 'get' } })
+const tag = await renderer.render({ tag: 'Users' })
+const model = await renderer.render({ model: 'User' })
+const webhook = await renderer.render({ webhook: { name: 'userCreated', method: 'post' } })
+const html = await renderer.renderHtml({ tag: 'Users' })
+```
+
+The factory accepts the same document objects, JSON/YAML strings, file paths, and URLs
+as the one-shot functions. Source files and URLs are read during creation, including
+references. Create a new renderer when the source changes. Reuse one renderer per API
+description during a build, then release it when the build finishes. Renderers do not
+share a global document cache. An invalid selection rejects that call without preventing
+later calls on the same renderer.
+
 ### With Hono
 
 You use the package with any Node.js framework. Here is an example for [Hono](https://hono.dev/):
