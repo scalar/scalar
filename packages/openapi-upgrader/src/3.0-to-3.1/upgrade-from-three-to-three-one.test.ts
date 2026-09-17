@@ -4,6 +4,39 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
+  it.each([
+    ['binary', { contentMediaType: 'application/octet-stream' }],
+    ['base64', { contentEncoding: 'base64' }],
+    ['byte', { contentEncoding: 'base64', contentMediaType: undefined }],
+  ])('migrates nullable %s strings without losing null', (format, expected) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Nullable formats', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { File: { type: 'string', format, nullable: true, description: 'A file' } } },
+    })
+
+    expect(result.components?.schemas?.File).toStrictEqual({
+      type: ['string', 'null'],
+      description: 'A file',
+      ...expected,
+    })
+  })
+
+  it.each([
+    ['a', 'b'],
+    ['a', 'b', null],
+  ])('preserves nullable enum values %j', (...values) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Nullable enum', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Choice: { type: 'string', enum: values, nullable: true } } },
+    })
+
+    expect(result.components?.schemas?.Choice).toStrictEqual({ type: ['string', 'null'], enum: values })
+  })
+
   describe('version', () => {
     it(`doesn't modify Swagger 2.0 files`, () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
