@@ -38,7 +38,7 @@ export const getSchemas = (
   base: string = '',
   segments: string[] = [],
   map = new Map<string, string>(),
-  visited = new WeakSet(),
+  visited: WeakSet<object> | false = new WeakSet(),
 ) => {
   // Only process non-null objects
   if (typeof input !== 'object' || input === null) {
@@ -46,12 +46,14 @@ export const getSchemas = (
   }
 
   // If the object has already been visited, return the map
-  if (visited.has(input)) {
-    return map
-  }
+  if (visited !== false) {
+    if (visited.has(input)) {
+      return map
+    }
 
-  // Add the object to the visited set
-  visited.add(input)
+    // Add the object to the visited set
+    visited.add(input)
+  }
 
   // Attempt to get $id from the current object
   const id = getId(input)

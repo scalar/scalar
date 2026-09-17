@@ -14,6 +14,9 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+/** The loader only handles cloned JSON documents, which cannot contain object cycles. */
+const getDocumentSchemas = (document: unknown): Map<string, string> => getSchemas(document, '', [], new Map(), false)
+
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
  * JSON Magic owns `$id` and anchor indexing, which keeps local-reference behavior
@@ -22,7 +25,7 @@ import {
  * Casting temporarily uses enumerable links to satisfy TypeBox reference branches.
  * Returns whether external references remain and require bundling.
  */
-const attachRefValues = (document: unknown, enumerable = false, schemas = getSchemas(document)): boolean => {
+const attachRefValues = (document: unknown, enumerable = false, schemas = getDocumentSchemas(document)): boolean => {
   const seen = new WeakSet<object>()
   let hasExternalReferences = false
   const visit = (node: unknown, context = getId(document) ?? ''): void => {
@@ -116,7 +119,7 @@ export const loadDocument = async (
     throw new Error('Failed to load OpenAPI document')
   }
   const upgraded = upgrade(raw, '3.1')
-  const upgradedSchemas = getSchemas(upgraded)
+  const upgradedSchemas = getDocumentSchemas(upgraded)
   const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
   let document = upgraded
   let schemas = upgradedSchemas
@@ -138,7 +141,7 @@ export const loadDocument = async (
     if (errors.length) {
       throw new Error(errors.join('\n'))
     }
-    schemas = getSchemas(document)
+    schemas = getDocumentSchemas(document)
     attachRefValues(document, false, schemas)
   }
   // TypeBox's reference branches require an enumerable $ref-value during casting.
