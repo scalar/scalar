@@ -1,8 +1,26 @@
 import { describe, expect, it } from 'vitest'
 
+import type { MultipartPart } from './build-multipart'
 import { encodeMultipartBody } from './encode-multipart-body'
 
 describe('encode-multipart-body', () => {
+  it('accepts eight multipart levels and rejects a ninth', async () => {
+    const parts = Array.from({ length: 7 }).reduce<MultipartPart[]>(
+      (value) => [{ type: 'multipart', contentType: 'multipart/mixed', value }],
+      [{ type: 'text', value: 'leaf' }],
+    )
+    expect(await encodeMultipartBody(parts, 'multipart/mixed').text()).toContain('leaf\r\n')
+    expect(() => encodeMultipartBody([{ type: 'multipart', contentType: 'multipart/mixed', value: parts }])).toThrow(
+      'Maximum multipart nesting exceeded',
+    )
+  })
+
+  it('rejects cyclic multipart parts', () => {
+    const parts: MultipartPart[] = []
+    parts.push({ type: 'multipart', contentType: 'multipart/mixed', value: parts })
+    expect(() => encodeMultipartBody(parts)).toThrow('Maximum multipart nesting exceeded')
+  })
+
   it('rejects nested header injection after environment replacement', () => {
     expect(() =>
       encodeMultipartBody(

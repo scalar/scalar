@@ -10,6 +10,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
+import { MAX_MULTIPART_NESTING } from './multipart-limits'
 import { resolveLeafSchema } from './schema-value-coercion'
 import { hasEncodingStyle, serializeFormPropertyWithEncoding } from './serialize-form-property'
 
@@ -105,9 +106,9 @@ export const getMultipartItemSchema = (
 const serializePartValue = (value: unknown, contentType?: string, schema?: SchemaObject): string => {
   const subtype = contentType ? parseMimeType(contentType).subtype : undefined
   if ((subtype === 'xml' || subtype?.endsWith('+xml')) && isObject(value)) {
-    // XML documents need one root. A single existing key can supply it when no schema name is given.
-    const rootName = schema?.xml?.name ?? (Object.keys(value).length === 1 ? undefined : 'root')
-    return json2xml(rootName ? { [rootName]: unpackProxyObject(value) } : unpackProxyObject(value))
+    // Match the XML generator's fallback without changing the root when properties are added.
+    const rootName = schema?.xml?.name ?? 'root'
+    return json2xml({ [rootName]: unpackProxyObject(value) })
   }
   const json = subtype === 'json' || subtype?.endsWith('+json')
   return json || (value !== null && typeof value === 'object')
@@ -121,7 +122,11 @@ export const buildMultipart = (
   contentType: string,
   encoding: Pick<MediaTypeObject, 'encoding' | 'prefixEncoding' | 'itemEncoding' | 'itemSchema'> = {},
   schema?: SchemaObject,
+  nesting = 0,
 ): MultipartPart[] => {
+  if (nesting >= MAX_MULTIPART_NESTING) {
+    throw new Error('Maximum multipart nesting exceeded')
+  }
   const named = parseMimeType(contentType).essence === 'multipart/form-data'
   const positional = Array.isArray(value)
   const entries: [string | undefined, unknown, EncodingObject | undefined, SchemaObject | undefined][] = positional
@@ -130,8 +135,13 @@ export const buildMultipart = (
           index < (encoding.prefixEncoding?.length ?? 0) ? encoding.prefixEncoding?.[index] : encoding.itemEncoding
         const itemSchema = getMultipartItemSchema(schema, index, encoding.itemSchema)
         if (named && item !== null && typeof item === 'object' && !Array.isArray(item)) {
-          const entry = Object.entries(item)[0]
-          return [entry?.[0], entry?.[1], itemEncoding, resolveLeafSchema(itemSchema, [entry?.[0] ?? ''])]
+          // Each position describes one named part; accepting more keys would silently discard data.
+          const entries = Object.entries(item)
+          const entry = entries[0]
+          if (entries.length !== 1 || !entry) {
+            throw new Error('Named positional multipart items must contain exactly one property')
+          }
+          return [entry[0], entry[1], itemEncoding, resolveLeafSchema(itemSchema, [entry[0]])]
         }
         return [undefined, item, itemEncoding, itemSchema]
       })
@@ -199,7 +209,7 @@ export const buildMultipart = (
           ...metadata,
           type: 'multipart',
           contentType: partContentType,
-          value: buildMultipart(item, partContentType, partEncoding, partSchema),
+          value: buildMultipart(item, partContentType, partEncoding, partSchema, nesting + 1),
         },
       ]
     }

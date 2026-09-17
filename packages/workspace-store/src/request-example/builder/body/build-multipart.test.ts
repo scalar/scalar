@@ -1,4 +1,6 @@
+import type { EncodingObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+import { reactive } from 'vue'
 
 import { buildMultipart } from './build-multipart'
 import { buildRequestBody } from './build-request-body'
@@ -14,6 +16,31 @@ const wireParts = async (body: Blob): Promise<string[]> => {
 }
 
 describe('build-multipart', () => {
+  it.each([{}, { id: 1, name: 'x' }])('rejects ambiguous named positional items: %j', (item) => {
+    expect(() => buildMultipart([item], 'multipart/form-data', { itemEncoding: {} })).toThrow(
+      'Named positional multipart items must contain exactly one property',
+    )
+  })
+
+  it('accepts eight multipart levels and rejects a ninth', async () => {
+    const encoding: EncodingObject = { contentType: 'multipart/mixed' }
+    encoding.itemEncoding = encoding
+    const value = Array.from({ length: 7 }).reduce<unknown>((value) => [value], ['leaf'])
+    const parts = buildMultipart(value, 'multipart/mixed', encoding)
+    expect(await encodeMultipartBody(parts, 'multipart/mixed').text()).toContain('leaf\r\n')
+    expect(() => buildMultipart([value], 'multipart/mixed', encoding)).toThrow('Maximum multipart nesting exceeded')
+  })
+
+  it('rejects a cyclic multipart example behind a reactive proxy', () => {
+    const value: unknown[] = []
+    value.push(value)
+    const encoding: EncodingObject = { contentType: 'multipart/mixed' }
+    encoding.itemEncoding = encoding
+    expect(() => buildMultipart(reactive(value), 'multipart/mixed', encoding)).toThrow(
+      'Maximum multipart nesting exceeded',
+    )
+  })
+
   it('uses the schema root name for an XML multipart document', async () => {
     const parts = buildMultipart(
       [{ id: 1, name: 'Alice' }],
@@ -33,16 +60,16 @@ describe('build-multipart', () => {
     ])
   })
 
-  it('provides one XML root for an object without a schema root name', () => {
+  it.each([{ id: 1 }, { id: 1, name: 'Alice' }])('keeps the fallback XML root stable for %j', (value) => {
     expect(
-      buildMultipart([{ id: 1, name: 'Alice' }], 'multipart/mixed', {
+      buildMultipart([value], 'multipart/mixed', {
         itemEncoding: { contentType: 'application/xml' },
       }),
     ).toStrictEqual([
       {
         type: 'text',
         contentType: 'application/xml',
-        value: '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <id>1</id>\n  <name>Alice</name>\n</root>',
+        value: `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <id>1</id>\n${'name' in value ? '  <name>Alice</name>\n' : ''}</root>`,
       },
     ])
   })
@@ -53,7 +80,7 @@ describe('build-multipart', () => {
     })
     const wire = await encodeMultipartBody(parts, 'multipart/mixed').text()
     expect(wire).toContain(
-      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<info>a &amp; b</info>\r\n',
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <info>a &amp; b</info>\n</root>\r\n',
     )
     expect(wire).not.toContain('{"info"')
   })
