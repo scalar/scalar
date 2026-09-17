@@ -394,13 +394,13 @@ Read the [Stainless migration guide](../../migration/stainless.md) for the pract
 
 ## Plans
 
-Every plan includes one SDK target, and pricing scales with the size of your SDK — measured by the number of endpoints in your OpenAPI document. Additional targets are $150 per month each on Pro and $600 per month each on Business.
+Every plan includes one SDK target, and pricing scales with the size of your SDK — measured by the number of endpoints in your OpenAPI document. Additional targets are priced by each SDK's size: $150 per month each for up to 100 endpoints or $600 per month each for 101–250 endpoints. Business teams can use both price bands, and the included SDK applies to the most expensive band first. Enterprise SDK pricing is custom.
 
 | | Free | Pro | Business | Enterprise |
 | --- | --- | --- | --- | --- |
 | SDK targets included | 1 | 1 | 1 | Custom |
 | Included SDK size | Up to 25 endpoints | 100 endpoints | 250 endpoints | Custom |
-| Additional targets | - | $150 / month each | $600 / month each, volume discounts | Volume discounts |
+| Additional targets | - | $150 / month each | $150–$600 / month each, by SDK size; volume discounts | Custom pricing; volume discounts |
 | Every target free during your trial | Included | Included | Included | Included |
 | SSO/SAML | - | - | Included | Included |
 | RBAC, priority support, and dedicated Slack or Teams support | - | - | - | Included |
