@@ -181,11 +181,16 @@ export const resolveAndCopyReferences = (
   }
   processedNodes.add(referencedValue)
 
-  setValueAtPath(targetDocument, referencePath, referencedValue)
+  // Only relocated copies need canonical metadata; keep the authored source unchanged.
+  const segments = getSegmentsFromPath(referencePath)
+  const copiedValue =
+    segments.length === 2 && isObject(referencedValue) && Object.keys(documentMetadata).length > 0
+      ? { ...referencedValue, ...documentMetadata }
+      : referencedValue
+  setValueAtPath(targetDocument, referencePath, copiedValue)
 
   // Keep every enclosing base when copying a subtree, so later partial bundles
   // resolve against the same document and schema resources as the original.
-  const segments = getSegmentsFromPath(referencePath)
   for (let length = 2; length < segments.length; length++) {
     const ancestorPath = segments.slice(0, length)
     const ancestor = getValueByPath(sourceDocument, ancestorPath).value
@@ -782,7 +787,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
               references.identity(local.document)?.metadata,
             )
           } else {
-            setValueAtPath(documentRoot, `/${local.documentPath.map(escapeJsonPointer).join('/')}`, local.document)
+            const metadata = references.identity(local.document)?.metadata
+            setValueAtPath(
+              documentRoot,
+              `/${local.documentPath.map(escapeJsonPointer).join('/')}`,
+              isObject(local.document) && metadata ? { ...local.document, ...metadata } : local.document,
+            )
           }
         }
         await executeHooks('onAfterNodeProcess', root, context)
@@ -866,7 +876,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // This preserves all content and is faster since we don't need to analyze and copy
           // specific parts. This approach is ideal when storing the result in memory
           // as it avoids the overhead of tree shaking operations
-          setValueAtPath(documentRoot, `/${config.externalDocumentsKey}/${compressedPath}`, result.data)
+          const metadata = references.identity(result.data)?.metadata
+          setValueAtPath(
+            documentRoot,
+            `/${config.externalDocumentsKey}/${compressedPath}`,
+            isObject(result.data) && metadata ? { ...result.data, ...metadata } : result.data,
+          )
         }
 
         // Update the $ref to point to the embedded document in x-ext

@@ -1,5 +1,5 @@
 ---
-'@scalar/json-magic': patch
+'@scalar/json-magic': minor
 '@scalar/workspace-store': patch
 '@scalar/mock-server': patch
 '@scalar/agent-chat': patch

@@ -10,7 +10,7 @@ import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 export type DocumentIdentity = {
   /** Declared base URI, resolved relative to the retrieval URI when necessary. */
   baseUri: string
-  /** Root properties applied before indexing and retained when copying a subtree. */
+  /** Root properties retained on copies embedded in the bundle; never applied to the source document. */
   metadata?: Record<string, unknown>
 }
 
@@ -60,17 +60,16 @@ export const documentReferences = (
     const base = identity === undefined ? retrievalUri : resolveReferencePath(retrievalUri, identity.baseUri)
     if (identity !== undefined) {
       identities.set(document, { ...identity, baseUri: base })
-      if (isObject(document) && identity.metadata) {
-        Object.assign(document, identity.metadata)
-      }
     }
     const resource = { value: document, path, schema: false, embedded: path.length > 0, document, documentPath: path }
     // Retrieval aliases retain compatibility with callers that supply local copies.
     resources.set(retrievalUri, resource)
     resources.set(base, resource)
-    if (path.length > 0) {
+    if (path.length > 1) {
       bundledResources.set(path[1], resource)
     }
+    // Shared nodes use the first traversal path and base, including for $id and $anchor
+    // registration. This also prevents cycles from being indexed repeatedly.
     const visited = new WeakSet<object>()
 
     const visit = (value: unknown, origin: string, location: string[], inheritedIdentifier = ''): void => {
@@ -129,19 +128,23 @@ export const documentReferences = (
       const segments = bundled ? pointer.slice(2) : pointer
       const location = [...resource.path, ...segments]
       const value = getValueByPath(resource.value, segments).value
+      // Missing targets must stay unresolved instead of becoming pointers to absent values.
+      const isUnresolved = value === undefined
+      // Fragment-only schema references are relative to their own resource, even when embedded.
+      const isLocalSchemaReference = resource.schema && !prefix
+      // An absolute identifier declared in the root document remains usable by downstream consumers.
+      const isAbsoluteRootSchemaReference =
+        !resource.embedded && resource.schema && prefix === uri && resource.identifier === uri
+      // Fragment-only document references already address the root without relocation.
+      const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix
+
       return {
         path: location.map(escapeJsonPointer).join('/'),
         value,
         document: resource.document,
         documentPath: resource.documentPath,
-        // Existing absolute schema identifiers remain usable by downstream consumers.
         preserveReference:
-          value === undefined ||
-          (resource.schema && !prefix) ||
-          (!resource.embedded &&
-            resource.schema &&
-            ((prefix === uri && resource.identifier === uri) || (!prefix && !fragment.startsWith('/')))) ||
-          (!resource.embedded && !resource.schema && !prefix),
+          isUnresolved || isLocalSchemaReference || isAbsoluteRootSchemaReference || isLocalRootDocumentReference,
       }
     },
   }

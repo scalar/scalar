@@ -1202,7 +1202,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
     const documentOverrides = unpackProxyObject(overrides[name])
     const magicDocument = createMagicProxy(getRaw(strictDocument), {
-      documentUri: resolveOpenApiDocument(getRaw(strictDocument), '/')?.baseUri,
+      documentUri: resolveOpenApiDocument(getRaw(strictDocument), input.documentSource ?? '/')?.baseUri,
     }) as OpenApiDocument
     workspace.documents[name] = needsOverridesProxy(documentOverrides)
       ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
@@ -1598,7 +1598,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           Object.entries(input.documents).map(([name, doc]) => {
             // Hydration only rewraps: an exported document has already been upgraded, bundled, coerced
             // and given its navigation, so nothing here re-processes it.
-            const magicDocument = createMagicProxy(doc, { documentUri: resolveOpenApiDocument(doc, '/')?.baseUri })
+            const magicDocument = createMagicProxy(doc, { documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri })
             const documentOverrides = input.overrides[name]
 
             return [
