@@ -66,6 +66,31 @@ const selections: (OpenApiRenderOptions | undefined)[] = [
 ]
 
 describe('create-openapi-markdown-renderer', () => {
+  it.each(['#petName', 'child.json#petName', 'child.json#/$defs/name'])(
+    'renders shared reference targets through %s',
+    async (ref) => {
+      const input = {
+        openapi: '3.1.0',
+        info: { title: 'Pets', version: '1.0' },
+        components: {
+          schemas: {
+            Pet: {
+              ...(ref.startsWith('child.json') ? { $id: 'child.json' } : {}),
+              type: 'object',
+              $defs: { name: { $anchor: 'petName', type: 'string', description: 'The resolved pet name' } },
+              properties: { name: { $ref: ref } },
+            },
+          },
+        },
+      }
+      const before = JSON.stringify(input)
+      const renderer = await createOpenApiMarkdownRenderer(input)
+
+      expect(await renderer.render({ model: 'Pet' })).toContain('The resolved pet name')
+      expect(JSON.stringify(input)).toBe(before)
+    },
+  )
+
   it('preserves Markdown and HTML output for every selector', async () => {
     const renderer = await createOpenApiMarkdownRenderer(document)
     for (const selection of selections) {
