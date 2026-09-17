@@ -6,7 +6,7 @@ import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 describe('upgradeFromThreeToThreeOne', () => {
   it.each([
     ['base64', { contentEncoding: 'base64' }],
-    ['byte', { contentEncoding: 'base64', contentMediaType: undefined }],
+    ['byte', { contentEncoding: 'base64' }],
   ])('migrates nullable %s strings without losing null', (format, expected) => {
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
       openapi: '3.0.4',
@@ -187,6 +187,60 @@ describe('upgradeFromThreeToThreeOne', () => {
       schema: { $ref: '#/components/schemas/File' },
     })
   })
+
+  it.each(['byte', 'base64'])('omits unknown media types for reusable %s schemas', (format) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Encoded data', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          File: { type: 'string', format },
+          Image: { type: 'string', format, contentMediaType: 'image/png' },
+        },
+      },
+    })
+
+    expect(result.components?.schemas).toStrictEqual({
+      File: { type: 'string', contentEncoding: 'base64' },
+      Image: { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' },
+    })
+  })
+
+  it.each(['application/json', 'multipart/form-data'])(
+    'does not infer encoded data media types from %s',
+    (mediaType) => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Encoded data', version: '1.0.0' },
+        paths: {
+          '/upload': {
+            post: {
+              requestBody: {
+                content: {
+                  [mediaType]: {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        file: { type: 'string', format: 'byte', nullable: true },
+                        image: { type: 'string', format: 'byte', contentMediaType: 'image/png' },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+
+      expect(result.paths?.['/upload']?.post?.requestBody?.content[mediaType].schema.properties).toStrictEqual({
+        file: { type: ['string', 'null'], contentEncoding: 'base64' },
+        image: { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' },
+      })
+    },
+  )
 
   describe('version', () => {
     it(`doesn't modify Swagger 2.0 files`, () => {
@@ -1125,7 +1179,6 @@ describe('upgradeFromThreeToThreeOne', () => {
     expect(result.paths?.['/upload']?.post?.requestBody?.content['image/png']).toEqual({
       schema: {
         type: 'string',
-        contentMediaType: 'image/png',
         contentEncoding: 'base64',
       },
     })

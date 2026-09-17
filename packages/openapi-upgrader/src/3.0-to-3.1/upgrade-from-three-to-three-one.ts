@@ -175,20 +175,12 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
       return hasMediaType ? binarySchema : { contentMediaType: 'application/octet-stream', ...binarySchema }
     }
 
-    if (schema.format === 'base64') {
+    if (schema.format === 'base64' || schema.format === 'byte') {
+      // The surrounding media type describes the container, not necessarily the
+      // encoded bytes. Preserve an explicit contentMediaType without guessing one.
       return {
         ...rest,
         contentEncoding: 'base64',
-      }
-    }
-
-    if (schema.format === 'byte') {
-      const parentPath = path?.slice(0, -1)
-      const contentMediaType = parentPath?.find((_, index) => path?.[index - 1] === 'content')
-      return {
-        ...rest,
-        contentEncoding: 'base64',
-        contentMediaType,
       }
     }
   }
