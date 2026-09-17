@@ -30,24 +30,33 @@ const attachRefValues = (document: unknown, enumerable = false, schemas = getDoc
   // A single traversal covers both normal trees and previously linked recursive objects.
   const seen = new WeakSet<object>()
   let hasExternalReferences = false
+
   const visit = (node: unknown, context = getId(document) ?? ''): void => {
     if (node === null || typeof node !== 'object' || seen.has(node)) {
       return
     }
     seen.add(node)
+
     // Nested `$id` values redefine the base for relative references and anchors.
     const base = getId(node) ?? context
+
     if (isObject(node) && typeof node.$ref === 'string') {
       const ref = node.$ref
       const path = ref === '#' ? '' : convertToLocalRef(ref, base, schemas)
+
       // Point to the bundled target instead of copying it into every reference.
       const target =
         path === undefined ? undefined : getValueByPath(document, parseJsonPointerSegments(`/${path}`)).value
+
       // JSON Magic only needs to bundle references outside this document's resource index.
-      if (path === undefined && ref.split('#')[0]) hasExternalReferences = true
+      if (path === undefined && ref.split('#')[0]) {
+        hasExternalReferences = true
+      }
+
       if (enumerable) {
         const followed = new WeakSet<object>()
         let resolved = target
+
         // TypeBox needs the final target, so collapse a pre-existing reference chain safely.
         while (isObject(resolved) && '$ref-value' in resolved && !followed.has(resolved)) {
           followed.add(resolved)
@@ -70,6 +79,7 @@ const attachRefValues = (document: unknown, enumerable = false, schemas = getDoc
         })
       }
     }
+
     // Preserve the nearest resource base while walking into child schemas.
     for (const child of Object.values(node)) {
       visit(child, base)
