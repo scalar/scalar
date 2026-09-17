@@ -9,14 +9,19 @@ import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import {
+  OpenAPIDocumentSchema,
+  type OpenApiDocument,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
  * Non-enumerable links preserve serialization and share recursive schema targets.
+ * Casting temporarily uses enumerable links to satisfy TypeBox reference branches.
  * Returns whether external references remain and require bundling.
  */
-const attachRefValues = (document: unknown): boolean => {
+const attachRefValues = (document: unknown, enumerable = false): boolean => {
   const registry = buildResourceRegistry(document)
   const seen = new WeakSet<object>()
   let hasExternalReferences = false
@@ -41,10 +46,17 @@ const attachRefValues = (document: unknown): boolean => {
       } else if (!registry && ref.startsWith('#') && isObject(document)) {
         target = resolveRef(ref, document)
       }
+      if (enumerable) {
+        const followed = new WeakSet<object>()
+        while (isObject(target) && '$ref-value' in target && !followed.has(target)) {
+          followed.add(target)
+          target = target['$ref-value']
+        }
+      }
       if (target !== undefined) {
         Object.defineProperty(node, '$ref-value', {
           value: target,
-          enumerable: false,
+          enumerable,
           configurable: true,
           writable: true,
         })
@@ -58,7 +70,25 @@ const attachRefValues = (document: unknown): boolean => {
   return hasExternalReferences
 }
 
-/** Load one plain document and keep references linked to shared targets. */
+/** Remove cast-time reference links before rebuilding them against the coerced graph. */
+const removeRefValues = (document: unknown): void => {
+  const seen = new WeakSet<object>()
+  const visit = (node: unknown): void => {
+    if (node === null || typeof node !== 'object' || seen.has(node)) {
+      return
+    }
+    seen.add(node)
+    if (isObject(node) && '$ref-value' in node) {
+      delete node['$ref-value']
+    }
+    for (const child of Object.values(node)) {
+      visit(child)
+    }
+  }
+  visit(document)
+}
+
+/** Coerce one plain document and keep references linked to shared targets. */
 export const loadDocument = async (
   input: OpenApiDocument | Record<string, unknown> | string,
 ): Promise<OpenApiDocument> => {
@@ -87,26 +117,40 @@ export const loadDocument = async (
     throw new Error('Failed to load OpenAPI document')
   }
   const upgraded = upgrade(raw, '3.1')
-  if (!attachRefValues(upgraded)) {
-    return upgraded as unknown as OpenApiDocument
-  }
-  const errors: string[] = []
-  const plugins =
-    typeof process === 'undefined'
-      ? [(await import('@scalar/json-magic/bundle/plugins/browser')).fetchUrls()]
-      : [
-          (await import('@scalar/json-magic/bundle/plugins/node')).fetchUrls(),
-          (await import('@scalar/json-magic/bundle/plugins/node')).readFiles(),
-        ]
-  const document = await bundle(upgraded, {
-    plugins,
-    origin,
-    treeShake: false,
-    hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },
-  })
-  if (errors.length) {
-    throw new Error(errors.join('\n'))
+  const hasExternalReferences = attachRefValues(upgraded)
+  let document = upgraded
+  if (hasExternalReferences) {
+    const errors: string[] = []
+    const plugins =
+      typeof process === 'undefined'
+        ? [(await import('@scalar/json-magic/bundle/plugins/browser')).fetchUrls()]
+        : [
+            (await import('@scalar/json-magic/bundle/plugins/node')).fetchUrls(),
+            (await import('@scalar/json-magic/bundle/plugins/node')).readFiles(),
+          ]
+    document = await bundle(upgraded, {
+      plugins,
+      origin,
+      treeShake: false,
+      hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },
+    })
+    if (errors.length) {
+      throw new Error(errors.join('\n'))
+    }
   }
   attachRefValues(document)
-  return document as unknown as OpenApiDocument
+  // TypeBox's reference branches require an enumerable $ref-value during casting.
+  // Restore non-enumerable shared links afterward so rendering never expands the graph.
+  attachRefValues(document, true)
+  const coerced = coerceValue(OpenAPIDocumentSchema, document)
+  // Keep extension resources that local and bundled references can target.
+  const extensions = coerced as Record<string, unknown>
+  for (const [key, value] of Object.entries(document)) {
+    if (key.startsWith('x-') && !(key in extensions)) {
+      extensions[key] = value
+    }
+  }
+  removeRefValues(coerced)
+  attachRefValues(coerced)
+  return coerced as OpenApiDocument
 }

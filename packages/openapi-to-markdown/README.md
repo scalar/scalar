@@ -71,7 +71,7 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 ### Render multiple pages
 
 Create a reusable renderer when exporting several pages from the same API description.
-It loads, upgrades, and resolves the document once. Each call uses the same selectors as
+It loads, upgrades, coerces, and resolves the document once. Each call uses the same selectors as
 `createMarkdownFromOpenApi`, and omitting a selector renders the complete document.
 
 ```ts
