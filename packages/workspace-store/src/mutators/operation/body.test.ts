@@ -292,6 +292,33 @@ describe('updateOperationRequestBodyExample', () => {
 })
 
 describe('updateOperationRequestBodyFormValue', () => {
+  it('replaces external and OpenAPI 3.2 example sources after an explicit form edit', () => {
+    const example = {
+      externalValue: '/examples/body.json',
+      dataValue: { field: 'original' },
+      serializedValue: 'field=original',
+      summary: 'Authored example',
+    }
+    const document = createDocument({
+      paths: {
+        '/upload': {
+          post: {
+            requestBody: {
+              content: { 'multipart/form-data': { examples: { default: example } } },
+            },
+          },
+        },
+      },
+    })
+    const payload = [{ name: 'field', value: 'edited', isDisabled: false }]
+    updateOperationRequestBodyFormValue(document, {
+      contentType: 'multipart/form-data',
+      meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+      payload,
+    })
+    expect(example).toStrictEqual({ summary: 'Authored example', value: payload })
+  })
+
   it('creates requestBody and stores form data as unpacked object', () => {
     const document = createDocument({
       paths: {
