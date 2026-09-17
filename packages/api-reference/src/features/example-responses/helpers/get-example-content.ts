@@ -1,6 +1,7 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
+import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { isStreamingMediaType, serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
@@ -12,7 +13,7 @@ import type {
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
-  contentType = '',
+  { contentType = '' }: { contentType?: string } = {},
 ): string | undefined => {
   if (example !== undefined) {
     const value = getResolvedRefDeep(example)?.value

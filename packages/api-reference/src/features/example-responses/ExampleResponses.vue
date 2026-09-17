@@ -169,11 +169,9 @@ const changeTab = (index: number) => {
 }
 
 const exampleContent = computed(() =>
-  getExampleContent(
-    currentResponseContent.value,
-    currentExample.value,
-    currentContentType.value,
-  ),
+  getExampleContent(currentResponseContent.value, currentExample.value, {
+    contentType: currentContentType.value,
+  }),
 )
 
 const copyExample = (): void => {

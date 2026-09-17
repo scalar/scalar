@@ -27,7 +27,7 @@ const { translate } = useLocalization()
 
 /** Preformatted content is shared with the response card clipboard action. */
 const prettyPrintedContent = computed(
-  () => content ?? getExampleContent(response, example, contentType),
+  () => content ?? getExampleContent(response, example, { contentType }),
 )
 
 const VIRTUALIZATION_THRESHOLD = 20_000
