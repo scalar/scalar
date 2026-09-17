@@ -4,6 +4,22 @@ import { watch } from 'vue'
 
 /** Apply document environment defaults to an embedded store without replacing user selections. */
 export const useDocumentEnvironment = (store: WorkspaceStore): void => {
+  const selection = {
+    applyingDefault: false,
+    hasUserOverride: store.workspace['x-scalar-active-environment'] !== undefined,
+  }
+
+  // Remember user changes even when a later document happens to use the same default.
+  watch(
+    () => store.workspace['x-scalar-active-environment'],
+    () => {
+      if (!selection.applyingDefault) {
+        selection.hasUserOverride = true
+      }
+    },
+    { flush: 'sync' },
+  )
+
   watch(
     () => {
       const document = store.workspace.activeDocument
@@ -12,13 +28,16 @@ export const useDocumentEnvironment = (store: WorkspaceStore): void => {
         : undefined
       return [document, environment] as const
     },
-    ([, environment], previous) => {
-      const previousEnvironment = previous?.[1]
-      // A different selection, including clearing the environment, belongs to the user.
-      if (store.workspace['x-scalar-active-environment'] !== previousEnvironment) {
+    ([, environment]) => {
+      if (selection.hasUserOverride) {
         return
       }
-      store.update('x-scalar-active-environment', environment)
+      selection.applyingDefault = true
+      try {
+        store.update('x-scalar-active-environment', environment)
+      } finally {
+        selection.applyingDefault = false
+      }
     },
     { immediate: true, flush: 'sync' },
   )

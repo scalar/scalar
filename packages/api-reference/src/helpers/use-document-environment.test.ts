@@ -113,4 +113,38 @@ describe('use-document-environment', () => {
       scope.stop()
     }
   })
+
+  it.each(['staging', undefined])(
+    'keeps a user choice of %s after an intervening document matches it',
+    async (selection) => {
+      const store = createWorkspaceStore()
+      const scope = effectScope()
+      try {
+        scope.run(() => useDocumentEnvironment(store))
+        for (const [name, environment] of [
+          ['first', 'production'],
+          ['matching', selection],
+          ['third', 'production'],
+        ] as const) {
+          await store.addDocument({
+            name,
+            document: {
+              openapi: '3.1.0',
+              info: { title: name, version: '1' },
+              ...(environment
+                ? { 'x-scalar-environments': environments, 'x-scalar-active-environment': environment }
+                : {}),
+            },
+          })
+          store.update('x-scalar-active-document', name)
+          if (name === 'first') {
+            store.update('x-scalar-active-environment', selection)
+          }
+          expect(store.workspace['x-scalar-active-environment']).toBe(selection)
+        }
+      } finally {
+        scope.stop()
+      }
+    },
+  )
 })
