@@ -128,6 +128,7 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
@@ -492,6 +493,9 @@ const clientStore = createWorkspaceStore({
     }),
   ],
 })
+
+useDocumentEnvironment(workspaceStore)
+useDocumentEnvironment(clientStore)
 
 useConfiguredServers({
   configurations: configList,
