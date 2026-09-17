@@ -1,5 +1,6 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
-import { isStreamingMediaType, serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
+import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'

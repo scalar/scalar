@@ -1,5 +1,5 @@
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { escapeSingleQuotes } from '@/libs/shell'
@@ -109,16 +109,7 @@ export const shellCurl: Plugin = {
             parts.push(`--data '${escapedText}'`)
           }
         }
-      } else if (
-        [
-          'application/jsonl',
-          'application/x-ndjson',
-          'application/json-lines',
-          'application/json-seq',
-          'text/event-stream',
-        ].includes(parseMimeType(normalizedRequest.postData.mimeType ?? '').essence) ||
-        parseMimeType(normalizedRequest.postData.mimeType ?? '').subtype.endsWith('+json-seq')
-      ) {
+      } else if (isStreamingMediaType(normalizedRequest.postData.mimeType ?? '')) {
         // Use the explicit binary mode consistently for framed streaming media types.
         const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
         parts.push(`--data-binary '${escapedText}'`)

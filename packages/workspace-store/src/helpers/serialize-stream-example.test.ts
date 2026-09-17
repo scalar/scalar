@@ -1,6 +1,7 @@
+import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
 import { describe, expect, it } from 'vitest'
 
-import { isStreamingMediaType, serializeStreamExample } from './serialize-stream-example'
+import { serializeStreamExample } from './serialize-stream-example'
 
 describe('serialize-stream-example', () => {
   it('does not serialize an absent example as an undefined JSON record', () => {
