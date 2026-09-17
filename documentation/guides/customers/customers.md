@@ -41,20 +41,33 @@
   </div>
 </div>
 
-<a class="featured-story-card" href="/customers/partech" aria-label="Read the PAR customer story">
+<a class="featured-story-card" href="/customers/warp" aria-label="Read the Warp customer story">
   <div class="featured-story-copy">
     <p class="featured-story-eyebrow">Featured Story</p>
-    <h2 class="featured-story-title">How PAR modernized its developer experience with Scalar</h2>
-    <div class="featured-story-logos" aria-label="PAR and Scalar">
-      <scalar-icon class="featured-story-logo-par" src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
+    <h2 class="featured-story-title">Accelerating Warp's <span class="nowrap">AI-Native</span> HR Platform with Scalar</h2>
+    <div class="featured-story-logos" aria-label="Warp and Scalar">
+      <scalar-icon class="featured-story-logo-warp" src="../../assets/logos/warp.svg"></scalar-icon>
       <span class="featured-story-logo-separator" aria-hidden="true">×</span>
-      <img class="featured-story-logo-scalar" src="/brand/scalar-wordmark-light.svg" alt="Scalar" />
+      <img class="featured-story-logo-scalar featured-story-logo-scalar-light" src="/brand/scalar-wordmark-light.svg" alt="Scalar" />
+      <img class="featured-story-logo-scalar featured-story-logo-scalar-dark" src="/brand/scalar-wordmark-dark.svg" alt="" aria-hidden="true" />
     </div>
   </div>
   <div class="featured-story-media" aria-hidden="true">
-    <img src="/partech-branding.png" alt="" />
+    <img src="/warp-branding.png" alt="" />
   </div>
 </a>
+
+<div class="more-stories" role="list" aria-label="More customer stories">
+  <a class="more-story-card" role="listitem" href="/customers/partech" aria-label="Read the PAR customer story">
+    <div class="more-story-media" aria-hidden="true">
+      <img src="/partech-branding.png" alt="" />
+    </div>
+    <div class="more-story-copy">
+      <p class="more-story-eyebrow">Customer Story</p>
+      <h3 class="more-story-title">How PAR modernized its developer experience with Scalar</h3>
+    </div>
+  </a>
+</div>
 
 <div class="customer-docs-grid">
   <article class="customer-docs-item">
@@ -214,10 +227,15 @@
     font-weight: var(--scalar-regular);
     line-height: var(--scalar-line-height-3);
   }
+  /* The narrow copy column otherwise splits "AI-Native" across lines at its hyphen. */
+  .featured-story-title .nowrap {
+    white-space: nowrap;
+  }
   .featured-story-card .featured-story-title {
     display: block;
     max-width: 380px;
     margin: 0;
+    text-wrap: balance;
     color: var(--scalar-color-1);
     font-size: var(--scalar-heading-2);
     font-weight: var(--scalar-bold);
@@ -232,9 +250,9 @@
     margin-top: 26px;
     color: var(--scalar-color-1);
   }
-  .featured-story-logo-par {
+  .featured-story-logo-warp {
     width: auto;
-    height: 26px;
+    height: 22px;
     max-width: 104px;
   }
   .featured-story-logo-separator {
@@ -247,6 +265,16 @@
     width: auto;
     height: 26px;
   }
+  /* The wordmark ships as two fixed-ink files, so swap them with the theme. */
+  .featured-story-logo-scalar-dark {
+    display: none;
+  }
+  .dark-mode .featured-story-logo-scalar-light {
+    display: none;
+  }
+  .dark-mode .featured-story-logo-scalar-dark {
+    display: block;
+  }
   .featured-story-media {
     min-height: 320px;
     background: var(--scalar-background-2);
@@ -256,6 +284,60 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+  .more-stories {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 48px 0 0;
+  }
+  /* A compact row so a second story reads as a follow-on, not a rival to the featured card. */
+  .more-story-card {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: center;
+    overflow: hidden;
+    color: var(--scalar-color-1);
+    text-decoration: none;
+    background: var(--scalar-background-2);
+    border-radius: var(--scalar-radius-xl);
+  }
+  .more-story-card:hover {
+    color: var(--scalar-color-1);
+    text-decoration: none;
+    background: var(--scalar-background-3);
+  }
+  .more-story-card:focus-visible {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 4px;
+  }
+  .more-story-media {
+    aspect-ratio: 16 / 9;
+    height: 100%;
+  }
+  .more-story-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .more-story-copy {
+    padding: 24px 32px;
+  }
+  .more-story-eyebrow {
+    margin: 0 0 8px;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-regular);
+    line-height: var(--scalar-line-height-3);
+  }
+  .more-story-card .more-story-title {
+    margin: 0;
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-font-size-2);
+    font-weight: var(--scalar-bold);
+    letter-spacing: 0;
+    line-height: var(--scalar-line-height-2);
   }
   .customer-docs-grid {
     display: grid;
@@ -415,6 +497,15 @@
     }
     .featured-story-media {
       min-height: 220px;
+    }
+    .more-stories {
+      margin-top: 40px;
+    }
+    .more-story-card {
+      grid-template-columns: 1fr;
+    }
+    .more-story-copy {
+      padding: 20px 24px 24px;
     }
     .logowall {
       gap: 28px 24px;
