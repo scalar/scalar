@@ -56,6 +56,16 @@
       "types": "./dist/helpers/escape-json-pointer.d.ts",
       "default": "./dist/helpers/escape-json-pointer.js"
     },
+    "./helpers/convert-to-local-ref": {
+      "import": "./dist/helpers/convert-to-local-ref.js",
+      "types": "./dist/helpers/convert-to-local-ref.d.ts",
+      "default": "./dist/helpers/convert-to-local-ref.js"
+    },
+    "./helpers/get-schemas": {
+      "import": "./dist/helpers/get-schemas.js",
+      "types": "./dist/helpers/get-schemas.d.ts",
+      "default": "./dist/helpers/get-schemas.js"
+    },
     "./helpers/get-segments-from-path": {
       "import": "./dist/helpers/get-segments-from-path.js",
       "types": "./dist/helpers/get-segments-from-path.d.ts",

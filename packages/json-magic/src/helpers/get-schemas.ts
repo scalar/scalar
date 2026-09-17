@@ -72,7 +72,9 @@ export const getSchemas = (
   // Recursively traverse all properties (DFS)
   for (const key in input) {
     if (typeof input[key] === 'object' && input[key] !== null) {
-      getSchemas(input[key], newBase, [...segments, key], map, visited)
+      segments.push(key)
+      getSchemas(input[key], newBase, segments, map, visited)
+      segments.pop()
     }
   }
 

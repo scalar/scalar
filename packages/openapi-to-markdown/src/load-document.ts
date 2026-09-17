@@ -1,9 +1,8 @@
-import { SYNTHETIC_BASE, baseAfterId, buildResourceRegistry } from '@amritk/helpers/build-resource-registry'
-import { resolveRef } from '@amritk/helpers/resolve-ref'
-import { resolveScopedRef } from '@amritk/helpers/resolve-scoped-ref'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { bundle } from '@scalar/json-magic/bundle'
+import { convertToLocalRef } from '@scalar/json-magic/helpers/convert-to-local-ref'
+import { getId, getSchemas } from '@scalar/json-magic/helpers/get-schemas'
 import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
@@ -17,43 +16,43 @@ import {
 
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
+ * JSON Magic owns `$id` and anchor indexing, which keeps local-reference behavior
+ * aligned with the external-reference bundler without retaining a second resolver.
  * Non-enumerable links preserve serialization and share recursive schema targets.
  * Casting temporarily uses enumerable links to satisfy TypeBox reference branches.
  * Returns whether external references remain and require bundling.
  */
-const attachRefValues = (document: unknown, enumerable = false): boolean => {
-  const registry = buildResourceRegistry(document)
+const attachRefValues = (document: unknown, enumerable = false, schemas = getSchemas(document)): boolean => {
   const seen = new WeakSet<object>()
   let hasExternalReferences = false
-  const visit = (node: unknown, enclosing: string): void => {
+  const visit = (node: unknown, context = getId(document) ?? ''): void => {
     if (node === null || typeof node !== 'object' || seen.has(node)) {
       return
     }
     seen.add(node)
-    const base = isObject(node) ? baseAfterId(node, enclosing) : enclosing
+    const base = getId(node) ?? context
     if (isObject(node) && typeof node.$ref === 'string') {
       const ref = node.$ref
-      const resource = ref.split('#')[0] ?? ''
-      if (resource && (!registry || !resolveScopedRef(registry, resource, base))) {
-        hasExternalReferences = true
-      }
-      // A registry is only needed for documents with embedded $id resources.
-      const localPointer = ref.startsWith('#/') || ref === '#' ? ref.slice(1) : undefined
-      const pointer = registry ? resolveScopedRef(registry, ref, base)?.pointer : localPointer
-      let target: unknown
-      if (pointer !== undefined) {
-        target = getValueByPath(document, parseJsonPointerSegments(pointer)).value
-      } else if (!registry && ref.startsWith('#') && isObject(document)) {
-        target = resolveRef(ref, document)
-      }
+      const path = ref === '#' ? '' : convertToLocalRef(ref, base, schemas)
+      const target =
+        path === undefined ? undefined : getValueByPath(document, parseJsonPointerSegments(`/${path}`)).value
+      if (path === undefined && ref.split('#')[0]) hasExternalReferences = true
       if (enumerable) {
         const followed = new WeakSet<object>()
-        while (isObject(target) && '$ref-value' in target && !followed.has(target)) {
-          followed.add(target)
-          target = target['$ref-value']
+        let resolved = target
+        while (isObject(resolved) && '$ref-value' in resolved && !followed.has(resolved)) {
+          followed.add(resolved)
+          resolved = resolved['$ref-value']
         }
-      }
-      if (target !== undefined) {
+        if (resolved !== undefined) {
+          Object.defineProperty(node, '$ref-value', {
+            value: resolved,
+            enumerable,
+            configurable: true,
+            writable: true,
+          })
+        }
+      } else if (target !== undefined) {
         Object.defineProperty(node, '$ref-value', {
           value: target,
           enumerable,
@@ -66,7 +65,7 @@ const attachRefValues = (document: unknown, enumerable = false): boolean => {
       visit(child, base)
     }
   }
-  visit(document, SYNTHETIC_BASE)
+  visit(document)
   return hasExternalReferences
 }
 
@@ -117,8 +116,10 @@ export const loadDocument = async (
     throw new Error('Failed to load OpenAPI document')
   }
   const upgraded = upgrade(raw, '3.1')
-  const hasExternalReferences = attachRefValues(upgraded)
+  const upgradedSchemas = getSchemas(upgraded)
+  const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
   let document = upgraded
+  let schemas = upgradedSchemas
   if (hasExternalReferences) {
     const errors: string[] = []
     const plugins =
@@ -137,11 +138,12 @@ export const loadDocument = async (
     if (errors.length) {
       throw new Error(errors.join('\n'))
     }
+    schemas = getSchemas(document)
+    attachRefValues(document, false, schemas)
   }
-  attachRefValues(document)
   // TypeBox's reference branches require an enumerable $ref-value during casting.
   // Restore non-enumerable shared links afterward so rendering never expands the graph.
-  attachRefValues(document, true)
+  attachRefValues(document, true, schemas)
   const coerced = coerceValue(OpenAPIDocumentSchema, document)
   // Keep extension resources that local and bundled references can target.
   const extensions = coerced as Record<string, unknown>
