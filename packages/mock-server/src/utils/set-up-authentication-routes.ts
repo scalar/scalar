@@ -57,9 +57,11 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
         typeof scheme.oauth2MetadataUrl === 'string' &&
         scheme.oauth2MetadataUrl.trim()
       ) {
-        app.get(getPathFromUrl(scheme.oauth2MetadataUrl, true), (c) =>
-          c.json(getOAuth2Metadata(scheme.flows, new URL(c.req.url).origin)),
-        )
+        const metadataPath = getPathFromUrl(scheme.oauth2MetadataUrl, { preserveTrailingSlash: true })
+        if (schema?.paths && Object.hasOwn(schema.paths, metadataPath)) {
+          console.warn(`OAuth2 metadata route "${metadataPath}" collides with a declared API path.`)
+        }
+        app.get(metadataPath, (c) => c.json(getOAuth2Metadata(scheme.flows, new URL(c.req.url).origin)))
       }
 
       if (scheme.flows?.authorizationCode) {

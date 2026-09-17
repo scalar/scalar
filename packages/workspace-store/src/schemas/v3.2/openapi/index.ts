@@ -622,7 +622,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         flows: oauth2Flows,
         oauth2MetadataUrl: optional(
           string({
-            typeComment: 'URL to the OAuth2 authorization server metadata (RFC8414). TLS is required.',
+            typeComment:
+              'URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP on loopback for local development.',
           }),
         ),
       },

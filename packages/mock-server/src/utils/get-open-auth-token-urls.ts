@@ -5,7 +5,10 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
  * Extract path from URL. Metadata is fetched at its exact declared URL, so its routes
  * preserve trailing slashes instead of using the token-route normalization.
  */
-export function getPathFromUrl(url: string, preserveTrailingSlash = false): string {
+export function getPathFromUrl(
+  url: string,
+  { preserveTrailingSlash = false }: { preserveTrailingSlash?: boolean } = {},
+): string {
   try {
     // Handle relative URLs by prepending a base
     const urlObject = url.startsWith('http') ? new URL(url) : new URL(url, 'http://example.com')

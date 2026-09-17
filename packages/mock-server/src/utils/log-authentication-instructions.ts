@@ -80,7 +80,7 @@ export function logAuthenticationInstructions(
           scheme.oauth2MetadataUrl.trim()
         ) {
           log('✅ OAuth 2.0 Authorization Server Metadata')
-          log(`   GET ${getPathFromUrl(scheme.oauth2MetadataUrl, true)}`)
+          log(`   GET ${getPathFromUrl(scheme.oauth2MetadataUrl, { preserveTrailingSlash: true })}`)
           log('')
         }
         if (scheme.flows) {

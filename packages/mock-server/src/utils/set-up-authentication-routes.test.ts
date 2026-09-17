@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createMockServer } from '@/create-mock-server'
 
@@ -89,6 +89,26 @@ describe('set-up-authentication-routes', () => {
       '/authorize?response_type=token&redirect_uri=https://app.example.com/callback',
     )
     expect(authorization.status).toBe(200)
+  })
+
+  it('warns when metadata collides with a declared API path', async () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      await createMockServer({
+        logger: false,
+        document: {
+          openapi: '3.2.1',
+          info: { title: 'Collision', version: '1.0' },
+          paths: { '/pets': { get: { responses: { '200': { description: 'OK' } } } } },
+          components: { securitySchemes: { oauth: { type: 'oauth2', flows: {}, oauth2MetadataUrl: '/pets' } } },
+        },
+      })
+      expect(warning).toHaveBeenCalledExactlyOnceWith(
+        'OAuth2 metadata route "/pets" collides with a declared API path.',
+      )
+    } finally {
+      warning.mockRestore()
+    }
   })
 
   it('does not register metadata routes when the field is absent', async () => {
