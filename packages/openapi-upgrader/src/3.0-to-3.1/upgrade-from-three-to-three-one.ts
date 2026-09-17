@@ -119,17 +119,17 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   }
 
   // 2. Handle exclusiveMinimum and exclusiveMaximum
-  if (schema.exclusiveMinimum === true) {
+  if (schema.exclusiveMinimum === true && schema.minimum !== undefined) {
     schema.exclusiveMinimum = schema.minimum
     delete schema.minimum
-  } else if (schema.exclusiveMinimum === false) {
+  } else if (typeof schema.exclusiveMinimum === 'boolean') {
     delete schema.exclusiveMinimum
   }
 
-  if (schema.exclusiveMaximum === true) {
+  if (schema.exclusiveMaximum === true && schema.maximum !== undefined) {
     schema.exclusiveMaximum = schema.maximum
     delete schema.maximum
-  } else if (schema.exclusiveMaximum === false) {
+  } else if (typeof schema.exclusiveMaximum === 'boolean') {
     delete schema.exclusiveMaximum
   }
 

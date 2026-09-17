@@ -37,6 +37,43 @@ describe('upgradeFromThreeToThreeOne', () => {
     expect(result.components?.schemas?.Choice).toStrictEqual({ type: ['string', 'null'], enum: values })
   })
 
+  it.each(['minimum', 'maximum'] as const)('omits an exclusive %s without a bound', (bound) => {
+    const keyword = bound === 'minimum' ? 'exclusiveMinimum' : 'exclusiveMaximum'
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Bounds', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Number: { type: 'number', [keyword]: true } } },
+    })
+
+    expect(result.components?.schemas?.Number).toStrictEqual({ type: 'number' })
+  })
+
+  it.each([true, false])('preserves zero bounds with exclusivity %s', (exclusive) => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Bounds', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Number: {
+            type: 'number',
+            minimum: 0,
+            maximum: 0,
+            exclusiveMinimum: exclusive,
+            exclusiveMaximum: exclusive,
+          },
+        },
+      },
+    })
+
+    expect(result.components?.schemas?.Number).toStrictEqual(
+      exclusive
+        ? { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 0 }
+        : { type: 'number', minimum: 0, maximum: 0 },
+    )
+  })
+
   describe('version', () => {
     it(`doesn't modify Swagger 2.0 files`, () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
