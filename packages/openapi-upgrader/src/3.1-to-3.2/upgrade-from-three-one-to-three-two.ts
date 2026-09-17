@@ -8,8 +8,8 @@ import { migrateTagGroups } from './migrate-tag-groups'
 /**
  * Upgrade OpenAPI 3.1.x to 3.2 without changing the input.
  *
- * Throws a path-specific error for incompatible descriptions that require an
- * author's decision. External references and custom schema dialects are not validated.
+ * Collects incompatibilities requiring an author's decision in an AggregateError
+ * with a JSON pointer for each issue. External references and custom schema dialects are not validated.
  */
 export const upgradeFromThreeOneToThreeTwo = (originalDocument: UnknownObject): UnknownObject => {
   if (

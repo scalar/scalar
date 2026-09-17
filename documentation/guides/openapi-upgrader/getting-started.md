@@ -144,15 +144,18 @@ The conversion:
 - Removes `allowReserved` from path and cookie parameters, where it was ignored in
   OpenAPI 3.1, so it does not unexpectedly affect serialization in OpenAPI 3.2.
 
-Conversion throws an `Error` with a JSON pointer when it detects an incompatibility
-that needs an author's decision: repeated path or server variables, an optional
+Conversion walks the whole document and throws one `AggregateError` containing
+all detected incompatibilities, with a JSON pointer for each issue that needs an
+author's decision: repeated path or server variables, an optional
 discriminator property without `defaultMapping`, or an unnamed inline XML element.
-Resolve the reported issue in the original document and retry. The upgrader does
+Resolve the reported issues in the original document and retry. The aggregate
+message lists every issue; its `errors` array provides the individual errors. The upgrader does
 not choose fallback schemas, XML element names, or replacement parameter names.
 
 These checks are not a complete OpenAPI validator. External references are not
 loaded, and requiredness is not inferred from ambiguous schema constraints.
-Requiredness analysis also stops conservatively when its work budget is exhausted.
+Requiredness analysis stops when its work budget is exhausted and adds an explicit
+analysis-truncated error, so an incomplete check cannot silently succeed.
 Schemas with an explicit `jsonSchemaDialect` or `$schema` keep their dialect and
 legacy XML metadata. References crossing schema resource boundaries are not used
 to infer requiredness. Validate the resulting description with tooling that
