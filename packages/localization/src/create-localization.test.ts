@@ -110,6 +110,48 @@ describe('create-localization', () => {
     expect(mount(Parent).text()).toBe('schema.missing')
   })
 
+  it('keeps a cached cross-package context reactive after its first consumer unmounts', async () => {
+    const other = createLocalization<{ client: { send: string } }, 'client.send'>({
+      localeTranslations: {
+        en: { client: { send: 'Send' } },
+        ar: { client: { send: 'إرسال' } },
+      },
+      defaultLocale: 'en',
+      rtlLocales: new Set(['ar']),
+    })
+    const locale = ref('en')
+    const consumer = ref('first')
+    const contexts: ReturnType<typeof other.useLocalization>[] = []
+    const Child = defineComponent({
+      setup() {
+        const context = other.useLocalization()
+        contexts.push(context)
+        return () =>
+          h('button', { lang: context.locale.value, dir: context.direction.value }, context.translate('client.send'))
+      },
+    })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization(() => ({ locale: locale.value }))
+          return () => (consumer.value ? h(Child, { key: consumer.value }) : null)
+        },
+      }),
+    )
+    expect(wrapper.text()).toBe('Send')
+    consumer.value = ''
+    await nextTick()
+    consumer.value = 'second'
+    await nextTick()
+    expect(contexts[0]).toBe(contexts[1])
+    locale.value = 'ar'
+    await nextTick()
+    expect(wrapper.text()).toBe('إرسال')
+    expect(wrapper.attributes('lang')).toBe('ar')
+    expect(wrapper.attributes('dir')).toBe('rtl')
+    wrapper.unmount()
+  })
+
   it('merges a consumer dictionary with reactive translations from a different package', async () => {
     const other = createLocalization<{ client: { send: string; cancel: string } }, 'client.send' | 'client.cancel'>({
       localeTranslations: { en: { client: { send: 'Send', cancel: 'Cancel' } } },

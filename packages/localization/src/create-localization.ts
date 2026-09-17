@@ -1,7 +1,16 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { mergeObjects } from '@scalar/helpers/object/merge-objects'
 import type { PartialDeep } from 'type-fest'
-import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, inject, provide, toValue } from 'vue'
+import {
+  type ComputedRef,
+  type InjectionKey,
+  type MaybeRefOrGetter,
+  computed,
+  effectScope,
+  inject,
+  provide,
+  toValue,
+} from 'vue'
 
 /** A locale identifier, for example `en` or `zh-CN`. */
 export type Locale = string
@@ -195,11 +204,15 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     if (cached) {
       return cached
     }
-    const context = createContext(() => ({
-      locale: inherited.locale.value,
-      direction: inherited.direction.value,
-      translations: inherited.translations.value as PartialDeep<Translations>,
-    }))
+    // This cached context outlives the first consumer. A detached scope makes ownership explicit;
+    // the context contains only lazy computeds, with no watchers or external resources to dispose.
+    const context = effectScope(true).run(() =>
+      createContext(() => ({
+        locale: inherited.locale.value,
+        direction: inherited.direction.value,
+        translations: inherited.translations.value as PartialDeep<Translations>,
+      })),
+    )!
     inheritedContexts.set(inherited, context)
     return context
   }
