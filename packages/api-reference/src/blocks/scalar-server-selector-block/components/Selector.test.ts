@@ -44,12 +44,17 @@ describe('Selector', () => {
   ]
 
   it('labels named servers and preserves URL selection values', () => {
-    const servers = [{ name: 'Production', url: 'https://api.example.com' }, { url: 'https://fallback.example.com' }]
+    const servers = [
+      { name: 'Production', url: 'https://api.example.com' },
+      { url: 'https://fallback.example.com' },
+      { name: '', url: 'https://empty-name.example.com' },
+    ]
     const wrapper = mount(Selector, { props: { servers, selectedServer: servers[0]!, target: 'test-target' } })
     const listbox = wrapper.getComponent(ScalarListbox)
     expect(listbox.props('options')).toStrictEqual([
-      { id: 'https://api.example.com', label: 'Production (https://api.example.com)' },
+      { id: 'https://api.example.com', label: 'Production' },
       { id: 'https://fallback.example.com', label: 'https://fallback.example.com' },
+      { id: 'https://empty-name.example.com', label: 'https://empty-name.example.com' },
     ])
   })
 

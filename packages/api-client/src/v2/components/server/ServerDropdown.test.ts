@@ -49,12 +49,17 @@ describe('ServerDropdown', () => {
 
   it('labels named servers and preserves URL selection values', async () => {
     const wrapper = makeWrapper({
-      servers: [{ name: 'Production', url: 'https://api.example.com' }, { url: 'https://fallback.example.com' }],
+      servers: [
+        { name: 'Production', url: 'https://api.example.com' },
+        { url: 'https://fallback.example.com' },
+        { name: '', url: 'https://empty-name.example.com' },
+      ],
     })
     const items = wrapper.findAllComponents({ name: 'ServerDropdownItem' })
     expect(items.map((item) => item.props('serverOption'))).toStrictEqual([
-      { id: 'https://api.example.com', label: 'Production (https://api.example.com)' },
+      { id: 'https://api.example.com', label: 'Production' },
       { id: 'https://fallback.example.com', label: 'https://fallback.example.com' },
+      { id: 'https://empty-name.example.com', label: 'https://empty-name.example.com' },
     ])
     await items[0]!.vm.$emit('update:selectedServer')
     expect(wrapper.emitted('update:selectedServer')).toStrictEqual([
