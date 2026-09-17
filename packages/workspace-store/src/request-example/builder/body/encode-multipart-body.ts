@@ -1,6 +1,7 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 
 import type { MultipartPart } from './build-multipart'
+import { MAX_MULTIPART_NESTING } from './multipart-limits'
 
 /** Escape disposition parameters using the same percent escapes as browser form submissions. */
 const escapeParameter = (value: string): string =>
@@ -15,7 +16,11 @@ export const serializeMultipartBody = (
   parts: MultipartPart[],
   contentType = 'multipart/form-data',
   replace: (value: string) => string = (value) => value,
+  nesting = 0,
 ): { chunks: BlobPart[]; contentType: string } => {
+  if (nesting >= MAX_MULTIPART_NESTING) {
+    throw new Error('Maximum multipart nesting exceeded')
+  }
   if (/[\r\n\0]/.test(contentType)) {
     throw new Error('Invalid multipart content type')
   }
@@ -25,11 +30,13 @@ export const serializeMultipartBody = (
   const boundary = `----scalar-${Array.from(random, (byte) => byte.toString(16).padStart(2, '0')).join('')}`
   mime.parameters.set('boundary', boundary)
   const chunks: BlobPart[] = parts.flatMap((part): BlobPart[] => {
-    const nested = part.type === 'multipart' ? serializeMultipartBody(part.value, part.contentType, replace) : undefined
+    const encoded =
+      part.type === 'multipart'
+        ? serializeMultipartBody(part.value, part.contentType, replace, nesting + 1)
+        : { chunks: [part.type === 'text' ? replace(part.value) : part.value], contentType: part.contentType }
     const filename = part.type === 'file' ? part.value.name : part.type === 'blob' ? 'blob' : undefined
     const partContentType =
-      nested?.contentType ??
-      part.contentType ??
+      encoded.contentType ??
       (part.type === 'file' || part.type === 'blob' ? part.value.type || 'application/octet-stream' : undefined)
     if (partContentType && /[\r\n\0]/.test(partContentType)) {
       throw new Error('Invalid multipart content type')
@@ -50,15 +57,10 @@ export const serializeMultipartBody = (
       })
       .join('')
     const headers = `--${boundary}\r\n${disposition}${partContentType ? `Content-Type: ${partContentType}\r\n` : ''}${extraHeaders}\r\n`
-    if (nested) {
-      return [headers, ...nested.chunks, '\r\n']
-    }
-    if (part.type === 'multipart') {
-      return []
-    }
-    const value = part.type === 'text' ? replace(part.value) : part.value
-    const normalized = typeof value === 'string' && !part.contentType ? value.replace(/\r\n|\r|\n/g, '\r\n') : value
-    return [headers, normalized, '\r\n']
+    const chunks = encoded.chunks.map((value) =>
+      typeof value === 'string' && !part.contentType ? value.replace(/\r\n|\r|\n/g, '\r\n') : value,
+    )
+    return [headers, ...chunks, '\r\n']
   })
   return { chunks: [...chunks, `--${boundary}--\r\n`], contentType: mime.toString() }
 }
