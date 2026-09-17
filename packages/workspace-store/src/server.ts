@@ -67,11 +67,9 @@ type CreateServerWorkspaceStoreProps =
       mode: 'ssr'
     } & CreateServerWorkspaceStoreBase)
 
-const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
-
 /** Custom methods must remain distinct even on case-insensitive filesystems. */
 const getOperationChunkFilename = (method: string): string =>
-  httpMethods.has(method) ? method : `additional-${Buffer.from(method).toString('hex')}`
+  isHttpMethod(method) && method === method.toLowerCase() ? method : `additional-${Buffer.from(method).toString('hex')}`
 
 /**
  * Wraps a document so local `$ref`s resolve while the store inspects it.

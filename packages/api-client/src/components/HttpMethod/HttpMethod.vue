@@ -4,7 +4,6 @@ import {
   getHttpMethodInfo,
   REQUEST_METHODS,
 } from '@scalar/helpers/http/http-info'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
@@ -19,17 +18,30 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'change', value: HttpMethod): void
+  (e: 'change', value: string): void
 }>()
 
 const method = computed(() => getHttpMethodInfo(props.method))
-const methodOptions = objectEntries(REQUEST_METHODS).map(([id]) => ({
-  id,
-  label: id.toUpperCase(),
-  color: getHttpMethodInfo(id).colorClass,
-}))
+const methodOptions = computed(() => {
+  const options = objectEntries(REQUEST_METHODS).map(([id]) => ({
+    id: String(id),
+    label: id.toUpperCase(),
+    color: getHttpMethodInfo(id).colorClass,
+  }))
+
+  // Keep document-defined methods selectable without changing their spelling.
+  if (!options.some(({ id }) => id === props.method)) {
+    options.push({
+      id: props.method,
+      label: props.method,
+      color: method.value.colorClass,
+    })
+  }
+
+  return options
+})
 const selectedMethod = computed({
-  get: () => methodOptions.find(({ id }) => id === props.method),
+  get: () => methodOptions.value.find(({ id }) => id === props.method),
   set: (opt) => opt?.id && emit('change', opt.id),
 })
 
