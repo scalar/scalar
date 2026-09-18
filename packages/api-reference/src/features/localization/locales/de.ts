@@ -79,6 +79,7 @@ export const de = {
     status: 'Status',
   },
   schema: {
+    noAllowedValues: 'Keine Werte erfüllen diese Enum-Bedingung.',
     example: 'Beispiel',
     examples: 'Beispiele',
     default: 'Standard',

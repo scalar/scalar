@@ -78,6 +78,7 @@ export const ar = {
     status: 'الحالة',
   },
   schema: {
+    noAllowedValues: 'لا توجد قيم تستوفي قيد التعداد هذا.',
     example: 'مثال',
     examples: 'أمثلة',
     default: 'الافتراضي',
