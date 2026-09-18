@@ -68,6 +68,8 @@ export const createMultipartParser = (
   }
 
   // Convert only completed parts, in bounded slices that do not exceed argument limits.
+  // Byte strings, decoded text, and base64 can coexist with the buffer: peak memory is
+  // several times the 8 MiB part limit, not one copy. The viewer separately caps retained output.
   const toByteString = (bytes: Uint8Array): string => {
     const slices: string[] = []
     for (let index = 0; index < bytes.length; index += 8192) {

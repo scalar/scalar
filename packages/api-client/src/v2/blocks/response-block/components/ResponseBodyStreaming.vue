@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarLoading, useLoadingState } from '@scalar/components/loading'
+import { formatBytes } from '@scalar/helpers/formatters/format-bytes'
 import { getUtf8ByteLength } from '@scalar/helpers/string/get-utf8-byte-length'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
@@ -15,6 +17,28 @@ const { reader, contentType = 'text/event-stream' } = defineProps<{
 
 const loader = useLoadingState()
 const textContent = ref('')
+const receivedBytes = ref(0)
+const { copyToClipboard } = useClipboard()
+let downloadUrl: string | undefined
+
+const clearDownload = (): void => {
+  if (downloadUrl) {
+    URL.revokeObjectURL(downloadUrl)
+    downloadUrl = undefined
+  }
+}
+
+/** Export only the bounded displayed transcript, without retaining another raw body. */
+const downloadText = (): void => {
+  clearDownload()
+  downloadUrl = URL.createObjectURL(
+    new Blob([textContent.value], { type: 'text/plain;charset=utf-8' }),
+  )
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.download = 'response-stream.txt'
+  link.click()
+}
 const errorRef = ref<Error | null>(null)
 const contentContainer = ref<HTMLElement | null>(null)
 let currentReader: ReadableStreamDefaultReader<Uint8Array> | null = null
@@ -61,6 +85,7 @@ const readStream = async (
         void loader.clear()
         return
       }
+      receivedBytes.value += value.byteLength
       parser.push(value)
     }
   } catch (error) {
@@ -88,20 +113,30 @@ const startStreaming = (): void => {
   stopStreaming()
   currentReader = reader
   loader.start()
+  clearDownload()
+  receivedBytes.value = 0
   textContent.value = ''
   errorRef.value = null
   void readStream(reader)
 }
 
 watch(() => reader, startStreaming, { immediate: true })
-onBeforeUnmount(stopStreaming)
+onBeforeUnmount(() => {
+  stopStreaming()
+  clearDownload()
+})
 </script>
 
 <template>
   <CollapsibleSection class="max-h-content overflow-y-hidden">
     <template #title>
       <div class="flex w-full items-center justify-between">
-        <div>Body</div>
+        <div>
+          Body
+          <span class="text-c-2 ml-2 text-xs">
+            {{ formatBytes(receivedBytes) }} received
+          </span>
+        </div>
         <div
           v-if="loader.isLoading"
           class="mr-2 flex items-center gap-2">
@@ -112,14 +147,27 @@ onBeforeUnmount(stopStreaming)
         </div>
       </div>
     </template>
-    <template
-      v-if="loader.isLoading"
-      #actions>
+    <template #actions>
       <ScalarButton
+        v-if="loader.isLoading"
         size="sm"
         variant="ghost"
         @click="stopStreaming">
         Cancel
+      </ScalarButton>
+      <ScalarButton
+        v-if="textContent"
+        size="sm"
+        variant="ghost"
+        @click="copyToClipboard(textContent)">
+        Copy text
+      </ScalarButton>
+      <ScalarButton
+        v-if="textContent"
+        size="sm"
+        variant="ghost"
+        @click="downloadText">
+        Download text
       </ScalarButton>
     </template>
 

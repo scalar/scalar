@@ -9,6 +9,7 @@ type ResponseStreamFormat = 'text' | 'json-lines' | 'json-seq' | 'multipart'
 
 /** Only opt recognized streaming media types into the reader path. */
 export const getResponseStreamFormat = (contentType: string): ResponseStreamFormat | undefined => {
+  // Aggregate multipart/form-data and multipart/related bodies keep the buffered viewer.
   if (!isStreamingContentType(contentType)) {
     return undefined
   }
