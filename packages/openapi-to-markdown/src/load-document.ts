@@ -6,7 +6,7 @@ import { getId, getSchemas } from '@scalar/json-magic/helpers/get-schemas'
 import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
-import { upgrade } from '@scalar/openapi-upgrader'
+import { UpgradeIncompatibilityError, upgrade } from '@scalar/openapi-upgrader'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
@@ -121,7 +121,18 @@ export const loadDocument = async (
   }
 
   // Upgrade before indexing so reference resolution sees one consistent dialect.
-  const upgraded = upgrade(raw, '3.2')
+  const upgraded = (() => {
+    try {
+      return upgrade(raw, '3.2')
+    } catch (error) {
+      if (!(error instanceof UpgradeIncompatibilityError)) {
+        throw error
+      }
+      // Documentation can render the authored 3.1 semantics without inventing XML
+      // names or discriminator defaults. Never label this fallback as OpenAPI 3.2.
+      return upgrade(raw, '3.1')
+    }
+  })()
   const upgradedSchemas = getSchemas(upgraded)
   const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
 
