@@ -615,9 +615,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   })
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
+  const hasRootIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
-    const hasIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
-    return hasIdentity && references.isSchemaResource(sourceOrigin) && sourceOrigin !== defaultOrigin
+    return hasRootIdentity && references.isSchemaResource(sourceOrigin) && sourceOrigin !== defaultOrigin
       ? `${defaultOrigin}${pointer}`
       : pointer
   }
@@ -739,7 +739,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const localRef = local?.path
 
       if (localRef !== undefined) {
-        if (!local.preserveReference) {
+        // A fragment under an embedded $id resolves within that schema, not the document.
+        // Without a declared root identity, retain references to root resources rather
+        // than baking a retrieval location into an otherwise portable bundle.
+        const preserveRootResourceReference =
+          !hasRootIdentity &&
+          local.document === documentRoot &&
+          references.isSchemaResource(nodeOrigin) &&
+          nodeOrigin !== defaultOrigin
+        if (!local.preserveReference && !preserveRootResourceReference) {
           root.$ref = referenceToRoot(localRef ? `#/${localRef}` : '#', nodeOrigin)
         }
         if (isPartialBundling) {
