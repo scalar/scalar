@@ -21,6 +21,40 @@ const serialize = (input: ParameterObject, variables: Record<string, string> = {
 }
 
 describe('querystring-parameter', () => {
+  it.each([
+    {
+      name: 'parameter serializedValue',
+      parameterExample: { serializedValue: '%22hello%22' },
+      mediaExample: { dataValue: 'ignored' },
+      kind: 'uri-ready',
+      value: '%22hello%22',
+    },
+    {
+      name: 'media serializedValue',
+      mediaExample: { serializedValue: '"hello"' },
+      kind: 'serialized',
+      value: '"hello"',
+    },
+    { name: 'string dataValue', mediaExample: { dataValue: 'hello' }, kind: 'data', value: 'hello' },
+    { name: 'plain string value', mediaExample: { value: '"hello"' }, kind: 'serialized', value: '"hello"' },
+    { name: 'plain object value', mediaExample: { value: { hello: true } }, kind: 'data', value: { hello: true } },
+    { name: 'schema-generated string', kind: 'data', value: 'hello' },
+  ])('classifies $name before encoding', ({ parameterExample, mediaExample, kind, value }) => {
+    const input: ParameterObject = {
+      name: 'query',
+      in: 'querystring',
+      required: true,
+      ...(parameterExample ? { examples: { default: parameterExample } } : {}),
+      content: {
+        'application/json': {
+          schema: { type: 'string', default: 'hello' },
+          ...(mediaExample ? { examples: { default: mediaExample } } : {}),
+        },
+      },
+    }
+    expect(getQuerystringParameter(input, 'default')).toMatchObject({ kind, value })
+  })
+
   it('preserves whole-query examples in the active document schema', () => {
     const input = parameter('application/x-www-form-urlencoded', { q: 'a b' })
     const document = {

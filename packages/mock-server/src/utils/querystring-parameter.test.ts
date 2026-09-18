@@ -216,6 +216,15 @@ describe('querystring-parameter', () => {
     expect(() => parseQuerystringParameter('http://localhost/?%ZZ', query)).toThrow(URIError)
   })
 
+  it.each([true, {}, undefined])(
+    'accepts a supplied query with an unconstrained or absent schema: %j',
+    async (schema) => {
+      const query = { ...parameter, content: { 'application/json': { schema } } }
+      const server = await createMockServer({ document: documentWith(query) })
+      expect((await server.request('/search?null')).status).toBe(200)
+    },
+  )
+
   it('enforces a boolean false content schema', async () => {
     const query = { ...parameter, content: { 'application/json': { schema: false } } }
     const document = documentWith(parameter)
