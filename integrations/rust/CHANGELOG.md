@@ -2,6 +2,10 @@
 
 ## 0.2.3
 
+### Bundled API Reference
+
+- @scalar/api-reference@1.69.1
+
 ### Patch Changes
 
 - [#10223](https://github.com/scalar/scalar/pull/10223): Track bundled API Reference updates so frontend changes trigger Rust releases and appear in the changelog.
