@@ -54,6 +54,20 @@ There is no root export. Every module is imported from its own entry point, so y
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
+Document formats can supply a `resolveDocument` lifecycle hook returning `{ baseUri, metadata }`. The bundler resolves relative references against that base URI and retains the supplied root metadata when tree shaking. The hook also applies to cached and previously bundled documents. Without a hook, the retrieval URI remains the document base. JSON Schema `$id` values resolve against their enclosing base.
+
+When reading qualified root references with `createMagicProxy`, pass the canonical URI as `documentUri`. Interpretation of format-specific identity fields belongs in the caller or a plugin.
+
+URI resolution applies to every bundling path, including descriptions without `$self`:
+
+- Absolute scheme-bearing references (`https:`, `file:`, `urn:`, `mailto:`, or custom schemes) retain their identity. This does not enable fetching those schemes; loader plugins still decide what they support.
+- Hierarchical URI bases use URL resolution. Root-relative references replace the pathname; protocol-relative references replace the host. A new document path drops the base query and fragment, while query-only or fragment-only references keep the applicable parts of the base.
+- A base ending in `/` denotes a directory. Without the slash, the final segment is a document name. Scheme-less paths continue to use filesystem resolution, including Windows drive paths.
+- Opaque identities such as URNs support absolute and fragment references, but cannot provide a directory for a relative document path. Such a resolution throws rather than inventing a local path.
+- Relativization preserves query strings, fragments, and directory slashes. HTTP references become relative only when resolving them again reproduces the original URL. Non-HTTP URIs remain absolute: the generic helper has no document registry, so limiting this rule to known `$self` values would corrupt other identifiers.
+
+These are intentional URI compatibility changes, rather than behavior limited to OpenAPI `$self`.
+
 External documents are stored under the `x-ext` key, and the mapping between the generated keys and their original URLs is stored under `x-ext-urls`. Both keys are configurable, see [Options](#options).
 
 ### Quick start
