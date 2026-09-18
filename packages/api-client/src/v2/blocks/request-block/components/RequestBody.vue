@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
+import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
+import { ScalarCopyBackdrop } from '@scalar/components/copy'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarListbox } from '@scalar/components/listbox'
@@ -101,6 +103,14 @@ const contentTypeToLanguageMap = {
 /** Selected content type with default */
 const selectedContentType = computed(
   () => getSelectedBodyContentType(requestBody, exampleKey) ?? 'none',
+)
+
+/** Keep the editor and copy label aligned with the selected content type. */
+const selectedLanguage = computed(
+  () =>
+    contentTypeToLanguageMap[
+      selectedContentType.value as keyof typeof contentTypeToLanguageMap
+    ] ?? 'plaintext',
 )
 
 /**
@@ -481,27 +491,37 @@ const canGenerateExample = computed(() =>
                   contentType: selectedContentType,
                 })
             " />
-          <CodeInput
+          <!-- Editable raw body with a copy button revealed on hover/focus -->
+          <div
             v-else
-            class="border-t px-3"
-            content=""
-            :environment="environment"
-            :language="
-              contentTypeToLanguageMap[
-                selectedContentType as keyof typeof contentTypeToLanguageMap
-              ] ?? 'plaintext'
-            "
-            lineNumbers
-            lint
-            :modelValue="bodyValue"
-            withFakeData
-            @update:modelValue="
-              (value) =>
-                emits('update:value', {
-                  payload: value,
-                  contentType: selectedContentType,
-                })
-            " />
+            class="group/code-block relative border-t">
+            <CodeInput
+              class="px-3"
+              content=""
+              :environment="environment"
+              :language="selectedLanguage"
+              lineNumbers
+              lint
+              :modelValue="bodyValue"
+              withFakeData
+              @update:modelValue="
+                (value) =>
+                  emits('update:value', {
+                    payload: value,
+                    contentType: selectedContentType,
+                  })
+              " />
+            <ScalarCodeBlockCopy
+              v-if="bodyValue"
+              class="absolute top-1.5 right-1.5"
+              :content="bodyValue"
+              :lang="selectedLanguage"
+              showLang>
+              <template #backdrop>
+                <ScalarCopyBackdrop class="-top-1 -right-1.5" />
+              </template>
+            </ScalarCodeBlockCopy>
+          </div>
         </template>
       </DataTableRow>
     </DataTable>
