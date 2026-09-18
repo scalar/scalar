@@ -3,11 +3,87 @@ import { type IncomingMessage, type ServerResponse, createServer } from 'node:ht
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
 describe('createMarkdownFromOpenApi', () => {
+  it('retains XML reference wrappers when rendering with the TypeScript exporter', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.2.0',
+      info: { title: 'Reference XML', version: '1' },
+      components: {
+        schemas: {
+          Person: {
+            type: 'object',
+            xml: { nodeType: 'none' },
+            properties: { name: { type: 'string', example: 'Alice' } },
+          },
+        },
+      },
+      paths: {
+        '/people': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Person',
+                content: {
+                  'application/xml': {
+                    schema: {
+                      $ref: '#/components/schemas/Person',
+                      xml: { name: 'envelope', nodeType: 'element' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(result).toContain('<envelope>\n  <name>Alice</name>\n</envelope>')
+    expect(result).not.toContain('Unable to generate an XML example.')
+  })
+
+  it('shows a failed XML example instead of silently dropping an unsupported patterned property', async () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      const result = await createMarkdownFromOpenApi({
+        openapi: '3.1.0',
+        info: { title: 'Patterned XML', version: '1' },
+        paths: {
+          '/people': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Person',
+                  content: {
+                    'application/xml': {
+                      example: { name: 'Alice' },
+                      schema: {
+                        type: 'object',
+                        xml: { name: 'person' },
+                        patternProperties: { '(name|title)': { type: 'string' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      expect(result).toContain('Unable to generate an XML example.')
+      expect(result).not.toContain('```xml')
+      expect(warning).toHaveBeenCalledWith(
+        'Unable to generate an XML example:',
+        expect.objectContaining({ code: 'unsupported-pattern', path: ['name'] }),
+      )
+    } finally {
+      warning.mockRestore()
+    }
+  })
+
   it('preserves schema-free XML request and response examples', async () => {
     const result = await createMarkdownFromOpenApi({
       openapi: '3.2.0',

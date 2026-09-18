@@ -110,11 +110,12 @@ const selectedContentType = computed(
 )
 
 /** Keep the editor and copy label aligned with the selected content type. */
-const selectedLanguage = computed(
-  () =>
-    isXmlMediaType(selectedContentType.value) ? 'xml' : contentTypeToLanguageMap[
-      selectedContentType.value as keyof typeof contentTypeToLanguageMap
-    ] ?? 'plaintext',
+const selectedLanguage = computed(() =>
+  isXmlMediaType(selectedContentType.value)
+    ? 'xml'
+    : (contentTypeToLanguageMap[
+        selectedContentType.value as keyof typeof contentTypeToLanguageMap
+      ] ?? 'plaintext'),
 )
 
 /**

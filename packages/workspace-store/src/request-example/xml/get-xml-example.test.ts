@@ -470,6 +470,22 @@ describe('get-xml-example', () => {
     }
   })
 
+  it('reports an undecidable property pattern through the caller diagnostic channel', () => {
+    const onDiagnostic = vi.fn()
+    const result = serializeXmlExample(
+      { name: 'Alice' },
+      schema({ xml: { name: 'person' }, patternProperties: { '(name|title)': { type: 'string' } } }),
+      { ...compact, onDiagnostic },
+    )
+    expect(result.xml).toBeUndefined()
+    expect(onDiagnostic).toHaveBeenCalledExactlyOnceWith({
+      severity: 'error',
+      code: 'unsupported-pattern',
+      message: 'Property patterns must use the bounded XML matching subset.',
+      path: ['name'],
+    })
+  })
+
   it('reports unsupported property patterns without evaluating them', () => {
     const result = serializeXmlExample(
       { ['a'.repeat(24) + '!']: 'value' },

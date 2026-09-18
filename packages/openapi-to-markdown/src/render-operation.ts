@@ -1,11 +1,15 @@
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type {
+  MediaTypeObject,
   OpenApiDocument,
   OperationObject,
   ParameterObject,
   PathItemObject,
   RequestBodyObject,
   ResponseObject,
+  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { ListItem, RootContent } from 'mdast'
 
@@ -93,18 +97,35 @@ export const renderOperation = async (
       if (content.schema) nodes.push(...schemas.render(content.schema))
     }
   }
+  const renderMediaExample = (content: MediaTypeObject, mediaType: string, mode: 'read' | 'write'): RootContent[] => {
+    if (isXmlMediaType(mediaType)) {
+      const example =
+        content.example !== undefined
+          ? { value: content.example }
+          : getResolvedRef(Object.values(content.examples ?? {})[0])
+      // XML mapping needs the reference wrapper and its target as separate layers.
+      const result = getXmlBodyExample(content.schema as SchemaObject | undefined, example, {
+        mode,
+        openapiVersion: document.openapi,
+      })
+      if (!content.schema && !example) return []
+      return [
+        paragraph(strong(text('Example:'))),
+        result.xml === undefined
+          ? paragraph(text('Unable to generate an XML example.'))
+          : { type: 'code', lang: 'xml', value: result.xml },
+      ]
+    }
+    return content.schema ? [paragraph(strong(text('Example:'))), schemas.example(content.schema)] : []
+  }
   const body: RequestBodyObject | undefined = getResolvedRef(operation.requestBody, mergeSiblingReferences)
   if (body?.content) {
     nodes.push(heading(4, text('Request Body')), ...(await description(body.description)))
     if (body.required) nodes.push(paragraph(strong(text('Required:')), text(' true')))
     for (const [mediaType, content] of Object.entries(body.content)) {
       nodes.push(heading(5, text(`Content-Type: ${mediaType}`)))
-      if (content.schema)
-        nodes.push(
-          ...schemas.render(content.schema),
-          paragraph(strong(text('Example:'))),
-          schemas.example(content.schema, mediaType.includes('xml')),
-        )
+      if (content.schema) nodes.push(...schemas.render(content.schema))
+      nodes.push(...renderMediaExample(content, mediaType, 'write'))
     }
   }
   const responses = Object.entries(operation.responses ?? {}).flatMap(([status, reference]) => {
@@ -116,12 +137,8 @@ export const renderOperation = async (
     nodes.push(heading(5, text(`Status: ${status}${response.description ? ` ${response.description}` : ''}`)))
     for (const [mediaType, content] of Object.entries(response.content ?? {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
-      if (content.schema)
-        nodes.push(
-          ...schemas.render(content.schema),
-          paragraph(strong(text('Example:'))),
-          schemas.example(content.schema, mediaType.includes('xml')),
-        )
+      if (content.schema) nodes.push(...schemas.render(content.schema))
+      nodes.push(...renderMediaExample(content, mediaType, 'read'))
     }
   }
   return nodes
