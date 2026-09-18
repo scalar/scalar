@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import {
-  ScalarMarkdown,
-  ScalarMarkdownSummary,
-} from '@scalar/components/markdown'
+import { ScalarMarkdownSummary } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -22,6 +19,10 @@ import { optimizeValueForDisplay } from '@/components/Content/Schema/helpers/opt
 import SchemaGlyphPuck from '@/components/Content/Schema/SchemaGlyphPuck.vue'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
+import {
+  EditableDescription,
+  useEditableDescription,
+} from '@/features/editable-description'
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
@@ -71,6 +72,8 @@ const isCompactParameter = computed<boolean>(
 const truncated = ref(false)
 
 /** Responses and params may both have a schema */
+const { canEdit } = useEditableDescription()
+
 const schema = computed<SchemaObject | null>(() =>
   'schema' in parameter && parameter.schema
     ? (getResolvedRef(parameter.schema) ?? null)
@@ -380,11 +383,15 @@ const triggerAnchorId = computed<string | undefined>(() =>
         :static="!collapsableItems || isStaticTreeItem">
         <!-- The railed panel's own top margin already supplies the 6px gap to
              the title, so the description's default margin is zeroed. -->
-        <ScalarMarkdown
-          v-if="collapsableItems && !isStaticTreeItem && parameter.description"
+        <EditableDescription
+          v-if="
+            collapsableItems &&
+            !isStaticTreeItem &&
+            (parameter.description || canEdit(parameter))
+          "
           class="parameter-item-description"
           :class="{ 'mt-0!': isRailedPanel }"
-          :value="parameter.description" />
+          :target="parameter" />
 
         <p
           v-if="
@@ -401,6 +408,9 @@ const triggerAnchorId = computed<string | undefined>(() =>
           compact
           :description="
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
+          "
+          :editTarget="
+            collapsableItems && !isStaticTreeItem ? undefined : parameter
           "
           :eventBus="eventBus"
           :hideWriteOnly="true"

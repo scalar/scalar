@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import {
@@ -10,16 +11,24 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import { EditableDescription } from '@/features/editable-description'
 
-const { tag, isCollapsed } = defineProps<{
+const { tag, isCollapsed, document } = defineProps<{
   tag: TraversedTag
   isCollapsed: boolean
   eventBus: WorkspaceEventBus | null
   /** Whether this tag sits inside a parent tag's container (drops its own padding). */
   nested?: boolean
+  /** The document the tag belongs to, so its description can be edited in place */
+  document?: OpenApiDocument
 }>()
 
 const { level: headingLevel } = useDocumentOutline('tag')
+
+/** The tag object in the document: the navigation entry is a copy, and edits have to land on the original. */
+const tagObject = computed(() =>
+  document?.tags?.find((candidate) => candidate.name === tag.name),
+)
 </script>
 
 <template>
@@ -44,9 +53,10 @@ const { level: headingLevel } = useDocumentOutline('tag')
           </SectionHeaderTag>
         </Anchor>
       </SectionHeader>
-      <ScalarMarkdown
+      <EditableDescription
         class="tag-description"
-        :value="tag?.description"
+        :target="tagObject"
+        :value="tagObject?.description ?? tag?.description"
         withImages />
     </template>
     <slot />

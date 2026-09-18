@@ -9,6 +9,13 @@ export const en = {
     copyDefault: 'Copy default value',
     copyExample: 'Copy example value',
   },
+  editing: {
+    edit: 'Edit description',
+    save: 'Save',
+    cancel: 'Cancel',
+    empty: 'No description yet',
+    failed: 'Could not save the description',
+  },
   search: {
     label: 'Search',
     inputLabel: 'Enter search query',

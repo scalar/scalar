@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { CodeExample } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
@@ -19,6 +18,7 @@ import OperationPath from '@/components/OperationPath.vue'
 import { Section, SectionContent, SectionHeaderTag } from '@/components/Section'
 import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import { useDocumentOutline } from '@/features/document-outline'
+import { EditableDescription } from '@/features/editable-description'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
@@ -187,12 +187,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <!-- Description -->
         <div class="operation-description">
           <SpecificationExtension :value="operationExtensions" />
-          <ScalarMarkdown
+          <EditableDescription
             :anchorPrefix="id"
             :aria-label="translate('common.description')"
             role="group"
+            :target="operation"
             transformType="heading"
-            :value="operation.description"
             withAnchors
             withImages />
         </div>

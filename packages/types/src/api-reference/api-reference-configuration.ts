@@ -196,6 +196,18 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional() as z.ZodType<(() => Promise<void> | void) | undefined>,
   /** Callback fired when the reference is fully loaded */
   onLoaded: z.function().optional() as z.ZodType<((slug: string) => Promise<void> | void) | undefined>,
+  /**
+   * Called when a reader saves an edited description.
+   *
+   * Providing this turns on in-page editing: every object that carries an `x-scalar-edit-key`
+   * extension gets an edit control next to its description. The reference does not know where
+   * the object lives in the document; `key` is the extension's value, passed through untouched,
+   * so the host decides how to address and store the change. Throwing (or rejecting) keeps the
+   * editor open with the draft intact.
+   */
+  onDescriptionUpdate: z.function().optional() as z.ZodType<
+    ((event: { key: string; value: string }) => Promise<void> | void) | undefined
+  >,
   /** Fired before the outbound request is built; callback receives a mutable request builder (RequestFactory). Experimental API. */
   onBeforeRequest: z
     .function({

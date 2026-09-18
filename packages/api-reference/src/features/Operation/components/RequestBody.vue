@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -20,6 +19,10 @@ import {
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import {
+  EditableDescription,
+  useEditableDescription,
+} from '@/features/editable-description'
 import { useLocalization } from '@/features/localization'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
@@ -39,6 +42,7 @@ const { requestBody, options, document } = defineProps<{
   }
 }>()
 const { translate } = useLocalization()
+const { canEdit } = useEditableDescription()
 
 const { level: headingLevel } = useDocumentOutline('operationSection')
 
@@ -200,9 +204,9 @@ const shouldRenderRequestBody = computed(
           :content="requestBody.content" />
       </div>
       <div
-        v-if="requestBody.description"
+        v-if="requestBody.description || canEdit(requestBody)"
         class="request-body-description">
-        <ScalarMarkdown :value="requestBody.description" />
+        <EditableDescription :target="requestBody" />
       </div>
     </div>
 

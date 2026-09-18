@@ -2,7 +2,6 @@
 import { CodeExample } from '@scalar/blocks/code-example'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconButton } from '@scalar/components/icon-button'
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import {
   ScalarIconCopy,
   ScalarIconPlay,
@@ -25,6 +24,10 @@ import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import {
+  EditableDescription,
+  useEditableDescription,
+} from '@/features/editable-description'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
@@ -85,6 +88,7 @@ const {
   }
 >()
 const { translate } = useLocalization()
+const { canEdit } = useEditableDescription()
 
 const operationTitle = computed(() => operation.summary || path || '')
 const operationExtensions = computed(() => getXKeysFromObject(operation))
@@ -235,13 +239,13 @@ const { level: headingLevel } = useDocumentOutline('operation')
           :method
           :path />
       </div>
-      <ScalarMarkdown
-        v-if="operation.description"
+      <EditableDescription
+        v-if="operation.description || canEdit(operation)"
         :anchorPrefix="id"
         :aria-label="translate('common.description')"
         role="group"
+        :target="operation"
         transformType="heading"
-        :value="operation.description"
         withAnchors
         withImages />
     </template>

@@ -11,14 +11,23 @@ import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
+import {
+  EditableDescription,
+  useEditableDescription,
+} from '@/features/editable-description'
+
 import InfoMarkdownSection from './InfoMarkdownSection.vue'
 
-const { description, headingSlugGenerator } = defineProps<{
+const { description, headingSlugGenerator, target } = defineProps<{
   eventBus: WorkspaceEventBus | null
   headingSlugGenerator: (heading: Heading) => string
   /** Markdown document */
   description?: string
+  /** The info object the description belongs to, so it can be edited in place */
+  target?: unknown
 }>()
+
+const { canEdit } = useEditableDescription()
 
 /**
  * Descriptions, but split into multiple sections.
@@ -78,9 +87,13 @@ const transformHeading = (node: Node) => {
 </script>
 
 <template>
-  <div
-    v-if="description"
-    class="introduction-description mt-6 flex flex-col">
+  <!-- The sections are only how the read view is split for navigation; the
+       edit target is the whole description, so the editor wraps them all. -->
+  <EditableDescription
+    v-if="description || canEdit(target)"
+    class="introduction-description mt-6 flex flex-col"
+    :target="target"
+    :value="description">
     <InfoMarkdownSection
       v-for="section in sections"
       :id="section.id"
@@ -88,7 +101,7 @@ const transformHeading = (node: Node) => {
       :content="section.content"
       :eventBus="eventBus"
       :transformHeading="transformHeading" />
-  </div>
+  </EditableDescription>
 </template>
 
 <style scoped>

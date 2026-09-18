@@ -9,7 +9,6 @@ const NO_LISTENERS = Object.freeze({})
 </script>
 
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import {
@@ -49,6 +48,10 @@ import {
   useSchemaExpansion,
 } from '@/components/Content/Schema/helpers/schema-expansion'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
+import {
+  EditableDescription,
+  useEditableDescription,
+} from '@/features/editable-description'
 import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
@@ -101,6 +104,11 @@ const props = withDefaults(
     compact?: boolean
     discriminator?: DiscriminatorObject
     description?: string
+    /**
+     * The object that `description` belongs to when it is not the schema: a
+     * parameter or header passes itself so an edit lands there, not on its schema.
+     */
+    editTarget?: unknown
     hideModelNames?: boolean
     hideHeading?: boolean
     /** When the root schema was resolved from a $ref, pass the ref name for display (e.g. "Data"). */
@@ -530,6 +538,10 @@ const isDiscriminatorProperty = computed(() =>
  */
 
 const { translate } = useLocalization()
+const { canEdit } = useEditableDescription()
+
+/** The pencil edits the external owner of the description when there is one, else the schema itself. */
+const descriptionTarget = computed(() => props.editTarget ?? props.schema)
 
 /** Whether this property has children to put behind a toggle. */
 const isExpandable = computed(
@@ -1048,9 +1060,12 @@ const onBeforeMatch = (): void => {
          enough under it; 6px above a composition keeps the row on the 12px
          rhythm. -->
     <div
-      v-if="displayDescription || propertyDescription"
+      v-if="
+        displayDescription || propertyDescription || canEdit(descriptionTarget)
+      "
       class="property-description mt-1! has-[+.property-rule]:mb-1.5!">
-      <ScalarMarkdown
+      <EditableDescription
+        :target="descriptionTarget"
         :value="displayDescription || propertyDescription || ''" />
     </div>
 

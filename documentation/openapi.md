@@ -430,6 +430,38 @@ components:
 
 Aliases: `x-internal`
 
+## x-scalar-edit-key
+
+Marks an object whose description a reader may edit in the reference. Together with the
+[`onDescriptionUpdate`](./configuration.md#ondescriptionupdate) callback, the description gets
+an edit control; saving hands your application this key and the new text.
+
+The value is an opaque string — the reference never parses it, so it can be whatever your own
+store uses. Put it on the object that owns the description rather than on the description
+itself. Any object with a `description` can carry one: `info`, entries in `tags`, operations,
+parameters, request bodies, responses, and schemas including their properties.
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0.0
+paths:
+  /planets:
+    get:
+      summary: Get all planets
+      description: Every planet we know of.
++      x-scalar-edit-key: paths/~1planets/get
+      responses:
+        '200':
+          description: OK
++          x-scalar-edit-key: paths/~1planets/get/responses/200
+```
+
+Without the callback configured the extension does nothing, so a document carrying keys
+renders exactly as it would without them. See [Editing Descriptions](./editing-descriptions.md)
+for the full guide.
+
 ## x-additionalPropertiesName
 
 OpenAPI allows description of "additionalProperties" that may be included in a schema. Their names are unknown, but the field types can be added to the API description so that producers and consumers understand whether additional fields are permitted and any additional rules that apply.

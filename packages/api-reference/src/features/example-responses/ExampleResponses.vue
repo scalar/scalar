@@ -7,7 +7,6 @@ import {
   ScalarCardSection,
 } from '@scalar/components/card'
 import { ScalarIcon } from '@scalar/components/icon'
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -31,6 +30,10 @@ import {
 } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
+import {
+  EditableDescription,
+  useEditableDescription,
+} from '@/features/editable-description'
 import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 import { useLocalization } from '@/features/localization'
 
@@ -60,6 +63,7 @@ const { responses, selectedExample, eventBus, selectedContentTypes } =
     selectedContentTypes?: Record<string, string>
   }>()
 const { translate } = useLocalization()
+const { canEdit } = useEditableDescription()
 
 const id = useId()
 const { copyToClipboard } = useClipboard()
@@ -340,7 +344,8 @@ const copyExample = (): void => {
         currentResponse?.summary ||
         currentResponse?.description ||
         hasMultipleExamples ||
-        responseVariants
+        responseVariants ||
+        canEdit(currentResponse)
       "
       class="response-card-footer">
       <ExamplePicker
@@ -364,10 +369,10 @@ const copyExample = (): void => {
           class="response-description-summary text-c-1">
           {{ currentResponse.summary }}
         </div>
-        <ScalarMarkdown
-          v-if="currentResponse?.description"
+        <EditableDescription
+          v-if="currentResponse?.description || canEdit(currentResponse)"
           class="response-description-markdown"
-          :value="currentResponse.description" />
+          :target="currentResponse" />
       </div>
     </ScalarCardFooter>
   </ScalarCard>

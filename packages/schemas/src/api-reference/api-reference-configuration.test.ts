@@ -169,6 +169,7 @@ describe('api-reference-configuration', () => {
         setPageTitle: (input: { title: string; document: { title: string; slug: string } }) =>
           `${input.document.title} - ${input.title}`,
         onLoaded: () => console.log('loaded'),
+        onDescriptionUpdate: ({ key, value }: { key: string; value: string }) => console.log(key, value),
       }
 
       expect(() => coerce(apiReferenceConfigurationSchema, config)).not.toThrow()

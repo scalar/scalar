@@ -88,6 +88,7 @@ import { provideSchemaExpansion } from '@/components/Content/Schema/helpers/sche
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
+import { provideDescriptionEditing } from '@/features/editable-description'
 import {
   provideLocalization,
   resolveLocalization,
@@ -548,6 +549,11 @@ const pluginManager = createPluginManager({
   },
 })
 provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+
+// Injected rather than threaded through props: descriptions render at every depth of the tree.
+provideDescriptionEditing(
+  computed(() => mergedConfig.value.onDescriptionUpdate),
+)
 
 pluginManager.notifyInit(mergedConfig.value)
 

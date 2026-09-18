@@ -187,6 +187,7 @@ describe('api-reference-configuration', () => {
         generateOperationSlug: (operation: { path: string; method: string }) => `${operation.method}-${operation.path}`,
         generateWebhookSlug: (webhook: { name: string }) => `webhook-${webhook.name}`,
         onLoaded: () => console.log('loaded'),
+        onDescriptionUpdate: ({ key, value }: { key: string; value: string }) => console.log(key, value),
       }
 
       expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow()

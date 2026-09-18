@@ -9,6 +9,13 @@ export const es = {
     copyDefault: 'Copiar valor por defecto',
     copyExample: 'Copiar valor de ejemplo',
   },
+  editing: {
+    edit: 'Editar descripción',
+    save: 'Guardar',
+    cancel: 'Cancelar',
+    empty: 'Aún no hay descripción',
+    failed: 'No se pudo guardar la descripción',
+  },
   search: {
     label: 'Buscar',
     inputLabel: 'Introduce tu consulta de búsqueda',
