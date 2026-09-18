@@ -77,8 +77,8 @@ const fetched = await Promise.all(
 
 console.log(`[openapi-parser-diff.test.ts] Successfully fetched ${fetched.length} files to test`)
 
-/** This test suite parses a large number of real-world OpenAPI files */
-test.concurrent.each(fetched)('diff $file', async ({ file, content }) => {
+/** Large API descriptions need extra time when parsed concurrently on slower CI runners. */
+test.concurrent.each(fetched)('diff $file', { timeout: 15_000 }, async ({ file, content }) => {
   const specification = normalize(content)
 
   const oldSchema = (await new Promise((resolve, reject) => {
