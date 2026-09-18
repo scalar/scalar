@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.29.3
+
+### Patch Changes
+
+- [#10216](https://github.com/scalar/scalar/pull/10216): Allow more time for parser comparison tests on slower CI runners.
+
 ## 0.29.2
 
 ### Patch Changes

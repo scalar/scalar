@@ -1,5 +1,25 @@
 # @scalar/workspace-store
 
+## 0.62.0
+
+### Minor Changes
+
+- [#10257](https://github.com/scalar/scalar/pull/10257): Expose each document whole from the server workspace store through `getResolvedDocument`, for rendering on the server from one reference while the browser keeps loading chunks. Resolve relative chunk references from a static workspace against the URL the document was loaded from; they failed before a request was made.
+
+### Patch Changes
+
+- [#10231](https://github.com/scalar/scalar/pull/10231): Trim surrounding whitespace from bearer tokens after resolving environment variables.
+- [#9638](https://github.com/scalar/scalar/pull/9638): Keep `$ref-value` optional in the shared `reference()` schema helper. An unresolved `{ $ref }` (for example a sparse chunk from the server store) now passes through coercion untouched instead of being coerced into a synthesized default that dropped the reference. This aligns the helper with the schema position that already made this choice.
+
+  Apply the same behavior to both OpenAPI 3.1 and 3.2 reference helpers, including the current workspace ingestion schema.
+
+- [#10179](https://github.com/scalar/scalar/pull/10179): Warn when OAuth2 metadata routes collide with declared API paths. Keep the OAuth2 metadata field in OpenAPI 3.2 schemas and document the HTTP exception for local development.
+- [#10179](https://github.com/scalar/scalar/pull/10179): Support OpenAPI 3.2 OAuth2 metadata URLs in workspace schemas and the shared authentication UI. Fetch HTTPS authorization server metadata or HTTP metadata from local development URLs to discover flows or fill missing endpoints while preserving explicit configuration.
+
+  For local development, Scalar deliberately relaxes the OpenAPI 3.2 TLS requirement: metadata URLs and discovered endpoints may use HTTP for local development URLs recognized by the shared `isLocalUrl` helper, including loopback hosts, `0.0.0.0`, and reserved development domains such as `*.test` and `*.example`. Other hosts require HTTPS.
+
+  Discovery leaves `refreshUrl` unchanged. Token refresh already falls back to the flow's token URL when no refresh URL is configured, so a discovered token endpoint also supports refresh without overriding an explicit refresh URL.
+
 ## 0.61.0
 
 ### Minor Changes

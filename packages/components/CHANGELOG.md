@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.29.3
+
+### Patch Changes
+
+- [#10245](https://github.com/scalar/scalar/pull/10245): Use design system borders, shadows, and radii for dropdown surfaces and items.
+
 ## 0.29.2
 
 ### Patch Changes
