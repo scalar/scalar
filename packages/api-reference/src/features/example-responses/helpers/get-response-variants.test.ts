@@ -33,19 +33,23 @@ describe('get-response-variants', () => {
     ).toBeUndefined()
   })
 
-  it.each([{ example: null }, { examples: [false] }, { default: '' }, { const: 0 }, { enum: ['explicit'] }])(
-    'omits a picker for an explicit schema value: %j',
-    (sample) => {
-      expect(
-        getResponseVariants({
-          schema: coerceValue(SchemaObjectSchema, {
-            ...sample,
-            anyOf: [{ type: 'string' }, { type: 'number' }],
-          }),
+  it.each([
+    { example: null },
+    { examples: [false] },
+    { default: '' },
+    { const: 0 },
+    { enum: ['explicit'] },
+    { enum: [] },
+  ])('omits a picker for an explicit schema value or enum constraint: %j', (sample) => {
+    expect(
+      getResponseVariants({
+        schema: coerceValue(SchemaObjectSchema, {
+          ...sample,
+          anyOf: [{ type: 'string' }, { type: 'number' }],
         }),
-      ).toBeUndefined()
-    },
-  )
+      }),
+    ).toBeUndefined()
+  })
 
   it('preserves branch indexes when a reference cannot be resolved', () => {
     expect(

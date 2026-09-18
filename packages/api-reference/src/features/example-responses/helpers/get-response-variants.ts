@@ -21,7 +21,8 @@ export const getResponseVariants = (response: MediaTypeObject | undefined): Resp
     schema.example !== undefined ||
     schema.default !== undefined ||
     schema.const !== undefined ||
-    schema.enum?.length
+    // An empty enum permits no value, so union branches cannot offer valid alternatives.
+    schema.enum !== undefined
   ) {
     return undefined
   }

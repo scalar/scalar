@@ -68,6 +68,66 @@ describe('createMockServer', () => {
     vi.restoreAllMocks()
   })
 
+  it.each(['oneOf', 'anyOf'] as const)(
+    'serves generated root primitive and array %s responses',
+    async (composition) => {
+      const cases = [
+        { schema: { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] }, expected: 'first' },
+        {
+          schema: {
+            type: 'array',
+            [composition]: [
+              { items: { type: 'string', const: 'first' } },
+              { items: { type: 'string', const: 'second' } },
+            ],
+          },
+          expected: ['first'],
+        },
+        {
+          schema: {
+            properties: { ignored: { const: true } },
+            items: { type: 'string', const: 'ignored' },
+            [composition]: [{ type: 'string', minLength: 3 }, { type: 'number' }],
+          },
+          expected: 'string',
+        },
+        {
+          schema: {
+            properties: { ignored: { const: true } },
+            [composition]: [{ type: 'array', items: { type: 'string', const: 'selected' } }, { type: 'string' }],
+          },
+          expected: ['selected'],
+        },
+        {
+          schema: {
+            type: 'string',
+            [composition]: [
+              { [composition]: [{ const: 'nested first' }, { const: 'nested second' }] },
+              { const: 'outer second' },
+            ],
+          },
+          expected: 'nested first',
+        },
+      ]
+      for (const { schema, expected } of cases) {
+        const document = {
+          openapi: '3.1.0',
+          info: { title: 'Root unions', version: '1' },
+          paths: {
+            '/union': {
+              get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
+            },
+          },
+        }
+        const server = await createMockServer({ document })
+        const response = await server.request('/union')
+        expect(response.status).toBe(200)
+        expect(response.headers.get('content-type')).toContain('application/json')
+        expect(await response.json()).toStrictEqual(expected)
+      }
+    },
+  )
+
   it('supports deprecated specification key', async () => {
     const specification = {
       openapi: '3.1.0',
@@ -1198,7 +1258,7 @@ describe('createMockServer', () => {
     })
   })
 
-  it('GET /foobar -> wraps schema examples for array responses', async () => {
+  it.each(['example', 'examples'] as const)('GET /foobar -> wraps schema %s for array responses', async (keyword) => {
     const document = {
       openapi: '3.1.0',
       info: {
@@ -1223,9 +1283,7 @@ describe('createMockServer', () => {
                           },
                         },
                       },
-                      example: {
-                        foo: 'bar',
-                      },
+                      [keyword]: keyword === 'example' ? { foo: 'bar' } : [{ foo: 'bar' }],
                     },
                   },
                 },
