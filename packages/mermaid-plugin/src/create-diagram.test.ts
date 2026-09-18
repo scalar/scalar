@@ -4,6 +4,21 @@ import { describe, expect, it } from 'vitest'
 import { createDiagram } from './create-diagram'
 
 describe('create-diagram', () => {
+  it('removes its local stylesheet when the diagram is disposed', () => {
+    const container = document.createElement('div')
+    const source = document.createElement('pre')
+    container.append(source)
+    const controller = new AbortController()
+    const diagram = createDiagram('<svg></svg>', source, controller.signal)
+    source.replaceWith(diagram.element)
+
+    expect(container.querySelectorAll('style').length).toBe(1)
+    diagram.destroy()
+    expect(container.querySelectorAll('style').length).toBe(0)
+    expect(container.firstElementChild).toBe(source)
+    controller.abort()
+  })
+
   it('zooms, pans with the keyboard, resets and restores the source on cleanup', () => {
     const container = document.createElement('div')
     const source = document.createElement('pre')

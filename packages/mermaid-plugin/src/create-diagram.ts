@@ -1,3 +1,5 @@
+import { diagramStyles } from './diagram-styles'
+
 /** Create an accessible diagram viewer with zoom buttons and pointer panning. */
 export const createDiagram = (
   svg: string,
@@ -11,24 +13,23 @@ export const createDiagram = (
   const element = document.createElement('section')
   element.setAttribute('aria-label', 'Mermaid diagram')
   element.setAttribute('data-markdown-block', '')
-  element.style.cssText =
-    'border:1px solid var(--scalar-border-color,#ddd);border-radius:var(--scalar-radius,3px);overflow:hidden;margin:16px 0;background:var(--scalar-background-1,#fff)'
+  element.className = 'scalar-mermaid-diagram'
+  const style = document.createElement('style')
+  style.textContent = diagramStyles
   const toolbar = document.createElement('div')
   toolbar.setAttribute('role', 'toolbar')
   toolbar.setAttribute('aria-label', 'Diagram controls')
-  toolbar.style.cssText = 'display:flex;gap:4px;padding:8px;border-bottom:1px solid var(--scalar-border-color,#ddd)'
+  toolbar.className = 'scalar-mermaid-toolbar'
   const viewport = document.createElement('div')
   viewport.tabIndex = 0
   viewport.setAttribute('aria-label', 'Diagram. Use arrow keys to pan.')
-  viewport.style.cssText =
-    'overflow:hidden;min-height:120px;max-height:520px;padding:16px;cursor:grab;touch-action:pan-y'
+  viewport.className = 'scalar-mermaid-viewport'
   const canvas = document.createElement('div')
   // Mermaid renders with securityLevel strict, sanitizing diagram HTML and disabling callbacks.
   canvas.innerHTML = svg
-  canvas.style.cssText =
-    'transform-origin:center;transition:transform 80ms linear;background:#fff;border-radius:3px;padding:8px'
+  canvas.className = 'scalar-mermaid-canvas'
   viewport.append(canvas)
-  element.append(toolbar, viewport)
+  element.append(style, toolbar, viewport)
   let scale = 1
   let x = 0
   let y = 0
@@ -41,8 +42,7 @@ export const createDiagram = (
     control.type = 'button'
     control.textContent = label
     control.setAttribute('aria-label', label)
-    control.style.cssText =
-      'font:inherit;font-size:12px;padding:4px 8px;border:1px solid var(--scalar-border-color,#ddd);border-radius:var(--scalar-radius,3px);color:var(--scalar-color-1,#222);background:var(--scalar-background-1,#fff);cursor:pointer'
+    control.className = 'scalar-mermaid-control'
     control.addEventListener('click', action, options)
     toolbar.append(control)
   }
