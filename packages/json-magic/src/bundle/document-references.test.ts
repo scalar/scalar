@@ -71,6 +71,59 @@ describe('document-references', () => {
     expect(references.resolve('#/x-ext', 'https://example.com/other.json')).toBeUndefined()
   })
 
+  describe('preservation boundaries', () => {
+    const uri = 'https://example.com/api.json'
+
+    it('preserves an unresolved target but relocates its resolved neighbor', () => {
+      const references = documentReferences('x-ext')
+      references.register({ value: { type: 'string' } }, uri, ['x-ext', 'external'])
+      expect(references.resolve(`${uri}#/missing`, uri)).toMatchObject({ value: undefined, preserveReference: true })
+      expect(references.resolve(`${uri}#/value`, uri)).toMatchObject({
+        value: { type: 'string' },
+        path: 'x-ext/external/value',
+        preserveReference: false,
+      })
+    })
+
+    it('keeps an embedded schema fragment local but relocates a qualified reference to it', () => {
+      const references = documentReferences('x-ext')
+      references.register({ $id: uri, value: { type: 'string' } }, uri, ['x-ext', 'external'])
+      expect(references.resolve('#/value', uri)).toMatchObject({ value: { type: 'string' }, preserveReference: true })
+      expect(references.resolve(`${uri}#/value`, uri)).toMatchObject({
+        value: { type: 'string' },
+        preserveReference: false,
+      })
+    })
+
+    it('preserves an absolute root schema identity but relocates a relative root identity', () => {
+      const absolute = documentReferences('x-ext')
+      absolute.register({ $id: uri, value: { type: 'string' } }, uri)
+      const relative = documentReferences('x-ext')
+      relative.register({ $id: './api.json', value: { type: 'string' } }, uri)
+      expect(absolute.resolve(`${uri}#/value`, uri)).toMatchObject({
+        value: { type: 'string' },
+        preserveReference: true,
+      })
+      expect(relative.resolve(`${uri}#/value`, uri)).toMatchObject({
+        value: { type: 'string' },
+        preserveReference: false,
+      })
+    })
+
+    it('preserves a root document fragment but relocates the same fragment when embedded', () => {
+      const root = documentReferences('x-ext')
+      root.register({ value: { type: 'string' } }, uri)
+      const embedded = documentReferences('x-ext')
+      embedded.register({ value: { type: 'string' } }, uri, ['x-ext', 'external'])
+      expect(root.resolve('#/value', uri)).toMatchObject({ value: { type: 'string' }, preserveReference: true })
+      expect(embedded.resolve('#/value', uri)).toMatchObject({
+        value: { type: 'string' },
+        path: 'x-ext/external/value',
+        preserveReference: false,
+      })
+    })
+  })
+
   it.each([
     // embedded, schema identifier, reference, preserved
     [false, undefined, '#/value', true],
