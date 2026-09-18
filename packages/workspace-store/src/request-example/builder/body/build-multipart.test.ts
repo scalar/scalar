@@ -1,4 +1,6 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { EncodingObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 import { reactive } from 'vue'
 
@@ -16,6 +18,45 @@ const wireParts = async (body: Blob): Promise<string[]> => {
 }
 
 describe('build-multipart', () => {
+  it('retains author parameters when resolving a matching wildcard to a concrete media type', async () => {
+    const parts = buildMultipart([new Blob(['image'], { type: 'image/png' })], 'multipart/mixed', {
+      itemEncoding: { contentType: 'image/*; charset=utf-8' },
+    })
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      'Content-Type: image/png; charset=utf-8\r\n\r\nimage',
+    ])
+  })
+
+  it('uses the inferred type when every declared range fails to match', async () => {
+    const parts = buildMultipart(['hello'], 'multipart/mixed', {
+      itemEncoding: { contentType: 'image/*; charset=utf-8, audio/*' },
+    })
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      'Content-Type: text/plain\r\n\r\nhello',
+    ])
+  })
+
+  it('uses the first concrete choice when the inferred type matches no choice', async () => {
+    const parts = buildMultipart(['hello'], 'multipart/mixed', {
+      itemEncoding: { contentType: 'image/*, application/custom; charset=utf-8, text/custom' },
+    })
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      'Content-Type: application/custom; charset=utf-8\r\n\r\nhello',
+    ])
+  })
+
+  it.each(['hello', { id: 1 }])('uses the OpenAPI binary default for an untyped schema and value %j', async (value) => {
+    const parts = buildMultipart(
+      [value],
+      'multipart/mixed',
+      {},
+      { type: 'array', items: coerceValue(SchemaObjectSchema, {}) },
+    )
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      `Content-Type: application/octet-stream\r\n\r\n${typeof value === 'string' ? value : JSON.stringify(value)}`,
+    ])
+  })
+
   it.each([{}, { id: 1, name: 'x' }])('rejects ambiguous named positional items: %j', (item) => {
     expect(() => buildMultipart([item], 'multipart/form-data', { itemEncoding: {} })).toThrow(
       'Named positional multipart items must contain exactly one property',
