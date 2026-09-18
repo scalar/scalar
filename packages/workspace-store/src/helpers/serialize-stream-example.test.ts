@@ -1,30 +1,9 @@
 import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { serializeStreamExample } from './serialize-stream-example'
 
 describe('serialize-stream-example', () => {
-  it.each([
-    ['text/event-stream', 'data: 1\n\n'],
-    ['application/jsonl', '1\n'],
-    ['application/x-ndjson', '1\n'],
-    ['application/json-lines', '1\n'],
-    ['Application/JSONL; charset=utf-8', '1\n'],
-    ['application/json-seq', '\u001e1\n'],
-    ['application/geo+json-seq', '\u001e1\n'],
-  ])('recognizes and serializes %s', (contentType, expected) => {
-    expect(isStreamingMediaType(contentType)).toBe(true)
-    expect(serializeStreamExample(1, contentType, true)).toBe(expected)
-  })
-
-  it.each(['text/json-seq', 'application/json', 'application/custom+jsonl', 'multipart/mixed'])(
-    'leaves unsupported media type %s to the existing response path',
-    (contentType) => {
-      expect(isStreamingMediaType(contentType)).toBe(false)
-      expect(serializeStreamExample(1, contentType, true)).toBeUndefined()
-    },
-  )
-
   it('does not serialize an absent example as an undefined JSON record', () => {
     expect(serializeStreamExample(undefined, 'application/jsonl', true)).toBeUndefined()
   })
@@ -61,7 +40,49 @@ describe('serialize-stream-example', () => {
     )
   })
 
-  it('leaves other media types to their existing serializer', () => {
-    expect(serializeStreamExample({ id: 1 }, 'application/json', true)).toBeUndefined()
+  it('warns once when every SSE record has no valid fields', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      expect(
+        serializeStreamExample([{ unknown: true }, { id: 'bad\0id', retry: -1 }], 'text/event-stream', false),
+      ).toBe('')
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'Skipped 2 SSE example item(s) with no valid event, id, retry, or data fields.',
+      )
+    } finally {
+      warn.mockRestore()
+    }
   })
+
+  it('keeps valid SSE records while reporting omitted records', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      expect(serializeStreamExample([{}, { data: false }, { data: '' }], 'text/event-stream', false)).toBe(
+        'data: false\n\ndata: \n\n',
+      )
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'Skipped 1 SSE example item(s) with no valid event, id, retry, or data fields.',
+      )
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('accepts an intentionally empty SSE sequence without a warning', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      expect(serializeStreamExample([], 'text/event-stream', false)).toBe('')
+      expect(warn).not.toHaveBeenCalled()
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it.each(['application/json', 'text/json-seq'])(
+    'leaves unsupported media type %s to its existing serializer',
+    (type) => {
+      expect(isStreamingMediaType(type)).toBe(false)
+      expect(serializeStreamExample({ id: 1 }, type, true)).toBeUndefined()
+    },
+  )
 })

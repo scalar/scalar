@@ -135,6 +135,44 @@ describe('createMockServer', () => {
     },
   )
 
+  it.each([
+    { example: [{ unknown: true }], expected: '' },
+    { example: [{ id: 'bad\0id', retry: -1 }, { data: 'kept' }], expected: 'data: kept\n\n' },
+  ])('reports omitted SSE records without corrupting the HTTP stream: $expected', async ({ example, expected }) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const server = await createMockServer({
+        logger: false,
+        document: {
+          openapi: '3.2.0',
+          info: { title: 'Stream', version: '1' },
+          paths: {
+            '/events': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'Events',
+                    content: { 'text/event-stream': { itemSchema: {}, example } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const response = await server.request('/events')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toBe('text/event-stream')
+      expect(response.headers.get('x-accel-buffering')).toBe('no')
+      expect(await response.text()).toBe(expected)
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'Skipped 1 SSE example item(s) with no valid event, id, retry, or data fields.',
+      )
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('preserves the created status for custom handler streams', async () => {
     const server = await createMockServer({
       logger: false,
