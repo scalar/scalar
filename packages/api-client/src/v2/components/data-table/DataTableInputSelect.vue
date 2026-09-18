@@ -10,6 +10,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import type { CodeInputModelValue } from '@/v2/components/code-input/CodeInput.vue'
+import { useLocalization } from '@/v2/features/localization'
 
 const props = withDefaults(
   defineProps<{
@@ -25,6 +26,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const options = computed(() => props.value ?? [])
 const addingCustomValue = ref(false)
@@ -119,7 +122,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
         ref="inputRef"
         v-model="customValue"
         class="text-c-1 w-full min-w-0 border-none px-2 py-1.5 outline-none"
-        placeholder="Value"
+        :placeholder="translate('apiClient.dataTableInputSelect.value')"
         type="text"
         @blur="handleBlur"
         @keyup.enter="addCustomValue" />
@@ -169,7 +172,9 @@ const updateSelectedOptions = (selectedOptions: any) => {
                   icon="Add"
                   size="sm" />
               </div>
-              <span>Add value</span>
+              <span>{{
+                translate('apiClient.dataTableInputSelect.addValue')
+              }}</span>
             </ScalarDropdownItem>
           </template>
         </template>

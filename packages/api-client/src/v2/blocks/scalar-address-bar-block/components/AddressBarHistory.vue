@@ -11,15 +11,9 @@ import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
+import { useLocalization } from '@/v2/features/localization'
 
 import { getStatusCodeColor } from './httpStatusCodeColors'
-
-export type History = {
-  method: HttpMethodType
-  path: string
-  duration: number
-  status: number
-}
 
 const { target } = defineProps<{
   /** The id of the target to use for the popover (e.g. address bar) */
@@ -34,6 +28,15 @@ const emits = defineEmits<{
   /** Update the open state of the history popover */
   (e: 'update:open', value: boolean): void
 }>()
+
+const { translate } = useLocalization()
+
+export type History = {
+  method: HttpMethodType
+  path: string
+  duration: number
+  status: number
+}
 </script>
 <template>
   <Menu
@@ -57,7 +60,9 @@ const emits = defineEmits<{
           icon="History"
           size="sm"
           thickness="2.25" />
-        <span class="sr-only">Request History</span>
+        <span class="sr-only">{{
+          translate('apiClient.addressBarHistory.requestHistory')
+        }}</span>
       </MenuButton>
       <!-- History shadow and placement-->
       <template

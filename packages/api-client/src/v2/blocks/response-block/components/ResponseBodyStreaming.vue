@@ -4,10 +4,13 @@ import { ScalarLoading, useLoadingState } from '@scalar/components/loading'
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 const { reader } = defineProps<{
   reader: ReadableStreamDefaultReader<Uint8Array>
 }>()
+
+const { translate } = useLocalization()
 
 const loader = useLoadingState()
 
@@ -113,14 +116,16 @@ onBeforeUnmount(stopStreaming)
   <CollapsibleSection class="max-h-content overflow-y-hidden">
     <template #title>
       <div class="flex w-full items-center justify-between">
-        <div>Body</div>
+        <div>{{ translate('apiClient.responseBodyStreaming.body') }}</div>
         <div
           v-if="loader.isLoading"
           class="mr-2 flex items-center gap-2">
           <ScalarLoading
             :loadingState="loader"
             size="xs" />
-          <span class="text-c-2"> Listening… </span>
+          <span class="text-c-2">{{
+            translate('apiClient.responseBodyStreaming.listening')
+          }}</span>
         </div>
       </div>
     </template>
@@ -131,7 +136,7 @@ onBeforeUnmount(stopStreaming)
         size="sm"
         variant="ghost"
         @click="stopStreaming">
-        Cancel
+        {{ translate('apiClient.responseBodyStreaming.cancel') }}
       </ScalarButton>
     </template>
 

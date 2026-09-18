@@ -155,6 +155,7 @@ import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/vali
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import { useLocalization } from '@/v2/features/localization'
 import type { ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -193,6 +194,8 @@ const {
   securityRequirements,
   defaultHeaders,
 } = defineProps<OperationBlockProps>()
+
+const { translate } = useLocalization()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
@@ -294,7 +297,7 @@ const handleExecute = async () => {
   eventBus.flushDebouncedEmits?.()
 
   if (isWebhook && !requestPath.value.trim()) {
-    toast('Webhook URL required. Enter a destination first.', 'error')
+    toast(translate('apiClient.operationBlock.webhookUrlRequired'), 'error')
     return
   }
 
@@ -303,7 +306,7 @@ const handleExecute = async () => {
     exampleKey,
   )
   if (pathValidation.ok === false) {
-    toast('Path parameters must have values.', 'error')
+    toast(translate('apiClient.operationBlock.pathParametersRequired'), 'error')
     return
   }
 

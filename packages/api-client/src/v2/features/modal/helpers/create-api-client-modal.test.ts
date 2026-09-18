@@ -90,6 +90,38 @@ describe('createApiClientModal', () => {
     document.body.innerHTML = ''
   })
 
+  it('updates localized labels and direction in the separately mounted modal app', async () => {
+    const options = ref<ApiClientOptions>({
+      localization: {
+        locale: 'de',
+      },
+    })
+    const modal = createApiClientModal({
+      el: mountElement,
+      workspaceStore: createWorkspaceStore(),
+      eventBus: createTestEventBus(),
+      options,
+    })
+    createdApps.push(modal.app)
+    expect(mountElement.textContent).toContain('Kein Dokument ausgewählt')
+    expect(mountElement.querySelector('[role="dialog"]')?.getAttribute('lang')).toBe('de')
+
+    options.value = { localization: { locale: 'ar' } }
+    await nextTick()
+    expect(mountElement.textContent).toContain('لم يتم تحديد مستند')
+    expect(mountElement.querySelector('[role="dialog"]')?.getAttribute('dir')).toBe('rtl')
+
+    modal.updateOptions({
+      localization: {
+        locale: 'en',
+        translations: { apiClient: { modal: { noDocumentSelected: 'Choose a document' } } },
+      },
+    })
+    await nextTick()
+    expect(mountElement.textContent).toContain('Choose a document')
+    expect(mountElement.querySelector('[role="dialog"]')?.getAttribute('dir')).toBe('ltr')
+  })
+
   it('creates modal and mounts automatically when mountOnInitialize is true', async () => {
     const workspaceStore = await setupWorkspaceStore()
 

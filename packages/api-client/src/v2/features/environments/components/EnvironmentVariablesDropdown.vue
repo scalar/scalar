@@ -8,9 +8,7 @@ import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, onMounted, ref, watch, type CSSProperties } from 'vue'
 
-type DropdownRow =
-  | { kind: 'env'; key: string; secondary: string }
-  | { kind: 'context'; key: string; secondary: string }
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   query,
@@ -42,6 +40,12 @@ const emit = defineEmits<{
    */
   (e: 'close'): void
 }>()
+
+const { translate } = useLocalization()
+
+type DropdownRow =
+  | { kind: 'env'; key: string; secondary: string }
+  | { kind: 'context'; key: string; secondary: string }
 
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
@@ -250,7 +254,11 @@ onClickOutside(
       -->
       <ul
         :id="listboxId"
-        aria-label="Variable suggestions"
+        :aria-label="
+          translate(
+            'apiClient.environmentVariablesDropdown.variableSuggestions',
+          )
+        "
         class="gap-1/2 flex flex-col"
         role="listbox">
         <template
@@ -289,8 +297,9 @@ onClickOutside(
         class="font-code text-xxs bg-b-inherit hover:bg-b-3 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">
-        <ScalarIconPlus class="size-3" />
-        Add Variable
+        <ScalarIconPlus class="size-3" />{{
+          translate('apiClient.environmentVariablesDropdown.addVariable')
+        }}
       </ScalarButton>
       <!-- Backdrop for the dropdown -->
       <div

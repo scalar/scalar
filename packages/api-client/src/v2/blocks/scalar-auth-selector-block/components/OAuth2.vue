@@ -47,6 +47,7 @@ import {
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
@@ -104,6 +105,8 @@ const emits = defineEmits<{
     payload: Omit<ApiReferenceEvents['auth:delete:scopes'], 'name'>,
   ): void
 }>()
+
+const { translate } = useLocalization()
 
 const loader = useLoadingState()
 const { toast } = useToasts()
@@ -301,7 +304,10 @@ const handleAuthorize = async (): Promise<void> => {
     })
   } else {
     console.error(error)
-    toast(error?.message ?? 'Failed to authorize', 'error')
+    toast(
+      error?.message ?? translate('apiClient.oauth2.failedToauthorize'),
+      'error',
+    )
   }
 }
 
@@ -350,7 +356,10 @@ const handleRefresh = async (): Promise<void> => {
     })
   } else {
     console.error(error)
-    toast(error?.message ?? 'Failed to refresh token', 'error')
+    toast(
+      error?.message ?? translate('apiClient.oauth2.failedToRefreshToken'),
+      'error',
+    )
   }
 }
 
@@ -383,7 +392,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': v })
         ">
-        Access Token
+        {{ translate('apiClient.oauth2.accessToken') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -394,7 +403,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         :modelValue="flow.refreshUrl ?? ''"
         :placeholder="refreshUrlPlaceholder"
         @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
-        Refresh URL
+        {{ translate('apiClient.oauth2.refreshUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -409,7 +418,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleRefresh">
-          Refresh
+          {{ translate('apiClient.oauth2.refresh') }}
         </ScalarButton>
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
@@ -417,7 +426,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleClearAccessTokens">
-          Clear
+          {{ translate('apiClient.oauth2.clear') }}
         </ScalarButton>
       </div>
     </DataTableRow>
@@ -438,7 +447,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2Update({ authorizationUrl: v })
           }
         ">
-        Auth URL
+        {{ translate('apiClient.oauth2.authUrl') }}
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput
@@ -452,7 +461,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2Update({ tokenUrl: v })
           }
         ">
-        Token URL
+        {{ translate('apiClient.oauth2.tokenUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -463,7 +472,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         :placeholder="
           options.captureOAuth2Callback
             ? `${resolveDefaultOAuth2RedirectUri(options) || 'http://127.0.0.1'} (handled automatically)`
-            : 'Optional redirect URL'
+            : translate('apiClient.oauth2.optionalRedirectUrl')
         "
         @update:modelValue="
           (v) => {
@@ -471,7 +480,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2SecretsUpdate({ 'x-scalar-secret-redirect-uri': v })
           }
         ">
-        Redirect URL
+        {{ translate('apiClient.oauth2.redirectUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -488,7 +497,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-username': v })
           ">
-          Username
+          {{ translate('apiClient.oauth2.username') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
 
@@ -501,7 +510,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-password': v })
           ">
-          Password
+          {{ translate('apiClient.oauth2.password') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
     </template>
@@ -514,7 +523,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-client-id': v })
         ">
-        Client ID
+        {{ translate('apiClient.oauth2.clientID') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -528,7 +537,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           (v) =>
             handleOauth2SecretsUpdate({ 'x-scalar-secret-client-secret': v })
         ">
-        Client Secret
+        {{ translate('apiClient.oauth2.clientSecret') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -544,7 +553,7 @@ const handleSecretLocationUpdate = (value: string): void => {
               'x-usePkce': v as XusePkce['x-usePkce'],
             })
         ">
-        Use PKCE
+        {{ translate('apiClient.oauth2.usePKCE') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -559,7 +568,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         placeholder="header"
         readOnly
         @update:modelValue="(v) => handleSecretLocationUpdate(v)">
-        Credentials Location
+        {{ translate('apiClient.oauth2.credentialsLocation') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -569,9 +578,9 @@ const handleSecretLocationUpdate = (value: string): void => {
         :flow
         :flowType="type"
         :selectedScopes
+        @delete:scope="(v) => emits('delete:scope', v)"
         @update:selectedScopes="(v) => emits('update:selectedScopes', v)"
-        @upsert:scope="(v) => emits('upsert:scope', v)"
-        @delete:scope="(v) => emits('delete:scope', v)" />
+        @upsert:scope="(v) => emits('upsert:scope', v)" />
     </DataTableRow>
 
     <DataTableRow
@@ -586,7 +595,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="clearOauth2Secrets">
-          Clear
+          {{ translate('apiClient.oauth2.clear') }}
         </ScalarButton>
 
         <ScalarButton
@@ -595,7 +604,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleAuthorize">
-          Authorize
+          {{ translate('apiClient.oauth2.authorize') }}
         </ScalarButton>
       </div>
     </DataTableRow>

@@ -13,7 +13,13 @@
  * listeners onto it directly.
  */
 import { useTooltip } from '@scalar/components/tooltip'
+import type { TranslateFn } from '@scalar/localization'
 import { computed, h, ref, render } from 'vue'
+
+import {
+  useLocalization,
+  type ApiClientTranslationKey,
+} from '@/v2/features/localization'
 
 import type { PillContext } from './pill-context'
 
@@ -22,9 +28,15 @@ const props = defineProps<{
   context: PillContext
   /** The pill element to attach the tooltip to */
   target: HTMLElement
+  /** Carry the owning editor's locale into this separately mounted Vue app. */
+  translate?: TranslateFn<ApiClientTranslationKey>
 }>()
 
+const { translate: fallbackTranslate } = useLocalization()
+
 defineOptions({ name: 'PillTooltipHost' })
+
+const translate = props.translate ?? fallbackTranslate
 
 const isContextFn = props.context.type === 'contextFunction'
 
@@ -44,7 +56,7 @@ const contextTooltipHtml = computed(() => {
       h(
         'div',
         { class: 'text-[color:var(--scalar-color-3)] text-[10px] font-normal' },
-        'Computed at request execution',
+        translate('apiClient.pillTooltipHost.computedAtExecution'),
       ),
     ]),
     el,
@@ -53,7 +65,11 @@ const contextTooltipHtml = computed(() => {
 })
 
 const environmentTooltipText = computed(() =>
-  props.context.type === 'environment' ? props.context.value : '',
+  props.context.type === 'environment'
+    ? props.context.isDefined
+      ? props.context.value
+      : translate('apiClient.pillTooltipHost.noValue')
+    : '',
 )
 
 const targetRef = ref<HTMLElement>(props.target)
@@ -68,6 +84,7 @@ useTooltip({
 })
 </script>
 
+<!-- eslint-disable vue/valid-template-root -- Renderless: the tooltip attaches to the supplied target. -->
 <template>
   <!-- Renderless: behaviour attaches to props.target via useTooltip -->
 </template>
