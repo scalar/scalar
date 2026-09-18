@@ -103,6 +103,20 @@ describe('upgrade', () => {
     expect(input).toStrictEqual(before)
   })
 
+  it.each(['3.1', '3.1.0-rc1'])('reports malformed version %s through the public API', (openapi) => {
+    const input = { openapi, info: { title: 'API', version: '1' }, paths: {} }
+    expect(() => upgrade(input, '3.2')).toThrow(`invalid OpenAPI version "${openapi}"`)
+    expect(input.openapi).toBe(openapi)
+  })
+
+  it('reports alias expansion limits without modifying the caller document', () => {
+    const leaf = Array.from({ length: 2000 }, () => 'x')
+    const input = { openapi: '3.1.0', 'x-aliases': Array.from({ length: 1001 }, () => leaf) }
+    expect(() => upgrade(input, '3.2')).toThrow('excessive YAML alias expansion')
+    expect(input.openapi).toBe('3.1.0')
+    expect(input['x-aliases'][0]).toBe(leaf)
+  })
+
   it('preserves existing 3.2 features and literal values', () => {
     const input = {
       openapi: '3.2.0',
