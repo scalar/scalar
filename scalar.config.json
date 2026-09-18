@@ -4066,6 +4066,12 @@
                     "filepath": "documentation/guides/mock-server/data-seeding.md",
                     "type": "page"
                   },
+                  "asyncapi": {
+                    "title": "AsyncAPI",
+                    "description": "Mock event-driven APIs described with AsyncAPI: WebSocket and SSE channels served as live endpoints with generated messages.",
+                    "filepath": "documentation/guides/mock-server/asyncapi.md",
+                    "type": "page"
+                  },
                   "changelog": {
                     "title": "Release notes",
                     "filepath": "packages/mock-server/RELEASE_NOTES.md",
