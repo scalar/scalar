@@ -202,7 +202,7 @@ const mergeParameters = (
  */
 const compileSchema = (
   ajv: Ajv2020,
-  schema: Record<string, unknown> | null | undefined,
+  schema: Record<string, unknown> | boolean | null | undefined,
   label: string,
 ): ValidateFunction | null => {
   if (schema === null || schema === undefined) {

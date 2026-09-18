@@ -10,7 +10,7 @@ import { isParamDisabled } from '@/request-example/builder/header/is-param-disab
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import { getExample } from '@/request-example/builder/helpers/get-example'
 import { getExampleFromSchema } from '@/request-example/builder/helpers/get-example-from-schema'
-import type { EncodingObject, ParameterObject } from '@/schemas/v3.2/strict/openapi-document'
+import type { EncodingObject, ExampleObject, ParameterObject } from '@/schemas/v3.2/strict/openapi-document'
 
 /** A whole query string, kept separate from named parameters until URL serialization. */
 export type QuerystringParameter = {
@@ -19,6 +19,23 @@ export type QuerystringParameter = {
   encoding?: Record<string, EncodingObject>
   /** URI-ready parameter examples, serialized media examples, or data requiring media serialization. */
   kind: 'uri-ready' | 'serialized' | 'data'
+}
+
+/** Classify provenance before serialization so generated strings remain data, not pre-serialized media. */
+const getQuerystringValueKind = (
+  example: ExampleObject | undefined,
+  source: 'parameter' | 'media',
+): QuerystringParameter['kind'] => {
+  if (example?.serializedValue !== undefined) {
+    return source === 'parameter' ? 'uri-ready' : 'serialized'
+  }
+  if (example?.dataValue !== undefined) {
+    return 'data'
+  }
+  if (typeof example?.value === 'string') {
+    return 'serialized'
+  }
+  return 'data'
 }
 
 /**
@@ -45,23 +62,20 @@ export const getQuerystringParameter = (
     return undefined
   }
   const mediaType = getResolvedRef(media)
-  const example = getExample(parameter, exampleName, contentType)
+  // Resolve parameter examples first rather than probing their identity after media selection.
+  const parameterExample = getExample({ ...parameter, content: undefined }, exampleName, undefined)
+  // Schema-generated strings are data, so only authored media examples participate here.
+  const example = parameterExample ?? getExample({ ...mediaType, schema: undefined }, exampleName, contentType)
   if (!includeDisabled && isParamDisabled(parameter, example, defaultDisabled)) {
     return undefined
   }
-  const parameterExample = getExample({ ...parameter, content: undefined }, exampleName, undefined)
   const value = example?.serializedValue ?? (example?.dataValue !== undefined ? example.dataValue : example?.value)
   const schema = getResolvedRef(mediaType?.schema)
   return {
     value: value !== undefined ? value : schema ? getExampleFromSchema(schema) : '',
     contentType,
     encoding: mediaType?.encoding,
-    kind:
-      parameterExample?.serializedValue !== undefined
-        ? 'uri-ready'
-        : example?.serializedValue !== undefined || (example?.dataValue === undefined && typeof value === 'string')
-          ? 'serialized'
-          : 'data',
+    kind: getQuerystringValueKind(example, parameterExample === undefined ? 'media' : 'parameter'),
   }
 }
 
