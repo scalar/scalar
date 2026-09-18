@@ -623,7 +623,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         oauth2MetadataUrl: optional(
           string({
             typeComment:
-              'URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP on loopback for local development.',
+              'URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP for local development URLs.',
           }),
         ),
       },

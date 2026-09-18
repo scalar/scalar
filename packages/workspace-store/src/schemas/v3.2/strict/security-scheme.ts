@@ -87,7 +87,7 @@ const OAuth2 = compose(
     type: Type.Literal('oauth2'),
     /** REQUIRED. An object containing configuration information for the flow types supported. */
     flows: OAuthFlowsObjectRef,
-    /** URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP on loopback for local development. Added in OpenAPI 3.2. */
+    /** URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP for local development URLs. Added in OpenAPI 3.2. */
     oauth2MetadataUrl: Type.Optional(Type.String()),
   }),
   XDefaultScopesSchema,
@@ -98,7 +98,7 @@ export type OAuth2Object = Description & {
   type: 'oauth2'
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: OAuthFlowsObject
-  /** URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP on loopback for local development. Added in OpenAPI 3.2. */
+  /** URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP for local development URLs. Added in OpenAPI 3.2. */
   oauth2MetadataUrl?: string
 } & XDefaultScopes
 

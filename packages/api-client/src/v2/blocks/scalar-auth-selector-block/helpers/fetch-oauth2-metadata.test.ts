@@ -21,32 +21,53 @@ describe('fetch-oauth2-metadata', () => {
     expect(url.searchParams.get('scalar_url')).toBe('https://auth.example.com/metadata')
   })
 
-  it.each(['http://example.com/metadata', '', 'not a URL'])(
-    'rejects invalid metadata URL %s before fetching',
-    async (url) => {
-      const customFetch = vi.fn()
-      const [error, data] = await fetchOAuth2Metadata(url, '', customFetch)
-      expect(error).toBeInstanceOf(Error)
-      expect(data).toBeNull()
-      expect(customFetch.mock.calls).toStrictEqual([])
-    },
-  )
+  it.each([
+    'http://example.com/metadata',
+    'ftp://localhost/metadata',
+    'file:///metadata',
+    '/metadata',
+    '',
+    'not a URL',
+  ])('rejects invalid metadata URL %s before fetching', async (url) => {
+    const customFetch = vi.fn()
+    const [error, data] = await fetchOAuth2Metadata(url, '', customFetch)
+    expect(error).toBeInstanceOf(Error)
+    expect(data).toBeNull()
+    expect(customFetch.mock.calls).toStrictEqual([])
+  })
 
-  it.each([{}, null, { token_endpoint: 123 }, { token_endpoint: 'http://example.com/token' }])(
-    'rejects invalid metadata %j',
-    async (metadata) => {
-      const [error, data] = await fetchOAuth2Metadata(
-        'https://example.com/metadata',
-        '',
-        vi.fn().mockResolvedValue(Response.json(metadata)),
-      )
-      expect(error).toBeInstanceOf(Error)
-      expect(data).toBeNull()
-    },
-  )
+  it.each([
+    {},
+    null,
+    { token_endpoint: 123 },
+    { token_endpoint: 'http://example.com/token' },
+    { token_endpoint: 'ftp://localhost/token' },
+    { authorization_endpoint: 'file:///authorize' },
+    { token_endpoint: '/token' },
+  ])('rejects invalid metadata %j', async (metadata) => {
+    const [error, data] = await fetchOAuth2Metadata(
+      'https://example.com/metadata',
+      '',
+      vi.fn().mockResolvedValue(Response.json(metadata)),
+    )
+    expect(error).toBeInstanceOf(Error)
+    expect(data).toBeNull()
+  })
 
-  it.each(['localhost', '127.0.0.1', '[::1]'])('accepts HTTP metadata and endpoints on %s', async (host) => {
-    const metadata = { token_endpoint: `http://${host}:5052/token` }
+  it.each([
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    '0.0.0.0',
+    'auth.test',
+    'auth.example',
+    'auth.invalid',
+    'auth.localhost',
+  ])('accepts HTTP metadata and endpoints on %s', async (host) => {
+    const metadata = {
+      authorization_endpoint: `http://${host}:5052/authorize`,
+      token_endpoint: `http://${host}:5052/token`,
+    }
     expect(
       await fetchOAuth2Metadata(`http://${host}:5052/metadata`, '', vi.fn().mockResolvedValue(Response.json(metadata))),
     ).toStrictEqual([null, metadata])
