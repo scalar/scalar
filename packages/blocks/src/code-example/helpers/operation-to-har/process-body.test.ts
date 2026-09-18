@@ -1,3 +1,5 @@
+import { snippetz } from '@scalar/snippetz'
+import { getExampleFromBody } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -20,6 +22,32 @@ describe('processBody', () => {
   ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
     const requestBody = { content: { [contentType]: { example: value } } }
     expect(processBody({ requestBody, contentType })).toStrictEqual({ mimeType: contentType, text: expected })
+  })
+
+  it.each([
+    { type: 'integer', value: 0, contentType: 'application/json', text: '0' },
+    { type: 'boolean', value: false, contentType: 'application/json', text: 'false' },
+    { type: 'string', value: '', contentType: 'text/plain', text: '' },
+  ] as const)('keeps generated $value in the request example and cURL body', ({ type, value, contentType, text }) => {
+    const requestBody = { content: { [contentType]: { schema: { type, const: value } } } }
+    expect(getExampleFromBody(requestBody, contentType, 'default')).toStrictEqual({ value })
+    const postData = processBody({ requestBody, contentType })
+    expect(postData).toStrictEqual({ mimeType: contentType, text })
+    expect(
+      snippetz().print('shell', 'curl', {
+        url: 'https://example.com',
+        method: 'POST',
+        headers: [{ name: 'Content-Type', value: contentType }],
+        postData,
+      }),
+    ).toBe(
+      [
+        'curl https://example.com',
+        '--request POST',
+        `--header 'Content-Type: ${contentType}'`,
+        `--data '${text}'`,
+      ].join(' \\\n  '),
+    )
   })
 
   it('includes a framed streaming body in generated code samples', () => {

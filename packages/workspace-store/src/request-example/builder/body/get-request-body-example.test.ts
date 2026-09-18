@@ -3,7 +3,7 @@ import {
   type RequestBodyObject,
   RequestBodyObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
@@ -25,6 +25,28 @@ describe('get-request-body-example', () => {
     expect(getExampleFromBody(body, contentType, 'default')).toStrictEqual({ value: expected })
   })
 
+  it.each([
+    { type: 'integer', value: 0 },
+    { type: 'boolean', value: false },
+    { type: 'string', value: '' },
+  ] as const)('preserves generated non-streaming $type examples', ({ type, value }) => {
+    const body = { content: { 'application/json': { schema: { type, const: value } } } }
+    expect(getExampleFromBody(body, 'application/json', 'default')).toStrictEqual({ value })
+  })
+
+  it('reports an authored SSE example whose records are all omitted', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const body = { content: { 'text/event-stream': { example: [{ unknown: true }] } } }
+      expect(getExampleFromBody(body, 'text/event-stream', 'default')).toStrictEqual({ value: '' })
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'Skipped 1 SSE example item(s) with no valid event, id, retry, or data fields.',
+      )
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('generates a framed example from a referenced stream item schema', () => {
     const body = {
       content: {
@@ -39,7 +61,7 @@ describe('get-request-body-example', () => {
     expect(getExampleFromBody(body, 'application/jsonl', 'default')).toStrictEqual({ value: '{"id":42}\n' })
   })
 
-  it('keeps explicit stream examples unchanged', () => {
+  it('keeps explicit wire-format string examples unchanged', () => {
     const body = {
       content: {
         'application/jsonl': {
