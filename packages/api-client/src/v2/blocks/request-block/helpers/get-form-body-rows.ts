@@ -130,11 +130,10 @@ export const getFormBodyRows = (
   contentType: string,
   formBodySchema?: SchemaObject,
 ): TableRow[] => {
+  // Forms use structured data even when the raw example also supplies wire text.
+  const value = example?.dataValue !== undefined ? example.dataValue : example?.value
   // We only need the rows for formData
-  if (
-    !example?.value ||
-    (contentType !== 'multipart/form-data' && contentType !== 'application/x-www-form-urlencoded')
-  ) {
+  if (!value || (contentType !== 'multipart/form-data' && contentType !== 'application/x-www-form-urlencoded')) {
     return []
   }
 
@@ -221,8 +220,8 @@ export const getFormBodyRows = (
   }
 
   // We have form data stored as an array
-  if (Array.isArray(example.value)) {
-    return example.value.flatMap((exampleValue) => {
+  if (Array.isArray(value)) {
+    return value.flatMap((exampleValue) => {
       if (isObject(exampleValue)) {
         const name = String(exampleValue.name)
         if (contentType !== 'multipart/form-data') {
@@ -247,15 +246,13 @@ export const getFormBodyRows = (
   // We walk the example alongside the schema so example-only properties (top-level extras
   // or undeclared keys inside a nested object) are still visible and editable instead of
   // being silently dropped to whatever the schema happens to declare.
-  if (contentType === 'multipart/form-data' && schemaWithProperties && typeof example.value === 'object') {
-    return collectExampleRows(example.value, schemaWithProperties).flatMap(({ path, value }) =>
-      mapValue(path.join('.'), value),
-    )
+  if (contentType === 'multipart/form-data' && schemaWithProperties && typeof value === 'object') {
+    return collectExampleRows(value, schemaWithProperties).flatMap(({ path, value }) => mapValue(path.join('.'), value))
   }
 
   // We got an object try to convert it to an array of rows
-  if (typeof example.value === 'object' && example.value) {
-    return objectEntries(example.value).flatMap(([key, value]) =>
+  if (typeof value === 'object' && value) {
+    return objectEntries(value).flatMap(([key, value]) =>
       contentType === 'multipart/form-data'
         ? mapValue(String(key), value)
         : mapRow({ name: String(key), value: stringifyValue(value) }),

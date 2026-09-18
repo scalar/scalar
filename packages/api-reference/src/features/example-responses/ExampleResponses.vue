@@ -97,7 +97,7 @@ const normalizedResponseContent = computed(() =>
   normalizeMimeTypeObject(currentResponse.value?.content),
 )
 
-const currentResponseContentType = computed(() => {
+const currentContentType = computed(() => {
   const content = normalizedResponseContent.value
   const statusCode =
     toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
@@ -107,7 +107,7 @@ const currentResponseContentType = computed(() => {
 })
 
 const currentResponseContent = computed<MediaTypeObject | undefined>(
-  () => normalizedResponseContent.value?.[currentResponseContentType.value],
+  () => normalizedResponseContent.value?.[currentContentType.value],
 )
 
 const hasMultipleExamples = computed<boolean>(
@@ -170,11 +170,9 @@ const changeTab = (index: number) => {
 }
 
 const exampleContent = computed(() =>
-  getExampleContent(
-    currentResponseContent.value,
-    currentExample.value,
-    currentResponseContentType.value,
-  ),
+  getExampleContent(currentResponseContent.value, currentExample.value, {
+    contentType: currentContentType.value,
+  }),
 )
 
 const copyExample = (): void => {

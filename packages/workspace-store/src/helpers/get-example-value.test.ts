@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getExampleValue, getJsonExampleText } from './get-example-value'
+import { getExampleValue, getExplicitExampleText } from './get-example-value'
 
 describe('get-example-value', () => {
   it.each([false, 0, null, '', { id: 1 }])('selects structured data without losing %j', (value) => {
@@ -28,16 +28,20 @@ describe('get-example-value', () => {
   it.each(['application/json', 'application/problem+json; charset=utf-8'])(
     'quotes structured strings for %s',
     (type) => {
-      expect(getJsonExampleText(getExampleValue({ dataValue: '{"id":1}' }), type)).toBe('"{\\"id\\":1}"')
-      expect(getJsonExampleText(getExampleValue({ serializedValue: ' { "id": 1 }\n' }), type)).toBe(' { "id": 1 }\n')
-      expect(getJsonExampleText(getExampleValue({ dataValue: false }), type)).toBe('false')
-      expect(getJsonExampleText(getExampleValue({ dataValue: null }), type)).toBe('null')
+      expect(getExplicitExampleText(getExampleValue({ dataValue: '{"id":1}' }), type)).toBe('"{\\"id\\":1}"')
+      expect(getExplicitExampleText(getExampleValue({ serializedValue: ' { "id": 1 }\n' }), type)).toBe(
+        ' { "id": 1 }\n',
+      )
+      expect(getExplicitExampleText(getExampleValue({ dataValue: false }), type)).toBe('false')
+      expect(getExplicitExampleText(getExampleValue({ dataValue: null }), type)).toBe('null')
     },
   )
 
   it('leaves format-specific encoding to its consumer', () => {
-    expect(getJsonExampleText(getExampleValue({ dataValue: { id: 1 } }), 'application/xml')).toBeUndefined()
-    expect(getJsonExampleText(getExampleValue({ serializedValue: '<id>1</id>' }), 'application/xml')).toBe('<id>1</id>')
-    expect(getJsonExampleText(getExampleValue({ value: 'legacy' }), 'application/json')).toBeUndefined()
+    expect(getExplicitExampleText(getExampleValue({ dataValue: { id: 1 } }), 'application/xml')).toBeUndefined()
+    expect(getExplicitExampleText(getExampleValue({ serializedValue: '<id>1</id>' }), 'application/xml')).toBe(
+      '<id>1</id>',
+    )
+    expect(getExplicitExampleText(getExampleValue({ value: 'legacy' }), 'application/json')).toBeUndefined()
   })
 })

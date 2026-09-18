@@ -7,7 +7,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.2/strict/request-body'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
-import { getExampleValue, getJsonExampleText } from '@/helpers/get-example-value'
+import { getExampleValue, getExplicitExampleText } from '@/helpers/get-example-value'
 
 import { getExampleFromBody } from './get-request-body-example'
 import { getSelectedBodyContentType } from './get-selected-body-content-type'
@@ -106,7 +106,7 @@ export const buildRequestBody = (
     return null
   }
 
-  const explicitText = getJsonExampleText(getExampleValue(example), bodyContentType)
+  const explicitText = getExplicitExampleText(getExampleValue(example), bodyContentType)
   if (explicitText !== undefined) {
     return { mode: 'raw', value: explicitText, contentType: bodyContentType }
   }

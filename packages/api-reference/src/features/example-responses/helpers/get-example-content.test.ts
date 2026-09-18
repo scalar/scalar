@@ -27,7 +27,7 @@ describe('get-example-content', () => {
   })
 
   it('does not JSON-quote structured text responses', () => {
-    expect(getExampleContent(undefined, { dataValue: 'hello' }, 'text/plain')).toBe('hello')
+    expect(getExampleContent(undefined, { dataValue: 'hello' }, { contentType: 'text/plain' })).toBe('hello')
   })
 
   it('keeps legacy formatted JSON examples', () => {

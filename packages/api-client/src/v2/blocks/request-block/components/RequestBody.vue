@@ -13,7 +13,7 @@ import { ScalarIconMagicWand } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import {
   getExampleValue,
-  getJsonExampleText,
+  getExplicitExampleText,
 } from '@scalar/workspace-store/helpers/get-example-value'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
@@ -209,7 +209,7 @@ const bodyValue = computed(() => {
   }
 
   const selected = getExampleValue(example.value)
-  const explicitText = getJsonExampleText(
+  const explicitText = getExplicitExampleText(
     selected,
     selectedContentType.value,
     2,
@@ -248,8 +248,8 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
 
   const selected = getExampleValue(example.value ?? undefined)
   // Structured data is already parsed; parsing strings again changes the payload type.
-  if (selected?.source === 'data') {
-    return { ok: true, value: selected.value }
+  if (example.value?.dataValue !== undefined) {
+    return { ok: true, value: example.value.dataValue }
   }
   const raw = selected?.value
   // An empty body is still form-editable: rows come from the schema.
