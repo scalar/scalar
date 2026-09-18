@@ -1,4 +1,3 @@
-import { json2xml } from '@scalar/helpers/file/json2xml'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -10,6 +9,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
+import { serializeXmlPart } from '../../xml/serialize-xml-part'
 import { MAX_MULTIPART_NESTING } from './multipart-limits'
 import { resolveLeafSchema } from './schema-value-coercion'
 import { hasEncodingStyle, serializeFormPropertyWithEncoding } from './serialize-form-property'
@@ -54,6 +54,8 @@ const defaultContentType = (schema: SchemaObject | undefined, value: unknown): s
   if (value instanceof Blob) {
     return value.type || 'application/octet-stream'
   }
+  // OpenAPI 3.2.1 Encoding Object defaults explicitly treat absent type as binary.
+  // With no schema at all, infer from the example so existing editor values remain usable.
   if (schema && (!('type' in schema) || !schema.type || (schema.type === 'string' && schema.contentEncoding))) {
     return 'application/octet-stream'
   }
@@ -86,6 +88,7 @@ const selectContentType = (encoding: string | undefined, schema: SchemaObject | 
     // Keep parameters from the range while replacing only its wildcard essence.
     return match.replace(/^[^;]+/, preferred.essence)
   }
+  // A nonmatching range cannot supply a concrete wire type; keep the inferred fallback.
   return choices.find((choice) => !parseMimeType(choice).essence.includes('*')) ?? fallback
 }
 
@@ -106,9 +109,7 @@ export const getMultipartItemSchema = (
 const serializePartValue = (value: unknown, contentType?: string, schema?: SchemaObject): string => {
   const subtype = contentType ? parseMimeType(contentType).subtype : undefined
   if ((subtype === 'xml' || subtype?.endsWith('+xml')) && isObject(value)) {
-    // Match the XML generator's fallback without changing the root when properties are added.
-    const rootName = schema?.xml?.name ?? 'root'
-    return json2xml({ [rootName]: unpackProxyObject(value) })
+    return serializeXmlPart(value, schema)
   }
   const json = subtype === 'json' || subtype?.endsWith('+json')
   return json || (value !== null && typeof value === 'object')

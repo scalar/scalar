@@ -5,6 +5,31 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it('includes in snippets XML roots, untyped defaults, and wildcard parameters consistently', () => {
+    const requestBody = {
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ id: 1 }, 'untyped', 'plain'] } },
+          schema: {
+            type: 'array' as const,
+            prefixItems: [
+              { type: 'object' as const, xml: { name: 'user' } },
+              coerceValue(SchemaObjectSchema, {}),
+              { type: 'string' as const },
+            ],
+          },
+          prefixEncoding: [{ contentType: 'application/xml' }, {}, { contentType: 'text/*; charset=utf-8' }],
+        },
+      },
+    }
+    const wire = processBody({ requestBody, example: 'default' })?.text
+    expect(wire).toContain(
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<user>\n  <id>1</id>\n</user>',
+    )
+    expect(wire).toContain('Content-Type: application/octet-stream\r\n\r\nuntyped')
+    expect(wire).toContain('Content-Type: text/plain; charset=utf-8\r\n\r\nplain')
+  })
+
   it('uses the first named multipart example when no name is selected', () => {
     const result = processBody({
       requestBody: {
