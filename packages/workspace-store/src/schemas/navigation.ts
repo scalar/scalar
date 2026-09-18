@@ -1,5 +1,7 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { Type } from '@scalar/typebox'
 import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
+import type { LiteralUnion } from 'type-fest'
 
 import { compose } from '@/schemas/compose'
 import type { InfoObject } from '@/schemas/v3.2/strict/info'
@@ -7,6 +9,13 @@ import type { OperationObject } from '@/schemas/v3.2/strict/operation'
 import { TraversedEntryObjectRef } from '@/schemas/v3.2/strict/ref-definitions'
 import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
 import type { TagObject } from '@/schemas/v3.2/strict/tag'
+
+/**
+ * An operation method, including document-defined extension methods.
+ * Known methods retain editor completion; the open string branch still requires
+ * consumers to handle unknown methods rather than rely on an exhaustive switch.
+ */
+export type OperationMethod = LiteralUnion<HttpMethod, string>
 
 export const NavigationBaseSchemaDefinition = Type.Object({
   id: Type.String(),
@@ -97,7 +106,7 @@ export const TraversedOperationSchemaDefinition = compose(
 export type TraversedOperation = BaseSchema & {
   type: 'operation'
   ref: string
-  method: string
+  method: OperationMethod
   path: string
   isDeprecated?: boolean
   children?: TraversedEntry[]
@@ -209,7 +218,7 @@ export const TraversedWebhookSchemaDefinition = compose(
 export type TraversedWebhook = BaseSchema & {
   type: 'webhook'
   ref: string
-  method: string
+  method: OperationMethod
   name: string
   isDeprecated?: boolean
 }
@@ -343,7 +352,7 @@ type OperationProps = {
   parentId: string
   operation: OperationObject
   path: string
-  method: string
+  method: OperationMethod
   type: 'operation'
   parentTag?: ParentTag
 }
@@ -352,7 +361,7 @@ type WebhookProps = {
   parentId: string
   webhook?: OperationObject
   name: string
-  method?: string
+  method?: OperationMethod
   type: 'webhook'
   parentTag?: ParentTag
 }

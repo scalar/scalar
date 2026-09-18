@@ -5,7 +5,11 @@ import { type ApiReferenceConfigurationRaw, DEFAULT_MODELS_SECTION_LABEL } from 
 import type { TraverseSpecOptions } from '@/navigation/types'
 import type { IdGenerator } from '@/schemas/navigation'
 
-/** Fixed fields retain their existing links; authored variants need a distinct namespace. */
+/**
+ * Fixed fields retain their existing links; authored variants need a distinct namespace.
+ * Extension methods retain exact case because HTTP method tokens are case-sensitive.
+ * Normalizing COPY and copy would collapse distinct operations onto the same anchor.
+ */
 const getMethodId = (method: string | undefined): string | undefined =>
   isHttpMethod(method)
     ? method === method.toLowerCase()
