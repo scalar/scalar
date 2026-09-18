@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { createRefNode } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
@@ -62,10 +63,7 @@ export const inferDiscriminatorMappingComposition = (
         return undefined
       }
 
-      return {
-        $ref: ref,
-        '$ref-value': refValue,
-      }
+      return createRefNode(ref, refValue)
     })
     .filter(isDefined)
 

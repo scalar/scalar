@@ -50,6 +50,19 @@ export function getResolvedRef<Node, Result>(
 }
 
 /**
+ * Builds the resolved `$ref` wrapper the store produces for a reference.
+ *
+ * Consumers that synthesize a reference rather than read one — for example a `oneOf` inferred from a
+ * bare `discriminator.mapping` — go through this so the `$ref-value` key is written in a single
+ * place. How a resolved value is attached to a reference is an implementation detail of the store,
+ * so keeping it here means a change to that mechanism does not have to be mirrored across packages.
+ */
+export const createRefNode = <Node>(ref: string, value: Node): { $ref: string; '$ref-value': Node } => ({
+  $ref: ref,
+  '$ref-value': value,
+})
+
+/**
  * Type helper we can use if we have getResolvedRef higher in the stack
  */
 export type Dereference<T> = T extends { $ref: string; '$ref-value'?: infer V } ? (V extends object ? V : never) : T

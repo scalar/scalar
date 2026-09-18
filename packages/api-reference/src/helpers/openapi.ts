@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { type NodeInput, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   MediaTypeObject,
   OpenApiDocument,
@@ -17,11 +17,10 @@ const isSchemaObject = (value: unknown): value is SchemaObject => typeof value =
  * Returns undefined when a reference exists but has not been resolved yet.
  */
 function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject | undefined {
-  if (typeof ref === 'object' && ref !== null && '$ref' in ref) {
-    return isSchemaObject(ref['$ref-value']) ? ref['$ref-value'] : undefined
-  }
-
-  return ref
+  // A reference can also land on a boolean schema, which carries no properties to walk.
+  return getResolvedRef(ref as NodeInput<SchemaObject>, (node) =>
+    isSchemaObject(node['$ref-value']) ? node['$ref-value'] : undefined,
+  )
 }
 
 function pushUnique(target: string[], value: string | undefined): void {

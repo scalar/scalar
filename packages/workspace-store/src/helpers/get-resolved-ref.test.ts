@@ -1,7 +1,7 @@
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
-import { type Dereference, type RefNode, getResolvedRef } from './get-resolved-ref'
+import { type Dereference, type RefNode, createRefNode, getResolvedRef } from './get-resolved-ref'
 
 describe('get-resolved-ref', () => {
   it('keeps unresolved references optional in the return type', () => {
@@ -302,6 +302,22 @@ describe('get-resolved-ref', () => {
       expect(result).toHaveLength(2)
       expect((result as any)[0].name).toBe('User 1')
       expect((result as any)[1].name).toBe('User 2')
+    })
+  })
+
+  describe('createRefNode', () => {
+    it('builds a node that getResolvedRef resolves back to the value', () => {
+      const value = { type: 'object' as const }
+      const node = createRefNode('#/components/schemas/User', value)
+
+      expect(node.$ref).toBe('#/components/schemas/User')
+      expect(getResolvedRef(node)).toBe(value)
+    })
+
+    it('keeps the value type on the resolved node', () => {
+      const node = createRefNode('#/components/schemas/User', { name: 'John' })
+
+      expectTypeOf(getResolvedRef(node)).toEqualTypeOf<{ name: string }>()
     })
   })
 })

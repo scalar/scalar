@@ -1,4 +1,4 @@
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { type NodeInput, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ParameterObject,
   ParameterWithSchemaObject,
@@ -14,11 +14,7 @@ type ParameterWithRequiredSchema = ParameterWithSchemaObject & {
 const isParameterWithSchema = (parameter: ParameterObject): parameter is ParameterWithRequiredSchema =>
   'schema' in parameter && parameter.schema !== undefined
 
-const resolveSchema = (schema: unknown): SchemaObject | undefined => {
-  const resolvedSchema = getResolvedRef(schema as SchemaObject | { '$ref': string; '$ref-value': SchemaObject })
-
-  return resolvedSchema
-}
+const resolveSchema = (schema: unknown): SchemaObject | undefined => getResolvedRef(schema as NodeInput<SchemaObject>)
 
 const toFlattenedDeepObjectParameter = (
   parameter: ParameterWithRequiredSchema,

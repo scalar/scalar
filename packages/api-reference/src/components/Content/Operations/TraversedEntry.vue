@@ -6,6 +6,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedEntry,
@@ -119,7 +120,7 @@ const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
  * Keep schema wrappers with resolved targets while excluding unresolved sparse chunk references.
  */
 const isSchemaObject = (value: unknown): value is SchemaObject =>
-  isObject(value) && (!('$ref' in value) || value['$ref-value'] !== undefined)
+  isObject(value) && getResolvedRef(value) !== undefined
 
 /**
  * Resolves a model entry to the schema the Model component renders.
