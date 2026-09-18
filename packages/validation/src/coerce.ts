@@ -65,6 +65,8 @@ type ScoringFrame = {
 /**
  * Scores are shared only within one coercion call. Evaluate expressions must return stable results
  * without mutating their input during scoring; completed scores assume unchanged value/schema pairs.
+ * coerceInner constructs result containers instead of mutating inputs, making reuse sound for the
+ * whole call. Keep this context per-call even when callers supply their own output/lazy caches.
  */
 type ScoringContext = {
   pairs: WeakMap<object, Map<Schema, ScoringPair>>
