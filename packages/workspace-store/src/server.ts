@@ -107,7 +107,7 @@ const BUNDLED_EXTERNAL_KEYS = [bundleExtensions.externalDocuments, bundleExtensi
  * document loses the operations it keeps in its other files.
  *
  * Use the normalized source so external boolean schema targets keep their converted semantics.
- * The source has already been cloned before coercion, so these buckets do not alias caller data.
+ * Changed targets were copied during normalization; unchanged buckets remain shared and are not mutated here.
  */
 const preserveBundledExternals = (source: Record<string, unknown>, target: Record<string, unknown>): void => {
   for (const key of BUNDLED_EXTERNAL_KEYS) {
@@ -535,11 +535,8 @@ export async function createServerWorkspaceStore(
     }
 
     const upgradedDocument = upgrade(document, '3.1')
-    // Normalization mutates schema positions, including referenced targets in x-ext. Clone the whole
-    // graph to preserve caller data and shared references; cloning only the root would still alias
-    // bundled targets. This deliberately adds O(document size) memory, including x-ext, and retains
-    // deepClone's recursive depth limit. A copy-on-write normalizer would avoid this ingestion cost.
-    const normalizedDocument = normalizeBooleanSchemas(deepClone(upgradedDocument))
+    // Copy only containers changed by normalization; unchanged x-ext graphs remain shared.
+    const normalizedDocument = normalizeBooleanSchemas(upgradedDocument)
     const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizedDocument)
     preserveBundledExternals(normalizedDocument, documentV3)
 

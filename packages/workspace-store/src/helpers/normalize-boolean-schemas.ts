@@ -1,8 +1,6 @@
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
-import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
-import { setValueAtPath } from '@scalar/json-magic/helpers/set-value-at-path'
 
 const schemaMaps = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'])
 const schemaArrays = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems'])
@@ -38,62 +36,168 @@ const openApiMaps = new Set([
 ])
 const opaqueValues = new Set(['example', 'examples', 'default', 'enum', 'const', 'value', 'dataValue'])
 
+type Node = {
+  source: object
+  parent?: { node: Node; key: string }
+  otherParents?: { node: Node; key: string }[]
+  replacements?: Map<string, unknown>
+  copy?: object
+}
+
+type Task = { node: Node; kind: 'schema' } | { node: Node; kind: 'document'; path: string[]; mapDepth: number }
+
 /**
- * Normalize boolean schemas in place before the store's object-only coercion.
- * The internal marker represents an untyped schema: true accepts every value,
- * while false is the negation of that schema. Boolean annotations and examples
- * remain literal values, and additionalProperties already supports booleans.
+ * Normalize boolean schemas without mutating caller-owned data.
+ * Only changed schema containers and their ancestors are copied. Unchanged bundled
+ * documents and opaque example/extension payloads retain their identity. Iterative
+ * discovery and copy propagation preserve cycles without recursive cloning.
+ * The marker represents an untyped schema; false is its negation. additionalProperties
+ * already accepts booleans and therefore retains its authored representation.
  */
 export const normalizeBooleanSchemas = <T extends Record<string, unknown>>(document: T): T => {
-  const visitedSchemas = new WeakSet<object>()
-  const visitedObjects = new WeakSet<object>()
-  const normalizeSchema = (value: unknown): unknown => {
+  const nodes = new WeakMap<object, Node>()
+  const changed = new Set<Node>()
+  const schemas = new WeakSet<object>()
+  const documents = new WeakSet<object>()
+  const tasks: Task[] = []
+  const getNode = (source: object): Node => {
+    const existing = nodes.get(source)
+    if (existing) {
+      return existing
+    }
+    const node: Node = { source }
+    nodes.set(source, node)
+    return node
+  }
+  const root = getNode(document)
+  const link = (parent: Node, key: string, child: object): Node => {
+    const node = getNode(child)
+    if (!node.parent) {
+      node.parent = { node: parent, key }
+    } else if (node.parent.node !== parent || node.parent.key !== key) {
+      const parents = (node.otherParents ??= [])
+      if (!parents.some((edge) => edge.node === parent && edge.key === key)) {
+        parents.push({ node: parent, key })
+      }
+    }
+    return node
+  }
+  const schema = (parent: Node, key: string, value: unknown): void => {
     if (typeof value === 'boolean') {
-      return value ? { __scalar_: '' } : { __scalar_: '', not: { __scalar_: '' } }
+      ;(parent.replacements ??= new Map()).set(
+        key,
+        value ? { __scalar_: '' } : { __scalar_: '', not: { __scalar_: '' } },
+      )
+      changed.add(parent)
+    } else if (isObject(value)) {
+      tasks.push({ node: link(parent, key, value), kind: 'schema' })
     }
-    if (!isObject(value) || visitedSchemas.has(value)) return value
-    visitedSchemas.add(value)
-    // Bundled targets retain their original shape until a schema reference supplies the context.
-    if (typeof value.$ref === 'string' && value.$ref.startsWith('#/')) {
-      const pointer = value.$ref.slice(1)
-      const target = getValueAtPath(document, parseJsonPointerSegments(pointer))
-      if (typeof target === 'boolean' || isObject(target)) {
-        setValueAtPath(document, pointer, normalizeSchema(target))
-      }
-    }
-    for (const [key, child] of Object.entries(value)) {
-      if (schemaMaps.has(key) && isObject(child)) {
-        for (const name of Object.keys(child)) child[name] = normalizeSchema(child[name])
-      } else if (schemaArrays.has(key) && Array.isArray(child)) {
-        value[key] = child.map(normalizeSchema)
-      } else if (childSchemas.has(key)) {
-        value[key] = normalizeSchema(child)
-      } else if (
-        ['additionalProperties', 'unevaluatedProperties', 'unevaluatedItems'].includes(key) &&
-        isObject(child)
-      ) {
-        value[key] = normalizeSchema(child)
-      }
-    }
-    return value
   }
-  const visit = (value: unknown, path: string[]): void => {
-    if (!value || typeof value !== 'object' || visitedObjects.has(value)) return
-    visitedObjects.add(value)
-    for (const [key, child] of Object.entries(value)) {
+  const reference = (pointer: string): void => {
+    const segments = parseJsonPointerSegments(pointer)
+    let parent = root
+    for (const [index, key] of segments.entries()) {
+      // A local reference cannot reach inherited properties or prototype setters.
+      if (!Object.hasOwn(parent.source, key)) {
+        return
+      }
+      const value: unknown = Reflect.get(parent.source, key)
+      if (index === segments.length - 1) {
+        schema(parent, key, value)
+      } else if (value !== null && typeof value === 'object') {
+        parent = link(parent, key, value)
+      } else {
+        return
+      }
+    }
+  }
+
+  tasks.push({ node: root, kind: 'document', path: [], mapDepth: 0 })
+  while (tasks.length > 0) {
+    const task = tasks.pop()
+    if (!task) {
+      break
+    }
+    const { node } = task
+    const visited = task.kind === 'schema' ? schemas : documents
+    if (visited.has(node.source)) {
+      continue
+    }
+    visited.add(node.source)
+    if (task.kind === 'schema') {
+      const value = node.source as Record<string, unknown>
+      if (typeof value.$ref === 'string' && value.$ref.startsWith('#/')) {
+        reference(value.$ref.slice(1))
+      }
+      for (const [key, child] of Object.entries(value)) {
+        if ((schemaMaps.has(key) && isObject(child)) || (schemaArrays.has(key) && Array.isArray(child))) {
+          const container = link(node, key, child)
+          for (const [name, nested] of Object.entries(child)) {
+            schema(container, name, nested)
+          }
+        } else if (childSchemas.has(key)) {
+          schema(node, key, child)
+        } else if (
+          ['additionalProperties', 'unevaluatedProperties', 'unevaluatedItems'].includes(key) &&
+          isObject(child)
+        ) {
+          schema(node, key, child)
+        }
+      }
+      continue
+    }
+    const { path } = task
+    for (const [key, child] of Object.entries(node.source)) {
       const childPath = [...path, key]
-      const isMapEntry = openApiMaps.has(path.at(-1) ?? '') || path.at(-2) === 'callbacks'
+      const isMapEntry = task.mapDepth > 0
       if (key === 'schemas' && path.at(-1) === 'components' && isObject(child)) {
-        for (const name of Object.keys(child)) child[name] = normalizeSchema(child[name])
+        const container = link(node, key, child)
+        for (const [name, nested] of Object.entries(child)) {
+          schema(container, name, nested)
+        }
       } else if ((key === 'schema' || key === 'itemSchema') && !isMapEntry && isSchemaPath(childPath)) {
-        ;(value as Record<string, unknown>)[key] = normalizeSchema(child)
+        schema(node, key, child)
       } else if (isMapEntry || (!opaqueValues.has(key) && (!key.startsWith('x-') || key === 'x-ext'))) {
-        // Vendor extension payloads are opaque data. The bundler's x-ext is the exception because
-        // it contains external OpenAPI documents and targets reached through schema references.
-        visit(child, childPath)
+        // Vendor extensions are opaque. x-ext additionally contains bundled documents
+        // and schema targets whose context can be supplied by a local reference.
+        if (child !== null && typeof child === 'object') {
+          tasks.push({
+            node: link(node, key, child),
+            kind: 'document',
+            path: childPath,
+            mapDepth: isMapEntry ? task.mapDepth - 1 : key === 'callbacks' ? 2 : openApiMaps.has(key) ? 1 : 0,
+          })
+        }
       }
     }
   }
-  visit(document, [])
-  return document
+
+  const forEachParent = (node: Node, callback: (parent: { node: Node; key: string }) => void): void => {
+    if (node.parent) {
+      callback(node.parent)
+    }
+    node.otherParents?.forEach(callback)
+  }
+  // Set iteration also visits newly added ancestors, including shared/cyclic parents.
+  for (const node of changed) {
+    forEachParent(node, (parent) => changed.add(parent.node))
+  }
+  for (const node of changed) {
+    node.copy = Array.isArray(node.source) ? [] : {}
+  }
+  for (const node of changed) {
+    forEachParent(node, (parent) => (parent.node.replacements ??= new Map()).set(parent.key, node.copy))
+  }
+  for (const node of changed) {
+    for (const [key, value] of Object.entries(node.source)) {
+      // Define an own data property so authored keys such as __proto__ remain data.
+      Object.defineProperty(node.copy, key, {
+        value: node.replacements?.has(key) ? node.replacements.get(key) : value,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      })
+    }
+  }
+  return (root.copy ?? document) as T
 }
