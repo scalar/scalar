@@ -4,7 +4,12 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { type OpenApiRenderOptions, createMarkdownFromOpenApi, createOpenApiMarkdownRenderer } from './index'
+import {
+  type OpenApiRenderOptions,
+  createHtmlFromOpenApi,
+  createMarkdownFromOpenApi,
+  createOpenApiMarkdownRenderer,
+} from './index'
 
 const document = {
   openapi: '3.1.0',
@@ -84,6 +89,12 @@ describe('create-openapi-markdown-renderer', () => {
     expect(operation).toContain('limit')
     expect(operation).not.toContain('Create pet')
     expect(operation).not.toContain('Pet created event')
+  })
+
+  it('keeps the HTML API available on demand', async () => {
+    const renderer = await createOpenApiMarkdownRenderer(document)
+    expect(await renderer.renderHtml({ introduction: true })).toContain('<h1>Pets</h1>')
+    expect(await createHtmlFromOpenApi(document, { introduction: true })).toContain('<h1>Pets</h1>')
   })
 
   it('loads file references only during creation and retains the prepared document', async () => {

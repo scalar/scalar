@@ -250,6 +250,10 @@
     "packages/object-utils": {
       "entry": ["src/*/index.ts"]
     },
+    "packages/openapi-to-markdown": {
+      // Run manually to compare the old and new renderers.
+      "entry": ["src/index.ts", "benchmarks/compare.mjs"]
+    },
     "packages/openapi-parser": {
       "entry": [
         //

@@ -71,7 +71,7 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 ### Render multiple pages
 
 Create a reusable renderer when exporting several pages from the same API description.
-It loads, upgrades, and resolves the document once. Each call uses the same selectors as
+It loads, upgrades, coerces, and resolves the document once. Each call uses the same selectors as
 `createMarkdownFromOpenApi`, and omitting a selector renders the complete document.
 
 ```ts
@@ -134,11 +134,10 @@ Schema normalization and description parsing are cached within each renderer. Re
 schema expansion still tracks ancestors and stops at a depth of ten. Output may use tighter
 list spacing and normalized Markdown escaping compared with earlier versions.
 
-### Migrating from the HTML API
+### HTML output
 
-`createHtmlFromOpenApi` and `renderer.renderHtml` have been removed. Use
-`createMarkdownFromOpenApi` or `renderer.render` to generate Markdown. Applications that
-need HTML can render the returned Markdown with their own Markdown renderer.
+`createHtmlFromOpenApi` and `renderer.renderHtml` remain available. They convert the
+Markdown output to HTML on demand, without loading a Vue renderer.
 
 ## Community
 

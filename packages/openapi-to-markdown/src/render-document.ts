@@ -91,11 +91,19 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
           nodes.push(paragraph(link(tag.externalDocs.url, tag.externalDocs.description ?? tag.externalDocs.url)))
       }
     }
+    const sections: string[] = []
+    const flush = (): void => {
+      if (nodes.length) {
+        const tree: Root = { type: 'root', children: nodes.splice(0) }
+        sections.push(serializer.stringify(tree).trimEnd())
+      }
+    }
+    flush()
     for (const group of [
       { title: 'Operations', paths: document.paths, webhook: false },
       { title: 'Webhooks', paths: document.webhooks, webhook: true },
     ]) {
-      const operations: RootContent[] = []
+      let hasOperations = false
       for (const [path, reference] of Object.entries(group.paths ?? {})) {
         const pathItem = getResolvedPathItem(reference)
         if (!pathItem) continue
@@ -103,15 +111,20 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
         forEachPathItemOperation(reference, (method, operation) => {
           entries.push({ method, operation: getResolvedRef(operation, mergeSiblingReferences) })
         })
-        for (const { method, operation } of entries)
-          operations.push(
+        for (const { method, operation } of entries) {
+          if (!hasOperations) {
+            nodes.push(heading(2, text(group.title)))
+            hasOperations = true
+          }
+          nodes.push(
             ...(await renderOperation(document, path, method, pathItem, operation, group.webhook, {
               description,
               schemas,
             })),
           )
+          flush()
+        }
       }
-      if (operations.length) nodes.push(heading(2, text(group.title)), ...operations)
     }
     const models = Object.entries(document.components?.schemas ?? {})
     if (models.length) nodes.push(heading(2, text('Schemas')))
@@ -128,8 +141,9 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
         ...schemas.render(schema),
       )
       if (view.type === 'object') nodes.push(paragraph(strong(text('Example:'))), schemas.example(schema))
+      flush()
     }
-    const tree: Root = { type: 'root', children: nodes }
-    return serializer.stringify(tree)
+    flush()
+    return `${sections.join('\n\n')}\n`
   }
 }
