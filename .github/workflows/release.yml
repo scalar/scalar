@@ -216,6 +216,20 @@ jobs:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference@latest/dist/browser/standalone.js'
           method: 'GET'
 
+      - name: Purge CDN Cache (ESM entry point)
+        if: steps.release-check.outputs.published == 'true'
+        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        with:
+          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/esm.js'
+          method: 'GET'
+
+      - name: Purge CDN Cache (standalone ESM bundle)
+        if: steps.release-check.outputs.published == 'true'
+        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d # v1.16.4
+        with:
+          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference/dist/browser/standalone.esm.js'
+          method: 'GET'
+
       # Record this job's own result so the main-push deploys can gate on the
       # npm publish alone. `always()` ensures it runs even if an earlier step
       # failed, and `job.status` is 'success' or 'failure' at that point.
