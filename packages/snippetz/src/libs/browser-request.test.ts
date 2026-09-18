@@ -15,7 +15,7 @@ describe('browser-request', () => {
     expect(prepared.headers).toStrictEqual([{ name: 'X-Test', value: 'kept' }])
     expect(prepared.withCredentials).toBe(true)
     expect(prepared.setup).toStrictEqual([
-      '// Run on the request origin to set these cookies in the browser.',
+      "// Run on the request origin; document.cookie writes cookies for the current page's domain.",
       'document.cookie = "legacy=a%20b; path=/";',
       'document.cookie = "greeting=Hello%2C%20world!; path=/";',
       'document.cookie = "token=a+b==; path=/";',
@@ -36,7 +36,7 @@ describe('browser-request', () => {
     expect(prepared.headers).toStrictEqual([])
     expect(prepared.withCredentials).toBe(true)
     expect(prepared.setup).toStrictEqual([
-      '// Run on the request origin to set these cookies in the browser.',
+      "// Run on the request origin; document.cookie writes cookies for the current page's domain.",
       'document.cookie = "session=a%20b; path=/";',
       'document.cookie = "token=c+d==; path=/";',
     ])
@@ -55,7 +55,7 @@ describe('browser-request', () => {
     expect(prepared.headers).toStrictEqual([])
     expect(prepared.withCredentials).toBe(true)
     expect(prepared.setup).toStrictEqual([
-      '// Run on the request origin to set these cookies in the browser.',
+      "// Run on the request origin; document.cookie writes cookies for the current page's domain.",
       'document.cookie = "a%3Bb=c%20d; path=/";',
     ])
   })

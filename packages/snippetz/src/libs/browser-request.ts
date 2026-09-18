@@ -33,7 +33,7 @@ export const prepareBrowserRequest = (
   }
   const setup: string[] = []
   if (cookieValues.length) {
-    setup.push('// Run on the request origin to set these cookies in the browser.')
+    setup.push("// Run on the request origin; document.cookie writes cookies for the current page's domain.")
     for (const cookie of cookieValues) {
       setup.push(`document.cookie = ${JSON.stringify(`${cookie}; path=/`)};`)
     }
@@ -79,6 +79,8 @@ export const prepareBrowserRequest = (
     // The browser must supply the boundary matching its FormData serialization.
     headers: multipart ? headers.filter(({ name }) => name.toLowerCase() !== 'content-type') : headers,
     setup,
+    // This intentionally includes explicit Cookie headers, even without cookie-style parameters.
+    // Cross-origin use additionally requires credentialed CORS and eligible stored cookies.
     withCredentials: Boolean(cookieValues.length),
     body: multipart ? 'body' : formBody,
   }

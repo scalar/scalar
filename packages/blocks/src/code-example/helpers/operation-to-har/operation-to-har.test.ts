@@ -9,6 +9,37 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it.each(snippetz().plugins())('preserves mixed cookie encodings in $target/$client', ({ target, client }) => {
+    const request = operationToHar({
+      method: 'get',
+      path: '/',
+      includeDefaultHeaders: false,
+      server: { url: 'https://example.com' },
+      operation: {
+        parameters: [
+          { name: 'greeting', in: 'cookie', style: 'cookie', required: true, example: 'Hello%2C%20world!' },
+          { name: 'legacy', in: 'cookie', required: true, example: 'a b+c' },
+        ],
+      },
+      globalCookies: [{ name: 'global', value: 'c d', domain: 'example.com', path: '/' }],
+      securitySchemes: [{ type: 'apiKey', name: 'token', in: 'cookie', 'x-scalar-secret-token': 'secret+value' }],
+    })
+    const expected = 'legacy=a%20b%2Bc; greeting=Hello%2C%20world!; global=c%20d; token=secret%2Bvalue'
+    expect(request.headers).toStrictEqual([{ name: 'Cookie', value: expected }])
+    expect(request.cookies).toStrictEqual([])
+    const snippet = snippetz().findPlugin(target, client)?.generate(request)
+    expect(snippet).toBeDefined()
+    for (const entry of expected.split('; ')) {
+      expect(snippet).toContain(entry)
+    }
+    expect(snippet).not.toContain('Hello%252C%2520world')
+    if (target === 'js' && (client === 'xhr' || client === 'jquery')) {
+      expect(snippet).toContain('document.cookie')
+    } else {
+      expect(snippet).toContain(expected)
+    }
+  })
+
   it('keeps cookie style, global cookies, and authentication in a single raw header', () => {
     const result = operationToHar({
       method: 'get',

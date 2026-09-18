@@ -1,6 +1,6 @@
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { getCookieHeader } from './build-request-cookie-header'
 import { buildRequestParameters } from './build-request-parameters'
@@ -44,7 +44,8 @@ describe('buildRequestParameters', () => {
     expect(getCookieHeader(result.cookies, undefined)).toBe(expected)
   })
 
-  it('expands cookie arrays even when the invalid explode: false is provided', () => {
+  it('warns and expands cookie arrays when the invalid explode: false is provided', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const result = buildRequestParameters([
       {
         name: 'color',
@@ -56,6 +57,10 @@ describe('buildRequestParameters', () => {
       },
     ])
     expect(getCookieHeader(result.cookies, undefined)).toBe('color=blue; color=black')
+    expect(warning).toHaveBeenCalledExactlyOnceWith(
+      'Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.',
+    )
+    warning.mockRestore()
   })
 
   describe('getExample (internal helper)', () => {

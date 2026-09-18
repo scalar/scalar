@@ -274,9 +274,19 @@ export const serializeDeepObjectStyle = (paramName: string, value: unknown): Arr
  * Serializes OpenAPI 3.2 cookie style without escaping names or values.
  * Cookie arrays and objects always expand into separate entries: explode: false
  * is invalid because comma-separated cookie values violate RFC6265.
+ * Invalid declarations warn in the developer console and retain the expanded fallback.
  * Header builders join these entries with a semicolon and a single space.
  */
-export const serializeCookieStyle = (name: string, value: unknown): Array<{ name: string; value: string }> => {
+export const serializeCookieStyle = (
+  name: string,
+  value: unknown,
+  explode = true,
+): Array<{ name: string; value: string }> => {
+  if (!explode) {
+    console.warn(
+      `Cookie parameter "${name}" uses invalid explode: false with style: cookie; serializing with explode: true.`,
+    )
+  }
   if (Array.isArray(value)) {
     return value.map((item) => ({ name, value: String(item) }))
   }
