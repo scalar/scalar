@@ -3,7 +3,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { UnknownObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
 
-import { upgradeFromThreeOneToThreeTwo as upgrade } from './upgrade-from-three-one-to-three-two'
+import { upgradeFromThreeOneToThreeTwo as upgrade } from './index'
 
 const at = (value: unknown, ...keys: (string | number)[]): UnknownObject => {
   const result = getValueAtPath(value, keys.map(String))
@@ -77,9 +77,15 @@ describe('upgrade-from-three-one-to-three-two', () => {
     expect(input.openapi).toBe(openapi)
   })
 
-  it.each(['3.0.4', '3.2.0', '3.10.0', '3.1', '3.1.invalid', '3.1.2-extra'])('leaves %s unchanged', (openapi) => {
+  it.each(['3.0.4', '3.2.0', '3.10.0'])('leaves %s unchanged', (openapi) => {
     const input = document({ openapi })
     expect(upgrade(input)).toBe(input)
+  })
+
+  it.each(['3.1', '3.1.invalid', '3.1.0-rc1', '3.1.2-extra'])('rejects malformed 3.1 version %s', (openapi) => {
+    const input = document({ openapi })
+    expect(() => upgrade(input)).toThrow(`invalid OpenAPI version "${openapi}"`)
+    expect(input.openapi).toBe(openapi)
   })
 
   it('leaves Swagger and null unchanged', () => {

@@ -1,11 +1,11 @@
 import type { OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2'
+import { migrateThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-one-to-three-two'
 
 import { upgradeFromTwoToThree } from './2.0-to-3.0'
 import { upgradeFromThreeToThreeOne } from './3.0-to-3.1'
-import { cloneDocument } from './3.1-to-3.2/clone-document'
+import { cloneDocument } from './helpers/clone-document'
 
 /**
  * Upgrade OpenAPI documents from Swagger 2.0 or OpenAPI 3.0 to the specified target version
@@ -30,8 +30,9 @@ export function upgrade(
     return openapi31
   }
 
+  // The pipeline already owns its clone; do not copy the whole document a second time.
   // OpenAPI 3.1 -> OpenAPI 3.2
-  const openapi32 = upgradeFromThreeOneToThreeTwo(openapi31)
+  const openapi32 = migrateThreeOneToThreeTwo(openapi31)
   if (targetVersion === '3.2') {
     return openapi32
   }
