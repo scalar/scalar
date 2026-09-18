@@ -4,6 +4,14 @@ We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenA
 
 On top of that, we've added a few things for your convenience:
 
+## Editor completion and version compatibility
+
+The Scalar App editor offers OpenAPI 3.2 completion and structural diagnostics for documents declaring either OpenAPI 3.1 or 3.2. This permissive editing policy helps you work with newer fields, but the absence of editor errors does not certify that a document conforms to its declared OpenAPI version.
+
+For example, the editor accepts `itemSchema`, `additionalOperations`, and `style: cookie` even when the document still declares `openapi: 3.1.0`. Those fields are not part of OpenAPI 3.1, and tools that validate that version may reject the document. Editor completion does not automatically change the declared version.
+
+Before using OpenAPI 3.2-only fields, migrate the document to OpenAPI 3.2 and explicitly set a matching version such as `openapi: 3.2.0`. Check that your validators, generators, and other consumers support that version, and validate the resulting document with a validator that respects the declared version. If you need to remain compatible with OpenAPI 3.1 consumers, keep the declaration and field usage within OpenAPI 3.1.
+
 ## Custom Specification Extensions
 
 You can add custom specification extensions (starting with a `x-`) through [our plugin API](configuration.md).

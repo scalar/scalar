@@ -10,6 +10,10 @@ OpenAPI-based API Client for macOS, Windows & Linux. Offline-first, fully open-s
 
 Visit our official download page at <https://scalar.com/download> to get the latest version of the Scalar App for free. Available for macOS, Windows, and Linux, our app provides a powerful and intuitive interface for all your HTTP testing needs.
 
+## OpenAPI editor compatibility
+
+The editor offers OpenAPI 3.2 fields in both 3.1 and 3.2 documents. Its diagnostics are permissive: no editor error does not guarantee conformance to the declared version, and completion does not update that declaration. Before using 3.2-only fields, migrate and explicitly declare OpenAPI 3.2, then check support in your other tools. See [editor completion and version compatibility](../../documentation/openapi.md#editor-completion-and-version-compatibility) for examples and validation guidance.
+
 ## Development
 
 ### Install
