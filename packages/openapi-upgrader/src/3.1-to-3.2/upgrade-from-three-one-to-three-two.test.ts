@@ -3,6 +3,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { UnknownObject } from '@scalar/types/utils'
 import { describe, expect, it } from 'vitest'
 
+import { UpgradeIncompatibilityError } from '../upgrade-incompatibility-error'
 import { upgradeFromThreeOneToThreeTwo as upgrade } from './index'
 
 const at = (value: unknown, ...keys: (string | number)[]): UnknownObject => {
@@ -43,16 +44,11 @@ describe('upgrade-from-three-one-to-three-two', () => {
       'Cannot upgrade to OpenAPI 3.2 at #/components/schemas/Pet/discriminator: An optional discriminating property needs an explicit defaultMapping.',
     ]
 
-    expect(() => upgrade(input)).toThrow(
-      new AggregateError(
-        messages.map((message) => new Error(message)),
-        messages.join('\n'),
-      ),
-    )
+    expect(() => upgrade(input)).toThrow(new UpgradeIncompatibilityError(messages.map((message) => new Error(message))))
     try {
       upgrade(input)
     } catch (error) {
-      expect(error).toBeInstanceOf(AggregateError)
+      expect(error).toBeInstanceOf(UpgradeIncompatibilityError)
       if (error instanceof AggregateError) {
         expect(error.errors.map((issue: Error) => issue.message)).toStrictEqual(messages)
       }

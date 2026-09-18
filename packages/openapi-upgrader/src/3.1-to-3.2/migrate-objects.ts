@@ -3,6 +3,8 @@ import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointe
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { UnknownObject } from '@scalar/types/utils'
 
+import { UpgradeIncompatibilityError } from '../upgrade-incompatibility-error'
+
 type Kind =
   | 'document'
   | 'pathItem'
@@ -437,7 +439,7 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
     validateXmlNames(schema, path, { inferredName: false, propertyName: false, dialect })
   }
   if (errors.length > 0) {
-    throw new AggregateError(errors, errors.map((error) => error.message).join('\n'))
+    throw new UpgradeIncompatibilityError(errors)
   }
   return operationTags
 }
