@@ -1,6 +1,7 @@
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { isAsyncApiDocument } from '@scalar/workspace-store/schemas'
 import { describe, expect, it } from 'vitest'
 
@@ -12,6 +13,64 @@ const generate = (message: Record<string, unknown>): unknown =>
   getGeneratedPayloadExample(message as AsyncApiMessageObject)
 
 describe('get-generated-payload-example', () => {
+  it.each([true, false])('skips direct, referenced, and wrapped boolean payload schemas: %j', (schema) => {
+    expect(generate({ payload: schema })).toBeUndefined()
+    expect(generate({ payload: { $ref: '#/schema', '$ref-value': schema } })).toBeUndefined()
+    expect(generate({ payload: { schemaFormat: 'application/schema+json', schema } })).toBeUndefined()
+  })
+
+  it('preserves literal data without invoking inherited setters', () => {
+    const value = { scalarPayloadField: 'event' }
+    Object.defineProperty(Object.prototype, 'scalarPayloadField', {
+      configurable: true,
+      set: () => {
+        throw new Error('Inherited setter must not be invoked')
+      },
+    })
+    try {
+      expect(generate({ payload: { type: 'object', const: value } })).toStrictEqual(value)
+    } finally {
+      Reflect.deleteProperty(Object.prototype, 'scalarPayloadField')
+    }
+  })
+
+  it('snapshots a shared reference target once for many properties', async () => {
+    const properties = Object.fromEntries(
+      Array.from({ length: 100 }, (_, index) => [`field${index}`, { $ref: '#/components/schemas/Shared' }]),
+    )
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.0.0',
+        info: { title: 'Events', version: '1.0.0' },
+        components: { schemas: { Shared: { type: 'string', const: 'event' } } },
+        channels: {
+          events: { address: 'events', messages: { event: { payload: { type: 'object', properties } } } },
+        },
+      },
+    })
+    const document = store.workspace.documents.events
+    if (!document || !isAsyncApiDocument(document)) {
+      throw new Error('Expected an ingested AsyncAPI document')
+    }
+    const shared = getResolvedRef(getResolvedRef(document.components)?.schemas?.Shared)
+    const reads = { count: 0 }
+    Object.defineProperty(unpackProxyObject(shared), 'description', {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        reads.count += 1
+        return 'Shared target'
+      },
+    })
+
+    expect(generate(getResolvedRef(document.channels?.events)?.messages?.event ?? {})).toStrictEqual(
+      Object.fromEntries(Array.from({ length: 100 }, (_, index) => [`field${index}`, 'event'])),
+    )
+    expect(reads.count).toBe(1)
+  })
+
   it('retains virtual targets for referenced schemas while hiding them in literal payload data', async () => {
     const value = { $ref: '#/components/schemas/Name', id: 1 }
     const store = createWorkspaceStore()

@@ -3,16 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { deepClone } from '@/helpers/deep-clone'
 
 describe('deepClone', () => {
-  it('preserves prototype-like keys as own data properties', () => {
-    const value = JSON.parse('{"__proto__":{"id":1},"constructor":{"prototype":{"id":2}},"normal":3}')
-    const cloned = deepClone(value)
-    // Compare entries because strict equality treats a data field named constructor as a class identity.
-    expect(Object.entries(cloned)).toStrictEqual(Object.entries(value))
-    expect(Object.getPrototypeOf(cloned)).toBe(Object.prototype)
-    expect(Object.hasOwn(cloned, '__proto__')).toBe(true)
-    expect(cloned.__proto__).not.toBe(value.__proto__)
-  })
-
   it('should return primitives as-is', () => {
     expect(deepClone(42)).toBe(42)
     expect(deepClone('string')).toBe('string')

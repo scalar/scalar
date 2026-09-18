@@ -1,30 +1,41 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
-import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
 import { getAsyncApiMessagePayloadSchema } from '@/helpers/get-async-api-message-payload-schema'
 
-/** Keep virtual reference targets usable by the generator without serializing them as payload data. */
-const hideVirtualReferenceValues = (source: object, snapshot: object, seen = new WeakSet<object>()): void => {
-  if (seen.has(snapshot)) {
-    return
+/**
+ * Snapshot each schema object once, retaining shared and recursive references.
+ * Unpacking is shallow: use the raw object only for identity and ownership, then
+ * read through the proxy so reactive edits remain tracked and references resolve.
+ * Synthetic reference targets stay accessible to the generator but are omitted
+ * when literal example data is serialized.
+ */
+const snapshotSchema = <T>(source: T, seen = new WeakMap<object, object>()): T => {
+  if (typeof source !== 'object' || source === null) {
+    return source
   }
-  seen.add(snapshot)
 
   const raw = unpackProxyObject(source)
-  for (const key of Object.keys(snapshot)) {
-    if (key === '$ref-value' && !Object.hasOwn(raw, key)) {
-      Object.defineProperty(snapshot, key, { enumerable: false })
-    }
-    const original: unknown = Reflect.get(source, key)
-    const copy: unknown = Reflect.get(snapshot, key)
-    if (typeof original === 'object' && original !== null && typeof copy === 'object' && copy !== null) {
-      hideVirtualReferenceValues(original, copy, seen)
-    }
+  const existing = seen.get(raw)
+  if (existing) {
+    return existing as T
   }
+
+  const snapshot = Array.isArray(source) ? [] : {}
+  seen.set(raw, snapshot)
+  for (const key of Object.keys(source)) {
+    // Data descriptors also preserve literal __proto__ and inherited accessor names.
+    Object.defineProperty(snapshot, key, {
+      value: snapshotSchema(Reflect.get(source, key), seen),
+      enumerable: key !== '$ref-value' || Object.hasOwn(raw, key),
+      configurable: true,
+      writable: true,
+    })
+  }
+  return snapshot as T
 }
 
 /** Generate a payload only when the document does not already provide one. */
@@ -56,8 +67,7 @@ export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unkn
 
   // Snapshot reactive schemas so in-place edits do not reuse the generator's identity cache.
   // The generator resolves schema references itself, preserving literal $ref fields in payload data.
-  const snapshot = deepClone(schema)
-  hideVirtualReferenceValues(schema, snapshot)
+  const snapshot = snapshotSchema(schema)
   return getExampleFromSchema(snapshot, {
     emptyString: 'string',
     // Match the message schema, which displays fields regardless of their read/write annotations.
