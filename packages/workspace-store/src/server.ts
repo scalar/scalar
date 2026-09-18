@@ -408,6 +408,33 @@ export type ServerWorkspaceStore = {
    * @returns The resolved chunk, or `undefined` when not found
    */
   get: (pointer: string) => unknown
+  /**
+   * Returns a document whole, with local references resolving, for rendering on the server.
+   *
+   * `getWorkspace()` hands back the sparse document: every component and operation is a reference
+   * to a chunk, which is what the browser wants so it can load only what a page needs. A server
+   * render wants the opposite — the complete document, read through one reference, with `$ref-value`
+   * resolving locally and nothing fetched. That is the document the store built its navigation and
+   * chunks from, so this is that object rather than a second copy: it shares the components and
+   * operations the chunks are written from, and carries the same metadata and navigation as the
+   * sparse document.
+   *
+   * It is a magic proxy, never reactive, so reading it costs a property lookup and a pointer
+   * resolution. Use `getRaw` to serialize it: `$ref-value` is enumerable on the proxy and would
+   * inline every referenced value beside its `$ref`.
+   *
+   * @example
+   * ```ts
+   * const document = store.getResolvedDocument('petstore')
+   *
+   * // A real operation, not a chunk reference
+   * document?.paths?.['/pets']?.get
+   * ```
+   *
+   * @param name - The document name it was added under
+   * @returns The resolved document, or `undefined` when no document has that name
+   */
+  getResolvedDocument: (name: string) => ServerWorkspace['documents'][string] | undefined
 }
 
 /**
@@ -440,6 +467,14 @@ export async function createServerWorkspaceStore(
     string,
     { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
   > = {}
+
+  /**
+   * Each document whole, for `getResolvedDocument`.
+   *
+   * Written at the same point as `workspace.documents`, after everything that can throw, so a failed
+   * add leaves neither map with a half-processed entry.
+   */
+  const resolvedDocuments: Record<string, ServerWorkspace['documents'][string]> = {}
 
   /**
    * Adds an AsyncAPI document to the workspace.
@@ -502,6 +537,10 @@ export async function createServerWorkspaceStore(
     // checks OpenAPI first — so leaving `openapi` in place would hand an OpenAPI renderer a
     // navigation tree of channel entries. The document is stored as the type it was read as.
     delete (workspace.documents[name] as Record<string, unknown>)['openapi']
+
+    // Nothing was externalized, so the stored document already is the whole document; it only needs
+    // its references resolving to be rendered from.
+    resolvedDocuments[name] = resolveLocalReferences(workspace.documents[name] as ServerWorkspace['documents'][string])
   }
 
   /**
@@ -575,6 +614,14 @@ export async function createServerWorkspaceStore(
       paths,
       [extensions.document.navigation]: navigation,
     }
+
+    // The same document without the externalization, for server rendering. A shallow spread, so the
+    // components and operations are the objects the chunks are written from rather than copies.
+    resolvedDocuments[meta.name] = resolveLocalReferences({
+      ...documentMeta,
+      ...documentV3,
+      [extensions.document.navigation]: navigation,
+    })
   }
 
   /**
@@ -670,6 +717,7 @@ export async function createServerWorkspaceStore(
     getWorkspace: () => {
       return workspace
     },
+    getResolvedDocument: (name) => resolvedDocuments[name],
     get: (pointer: string) => {
       const pointerPath = (() => {
         if (pointer.startsWith('#')) {

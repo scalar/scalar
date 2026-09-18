@@ -684,9 +684,14 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
+          //
+          // The pointer addresses the root document, so the target's base is the nearest `$id` on
+          // the way to it, else the document origin. `getValueByPath` reports no `$id` as an empty
+          // string, and handing that on as the origin left a relative reference under the target
+          // (a chunk reference written relative to the document) with nothing to resolve against.
           await bundler(
             targetValue.value,
-            targetValue.context,
+            targetValue.context || defaultOrigin,
             isChunkParent,
             depth + 1,
             segments,
