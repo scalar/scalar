@@ -4,12 +4,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  type OpenApiRenderOptions,
-  createHtmlFromOpenApi,
-  createMarkdownFromOpenApi,
-  createOpenApiMarkdownRenderer,
-} from './index'
+import { type OpenApiRenderOptions, createMarkdownFromOpenApi, createOpenApiMarkdownRenderer } from './index'
 
 const document = {
   openapi: '3.1.0',
@@ -66,11 +61,10 @@ const selections: (OpenApiRenderOptions | undefined)[] = [
 ]
 
 describe('create-openapi-markdown-renderer', () => {
-  it('preserves Markdown and HTML output for every selector', async () => {
+  it('preserves Markdown output for every selector', async () => {
     const renderer = await createOpenApiMarkdownRenderer(document)
     for (const selection of selections) {
       expect(await renderer.render(selection)).toBe(await createMarkdownFromOpenApi(document, selection))
-      expect(await renderer.renderHtml(selection)).toBe(await createHtmlFromOpenApi(document, selection))
     }
   })
 
@@ -110,7 +104,7 @@ describe('create-openapi-markdown-renderer', () => {
       await rm(dir, { recursive: true, force: true })
       expect(await renderer.render({ model: 'Pet' })).toContain('externalField')
       expect(await renderer.render({ operation: { operationId: 'listPets' } })).toContain('externalField')
-      expect(await renderer.renderHtml({ model: 'Pet' })).toContain('externalField')
+      expect(await renderer.render({ model: 'Pet' })).toContain('externalField')
     } finally {
       await rm(dir, { recursive: true, force: true })
     }
@@ -131,7 +125,7 @@ describe('create-openapi-markdown-renderer', () => {
     const first = await createOpenApiMarkdownRenderer(document)
     const second = await createOpenApiMarkdownRenderer({ ...document, info: { title: 'Other API', version: '2' } })
     await expect(first.render({ tag: 'Missing' })).rejects.toThrow('Tag "Missing" was not found')
-    await expect(first.renderHtml({ operation: { path: '/missing', method: 'get' } })).rejects.toThrow()
+    await expect(first.render({ operation: { path: '/missing', method: 'get' } })).rejects.toThrow()
     expect(await first.render({ introduction: true })).toContain('# Pets')
     expect(await first.render({ introduction: true })).not.toContain('Other API')
     expect(await second.render({ introduction: true })).toContain('# Other API')
@@ -156,5 +150,30 @@ describe('create-openapi-markdown-renderer', () => {
     ] as const) {
       expect(await renderer.render(selection)).toBe(await createMarkdownFromOpenApi(legacy, selection))
     }
+  })
+  it('keeps description references stable across repeated, reversed, and concurrent pages', async () => {
+    const input = {
+      openapi: '3.1.1',
+      info: { title: 'References', version: '1' },
+      paths: Object.fromEntries(
+        ['a', 'b'].map((name) => [
+          `/${name}`,
+          {
+            get: {
+              description: `[read][docs]\n\n[docs]: https://${name}.example`,
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        ]),
+      ),
+    }
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const a = { operation: { path: '/a', method: 'get' } } as const
+    const b = { operation: { path: '/b', method: 'get' } } as const
+    await renderer.render(b)
+    const expected = await createMarkdownFromOpenApi(input, a)
+    expect(await renderer.render(a)).toBe(expected)
+    const concurrent = await Promise.all([renderer.render(a), renderer.render(b), renderer.render(a)])
+    expect(concurrent).toStrictEqual([expected, await createMarkdownFromOpenApi(input, b), expected])
   })
 })

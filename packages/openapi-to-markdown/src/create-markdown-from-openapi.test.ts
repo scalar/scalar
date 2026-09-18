@@ -66,9 +66,7 @@ Test description`
 
 - **URL:** \`https://test.com\`
   - **Description:** Test server
-
 - **URL:** \`https://test.com/{version}\`
-
   - **Description:** Test server v2
   - **Variables:**
     - \`version\` (default: \`v2\`): Test version
@@ -548,7 +546,6 @@ Test description`
       - **\`id\`**
 
         \`string\`
-
       - **\`name\`**
 
         \`string\`
@@ -589,7 +586,6 @@ Test description`
       - **\`id\`**
 
         \`string\`
-
       - **\`name\`**
 
         \`string\`
@@ -954,5 +950,15 @@ paths:
         })
       })
     }
+  })
+  it('renders schemas without a type without emitting empty inline code', async () => {
+    const output = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Composed', version: '1' },
+      components: { schemas: { Value: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
+    })
+    expect(output).toBe(
+      '# Composed\n\n- **OpenAPI Version:** `3.1.1`\n- **API Version:** `1`\n\n## Schemas\n\n### Value\n\n- **Type:**\n\n**One of:**\n\n`string`\n\n`number`\n',
+    )
   })
 })

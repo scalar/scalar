@@ -351,9 +351,6 @@
         "src/libs/execute-scripts/postman-adapter/sandbox-frame-entry.ts"
       ]
     },
-    "packages/openapi-to-markdown": {
-      "ignoreDependencies": ["vue"]
-    },
     "packages/react-renderer": {
       "ignoreDependencies": ["react", "react-dom", "vue"]
     },
