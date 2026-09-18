@@ -1,4 +1,6 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -10,6 +12,33 @@ import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/s
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
+  it('does not render internal markers from ingested boolean schemas', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'booleans',
+      document: {
+        openapi: '3.1.1',
+        info: { title: 'Booleans', version: '1' },
+        components: { schemas: { Object: { type: 'object', properties: { allowed: true, forbidden: false } } } },
+      },
+    })
+    const document = store.workspace.documents.booleans
+    if (!document || !isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
+    const wrapper = mount(Schema, {
+      props: {
+        schema: getResolvedRef(document.components?.schemas?.Object),
+        eventBus: null,
+        name: 'Object',
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    expect(wrapper.text()).toContain('allowed')
+    expect(wrapper.text()).toContain('forbidden')
+    expect(wrapper.html()).not.toContain('__scalar_')
+  })
+
   it.each([false, true])(
     'keeps inherited alert variants separate with expandAllSchemaProperties=%s',
     async (expandAllSchemaProperties) => {
