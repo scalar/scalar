@@ -252,7 +252,7 @@ export const processParameters = ({
       // Keep cookie style separate so snippet generators cannot percent-encode it.
       case 'cookie': {
         if (style === 'cookie') {
-          cookieStyleEntries.push(...serializeCookieStyle(param.name, paramValue))
+          cookieStyleEntries.push(...serializeCookieStyle(param.name, paramValue, explode))
           break
         }
         const serialized = serializeFormStyleForCookies(paramValue, explode)

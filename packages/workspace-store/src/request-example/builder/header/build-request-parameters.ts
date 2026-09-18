@@ -135,7 +135,7 @@ export const buildRequestParameters = (
       case 'cookie': {
         if ('style' in param && param.style === 'cookie') {
           result.cookies.push(
-            ...serializeCookieStyle(paramName, deSerializedValue).map((cookie) =>
+            ...serializeCookieStyle(paramName, deSerializedValue, getExplode(param, true)).map((cookie) =>
               coerceValue(xScalarCookieSchema, { ...cookie, path: '/' }),
             ),
           )
