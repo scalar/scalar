@@ -100,3 +100,17 @@ conventions. It is not used by schema-backed XML example generation.
 Start the API Reference playground and open `/playground/xml-examples/` to inspect
 request attributes, namespaces, wrapped arrays, response mixed content, and
 composition selection in the reference and request editor.
+
+## Review boundaries and multipart integration
+
+The implementation stays in three layers: bounded tree writing, schema mapping with optional generator provenance, and media-boundary consumers. JSON generation exits before allocating provenance nodes; XML capture is opt-in. Consumer regressions cover request edits, snippets, mock HTTP responses, and Markdown exports.
+
+`serializeXmlPart(value, schema?)` is the strict multipart integration boundary. It uses the same schema-aware serializer in write mode, keeps an explicit `xml.name` or the fallback `root`, and throws if a complete document cannot be produced. It is exported from the request-example entry point for multipart builders. Serialized string payloads bypass this structured-data adapter. The positional multipart PR uses the identical adapter API; its legacy implementation must be replaced by this one when the branches are combined.
+
+An unsupported property pattern is never interpreted as a nonmatch: mapping rejects the complete XML document, returns `unsupported-pattern` with the property path, and invokes `onDiagnostic` or the default console warning. It does not silently omit that property. The strict part adapter additionally throws. UI callers currently retain their documented data fallback rather than showing a dedicated diagnostic panel.
+
+## Default JSON performance check
+
+A local Node 24.21.0 comparison against main `216faf7b` used a schema with 16 nested objects, each containing a string, integer, and three string array items. Twelve rounds alternated baseline and current code, excluding schema construction and collecting garbage before each batch. Median cached generation was 0.966 μs on main and 0.959 μs with XML support (100,000 calls per round); cold generation was 151.19 μs and 152.12 μs respectively (1,000 fresh schemas per round). Generated JSON was identical.
+
+This fixture showed no material timing change; it is not a browser benchmark or an allocation profile. The default path returns before constructing `ExampleEvaluation` nodes, while opt-in XML capture allocates provenance and bypasses the result cache.

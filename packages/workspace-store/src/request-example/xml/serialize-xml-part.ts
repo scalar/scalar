@@ -1,15 +1,20 @@
-import { json2xml } from '@scalar/helpers/file/json2xml'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
+import { serializeXmlExample } from './get-xml-example'
 
 /**
- * Serialize structured XML part data through a single request boundary.
- * TODO: Delegate to the schema-aware XML serializer when it is integrated.
- * Preserve the legacy root-name contract at this boundary.
- * Already serialized XML strings bypass this adapter in the multipart builder.
+ * Serialize structured XML part data through the shared schema-aware writer.
+ * A part must contain a complete XML document, so mapping errors reject serialization.
+ * Already serialized strings bypass this boundary in request builders.
  */
 export const serializeXmlPart = (value: Record<string, unknown>, schema?: SchemaObject): string => {
-  const rootName = schema?.xml?.name ?? 'root'
-  return json2xml({ [rootName]: unpackProxyObject(value) })
+  const result = serializeXmlExample(value, schema ?? coerceValue(SchemaObjectSchema, {}), {
+    mode: 'write',
+    rootName: 'root',
+  })
+  if (result.xml === undefined) {
+    throw new Error(`Unable to serialize XML part: ${result.diagnostics.map(({ code }) => code).join(', ')}`)
+  }
+  return result.xml
 }
