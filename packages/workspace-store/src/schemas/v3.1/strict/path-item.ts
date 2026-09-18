@@ -35,7 +35,10 @@ export const PathItemObjectSchemaDefinition = Type.Object({
   head: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   /** A definition of a TRACE operation on this path. */
   trace: Type.Optional(Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
-  /** Additional HTTP methods, preserving the case used on the wire (OpenAPI 3.2). */
+  /**
+   * Preserve OpenAPI 3.2 methods in the shared working model used by 3.1 consumers.
+   * This compatibility field does not make additionalOperations valid in authored OpenAPI 3.1 documents.
+   */
   additionalOperations: Type.Optional(
     Type.Record(Type.String(), Type.Union([OperationObjectRef, reference(OperationObjectRef)])),
   ),
@@ -74,7 +77,10 @@ export type PathItemObject = {
   head?: ReferenceType<OperationObject>
   /** A definition of a TRACE operation on this path. */
   trace?: ReferenceType<OperationObject>
-  /** Additional HTTP methods, preserving the case used on the wire (OpenAPI 3.2). */
+  /**
+   * Preserve OpenAPI 3.2 methods in the shared working model used by 3.1 consumers.
+   * This compatibility field does not make additionalOperations valid in authored OpenAPI 3.1 documents.
+   */
   additionalOperations?: Record<string, ReferenceType<OperationObject>>
   /** An alternative servers array to service all operations in this path. If a servers array is specified at the OpenAPI Object level, it will be overridden by this value. */
   servers?: ServerObject[]

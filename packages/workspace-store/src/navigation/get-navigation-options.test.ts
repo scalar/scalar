@@ -153,6 +153,22 @@ describe('get-navigation-options', () => {
     ])
   })
 
+  it.each([
+    ['COPY', 'COPY'],
+    ['copy', 'copy'],
+    ['query', 'QUERY'],
+    ['QUERY', 'additionalOperations/QUERY'],
+    ['Query', 'additionalOperations/Query'],
+  ])('keeps the deliberate anchor spelling for %s', (method, segment) => {
+    const { generateId } = getNavigationOptions('API')
+    expect(generateId({ type: 'operation', parentId: 'api', path: '/pets', method, operation: {} })).toBe(
+      `api/${segment}/pets`,
+    )
+    expect(generateId({ type: 'webhook', parentId: 'api', name: 'pet.created', method })).toBe(
+      `api/webhook/${segment}/pet.created`,
+    )
+  })
+
   it('generates operation ID with parent tag prefix', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({

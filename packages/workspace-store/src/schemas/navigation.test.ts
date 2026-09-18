@@ -1,22 +1,45 @@
 import type { Static } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { RequiredDeep } from 'type-fest'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import type { TraversedEntrySchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import {
+  type OperationMethod,
   TraversedDescriptionSchemaDefinition,
   type TraversedEntry,
   TraversedEntrySchemaDefinition,
+  type TraversedOperation,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
+  type TraversedWebhook,
   TraversedWebhookSchemaDefinition,
 } from './navigation'
 
 describe('navigation', () => {
+  it('exposes an open operation method type to navigation consumers', () => {
+    expectTypeOf<TraversedOperation['method']>().toEqualTypeOf<OperationMethod>()
+    expectTypeOf<TraversedWebhook['method']>().toEqualTypeOf<OperationMethod>()
+    expectTypeOf<'get'>().toExtend<OperationMethod>()
+    expectTypeOf<'PURGE'>().toExtend<OperationMethod>()
+    expectTypeOf<string>().toExtend<OperationMethod>()
+    expectTypeOf<number>().not.toExtend<OperationMethod>()
+
+    const describeMethod = (method: OperationMethod): string => {
+      switch (method) {
+        case 'get':
+          return 'Read'
+        default:
+          return `Other: ${method}`
+      }
+    }
+    expect(describeMethod('get')).toBe('Read')
+    expect(describeMethod('PURGE')).toBe('Other: PURGE')
+  })
+
   describe('strict type checking', () => {
     it('performs deep type checking on all schemas', () => {
       type SchemaType = RequiredDeep<Static<typeof TraversedEntrySchema>>
