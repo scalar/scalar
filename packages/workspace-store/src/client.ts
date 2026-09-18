@@ -1372,9 +1372,15 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Bundle the target document with the active document as root, resolving any external references
-      // and tracking resolution status through hooks
+      // and tracking resolution status through hooks.
+      //
+      // The origin is the URL the document was loaded from. A static server workspace writes its chunk
+      // references relative to the document (`./chunks/…`), and without the origin the loader has
+      // nothing to resolve them against, so every chunk fails before a request is made. SSR
+      // workspaces write absolute URLs and never needed it.
       return bundle(target, {
         root: activeDocument,
+        origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
         plugins: [fetchUrls(), loadingStatus(), externalValueResolver()],
         urlMap: true,

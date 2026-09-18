@@ -1019,6 +1019,42 @@ describe('bundle', () => {
       })
     })
 
+    it('resolves a relative chunk reference reached through a local pointer against the document origin', async () => {
+      const operation = { summary: 'List users', items: { $ref: '#/components/schemas/User' } }
+      const user = { type: 'object' }
+
+      server.get('/chunks/operation', (_, reply) => {
+        reply.send(operation)
+      })
+      server.get('/chunks/User', (_, reply) => {
+        reply.send(user)
+      })
+
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+      // Chunk references written relative to the document, the way a static workspace writes them
+      const input = {
+        paths: { '/users': { get: { $ref: './chunks/operation#', $global: true } } },
+        components: { schemas: { User: { $ref: './chunks/User#', $global: true } } },
+      }
+
+      // Only the operation is asked for. Its chunk points back at the schema through a local
+      // pointer, and that schema is itself a relative chunk reference.
+      await bundle(input.paths['/users'].get, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        root: input,
+        origin: `${url}/openapi.json`,
+      })
+
+      const bundled = input as typeof input & { 'x-ext': Record<string, unknown> }
+
+      expect(bundled.paths['/users'].get).toEqual({ $global: true, $ref: expect.stringMatching(/^#\/x-ext\//) })
+      expect(bundled.components.schemas.User).toEqual({ $global: true, $ref: expect.stringMatching(/^#\/x-ext\//) })
+      expect(Object.values(bundled['x-ext'])).toEqual(expect.arrayContaining([operation, user]))
+    })
+
     it('when bundle partial document we ensure all the dependencies references are resolved', async () => {
       const chunk1 = {
         a: {
