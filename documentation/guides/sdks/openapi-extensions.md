@@ -185,5 +185,6 @@ The following are compatibility readers. They are useful when importing an exist
 ## Next steps
 
 - [Configuration](configuration.md) — the config blocks mirrored by root-level extensions
+- [Pagination](pagination.md) — the scheme shape `x-scalar-pagination` carries, and the helpers it generates
 - [Diagnostics](diagnostics.md) — messages for invalid, ignored, or incomplete input
 - [AsyncAPI](asyncapi.md) — SDK generation from AsyncAPI documents

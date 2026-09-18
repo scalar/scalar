@@ -2702,6 +2702,54 @@
                       }
                     }
                   },
+                  "pagination": {
+                    "filepath": "documentation/guides/sdks/pagination.md",
+                    "type": "page",
+                    "title": "Pagination",
+                    "description": "Add auto-paginating helpers to your SDK: declare offset, page-number, or cursor schemes in configuration or your OpenAPI document, and bind them to methods.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/pagination"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Add auto-paginating helpers to your SDK: declare offset, page-number, or cursor schemes in configuration or your OpenAPI document, and bind them to methods."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "openapi-extensions": {
+                    "filepath": "documentation/guides/sdks/openapi-extensions.md",
+                    "type": "page",
+                    "title": "OpenAPI Extensions",
+                    "description": "The OpenAPI vendor extensions Scalar reads when it derives an SDK configuration: resource placement, method naming, pagination, streaming, response unwrapping, and the Fern, Speakeasy, and Stainless compatibility readers.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/openapi-extensions"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "The OpenAPI vendor extensions Scalar reads when it derives an SDK configuration: resource placement, method naming, pagination, streaming, response unwrapping, and the Fern, Speakeasy, and Stainless compatibility readers."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "custom-code": {
                     "filepath": "documentation/guides/sdks/custom-code.md",
                     "type": "page",
@@ -4016,6 +4064,12 @@
                     "title": "Data Seeding",
                     "description": "Seed realistic mock data with x-seed to get consistent, related responses from your mock API.",
                     "filepath": "documentation/guides/mock-server/data-seeding.md",
+                    "type": "page"
+                  },
+                  "asyncapi": {
+                    "title": "AsyncAPI",
+                    "description": "Mock event-driven APIs described with AsyncAPI: WebSocket and SSE channels served as live endpoints with generated messages.",
+                    "filepath": "documentation/guides/mock-server/asyncapi.md",
                     "type": "page"
                   },
                   "changelog": {
