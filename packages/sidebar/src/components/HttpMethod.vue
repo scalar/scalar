@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { normalizeHttpMethod } from '@scalar/helpers/http/normalize-http-method'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { computed, type Component } from 'vue'
 
 const props = defineProps<{
@@ -21,13 +21,19 @@ const httpMethodInfo = computed(() =>
 )
 
 /** Full method name */
-const normalized = computed(() => normalizeHttpMethod(props.method))
+const normalized = computed(() => {
+  if (typeof props.method !== 'string' || !props.method.trim()) {
+    return 'get'
+  }
+  const method = props.method.trim()
+  return isHttpMethod(method.toLowerCase()) ? method.toLowerCase() : method
+})
 </script>
 
 <template>
   <component
     :is="as ?? 'span'"
-    class="uppercase"
+    :class="{ uppercase: isHttpMethod(normalized) }"
     :style="{ [property || 'color']: httpMethodInfo.colorVar }">
     <slot />
     {{ short ? httpMethodInfo.short : normalized }}

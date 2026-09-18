@@ -1,4 +1,3 @@
-import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
 
@@ -247,13 +246,11 @@ export const updateOperationPathMethod = (
   setPathItemOperation(document.paths[finalPath], finalMethod, unpackProxyObject(operation))
 
   // Remove the operation from the old location
-  if (isHttpMethod(meta.method)) {
-    deletePathItemOperation(document.paths[meta.path], meta.method)
+  deletePathItemOperation(document.paths[meta.path], meta.method)
 
-    // If the old path is now empty, remove the path entry (path-level metadata is kept otherwise)
-    if (pathItemIsEmpty(document.paths[meta.path])) {
-      delete document.paths[meta.path]
-    }
+  // If the old path is now empty, remove the path entry (path-level metadata is kept otherwise)
+  if (pathItemIsEmpty(document.paths[meta.path])) {
+    delete document.paths[meta.path]
   }
 
   // We need to reset the history for the operation when the path or method changes

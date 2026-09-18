@@ -1,8 +1,14 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
 import HttpMethod from './HttpMethod.vue'
 
 describe('HttpMethod', () => {
+  it('renders the exact spelling of an additional method', () => {
+    const wrapper = mount(HttpMethod, { props: { method: 'customMethod' } })
+    expect(wrapper.text()).toBe('customMethod')
+  })
+
   describe('rendering', () => {
     it('renders with default span element', () => {
       const wrapper = mount(HttpMethod, {
@@ -112,7 +118,7 @@ describe('HttpMethod', () => {
         props: { method: 'UNKNOWN' },
       })
 
-      expect(wrapper.text()).toBe('get')
+      expect(wrapper.text()).toBe('UNKNOWN')
     })
 
     it('handles empty string method', () => {

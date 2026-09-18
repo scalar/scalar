@@ -712,16 +712,16 @@ puts response.read_body`,
   it('supports custom HTTP methods', () => {
     const result = rubyNative.generate({
       url: 'https://example.com',
-      method: 'PROPFIND',
+      method: 'customMethod',
       postData: {
         mimeType: 'application/json',
         text: '{}',
       },
     })
 
-    expect(result).toContain('class Net::HTTP::Propfind < Net::HTTPRequest')
-    expect(result).toContain("METHOD = 'PROPFIND'")
+    expect(result).toContain('class Net::HTTP::CustomRequest < Net::HTTPRequest')
+    expect(result).toContain("METHOD = 'customMethod'")
     expect(result).toContain("REQUEST_HAS_BODY = 'true'")
-    expect(result).toContain('request = Net::HTTP::Propfind.new(url)')
+    expect(result).toContain('request = Net::HTTP::CustomRequest.new(url)')
   })
 })

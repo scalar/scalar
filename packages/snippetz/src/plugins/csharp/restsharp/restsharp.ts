@@ -2,7 +2,7 @@ import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { Plugin } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
-import { joinUrlAndQuery } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 /**
  * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
@@ -66,7 +66,14 @@ export const csharpRestsharp: Plugin = {
     }
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
+    if (
+      !['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'COPY', 'SEARCH', 'MERGE'].includes(
+        normalizedRequest.method,
+      )
+    ) {
+      return '// RestSharp does not support this HTTP method. Select HttpClient for a custom method.'
+    }
 
     // Build the full URL, appending the query string with the correct separator
     // (joinUrlAndQuery uses `&` when the URL already carries a query string)

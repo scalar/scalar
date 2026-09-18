@@ -1190,6 +1190,21 @@ describe('redirectUrl', () => {
       expect(result?.hash).toBe('#default/webhook/POST/account-holder.created')
     })
 
+    it('retains fixed-method aliases when an authored variant shares the webhook name', () => {
+      const result = redirectUrl(
+        'https://example.com/#default/webhook/GET/accountcreated',
+        'models',
+        'default',
+        true,
+        undefined,
+        [
+          { name: 'account.created', method: 'get', id: 'default/webhook/GET/account.created' },
+          { name: 'account.created', method: 'Get', id: 'default/webhook/additionalOperations/Get/account.created' },
+        ],
+      )
+      expect(result?.hash).toBe('#default/webhook/GET/account.created')
+    })
+
     it('rewrites a tagged legacy webhook slug', () => {
       const result = redirectUrl(
         'https://example.com/#default/tag/webhooks/webhook/POST/account-holdercreated',

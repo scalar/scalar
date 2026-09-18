@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { shellCurl } from './curl'
 
 describe('shellCurl', () => {
+  it('preserves a custom method in the generated request', () => {
+    expect(shellCurl.generate({ url: 'https://example.com', method: 'customMethod' })).toContain(
+      '--request customMethod',
+    )
+  })
+
   it('returns a basic request', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',

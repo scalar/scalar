@@ -74,7 +74,7 @@ export type CodeExampleProps = {
   /**
    * HTTP method of the operation
    */
-  method: HttpMethodType
+  method: string
   /**
    * Path of the operation
    */
@@ -130,7 +130,6 @@ import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -531,7 +530,6 @@ const id = useId()
 }
 .request-method {
   font-family: var(--scalar-font-code);
-  text-transform: uppercase;
   margin-right: 6px;
 }
 .request-card-footer {

@@ -1,6 +1,6 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
-const normalizeMethod = (method?: string): string => (method || 'GET').toUpperCase()
+import { normalizeMethod } from '@/libs/http'
 
 const escapeCString = (value: string): string =>
   value

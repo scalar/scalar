@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { csharpRestsharp } from './restsharp'
 
 describe('csharpRestsharp', () => {
+  it.each(['customMethod', 'Get'])('reports unsupported method %s without inventing an enum', (method) => {
+    expect(csharpRestsharp.generate({ url: 'https://example.com', method })).toBe(
+      '// RestSharp does not support this HTTP method. Select HttpClient for a custom method.',
+    )
+  })
+
   it('returns a basic request', () => {
     const result = csharpRestsharp.generate({
       url: 'https://example.com',
@@ -549,7 +555,7 @@ var response = await client.ExecuteAsync(request);`)
       method: 'purge',
     })
 
-    expect(result).toContain('var request = new RestRequest("", Method.Purge);')
+    expect(result).toBe('// RestSharp does not support this HTTP method. Select HttpClient for a custom method.')
   })
 
   it('handles complex scenario with all features', () => {

@@ -1,4 +1,5 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -283,7 +284,7 @@ export const requestFactory = ({
       raw: path,
     },
     query: params.urlParams,
-    method: method.toUpperCase(),
+    method: isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method,
     headers,
     body,
     cookies: cookiesList,
