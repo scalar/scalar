@@ -17,10 +17,10 @@ const MAX_REF_HOPS = 10
 /**
  * Whether a merged path item still carries an unfollowed hop.
  *
- * `mergeSiblingReferences` spreads the resolved target over the siblings. When that target is itself
- * a reference, the spread carries its `$ref-value` across as a real key, which is the signal that
- * one more hop is waiting. A fully resolved path item never has one: the `$ref` sibling is kept (it
- * is what the author wrote) but nothing resolves through it any more.
+ * `mergeSiblingReferences` preserves the resolved target's `$ref-value`, including non-enumerable
+ * links in plain documents. That link signals that one more hop is waiting. A fully resolved path
+ * item never has one: the `$ref` sibling is kept (it is what the author wrote) but nothing resolves
+ * through it any more.
  */
 const hasUnfollowedRef = (pathItem: PathItemObject | undefined): boolean =>
   isObjectLike(pathItem) && Object.hasOwn(pathItem, '$ref-value')

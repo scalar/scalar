@@ -25,7 +25,20 @@ export const mergeSiblingReferences = <Node>(node: RefNode<Node>): Node => {
     return rest as Node
   }
 
-  return { ...value, ...rest }
+  const merged = { ...value, ...rest }
+
+  // Plain document loaders hide reference links from serialization. Preserve the
+  // next hop explicitly so chain resolution does not depend on object spread.
+  if ('$ref-value' in value && !Object.hasOwn(merged, '$ref-value')) {
+    Object.defineProperty(merged, '$ref-value', {
+      value: value['$ref-value'],
+      enumerable: false,
+      configurable: true,
+      writable: true,
+    })
+  }
+
+  return merged
 }
 
 /**

@@ -24,14 +24,20 @@ export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise
   return {
     render,
     renderHtml: async (options) => {
-      const [{ unified }, { default: remarkParse }, { default: remarkRehype }, { default: rehypeStringify }] =
-        await Promise.all([
-          import('unified'),
-          import('remark-parse'),
-          import('remark-rehype'),
-          import('rehype-stringify'),
-        ])
-      const processor = unified().use(remarkParse).use(remarkRehype).use(rehypeStringify)
+      const [
+        { unified },
+        { default: remarkParse },
+        { default: remarkGfm },
+        { default: remarkRehype },
+        { default: rehypeStringify },
+      ] = await Promise.all([
+        import('unified'),
+        import('remark-parse'),
+        import('remark-gfm'),
+        import('remark-rehype'),
+        import('rehype-stringify'),
+      ])
+      const processor = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify)
       return processor.processSync(await render(options)).toString()
     },
   }
