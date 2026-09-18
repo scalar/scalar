@@ -1,5 +1,21 @@
 # @scalar/openapi-to-markdown
 
+## 1.0.0
+
+### Major Changes
+
+- [#10233](https://github.com/scalar/scalar/pull/10233): Generate Markdown directly from a Markdown syntax tree, avoiding Vue server rendering and the generated HTML conversion pipeline. Reuse normalized schemas and parsed descriptions across pages while preserving selection, schema coercion, reference resolution, and raw HTML description sanitization.
+
+  Keep the HTML API through an on-demand Markdown conversion. Markdown and HTML spacing and escaping may differ from previous output.
+
+### Minor Changes
+
+- [#10224](https://github.com/scalar/scalar/pull/10224): Add a reusable renderer that loads an OpenAPI document once and generates multiple Markdown or HTML pages from it.
+
+### Patch Changes
+
+- [#10241](https://github.com/scalar/scalar/pull/10241): Simplify reference link rebuilding after OpenAPI document coercion.
+
 ## 0.6.0
 
 ### Minor Changes

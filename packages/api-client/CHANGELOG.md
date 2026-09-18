@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 3.19.1
+
+### Patch Changes
+
+- [#10229](https://github.com/scalar/scalar/pull/10229): Fix the API client modal getting stuck on "Select an operation to view details" for a document's first operation after its active document re-syncs. The reference used to hand the modal a route to a nonexistent path and method during that re-sync; the modal now leaves the current operation in place instead.
+- [#9912](https://github.com/scalar/scalar/pull/9912): add line wrapping toggle for request and response bodies
+- [#10179](https://github.com/scalar/scalar/pull/10179): Support OpenAPI 3.2 OAuth2 metadata URLs in workspace schemas and the shared authentication UI. Fetch HTTPS authorization server metadata or HTTP metadata from local development URLs to discover flows or fill missing endpoints while preserving explicit configuration.
+
+  For local development, Scalar deliberately relaxes the OpenAPI 3.2 TLS requirement: metadata URLs and discovered endpoints may use HTTP for local development URLs recognized by the shared `isLocalUrl` helper, including loopback hosts, `0.0.0.0`, and reserved development domains such as `*.test` and `*.example`. Other hosts require HTTPS.
+
+  Discovery leaves `refreshUrl` unchanged. Token refresh already falls back to the flow's token URL when no refresh URL is configured, so a discovered token endpoint also supports refresh without overriding an explicit refresh URL.
+
+- [#9852](https://github.com/scalar/scalar/pull/9852): Render OpenAPI 3.2 response summaries, server names in the server selectors, and a strikethrough on deprecated security schemes.
+- [#9889](https://github.com/scalar/scalar/pull/9889): feat: add a copy button to the request body editor
+
+  The raw request body editor now shows a copy-to-clipboard button (revealed on hover, matching the response panel) so you can grab the whole body without selecting the text by hand. The editor stays fully editable at any size.
+
+- [#10231](https://github.com/scalar/scalar/pull/10231): Trim surrounding whitespace from OAuth2 client IDs and client secrets when authorizing and refreshing tokens.
+- [#10238](https://github.com/scalar/scalar/pull/10238): Display responses with vendor `+xml` media types as XML text and use `.xml` for downloads.
+
 ## 3.19.0
 
 ### Minor Changes

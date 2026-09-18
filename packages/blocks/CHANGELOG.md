@@ -1,5 +1,7 @@
 # @scalar/blocks
 
+## 0.1.18
+
 ## 0.1.17
 
 ### Patch Changes
