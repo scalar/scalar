@@ -11,7 +11,9 @@ import { isHttpUrl } from '@/helpers/is-http-url'
  * - Otherwise, computes the relative path between two local paths.
  */
 export const toRelativePath = (input: string, base: string): string => {
-  // Non-HTTP identifiers must not be turned into filesystem paths.
+  // This format-agnostic helper has no document-identity registry. Preserve every
+  // non-HTTP URI, not only known $self values: file:, urn:, and custom schemes must
+  // not become filesystem paths. Loader plugins decide whether a URI is fetchable.
   if (URL.canParse(input) && !isHttpUrl(input) && !/^[a-z]:[\\/]/i.test(input)) {
     return input
   }
