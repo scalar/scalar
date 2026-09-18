@@ -154,6 +154,7 @@ And there's an ever-growing list of plugins and integrations:
 - [Rust](https://scalar.com/products/api-references/integrations/rust)
 - [Spring Boot](https://scalar.com/products/api-references/integrations/spring-boot)
 - [SvelteKit](https://scalar.com/products/api-references/integrations/sveltekit)
+- [Symfony](https://scalar.com/products/api-references/integrations/symfony)
 - [Ts.ED](https://scalar.com/products/api-references/integrations/tsed)
 - [Vue.js](https://scalar.com/products/api-references/integrations/vue)
 
