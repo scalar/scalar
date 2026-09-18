@@ -598,6 +598,28 @@ describe('createParameterRows', () => {
     ])
   })
 
+  it('auto-enables an optional header with a pre-populated value (x-scenario-id bug)', () => {
+    const parameter: ParameterObject = {
+      name: 'x-scenario-id',
+      in: 'header',
+      required: false,
+      schema: { type: 'string', enum: ['200_createEnrollment_success', '400_bad_request'] },
+      examples: {
+        default: {
+          value: '200_createEnrollment_success',
+          // no x-disabled set — would normally start unchecked
+        },
+      },
+    }
+
+    const [row] = createParameterRows(parameter, 'default')
+
+    expect({
+      isDisabled: row?.isDisabled,
+      isDisabledByDefault: row?.isDisabledByDefault,
+    }).toStrictEqual({ isDisabled: false, isDisabledByDefault: true })
+  })
+
   it('does not mark an explicitly disabled parameter as disabled by default', () => {
     const parameter: ParameterObject = {
       name: 'header',
