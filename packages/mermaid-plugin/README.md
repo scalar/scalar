@@ -32,7 +32,27 @@ flowchart LR
 
 Use **Zoom in**, **Zoom out**, and **Reset view** to explore the diagram. Drag to pan, or focus the diagram and use the arrow keys. Mermaid loads only when an enabled plugin encounters a Mermaid fence. Without the plugin, fences remain ordinary code blocks. Invalid diagrams keep their source visible.
 
-Rendering runs in the browser after Markdown is sanitized. Server rendering keeps the code block until hydration. Mermaid uses its strict security mode; diagram callbacks and custom HTML are not enabled. Rendered content is disposed when Markdown changes or the reference is destroyed.
+Rendering runs in the browser after Markdown is sanitized. Server rendering keeps the code block until hydration. Rendered content is disposed when Markdown changes or the reference is destroyed.
+
+## Security and opt-in
+
+Enable this plugin explicitly only when you accept Mermaid as an additional rendering and sanitization dependency. Diagram source comes from the API description and may be untrusted, including in hosted references. Scalar sanitizes Markdown before the hook runs, but it does not sanitize the SVG inserted by this plugin afterward: Mermaid's sanitizer is the security boundary for that generated content.
+
+The plugin initializes Mermaid with `securityLevel: 'strict'`, which sanitizes diagram content and disables callbacks. Do not weaken that setting through another Mermaid integration on the same page. Keep Mermaid updated as security fixes become available. Without the plugin, Mermaid fences remain ordinary sanitized code blocks.
+
+## Styling
+
+The viewer uses Scalar's border, background, text, radius, and focus tokens, so its frame and controls follow theme changes. Mermaid's default diagram palette intentionally retains a light drawing surface in both light and dark mode to keep SVG labels and strokes legible.
+
+Override `--scalar-mermaid-canvas-background` to customize that drawing surface, choosing a color compatible with Mermaid's light palette:
+
+```css
+.scalar-app {
+  --scalar-mermaid-canvas-background: #f8fafc;
+}
+```
+
+The DOM-level Markdown hook works without mounting a Vue application. Its stylesheet ships only with the opt-in plugin and uses low-specificity selectors. Consumers can override `.scalar-mermaid-diagram`, `.scalar-mermaid-toolbar`, `.scalar-mermaid-viewport`, `.scalar-mermaid-canvas`, and `.scalar-mermaid-control` in their own CSS. Dynamic pan and zoom transforms remain inline.
 
 ## Custom Markdown plugins
 
