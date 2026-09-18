@@ -1477,6 +1477,35 @@
               }
             }
           },
+          "/customers/warp": {
+            "type": "page",
+            "title": "Accelerating Warp's AI-Native HR Platform with Scalar",
+            "filepath": "documentation/guides/customers/warp.md",
+            "showInSidebar": false,
+            "description": "How Warp made every button in its HR platform callable by API, and moved its Go, TypeScript, Python and CLI SDKs to Scalar with no breaking changes.",
+            "head": {
+              "links": [
+                {
+                  "rel": "canonical",
+                  "href": "https://scalar.com/customers/warp"
+                }
+              ],
+              "meta": [
+                {
+                  "property": "og:image",
+                  "name": "og:image",
+                  "content": "https://scalar.com/warp-branding.png"
+                }
+              ]
+            },
+            "layout": {
+              "toc": false,
+              "sidebar": false,
+              "search": {
+                "enabled": false
+              }
+            }
+          },
           "/svg-playground": {
             "title": "SVG Playground",
             "description": "Scratch page for iterating on landing page artwork.",
