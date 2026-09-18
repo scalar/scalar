@@ -198,6 +198,35 @@ describe('buildRequest', () => {
     expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer eyJ')
   })
 
+  it.each([' \ttoken\r\n ', ' \t{{jwt}}\n '])('trims surrounding whitespace from bearer token %j', (value) => {
+    const factory = createFactory({
+      security: [{ in: 'header', name: 'Authorization', format: 'bearer', value }],
+    })
+    const [, requestInit] = unwrap(factory, { envVariables: { jwt: ' \ttoken\r\n ' } }).requestPayload
+
+    expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer token')
+    expect(factory.security[0]?.value).toBe(value)
+  })
+
+  it('preserves whitespace in Basic auth credentials', () => {
+    const [, requestInit] = unwrap(
+      createFactory({
+        security: [{ in: 'header', name: 'Authorization', format: 'basic', value: '{{u}}:{{p}}' }],
+      }),
+      { envVariables: { u: ' alice ', p: ' password ' } },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('Authorization')).toBe(`Basic ${encodeBase64(' alice : password ')}`)
+  })
+
+  it('preserves whitespace in query API keys', () => {
+    const [url] = unwrap(createFactory({ security: [{ in: 'query', name: 'api_key', value: '{{key}}' }] }), {
+      envVariables: { key: ' secret ' },
+    }).requestPayload
+
+    expect(new URL(url).searchParams.get('api_key')).toBe(' secret ')
+  })
+
   it('merges security query parameters with env substitution into the request URL', () => {
     const [url] = unwrap(
       createFactory({
