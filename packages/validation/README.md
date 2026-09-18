@@ -68,6 +68,24 @@ Returns a value typed as `Static<typeof schema>`. It is **not** strict validatio
 
 Use **`validate`** when you need a yes/no. Use **`coerce`** when you want a stable default-filled structure (for example normalizing config or parsed JSON).
 
+### Recursive scoring and resource use
+
+`coerce` memoizes union scores for one call, preserving branch selection and circular output references. Its output containers are newly constructed, so coercion itself does not invalidate scores by modifying input objects. Do not mutate inputs or schemas from getters or callbacks during the call. A later call starts fresh scoring state, even when an output cache is supplied.
+
+Memoization is a time/memory tradeoff, not a resource limit. There is no hard work, memory, or recursion-depth budget. Dependency masks use `BigInt`; their width grows with distinct cycle-dependent object/schema pairs across the call. Many independent cycles can therefore cost more than the previous scorer, despite improvements on connected recursive rings. Clearing masks between union evaluations would also discard the cross-evaluation reuse that this optimization needs.
+
+Measurements against the previous scorer on one machine illustrate the limits:
+
+| Input | Previous → memoized time | Previous → memoized process maximum RSS |
+| --- | --- | --- |
+| 7.75 MB Stripe OpenAPI document | 385 → 263 ms | 270 → 357 MiB |
+| 10,000 values whose `evaluate` callbacks allocate fresh objects | 11.8 → 16.4 ms | 62 → 75 MiB |
+| 2,048 independent self-cycles | 9.4 → 38.9 ms | 57 → 143 MiB |
+
+The Stripe result is the median of five fresh Node 24.21.0 processes per scorer; the synthetic results use three fresh Node 24.8.0 processes. Outputs were checked for equality, including cycle identity in the synthetic cycle case. Maximum RSS includes the whole process, not just scoring allocations. Stripe retained heap after garbage collection was similar (about 6 MB) with input and output retained. These measurements do not establish bounds for other schemas or runtimes.
+
+Separate instrumentation of the fresh-object fixture counted three scored object identities and four object/schema pairs per input value, with no dependency bits. At 1,024 independent self-cycles, it counted 6,144 cycle-dependent pairs and a 6,144-bit maximum mask width. Instrumentation retains metadata, so its memory and timing are excluded from the comparison above. Fresh callback allocations increase bookkeeping and do not benefit from identity reuse.
+
 ## Schema builders
 
 | Builder | Validates | `Static` type (idea) |
@@ -106,6 +124,10 @@ const trimmed = evaluate((v) => (typeof v === 'string' ? v.trim() : v), string()
 
 validate(trimmed, '  hi  ') // true (after trim)
 ```
+
+Expressions must return deterministic results and must not mutate inputs or schemas during validation or coercion. Prefer returning an existing object: stable identity enables cycle detection and score reuse. Returning a fresh equivalent object is supported, but repeated allocations cannot share identity-cached work. A callback must not create an endless recursive expansion.
+
+Scalar's OpenAPI 3.1, AsyncAPI 3.1, and workspace-store 3.1/3.2 reference expressions follow existing `$ref-value` chains and return existing targets; they do not allocate replacement objects or mutate the input. Custom expressions must follow the same stability contract.
 
 ## Objects and records
 

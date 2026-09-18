@@ -317,6 +317,13 @@ const lazy = <S extends () => Schema>(schema: S): LazySchema<S> => ({
   schema,
 })
 
+/**
+ * Evaluate a value before applying the inner schema.
+ * Expressions must be deterministic and must not mutate input values or schemas during
+ * validation/coercion. Return an existing object when possible: stable identity enables
+ * cycle detection and memoized scoring. A fresh object with equivalent contents is allowed,
+ * but cannot share identity-based cached work and must not create endless recursive expansion.
+ */
 const evaluate = <S extends Schema>(expression: (value: unknown) => unknown, schema: S): EvaluateSchema<S> => ({
   type: 'evaluate',
   expression,
