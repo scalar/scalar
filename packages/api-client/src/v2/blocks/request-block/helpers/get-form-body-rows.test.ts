@@ -4,6 +4,18 @@ import { assert, describe, expect, it } from 'vitest'
 import { getFormBodyRows, getFormBodyValue } from './get-form-body-rows'
 
 describe('getFormBodyRows', () => {
+  it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
+    'uses structured data for %s rows when wire text exists',
+    (contentType) => {
+      expect(
+        getFormBodyRows(
+          { dataValue: { name: 'structured' }, serializedValue: 'name=wire', value: 'name=wire' },
+          contentType,
+        ),
+      ).toStrictEqual([{ name: 'name', value: 'structured', isDisabled: false }])
+    },
+  )
+
   it.each(
     (['allOf', 'oneOf', 'anyOf'] as const).flatMap((composition) =>
       ['multipart/form-data', 'application/x-www-form-urlencoded'].map((contentType) => ({

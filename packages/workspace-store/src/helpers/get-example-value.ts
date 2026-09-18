@@ -23,8 +23,8 @@ export const getExampleValue = (input: ReferenceType<ExampleObject> | undefined)
   return undefined
 }
 
-/** Serialize only structured JSON data; format-specific consumers handle other media types. */
-export const getJsonExampleText = (
+/** Preserve explicit wire text for any media type, or serialize structured JSON data. */
+export const getExplicitExampleText = (
   example: ExampleValue | undefined,
   contentType: string,
   indent?: number,

@@ -1,6 +1,6 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { getExampleValue, getJsonExampleText } from '@scalar/workspace-store/helpers/get-example-value'
+import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
@@ -12,11 +12,11 @@ import type {
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
-  contentType = 'application/json',
+  { contentType = 'application/json' }: { contentType?: string } = {},
 ): string | undefined => {
   if (example !== undefined) {
     const selected = getExampleValue(getResolvedRefDeep(example))
-    const explicitText = getJsonExampleText(selected, contentType, 2)
+    const explicitText = getExplicitExampleText(selected, contentType, 2)
     if (explicitText !== undefined) {
       return explicitText
     }

@@ -6,6 +6,24 @@ import { processBody } from './process-body'
 
 describe('processBody', () => {
   it.each([
+    ['application/xml', '<name>wire</name>'],
+    ['application/x-www-form-urlencoded', 'name=wire'],
+    ['application/json', ' { "name": "wire" } '],
+  ])('keeps serialized %s snippet payloads when dataValue also exists', (contentType, serializedValue) => {
+    expect(
+      processBody({
+        requestBody: {
+          content: {
+            [contentType]: { examples: { selected: { dataValue: { name: 'structured' }, serializedValue } } },
+          },
+        },
+        contentType,
+        example: 'selected',
+      }),
+    ).toStrictEqual({ mimeType: contentType, text: serializedValue })
+  })
+
+  it.each([
     [{ dataValue: 'hello' }, '"hello"'],
     [{ dataValue: false }, 'false'],
     [{ dataValue: null }, 'null'],
