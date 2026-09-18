@@ -16,6 +16,20 @@ vi.mock('@scalar/use-hooks/useClipboard', () => ({
 }))
 
 describe('ExampleResponses', () => {
+  it('does not offer union alternatives when an empty enum excludes every value', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      enum: [],
+      oneOf: [
+        { type: 'string', title: 'Text' },
+        { type: 'number', title: 'Number' },
+      ],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    expect(wrapper.find('[data-testid="response-variant-picker"]').exists()).toBe(false)
+  })
+
   it('renders a response summary without a description or examples', () => {
     const wrapper = mount(ExampleResponses, { props: { responses: { '204': { summary: 'Deletion completed' } } } })
     expect(wrapper.text()).toContain('Deletion completed')
@@ -109,7 +123,7 @@ describe('ExampleResponses', () => {
           '200': {
             description: '',
             content: {
-              // @ts-expect-error An unresolved reference can arrive before document resolution completes.
+              // An unresolved reference can arrive before document resolution completes.
               'application/json': { schema: { $ref: '#/components/schemas/Missing' } },
             },
           },

@@ -6,6 +6,26 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it.each(['oneOf', 'anyOf'] as const)(
+    'ignores type-inapplicable root keywords for selected %s branches without changing the source',
+    (composition) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        properties: { objectOnly: { const: 'unused' } },
+        items: { type: 'string', const: 'arrayOnly' },
+        [composition]: [
+          { type: 'string', minLength: 3 },
+          { type: 'array', items: { type: 'string', const: 'selected' } },
+        ],
+      })
+      const original = structuredClone(schema)
+      expect(getExampleFromSchema(schema, { emptyString: 'text', compositionSelection: { [composition]: 0 } })).toBe(
+        'text',
+      )
+      expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 1 } })).toStrictEqual(['selected'])
+      expect(schema).toStrictEqual(original)
+    },
+  )
+
   it.each(['oneOf', 'anyOf'] as const)('selects root %s branches before shared type inference', (composition) => {
     const cases = [
       { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] },
