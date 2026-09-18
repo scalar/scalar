@@ -644,7 +644,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
       {
         ...securitySchemeBase.properties,
         type: literal('oauth2'),
-        oauth2MetadataUrl: optional(string({ typeComment: 'The OAuth 2.0 authorization server metadata URL.' })),
         flows: oauth2Flows,
         oauth2MetadataUrl: optional(
           string({

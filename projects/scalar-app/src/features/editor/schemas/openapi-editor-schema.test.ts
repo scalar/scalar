@@ -37,6 +37,15 @@ describe('openapi-editor-schema', () => {
     expect(validate({ openapi: '3.1.1', info: document.info, paths: {} })).toEqual({ valid: true, errors: [] })
   })
 
+  it.each(['3.1.0', '3.1.1'])('allows 3.2 fields without rewriting the declared %s version', (openapi) => {
+    const olderDocument = { ...document, openapi }
+    expect(validate(JSON.stringify(olderDocument))).toEqual({ valid: true, errors: [] })
+    expect(validate(stringify(olderDocument))).toEqual({ valid: true, errors: [] })
+    expect(validate(olderDocument)).toEqual({ valid: true, errors: [] })
+    expect(olderDocument.openapi).toBe(openapi)
+    expect(validate({ ...olderDocument, servers: [{ url: 'https://example.com', name: 42 }] }).valid).toBe(false)
+  })
+
   it('still rejects invalid OpenAPI 3.2 field values', () => {
     expect(validate({ ...document, servers: [{ url: 'https://example.com', name: 42 }] }).valid).toBe(false)
   })
