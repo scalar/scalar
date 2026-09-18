@@ -144,8 +144,19 @@ describe('XBadges', () => {
       })
 
       const renderedBadges = wrapper.findAll('.badge')
-      expect(renderedBadges[0]?.attributes('style')).toContain('color: red')
-      expect(renderedBadges[1]?.attributes('style')).toContain('color: blue')
+      expect(renderedBadges[0]?.attributes('style')).toContain('--badge-color: red')
+      expect(renderedBadges[1]?.attributes('style')).toContain('--badge-color: blue')
+      expect(renderedBadges[0]?.classes()).toContain('badge-colored')
+    })
+
+    it('leaves the themed styling alone when a badge has no color', () => {
+      const wrapper = mount(XBadges, {
+        props: { position: 'before', badges: [{ name: 'Plain', position: 'before' as const }] },
+      })
+
+      const badge = wrapper.find('.badge')
+      expect(badge.attributes('style')).toBeUndefined()
+      expect(badge.classes()).not.toContain('badge-colored')
     })
 
     it('renders badge names as text content', () => {
