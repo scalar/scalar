@@ -50,6 +50,7 @@ const hasChannels = computed(
 <template>
   <Section
     v-if="tag"
+    class="references-tag"
     :id="tag.id"
     role="none"
     @intersecting="

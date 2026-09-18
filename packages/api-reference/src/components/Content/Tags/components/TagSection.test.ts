@@ -145,6 +145,22 @@ describe('TagSection', () => {
     })
   })
 
+  describe('surface typography tokens', () => {
+    it('renders the references-tag class on the section for CSS token scoping', () => {
+      const mockTag = createMockTag()
+
+      const wrapper = mount(TagSection, {
+        props: {
+          eventBus: null,
+          tag: mockTag,
+        },
+      })
+
+      const section = wrapper.findComponent({ name: 'Section' })
+      expect(section.classes()).toContain('references-tag')
+    })
+  })
+
   describe('edge cases and error handling', () => {
     it('handles tag with null tag property gracefully', () => {
       const mockTag = createMockTag({})
