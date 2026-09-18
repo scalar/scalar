@@ -264,6 +264,12 @@ Only use the root `pnpm test` (no path argument) when you intentionally want to 
 
 ## PR Requirements
 
+### PR descriptions
+
+- Explain the problem and resulting behavior with concrete examples. For OpenAPI-related changes, include the smallest complete, copy-pasteable OpenAPI document that demonstrates the change and describe the expected before/after behavior. Add screenshots when they help illustrate the result; UI changes require visual artifacts as described below.
+- Upload or attach screenshots used in PR descriptions as PR assets. Do not commit them or include them in the PR diff.
+- Do not mention tests, type checks, lint, formatting, or Knip checks you ran in the PR description; CI shows these results. Continue to run all required checks before opening or updating a PR.
+
 ### Semantic PR titles
 
 PR titles must follow `type(scope): subject`:
@@ -347,6 +353,10 @@ If a package version should bump, add a changeset:
 ```bash
 pnpm changeset
 ```
+
+Do not add a changeset for an **ignored package**. The `ignore` list in `.changeset/config.json` currently covers `proxy-scalar-com`, `@scalar-examples/*`, and `@scalar-internal/*`. These are private or deployed separately, so they are never published to npm.
+
+A changeset that targets only an ignored package is never consumed by `changeset version`, so it stays in `.changeset/` indefinitely. That pins the release workflow to the "version" path: it keeps opening a `chore: release` PR and never runs `publish`, silently blocking every other package from being released. If `pnpm changeset status` reports a bump for one of these packages, delete that changeset rather than merging it.
 
 ### After-change checklist
 
@@ -434,6 +444,8 @@ The `api-client` has multiple layouts (web, app, modal) - see its package `AGENT
 
 When making UI changes, embed artifacts directly in the PR description. Cursor Cloud Agents can upload these when referenced as absolute paths.
 
+Keep screenshots for PR descriptions outside the tracked source tree and upload or attach them as PR assets. Do not stage or commit these screenshots; they must not appear in the PR diff.
+
 #### How it works
 
 1. Save artifacts to `/opt/cursor/artifacts/` using descriptive snake_case names.
@@ -467,6 +479,16 @@ Add a `## Visual` section:
 <img src="/opt/cursor/artifacts/screenshot_after.png" alt="After" />
 <video src="/opt/cursor/artifacts/demo_feature.mp4" controls></video>
 ```
+
+## OpenAPI Specification
+
+Before making any OpenAPI-related code changes, always read the [OpenAPI Specification 3.2.1](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/3.2.1.md) first. Use its relevant requirements to guide implementation and tests, rather than relying on memory or existing code alone. When changing behavior for an earlier OpenAPI version, also consult that version's specification for differences.
+
+- [OpenAPI 3.1.2](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/3.1.2.md)
+- [OpenAPI 3.0.4](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/3.0.4.md)
+- [OpenAPI 2.0](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/2.0.md)
+
+Respect the version declared by the API description (`openapi` or `swagger`). Do not apply newer-version behavior to older documents unless that version's specification supports it.
 
 ## OpenAPI Terminology
 
