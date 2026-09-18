@@ -70,6 +70,48 @@ describe('for-each-path-item-operation', () => {
     expect(resolved?.get).toEqual({ summary: 'List all moons' })
   })
 
+  it('follows hidden reference links and preserves sibling overrides at every hop', () => {
+    const target = {
+      get: { summary: 'Original get' },
+      post: { summary: 'Create pet' },
+      parameters: [{ name: 'target', in: 'query' }],
+    }
+    const alias = {
+      $ref: '#/components/pathItems/Target',
+      get: { summary: 'Alias get' },
+    }
+    const path = {
+      $ref: '#/components/pathItems/Alias',
+      parameters: [{ name: 'outer', in: 'header' }],
+    } satisfies NodeInput<PathItemObject>
+    Object.defineProperty(alias, '$ref-value', { value: target })
+    Object.defineProperty(path, '$ref-value', { value: alias })
+
+    expect(getResolvedPathItem(path)).toStrictEqual({
+      $ref: '#/components/pathItems/Alias',
+      get: { summary: 'Alias get' },
+      post: { summary: 'Create pet' },
+      parameters: [{ name: 'outer', in: 'header' }],
+    })
+    expect(Object.getOwnPropertyDescriptor(alias, '$ref-value')?.enumerable).toBe(false)
+    expect(Object.getOwnPropertyDescriptor(path, '$ref-value')?.enumerable).toBe(false)
+  })
+
+  it('terminates a cycle of hidden reference links without exposing the link', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const cycle = { $ref: '#/components/pathItems/Loop' }
+    Object.defineProperty(cycle, '$ref-value', { value: cycle })
+
+    try {
+      const resolved = getResolvedPathItem(cycle)
+      expect(resolved).toStrictEqual({ $ref: '#/components/pathItems/Loop' })
+      expect(Object.hasOwn(resolved ?? {}, '$ref-value')).toBe(false)
+      expect(warn.mock.calls.length).toBe(1)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('keeps the outermost $ref when it follows a chain', () => {
     // The reference the author wrote is the one worth keeping: it is what externalization skips and
     // what `restoreOriginalRefs` maps back to the original URL. Asserted together with the resolved
