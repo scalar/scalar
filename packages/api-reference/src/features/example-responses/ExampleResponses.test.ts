@@ -28,7 +28,11 @@ describe('ExampleResponses', () => {
             content: {
               'application/json': {
                 examples: {
-                  example1: { value: { message: 'Success' } },
+                  example1: {
+                    summary: 'Single example',
+                    description: 'Single example details',
+                    value: { message: 'Success' },
+                  },
                 },
               },
             },
@@ -47,6 +51,8 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Success')
     expect(wrapper.text()).not.toContain('value')
     expect(examplePicker.exists()).toBe(false)
+    expect(wrapper.text()).toContain('Single example')
+    expect(wrapper.text()).toContain('Single example details')
   })
 
   it('multiple examples for the same status code', async () => {
@@ -58,8 +64,8 @@ describe('ExampleResponses', () => {
             content: {
               'application/json': {
                 examples: {
-                  example1: { value: { message: 'Example 1' } },
-                  example2: { value: { message: 'Example 2' } },
+                  example1: { description: 'First **details**', value: { message: 'Example 1' } },
+                  example2: { description: 'Second details', value: { message: 'Example 2' } },
                 },
               },
             },
@@ -80,10 +86,16 @@ describe('ExampleResponses', () => {
     expect(textSelectLabel.text()).toContain('example1')
     expect(codeBlock[0]?.text()).toContain('Example 1')
     expect(codeBlock[0]?.text()).not.toContain('Example 2')
+    expect(wrapper.find('strong').text()).toBe('details')
+    expect(wrapper.text()).toContain('First details')
+    expect(wrapper.text()).not.toContain('Second details')
 
     await examplePicker.vm.$emit('update:modelValue', 'example2')
     expect(wrapper.text()).not.toContain('Example 1')
     expect(wrapper.text()).toContain('Example 2')
+    expect(wrapper.text()).toContain('Second details')
+    expect(wrapper.text()).not.toContain('First details')
+    expect(wrapper.text()).toContain('Successful response')
   })
 
   it('handles xml example response', () => {
