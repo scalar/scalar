@@ -1,7 +1,8 @@
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
+import { getCookieHeader } from './build-request-cookie-header'
 import { buildRequestParameters } from './build-request-parameters'
 
 /**
@@ -23,6 +24,45 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black', 'brown'], expected: 'color=blue; color=black; color=brown' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+    { value: [], expected: '' },
+    { value: {}, expected: '' },
+  ])('serializes cookie style $expected', ({ value, expected }) => {
+    const result = buildRequestParameters([
+      {
+        name: 'color',
+        in: 'cookie',
+        style: 'cookie',
+        required: true,
+        examples: { default: { value } },
+      },
+    ])
+    expect(getCookieHeader(result.cookies, undefined)).toBe(expected)
+  })
+
+  it('warns and expands cookie arrays when the invalid explode: false is provided', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const result = buildRequestParameters([
+      {
+        name: 'color',
+        in: 'cookie',
+        style: 'cookie',
+        explode: false,
+        required: true,
+        examples: { default: { value: ['blue', 'black'] } },
+      },
+    ])
+    expect(getCookieHeader(result.cookies, undefined)).toBe('color=blue; color=black')
+    expect(warning).toHaveBeenCalledExactlyOnceWith(
+      'Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.',
+    )
+    warning.mockRestore()
+  })
+
   describe('getExample (internal helper)', () => {
     /**
      * Tests for the internal getExample function which extracts examples from parameters.

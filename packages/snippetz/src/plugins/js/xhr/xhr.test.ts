@@ -161,7 +161,7 @@ xhr.send(null);`)
       ],
     })
 
-    expect(result).toBe(`// Run on the request origin to set these cookies in the browser.
+    expect(result).toBe(`// Run on the request origin; document.cookie writes cookies for the current page's domain.
 document.cookie = "foo=bar; path=/";
 document.cookie = "bar=foo; path=/";
 const xhr = new XMLHttpRequest();
@@ -768,7 +768,7 @@ xhr.send("{\\"key\\":\\"\\\\\\"quotes\\\\\\" and \\\\\\\\backslashes\\\\\\\\\\",
       ],
     })
 
-    expect(result).toBe(`// Run on the request origin to set these cookies in the browser.
+    expect(result).toBe(`// Run on the request origin; document.cookie writes cookies for the current page's domain.
 document.cookie = "special%3Bcookie=value%20with%20spaces; path=/";
 const xhr = new XMLHttpRequest();
 xhr.open("GET", "https://example.com");

@@ -181,7 +181,7 @@ describe('jquery', () => {
       ],
     })
 
-    expect(result).toBe(`// Run on the request origin to set these cookies in the browser.
+    expect(result).toBe(`// Run on the request origin; document.cookie writes cookies for the current page's domain.
 document.cookie = "foo=bar; path=/";
 document.cookie = "bar=foo; path=/";
 $.ajax({
@@ -863,7 +863,7 @@ $.ajax({
       ],
     })
 
-    expect(result).toBe(`// Run on the request origin to set these cookies in the browser.
+    expect(result).toBe(`// Run on the request origin; document.cookie writes cookies for the current page's domain.
 document.cookie = "special%3Bcookie=value%20with%20spaces; path=/";
 $.ajax({
   url: "https://example.com",

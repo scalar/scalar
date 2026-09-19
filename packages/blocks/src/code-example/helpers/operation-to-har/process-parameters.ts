@@ -6,6 +6,7 @@ import {
   getExampleFromSchema,
   isParamDisabled,
   serializeContentValue,
+  serializeCookieStyle,
   serializeDeepObjectStyle,
   serializeFormStyle,
   serializeFormStyleForCookies,
@@ -21,6 +22,8 @@ type ProcessedParameters = {
   headers: HarRequest['headers']
   queryString: HarRequest['queryString']
   cookies: HarRequest['cookies']
+  /** Whether serialized cookie-style values require a complete Cookie header. */
+  hasCookieStyleEntries: boolean
 }
 
 /** Ensures we don't have any references in the parameters */
@@ -57,10 +60,10 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
     return { style: 'simple', explode }
   }
 
-  // Cookies only support 'form' style
+  // Cookies default to form for compatibility and also support cookie style.
   if (param.in === 'cookie') {
     const explode = 'explode' in param && param.explode !== undefined ? param.explode : true
-    return { style: 'form', explode }
+    return { style: 'style' in param && param.style === 'cookie' ? 'cookie' : 'form', explode }
   }
 
   // The 3.2 `querystring` location has no style/explode of its own, so it falls through to the
@@ -140,6 +143,7 @@ export const processParameters = ({
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
   const newQueryString = [...harRequest.queryString]
+  const cookieStyleEntries: HarRequest['cookies'] = []
   let newUrl = harRequest.url
 
   // Filter out references
@@ -245,8 +249,12 @@ export const processParameters = ({
         break
       }
 
-      // Cookies only support 'form' style according to OpenAPI 3.1.1
+      // Keep cookie style separate so snippet generators cannot percent-encode it.
       case 'cookie': {
+        if (style === 'cookie') {
+          cookieStyleEntries.push(...serializeCookieStyle(param.name, paramValue, explode))
+          break
+        }
         const serialized = serializeFormStyleForCookies(paramValue, explode)
 
         // If serialized is an array of key-value pairs (exploded object or array)
@@ -267,11 +275,30 @@ export const processParameters = ({
     }
   }
 
+  // HAR cookie entries are encoded by snippet generators. Use a complete header
+  // when cookie style is present, preserving legacy encoding for other cookies.
+  if (cookieStyleEntries.length) {
+    const cookieValue = [
+      ...harRequest.cookies.map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`),
+      ...cookieStyleEntries.map((cookie) => `${cookie.name}=${cookie.value}`),
+    ].join('; ')
+    const existing = newHeaders.find((header) => header.name.toLowerCase() === 'cookie')
+    if (existing) {
+      newHeaders.splice(newHeaders.indexOf(existing), 1, {
+        ...existing,
+        value: existing.value ? `${existing.value}; ${cookieValue}` : cookieValue,
+      })
+    } else {
+      newHeaders.push({ name: 'Cookie', value: cookieValue })
+    }
+  }
+
   return {
     url: newUrl,
     headers: newHeaders,
     queryString: newQueryString,
-    cookies: harRequest.cookies,
+    cookies: cookieStyleEntries.length ? [] : harRequest.cookies,
+    hasCookieStyleEntries: cookieStyleEntries.length > 0,
   }
 }
 

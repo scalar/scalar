@@ -1,4 +1,5 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { snippetz } from '@scalar/snippetz'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -8,6 +9,115 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it.each(snippetz().plugins())('preserves mixed cookie encodings in $target/$client', ({ target, client }) => {
+    const request = operationToHar({
+      method: 'get',
+      path: '/',
+      includeDefaultHeaders: false,
+      server: { url: 'https://example.com' },
+      operation: {
+        parameters: [
+          { name: 'greeting', in: 'cookie', style: 'cookie', required: true, example: 'Hello%2C%20world!' },
+          { name: 'legacy', in: 'cookie', required: true, example: 'a b+c' },
+        ],
+      },
+      globalCookies: [{ name: 'global', value: 'c d', domain: 'example.com', path: '/' }],
+      securitySchemes: [{ type: 'apiKey', name: 'token', in: 'cookie', 'x-scalar-secret-token': 'secret+value' }],
+    })
+    const expected = 'legacy=a%20b%2Bc; greeting=Hello%2C%20world!; global=c%20d; token=secret%2Bvalue'
+    expect(request.headers).toStrictEqual([{ name: 'Cookie', value: expected }])
+    expect(request.cookies).toStrictEqual([])
+    const snippet = snippetz().findPlugin(target, client)?.generate(request)
+    expect(snippet).toBeDefined()
+    for (const entry of expected.split('; ')) {
+      expect(snippet).toContain(entry)
+    }
+    expect(snippet).not.toContain('Hello%252C%2520world')
+    if (target === 'js' && (client === 'xhr' || client === 'jquery')) {
+      expect(snippet).toContain('document.cookie')
+    } else {
+      expect(snippet).toContain(expected)
+    }
+  })
+
+  it('keeps cookie style, global cookies, and authentication in a single raw header', () => {
+    const result = operationToHar({
+      method: 'get',
+      path: '/',
+      includeDefaultHeaders: false,
+      server: { url: 'https://example.com' },
+      operation: {
+        parameters: [{ name: 'greeting', in: 'cookie', style: 'cookie', required: true, example: 'Hello%2C%20world!' }],
+      },
+      globalCookies: [{ name: 'global', value: 'a b', domain: 'example.com', path: '/' }],
+      securitySchemes: [{ type: 'apiKey', name: 'token', in: 'cookie', 'x-scalar-secret-token': 'secret' }],
+    })
+    expect(result.headers).toStrictEqual([
+      { name: 'Cookie', value: 'greeting=Hello%2C%20world!; global=a%20b; token=secret' },
+    ])
+    expect(result.cookies).toStrictEqual([])
+    expect(snippetz().print('shell', 'curl', result)).toContain(
+      'greeting=Hello%2C%20world!; global=a%20b; token=secret',
+    )
+  })
+
+  it.each(['absent', 'disabled', 'empty'] as const)(
+    'preserves structured cookies alongside an explicit Cookie header when cookie style is %s',
+    (cookieStyle) => {
+      const result = operationToHar({
+        method: 'get',
+        path: '/',
+        server: { url: 'https://example.com' },
+        operation: {
+          parameters: [
+            { name: 'Cookie', in: 'header', required: true, example: 'session=abc' },
+            { name: 'legacy', in: 'cookie', required: true, example: 'a b' },
+            ...(cookieStyle === 'absent'
+              ? []
+              : [
+                  {
+                    name: 'styled',
+                    in: 'cookie' as const,
+                    style: 'cookie' as const,
+                    required: true,
+                    examples: {
+                      default: {
+                        value: cookieStyle === 'disabled' ? 'ignored' : [],
+                        'x-disabled': cookieStyle === 'disabled',
+                      },
+                    },
+                  },
+                ]),
+          ],
+        },
+        globalCookies: [{ name: 'global', value: 'c d', domain: 'example.com', path: '/' }],
+        securitySchemes: [{ type: 'apiKey', name: 'token', in: 'cookie', 'x-scalar-secret-token': 'secret' }],
+      })
+
+      expect(result.headers).toStrictEqual([{ name: 'Cookie', value: 'session=abc' }])
+      expect(result.cookies).toStrictEqual([
+        { name: 'global', value: 'c d' },
+        { name: 'legacy', value: 'a b' },
+        { name: 'token', value: 'secret' },
+      ])
+    },
+  )
+
+  it.each(['xhr', 'jquery'] as const)('sets cookie-style values through the browser cookie store in %s', (client) => {
+    const result = operationToHar({
+      method: 'get',
+      path: '/',
+      includeDefaultHeaders: false,
+      operation: {
+        parameters: [{ name: 'greeting', in: 'cookie', style: 'cookie', required: true, example: 'Hello%2C%20world!' }],
+      },
+    })
+    const snippet = snippetz().print('js', client, result)
+    expect(snippet).toContain('document.cookie = "greeting=Hello%2C%20world!; path=/";')
+    expect(snippet).not.toContain('setRequestHeader("Cookie"')
+    expect(snippet).toContain(client === 'xhr' ? 'xhr.withCredentials = true;' : 'xhrFields: { withCredentials: true }')
+  })
+
   describe('basic functionality', () => {
     it('should convert a basic operation to HAR format', () => {
       const operation: OperationObject = {

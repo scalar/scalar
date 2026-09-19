@@ -50,6 +50,7 @@ export {
   resolveLeafSchema,
   resolveRequestFactoryUrl,
   serializeContentValue,
+  serializeCookieStyle,
   serializeDeepObjectStyle,
   serializeFormPropertyWithEncoding,
   serializeFormStyle,

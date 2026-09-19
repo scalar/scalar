@@ -1,7 +1,7 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { processParameters } from './process-parameters'
 
@@ -22,6 +22,48 @@ describe('parameter styles', () => {
     parameters: OperationObject['parameters']
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
+
+  it('warns authors before expanding invalid cookie-style explode: false in snippets', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/'),
+      parameters: [
+        { name: 'color', in: 'cookie', style: 'cookie', explode: false, required: true, example: ['blue', 'black'] },
+      ],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'Cookie', value: 'color=blue; color=black' }])
+    expect(warning).toHaveBeenCalledExactlyOnceWith(
+      'Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.',
+    )
+    warning.mockRestore()
+  })
+
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black'], expected: 'color=blue; color=black' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+  ])('preserves cookie style in the HAR header: $expected', ({ value, expected }) => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/'),
+      parameters: [{ name: 'color', in: 'cookie', style: 'cookie', required: true, example: value }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'Cookie', value: expected }])
+    expect(result.cookies).toStrictEqual([])
+  })
+
+  it('merges cookie style with existing headers and legacy cookies without changing the input header', () => {
+    const harRequest = createHarRequest('/')
+    harRequest.headers = [{ name: 'cookie', value: 'session=abc' }]
+    harRequest.cookies = [{ name: 'legacy', value: 'a b' }]
+    const result = runProcessParameters({
+      harRequest,
+      parameters: [{ name: 'token', in: 'cookie', style: 'cookie', required: true, example: '%2F+==' }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc; legacy=a%20b; token=%2F+==' }])
+    expect(result.cookies).toStrictEqual([])
+    expect(harRequest.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc' }])
+  })
 
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
