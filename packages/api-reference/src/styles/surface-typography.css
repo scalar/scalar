@@ -1,0 +1,120 @@
+/**
+ * Surface Typography Tokens
+ *
+ * Scoped CSS custom property overrides that control text size, weight, and
+ * colour for each distinct surface in the API reference:
+ *
+ *   --refs-badge-*          HTTP method badges (GET / POST / PUT / DELETE …)
+ *   --refs-body-*           Main content / body pane (operation title, path, description)
+ *   --refs-server-*         Server selector block
+ *   --refs-sidebar-*        Sidebar item labels and HTTP method badges
+ *   --refs-tag-*            Tag section headings
+ *
+ * All variables fall back to the global scalar design tokens so the surface
+ * tokens are purely additive — nothing breaks if a consumer does not set them.
+ *
+ * Usage (host app or custom theme):
+ *
+ *   .scalar-app {
+ *     --refs-badge-font-size:   11px;
+ *     --refs-badge-font-weight: 700;
+ *     --refs-tag-font-size:     22px;
+ *   }
+ */
+
+/* ---------------------------------------------------------------------------
+ * HTTP Method Badges — sidebar badge (SidebarHttpBadge) and body-pane badge
+ * --------------------------------------------------------------------------- */
+
+/* Sidebar badge */
+.scalar-app .sidebar-heading-type {
+  font-size: var(--refs-badge-font-size, 10px);
+  font-weight: var(--refs-badge-font-weight, var(--scalar-bold));
+  letter-spacing: var(--refs-badge-letter-spacing, 0.02em);
+}
+
+/* Per-method colour overrides — consumers can tighten or swap any colour */
+.scalar-app .sidebar-heading-type--get    { color: var(--refs-badge-color-get,    var(--scalar-color-blue)); }
+.scalar-app .sidebar-heading-type--post   { color: var(--refs-badge-color-post,   var(--scalar-color-green)); }
+.scalar-app .sidebar-heading-type--put    { color: var(--refs-badge-color-put,    var(--scalar-color-orange)); }
+.scalar-app .sidebar-heading-type--patch  { color: var(--refs-badge-color-patch,  var(--scalar-color-yellow)); }
+.scalar-app .sidebar-heading-type--delete { color: var(--refs-badge-color-delete, var(--scalar-color-red)); }
+.scalar-app .sidebar-heading-type--head   { color: var(--refs-badge-color-head,   var(--scalar-color-2)); }
+.scalar-app .sidebar-heading-type--options{ color: var(--refs-badge-color-options,var(--scalar-color-purple)); }
+.scalar-app .sidebar-heading-type--trace  { color: var(--refs-badge-color-trace,  var(--scalar-color-2)); }
+
+/* Body-pane badge (Badge.vue used for operationId, stability, webhook) */
+.scalar-app .badge {
+  font-size: var(--refs-badge-body-font-size, var(--scalar-micro));
+  font-weight: var(--refs-badge-body-font-weight, var(--scalar-semibold));
+}
+
+/* ---------------------------------------------------------------------------
+ * Body Pane — operation title, path, description
+ * --------------------------------------------------------------------------- */
+
+/* Operation title (ModernLayout / ClassicLayout .operation-title) */
+.scalar-app .operation-title {
+  font-size: var(--refs-body-title-font-size, var(--scalar-heading-1));
+  font-weight: var(--refs-body-title-font-weight, var(--scalar-bold));
+  line-height: var(--refs-body-title-line-height, 1.45);
+  color: var(--refs-body-title-color, var(--scalar-color-1));
+}
+
+/* Operation path shown inside the code-example card header (OperationPath) */
+.scalar-app .operation-path {
+  font-size: var(--refs-body-path-font-size, var(--scalar-mini));
+  font-weight: var(--refs-body-path-font-weight, var(--scalar-semibold));
+  color: var(--refs-body-path-color, var(--scalar-color-2));
+}
+
+/* Section header labels (tag headings, model headings — SectionHeaderTag) */
+.scalar-app .section-header-label {
+  font-size: var(--refs-body-section-font-size, var(--scalar-heading-2));
+  font-weight: var(--refs-body-section-font-weight, var(--scalar-bold));
+  color: var(--refs-body-section-color, var(--scalar-color-1));
+}
+
+/* ---------------------------------------------------------------------------
+ * Server Selector
+ * --------------------------------------------------------------------------- */
+
+/* "Server" label above the dropdown */
+.scalar-app .scalar-server-selector label {
+  font-size: var(--refs-server-label-font-size, var(--scalar-mini));
+  font-weight: var(--refs-server-label-font-weight, var(--scalar-semibold));
+  color: var(--refs-server-label-color, var(--scalar-color-2));
+}
+
+/* Server URL text inside the selector */
+.scalar-app .scalar-server-selector {
+  font-size: var(--refs-server-url-font-size, var(--scalar-small));
+  color: var(--refs-server-url-color, var(--scalar-color-1));
+}
+
+/* ---------------------------------------------------------------------------
+ * Sidebar — item labels and section titles
+ * --------------------------------------------------------------------------- */
+
+/* Sidebar item label text (SidebarItemLabel → ScalarWrappingText) */
+.scalar-app .t-doc__sidebar {
+  --scalar-sidebar-font-size: var(--refs-sidebar-font-size, var(--scalar-small));
+  --scalar-sidebar-font-weight: var(--refs-sidebar-font-weight, var(--scalar-regular));
+  --scalar-sidebar-font-weight-active: var(--refs-sidebar-font-weight-active, var(--scalar-semibold));
+}
+
+/* ---------------------------------------------------------------------------
+ * Tags — section headings in the content area
+ * --------------------------------------------------------------------------- */
+
+/*
+ * Tag headings are rendered by SectionHeaderTag as h1–h6 with the
+ * .section-header-label class. The .references-tag wrapper is added by
+ * TagSection → Section → Section.vue so we can scope to tags only.
+ */
+.scalar-app .references-tag .section-header-label {
+  font-size: var(--refs-tag-font-size, var(--scalar-heading-2));
+  font-weight: var(--refs-tag-font-weight, var(--scalar-bold));
+  color: var(--refs-tag-color, var(--scalar-color-1));
+  letter-spacing: var(--refs-tag-letter-spacing, normal);
+}
