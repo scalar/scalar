@@ -20,6 +20,7 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
+import { expandChunkIndex } from '@/helpers/chunk-index'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { bumpDocumentRevision } from '@/helpers/document-revision'
@@ -1030,6 +1031,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const meta = deepClone(input.meta)
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
 
+    // A compact sparse document is expanded back into per-node chunk references before anything
+    // else reads it, so every step below — including the check for a server-generated navigation —
+    // sees the document a non-compact server store would have sent.
+    withMeasurementSync('expandChunkIndex', () => expandChunkIndex(clonedRawInputDocument))
+
     withMeasurementSync('initialize', () => {
       if (input.initialize !== false) {
         // Store the original document in the originalDocuments map
@@ -1543,6 +1549,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
+      // A workspace from a compact server store carries an index rather than per-node chunk
+      // references; expanded here for the same reason `addInMemoryDocument` expands.
+      for (const document of Object.values(input.documents)) {
+        expandChunkIndex(document)
+      }
+
       safeAssign(
         workspace.documents,
         Object.fromEntries(
