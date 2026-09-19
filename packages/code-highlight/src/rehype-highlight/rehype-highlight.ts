@@ -27,6 +27,41 @@ type HighlightOptions = {
 
 const emptyOptions: HighlightOptions = {}
 
+type Lowlight = ReturnType<typeof createLowlight>
+
+/**
+ * Grammar registries, keyed by the set of languages they were built from.
+ *
+ * Registering a grammar set is by far the most expensive part of setting up this
+ * plugin — the standard set is around 190 grammars — and callers hand in the
+ * same set object every time, so the registry is built once per set instead of
+ * once per pipeline. A registry is only read once built, so sharing it is safe;
+ * the one option that would write to it (`aliases`) opts out below.
+ */
+const registries = new WeakMap<object, Lowlight>()
+
+/** The registry for callers that name no languages at all. */
+let emptyRegistry: Lowlight | undefined
+
+const getRegistry = (languages: HighlightOptions['languages']): Lowlight => {
+  if (!languages) {
+    emptyRegistry ??= createLowlight()
+
+    return emptyRegistry
+  }
+
+  const cached = registries.get(languages)
+
+  if (cached) {
+    return cached
+  }
+
+  const registry = createLowlight(languages)
+  registries.set(languages, registry)
+
+  return registry
+}
+
 /**
  * Lowlight syntax highlighting plugin for rehype pipelines
  *
@@ -43,8 +78,9 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
   const extraClassNames = typeof settings.className === 'string' ? [settings.className] : (settings.className ?? [])
   let name = 'hljs'
 
-  // Create a lowlight instance if not provided
-  const lowlight = options?.lowlight ?? createLowlight(languages)
+  // `registerAlias` writes to the registry it is given, so a caller that wants
+  // aliases gets one of its own rather than the shared registry for its languages.
+  const lowlight = options?.lowlight ?? (aliases ? createLowlight(languages) : getRegistry(languages))
 
   if (aliases) {
     lowlight.registerAlias(aliases)

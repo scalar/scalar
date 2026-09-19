@@ -1,5 +1,4 @@
 import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
-import { createLowlight } from 'lowlight'
 import type { Heading, Root as MdastRoot, RootContent as MdastRootContent, Node, PhrasingContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -135,22 +134,6 @@ type HtmlFromMarkdownOptions = {
 }
 
 /**
- * One lowlight instance shared by every markdown pipeline.
- *
- * Registering the standard grammars is the most expensive part of building a
- * pipeline, and the registry is read-only once built (nothing here passes
- * `aliases`, the only option that mutates a given instance), so it is created
- * on first use and reused from then on.
- */
-let sharedLowlight: ReturnType<typeof createLowlight> | undefined
-
-const getLowlight = (): ReturnType<typeof createLowlight> => {
-  sharedLowlight ??= createLowlight(standardLanguages)
-
-  return sharedLowlight
-}
-
-/**
  * Build the markdown to HTML pipeline.
  */
 const createProcessor = (tagNames: string[], transform: Options['transform'], transformType: string | undefined) =>
@@ -189,8 +172,9 @@ const createProcessor = (tagNames: string[], transform: Options['transform'], tr
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
-      // Reuse the grammar registry instead of rebuilding it for every pipeline
-      lowlight: getLowlight(),
+      // The plugin keeps one registry per grammar set, so naming the set here
+      // costs nothing after the first pipeline
+      languages: standardLanguages,
       // Enable auto detection
       detect: true,
       // Adds Scalar's custom scrollbar styling to highlighted code blocks
