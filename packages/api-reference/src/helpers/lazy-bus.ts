@@ -374,6 +374,34 @@ const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown):
 }
 
 /**
+ * Returns the total height of all sticky/fixed elements at the top of the viewport
+ * so scroll targets are not hidden behind them.
+ */
+export const getStickyHeaderOffset = (): number => {
+  let offset = 0
+  for (const el of document.querySelectorAll<HTMLElement>('*')) {
+    const style = window.getComputedStyle(el)
+    if ((style.position === 'sticky' || style.position === 'fixed') && el.getBoundingClientRect().top < 4) {
+      offset = Math.max(offset, el.getBoundingClientRect().height)
+    }
+  }
+  return offset
+}
+
+/**
+ * Scrolls an element into view accounting for sticky headers.
+ */
+export const scrollToElement = (element: HTMLElement): void => {
+  const offset = getStickyHeaderOffset()
+  if (offset > 0) {
+    const top = element.getBoundingClientRect().top + window.scrollY - offset
+    window.scrollTo({ top, behavior: 'instant' as ScrollBehavior })
+  } else {
+    element.scrollIntoView({ block: 'start' })
+  }
+}
+
+/**
  * Tiny wrapper around the scrollIntoView API
  * Retries up to the stopTime in case the element is not yet rendered
  *
@@ -389,16 +417,7 @@ const tryScroll = (
 ): void => {
   const element = document.getElementById(id)
   if (element) {
-    element.scrollIntoView({ block: 'start' })
-    /**
-     * Focus the target as well as scrolling to it, so a deep link lands keyboard
-     * and screen-reader users on what they followed the link for rather than at
-     * the top of the document. `preventScroll` is load-bearing: `freeze`
-     * re-scrolls this element every frame while the lazy bus settles, and a
-     * focus-driven scroll would fight it. Only the current target is focused,
-     * because this loop retries for seconds while lazy content mounts and a
-     * superseded navigation must not yank a screen reader back to stale content.
-     */
+    scrollToElement(element)
     if (element instanceof HTMLElement && scrollTargetId.value === id) {
       element.focus({ preventScroll: true })
     }
@@ -407,14 +426,10 @@ const tryScroll = (
   } else if (Date.now() < stopTime) {
     requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure, fallbackId))
   } else {
-    // The exact element never appeared, so land on the section the anchor
-    // belongs to rather than leaving the reader with no feedback. This is what
-    // keeps a legacy anchor (an old response-header link) reaching its operation.
     if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
-      document.getElementById(fallbackId)?.scrollIntoView({ block: 'start' })
+      const fallback = document.getElementById(fallbackId)
+      if (fallback) scrollToElement(fallback)
     }
-
-    // If the scroll has expired we enable intersection again
     clearScrollTarget(id)
     onComplete()
     onFailure?.()
@@ -424,14 +439,10 @@ const tryScroll = (
 const freeze = (id: string): (() => void) => {
   let stop = false
 
-  /**
-   * Runs until the stop flag is set
-   * Executes the final frame after stop changes to true
-   */
   const runFrame = (stopAfterFrame: boolean) => {
     const element = document.getElementById(id)
     if (element) {
-      element.scrollIntoView({ block: 'start' })
+      scrollToElement(element)
     }
     if (!stopAfterFrame) {
       requestAnimationFrame(() => runFrame(stop))
