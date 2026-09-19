@@ -777,3 +777,48 @@ describe('real-world OpenAPI scenarios', () => {
     }
   })
 })
+
+describe('proxied documents', () => {
+  it('resolves through a magic proxy without rewriting the document', () => {
+    const document = {
+      components: { schemas: { User: { type: 'object', properties: { id: { type: 'integer' } } } } },
+      body: { $ref: '#/components/schemas/User' },
+    }
+    const proxy = createMagicProxy(document)
+
+    expect(getResolvedRefDeep(proxy.body)).toEqual({ type: 'object', properties: { id: { type: 'integer' } } })
+    // The document keeps its own shape: only the returned tree is plain.
+    expect(document.body).toEqual({ $ref: '#/components/schemas/User' })
+  })
+
+  it('resolves a shared node once per call and returns the same object for both uses', () => {
+    const shared = { type: 'string' }
+    const node = { first: shared, second: shared }
+
+    const result = getResolvedRefDeep(node) as Record<string, unknown>
+
+    expect(result.first).toEqual({ type: 'string' })
+    expect(result.first).toBe(result.second)
+  })
+
+  it('reflects an edit made between two calls', () => {
+    const document = {
+      components: { schemas: { User: { type: 'object', title: 'before' } } },
+      body: { $ref: '#/components/schemas/User' },
+    }
+    const proxy = createMagicProxy(document)
+
+    expect(getResolvedRefDeep(proxy.body)).toEqual({ type: 'object', title: 'before' })
+
+    document.components.schemas.User.title = 'after'
+
+    expect(getResolvedRefDeep(proxy.body)).toEqual({ type: 'object', title: 'after' })
+  })
+
+  it('keeps cycle safety for a node that points at itself', () => {
+    const node: Record<string, unknown> = { name: 'root' }
+    node.self = node
+
+    expect(getResolvedRefDeep(node)).toEqual({ name: 'root', self: '[circular]' })
+  })
+})
