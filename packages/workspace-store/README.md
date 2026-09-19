@@ -194,6 +194,67 @@ console.log(store.getWorkspace().documents.remoteFile)
 console.log(store.getWorkspace().documents.fsFile)
 ```
 
+### Compact sparse documents
+
+The sparse document is what the browser has to download before it can render anything, and for a
+very large API it grows into a cost of its own: for Cloudflare's public API (3,540 operations, 6,775
+schemas) it is 4,447 KB, of which 2,937 KB is the navigation tree and 1,492 KB is the per-node chunk
+references.
+
+`compact: true` changes how that document is spelled on the wire, and nothing else:
+
+- `x-scalar-navigation` becomes one more lazily resolved chunk — written to
+  `chunks/<document>/navigation.json` in `static` mode, served by `get('#/<document>/navigation')` in
+  `ssr` mode — and the document carries a reference to it. It stays a reference until something asks
+  for it, with `store.resolve(['x-scalar-navigation'])` on the client, and is then read through
+  `getResolvedRef`.
+- The per-node references under `components` and `paths` are replaced by one `x-scalar-chunk-index`
+  extension listing what exists, plus a template per kind saying how a reference to it is spelled.
+  The two sections are omitted; anything in them that was never externalized (a path item's
+  `parameters`, `summary`, `servers` or extensions) rides along in the index.
+
+```ts
+const store = await createServerWorkspaceStore({
+  mode: 'static',
+  directory: 'assets',
+  compact: true,
+  documents: [{ name: 'petstore', document }],
+})
+```
+
+```jsonc
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Petstore", "version": "1.0.0" },
+  "x-scalar-navigation": { "$ref": "./chunks/petstore/navigation.json#", "$global": true },
+  "x-scalar-chunk-index": {
+    "mode": "static",
+    "refs": {
+      "components": "./chunks/petstore/components/{type}/{name}.json#",
+      "operations": "./chunks/petstore/operations/{path}/{method}.json#",
+      "navigation": "./chunks/petstore/navigation.json#"
+    },
+    "components": { "schemas": ["Pet", "Error"] },
+    // `0` marks an operation that was externalized; every other key is kept as it was
+    "paths": { "/pets": { "summary": "Pets", "get": 0, "post": 0 } }
+  }
+}
+```
+
+The client store expands the index back into the same references as it ingests the document — through
+`addDocument`, `importWorkspaceFromSpecification`, `replaceDocument`, `revertDocumentChanges` or
+`loadWorkspace` — and drops the extension, so what it holds in memory is exactly what a non-compact
+server store would have produced, with the navigation reference the one difference. `resolve()`, the
+bundler and anything enumerating `paths` or `components` see the shape they always have.
+
+`getResolvedDocument()` is unaffected and still carries the whole document and its navigation, and so
+are AsyncAPI documents, which are never externalized.
+
+| Document | sparse | compact | sparse, gzip | compact, gzip |
+| --- | --- | --- | --- | --- |
+| Cloudflare public API | 4,447 KB | 431 KB | 346 KB | 63 KB |
+| 100 operations over 150 shared schemas | 71 KB | 10 KB | 6 KB | 2 KB |
+
 ## Client-Side Workspace Store
 
 A reactive workspace store for managing OpenAPI documents with automatic reference resolution and chunked loading capabilities. Works seamlessly with server-side stores to handle large documents efficiently.
