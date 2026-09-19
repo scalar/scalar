@@ -12,7 +12,7 @@ export const highlight = (code: string, lang: LanguageInput, options?: RenderOpt
   return render(code, resolveGrammar(lang), options)
 }
 
-/** Highlights to a complete `<pre class="ch">` block. */
+/** Highlights to a complete `<pre class="shl-code">` block. */
 export const highlightBlock = (code: string, lang: LanguageInput, options?: BlockOptions): string => {
   return renderBlock(code, resolveGrammar(lang), options)
 }
