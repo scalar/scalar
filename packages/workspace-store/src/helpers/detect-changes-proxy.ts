@@ -6,6 +6,138 @@ const detectChangesProxyTarget = Symbol('detectChangesProxyTarget')
 type OnBeforeChangeHook = (path: string[], value?: unknown) => void
 type OnAfterChangeHook = (path: string[], value?: unknown) => void
 
+type Options = {
+  hooks: Partial<{
+    onBeforeChange: OnBeforeChangeHook
+    onAfterChange: OnAfterChangeHook
+  }>
+}
+
+/**
+ * One link of the path a proxy sits at, pointing at the node above it.
+ *
+ * Reads outnumber writes by orders of magnitude on a rendered document, so a proxy keeps this link
+ * rather than a `string[]`: the array is built only when a `set` or `deleteProperty` hook is about to
+ * receive it. A node keeps the link it was first reached through, which is also the path the previous
+ * implementation froze into the proxy it cached.
+ */
+type PathLink = {
+  parent: PathLink | undefined
+  key: string
+}
+
+/** Build the `string[]` a hook expects, from the chain of links above the property being written. */
+const materializePath = (parent: PathLink | undefined, prop: string): string[] => {
+  let depth = 1
+  for (let link = parent; link !== undefined; link = link.parent) {
+    depth++
+  }
+
+  const path = new Array<string>(depth)
+  path[--depth] = prop
+  for (let link = parent; link !== undefined; link = link.parent) {
+    path[--depth] = link.key
+  }
+
+  return path
+}
+
+/** Turn the caller-supplied starting path into the link chain the proxies carry. */
+const toPathLink = (path: string[]): PathLink | undefined => {
+  let link: PathLink | undefined = undefined
+  for (const key of path) {
+    link = { parent: link, key }
+  }
+  return link
+}
+
+const createProxy = <T>(
+  target: T,
+  options: Options | undefined,
+  proxyCache: WeakMap<object, unknown>,
+  pathLink: PathLink | undefined,
+): T => {
+  // Only wrap objects or arrays
+  if (!isObject(target) && !Array.isArray(target)) {
+    return target
+  }
+
+  // Return cached proxy if already created for this target
+  const cached = proxyCache.get(target)
+  if (cached !== undefined) {
+    return cached as T
+  }
+
+  const proxy = new Proxy(target as T & object, {
+    get(target, prop, receiver) {
+      // Allow identifying if an object is a detect changes proxy
+      if (prop === isDetectChangesProxy) {
+        return true
+      }
+      // Allow access to the original target
+      if (prop === detectChangesProxyTarget) {
+        return target
+      }
+
+      const value = Reflect.get(target, prop, receiver)
+
+      // Primitives and functions are handed back untouched, which is the common case on a read.
+      if (value === null || typeof value !== 'object') {
+        return value
+      }
+
+      // A value wrapped earlier keeps its proxy, so nothing below this point runs for a repeat read.
+      const cachedChild = proxyCache.get(value)
+      if (cachedChild !== undefined) {
+        return cachedChild
+      }
+
+      if (isDetectChangesProxyObject(value)) {
+        return value
+      }
+
+      // Recursively wrap property values in the detect changes proxy
+      return createProxy(value, options, proxyCache, { parent: pathLink, key: String(prop) })
+    },
+    set(target, prop, value, receiver) {
+      const onBeforeChange = options?.hooks?.onBeforeChange
+      const onAfterChange = options?.hooks?.onAfterChange
+
+      // Both hooks receive the same array, because `client.ts` mutates it in `onAfterChange`.
+      const path = onBeforeChange || onAfterChange ? materializePath(pathLink, String(prop)) : undefined
+
+      // Call before-change hook if provided
+      if (path) {
+        onBeforeChange?.(path, value)
+      }
+      const result = Reflect.set(target, prop, value, receiver)
+      // Call after-change hook if provided
+      if (path) {
+        onAfterChange?.(path, value)
+      }
+      return result
+    },
+    deleteProperty(target, prop) {
+      const onBeforeChange = options?.hooks?.onBeforeChange
+      const onAfterChange = options?.hooks?.onAfterChange
+      const path = onBeforeChange || onAfterChange ? materializePath(pathLink, String(prop)) : undefined
+
+      if (path) {
+        onBeforeChange?.(path)
+      }
+      const result = Reflect.deleteProperty(target, prop)
+      if (path) {
+        onAfterChange?.(path)
+      }
+      return result
+    },
+  })
+
+  // Cache the proxy for this target
+  proxyCache.set(target, proxy)
+  return proxy as T
+}
+
 /**
  * createDetectChangesProxy - Creates a proxy for an object or array that detects and triggers hooks on changes.
  *
@@ -31,12 +163,7 @@ type OnAfterChangeHook = (path: string[], value?: unknown) => void
  */
 export const createDetectChangesProxy = <T>(
   target: T,
-  options?: {
-    hooks: Partial<{
-      onBeforeChange: OnBeforeChangeHook
-      onAfterChange: OnAfterChangeHook
-    }>
-  },
+  options?: Options,
   args: {
     /** Cache for storing proxies */
     proxyCache: WeakMap<object, unknown>
@@ -46,59 +173,7 @@ export const createDetectChangesProxy = <T>(
     proxyCache: new WeakMap<object, unknown>(),
     path: [],
   },
-): T => {
-  // Only wrap objects or arrays
-  if (!isObject(target) && !Array.isArray(target)) {
-    return target
-  }
-
-  // Return cached proxy if already created for this target
-  if (args.proxyCache.has(target)) {
-    return args.proxyCache.get(target)! as T
-  }
-
-  const proxy = new Proxy(target, {
-    get(target, prop, receiver) {
-      // Allow identifying if an object is a detect changes proxy
-      if (prop === isDetectChangesProxy) {
-        return true
-      }
-      // Allow access to the original target
-      if (prop === detectChangesProxyTarget) {
-        return target
-      }
-
-      // Recursively wrap property values in the detect changes proxy
-      const value = Reflect.get(target, prop, receiver)
-
-      if (isDetectChangesProxyObject(value)) {
-        return value
-      }
-
-      return createDetectChangesProxy(value, options, { ...args, path: [...args.path, String(prop)] })
-    },
-    set(target, prop, value, receiver) {
-      const path = [...args.path, String(prop)]
-      // Call before-change hook if provided
-      options?.hooks?.onBeforeChange?.(path, value)
-      const result = Reflect.set(target, prop, value, receiver)
-      // Call after-change hook if provided
-      options?.hooks?.onAfterChange?.(path, value)
-      return result
-    },
-    deleteProperty(target, prop) {
-      const path = [...args.path, String(prop)]
-      options?.hooks?.onBeforeChange?.(path)
-      const result = Reflect.deleteProperty(target, prop)
-      options?.hooks?.onAfterChange?.(path)
-      return result
-    },
-  })
-
-  // Cache the proxy for this target
-  args.proxyCache.set(target, proxy)
-  return proxy
-}
+): T => createProxy(target, options, args.proxyCache, toPathLink(args.path))
 
 export const isDetectChangesProxyObject = (obj: unknown): boolean => {
   return (
