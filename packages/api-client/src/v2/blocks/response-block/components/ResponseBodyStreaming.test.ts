@@ -8,6 +8,141 @@ import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
 enableAutoUnmount(afterEach)
 
 describe('ResponseBodyStreaming', () => {
+  it('renders complete records while a real stream is open and cancels pending reads', async () => {
+    const controllers: ReadableStreamDefaultController<Uint8Array>[] = []
+    let cancelled = false
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controllers.push(controller)
+      },
+      cancel: () => {
+        cancelled = true
+      },
+    })
+    const wrapper = mount(ResponseBodyStreaming, {
+      props: { reader: stream.getReader(), contentType: 'application/jsonl' },
+    })
+    controllers[0]!.enqueue(new TextEncoder().encode('{"id":1}\n{"id":'))
+    await flushPromises()
+    expect(wrapper.text()).toContain('"id": 1')
+    expect(wrapper.text()).toContain('Listening')
+    expect(wrapper.text()).not.toContain('{"id":')
+    await wrapper.findComponent(ScalarButton).trigger('click')
+    await flushPromises()
+    expect(cancelled).toBe(true)
+    expect(wrapper.text()).toContain('"id": 1')
+    expect(wrapper.text()).not.toContain('Listening')
+  })
+
+  it('cancels with a visible error when multibyte output exceeds 16 MiB', async () => {
+    let cancelled = false
+    const chunk = new TextEncoder().encode('月'.repeat(2 * 1024 * 1024))
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controller.enqueue(chunk)
+        controller.enqueue(chunk)
+        controller.enqueue(chunk)
+      },
+      cancel: () => {
+        cancelled = true
+      },
+    })
+    const wrapper = mount(ResponseBodyStreaming, { props: { reader: stream.getReader() } })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Stream display reached its 16 MiB limit.')
+    expect(wrapper.text()).not.toContain('Listening')
+    expect(cancelled).toBe(true)
+  })
+
+  it.each([
+    { contentType: 'multipart/mixed', body: '', error: 'requires a valid boundary parameter' },
+    {
+      contentType: 'multipart/mixed; boundary=x',
+      body: '--x\r\ninvalid headers\r\n--x--\r\n',
+      error: 'missing its header separator',
+    },
+    {
+      contentType: 'multipart/mixed; boundary=x',
+      body: '--x\r\n\r\nfirst\r\n--x\r\n\r\nunfinished',
+      error: 'ended before its closing boundary',
+    },
+  ])('shows multipart parser errors from real readers: $error', async ({ contentType, body, error }) => {
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controller.enqueue(new TextEncoder().encode(body))
+        controller.close()
+      },
+    })
+    const reader = stream.getReader()
+    const cancel = vi.spyOn(reader, 'cancel')
+    const wrapper = mount(ResponseBodyStreaming, { props: { reader, contentType } })
+    await flushPromises()
+    expect(wrapper.text()).toContain(error)
+    expect(wrapper.text()).not.toContain('Listening')
+    expect(cancel).toHaveBeenCalledOnce()
+    expect(stream.locked).toBe(false)
+    if (body.includes('first')) {
+      expect(wrapper.text()).toContain('first')
+      expect(wrapper.text()).not.toContain('unfinished')
+      expect(wrapper.text()).toContain('Copy text')
+      expect(wrapper.text()).toContain('Download text')
+    }
+  })
+
+  it.each([
+    { contentType: 'application/x-ndjson', body: '{"name":"月"}\n', text: '{\n  "name": "月"\n}\n' },
+    { contentType: 'application/json-seq', body: '\x1e{"id":1}\n', text: '{\n  "id": 1\n}\n' },
+    { contentType: 'multipart/mixed; boundary=x', body: '--x\r\n\r\nhello\r\n--x--\r\n', text: 'Part 1\n\nhello\n' },
+  ])(
+    'exports displayed text and counts received bytes for finite $contentType',
+    async ({ contentType, body, text }) => {
+      const bytes = new TextEncoder().encode(body)
+      const writeText = vi.fn().mockResolvedValue(undefined)
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+      const createObjectURL = vi.fn().mockReturnValue('blob:transcript')
+      const revokeObjectURL = vi.fn()
+      vi.stubGlobal(
+        'URL',
+        class extends URL {
+          static override createObjectURL = createObjectURL
+          static override revokeObjectURL = revokeObjectURL
+        },
+      )
+      const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+      const stream = new ReadableStream<Uint8Array>({
+        start: (controller) => {
+          controller.enqueue(bytes)
+          controller.close()
+        },
+      })
+      const wrapper = mount(ResponseBodyStreaming, { props: { reader: stream.getReader(), contentType } })
+      await flushPromises()
+      expect(wrapper.text()).toContain(`${bytes.length} B received`)
+      expect(wrapper.text()).not.toContain('Listening')
+      await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Copy text')!
+        .trigger('click')
+      expect(writeText).toHaveBeenCalledWith(text)
+      await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Download text')!
+        .trigger('click')
+      const blob = createObjectURL.mock.calls[0]![0] as Blob
+      expect(
+        await new Promise((resolve) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result)
+          reader.readAsText(blob)
+        }),
+      ).toBe(text)
+      expect(click).toHaveBeenCalledOnce()
+      wrapper.unmount()
+      expect(revokeObjectURL).toHaveBeenCalledWith('blob:transcript')
+      vi.unstubAllGlobals()
+    },
+  )
+
   let mockReader: ReadableStreamDefaultReader<Uint8Array>
 
   beforeEach(() => {
@@ -570,8 +705,7 @@ describe('ResponseBodyStreaming', () => {
       await flushPromises()
       await nextTick()
 
-      const cancelButton = wrapper.findComponent(ScalarButton)
-      expect(cancelButton.exists()).toBe(false)
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Cancel')).toBe(false)
     })
 
     it('stops streaming when cancel button is clicked', async () => {
