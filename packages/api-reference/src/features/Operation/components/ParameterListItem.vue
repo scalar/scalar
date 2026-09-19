@@ -21,6 +21,7 @@ import { optimizeValueForDisplay } from '@/components/Content/Schema/helpers/opt
 import SchemaGlyphPuck from '@/components/Content/Schema/SchemaGlyphPuck.vue'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
+import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
 
@@ -57,6 +58,8 @@ const {
 const emit = defineEmits<{
   (e: 'update:selectedContentType', value: string): void
 }>()
+
+const { translate } = useLocalization()
 
 /** Whether the markdown summary is being truncated */
 const truncated = ref(false)
@@ -101,7 +104,8 @@ const headers = computed<ResponseObject['headers'] | null>(() =>
 /** Raw schema (possibly with $ref) for the selected content type or param. */
 const baseSchema = computed(() =>
   content.value
-    ? content.value?.[selectedContentType.value]?.schema
+    ? (content.value?.[selectedContentType.value]?.schema ??
+      content.value?.[selectedContentType.value]?.itemSchema)
     : 'schema' in parameter && parameter.schema
       ? parameter.schema
       : null,
@@ -363,6 +367,14 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :class="{ 'mt-0!': isRailedPanel }"
           :value="parameter.description" />
 
+        <p
+          v-if="
+            content?.[selectedContentType]?.itemSchema &&
+            !content?.[selectedContentType]?.schema
+          "
+          class="text-c-2 text-sm">
+          {{ translate('common.streamItem') }}
+        </p>
         <!-- Schema -->
         <SchemaProperty
           is="div"
@@ -387,6 +399,19 @@ const triggerAnchorId = computed<string | undefined>(() =>
           }"
           :required="'required' in parameter && parameter.required"
           :schema="value" />
+
+        <SchemaProperty
+          is="div"
+          v-if="
+            content?.[selectedContentType]?.schema &&
+            content?.[selectedContentType]?.itemSchema
+          "
+          compact
+          :eventBus="eventBus"
+          :name="translate('common.streamItem')"
+          :noncollapsible="true"
+          :options="{ ...options, hideWriteOnly: true, document }"
+          :schema="getResolvedRef(content[selectedContentType]?.itemSchema)" />
 
         <!-- Headers: the body reads first, directly under the status row, and
              Headers follows — opening Headers then appends its list at the

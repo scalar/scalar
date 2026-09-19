@@ -215,7 +215,8 @@ const bodyValue = computed(() => {
 /** Resolved schema for the request body */
 const bodySchema = computed<SchemaObject | undefined>(() => {
   return resolve.schema(
-    requestBody?.content?.[selectedContentType.value]?.schema,
+    requestBody?.content?.[selectedContentType.value]?.schema ??
+      requestBody?.content?.[selectedContentType.value]?.itemSchema,
   )
 })
 

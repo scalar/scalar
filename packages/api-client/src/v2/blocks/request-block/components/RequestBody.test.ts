@@ -51,6 +51,22 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('fills the raw editor with a framed stream item example', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/jsonl': {
+              itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe('{"id":7}\n')
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
     mockFiles.value = null

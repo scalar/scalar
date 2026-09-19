@@ -1,3 +1,5 @@
+import { snippetz } from '@scalar/snippetz'
+import { getExampleFromBody } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -5,6 +7,64 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it.each([
+    {
+      contentType: 'text/event-stream',
+      value: { event: 'update', data: 'hello' },
+      expected: 'event: update\ndata: hello\n\n',
+    },
+    { contentType: 'application/jsonl', value: [{ id: 1 }, { id: 2 }], expected: '{"id":1}\n{"id":2}\n' },
+    { contentType: 'application/json-seq', value: [false, 0, null], expected: '\u001efalse\n\u001e0\n\u001enull\n' },
+    { contentType: 'application/jsonl', value: null, expected: 'null\n' },
+    { contentType: 'application/jsonl', value: false, expected: 'false\n' },
+    { contentType: 'application/jsonl', value: 0, expected: '0\n' },
+    { contentType: 'text/event-stream', value: 'data: unchanged\n\n', expected: 'data: unchanged\n\n' },
+  ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
+    const requestBody = { content: { [contentType]: { example: value } } }
+    expect(processBody({ requestBody, contentType })).toStrictEqual({ mimeType: contentType, text: expected })
+  })
+
+  it.each([
+    { type: 'integer', value: 0, contentType: 'application/json', text: '0' },
+    { type: 'boolean', value: false, contentType: 'application/json', text: 'false' },
+    { type: 'string', value: '', contentType: 'text/plain', text: '' },
+  ] as const)('keeps generated $value in the request example and cURL body', ({ type, value, contentType, text }) => {
+    const requestBody = { content: { [contentType]: { schema: { type, const: value } } } }
+    expect(getExampleFromBody(requestBody, contentType, 'default')).toStrictEqual({ value })
+    const postData = processBody({ requestBody, contentType })
+    expect(postData).toStrictEqual({ mimeType: contentType, text })
+    expect(
+      snippetz().print('shell', 'curl', {
+        url: 'https://example.com',
+        method: 'POST',
+        headers: [{ name: 'Content-Type', value: contentType }],
+        postData,
+      }),
+    ).toBe(
+      [
+        'curl https://example.com',
+        '--request POST',
+        `--header 'Content-Type: ${contentType}'`,
+        `--data '${text}'`,
+      ].join(' \\\n  '),
+    )
+  })
+
+  it('includes a framed streaming body in generated code samples', () => {
+    expect(
+      processBody({
+        requestBody: {
+          content: {
+            'application/jsonl': {
+              itemSchema: { type: 'object', properties: { message: { type: 'string', const: 'Hello' } } },
+            },
+          },
+        },
+        contentType: 'application/jsonl',
+      }),
+    ).toStrictEqual({ mimeType: 'application/jsonl', text: '{"message":"Hello"}\n' })
+  })
+
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {

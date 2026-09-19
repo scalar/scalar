@@ -792,6 +792,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   const mediaType: Schema = object(
     {
       schema: optional(maybeRef(lazy((): Schema => schema))),
+      itemSchema: optional(maybeRef(lazy((): Schema => schema))),
       example: optional(any({ typeComment: 'Example of the media type.' })),
       examples: optional(record(string(), maybeRef(lazy((): Schema => example)), { typeName: 'MediaTypeExamples' })),
       encoding: optional(

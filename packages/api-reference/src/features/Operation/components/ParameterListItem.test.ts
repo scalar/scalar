@@ -16,6 +16,32 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('displays both the complete body and stream item schemas', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: false,
+        eventBus: null,
+        name: '200',
+        options: baseOptions,
+        parameter: coerceValue(ResponseObjectSchema, {
+          description: 'Events',
+          content: {
+            'application/jsonl': {
+              schema: { type: 'array', maxItems: 10 },
+              itemSchema: {
+                type: 'object',
+                properties: { message: { type: 'string', description: 'Streamed message' } },
+              },
+            },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('Stream item')
+    expect(wrapper.text()).toContain('Streamed message')
+    expect(wrapper.findComponent(SchemaProperty).props('schema')).toHaveProperty('maxItems', 10)
+  })
+
   it('keeps model names visible when hideModels is enabled', () => {
     const wrapper = mount(ParameterListItem, {
       props: {

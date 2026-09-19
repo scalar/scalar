@@ -11,17 +11,23 @@ import { useLocalization } from '@/features/localization'
 
 import { getExampleContent } from './helpers/get-example-content'
 
-const { example, response, content } = defineProps<{
+const {
+  example,
+  response,
+  content,
+  contentType = '',
+} = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
   /** Reuse the card's formatted value so generation and copying cannot diverge. */
   content?: string
+  contentType?: string
 }>()
 const { translate } = useLocalization()
 
 /** Preformatted content is shared with the response card clipboard action. */
 const prettyPrintedContent = computed(
-  () => content ?? getExampleContent(response, example),
+  () => content ?? getExampleContent(response, example, { contentType }),
 )
 
 const VIRTUALIZATION_THRESHOLD = 20_000
