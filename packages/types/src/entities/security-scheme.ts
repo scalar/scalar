@@ -161,6 +161,13 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
   flows: z
     .object({
       /** Configuration for the OAuth Implicit flow */
+      deviceAuthorization: flowsCommon.extend({
+        type: z.literal('deviceAuthorization').default('deviceAuthorization'),
+        deviceAuthorizationUrl: z.string().default(''),
+        tokenUrl,
+        clientSecret: z.string().default(''),
+        'x-scalar-credentials-location': credentialsLocationExtension,
+      }),
       implicit: flowsCommon.extend({
         'type': z.literal('implicit').default('implicit'),
         authorizationUrl,
@@ -213,10 +220,16 @@ export const securityOauthSchema = oasSecuritySchemeOauth2.merge(extendedSecurit
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
 export type SecuritySchemeOauth2Payload = z.input<typeof securityOauthSchema>
 export type Oauth2Flow = NonNullable<
-  SecuritySchemeOauth2['flows']['authorizationCode' | 'clientCredentials' | 'implicit' | 'password']
+  SecuritySchemeOauth2['flows'][
+    | 'authorizationCode'
+    | 'clientCredentials'
+    | 'implicit'
+    | 'password'
+    | 'deviceAuthorization']
 >
 /** Payload for the oauth 2 flows + extensions */
 export type Oauth2FlowPayload = NonNullable<SecuritySchemeOauth2Payload['flows']>[
+  | 'deviceAuthorization'
   | 'authorizationCode'
   | 'clientCredentials'
   | 'implicit'

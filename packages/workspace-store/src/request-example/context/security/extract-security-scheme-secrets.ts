@@ -21,6 +21,7 @@ import type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
+  OAuthFlowDeviceAuthorizationSecret,
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
@@ -28,6 +29,7 @@ import type {
   SecuritySchemeObjectSecret,
   X509ObjectSecret,
 } from '@/request-example/builder/security/secret-types'
+import type { OAuthFlowDeviceAuthorization } from '@/schemas/v3.2/strict/oauth-flow'
 
 /** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
 export type ConfigAuthScheme = SecuritySchemeObject & DeepPartial<SecurityScheme>
@@ -205,6 +207,25 @@ const extractOAuthFlowSecrets = (
       } satisfies OAuthFlowClientCredentialsSecret
     }
 
+    // Device authorization flow
+    if (key === 'deviceAuthorization') {
+      acc[key] = {
+        ...(flow as OAuthFlowDeviceAuthorization),
+        ...mergeFlowSecrets(
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-client-secret',
+            'x-scalar-secret-token',
+            'x-scalar-secret-token-url',
+          ],
+          flow,
+          storeSecrets?.deviceAuthorization,
+        ),
+        ...extractCredentialsLocation(flow, storeSecrets?.deviceAuthorization),
+        ...extractRefreshTokenSecret(storeSecrets?.deviceAuthorization),
+      } satisfies OAuthFlowDeviceAuthorizationSecret
+    }
+
     // Authorization code flow
     if (key === 'authorizationCode') {
       acc[key] = {
@@ -305,6 +326,7 @@ export const extractSecuritySchemeSecrets = (
         password: storeSecrets?.password,
         clientCredentials: storeSecrets?.clientCredentials,
         authorizationCode: storeSecrets?.authorizationCode,
+        deviceAuthorization: storeSecrets?.deviceAuthorization,
       },
       storeSecrets,
       oauth2RedirectUri,

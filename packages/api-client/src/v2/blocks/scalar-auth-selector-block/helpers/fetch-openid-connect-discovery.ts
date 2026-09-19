@@ -14,6 +14,8 @@ import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-reque
 export const OpenIDConnectDiscoverySchema = Type.Object({
   /** URL of the OAuth 2.0 Authorization Endpoint */
   authorization_endpoint: Type.Optional(Type.String()),
+  /** RFC8628 device authorization endpoint. */
+  device_authorization_endpoint: Type.Optional(Type.String()),
   /** URL of the OAuth 2.0 Token Endpoint */
   token_endpoint: Type.Optional(Type.String()),
   /** List of OAuth 2.0 scope values that this server supports */

@@ -30,10 +30,10 @@ export const fetchOAuth2Metadata = async (
       return [new Error(`Failed to fetch OAuth2 metadata: ${response.status} ${response.statusText}`), null]
     }
     const data = coerceValue(AuthorizationServerMetadataSchema, await response.json())
-    if (!data.authorization_endpoint && !data.token_endpoint) {
+    if (!data.authorization_endpoint && !data.token_endpoint && !data.device_authorization_endpoint) {
       return [new Error('Invalid OAuth2 metadata: missing or invalid endpoints'), null]
     }
-    for (const endpoint of [data.authorization_endpoint, data.token_endpoint]) {
+    for (const endpoint of [data.authorization_endpoint, data.token_endpoint, data.device_authorization_endpoint]) {
       if (endpoint && !isAllowedMetadataUrl(new URL(endpoint))) {
         return [new Error('OAuth2 metadata endpoints must use HTTPS or HTTP for local development URLs'), null]
       }
