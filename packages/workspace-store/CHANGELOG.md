@@ -1,5 +1,17 @@
 # @scalar/workspace-store
 
+## 0.63.0
+
+### Minor Changes
+
+- [#10261](https://github.com/scalar/scalar/pull/10261): Add `getDocumentRevision(document)`, a counter the store bumps on every write to a document. A consumer caching a derivation of a schema node can validate the entry against it in constant time, instead of walking the subtree to see whether anything moved. It reads the same from any view of the document, including one with the reactive and detect-changes proxies stripped for reads, and returns 0 for a document no store tracks.
+- [#10261](https://github.com/scalar/scalar/pull/10261): Type the result of `resolve.schema` as read-only. A resolved schema is the document's own node or a shallow merge over it, so writing to it writes into the document behind the store's back; every change belongs in a store mutation, and a caller that needs a modified shape copies what it needs first. No in-repo consumer had to change.
+
+### Patch Changes
+
+- [#10261](https://github.com/scalar/scalar/pull/10261): Make rendering from the store cheaper: the detect-changes proxy no longer allocates a path on every property read, `getResolvedRefDeep` stops deep-unpacking every node it visits, `resolve.schema` builds its composed typebox schema once, and `getExampleFromSchema` builds its options cache key once per call instead of once per node.
+- [#10261](https://github.com/scalar/scalar/pull/10261): Follow chains of references when resolving. A reference can point at a second reference — `resolve()` on a static or SSR workspace leaves the component behind as a `{ $ref: '#/x-ext/<hash>', $global: true }` stub with the content under `x-ext` — so `getResolvedRef` and `getResolvedRefDeep` now hop through references that carry nothing but a `$ref` until they reach the node itself, instead of handing back the stub. A reference that carries keywords of its own stays its own hop, since it is a schema in its own right.
+
 ## 0.62.0
 
 ### Minor Changes

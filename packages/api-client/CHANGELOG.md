@@ -1,5 +1,7 @@
 # @scalar/api-client
 
+## 3.19.2
+
 ## 3.19.1
 
 ### Patch Changes
