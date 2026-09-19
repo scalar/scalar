@@ -1,4 +1,3 @@
-import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { MaybeRefSchemaObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
@@ -30,7 +29,7 @@ type SchemaView = {
 export type SchemaRenderer = {
   view: (schema: MaybeRefSchemaObject) => SchemaView
   render: (schema: MaybeRefSchemaObject, depth?: number, ancestors?: readonly unknown[]) => RootContent[]
-  example: (schema: MaybeRefSchemaObject, xml?: boolean) => Code
+  example: (schema: MaybeRefSchemaObject) => Code
 }
 
 /** Keep merged reference siblings and sorted properties stable throughout an export. */
@@ -115,12 +114,12 @@ export const createSchemaRenderer = (): SchemaRenderer => {
     const nodes = details(value)
     return nodes.length ? [paragraph(...nodes)] : []
   }
-  const example = (input: MaybeRefSchemaObject, xml = false): Code => {
-    const value = getExampleFromSchema(view(input).schema, { xml })
+  const example = (input: MaybeRefSchemaObject): Code => {
+    const value = getExampleFromSchema(view(input).schema)
     return {
       type: 'code',
-      lang: xml ? 'xml' : 'json',
-      value: xml ? json2xml(value as Record<string, unknown>) : (JSON.stringify(value, null, 2) ?? ''),
+      lang: 'json',
+      value: JSON.stringify(value, null, 2) ?? '',
     }
   }
   return { view, render, example }

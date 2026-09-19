@@ -105,6 +105,10 @@ export const updateOperationRequestBodyExample = (
     return
   }
 
+  // An editor change replaces the original source, including higher-priority OpenAPI 3.2 values.
+  delete example.serializedValue
+  delete example.dataValue
+  delete example.externalValue
   example.value = payload
 }
 
@@ -123,5 +127,9 @@ export const updateOperationRequestBodyFormValue = (
     return
   }
 
+  // An editor change replaces the original source, including higher-priority OpenAPI 3.2 values.
+  delete example.serializedValue
+  delete example.dataValue
+  delete example.externalValue
   example.value = unpackProxyObject(payload, { depth: 3 })
 }

@@ -78,6 +78,8 @@ export type RequestBlockProps = {
   proxyUrl: string
   securityRequirements: OpenApiDocument['security']
   securitySchemes: MergedSecuritySchemes
+  /** Originating OpenAPI version, used for XML mapping rules. */
+  openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
   selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
   selectedSecurity: SelectedSecurity
@@ -106,6 +108,7 @@ const {
   plugins,
   proxyUrl,
   requestBodyCompositionSelection,
+  openapiVersion,
   securityRequirements,
   securitySchemes,
   selectedClient,
@@ -721,6 +724,7 @@ const updateOperationExtension = (
         :defaultView="defaultRequestBodyView"
         :environment
         :exampleKey
+        :openapiVersion
         :requestBody="getResolvedRef(operation.requestBody)"
         :requestBodyCompositionSelection
         title="Request Body"
@@ -752,8 +756,10 @@ const updateOperationExtension = (
         :globalCookies
         integration="client"
         :method
+        :openapiVersion
         :operation
         :path
+        :requestBodyCompositionSelection
         :securitySchemes="selectedSecuritySchemes"
         :selectedClient
         :selectedContentType="
