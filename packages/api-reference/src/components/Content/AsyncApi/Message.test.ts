@@ -1,3 +1,4 @@
+import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
@@ -5,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
 import Message from './Message.vue'
+import MessageExamples from './MessageExamples.vue'
 
 const MESSAGE_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp/message/userSignedUp'
 
@@ -37,6 +39,60 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it('regenerates displayed and copied payloads after nested schema edits', async () => {
+    const payload = reactive({ type: 'object', properties: { id: { type: 'string', const: 'first' } } })
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({ payload }),
+      },
+    })
+    const examples = wrapper.getComponent(MessageExamples)
+    expect(examples.get('pre').text()).toBe(JSON.stringify({ id: 'first' }, null, 2))
+    payload.properties.id.const = 'second'
+    await nextTick()
+    expect(examples.get('pre').text()).toBe(JSON.stringify({ id: 'second' }, null, 2))
+    expect(examples.getComponent(ScalarCopy).props('content')).toBe(JSON.stringify({ id: 'second' }, null, 2))
+    payload.properties.id.const = 'third'
+    await nextTick()
+    expect(examples.get('pre').text()).toBe(JSON.stringify({ id: 'third' }, null, 2))
+  })
+
+  it('generates only after expanding and updates when the payload schema changes', async () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ payload: { type: 'string', const: 'first' } }),
+        eventBus: null,
+      },
+    })
+    expect(wrapper.findComponent(MessageExamples).exists()).toBe(false)
+    await wrapper.get('button.section-accordion-button').trigger('click')
+    expect(wrapper.getComponent(MessageExamples).text()).toContain('Generated example')
+    expect(wrapper.getComponent(MessageExamples).get('pre').text()).toBe('first')
+    await wrapper.setProps({ document: createDocument({ payload: { type: 'string', const: 'second' } }) })
+    expect(wrapper.getComponent(MessageExamples).get('pre').text()).toBe('second')
+  })
+
+  it('uses inherited payload examples instead of generating', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          payload: { type: 'string', const: 'generated' },
+          traits: [{ examples: [{ name: 'Inherited', payload: 'authored' }] }],
+        }),
+      },
+    })
+    const examples = wrapper.getComponent(MessageExamples)
+    expect(examples.get('pre').text()).toBe('authored')
+    expect(examples.text()).not.toContain('Generated example')
+  })
+
   it('renders inherited headers alongside message headers and uses the message title', () => {
     const wrapper = mount(Message, {
       props: {
