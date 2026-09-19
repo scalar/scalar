@@ -394,6 +394,20 @@ const getCompositionSelectionIndex = (
   return Math.max(0, Math.min(rawIndex, length - 1))
 }
 
+/** A choice applies once at its path; a union inside the chosen branch makes its own choice. */
+const consumeCompositionSelection = (
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  composition: CompositionKeyword,
+): GetExampleFromSchemaOptions | undefined => {
+  const key = getCompositionSelectionKey(schemaPath, composition)
+  if (options?.compositionSelection?.[key] === undefined) {
+    return options
+  }
+  const { [key]: _selection, ...compositionSelection } = options.compositionSelection
+  return { ...options, compositionSelection }
+}
+
 /**
  * Use the discriminator as a generation hint. Only referenced variants have
  * implicit names; inline titles are display labels, not discriminator mappings.
@@ -592,7 +606,7 @@ const handleObjectSchema = (
     if (chosen) {
       Object.assign(
         response,
-        getExampleFromSchema(chosen, options, {
+        getExampleFromSchema(chosen, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
           level: level + 1,
           schemaPath,
           seen,
@@ -709,13 +723,17 @@ const handleArraySchema = (
         getDiscriminatorSelectionIndex(items, union, options) ??
         0
       const selected = union[selectedIndex]!
-      const ex = getExampleFromSchema(resolve.schema(selected), options, {
-        level: level + 1,
-        parentSchema: schema,
-        schemaPath: itemsSchemaPath,
-        seen: itemsSeen,
-        dynamicScope: childScope,
-      })
+      const ex = getExampleFromSchema(
+        resolve.schema(selected),
+        consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
+        {
+          level: level + 1,
+          parentSchema: schema,
+          schemaPath: itemsSchemaPath,
+          seen: itemsSeen,
+          dynamicScope: childScope,
+        },
+      )
       return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
     }
   }
@@ -1205,6 +1223,42 @@ export const getExampleFromSchema = (
     return getMaxDepthValue(_schema, options, schemaPath)
   }
 
+  // Resolve non-object unions before type dispatch so shared root keywords do not
+  // hide the selected member. Use the same selection and discriminator rules as other unions.
+  const selectedComposition = _schema.oneOf ? 'oneOf' : _schema.anyOf ? 'anyOf' : undefined
+  const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
+  if (selectedComposition && selectedVariant) {
+    const rootType = 'type' in _schema ? _schema.type : undefined
+    const variantType = 'type' in selectedVariant ? selectedVariant.type : undefined
+    const selectedType =
+      variantType ?? rootType ?? ('items' in _schema && !('properties' in _schema) ? 'array' : undefined)
+    if (selectedType !== undefined && selectedType !== 'object') {
+      const { oneOf: _oneOf, anyOf: _anyOf, ...base } = _schema
+      const selectedSchema = { ...base, ...selectedVariant }
+      // These keywords only constrain their own types, but also drive our type inference.
+      if ('properties' in selectedSchema) {
+        delete selectedSchema.properties
+      }
+      if (selectedType !== 'array' && 'items' in selectedSchema) {
+        delete selectedSchema.items
+      }
+      const result = getExampleFromSchema(
+        selectedSchema as SchemaObject,
+        consumeCompositionSelection(options, schemaPath, selectedComposition),
+        {
+          level: level + 1,
+          parentSchema,
+          name,
+          schemaPath,
+          seen,
+          dynamicScope: childScope,
+        },
+      )
+      seen.delete(targetValue)
+      return cache(_schema, result, cacheKey, skipCache)
+    }
+  }
+
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
     const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
@@ -1246,7 +1300,7 @@ export const getExampleFromSchema = (
         seen.delete(targetValue)
         return cache(
           _schema,
-          getExampleFromSchema(resolved, options, {
+          getExampleFromSchema(resolved, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
             level: level + 1,
             schemaPath,
             seen,

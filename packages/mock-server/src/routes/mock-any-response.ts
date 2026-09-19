@@ -127,11 +127,25 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // a value from the schema. `Prefer: example=<name>` picks a named example.
   const selectedExample = selectResponseExample(acceptedResponse, prefer.example)
 
-  const body = selectedExample
-    ? normalizeResponseBody(selectedExample.value, responseSchema)
-    : responseSchema
-      ? normalizeResponseBody(generateFromSchema(), responseSchema)
-      : null
+  const body = ((): unknown => {
+    if (selectedExample) {
+      return normalizeResponseBody(selectedExample.value, responseSchema)
+    }
+    if (!responseSchema) {
+      return null
+    }
+    const generated = generateFromSchema()
+    // Schema-level examples are authored values too, so retain their array normalization.
+    if (
+      responseSchema.example !== undefined ||
+      (Array.isArray(responseSchema.examples) && responseSchema.examples.length)
+    ) {
+      return normalizeResponseBody(generated, responseSchema)
+    }
+    // The generator already chooses the value shape, including root union branches.
+    // Re-inferring it from sibling items would wrap a selected primitive in an array.
+    return generated
+  })()
 
   c.status(statusCode)
 
