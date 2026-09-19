@@ -22,6 +22,7 @@ import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
+import { bumpDocumentRevision } from '@/helpers/document-revision'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -725,6 +726,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 info: { title: '', version: '' },
                 'x-scalar-original-document-hash': '',
               }
+              // Every write through the store passes here, which is what makes the revision a
+              // complete record of the document changing.
+              bumpDocumentRevision(document)
               const event = {
                 type: 'documents',
                 documentName,
@@ -753,6 +757,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
                 info: { title: '', version: '' },
                 'x-scalar-original-document-hash': '',
               }
+              bumpDocumentRevision(document)
               // Active document changed
               const event = {
                 type: 'documents',
