@@ -36,6 +36,11 @@ export const bumpDocumentRevision = (document: unknown): void => {
  *
  * The number is meaningful only against itself. It counts writes, not versions, and a single edit can
  * move it by more than one.
+ *
+ * It is a plain number, not a reactive source: reading it inside a Vue `computed` or `effect` tracks
+ * nothing, so that computed will not re-run when the number moves. Use it to validate a cache entry at
+ * the point of use — alongside whatever already makes the surrounding computed re-run — rather than as
+ * the thing a computed depends on.
  */
 export const getDocumentRevision = (document: unknown): number => {
   const raw = unpackProxyShallow(document)
