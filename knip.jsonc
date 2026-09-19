@@ -63,9 +63,7 @@
     // no longer have an internal consumer. They are kept for parity with v3.2 and the 3.1 upgrade
     // path, and remain reachable via the package `./schemas/*` export.
     "packages/workspace-store/src/schemas/v3.1/strict/ref-definitions.ts": ["exports"],
-    "packages/workspace-store/src/schemas/v3.1/strict/schema.ts": ["types"],
-    // `normalRef` mirrors `recursiveRef` for the non-recursive variant and has no consumer yet.
-    "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"]
+    "packages/workspace-store/src/schemas/v3.1/strict/schema.ts": ["types"]
   },
   "workspaces": {
     ".": {

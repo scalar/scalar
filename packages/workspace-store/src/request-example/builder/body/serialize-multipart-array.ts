@@ -1,6 +1,6 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
-import type { EncodingObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { EncodingObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { serializeFormPropertyWithEncoding } from './serialize-form-property'
 

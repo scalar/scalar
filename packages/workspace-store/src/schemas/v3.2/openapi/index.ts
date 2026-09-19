@@ -87,6 +87,9 @@ const externalDocs = object(
 
 const xml = object(
   {
+    nodeType: optional(
+      union([literal('element'), literal('attribute'), literal('text'), literal('cdata'), literal('none')]),
+    ),
     name: optional(
       string({
         typeComment:
@@ -117,6 +120,9 @@ const xml = object(
 
 const discriminatorObject = object(
   {
+    defaultMapping: optional(
+      string({ typeComment: 'Schema name or URI reference used when the discriminator value is absent or unmapped.' }),
+    ),
     propertyName: string({
       typeComment:
         'REQUIRED. The name of the property in the payload that will hold the discriminating value. This property SHOULD be required in the payload schema, as the behavior when the property is absent is undefined.',
@@ -422,6 +428,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
 
   const servers = object(
     {
+      name: optional(string({ typeComment: 'A name for the server.' })),
       url: string({
         typeComment:
           'REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the document containing the Server Object is being served. Variable substitutions will be made when a variable is named in {braces}.',
@@ -449,6 +456,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     object(
       {
         name: string({ typeComment: 'REQUIRED. The name of the tag.' }),
+        summary: optional(string({ typeComment: 'A short summary of the tag.' })),
+        parent: optional(string({ typeComment: 'The name of the parent tag.' })),
+        kind: optional(string({ typeComment: 'A machine-readable category for the tag.' })),
         description: optional(
           string({
             typeComment: 'A description for the tag. CommonMark syntax MAY be used for rich text representation.',
@@ -471,6 +481,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   })
 
   const securitySchemeBase = object({
+    deprecated: optional(boolean({ typeComment: 'Whether the security scheme is deprecated.' })),
     description: optional(
       string({
         typeComment: 'A description for security scheme. CommonMark syntax MAY be used for rich text representation.',
@@ -604,12 +615,26 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     XScalarCredentialsLocation,
   ])
 
+  const deviceAuthorizationOAuth2Flow = intersection([
+    oauthFlowCore,
+    ...oauthFlowExtensionObjects,
+    object(
+      {
+        deviceAuthorizationUrl: string({ typeComment: 'The device authorization endpoint URL.' }),
+        tokenUrl: string({ typeComment: 'The token endpoint URL.' }),
+      },
+      { typeName: 'DeviceAuthorizationOAuthFlowObject' },
+    ),
+    XScalarCredentialsLocation,
+  ])
+
   const oauth2Flows = object(
     {
       implicit: optional(implicitOAuth2Flow),
       password: optional(passwordOAuth2Flow),
       clientCredentials: optional(clientCredentialsOAuth2Flow),
       authorizationCode: optional(authorizationCodeOAuth2Flow),
+      deviceAuthorization: optional(deviceAuthorizationOAuth2Flow),
     },
     { typeName: 'OAuthFlowsObject' },
   )
@@ -657,6 +682,9 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   const components: Schema = object(
     {
       schemas: optional(record(string(), maybeRef(schema), { typeName: 'ComponentsSchemas' })),
+      mediaTypes: optional(
+        record(string(), maybeRef(lazy((): Schema => mediaType)), { typeName: 'ComponentsMediaTypes' }),
+      ),
       responses: optional(
         record(string(), maybeRef(lazy((): Schema => response)), { typeName: 'ComponentsResponses' }),
       ),
@@ -690,6 +718,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     object(
       {
         summary: optional(string({ typeComment: 'Short description for the example.' })),
+        dataValue: optional(any({ typeComment: 'The example value before serialization.' })),
+        serializedValue: optional(string({ typeComment: 'The example value after serialization.' })),
         description: optional(
           string({
             typeComment:
@@ -762,13 +792,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     headerBase,
     object(
       {
-        content: optional(
-          record(
-            string(),
-            lazy((): Schema => mediaType),
-            { typeName: 'HeaderContent' },
-          ),
-        ),
+        content: optional(record(string(), maybeRef(lazy((): Schema => mediaType)), { typeName: 'HeaderContent' })),
       },
       { typeName: 'HeaderObjectWithContent' },
     ),
@@ -778,6 +802,17 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
 
   const encoding: Schema = object(
     {
+      style: optional(string()),
+      explode: optional(boolean()),
+      allowReserved: optional(boolean()),
+      encoding: optional(
+        record(
+          string(),
+          lazy((): Schema => encoding),
+        ),
+      ),
+      prefixEncoding: optional(array(lazy((): Schema => encoding))),
+      itemEncoding: optional(lazy((): Schema => encoding)),
       contentType: optional(
         string({
           typeComment:
@@ -791,6 +826,10 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
 
   const mediaType: Schema = object(
     {
+      description: optional(string()),
+      itemSchema: optional(maybeRef(lazy((): Schema => schema))),
+      prefixEncoding: optional(array(encoding)),
+      itemEncoding: optional(encoding),
       schema: optional(maybeRef(lazy((): Schema => schema))),
       example: optional(any({ typeComment: 'Example of the media type.' })),
       examples: optional(record(string(), maybeRef(lazy((): Schema => example)), { typeName: 'MediaTypeExamples' })),
@@ -812,10 +851,10 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
           typeComment:
             'REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object.',
         }),
-        in: union([literal('query'), literal('header'), literal('path'), literal('cookie')], {
+        in: union([literal('query'), literal('header'), literal('path'), literal('cookie'), literal('querystring')], {
           typeName: 'ParameterLocation',
           typeComment:
-            'REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie".',
+            'REQUIRED. The location of the parameter. Possible values are "query", "header", "path", "cookie" or "querystring".',
         }),
         description: optional(
           string({
@@ -876,10 +915,10 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
           typeComment:
             'REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object.',
         }),
-        in: union([literal('query'), literal('header'), literal('path'), literal('cookie')], {
+        in: union([literal('query'), literal('header'), literal('path'), literal('cookie'), literal('querystring')], {
           typeName: 'ParameterLocation',
           typeComment:
-            'REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie".',
+            'REQUIRED. The location of the parameter. Possible values are "query", "header", "path", "cookie" or "querystring".',
         }),
         description: optional(
           string({
@@ -911,13 +950,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
               'When this is true, parameter values are serialized using reserved expansion, as defined by RFC6570. This field only applies to parameters with an in value of query. The default value is false.',
           }),
         ),
-        content: optional(
-          record(
-            string(),
-            lazy((): Schema => mediaType),
-            { typeName: 'ParameterContent' },
-          ),
-        ),
+        content: optional(record(string(), maybeRef(lazy((): Schema => mediaType)), { typeName: 'ParameterContent' })),
       },
       { typeName: 'ParameterObjectWithContent' },
     ),
@@ -937,15 +970,11 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
               'A brief description of the request body. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.',
           }),
         ),
-        content: record(
-          string(),
-          lazy((): Schema => mediaType),
-          {
-            typeComment:
-              'REQUIRED. The content of the request body. The key is a media type or media type range and the value describes it.',
-            typeName: 'RequestBodyContent',
-          },
-        ),
+        content: record(string(), maybeRef(lazy((): Schema => mediaType)), {
+          typeComment:
+            'REQUIRED. The content of the request body. The key is a media type or media type range and the value describes it.',
+          typeName: 'RequestBodyContent',
+        }),
         required: optional(
           boolean({ typeComment: 'Determines if the request body is required in the request. Defaults to false.' }),
         ),
@@ -993,18 +1022,14 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
 
   const response = object(
     {
-      description: string({
-        typeComment:
-          'REQUIRED. A description of the response. CommonMark syntax MAY be used for rich text representation.',
-      }),
-      headers: optional(record(string(), maybeRef(lazy((): Schema => header)), { typeName: 'ResponseHeaders' })),
-      content: optional(
-        record(
-          string(),
-          lazy((): Schema => mediaType),
-          { typeName: 'ResponseContent' },
-        ),
+      summary: optional(string({ typeComment: 'A short summary of the response.' })),
+      description: optional(
+        string({
+          typeComment: 'A description of the response. CommonMark syntax MAY be used for rich text representation.',
+        }),
       ),
+      headers: optional(record(string(), maybeRef(lazy((): Schema => header)), { typeName: 'ResponseHeaders' })),
+      content: optional(record(string(), maybeRef(lazy((): Schema => mediaType)), { typeName: 'ResponseContent' })),
       links: optional(record(string(), maybeRef(lazy((): Schema => link)), { typeName: 'ResponseLinks' })),
     },
     { typeName: 'ResponseObject' },
@@ -1099,6 +1124,10 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
       options: optional(maybeRef(lazy((): Schema => operation))),
       head: optional(maybeRef(lazy((): Schema => operation))),
       trace: optional(maybeRef(lazy((): Schema => operation))),
+      query: optional(maybeRef(lazy((): Schema => operation))),
+      additionalOperations: optional(
+        record(string(), maybeRef(lazy((): Schema => operation)), { typeName: 'AdditionalOperations' }),
+      ),
       servers: optional(array(servers, { typeName: 'PathItemServers' })),
       parameters: optional(array(maybeRef(lazy((): Schema => parameter)), { typeName: 'PathItemParameters' })),
     },
@@ -1122,6 +1151,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
 
   const openApiDocumentCore = object(
     {
+      $self: optional(string({ typeComment: 'The URI identifying this OpenAPI document.' })),
       openapi: string({
         typeComment:
           'REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string.',
@@ -1194,7 +1224,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     ],
     {
       typeName: 'OpenApiDocument',
-      typeComment: 'Root OpenAPI 3.1 document including Scalar workspace extensions (OpenApiExtensionsSchema).',
+      typeComment: 'Root OpenAPI 3.2 document including Scalar workspace extensions (OpenApiExtensionsSchema).',
     },
   )
 
