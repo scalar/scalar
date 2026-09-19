@@ -238,7 +238,9 @@ jobs:
       - name: Setup .NET
         uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
         with:
-          sdk-version: 10.x.x
+          sdk-version: |
+            10.x.x
+            11.0.100-rc.1.26425.128
 
       - name: Restore dependencies
         working-directory: integrations/dotnet/aspnetcore
@@ -248,7 +250,7 @@ jobs:
         working-directory: integrations/dotnet/aspnetcore
         run: |
           dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
-          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
+          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:VersionPrefix=${{ steps.package-version.outputs.VERSION }}
           dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
       - name: Publish packages
@@ -338,7 +340,9 @@ jobs:
       - name: Setup .NET
         uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
         with:
-          sdk-version: 10.x.x
+          sdk-version: |
+            10.x.x
+            11.0.100-rc.1.26425.128
 
       - name: Restore dependencies
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
@@ -396,7 +400,9 @@ jobs:
       - name: Setup .NET
         uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
         with:
-          sdk-version: 10.x.x
+          sdk-version: |
+            10.x.x
+            11.0.100-rc.1.26425.128
 
       - name: Restore dependencies
         working-directory: integrations/dotnet/azure-functions
