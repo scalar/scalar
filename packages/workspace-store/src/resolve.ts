@@ -6,7 +6,15 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 import type { MaybeRefSchemaObject, SchemaObject } from '@/schemas/v3.2/strict/schema'
 
-type ResolvedSchema<T> = T extends undefined ? undefined : SchemaObject & { $ref?: string }
+/**
+ * A resolved schema is a read-only view.
+ *
+ * What comes back is either the document's own node or a shallow merge over it, so the nested values
+ * are the document's either way and a write reaches the document without going through the store. The
+ * `Readonly` says so to the compiler at the one level where a write is cheap to make by accident; a
+ * caller with a change to make copies what it needs, or goes through a store mutation.
+ */
+type ResolvedSchema<T> = T extends undefined ? undefined : Readonly<SchemaObject & { $ref?: string }>
 
 /**
  * The coercion target: a schema object that may still carry the `$ref` it was resolved from.
