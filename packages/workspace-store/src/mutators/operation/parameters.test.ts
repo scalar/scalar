@@ -2,13 +2,14 @@ import { assert, describe, expect, it } from 'vitest'
 
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getQuerystringParameter, serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import {
   deleteAllOperationParameters,
   deleteOperationParameter,
   updateOperationExtraParameters,
   upsertOperationParameter,
 } from '@/mutators/operation/parameters'
-import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
+import type { OpenApiDocument, ParameterObject } from '@/schemas/v3.2/strict/openapi-document'
 
 const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
   return {
@@ -20,6 +21,55 @@ const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => 
 }
 
 describe('upsertOperationParameter', () => {
+  it('preserves environment substitution when enabling an unchanged whole-query preview', () => {
+    const parameter: ParameterObject = {
+      name: 'form',
+      in: 'querystring',
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: { default: { dataValue: { q: '{{term}}' }, 'x-disabled': true } },
+        },
+      },
+    }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'form', value: 'q=%7B%7Bterm%7D%7D', isDisabled: false },
+    })
+    const querystring = getQuerystringParameter(parameter, 'default')!
+    expect(serializeQuerystringParameter(querystring, { term: 'a + b' })).toBe('q=a+%2B+b')
+  })
+
+  it('edits and toggles a whole query without double encoding or using its old media example', () => {
+    const parameter: ParameterObject = {
+      name: 'json',
+      in: 'querystring',
+      required: true,
+      content: { 'application/json': { examples: { default: { dataValue: { old: true } } } } },
+      examples: { default: { dataValue: { old: true } } },
+    }
+    const meta = { method: 'get', path: '/search', exampleKey: 'default' } as const
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta,
+      payload: { name: 'json', value: '%7B%22new%22%3Atrue%7D', isDisabled: false },
+    })
+    expect(parameter.examples).toStrictEqual({
+      default: { serializedValue: '%7B%22new%22%3Atrue%7D', 'x-disabled': false },
+    })
+    const querystring = getQuerystringParameter(parameter, 'default')!
+    expect(serializeQuerystringParameter(querystring)).toBe('%7B%22new%22%3Atrue%7D')
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta,
+      payload: { name: 'json', value: '%7B%22new%22%3Atrue%7D', isDisabled: true },
+    })
+    expect(getQuerystringParameter(parameter, 'default')).toBeUndefined()
+  })
+
   it('adds a query parameter with example and enabled state when it does not exist', () => {
     const document = createDocument({
       paths: {

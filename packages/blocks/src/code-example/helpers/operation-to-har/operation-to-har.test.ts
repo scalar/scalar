@@ -8,6 +8,48 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it('appends query authentication to whole-query content without a second question mark', () => {
+    const result = operationToHar({
+      operation: {
+        parameters: [
+          {
+            name: 'search',
+            in: 'querystring',
+            required: true,
+            content: { 'application/x-www-form-urlencoded': { example: { filter: 'a + b' } } },
+          },
+        ],
+      },
+      method: 'get',
+      path: '/search',
+      securitySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': 'secret' }],
+    })
+    expect(result.url).toBe('/search?filter=a+%2B+b&key=secret')
+    expect(result.queryString).toStrictEqual([])
+  })
+
+  it('places whole-query content before named query parameters and authentication in snippets', () => {
+    const result = operationToHar({
+      operation: {
+        parameters: [
+          { name: 'tag', in: 'query', required: true, example: 'a+b' },
+          { name: 'path', in: 'query', required: true, example: 'a/b', allowReserved: true },
+          {
+            name: 'search',
+            in: 'querystring',
+            required: true,
+            content: { 'application/json': { example: { limit: 2 } } },
+          },
+        ],
+      },
+      method: 'get',
+      path: '/search',
+      securitySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': 'a+b%20' }],
+    })
+    expect(result.url).toBe('/search?%7B%22limit%22%3A2%7D&tag=a%2Bb&path=a/b&key=a%2Bb%2520')
+    expect(result.queryString).toStrictEqual([])
+  })
+
   describe('basic functionality', () => {
     it('should convert a basic operation to HAR format', () => {
       const operation: OperationObject = {

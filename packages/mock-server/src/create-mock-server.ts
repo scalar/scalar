@@ -243,7 +243,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        handlers.push(async (c) => await mockHandlerResponse(c, operation))
+        handlers.push(async (c) => await mockHandlerResponse(c, operation, pathItem?.parameters))
       } else {
         handlers.push(async (c) => await mockAnyResponse(c, operation))
       }

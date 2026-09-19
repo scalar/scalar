@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { shellCurl } from './curl'
 
 describe('shellCurl', () => {
+  it('preserves whole-query percent encoding when appending named parameters', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/search?%7b%22a%22%3a1%7d',
+      queryString: [{ name: 'token', value: 'secret' }],
+    })
+    expect(result).toBe(`curl 'https://example.com/search?%7b%22a%22%3a1%7d&token=secret'`)
+  })
+
   it('returns a basic request', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',

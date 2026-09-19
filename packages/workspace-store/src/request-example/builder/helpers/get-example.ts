@@ -47,6 +47,18 @@ export const getExample = (
   exampleName: string | undefined,
   contentType: string | undefined,
 ): ExampleObject | undefined => {
+  // Querystring examples at the parameter level already describe the whole query.
+  if ('in' in param && param.in === 'querystring') {
+    const result = getExampleFromExamples(
+      'examples' in param ? param.examples : undefined,
+      'example' in param ? param.example : undefined,
+      exampleName,
+    )
+    if (result !== undefined) {
+      return result
+    }
+  }
+
   // Content based parameters
   if ('content' in param) {
     const content = param.content?.[contentType ?? Object.keys(param.content)[0] ?? '']

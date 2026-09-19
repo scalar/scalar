@@ -40,6 +40,37 @@ const createRequestFactory = (overrides: Partial<RequestFactory> = {}): RequestF
 })
 
 describe('resolve-request-factory-url', () => {
+  it('preserves a whole query and appends security without reparsing it', () => {
+    const request = createRequestFactory({
+      baseUrl: 'https://api.example.com?obsolete=true',
+      querystring: { value: '%7b%22a%22%3a1%7d', contentType: 'application/json', kind: 'uri-ready' },
+    })
+    expect(unwrap(request, { envVariables: {}, securityQueryParams: new URLSearchParams({ token: 'a+b' }) })).toBe(
+      'https://api.example.com/v1/users?%7b%22a%22%3a1%7d&token=a%2Bb',
+    )
+  })
+
+  it('appends named query parameters after whole-query content and before authentication', () => {
+    const request = createRequestFactory({
+      querystring: { value: '%7b%22a%22%3a1%7d', contentType: 'application/json', kind: 'uri-ready' },
+      query: new URLSearchParams([
+        ['tag', 'a+b'],
+        ['tag', 'c d'],
+      ]),
+    })
+    expect(unwrap(request, { envVariables: {}, securityQueryParams: new URLSearchParams({ token: 'secret' }) })).toBe(
+      'https://api.example.com/v1/users?%7b%22a%22%3a1%7d&tag=a%2Bb&tag=c+d&token=secret',
+    )
+  })
+
+  it('an enabled empty querystring clears a query from the path', () => {
+    const request = createRequestFactory({
+      path: { raw: '/v1/users?old=true', variables: {} },
+      querystring: { value: '', contentType: 'application/x-www-form-urlencoded', kind: 'uri-ready' },
+    })
+    expect(unwrap(request, defaultOptions)).toBe('https://api.example.com/v1/users')
+  })
+
   afterEach(() => {
     vi.unstubAllGlobals()
   })
