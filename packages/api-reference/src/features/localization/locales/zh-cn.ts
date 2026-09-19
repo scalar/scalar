@@ -78,6 +78,7 @@ export const zhCn = {
     status: '状态',
   },
   schema: {
+    noAllowedValues: '没有值满足此枚举约束。',
     example: '示例',
     examples: '示例',
     default: '默认值',
