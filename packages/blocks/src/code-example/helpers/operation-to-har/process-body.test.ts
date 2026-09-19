@@ -5,6 +5,91 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it('includes in snippets XML roots, untyped defaults, and wildcard parameters consistently', () => {
+    const requestBody = {
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ id: 1 }, 'untyped', 'plain'] } },
+          schema: {
+            type: 'array' as const,
+            prefixItems: [
+              { type: 'object' as const, xml: { name: 'user' } },
+              coerceValue(SchemaObjectSchema, {}),
+              { type: 'string' as const },
+            ],
+          },
+          prefixEncoding: [{ contentType: 'application/xml' }, {}, { contentType: 'text/*; charset=utf-8' }],
+        },
+      },
+    }
+    const wire = processBody({ requestBody, example: 'default' })?.text
+    expect(wire).toContain(
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<user>\n  <id>1</id>\n</user>',
+    )
+    expect(wire).toContain('Content-Type: application/octet-stream\r\n\r\nuntyped')
+    expect(wire).toContain('Content-Type: text/plain; charset=utf-8\r\n\r\nplain')
+  })
+
+  it('uses the first named multipart example when no name is selected', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { upload: { value: ['provided'] } },
+            schema: { type: 'array', items: { type: 'string', default: 'generated' } },
+            itemEncoding: { contentType: 'text/plain' },
+          },
+        },
+      },
+    })
+    expect(result?.text).toContain('Content-Type: text/plain\r\n\r\nprovided')
+    expect(result?.text).not.toContain('generated')
+  })
+
+  it('serializes positional multipart snippets with a matching boundary', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { default: { value: [{ id: 1 }, 'hello'] } },
+            prefixEncoding: [{ contentType: 'application/json' }],
+            itemEncoding: { contentType: 'text/plain' },
+          },
+        },
+      },
+      example: 'default',
+    })
+    const boundary = result?.mimeType.match(/boundary="?([^";]+)/)?.[1]
+    expect(result?.text).toBe(
+      '--' +
+        boundary +
+        '\r\nContent-Type: application/json\r\n\r\n{"id":1}\r\n--' +
+        boundary +
+        '\r\nContent-Type: text/plain\r\n\r\nhello\r\n--' +
+        boundary +
+        '--\r\n',
+    )
+  })
+
+  it('serializes nested multipart snippets as MIME text', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            examples: { default: { value: { batch: [['hello']] } } },
+            encoding: { batch: { contentType: 'multipart/mixed', itemEncoding: { contentType: 'text/plain' } } },
+          },
+        },
+      },
+      example: 'default',
+    })
+    expect(result?.text).toContain(
+      'Content-Disposition: form-data; name="batch"\r\nContent-Type: multipart/mixed; boundary=',
+    )
+    expect(result?.text).toContain('Content-Type: text/plain\r\n\r\nhello')
+    expect(result?.params).toBeUndefined()
+  })
+
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {
