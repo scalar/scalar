@@ -13,7 +13,7 @@ in browser environments.
 ## Features
 
 - Full CORS support
-- Follows same-origin HTTP redirects while preserving headers. Redirects to another scheme, hostname, or effective port are rejected to protect credentials in headers and request bodies.
+- Follows same-origin HTTP redirects, and an `http` → `https` upgrade of the same host, while preserving headers. Redirects to another hostname or port, or from `https` down to `http`, are rejected to protect credentials in headers and request bodies; the 503 names the origin the server redirected to.
 - Supports HTTPS (and even self-signed certificates)
 - Request logging with method and target URL
 - Health check endpoint at `/ping`

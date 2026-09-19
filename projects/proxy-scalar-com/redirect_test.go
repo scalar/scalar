@@ -16,6 +16,7 @@ import (
 func TestRedirectOriginPolicy(t *testing.T) {
 	tests := []struct {
 		name         string
+		initial      string
 		destination  string
 		intermediate bool
 		allowed      bool
@@ -33,6 +34,15 @@ func TestRedirectOriginPolicy(t *testing.T) {
 		{name: "explicit default port", destination: "https://api.example:443/final", allowed: true},
 		{name: "case insensitive hostname", destination: "https://API.example/final", allowed: true},
 		{name: "same-origin chain", destination: "https://api.example/final", intermediate: true, allowed: true},
+		// An http → https upgrade of the same host is the one cross-scheme hop
+		// that is followed: TLS to the same server exposes nothing the plaintext
+		// request did not already send.
+		{name: "secure upgrade", initial: "http://api.example/initial", destination: "https://api.example/final", allowed: true},
+		{name: "secure upgrade with explicit default ports", initial: "http://api.example:80/initial", destination: "https://api.example:443/final", allowed: true},
+		{name: "secure upgrade then same-origin hop", initial: "http://api.example/initial", destination: "https://api.example/final", intermediate: true, allowed: true},
+		{name: "secure upgrade to another host", initial: "http://api.example/initial", destination: "https://other.example/final"},
+		{name: "secure upgrade to another port", initial: "http://api.example/initial", destination: "https://api.example:8443/final"},
+		{name: "secure upgrade from a custom port", initial: "http://api.example:8080/initial", destination: "https://api.example/final"},
 	}
 	for _, tc := range tests {
 		for _, status := range []int{301, 302, 303, 307, 308} {
@@ -68,7 +78,10 @@ func TestRedirectOriginPolicy(t *testing.T) {
 				}
 				proxy.transport = &http.Transport{DialContext: dial, DialTLSContext: dial}
 				defer proxy.transport.CloseIdleConnections()
-				target := "https://api.example/initial"
+				target := tc.initial
+				if target == "" {
+					target = "https://api.example/initial"
+				}
 				remote, err := url.Parse(target)
 				if err != nil {
 					t.Fatal(err)
@@ -110,6 +123,22 @@ func TestRedirectOriginPolicy(t *testing.T) {
 					}
 					if response.Header().Get("Location") != "" {
 						t.Error("response lets the browser follow the unsafe redirect")
+					}
+					if !tc.loop {
+						destination, err := url.Parse(tc.destination)
+						if err != nil {
+							t.Fatal(err)
+						}
+						body := response.Body.String()
+						if !strings.Contains(body, "redirect to a different origin is not allowed") {
+							t.Errorf("response body does not name the policy: %q", body)
+						}
+						if !strings.Contains(body, destination.Scheme+"://"+destination.Host) {
+							t.Errorf("response body does not name the redirect origin: %q", body)
+						}
+						if strings.Contains(body, destination.Path) {
+							t.Errorf("response body leaks the redirect path: %q", body)
+						}
 					}
 				}
 				if len(requests) != expectedRequests {

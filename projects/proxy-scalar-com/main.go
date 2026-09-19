@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -133,26 +134,81 @@ func dialAddr(ip net.IP, port string) string {
 	return fmt.Sprintf("[%s]:%s", ip.String(), port)
 }
 
+// effectivePort is the port a URL connects to: the explicit one, or the
+// scheme's default.
+func effectivePort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	switch strings.ToLower(u.Scheme) {
+	case "http":
+		return "80"
+	case "https":
+		return "443"
+	default:
+		return ""
+	}
+}
+
 // sameOrigin requires the same scheme, hostname, and effective port before
 // following a redirect. Arbitrary headers and request bodies can carry secrets,
 // so a list of known credential headers cannot safely authorize another origin.
 func sameOrigin(initial, destination *url.URL) bool {
-	effectivePort := func(u *url.URL) string {
-		if port := u.Port(); port != "" {
-			return port
-		}
-		switch strings.ToLower(u.Scheme) {
-		case "http":
-			return "80"
-		case "https":
-			return "443"
-		default:
-			return ""
-		}
-	}
 	return strings.EqualFold(initial.Scheme, destination.Scheme) &&
 		strings.EqualFold(initial.Hostname(), destination.Hostname()) &&
 		effectivePort(initial) == effectivePort(destination)
+}
+
+// secureUpgrade reports whether a redirect only moves the same host from plain
+// http on its default port to https on its default port. The destination is the
+// same server over TLS, so following it with the request's credentials exposes
+// nothing the plaintext request did not already send. An explicit port is a
+// different listener and does not qualify.
+func secureUpgrade(initial, destination *url.URL) bool {
+	return strings.EqualFold(initial.Scheme, "http") &&
+		strings.EqualFold(destination.Scheme, "https") &&
+		strings.EqualFold(initial.Hostname(), destination.Hostname()) &&
+		effectivePort(initial) == "80" &&
+		effectivePort(destination) == "443"
+}
+
+// redirectAllowed decides whether a redirect may be followed with the original
+// request's headers and body intact.
+func redirectAllowed(initial, destination *url.URL) bool {
+	return sameOrigin(initial, destination) || secureUpgrade(initial, destination)
+}
+
+// redirectPolicyError is a redirect the proxy refused to follow. Its own type,
+// so the response can carry exactly this message: net/http wraps a
+// CheckRedirect error in a url.Error naming the Location it was about to
+// fetch, path and query included, and those can carry tokens.
+type redirectPolicyError struct {
+	message string
+}
+
+func (e *redirectPolicyError) Error() string {
+	return e.message
+}
+
+// crossOriginRedirectError names the origin the server redirected to. The
+// request is not going to succeed until the user points it there, so telling
+// them where turns an opaque 503 into something they can act on. The path and
+// query are left out because they can carry tokens.
+func crossOriginRedirectError(destination *url.URL) error {
+	return &redirectPolicyError{
+		message: fmt.Sprintf("redirect to a different origin is not allowed: the server redirected to %s://%s, change the server URL to that origin and send the request again", destination.Scheme, destination.Host),
+	}
+}
+
+// proxyErrorMessage is the client-facing text for a failed outbound request.
+// A refused redirect is reported by its own message alone; every other failure
+// keeps net/http's text, which names the URL the user asked for.
+func proxyErrorMessage(err error) string {
+	var policyErr *redirectPolicyError
+	if errors.As(err, &policyErr) {
+		return policyErr.Error()
+	}
+	return err.Error()
 }
 
 // Check if a given hostname or IP resolves to any blocked CIDR
@@ -433,8 +489,8 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			// Returning the redirect response itself would let the browser
 			// follow its Location with custom credential headers. Reject it
 			// instead, before any request reaches the other origin.
-			if !sameOrigin(via[0].URL, req.URL) {
-				return fmt.Errorf("redirect to a different origin is not allowed")
+			if !redirectAllowed(via[0].URL, req.URL) {
+				return crossOriginRedirectError(req.URL)
 			}
 
 			// Go can strip credentials when only hostname casing changes.
@@ -493,7 +549,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	resp, err := client.Do(outreq)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		http.Error(w, proxyErrorMessage(err), http.StatusServiceUnavailable)
 		return err
 	}
 
@@ -505,8 +561,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// original request outside the proxy's origin policy.
 	if resp.StatusCode >= 300 && resp.StatusCode < 400 && resp.Header.Get("Location") != "" {
 		destination, err := resp.Location()
-		if err != nil || !sameOrigin(remote, destination) {
-			err := fmt.Errorf("redirect to a different origin is not allowed")
+		if err != nil {
+			err := fmt.Errorf("redirect to a different origin is not allowed: %w", err)
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			return err
+		}
+		if !redirectAllowed(remote, destination) {
+			err := crossOriginRedirectError(destination)
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)
 			return err
 		}
