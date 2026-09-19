@@ -64,6 +64,8 @@ export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference
     visited.add(rawValue)
 
     if ('$ref' in current) {
+      // `getResolvedRef` follows a chain of pure pass-through references, so a component that resolve()
+      // left behind as a `$global` stub reaches the node the stub points at rather than the stub.
       const resolved = getResolvedRef(current)
       const result = resolveNode(resolved)
 

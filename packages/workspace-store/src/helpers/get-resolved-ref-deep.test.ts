@@ -822,3 +822,63 @@ describe('proxied documents', () => {
     expect(getResolvedRefDeep(node)).toEqual({ name: 'root', self: '[circular]' })
   })
 })
+
+describe('reference chains', () => {
+  it('follows a two-hop chain through a $global stub', () => {
+    const node = {
+      $ref: '#/components/schemas/User',
+      '$ref-value': {
+        $ref: '#/x-ext/89db6c7',
+        $global: true,
+        $status: 'loaded',
+        '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
+      },
+    }
+
+    expect(getResolvedRefDeep(node)).toEqual({ type: 'object', properties: { id: { type: 'string' } } })
+  })
+
+  it('keeps the siblings of the reference it was handed', () => {
+    const node = {
+      $ref: '#/components/schemas/User',
+      description: 'from the property',
+      '$ref-value': {
+        $ref: '#/x-ext/89db6c7',
+        $global: true,
+        '$ref-value': { type: 'object', description: 'from the schema' },
+      },
+    }
+
+    expect(getResolvedRefDeep(node)).toEqual({ type: 'object', description: 'from the property' })
+  })
+
+  it('stops at an inner reference that carries keywords of its own', () => {
+    const node = {
+      $ref: '#/components/schemas/PaginatedUser',
+      '$ref-value': {
+        $id: 'https://example.com/PaginatedUser',
+        '$ref': '#/components/schemas/PaginatedTemplate',
+        '$ref-value': { type: 'object' },
+      },
+    }
+
+    // The inner reference stays a hop of its own, so the deep walk resolves it as a nested node.
+    expect(getResolvedRefDeep(node)).toEqual({ type: 'object', $id: 'https://example.com/PaginatedUser' })
+  })
+
+  it('treats an unresolved inner reference the way it treats an unresolved one', () => {
+    const stub = { $ref: './chunks/User.json#', $global: true }
+    const chain = { $ref: '#/components/schemas/User', '$ref-value': stub }
+
+    expect(getResolvedRefDeep(chain)).toBeUndefined()
+    expect(getResolvedRefDeep({ $ref: '#/components/schemas/User' })).toBeUndefined()
+  })
+
+  it('terminates on a reference cycle', () => {
+    const first: Record<string, unknown> = { $ref: '#/a' }
+    const second: Record<string, unknown> = { $ref: '#/b', '$ref-value': first }
+    first['$ref-value'] = second
+
+    expect(getResolvedRefDeep(first)).toBe('[circular]')
+  })
+})

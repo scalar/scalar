@@ -618,6 +618,13 @@ describe('create-workspace-store', () => {
         '/chunks/default/operations/~1users/get.json',
       ])
 
+      // A property referencing a shared component reaches the schema, although the component is itself a
+      // stub: `#/components/schemas/User` resolves to the stub, and the stub to the chunk's contents
+      const items = get['$ref-value'].responses[200].content['application/json'].schema.items
+      expect(items.$ref).toBe('#/components/schemas/User')
+      expect(getResolvedRef(items)).toMatchObject({ type: 'object' })
+      expect(getResolvedRef(items).properties.id.description).toBe('The user ID')
+
       // A second operation using the same schema costs one request, its own chunk
       await store.resolve(['paths', '/users', 'post'])
 
