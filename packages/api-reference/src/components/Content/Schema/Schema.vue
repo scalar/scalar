@@ -2,7 +2,6 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
-import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
   SchemaObject,
@@ -23,6 +22,7 @@ import { inferDiscriminatorMappingComposition } from './helpers/get-compositions
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
+import { resolveSchemaNode } from './helpers/resolve-schema-node'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import {
   SCHEMA_TREE_ROOT_SYMBOL,
@@ -134,7 +134,7 @@ const resolvedSchema = computed((): SchemaObject | undefined => {
   }
 
   const bound = resolveDynamicSchema(value, dynamicScope)
-  return '$ref' in bound ? resolve.schema(bound) : bound
+  return '$ref' in bound ? resolveSchemaNode(bound) : bound
 })
 
 /**

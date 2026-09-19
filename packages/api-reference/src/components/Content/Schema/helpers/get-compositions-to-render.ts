@@ -1,9 +1,9 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import { getRefName } from './get-ref-name'
+import { resolveSchemaNode } from './resolve-schema-node'
 import { type CompositionKeyword, compositions } from './schema-composition'
 import { shouldRenderArrayItemComposition } from './should-render-array-item-composition'
 import { unwrapForRead } from './unwrap-for-read'
@@ -56,7 +56,7 @@ export const inferDiscriminatorMappingComposition = (
     .map((mappingValue) => {
       const ref = normalizeDiscriminatorMappingRef(mappingValue)
       const refName = getRefName(ref)
-      const refValue = refName ? resolve.schema(document.components?.schemas?.[refName]) : undefined
+      const refValue = refName ? resolveSchemaNode(document.components?.schemas?.[refName]) : undefined
 
       if (!refValue) {
         return undefined
@@ -74,7 +74,7 @@ export const inferDiscriminatorMappingComposition = (
   }
 
   return {
-    ...resolve.schema(value),
+    ...resolveSchemaNode(value),
     oneOf: refs,
   }
 }
@@ -115,7 +115,7 @@ export const getCompositionsToRender = (
       if (shouldRenderArrayItemComposition(value, composition) && isArraySchema(value) && value.items) {
         return {
           composition,
-          value: resolve.schema(value.items),
+          value: resolveSchemaNode(value.items),
         }
       }
 
@@ -128,7 +128,7 @@ export const getCompositionsToRender = (
         if (!hasArrayItemComposition) {
           return {
             composition,
-            value: resolve.schema(value),
+            value: resolveSchemaNode(value),
           }
         }
       }

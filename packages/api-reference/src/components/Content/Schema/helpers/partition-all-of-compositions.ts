@@ -3,6 +3,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
 import type { CompositionKeyword } from './schema-composition'
+import { createSchemaRenderCache } from './schema-render-cache'
 
 type ChoiceKeyword = Extract<CompositionKeyword, 'oneOf' | 'anyOf'>
 
@@ -116,6 +117,19 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
     return { segments: [] }
   }
 
+  return partitionCache(schema, () => partitionAllOfCompositionsUncached(schema))
+}
+
+/**
+ * Segments, keyed by the schema they were split from.
+ *
+ * Coalescing a run of object members runs a full `allOf` merge over a wrapper
+ * this function builds itself, so the merge cache can never see it; the segments
+ * have to be kept here instead. Callers only read them, so one list is shared.
+ */
+const partitionCache = createSchemaRenderCache<{ segments: AllOfSegment[] }>()
+
+const partitionAllOfCompositionsUncached = (schema: SchemaObject): { segments: AllOfSegment[] } => {
   // The schema's own (non-composition) keys, minus its top-level `oneOf`/`anyOf`
   // — those are rendered as their own composition by the caller, not here.
   const {

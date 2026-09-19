@@ -4,6 +4,8 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
+import { createSchemaRenderCache } from './schema-render-cache'
+
 /**
  * Schema keywords whose value should reflect the *last* occurrence when merging
  * `allOf` members. Most keywords keep the first occurrence, but for human-facing
@@ -13,8 +15,20 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-
 const LAST_WINS_KEYS = new Set<string>(['description', 'title'])
 
 /**
+ * Merged schemas, keyed by the node they were merged from.
+ *
+ * Every row that references a schema and every page that shows it merges the
+ * same `allOf` again, and a merge walks the whole graph the schema reaches.
+ */
+const mergeCache = createSchemaRenderCache<SchemaObject>({ copy: (merged) => ({ ...merged }) })
+
+/**
  * Merges multiple OpenAPI schema objects into a single schema object.
  * Handles nested allOf compositions and merges properties recursively.
+ *
+ * The result may come from {@link mergeCache}, so a fresh object is handed out
+ * every time: the values inside it are shared with the document, as they always
+ * were, but the object a caller holds is its own.
  *
  * @param schemas - Array of OpenAPI schema objects to merge
  * @param rootSchema - Optional root schema to merge with the result
@@ -28,6 +42,25 @@ export const mergeAllOfSchemas = (
 ): SchemaObject => {
   // Handle max depth, empty or invalid input
   if (!schemas?.allOf?.length || !Array.isArray(schemas.allOf)) {
+    return rootSchema || ({} as SchemaObject)
+  }
+
+  // A root schema and a partly walked `seenRefs` both belong to one call, so
+  // only the plain form is worth an entry — which is the form every component
+  // and every walk below uses.
+  if (rootSchema === undefined && seenRefs.size === 0) {
+    return mergeCache(schemas, () => mergeAllOfSchemasUncached(schemas, undefined, seenRefs))
+  }
+
+  return mergeAllOfSchemasUncached(schemas, rootSchema, seenRefs)
+}
+
+const mergeAllOfSchemasUncached = (
+  schemas: SchemaObject,
+  rootSchema: SchemaObject | undefined,
+  seenRefs: Set<string>,
+): SchemaObject => {
+  if (!schemas.allOf) {
     return rootSchema || ({} as SchemaObject)
   }
 

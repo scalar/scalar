@@ -139,4 +139,34 @@ describe('partitionAllOfCompositions', () => {
     expect(merged.not).toBeUndefined()
     expect(merged.if).toBeUndefined()
   })
+
+  describe('caching', () => {
+    it('reflects an edit to a schema between two calls', () => {
+      const schema = {
+        allOf: [
+          { type: 'object', properties: { id: { type: 'string' } } },
+          { type: 'object', properties: { name: { type: 'string' } } },
+        ],
+      } as unknown as SchemaObject
+
+      expect((partitionAllOfCompositions(schema).segments[0] as any).schema.properties).not.toHaveProperty('age')
+
+      // The API client edits documents in place, so segments cached on the node
+      // must not survive the edit.
+      ;(schema as any).allOf[1].properties.age = { type: 'number' }
+
+      expect((partitionAllOfCompositions(schema).segments[0] as any).schema.properties).toHaveProperty('age')
+    })
+
+    it('reflects an added choice member between two calls', () => {
+      const schema = {
+        allOf: [{ type: 'object', properties: { id: { type: 'string' } } }],
+      } as unknown as SchemaObject
+
+      expect(partitionAllOfCompositions(schema).segments).toHaveLength(1)
+      ;(schema as any).allOf.push({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+
+      expect(partitionAllOfCompositions(schema).segments).toHaveLength(2)
+    })
+  })
 })

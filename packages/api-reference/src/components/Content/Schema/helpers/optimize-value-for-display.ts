@@ -2,6 +2,8 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { compositions } from './schema-composition'
+import { createSchemaRenderCache } from './schema-render-cache'
+import { compositionSchemaSignature } from './schema-signature'
 
 /**
  * Shallow-merges schema-like objects, but unions `properties` and `required`
@@ -53,6 +55,20 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
 }
 
 /**
+ * Flattened schemas, keyed by the node they were flattened from.
+ *
+ * Every row rebuilds this, and the object it returns is what the rest of the
+ * render path keys its own work on, so rebuilding it also costs every cache
+ * below a chance to hit. The one object is therefore shared rather than copied;
+ * every caller only reads it. The signature covers the levels a flattening folds
+ * together, and nothing deeper, because everything deeper is copied by reference
+ * and read live.
+ */
+const displayCache = createSchemaRenderCache<SchemaObject | undefined>({
+  signature: compositionSchemaSignature,
+})
+
+/**
  * Normalize compositions for display without changing the source schema. Null branches
  * become nullable state, single branches are flattened, and shared properties and
  * required fields are merged into variants so the renderer keeps their full context.
@@ -62,6 +78,10 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     return value
   }
 
+  return displayCache(value, () => optimizeValueForDisplayUncached(value))
+}
+
+function optimizeValueForDisplayUncached(value: SchemaObject): SchemaObject | undefined {
   // Find the composition keyword early to avoid unnecessary work
   const composition = compositions.find((keyword) => keyword in value && keyword !== 'not')
 

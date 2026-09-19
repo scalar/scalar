@@ -1300,4 +1300,59 @@ describe('mergeAllOfSchemas', () => {
 
     expect(() => mergeAllOfSchemas(node)).not.toThrow()
   })
+
+  describe('caching', () => {
+    it('hands out a new object every time', () => {
+      const schema = {
+        allOf: [{ type: 'object', properties: { name: { type: 'string' } } }],
+      } as unknown as SchemaObject
+
+      const first = mergeAllOfSchemas(schema)
+      const second = mergeAllOfSchemas(schema)
+
+      expect(second).not.toBe(first)
+      expect(second).toEqual(first)
+    })
+
+    it('reflects an edit to a schema between two merges', () => {
+      const schema = {
+        allOf: [
+          { type: 'object', properties: { name: { type: 'string', description: 'Before' } } },
+          { description: 'A person' },
+        ],
+      } as unknown as SchemaObject
+
+      expect((mergeAllOfSchemas(schema) as any).properties.name.description).toBe('Before')
+
+      // The API client edits documents in place, so a merge cached on the node
+      // must not survive the edit.
+      ;(schema as any).allOf[0].properties.name.description = 'After'
+
+      expect((mergeAllOfSchemas(schema) as any).properties.name.description).toBe('After')
+    })
+
+    it('reflects an added allOf member between two merges', () => {
+      const schema = {
+        allOf: [{ type: 'object', properties: { name: { type: 'string' } } }],
+      } as unknown as SchemaObject
+
+      expect(mergeAllOfSchemas(schema)).not.toHaveProperty('description')
+      ;(schema as any).allOf.push({ description: 'A person' })
+
+      expect(mergeAllOfSchemas(schema)).toHaveProperty('description', 'A person')
+    })
+
+    it('reflects an edit behind a $ref between two merges', () => {
+      const target: any = { type: 'object', properties: { name: { type: 'string' } } }
+      const schema = {
+        allOf: [{ $ref: '#/components/schemas/Person', '$ref-value': target }],
+      } as unknown as SchemaObject
+
+      expect((mergeAllOfSchemas(schema) as any).properties.name.type).toBe('string')
+
+      target.properties.name = { type: 'integer' }
+
+      expect((mergeAllOfSchemas(schema) as any).properties.name.type).toBe('integer')
+    })
+  })
 })
