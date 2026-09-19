@@ -701,6 +701,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
             typeComment: 'Embedded literal example. The value field and externalValue field are mutually exclusive.',
           }),
         ),
+        dataValue: optional(any()),
+        serializedValue: optional(string()),
         externalValue: optional(
           string({
             typeComment:
