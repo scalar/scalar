@@ -149,18 +149,3 @@ createApiReference('#app', {
   url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
 })
 ```
-
-## Classic Script
-
-You can also use a classic script tag. This build exposes `Scalar.createApiReference` as a global and remains supported:
-
-```html
-<div id="app"></div>
-<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-<script>
-  Scalar.createApiReference('#app', {
-    url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
-    proxyUrl: 'https://proxy.scalar.com',
-  })
-</script>
-```
