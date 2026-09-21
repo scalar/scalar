@@ -3376,6 +3376,12 @@
                         "description": "Add a Scalar API reference to your SvelteKit application for interactive OpenAPI documentation.",
                         "type": "page"
                       },
+                      "symfony": {
+                        "title": "Symfony",
+                        "filepath": "documentation/integrations/symfony.md",
+                        "description": "Add a Scalar API reference to your Symfony application with the official bundle or NelmioApiDocBundle.",
+                        "type": "page"
+                      },
                       "tsed": {
                         "title": "Ts.ED",
                         "filepath": "documentation/integrations/tsed.md",
