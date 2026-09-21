@@ -385,14 +385,14 @@ export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): 
       if (candidate === element || candidate.contains(element) || element.contains(candidate)) {
         return []
       }
-      const style = window.getComputedStyle(candidate)
-      if ((style.position !== 'sticky' && style.position !== 'fixed') || style.visibility === 'hidden') {
+      // Read geometry first: most nodes cannot cover the target. Computing styles
+      // for the whole API description on every freeze frame is unnecessarily costly.
+      const rect = candidate.getBoundingClientRect()
+      if (rect.height <= 0 || rect.bottom <= scrollportTop || rect.left > targetX || rect.right <= targetX) {
         return []
       }
-      const rect = candidate.getBoundingClientRect()
-      return rect.left <= targetX && rect.right > targetX && rect.bottom > scrollportTop && rect.height > 0
-        ? [rect]
-        : []
+      const style = window.getComputedStyle(candidate)
+      return (style.position === 'sticky' || style.position === 'fixed') && style.visibility !== 'hidden' ? [rect] : []
     })
     .sort((a, b) => a.top - b.top)
 

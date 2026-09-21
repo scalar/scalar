@@ -108,4 +108,16 @@ describe('lazy-bus', () => {
     }
     expect(getStickyHeaderOffset(target)).toBe(expected)
   })
+  it('skips computed styles for elements that cannot cover the target', () => {
+    const target = document.createElement('h2')
+    const sidebar = document.createElement('aside')
+    const hidden = document.createElement('div')
+    document.body.append(target, sidebar, hidden)
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 400, 30))
+    vi.spyOn(sidebar, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 180, 600))
+    const getComputedStyle = vi.spyOn(window, 'getComputedStyle')
+
+    expect(getStickyHeaderOffset(target)).toBe(0)
+    expect(getComputedStyle).not.toHaveBeenCalled()
+  })
 })
