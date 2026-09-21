@@ -1,5 +1,11 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { HTTPException } from 'hono/http-exception'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { parse, stringify } from 'yaml'
 
 import { createMockServer } from './create-mock-server'
 
@@ -61,6 +67,98 @@ const documentWithBrokenResponseHeader: Record<string, unknown> = {
 }
 
 describe('createMockServer', () => {
+  describe('document sources', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: { '/pets': { $ref: './pets.json' } },
+      components: {
+        schemas: { Pet: { type: 'object', properties: { friend: { $ref: '#/components/schemas/Pet' } } } },
+      },
+    }
+    const pathItem = {
+      get: {
+        responses: { '200': { description: 'Pets', content: { 'application/json': { example: { name: 'Fido' } } } } },
+      },
+    }
+
+    const assertExports = async (app: Awaited<ReturnType<typeof createMockServer>>): Promise<void> => {
+      const response = await app.request('/pets')
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ name: 'Fido' })
+      for (const format of ['json', 'yaml']) {
+        const exported = await app.request(`/openapi.${format}`)
+        expect(exported.status).toBe(200)
+        expect(exported.headers.get('content-type')).toContain(format)
+        const content = parse(await exported.text())
+        expect(content).toMatchObject({ info: document.info, 'x-ext': expect.any(Object) })
+        expect(JSON.stringify(content)).toContain('Fido')
+        expect(JSON.stringify(content)).not.toContain('$ref-value')
+      }
+    }
+
+    it.each([false, true])('exports a file document and its relative references (preloaded: %s)', async (preloaded) => {
+      const directory = await mkdtemp(join(tmpdir(), 'mock-exports-'))
+      const file = join(directory, 'openapi.json')
+      try {
+        await writeFile(file, JSON.stringify(document))
+        await writeFile(join(directory, 'pets.json'), JSON.stringify(pathItem))
+        const app = await createMockServer({
+          document: preloaded ? structuredClone(document) : file,
+          ...(preloaded ? { origin: file } : {}),
+          logger: false,
+        })
+        await assertExports(app)
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    })
+
+    it.each([false, true])('exports a URL document without refetching (preloaded: %s)', async (preloaded) => {
+      // Guarded URL loading uses the bundler's Undici transport rather than global fetch.
+      const bundlerRequire = createRequire(import.meta.resolve('@scalar/json-magic/bundle'))
+      const { Agent, MockAgent } = bundlerRequire('undici') as typeof import('undici')
+      const transport = new MockAgent()
+      transport.disableNetConnect()
+      const pool = transport.get('https://203.0.113.1')
+      if (!preloaded) {
+        pool.intercept({ path: '/openapi.json', method: 'GET' }).reply(200, document)
+      }
+      pool.intercept({ path: '/pets.json', method: 'GET' }).reply(200, pathItem)
+      const dispatch = vi
+        .spyOn(Agent.prototype, 'dispatch')
+        .mockImplementation((options, handler) => pool.dispatch(options, handler))
+      try {
+        const app = await createMockServer({
+          document: preloaded ? structuredClone(document) : 'https://203.0.113.1/openapi.json',
+          ...(preloaded ? { origin: 'https://203.0.113.1/openapi.json' } : {}),
+          logger: false,
+        })
+        await assertExports(app)
+        expect(dispatch).toHaveBeenCalledTimes(preloaded ? 1 : 2)
+        transport.assertNoPendingInterceptors()
+      } finally {
+        dispatch.mockRestore()
+        await transport.close()
+      }
+    })
+
+    it.each(['object', 'json', 'yaml'])(
+      'preserves the original OpenAPI version for inline %s input',
+      async (format) => {
+        const document = { openapi: '3.0.4', info: { title: 'Inline API', version: '1.0.0' }, paths: {} }
+        const inputs = { object: document, json: JSON.stringify(document), yaml: stringify(document) }
+        const input = inputs[format as keyof typeof inputs]
+        const app = await createMockServer({ document: input, logger: false })
+        for (const extension of ['json', 'yaml']) {
+          const response = await app.request(`/openapi.${extension}`)
+          expect(response.status).toBe(200)
+          expect(parse(await response.text())).toEqual(document)
+        }
+      },
+    )
+  })
+
   // The error-handling tests below silence the log the server writes. Restoring through a hook
   // rather than inline keeps a failing assertion from leaving `console.error` mocked for the rest
   // of the file.

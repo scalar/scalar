@@ -74,6 +74,7 @@
   "devDependencies": {
     "@types/node": "catalog:*",
     "@types/ws": "catalog:*",
+    "undici": "catalog:*",
     "vite": "catalog:*"
   }
 }
