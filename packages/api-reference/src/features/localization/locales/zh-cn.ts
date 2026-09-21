@@ -14,6 +14,7 @@ export const zhCn = {
     open: '打开搜索',
     placeholder: '搜索...',
     clear: '清除搜索',
+    noResults: '未找到结果',
     keyboardShortcut: '键盘快捷键：',
     command: 'Command 键',
     control: 'Control 键',
@@ -78,6 +79,7 @@ export const zhCn = {
     status: '状态',
   },
   schema: {
+    noAllowedValues: '没有值满足此枚举约束。',
     example: '示例',
     examples: '示例',
     default: '默认值',

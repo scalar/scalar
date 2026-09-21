@@ -1,5 +1,23 @@
 # @scalar/mock-server
 
+## 0.14.4
+
+### Patch Changes
+
+- [#10289](https://github.com/scalar/scalar/pull/10289): Update `@faker-js/faker` from 10.4.0 to 10.6.0.
+
+## 0.14.3
+
+## 0.14.2
+
+### Patch Changes
+
+- [#10179](https://github.com/scalar/scalar/pull/10179): Serve OAuth2 authorization server metadata at the declared oauth2MetadataUrl, advertising local mock endpoints and the configured grants and scopes.
+
+  Normalize absolute OAuth token URLs to route paths when registering mock authentication routes.
+
+- [#10179](https://github.com/scalar/scalar/pull/10179): Warn when OAuth2 metadata routes collide with declared API paths. Keep the OAuth2 metadata field in OpenAPI 3.2 schemas and document the HTTP exception for local development.
+
 ## 0.14.1
 
 ### Patch Changes

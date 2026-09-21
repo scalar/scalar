@@ -1,5 +1,61 @@
 # @scalar/workspace-store
 
+## 0.64.0
+
+### Minor Changes
+
+- [#10264](https://github.com/scalar/scalar/pull/10264): Add a `compact` option to the server workspace store, which shrinks the sparse document the browser downloads before it can render anything: Cloudflare's public API goes from 4,447 KB to 431 KB (346 KB to 63 KB gzipped). The navigation becomes one more lazily resolved chunk, and the per-node chunk references become one `x-scalar-chunk-index` extension the client expands back into the very same references as it ingests the document. Defaults are unchanged, and what the client holds in memory is identical either way.
+- [#10240](https://github.com/scalar/scalar/pull/10240): Load external examples on demand when their selected preview is visible or Test Request opens, instead of downloading every payload while loading the API description. Share and cache downloads, preserve relative URL origins, and show loading and retry states while preventing incomplete requests from being sent.
+- [#10263](https://github.com/scalar/scalar/pull/10263): feat: add a `reactive: false` option to the client workspace store, which keeps the whole store API on plain objects for read-mostly consumers such as a server render
+
+### Patch Changes
+
+- [#10268](https://github.com/scalar/scalar/pull/10268): Save content-based parameter edits in the media type's examples so enabled JSON query parameters are included in requests. Preserve previously saved edits and migrate them when the parameter is edited again.
+- [#10255](https://github.com/scalar/scalar/pull/10255): fix(api-client): auto-enable optional header/query/cookie rows that have a pre-populated value
+
+  Optional parameters (headers, query params, cookies) start disabled by default. When the API
+  description provides a default or enum value for such a parameter (e.g. `x-scenario-id` with an enum),
+  the row was rendered with its checkbox unchecked even though a value was already selected — so the
+  parameter was silently dropped from every request until the user manually checked it.
+
+  The fix auto-enables any row that is only disabled by default (no explicit `x-disabled: true`) and
+  already carries a non-empty value, mirroring the existing behaviour when a user types a value into
+  a previously-empty row.
+
+  Use the same enablement rules for the parameter editor, outgoing requests, and generated code snippets.
+
+## 0.63.0
+
+### Minor Changes
+
+- [#10261](https://github.com/scalar/scalar/pull/10261): Add `getDocumentRevision(document)`, a counter the store bumps on every write to a document. A consumer caching a derivation of a schema node can validate the entry against it in constant time, instead of walking the subtree to see whether anything moved. It reads the same from any view of the document, including one with the reactive and detect-changes proxies stripped for reads, and returns 0 for a document no store tracks.
+- [#10261](https://github.com/scalar/scalar/pull/10261): Type the result of `resolve.schema` as read-only. A resolved schema is the document's own node or a shallow merge over it, so writing to it writes into the document behind the store's back; every change belongs in a store mutation, and a caller that needs a modified shape copies what it needs first. No in-repo consumer had to change.
+
+### Patch Changes
+
+- [#10261](https://github.com/scalar/scalar/pull/10261): Make rendering from the store cheaper: the detect-changes proxy no longer allocates a path on every property read, `getResolvedRefDeep` stops deep-unpacking every node it visits, `resolve.schema` builds its composed typebox schema once, and `getExampleFromSchema` builds its options cache key once per call instead of once per node.
+- [#10261](https://github.com/scalar/scalar/pull/10261): Follow chains of references when resolving. A reference can point at a second reference — `resolve()` on a static or SSR workspace leaves the component behind as a `{ $ref: '#/x-ext/<hash>', $global: true }` stub with the content under `x-ext` — so `getResolvedRef` and `getResolvedRefDeep` now hop through references that carry nothing but a `$ref` until they reach the node itself, instead of handing back the stub. A reference that carries keywords of its own stays its own hop, since it is a schema in its own right.
+
+## 0.62.0
+
+### Minor Changes
+
+- [#10257](https://github.com/scalar/scalar/pull/10257): Expose each document whole from the server workspace store through `getResolvedDocument`, for rendering on the server from one reference while the browser keeps loading chunks. Resolve relative chunk references from a static workspace against the URL the document was loaded from; they failed before a request was made.
+
+### Patch Changes
+
+- [#10231](https://github.com/scalar/scalar/pull/10231): Trim surrounding whitespace from bearer tokens after resolving environment variables.
+- [#9638](https://github.com/scalar/scalar/pull/9638): Keep `$ref-value` optional in the shared `reference()` schema helper. An unresolved `{ $ref }` (for example a sparse chunk from the server store) now passes through coercion untouched instead of being coerced into a synthesized default that dropped the reference. This aligns the helper with the schema position that already made this choice.
+
+  Apply the same behavior to both OpenAPI 3.1 and 3.2 reference helpers, including the current workspace ingestion schema.
+
+- [#10179](https://github.com/scalar/scalar/pull/10179): Warn when OAuth2 metadata routes collide with declared API paths. Keep the OAuth2 metadata field in OpenAPI 3.2 schemas and document the HTTP exception for local development.
+- [#10179](https://github.com/scalar/scalar/pull/10179): Support OpenAPI 3.2 OAuth2 metadata URLs in workspace schemas and the shared authentication UI. Fetch HTTPS authorization server metadata or HTTP metadata from local development URLs to discover flows or fill missing endpoints while preserving explicit configuration.
+
+  For local development, Scalar deliberately relaxes the OpenAPI 3.2 TLS requirement: metadata URLs and discovered endpoints may use HTTP for local development URLs recognized by the shared `isLocalUrl` helper, including loopback hosts, `0.0.0.0`, and reserved development domains such as `*.test` and `*.example`. Other hosts require HTTPS.
+
+  Discovery leaves `refreshUrl` unchanged. Token refresh already falls back to the flow's token URL when no refresh URL is configured, so a discovered token endpoint also supports refresh without overriding an explicit refresh URL.
+
 ## 0.61.0
 
 ### Minor Changes

@@ -14,6 +14,7 @@ export const fr = {
     open: 'Ouvrir la recherche',
     placeholder: 'Rechercher...',
     clear: 'Effacer la recherche',
+    noResults: 'Aucun résultat trouvé',
     keyboardShortcut: 'Raccourci clavier :',
     command: 'Commande',
     control: 'Contrôle',
@@ -79,6 +80,7 @@ export const fr = {
     status: 'Statut',
   },
   schema: {
+    noAllowedValues: 'Aucune valeur ne satisfait cette contrainte enum.',
     example: 'Exemple',
     examples: 'Exemples',
     default: 'Par défaut',

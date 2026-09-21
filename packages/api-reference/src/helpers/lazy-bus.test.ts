@@ -1,6 +1,10 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { scrollToLazy } from './lazy-bus'
+import { getStickyHeaderOffset, scrollToLazy } from './lazy-bus'
+
+// ---------------------------------------------------------------------------
+// scrollToLazy — existing tests
+// ---------------------------------------------------------------------------
 
 describe('lazy-bus', () => {
   /**
@@ -71,5 +75,49 @@ describe('lazy-bus', () => {
 
       vi.useRealTimers()
     })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    document.body.replaceChildren()
+  })
+
+  it.each([
+    { name: 'no headers', headers: [], expected: 0 },
+    { name: 'a fixed header', headers: [[0, 60, 0, 800]], expected: 60 },
+    {
+      name: 'stacked bars in reverse DOM order',
+      headers: [
+        [48, 40, 0, 800],
+        [0, 48, 0, 800],
+      ],
+      expected: 88,
+    },
+    { name: 'a sidebar beside the target', headers: [[0, 600, 0, 180]], expected: 0 },
+    { name: 'an offscreen header', headers: [[-100, 60, 0, 800]], expected: 0 },
+    { name: 'a floating bar below the top', headers: [[100, 60, 0, 800]], expected: 0 },
+  ])('measures $name', ({ headers, expected }) => {
+    const target = document.createElement('h2')
+    document.body.append(target)
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 400, 30))
+    for (const [top, height, left, width] of headers) {
+      const header = document.createElement('nav')
+      header.style.position = 'fixed'
+      document.body.append(header)
+      vi.spyOn(header, 'getBoundingClientRect').mockReturnValue(new DOMRect(left, top, width, height))
+    }
+    expect(getStickyHeaderOffset(target)).toBe(expected)
+  })
+  it('skips computed styles for elements that cannot cover the target', () => {
+    const target = document.createElement('h2')
+    const sidebar = document.createElement('aside')
+    const hidden = document.createElement('div')
+    document.body.append(target, sidebar, hidden)
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 400, 30))
+    vi.spyOn(sidebar, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 180, 600))
+    const getComputedStyle = vi.spyOn(window, 'getComputedStyle')
+
+    expect(getStickyHeaderOffset(target)).toBe(0)
+    expect(getComputedStyle).not.toHaveBeenCalled()
   })
 })

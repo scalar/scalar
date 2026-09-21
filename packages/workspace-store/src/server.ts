@@ -15,6 +15,13 @@ import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { type Schema, coerce } from '@scalar/validation'
 
+import {
+  CHUNK_INDEX_KEY,
+  buildChunkIndex,
+  chunkRefTemplates,
+  chunkReference,
+  fillChunkRef,
+} from '@/helpers/chunk-index'
 import { createChunkWriter } from '@/helpers/create-chunk-writer'
 import { deepClone } from '@/helpers/deep-clone'
 import { encodeChunkName } from '@/helpers/encode-chunk-name'
@@ -55,6 +62,22 @@ type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
   navigationOptions?: NavigationOptions
+  /**
+   * Sends the sparse document in its compact form, for documents large enough that the sparse
+   * document is itself a cost.
+   *
+   * It changes the wire shape only. `x-scalar-navigation` becomes one more lazily resolved chunk,
+   * and the per-node chunk references under `components` and `paths` are replaced by the
+   * `x-scalar-chunk-index` extension, which lists what exists and how a reference to it is spelled.
+   * The client store expands the index as it ingests the document, so what it holds in memory — and
+   * everything reading from it — is exactly what it would have held without this option.
+   *
+   * `getResolvedDocument()` is unaffected: it carries the whole document and its navigation either
+   * way. AsyncAPI documents are unaffected too, since nothing about them is externalized.
+   *
+   * @default false
+   */
+  compact?: boolean
 }
 type CreateServerWorkspaceStoreProps =
   | ({
@@ -408,6 +431,33 @@ export type ServerWorkspaceStore = {
    * @returns The resolved chunk, or `undefined` when not found
    */
   get: (pointer: string) => unknown
+  /**
+   * Returns a document whole, with local references resolving, for rendering on the server.
+   *
+   * `getWorkspace()` hands back the sparse document: every component and operation is a reference
+   * to a chunk, which is what the browser wants so it can load only what a page needs. A server
+   * render wants the opposite — the complete document, read through one reference, with `$ref-value`
+   * resolving locally and nothing fetched. That is the document the store built its navigation and
+   * chunks from, so this is that object rather than a second copy: it shares the components and
+   * operations the chunks are written from, and carries the same metadata and navigation as the
+   * sparse document.
+   *
+   * It is a magic proxy, never reactive, so reading it costs a property lookup and a pointer
+   * resolution. Use `getRaw` to serialize it: `$ref-value` is enumerable on the proxy and would
+   * inline every referenced value beside its `$ref`.
+   *
+   * @example
+   * ```ts
+   * const document = store.getResolvedDocument('petstore')
+   *
+   * // A real operation, not a chunk reference
+   * document?.paths?.['/pets']?.get
+   * ```
+   *
+   * @param name - The document name it was added under
+   * @returns The resolved document, or `undefined` when no document has that name
+   */
+  getResolvedDocument: (name: string) => ServerWorkspace['documents'][string] | undefined
 }
 
 /**
@@ -438,8 +488,21 @@ export async function createServerWorkspaceStore(
    */
   const assets: Record<
     string,
-    { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
+    {
+      components?: ComponentsObject
+      operations?: Record<string, Record<string, OperationObject>>
+      /** Only in compact mode, where the navigation is a chunk rather than part of the document. */
+      navigation?: unknown
+    }
   > = {}
+
+  /**
+   * Each document whole, for `getResolvedDocument`.
+   *
+   * Written at the same point as `workspace.documents`, after everything that can throw, so a failed
+   * add leaves neither map with a half-processed entry.
+   */
+  const resolvedDocuments: Record<string, ServerWorkspace['documents'][string]> = {}
 
   /**
    * Adds an AsyncAPI document to the workspace.
@@ -502,6 +565,10 @@ export async function createServerWorkspaceStore(
     // checks OpenAPI first — so leaving `openapi` in place would hand an OpenAPI renderer a
     // navigation tree of channel entries. The document is stored as the type it was read as.
     delete (workspace.documents[name] as Record<string, unknown>)['openapi']
+
+    // Nothing was externalized, so the stored document already is the whole document; it only needs
+    // its references resolving to be rendered from.
+    resolvedDocuments[name] = resolveLocalReferences(workspace.documents[name] as ServerWorkspace['documents'][string])
   }
 
   /**
@@ -548,12 +615,13 @@ export async function createServerWorkspaceStore(
     const resolvedDocument = resolveLocalReferences(documentV3)
 
     // add the assets
-    assets[meta.name] = {
+    const documentAssets: (typeof assets)[string] = {
       // Components need no resolution: they are externalized as authored, and the client resolves the
       // references inside them the same way it resolves the ones this store leaves behind.
       components: documentV3.components,
       operations: resolvedDocument.paths && escapePaths(filterHttpMethodsOnly(resolvedDocument.paths)),
     }
+    assets[meta.name] = documentAssets
 
     const options =
       workspaceProps.mode === 'ssr'
@@ -568,13 +636,42 @@ export async function createServerWorkspaceStore(
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
-    workspace.documents[meta.name] = {
+    if (workspaceProps.compact) {
+      const refs = chunkRefTemplates(options)
+
+      // The navigation joins the chunks, so `get()` and the generated chunk files can serve it.
+      documentAssets.navigation = navigation
+
+      // `components` and `paths` are dropped from the document: the index carries every reference
+      // that was in them, plus the path-item keys that were never externalized.
+      const { components: _components, paths: _paths, ...documentWithoutChunkedSections } = documentV3
+
+      // Cast because a compact document is a wire form rather than a document: its navigation is a
+      // reference to a chunk and its two chunked sections are absent, both of which the client
+      // undoes as it ingests it.
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...documentWithoutChunkedSections,
+        [CHUNK_INDEX_KEY]: buildChunkIndex({ mode: options.mode, refs, components, paths }),
+        [extensions.document.navigation]: chunkReference(fillChunkRef(refs.navigation)),
+      } as unknown as ServerWorkspace['documents'][string]
+    } else {
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...documentV3,
+        components,
+        paths,
+        [extensions.document.navigation]: navigation,
+      }
+    }
+
+    // The same document without the externalization, for server rendering. A shallow spread, so the
+    // components and operations are the objects the chunks are written from rather than copies.
+    resolvedDocuments[meta.name] = resolveLocalReferences({
       ...documentMeta,
       ...documentV3,
-      components,
-      paths,
       [extensions.document.navigation]: navigation,
-    }
+    })
   }
 
   /**
@@ -637,7 +734,12 @@ export async function createServerWorkspaceStore(
       const writeChunk = await createChunkWriter(basePath)
       await writeChunk([WORKSPACE_FILE_NAME], workspace)
 
-      for (const [name, { components, operations }] of Object.entries(assets)) {
+      for (const [name, { components, operations, navigation }] of Object.entries(assets)) {
+        // Only compact documents keep their navigation here; otherwise it stays on the document.
+        if (navigation !== undefined) {
+          await writeChunk(['chunks', encodeChunkName(name), 'navigation.json'], navigation)
+        }
+
         if (components) {
           for (const [type, component] of Object.entries(components)) {
             for (const [key, value] of Object.entries(component)) {
@@ -670,6 +772,7 @@ export async function createServerWorkspaceStore(
     getWorkspace: () => {
       return workspace
     },
+    getResolvedDocument: (name) => resolvedDocuments[name],
     get: (pointer: string) => {
       const pointerPath = (() => {
         if (pointer.startsWith('#')) {

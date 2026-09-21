@@ -118,11 +118,11 @@ const getEnumValueDescription = (
   }
 
   if (Array.isArray(descriptions)) {
-    return descriptions[index]
+    return descriptions[index] || undefined
   }
 
   if (typeof descriptions === 'object' && descriptions !== null) {
-    return descriptions[String(enumValue)]
+    return descriptions[String(enumValue)] || undefined
   }
 
   return undefined
@@ -153,7 +153,7 @@ const toggleExpanded = () => {
 
 <template>
   <div
-    v-if="enumValues.length > 0"
+    v-if="enumSchema?.enum !== undefined"
     class="property-enum property-enum--tree mt-2 rounded-(--scalar-radius-lg) border">
     <!-- A bordered card with a muted header row and one hairline row per
          value; the chips and the long-list toggle are rows of it too -->
@@ -164,8 +164,13 @@ const toggleExpanded = () => {
           : translate('schema.values')
       }}
     </div>
+    <p
+      v-if="enumValues.length === 0"
+      class="text-c-2 border-t px-3 py-2 text-sm">
+      {{ translate('schema.noAllowedValues') }}
+    </p>
     <div
-      v-if="shouldRenderAsChips"
+      v-else-if="shouldRenderAsChips"
       class="property-enum-chip-list flex flex-wrap gap-1 border-t px-3 py-2"
       role="list">
       <span

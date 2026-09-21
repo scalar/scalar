@@ -374,6 +374,71 @@ const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown):
 }
 
 /**
+ * Measures the connected header region covering the target at its scrollport's top.
+ * Horizontal overlap excludes sidebars; sorting also handles stacked navigation bars.
+ */
+export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): number => {
+  const target = element.getBoundingClientRect()
+  const targetX = target.left + target.width / 2
+  const headers = Array.from(document.querySelectorAll<HTMLElement>('*'))
+    .flatMap((candidate) => {
+      if (candidate === element || candidate.contains(element) || element.contains(candidate)) {
+        return []
+      }
+      // Read geometry first: most nodes cannot cover the target. Computing styles
+      // for the whole API description on every freeze frame is unnecessarily costly.
+      const rect = candidate.getBoundingClientRect()
+      if (rect.height <= 0 || rect.bottom <= scrollportTop || rect.left > targetX || rect.right <= targetX) {
+        return []
+      }
+      const style = window.getComputedStyle(candidate)
+      return (style.position === 'sticky' || style.position === 'fixed') && style.visibility !== 'hidden' ? [rect] : []
+    })
+    .sort((a, b) => a.top - b.top)
+
+  let bottom = scrollportTop
+  for (const header of headers) {
+    if (header.top > bottom + 1) {
+      break
+    }
+    bottom = Math.max(bottom, header.bottom)
+  }
+  return bottom - scrollportTop
+}
+
+/** Scrolls nested containers natively before compensating for overlapping headers. */
+export const scrollToElement = (element: HTMLElement): void => {
+  element.scrollIntoView({ block: 'start', behavior: 'instant' })
+
+  // Measure after scrolling, when sticky elements have reached their pinned positions.
+  let scrollportTop = 0
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    const { overflowY } = window.getComputedStyle(parent)
+    if (/(auto|scroll|hidden)/.test(overflowY) && parent.scrollHeight > parent.clientHeight) {
+      scrollportTop = Math.max(0, parent.getBoundingClientRect().top + parent.clientTop)
+      break
+    }
+  }
+  const offset = getStickyHeaderOffset(element, scrollportTop)
+  const margin = Number.parseFloat(window.getComputedStyle(element).scrollMarginTop) || 0
+  if (offset <= margin) {
+    return
+  }
+
+  // Native scrolling applies the margin to the actual scrolling ancestors and preserves
+  // existing CSS offsets. Restore the inline declaration so host styling stays in control.
+  const previous = element.style.getPropertyValue('scroll-margin-top')
+  const priority = element.style.getPropertyPriority('scroll-margin-top')
+  element.style.setProperty('scroll-margin-top', `${offset}px`, 'important')
+  element.scrollIntoView({ block: 'start', behavior: 'instant' })
+  if (previous) {
+    element.style.setProperty('scroll-margin-top', previous, priority)
+  } else {
+    element.style.removeProperty('scroll-margin-top')
+  }
+}
+
+/**
  * Tiny wrapper around the scrollIntoView API
  * Retries up to the stopTime in case the element is not yet rendered
  *
@@ -389,16 +454,7 @@ const tryScroll = (
 ): void => {
   const element = document.getElementById(id)
   if (element) {
-    element.scrollIntoView({ block: 'start' })
-    /**
-     * Focus the target as well as scrolling to it, so a deep link lands keyboard
-     * and screen-reader users on what they followed the link for rather than at
-     * the top of the document. `preventScroll` is load-bearing: `freeze`
-     * re-scrolls this element every frame while the lazy bus settles, and a
-     * focus-driven scroll would fight it. Only the current target is focused,
-     * because this loop retries for seconds while lazy content mounts and a
-     * superseded navigation must not yank a screen reader back to stale content.
-     */
+    scrollToElement(element)
     if (element instanceof HTMLElement && scrollTargetId.value === id) {
       element.focus({ preventScroll: true })
     }
@@ -407,14 +463,10 @@ const tryScroll = (
   } else if (Date.now() < stopTime) {
     requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure, fallbackId))
   } else {
-    // The exact element never appeared, so land on the section the anchor
-    // belongs to rather than leaving the reader with no feedback. This is what
-    // keeps a legacy anchor (an old response-header link) reaching its operation.
     if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
-      document.getElementById(fallbackId)?.scrollIntoView({ block: 'start' })
+      const fallback = document.getElementById(fallbackId)
+      if (fallback) scrollToElement(fallback)
     }
-
-    // If the scroll has expired we enable intersection again
     clearScrollTarget(id)
     onComplete()
     onFailure?.()
@@ -424,14 +476,10 @@ const tryScroll = (
 const freeze = (id: string): (() => void) => {
   let stop = false
 
-  /**
-   * Runs until the stop flag is set
-   * Executes the final frame after stop changes to true
-   */
   const runFrame = (stopAfterFrame: boolean) => {
     const element = document.getElementById(id)
     if (element) {
-      element.scrollIntoView({ block: 'start' })
+      scrollToElement(element)
     }
     if (!stopAfterFrame) {
       requestAnimationFrame(() => runFrame(stop))

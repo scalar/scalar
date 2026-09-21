@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ExamplePicker } from '@scalar/blocks/code-example'
+import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarCard,
   ScalarCardFooter,
@@ -11,12 +12,23 @@ import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  useExampleVisibility,
+  useExternalExamples,
+} from '@scalar/workspace-store/helpers/use-external-examples'
 import { getExample } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   ResponsesObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, ref, toValue, useId, watch } from 'vue'
+import {
+  computed,
+  ref,
+  toValue,
+  useId,
+  watch,
+  type ComponentPublicInstance,
+} from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
@@ -135,6 +147,11 @@ const resolveExampleKey = (preferred: string | undefined): string => {
 // Initialize from the document-wide selection, falling back to the first example
 selectedExampleKey.value = resolveExampleKey(selectedExample)
 
+// Content-type changes can replace the available example keys.
+watch(currentResponseContent, () => {
+  selectedExampleKey.value = resolveExampleKey(selectedExample)
+})
+
 // Follow the document-wide selection when it changes and this response has that example
 watch(
   () => selectedExample,
@@ -150,14 +167,16 @@ const selectExample = (key: string) => {
 }
 
 /** Get the current example to display */
-const currentExample = computed(() => {
+const selectedExampleObject = computed(() => {
   if (!currentResponseContent.value) {
     return undefined
   }
 
   // When multiple examples exist and one is selected, we access it directly
   if (hasMultipleExamples.value && selectedExampleKey.value) {
-    return currentResponseContent.value.examples?.[selectedExampleKey.value]
+    return getResolvedRef(
+      currentResponseContent.value.examples?.[selectedExampleKey.value],
+    )
   }
 
   // Otherwise, we use getExample with an undefined exampleKey to handle fallbacks
@@ -170,8 +189,20 @@ const changeTab = (index: number) => {
   selectedExampleKey.value = resolveExampleKey(selectedExample)
 }
 
+const card = ref<ComponentPublicInstance | null>(null)
+const visible = useExampleVisibility(card)
+const showSchema = ref(false)
+const externalExamples = useExternalExamples(
+  () => [selectedExampleObject.value],
+  () => visible.value && !showSchema.value,
+)
+const currentExample = computed(() =>
+  externalExamples.resolve(selectedExampleObject.value),
+)
 const exampleContent = computed(() =>
-  getExampleContent(currentResponseContent.value, currentExample.value),
+  externalExamples.pending.value
+    ? undefined
+    : getExampleContent(currentResponseContent.value, currentExample.value),
 )
 
 const copyExample = (): void => {
@@ -179,12 +210,11 @@ const copyExample = (): void => {
     copyToClipboard(exampleContent.value)
   }
 }
-
-const showSchema = ref(false)
 </script>
 <template>
   <ScalarCard
     v-if="statusCodesWithContent.length"
+    ref="card"
     :aria-label="translate('response.exampleResponses')"
     class="response-card"
     role="region">
@@ -228,6 +258,21 @@ const showSchema = ref(false)
         :id="id"
         :schema="currentResponseContent?.schema" />
 
+      <div
+        v-else-if="externalExamples.pending.value"
+        class="text-c-2 p-4"
+        role="status">
+        <template v-if="externalExamples.failed.value">
+          Could not load this example.
+          <ScalarButton
+            size="sm"
+            variant="ghost"
+            @click="externalExamples.retry">
+            Retry
+          </ScalarButton>
+        </template>
+        <template v-else>Loading example…</template>
+      </div>
       <!-- Example -->
       <ExampleResponse
         v-else

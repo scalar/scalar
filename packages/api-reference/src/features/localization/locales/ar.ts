@@ -14,6 +14,7 @@ export const ar = {
     open: 'فتح البحث',
     placeholder: 'بحث...',
     clear: 'مسح البحث',
+    noResults: 'لم يتم العثور على نتائج',
     keyboardShortcut: 'اختصار لوحة المفاتيح:',
     command: 'مفتاح الأوامر',
     control: 'مفتاح التحكم',
@@ -78,6 +79,7 @@ export const ar = {
     status: 'الحالة',
   },
   schema: {
+    noAllowedValues: 'لا توجد قيم تستوفي قيد التعداد هذا.',
     example: 'مثال',
     examples: 'أمثلة',
     default: 'الافتراضي',

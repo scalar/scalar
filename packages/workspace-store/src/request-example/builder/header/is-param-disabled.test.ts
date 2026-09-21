@@ -136,4 +136,16 @@ describe('isParamDisabled', () => {
 
     expect(isParamDisabled(param, undefined, false)).toBe(false)
   })
+  it.each(['query', 'header', 'cookie'] as const)('uses populated values for optional %s parameters', (location) => {
+    const parameter: ParameterObject = { name: 'value', in: location, schema: { type: 'string' } }
+
+    for (const value of ['scenario', 0, false]) {
+      expect(isParamDisabled(parameter, { value })).toBe(false)
+      expect(isParamDisabled(parameter, { value, 'x-disabled': true })).toBe(true)
+    }
+    for (const value of [undefined, null, '']) {
+      expect(isParamDisabled(parameter, { value })).toBe(true)
+      expect(isParamDisabled(parameter, { value, 'x-disabled': false })).toBe(false)
+    }
+  })
 })

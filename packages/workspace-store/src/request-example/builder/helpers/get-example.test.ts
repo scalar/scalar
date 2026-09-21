@@ -178,6 +178,24 @@ describe('content-based parameters', () => {
     expect(result).toEqual({ value: stringified })
   })
 
+  it('preserves edits saved at parameter level by older clients', () => {
+    const param = {
+      name: 'filter',
+      in: 'query',
+      examples: {
+        default: { value: { status: 'from-param' }, 'x-disabled': false },
+      },
+      content: {
+        'application/json': {
+          example: { status: 'from-content' },
+        },
+      },
+    } satisfies ParameterWithContentObject & Pick<ParameterWithSchemaObject, 'examples'>
+
+    const result = getExample(param, 'default', 'application/json')
+    expect(result).toStrictEqual({ value: { status: 'from-param' }, 'x-disabled': false })
+  })
+
   it('returns undefined when no example is found in content', () => {
     const param = {
       content: {

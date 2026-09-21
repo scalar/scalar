@@ -7,6 +7,8 @@ import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isAsyncApiDocument } from '@/schemas'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
@@ -1412,5 +1414,158 @@ describe('externalize-path-references', () => {
         parameters: [{ name: 'tenant', in: 'header' }],
       },
     })
+  })
+})
+
+describe('getResolvedDocument', () => {
+  const galaxy = () => ({
+    'openapi': '3.1.1',
+    'info': { 'title': 'Scalar Galaxy', 'version': '0.3.2' },
+    'paths': {
+      '/planets': {
+        get: {
+          summary: 'List planets',
+          responses: {
+            '200': {
+              description: 'The planets',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { '$ref': '#/components/schemas/Planet' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    'components': {
+      'schemas': {
+        'Planet': { 'type': 'object', 'properties': { 'name': { 'type': 'string' } } },
+      },
+    },
+  })
+
+  const modes = [
+    { mode: 'static', directory: randomUUID() },
+    { mode: 'ssr', baseUrl: 'https://example.com' },
+  ] as const
+
+  it.each(modes)(
+    'returns the whole document in $mode mode while the workspace keeps the chunk references',
+    async (props) => {
+      const store = await createServerWorkspaceStore({
+        ...props,
+        documents: [{ name: 'galaxy', document: galaxy(), meta: { 'x-scalar-selected-server': 'test' } }],
+      })
+
+      const resolved = store.getResolvedDocument('galaxy')
+      assert(resolved && !isAsyncApiDocument(resolved))
+
+      // Real content where the sparse document has references
+      expect(getRaw(getPathItemOperation(resolved.paths?.['/planets'], 'get'))).toEqual(galaxy().paths['/planets'].get)
+      expect(getRaw(resolved.components?.schemas?.['Planet'])).toEqual(galaxy().components.schemas.Planet)
+
+      // The sparse document is untouched
+      const sparse = getOpenApiServerDocument(store, 'galaxy')
+      expect(getPathItemOperation(sparse?.paths?.['/planets'], 'get')).toHaveProperty('$global', true)
+      expect(sparse?.components?.schemas?.['Planet']).toHaveProperty('$global', true)
+
+      // Same metadata and navigation as the sparse document
+      expect(resolved['x-scalar-selected-server']).toBe('test')
+      expect(getRaw(resolved[extensions.document.navigation])).toEqual(getRaw(sparse?.[extensions.document.navigation]))
+    },
+  )
+
+  it('resolves local references on the returned document without fetching', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'static',
+      directory: randomUUID(),
+      documents: [{ name: 'galaxy', document: galaxy() }],
+    })
+
+    const resolved = store.getResolvedDocument('galaxy')
+    assert(resolved && !isAsyncApiDocument(resolved))
+
+    const operation = getResolvedRef(getPathItemOperation(resolved.paths?.['/planets'], 'get'))
+    const response = getResolvedRef(operation?.responses?.['200'])
+    const schema = getResolvedRef(response?.content?.['application/json']?.schema)
+    assert(schema && 'items' in schema)
+    const items = schema.items
+
+    expect(items).toMatchObject({ $ref: '#/components/schemas/Planet' })
+    expect(getRaw(getResolvedRef(items))).toEqual(galaxy().components.schemas.Planet)
+  })
+
+  it('serializes to plain references through getRaw', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'static',
+      directory: randomUUID(),
+      documents: [{ name: 'galaxy', document: galaxy() }],
+    })
+
+    const resolved = store.getResolvedDocument('galaxy')
+    assert(resolved)
+
+    const serialized = JSON.stringify(getRaw(resolved))
+
+    expect(serialized).not.toContain('$ref-value')
+    expect(serialized).toContain('"$ref":"#/components/schemas/Planet"')
+  })
+
+  it('shares the components and operations the chunks are written from', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'galaxy', document: galaxy() }],
+    })
+
+    const resolved = store.getResolvedDocument('galaxy')
+    assert(resolved && !isAsyncApiDocument(resolved))
+
+    expect(getRaw(resolved.components?.schemas?.['Planet'])).toBe(store.get('#/galaxy/components/schemas/Planet'))
+    expect(getRaw(getPathItemOperation(resolved.paths?.['/planets'], 'get'))).toBe(
+      store.get('#/galaxy/operations/~1planets/get'),
+    )
+  })
+
+  it('returns undefined for a name that was never added', async () => {
+    const store = await createServerWorkspaceStore({ mode: 'ssr', baseUrl: 'https://example.com', documents: [] })
+
+    expect(store.getResolvedDocument('missing')).toBeUndefined()
+  })
+
+  it('returns an asyncapi document whole, with its references resolving', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'events',
+          document: {
+            'asyncapi': '3.0.0',
+            'info': { 'title': 'Scalar Galaxy Events', 'version': '1.0.0' },
+            'channels': {
+              'planetEvents': {
+                'address': 'planet/events',
+                'messages': { 'planetCreated': { '$ref': '#/components/messages/PlanetCreated' } },
+              },
+            },
+            'components': {
+              'messages': { 'PlanetCreated': { 'name': 'PlanetCreated', 'title': 'Planet Created' } },
+            },
+          },
+        },
+      ],
+    })
+
+    const resolved = store.getResolvedDocument('events')
+    assert(resolved && isAsyncApiDocument(resolved))
+
+    expect(
+      getResolvedRef(getResolvedRef(resolved.channels?.['planetEvents'])?.messages?.['planetCreated']),
+    ).toMatchObject({
+      title: 'Planet Created',
+    })
+    expect(resolved).not.toHaveProperty('openapi')
   })
 })

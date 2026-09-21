@@ -828,6 +828,30 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
       : undefined,
   })
 
+/** Sentinel for "nothing memoized yet", since `undefined` is itself a valid options value. */
+const NO_OPTIONS = Symbol('NO_OPTIONS')
+
+/** The options object `lastOptionsKey` was built from. */
+let lastOptions: GetExampleFromSchemaOptions | undefined | typeof NO_OPTIONS = NO_OPTIONS
+let lastOptionsKey = ''
+
+/**
+ * The options half of the result-cache key, built once per top-level call instead of once per node.
+ *
+ * `createOptionsCacheKey` serializes the whole options object, and every schema the walk enters needs
+ * the same string. The walk is synchronous and passes the same `options` object down, so rebuilding at
+ * level 0, or whenever the identity changes, is enough: a caller that mutates its options object in
+ * place still gets a fresh key on its next top-level call, exactly as before.
+ */
+const getOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined, level: number): string => {
+  if (level === 0 || options !== lastOptions) {
+    lastOptionsKey = createOptionsCacheKey(options)
+    lastOptions = options
+  }
+
+  return lastOptionsKey
+}
+
 /** Stand-in for a truncated schema whose shape cannot be read off the document. */
 const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 
@@ -1111,7 +1135,7 @@ export const getExampleFromSchema = (
   seen.add(targetValue)
 
   /** Make the cache key unique per options and schema path */
-  const cacheKey = createOptionsCacheKey(options) + (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
+  const cacheKey = getOptionsCacheKey(options, level) + (schemaPath.length > 0 ? `:path:${schemaPath.join('.')}` : '')
 
   // Check cache first for performance - avoid recomputing the same schema (skipped under a dynamic scope)
   if (!skipCache) {

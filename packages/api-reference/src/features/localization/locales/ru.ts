@@ -14,6 +14,7 @@ export const ru = {
     open: 'Открыть поиск',
     placeholder: 'Поиск...',
     clear: 'Очистить поиск',
+    noResults: 'Результаты не найдены',
     keyboardShortcut: 'Сочетание клавиш:',
     command: 'Command',
     control: 'Control',
@@ -79,6 +80,7 @@ export const ru = {
     status: 'Статус',
   },
   schema: {
+    noAllowedValues: 'Ни одно значение не удовлетворяет этому ограничению enum.',
     example: 'Пример',
     examples: 'Примеры',
     default: 'Значение по умолчанию',

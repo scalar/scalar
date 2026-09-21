@@ -161,7 +161,7 @@ Client options can send values in headers, query parameters, body parameters, or
 
 ## Pagination
 
-Define reusable pagination schemes in `pagination`, then reference them from methods with `paginated`.
+Define reusable pagination schemes in `pagination`, then reference them from methods with `paginated`. Schemes are declared, never inferred from parameter names, so a method paginates only when it names one. See [Pagination](pagination.md) for the full field vocabulary, one worked example per strategy, and the generated helpers each target produces.
 
 ```json
 {
@@ -193,7 +193,24 @@ Define reusable pagination schemes in `pagination`, then reference them from met
 }
 ```
 
-Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `offset`, and `pageNumber`.
+Bind a scheme to a method with `paginated`, which takes a scheme name, or `false` to keep the method unpaginated:
+
+```json
+{
+  "resources": {
+    "users": {
+      "methods": {
+        "list": {
+          "endpoint": "get /users",
+          "paginated": "cursor"
+        }
+      }
+    }
+  }
+}
+```
+
+Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `offset`, `pageNumber`, and `fakePage` for an operation that returns a whole collection in one response but should still be iterated as a page.
 
 ## Serialization
 

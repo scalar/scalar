@@ -169,6 +169,8 @@ Every rule's suppression key is listed alongside it below.
 
 ### Responses, pagination, and security
 
+For what a pagination scheme declares and how methods bind to one, see [Pagination](pagination.md).
+
 | Rule | Default | Fires when | Suppression key |
 | ---- | ------- | ---------- | --------------- |
 | `Response/UnsupportedContentType` | `warn` | A configured operation declares a response media type no generated runtime can decode — anything outside JSON, JSON Lines, server-sent events, CSV, plain text, and binary — so the body is handed back as opaque bytes. | `<verb> <path> <status> <contentType>` |

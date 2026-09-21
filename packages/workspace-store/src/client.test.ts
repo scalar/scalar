@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -555,6 +557,85 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('resolves static chunks relative to the url the document was loaded from', async () => {
+    const dir = randomUUID()
+    const basePath = `${cwd()}/${dir}`
+
+    // Two operations sharing one schema, so the second resolve can show the schema is not fetched twice
+    const document = {
+      ...getDocument(),
+      paths: {
+        '/users': {
+          get: getDocument().paths['/users'].get,
+          post: {
+            summary: 'Create a user',
+            requestBody: {
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+    }
+
+    const serverStore = await createServerWorkspaceStore({
+      mode: 'static',
+      directory: dir,
+      documents: [{ name: 'default', document }],
+    })
+    await serverStore.generateWorkspaceChunks()
+
+    // The sparse document is published beside its chunks and loaded by url, which is what gives the
+    // client an origin to resolve the relative `./chunks/` references against
+    await fs.writeFile(`${basePath}/default.json`, JSON.stringify(serverStore.getWorkspace().documents['default']))
+
+    const requests: string[] = []
+    server.get('/*', async (req, res) => {
+      requests.push(req.url)
+      res.send(await fs.readFile(`${basePath}${decodeURIComponent(req.url)}`, 'utf-8'))
+    })
+    await server.listen({ port })
+
+    try {
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'default', url: `${url}/default.json` })
+
+      // Nothing beyond the document itself is loaded up front
+      expect(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get')).toEqual({
+        '$ref': './chunks/default/operations/~1users/get.json#',
+        $global: true,
+      })
+      expect(requests).toEqual(['/default.json'])
+
+      await store.resolve(['paths', '/users', 'get'])
+
+      const get = getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any
+      expect(get['$ref-value'].summary).toBe('Get all users')
+      // The shared schema lands in the document's components, once
+      expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
+      expect(requests.slice(1).sort()).toEqual([
+        '/chunks/default/components/schemas/User.json',
+        '/chunks/default/operations/~1users/get.json',
+      ])
+
+      // A property referencing a shared component reaches the schema, although the component is itself a
+      // stub: `#/components/schemas/User` resolves to the stub, and the stub to the chunk's contents
+      const items = get['$ref-value'].responses[200].content['application/json'].schema.items
+      expect(items.$ref).toBe('#/components/schemas/User')
+      expect(getResolvedRef(items)).toMatchObject({ type: 'object' })
+      expect(getResolvedRef(items).properties.id.description).toBe('The user ID')
+
+      // A second operation using the same schema costs one request, its own chunk
+      await store.resolve(['paths', '/users', 'post'])
+
+      const post = getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'post') as any
+      expect(post['$ref-value'].summary).toBe('Create a user')
+      expect(requests.slice(3)).toEqual(['/chunks/default/operations/~1users/post.json'])
+    } finally {
+      await fs.rm(basePath, { recursive: true, force: true })
+    }
+  })
+
   it('load files form the remote url', async () => {
     // Send the default document
     server.get('/', (_, reply) => {
@@ -983,7 +1064,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('correctly resolves any `externalValue` on the example object', async () => {
+  it('preserves external examples without fetching their payloads', async () => {
     server.get('/', () => ({ someKey: 'someValue' }))
     await server.listen({ port })
 
@@ -1061,9 +1142,6 @@ describe('create-workspace-store', () => {
                     examples: {
                       someExample: {
                         externalValue: url,
-                        value: {
-                          someKey: 'someValue',
-                        },
                       },
                     },
                     schema: {

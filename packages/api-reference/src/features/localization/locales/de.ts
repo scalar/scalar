@@ -14,6 +14,7 @@ export const de = {
     open: 'Suche öffnen',
     placeholder: 'Suchen...',
     clear: 'Suche löschen',
+    noResults: 'Keine Ergebnisse gefunden',
     keyboardShortcut: 'Tastenkürzel:',
     command: 'Befehl',
     control: 'Steuerung',
@@ -79,6 +80,7 @@ export const de = {
     status: 'Status',
   },
   schema: {
+    noAllowedValues: 'Keine Werte erfüllen diese Enum-Bedingung.',
     example: 'Beispiel',
     examples: 'Beispiele',
     default: 'Standard',

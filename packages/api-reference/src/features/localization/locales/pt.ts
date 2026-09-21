@@ -14,6 +14,7 @@ export const pt = {
     open: 'Abrir Busca',
     placeholder: 'Buscar...',
     clear: 'Limpar Busca',
+    noResults: 'Nenhum resultado encontrado',
     keyboardShortcut: 'Atalho de Teclado:',
     command: 'Command',
     control: 'Control',
@@ -79,6 +80,7 @@ export const pt = {
     status: 'Status',
   },
   schema: {
+    noAllowedValues: 'Nenhum valor satisfaz esta restrição enum.',
     example: 'Exemplo',
     examples: 'Exemplos',
     default: 'Padrão',

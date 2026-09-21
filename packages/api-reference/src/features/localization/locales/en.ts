@@ -14,6 +14,7 @@ export const en = {
     open: 'Open Search',
     placeholder: 'Search...',
     clear: 'Clear Search',
+    noResults: 'No results found',
     keyboardShortcut: 'Keyboard Shortcut:',
     command: 'Command',
     control: 'Control',
@@ -78,6 +79,7 @@ export const en = {
     status: 'Status',
   },
   schema: {
+    noAllowedValues: 'No values satisfy this enum constraint.',
     example: 'Example',
     examples: 'Examples',
     default: 'Default',

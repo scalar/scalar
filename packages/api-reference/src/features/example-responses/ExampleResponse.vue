@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components/code-block'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -19,6 +21,8 @@ const { example, response, content } = defineProps<{
 }>()
 const { translate } = useLocalization()
 
+const resolvedExample = computed(() => getResolvedRef(example))
+
 /** Preformatted content is shared with the response card clipboard action. */
 const prettyPrintedContent = computed(
   () => content ?? getExampleContent(response, example),
@@ -35,23 +39,37 @@ const shouldVirtualize = computed(() => {
 })
 </script>
 <template>
-  <!-- Example -->
-  <ScalarCodeBlock
-    v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
-    class="bg-b-2"
-    lang="json"
-    :prettyPrintedContent="prettyPrintedContent" />
+  <div class="bg-b-2">
+    <div
+      v-if="resolvedExample?.summary || resolvedExample?.description"
+      class="flex flex-col gap-2 px-3 py-3">
+      <div
+        v-if="resolvedExample.summary"
+        class="text-c-1 font-medium">
+        {{ resolvedExample.summary }}
+      </div>
+      <ScalarMarkdown
+        v-if="resolvedExample.description"
+        :value="resolvedExample.description" />
+    </div>
+    <!-- Example -->
+    <ScalarCodeBlock
+      v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
+      class="bg-b-2"
+      lang="json"
+      :prettyPrintedContent="prettyPrintedContent" />
 
-  <ScalarVirtualCodeBlock
-    v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
-    class="bg-b-2"
-    :content="prettyPrintedContent"
-    lang="json" />
+    <ScalarVirtualCodeBlock
+      v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
+      class="bg-b-2"
+      :content="prettyPrintedContent"
+      lang="json" />
 
-  <div
-    v-else
-    class="empty-state">
-    {{ translate('response.noBody') }}
+    <div
+      v-else
+      class="empty-state">
+      {{ translate('response.noBody') }}
+    </div>
   </div>
 </template>
 

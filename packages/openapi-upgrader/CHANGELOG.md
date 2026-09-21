@@ -1,5 +1,14 @@
 # @scalar/openapi-upgrader
 
+## 0.2.17
+
+### Patch Changes
+
+- [#10236](https://github.com/scalar/scalar/pull/10236): Omit exclusive bounds without a minimum or maximum when upgrading OpenAPI 3.0 descriptions.
+- [#10236](https://github.com/scalar/scalar/pull/10236): Avoid undefined or inferred media types for base64-encoded data when upgrading OpenAPI 3.0 descriptions.
+- [#10236](https://github.com/scalar/scalar/pull/10236): Fix format conversion for nullable strings when upgrading OpenAPI 3.0 descriptions.
+- [#10236](https://github.com/scalar/scalar/pull/10236): Omit JSON type constraints for raw binary schemas and preserve media metadata when upgrading OpenAPI 3.0 descriptions.
+
 ## 0.2.16
 
 ### Patch Changes

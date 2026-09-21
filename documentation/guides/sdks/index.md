@@ -240,7 +240,7 @@ Across a large API that consistency is the difference between guessing a method 
 
 ### Networking
 
-- **Auto-paginating iterators** across ten pagination schemes: cursor, cursor id, cursor URL, offset, page number, `Link` header, header token, body link, compound cursor, and `hasMore`.
+- **[Auto-paginating iterators](pagination.md)** for every paging strategy an API uses: cursor, cursor id, next-page URL, offset, and page number, with `hasMore`, `total`, and `totalPages` honored as stopping conditions, and single-response collections wrapped as pages so every list reads the same way.
 - **Streaming responses** over server-sent events and newline-delimited JSON, with event metadata preserved.
 - **WebSockets** with separate Node and browser adapters.
 - **[AsyncAPI](asyncapi.md) channels** lowered into typed connect and streaming methods, with send and receive events discriminated by their event type. Experimental.

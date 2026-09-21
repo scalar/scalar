@@ -183,7 +183,9 @@ paths:
 
 `externalValue` is a standard OpenAPI field on an [Example Object](https://spec.openapis.org/oas/v3.1.0#example-object). It lets you keep large request or response examples outside of your OpenAPI document and point to them by URL instead. This is useful when a single document would otherwise contain hundreds or thousands of big example payloads.
 
-Scalar fetches the referenced payload while loading the document and uses it for the example selector, the request preview, the generated code snippets, and the Test Request dialog.
+Scalar fetches an external example only when its selected preview becomes visible or you open it in Test Request. Other examples, including examples on hidden operations, are not downloaded during document loading. The request preview, generated code snippets, and Test Request use the same resolved payload.
+
+Successful downloads are cached for the loaded document. Selecting an example again reuses its payload; replacing the document clears the cache. While an example loads, Scalar shows a loading message. If the download fails, you can retry. Sending the request is disabled until its selected example is ready.
 
 ```yaml
 paths:
