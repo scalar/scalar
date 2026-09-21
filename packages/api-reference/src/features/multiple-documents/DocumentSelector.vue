@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ScalarListbox } from '@scalar/components/listbox'
+import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { computed } from 'vue'
+
+import { useLocalization } from '@/features/localization'
 
 const props = defineProps<{
   options: { label: string; id: string }[]
@@ -11,6 +13,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', id: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const formattedOptions = computed(() =>
   props.options.map((o) => ({ id: o.id, label: o.label })),
@@ -25,12 +29,15 @@ const selected = computed(() =>
   <div
     v-if="options.length > 1"
     class="document-selector px-3 pt-3">
-    <ScalarListbox
+    <ScalarCombobox
       v-slot="{ open }"
+      :inputLabel="translate('search.inputLabel')"
       :modelValue="selected"
+      :noResults="translate('search.noResults')"
       :options="formattedOptions"
+      :placeholder="translate('search.placeholder')"
       resize
-      @update:modelValue="(e) => emit('update:modelValue', e.id)">
+      @update:modelValue="(e) => e && emit('update:modelValue', e.id)">
       <button
         class="group/dropdown-label text-c-2 hover:text-c-1 flex w-full cursor-pointer items-center gap-1 font-medium"
         type="button">
@@ -42,6 +49,6 @@ const selected = computed(() =>
           :class="{ 'rotate-180': open }"
           weight="bold" />
       </button>
-    </ScalarListbox>
+    </ScalarCombobox>
   </div>
 </template>

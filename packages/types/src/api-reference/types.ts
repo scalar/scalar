@@ -371,6 +371,7 @@ export type ApiReferenceTranslations = {
     open: string
     placeholder: string
     clear: string
+    noResults: string
     keyboardShortcut: string
     command: string
     control: string

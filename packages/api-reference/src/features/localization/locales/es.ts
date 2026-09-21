@@ -14,6 +14,7 @@ export const es = {
     open: 'Abrir búsqueda',
     placeholder: 'Buscar...',
     clear: 'Borrar búsqueda',
+    noResults: 'No se encontraron resultados',
     keyboardShortcut: 'Atajo de teclado:',
     command: 'Comando',
     control: 'Control',
