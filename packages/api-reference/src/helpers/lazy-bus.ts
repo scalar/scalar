@@ -374,30 +374,67 @@ const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown):
 }
 
 /**
- * Returns the total height of all sticky/fixed elements at the top of the viewport
- * so scroll targets are not hidden behind them.
+ * Measures the connected header region covering the target at its scrollport's top.
+ * Horizontal overlap excludes sidebars; sorting also handles stacked navigation bars.
  */
-export const getStickyHeaderOffset = (): number => {
-  let offset = 0
-  for (const el of document.querySelectorAll<HTMLElement>('*')) {
-    const style = window.getComputedStyle(el)
-    if ((style.position === 'sticky' || style.position === 'fixed') && el.getBoundingClientRect().top < 4) {
-      offset = Math.max(offset, el.getBoundingClientRect().height)
+export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): number => {
+  const target = element.getBoundingClientRect()
+  const targetX = target.left + target.width / 2
+  const headers = Array.from(document.querySelectorAll<HTMLElement>('*'))
+    .flatMap((candidate) => {
+      if (candidate === element || candidate.contains(element) || element.contains(candidate)) {
+        return []
+      }
+      const style = window.getComputedStyle(candidate)
+      if ((style.position !== 'sticky' && style.position !== 'fixed') || style.visibility === 'hidden') {
+        return []
+      }
+      const rect = candidate.getBoundingClientRect()
+      return rect.left <= targetX && rect.right > targetX && rect.bottom > scrollportTop && rect.height > 0
+        ? [rect]
+        : []
+    })
+    .sort((a, b) => a.top - b.top)
+
+  let bottom = scrollportTop
+  for (const header of headers) {
+    if (header.top > bottom + 1) {
+      break
     }
+    bottom = Math.max(bottom, header.bottom)
   }
-  return offset
+  return bottom - scrollportTop
 }
 
-/**
- * Scrolls an element into view accounting for sticky headers.
- */
+/** Scrolls nested containers natively before compensating for overlapping headers. */
 export const scrollToElement = (element: HTMLElement): void => {
-  const offset = getStickyHeaderOffset()
-  if (offset > 0) {
-    const top = element.getBoundingClientRect().top + window.scrollY - offset
-    window.scrollTo({ top, behavior: 'instant' as ScrollBehavior })
+  element.scrollIntoView({ block: 'start', behavior: 'instant' })
+
+  // Measure after scrolling, when sticky elements have reached their pinned positions.
+  let scrollportTop = 0
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    const { overflowY } = window.getComputedStyle(parent)
+    if (/(auto|scroll|hidden)/.test(overflowY) && parent.scrollHeight > parent.clientHeight) {
+      scrollportTop = Math.max(0, parent.getBoundingClientRect().top + parent.clientTop)
+      break
+    }
+  }
+  const offset = getStickyHeaderOffset(element, scrollportTop)
+  const margin = Number.parseFloat(window.getComputedStyle(element).scrollMarginTop) || 0
+  if (offset <= margin) {
+    return
+  }
+
+  // Native scrolling applies the margin to the actual scrolling ancestors and preserves
+  // existing CSS offsets. Restore the inline declaration so host styling stays in control.
+  const previous = element.style.getPropertyValue('scroll-margin-top')
+  const priority = element.style.getPropertyPriority('scroll-margin-top')
+  element.style.setProperty('scroll-margin-top', `${offset}px`, 'important')
+  element.scrollIntoView({ block: 'start', behavior: 'instant' })
+  if (previous) {
+    element.style.setProperty('scroll-margin-top', previous, priority)
   } else {
-    element.scrollIntoView({ block: 'start' })
+    element.style.removeProperty('scroll-margin-top')
   }
 }
 

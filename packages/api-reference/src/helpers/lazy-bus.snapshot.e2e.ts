@@ -1,18 +1,27 @@
-import { takeSnapshot, test } from '@test/helpers'
+import { expect, test } from '@test/helpers'
 
-/**
- * Visual snapshots for the sticky-header scroll helpers in lazy-bus.ts.
- *
- * The harness slugifies each entry (lowercased, spaces to hyphens) and combines it with the
- * describe title into the Storybook id `schema-lazybus--<slug>`.
- *
- * - `StickyHeaderOffset` → `schema-lazybus--sticky-header-offset`
- * - `ScrollToElement`    → `schema-lazybus--scroll-to-element`
- *
- * Keep each entry's slug in sync with its export in `lazy-bus.stories.ts`.
- */
+// These stories need interaction and geometry assertions: an initial screenshot cannot
+// detect a heading hidden behind a header or an ancestor that never scrolled.
 test.describe('LazyBus', () => {
-  test.use({ crop: 'component' })
-
-  ;['Sticky Header Offset', 'Scroll To Element'].forEach((story) => test(story, takeSnapshot))
+  for (const [story, expectedTop] of [
+    ['Sidebar', 0],
+    ['Sticky Header', 60],
+    ['Stacked Headers', 100],
+    ['Nested Container', 60],
+    ['Existing Margin', 100],
+  ] as const) {
+    test(story, async ({ page }) => {
+      const target = page.getByRole('heading', { name: 'Scroll target' })
+      const originalStyle = await target.getAttribute('style')
+      await page.getByRole('button', { name: 'Scroll to target' }).click()
+      await expect.poll(async () => (await target.boundingBox())?.y).toBe(expectedTop)
+      // Repeated calls model the lazy-render freeze loop and must not drift.
+      await page.getByRole('button', { name: 'Scroll to target' }).click()
+      await expect.poll(async () => (await target.boundingBox())?.y).toBe(expectedTop)
+      expect(await target.getAttribute('style')).toBe(originalStyle)
+      if (story === 'Nested Container') {
+        expect(await page.locator('main').evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+      }
+    })
+  }
 })
