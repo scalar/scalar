@@ -111,6 +111,11 @@
       "types": "./dist/helpers/unescape-json-pointer.d.ts",
       "default": "./dist/helpers/unescape-json-pointer.js"
     },
+    "./join": {
+      "import": "./dist/join/index.js",
+      "types": "./dist/join/index.d.ts",
+      "default": "./dist/join/index.js"
+    },
     "./magic-proxy": {
       "import": "./dist/magic-proxy/index.js",
       "types": "./dist/magic-proxy/index.d.ts",

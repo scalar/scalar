@@ -3,6 +3,53 @@ import { describe, expect, it } from 'vitest'
 import { join } from '@/utils/join/join'
 
 describe('join', () => {
+  it('preserves metadata precedence, list deduplication, and shallow merging of other fields', async () => {
+    const result = await join([
+      {
+        info: { title: 'First', contact: { name: 'First' } },
+        tags: [{ name: 'shared', description: 'First' }],
+        servers: [{ url: 'https://example.com', description: 'First' }],
+        'x-settings': { first: true },
+      },
+      {
+        info: { title: 'Last', contact: { email: 'hello@example.com' } },
+        tags: [{ name: 'shared', description: 'Last' }],
+        servers: [{ url: 'https://example.com', description: 'Last' }],
+        'x-settings': { last: true },
+      },
+    ])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: { title: 'First', contact: { name: 'First', email: 'hello@example.com' } },
+        paths: {},
+        webhooks: undefined,
+        components: undefined,
+        tags: [{ name: 'shared', description: 'Last' }],
+        servers: [{ url: 'https://example.com', description: 'Last' }],
+        'x-settings': { first: true },
+      },
+    })
+  })
+
+  it('preserves the public shape and category order of conflicts', async () => {
+    const document = {
+      components: { schemas: { Shared: { type: 'string' } } },
+      webhooks: { event: { post: {} } },
+      paths: { '/a/b': { get: {} } },
+    }
+
+    expect(await join([document, document])).toStrictEqual({
+      ok: false,
+      conflicts: [
+        { type: 'path', path: '/a/b', method: 'get' },
+        { type: 'webhook', path: 'event', method: 'post' },
+        { type: 'component', componentType: 'schemas', name: 'Shared' },
+      ],
+    })
+  })
+
   it.each([null, undefined, false, 0, ''])('replaces lower-precedence falsy path items (%s)', async (value) => {
     for (const field of ['paths', 'webhooks']) {
       const result = await join([{ [field]: { '/a': { get: {} } } }, { [field]: { '/a': value } }])

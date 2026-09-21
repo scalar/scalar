@@ -223,6 +223,7 @@
       "entry": [
         "src/bundle/index.ts",
         "src/magic-proxy/index.ts",
+        "src/join/index.ts",
         "src/diff/index.ts",
         "src/dereference/index.ts",
         "src/bundle/plugins/node.ts",
