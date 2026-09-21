@@ -166,8 +166,12 @@ export const join = async (inputs: UnknownObject[], config?: { prefixComponents:
   const result = joinDocuments(documents, {
     strategy: ({ path, current }) => {
       const [field] = path
+      // Keep legacy filtering at merge boundaries, but preserve keys inside copied schemas and examples.
+      if (isPollutionKey(path.at(-1)) && (field === 'info' || field === 'components' || path.length === 2)) {
+        return 'skip'
+      }
       if (field === 'info') {
-        return 'merge'
+        return 'merge-by-index'
       }
       if (field === 'tags') {
         return { uniqueBy: 'name' }

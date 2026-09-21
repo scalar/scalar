@@ -1,10 +1,9 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 
 import type { UnknownObject } from '../types'
 
 /** Controls how a value is combined with the value from earlier inputs. */
-export type JoinStrategy = 'merge' | 'replace' | 'conflict' | { uniqueBy: string }
+export type JoinStrategy = 'merge' | 'merge-by-index' | 'replace' | 'conflict' | 'skip' | { uniqueBy: string }
 
 /** Context for choosing a strategy. Paths are segments, so keys containing slashes stay intact. */
 export type JoinContext = {
@@ -24,17 +23,13 @@ export type JoinConflict = { path: string[] }
 /** Conflicts prevent returning a partially joined document. */
 export type JoinResult = { ok: true; document: UnknownObject } | { ok: false; conflicts: JoinConflict[] }
 
-/** Copy JSON values while excluding keys that could affect object prototypes. */
+/** Copy literal JSON keys as own data properties, without invoking prototype setters. */
 const copy = (value: unknown): unknown => {
   if (Array.isArray(value)) {
     return value.map(copy)
   }
   if (isObject(value)) {
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([key]) => !isPollutionKey(key))
-        .map(([key, child]) => [key, copy(child)]),
-    )
+    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, copy(child)]))
   }
   return value
 }
@@ -48,9 +43,25 @@ const copy = (value: unknown): unknown => {
  */
 export const join = (inputs: readonly UnknownObject[], options: JoinOptions = {}): JoinResult => {
   const conflicts: JoinConflict[] = []
+  const skipped = Symbol('skipped')
+
+  const mergeFields = (target: UnknownObject | unknown[], source: UnknownObject | unknown[], path: string[]): void => {
+    for (const [key, value] of Object.entries(source)) {
+      const hasKey = Object.hasOwn(target, key)
+      const merged = combine(hasKey ? Reflect.get(target, key) : undefined, value, [...path, key], hasKey)
+      if (merged !== skipped) {
+        // Defining an own property preserves literal __proto__ keys without changing the prototype.
+        Object.defineProperty(target, key, { value: merged, enumerable: true, configurable: true, writable: true })
+      }
+    }
+  }
 
   const combine = (current: unknown, incoming: unknown, path: string[], exists: boolean): unknown => {
     const strategy = options.strategy?.({ path, current, incoming }) ?? 'merge'
+
+    if (strategy === 'skip') {
+      return skipped
+    }
 
     if (strategy === 'conflict' && exists) {
       conflicts.push({ path })
@@ -75,14 +86,15 @@ export const join = (inputs: readonly UnknownObject[], options: JoinOptions = {}
         .map(copy)
     }
 
-    if (strategy === 'merge' && isObject(incoming)) {
+    if (strategy === 'merge-by-index' && Array.isArray(incoming)) {
+      const result = Array.isArray(current) ? current : []
+      mergeFields(result, incoming, path)
+      return result
+    }
+
+    if ((strategy === 'merge' || strategy === 'merge-by-index') && isObject(incoming)) {
       const result: UnknownObject = isObject(current) ? current : {}
-      for (const [key, value] of Object.entries(incoming)) {
-        if (!isPollutionKey(key)) {
-          const hasKey = Object.hasOwn(result, key)
-          result[key] = combine(hasKey ? result[key] : undefined, value, [...path, key], hasKey)
-        }
-      }
+      mergeFields(result, incoming, path)
       return result
     }
 
@@ -92,12 +104,7 @@ export const join = (inputs: readonly UnknownObject[], options: JoinOptions = {}
   // The root always merges; strategies apply to fields within each document.
   const document: UnknownObject = {}
   for (const input of inputs) {
-    for (const [key, value] of Object.entries(input)) {
-      if (!isPollutionKey(key)) {
-        const hasKey = Object.hasOwn(document, key)
-        document[key] = combine(hasKey ? document[key] : undefined, value, [key], hasKey)
-      }
-    }
+    mergeFields(document, input, [])
   }
 
   return conflicts.length ? { ok: false, conflicts } : { ok: true, document }

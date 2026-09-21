@@ -87,12 +87,50 @@ describe('join', () => {
     }
   })
 
-  it.each(['__proto__', 'constructor', 'prototype'])('excludes unsafe keys at every depth (%s)', (key) => {
-    const input = JSON.parse(
-      `{"${key}":{"polluted":true},"nested":{"${key}":{"polluted":true}},"items":[{"${key}":1}]}`,
-    )
-    expect(join([input])).toStrictEqual({ ok: true, document: { nested: {}, items: [{}] } })
-    expect(Object.hasOwn(Object.prototype, 'polluted')).toBe(false)
+  it.each(['__proto__', 'constructor', 'prototype'])(
+    'preserves literal keys without prototype pollution (%s)',
+    (key) => {
+      const input = JSON.parse(
+        `{"${key}":{"polluted":true},"nested":{"${key}":{"polluted":true}},"items":[{"${key}":1}]}`,
+      )
+      for (const strategy of ['merge', 'replace', 'merge-by-index'] as const) {
+        const result = join([input, input], { strategy: () => strategy })
+        // Strict object equality treats an own constructor value as the object type.
+        expect(JSON.stringify(result)).toBe(JSON.stringify({ ok: true, document: input }))
+        if (result.ok) {
+          expect(Object.getPrototypeOf(result.document)).toBe(Object.prototype)
+          expect(Object.hasOwn(result.document, key)).toBe(true)
+        }
+        expect(Object.hasOwn(Object.prototype, 'polluted')).toBe(false)
+        expect(Reflect.get({}, 'polluted')).toBeUndefined()
+      }
+    },
+  )
+
+  it('merges nested arrays by index without mutating inputs', () => {
+    const first = { items: [{ flags: [true, false], other: true }, { name: 'Second' }] }
+    const second = { items: [{ flags: [false], name: 'First' }] }
+    expect(join([first, second], { strategy: () => 'merge-by-index' })).toStrictEqual({
+      ok: true,
+      document: { items: [{ flags: [false, false], other: true, name: 'First' }, { name: 'Second' }] },
+    })
+    expect(first).toStrictEqual({ items: [{ flags: [true, false], other: true }, { name: 'Second' }] })
+    expect(second).toStrictEqual({ items: [{ flags: [false], name: 'First' }] })
+  })
+
+  it('skips fields without adding undefined properties or changing existing values', () => {
+    expect(
+      join([{ keep: 1 }, { keep: 2, omit: 3 }], {
+        strategy: ({ incoming }) => (incoming === 1 ? 'merge' : 'skip'),
+      }),
+    ).toStrictEqual({ ok: true, document: { keep: 1 } })
+  })
+
+  it('keeps literal keys in deduplicated array items', () => {
+    const item = JSON.parse('{"id":1,"__proto__":{"polluted":true},"constructor":{"prototype":true}}')
+    const result = join([{ items: [item] }, { items: [item] }], { strategy: () => ({ uniqueBy: 'id' }) })
+    expect(JSON.stringify(result)).toBe(JSON.stringify({ ok: true, document: { items: [item] } }))
+    expect(Reflect.get({}, 'polluted')).toBeUndefined()
   })
 
   it('treats inherited-looking keys as ordinary own properties', () => {

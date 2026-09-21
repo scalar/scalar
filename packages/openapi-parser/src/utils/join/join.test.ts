@@ -3,6 +3,48 @@ import { describe, expect, it } from 'vitest'
 import { join } from '@/utils/join/join'
 
 describe('join', () => {
+  it('preserves literal schema property names in components and inline responses', async () => {
+    const schema = {
+      type: 'object',
+      properties: JSON.parse(
+        '{"constructor":{"type":"string"},"prototype":{"type":"number"},"__proto__":{"type":"boolean"}}',
+      ),
+      required: ['constructor'],
+    }
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Example', version: '1.0.0' },
+      components: { schemas: { Thing: schema } },
+      paths: {
+        '/things': {
+          get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
+        },
+      },
+    }
+    // Comparing serialized data avoids treating the literal constructor property as a type identity.
+    expect(JSON.stringify(await join([document]))).toBe(JSON.stringify({ ok: true, document }))
+    expect(Object.hasOwn(Object.prototype, 'type')).toBe(false)
+  })
+
+  it('preserves index merging for info extension arrays', async () => {
+    expect(
+      await join([
+        { info: { title: 'First', 'x-list': [{ name: 'First' }] } },
+        { info: { title: 'Second', 'x-list': [{ other: true }, { name: 'Second' }] } },
+      ]),
+    ).toStrictEqual({
+      ok: true,
+      document: {
+        info: { title: 'First', 'x-list': [{ other: true, name: 'First' }, { name: 'Second' }] },
+        paths: {},
+        components: undefined,
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+      },
+    })
+  })
+
   it('preserves metadata precedence, list deduplication, and shallow merging of other fields', async () => {
     const result = await join([
       {

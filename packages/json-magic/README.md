@@ -53,7 +53,7 @@ There is no root export. Every module is imported from its own entry point, so y
 
 ## join
 
-`join` combines JSON objects without assuming a document standard. It merges objects recursively and replaces arrays and scalar values with those from later inputs. It does not mutate inputs, upgrade document versions, resolve references, or rename definitions. Keys named `__proto__`, `constructor`, and `prototype` are excluded.
+`join` combines JSON objects without assuming a document standard. It merges objects recursively and replaces arrays and scalar values with those from later inputs. It does not mutate inputs, upgrade document versions, resolve references, or rename definitions. Literal keys such as `__proto__`, `constructor`, and `prototype` are preserved as own data properties without changing object prototypes.
 
 ```ts
 import { join } from '@scalar/json-magic/join'
@@ -88,6 +88,8 @@ The optional `strategy` callback receives `{ path, current, incoming }` for each
 | Strategy | Behavior |
 | --- | --- |
 | `merge` (default) | Recursively merge objects; replace other values using the later input. |
+| `merge-by-index` | Recursively merge objects and arrays, combining array entries at matching indexes and retaining trailing entries. |
+| `skip` | Ignore this incoming field, leaving any existing value unchanged. |
 | `replace` | Replace the entire value, including objects. |
 | `conflict` | Report a duplicate key, even if both values are equal or the earlier value is null. |
 | `{ uniqueBy: 'name' }` | Combine arrays, retaining the first item for each identity property value. Items without that property remain distinct. Use scalar identity values. Non-array incoming values replace the existing value. |
