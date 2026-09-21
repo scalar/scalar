@@ -48,9 +48,12 @@ export const resolveOperationExamples = (
       const content = 'content' in resolved ? resolved.content : undefined
       const mediaType = Object.keys(content ?? {})[0]
       if (mediaType && content?.[mediaType]) {
-        return { ...resolved, content: { ...content, [mediaType]: mapMedia(content[mediaType]) } }
+        const media = mapMedia(content[mediaType])
+        return media === content[mediaType] ? parameter : { ...resolved, content: { ...content, [mediaType]: media } }
       }
-      return { ...resolved, ...mapMedia(resolved) }
+      // Keep editable source objects when there is no downloaded example to overlay.
+      const media = mapMedia(resolved)
+      return media === resolved ? parameter : { ...resolved, ...media }
     }),
   }
 }

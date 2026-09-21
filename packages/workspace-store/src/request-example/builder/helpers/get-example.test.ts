@@ -2,6 +2,7 @@ import type {
   ParameterObject,
   ParameterWithContentObject,
   ParameterWithSchemaObject,
+  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
@@ -209,6 +210,34 @@ describe('content-based parameters', () => {
 })
 
 describe('schema-based parameters', () => {
+  it.each<{ schema: SchemaObject; value: unknown }>([
+    { schema: { type: 'number', default: 0, enum: [1, 0, 2, 3], examples: [2], example: 3 }, value: 0 },
+    { schema: { type: 'boolean', enum: [false, true], examples: [true], example: true }, value: false },
+    { schema: { type: 'string', examples: [''], example: 'fallback' }, value: '' },
+    { schema: { type: 'null', example: null }, value: null },
+  ])('resolves schema references without changing fallback precedence ($value)', ({ schema, value }) => {
+    const param: ParameterWithSchemaObject = {
+      name: 'q',
+      in: 'query',
+      schema: { '$ref': '#/components/schemas/Query', '$ref-value': schema },
+    }
+    expect(getExample(param, 'default', undefined)).toEqual({ value })
+    expect(getExample({ ...param, example: 'explicit' }, 'default', undefined)).toEqual({ value: 'explicit' })
+    expect(
+      getExample({ ...param, examples: { default: { value: 'edited', 'x-disabled': true } } }, 'default', undefined),
+    ).toEqual({ value: 'edited', 'x-disabled': true })
+  })
+
+  it('leaves unresolved schema references without a fallback', () => {
+    const param: ParameterWithSchemaObject = {
+      name: 'q',
+      in: 'query',
+      schema: { $ref: '#/components/schemas/Missing' },
+    }
+    expect(getExample(param, 'default', undefined)).toBeUndefined()
+    expect(getExample({ ...param, example: false }, 'default', undefined)).toEqual({ value: false })
+  })
+
   it('returns example when schema type is object and value is an object', () => {
     const param = {
       schema: {

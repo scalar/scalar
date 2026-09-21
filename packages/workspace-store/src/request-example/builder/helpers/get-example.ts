@@ -69,7 +69,10 @@ export const getExample = (
   // Derive value from the schema
   const resolvedParam = getResolvedRef(param)
   if (resolvedParam && 'schema' in resolvedParam && resolvedParam.schema) {
-    const schema = resolvedParam.schema
+    const schema = getResolvedRef(resolvedParam.schema)
+    if (!schema) {
+      return undefined
+    }
 
     // Default value
     if ('default' in schema && schema.default !== undefined) {

@@ -264,6 +264,7 @@ const httpClients = computed(() =>
       :server="selectedServer"
       :serverMeta
       :servers
+      :sourceOperation="sourceOperation ?? undefined"
       :workspaceCookies
       @retry:externalExamples="externalExamples.retry" />
   </template>

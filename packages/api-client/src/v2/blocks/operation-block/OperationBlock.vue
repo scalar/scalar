@@ -62,6 +62,8 @@ export type OperationBlockProps = {
   source?: 'gitbook' | 'api-reference'
   /** Operation object */
   operation: OperationObject
+  /** Operation before downloaded examples are overlaid, for parameter edit targets. */
+  sourceOperation?: OperationObject
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
@@ -183,6 +185,7 @@ const {
   method,
   isWebhook = false,
   operation,
+  sourceOperation,
   path,
   plugins = [],
   proxyUrl,
@@ -767,6 +770,7 @@ onBeforeUnmount(() => {
           :selectedSecurity
           :selectedSecuritySchemes
           :server="requestServer"
+          :sourceOperation
           :workspaceCookies />
 
         <!-- Response Section -->
