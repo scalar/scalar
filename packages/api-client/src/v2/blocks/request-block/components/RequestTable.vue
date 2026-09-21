@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { computed } from 'vue'
+import { nanoid } from 'nanoid'
+import { computed, shallowRef } from 'vue'
 
 import RequestTableRow, {
   type TableRow,
@@ -82,7 +83,7 @@ const displayData = computed(() => {
  * collides with `a` + `['bc']`). Form rows use the name and its occurrence so repeated
  * multipart fields remain distinct while unrelated rows can move without losing their identity.
  */
-const getRowKey = (row: TableRow, index: number): string => {
+const getRowIdentity = (row: TableRow, index: number): string => {
   if (row.originalParameter) {
     return JSON.stringify([
       row.originalParameter.name,
@@ -97,6 +98,48 @@ const getRowKey = (row: TableRow, index: number): string => {
     ).length
   return `row:${JSON.stringify([row.name, occurrence])}`
 }
+
+type KeyedRow = { data: TableRow; identity: string; key: string }
+
+const pendingRow = shallowRef<{ name: string; key: string }>()
+
+/** Keep the edited placeholder mounted when it becomes a saved row, preserving focus and local edits. */
+const keyedRows = computed<KeyedRow[]>((previousRows = []) => {
+  const previous = new Map(previousRows.map((row) => [row.identity, row]))
+  const placeholder = previousRows.find(
+    (row) =>
+      row.key === pendingRow.value?.key &&
+      row.data.name === '' &&
+      row.data.value === '',
+  )
+
+  return displayData.value.map((row, index) => {
+    const identity = getRowIdentity(row, index)
+    const existing = previous.get(identity)
+    if (existing) {
+      return { data: row, identity, key: existing.key }
+    }
+
+    if (placeholder && row.name === pendingRow.value?.name) {
+      // The next empty row must get a fresh editor instead of retaining the submitted key.
+      previous.delete(placeholder.identity)
+      return { data: row, identity, key: placeholder.key }
+    }
+
+    return { data: row, identity, key: nanoid() }
+  })
+})
+
+const handleUpsertRow = (
+  index: number,
+  payload: TableRowUpsertPayload,
+): void => {
+  const row = keyedRows.value[index]
+  if (row && index >= data.length) {
+    pendingRow.value = { name: payload.name, key: row.key }
+  }
+  emit('upsertRow', index, payload)
+}
 </script>
 <template>
   <DataTable
@@ -109,9 +152,9 @@ const getRowKey = (row: TableRow, index: number): string => {
     </DataTableRow>
 
     <RequestTableRow
-      v-for="(row, index) in displayData"
-      :key="getRowKey(row, index)"
-      :data="row"
+      v-for="(row, index) in keyedRows"
+      :key="row.key"
+      :data="row.data"
       :deferKeyUpdates="deferKeyUpdates"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
@@ -123,7 +166,7 @@ const getRowKey = (row: TableRow, index: number): string => {
       @removeFile="emit('removeFile', index)"
       @selectPreset="(value) => emit('selectPreset', index, value)"
       @uploadFile="emit('uploadFile', index)"
-      @upsertRow="(payload) => emit('upsertRow', index, payload)" />
+      @upsertRow="(payload) => handleUpsertRow(index, payload)" />
   </DataTable>
 </template>
 <style scoped>
