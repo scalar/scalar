@@ -64,7 +64,8 @@ export const upsertOperationParameter = (
     const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, { includeDisabled: true })
     const preserveQuerystringValue = querystring && payload.value === serializeQuerystringParameter(querystring)
     const param = originalParameter
-    const target = param.in !== 'querystring' && isContentTypeParameterObject(param) ? Object.values(param.content ?? {})[0] : param
+    const target =
+      param.in !== 'querystring' && isContentTypeParameterObject(param) ? Object.values(param.content ?? {})[0] : param
     if (!target) {
       return
     }
