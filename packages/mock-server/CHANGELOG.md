@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.14.4
+
+### Patch Changes
+
+- [#10289](https://github.com/scalar/scalar/pull/10289): Update `@faker-js/faker` from 10.4.0 to 10.6.0.
+
 ## 0.14.3
 
 ## 0.14.2

@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.70.0
+
+### Minor Changes
+
+- [#10269](https://github.com/scalar/scalar/pull/10269): Add title filtering and keyboard-friendly search to the multi-document API selector.
+
+### Patch Changes
+
+- [#10217](https://github.com/scalar/scalar/pull/10217): Generate AsyncAPI payload examples from JSON Schema when no explicit payload example is provided. Preserve literal **proto** keys when cloning example data.
+- [#10253](https://github.com/scalar/scalar/pull/10253): Keep deep-linked headings visible below sticky or fixed headers, including stacked navigation bars. Preserve scrolling inside embedded containers and existing scroll margins, and exclude sidebars beside the target from the header offset.
+- [#10240](https://github.com/scalar/scalar/pull/10240): Load external examples on demand when their selected preview is visible or Test Request opens, instead of downloading every payload while loading the API description. Share and cache downloads, preserve relative URL origins, and show loading and retry states while preventing incomplete requests from being sent.
+- [#10249](https://github.com/scalar/scalar/pull/10249): Show response example summaries and descriptions alongside their payloads.
+- [#10232](https://github.com/scalar/scalar/pull/10232): Intersect enum values when merging allOf schemas so inherited properties show only allowed values.
+
+  Preserve sibling keywords when merging nested allOf properties. Display an explanation when enum constraints allow no values, and omit empty enum annotations.
+
 ## 1.69.2
 
 ## 1.69.1

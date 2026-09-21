@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.20.1
+
+### Patch Changes
+
+- [#10232](https://github.com/scalar/scalar/pull/10232): Intersect enum values when merging allOf schemas so inherited properties show only allowed values.
+
+  Preserve sibling keywords when merging nested allOf properties. Display an explanation when enum constraints allow no values, and omit empty enum annotations.
+
 ## 0.20.0
 
 ### Minor Changes
