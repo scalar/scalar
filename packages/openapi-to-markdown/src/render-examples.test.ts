@@ -50,4 +50,8 @@ describe('render-examples', () => {
   it('does not leave an empty example label without a schema or example', async () => {
     expect(await renderExamples({}, description)).toStrictEqual([])
   })
+  it.each(['', 'name=A%20B'])('keeps serialized text %j unchanged', async (value) => {
+    const nodes = await renderExamples({ examples: { wire: { serializedValue: value } } }, description, 'text/plain')
+    expect(nodes.filter((node) => node.type === 'code')).toStrictEqual([{ type: 'code', lang: 'text', value }])
+  })
 })

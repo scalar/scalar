@@ -11,9 +11,10 @@ export const renderExamples = async (
   description: DescriptionParser,
   mediaType = 'application/json',
   mode?: 'read' | 'write',
+  openapiVersion = '3.2.0',
 ): Promise<RootContent[]> => {
   const nodes: RootContent[] = []
-  for (const example of getMarkdownExamples(source, mediaType, mode)) {
+  for (const example of getMarkdownExamples(source, mediaType, mode, openapiVersion)) {
     nodes.push(paragraph(strong(text(example.name ? `Example: ${example.name}` : 'Example:'))))
     if (example.summary) nodes.push(paragraph(text(example.summary)))
     nodes.push(...(await description(example.description)))
@@ -21,6 +22,14 @@ export const renderExamples = async (
       nodes.push(
         paragraph(strong(text('External value:')), text(' '), link(example.externalValue, example.externalValue)),
       )
+      continue
+    }
+    if ('serializedValue' in example) {
+      nodes.push({
+        type: 'code',
+        lang: mediaType.includes('xml') ? 'xml' : mediaType.includes('json') ? 'json' : 'text',
+        value: example.serializedValue,
+      })
       continue
     }
     const xml = mediaType.includes('xml')

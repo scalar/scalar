@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MaybeRefSchemaObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
 import type { ListItem, PhrasingContent, RootContent } from 'mdast'
@@ -59,16 +60,30 @@ export type SchemaRenderer = {
   ) => RootContent[]
 }
 
+/** Boolean targets still combine with adjacent schema keywords. */
+const resolveMarkdownSchema = (input: MarkdownSchema): unknown => {
+  const target = getResolvedRef(input)
+  const merged = getResolvedRef(input, mergeSiblingReferences)
+  if (typeof target !== 'boolean') return merged
+  if (
+    !isObject(merged) ||
+    !Object.keys(merged).some((key) => !['$ref', '$ref-value', '$global', '$status'].includes(key))
+  )
+    return target
+  if (target) return merged
+  // A false target remains impossible, even when siblings describe a type or annotations.
+  return { ...merged, allOf: [false, ...(Array.isArray(merged.allOf) ? merged.allOf : [])] }
+}
+
 /** Keep merged reference siblings and sorted properties stable throughout an export. */
 export const createSchemaRenderer = (): SchemaRenderer => {
   const views = new WeakMap<object, SchemaView>()
   const view = (input: MarkdownSchema): SchemaView => {
     const cached = typeof input === 'object' ? views.get(input) : undefined
     if (cached) return cached
-    const target = getResolvedRef(input)
     // Keep the linked document's nested identities and boolean schemas. Coercing a
     // second time here would discard boolean children and copy recursive targets.
-    const schema = typeof target === 'boolean' ? target : getResolvedRef(input, mergeSiblingReferences)
+    const schema = resolveMarkdownSchema(input)
     const value = (typeof schema === 'object' ? schema : {}) as Omit<
       SchemaView,
       'schema' | 'properties' | 'required'

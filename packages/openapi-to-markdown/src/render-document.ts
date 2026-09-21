@@ -141,7 +141,16 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
         ...(await description(view.description)),
         ...schemas.render(schema, 0, [], { hideDescription: true }),
       )
-      if (view.type === 'object') nodes.push(...(await renderExamples({ schema }, description)))
+      if (view.type === 'object')
+        nodes.push(
+          ...(await renderExamples(
+            { schema },
+            description,
+            'application/json',
+            undefined,
+            document['x-original-oas-version'] ?? document.openapi,
+          )),
+        )
       flush()
     }
     flush()

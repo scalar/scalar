@@ -15,13 +15,14 @@ type MarkdownExample = {
   name?: string
   summary?: string
   description?: string
-} & ({ value: unknown } | { externalValue: string })
+} & ({ value: unknown } | { externalValue: string } | { serializedValue: string })
 
 /** Preserve supplied values; generate a fallback only when examples are not supplied. */
 export const getMarkdownExamples = (
   source: ExampleSource,
   mediaType: string,
   mode?: 'read' | 'write',
+  openapiVersion = '3.2.0',
 ): MarkdownExample[] => {
   if (source.example !== undefined) return [{ value: source.example }]
   if (source.examples && Object.keys(source.examples).length) {
@@ -34,7 +35,11 @@ export const getMarkdownExamples = (
         description: typeof example.description === 'string' ? example.description : undefined,
       }
       if (example.value !== undefined) return [{ ...metadata, value: example.value }]
+      if (/^3\.2\./.test(openapiVersion) && typeof example.serializedValue === 'string')
+        return [{ ...metadata, serializedValue: example.serializedValue }]
       if (typeof example.externalValue === 'string') return [{ ...metadata, externalValue: example.externalValue }]
+      if (/^3\.2\./.test(openapiVersion) && example.dataValue !== undefined)
+        return [{ ...metadata, value: example.dataValue }]
       return []
     })
   }

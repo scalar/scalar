@@ -1273,4 +1273,52 @@ paths:
       [...response.matchAll(/```json\s*\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!)),
     ).toStrictEqual([0])
   })
+  it('retains constraints beside boolean schema references through document loading', async () => {
+    const markdown = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.1.1',
+        info: { title: 'Boolean siblings', version: '1' },
+        components: {
+          schemas: {
+            Any: true,
+            String: { $ref: '#/components/schemas/Any', type: 'string', minLength: 3 },
+          },
+        },
+      },
+      { model: 'String' },
+    )
+    expect(markdown).toContain('**Type:** `string`')
+    expect(markdown).toContain('minLength: `3`')
+  })
+
+  it.each(['3.0.4', '3.1.2', '3.2.0'])(
+    'renders named examples according to the declared version %s',
+    async (openapi) => {
+      const markdown = await createMarkdownFromOpenApi({
+        openapi,
+        info: { title: 'Versioned examples', version: '1' },
+        components: { examples: { Falsy: { dataValue: false } } },
+        paths: {
+          '/examples': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'boolean' },
+                      examples: { supplied: { $ref: '#/components/examples/Falsy' } },
+                    },
+                    'application/xml': { examples: { supplied: { serializedValue: '<ok/>' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      expect(markdown.includes('```json\nfalse\n```')).toBe(openapi === '3.2.0')
+      expect(markdown.includes('```xml\n<ok/>\n```')).toBe(openapi === '3.2.0')
+    },
+  )
 })

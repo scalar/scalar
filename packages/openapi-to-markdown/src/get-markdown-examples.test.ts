@@ -60,4 +60,43 @@ describe('get-markdown-examples', () => {
       { value: '<Pet id="42" />' },
     ])
   })
+  it.each([null, false, 0, ''])('preserves an OpenAPI 3.2 dataValue of %j', (value) => {
+    expect(getMarkdownExamples({ examples: { supplied: { dataValue: value } } }, 'application/json')).toStrictEqual([
+      { name: 'supplied', summary: undefined, description: undefined, value },
+    ])
+  })
+
+  it('prefers supplied serialization or an external value over dataValue', () => {
+    expect(
+      getMarkdownExamples(
+        {
+          examples: {
+            serialized: { dataValue: { id: 42 }, serializedValue: '<Pet id="42" />' },
+            external: { dataValue: { id: 42 }, externalValue: 'https://example.com/pet.xml' },
+          },
+        },
+        'application/xml',
+      ),
+    ).toStrictEqual([
+      { name: 'serialized', summary: undefined, description: undefined, serializedValue: '<Pet id="42" />' },
+      { name: 'external', summary: undefined, description: undefined, externalValue: 'https://example.com/pet.xml' },
+    ])
+  })
+
+  it.each(['3.0.4', '3.1.2'])('does not apply OpenAPI 3.2 example fields to %s', (version) => {
+    expect(
+      getMarkdownExamples(
+        {
+          examples: {
+            data: { dataValue: false },
+            serialized: { serializedValue: '<ok/>' },
+            legacy: { value: 0 },
+          },
+        },
+        'application/json',
+        undefined,
+        version,
+      ),
+    ).toStrictEqual([{ name: 'legacy', summary: undefined, description: undefined, value: 0 }])
+  })
 })

@@ -32,6 +32,7 @@ export const renderOperation = async (
   webhook: boolean,
   { description, schemas }: RenderContext,
 ): Promise<RootContent[]> => {
+  const openapiVersion = document['x-original-oas-version'] ?? document.openapi
   const stability = operation['x-scalar-stability']
   const title =
     (operation.summary || `${method.toUpperCase()} ${path}`) +
@@ -98,12 +99,13 @@ export const renderOperation = async (
           description,
           'application/json',
           'write',
+          openapiVersion,
         )),
       )
     for (const [mediaType, content] of Object.entries('content' in parameter ? (parameter.content ?? {}) : {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(await renderExamples(content, description, mediaType, 'write')))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion)))
     }
   }
   const body: RequestBodyObject | undefined = getResolvedRef(operation.requestBody, mergeSiblingReferences)
@@ -114,8 +116,8 @@ export const renderOperation = async (
     for (const [mediaType, content] of Object.entries(body.content ?? {})) {
       nodes.push(heading(5, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(await renderExamples(content, description, mediaType, 'write')))
-      nodes.push(...(await renderEncoding(content.encoding, mediaType, description, schemas)))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion)))
+      nodes.push(...(await renderEncoding(content.encoding, mediaType, description, schemas, openapiVersion)))
     }
   }
   const responses = Object.entries(operation.responses ?? {}).flatMap(([status, reference]) => {
@@ -126,13 +128,13 @@ export const renderOperation = async (
   for (const { status, response } of responses) {
     nodes.push(heading(5, text(`Status: ${status}${response.description ? ` ${response.description}` : ''}`)))
     nodes.push(
-      ...(await renderHeaders(response.headers, description, schemas)),
+      ...(await renderHeaders(response.headers, description, schemas, openapiVersion)),
       ...(await renderResponseLinks(response.links, description)),
     )
     for (const [mediaType, content] of Object.entries(response.content ?? {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(await renderExamples(content, description, mediaType, 'read')))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'read', openapiVersion)))
     }
   }
   return nodes

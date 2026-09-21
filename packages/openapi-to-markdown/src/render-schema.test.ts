@@ -326,4 +326,10 @@ describe('render-schema', () => {
     const output = renderText(schema({ type: 'string' }), 64)
     expect(output).toBe('[Maximum schema depth reached]')
   })
+  it.each([true, false])('preserves sibling constraints beside a reference to %s', (target) => {
+    const output = renderText(schema({ $ref: '#/Base', '$ref-value': target, type: 'string', minLength: 3 }))
+    expect(output).toContain('string')
+    expect(output).toContain('minLength: 3')
+    expect(output.includes('never (false schema)')).toBe(!target)
+  })
 })
