@@ -1037,7 +1037,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles example with undefined value', () => {
@@ -1145,7 +1145,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles circular references in $refValues gracefully', () => {
