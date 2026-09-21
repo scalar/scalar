@@ -48,14 +48,49 @@ The standalone JS bundle from `getJsAsset()` handles client-side hydration. Serv
 
 ## Options
 
-| Option      | Type                           | Default                  | Description                                           |
-| ----------- | ------------------------------ | ------------------------ | ----------------------------------------------------- |
-| `config`    | `AnyApiReferenceConfiguration` | —                        | The API reference [configuration](./configuration.md) |
-| `pageTitle` | `string`                       | `'Scalar API Reference'` | Page title for the HTML document                      |
-| `css`       | `string`                       | Built-in styles          | Override the default CSS                              |
-| `cdn`       | `string`                       | `'/scalar/scalar.js'`    | URL path where the standalone JS bundle is served     |
+| Option      | Type                           | Default                  | Description                                             |
+| ----------- | ------------------------------ | ------------------------ | ------------------------------------------------------- |
+| `config`    | `AnyApiReferenceConfiguration` | —                        | The API reference [configuration](./configuration.md)   |
+| `pageTitle` | `string`                       | `'Scalar API Reference'` | Page title for the HTML document                        |
+| `css`       | `string`                       | Built-in styles          | Override the default CSS                                |
+| `document`  | `WorkspaceDocument`            | —                        | Optional prepared document from `getResolvedDocument()` |
+| `cdn`       | `string`                       | `'/scalar/scalar.js'`    | URL path where the standalone JS bundle is served       |
 
 The `config` option accepts the same configuration as all other Scalar integrations — [read more about configuration](./configuration.md).
+
+## Reusing a prepared document
+
+When rendering multiple pages or serving repeated requests for the same API description, prepare it once with `@scalar/workspace-store` and pass its resolved document to the renderer:
+
+```ts
+import { renderApiReference } from '@scalar/server-side-rendering'
+import { createServerWorkspaceStore } from '@scalar/workspace-store/server'
+
+const url = 'https://registry.scalar.com/@scalar/apis/galaxy?format=json'
+const store = await createServerWorkspaceStore({
+  mode: 'ssr',
+  baseUrl: 'https://docs.example.com/chunks',
+  documents: [{ name: 'api', url }],
+})
+const document = store.getResolvedDocument('api')
+if (!document) {
+  throw new Error('Could not prepare the API description')
+}
+
+// Reuse document for subsequent renders. Each render gets an isolated copy.
+const html = await renderApiReference({
+  config: { slug: 'api', url },
+  document,
+})
+```
+
+Install `@scalar/workspace-store` alongside the renderer to use this API. The prepared path skips fetching, upgrading, bundling, coercion, validation, and navigation generation during the render. It preserves local reference resolution, including reference chains and recursive schemas. Supply a fully loaded document; unresolved external references must be bundled before preparation.
+
+The configuration must describe a single source, provide `url` or `content` for the browser, and use a `slug` matching the prepared document's navigation name. Build the navigation with the same sorting, slug-generation, and model-visibility options as the rendering configuration. Rebuild the prepared document when the description or these navigation options change.
+
+The prepared document stays on the server and is not serialized into the hydration script. The browser receives the original configuration and loads its source normally. The URL can point to a sparse server-store document when your application also serves its chunk routes; passing `document` does not register those routes or transfer workspace state to the browser.
+
+`renderApiReferenceToString(config, { document })` supports the same prepared input when only the rendered fragment is needed.
 
 ## Static site generation
 

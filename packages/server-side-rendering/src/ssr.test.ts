@@ -45,6 +45,42 @@ describe('ssr', () => {
       expect(html.length).toBeGreaterThan(0)
     })
 
+    it('renders referenced schemas and configured servers after loading a document', async () => {
+      const html = await renderApiReferenceToString({
+        servers: [{ url: 'https://configured.example.com' }],
+        content: {
+          openapi: '3.1.0',
+          info: { title: 'Non-reactive SSR', version: '1.0.0' },
+          servers: [{ url: 'https://original.example.com' }],
+          tags: [{ name: 'Pets' }],
+          paths: {
+            '/pets': {
+              get: {
+                summary: 'List pets',
+                tags: ['Pets'],
+                responses: {
+                  '200': {
+                    description: 'Pet response',
+                    content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } },
+                  },
+                },
+              },
+            },
+          },
+          components: {
+            schemas: { Pet: { type: 'object', properties: { petName: { type: 'string', example: 'Fido' } } } },
+          },
+        },
+      })
+
+      expect(html).toContain('Non-reactive SSR')
+      expect(html).toContain('List pets')
+      expect(html).toContain('petName')
+      expect(html).toContain('Fido')
+      expect(html).toContain('https://configured.example.com')
+      expect(html).not.toContain('https://original.example.com')
+    })
+
     it('renders with a URL config', async () => {
       const html = await renderApiReferenceToString({
         url: 'https://example.com/openapi.json',

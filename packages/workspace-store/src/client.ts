@@ -1138,7 +1138,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       {
         ...inputDocument,
         ...meta,
-        'x-original-oas-version': originalDocuments[name]?.openapi ?? originalDocuments[name]?.swagger,
+        'x-original-oas-version':
+          originalDocuments[name]?.['x-original-oas-version'] ??
+          originalDocuments[name]?.openapi ??
+          originalDocuments[name]?.swagger,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },

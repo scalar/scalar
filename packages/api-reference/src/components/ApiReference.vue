@@ -49,6 +49,7 @@ import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
+import { unpackProxyShallow } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getActiveEnvironment,
   getServers,
@@ -61,17 +62,20 @@ import {
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
   computed,
   defineAsyncComponent,
+  inject,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
   onServerPrefetch,
   provide,
   ref,
+  ssrContextKey,
   useId,
   useTemplateRef,
   watch,
@@ -140,6 +144,8 @@ const props = defineProps<{
    * Can be a single configuration or an array of configurations for multiple documents.
    */
   configuration?: AnyApiReferenceConfiguration
+  /** Prepared document for server rendering only; its navigation name must match the configured slug. */
+  ssrDocument?: WorkspaceDocument
 }>()
 
 defineSlots<{
@@ -473,10 +479,11 @@ function syncSlugAndUrlWithDocument(
 // ---------------------------------------------------------------------------
 /** Workspace Store Initialization */
 
-/**
- * Initializes the new client workspace store.
- */
+/** Vue provides this context during rendering, but not when createSSRApp hydrates in the browser. */
+const isServerRendering = inject(ssrContextKey, null) !== null
+
 const workspaceStore = createWorkspaceStore({
+  reactive: !isServerRendering,
   verbose: isDevelopment,
 })
 
@@ -487,6 +494,7 @@ provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
  * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
  */
 const clientStore = createWorkspaceStore({
+  reactive: !isServerRendering,
   verbose: isDevelopment,
   plugins: [
     persistencePlugin({
@@ -495,12 +503,12 @@ const clientStore = createWorkspaceStore({
   ],
 })
 
-useDocumentEnvironment(workspaceStore)
-useDocumentEnvironment(clientStore)
+const syncWorkspaceEnvironment = useDocumentEnvironment(workspaceStore)
+const syncClientEnvironment = useDocumentEnvironment(clientStore)
 // The modal edits its own document but shares downloads and the configured source transport.
 clientStore.externalExamples = workspaceStore.externalExamples
 
-useConfiguredServers({
+const syncConfiguredServers = useConfiguredServers({
   configurations: configList,
   sourceStore: workspaceStore,
   clientStore,
@@ -925,7 +933,30 @@ const addDocument: typeof workspaceStore.addDocument = async (
   input,
   navigationOptions,
 ) => {
-  const result = await workspaceStore.addDocument(input, navigationOptions)
+  const ssrDocument = isServerRendering ? props.ssrDocument : undefined
+  if (ssrDocument) {
+    if (ssrDocument['x-scalar-navigation']?.name !== input.name) {
+      throw new Error(
+        'The prepared SSR document navigation name must match the configured document slug.',
+      )
+    }
+    // Prepared documents already have their references and navigation. Unwrap before cloning so
+    // virtual $ref-value properties are not copied, and isolate each render from the reusable source.
+    workspaceStore.loadWorkspace({
+      documents: {
+        [input.name]: safeDeepClone(unpackProxyShallow(ssrDocument)),
+      },
+      meta: {},
+      originalDocuments: {},
+      intermediateDocuments: {},
+      overrides: {},
+      history: {},
+      auth: {},
+    })
+  }
+  const result = ssrDocument
+    ? true
+    : await workspaceStore.addDocument(input, navigationOptions)
 
   // The selected server lives only on the client store document. The user picks it in the
   // reference, it is never part of the imported source. Reloading the freshly imported document
@@ -969,6 +1000,10 @@ const addDocument: typeof workspaceStore.addDocument = async (
     history: {},
     meta: {},
   })
+  // Non-reactive server stores do not trigger the configured-server watcher on load.
+  if (isServerRendering) {
+    syncConfiguredServers()
+  }
   return result
 }
 
@@ -1181,6 +1216,12 @@ const changeSelectedDocument = async (
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
   clientStore.update('x-scalar-active-document', slug)
+
+  // Apply defaults explicitly after loading; server stores do not notify the environment watchers.
+  if (isServerRendering) {
+    syncWorkspaceEnvironment()
+    syncClientEnvironment()
+  }
 
   // Now that the navigation is available, canonicalize a legacy webhook deep link:
   // old ids dropped the dot in the event name (`account-holdercreated`), so rewrite

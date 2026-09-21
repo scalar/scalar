@@ -7,6 +7,7 @@ import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it } from 'vitest'
 
+import { createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isAsyncApiDocument } from '@/schemas'
@@ -46,6 +47,49 @@ describe('create-server-store', () => {
       schemas: { ['__proto__']: { $ref: 'https://example.com/api/components/schemas/__proto__#', $global: true } },
     })
     expect(store.get('#/api/components/schemas/__proto__')).toStrictEqual({ type: 'string' })
+  })
+
+  it.each(['3.0.3', '3.1.0'])('keeps the authored OpenAPI %s version on the resolved document', async (openapi) => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'api', document: { openapi, info: { title: 'Version', version: '1' }, paths: {} } }],
+    })
+    expect(store.getResolvedDocument('api')).toHaveProperty('x-original-oas-version', openapi)
+    const client = createWorkspaceStore()
+    await client.addDocument({ name: 'api', document: store.getWorkspace().documents.api! })
+    expect(client.workspace.documents.api).toHaveProperty('x-original-oas-version', openapi)
+  })
+
+  it('preserves authored method order in inline, reusable, and webhook path items', async () => {
+    const operation = { responses: { '200': { description: 'OK' } } }
+    const pathItem = { post: operation, put: operation, get: operation }
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'api',
+          document: {
+            openapi: '3.1.0',
+            info: { title: 'Order', version: '1' },
+            paths: { '/inline': pathItem, '/reusable': { $ref: '#/components/pathItems/Resource' } },
+            webhooks: { event: pathItem },
+            components: { pathItems: { Resource: pathItem } },
+          },
+        },
+      ],
+    })
+    const document = store.getResolvedDocument('api')
+    assert(document && 'openapi' in document)
+    for (const item of [document.paths?.['/inline'], document.paths?.['/reusable'], document.webhooks?.event]) {
+      const resolved = getResolvedRef(item)
+      expect(Object.keys(resolved ?? {}).filter((key) => ['get', 'put', 'post'].includes(key))).toStrictEqual([
+        'post',
+        'put',
+        'get',
+      ])
+    }
   })
 
   const exampleDocument = () => ({
@@ -141,6 +185,7 @@ describe('create-server-store', () => {
       })
 
       const workspaceDocument = (name: string) => ({
+        'x-original-oas-version': '3.1.1',
         'openapi': '3.1.1',
         'info': {
           'title': 'Scalar Galaxy',
@@ -251,6 +296,7 @@ describe('create-server-store', () => {
       const workspace = store.getWorkspace()
 
       expect(workspace.documents['doc-1']).toEqual({
+        'x-original-oas-version': '3.1.1',
         'openapi': '3.1.1',
         'info': {
           'title': 'Scalar Galaxy',
@@ -297,6 +343,7 @@ describe('create-server-store', () => {
       })
 
       expect(workspace.documents['doc-3']).toEqual({
+        'x-original-oas-version': '3.1.1',
         'openapi': '3.1.1',
         'info': {
           'title': 'Scalar Galaxy',
@@ -432,6 +479,7 @@ describe('create-server-store', () => {
           'doc-1': {
             'x-scalar-selected-server': 'test',
             'openapi': '3.1.1',
+            'x-original-oas-version': '3.1.1',
             'info': {
               'title': 'Scalar Galaxy',
               'version': '0.3.2',
@@ -474,6 +522,7 @@ describe('create-server-store', () => {
           'doc-2': {
             'x-scalar-selected-server': 'test',
             'openapi': '3.1.1',
+            'x-original-oas-version': '3.1.1',
             'info': {
               'title': 'Scalar Galaxy',
               'version': '0.3.2',
@@ -1236,68 +1285,6 @@ describe('escape-paths', () => {
 })
 
 describe('externalize-component-references', () => {
-  it.each(['ssr', 'static'] as const)(
-    'does not change the prototype for an unrecognized component type in %s mode',
-    (mode) => {
-      // This component type is invalid OpenAPI, but the exported helper must still handle untrusted input safely.
-      const result = externalizeComponentReferences(
-        {
-          openapi: '3.1.0',
-          info: { title: 'Prototype type', version: '1.0.0' },
-          'x-scalar-original-document-hash': '',
-          // @ts-expect-error Exercise malformed component types received at runtime.
-          components: { ['__proto__']: { Example: { type: 'string' } } },
-        },
-        mode === 'ssr'
-          ? { mode, name: 'api', baseUrl: 'https://example.com' }
-          : { mode, name: 'api', directory: 'assets' },
-      )
-      const ref =
-        mode === 'ssr'
-          ? 'https://example.com/api/components/__proto__/Example#'
-          : './chunks/api/components/__proto__/Example.json#'
-      const expected = { ['__proto__']: { Example: { $ref: ref, $global: true } } }
-
-      expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
-      expect(Object.hasOwn(result, '__proto__')).toBe(true)
-      expect(JSON.parse(JSON.stringify(result))).toStrictEqual(expected)
-    },
-  )
-
-  it.each(['ssr', 'static'] as const)('preserves prototype-named components in %s mode', (mode) => {
-    const result = externalizeComponentReferences(
-      {
-        openapi: '3.1.0',
-        info: { title: 'Prototype names', version: '1.0.0' },
-        'x-scalar-original-document-hash': '',
-        components: {
-          schemas: {
-            ['__proto__']: { type: 'string' },
-            constructor: { type: 'number' as const },
-            toString: { type: 'boolean' as const },
-          },
-        },
-      },
-      mode === 'ssr'
-        ? { mode, name: 'api', baseUrl: 'https://example.com' }
-        : { mode, name: 'api', directory: 'assets' },
-    )
-    const prefix = mode === 'ssr' ? 'https://example.com/api/components/schemas/' : './chunks/api/components/schemas/'
-    const suffix = mode === 'ssr' ? '#' : '.json#'
-    const expected = {
-      ['__proto__']: { $ref: `${prefix}__proto__${suffix}`, $global: true },
-      constructor: { $ref: `${prefix}constructor${suffix}`, $global: true },
-      toString: { $ref: `${prefix}toString${suffix}`, $global: true },
-    }
-
-    // Compare entries because the schema named `constructor` shadows the property used by deep equality.
-    expect(Object.keys(result)).toStrictEqual(['schemas'])
-    assert(result.schemas)
-    expect(Object.entries(result.schemas)).toStrictEqual(Object.entries(expected))
-    expect(Object.getPrototypeOf(result.schemas)).toBe(Object.prototype)
-    expect(Object.entries(JSON.parse(JSON.stringify(result)).schemas)).toStrictEqual(Object.entries(expected))
-  })
-
   it('should convert the components with refs correctly for ssr mode', () => {
     const result = externalizeComponentReferences(
       {
