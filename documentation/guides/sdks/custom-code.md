@@ -39,9 +39,9 @@ Once resolved, the merge lands on `scalar-next` and the release pull request ref
 
 ## Example: combining two calls into one
 
-A common shape is an endpoint that hands back a signed URL, which the caller is then expected to `PUT` the file to. Two calls, plus the bookkeeping in between, every time anyone uploads anything. Custom code turns that into a single method on the generated client.
+A common shape is an endpoint that hands back a signed URL, which the caller is then expected to `PUT` the file to, followed by a second call to read the stored record back. Three steps, spread across two resources, every time anyone uploads a file. Custom code turns that into a single method on the generated client.
 
-Take an OpenAPI document with the two halves of a video upload:
+Take an OpenAPI document with the two halves:
 
 ```yaml
 openapi: 3.1.0
@@ -50,10 +50,12 @@ info:
   version: 1.0.0
 servers:
   - url: https://api.acme.com
+security:
+  - apiKey: []
 paths:
-  /videos/uploads:
+  /uploads:
     post:
-      operationId: createVideoUpload
+      operationId: createUpload
       summary: Create a signed upload URL
       requestBody:
         required: true
@@ -70,13 +72,13 @@ paths:
           description: Created
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/VideoUpload' }
-  /videos/{videoId}:
+              schema: { $ref: '#/components/schemas/Upload' }
+  /attachments/{attachmentId}:
     get:
-      operationId: getVideo
-      summary: Retrieve a video
+      operationId: getAttachment
+      summary: Retrieve an attachment
       parameters:
-        - name: videoId
+        - name: attachmentId
           in: path
           required: true
           schema: { type: string }
@@ -85,46 +87,54 @@ paths:
           description: OK
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Video' }
+              schema: { $ref: '#/components/schemas/Attachment' }
 components:
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
   schemas:
-    VideoUpload:
+    Upload:
       type: object
-      required: [videoId, uploadUrl]
+      required: [attachmentId, uploadUrl]
       properties:
-        videoId: { type: string }
+        attachmentId: { type: string }
         uploadUrl: { type: string, format: uri }
-    Video:
+    Attachment:
       type: object
       required: [id, status]
       properties:
         id: { type: string }
-        status: { type: string, enum: [processing, ready] }
-        playbackUrl: { type: string }
+        status: { type: string, enum: [pending, stored] }
+        downloadUrl: { type: string }
 ```
 
-That generates `videos.createUpload` (`videos.create_upload` in Python) and `videos.retrieve`. The upload itself is not in the OpenAPI document at all, because it goes to the storage host rather than to your API.
+That generates `client.uploads.create` and `client.attachments.retrieve`. The `PUT` in between is not in the OpenAPI document at all, because it goes to the storage host rather than to your API.
+
+Note that the combined method belongs to neither generated resource, which is the usual case. So it goes on a resource of its own, which the generator does not know about and therefore never rewrites.
 
 ### 1. Write the helper
 
-Add a new file in a directory the generator does not write, so it never collides with generated output. Subclassing the generated resource keeps the existing methods and adds yours next to them:
+Add a new file in a directory the generator does not write, so it never collides with generated output. Extending `APIResource` is all it takes to get a resource that can reach the rest of the client:
 
 <scalar-tabs default="TypeScript">
   <scalar-tab title="TypeScript">
 
-```ts src/custom/videos.ts
-import { Videos, type Video, type VideoCreateUploadParams } from '../resources/videos';
+```ts src/custom/files.ts
+import { APIResource } from '../resource';
+import type { Attachment } from '../resources/attachments';
+import type { UploadCreateParams } from '../resources/uploads';
 
-/** Everything `videos.createUpload` takes, plus the bytes to store at the signed URL. */
-export interface VideoUploadParams extends VideoCreateUploadParams {
+/** Everything `uploads.create` takes, plus the bytes to store at the signed URL. */
+export interface FileUploadParams extends UploadCreateParams {
   /** File contents to send to the signed URL. */
   file: BodyInit;
 }
 
-/** The generated `videos` resource, plus a one-call upload. */
-export class VideosWithUpload extends Videos {
-  async upload({ file, ...params }: VideoUploadParams): Promise<Video> {
-    const { videoId, uploadUrl } = await this.createUpload(params);
+/** A resource that exists only in custom code, wrapping the three steps of an upload. */
+export class Files extends APIResource {
+  async upload({ file, ...params }: FileUploadParams): Promise<Attachment> {
+    const { attachmentId, uploadUrl } = await this._client.uploads.create(params);
 
     // The signed URL points at the storage host rather than at your API, so it is sent with a
     // plain `fetch`. Going through the client would attach your API credentials to a
@@ -139,7 +149,7 @@ export class VideosWithUpload extends Videos {
       throw new Error(`Upload to the signed URL failed with ${response.status}`);
     }
 
-    return this.retrieve(videoId);
+    return this._client.attachments.retrieve(attachmentId);
   }
 }
 ```
@@ -147,22 +157,22 @@ export class VideosWithUpload extends Videos {
   </scalar-tab>
   <scalar-tab title="Python">
 
-```python src/acme/custom/videos.py
+```python src/acme/custom/files.py
 from __future__ import annotations
 
 import httpx
 
-from ..types.video import Video
-from ..resources.videos import VideosResource, AsyncVideosResource
+from .._resource import SyncAPIResource, AsyncAPIResource
+from ..types.attachment import Attachment
 
-__all__ = ["VideosWithUpload", "AsyncVideosWithUpload"]
+__all__ = ["FilesResource", "AsyncFilesResource"]
 
 
-class VideosWithUpload(VideosResource):
-    """The generated ``videos`` resource, plus a one-call upload."""
+class FilesResource(SyncAPIResource):
+    """A resource that exists only in custom code, wrapping the three steps of an upload."""
 
-    def upload(self, *, filename: str, file: bytes, content_type: str | None = None) -> Video:
-        upload = self.create_upload(
+    def upload(self, *, filename: str, file: bytes, content_type: str | None = None) -> Attachment:
+        upload = self._client.uploads.create(
             filename=filename,
             **({"content_type": content_type} if content_type is not None else {}),
         )
@@ -177,14 +187,14 @@ class VideosWithUpload(VideosResource):
         )
         response.raise_for_status()
 
-        return self.retrieve(video_id=upload.video_id)
+        return self._client.attachments.retrieve(attachment_id=upload.attachment_id)
 
 
-class AsyncVideosWithUpload(AsyncVideosResource):
-    """Async twin of :class:`VideosWithUpload`."""
+class AsyncFilesResource(AsyncAPIResource):
+    """Async twin of :class:`FilesResource`."""
 
-    async def upload(self, *, filename: str, file: bytes, content_type: str | None = None) -> Video:
-        upload = await self.create_upload(
+    async def upload(self, *, filename: str, file: bytes, content_type: str | None = None) -> Attachment:
+        upload = await self._client.uploads.create(
             filename=filename,
             **({"content_type": content_type} if content_type is not None else {}),
         )
@@ -197,7 +207,7 @@ class AsyncVideosWithUpload(AsyncVideosResource):
             )
         response.raise_for_status()
 
-        return await self.retrieve(video_id=upload.video_id)
+        return await self._client.attachments.retrieve(attachment_id=upload.attachment_id)
 ```
 
 Python also needs an empty `src/acme/custom/__init__.py` so the directory is a package. The generated `pyproject.toml` ships everything under `src/acme`, so nothing about packaging changes.
@@ -205,39 +215,37 @@ Python also needs an empty `src/acme/custom/__init__.py` so the directory is a p
   </scalar-tab>
 </scalar-tabs>
 
-### 2. Point the client at it
+### 2. Hang it off the client
 
-One edit in the generated client hands out your subclass instead of the generated one. This is the only generated file the example touches:
+Adding the accessor is the only edit to a generated file, and it only ever adds lines:
 
 <scalar-tabs default="TypeScript">
   <scalar-tab title="TypeScript">
 
-In `src/client.ts`:
+In `src/client.ts`, next to the generated resource properties:
 
 ```diff
-+import { VideosWithUpload } from './custom/videos';
++import { Files } from './custom/files';
 
--  videos: Videos = new Videos(this);
-+  videos: VideosWithUpload = new VideosWithUpload(this);
+   uploads: Uploads = new Uploads(this);
+   attachments: Attachments = new Attachments(this);
++  files: Files = new Files(this);
 ```
 
   </scalar-tab>
   <scalar-tab title="Python">
 
-In `src/acme/_client.py`:
+In `src/acme/_client.py`, next to the generated resource properties:
 
 ```diff
-     @cached_property
--    def videos(self) -> "VideosResource":
-+    def videos(self) -> "VideosWithUpload":
-         with _RESOURCE_IMPORT_LOCK:
--            from .resources.videos import VideosResource
--        return VideosResource(self)
-+            from .custom.videos import VideosWithUpload
-+        return VideosWithUpload(self)
++    @cached_property
++    def files(self) -> "FilesResource":
++        with _RESOURCE_IMPORT_LOCK:
++            from .custom.files import FilesResource
++        return FilesResource(self)
 ```
 
-The async client has the same block a little further down, returning `AsyncVideosWithUpload`.
+The async client has the same block a little further down, returning `AsyncFilesResource`.
 
   </scalar-tab>
 </scalar-tabs>
@@ -251,80 +259,87 @@ Callers get one method, fully typed, next to every generated one:
 
 ```ts
 // `file` is a File from an <input type="file">, or any other BodyInit.
-const video = await client.videos.upload({
+const attachment = await client.files.upload({
   filename: file.name,
   contentType: file.type,
   file,
 });
 
-console.log(video.status); // 'ready'
+console.log(attachment.status); // 'stored'
 ```
 
   </scalar-tab>
   <scalar-tab title="Python">
 
 ```python
-with open("demo.mp4", "rb") as handle:
-    video = client.videos.upload(
-        filename="demo.mp4",
-        content_type="video/mp4",
+with open("report.pdf", "rb") as handle:
+    attachment = client.files.upload(
+        filename="report.pdf",
+        content_type="application/pdf",
         file=handle.read(),
     )
 
-print(video.status)  # 'ready'
+print(attachment.status)  # 'stored'
 ```
 
   </scalar-tab>
 </scalar-tabs>
 
-The helper file is new, so every rebuild leaves it alone. The wiring edit is a few lines inside a generated file, which the merge carries forward on each build, and which only conflicts if the generator changes those same lines, for example when the resource is renamed in your OpenAPI document.
+The helper file is new, so every rebuild leaves it alone. The accessor is a few added lines inside a generated file, which the merge carries forward on each build, and which only conflicts if the generator rewrites those same lines.
+
+If your combined method does fit an existing generated resource, you can subclass that resource instead of `APIResource` and swap it in at the same spot, which keeps every generated method alongside yours.
 
 ### Prefer a plain function when you do not want to touch generated files
 
-If you would rather not edit generated code at all, skip the subclass and export a function that takes the client. It reads as `uploadVideo(client, ...)` instead of `client.videos.upload(...)`, and nothing in the repository conflicts, ever:
+If you would rather not edit generated code at all, skip the resource and export a function that takes the client. It reads as `uploadFile(client, ...)` instead of `client.files.upload(...)`, and nothing in the repository conflicts, ever:
 
 <scalar-tabs default="TypeScript">
   <scalar-tab title="TypeScript">
 
-```ts src/custom/upload-video.ts
+```ts src/custom/upload-file.ts
 import type { Acme } from '../client';
-import type { Video } from '../resources/videos';
-import type { VideoUploadParams } from './videos';
+import type { Attachment } from '../resources/attachments';
+import type { FileUploadParams } from './files';
 
-export async function uploadVideo(client: Acme, { file, ...params }: VideoUploadParams): Promise<Video> {
-  const { videoId, uploadUrl } = await client.videos.createUpload(params);
+export async function uploadFile(
+  client: Acme,
+  { file, ...params }: FileUploadParams,
+): Promise<Attachment> {
+  const { attachmentId, uploadUrl } = await client.uploads.create(params);
 
   // ... the same PUT to `uploadUrl` as above ...
 
-  return client.videos.retrieve(videoId);
+  return client.attachments.retrieve(attachmentId);
 }
 ```
 
-The generated `package.json` exports every subpath, so consumers import it as `import { uploadVideo } from 'acme/custom/upload-video'`.
+The generated `package.json` exports every subpath, so consumers import it as `import { uploadFile } from 'acme/custom/upload-file'`.
 
   </scalar-tab>
   <scalar-tab title="Python">
 
-```python src/acme/custom/upload_video.py
+```python src/acme/custom/upload_file.py
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..types.video import Video
+from ..types.attachment import Attachment
 
 if TYPE_CHECKING:
     from .._client import Acme
 
 
-def upload_video(client: "Acme", *, filename: str, file: bytes, content_type: str | None = None) -> Video:
-    upload = client.videos.create_upload(filename=filename)
+def upload_file(
+    client: "Acme", *, filename: str, file: bytes, content_type: str | None = None
+) -> Attachment:
+    upload = client.uploads.create(filename=filename)
 
     # ... the same PUT to `upload.upload_url` as above ...
 
-    return client.videos.retrieve(video_id=upload.video_id)
+    return client.attachments.retrieve(attachment_id=upload.attachment_id)
 ```
 
-The client is imported under `TYPE_CHECKING` so the helper never imports it at runtime, which is what keeps it safe to use alongside the subclass wiring above. Consumers import it as `from acme.custom.upload_video import upload_video`.
+The client is imported under `TYPE_CHECKING` so the helper never imports it at runtime, which is what keeps it safe to use alongside the resource wiring above. Consumers import it as `from acme.custom.upload_file import upload_file`.
 
   </scalar-tab>
 </scalar-tabs>
