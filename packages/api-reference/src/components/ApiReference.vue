@@ -13,6 +13,7 @@ if (version && typeof window !== 'undefined') {
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
+import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import {
   ScalarColorModeToggleButton,
@@ -130,7 +131,6 @@ import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
-import { useLazyApiClient } from '@/hooks/use-lazy-api-client'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
 

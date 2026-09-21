@@ -1,9 +1,9 @@
-import type { ApiClientModal } from '@scalar/api-client/modal'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 
+import type { ApiClientModal } from './helpers/create-api-client-modal'
 import { useLazyApiClient } from './use-lazy-api-client'
 
 const scopes: ReturnType<typeof effectScope>[] = []
@@ -73,6 +73,22 @@ describe('use-lazy-api-client', () => {
     expect(load).toHaveBeenCalledOnce()
   })
 
+  it('loads independently for reference and agent event buses', async () => {
+    const reference = setup()
+    const agent = setup()
+    agent.eventBus.emit('ui:open:client-modal', { id: 'agent-request' })
+    agent.deferred.resolve(agent.createClient)
+    await flushPromises()
+    expect(agent.opened).toHaveBeenCalledExactlyOnceWith({ id: 'agent-request' })
+    expect(reference.load).not.toHaveBeenCalled()
+
+    reference.eventBus.emit('ui:open:client-modal', { id: 'reference-request' })
+    reference.deferred.resolve(reference.createClient)
+    await flushPromises()
+    expect(reference.opened).toHaveBeenCalledExactlyOnceWith({ id: 'reference-request' })
+    expect(agent.opened).toHaveBeenCalledOnce()
+  })
+
   it('cancels a pending open on close and allows another open later', async () => {
     const { eventBus, opened, deferred, createClient } = setup()
     eventBus.emit('ui:open:client-modal')
@@ -97,7 +113,7 @@ describe('use-lazy-api-client', () => {
     expect(load).toHaveBeenCalledOnce()
   })
 
-  it('unmounts an initialized client when the reference is disposed', async () => {
+  it('unmounts an initialized client when its owner is disposed', async () => {
     const { eventBus, deferred, createClient, scope, unmount } = setup()
     eventBus.emit('ui:open:client-modal')
     deferred.resolve(createClient)

@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import {
-  createApiClientModal,
-  type ApiClientModal,
-} from '@scalar/api-client/modal'
+import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 import { useAgentKeyDocuments } from '@/hooks/use-agent-key-documents'
@@ -29,7 +27,31 @@ const {
 } = useState()
 
 const clientModalRef = useTemplateRef<HTMLElement>('clientModal')
-const apiClient = ref<ApiClientModal | null>(null)
+// Authentication and server controls also work before the request editor opens.
+const stopClientEvents = initializeWorkspaceEventHandlers({
+  eventBus,
+  store: ref(workspaceStore),
+  hooks: {},
+})
+useLazyApiClient({
+  eventBus,
+  load: async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
+    return () => {
+      if (!clientModalRef.value) {
+        return null
+      }
+      stopClientEvents()
+      return createApiClientModal({
+        el: clientModalRef.value,
+        options: config,
+        eventBus,
+        workspaceStore,
+      })
+    }
+  },
+})
+onBeforeUnmount(stopClientEvents)
 
 onMounted(async () => {
   const tmpDoc = getTmpDocFromLocalStorage()
@@ -42,21 +64,6 @@ onMounted(async () => {
       tmp: true,
     })
   }
-
-  if (!clientModalRef.value) {
-    return
-  }
-
-  apiClient.value = createApiClientModal({
-    el: clientModalRef.value,
-    options: config,
-    eventBus,
-    workspaceStore,
-  })
-})
-
-onBeforeUnmount(() => {
-  apiClient.value?.app.unmount()
 })
 
 useChatScroll()

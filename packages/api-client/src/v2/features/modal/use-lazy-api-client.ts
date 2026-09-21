@@ -1,6 +1,7 @@
-import type { ApiClientModal } from '@scalar/api-client/modal'
 import type { AnyEvent, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type ShallowRef, getCurrentScope, onScopeDispose, shallowRef } from 'vue'
+
+import type { ApiClientModal } from './helpers/create-api-client-modal'
 
 type OpenPayload = Extract<AnyEvent, { event: 'ui:open:client-modal' }>['payload']
 
@@ -39,7 +40,7 @@ export const useLazyApiClient = ({
         eventBus.emit('ui:open:client-modal', pending.payload)
       })
       .catch((error: unknown) => {
-        console.error('[@scalar/api-reference] Could not load the API client modal.', error)
+        console.error('[@scalar/api-client] Could not load the API client modal.', error)
       })
       .finally(() => {
         pending = null
