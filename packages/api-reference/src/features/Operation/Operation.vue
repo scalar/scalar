@@ -8,7 +8,7 @@ export type OperationProps = {
   id: string
   method: HttpMethod
   /** The subset of the configuration object required for the operation component */
-  options: Pick<
+  options: { expandAllParameters?: boolean } & Pick<
     ApiReferenceConfigurationRaw,
     | 'expandAllResponses'
     | 'hideModels'

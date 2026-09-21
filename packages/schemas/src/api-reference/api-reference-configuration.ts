@@ -255,6 +255,10 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Whether to expand all models by default. Warning: this can cause performance issues on big documents',
     }),
+    expandAllParameters: boolean({
+      default: true,
+      typeComment: 'Whether to show parameter details by default. Set to false to collapse each parameter.',
+    }),
     expandAllResponses: boolean({
       default: false,
       typeComment:

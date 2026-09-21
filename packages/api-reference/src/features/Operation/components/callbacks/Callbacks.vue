@@ -26,7 +26,7 @@ const { path, callbacks, breadcrumb } = defineProps<{
   breadcrumb?: string[]
   /** The document the callbacks belong to, used to resolve schema references for display */
   document?: OpenApiDocument
-  options: Pick<
+  options: { expandAllParameters?: boolean } & Pick<
     OperationProps['options'],
     | 'hideModels'
     | 'orderRequiredPropertiesFirst'

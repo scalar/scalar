@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ParameterListItem from './ParameterListItem.vue'
 
@@ -16,6 +17,43 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('opens a compact parameter when its anchor is the initial scroll target', () => {
+    scrollTargetId.value = 'operation.query.limit'
+    try {
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          collapsableItems: true,
+          breadcrumb: ['operation', 'query'],
+          eventBus: null,
+          name: 'limit',
+          options: baseOptions,
+          parameter: { in: 'query', name: 'limit', schema: { type: 'integer', enum: [10, 20] } },
+        },
+      })
+      const toggle = wrapper.get('button[aria-expanded]')
+      expect(wrapper.attributes('id')).toBe('operation.query.limit')
+      expect(toggle.attributes('aria-expanded')).toBe('true')
+      expect(wrapper.text()).toContain('20')
+      wrapper.unmount()
+    } finally {
+      scrollTargetId.value = ''
+    }
+  })
+
+  it('keeps scalar response details visible when responses are collapsible', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: true,
+        eventBus: null,
+        name: '204',
+        options: baseOptions,
+        parameter: { description: 'No content' },
+      },
+    })
+    expect(wrapper.text()).toContain('No content')
+    expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
+  })
+
   it('keeps model names visible when hideModels is enabled', () => {
     const wrapper = mount(ParameterListItem, {
       props: {

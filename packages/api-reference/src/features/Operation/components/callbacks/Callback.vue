@@ -28,7 +28,7 @@ const { method, name, url, options, document, breadcrumb } = defineProps<{
   document?: OpenApiDocument
   /** Breadcrumb of this callback, making its body and responses addressable */
   breadcrumb?: string[]
-  options: Pick<
+  options: { expandAllParameters?: boolean } & Pick<
     OperationProps['options'],
     | 'hideModels'
     | 'orderRequiredPropertiesFirst'

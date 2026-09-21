@@ -16,11 +16,13 @@ import type {
 import { computed, ref, watch } from 'vue'
 
 import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
+import { getSchemaType } from '@/components/Content/Schema/helpers/get-schema-type'
 import { hasComplexArrayItems } from '@/components/Content/Schema/helpers/has-complex-array-items'
 import { optimizeValueForDisplay } from '@/components/Content/Schema/helpers/optimize-value-for-display'
 import SchemaGlyphPuck from '@/components/Content/Schema/SchemaGlyphPuck.vue'
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
+import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
 
@@ -57,6 +59,13 @@ const {
 const emit = defineEmits<{
   (e: 'update:selectedContentType', value: string): void
 }>()
+
+const { translate } = useLocalization()
+
+/** Compact parameter rows also hide scalar details, unlike response rows. */
+const isCompactParameter = computed<boolean>(
+  () => Boolean(collapsableItems) && 'in' in parameter,
+)
 
 /** Whether the markdown summary is being truncated */
 const truncated = ref(false)
@@ -207,14 +216,16 @@ const hasChildElements = (input: unknown): boolean => {
 /**
  * Whether this item renders as a collapsible disclosure.
  *
- * A control may only hide child elements — media content, response headers,
+ * Response controls only hide child elements: media content, response headers,
  * or a schema with nested rows — never scalar detail, so a scalar-only
- * parameter renders statically. `truncated` stays as an overflow escape
+ * item renders statically. Compact parameters opt in to hiding scalar details.
+ * `truncated` stays as an overflow escape
  * hatch: it only turns true when a summary is cut off, and a summary only
  * renders on a disclosure.
  */
 const shouldCollapse = computed<boolean>(() =>
   Boolean(
+    isCompactParameter.value ||
     content.value ||
     headers.value ||
     hasChildElements(value.value) ||
@@ -285,7 +296,9 @@ const triggerAnchorId = computed<string | undefined>(() =>
 </script>
 <template>
   <li
-    class="parameter-item group/parameter-item parameter-item--tree border-t-0!">
+    :id="isCompactParameter ? triggerAnchorId : undefined"
+    class="parameter-item group/parameter-item parameter-item--tree border-t-0!"
+    :class="{ 'scroll-mt-24': isCompactParameter }">
     <!-- No separators between rows (the row zeroes its own top border); the
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
@@ -298,7 +311,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
       <component
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
-        :id="triggerAnchorId"
+        :id="isCompactParameter ? undefined : triggerAnchorId"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-color-accent)"
         :class="{ 'parameter-item-trigger-open': open }">
         <div class="parameter-item-name min-w-0">
@@ -316,6 +329,14 @@ const triggerAnchorId = computed<string | undefined>(() =>
               :text="name" />
           </div>
         </div>
+        <template v-if="isCompactParameter">
+          <span class="text-c-2 text-xs">{{ getSchemaType(value) }}</span>
+          <div
+            v-if="'required' in parameter && parameter.required"
+            class="text-c-danger text-xs">
+            {{ translate('schema.required') }}
+          </div>
+        </template>
         <ScalarMarkdownSummary
           v-if="!open && parameter.description"
           v-model:truncated="truncated"

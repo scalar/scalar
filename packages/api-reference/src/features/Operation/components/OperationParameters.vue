@@ -24,7 +24,7 @@ const { parameters = [], requestBody } = defineProps<{
   eventBus: WorkspaceEventBus | null
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
-  options: Pick<
+  options: { expandAllParameters?: boolean } & Pick<
     OperationProps['options'],
     | 'hideModels'
     | 'orderRequiredPropertiesFirst'
@@ -66,6 +66,7 @@ const splitParameters = computed(() =>
   <!-- Path parameters-->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -76,6 +77,7 @@ const splitParameters = computed(() =>
   <!-- Query parameters -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -86,6 +88,7 @@ const splitParameters = computed(() =>
   <!-- Headers -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -96,6 +99,7 @@ const splitParameters = computed(() =>
   <!-- Cookies -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"

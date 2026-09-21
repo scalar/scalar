@@ -427,6 +427,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   expandAllModelSections: z.boolean().optional().default(false).catch(false),
   /**
+   * Whether to show parameter details by default. Set to false to collapse each parameter.
+   * @default true
+   */
+  expandAllParameters: z.boolean().optional().default(true).catch(true),
+  /**
    * Whether to expand all responses by default
    *
    * Warning: this can cause performance issues on big documents
