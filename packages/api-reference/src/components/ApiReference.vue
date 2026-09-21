@@ -1416,12 +1416,9 @@ const AgentScalarDrawer = defineAsyncComponent(
 )
 const hasOpenedAgent = ref(false)
 
-// Keep the conversation mounted after first use, but release it when the agent is disabled.
-watch([agent.agentEnabled, agent.showAgent], ([enabled, open]) => {
-  if (!enabled) {
-    hasOpenedAgent.value = false
-    agent.closeAgent()
-  } else if (open) {
+// Keep the conversation mounted so closing and reopening preserves its state.
+watch(agent.showAgent, (open) => {
+  if (open) {
     hasOpenedAgent.value = true
   }
 })

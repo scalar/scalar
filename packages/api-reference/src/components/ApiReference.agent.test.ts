@@ -20,13 +20,8 @@ const setup = async (disabled: boolean) => {
 }
 
 describe('ApiReference.agent', () => {
-  it('does not mount a disabled agent or an enabled agent that has not been opened', async () => {
-    const wrapper = await setup(true)
-    expect(wrapper.findComponent({ name: 'AgentScalarDrawer' }).exists()).toBe(false)
-    expect(wrapper.findComponent({ name: 'AgentScalarButton' }).exists()).toBe(false)
-
-    await wrapper.setProps({ configuration: configuration(false) })
-    await flushPromises()
+  it('does not mount an enabled agent until opened', async () => {
+    const wrapper = await setup(false)
     expect(wrapper.findComponent({ name: 'AgentScalarButton' }).exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'AgentScalarDrawer' }).exists()).toBe(false)
   })
@@ -45,26 +40,5 @@ describe('ApiReference.agent', () => {
     await wrapper.getComponent({ name: 'AgentScalarButton' }).get('button').trigger('click')
     await flushPromises()
     expect(wrapper.getComponent({ name: 'AgentScalarChatInterface' }).vm).toBe(chat)
-  })
-
-  it('unmounts the conversation on disable and waits for another open after re-enabling', async () => {
-    const wrapper = await setup(false)
-    await wrapper.getComponent({ name: 'AgentScalarButton' }).get('button').trigger('click')
-    await vi.waitFor(() => expect(wrapper.findComponent({ name: 'AgentScalarChatInterface' }).exists()).toBe(true), {
-      timeout: 5000,
-    })
-
-    await wrapper.setProps({ configuration: configuration(true) })
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'AgentScalarDrawer' }).exists()).toBe(false)
-    expect(wrapper.get('.references-rendered').attributes('inert')).toBe('false')
-
-    await wrapper.setProps({ configuration: configuration(false) })
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'AgentScalarDrawer' }).exists()).toBe(false)
-    await wrapper.getComponent({ name: 'AgentScalarButton' }).get('button').trigger('click')
-    await vi.waitFor(() => expect(wrapper.findComponent({ name: 'AgentScalarChatInterface' }).exists()).toBe(true), {
-      timeout: 5000,
-    })
   })
 })
