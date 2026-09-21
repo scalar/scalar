@@ -152,12 +152,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
         </div>
         <!-- Right -->
         <div class="flex items-center gap-1">
-          <CopyMarkdownButton
-            v-if="document"
-            :document
-            :isWebhook
-            :method
-            :path />
           <!-- x-badges after -->
           <XBadges
             :badges="operation['x-badges']"
@@ -179,9 +173,15 @@ const { level: headingLevel } = useDocumentOutline('operation')
           </Anchor>
         </div>
 
-        <!-- Required auth badge -->
-        <div class="operation-auth">
+        <!-- Operation actions -->
+        <div class="operation-auth mb-1.5 flex min-h-8 items-center gap-3">
           <SecurityRequirementBadge :requiredSecurity />
+          <CopyMarkdownButton
+            v-if="document"
+            :document
+            :isWebhook
+            :method
+            :path />
         </div>
 
         <!-- Description -->
