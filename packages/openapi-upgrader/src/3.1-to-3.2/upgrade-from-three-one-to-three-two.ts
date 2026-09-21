@@ -3,48 +3,8 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from '@/helpers/traverse'
 
-/**
- * Recursively migrate XML object properties from 3.1 to 3.2 format
- */
-function migrateXmlObjects(obj: any): void {
-  if (obj === null || typeof obj !== 'object') {
-    return
-  }
+import { migrateXmlObjects } from './migrate-xml-objects'
 
-  // Handle arrays
-  if (Array.isArray(obj)) {
-    for (const item of obj) {
-      migrateXmlObjects(item)
-    }
-    return
-  }
-
-  // Handle xml property migration
-  if (obj.xml && typeof obj.xml === 'object') {
-    if (obj.xml.wrapped === true && obj.xml.attribute === true) {
-      throw new Error('Invalid XML configuration: wrapped and attribute cannot be true at the same time.')
-    }
-
-    // Migrate wrapped: true to nodeType: 'element'
-    if (obj.xml.wrapped === true) {
-      delete obj.xml.wrapped
-      obj.xml.nodeType = 'element'
-    }
-
-    // Migrate attribute: true to nodeType: 'attribute'
-    if (obj.xml.attribute === true) {
-      delete obj.xml.attribute
-      obj.xml.nodeType = 'attribute'
-    }
-  }
-
-  // Recursively process all object properties
-  for (const key in obj) {
-    if (Object.hasOwn(obj, key)) {
-      migrateXmlObjects(obj[key])
-    }
-  }
-}
 
 /**
  * Convert navigation groups to the tag hierarchy introduced in OpenAPI 3.2.
