@@ -315,7 +315,7 @@ describe('RequestTable', () => {
         })
 
         expect(document.activeElement).toBe(editor.element)
-        expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+        expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toStrictEqual([
           name,
           '',
           '',
@@ -323,14 +323,14 @@ describe('RequestTable', () => {
         ])
         expect(
           wrapper.findAll<HTMLInputElement>('input[type="checkbox"]').map((input) => input.element.checked),
-        ).toEqual([true, false])
+        ).toStrictEqual([true, false])
       }
 
       const nextEditor = wrapper.findAll<HTMLElement>('[contenteditable="true"]')[2]!
       nextEditor.element.focus()
       nextEditor.element.textContent = 'second'
       await nextEditor.trigger('input')
-      expect(wrapper.emitted('upsertRow')?.at(-1)).toEqual([1, { name: 'second', value: '', isDisabled: true }])
+      expect(wrapper.emitted('upsertRow')?.at(-1)).toStrictEqual([1, { name: 'second', value: '', isDisabled: true }])
       await wrapper.setProps({
         data: [
           ...wrapper.props('data'),
@@ -338,7 +338,7 @@ describe('RequestTable', () => {
         ],
       })
       expect(document.activeElement).toBe(nextEditor.element)
-      expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+      expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toStrictEqual([
         'x-demo-header',
         '',
         'second',
@@ -364,7 +364,7 @@ describe('RequestTable', () => {
     })
 
     expect(document.activeElement).toBe(editor.element)
-    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toStrictEqual([
       '',
       'hello',
       '',
@@ -372,7 +372,10 @@ describe('RequestTable', () => {
     ])
     editor.element.textContent = 'hello world'
     await editor.trigger('input')
-    expect(wrapper.emitted('upsertRow')?.at(-1)).toEqual([0, { name: '', value: 'hello world', isDisabled: false }])
+    expect(wrapper.emitted('upsertRow')?.at(-1)).toStrictEqual([
+      0,
+      { name: '', value: 'hello world', isDisabled: false },
+    ])
     wrapper.unmount()
   })
 
@@ -404,7 +407,7 @@ describe('RequestTable', () => {
     })
 
     expect(document.activeElement).toBe(editor.element)
-    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toStrictEqual([
       'existing',
       'updated',
       'x-demo-header',

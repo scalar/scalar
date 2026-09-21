@@ -107,6 +107,11 @@ type DisplayRow = {
 
 const pendingUpdates = new Map<symbol, TableRowUpsertPayload>()
 
+const matchesPendingUpdate = (key: symbol, row: TableRow): boolean => {
+  const update = pendingUpdates.get(key)
+  return update?.name === row.name && update.value === row.value
+}
+
 // A saved parameter inherits the editor's key. The next placeholder gets a fresh key,
 // so it cannot retain the previous placeholder's text or focused input.
 const keyedRows = computed<DisplayRow[]>((previous = []) => {
@@ -114,20 +119,16 @@ const keyedRows = computed<DisplayRow[]>((previous = []) => {
   const rows = displayData.value.map((row, index) => {
     const identity = getRowKey(row, index)
     const existing = [...available].find((entry) => entry.identity === identity)
-    const pending = [...available].find((entry) => {
-      const update = pendingUpdates.get(entry.key)
-      return (
+    const pending = [...available].find(
+      (entry) =>
         !entry.data.sourceParameterValuePath &&
-        update?.name === row.name &&
-        update.value === row.value
-      )
-    })
+        matchesPendingUpdate(entry.key, row),
+    )
     const match = existing ?? pending
 
     if (match) {
       available.delete(match)
-      const update = pendingUpdates.get(match.key)
-      if (update?.name === row.name && update.value === row.value) {
+      if (matchesPendingUpdate(match.key, row)) {
         pendingUpdates.delete(match.key)
       }
     }
