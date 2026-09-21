@@ -97,6 +97,60 @@ const getRowKey = (row: TableRow, index: number): string => {
     ).length
   return `row:${JSON.stringify([row.name, occurrence])}`
 }
+
+/** Keep an edited row mounted when saving it changes its parameter identity. */
+type DisplayRow = {
+  data: TableRow
+  identity: string
+  key: symbol
+}
+
+const pendingUpdates = new Map<symbol, TableRowUpsertPayload>()
+
+// A saved parameter inherits the editor's key. The next placeholder gets a fresh key,
+// so it cannot retain the previous placeholder's text or focused input.
+const keyedRows = computed<DisplayRow[]>((previous = []) => {
+  const available = new Set(previous)
+  const rows = displayData.value.map((row, index) => {
+    const identity = getRowKey(row, index)
+    const existing = [...available].find((entry) => entry.identity === identity)
+    const pending = [...available].find((entry) => {
+      const update = pendingUpdates.get(entry.key)
+      return (
+        !entry.data.sourceParameterValuePath &&
+        update?.name === row.name &&
+        update.value === row.value
+      )
+    })
+    const match = existing ?? pending
+
+    if (match) {
+      available.delete(match)
+      const update = pendingUpdates.get(match.key)
+      if (update?.name === row.name && update.value === row.value) {
+        pendingUpdates.delete(match.key)
+      }
+    }
+
+    return { data: row, identity, key: match?.key ?? Symbol() }
+  })
+
+  for (const removed of available) {
+    pendingUpdates.delete(removed.key)
+  }
+
+  return rows
+})
+
+const handleUpsertRow = (
+  row: DisplayRow,
+  index: number,
+  payload: TableRowUpsertPayload,
+): void => {
+  // The store may debounce the save. Transfer this key only when the saved row arrives.
+  pendingUpdates.set(row.key, payload)
+  emit('upsertRow', index, payload)
+}
 </script>
 <template>
   <DataTable
@@ -109,9 +163,9 @@ const getRowKey = (row: TableRow, index: number): string => {
     </DataTableRow>
 
     <RequestTableRow
-      v-for="(row, index) in displayData"
-      :key="getRowKey(row, index)"
-      :data="row"
+      v-for="(row, index) in keyedRows"
+      :key="row.key"
+      :data="row.data"
       :deferKeyUpdates="deferKeyUpdates"
       :environment="environment"
       :hasCheckboxDisabled="hasCheckboxDisabled"
@@ -123,7 +177,7 @@ const getRowKey = (row: TableRow, index: number): string => {
       @removeFile="emit('removeFile', index)"
       @selectPreset="(value) => emit('selectPreset', index, value)"
       @uploadFile="emit('uploadFile', index)"
-      @upsertRow="(payload) => emit('upsertRow', index, payload)" />
+      @upsertRow="(payload) => handleUpsertRow(row, index, payload)" />
   </DataTable>
 </template>
 <style scoped>

@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import RequestTable from './RequestTable.vue'
+import type { TableRow, TableRowUpsertPayload } from './RequestTableRow.vue'
 
 const environment = {
   description: 'Test Environment',
@@ -289,6 +290,128 @@ describe('RequestTable', () => {
     expect(wrapper.findAllComponents({ name: 'RequestTableRow' }).map((row) => row.props('data'))).toEqual(
       updated.slice(0, 2),
     )
+    wrapper.unmount()
+  })
+
+  it.each(['header', 'cookie', 'query'] as const)(
+    'keeps one focused row while creating and renaming a %s parameter',
+    async (type) => {
+      const wrapper = mount(RequestTable, {
+        attachTo: document.body,
+        props: { data: [], environment },
+      })
+      const editor = wrapper.find<HTMLElement>('[contenteditable="true"]')
+      editor.element.focus()
+
+      for (const name of ['x', 'x-demo', 'x-demo-header']) {
+        editor.element.textContent = name
+        await editor.trigger('input')
+        const [index, payload] = wrapper.emitted<[number, TableRowUpsertPayload]>('upsertRow')!.at(-1)!
+        expect(index).toBe(0)
+        expect(payload.name).toBe(name)
+
+        await wrapper.setProps({
+          data: [{ ...payload, isDisabled: false, originalParameter: { name, in: type } }],
+        })
+
+        expect(document.activeElement).toBe(editor.element)
+        expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+          name,
+          '',
+          '',
+          '',
+        ])
+        expect(
+          wrapper.findAll<HTMLInputElement>('input[type="checkbox"]').map((input) => input.element.checked),
+        ).toEqual([true, false])
+      }
+
+      const nextEditor = wrapper.findAll<HTMLElement>('[contenteditable="true"]')[2]!
+      nextEditor.element.focus()
+      nextEditor.element.textContent = 'second'
+      await nextEditor.trigger('input')
+      expect(wrapper.emitted('upsertRow')?.at(-1)).toEqual([1, { name: 'second', value: '', isDisabled: true }])
+      await wrapper.setProps({
+        data: [
+          ...wrapper.props('data'),
+          { name: 'second', value: '', isDisabled: false, originalParameter: { name: 'second', in: type } },
+        ],
+      })
+      expect(document.activeElement).toBe(nextEditor.element)
+      expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+        'x-demo-header',
+        '',
+        'second',
+        '',
+        '',
+        '',
+      ])
+      wrapper.unmount()
+    },
+  )
+
+  it('keeps focus when entering a new parameter value before its key', async () => {
+    const wrapper = mount(RequestTable, {
+      attachTo: document.body,
+      props: { data: [], environment },
+    })
+    const editor = wrapper.findAll<HTMLElement>('[contenteditable="true"]')[1]!
+    editor.element.focus()
+    editor.element.textContent = 'hello'
+    await editor.trigger('input')
+    await wrapper.setProps({
+      data: [{ name: '', value: 'hello', isDisabled: false, originalParameter: { name: '', in: 'header' } }],
+    })
+
+    expect(document.activeElement).toBe(editor.element)
+    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+      '',
+      'hello',
+      '',
+      '',
+    ])
+    editor.element.textContent = 'hello world'
+    await editor.trigger('input')
+    expect(wrapper.emitted('upsertRow')?.at(-1)).toEqual([0, { name: '', value: 'hello world', isDisabled: false }])
+    wrapper.unmount()
+  })
+
+  it('retains a pending row edit across an unrelated refresh before the save arrives', async () => {
+    const initial: TableRow = {
+      name: 'existing',
+      value: 'old',
+      originalParameter: { name: 'existing', in: 'header' },
+    }
+    const wrapper = mount(RequestTable, {
+      attachTo: document.body,
+      props: { data: [initial], environment },
+    })
+    const editor = wrapper.findAll<HTMLElement>('[contenteditable="true"]')[2]!
+    editor.element.focus()
+    editor.element.textContent = 'x-demo-header'
+    await editor.trigger('input')
+    await wrapper.setProps({ data: [{ ...initial, value: 'updated' }] })
+    await wrapper.setProps({
+      data: [
+        { ...initial, value: 'updated' },
+        {
+          name: 'x-demo-header',
+          value: '',
+          isDisabled: false,
+          originalParameter: { name: 'x-demo-header', in: 'header' },
+        },
+      ],
+    })
+
+    expect(document.activeElement).toBe(editor.element)
+    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toEqual([
+      'existing',
+      'updated',
+      'x-demo-header',
+      '',
+      '',
+      '',
+    ])
     wrapper.unmount()
   })
 })
