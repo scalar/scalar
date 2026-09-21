@@ -1,5 +1,7 @@
 # @scalar/aws-lambda
 
+## 0.2.11
+
 ## 0.2.10
 
 ### Bundled API Reference

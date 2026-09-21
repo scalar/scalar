@@ -1,5 +1,11 @@
 # @scalar/blocks
 
+## 0.1.20
+
+### Patch Changes
+
+- [#10240](https://github.com/scalar/scalar/pull/10240): Load external examples on demand when their selected preview is visible or Test Request opens, instead of downloading every payload while loading the API description. Share and cache downloads, preserve relative URL origins, and show loading and retry states while preventing incomplete requests from being sent.
+
 ## 0.1.19
 
 ## 0.1.18

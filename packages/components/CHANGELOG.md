@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.30.0
+
+### Minor Changes
+
+- [#10269](https://github.com/scalar/scalar/pull/10269): Add title filtering and keyboard-friendly search to the multi-document API selector.
+
 ## 0.29.3
 
 ### Patch Changes

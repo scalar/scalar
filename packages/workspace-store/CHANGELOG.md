@@ -1,5 +1,29 @@
 # @scalar/workspace-store
 
+## 0.64.0
+
+### Minor Changes
+
+- [#10264](https://github.com/scalar/scalar/pull/10264): Add a `compact` option to the server workspace store, which shrinks the sparse document the browser downloads before it can render anything: Cloudflare's public API goes from 4,447 KB to 431 KB (346 KB to 63 KB gzipped). The navigation becomes one more lazily resolved chunk, and the per-node chunk references become one `x-scalar-chunk-index` extension the client expands back into the very same references as it ingests the document. Defaults are unchanged, and what the client holds in memory is identical either way.
+- [#10240](https://github.com/scalar/scalar/pull/10240): Load external examples on demand when their selected preview is visible or Test Request opens, instead of downloading every payload while loading the API description. Share and cache downloads, preserve relative URL origins, and show loading and retry states while preventing incomplete requests from being sent.
+- [#10263](https://github.com/scalar/scalar/pull/10263): feat: add a `reactive: false` option to the client workspace store, which keeps the whole store API on plain objects for read-mostly consumers such as a server render
+
+### Patch Changes
+
+- [#10268](https://github.com/scalar/scalar/pull/10268): Save content-based parameter edits in the media type's examples so enabled JSON query parameters are included in requests. Preserve previously saved edits and migrate them when the parameter is edited again.
+- [#10255](https://github.com/scalar/scalar/pull/10255): fix(api-client): auto-enable optional header/query/cookie rows that have a pre-populated value
+
+  Optional parameters (headers, query params, cookies) start disabled by default. When the API
+  description provides a default or enum value for such a parameter (e.g. `x-scenario-id` with an enum),
+  the row was rendered with its checkbox unchecked even though a value was already selected — so the
+  parameter was silently dropped from every request until the user manually checked it.
+
+  The fix auto-enables any row that is only disabled by default (no explicit `x-disabled: true`) and
+  already carries a non-empty value, mirroring the existing behaviour when a user types a value into
+  a previously-empty row.
+
+  Use the same enablement rules for the parameter editor, outgoing requests, and generated code snippets.
+
 ## 0.63.0
 
 ### Minor Changes
