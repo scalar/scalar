@@ -1598,7 +1598,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           Object.entries(input.documents).map(([name, doc]) => {
             // Hydration only rewraps: an exported document has already been upgraded, bundled, coerced
             // and given its navigation, so nothing here re-processes it.
-            const magicDocument = createMagicProxy(doc, { documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri })
+            const magicDocument = createMagicProxy(doc, {
+              documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri,
+            })
             const documentOverrides = input.overrides[name]
 
             return [
