@@ -45,65 +45,207 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
     })
   })
 
-  it('preserves group names, order, and tags shared by multiple groups', () => {
+  it('migrates group names and member order to parent tags and removes x-tagGroups', () => {
     const input = {
       openapi: '3.1.0',
       info: { title: 'API', version: '1.0.0' },
       paths: {},
-      tags: [{ name: 'pets' }, { name: 'users' }],
+      tags: [{ name: 'pets', description: 'Pet operations' }, { name: 'users' }, { name: 'other' }],
       'x-tagGroups': [
         { name: 'Store', tags: ['users', 'pets'] },
-        { name: 'Administration', tags: ['users'] },
+        { name: 'Administration', tags: ['admins'] },
       ],
     }
-    const expected = { ...structuredClone(input), openapi: '3.2.0' }
 
-    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual(expected)
-  })
-
-  it.each(['Navigation', 'Audience', 'Badge'])('preserves tag metadata in the %s group', (name) => {
-    const input = {
-      openapi: '3.1.0',
+    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({
+      openapi: '3.2.0',
       info: { title: 'API', version: '1.0.0' },
       paths: {},
       tags: [
-        { name: 'pets', description: 'Pet operations', 'x-displayName': 'Pets', kind: 'custom' },
-        { name: 'users' },
+        { name: 'Store', kind: 'nav' },
+        { name: 'users', parent: 'Store' },
+        { name: 'pets', description: 'Pet operations', parent: 'Store' },
+        { name: 'Administration', kind: 'nav' },
+        { name: 'admins', parent: 'Administration' },
+        { name: 'other' },
       ],
-      'x-tagGroups': [{ name, tags: ['pets', 'users'] }],
-    }
-    const expected = { ...structuredClone(input), openapi: '3.2.0' }
-
-    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual(expected)
+    })
   })
 
-  it('preserves groups when tags are only declared on operations', () => {
+  it.each(['Navigation', 'Audience', 'Badge'])('does not infer tag kinds from the %s group name', (name) => {
     const input = {
       openapi: '3.1.0',
-      info: { title: 'API', version: '1.0.0' },
-      paths: {
-        '/pets': {
-          get: { tags: ['pets'], responses: { '200': { description: 'OK' } } },
-        },
-      },
-      'x-tagGroups': [{ name: 'Store', tags: ['pets'] }],
+      tags: [{ name: 'pets', description: 'Pet operations', 'x-displayName': 'Pets', kind: 'custom' }],
+      'x-tagGroups': [{ name, tags: ['pets'] }],
     }
-    const expected = { ...structuredClone(input), openapi: '3.2.0' }
 
-    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual(expected)
+    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({
+      openapi: '3.2.0',
+      tags: [
+        { name, kind: 'nav' },
+        { name: 'pets', description: 'Pet operations', 'x-displayName': 'Pets', kind: 'custom', parent: name },
+      ],
+    })
   })
 
-  it.each([{}, { 'x-tagGroups': [] }])('preserves absent or empty groups: %j', (groups) => {
+  it('declares tags that were only used on operations without changing operation tags', () => {
+    const paths = { '/pets': { get: { tags: ['pets'], responses: { '200': { description: 'OK' } } } } }
+    const input = { openapi: '3.1.0', paths, 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] }
+
+    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({
+      openapi: '3.2.0',
+      paths,
+      tags: [
+        { name: 'Store', kind: 'nav' },
+        { name: 'pets', parent: 'Store' },
+      ],
+    })
+  })
+
+  it.each([undefined, [{ name: 'Pets', description: 'Pet operations' }]])(
+    'gives a group that shares a member name a unique name and preserves its label: %j',
+    (tags) => {
+      const input = {
+        openapi: '3.1.0',
+        ...(tags ? { tags } : {}),
+        'x-tagGroups': [{ name: 'Pets', tags: ['Pets'] }],
+      }
+      const result = upgradeFromThreeOneToThreeTwo(input)
+
+      expect(result).toStrictEqual({
+        openapi: '3.2.0',
+        tags: [
+          { name: 'Pets-group', summary: 'Pets', kind: 'nav' },
+          { ...(tags?.[0] ?? {}), name: 'Pets', parent: 'Pets-group' },
+        ],
+      })
+      expect(upgradeFromThreeOneToThreeTwo(result)).toStrictEqual(result)
+    },
+  )
+
+  it('reserves declared, undeclared, and future group names when choosing a suffix', () => {
+    const paths = { '/pets': { get: { tags: ['Pets-group-2'], responses: { '200': { description: 'OK' } } } } }
     const input = {
       openapi: '3.1.0',
-      info: { title: 'API', version: '1.0.0' },
-      paths: {},
+      paths,
+      tags: [{ name: 'Pets' }, { name: 'Pets-group' }],
+      'x-tagGroups': [
+        { name: 'Pets', tags: ['Pets'] },
+        { name: 'Pets-group-3', tags: ['users'] },
+      ],
+    }
+    const repeated = structuredClone(input)
+    const result = upgradeFromThreeOneToThreeTwo(input)
+
+    expect(result).toStrictEqual({
+      openapi: '3.2.0',
+      paths,
+      tags: [
+        { name: 'Pets-group-4', summary: 'Pets', kind: 'nav' },
+        { name: 'Pets', parent: 'Pets-group-4' },
+        { name: 'Pets-group-3', kind: 'nav' },
+        { name: 'users', parent: 'Pets-group-3' },
+        { name: 'Pets-group' },
+      ],
+    })
+    expect(upgradeFromThreeOneToThreeTwo(repeated)).toStrictEqual(result)
+  })
+
+  it('avoids collisions with operation-only tags in webhooks, callbacks, and reusable path items', () => {
+    const operation = (tag: string): Record<string, unknown> => ({
+      tags: [tag],
+      responses: { '200': { description: 'OK' } },
+    })
+    const webhooks = { event: { post: operation('Pets') } }
+    const components = {
+      pathItems: { pets: { get: operation('Pets-group') } },
+      callbacks: { event: { '{$request.body#/url}': { post: operation('Pets-group-2') } } },
+    }
+
+    expect(
+      upgradeFromThreeOneToThreeTwo({
+        openapi: '3.1.0',
+        webhooks,
+        components,
+        'x-tagGroups': [{ name: 'Pets', tags: ['cats'] }],
+      }),
+    ).toStrictEqual({
+      openapi: '3.2.0',
+      webhooks,
+      components,
+      tags: [
+        { name: 'Pets-group-3', summary: 'Pets', kind: 'nav' },
+        { name: 'cats', parent: 'Pets-group-3' },
+      ],
+    })
+  })
+
+  it('keeps generated group names unique when multiple groups collide', () => {
+    expect(
+      upgradeFromThreeOneToThreeTwo({
+        openapi: '3.1.0',
+        'x-tagGroups': [
+          { name: 'Pets', tags: ['Pets'] },
+          { name: 'Pets-group', tags: ['Pets-group'] },
+        ],
+      }).tags,
+    ).toStrictEqual([
+      { name: 'Pets-group-2', summary: 'Pets', kind: 'nav' },
+      { name: 'Pets', parent: 'Pets-group-2' },
+      { name: 'Pets-group-group', summary: 'Pets-group', kind: 'nav' },
+      { name: 'Pets-group', parent: 'Pets-group-group' },
+    ])
+  })
+
+  it('removes empty x-tagGroups without adding a tags array', () => {
+    expect(upgradeFromThreeOneToThreeTwo({ openapi: '3.1.0', 'x-tagGroups': [] })).toStrictEqual({
+      openapi: '3.2.0',
+    })
+  })
+
+  it('leaves tags unchanged when there are no groups', () => {
+    expect(upgradeFromThreeOneToThreeTwo({ openapi: '3.1.0', tags: [{ name: 'pets' }] })).toStrictEqual({
+      openapi: '3.2.0',
       tags: [{ name: 'pets' }],
-      ...groups,
-    }
-    const expected = { ...structuredClone(input), openapi: '3.2.0' }
+    })
+  })
 
-    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual(expected)
+  it.each([
+    {
+      tags: [],
+      'x-tagGroups': [
+        { name: 'Store', tags: ['pets'] },
+        { name: 'Admin', tags: ['pets'] },
+      ],
+    },
+    { tags: [{ name: 'pets', parent: 'Other' }], 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] },
+    { tags: [], 'x-tagGroups': [{ name: 'Store', tags: [42] }] },
+    { tags: [], 'x-tagGroups': null },
+  ])('rejects ambiguous or invalid groups without partially upgrading: %j', (groups) => {
+    const input = { openapi: '3.1.0', ...groups }
+    const original = structuredClone(input)
+
+    expect(() => upgradeFromThreeOneToThreeTwo(input)).toThrow('Cannot migrate x-tagGroups:')
+    expect(input).toStrictEqual(original)
+  })
+
+  it('merges repeated groups and repeated membership without duplicating tags', () => {
+    expect(
+      upgradeFromThreeOneToThreeTwo({
+        openapi: '3.1.0',
+        'x-tagGroups': [
+          { name: 'Store', tags: ['pets', 'pets'] },
+          { name: 'Store', tags: ['users'] },
+        ],
+      }),
+    ).toStrictEqual({
+      openapi: '3.2.0',
+      tags: [
+        { name: 'Store', kind: 'nav' },
+        { name: 'pets', parent: 'Store' },
+        { name: 'users', parent: 'Store' },
+      ],
+    })
   })
 
   describe('xmlNode attribute and element migration', () => {
