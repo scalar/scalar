@@ -30,9 +30,7 @@ To get started, load the ESM build from our CDN in a simple HTML file. No packag
 </html>
 ```
 
-This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `@scalar/api-reference`. We recommend the ESM build for new integrations: it loads features such as the API client on demand. Styles are included automatically.
-
-Use `type="module"` and import `createApiReference` from the `/esm.js` URL. Keep initialization inside the same module script, where the imported function is available.
+This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `@scalar/api-reference`.
 
 ## Configuration
 
