@@ -9,6 +9,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
+import Header from '@/v2/blocks/operation-block/components/Header.vue'
 import OperationBlock from '@/v2/blocks/operation-block/OperationBlock.vue'
 import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
 
@@ -71,10 +72,11 @@ describe('Operation', () => {
     }
   }
 
-  const render = (overrides: Partial<OperationProps> = {}) => {
+  const render = (overrides: Partial<OperationProps> = {}, attachTo?: HTMLElement) => {
     const props = { ...getDefaultProps(), ...overrides } as OperationProps
 
     return mount(Operation, {
+      attachTo,
       props,
       global: {
         stubs: {
@@ -93,6 +95,7 @@ describe('Operation', () => {
       const externalValue = 'https://example.com/query-example.json'
       const fetch = vi.fn(async () => Response.json('downloaded'))
       const workspaceStore = createWorkspaceStore({ fetch })
+      workspaceStore.workspace['x-scalar-active-proxy'] = null
       const examples = {
         default: { $ref: '#/components/examples/Query' },
         other: { value: 'other', summary: 'Unselected example' },
@@ -109,6 +112,7 @@ describe('Operation', () => {
         document: {
           openapi: '3.2.0',
           info: { title: 'Parameter edits', version: '1' },
+          servers: [{ url: 'https://example.com' }],
           components: {
             parameters: { Query: parameter },
             examples: { Query: { externalValue, summary: 'Query example', description: 'Keep this description' } },
@@ -139,7 +143,21 @@ describe('Operation', () => {
       const mutators = generateClientMutators(workspaceStore).doc('test-document').operation
       eventBus.on('operation:upsert:parameter', mutators.upsertOperationParameter)
       eventBus.on('operation:delete:parameter', mutators.deleteOperationParameter)
-      const wrapper = render({ workspaceStore, document, eventBus })
+      const sentRequests: string[] = []
+      const wrapper = render(
+        {
+          workspaceStore,
+          document,
+          eventBus,
+          options: {
+            customFetch: (input, init) => {
+              sentRequests.push(new Request(input, init).url)
+              return Promise.resolve(Response.json({}))
+            },
+          },
+        },
+        globalThis.document.body,
+      )
 
       try {
         const querySection = () =>
@@ -182,6 +200,13 @@ describe('Operation', () => {
         await edit('filter', '{"owner":"first"}')
         expect(query().q).toBe('downloaded')
         expect(savedExample().value).toBeUndefined()
+
+        const section = querySection()
+        const index = section.props('rows').findIndex((row) => row.name === 'q')
+        section.vm.$emit('upsert', index, { name: 'q', value: 'pending-entry', isDisabled: false })
+        wrapper.getComponent(Header).vm.$emit('execute')
+        await vi.waitFor(() => expect(sentRequests).toHaveLength(1))
+        expect(new URL(sentRequests[0]!).searchParams.get('q')).toBe('pending-entry')
 
         await edit('q', 'entered')
         await edit('filter', '{"owner":"second"}')

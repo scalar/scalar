@@ -228,6 +228,19 @@ describe('schema-based parameters', () => {
     ).toEqual({ value: 'edited', 'x-disabled': true })
   })
 
+  it('preserves example annotations beside a schema reference', () => {
+    const param: ParameterWithSchemaObject = {
+      name: 'q',
+      in: 'query',
+      schema: {
+        '$ref': '#/components/schemas/Query',
+        '$ref-value': { type: 'string', examples: ['target'] },
+        'examples': ['local'],
+      },
+    }
+    expect(getExample(param, 'default', undefined)).toEqual({ value: 'local' })
+  })
+
   it('leaves unresolved schema references without a fallback', () => {
     const param: ParameterWithSchemaObject = {
       name: 'q',

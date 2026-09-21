@@ -137,7 +137,15 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
-import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  toValue,
+  watch,
+} from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -305,6 +313,8 @@ const copyAddressBarUrl = async (): Promise<void> => {
 const handleExecute = async () => {
   if (externalExamplesPending) return
   eventBus.flushDebouncedEmits?.()
+  // Source edits must reach the overlaid operation prop before building the request.
+  await nextTick()
 
   if (isWebhook && !requestPath.value.trim()) {
     toast('Webhook URL required. Enter a destination first.', 'error')

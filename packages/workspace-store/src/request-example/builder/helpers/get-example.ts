@@ -5,7 +5,7 @@ import type {
   RequestBodyObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 
 /** Helper to get example from examples object with fallback to example field */
 const getExampleFromExamples = (
@@ -69,7 +69,7 @@ export const getExample = (
   // Derive value from the schema
   const resolvedParam = getResolvedRef(param)
   if (resolvedParam && 'schema' in resolvedParam && resolvedParam.schema) {
-    const schema = getResolvedRef(resolvedParam.schema)
+    const schema = getResolvedRef(resolvedParam.schema, mergeSiblingReferences)
     if (!schema) {
       return undefined
     }
