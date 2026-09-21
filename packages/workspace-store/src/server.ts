@@ -19,8 +19,8 @@ import {
   CHUNK_INDEX_KEY,
   buildChunkIndex,
   chunkRefTemplates,
-  chunkReference,
   fillChunkRef,
+  navigationHeader,
 } from '@/helpers/chunk-index'
 import { createChunkWriter } from '@/helpers/create-chunk-writer'
 import { deepClone } from '@/helpers/deep-clone'
@@ -66,11 +66,12 @@ type CreateServerWorkspaceStoreBase = {
    * Sends the sparse document in its compact form, for documents large enough that the sparse
    * document is itself a cost.
    *
-   * It changes the wire shape only. `x-scalar-navigation` becomes one more lazily resolved chunk,
-   * and the per-node chunk references under `components` and `paths` are replaced by the
-   * `x-scalar-chunk-index` extension, which lists what exists and how a reference to it is spelled.
-   * The client store expands the index as it ingests the document, so what it holds in memory — and
-   * everything reading from it — is exactly what it would have held without this option.
+   * It changes the wire shape only. The per-node chunk references under `components` and `paths`
+   * are replaced by the `x-scalar-chunk-index` extension, which lists what exists and how a
+   * reference to it is spelled, and `x-scalar-navigation` keeps its document entry but leaves its
+   * children in a chunk. The client store expands the index as it ingests the document and loads
+   * the children on request, so what it holds in memory — and everything reading from it — is
+   * exactly what it would have held without this option.
    *
    * `getResolvedDocument()` is unaffected: it carries the whole document and its navigation either
    * way. AsyncAPI documents are unaffected too, since nothing about them is externalized.
@@ -491,7 +492,7 @@ export async function createServerWorkspaceStore(
     {
       components?: ComponentsObject
       operations?: Record<string, Record<string, OperationObject>>
-      /** Only in compact mode, where the navigation is a chunk rather than part of the document. */
+      /** Only in compact mode, where the navigation children travel as a chunk. */
       navigation?: unknown
     }
   > = {}
@@ -639,21 +640,24 @@ export async function createServerWorkspaceStore(
     if (workspaceProps.compact) {
       const refs = chunkRefTemplates(options)
 
-      // The navigation joins the chunks, so `get()` and the generated chunk files can serve it.
+      // The navigation joins the chunks, so `get()` and the generated chunk files can serve it. The
+      // whole tree is served, header included, so a chunk stands on its own the way every other one
+      // does; the client keeps the children and already holds the header.
       documentAssets.navigation = navigation
 
       // `components` and `paths` are dropped from the document: the index carries every reference
       // that was in them, plus the path-item keys that were never externalized.
       const { components: _components, paths: _paths, ...documentWithoutChunkedSections } = documentV3
 
-      // Cast because a compact document is a wire form rather than a document: its navigation is a
-      // reference to a chunk and its two chunked sections are absent, both of which the client
-      // undoes as it ingests it.
+      // Cast because a compact document is a wire form rather than a document: its two chunked
+      // sections are absent and its navigation children are elsewhere, both of which the client
+      // undoes — the sections as it ingests the document, the children when they are asked for.
       workspace.documents[meta.name] = {
         ...documentMeta,
         ...documentWithoutChunkedSections,
         [CHUNK_INDEX_KEY]: buildChunkIndex({ mode: options.mode, refs, components, paths }),
-        [extensions.document.navigation]: chunkReference(fillChunkRef(refs.navigation)),
+        [extensions.document.navigation]: navigationHeader(navigation),
+        [extensions.document.navigationChunk]: fillChunkRef(refs.navigation),
       } as unknown as ServerWorkspace['documents'][string]
     } else {
       workspace.documents[meta.name] = {
@@ -735,7 +739,7 @@ export async function createServerWorkspaceStore(
       await writeChunk([WORKSPACE_FILE_NAME], workspace)
 
       for (const [name, { components, operations, navigation }] of Object.entries(assets)) {
-        // Only compact documents keep their navigation here; otherwise it stays on the document.
+        // Only compact documents chunk their navigation; otherwise it stays whole on the document.
         if (navigation !== undefined) {
           await writeChunk(['chunks', encodeChunkName(name), 'navigation.json'], navigation)
         }

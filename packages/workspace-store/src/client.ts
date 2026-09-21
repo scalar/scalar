@@ -20,13 +20,14 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
-import { expandChunkIndex } from '@/helpers/chunk-index'
+import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
 import { bumpDocumentRevision } from '@/helpers/document-revision'
 import { type ExternalExampleResolver, createExternalExampleResolver } from '@/helpers/external-examples'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
+import { type RefNode, getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -44,6 +45,7 @@ import {
 } from '@/plugins/bundler'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
+import type { TraversedDocument } from '@/schemas/navigation'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { generateSchema } from '@/schemas/v3.2/openapi'
 import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
@@ -652,6 +654,7 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
     'x-ext-urls',
     // Scalar internal/external metadata fields
     'x-scalar-navigation',
+    'x-scalar-navigation-chunk',
     'x-scalar-is-dirty',
     'x-original-oas-version',
     'x-scalar-original-document-hash',
@@ -1367,6 +1370,103 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return true
   }
 
+  /**
+   * Fetches the chunk a compact document keeps its navigation children in.
+   *
+   * The reference is bundled on an object of its own rather than in the document, so nothing of it
+   * is left behind: the chunk lands in that object's `x-ext` and is dropped along with it, and the
+   * navigation is never a reference, not even while the request is in flight. Navigation has one
+   * owner, so the children go on the document as they are and there is nothing for a shared `x-ext`
+   * entry to save.
+   *
+   * `depth: 0` stops the bundler at the reference itself, which is as far as a navigation chunk
+   * goes: its entries address the document through their own `ref` strings and carry no `$ref`.
+   *
+   * The chunk is handed back unwrapped: what it holds goes on the document, and a magic proxy there
+   * would enumerate a virtual `$ref-value` and stop the document being structured-cloned into
+   * storage. Unwrapping one level is enough, because the proxy wraps lazily.
+   *
+   * @returns The navigation the chunk holds, or `undefined` when it could not be loaded — the
+   *   bundler reports that failure the same way it reports an unreachable component chunk.
+   */
+  const fetchNavigationChunk = async (
+    documentName: string,
+    ref: string,
+    origin: string | undefined,
+  ): Promise<TraversedDocument | undefined> => {
+    const holder: RefNode<TraversedDocument> = createMagicProxy(chunkReference(ref))
+
+    await bundle(getRaw(holder), {
+      plugins: [
+        fetchUrls({
+          fetch: extraDocumentConfigurations[documentName]?.fetch ?? workspaceProps?.fetch,
+          limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
+        }),
+        ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+      ],
+      treeShake: false,
+      origin,
+      depth: 0,
+      urlMap: true,
+    })
+
+    return getRaw(getResolvedRef(holder))
+  }
+
+  /** Navigation children being loaded, per document, so concurrent resolves share one request. */
+  const navigationChildrenLoads = new Map<string, Promise<void>>()
+
+  /**
+   * Loads a compact document's navigation children and assigns them onto its navigation in place.
+   *
+   * Only a compact document carries `x-scalar-navigation-chunk`, and only until its children are
+   * loaded, so the key answers both "is there anything to load" and "has it already happened". It
+   * travels with the document, which is what lets a workspace exported before the children were
+   * loaded still load them once it has been imported into another store. A failed load leaves the
+   * key in place, so asking again retries.
+   */
+  const loadNavigationChildren = async (documentName: string): Promise<void> => {
+    const document = workspace.documents[documentName]
+
+    if (!isOpenApiDocument(document)) {
+      return
+    }
+
+    const ref = document[extensions.document.navigationChunk]
+    const navigation = document[extensions.document.navigation]
+
+    if (ref === undefined || navigation === undefined) {
+      return
+    }
+
+    const pending = navigationChildrenLoads.get(documentName)
+
+    if (pending) {
+      return pending
+    }
+
+    const load = (async () => {
+      const chunk = await fetchNavigationChunk(documentName, ref, document['x-scalar-original-source-url'])
+
+      if (chunk === undefined) {
+        return
+      }
+
+      // Assigned through the store's document, so the write is observed: a Vue effect reading the
+      // children re-runs, and the workspace plugins see the document change.
+      navigation.children = chunk.children ?? []
+      delete document[extensions.document.navigationChunk]
+    })()
+
+    navigationChildrenLoads.set(documentName, load)
+
+    try {
+      await load
+    } finally {
+      navigationChildrenLoads.delete(documentName)
+    }
+  }
+
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
   const visitedNodesCache = new Set()
@@ -1445,8 +1545,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         initialize: false,
       })
     },
-    resolve: (path) => {
+    resolve: async (path) => {
       const activeDocument = workspace.activeDocument
+
+      // The navigation is never a reference: a compact document externalizes its children alone, and
+      // loading them is all there is to resolve here. Everything a navigation entry points at, it
+      // points at with a `ref` string of its own, so the bundler has nothing left to follow.
+      if (path[0] === extensions.document.navigation) {
+        await loadNavigationChildren(getActiveDocumentName())
+        return getValueAtPath(activeDocument, path)
+      }
 
       const target = getValueAtPath(activeDocument, path)
 

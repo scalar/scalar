@@ -203,11 +203,12 @@ references.
 
 `compact: true` changes how that document is spelled on the wire, and nothing else:
 
-- `x-scalar-navigation` becomes one more lazily resolved chunk — written to
-  `chunks/<document>/navigation.json` in `static` mode, served by `get('#/<document>/navigation')` in
-  `ssr` mode — and the document carries a reference to it. It stays a reference until something asks
-  for it, with `store.resolve(['x-scalar-navigation'])` on the client, and is then read through
-  `getResolvedRef`.
+- `x-scalar-navigation` keeps its document entry — `name`, `title`, `icon` and the rest — and leaves
+  only its children in a chunk, written to `chunks/<document>/navigation.json` in `static` mode and
+  served by `get('#/<document>/navigation')` in `ssr` mode. `children` is an empty array until
+  `store.resolve(['x-scalar-navigation'])` loads them onto the document in place, and
+  `x-scalar-navigation-chunk` says where they are until it does. The navigation is never a reference,
+  so every reader takes it by plain property access whether or not the document was sent compact.
 - The per-node references under `components` and `paths` are replaced by one `x-scalar-chunk-index`
   extension listing what exists, plus a template per kind saying how a reference to it is spelled.
   The two sections are omitted; anything in them that was never externalized (a path item's
@@ -226,13 +227,19 @@ const store = await createServerWorkspaceStore({
 {
   "openapi": "3.1.0",
   "info": { "title": "Petstore", "version": "1.0.0" },
-  "x-scalar-navigation": { "$ref": "./chunks/petstore/navigation.json#", "$global": true },
+  "x-scalar-navigation": {
+    "id": "petstore",
+    "type": "document",
+    "title": "Petstore",
+    "name": "petstore",
+    "children": []
+  },
+  "x-scalar-navigation-chunk": "./chunks/petstore/navigation.json#",
   "x-scalar-chunk-index": {
     "mode": "static",
     "refs": {
       "components": "./chunks/petstore/components/{type}/{name}.json#",
-      "operations": "./chunks/petstore/operations/{path}/{method}.json#",
-      "navigation": "./chunks/petstore/navigation.json#"
+      "operations": "./chunks/petstore/operations/{path}/{method}.json#"
     },
     "components": { "schemas": ["Pet", "Error"] },
     // `0` marks an operation that was externalized; every other key is kept as it was
@@ -244,8 +251,11 @@ const store = await createServerWorkspaceStore({
 The client store expands the index back into the same references as it ingests the document — through
 `addDocument`, `importWorkspaceFromSpecification`, `replaceDocument`, `revertDocumentChanges` or
 `loadWorkspace` — and drops the extension, so what it holds in memory is exactly what a non-compact
-server store would have produced, with the navigation reference the one difference. `resolve()`, the
-bundler and anything enumerating `paths` or `components` see the shape they always have.
+server store would have produced, with the unloaded navigation children the one difference.
+`resolve()`, the bundler and anything enumerating `paths` or `components` see the shape they always
+have. The navigation chunk is loaded once: concurrent resolves share the request, a later one makes
+none, and a workspace exported before the children were loaded can still load them after
+`loadWorkspace` puts it in another store.
 
 `getResolvedDocument()` is unaffected and still carries the whole document and its navigation, and so
 are AsyncAPI documents, which are never externalized.

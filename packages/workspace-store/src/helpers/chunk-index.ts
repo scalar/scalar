@@ -3,6 +3,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
 import { encodeChunkName } from '@/helpers/encode-chunk-name'
+import type { TraversedDocument } from '@/schemas/navigation'
 
 /**
  * The extension key a compact sparse document carries its chunk index under.
@@ -18,7 +19,7 @@ const OPERATION_PLACEHOLDER = 0
 /** Where a document's chunks live, which decides how each reference to one is spelled. */
 export type ChunkMode = 'static' | 'ssr'
 
-/** The `$ref` template for each kind of chunk, with `{…}` slots the reader fills in. */
+/** The `$ref` template for each kind of chunk, with `{…}` slots the writer fills in. */
 export type ChunkRefTemplates = {
   /** Slots: `{type}`, `{name}`. */
   components: string
@@ -37,7 +38,14 @@ export type ChunkRefTemplates = {
  */
 export type ChunkIndex = {
   mode: ChunkMode
-  refs: ChunkRefTemplates
+  /**
+   * The templates the reader expands.
+   *
+   * The navigation chunk is not one of them: the document names it directly, under
+   * `x-scalar-navigation-chunk`, because that reference has to outlive the index — it is read when
+   * the navigation children are loaded, long after the index is expanded and dropped.
+   */
+  refs: Omit<ChunkRefTemplates, 'navigation'>
   /** Component names per component type, in document order. */
   components: Record<string, string[]>
   /**
@@ -120,6 +128,20 @@ export const chunkRefTemplates = (
 export const chunkReference = (ref: string): { $ref: string; $global: true } => ({ '$ref': ref, $global: true })
 
 /**
+ * The navigation a compact document carries inline: the document entry without its children.
+ *
+ * Navigation is store metadata rather than part of the description, and every reader takes it by
+ * plain property access — `name` keys the auth and history stores, `title` and `icon` render the
+ * document header — so it is never a reference in any mode. Only the children are externalized,
+ * since they are what makes a navigation tree large. They start as an empty array, so a reader
+ * iterating them before they are loaded sees an empty sidebar rather than an error.
+ */
+export const navigationHeader = ({ children: _children, ...header }: TraversedDocument): TraversedDocument => ({
+  ...header,
+  children: [],
+})
+
+/**
  * Compacts a sparse document's `components` and `paths` into an index.
  *
  * Takes the sections the externalizers produced rather than the document itself, so the index is
@@ -138,7 +160,7 @@ export const buildChunkIndex = ({
   paths: Record<string, Record<string, unknown>>
 }): ChunkIndex => ({
   mode,
-  refs,
+  refs: { components: refs.components, operations: refs.operations },
   components: Object.fromEntries(Object.entries(components).map(([type, names]) => [type, Object.keys(names)])),
   paths: Object.fromEntries(
     Object.entries(paths).map(([path, pathItem]) => [
