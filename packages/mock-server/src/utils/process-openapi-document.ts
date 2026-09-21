@@ -5,11 +5,11 @@ import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
 
 /**
- * Processes an OpenAPI document by bundling external references, upgrading to OpenAPI 3.1,
+ * Processes an OpenAPI document by bundling external references, upgrading to OpenAPI 3.2,
  * and wrapping it so internal references stay intact but resolve lazily.
  *
  * Unlike a full dereference, the returned document keeps `$ref` nodes in place. Consumers
@@ -18,17 +18,17 @@ import { upgrade } from '@scalar/openapi-upgrader'
  * the whole document up front.
  *
  * @param document - The OpenAPI document to process. Can be a string (URL/path) or an object.
- * @returns A promise that resolves to the OpenAPI 3.1 document with lazily resolvable references.
+ * @returns A promise that resolves to the OpenAPI 3.2 document with lazily resolvable references.
  * @throws Error if the document cannot be processed or is invalid.
  */
 export async function processOpenApiDocument(
   document: string | Record<string, any> | undefined,
-): Promise<OpenAPIV3_1.Document> {
+): Promise<OpenAPIV3_2.Document> {
   // Handle empty/undefined input gracefully
   if (!document || (typeof document === 'object' && Object.keys(document).length === 0)) {
-    // Return a minimal valid OpenAPI 3.1 document
+    // Return a minimal valid OpenAPI 3.2 document
     return {
-      openapi: '3.1.0',
+      openapi: '3.2.0',
       info: {
         title: 'Mock API',
         version: '1.0.0',
@@ -59,14 +59,14 @@ export async function processOpenApiDocument(
     throw new Error('Bundled document is invalid: expected an object')
   }
 
-  let upgraded: OpenAPIV3_1.Document
+  let upgraded: OpenAPIV3_2.Document
 
   try {
-    // Upgrade to OpenAPI 3.1
-    upgraded = upgrade(bundled, '3.1')
+    // Upgrade to OpenAPI 3.2
+    upgraded = upgrade(bundled, '3.2')
   } catch (error) {
     throw new Error(
-      `Failed to upgrade OpenAPI document to 3.1: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to upgrade OpenAPI document to 3.2: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
 
