@@ -23,6 +23,8 @@ import type { ClientLayout } from '@/v2/types/layout'
 
 const { layout, totalPerformedRequests, response, requestPayload } =
   defineProps<{
+    /** Wait for the selected external request example before sending. */
+    executionDisabled?: boolean
     /** Preprocessed response */
     response: ResponseInstance | null
     /** Original request as a [url, RequestInit] tuple */
@@ -164,6 +166,7 @@ defineExpose({
       <template v-if="!response">
         <ResponseEmpty
           :appVersion="appVersion"
+          :executionDisabled
           :layout="layout"
           :totalPerformedRequests="totalPerformedRequests"
           @addRequest="

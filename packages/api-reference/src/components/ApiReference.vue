@@ -47,6 +47,7 @@ import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
   getServers,
@@ -481,6 +482,8 @@ const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
 })
 
+provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
+
 /**
  * We need to keep the client store separate from the workspace store
  * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
@@ -496,6 +499,8 @@ const clientStore = createWorkspaceStore({
 
 useDocumentEnvironment(workspaceStore)
 useDocumentEnvironment(clientStore)
+// The modal edits its own document but shares downloads and the configured source transport.
+clientStore.externalExamples = workspaceStore.externalExamples
 
 useConfiguredServers({
   configurations: configList,

@@ -1064,7 +1064,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('correctly resolves any `externalValue` on the example object', async () => {
+  it('preserves external examples without fetching their payloads', async () => {
     server.get('/', () => ({ someKey: 'someValue' }))
     await server.listen({ port })
 
@@ -1142,9 +1142,6 @@ describe('create-workspace-store', () => {
                     examples: {
                       someExample: {
                         externalValue: url,
-                        value: {
-                          someKey: 'someValue',
-                        },
                       },
                     },
                     schema: {
