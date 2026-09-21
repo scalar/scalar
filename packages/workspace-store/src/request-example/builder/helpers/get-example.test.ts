@@ -178,6 +178,25 @@ describe('content-based parameters', () => {
     expect(result).toEqual({ value: stringified })
   })
 
+  it('prefers a param-level example over the content media-type example', () => {
+    const param = {
+      name: 'filter',
+      in: 'query',
+      // @ts-expect-error - this is a test
+      examples: {
+        default: { value: { status: null, labels: [] }, 'x-disabled': false },
+      },
+      content: {
+        'application/json': {
+          example: { status: null, labels: [] },
+        },
+      },
+    } satisfies ParameterWithContentObject
+
+    const result = getExample(param, 'default', 'application/json')
+    expect(result).toEqual({ value: { status: null, labels: [] }, 'x-disabled': false })
+  })
+
   it('returns undefined when no example is found in content', () => {
     const param = {
       content: {

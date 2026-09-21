@@ -47,18 +47,19 @@ export const getExample = (
   exampleName: string | undefined,
   contentType: string | undefined,
 ): ExampleObject | undefined => {
-  // Content based parameters
-  if ('content' in param) {
-    const content = param.content?.[contentType ?? Object.keys(param.content)[0] ?? '']
-    const result = getExampleFromExamples(content?.examples, content?.example, exampleName)
+  // Schema based parameters, and user edits to a content based parameter (those are always
+  // written to the parameter's own `examples` map, never into `content.*.examples`)
+  if ('examples' in param || 'example' in param) {
+    const result = getExampleFromExamples(param.examples, param.example, exampleName)
     if (result !== undefined) {
       return result
     }
   }
 
-  // Schema based parameters
-  if ('examples' in param || 'example' in param) {
-    const result = getExampleFromExamples(param.examples, param.example, exampleName)
+  // Content based parameters
+  if ('content' in param) {
+    const content = param.content?.[contentType ?? Object.keys(param.content)[0] ?? '']
+    const result = getExampleFromExamples(content?.examples, content?.example, exampleName)
     if (result !== undefined) {
       return result
     }
