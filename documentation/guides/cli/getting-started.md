@@ -1,4 +1,5 @@
 # Scalar CLI
+
 <div class="flex gap-2">
 <a href="https://www.npmjs.com/@scalar/cli" aria-label="View @scalar/cli on NPM"><img alt="NPM Version" src="https://img.shields.io/npm/v/@scalar/cli"></a>
 <a href="https://www.npmjs.com/@scalar/cli" aria-label="View NPM downloads for @scalar/cli"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@scalar/cli"></a>
@@ -8,13 +9,46 @@
 Reading this guide helps you to get started with our CLI. We have dozens of commands around API Docs rendering (Markdown + MDX), OpenAPI bundling & linting, pushing to our cloud for governance+hosting & much more!
 
 ## Quick Start
+
 ```
 npx @scalar/cli help
 ```
 
 ## Installation
 
-If you really want to become friends you should install the CLI:
+### Standalone download (no Node.js required)
+
+Download the portable CLI for your platform. You do not need Node.js, npm, or Bun installed. The archive includes everything needed to run the CLI, including a private Node.js runtime for docs preview.
+
+| Platform              | Download (v2.5.1)                                                             |
+| --------------------- | ----------------------------------------------------------------------------- |
+| macOS (Apple Silicon) | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-darwin-arm64.tar.gz) |
+| macOS (Intel)         | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-darwin-x64.tar.gz)   |
+| Linux (x64, glibc)    | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-linux-x64.tar.gz)    |
+| Linux (ARM64, glibc)  | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-linux-arm64.tar.gz)  |
+| Windows (x64)         | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-win32-x64.tar.gz)    |
+
+The [download manifest](https://cdn.scalar.com/cli/2.5.1/manifest.json) lists the SHA-256 checksum for each archive. Each download also has a checksum file at the same URL with `.sha256` appended.
+
+Extract the whole archive and keep the `app` and `runtime` folders beside the executable. From the extracted directory, run:
+
+```bash
+# macOS and Linux
+./scalar --help
+```
+
+```powershell
+# Windows PowerShell
+.\scalar.exe --help
+```
+
+Add the extracted directory to your `PATH` to use `scalar` from any directory. If Git's `scalar` command is already on your `PATH`, use the full path to this executable to avoid a naming conflict.
+
+To update, download and extract a newer version, then replace your portable installation. `scalar upgrade` displays these instructions for portable installations. Docs preview downloads its preview server separately, so its first run needs an internet connection.
+
+### Install with npm
+
+If you already have Node.js and npm installed, you can install the CLI globally:
 
 ```bash
 npm -g install @scalar/cli
