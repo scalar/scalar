@@ -82,8 +82,7 @@ describe('ApiReference.reactivity', () => {
         throw new Error('Expected an OpenAPI document')
       }
       const operation = getResolvedRef(getResolvedRef(document.paths?.['/pets'])?.get)
-      const schema = operation?.responses?.['200']
-      const response = getResolvedRef(schema)
+      const response = getResolvedRef(operation?.responses?.['200'])
       expect(response?.description).toBe('Pet response')
       const responseSchema = getResolvedRef(response?.content?.['application/json']?.schema)
       const property = responseSchema && 'properties' in responseSchema ? responseSchema.properties?.petName : undefined
