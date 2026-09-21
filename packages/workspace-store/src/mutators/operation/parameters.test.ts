@@ -221,7 +221,7 @@ describe('upsertOperationParameter', () => {
     expect(getResolvedRef(updatedQueryParam?.examples?.default as any)?.value).toBe('1')
   })
 
-  it('sends an enabled JSON-content parameter and omits it after disabling', () => {
+  it('sends a populated JSON-content parameter and respects subsequent checkbox changes', () => {
     const param: ParameterWithContentObject = {
       name: 'filter',
       in: 'query',
@@ -234,7 +234,7 @@ describe('upsertOperationParameter', () => {
       },
     }
     const value = '{"status":null,"labels":[]}'
-    expect(buildRequestParameters([param]).urlParams.toString()).toBe('')
+    expect([...buildRequestParameters([param]).urlParams]).toStrictEqual([['filter', value]])
 
     upsertOperationParameter(null, {
       type: 'query',

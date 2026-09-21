@@ -23,6 +23,27 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it('sends pre-populated optional parameters while respecting explicit disable choices', () => {
+    const parameters: ParameterObject[] = [
+      { name: 'x-scenario-id', in: 'header', schema: { type: 'string', enum: ['success', 'failure'] } },
+      { name: 'count', in: 'query', schema: { type: 'integer', default: 0 } },
+      { name: 'active', in: 'cookie', schema: { type: 'boolean' }, examples: { default: { value: false } } },
+      {
+        name: 'disabled',
+        in: 'header',
+        schema: { type: 'string' },
+        examples: { default: { value: 'omit', 'x-disabled': true } },
+      },
+      { name: 'empty', in: 'query', schema: { type: 'string', default: '' } },
+    ]
+    const result = buildRequestParameters(parameters, 'default')
+    expect(result.headers).toStrictEqual({ 'x-scenario-id': 'success' })
+    expect(result.urlParams.toString()).toBe('count=0')
+    expect(result.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'active', value: 'false' },
+    ])
+  })
+
   describe('getExample (internal helper)', () => {
     /**
      * Tests for the internal getExample function which extracts examples from parameters.
@@ -117,7 +138,7 @@ describe('buildRequestParameters', () => {
       expect(result.headers).toEqual({})
     })
 
-    it('returns empty result when parameters are optional (not required)', () => {
+    it('includes optional parameters with populated examples', () => {
       const params = [
         createParameter(
           { name: 'X-Optional-Header', in: 'header', value: 'optional', required: false },
@@ -127,8 +148,7 @@ describe('buildRequestParameters', () => {
 
       const result = buildRequestParameters(params)
 
-      // Optional parameters are disabled by default
-      expect(result.headers).toEqual({})
+      expect(result.headers).toStrictEqual({ 'X-Optional-Header': 'optional' })
     })
 
     it('includes optional parameters when explicitly enabled via x-disabled: false', () => {

@@ -1274,7 +1274,7 @@ describe('operationToHar', () => {
       expect(result.queryString).toContainEqual({ name: 'q', value: 'findme' })
     })
 
-    it('omits optional query parameters when defaultDisabledParameters is true', () => {
+    it('includes populated optional query parameters when defaultDisabledParameters is true', () => {
       const operation: OperationObject = {
         parameters: [
           {
@@ -1301,7 +1301,7 @@ describe('operationToHar', () => {
         defaultDisabledParameters: true,
       })
 
-      expect(result.queryString).toEqual([])
+      expect(result.queryString).toStrictEqual([{ name: 'q', value: 'findme' }])
     })
   })
 })
