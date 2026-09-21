@@ -164,6 +164,10 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       await selector.get('input').setValue('staging')
       await flushPromises()
 
+      expect(spy).not.toHaveBeenCalled()
+      await wrapper.findComponent({ name: 'TestRequestButton' }).get('button').trigger('click')
+      await flushPromises()
+
       expect(selector.props('selectedServer')?.variables?.env?.default).toBe('staging')
       const modalOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
       expect(modalOptions?.servers?.[0]?.variables?.env?.default).toBe('staging')
@@ -779,7 +783,11 @@ describe('ApiReference custom fetch forwarding', () => {
     })
     await flushPromises()
 
-    expect(spy).toHaveBeenCalled()
+    expect(spy).not.toHaveBeenCalled()
+    await wrapper.findComponent({ name: 'TestRequestButton' }).get('button').trigger('click')
+    await flushPromises()
+
+    expect(spy).toHaveBeenCalledOnce()
     const passedOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
     expect(passedOptions?.customFetch).toBe(customFetch)
 
@@ -802,7 +810,11 @@ describe('ApiReference custom fetch forwarding', () => {
     })
     await flushPromises()
 
-    expect(spy).toHaveBeenCalled()
+    expect(spy).not.toHaveBeenCalled()
+    await wrapper.findComponent({ name: 'TestRequestButton' }).get('button').trigger('click')
+    await flushPromises()
+
+    expect(spy).toHaveBeenCalledOnce()
     const passedOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
     expect(passedOptions?.customFetch).toBe(customFetch)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining(`deprecated 'fetch' attribute`))

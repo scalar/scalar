@@ -50,14 +50,22 @@ const withHook = <T extends keyof ApiReferenceEvents>(
  * @param hooks Object containing optional before/after hooks for each event
  */
 export function initializeWorkspaceEventHandlers({
-  eventBus,
+  eventBus: bus,
   store,
   hooks,
 }: {
   eventBus: WorkspaceEventBus
   store: Ref<WorkspaceStore | null>
   hooks: Hooks
-}) {
+}): () => void {
+  const subscriptions: (() => void)[] = []
+  const eventBus: Pick<WorkspaceEventBus, 'on'> = {
+    on: (event, listener) => {
+      const unsubscribe = bus.on(event, listener)
+      subscriptions.push(unsubscribe)
+      return unsubscribe
+    },
+  }
   // Generate all client mutators for the current workspace store
   const mutators = computed(() => generateClientMutators(store.value))
 
@@ -383,4 +391,5 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('hooks:on:request:complete', (payload) =>
     withHook('hooks:on:request:complete', mutators.value.active().operation.addResponseToHistory, hooks)(payload),
   )
+  return () => subscriptions.splice(0).forEach((unsubscribe) => unsubscribe())
 }

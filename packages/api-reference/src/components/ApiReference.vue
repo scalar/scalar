@@ -13,7 +13,7 @@ if (version && typeof window !== 'undefined') {
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
-import type { ApiClientModal } from '@scalar/api-client/modal'
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -130,6 +130,7 @@ import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
+import { useLazyApiClient } from '@/hooks/use-lazy-api-client'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
 
@@ -1426,39 +1427,39 @@ watch(agent.showAgent, (open) => {
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
-// Setup the ApiClient on mount.
-// The modal is dynamic-imported so its dependency graph (CodeMirror, the request
-// editor, the response viewer, etc.) becomes a separate chunk that loads
-// asynchronously after the API reference paints.
+// Reference controls must keep working before the modal installs its own event handlers.
+const stopReferenceClientEvents = initializeWorkspaceEventHandlers({
+  eventBus,
+  store: ref(clientStore),
+  hooks: {},
+})
 const modal = useTemplateRef<HTMLElement>('modal')
-const apiClient = ref<ApiClientModal | null>(null)
-onMounted(async () => {
-  if (!modal.value) {
-    return
-  }
-
-  const { createApiClientModal } = await import('@scalar/api-client/modal')
-
-  // Bail if the component unmounted while the chunk was loading.
-  if (!modal.value) {
-    return
-  }
-
-  apiClient.value = createApiClientModal({
-    el: modal.value,
-    eventBus,
-    workspaceStore: clientStore,
-    options: runtimeConfig,
-    plugins: [
-      ...pluginManager.getApiClientPlugins(),
-      ...mapConfigPlugins(mergedConfig, environment),
-    ],
-  })
+const apiClient = useLazyApiClient({
+  eventBus,
+  load: async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
+    return () => {
+      if (!modal.value) {
+        return null
+      }
+      stopReferenceClientEvents()
+      return createApiClientModal({
+        el: modal.value,
+        eventBus,
+        workspaceStore: clientStore,
+        options: runtimeConfig,
+        plugins: [
+          ...pluginManager.getApiClientPlugins(),
+          ...mapConfigPlugins(mergedConfig, environment),
+        ],
+      })
+    }
+  },
 })
 onBeforeUnmount(() => {
   stopPreloadingDocuments()
+  stopReferenceClientEvents()
   pluginManager.notifyDestroy()
-  apiClient.value?.app.unmount()
 })
 
 // ---------------------------------------------------------------------------
