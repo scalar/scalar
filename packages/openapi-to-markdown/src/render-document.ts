@@ -11,6 +11,7 @@ import { unified } from 'unified'
 
 import { field, heading, inlineCode, item, link, list, paragraph, strong, text } from './markdown-nodes'
 import { createDescriptionParser } from './parse-description'
+import { renderExamples } from './render-examples'
 import { renderOperation } from './render-operation'
 import { createSchemaRenderer } from './render-schema'
 import { renderSecurity } from './render-security'
@@ -138,9 +139,9 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
             : item(paragraph(strong(text('Type:')))),
         ]),
         ...(await description(view.description)),
-        ...schemas.render(schema),
+        ...schemas.render(schema, 0, [], { hideDescription: true }),
       )
-      if (view.type === 'object') nodes.push(paragraph(strong(text('Example:'))), schemas.example(schema))
+      if (view.type === 'object') nodes.push(...(await renderExamples({ schema }, description)))
       flush()
     }
     flush()

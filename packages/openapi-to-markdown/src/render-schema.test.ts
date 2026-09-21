@@ -5,10 +5,13 @@ import { describe, expect, it } from 'vitest'
 
 import { createSchemaRenderer } from './render-schema'
 
-const render = (value: SchemaObject): string =>
+const render = (value: SchemaObject | boolean, depth = 0): string =>
   unified()
     .use(remarkStringify, { bullet: '-' })
-    .stringify({ type: 'root', children: createSchemaRenderer().render(value) })
+    .stringify({ type: 'root', children: createSchemaRenderer().render(value, depth) })
+
+const renderText = (value: SchemaObject | boolean, depth = 0): string =>
+  render(value, depth).replaceAll('`', '').replaceAll('**', '').replaceAll('\\[', '[').trim()
 
 const schema = (value: Record<string, unknown>) => value as SchemaObject
 
@@ -179,11 +182,148 @@ describe('render-schema', () => {
   it('does not reuse ancestry-dependent expansions across separate roots', () => {
     const renderer = createSchemaRenderer()
     const value = schema({ type: 'object', properties: { value: { type: 'string' } } })
-    const serialize = (depth: number): string =>
+    const serialize = (ancestors: readonly unknown[]): string =>
       unified()
         .use(remarkStringify, { bullet: '-' })
-        .stringify({ type: 'root', children: renderer.render(value, depth) })
-    expect(serialize(10)).toBe('*\\[Circular Reference]*\n')
-    expect(serialize(0)).toBe('- **`value`**\n\n  `string`\n')
+        .stringify({ type: 'root', children: renderer.render(value, 0, ancestors) })
+    expect(serialize([value])).toBe('*\\[Circular Reference]*\n')
+    expect(serialize([])).toBe('- **`value`**\n\n  `string`\n')
+  })
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)('renders %s inside an object property', (keyword) => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          choice: {
+            [keyword]: [
+              { type: 'string', format: 'uuid' },
+              { type: 'integer', format: 'int64' },
+            ],
+          },
+        },
+      }),
+    )
+    expect(output).toContain('uuid')
+    expect(output).toContain('int64')
+  })
+
+  it('renders not inside an object property', () => {
+    const output = renderText(
+      schema({ type: 'object', properties: { choice: { not: { type: 'string', enum: ['forbidden'] } } } }),
+    )
+    expect(output).toContain('Not:')
+    expect(output).toContain('"forbidden"')
+  })
+
+  it('preserves zero bounds and constraints on object properties', () => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          count: { type: 'integer', minimum: 0, maximum: 10, multipleOf: 2 },
+          name: { type: 'string', minLength: 0, maxLength: 20, pattern: '^[a-z]+$' },
+        },
+      }),
+    )
+    const text = output.replace(/\s+/g, ' ')
+    expect(text).toContain('minimum: 0')
+    expect(text).toContain('maximum: 10')
+    expect(text).toContain('multipleOf: 2')
+    expect(text).toContain('minLength: 0')
+    expect(text).toContain('maxLength: 20')
+    expect(text).toContain('pattern: ^[a-z]+$')
+  })
+  it('retains sibling properties alongside multiple composition keywords', () => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: { sibling: { type: 'string' } },
+        allOf: [{ properties: { inherited: { type: 'integer' } } }],
+        oneOf: [{ properties: { first: { type: 'boolean' } } }, { properties: { second: { type: 'number' } } }],
+      }),
+    )
+    for (const expected of ['sibling', 'inherited', 'first', 'second', 'All of:', 'One of:']) {
+      expect(output).toContain(expected)
+    }
+  })
+
+  it('renders access annotations, additional properties, constants, and discriminator mappings', () => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        additionalProperties: { type: 'integer' },
+        discriminator: { propertyName: 'kind', mapping: { cat: '#/components/schemas/Cat' } },
+        properties: {
+          id: { type: 'string', readOnly: true },
+          secret: { type: 'string', writeOnly: true },
+          kind: { const: 'cat' },
+        },
+      }),
+    )
+    const text = output.replace(/\s+/g, ' ')
+    for (const expected of [
+      'readOnly',
+      'writeOnly',
+      'Additional properties:',
+      'integer',
+      'Discriminator:',
+      'kind',
+      '#/components/schemas/Cat',
+      'const: "cat"',
+    ]) {
+      expect(text).toContain(expected)
+    }
+  })
+
+  it.each([true, false])('renders a boolean schema %s without coercing it to an object', (value) => {
+    expect(renderText(value)).toBe(value ? 'any (true schema)' : 'never (false schema)')
+  })
+
+  it('renders false schemas inside composition and array items', () => {
+    const output = renderText(
+      schema({
+        type: 'array',
+        items: false,
+        not: false,
+        allOf: [true, false],
+      }),
+    )
+    const text = output
+    expect(text).toContain('Array of:')
+    expect(text).toContain('Not:')
+    expect(text.match(/never \(false schema\)/g)?.length).toBe(3)
+  })
+
+  it('identifies actual ancestor cycles without truncating deep nonrecursive schemas', () => {
+    const recursive: Record<string, unknown> = { type: 'object' }
+    recursive.properties = { child: { $ref: '#/Node', '$ref-value': recursive } }
+    expect(renderText(schema(recursive))).toContain('[Circular Reference]')
+    const deep = Array.from({ length: 24 }).reduce<Record<string, unknown>>(
+      (child, _, index) => ({ type: 'object', properties: { [`level${index}`]: child } }),
+      { type: 'string', description: 'Deep leaf' },
+    )
+    const text = renderText(schema(deep))
+    expect(text).toContain('Deep leaf')
+    expect(text).not.toContain('Circular')
+  })
+
+  it('renders a shared reference in both branches without reporting a cycle', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          first: { $ref: '#/Shared', '$ref-value': shared },
+          second: { $ref: '#/Shared', '$ref-value': shared },
+        },
+      }),
+    )
+    expect(output.match(/name/g)?.length).toBe(2)
+    expect(output).not.toContain('Circular')
+  })
+
+  it('labels the depth guard separately from a circular reference', () => {
+    const output = renderText(schema({ type: 'string' }), 64)
+    expect(output).toBe('[Maximum schema depth reached]')
   })
 })

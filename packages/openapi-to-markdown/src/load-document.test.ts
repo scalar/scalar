@@ -180,4 +180,30 @@ paths:
       })
     }
   })
+  it('retains boolean schema references without changing example payloads or the input', async () => {
+    const input = {
+      openapi: '3.1.1',
+      info: { title: 'Boolean references', version: '1' },
+      components: {
+        schemas: {
+          Forbidden: false,
+          Container: {
+            type: 'object',
+            properties: { forbidden: { $ref: '#/components/schemas/Forbidden' } },
+            example: { schema: false, schemas: { value: true } },
+          },
+        },
+      },
+    }
+    const original = JSON.stringify(input)
+    const document = await loadDocument(input)
+    expect(document.components?.schemas?.Forbidden).toBe(false)
+    expect(getReferenceTarget(findReferences(document)[0])).toBe(false)
+    const container = document.components?.schemas?.Container
+    expect(container && 'example' in container ? container.example : undefined).toStrictEqual({
+      schema: false,
+      schemas: { value: true },
+    })
+    expect(JSON.stringify(input)).toBe(original)
+  })
 })

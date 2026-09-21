@@ -34,6 +34,7 @@ Resource operations
 
 - **Method:** `POST`
 - **Path:** `/resources/0`
+- **Operation ID:** `resource0`
 - **Tags:** Resources
 
 A shared object used by this API.
@@ -64,6 +65,8 @@ A shared object used by this API.
 
 ##### Content-Type: application/json
 
+A shared object used by this API.
+
 - **`field0` (required)**
 
   `string` — Field 0
@@ -92,35 +95,7 @@ A shared object used by this API.
 
   `object` — A shared object used by this API.
 
-  - **`field0` (required)**
-
-    `string` — Field 0
-
-  - **`field1`**
-
-    `string` — Field 1
-
-  - **`field2`**
-
-    `string` — Field 2
-
-  - **`owner`**
-
-    `object`
-
-    - **`id`**
-
-      `integer`
-
-    - **`name`**
-
-      `string`
-
-  - **`parent`**
-
-    `object` — A shared object used by this API.
-
-    *\[Circular Reference]*
+  *\[Circular Reference]*
 
 **Example:**
 
@@ -140,6 +115,8 @@ A shared object used by this API.
 
 ###### Content-Type: application/json
 
+A shared object used by this API.
+
 - **`field0` (required)**
 
   `string` — Field 0
@@ -168,35 +145,7 @@ A shared object used by this API.
 
   `object` — A shared object used by this API.
 
-  - **`field0` (required)**
-
-    `string` — Field 0
-
-  - **`field1`**
-
-    `string` — Field 1
-
-  - **`field2`**
-
-    `string` — Field 2
-
-  - **`owner`**
-
-    `object`
-
-    - **`id`**
-
-      `integer`
-
-    - **`name`**
-
-      `string`
-
-  - **`parent`**
-
-    `object` — A shared object used by this API.
-
-    *\[Circular Reference]*
+  *\[Circular Reference]*
 
 **Example:**
 
@@ -231,6 +180,7 @@ A shared object used by this API.
 
 - **Method:** `POST`
 - **Path:** `/resources/1`
+- **Operation ID:** `resource1`
 - **Tags:** Resources
 
 A shared object used by this API.
@@ -261,6 +211,8 @@ A shared object used by this API.
 
 ##### Content-Type: application/json
 
+A shared object used by this API.
+
 - **`field0` (required)**
 
   `string` — Field 0
@@ -289,35 +241,7 @@ A shared object used by this API.
 
   `object` — A shared object used by this API.
 
-  - **`field0` (required)**
-
-    `string` — Field 0
-
-  - **`field1`**
-
-    `string` — Field 1
-
-  - **`field2`**
-
-    `string` — Field 2
-
-  - **`owner`**
-
-    `object`
-
-    - **`id`**
-
-      `integer`
-
-    - **`name`**
-
-      `string`
-
-  - **`parent`**
-
-    `object` — A shared object used by this API.
-
-    *\[Circular Reference]*
+  *\[Circular Reference]*
 
 **Example:**
 
@@ -337,6 +261,8 @@ A shared object used by this API.
 
 ###### Content-Type: application/json
 
+A shared object used by this API.
+
 - **`field0` (required)**
 
   `string` — Field 0
@@ -365,35 +291,7 @@ A shared object used by this API.
 
   `object` — A shared object used by this API.
 
-  - **`field0` (required)**
-
-    `string` — Field 0
-
-  - **`field1`**
-
-    `string` — Field 1
-
-  - **`field2`**
-
-    `string` — Field 2
-
-  - **`owner`**
-
-    `object`
-
-    - **`id`**
-
-      `integer`
-
-    - **`name`**
-
-      `string`
-
-  - **`parent`**
-
-    `object` — A shared object used by this API.
-
-    *\[Circular Reference]*
+  *\[Circular Reference]*
 
 **Example:**
 
@@ -430,7 +328,7 @@ A shared object used by this API.
 
 #### Request Body
 
-**Required:** true
+**Required:** `true`
 
 ##### Content-Type: application/json
 
@@ -491,35 +389,7 @@ A shared object used by this API.
 
   `object` — A shared object used by this API.
 
-  - **`field0` (required)**
-
-    `string` — Field 0
-
-  - **`field1`**
-
-    `string` — Field 1
-
-  - **`field2`**
-
-    `string` — Field 2
-
-  - **`owner`**
-
-    `object`
-
-    - **`id`**
-
-      `integer`
-
-    - **`name`**
-
-      `string`
-
-  - **`parent`**
-
-    `object` — A shared object used by this API.
-
-    *\[Circular Reference]*
+  *\[Circular Reference]*
 
 **Example:**
 

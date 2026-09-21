@@ -32,11 +32,12 @@ const semanticTree = (node: Nodes): unknown => {
 }
 
 describe('compatibility', () => {
-  it('preserves the legacy document structure and content while resolving recursive example references', async () => {
-    // Captured from the unmodified renderer at f3c39a6723, not from the implementation under test.
-    const legacy = readFileSync(new URL('./fixtures/legacy.md', import.meta.url), 'utf8')
+  it('preserves document structure and content with explicit metadata and ancestor cycle detection', async () => {
+    // Based on the legacy renderer at f3c39a6723, with explicit operation IDs, schema
+    // descriptions, required flags, and cycles stopped at the first repeated ancestor.
+    const expected = readFileSync(new URL('./fixtures/compatibility.md', import.meta.url), 'utf8')
     const markdown = await createMarkdownFromOpenApi(fixture)
-    expect(semanticTree(parser.parse(markdown))).toStrictEqual(semanticTree(parser.parse(legacy)))
+    expect(semanticTree(parser.parse(markdown))).toStrictEqual(semanticTree(parser.parse(expected)))
     expect(markdown).toContain('\"owner\": {')
   })
 })

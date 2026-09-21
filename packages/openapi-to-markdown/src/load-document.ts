@@ -85,6 +85,53 @@ const attachRefValues = (document: unknown, enumerable = false, schemas = getSch
   return hasExternalReferences
 }
 
+/**
+ * The workspace schema currently casts boolean JSON Schemas into empty objects.
+ * Restore them only in schema positions, never in example payloads or metadata.
+ * TODO: Remove this bridge when the shared schema accepts boolean JSON Schemas.
+ */
+const restoreBooleanSchemas = (source: unknown, target: unknown): void => {
+  const seen = new WeakSet<object>()
+  const schemaMaps = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'])
+  const schemaArrays = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems'])
+  const schemaFields = new Set([
+    'items',
+    'not',
+    'additionalProperties',
+    'additionalItems',
+    'contains',
+    'propertyNames',
+    'if',
+    'then',
+    'else',
+    'unevaluatedProperties',
+    'unevaluatedItems',
+    '$ref-value',
+  ])
+  const visit = (original: unknown, coerced: unknown, context: 'document' | 'schema' | 'map' = 'document'): unknown => {
+    if (context === 'schema' && typeof original === 'boolean') return original
+    if (!original || typeof original !== 'object' || !coerced || typeof coerced !== 'object' || seen.has(coerced))
+      return coerced
+    seen.add(coerced)
+    if (Array.isArray(original) && Array.isArray(coerced)) {
+      for (const [index, value] of original.entries()) coerced[index] = visit(value, coerced[index], context)
+    } else if (isObject(original) && isObject(coerced)) {
+      for (const [key, value] of Object.entries(original)) {
+        if (!(key in coerced)) continue
+        if (context === 'map') coerced[key] = visit(value, coerced[key], 'schema')
+        else if (context === 'schema') {
+          if (schemaMaps.has(key)) coerced[key] = visit(value, coerced[key], 'map')
+          else if (schemaArrays.has(key) || schemaFields.has(key)) coerced[key] = visit(value, coerced[key], 'schema')
+        } else if (key === 'schema' || key === 'itemSchema') coerced[key] = visit(value, coerced[key], 'schema')
+        else if (key === 'schemas') coerced[key] = visit(value, coerced[key], 'map')
+        else if (!['example', 'examples', 'default', 'const', 'enum'].includes(key)) visit(value, coerced[key])
+      }
+    }
+    return coerced
+  }
+  visit(source, target)
+}
+
 /** Coerce one plain document and keep references linked to shared targets. */
 export const loadDocument = async (
   input: OpenApiDocument | Record<string, unknown> | string,
@@ -155,6 +202,9 @@ export const loadDocument = async (
   // Restore non-enumerable shared links afterward so rendering never expands the graph.
   attachRefValues(document, true, schemas)
   const coerced = coerceValue(OpenAPIDocumentSchema, document)
+
+  // Boolean schemas were introduced in OpenAPI 3.1; older descriptions retain their existing coercion.
+  if (typeof raw.openapi === 'string' && /^3\.[12]\./.test(raw.openapi)) restoreBooleanSchemas(document, coerced)
 
   // Keep extension resources that local and bundled references can target.
   for (const [key, value] of Object.entries(document)) {
