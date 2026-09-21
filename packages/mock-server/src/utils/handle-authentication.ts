@@ -122,7 +122,7 @@ function getChallenge(scheme: OpenAPIV3_1.SecuritySchemeObject): string | null {
 /** Resolve all schemes referenced by a single security requirement object. */
 function resolveSchemes(
   requirement: OpenAPIV3.SecurityRequirementObject,
-  schema?: OpenAPIV3_1.Document | OpenAPIV3_2.Document,
+  schema?: OpenAPIV3_2.Document,
 ): OpenAPIV3_1.SecuritySchemeObject[] {
   return Object.keys(requirement)
     .map((name) => getResolvedRef(schema?.components?.securitySchemes?.[name]))
@@ -137,10 +137,7 @@ function resolveSchemes(
  * only when *every* scheme it lists is satisfied. An empty requirement object (`{}`)
  * means authentication is optional and always passes.
  */
-export function handleAuthentication(
-  schema?: OpenAPIV3_1.Document | OpenAPIV3_2.Document,
-  operation?: OpenAPIV3_1.OperationObject,
-) {
+export function handleAuthentication(schema?: OpenAPIV3_2.Document, operation?: OpenAPIV3_1.OperationObject) {
   return async (c: Context, next: () => Promise<void>): Promise<Response | void> => {
     // Operation-level security overrides the global security requirement.
     const security = operation?.security ?? schema?.security
