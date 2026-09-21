@@ -8,6 +8,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
+import { isAllowedOAuthUrl } from './is-allowed-oauth-url'
 import { type OAuth2Tokens, getActiveServerBase } from './oauth'
 import { oauthClientAuthorization } from './oauth-client-authorization'
 
@@ -48,8 +49,8 @@ const verificationUrl = (value: unknown): string => {
     throw new Error('Missing device verification URL')
   }
   const url = new URL(value)
-  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-    throw new Error('Invalid device verification URL')
+  if (!isAllowedOAuthUrl(url)) {
+    throw new Error('Device verification URL must use HTTPS or HTTP for local development URLs')
   }
   return url.href
 }
@@ -114,8 +115,9 @@ export const authorizeDevice = async (
     ) {
       throw new Error('Invalid device authorization response')
     }
-    const expiresAt = Date.now() + data.expires_in * 1000
-    const expiry = AbortSignal.timeout(Math.min(data.expires_in * 1000, MAX_TIMEOUT_MS))
+    const lifetime = Math.min(data.expires_in * 1000, MAX_TIMEOUT_MS)
+    const expiresAt = Date.now() + lifetime
+    const expiry = AbortSignal.timeout(lifetime)
     const signal = AbortSignal.any([options.signal, expiry])
     options.onPrompt({
       userCode: data.user_code,
@@ -152,7 +154,8 @@ export const authorizeDevice = async (
           throw error
         })
         if (!tokenResponse) {
-          interval *= 2
+          // Saturating at expiry never schedules an earlier poll: the loop expires instead.
+          interval = Math.min(interval * 2, expiresAt - Date.now())
           continue
         }
         const token: unknown = await tokenResponse.json()
@@ -163,7 +166,7 @@ export const authorizeDevice = async (
           continue
         }
         if (token.error === 'slow_down') {
-          interval += 5000
+          interval = Math.min(interval + 5000, expiresAt - Date.now())
           continue
         }
         const accessToken = token[flow['x-tokenName'] || 'access_token']

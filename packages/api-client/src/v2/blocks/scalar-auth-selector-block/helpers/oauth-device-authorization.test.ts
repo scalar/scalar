@@ -114,6 +114,105 @@ describe('oauth-device-authorization', () => {
     expect(onPrompt.mock.calls).toStrictEqual([])
     expect(fetcher.mock.calls.length).toBe(1)
   })
+  it.each(['verification_uri', 'verification_uri_complete'])(
+    'rejects public HTTP %s before showing the device code',
+    async (field) => {
+      const fetcher = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(json({ ...device, [field]: 'http://auth.example.com/verify' }))
+      const onPrompt = vi.fn()
+      const [error, token] = await authorizeDevice(flow, [], null, '', {}, fetcher, {
+        onPrompt,
+        signal: new AbortController().signal,
+      })
+      expect(error?.message).toBe('Device verification URL must use HTTPS or HTTP for local development URLs')
+      expect(token).toBeNull()
+      expect(onPrompt.mock.calls).toStrictEqual([])
+      expect(fetcher.mock.calls.length).toBe(1)
+    },
+  )
+
+  it.each([
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    '0.0.0.0',
+    'auth.test',
+    'auth.example',
+    'auth.invalid',
+    'auth.localhost',
+  ])('accepts local development verification URLs on %s', async (host) => {
+    vi.useFakeTimers()
+    const verificationUri = `http://${host}:5052/verify`
+    const verificationUriComplete = `${verificationUri}?user_code=USER-CODE`
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        json({ ...device, verification_uri: verificationUri, verification_uri_complete: verificationUriComplete }),
+      )
+      .mockResolvedValueOnce(json({ access_token: 'access' }))
+    const onPrompt = vi.fn()
+    const result = authorizeDevice(flow, [], null, '', {}, fetcher, {
+      onPrompt,
+      signal: new AbortController().signal,
+    })
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(await result).toStrictEqual([null, { accessToken: 'access' }])
+    expect(onPrompt.mock.calls).toStrictEqual([[{ userCode: 'USER-CODE', verificationUri, verificationUriComplete }]])
+  })
+
+  it('expires after repeated timeouts without polling below the backed-off interval', async () => {
+    vi.useFakeTimers()
+    const timeout = new Error('Timed out')
+    timeout.name = 'TimeoutError'
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(json({ ...device, expires_in: 10 }))
+      .mockRejectedValue(timeout)
+    const result = authorizeDevice(flow, [], null, '', {}, fetcher, {
+      onPrompt: vi.fn(),
+      signal: new AbortController().signal,
+    })
+    await vi.advanceTimersByTimeAsync(6999)
+    expect(fetcher.mock.calls.length).toBe(3)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(fetcher.mock.calls.length).toBe(4)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect((await result)[0]?.message).toBe('Device authorization expired')
+    expect(fetcher.mock.calls.length).toBe(4)
+  })
+
+  it('expires instead of polling sooner than a slow_down interval', async () => {
+    vi.useFakeTimers()
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(json({ ...device, expires_in: 5 }))
+      .mockResolvedValue(json({ error: 'slow_down' }, 400))
+    const result = authorizeDevice(flow, [], null, '', {}, fetcher, {
+      onPrompt: vi.fn(),
+      signal: new AbortController().signal,
+    })
+    await vi.advanceTimersByTimeAsync(5000)
+    expect((await result)[0]?.message).toBe('Device authorization expired')
+    expect(fetcher.mock.calls.length).toBe(2)
+  })
+
+  it('bounds oversized lifetimes without overflowing the poll timer or polling early', async () => {
+    vi.useFakeTimers()
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(json({ ...device, expires_in: Number.MAX_VALUE, interval: Number.MAX_VALUE }))
+    const result = authorizeDevice(flow, [], null, '', {}, fetcher, {
+      onPrompt: vi.fn(),
+      signal: new AbortController().signal,
+    })
+    await vi.advanceTimersByTimeAsync(2_147_483_646)
+    expect(fetcher.mock.calls.length).toBe(1)
+    await vi.advanceTimersByTimeAsync(1)
+    expect((await result)[0]?.message).toBe('Device authorization expired')
+    expect(fetcher.mock.calls.length).toBe(1)
+  })
+
   it('expires locally without polling after the device code expires', async () => {
     vi.useFakeTimers()
     const fetcher = vi.fn<typeof fetch>().mockResolvedValueOnce(json({ ...device, expires_in: 1, interval: 5 }))

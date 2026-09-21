@@ -101,7 +101,7 @@ describe('oauth', () => {
         expect(body.get('client_id')).toBe(location === 'body' ? 'client id' : null)
         expect(body.get('client_secret')).toBe(location === 'body' ? 'client secret' : null)
         expect(new Headers(request.headers).get('Authorization')).toBe(
-          location === 'header' ? `Basic ${encode('client id:client secret')}` : null,
+          location === 'header' ? `Basic ${encode('client+id:client+secret')}` : null,
         )
         if (type === 'password') {
           expect(body.get('username')).toBe(' user ')
@@ -119,7 +119,7 @@ describe('oauth', () => {
         expect(refreshBody.get('client_secret')).toBe(location === 'body' ? 'client secret' : null)
         expect(refreshBody.get('refresh_token')).toBe(' refresh token ')
         expect(new Headers(refreshRequest.headers).get('Authorization')).toBe(
-          location === 'header' ? `Basic ${encode('client id:client secret')}` : null,
+          location === 'header' ? `Basic ${encode('client+id:client+secret')}` : null,
         )
       }
       expect(flows).toStrictEqual(originalFlows)
