@@ -80,6 +80,7 @@ export const pt = {
     status: 'Status',
   },
   schema: {
+    noAllowedValues: 'Nenhum valor satisfaz esta restrição enum.',
     example: 'Exemplo',
     examples: 'Exemplos',
     default: 'Padrão',

@@ -80,6 +80,7 @@ export const fr = {
     status: 'Statut',
   },
   schema: {
+    noAllowedValues: 'Aucune valeur ne satisfait cette contrainte enum.',
     example: 'Exemple',
     examples: 'Exemples',
     default: 'Par défaut',

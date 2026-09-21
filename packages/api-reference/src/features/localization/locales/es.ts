@@ -79,6 +79,7 @@ export const es = {
     status: 'Estado',
   },
   schema: {
+    noAllowedValues: 'Ningún valor satisface esta restricción enum.',
     example: 'Ejemplo',
     examples: 'Ejemplos',
     default: 'Predeterminado',

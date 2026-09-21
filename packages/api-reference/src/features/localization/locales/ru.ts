@@ -80,6 +80,7 @@ export const ru = {
     status: 'Статус',
   },
   schema: {
+    noAllowedValues: 'Ни одно значение не удовлетворяет этому ограничению enum.',
     example: 'Пример',
     examples: 'Примеры',
     default: 'Значение по умолчанию',

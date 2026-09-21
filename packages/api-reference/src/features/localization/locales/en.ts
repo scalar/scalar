@@ -79,6 +79,7 @@ export const en = {
     status: 'Status',
   },
   schema: {
+    noAllowedValues: 'No values satisfy this enum constraint.',
     example: 'Example',
     examples: 'Examples',
     default: 'Default',

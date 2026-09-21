@@ -440,6 +440,7 @@ export type ApiReferenceTranslations = {
     examples: string
     default: string
     schema: string
+    noAllowedValues: string
     emptyObject: string
     showAdditionalProperties: string
     forName: string
