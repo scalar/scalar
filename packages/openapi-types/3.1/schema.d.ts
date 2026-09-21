@@ -53,30 +53,46 @@ export type NumericFormat =
   | 'sf-decimal'
 export type SchemaReferenceType<Value> = Value | ReferenceObject
 export type Extensions = Record<`x-${string}`, unknown>
-type SharedProperties = {
-  name?: string
-  title?: string
-  description?: string
-  default?: unknown
-  enum?: unknown[]
-  const?: unknown
-  examples?: unknown[]
-  example?: unknown
-  deprecated?: boolean
-  discriminator?: Record<string, unknown>
-  readOnly?: boolean
-  writeOnly?: boolean
-  xml?: Record<string, unknown>
-  externalDocs?: Record<string, unknown>
-  allOf?: SchemaReferenceType<SchemaObject>[]
-  oneOf?: SchemaReferenceType<SchemaObject>[]
-  anyOf?: SchemaReferenceType<SchemaObject>[]
-  not?: SchemaReferenceType<SchemaObject>
-  if?: SchemaReferenceType<SchemaObject>
-  then?: SchemaReferenceType<SchemaObject>
-  else?: SchemaReferenceType<SchemaObject>
-  $defs?: Record<string, SchemaReferenceType<SchemaObject>>
-}
+/** JSON Schema keywords apply independently of the declared instance type. */
+type SharedProperties = NumericKeywords &
+  StringKeywords &
+  ArrayKeywords &
+  ObjectKeywords & {
+    /** OpenAPI permits keywords from other vocabularies, including custom keywords. */
+    [keyword: string]: unknown
+    $schema?: string
+    $id?: string
+    $anchor?: string
+    $dynamicAnchor?: string
+    $dynamicRef?: string
+    $ref?: string
+    $comment?: string
+    $vocabulary?: Record<string, boolean>
+    /** Keep known formats suggested while accepting custom format annotations. */
+    format?: StringFormat | NumericFormat | (string & {})
+    name?: string
+    title?: string
+    description?: string
+    default?: unknown
+    enum?: unknown[]
+    const?: unknown
+    examples?: unknown[]
+    example?: unknown
+    deprecated?: boolean
+    discriminator?: Record<string, unknown>
+    readOnly?: boolean
+    writeOnly?: boolean
+    xml?: Record<string, unknown>
+    externalDocs?: Record<string, unknown>
+    allOf?: SchemaObject[]
+    oneOf?: SchemaObject[]
+    anyOf?: SchemaObject[]
+    not?: SchemaObject
+    if?: SchemaObject
+    then?: SchemaObject
+    else?: SchemaObject
+    $defs?: Record<string, SchemaObject>
+  }
 type NumericKeywords = {
   multipleOf?: number
   maximum?: number
@@ -90,68 +106,54 @@ type StringKeywords = {
   pattern?: string
   contentMediaType?: string
   contentEncoding?: string
-  contentSchema?: SchemaReferenceType<SchemaObject>
+  contentSchema?: SchemaObject
 }
 type ArrayKeywords = {
-  items?: SchemaReferenceType<SchemaObject>
-  prefixItems?: SchemaReferenceType<SchemaObject>[]
+  items?: SchemaObject
+  prefixItems?: SchemaObject[]
   maxItems?: number
   minItems?: number
   uniqueItems?: boolean
-  contains?: SchemaReferenceType<SchemaObject>
+  contains?: SchemaObject
   maxContains?: number
   minContains?: number
-  unevaluatedItems?: boolean | SchemaReferenceType<SchemaObject>
+  unevaluatedItems?: boolean | SchemaObject
 }
 type ObjectKeywords = {
   maxProperties?: number
   minProperties?: number
   required?: string[]
-  properties?: Record<string, SchemaReferenceType<SchemaObject>>
-  additionalProperties?: boolean | SchemaReferenceType<SchemaObject>
-  patternProperties?: Record<string, SchemaReferenceType<SchemaObject>>
-  dependentSchemas?: Record<string, SchemaReferenceType<SchemaObject>>
-  propertyNames?: SchemaReferenceType<SchemaObject>
-  unevaluatedProperties?: boolean | SchemaReferenceType<SchemaObject>
+  properties?: Record<string, SchemaObject>
+  additionalProperties?: boolean | SchemaObject
+  patternProperties?: Record<string, SchemaObject>
+  dependentRequired?: Record<string, string[]>
+  dependentSchemas?: Record<string, SchemaObject>
+  propertyNames?: SchemaObject
+  unevaluatedProperties?: boolean | SchemaObject
 }
 type UntypedObject = SharedProperties & {
   type?: undefined
-  format?: StringFormat | NumericFormat
-} & Extensions
+}
 type OtherTypes = SharedProperties & {
   type: 'null' | 'boolean'
-} & Extensions
-type NumericObject = SharedProperties &
-  NumericKeywords & {
-    type: 'number' | 'integer'
-    format?: NumericFormat
-  } & Extensions
-type StringObject = SharedProperties &
-  StringKeywords & {
-    type: 'string'
-    format?: StringFormat
-  } & Extensions
-type ArrayObject = SharedProperties &
-  ArrayKeywords & {
-    type: 'array'
-  } & Extensions
-type ObjectObject = SharedProperties &
-  ObjectKeywords & {
-    type: 'object'
-  } & Extensions
-export type MultiTypeObject = SharedProperties &
-  NumericKeywords &
-  StringKeywords &
-  ArrayKeywords &
-  ObjectKeywords & {
-    /**
-     * MultiTypeObject only models the array form. Single-type schemas are
-     * covered by the dedicated variants (OtherTypes, NumericObject,
-     * StringObject, ObjectObject, ArrayObject) of the SchemaObject union.
-     */
-    type: PrimitiveSchemaType[]
-    format?: StringFormat | NumericFormat
-  } & Extensions
+}
+type NumericObject = SharedProperties & {
+  type: 'number' | 'integer'
+}
+type StringObject = SharedProperties & {
+  type: 'string'
+}
+type ArrayObject = SharedProperties & {
+  type: 'array'
+}
+type ObjectObject = SharedProperties & {
+  type: 'object'
+}
+/** A schema that accepts multiple instance types, such as an object or null. */
+export type MultiTypeObject = SharedProperties & {
+  type: PrimitiveSchemaType[]
+}
+/** An OpenAPI Schema Object, including boolean schemas and JSON Schema keywords. */
 export type SchemaObject =
   | boolean
   | UntypedObject
