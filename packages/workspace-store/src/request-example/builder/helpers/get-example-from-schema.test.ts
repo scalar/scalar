@@ -2663,3 +2663,63 @@ describe('getExampleFromSchema', () => {
     })
   })
 })
+
+describe('options cache key', () => {
+  it('does not serve one options object result to a call with different options', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        legacy: { type: 'string', deprecated: true },
+      },
+    } as const
+
+    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
+    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({ name: '', legacy: '' })
+    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
+  })
+
+  it('keys nested results by the options of the call they were produced in', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        child: {
+          type: 'object',
+          properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+        },
+      },
+    } as const
+
+    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({
+      child: { name: '', legacy: '' },
+    })
+    expect(getExampleFromSchema(schema)).toEqual({ child: { name: '' } })
+  })
+
+  it('picks up an options object mutated between two calls', () => {
+    const schema = {
+      type: 'object',
+      properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+    } as const
+    const options: { includeDeprecated?: boolean } = { includeDeprecated: true }
+
+    expect(getExampleFromSchema(schema, options)).toEqual({ name: '', legacy: '' })
+
+    options.includeDeprecated = false
+
+    expect(getExampleFromSchema(schema, options)).toEqual({ name: '' })
+  })
+
+  it('reflects a schema edited between two calls with different options', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: { name: { type: 'string', example: 'before' } },
+    }
+
+    expect(getExampleFromSchema(schema, { mode: 'read' })).toEqual({ name: 'before' })
+
+    schema.properties!.name = { type: 'string', example: 'after' }
+
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ name: 'after' })
+  })
+})

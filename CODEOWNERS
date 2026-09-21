@@ -1,18 +1,18 @@
 # Default code owners (overwritten by more specific entries)
-* @marclave @hanspagel @amritk @hwkr
+* @marclave @hanspagel @amritk @hwkr @cameronrohani
 
 # Changesets
-/.changeset
+/.changeset @cameronrohani
 
 # Amrit + Redis
-/packages/api-client @marclave @hanspagel @amritk @DemonHa
-/packages/json-magic @marclave @hanspagel @amritk @DemonHa
-/packages/pre-post-request-scripts @marclave @hanspagel @amritk @DemonHa
-/packages/schemas @marclave @hanspagel @amritk @DemonHa
-/packages/types @marclave @hanspagel @amritk @DemonHa
-/packages/validation @marclave @hanspagel @amritk @DemonHa
-/packages/workspace-store @marclave @hanspagel @amritk @DemonHa
-/projects/scalar-app @marclave @hanspagel @amritk @DemonHa
+/packages/api-client @marclave @hanspagel @amritk @DemonHa @cameronrohani
+/packages/json-magic @marclave @hanspagel @amritk @DemonHa @cameronrohani
+/packages/pre-post-request-scripts @marclave @hanspagel @amritk @DemonHa @cameronrohani
+/packages/schemas @marclave @hanspagel @amritk @DemonHa @cameronrohani
+/packages/types @marclave @hanspagel @amritk @DemonHa @cameronrohani
+/packages/validation @marclave @hanspagel @amritk @DemonHa @cameronrohani
+/packages/workspace-store @marclave @hanspagel @amritk @DemonHa @cameronrohani
+/projects/scalar-app @marclave @hanspagel @amritk @DemonHa @cameronrohani
 
 # Brynn + Cam
 /packages/components @marclave @hanspagel @amritk @hwkr @cameronrohani

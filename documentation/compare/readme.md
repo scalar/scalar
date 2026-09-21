@@ -56,7 +56,7 @@ Both products ship this. ReadMe generates [an MCP server from your documentation
 
 ## Pricing
 
-Scalar: Free at $0, [Pro at $150/month](../guides/pricing.md) with one SDK target and 5 editor seats included, Business at $600/month with SSO and 10 seats, additional SDK targets at $150/month each on Pro and $600/month each on Business, Enterprise custom.
+Scalar: Free at $0, [Pro at $150/month](../guides/pricing.md) with one SDK target and 5 editor seats included, Business at $600/month with SSO and 10 seats, additional SDK targets at $150/month each for up to 100 endpoints or $600/month each for 101–250 endpoints, Enterprise custom. Business teams can use both price bands, and the included SDK applies to the most expensive band first.
 
 ReadMe: [Starter at $0, Pro at $250/month billed annually, Enterprise from $3,000/month](https://readme.com/pricing), with Ask AI as a $150/month add-on. Team collaboration, private docs, custom MDX, and CSS/HTML all start at Pro, so the realistic entry point for a team is $250/month. You may find older ReadMe pricing quoted around the web at $99/month; that reflects a previous pricing model, so check their current page.
 

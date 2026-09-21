@@ -36,6 +36,9 @@ import {
 const {
   options: optionsOrGroups,
   placeholder,
+  inputLabel,
+  noResults,
+  close,
   filterFn = filterByOptionLabel,
   multiselect,
 } = defineProps<{
@@ -43,6 +46,12 @@ const {
   options: OptionsOrGroups<O, G>
   /** The placeholder text to display in the combobox */
   placeholder?: string
+  /** An accessible label for the search input */
+  inputLabel?: string
+  /** The message to display when filtering returns no options */
+  noResults?: string
+  /** Close the popover without changing the current selection */
+  close?: () => void
   /**
    * A function to filter the options based on a query,
    * if not provided, the options will be filtered by option label
@@ -212,6 +221,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       :aria-activedescendant="activeRef ? getOptionId(activeRef) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
+      :aria-label="inputLabel"
       class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
       data-1p-ignore
       :placeholder
@@ -220,15 +230,22 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       type="text"
       @keydown.down.prevent="moveActive(1)"
       @keydown.enter.prevent="activeRef && toggleSelected(activeRef)"
+      @keydown.esc.prevent="close?.()"
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
-    v-show="filtered.length || slots.add"
+    v-show="filtered.length || slots.add || noResults"
     :id="id"
     :aria-multiselectable="multiselect"
     class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
     role="listbox"
     tabindex="-1">
+    <li
+      v-if="!filtered.length && !slots.add && noResults"
+      class="text-c-3 px-2.5 py-2"
+      role="status">
+      {{ noResults }}
+    </li>
     <ComboboxOptionGroup
       v-for="(group, i) in groups"
       :id="`${id}-group-${i}`"

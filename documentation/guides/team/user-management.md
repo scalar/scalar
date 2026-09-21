@@ -74,12 +74,12 @@ To leave a team yourself, go to [User Settings](https://dashboard.scalar.com/use
 
 ## Restrict who can join
 
-Two enterprise controls help you keep the team limited to your own organization:
+Two controls help you keep the team limited to your own organization:
 
 - **Domain restrictions** limit invites to email addresses from domains you approve, so an invite to a personal address is rejected before it is sent.
 - **[SSO/SAML](../sso/getting-started.md)** connects Scalar to your identity provider, so access follows the same rules as the rest of your company. You can also disable password login so SSO is the only way in.
 
-Both are available on the Enterprise plan. See [pricing](../pricing.md) or email [support@scalar.com](mailto:support@scalar.com) to get started.
+SSO/SAML is available on the Business and Enterprise plans. Domain restrictions require the Enterprise plan. See [pricing](../pricing.md) or email [support@scalar.com](mailto:support@scalar.com) to get started.
 
 ## Team members vs. access groups
 

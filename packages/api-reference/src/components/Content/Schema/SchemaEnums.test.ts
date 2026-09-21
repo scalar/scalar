@@ -3,9 +3,59 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import SchemaEnumValues from './SchemaEnums.vue'
 
 describe('SchemaEnumValues', () => {
+  it('renders the retained value with its own name and description after narrowing', () => {
+    const value = mergeAllOfSchemas(
+      coerceValue(SchemaObjectSchema, {
+        allOf: [
+          {
+            type: 'string',
+            enum: ['resources', 'principals'],
+            'x-enum-varnames': ['Resource', 'Principal'],
+            'x-enum-descriptions': ['A resource', 'A principal'],
+          },
+          { type: 'string', enum: ['principals'] },
+        ],
+      }),
+    )
+    const wrapper = mount(SchemaEnumValues, { props: { value } })
+
+    expect(wrapper.text()).toContain('principals = Principal')
+    expect(wrapper.text()).toContain('A principal')
+    expect(wrapper.text()).not.toContain('Resource')
+    expect(wrapper.text()).not.toContain('A resource')
+  })
+
+  it('explains disjoint allOf enum constraints', () => {
+    const value = mergeAllOfSchemas(
+      coerceValue(SchemaObjectSchema, {
+        allOf: [{ enum: ['resources'] }, { enum: ['principals'] }],
+      }),
+    )
+    const wrapper = mount(SchemaEnumValues, { props: { value } })
+
+    expect(wrapper.text()).toContain('No values satisfy this enum constraint.')
+    expect(wrapper.text()).not.toContain('resources')
+    expect(wrapper.text()).not.toContain('principals')
+  })
+
+  it('renders plain values when positional annotations are missing', () => {
+    const value = mergeAllOfSchemas(
+      coerceValue(SchemaObjectSchema, {
+        allOf: [
+          { enum: ['resources', 'principals'], 'x-enum-varnames': ['Resource'], 'x-enum-descriptions': ['A resource'] },
+          { enum: ['principals'] },
+        ],
+      }),
+    )
+    const wrapper = mount(SchemaEnumValues, { props: { value } })
+
+    expect(wrapper.text()).toBe('valuesprincipals')
+  })
+
   describe('basic enum rendering', () => {
     it('renders enum values from value.enum', () => {
       const wrapper = mount(SchemaEnumValues, {
@@ -49,7 +99,7 @@ describe('SchemaEnumValues', () => {
       expect(wrapper.html()).toBe('<!--v-if-->')
     })
 
-    it('does not render when enum array is empty', () => {
+    it('explains when an enum has no allowed values', () => {
       const wrapper = mount(SchemaEnumValues, {
         props: {
           value: coerceValue(SchemaObjectSchema, {
@@ -58,7 +108,7 @@ describe('SchemaEnumValues', () => {
         },
       })
 
-      expect(wrapper.html()).toBe('<!--v-if-->')
+      expect(wrapper.text()).toContain('No values satisfy this enum constraint.')
     })
 
     it('handles missing value prop gracefully', () => {

@@ -29,7 +29,7 @@ const { is = 'button' } = defineProps<{
 const variants = cva({
   base: [
     // Layout
-    'block h-8 min-w-0 gap-1.5 rounded px-2.5 py-1.5 text-left',
+    'block h-8 min-w-0 gap-1.5 rounded-md px-2.5 py-1.5 text-left',
     // Text / background style
     'truncate  no-underline text-sm text-c-1',
     // Interaction — hover:bg-b-2 handles mouse, highlighted:bg-b-2 handles

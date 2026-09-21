@@ -19,15 +19,20 @@ import { useLocalization } from '@/features/localization'
 
 import { getMessageExampleContent } from './helpers/get-message-example-content'
 
-const { examples = [] } = defineProps<{
+const { examples = [], generatedPayload } = defineProps<{
   examples?: AsyncApiMessageObject['examples']
+  generatedPayload?: unknown
 }>()
 
 const { translate } = useLocalization()
 
 /** Array positions keep duplicate names and generated labels from overwriting another example. */
 const availableExamples = computed(() => {
-  const entries = examples.flatMap((value, index) => {
+  const candidates =
+    generatedPayload === undefined
+      ? examples
+      : [...examples, { name: 'Generated example', payload: generatedPayload }]
+  const entries = candidates.flatMap((value, index) => {
     const example = getResolvedRef(value)
     if (
       !example ||

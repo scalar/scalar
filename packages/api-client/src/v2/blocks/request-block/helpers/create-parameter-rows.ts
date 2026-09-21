@@ -382,7 +382,8 @@ export const createParameterRows = (
 ): TableRow[] => {
   const example = getExample(parameter, exampleKey, undefined)
   const isDisabled = isParamDisabled(parameter, example)
-  const isDisabledByDefault = isDisabled && example?.['x-disabled'] === undefined
+  // Preserve type-to-enable behavior until the user explicitly chooses a checkbox state.
+  const isDisabledByDefault = !parameter.required && parameter.in !== 'path' && example?.['x-disabled'] === undefined
   const schema = getParameterSchema(parameter)
   const mode = getExpansionMode(parameter, schema)
 

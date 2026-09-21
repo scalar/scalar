@@ -8,6 +8,32 @@ import { nextTick } from 'vue'
 import MessageExamples from './MessageExamples.vue'
 
 describe('MessageExamples', () => {
+  it('keeps header-only examples selectable alongside the generated payload', async () => {
+    const wrapper = mount(MessageExamples, {
+      props: {
+        examples: [{ name: 'Headers', headers: { trace: 'abc' } }],
+        generatedPayload: { id: 42 },
+      },
+    })
+    const picker = wrapper.getComponent(ExamplePicker)
+    expect(picker.props('examples')).toStrictEqual({
+      '0': { summary: 'Headers' },
+      '1': { summary: 'Generated example' },
+    })
+    picker.vm.$emit('update:modelValue', '1')
+    await nextTick()
+    expect(wrapper.get('pre').text()).toBe(JSON.stringify({ id: 42 }, null, 2))
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(JSON.stringify({ id: 42 }, null, 2))
+    await wrapper.setProps({ generatedPayload: undefined })
+    expect(wrapper.get('pre').text()).toBe(JSON.stringify({ trace: 'abc' }, null, 2))
+  })
+
+  it.each([null, false, 0, ''])('renders and copies a generated %j payload', (generatedPayload) => {
+    const wrapper = mount(MessageExamples, { props: { generatedPayload } })
+    expect(wrapper.get('pre').text()).toBe(String(generatedPayload))
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(String(generatedPayload))
+  })
+
   it('shows a named example and its summary', () => {
     const wrapper = mount(MessageExamples, {
       props: { examples: [{ name: 'Created', summary: 'A new event', payload: { id: 1 } }] },

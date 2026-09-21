@@ -21,7 +21,7 @@ describe('createMarkdownFromOpenApi', () => {
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
 Test description`
@@ -29,6 +29,52 @@ Test description`
     const result = await createMarkdownFromOpenApi(content)
 
     expect(result).toContain(markdown)
+  })
+
+  it('coerces document metadata before rendering', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.0',
+      info: { title: 'Coerced API', version: 12 },
+      paths: {},
+    })
+
+    expect(markdown).toContain('# Coerced API')
+    expect(markdown).toContain('**API Version:** ``')
+  })
+
+  it('resolves an embedded schema resource without loading it as an external reference', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Embedded resource', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: 'https://schemas.example/pet.json#pet' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Pet: {
+            $id: 'https://schemas.example/pet.json',
+            $anchor: 'pet',
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+        },
+      },
+    })
+
+    expect(markdown).toContain('name')
   })
 
   it('renders servers', async () => {
@@ -59,16 +105,14 @@ Test description`
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
 ## Servers
 
 - **URL:** \`https://test.com\`
   - **Description:** Test server
-
 - **URL:** \`https://test.com/{version}\`
-
   - **Description:** Test server v2
   - **Variables:**
     - \`version\` (default: \`v2\`): Test version
@@ -98,7 +142,7 @@ Test description`
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
 ## Operations
@@ -527,7 +571,7 @@ Test description`
     expect(resultJson).toMatchInlineSnapshot(`
       "# Test API
 
-      - **OpenAPI Version:** \`3.1.1\`
+      - **OpenAPI Version:** \`3.2.0\`
       - **API Version:** \`1.0.0\`
 
       ## Operations
@@ -548,7 +592,6 @@ Test description`
       - **\`id\`**
 
         \`string\`
-
       - **\`name\`**
 
         \`string\`
@@ -568,7 +611,7 @@ Test description`
     expect(resultXml).toMatchInlineSnapshot(`
       "# Test API
 
-      - **OpenAPI Version:** \`3.1.1\`
+      - **OpenAPI Version:** \`3.2.0\`
       - **API Version:** \`1.0.0\`
 
       ## Operations
@@ -589,7 +632,6 @@ Test description`
       - **\`id\`**
 
         \`string\`
-
       - **\`name\`**
 
         \`string\`
@@ -954,5 +996,15 @@ paths:
         })
       })
     }
+  })
+  it('renders schemas without a type without emitting empty inline code', async () => {
+    const output = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Composed', version: '1' },
+      components: { schemas: { Value: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
+    })
+    expect(output).toBe(
+      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Schemas\n\n### Value\n\n- **Type:**\n\n**One of:**\n\n`string`\n\n`number`\n',
+    )
   })
 })

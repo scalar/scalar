@@ -371,6 +371,7 @@ export type ApiReferenceTranslations = {
     open: string
     placeholder: string
     clear: string
+    noResults: string
     keyboardShortcut: string
     command: string
     control: string
@@ -439,6 +440,7 @@ export type ApiReferenceTranslations = {
     examples: string
     default: string
     schema: string
+    noAllowedValues: string
     emptyObject: string
     showAdditionalProperties: string
     forName: string

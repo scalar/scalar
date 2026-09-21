@@ -44,6 +44,7 @@ import {
 } from '@/v2/components/data-table'
 
 import OAuth2, { type OAuth2Options } from './OAuth2.vue'
+import OAuth2Metadata from './OAuth2Metadata.vue'
 import OpenIDConnect from './OpenIDConnect.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
@@ -532,6 +533,17 @@ const handleConfigAuthorize = (): void => {
     <!-- OAuth 2.0  / OpenID Connect Authentication -->
     <template
       v-else-if="scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'">
+      <OAuth2Metadata
+        v-if="
+          scheme.type === 'oauth2' && (!isStatic || scheme.oauth2MetadataUrl)
+        "
+        :customFetch="options?.customFetch"
+        :environment
+        :eventBus
+        :name
+        :proxyUrl
+        :scheme />
+
       <!-- OpenID Connect -->
       <OpenIDConnect
         v-if="scheme?.type === 'openIdConnect' && !visibleFlowKeys.length"

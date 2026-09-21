@@ -44,7 +44,8 @@ const formatSecurityValue = (
   }
 
   if (security.format === 'bearer') {
-    return `Bearer ${substitutedValue}`
+    // Normalize pasted tokens after resolving variables, which may also contain surrounding whitespace.
+    return `Bearer ${substitutedValue.trim()}`
   }
 
   return substitutedValue

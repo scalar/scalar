@@ -2526,14 +2526,31 @@ describe('processParameters defaultDisabled', () => {
     },
   ]
 
-  it('omits optional query parameters when defaultDisabled is true', () => {
+  it('includes populated optional query parameters when defaultDisabled is true', () => {
     const result = processParameters({
       harRequest: createHarRequest('/items'),
       parameters: optionalQueryParameters,
       defaultDisabled: true,
     })
 
-    expect(result.queryString).toEqual([])
+    expect(result.queryString).toStrictEqual([{ name: 'filter', value: 'active' }])
+  })
+
+  it.each([undefined, null, ''])('omits empty optional values (%s) when defaultDisabled is true', (value) => {
+    const result = processParameters({
+      harRequest: createHarRequest('/items'),
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          examples: { default: { value } },
+        },
+      ],
+      example: 'default',
+      defaultDisabled: true,
+    })
+    expect(result.queryString).toStrictEqual([])
   })
 
   it('includes optional query parameters from schema when defaultDisabled is false', () => {

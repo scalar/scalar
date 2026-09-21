@@ -4,6 +4,8 @@ Scalar SDK generation is driven by a single config object that describes the SDK
 
 Use the config to keep SDK behavior predictable across generated targets. The top-level `targets` map controls which artifacts are generated, while `resources` controls the public client shape.
 
+For SDK-specific behavior embedded in an OpenAPI document, see [OpenAPI Extensions](openapi-extensions.md). Root-level Scalar extensions mirror the corresponding configuration blocks, while operation and schema extensions can refine individual generated methods and types.
+
 ## Minimal config
 
 ```json
@@ -159,7 +161,7 @@ Client options can send values in headers, query parameters, body parameters, or
 
 ## Pagination
 
-Define reusable pagination schemes in `pagination`, then reference them from methods with `paginated`.
+Define reusable pagination schemes in `pagination`, then reference them from methods with `paginated`. Schemes are declared, never inferred from parameter names, so a method paginates only when it names one. See [Pagination](pagination.md) for the full field vocabulary, one worked example per strategy, and the generated helpers each target produces.
 
 ```json
 {
@@ -191,7 +193,24 @@ Define reusable pagination schemes in `pagination`, then reference them from met
 }
 ```
 
-Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `offset`, and `pageNumber`.
+Bind a scheme to a method with `paginated`, which takes a scheme name, or `false` to keep the method unpaginated:
+
+```json
+{
+  "resources": {
+    "users": {
+      "methods": {
+        "list": {
+          "endpoint": "get /users",
+          "paginated": "cursor"
+        }
+      }
+    }
+  }
+}
+```
+
+Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `offset`, `pageNumber`, and `fakePage` for an operation that returns a whole collection in one response but should still be iterated as a page.
 
 ## Serialization
 
@@ -275,4 +294,3 @@ Every build analyzes your OpenAPI document and this configuration together and r
 | `maxErrors`   | Maximum allowed errors before the build fails.                              |
 | `rules`       | Per-rule severity override keyed by rule id, such as `Endpoint/NotConfigured`. Set a rule to `off` to disable it. |
 | `ignored`     | Per-rule suppressions keyed by rule id.                                     |
-

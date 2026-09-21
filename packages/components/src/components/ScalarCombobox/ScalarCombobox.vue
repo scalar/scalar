@@ -36,6 +36,10 @@ defineProps<
     options: OptionsOrGroups<O, G>
     /** The placeholder text to display in the combobox */
     placeholder?: string
+    /** An accessible label for the search input */
+    inputLabel?: string
+    /** The message to display when filtering returns no options */
+    noResults?: string
     /** A function to filter the options based on a query,
      * if not provided, the options will be filtered by option label
      *
@@ -64,8 +68,11 @@ defineSlots<ComboboxSlots<O, G>>()
     </template>
     <template #popover="{ open, close }">
       <ComboboxOptions
+        :close
         :filterFn
+        :inputLabel
         :modelValue="model ? [model] : []"
+        :noResults
         :open
         :options
         :placeholder

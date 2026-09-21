@@ -6,11 +6,17 @@ import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 
-/** Payload for routing and opening the API client modal. */
+/**
+ * Payload for routing and opening the API client modal.
+ *
+ * `path` and `method` are optional so a caller can update `documentSlug` on its own.
+ * `route()` fills in whichever fields are missing from its "default" placeholders, which
+ * resolve to the document's first operation instead of a route that does not exist.
+ */
 export type RoutePayload = {
   /** API path, or webhook name when `isWebhook` is true. */
-  path: string
-  method: HttpMethod
+  path?: string
+  method?: HttpMethod
   example?: string
   documentSlug?: string
   /** Resolve `path` from the OpenAPI webhooks map. */

@@ -1,3 +1,7 @@
+---
+date: 2025-04-06
+---
+
 # How we extended the OpenAPI specification
 
 We love OpenAPI, but as a team that develops a suite of tools built around it, sometimes we can find it limited. Luckily, because we control how the OpenAPI document is processed and displayed, we can do something about this.

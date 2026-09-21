@@ -47,6 +47,7 @@ import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
   getServers,
@@ -128,6 +129,7 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
@@ -480,6 +482,8 @@ const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
 })
 
+provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
+
 /**
  * We need to keep the client store separate from the workspace store
  * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
@@ -492,6 +496,11 @@ const clientStore = createWorkspaceStore({
     }),
   ],
 })
+
+useDocumentEnvironment(workspaceStore)
+useDocumentEnvironment(clientStore)
+// The modal edits its own document but shares downloads and the configured source transport.
+clientStore.externalExamples = workspaceStore.externalExamples
 
 useConfiguredServers({
   configurations: configList,
@@ -1157,11 +1166,12 @@ const changeSelectedDocument = async (
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, config)
 
-  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  // Sync the modal to the new document without naming an operation. Leaving path and
+  // method out resolves them to the document's first operation instead of a route that
+  // does not exist, so the modal still has something valid to show if it opens before
+  // a specific operation is selected.
   apiClient.value?.route({
     documentSlug: slug,
-    method: 'get',
-    path: '/',
   })
 
   // Load the document if it is not in the store yet (a background preload may already be loading it)

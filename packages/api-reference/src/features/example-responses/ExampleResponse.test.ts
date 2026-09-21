@@ -47,6 +47,9 @@ describe('ExampleResponse', () => {
         },
       })
 
+      expect(wrapper.text()).toContain('Success response example')
+      expect(wrapper.text()).toContain('This is a successful API response')
+
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
       expect(codeBlock.props('prettyPrintedContent')).toEqual(
@@ -1034,7 +1037,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles example with undefined value', () => {
@@ -1142,7 +1145,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles circular references in $refValues gracefully', () => {

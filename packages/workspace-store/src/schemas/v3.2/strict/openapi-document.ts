@@ -80,6 +80,7 @@ import {
   TagObjectRef,
   TraversedDocumentObjectRef,
 } from './ref-definitions'
+import { ReferenceObjectSchema } from './reference'
 import { RequestBodyObjectSchemaDefinition } from './request-body'
 import { ResponseObjectSchemaDefinition } from './response'
 import { ResponsesObjectSchemaDefinition } from './responses'
@@ -95,7 +96,22 @@ export const OpenApiExtensionsSchema = compose(
   Type.Partial(
     Type.Object({
       'x-original-oas-version': Type.String(),
-      [extensions.document.navigation]: TraversedDocumentObjectRef,
+      /**
+       * The navigation tree, or a reference to it.
+       *
+       * A compact server workspace externalizes the navigation into a chunk like every other
+       * section, so the document carries `{ $ref }` here until something resolves it, and
+       * validation has to accept that as well as the tree.
+       *
+       * The static type stays the tree, which is what every document that was not sent compact
+       * carries and what every reader of it expects. Widening it would put a `getResolvedRef` in
+       * front of a hop that is absent by default; a consumer that turns `compact` on resolves the
+       * navigation before reading it.
+       */
+      [extensions.document.navigation]: Type.Union([
+        TraversedDocumentObjectRef,
+        ReferenceObjectSchema,
+      ]) as unknown as typeof TraversedDocumentObjectRef,
     }),
   ),
   XScalarOriginalSourceUrlSchema,

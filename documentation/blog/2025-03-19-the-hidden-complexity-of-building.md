@@ -1,3 +1,7 @@
+---
+date: 2025-03-19
+---
+
 # The hidden complexity of building drag and drop
 
 When we rearrange things in the real world, we pick them up and put them down. Picking something up, moving it, and putting it down is the pattern we unconsciously rely on.

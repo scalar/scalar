@@ -68,6 +68,35 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 })
 ```
 
+### Render multiple pages
+
+Create a reusable renderer when exporting several pages from the same API description.
+It loads, upgrades, coerces, and resolves the document once. Each call uses the same selectors as
+`createMarkdownFromOpenApi`, and omitting a selector renders the complete document.
+
+```ts
+import { createOpenApiMarkdownRenderer } from '@scalar/openapi-to-markdown'
+
+const renderer = await createOpenApiMarkdownRenderer(content)
+
+const introduction = await renderer.render({ introduction: true })
+const operation = await renderer.render({
+  operation: { path: '/users/{id}', method: 'get' },
+})
+const tag = await renderer.render({ tag: 'Users' })
+const model = await renderer.render({ model: 'User' })
+const webhook = await renderer.render({
+  webhook: { name: 'userCreated', method: 'post' },
+})
+```
+
+The factory accepts the same document objects, JSON/YAML strings, file paths, and URLs
+as the one-shot functions. Source files and URLs are read during creation, including
+references. Create a new renderer when the source changes. Reuse one renderer per API
+description during a build, then release it when the build finishes. Renderers do not
+share a global document cache. An invalid selection rejects that call without preventing
+later calls on the same renderer.
+
 ### With Hono
 
 You use the package with any Node.js framework. Here is an example for [Hono](https://hono.dev/):
@@ -94,43 +123,21 @@ app.get('/llms.txt', (c) => c.text(markdown))
 serve(app)
 ```
 
-### Generate HTML
+### Markdown rendering
 
-This is not really the purpose of the package, but maybe good to know: This package actually renders HTML at first, and
-transforms the HTML to Markdown then.
+The renderer constructs a Markdown syntax tree directly from the resolved API description.
+It preserves Markdown descriptions, GFM tables and code blocks without rendering a Vue app
+or converting the generated document through HTML. Descriptions containing raw HTML or
+Scalar alerts use a separate sanitization and conversion path. Images remain excluded.
 
-So if you'd like to have a really light-weight HTML API Reference, here you are:
+Schema normalization and description parsing are cached within each renderer. Recursive
+schema expansion still tracks ancestors and stops at a depth of ten. Output may use tighter
+list spacing and normalized Markdown escaping compared with earlier versions.
 
-```ts
-import { createHtmlFromOpenApi } from '@scalar/openapi-to-markdown'
-import { Hono } from 'hono'
+### HTML output
 
-// Generate HTML from an OpenAPI document
-const html = await createHtmlFromOpenApi(content)
-
-const app = new Hono()
-
-app.get('/', (c) =>
-  c.html(
-    `<!doctype html>
-<html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8" />
-  <title>Scalar Galaxy</title>
-  <!-- Basic styling for semantic HTML tags (optional) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-</head>
-<body>
-  <main class="container">
-    ${html}
-  </main>
-</body>
-</html>`,
-  ),
-)
-
-serve(app)
-```
+`createHtmlFromOpenApi` and `renderer.renderHtml` remain available. They convert the
+Markdown output to HTML on demand, without loading a Vue renderer.
 
 ## Community
 
@@ -142,7 +149,7 @@ The source code in this repository is licensed under [MIT](https://github.com/sc
 
 ## Individual reference pages
 
-Both `createMarkdownFromOpenApi` and `createHtmlFromOpenApi` accept the same options. Choose one selector per call:
+`createMarkdownFromOpenApi` and `renderer.render` accept the same selection options. Choose one selector per call:
 
 ```ts
 await createMarkdownFromOpenApi(content, { tag: 'pets' })
@@ -151,7 +158,9 @@ await createMarkdownFromOpenApi(content, {
   webhook: { name: 'petCreated', method: 'post' },
 })
 await createMarkdownFromOpenApi(content, { introduction: true })
-await createHtmlFromOpenApi(content, { operation: { operationId: 'getUser' } })
+await createMarkdownFromOpenApi(content, {
+  operation: { operationId: 'getUser' },
+})
 ```
 
 - **Operation:** One operation, effective parameters, servers and authentication, its tags, and referenced component schemas. Existing path/method, operation ID, and JSON pointer selectors still work. Methods are case insensitive.

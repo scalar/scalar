@@ -17,6 +17,9 @@ export default {
 }
 
 export type OperationBlockProps = {
+  /** Keep execution and editing unavailable until the selected payload is ready. */
+  externalExamplesPending?: boolean
+  externalExamplesFailed?: boolean
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Application version */
@@ -91,6 +94,7 @@ export type OperationBlockProps = {
 </script>
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/blocks/code-example'
+import { ScalarButton } from '@scalar/components/button'
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
@@ -135,6 +139,7 @@ import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -161,6 +166,8 @@ import type { ClientLayout } from '@/v2/types/layout'
 import Header from './components/Header.vue'
 
 const {
+  externalExamplesPending = false,
+  externalExamplesFailed = false,
   authMeta,
   environment,
   eventBus,
@@ -193,6 +200,8 @@ const {
   securityRequirements,
   defaultHeaders,
 } = defineProps<OperationBlockProps>()
+
+defineEmits<{ (e: 'retry:externalExamples'): void }>()
 
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
@@ -291,6 +300,7 @@ const copyAddressBarUrl = async (): Promise<void> => {
 
 /** Execute the current operation example */
 const handleExecute = async () => {
+  if (externalExamplesPending) return
   eventBus.flushDebouncedEmits?.()
 
   if (isWebhook && !requestPath.value.trim()) {
@@ -690,6 +700,7 @@ onBeforeUnmount(() => {
         :environments
         :eventBus
         :exampleKey
+        :executionDisabled="externalExamplesPending"
         :hideClientButton
         :history="operationHistory"
         :integration
@@ -710,7 +721,27 @@ onBeforeUnmount(() => {
     <ViewLayout class="border-t">
       <ViewLayoutContent class="flex-1">
         <!-- Request Section -->
+        <ViewLayoutSection
+          v-if="externalExamplesPending"
+          aria-label="Request">
+          <template #title>Request</template>
+          <div
+            class="text-c-2 p-4"
+            role="status">
+            <template v-if="externalExamplesFailed">
+              Could not load this example.
+              <ScalarButton
+                size="sm"
+                variant="ghost"
+                @click="$emit('retry:externalExamples')">
+                Retry
+              </ScalarButton>
+            </template>
+            <template v-else>Loading example…</template>
+          </div>
+        </ViewLayoutSection>
         <RequestBlock
+          v-else
           :authMeta
           :clientOptions
           :defaultHeaders
@@ -742,6 +773,7 @@ onBeforeUnmount(() => {
         <ResponseBlock
           :appVersion
           :eventBus
+          :executionDisabled="externalExamplesPending"
           :layout
           :plugins
           :requestPayload

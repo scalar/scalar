@@ -1,5 +1,15 @@
 # @scalar/json-magic
 
+## 0.14.0
+
+### Minor Changes
+
+- [#10241](https://github.com/scalar/scalar/pull/10241): Expose helpers for indexing locally embedded `$id` and `$anchor` resources and resolving a reference to its local path.
+
+### Patch Changes
+
+- [#10257](https://github.com/scalar/scalar/pull/10257): Resolve a relative reference reached through a local pointer during a partial bundle against the document origin; it was resolved against an empty base and failed.
+
 ## 0.13.5
 
 ### Patch Changes

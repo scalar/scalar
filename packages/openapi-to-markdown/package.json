@@ -16,15 +16,15 @@
     "llm",
     "swagger"
   ],
-  "version": "0.6.0",
+  "version": "1.0.2",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "tsx watch playground/index.ts",
     "test": "vitest --run",
-    "types:check": "vue-tsc --noEmit"
+    "types:check": "tsgo --noEmit"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -34,16 +34,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
     }
   },
   "files": [
@@ -51,28 +41,26 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/components": "workspace:*",
+    "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.1",
     "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "remark-stringify": "^11.0.0",
-    "unified": "^11.0.5",
-    "vue": "catalog:*"
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@hono/node-server": "catalog:*",
     "@scalar/galaxy": "workspace:*",
-    "@types/html-minifier-terser": "^7.0.2",
-    "@vitejs/plugin-vue": "catalog:*",
-    "@vue/test-utils": "catalog:*",
+    "@types/mdast": "^4.0.4",
     "hono": "catalog:*",
-    "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "vue": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

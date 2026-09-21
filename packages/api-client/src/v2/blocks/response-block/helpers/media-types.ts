@@ -187,6 +187,15 @@ export function getMediaTypeConfig(type: string): MediaConfig | undefined {
     }
   }
 
+  // Preserve specialized XML previews above, while treating other +xml types as text.
+  if (type.endsWith('+xml')) {
+    return {
+      extension: '.xml',
+      raw: true,
+      language: 'xml',
+    }
+  }
+
   return undefined
 }
 
