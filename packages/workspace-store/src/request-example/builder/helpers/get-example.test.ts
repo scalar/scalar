@@ -184,17 +184,17 @@ describe('content-based parameters', () => {
       in: 'query',
       // @ts-expect-error - this is a test
       examples: {
-        default: { value: { status: null, labels: [] }, 'x-disabled': false },
+        default: { value: { status: 'from-param' }, 'x-disabled': false },
       },
       content: {
         'application/json': {
-          example: { status: null, labels: [] },
+          example: { status: 'from-content' },
         },
       },
     } satisfies ParameterWithContentObject
 
     const result = getExample(param, 'default', 'application/json')
-    expect(result).toEqual({ value: { status: null, labels: [] }, 'x-disabled': false })
+    expect(result).toEqual({ value: { status: 'from-param' }, 'x-disabled': false })
   })
 
   it('returns undefined when no example is found in content', () => {

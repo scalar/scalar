@@ -40,6 +40,8 @@ const getExampleFromExamples = (
  * Or the [deprecated] `example` field.
  * If no exampleKey is provided it will fallback to the first example in the examples object then the [deprecated]
  * `example` field.
+ * When the parameter carries both its own `examples`/`example` and a `content` object, the parameter-level value
+ * takes priority, since that combination only occurs after a user edit is written to the parameter's own examples.
  * Used both for send-request and generating code snippets.
  */
 export const getExample = (
