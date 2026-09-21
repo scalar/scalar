@@ -3,35 +3,43 @@ import { serveExample } from '@test/utils/serve-example'
 
 test.describe('multi-document selector search', () => {
   test('filters titles, supports keyboard selection, and preserves document routing', async ({ page }) => {
+    const sources = [
+      {
+        title: '用户 API',
+        slug: 'users',
+        content: {
+          openapi: '3.1.1',
+          info: { title: '用户 API', version: '1.0.0' },
+          paths: { '/users': { get: { summary: 'List users' } } },
+        },
+      },
+      {
+        title: 'Billing API',
+        slug: 'billing',
+        content: {
+          openapi: '3.1.1',
+          info: { title: 'Billing API', version: '1.0.0' },
+          paths: { '/invoices': { get: { summary: 'List invoices' } } },
+        },
+      },
+      {
+        title: '设备 API',
+        slug: 'devices',
+        content: {
+          openapi: '3.1.1',
+          info: { title: '设备 API', version: '1.0.0' },
+          paths: { '/devices': { get: { summary: 'List devices' } } },
+        },
+      },
+    ]
     const example = await serveExample({
       sources: [
-        {
-          title: '用户 API',
-          slug: 'users',
-          content: {
-            openapi: '3.1.1',
-            info: { title: '用户 API', version: '1.0.0' },
-            paths: { '/users': { get: { summary: 'List users' } } },
-          },
-        },
-        {
-          title: 'Billing API',
-          slug: 'billing',
-          content: {
-            openapi: '3.1.1',
-            info: { title: 'Billing API', version: '1.0.0' },
-            paths: { '/invoices': { get: { summary: 'List invoices' } } },
-          },
-        },
-        {
-          title: '设备 API',
-          slug: 'devices',
-          content: {
-            openapi: '3.1.1',
-            info: { title: '设备 API', version: '1.0.0' },
-            paths: { '/devices': { get: { summary: 'List devices' } } },
-          },
-        },
+        ...sources,
+        ...sources.map((source, index) => ({
+          ...source,
+          title: `Additional document ${index + 1}`,
+          slug: `additional-${source.slug}`,
+        })),
       ],
     })
 
@@ -42,7 +50,7 @@ test.describe('multi-document selector search', () => {
     await selector.getByRole('button').click()
 
     const input = selector.getByRole('combobox')
-    await expect(selector.getByRole('option')).toHaveCount(3)
+    await expect(selector.getByRole('option')).toHaveCount(6)
 
     await input.fill('Billing')
     await expect(selector.getByRole('option')).toHaveCount(1)
@@ -57,7 +65,7 @@ test.describe('multi-document selector search', () => {
     await expect(selector.getByRole('option')).toHaveCount(0)
 
     await input.fill('')
-    await expect(selector.getByRole('option')).toHaveCount(3)
+    await expect(selector.getByRole('option')).toHaveCount(6)
     await input.press('ArrowDown')
     await input.press('Enter')
 

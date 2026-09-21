@@ -13,6 +13,9 @@ const options = [
   { id: 'users', label: '用户 API' },
   { id: 'billing', label: 'Billing API' },
   { id: '设备', label: '设备 API' },
+  { id: 'orders', label: 'Orders API' },
+  { id: 'products', label: 'Products API' },
+  { id: 'shipping', label: 'Shipping API' },
 ]
 
 describe('DocumentSelector', () => {
@@ -25,7 +28,7 @@ describe('DocumentSelector', () => {
     await wrapper.get('button').trigger('click')
 
     const input = wrapper.get('input[role="combobox"]')
-    expect(wrapper.findAll('[role="option"]')).toHaveLength(3)
+    expect(wrapper.findAll('[role="option"]')).toHaveLength(6)
     expect(input.attributes('placeholder')).toBe('Search...')
     expect(input.attributes('aria-label')).toBe('Enter search query')
 
@@ -38,7 +41,7 @@ describe('DocumentSelector', () => {
     expect(wrapper.get('[role="option"]').text()).toContain('设备 API')
 
     await input.setValue('')
-    expect(wrapper.findAll('[role="option"]')).toHaveLength(3)
+    expect(wrapper.findAll('[role="option"]')).toHaveLength(6)
   })
 
   it('shows an empty state without emitting a selection', async () => {
@@ -54,6 +57,20 @@ describe('DocumentSelector', () => {
     expect(wrapper.get('[role="status"]').text()).toBe('No results found')
     expect(wrapper.findAll('[role="option"]')).toHaveLength(0)
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it.each([2, 5])('shows documents without a search input for %i entries', async (count) => {
+    const wrapper = mount(DocumentSelector, {
+      props: { options: options.slice(0, count), modelValue: 'users' },
+      attachTo: document.body,
+    })
+
+    await wrapper.get('button').trigger('click')
+
+    expect(wrapper.find('input').exists()).toBe(false)
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toStrictEqual(
+      options.slice(0, count).map((option) => option.label),
+    )
   })
 
   it('keeps the selector hidden for a single document', () => {
