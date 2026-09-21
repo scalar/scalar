@@ -4,11 +4,11 @@ import { join, relative } from 'node:path'
 import { cwd } from 'node:process'
 
 import { getActiveOpenApiDocument } from '@test/helpers'
-import fastify, { type FastifyInstance } from 'fastify'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import fastify from 'fastify'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
-import { CHUNK_INDEX_KEY, expandChunkIndex } from '@/helpers/chunk-index'
+import { CHUNK_INDEX_KEY, type ChunkIndex, expandChunkIndex } from '@/helpers/chunk-index'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
@@ -46,7 +46,7 @@ vi.mock('@/navigation', async (importOriginal) => {
 })
 
 /** A document exercising everything the index has to carry across unchanged. */
-const getDocument = () => ({
+const documentFixture = {
   openapi: '3.1.0',
   info: { title: 'Chunked API', version: '1.0.0' },
   components: {
@@ -97,7 +97,9 @@ const getDocument = () => ({
   webhooks: {
     newUser: { post: { summary: 'A user was created', responses: { '200': { description: 'OK' } } } },
   },
-})
+}
+
+const getDocument = (): typeof documentFixture => structuredClone(documentFixture)
 
 /** What the browser actually receives, so a comparison is not fooled by `undefined` or a proxy. */
 const onTheWire = (document: unknown): Record<string, unknown> => JSON.parse(JSON.stringify(document))
@@ -128,25 +130,25 @@ describe('chunk-index', () => {
     createNavigationSpy.mockClear()
   })
 
-  describe.each(['static', 'ssr'] as const)('%s mode', (mode) => {
-    // Braces survive `encodeChunkName`, so they exercise the template's brace escaping; the space
-    // exercises the encoding itself.
-    const name = 'my {doc}'
-    const navigationRef =
-      mode === 'static'
-        ? './chunks/my~x20~{doc}/navigation.json#'
-        : 'https://cdn.example.com/workspace/my {doc}/navigation#'
+  // Braces and spaces exercise template escaping and filename encoding in both modes.
+  const name = 'my {doc}'
+  const modes = [
+    { mode: 'static', navigationRef: './chunks/my~x20~{doc}/navigation.json#' },
+    { mode: 'ssr', navigationRef: 'https://cdn.example.com/workspace/my {doc}/navigation#' },
+  ] as const
 
-    it('sends an index in place of the chunk references', async () => {
-      const { compact } = await buildDocuments(mode, name, 'assets')
+  it.each(modes)('sends an index in place of the chunk references in $mode mode', async ({ mode, navigationRef }) => {
+    const { compact } = await buildDocuments(mode, name, 'assets')
 
-      expect(compact['paths']).toBeUndefined()
-      expect(compact['components']).toBeUndefined()
-      expect(compact[CHUNK_INDEX_KEY]).toMatchObject({ mode })
-      expect(compact['x-scalar-navigation']).toEqual({ '$ref': navigationRef, $global: true })
-    })
+    expect(compact['paths']).toBeUndefined()
+    expect(compact['components']).toBeUndefined()
+    expect((compact[CHUNK_INDEX_KEY] as ChunkIndex).mode).toBe(mode)
+    expect(compact['x-scalar-navigation']).toStrictEqual({ '$ref': navigationRef, $global: true })
+  })
 
-    it('expands to the document a non-compact store would have sent', async () => {
+  it.each(modes)(
+    'expands to the document a non-compact store would have sent in $mode mode',
+    async ({ mode, navigationRef }) => {
       const { sparse, compact } = await buildDocuments(mode, name, 'assets')
 
       const store = createWorkspaceStore()
@@ -164,46 +166,44 @@ describe('chunk-index', () => {
       )
 
       // Navigation is the one intended difference: a reference to a chunk rather than the tree.
-      expect(expanded['x-scalar-navigation']).toEqual({ '$ref': navigationRef, $global: true })
+      expect(expanded['x-scalar-navigation']).toStrictEqual({ '$ref': navigationRef, $global: true })
       delete expanded['x-scalar-navigation']
       delete reference['x-scalar-navigation']
 
       // The client hashes the bytes it was handed, and the two wire forms are deliberately
       // different bytes.
-      expect(expanded['x-scalar-original-document-hash']).toEqual(expect.any(String))
-      expect(reference['x-scalar-original-document-hash']).toEqual(expect.any(String))
+      expect(expanded['x-scalar-original-document-hash']).toStrictEqual(expect.any(String))
+      expect(reference['x-scalar-original-document-hash']).toStrictEqual(expect.any(String))
       delete expanded['x-scalar-original-document-hash']
       delete reference['x-scalar-original-document-hash']
 
-      expect(expanded).toEqual(reference)
+      expect(expanded).toStrictEqual(reference)
       expect(expanded[CHUNK_INDEX_KEY]).toBeUndefined()
-    })
+    },
+  )
 
-    it('keeps the path-item keys that were never externalized', async () => {
-      const { compact } = await buildDocuments(mode, name, 'assets')
+  it.each(modes)('keeps the path-item keys that were never externalized in $mode mode', async ({ mode }) => {
+    const { compact } = await buildDocuments(mode, name, 'assets')
 
-      const store = createWorkspaceStore()
-      await store.addDocument({ name, document: compact })
-      const paths = getActiveOpenApiDocument(store)?.paths as Record<string, Record<string, unknown>>
+    const store = createWorkspaceStore()
+    await store.addDocument({ name, document: compact })
+    const paths = getActiveOpenApiDocument(store)?.paths as Record<string, Record<string, unknown>>
 
-      expect(paths['/users']?.['summary']).toBe('Users')
-      expect(paths['/users']?.['description']).toBe('Everything about users')
-      expect(paths['/users']?.['servers']).toEqual([{ url: 'https://example.com' }])
-      expect((paths['/users']?.['parameters'] as { $ref: string }[])[0]?.$ref).toBe('#/components/parameters/PageSize')
-      expect(paths['/users']?.['x-internal']).toEqual({ team: 'core' })
-      // The `$ref` path item is externalized per operation, so its reference plumbing is gone and
-      // the summary it merged in stays.
-      expect(paths['/shared']?.['$ref']).toBeUndefined()
-      expect(paths['/shared']?.['summary']).toBe('A shared path item')
-    })
+    expect(paths['/users']?.['summary']).toBe('Users')
+    expect(paths['/users']?.['description']).toBe('Everything about users')
+    expect(paths['/users']?.['servers']).toStrictEqual([{ url: 'https://example.com' }])
+    expect((paths['/users']?.['parameters'] as { $ref: string }[])[0]?.$ref).toBe('#/components/parameters/PageSize')
+    expect(paths['/users']?.['x-internal']).toStrictEqual({ team: 'core' })
+    // The `$ref` path item is externalized per operation, so its reference plumbing is gone and
+    // the summary it merged in stays.
+    expect(paths['/shared']?.['$ref']).toBeUndefined()
+    expect(paths['/shared']?.['summary']).toBe('A shared path item')
+  })
 
-    it('leaves webhooks on the document', async () => {
-      const { compact } = await buildDocuments(mode, name, 'assets')
+  it.each(modes)('leaves webhooks on the document in $mode mode', async ({ mode }) => {
+    const { compact } = await buildDocuments(mode, name, 'assets')
 
-      expect((compact['webhooks'] as Record<string, unknown>)['newUser']).toMatchObject({
-        post: { summary: 'A user was created' },
-      })
-    })
+    expect(compact['webhooks']).toStrictEqual(getDocument().webhooks)
   })
 
   it('skips bundling, coercion and navigation generation for a compact document', async () => {
@@ -241,8 +241,9 @@ describe('chunk-index', () => {
 
     const document = getActiveOpenApiDocument(store)
     expect(document?.[CHUNK_INDEX_KEY as keyof typeof document]).toBeUndefined()
-    expect(getPathItemOperation(document?.paths?.['/users'], 'get')).toEqual({
+    expect(getPathItemOperation(document?.paths?.['/users'], 'get')).toStrictEqual({
       '$ref': './chunks/doc/operations/~1users/get.json#',
+      '$ref-value': undefined,
       $global: true,
     })
   })
@@ -255,9 +256,12 @@ describe('chunk-index', () => {
       documents: [{ name: 'doc', document: getDocument() }],
     })
 
-    expect(store.get('#/doc/navigation')).toMatchObject({ type: 'document', name: 'doc' })
+    const { sparse } = await buildDocuments('ssr', 'doc', 'assets')
+    expect(onTheWire(store.get('#/doc/navigation'))).toStrictEqual(sparse['x-scalar-navigation'])
     // The resolved document keeps its navigation whole; only the wire form externalizes it.
-    expect(store.getResolvedDocument('doc')?.['x-scalar-navigation']).toMatchObject({ type: 'document' })
+    expect(onTheWire(store.getResolvedDocument('doc')?.['x-scalar-navigation'])).toStrictEqual(
+      sparse['x-scalar-navigation'],
+    )
   })
 
   it('writes the navigation chunk in static mode', async () => {
@@ -273,7 +277,8 @@ describe('chunk-index', () => {
       await store.generateWorkspaceChunks()
 
       const navigation: unknown = JSON.parse(await fs.readFile(join(fixture, 'chunks/doc/navigation.json'), 'utf8'))
-      expect(navigation).toMatchObject({ type: 'document', name: 'doc' })
+      const { sparse } = await buildDocuments('static', 'doc', 'assets')
+      expect(navigation).toStrictEqual(sparse['x-scalar-navigation'])
 
       // Every reference the client rebuilds has to name a file the writer produced, which is what
       // makes sharing `encodeChunkName` between the two sides load-bearing rather than tidy.
@@ -314,22 +319,14 @@ describe('chunk-index', () => {
       await fs.rm(fixture, { recursive: true, force: true })
     }
   })
-})
 
-describe('chunk-index round trip', () => {
-  let server: FastifyInstance
-  const port = 9991
-  const url = `http://localhost:${port}`
-
-  beforeEach(() => {
-    server = fastify({ logger: false })
-
-    return async () => {
+  it('resolves the same chunks as a non-compact document, and the navigation only on request', async ({
+    onTestFinished,
+  }) => {
+    const server = fastify({ logger: false })
+    onTestFinished(async () => {
       await server.close()
-    }
-  })
-
-  it('resolves the same chunks as a non-compact document, and the navigation only on request', async () => {
+    })
     const dir = `scalar-compact-${Date.now()}`
     const basePath = `${cwd()}/${dir}`
 
@@ -357,45 +354,53 @@ describe('chunk-index round trip', () => {
       const content = files.get(decodeURIComponent(req.url))
       return content === undefined ? res.code(404).send() : res.send(content)
     })
-    await server.listen({ port })
+    const url = await server.listen({ port: 0, host: '127.0.0.1' })
 
     try {
       const store = createWorkspaceStore()
       await store.addDocument({ name: 'default', url: `${url}/default.json` })
 
       // Nothing beyond the document itself is loaded up front — the navigation included
-      expect(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get')).toEqual({
+      expect(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get')).toStrictEqual({
         '$ref': './chunks/default/operations/~1users/get.json#',
+        '$ref-value': undefined,
         $global: true,
       })
-      expect(requests).toEqual(['/default.json'])
+      expect(requests).toStrictEqual(['/default.json'])
 
       await store.resolve(['paths', '/users', 'get'])
 
-      const get = getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any
-      expect(get['$ref-value'].summary).toBe('Get all users')
-      expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
-      expect(requests.slice(1).sort()).toEqual([
+      const operation = getResolvedRef(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get'))
+      expect(operation?.summary).toBe('Get all users')
+      const expectedSchema = { type: 'object', properties: { id: { type: 'string' } } }
+      expect(getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.['User'])).toStrictEqual(
+        expectedSchema,
+      )
+      expect(requests.slice(1).sort()).toStrictEqual([
         '/chunks/default/components/schemas/User.json',
         '/chunks/default/operations/~1users/get.json',
       ])
 
       // A property referencing a shared component reaches the schema through its stub
-      const items = get['$ref-value'].responses[200].content['application/json'].schema.items
+      const response = getResolvedRef(operation?.responses?.['200'])
+      const schema = getResolvedRef(response?.content?.['application/json']?.schema)
+      assert(schema && typeof schema === 'object' && 'items' in schema)
+      const items = schema.items
+      assert(items && typeof items === 'object' && '$ref' in items)
       expect(items.$ref).toBe('#/components/schemas/User')
-      expect(getResolvedRef(items)).toMatchObject({ type: 'object' })
+      expect(getResolvedRef(items)).toStrictEqual(expectedSchema)
 
       // A second operation using the same schema costs one request, its own chunk
       await store.resolve(['paths', '/users', 'post'])
-      expect(requests.slice(3)).toEqual(['/chunks/default/operations/~1users/post.json'])
+      expect(requests.slice(3)).toStrictEqual(['/chunks/default/operations/~1users/post.json'])
 
       // The navigation is a chunk like any other: not fetched until it is asked for
       await store.resolve(['x-scalar-navigation'])
-      expect(requests.slice(4)).toEqual(['/chunks/default/navigation.json'])
-      expect(getResolvedRef(getActiveOpenApiDocument(store)?.['x-scalar-navigation'] as never)).toMatchObject({
-        type: 'document',
-        name: 'default',
-      })
+      expect(requests.slice(4)).toStrictEqual(['/chunks/default/navigation.json'])
+      const { sparse } = await buildDocuments('static', 'default', 'assets')
+      expect(getResolvedRef(getActiveOpenApiDocument(store)?.['x-scalar-navigation'])).toStrictEqual(
+        sparse['x-scalar-navigation'],
+      )
     } finally {
       await fs.rm(basePath, { recursive: true, force: true })
     }
