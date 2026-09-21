@@ -267,6 +267,33 @@ await store.addDocument({
 console.log(store.workspace.documents.default)
 ```
 
+#### Non-reactive mode
+
+By default the workspace is wrapped in Vue's `reactive` and in a change-detection proxy, so a write re-runs Vue effects and is broadcast to every registered plugin. A read-mostly consumer pays for both on every property read and gets nothing back for it — a server render, for example, walks one document across thousands of pages, mutates nothing and observes nothing.
+
+Pass `reactive: false` to get the same store API on plain objects:
+
+```ts
+const store = createWorkspaceStore({ reactive: false })
+
+// Hydrate from a workspace another store exported. Nothing is re-processed here.
+store.loadWorkspace(exportedWorkspace)
+
+// Everything reads exactly as it does by default, `$ref-value` included
+store.workspace.activeDocument?.paths?.['/users']?.get
+```
+
+Documents are still wrapped in the magic proxy, so reference resolution is unchanged, and the whole API — `addDocument`, `loadWorkspace`, `exportWorkspace`, `update`, `updateDocument`, `replaceDocument`, `resolve`, `auth` and the rest — keeps working. Writes take effect and are visible on the next read. They simply notify nobody:
+
+- Plugins receive no `onWorkspaceStateChanges` events for the workspace metadata, its documents, `originalDocuments`, `intermediateDocuments` or `overrides`. The auth and history stores keep their own reactivity and still fire their events, and `deleteDocument` still fires its own event.
+- There is no automatic dirty tracking. `x-scalar-is-dirty` changes only where the store writes it directly, in `saveDocument`, `replaceDocument` and `rebaseDocument`.
+- `getDocumentRevision` stays `0` for every document, because it counts the writes the change hooks see.
+- Vue effects and computeds that read the workspace never re-run.
+
+A document is also left unwrapped by the overrides proxy unless it actually has overrides, which leaves the magic proxy as the only hop on a read.
+
+Use this for a server render, or any other consumer that loads documents and then only reads them. Anything that renders the workspace in Vue, or relies on plugins to persist changes, wants the default.
+
 #### Document Persistence and Export
 
 The workspace store keeps two snapshots per document at runtime: the **original** (the last saved baseline that the user committed to with `saveDocument`) and the **active** document (the reactive in-memory state, which may include unsaved edits). Most persistence methods are anchored on those two snapshots.
