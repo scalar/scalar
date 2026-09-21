@@ -189,33 +189,35 @@ export const expandChunkIndex = (document: unknown): boolean => {
 
   const encoders = SLOT_ENCODERS[index.mode]
 
-  const components: Record<string, Record<string, unknown>> = {}
-  for (const [type, names] of Object.entries(index.components)) {
-    const entries: Record<string, unknown> = {}
+  // Define own properties so document keys such as `__proto__` remain data, without invoking
+  // inherited setters or changing the prototype of any expanded object.
+  const components = Object.fromEntries(
+    Object.entries(index.components).map(([type, names]) => [
+      type,
+      Object.fromEntries(
+        names.map((name) => [
+          name,
+          chunkReference(fillChunkRef(index.refs.components, { type: encoders.type(type), name: encoders.name(name) })),
+        ]),
+      ),
+    ]),
+  )
 
-    for (const name of names) {
-      entries[name] = chunkReference(
-        fillChunkRef(index.refs.components, { type: encoders.type(type), name: encoders.name(name) }),
-      )
-    }
-
-    components[type] = entries
-  }
-
-  const paths: Record<string, Record<string, unknown>> = {}
-  for (const [path, pathItem] of Object.entries(index.paths)) {
-    const entries: Record<string, unknown> = {}
-
-    for (const [key, value] of Object.entries(pathItem)) {
-      entries[key] = isHttpMethod(key)
-        ? chunkReference(
-            fillChunkRef(index.refs.operations, { path: encoders.path(path), method: encoders.method(key) }),
-          )
-        : value
-    }
-
-    paths[path] = entries
-  }
+  const paths = Object.fromEntries(
+    Object.entries(index.paths).map(([path, pathItem]) => [
+      path,
+      Object.fromEntries(
+        Object.entries(pathItem).map(([key, value]) => [
+          key,
+          isHttpMethod(key)
+            ? chunkReference(
+                fillChunkRef(index.refs.operations, { path: encoders.path(path), method: encoders.method(key) }),
+              )
+            : value,
+        ]),
+      ),
+    ]),
+  )
 
   document['components'] = components
   document['paths'] = paths

@@ -343,10 +343,19 @@ describe('chunk-index round trip', () => {
 
     await fs.writeFile(`${basePath}/default.json`, JSON.stringify(serverStore.getWorkspace().documents['default']))
 
+    // Read the generated fixtures once so requests only access a fixed set of in-memory files.
+    const files = new Map<string, string>(
+      await Promise.all(
+        (await fs.readdir(basePath, { recursive: true }))
+          .filter((path) => path.endsWith('.json'))
+          .map(async (path) => [`/${path}`, await fs.readFile(join(basePath, path), 'utf-8')] as const),
+      ),
+    )
     const requests: string[] = []
-    server.get('/*', async (req, res) => {
+    server.get('/*', (req, res) => {
       requests.push(req.url)
-      res.send(await fs.readFile(`${basePath}${decodeURIComponent(req.url)}`, 'utf-8'))
+      const content = files.get(decodeURIComponent(req.url))
+      return content === undefined ? res.code(404).send() : res.send(content)
     })
     await server.listen({ port })
 
