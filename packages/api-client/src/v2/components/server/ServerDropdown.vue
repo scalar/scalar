@@ -61,7 +61,8 @@ const requestServerOptions = computed(() =>
   servers.map((s) => ({
     id: s.url,
     // Prefer the server name (OpenAPI 3.2) as a friendly label, falling back to the URL
-    label: s.name || s.url || translate('apiClient.serverDropdown.unknownServer'),
+    label:
+      s.name || s.url || translate('apiClient.serverDropdown.unknownServer'),
   })),
 )
 
