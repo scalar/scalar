@@ -20,7 +20,7 @@ describe('RequestTable', () => {
     editor.focus()
     editor.textContent = 'x-demo-header'
     await key.trigger('input')
-    expect(wrapper.emitted('upsertRow')).toEqual([[0, { name: 'x-demo-header', value: '', isDisabled: true }]])
+    expect(wrapper.emitted('upsertRow')).toStrictEqual([[0, { name: 'x-demo-header', value: '', isDisabled: true }]])
 
     const saved = {
       name: 'x-demo-header',
@@ -30,7 +30,7 @@ describe('RequestTable', () => {
     }
     await wrapper.setProps({ data: [saved] })
     expect(document.activeElement).toBe(editor)
-    expect(wrapper.findAll('[aria-label="Header Key"][contenteditable]').map((input) => input.text())).toEqual([
+    expect(wrapper.findAll('[aria-label="Header Key"][contenteditable]').map((input) => input.text())).toStrictEqual([
       'x-demo-header',
       '',
     ])
@@ -38,15 +38,17 @@ describe('RequestTable', () => {
     // Clicking the checkbox blurs the key first. This must not submit the placeholder again.
     await key.trigger('blur')
     await wrapper.get('input[aria-label="Include x-demo-header in request"]').setValue(false)
-    expect(wrapper.emitted('upsertRow')).toEqual([
+    expect(wrapper.emitted('upsertRow')).toStrictEqual([
       [0, { name: 'x-demo-header', value: '', isDisabled: true }],
       [0, { name: 'x-demo-header', value: '', isDisabled: true }],
     ])
     await wrapper.setProps({ data: [{ ...saved, isDisabled: true }] })
     await wrapper.get('button[aria-label="Delete x-demo-header"]').trigger('click')
-    expect(wrapper.emitted('deleteRow')).toEqual([[0]])
+    expect(wrapper.emitted('deleteRow')).toStrictEqual([[0]])
     await wrapper.setProps({ data: [] })
-    expect(wrapper.findAll('[aria-label="Header Key"][contenteditable]').map((input) => input.text())).toEqual([''])
+    expect(wrapper.findAll('[aria-label="Header Key"][contenteditable]').map((input) => input.text())).toStrictEqual([
+      '',
+    ])
     wrapper.unmount()
   })
 
