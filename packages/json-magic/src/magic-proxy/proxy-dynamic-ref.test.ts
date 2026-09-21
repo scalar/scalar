@@ -203,4 +203,52 @@ describe('proxy-dynamic-ref', () => {
     // And one level deeper, the same node resolves to that very same proxy.
     expect(boundOnce.properties.children.items['$dynamicRef-value']).toBe(boundOnce)
   })
+
+  it('reuses scoped proxies across repeated reads of 64 bindings', () => {
+    const document = {
+      template: {
+        $id: 'urn:template',
+        $defs: { item: { $dynamicAnchor: 'item' } },
+        properties: { items: { type: 'array', items: { $dynamicRef: '#item' } } },
+      },
+      bindings: Object.fromEntries(
+        Array.from({ length: 64 }, (_, index) => [
+          `binding${index}`,
+          {
+            $id: `urn:binding:${index}`,
+            $ref: '#/template',
+            $defs: {
+              item: {
+                $dynamicAnchor: 'item',
+                title: `Item ${index}`,
+                type: 'object',
+                properties: { value: { type: 'string' } },
+              },
+            },
+          },
+        ]),
+      ),
+    }
+    const proxy = createMagicProxy(document)
+    const templates = new Set<object>()
+    const visited = new Set<object>()
+
+    for (let pass = 0; pass < 10; pass++) {
+      for (const [index, binding] of Object.values(proxy.bindings).entries()) {
+        const template = Reflect.get(binding, '$ref-value')
+        const properties = template.properties
+        const items = properties.items
+        const reference = items.items
+        const bound = Reflect.get(reference, '$dynamicRef-value')
+        expect(bound.title).toBe(`Item ${index}`)
+        templates.add(template)
+        for (const node of [template, properties, items, reference, bound, bound.properties, bound.properties.value]) {
+          visited.add(node)
+        }
+      }
+      // Seven accessed targets per binding; another read must not allocate new identities.
+      expect(templates.size).toBe(64)
+      expect(visited.size).toBe(448)
+    }
+  })
 })

@@ -6,6 +6,9 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 import type { MaybeRefSchemaObject, SchemaObject } from '@/schemas/v3.2/strict/schema'
 
+// Consumers resolve schema references through the store, including virtual dynamic bindings.
+export { DYNAMIC_REF_VALUE } from '@scalar/json-magic/magic-proxy'
+
 /**
  * A resolved schema is a read-only view.
  *

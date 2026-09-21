@@ -129,8 +129,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * Memoized answer to "does the document use `$dynamicRef` at all", computed lazily.
      *
      * The walk is only run the first time a resource that could carry a `$dynamicAnchor` is entered, so
-     * documents without any such resource (the vast majority) never pay for it. When the document has no
-     * `$dynamicRef`, dynamic-scope threading and the scope-keyed caching stay off entirely.
+     * documents without any such resource never pay for it. A resource with `$id` or `$defs` can still
+     * trigger one full scan even without a dynamic anchor. A negative result is shared by every child
+     * proxy, so subsequent resources do not repeat that scan or activate scoped caching.
      */
     dynamicRefsProbe: { value: boolean | undefined }
     /**
@@ -145,6 +146,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * plain `proxyCache` (one proxy per target) cannot be used. Keying by scope preserves referential
      * stability *within* a scope — which cycle detection and Vue rely on — while still returning distinct
      * proxies across scopes.
+     *
+     * There is no size cap or eviction: evicting a live entry would break identity on the next read.
+     * Entries are created lazily for visited `(scope, target)` pairs. Both cache levels use weak keys,
+     * so they do not retain a discarded document once its root and proxies are no longer reachable.
      */
     dynamicProxyCache: WeakMap<object, WeakMap<object, T>>
   } = {
@@ -187,9 +192,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
   // The dynamic scope handed to child proxies: grow it by this resource when it can carry a
   // `$dynamicAnchor` and the document actually uses `$dynamicRef`. The cheap `carriesDynamicAnchor` check
-  // comes first so `hasDynamicRefs` (a one-off document walk) is only probed for anchor-bearing resources
-  // — documents without any never pay for it. Grown scopes are interned so the same `(parentScope,
-  // resource)` yields one stable array identity for the caches.
+  // comes first so `hasDynamicRefs` (a one-off document walk) is only probed for candidate resources
+  // (`$id`, `$defs`, or `$dynamicAnchor`) — documents without any never pay for it. Grown scopes are
+  // interned so the same `(parentScope, resource)` yields one stable array identity for the caches.
   const childScope: DynamicScope =
     carriesDynamicAnchor(target as UnknownObject, args.dynamicScope) &&
     hasDynamicRefs() &&

@@ -1,5 +1,5 @@
-import { DYNAMIC_REF_VALUE } from '@scalar/json-magic/magic-proxy'
 import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
+import { DYNAMIC_REF_VALUE } from '@scalar/workspace-store/resolve'
 import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /**
