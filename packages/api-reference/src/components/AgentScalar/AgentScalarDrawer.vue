@@ -6,10 +6,11 @@ import type {
   ExternalUrls,
 } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { defineAsyncComponent } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
+
+import AgentScalarChatInterface from './AgentScalarChatInterface.vue'
 
 defineProps<{
   agentScalarConfiguration?: ApiReferenceConfigurationWithSource['agent']
@@ -19,10 +20,6 @@ defineProps<{
 
 const agentContext = useAgentContext()
 const { translate } = useLocalization()
-
-const AgentScalarChatInterface = defineAsyncComponent(
-  async () => import('./AgentScalarChatInterface.vue'),
-)
 </script>
 
 <template>
