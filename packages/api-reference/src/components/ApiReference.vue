@@ -49,7 +49,6 @@ import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
-import { unpackProxyShallow } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getActiveEnvironment,
   getServers,
@@ -62,7 +61,6 @@ import {
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
@@ -144,8 +142,6 @@ const props = defineProps<{
    * Can be a single configuration or an array of configurations for multiple documents.
    */
   configuration?: AnyApiReferenceConfiguration
-  /** Prepared document for server rendering only; its navigation name must match the configured slug. */
-  ssrDocument?: WorkspaceDocument
 }>()
 
 defineSlots<{
@@ -933,30 +929,7 @@ const addDocument: typeof workspaceStore.addDocument = async (
   input,
   navigationOptions,
 ) => {
-  const ssrDocument = isServerRendering ? props.ssrDocument : undefined
-  if (ssrDocument) {
-    if (ssrDocument['x-scalar-navigation']?.name !== input.name) {
-      throw new Error(
-        'The prepared SSR document navigation name must match the configured document slug.',
-      )
-    }
-    // Prepared documents already have their references and navigation. Unwrap before cloning so
-    // virtual $ref-value properties are not copied, and isolate each render from the reusable source.
-    workspaceStore.loadWorkspace({
-      documents: {
-        [input.name]: safeDeepClone(unpackProxyShallow(ssrDocument)),
-      },
-      meta: {},
-      originalDocuments: {},
-      intermediateDocuments: {},
-      overrides: {},
-      history: {},
-      auth: {},
-    })
-  }
-  const result = ssrDocument
-    ? true
-    : await workspaceStore.addDocument(input, navigationOptions)
+  const result = await workspaceStore.addDocument(input, navigationOptions)
 
   // The selected server lives only on the client store document. The user picks it in the
   // reference, it is never part of the imported source. Reloading the freshly imported document

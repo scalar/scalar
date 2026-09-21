@@ -3,9 +3,7 @@ import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
-import { slugify } from '@scalar/helpers/string/slugify'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { useServerSeoMeta } from '@unhead/vue'
 import { createHead, renderSSRHead } from '@unhead/vue/server'
 import { createSSRApp, h } from 'vue'
@@ -128,25 +126,8 @@ function mergeBodyAttrsWithInitialClass(bodyAttrs: string, initialBodyClass: 'da
 async function renderApiReferenceApp(options: {
   configuration: AnyApiReferenceConfiguration
   pageTitle?: string
-  document?: WorkspaceDocument
 }): Promise<{ html: string; head: RenderedSsrHead }> {
   const normalizedConfiguration = unwrapConfig(options.configuration)
-  if (options.document) {
-    const name = options.document['x-scalar-navigation']?.name
-    const configuredSlug = normalizedConfiguration.slug
-    // A title preserves an explicit slug; without a title the reference normalizes it.
-    const slug =
-      typeof configuredSlug === 'string' && !normalizedConfiguration.title ? slugify(configuredSlug) : configuredSlug
-    if (!name || slug !== name || Array.isArray(normalizedConfiguration.sources)) {
-      throw new Error(
-        'A prepared SSR document requires a single-source config with a slug matching its navigation name.',
-      )
-    }
-    const hasUrl = typeof normalizedConfiguration.url === 'string' && normalizedConfiguration.url.trim().length > 0
-    if (!hasUrl && !normalizedConfiguration.content) {
-      throw new Error('A prepared SSR document requires config.url or config.content for browser hydration.')
-    }
-  }
   const app = createSSRApp({
     setup: () => {
       const metaData = normalizedConfiguration.metaData
@@ -154,11 +135,7 @@ async function renderApiReferenceApp(options: {
         useServerSeoMeta(metaData as Parameters<typeof useServerSeoMeta>[0])
       }
 
-      return () =>
-        h(ApiReference, {
-          configuration: normalizedConfiguration,
-          ...(options.document ? { ssrDocument: options.document } : {}),
-        })
+      return () => h(ApiReference, { configuration: normalizedConfiguration })
     },
   })
   const head = createHeadInstance(options.pageTitle)
@@ -178,17 +155,12 @@ async function renderApiReferenceApp(options: {
  * Render the Scalar API Reference to an HTML string for server-side rendering.
  * Use createApiReference on the client to hydrate the server-rendered output.
  *
- * Pass options.document to reuse a prepared server-store document; config.slug must match its navigation name.
- *
  * Returns only the Vue-rendered HTML. Use generateBodyScript separately to get
  * the dark/light mode script — place it outside the app container so it does not
  * interfere with Vue hydration.
  */
-export async function renderApiReferenceToString(
-  configuration: AnyApiReferenceConfiguration,
-  options?: { document?: WorkspaceDocument },
-): Promise<string> {
-  const { html } = await renderApiReferenceApp({ configuration, document: options?.document })
+export async function renderApiReferenceToString(configuration: AnyApiReferenceConfiguration): Promise<string> {
+  const { html } = await renderApiReferenceApp({ configuration })
   return html
 }
 
@@ -424,12 +396,6 @@ export function serializeConfigToJs(config: Record<string, unknown>): string {
 export async function renderApiReference(options: {
   /** The API reference configuration. */
   config: AnyApiReferenceConfiguration
-  /**
-   * A prepared document from the server workspace store's getResolvedDocument().
-   * Reused only on the server; config remains the browser's source of truth.
-   * Its navigation name must match config.slug, with navigation built using the same options.
-   */
-  document?: WorkspaceDocument
   /** Page title. Defaults to "Scalar API Reference". */
   pageTitle?: string
   /** Override the built-in CSS. */
@@ -443,7 +409,6 @@ export async function renderApiReference(options: {
   const { html, head } = await renderApiReferenceApp({
     configuration: options.config,
     pageTitle: title,
-    document: options.document,
   })
   const bodyScript = generateBodyScript(options.config)
   const initialBodyClass = getInitialBodyClass(options.config)

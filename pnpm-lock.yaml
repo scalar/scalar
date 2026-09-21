@@ -2712,15 +2712,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
-      '@scalar/helpers':
-        specifier: workspace:*
-        version: link:../helpers
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
-      '@scalar/workspace-store':
-        specifier: workspace:*
-        version: link:../workspace-store
       '@unhead/vue':
         specifier: ^2.1.12
         version: 2.1.12(vue@3.5.40(typescript@5.9.3))

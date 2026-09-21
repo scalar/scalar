@@ -4,7 +4,6 @@ import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
-import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { type LoaderPlugin, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
@@ -143,27 +142,6 @@ const preserveBundledExternals = (source: Record<string, unknown>, target: Recor
     if (source[key] !== undefined) {
       target[key] = source[key]
     }
-  }
-}
-
-/**
- * TypeBox casting can reorder fixed fields into schema order. Keep authored operation order
- * when navigation is built from the coerced path items, including reusable path items and webhooks.
- * Only retained fields are reordered; fields discarded by coercion are not reintroduced.
- */
-const preservePathItemOrder = (pathItems: Record<string, unknown> | undefined, source: unknown): void => {
-  if (!pathItems || !isObject(source)) {
-    return
-  }
-  for (const [name, pathItem] of Object.entries(pathItems)) {
-    const original = source[name]
-    if (!isObject(pathItem) || !isObject(original)) {
-      continue
-    }
-    const keys = new Set([...Object.keys(original), ...Object.keys(pathItem)])
-    pathItems[name] = Object.fromEntries(
-      [...keys].filter((key) => Object.hasOwn(pathItem, key)).map((key) => [key, pathItem[key]]),
-    )
   }
 }
 
@@ -627,20 +605,9 @@ export async function createServerWorkspaceStore(
       return
     }
 
-    const originalOasVersion = document['x-original-oas-version'] ?? document.openapi ?? document.swagger
     const upgradedDocument = upgrade(document, '3.1')
     const documentV3 = coerceValue(OpenAPIDocumentSchema, upgradedDocument)
-    // Keep the authored version through both resolved rendering and sparse browser loading.
-    if (typeof originalOasVersion === 'string') {
-      documentV3['x-original-oas-version'] = originalOasVersion
-    }
     preserveBundledExternals(upgradedDocument, documentV3)
-    preservePathItemOrder(documentV3.paths, upgradedDocument.paths)
-    preservePathItemOrder(documentV3.webhooks, upgradedDocument.webhooks)
-    preservePathItemOrder(
-      documentV3.components?.pathItems,
-      isObject(upgradedDocument.components) ? upgradedDocument.components.pathItems : undefined,
-    )
 
     // Everything that inspects the document reads through this; everything that stores a piece of it
     // stores the raw `documentV3` or a `getRaw` of the piece.
