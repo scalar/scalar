@@ -14,6 +14,7 @@ export const fr = {
     open: 'Ouvrir la recherche',
     placeholder: 'Rechercher...',
     clear: 'Effacer la recherche',
+    noResults: 'Aucun résultat trouvé',
     keyboardShortcut: 'Raccourci clavier :',
     command: 'Commande',
     control: 'Contrôle',

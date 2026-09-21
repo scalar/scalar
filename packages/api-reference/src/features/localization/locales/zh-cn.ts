@@ -14,6 +14,7 @@ export const zhCn = {
     open: '打开搜索',
     placeholder: '搜索...',
     clear: '清除搜索',
+    noResults: '未找到结果',
     keyboardShortcut: '键盘快捷键：',
     command: 'Command 键',
     control: 'Control 键',

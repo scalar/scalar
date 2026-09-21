@@ -14,6 +14,7 @@ export const ar = {
     open: 'فتح البحث',
     placeholder: 'بحث...',
     clear: 'مسح البحث',
+    noResults: 'لم يتم العثور على نتائج',
     keyboardShortcut: 'اختصار لوحة المفاتيح:',
     command: 'مفتاح الأوامر',
     control: 'مفتاح التحكم',

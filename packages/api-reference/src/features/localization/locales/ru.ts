@@ -14,6 +14,7 @@ export const ru = {
     open: 'Открыть поиск',
     placeholder: 'Поиск...',
     clear: 'Очистить поиск',
+    noResults: 'Результаты не найдены',
     keyboardShortcut: 'Сочетание клавиш:',
     command: 'Command',
     control: 'Control',
