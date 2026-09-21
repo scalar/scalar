@@ -1,6 +1,9 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
+import { upsertOperationParameter } from '@/mutators/operation/parameters'
+import type { ParameterWithContentObject } from '@/schemas/v3.2/strict/parameter'
+
 import {
   filterDisabledDefaultHeaders,
   getDefaultHeaders,
@@ -49,6 +52,29 @@ describe('filterDisabledDefaultHeaders', () => {
 })
 
 describe('getDefaultHeaders', () => {
+  it.each([true, false])('respects a content-based header edit with disabled state %s', (isDisabled) => {
+    const param: ParameterWithContentObject = {
+      name: 'Accept',
+      in: 'header',
+      content: { 'text/plain': { example: 'application/json' } },
+    }
+    upsertOperationParameter(null, {
+      type: 'header',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'Accept', value: 'application/json', isDisabled },
+    })
+
+    expect(
+      getDefaultHeaders({
+        method: 'get',
+        operation: { parameters: [param] },
+        exampleName: 'default',
+        hideOverriddenHeaders: true,
+      }),
+    ).toStrictEqual(isDisabled ? { accept: '*/*' } : {})
+  })
+
   it('does not add Content-Type header when contentType is "none"', () => {
     const operation: OperationObject = {
       requestBody: {

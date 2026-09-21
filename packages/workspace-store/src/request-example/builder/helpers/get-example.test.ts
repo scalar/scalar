@@ -178,11 +178,10 @@ describe('content-based parameters', () => {
     expect(result).toEqual({ value: stringified })
   })
 
-  it('prefers a param-level example over the content media-type example', () => {
+  it('preserves edits saved at parameter level by older clients', () => {
     const param = {
       name: 'filter',
       in: 'query',
-      // @ts-expect-error - this is a test
       examples: {
         default: { value: { status: 'from-param' }, 'x-disabled': false },
       },
@@ -191,7 +190,7 @@ describe('content-based parameters', () => {
           example: { status: 'from-content' },
         },
       },
-    } satisfies ParameterWithContentObject
+    } satisfies ParameterWithContentObject & Pick<ParameterWithSchemaObject, 'examples'>
 
     const result = getExample(param, 'default', 'application/json')
     expect(result).toStrictEqual({ value: { status: 'from-param' }, 'x-disabled': false })

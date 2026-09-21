@@ -2,6 +2,4 @@
 '@scalar/workspace-store': patch
 ---
 
-Enable a content-based query parameter with an authored media-type example
-
-`getExample` always resolved a content-based parameter's example from `content.*.example`, even when the parameter had its own `examples` entry recording the user's edit (value and enabled state). That edit was ignored, so enabling an optional JSON-content query parameter with a media-type example never added it to the request. Parameter-level examples now take priority over the content media-type example.
+Save content-based parameter edits in the media type's examples so enabled JSON query parameters are included in requests. Preserve previously saved edits and migrate them when the parameter is edited again.
