@@ -350,6 +350,14 @@ describe('getDefaultHeaders', () => {
     expect(filtered['accept']).toBeUndefined()
   })
 
+  it('omits default Accept when an optional header has a schema default', () => {
+    const operation: OperationObject = {
+      parameters: [{ name: 'Accept', in: 'header', schema: { type: 'string', default: 'application/json' } }],
+    }
+    const headers = getDefaultHeaders({ method: 'get', operation, exampleName: 'default', hideOverriddenHeaders: true })
+    expect(headers['accept']).toBeUndefined()
+  })
+
   it('keeps default Accept when a matching header parameter exists but is disabled for the example', () => {
     const operation: OperationObject = {
       parameters: [

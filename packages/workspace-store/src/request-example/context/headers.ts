@@ -32,8 +32,7 @@ export const restoreConventionalDefaultHeaderNames = (headers: Record<string, st
 
 /**
  * Lowercase names of **enabled** operation parameters with `in: header` for the given example.
- * Uses the same rules as the request builder (`isParamDisabled`): optional parameters are treated
- * as disabled unless the selected example's `x-disabled` is explicitly `false`.
+ * Uses the same example selection and enablement rules as the request builder, including schema defaults.
  */
 const getEnabledOperationHeaderParameterNames = (operation: OperationObject, exampleName: string): Set<string> => {
   const names = new Set<string>()

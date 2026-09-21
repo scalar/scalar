@@ -381,18 +381,15 @@ export const createParameterRows = (
   } = {},
 ): TableRow[] => {
   const example = getExample(parameter, exampleKey, undefined)
-  const hasValue = example?.value !== undefined && example.value !== '' && example.value !== null
   const isDisabled = isParamDisabled(parameter, example)
-  // A parameter that is only disabled by default but already carries a value expresses intent to
-  // send it — auto-enable it so the checkbox starts checked (mirrors the handleUpdateRow logic).
-  const isDisabledByDefault = isDisabled && example?.['x-disabled'] === undefined
-  const effectiveIsDisabled = isDisabledByDefault && hasValue ? false : isDisabled
+  // Preserve type-to-enable behavior until the user explicitly chooses a checkbox state.
+  const isDisabledByDefault = !parameter.required && parameter.in !== 'path' && example?.['x-disabled'] === undefined
   const schema = getParameterSchema(parameter)
   const mode = getExpansionMode(parameter, schema)
 
   // Non-expandable parameters: render as a single row.
   if (mode === null || !schema || !isObjectSchema(schema)) {
-    return [toSingleParameterRow(parameter, schema, example?.value, effectiveIsDisabled, isDisabledByDefault)]
+    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled, isDisabledByDefault)]
   }
 
   // Expand into per-property rows. The deserialized value is used so existing per-property values
@@ -401,7 +398,7 @@ export const createParameterRows = (
 
   // Fall back to a single row only when the schema has no properties to expand.
   if (!schema.properties) {
-    return [toSingleParameterRow(parameter, schema, example?.value, effectiveIsDisabled, isDisabledByDefault)]
+    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled, isDisabledByDefault)]
   }
 
   const hiddenValuePaths = new Set(options.hiddenValuePaths?.map(toPathKey) ?? [])
@@ -417,7 +414,7 @@ export const createParameterRows = (
     // deepObject names every row with a `parent[child]` prefix; form-style names use bare property names.
     namePrefix: mode === 'deepObject' ? parameter.name : '',
     mode,
-    isDisabled: effectiveIsDisabled,
+    isDisabled,
     isDisabledByDefault,
     hiddenValuePaths,
     renamedValuePaths,
@@ -431,7 +428,7 @@ export const createParameterRows = (
     value,
     schemaRows: rows,
     mode,
-    isDisabled: effectiveIsDisabled,
+    isDisabled,
     isDisabledByDefault,
     renamedValuePaths,
   })
