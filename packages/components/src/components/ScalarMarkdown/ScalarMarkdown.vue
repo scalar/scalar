@@ -14,11 +14,13 @@ export default {}
 <script setup lang="ts">
 import {
   type Node,
-  htmlFromMarkdown,
+  highlightMarkdown,
   isHeading,
+  renderMarkdown,
   textFromNode,
-} from '@scalar/code-highlight'
+} from '@scalar/code-highlight/lazy'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { computedAsync } from '@vueuse/core'
 import { computed, useTemplateRef } from 'vue'
 
 import type { ScalarMarkdownProps } from './types'
@@ -70,14 +72,27 @@ const transformHeading = (node: Node) => {
   return node
 }
 
-const html = computed(() => {
-  return htmlFromMarkdown(value ?? '', {
+const plainHtml = computed(() => {
+  return renderMarkdown(value ?? '', {
     removeTags: withImages ? [] : ['img', 'picture'],
     transform:
       withAnchors && transformType === 'heading' ? transformHeading : transform,
     transformType,
   })
 })
+const highlighted = computedAsync(
+  async () => {
+    const source = plainHtml.value
+    return { source, html: await highlightMarkdown(source) }
+  },
+  undefined,
+  { onError: () => undefined },
+)
+const html = computed(() =>
+  highlighted.value?.source === plainHtml.value
+    ? highlighted.value.html
+    : plainHtml.value,
+)
 </script>
 <template>
   <div

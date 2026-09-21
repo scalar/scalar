@@ -69,6 +69,7 @@
   },
   "workspaces": {
     ".": {
+      "entry": ["tooling/esm-size/run.ts"],
       "ignoreDependencies": [
         // Executed from the repo root by tooling/changelog-generator/src/version.ts.
         "@changesets/cli"
@@ -178,6 +179,7 @@
         "src/index.ts",
         "src/code/index.ts",
         "src/languages/index.ts",
+        "src/lazy/index.ts",
         "src/markdown/index.ts",
         "src/rehype-alert/index.ts",
         "src/rehype-highlight/index.ts"
@@ -281,7 +283,7 @@
       ]
     },
     "packages/snippetz": {
-      "entry": ["src/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
+      "entry": ["src/index.ts", "src/lazy/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
     },
     "packages/ts-to-openapi": {
       "entry": ["src/index.ts"],

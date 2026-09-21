@@ -62,7 +62,7 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
         return
       }
 
-      const lang = language(node)
+      const lang = getHighlightLanguage(node)
 
       if (lang === 'no-highlight' || (!lang && !detect) || (lang && plainText?.includes(lang))) {
         return
@@ -132,7 +132,7 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
 }
 
 /** Get the programming language of `node` or an empty string */
-function language(node: Element) {
+export const getHighlightLanguage = (node: Element): string => {
   const list = node.properties.className
 
   if (!Array.isArray(list)) {

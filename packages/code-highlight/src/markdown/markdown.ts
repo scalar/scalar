@@ -14,7 +14,6 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 
-import { standardLanguages } from '@/languages'
 import { rehypeAlert } from '@/rehype-alert'
 import { rehypeHighlight } from '@/rehype-highlight'
 
@@ -127,33 +126,25 @@ const transformInlineMarkdownInRawHtml = () => (tree: HastRoot) => {
   })
 }
 
-type HtmlFromMarkdownOptions = {
+/** Controls sanitization and optional AST transforms during Markdown rendering. */
+export type HtmlFromMarkdownOptions = {
   removeTags?: string[]
   allowTags?: string[]
   transform?: (node: Node) => Node
   transformType?: string
 }
 
-/**
- * One lowlight instance shared by every markdown pipeline.
- *
- * Registering the standard grammars is the most expensive part of building a
- * pipeline, and the registry is read-only once built (nothing here passes
- * `aliases`, the only option that mutates a given instance), so it is created
- * on first use and reused from then on.
- */
-let sharedLowlight: ReturnType<typeof createLowlight> | undefined
-
-const getLowlight = (): ReturnType<typeof createLowlight> => {
-  sharedLowlight ??= createLowlight(standardLanguages)
-
-  return sharedLowlight
-}
+const emptyLowlight = createLowlight({})
 
 /**
  * Build the markdown to HTML pipeline.
  */
-const createProcessor = (tagNames: string[], transform: Options['transform'], transformType: string | undefined) =>
+const createProcessor = (
+  tagNames: string[],
+  transform: Options['transform'],
+  transformType: string | undefined,
+  lowlight: ReturnType<typeof createLowlight>,
+) =>
   unified()
     // Parses markdown
     .use(remarkParse)
@@ -190,7 +181,7 @@ const createProcessor = (tagNames: string[], transform: Options['transform'], tr
     // Syntax highlighting
     .use(rehypeHighlight, {
       // Reuse the grammar registry instead of rebuilding it for every pipeline
-      lowlight: getLowlight(),
+      lowlight,
       // Enable auto detection
       detect: true,
       // Adds Scalar's custom scrollbar styling to highlighted code blocks
@@ -212,7 +203,10 @@ const createProcessor = (tagNames: string[], transform: Options['transform'], tr
  * the pipeline used to cost far more than running it. Calls with a `transform`
  * callback are not cached, because that closure belongs to the caller.
  */
-const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
+const processorCaches = new WeakMap<
+  ReturnType<typeof createLowlight>,
+  Map<string, ReturnType<typeof createProcessor>>
+>()
 
 /**
  * Matches strings that CommonMark, GFM and this pipeline all render as a single plain paragraph.
@@ -244,7 +238,7 @@ const PLAIN_PARAGRAPH =
 /**
  * Take a Markdown string and generate HTML from it
  */
-export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOptions): string {
+export function renderMarkdown(markdown: string, options?: HtmlFromMarkdownOptions, lowlight = emptyLowlight): string {
   // Add permitted tags and remove stripped ones
   const removeTags = options?.removeTags ?? []
 
@@ -260,17 +254,21 @@ export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOpt
   const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
 
   if (options?.transform) {
-    return createProcessor(tagNames, options.transform, options.transformType).processSync(markdown).toString()
+    return createProcessor(tagNames, options.transform, options.transformType, lowlight)
+      .processSync(markdown)
+      .toString()
   }
 
   const key = [[...removeTags].sort().join(','), [...allowTags].sort().join(','), options?.transformType ?? ''].join(
     '|',
   )
 
+  const processorCache = processorCaches.get(lowlight) ?? new Map<string, ReturnType<typeof createProcessor>>()
+  processorCaches.set(lowlight, processorCache)
   let processor = processorCache.get(key)
 
   if (!processor) {
-    processor = createProcessor(tagNames, undefined, options?.transformType).freeze()
+    processor = createProcessor(tagNames, undefined, options?.transformType, lowlight).freeze()
     processorCache.set(key, processor)
   }
 

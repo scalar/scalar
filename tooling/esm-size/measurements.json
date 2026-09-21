@@ -1,0 +1,1528 @@
+{
+  "note": "Historical and matched local-build measurements; see RESEARCH.md for build provenance. Only requested files retained.",
+  "runs": [
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "browser": "151.0.7922.34",
+      "node": "v26.3.1",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": true,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 7057.899999999907,
+      "atOperation": {
+        "files": 7,
+        "rawBytes": 3524832,
+        "gzipBytes": 1023375,
+        "brotliBytes": 850660
+      },
+      "settled": {
+        "files": 7,
+        "rawBytes": 3524832,
+        "gzipBytes": 1023375,
+        "brotliBytes": 850660
+      },
+      "inventory": {
+        "files": 91,
+        "rawBytes": 3821996,
+        "gzipBytes": 1133997,
+        "brotliBytes": 947804
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-Dv_C3Yjk.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 1474332,
+          "gzipBytes": 443603,
+          "brotliBytes": 363854,
+          "sha256": "296316cc8623e207e5c722156902c0f7714a3d93321f1bc11cdfa4b7bb28471e"
+        },
+        {
+          "path": "/build/chunks/modal-BszVIscy.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 939813,
+          "gzipBytes": 298744,
+          "brotliBytes": 250232,
+          "sha256": "0cea9edbf73b7dc82f2776ca681dbf238705711fa96a9644d753fc1002fe9ccf"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 765126,
+          "gzipBytes": 173581,
+          "brotliBytes": 141212,
+          "sha256": "8eb7eb6e02700c3c4d74b4ab91e661b60d3f6abfefbc0650a7d3b4d40652a7d6"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-BPsmt5ik.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 167216,
+          "gzipBytes": 46771,
+          "brotliBytes": 40529,
+          "sha256": "9555d1a83b46dd125b5466c25eb42494489302c8e618cbaa8e723a747110f3b8"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31445,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28483,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 748,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "baseline"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "browser": "151.0.7922.34",
+      "node": "v26.3.1",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": true,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 6855.399999999907,
+      "atOperation": {
+        "files": 6,
+        "rawBytes": 2585076,
+        "gzipBytes": 724647,
+        "brotliBytes": 600474
+      },
+      "settled": {
+        "files": 6,
+        "rawBytes": 2585076,
+        "gzipBytes": 724647,
+        "brotliBytes": 600474
+      },
+      "inventory": {
+        "files": 91,
+        "rawBytes": 3822053,
+        "gzipBytes": 1134013,
+        "brotliBytes": 947850
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-Dv_C3Yjk.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 1474332,
+          "gzipBytes": 443603,
+          "brotliBytes": 363854,
+          "sha256": "296316cc8623e207e5c722156902c0f7714a3d93321f1bc11cdfa4b7bb28471e"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 765183,
+          "gzipBytes": 173597,
+          "brotliBytes": 141258,
+          "sha256": "bdb6bf999a6c786500913916f5ed117d0f9118249bbe89cb9ed2f674cba63319"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-BPsmt5ik.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 167216,
+          "gzipBytes": 46771,
+          "brotliBytes": 40529,
+          "sha256": "9555d1a83b46dd125b5466c25eb42494489302c8e618cbaa8e723a747110f3b8"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31445,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28483,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 748,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "skip-modal-experiment"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "buildDirectory": "/tmp/scalar-esm-no-modal-build",
+      "workingTreeStatus": "?? tooling/esm-size/",
+      "browser": "151.0.7922.34",
+      "node": "v26.3.1",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false,
+        "hiddenClients": true
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": false,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 316,
+      "atOperation": {
+        "files": 6,
+        "rawBytes": 2585076,
+        "gzipBytes": 724647,
+        "brotliBytes": 600474
+      },
+      "settled": {
+        "files": 6,
+        "rawBytes": 2585076,
+        "gzipBytes": 724647,
+        "brotliBytes": 600474
+      },
+      "inventory": {
+        "files": 91,
+        "rawBytes": 3822053,
+        "gzipBytes": 1134013,
+        "brotliBytes": 947850
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-Dv_C3Yjk.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 1474332,
+          "gzipBytes": 443603,
+          "brotliBytes": 363854,
+          "sha256": "296316cc8623e207e5c722156902c0f7714a3d93321f1bc11cdfa4b7bb28471e"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 765183,
+          "gzipBytes": 173597,
+          "brotliBytes": 141258,
+          "sha256": "bdb6bf999a6c786500913916f5ed117d0f9118249bbe89cb9ed2f674cba63319"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-BPsmt5ik.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 167216,
+          "gzipBytes": 46771,
+          "brotliBytes": 40529,
+          "sha256": "9555d1a83b46dd125b5466c25eb42494489302c8e618cbaa8e723a747110f3b8"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31445,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28483,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 748,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "skip-modal-and-hide-samples"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "buildDirectory": "/tmp/scalar-esm-matched-baseline",
+      "workingTreeStatus": "M packages/api-client/src/v2/blocks/request-block/components/RequestCodeSnippet.vue\n M packages/blocks/src/code-example/components/CodeExample.test.ts\n M packages/blocks/src/code-example/components/CodeExample.vue\n M packages/blocks/src/code-example/helpers/generate-client-options.ts\n M packages/blocks/src/code-example/helpers/generate-code-snippet.ts\n M packages/blocks/src/code-example/helpers/get-snippet.ts\n M packages/blocks/src/code-example/index.ts\n M packages/blocks/src/code-example/mount.test.ts\n M packages/code-highlight/package.json\n M packages/code-highlight/playground/main.ts\n M packages/code-highlight/src/markdown/index.ts\n M packages/code-highlight/src/markdown/markdown.test.ts\n M packages/code-highlight/src/markdown/markdown.ts\n M packages/code-highlight/src/rehype-highlight/rehype-highlight.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.test.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.vue\n M packages/components/src/components/ScalarMarkdown/ScalarMarkdown.vue\n M packages/snippetz/package.json\n?? .changeset/lazy-code-examples.md\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.test.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-with-plugin.ts\n?? packages/blocks/src/code-example/helpers/get-snippet-with-plugin.ts\n?? packages/code-highlight/src/lazy/\n?? packages/code-highlight/src/markdown/html-from-markdown.ts\n?? packages/snippetz/src/lazy/\n?? tooling/esm-size/",
+      "browser": "151.0.7922.34",
+      "node": "v26.3.1",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": true,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 7080.9000000003725,
+      "atOperation": {
+        "files": 7,
+        "rawBytes": 3539632,
+        "gzipBytes": 1027352,
+        "brotliBytes": 853605
+      },
+      "settled": {
+        "files": 7,
+        "rawBytes": 3539632,
+        "gzipBytes": 1027352,
+        "brotliBytes": 853605
+      },
+      "inventory": {
+        "files": 91,
+        "rawBytes": 3836780,
+        "gzipBytes": 1137987,
+        "brotliBytes": 950834
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-tnp2_JRp.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1479506,
+          "gzipBytes": 445092,
+          "brotliBytes": 364948,
+          "sha256": "503a81cadc9b0778d0af55e860323a973eb7703ee1250ba4634df5c1178f3c0f"
+        },
+        {
+          "path": "/build/chunks/modal-DnRLFCV3.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 948927,
+          "gzipBytes": 301057,
+          "brotliBytes": 251882,
+          "sha256": "ab6bfcc9b848c7e446dc4398f803ff5ae3c3d5491bd7cbf43da60fda7287cd3d"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 765829,
+          "gzipBytes": 173732,
+          "brotliBytes": 141435,
+          "sha256": "1026528ae266bdf48fa5e95690a98a255d13bf68e5e1f755ee3b0cd73affe12f"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-LOvss7kC.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 167025,
+          "gzipBytes": 46795,
+          "brotliBytes": 40507,
+          "sha256": "0076d7d6b560967b618aea9516625d04fb290998c09aa922e45e53d49348f910"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31445,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28483,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 748,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "matched-baseline"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "buildDirectory": "/tmp/scalar-esm-lazy-final",
+      "workingTreeStatus": "M packages/api-client/src/v2/blocks/request-block/components/RequestCodeSnippet.vue\n M packages/blocks/src/code-example/components/CodeExample.test.ts\n M packages/blocks/src/code-example/components/CodeExample.vue\n M packages/blocks/src/code-example/helpers/generate-client-options.ts\n M packages/blocks/src/code-example/helpers/generate-code-snippet.ts\n M packages/blocks/src/code-example/helpers/get-snippet.ts\n M packages/blocks/src/code-example/index.ts\n M packages/blocks/src/code-example/mount.test.ts\n M packages/code-highlight/package.json\n M packages/code-highlight/playground/main.ts\n M packages/code-highlight/src/markdown/index.ts\n M packages/code-highlight/src/markdown/markdown.test.ts\n M packages/code-highlight/src/markdown/markdown.ts\n M packages/code-highlight/src/rehype-highlight/rehype-highlight.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.test.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.vue\n M packages/components/src/components/ScalarMarkdown/ScalarMarkdown.vue\n M packages/snippetz/package.json\n?? .changeset/lazy-code-examples.md\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.test.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-with-plugin.ts\n?? packages/blocks/src/code-example/helpers/get-snippet-with-plugin.ts\n?? packages/code-highlight/src/lazy/\n?? packages/code-highlight/src/markdown/html-from-markdown.ts\n?? packages/snippetz/src/lazy/\n?? tooling/esm-size/",
+      "browser": "151.0.7922.34",
+      "node": "v26.3.1",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": true,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 6580.0999999996275,
+      "atOperation": {
+        "files": 15,
+        "rawBytes": 3318393,
+        "gzipBytes": 962416,
+        "brotliBytes": 805836
+      },
+      "settled": {
+        "files": 15,
+        "rawBytes": 3318393,
+        "gzipBytes": 962416,
+        "brotliBytes": 805836
+      },
+      "inventory": {
+        "files": 196,
+        "rawBytes": 3903575,
+        "gzipBytes": 1204163,
+        "brotliBytes": 1019259
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-B9PxbKBs.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1215348,
+          "gzipBytes": 362454,
+          "brotliBytes": 301254,
+          "sha256": "0c70924cef6f6c92f9ad691657106a8fb7311cc4328a9904830c6095ed8d0fa4"
+        },
+        {
+          "path": "/build/chunks/modal-ClPZQy2g.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 949096,
+          "gzipBytes": 301174,
+          "brotliBytes": 251934,
+          "sha256": "e6a88b1714447601f9f5ba9b868c43f80896edfa0d3e917bfef89b391e63a2fb"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 765978,
+          "gzipBytes": 173937,
+          "brotliBytes": 141658,
+          "sha256": "3cab0e53d825f77eea2b3167729bc466eabf52b336d6605f652a3c0830439c3c"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-BKpCJO0V.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 167080,
+          "gzipBytes": 46831,
+          "brotliBytes": 40541,
+          "sha256": "c0e3dd32dbf69b226bda57f308271443a8bdec3288e04a5b7365334b434a4b63"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31445,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28483,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/rehype-highlight-B9csKxPN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 31003,
+          "gzipBytes": 11655,
+          "brotliBytes": 10577,
+          "sha256": "ec5b1326e2574686f1167d0afc2929ff5a4c8def426bf18ab13ad8fcc71b6fbf"
+        },
+        {
+          "path": "/build/chunks/base64-BdCM4kH1.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 4087,
+          "gzipBytes": 1813,
+          "brotliBytes": 1671,
+          "sha256": "f31a4359c9ef3c7207011ff4edaaa14d03f907fc3a02179a6e02efb1ff08ca0b"
+        },
+        {
+          "path": "/build/chunks/curl-BGUb9Ta0.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 2711,
+          "gzipBytes": 1205,
+          "brotliBytes": 1065,
+          "sha256": "c315ddc69c9f8c2c95eee4651415fc1069e71b7d192e73197610617a7936e7e4"
+        },
+        {
+          "path": "/build/chunks/mime-type-CQ-owoG_.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1374,
+          "gzipBytes": 772,
+          "brotliBytes": 681,
+          "sha256": "77b5b06443f8080e082e5205ed82a11861033076247b48f75dacdbc48de3bf7b"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 748,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        },
+        {
+          "path": "/build/chunks/curl-B_H4iu6e.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1366,
+          "gzipBytes": 678,
+          "brotliBytes": 579,
+          "sha256": "bd255873f65167fa99d7905491b19288b5c6c116f49428e9102da2b39097b8ef"
+        },
+        {
+          "path": "/build/chunks/json-CXhn1lSc.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 921,
+          "gzipBytes": 578,
+          "brotliBytes": 494,
+          "sha256": "a8ecf536e506c57289ea2fb3e5e1d2ef5a35aeadb56a437bc50e6ae67bf6a0c7"
+        },
+        {
+          "path": "/build/chunks/is-object-DNtfZIqO.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 603,
+          "gzipBytes": 351,
+          "brotliBytes": 304,
+          "sha256": "57d92f6feb7e0f7674340a8219ade7ec4ab919f185462ad4a855c6230ee2817e"
+        },
+        {
+          "path": "/build/chunks/shell-Cu0IkOAC.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 481,
+          "gzipBytes": 292,
+          "brotliBytes": 245,
+          "sha256": "7b5f4460f2d566c719f1349314a720971abff85c61727d401056695d7fd70d60"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "lazy-final"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "buildDirectory": "/tmp/scalar-esm-lazy-final",
+      "workingTreeStatus": "M packages/api-client/src/v2/blocks/request-block/components/RequestCodeSnippet.vue\n M packages/blocks/src/code-example/components/CodeExample.test.ts\n M packages/blocks/src/code-example/components/CodeExample.vue\n M packages/blocks/src/code-example/helpers/generate-client-options.ts\n M packages/blocks/src/code-example/helpers/generate-code-snippet.ts\n M packages/blocks/src/code-example/helpers/get-snippet.ts\n M packages/blocks/src/code-example/index.ts\n M packages/blocks/src/code-example/mount.test.ts\n M packages/code-highlight/package.json\n M packages/code-highlight/playground/main.ts\n M packages/code-highlight/src/markdown/index.ts\n M packages/code-highlight/src/markdown/markdown.test.ts\n M packages/code-highlight/src/markdown/markdown.ts\n M packages/code-highlight/src/rehype-highlight/rehype-highlight.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.test.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.vue\n M packages/components/src/components/ScalarMarkdown/ScalarMarkdown.vue\n M packages/snippetz/package.json\n?? .changeset/lazy-code-examples.md\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.test.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-with-plugin.ts\n?? packages/blocks/src/code-example/helpers/get-snippet-with-plugin.ts\n?? packages/code-highlight/src/lazy/\n?? packages/code-highlight/src/markdown/html-from-markdown.ts\n?? packages/snippetz/src/lazy/\n?? tooling/esm-size/",
+      "browser": "151.0.7922.34",
+      "node": "v26.3.1",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": false,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 330.79999999981374,
+      "atOperation": {
+        "files": 15,
+        "rawBytes": 3318393,
+        "gzipBytes": 962416,
+        "brotliBytes": 805836
+      },
+      "settled": {
+        "files": 15,
+        "rawBytes": 3318393,
+        "gzipBytes": 962416,
+        "brotliBytes": 805836
+      },
+      "interaction": {
+        "client": "Requests",
+        "total": {
+          "files": 20,
+          "rawBytes": 3327897,
+          "gzipBytes": 967057,
+          "brotliBytes": 809976
+        }
+      },
+      "inventory": {
+        "files": 196,
+        "rawBytes": 3903575,
+        "gzipBytes": 1204163,
+        "brotliBytes": 1019259
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-B9PxbKBs.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1215348,
+          "gzipBytes": 362454,
+          "brotliBytes": 301254,
+          "sha256": "0c70924cef6f6c92f9ad691657106a8fb7311cc4328a9904830c6095ed8d0fa4"
+        },
+        {
+          "path": "/build/chunks/modal-ClPZQy2g.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 949096,
+          "gzipBytes": 301174,
+          "brotliBytes": 251934,
+          "sha256": "e6a88b1714447601f9f5ba9b868c43f80896edfa0d3e917bfef89b391e63a2fb"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 765978,
+          "gzipBytes": 173937,
+          "brotliBytes": 141658,
+          "sha256": "3cab0e53d825f77eea2b3167729bc466eabf52b336d6605f652a3c0830439c3c"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-BKpCJO0V.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 167080,
+          "gzipBytes": 46831,
+          "brotliBytes": 40541,
+          "sha256": "c0e3dd32dbf69b226bda57f308271443a8bdec3288e04a5b7365334b434a4b63"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31445,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28483,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/rehype-highlight-B9csKxPN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 31003,
+          "gzipBytes": 11655,
+          "brotliBytes": 10577,
+          "sha256": "ec5b1326e2574686f1167d0afc2929ff5a4c8def426bf18ab13ad8fcc71b6fbf"
+        },
+        {
+          "path": "/build/chunks/base64-BdCM4kH1.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 4087,
+          "gzipBytes": 1813,
+          "brotliBytes": 1671,
+          "sha256": "f31a4359c9ef3c7207011ff4edaaa14d03f907fc3a02179a6e02efb1ff08ca0b"
+        },
+        {
+          "path": "/build/chunks/python-CY39G37D.js",
+          "requested": true,
+          "requestedAtStartup": false,
+          "requestedByOperation": false,
+          "rawBytes": 3686,
+          "gzipBytes": 1648,
+          "brotliBytes": 1471,
+          "sha256": "c5b814d52571cba7cd0265011ccf375a200f4d700b27d887c70305f371416dc8"
+        },
+        {
+          "path": "/build/chunks/requestsLike-CQ3U1uzx.js",
+          "requested": true,
+          "requestedAtStartup": false,
+          "requestedByOperation": false,
+          "rawBytes": 2690,
+          "gzipBytes": 1247,
+          "brotliBytes": 1107,
+          "sha256": "39044b73191887613f9fdf8ba772ec0b64db67e155017e925724266fec6cf809"
+        },
+        {
+          "path": "/build/chunks/curl-BGUb9Ta0.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 2711,
+          "gzipBytes": 1205,
+          "brotliBytes": 1065,
+          "sha256": "c315ddc69c9f8c2c95eee4651415fc1069e71b7d192e73197610617a7936e7e4"
+        },
+        {
+          "path": "/build/chunks/http-DzVcR1uB.js",
+          "requested": true,
+          "requestedAtStartup": false,
+          "requestedByOperation": false,
+          "rawBytes": 1601,
+          "gzipBytes": 820,
+          "brotliBytes": 732,
+          "sha256": "c75300e98546c5e9d5d05952ed78e399054bf3fa9f38a3c286b3c4b91fde7928"
+        },
+        {
+          "path": "/build/chunks/mime-type-CQ-owoG_.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1374,
+          "gzipBytes": 772,
+          "brotliBytes": 681,
+          "sha256": "77b5b06443f8080e082e5205ed82a11861033076247b48f75dacdbc48de3bf7b"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 748,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        },
+        {
+          "path": "/build/chunks/curl-B_H4iu6e.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1366,
+          "gzipBytes": 678,
+          "brotliBytes": 579,
+          "sha256": "bd255873f65167fa99d7905491b19288b5c6c116f49428e9102da2b39097b8ef"
+        },
+        {
+          "path": "/build/chunks/json-CXhn1lSc.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 921,
+          "gzipBytes": 578,
+          "brotliBytes": 494,
+          "sha256": "a8ecf536e506c57289ea2fb3e5e1d2ef5a35aeadb56a437bc50e6ae67bf6a0c7"
+        },
+        {
+          "path": "/build/chunks/python2-DpT1zSC4.js",
+          "requested": true,
+          "requestedAtStartup": false,
+          "requestedByOperation": false,
+          "rawBytes": 917,
+          "gzipBytes": 570,
+          "brotliBytes": 494,
+          "sha256": "43618e38e8320228b26347ec29db869fee9735c927225ca6ed2a6f72089f8c87"
+        },
+        {
+          "path": "/build/chunks/requests-ByXUixtQ.js",
+          "requested": true,
+          "requestedAtStartup": false,
+          "requestedByOperation": false,
+          "rawBytes": 610,
+          "gzipBytes": 356,
+          "brotliBytes": 336,
+          "sha256": "abe8b9446af669894a9202bda2cef7cfe340f6051ee79e09fb64d6eb90e78960"
+        },
+        {
+          "path": "/build/chunks/is-object-DNtfZIqO.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 603,
+          "gzipBytes": 351,
+          "brotliBytes": 304,
+          "sha256": "57d92f6feb7e0f7674340a8219ade7ec4ab919f185462ad4a855c6230ee2817e"
+        },
+        {
+          "path": "/build/chunks/shell-Cu0IkOAC.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 481,
+          "gzipBytes": 292,
+          "brotliBytes": 245,
+          "sha256": "7b5f4460f2d566c719f1349314a720971abff85c61727d401056695d7fd70d60"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "lazy-python-interaction"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "buildDirectory": "/tmp/scalar-esm-lazy-final",
+      "workingTreeStatus": "M packages/api-client/src/v2/blocks/request-block/components/RequestCodeSnippet.vue\n M packages/blocks/src/code-example/components/CodeExample.test.ts\n M packages/blocks/src/code-example/components/CodeExample.vue\n M packages/blocks/src/code-example/helpers/generate-client-options.ts\n M packages/blocks/src/code-example/helpers/generate-code-snippet.ts\n M packages/blocks/src/code-example/helpers/get-snippet.ts\n M packages/blocks/src/code-example/index.ts\n M packages/blocks/src/code-example/mount.test.ts\n M packages/code-highlight/package.json\n M packages/code-highlight/playground/main.ts\n M packages/code-highlight/src/markdown/index.ts\n M packages/code-highlight/src/markdown/markdown.test.ts\n M packages/code-highlight/src/markdown/markdown.ts\n M packages/code-highlight/src/rehype-highlight/rehype-highlight.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.test.ts\n M packages/components/src/components/ScalarCodeBlock/ScalarCodeBlock.vue\n M packages/components/src/components/ScalarMarkdown/ScalarMarkdown.vue\n M packages/snippetz/package.json\n?? .changeset/lazy-code-examples.md\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.test.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-async.ts\n?? packages/blocks/src/code-example/helpers/generate-code-snippet-with-plugin.ts\n?? packages/blocks/src/code-example/helpers/get-snippet-with-plugin.ts\n?? packages/code-highlight/src/lazy/\n?? packages/code-highlight/src/markdown/html-from-markdown.ts\n?? packages/snippetz/src/lazy/\n?? tooling/esm-size/",
+      "browser": "151.0.7922.34",
+      "node": "v26.3.1",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false,
+        "hiddenClients": true
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": false,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 387.90000000037253,
+      "atOperation": {
+        "files": 13,
+        "rawBytes": 3314454,
+        "gzipBytes": 960625,
+        "brotliBytes": 804286
+      },
+      "settled": {
+        "files": 13,
+        "rawBytes": 3314454,
+        "gzipBytes": 960625,
+        "brotliBytes": 804286
+      },
+      "inventory": {
+        "files": 196,
+        "rawBytes": 3903575,
+        "gzipBytes": 1204163,
+        "brotliBytes": 1019259
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-B9PxbKBs.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1215348,
+          "gzipBytes": 362454,
+          "brotliBytes": 301254,
+          "sha256": "0c70924cef6f6c92f9ad691657106a8fb7311cc4328a9904830c6095ed8d0fa4"
+        },
+        {
+          "path": "/build/chunks/modal-ClPZQy2g.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 949096,
+          "gzipBytes": 301174,
+          "brotliBytes": 251934,
+          "sha256": "e6a88b1714447601f9f5ba9b868c43f80896edfa0d3e917bfef89b391e63a2fb"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 765978,
+          "gzipBytes": 173937,
+          "brotliBytes": 141658,
+          "sha256": "3cab0e53d825f77eea2b3167729bc466eabf52b336d6605f652a3c0830439c3c"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-BKpCJO0V.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 167080,
+          "gzipBytes": 46831,
+          "brotliBytes": 40541,
+          "sha256": "c0e3dd32dbf69b226bda57f308271443a8bdec3288e04a5b7365334b434a4b63"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31445,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28483,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/rehype-highlight-B9csKxPN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 31003,
+          "gzipBytes": 11655,
+          "brotliBytes": 10577,
+          "sha256": "ec5b1326e2574686f1167d0afc2929ff5a4c8def426bf18ab13ad8fcc71b6fbf"
+        },
+        {
+          "path": "/build/chunks/base64-BdCM4kH1.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 4087,
+          "gzipBytes": 1813,
+          "brotliBytes": 1671,
+          "sha256": "f31a4359c9ef3c7207011ff4edaaa14d03f907fc3a02179a6e02efb1ff08ca0b"
+        },
+        {
+          "path": "/build/chunks/mime-type-CQ-owoG_.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1374,
+          "gzipBytes": 772,
+          "brotliBytes": 681,
+          "sha256": "77b5b06443f8080e082e5205ed82a11861033076247b48f75dacdbc48de3bf7b"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 748,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        },
+        {
+          "path": "/build/chunks/json-CXhn1lSc.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 921,
+          "gzipBytes": 578,
+          "brotliBytes": 494,
+          "sha256": "a8ecf536e506c57289ea2fb3e5e1d2ef5a35aeadb56a437bc50e6ae67bf6a0c7"
+        },
+        {
+          "path": "/build/chunks/plaintext-CyhUm86B.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 619,
+          "gzipBytes": 384,
+          "brotliBytes": 339,
+          "sha256": "4c44e266eea73ea518108f82d1e99d55054871168353d7dab2ef784c25734183"
+        },
+        {
+          "path": "/build/chunks/is-object-DNtfZIqO.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 603,
+          "gzipBytes": 351,
+          "brotliBytes": 304,
+          "sha256": "57d92f6feb7e0f7674340a8219ade7ec4ab919f185462ad4a855c6230ee2817e"
+        }
+      ],
+      "failures": [],
+      "budgetGzip": 975000,
+      "budgetPassed": true,
+      "label": "lazy-no-samples"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "browser": "151.0.7922.34",
+      "node": "v24.8.0",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": false,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 400.20000000018626,
+      "atOperation": {
+        "files": 7,
+        "rawBytes": 3539764,
+        "gzipBytes": 1033513,
+        "brotliBytes": 853709
+      },
+      "settled": {
+        "files": 7,
+        "rawBytes": 3539764,
+        "gzipBytes": 1033513,
+        "brotliBytes": 853709
+      },
+      "inventory": {
+        "files": 91,
+        "rawBytes": 3836912,
+        "gzipBytes": 1144923,
+        "brotliBytes": 950924
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-tnp2_JRp.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1479506,
+          "gzipBytes": 448319,
+          "brotliBytes": 364948,
+          "sha256": "503a81cadc9b0778d0af55e860323a973eb7703ee1250ba4634df5c1178f3c0f"
+        },
+        {
+          "path": "/build/chunks/modal-DnRLFCV3.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 948927,
+          "gzipBytes": 302738,
+          "brotliBytes": 251882,
+          "sha256": "ab6bfcc9b848c7e446dc4398f803ff5ae3c3d5491bd7cbf43da60fda7287cd3d"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 765829,
+          "gzipBytes": 174637,
+          "brotliBytes": 141440,
+          "sha256": "76d37e2252ab61f0cd6402e4fccdbc38350b0a97f9cca1209a13a004c3d93673"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-CZqJAfmY.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 167157,
+          "gzipBytes": 47050,
+          "brotliBytes": 40606,
+          "sha256": "829324be049ad675d53b8e6431ff95ce716453bd89f66129d454ba4a04f6e121"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31472,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28538,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 759,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "pr-split-baseline"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "browser": "151.0.7922.34",
+      "node": "v24.8.0",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": false,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 247.3999999994412,
+      "atOperation": {
+        "files": 6,
+        "rawBytes": 2630676,
+        "gzipBytes": 741170,
+        "brotliBytes": 609746
+      },
+      "settled": {
+        "files": 6,
+        "rawBytes": 2630676,
+        "gzipBytes": 741170,
+        "brotliBytes": 609746
+      },
+      "inventory": {
+        "files": 91,
+        "rawBytes": 3837805,
+        "gzipBytes": 1144913,
+        "brotliBytes": 950847
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-D7f4X6Bh.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1518834,
+          "gzipBytes": 458359,
+          "brotliBytes": 372699,
+          "sha256": "fc58b66744f5874d9e449b7fe1f4c3a86620206cc064beb23448c644051ab8dc"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 766332,
+          "gzipBytes": 174971,
+          "brotliBytes": 141605,
+          "sha256": "707ffe457ae751ae9180ff4ab9f5fc935c2bee801904dd27a733459380181aa9"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-B_sm9E1q.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 167165,
+          "gzipBytes": 47071,
+          "brotliBytes": 40609,
+          "sha256": "bd91c60ced1f7ea07e2a146cf4a6a85ff1f1f550e0f2c6ecbcaaf47ad1b2b136"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31472,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28538,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 759,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "pr-split-modal"
+    },
+    {
+      "commit": "e12fd0245e267a7acb3c5b57e6363fb4265d16aa",
+      "browser": "151.0.7922.34",
+      "node": "v24.8.0",
+      "configuration": {
+        "agent": {
+          "disabled": true
+        },
+        "hideClientButton": true,
+        "hideDarkModeToggle": true,
+        "hideModels": true,
+        "hideTestRequestButton": true,
+        "showDeveloperTools": "never",
+        "telemetry": false,
+        "url": "/document",
+        "withDefaultFonts": false
+      },
+      "document": {
+        "file": "/tmp/scalar-esm-petstore.json",
+        "bytes": 17106,
+        "sha256": "00441c05add60f28da55eb4563d3fb6bbda364ba8eb7b381e2e2c98613005c82"
+      },
+      "throttle": false,
+      "settleMs": 2000,
+      "selector": ".operation-title",
+      "operationVisibleMs": 332.5,
+      "atOperation": {
+        "files": 15,
+        "rawBytes": 3318525,
+        "gzipBytes": 969179,
+        "brotliBytes": 805769
+      },
+      "settled": {
+        "files": 15,
+        "rawBytes": 3318525,
+        "gzipBytes": 969179,
+        "brotliBytes": 805769
+      },
+      "inventory": {
+        "files": 196,
+        "rawBytes": 3903707,
+        "gzipBytes": 1212873,
+        "brotliBytes": 1019177
+      },
+      "files": [
+        {
+          "path": "/build/chunks/vendor-B9PxbKBs.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1215348,
+          "gzipBytes": 366158,
+          "brotliBytes": 301254,
+          "sha256": "0c70924cef6f6c92f9ad691657106a8fb7311cc4328a9904830c6095ed8d0fa4"
+        },
+        {
+          "path": "/build/chunks/modal-ClPZQy2g.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 949096,
+          "gzipBytes": 302864,
+          "brotliBytes": 251934,
+          "sha256": "e6a88b1714447601f9f5ba9b868c43f80896edfa0d3e917bfef89b391e63a2fb"
+        },
+        {
+          "path": "/build/standalone.esm.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 765978,
+          "gzipBytes": 174867,
+          "brotliBytes": 141512,
+          "sha256": "b60faa7f1c78f80d261fa78030b1c684ccb5f0a12bcf939c827aec25509eaf90"
+        },
+        {
+          "path": "/build/chunks/ScalarTextInput.vue-CEVC6hX6.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 167212,
+          "gzipBytes": 47082,
+          "brotliBytes": 40620,
+          "sha256": "32246feb806ee240b75521f5b884120b4970eb1ce98f357cb13780fb14f61088"
+        },
+        {
+          "path": "/build/chunks/browser-D2HhVn9n.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 103581,
+          "gzipBytes": 31472,
+          "brotliBytes": 28253,
+          "sha256": "6969e62047a91eba969260fc6c6f7719cb277ba704829f3cbc280d95bfd58453"
+        },
+        {
+          "path": "/build/chunks/runtime-core.esm-bundler-CCTLchcN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 73539,
+          "gzipBytes": 28538,
+          "brotliBytes": 25898,
+          "sha256": "4a967492fdbab164dafbcac6230222f76e9ac88feb0364ca9562a78d6cf52d44"
+        },
+        {
+          "path": "/build/chunks/rehype-highlight-B9csKxPN.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 31003,
+          "gzipBytes": 11692,
+          "brotliBytes": 10577,
+          "sha256": "ec5b1326e2574686f1167d0afc2929ff5a4c8def426bf18ab13ad8fcc71b6fbf"
+        },
+        {
+          "path": "/build/chunks/base64-BdCM4kH1.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 4087,
+          "gzipBytes": 1834,
+          "brotliBytes": 1671,
+          "sha256": "f31a4359c9ef3c7207011ff4edaaa14d03f907fc3a02179a6e02efb1ff08ca0b"
+        },
+        {
+          "path": "/build/chunks/curl-BGUb9Ta0.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 2711,
+          "gzipBytes": 1215,
+          "brotliBytes": 1065,
+          "sha256": "c315ddc69c9f8c2c95eee4651415fc1069e71b7d192e73197610617a7936e7e4"
+        },
+        {
+          "path": "/build/chunks/mime-type-CQ-owoG_.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1374,
+          "gzipBytes": 780,
+          "brotliBytes": 681,
+          "sha256": "77b5b06443f8080e082e5205ed82a11861033076247b48f75dacdbc48de3bf7b"
+        },
+        {
+          "path": "/build/chunks/interface-content-folder.svg-cp7dm_nF.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1225,
+          "gzipBytes": 759,
+          "brotliBytes": 682,
+          "sha256": "338e9d083a28f8ead21ab5d0a669adae8c2af9ace1daed74fc144a63b3aa8ef6"
+        },
+        {
+          "path": "/build/chunks/curl-B_H4iu6e.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 1366,
+          "gzipBytes": 687,
+          "brotliBytes": 579,
+          "sha256": "bd255873f65167fa99d7905491b19288b5c6c116f49428e9102da2b39097b8ef"
+        },
+        {
+          "path": "/build/chunks/json-CXhn1lSc.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 921,
+          "gzipBytes": 583,
+          "brotliBytes": 494,
+          "sha256": "a8ecf536e506c57289ea2fb3e5e1d2ef5a35aeadb56a437bc50e6ae67bf6a0c7"
+        },
+        {
+          "path": "/build/chunks/is-object-DNtfZIqO.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 603,
+          "gzipBytes": 354,
+          "brotliBytes": 304,
+          "sha256": "57d92f6feb7e0f7674340a8219ade7ec4ab919f185462ad4a855c6230ee2817e"
+        },
+        {
+          "path": "/build/chunks/shell-Cu0IkOAC.js",
+          "requested": true,
+          "requestedAtStartup": true,
+          "requestedByOperation": true,
+          "rawBytes": 481,
+          "gzipBytes": 294,
+          "brotliBytes": 245,
+          "sha256": "7b5f4460f2d566c719f1349314a720971abff85c61727d401056695d7fd70d60"
+        }
+      ],
+      "failures": [],
+      "budgetPassed": null,
+      "label": "pr-split-highlight"
+    }
+  ]
+}

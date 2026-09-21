@@ -12,9 +12,10 @@ export default {}
 </script>
 <script lang="ts" setup>
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
-import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
+import { loadLanguages, syntaxHighlight } from '@scalar/code-highlight/lazy'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { computedAsync } from '@vueuse/core'
 import { computed, useId } from 'vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
@@ -67,10 +68,16 @@ const prettyContent = computed(
   () => prettyPrintedContent || prettyPrintJson(content ?? ''),
 )
 
+const languages = computedAsync(
+  () => loadLanguages([lang.trim()]),
+  {},
+  { onError: () => undefined },
+)
+
 const highlightedCode = computed(() => {
   const html = syntaxHighlight(prettyContent.value, {
     lang: lang.trim(),
-    languages: standardLanguages,
+    languages: languages.value,
     lineNumbers: lineNumbers,
     maskCredentials: hideCredentials,
   })
@@ -113,8 +120,8 @@ const { cx } = useBindCx()
     ">
     <!-- Inherits the corners so the inset focus ring follows a rounded code block -->
     <div
-      tabindex="0"
-      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1">
+      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1"
+      tabindex="0">
       <pre
         :id="id"
         class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
@@ -123,6 +130,7 @@ const { cx } = useBindCx()
     </div>
     <ScalarCodeBlockCopy
       v-if="showCopy"
+      :aria-controls="id"
       class="scalar-code-copy absolute"
       :class="[
         isOneLine
@@ -131,9 +139,8 @@ const { cx } = useBindCx()
         { 'opacity-100': copy === 'always' },
       ]"
       :content="prettyContent"
-      :showLang="!isOneLine"
       :lang="lang"
-      :aria-controls="id">
+      :showLang="!isOneLine">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop"

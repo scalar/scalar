@@ -4,7 +4,7 @@ import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
@@ -17,7 +17,8 @@ enableAutoUnmount(afterEach)
 // Mock the useClipboard hook from VueUse
 const mockCopy = vi.fn()
 const mockCopied = ref(false)
-vi.mock('@vueuse/core', () => ({
+vi.mock('@vueuse/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@vueuse/core')>()),
   useClipboard: () => ({
     copy: mockCopy,
     copied: mockCopied,
@@ -48,6 +49,13 @@ vi.mock('@scalar/use-toasts', () => ({
     initializeToasts: vi.fn(),
   }),
 }))
+
+const mountExample = async (...args: Parameters<typeof mount>): Promise<ReturnType<typeof mount>> => {
+  const wrapper = mount(...args)
+  await flushPromises()
+  await vi.waitFor(() => expect(wrapper.find('[aria-busy="true"]').exists()).toBe(false))
+  return wrapper
+}
 
 describe('RequestExample', () => {
   const mockOperation: OperationObject = {
@@ -167,8 +175,8 @@ describe('RequestExample', () => {
   }
 
   describe('Component Rendering', () => {
-    it('renders the component with basic props', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders the component with basic props', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: defaultProps,
       })
 
@@ -178,7 +186,7 @@ describe('RequestExample', () => {
       expect(wrapper.text()).toContain('/api/test')
     })
 
-    it('renders with custom client options', () => {
+    it('renders with custom client options', async () => {
       const customClientOptions: ClientOptionGroup[] = [
         {
           label: 'JavaScript',
@@ -212,7 +220,7 @@ describe('RequestExample', () => {
         },
       ]
 
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           clientOptions: customClientOptions,
@@ -222,8 +230,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ScalarCombobox' })).toBeTruthy()
     })
 
-    it('renders with pre-selected client', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders with pre-selected client', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedClient: 'js/fetch' as AvailableClient,
@@ -233,8 +241,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ScalarCombobox' })).toBeTruthy()
     })
 
-    it('renders with custom content type', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders with custom content type', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'text/plain',
@@ -244,8 +252,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ScalarCodeBlock' })).toBeTruthy()
     })
 
-    it('renders with pre-selected example', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders with pre-selected example', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedExample: 'example2',
@@ -255,8 +263,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ExamplePicker' })).toBeTruthy()
     })
 
-    it('renders fallback card when no clients available', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders fallback card when no clients available', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           clientOptions: [],
@@ -268,8 +276,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'HttpMethod' }).props('method')).toBe('get')
     })
 
-    it('does not render when no clients available and fallback is false', () => {
-      const wrapper = mount(RequestExample, {
+    it('does not render when no clients available and fallback is false', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           clientOptions: [],
@@ -283,7 +291,7 @@ describe('RequestExample', () => {
 
   describe('Client Selection', () => {
     it('emits update:selectedClient when client is changed', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedClient: 'js/fetch' as AvailableClient,
@@ -305,7 +313,7 @@ describe('RequestExample', () => {
     })
 
     it('does not emit update:selectedClient for custom examples', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -331,7 +339,7 @@ describe('RequestExample', () => {
     })
 
     it('updates local selected client when prop changes', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedClient: 'js/fetch' as AvailableClient,
@@ -349,7 +357,7 @@ describe('RequestExample', () => {
 
     it('re-resolves the local client when navigating to another operation', async () => {
       // Operation with a Python custom sample, selected globally by language
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedClient: 'custom/python' as AvailableClient,
@@ -379,7 +387,7 @@ describe('RequestExample', () => {
 
   describe('Example Selection', () => {
     it('emits update:selectedExample when example is changed', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -400,8 +408,8 @@ describe('RequestExample', () => {
       }
     })
 
-    it('emits update:exampleKey with the resolved key on mount', () => {
-      const wrapper = mount(RequestExample, {
+    it('emits update:exampleKey with the resolved key on mount', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -412,8 +420,8 @@ describe('RequestExample', () => {
       expect(emitted?.[emitted.length - 1]).toEqual(['example1'])
     })
 
-    it('emits update:exampleKey with the document-wide selection when the operation has it', () => {
-      const wrapper = mount(RequestExample, {
+    it('emits update:exampleKey with the document-wide selection when the operation has it', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -425,8 +433,8 @@ describe('RequestExample', () => {
       expect(emitted?.[emitted.length - 1]).toEqual(['example2'])
     })
 
-    it('emits update:exampleKey with the local key when the operation lacks the document-wide selection', () => {
-      const wrapper = mount(RequestExample, {
+    it('emits update:exampleKey with the local key when the operation lacks the document-wide selection', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -440,7 +448,7 @@ describe('RequestExample', () => {
     })
 
     it('emits update:exampleKey when the user picks an example', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -475,7 +483,7 @@ describe('RequestExample', () => {
         },
       }
 
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation,
@@ -492,8 +500,8 @@ describe('RequestExample', () => {
       expect(emitted?.[emitted.length - 1]).toEqual(['shared'])
     })
 
-    it('selects first example by default when no example is provided', () => {
-      const wrapper = mount(RequestExample, {
+    it('selects first example by default when no example is provided', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -504,8 +512,8 @@ describe('RequestExample', () => {
       expect(examplePicker.props('modelValue')).toBe('example1')
     })
 
-    it('selects provided example when specified', () => {
-      const wrapper = mount(RequestExample, {
+    it('selects provided example when specified', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -519,8 +527,8 @@ describe('RequestExample', () => {
   })
 
   describe('Code Generation', () => {
-    it('generates code snippet for selected client', () => {
-      const wrapper = mount(RequestExample, {
+    it('generates code snippet for selected client', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedClient: 'js/fetch' as AvailableClient,
@@ -533,8 +541,8 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
-    it('uses requestBodyCompositionSelection to generate a non-default request body example', () => {
-      const wrapper = mount(RequestExample, {
+    it('uses requestBodyCompositionSelection to generate a non-default request body example', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           method: 'post' as HttpMethodType,
@@ -579,8 +587,8 @@ describe('RequestExample', () => {
       expect(content.includes('secondaryOnlyField')).toBe(true)
     })
 
-    it('generates code snippet for custom examples', () => {
-      const wrapper = mount(RequestExample, {
+    it('generates code snippet for custom examples', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -600,8 +608,8 @@ describe('RequestExample', () => {
       expect(codeBlock.exists()).toBe(true)
     })
 
-    it('handles errors in code generation gracefully', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles errors in code generation gracefully', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -614,8 +622,8 @@ describe('RequestExample', () => {
       expect(codeBlock.exists()).toBe(true)
     })
 
-    it('handles $ref values in examples', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles $ref values in examples', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -657,8 +665,8 @@ describe('RequestExample', () => {
   })
 
   describe('Security and Secrets', () => {
-    it('hides credentials in code block', () => {
-      const wrapper = mount(RequestExample, {
+    it('hides credentials in code block', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           securitySchemes: mockSecuritySchemes,
@@ -671,8 +679,8 @@ describe('RequestExample', () => {
       expect(codeBlock.props('hideCredentials')).toContain('testpass')
     })
 
-    it('handles empty security schemes', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles empty security schemes', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           securitySchemes: [],
@@ -683,7 +691,7 @@ describe('RequestExample', () => {
       expect(codeBlock.props('hideCredentials')).toEqual([])
     })
 
-    it('handles oauth2 security schemes', () => {
+    it('handles oauth2 security schemes', async () => {
       const oauth2Schemes: SecuritySchemeObjectSecret[] = [
         {
           type: 'oauth2',
@@ -703,7 +711,7 @@ describe('RequestExample', () => {
         },
       ]
 
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           securitySchemes: oauth2Schemes,
@@ -716,8 +724,8 @@ describe('RequestExample', () => {
   })
 
   describe('Configuration Options', () => {
-    it('hides client selector when configured', () => {
-      const wrapper = mount(RequestExample, {
+    it('hides client selector when configured', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           clientOptions: [],
@@ -726,8 +734,8 @@ describe('RequestExample', () => {
       expect(wrapper.find('[data-testid="client-picker"]').exists()).toBe(false)
     })
 
-    it('shows client selector by default', () => {
-      const wrapper = mount(RequestExample, {
+    it('shows client selector by default', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: defaultProps,
       })
 
@@ -754,8 +762,8 @@ describe('RequestExample', () => {
       },
     ]
 
-    it('renders the client label without a dropdown when only one client is available', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders the client label without a dropdown when only one client is available', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           clientOptions: singleClientOptions,
@@ -771,8 +779,8 @@ describe('RequestExample', () => {
       expect(label.text()).toContain('JavaScript Fetch API')
     })
 
-    it('renders a dropdown when more than one client is available', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders a dropdown when more than one client is available', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: defaultProps,
       })
 
@@ -781,8 +789,8 @@ describe('RequestExample', () => {
   })
 
   describe('Custom Examples', () => {
-    it('handles x-custom-examples extension', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles x-custom-examples extension', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -802,8 +810,8 @@ describe('RequestExample', () => {
       expect(combobox.exists()).toBe(true)
     })
 
-    it('handles x-codeSamples extension', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles x-codeSamples extension', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -823,8 +831,8 @@ describe('RequestExample', () => {
       expect(combobox.exists()).toBe(true)
     })
 
-    it('handles x-code-samples extension', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles x-code-samples extension', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -846,8 +854,8 @@ describe('RequestExample', () => {
   })
 
   describe('Slots', () => {
-    it('renders header slot', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders header slot', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: defaultProps,
         slots: {
           header: '<div class="custom-header">Custom Header</div>',
@@ -859,8 +867,8 @@ describe('RequestExample', () => {
       expect(wrapper.text()).toContain('Custom Header')
     })
 
-    it('renders footer slot', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders footer slot', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           selectedContentType: 'application/json',
@@ -875,8 +883,8 @@ describe('RequestExample', () => {
       expect(wrapper.text()).toContain('Custom Footer')
     })
 
-    it('renders footer slot even without examples', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders footer slot even without examples', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -894,10 +902,10 @@ describe('RequestExample', () => {
   })
 
   describe('Label Generation', () => {
-    it('uses generateLabel function when provided', () => {
+    it('uses generateLabel function when provided', async () => {
       const generateLabel = () => '<span class="custom-label">Custom Label</span>'
 
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           generateLabel,
@@ -908,8 +916,8 @@ describe('RequestExample', () => {
       expect(wrapper.text()).toContain('Custom Label')
     })
 
-    it('renders without generateLabel function', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders without generateLabel function', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: defaultProps,
       })
 
@@ -918,8 +926,8 @@ describe('RequestExample', () => {
   })
 
   describe('Edge Cases', () => {
-    it('handles operation with reference requestBody', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles operation with reference requestBody', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -936,8 +944,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
     })
 
-    it('handles operation without requestBody', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles operation without requestBody', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -949,8 +957,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
     })
 
-    it('handles operation with empty content', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles operation with empty content', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -965,8 +973,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
     })
 
-    it('handles operation with content but no examples', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles operation with content but no examples', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -983,8 +991,8 @@ describe('RequestExample', () => {
       expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(true)
     })
 
-    it('handles operation with content and empty examples', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles operation with content and empty examples', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: {
@@ -1005,8 +1013,8 @@ describe('RequestExample', () => {
   })
 
   describe('Webhook Payload Rendering', () => {
-    it('generates webhook payload using operationToHar when isWebhook is true', () => {
-      const wrapper = mount(RequestExample, {
+    it('generates webhook payload using operationToHar when isWebhook is true', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1022,8 +1030,8 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
-    it('renders webhook payload as JSON for webhook requests', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders webhook payload as JSON for webhook requests', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1053,8 +1061,8 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
-    it('uses operationToHar instead of client code generation for webhooks', () => {
-      const wrapper = mount(RequestExample, {
+    it('uses operationToHar instead of client code generation for webhooks', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1070,8 +1078,8 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
-    it('handles webhook requests without examples by using operation data', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles webhook requests without examples by using operation data', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1102,8 +1110,8 @@ describe('RequestExample', () => {
     })
 
     // TODO: https://github.com/scalar/scalar/pull/6670
-    it.todo('generates webhook payload for different content types', () => {
-      const wrapper = mount(RequestExample, {
+    it.todo('generates webhook payload for different content types', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1143,8 +1151,8 @@ describe('RequestExample', () => {
       mockExecCommand.mockClear()
     })
 
-    it('renders copy button for webhook payloads', () => {
-      const wrapper = mount(RequestExample, {
+    it('renders copy button for webhook payloads', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1164,7 +1172,7 @@ describe('RequestExample', () => {
     })
 
     it('copies webhook payload content when copy button is clicked', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1207,7 +1215,7 @@ describe('RequestExample', () => {
     })
 
     it('handles webhook copy with different content types', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1249,7 +1257,7 @@ describe('RequestExample', () => {
     })
 
     it('copies webhook payload with security credentials hidden', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1334,7 +1342,7 @@ describe('RequestExample', () => {
         },
       }
 
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1381,8 +1389,8 @@ describe('RequestExample', () => {
       expect(copiedContent).toContain('2024-01-15T10:30:00Z')
     })
 
-    it('handles handles null payload gracefully', () => {
-      const wrapper = mount(RequestExample, {
+    it('handles handles null payload gracefully', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1413,7 +1421,7 @@ describe('RequestExample', () => {
     })
 
     it('handles webhook copy with referenced examples', async () => {
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1456,8 +1464,8 @@ describe('RequestExample', () => {
       expect(copiedContent).toContain('email')
     })
 
-    it('provides proper accessibility for webhook copy functionality', () => {
-      const wrapper = mount(RequestExample, {
+    it('provides proper accessibility for webhook copy functionality', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
@@ -1484,7 +1492,7 @@ describe('RequestExample', () => {
       const methods: HttpMethodType[] = ['get', 'post', 'put', 'patch', 'delete']
 
       for (const method of methods) {
-        const wrapper = mount(RequestExample, {
+        const wrapper = await mountExample(RequestExample, {
           props: {
             ...defaultProps,
             isWebhook: true,
@@ -1547,8 +1555,8 @@ describe('RequestExample', () => {
       ],
     }
 
-    it('only includes required query parameters in the code example', () => {
-      const wrapper = mount(RequestExample, {
+    it('only includes required query parameters in the code example', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation: operationWithQueryParams,
@@ -1562,7 +1570,7 @@ describe('RequestExample', () => {
       expect(content).not.toContain('optionalParam')
     })
 
-    it('includes an optional query parameter when explicitly enabled via x-disabled', () => {
+    it('includes an optional query parameter when explicitly enabled via x-disabled', async () => {
       const operation: OperationObject = {
         summary: 'Operation with an explicitly enabled optional parameter',
         parameters: [
@@ -1581,7 +1589,7 @@ describe('RequestExample', () => {
         ],
       }
 
-      const wrapper = mount(RequestExample, {
+      const wrapper = await mountExample(RequestExample, {
         props: {
           ...defaultProps,
           operation,
@@ -1596,8 +1604,8 @@ describe('RequestExample', () => {
   })
 
   describe('Accessibility', () => {
-    it('has proper ARIA labels', () => {
-      const wrapper = mount(RequestExample, {
+    it('has proper ARIA labels', async () => {
+      const wrapper = await mountExample(RequestExample, {
         props: defaultProps,
       })
 

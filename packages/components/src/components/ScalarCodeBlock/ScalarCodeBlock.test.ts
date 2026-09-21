@@ -9,7 +9,8 @@ const mockWriteText = vi.fn().mockResolvedValue(undefined)
 const mockCopy = vi.fn()
 const mockCopied = ref(false)
 
-vi.mock('@vueuse/core', () => ({
+vi.mock('@vueuse/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@vueuse/core')>()),
   useClipboard: vi.fn(() => ({
     copy: mockCopy,
     copied: mockCopied,
@@ -46,6 +47,8 @@ describe('ScalarCodeBlock', () => {
     wrapper = createWrapper()
 
     await flushPromises()
+
+    await vi.waitFor(() => expect(wrapper.find('code span').exists()).toBe(true))
 
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')
@@ -88,6 +91,8 @@ describe('ScalarCodeBlock', () => {
     })
 
     await flushPromises()
+
+    await vi.waitFor(() => expect(wrapper.find('code span').exists()).toBe(true))
 
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')

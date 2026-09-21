@@ -240,6 +240,11 @@
       "import": "./dist/plugins/swift/nsurlsession/index.js",
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
       "default": "./dist/plugins/swift/nsurlsession/index.js"
+    },
+    "./lazy": {
+      "import": "./dist/lazy/index.js",
+      "types": "./dist/lazy/index.d.ts",
+      "default": "./dist/lazy/index.js"
     }
   },
   "files": [

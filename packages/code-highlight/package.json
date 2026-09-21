@@ -69,6 +69,11 @@
       "import": "./dist/rehype-highlight/index.js",
       "types": "./dist/rehype-highlight/index.d.ts",
       "default": "./dist/rehype-highlight/index.js"
+    },
+    "./lazy": {
+      "import": "./dist/lazy/index.js",
+      "types": "./dist/lazy/index.d.ts",
+      "default": "./dist/lazy/index.js"
     }
   },
   "files": [

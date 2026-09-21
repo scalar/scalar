@@ -140,6 +140,7 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { computedAsync } from '@vueuse/core'
 import {
   computed,
   onBeforeMount,
@@ -152,7 +153,7 @@ import {
 
 import { filterClientsByQuery } from '../helpers/filter-clients-by-query'
 import { findClient } from '../helpers/find-client'
-import { generateCodeSnippet } from '../helpers/generate-code-snippet'
+import { generateCodeSnippetAsync } from '../helpers/generate-code-snippet-async'
 import { getClients } from '../helpers/get-clients'
 import { getCustomCodeSamples } from '../helpers/get-custom-code-samples'
 import { getSecrets } from '../helpers/get-secrets'
@@ -328,29 +329,38 @@ const webhookHar = computed(() => {
 })
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() => {
-  if (isWebhook) {
-    return webhookHar.value?.postData?.text ?? ''
-  }
+const isGenerating = ref(false)
+const resolvedCode = computedAsync<string>(
+  async () => {
+    if (isWebhook) {
+      return webhookHar.value?.postData?.text ?? ''
+    }
 
-  return generateCodeSnippet({
-    // Only required parameters are shown in code examples; optional parameters
-    // are omitted unless explicitly enabled via `x-disabled: false`.
-    defaultDisabledParameters: true,
-    includeDefaultHeaders: integration === 'client',
-    clientId: localSelectedClient.value?.id,
-    customCodeSamples: customCodeSamples.value.samples,
-    operation,
-    method,
-    path,
-    contentType: selectedContentType,
-    server: selectedServer,
-    securitySchemes,
-    example: localExampleKey.value,
-    globalCookies,
-    requestBodyCompositionSelection,
-  })
-})
+    return await generateCodeSnippetAsync({
+      // Only required parameters are shown in code examples; optional parameters
+      // are omitted unless explicitly enabled via `x-disabled: false`.
+      defaultDisabledParameters: true,
+      includeDefaultHeaders: integration === 'client',
+      clientId: localSelectedClient.value?.id,
+      customCodeSamples: customCodeSamples.value.samples,
+      operation,
+      method,
+      path,
+      contentType: selectedContentType,
+      server: selectedServer,
+      securitySchemes,
+      example: localExampleKey.value,
+      globalCookies,
+      requestBodyCompositionSelection,
+    })
+  },
+  '',
+  { evaluating: isGenerating },
+)
+
+const generatedCode = computed(() =>
+  isGenerating.value ? '' : resolvedCode.value,
+)
 
 /** The language for the code block, used for syntax highlighting */
 const codeBlockLanguage = computed(() => {
@@ -414,8 +424,9 @@ const id = useId()
 </script>
 <template>
   <ScalarCard
-    v-if="generatedCode"
+    v-if="generatedCode || isGenerating"
     ref="elem"
+    :aria-busy="isGenerating"
     class="request-card dark-mode">
     <!-- Header -->
     <ScalarCardHeader class="pr-2.5">

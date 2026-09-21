@@ -1,0 +1,11 @@
+{
+  "agent": { "disabled": true },
+  "hideClientButton": true,
+  "hideDarkModeToggle": true,
+  "hideModels": true,
+  "hideTestRequestButton": true,
+  "showDeveloperTools": "never",
+  "telemetry": false,
+  "url": "https://petstore3.swagger.io/api/v3/openapi.json",
+  "withDefaultFonts": false
+}

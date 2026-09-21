@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   findClient,
-  generateCodeSnippet,
+  generateCodeSnippetAsync,
   getClients,
   getCustomCodeSamples,
   getSecrets,
@@ -15,6 +15,7 @@ import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { computedAsync } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import { DataTable, DataTableRow } from '@/v2/components/data-table'
@@ -82,21 +83,29 @@ const handleClientChange = (option: ClientOption | undefined) => {
 }
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() =>
-  generateCodeSnippet({
-    defaultDisabledParameters: true,
-    clientId: localSelectedClient.value?.id,
-    customCodeSamples: customCodeSamples.value.samples,
-    operation,
-    method,
-    path,
-    contentType: selectedContentType,
-    server: selectedServer,
-    securitySchemes,
-    example: selectedExample,
-    globalCookies,
-    includeDefaultHeaders: integration === 'client',
-  }),
+const isGenerating = ref(false)
+const resolvedCode = computedAsync<string>(
+  async () =>
+    await generateCodeSnippetAsync({
+      defaultDisabledParameters: true,
+      clientId: localSelectedClient.value?.id,
+      customCodeSamples: customCodeSamples.value.samples,
+      operation,
+      method,
+      path,
+      contentType: selectedContentType,
+      server: selectedServer,
+      securitySchemes,
+      example: selectedExample,
+      globalCookies,
+      includeDefaultHeaders: integration === 'client',
+    }),
+  '',
+  { evaluating: isGenerating },
+)
+
+const generatedCode = computed(() =>
+  isGenerating.value ? '' : resolvedCode.value,
 )
 
 /** Check if there are any clients available (built-in or custom code samples) */

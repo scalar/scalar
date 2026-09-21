@@ -1,4 +1,5 @@
-import { AVAILABLE_CLIENTS, type AvailableClients, snippetz } from '@scalar/snippetz'
+import { clientMetadata } from '@scalar/snippetz/lazy'
+import { AVAILABLE_CLIENTS, type AvailableClients } from '@scalar/types/snippetz'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 import { capitalize } from 'vue'
 
@@ -45,39 +46,37 @@ export const generateClientOptions = (allowedClients: AvailableClients = AVAILAB
   /** Create set of allowlist for quicker lookups */
   const allowedClientsSet = new Set(allowedClients)
 
-  const options = snippetz()
-    .clients()
-    .flatMap((group) => {
-      const options = group.clients.flatMap((plugin) => {
-        const id: AvailableClients[number] = `${group.key}/${plugin.client}`
+  const options = clientMetadata.flatMap((group) => {
+    const options = group.clients.flatMap((plugin) => {
+      const id: AvailableClients[number] = `${group.key}/${plugin.client}`
 
-        // If the client is not allowed, skip it
-        if (!allowedClientsSet.has(id)) {
-          return []
-        }
-
-        return {
-          id,
-          lang: plugin.client === 'curl' ? ('curl' as const) : group.key,
-          title: `${capitalize(group.title)} ${plugin.title}`,
-          label: plugin.title,
-          targetKey: group.key,
-          targetTitle: group.title,
-          clientKey: plugin.client,
-        }
-      })
-
-      // If no clients are allowed, skip this group
-      if (options.length === 0) {
+      // If the client is not allowed, skip it
+      if (!allowedClientsSet.has(id)) {
         return []
       }
 
       return {
-        label: group.title,
-        key: group.key,
-        options,
+        id,
+        lang: plugin.client === 'curl' ? ('curl' as const) : group.key,
+        title: `${capitalize(group.title)} ${plugin.title}`,
+        label: plugin.title,
+        targetKey: group.key,
+        targetTitle: group.title,
+        clientKey: plugin.client,
       }
     })
+
+    // If no clients are allowed, skip this group
+    if (options.length === 0) {
+      return []
+    }
+
+    return {
+      label: group.title,
+      key: group.key,
+      options,
+    }
+  })
 
   return options
 }

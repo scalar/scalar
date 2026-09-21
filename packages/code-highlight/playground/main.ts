@@ -12,7 +12,7 @@ import codeExampleLarge from '../src/constants?raw'
 import '../src/css/code.css'
 
 import { standardLanguages } from '../src/languages'
-import { htmlFromMarkdown } from '../src/markdown/markdown'
+import { htmlFromMarkdown } from '../src/markdown'
 // @ts-expect-error vite not looking for raw types
 import markdownFile from './markdown-test.md?raw'
 

@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import { findClient } from './helpers/find-client'
@@ -53,7 +53,7 @@ describe('mount', () => {
 
     // The wrapper scopes the styles and the operation resolved enough to render the method badge.
     expect(element.querySelector('.scalar-app')).not.toBeNull()
-    expect(element.textContent).toMatch(/post/i)
+    await vi.waitFor(() => expect(element.textContent).toMatch(/post/i))
   })
 
   it('accepts a CSS selector for the target element', async () => {
@@ -121,6 +121,9 @@ describe('mount', () => {
     const instance = createCodeExample(element, { store, path: '/hello', method: 'post' })
     mounted.push(instance)
 
+    await vi.waitFor(() =>
+      expect(element.querySelector('[data-testid="client-picker"]')?.textContent).toContain(expectedTitle),
+    )
     const picker = element.querySelector('[data-testid="client-picker"]')
     expect(picker?.textContent).toContain(expectedTitle)
   })
@@ -132,7 +135,7 @@ describe('mount', () => {
     const instance = createCodeExample(element, { store, path: '/hello', method: 'post' })
     mounted.push(instance)
 
-    expect(element.textContent).toMatch(/post/i)
+    await vi.waitFor(() => expect(element.textContent).toMatch(/post/i))
 
     // Switch to a document that does not define the operation. The block must not
     // feed `undefined` to CodeExample (which would crash reading `operation.requestBody`);
@@ -145,7 +148,7 @@ describe('mount', () => {
     await nextTick()
 
     expect(store.workspace.activeDocument?.info.title).toBe('Empty')
-    expect(element.textContent).toMatch(/post/i)
+    await vi.waitFor(() => expect(element.textContent).toMatch(/post/i))
   })
 
   it('reads the selected example from the store, not just the initial option', async () => {
@@ -182,7 +185,7 @@ describe('mount', () => {
     document.body.appendChild(element)
     mounted.push(createCodeExample(element, { store, path: '/hello', method: 'post', selectedExample: 'first' }))
 
-    expect(element.textContent).toContain('second-example')
+    await vi.waitFor(() => expect(element.textContent).toContain('second-example'))
     expect(element.textContent).not.toContain('first-example')
   })
 
@@ -210,7 +213,7 @@ describe('mount', () => {
     document.body.appendChild(element)
     mounted.push(createCodeExample(element, { store, path: '/hello', method: 'post' }))
 
-    expect(element.textContent).toContain('api.example.com')
+    await vi.waitFor(() => expect(element.textContent).toContain('api.example.com'))
   })
 
   it('keeps the operation and its server from the same document when the operation disappears', async () => {
@@ -228,7 +231,7 @@ describe('mount', () => {
     const element = document.createElement('div')
     document.body.appendChild(element)
     mounted.push(createCodeExample(element, { store, path: '/hello', method: 'post' }))
-    expect(element.textContent).toContain('api.example.com')
+    await vi.waitFor(() => expect(element.textContent).toContain('api.example.com'))
 
     // Swap to a document that lacks the operation but defines a different server.
     // The block must keep the last operation paired with the server it came from,
@@ -245,7 +248,7 @@ describe('mount', () => {
     store.workspace['x-scalar-active-document'] = 'other'
     await nextTick()
 
-    expect(element.textContent).toContain('api.example.com')
+    await vi.waitFor(() => expect(element.textContent).toContain('api.example.com'))
     expect(element.textContent).not.toContain('other.example.com')
   })
 

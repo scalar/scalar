@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { htmlFromMarkdown } from './markdown'
+import { htmlFromMarkdown } from './html-from-markdown'
 
 describe('htmlFromMarkdown', () => {
   it('returns HTML', () => {
