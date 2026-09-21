@@ -194,7 +194,7 @@ describe('content-based parameters', () => {
     } satisfies ParameterWithContentObject
 
     const result = getExample(param, 'default', 'application/json')
-    expect(result).toEqual({ value: { status: 'from-param' }, 'x-disabled': false })
+    expect(result).toStrictEqual({ value: { status: 'from-param' }, 'x-disabled': false })
   })
 
   it('returns undefined when no example is found in content', () => {
