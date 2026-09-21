@@ -25,7 +25,6 @@ catalogs:
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
     '@hono/node-server': ^2.1.1
-    '@hono/node-ws': ^1.3.1
     '@modelcontextprotocol/sdk': 1.26.0
     '@nestjs/cli': '^11.0.14'
     '@nestjs/common': '^11.1.11'
@@ -114,7 +113,7 @@ catalogs:
     yaml: ^2.9.0
     zod: ^4.4.3
     posthog-js: 1.407.5
-    ws: 8.21.0
+    ws: 8.21.3
 # pnpm 12 replaces onlyBuiltDependencies/ignoredBuiltDependencies with a single
 # allowBuilds map: true runs the package's build scripts, false skips them.
 allowBuilds:

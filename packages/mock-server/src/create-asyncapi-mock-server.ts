@@ -1,6 +1,7 @@
-import { createNodeWebSocket } from '@hono/node-ws'
+import { type WebSocketServerLike, upgradeWebSocket } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { WebSocketServer } from 'ws'
 
 import { defaultTransports } from '@/transports'
 import type { MessageDirection, MockTransport, TransportContext } from '@/transports/types'
@@ -41,11 +42,8 @@ export type AsyncApiMockServerOptions = {
 export type AsyncApiMockServer = {
   /** The Hono app serving SSE channels and WebSocket upgrade routes. */
   app: Hono
-  /**
-   * Attaches WebSocket handling to the running Node HTTP server returned by `@hono/node-server`'s
-   * `serve()`. Must be called for WebSocket channels to accept connections.
-   */
-  injectWebSocket: ReturnType<typeof createNodeWebSocket>['injectWebSocket']
+  /** Pass this option to `@hono/node-server`'s `serve()` to enable WebSocket channels. */
+  websocket: { server: WebSocketServerLike }
 }
 
 /**
@@ -54,21 +52,15 @@ export type AsyncApiMockServer = {
  * default) that emits realistic mock messages generated from the channel's message payload
  * schemas, the same way the REST mocker generates HTTP response bodies.
  *
- * WebSocket support requires attaching to the HTTP server after `serve()`:
+ * Pass the returned WebSocket option to `serve()`:
  *
  * ```ts
- * const { app, injectWebSocket } = await createAsyncApiMockServer({ document })
- * const server = serve({ fetch: app.fetch, port: 3000 })
- * injectWebSocket(server)
+ * const { app, websocket } = await createAsyncApiMockServer({ document })
+ * serve({ fetch: app.fetch, port: 3000, websocket })
  * ```
  */
 export async function createAsyncApiMockServer(options: AsyncApiMockServerOptions): Promise<AsyncApiMockServer> {
   const app = new Hono()
-
-  // The Node WebSocket adapter must be created against the app before routes are registered so the
-  // `upgradeWebSocket` helper shares this app's lifecycle. `injectWebSocket` is wired to the
-  // HTTP server by the caller after `serve()`.
-  const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
 
   const document = await processAsyncApiDocument(options.document)
   const channels = resolveChannels(document)
@@ -103,5 +95,5 @@ export async function createAsyncApiMockServer(options: AsyncApiMockServerOption
     log(`[asyncapi] ${transport.name} -> ${channel.route} (channel "${channel.id}")`)
   }
 
-  return { app, injectWebSocket }
+  return { app, websocket: { server: new WebSocketServer({ noServer: true }) } }
 }
