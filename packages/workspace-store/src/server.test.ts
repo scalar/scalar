@@ -26,6 +26,28 @@ import {
 } from './server'
 
 describe('create-server-store', () => {
+  it('keeps a __proto__ schema in the sparse server document', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'api',
+          document: {
+            openapi: '3.1.0',
+            info: { title: 'Prototype names', version: '1.0.0' },
+            components: { schemas: { ['__proto__']: { type: 'string' } } },
+          },
+        },
+      ],
+    })
+    const document = getOpenApiServerDocument(store, 'api')
+    expect(JSON.parse(JSON.stringify(document?.components))).toStrictEqual({
+      schemas: { ['__proto__']: { $ref: 'https://example.com/api/components/schemas/__proto__#', $global: true } },
+    })
+    expect(store.get('#/api/components/schemas/__proto__')).toStrictEqual({ type: 'string' })
+  })
+
   const exampleDocument = () => ({
     'openapi': '3.1.1',
     'info': {
@@ -1214,6 +1236,39 @@ describe('escape-paths', () => {
 })
 
 describe('externalize-component-references', () => {
+  it.each(['ssr', 'static'] as const)('preserves prototype-named components in %s mode', (mode) => {
+    const result = externalizeComponentReferences(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Prototype names', version: '1.0.0' },
+        'x-scalar-original-document-hash': '',
+        components: {
+          schemas: {
+            ['__proto__']: { type: 'string' },
+            constructor: { type: 'number' as const },
+            toString: { type: 'boolean' as const },
+          },
+        },
+      },
+      mode === 'ssr'
+        ? { mode, name: 'api', baseUrl: 'https://example.com' }
+        : { mode, name: 'api', directory: 'assets' },
+    )
+    const prefix = mode === 'ssr' ? 'https://example.com/api/components/schemas/' : './chunks/api/components/schemas/'
+    const suffix = mode === 'ssr' ? '#' : '.json#'
+    const expected = {
+      ['__proto__']: { $ref: `${prefix}__proto__${suffix}`, $global: true },
+      constructor: { $ref: `${prefix}constructor${suffix}`, $global: true },
+      toString: { $ref: `${prefix}toString${suffix}`, $global: true },
+    }
+
+    // Compare entries because the schema named `constructor` shadows the property used by deep equality.
+    expect(Object.keys(result)).toStrictEqual(['schemas'])
+    expect(Object.entries(result.schemas)).toStrictEqual(Object.entries(expected))
+    expect(Object.getPrototypeOf(result.schemas)).toBe(Object.prototype)
+    expect(Object.entries(JSON.parse(JSON.stringify(result)).schemas)).toStrictEqual(Object.entries(expected))
+  })
+
   it('should convert the components with refs correctly for ssr mode', () => {
     const result = externalizeComponentReferences(
       {

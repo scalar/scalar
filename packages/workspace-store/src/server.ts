@@ -238,15 +238,17 @@ export function externalizeComponentReferences(
       return
     }
 
-    result[type] = {}
-    Object.keys(component).forEach((name) => {
-      const ref =
-        meta.mode === 'ssr'
-          ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
-          : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
+    // Define component names as own properties, including the valid name `__proto__`.
+    result[type] = Object.fromEntries(
+      Object.keys(component).map((name) => {
+        const ref =
+          meta.mode === 'ssr'
+            ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
+            : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
 
-      result[type][name] = { '$ref': ref, $global: true }
-    })
+        return [name, { '$ref': ref, $global: true }]
+      }),
+    )
   })
 
   return result
