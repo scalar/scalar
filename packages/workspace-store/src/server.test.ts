@@ -1,11 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
+import { syncBuiltinESMExports } from 'node:module'
 import type { AddressInfo } from 'node:net'
+import { tmpdir } from 'node:os'
+import path, { join, relative } from 'node:path'
 import { cwd } from 'node:process'
 
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { type FastifyInstance, fastify } from 'fastify'
-import { assert, beforeEach, describe, expect, it } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -390,6 +393,52 @@ describe('create-server-store', () => {
   })
 
   describe('ssg', () => {
+    it.each([String.raw`D:\nested output\chunks`, String.raw`\\server\share\chunks`, 'chunks'])(
+      'resolves the output root %s from a Windows working directory',
+      async (directory) => {
+        const store = await createServerWorkspaceStore({
+          mode: 'static',
+          directory,
+          documents: [{ name: 'default', document: exampleDocument() }],
+        })
+        const stopWriting = new Error('Stop after resolving the output root')
+        vi.spyOn(process, 'cwd').mockReturnValue(String.raw`C:\project`)
+        const mkdir = vi.spyOn(fs, 'mkdir').mockRejectedValue(stopWriting)
+        vi.spyOn(path, 'resolve').mockImplementation(path.win32.resolve)
+        syncBuiltinESMExports()
+
+        try {
+          await expect(store.generateWorkspaceChunks()).rejects.toBe(stopWriting)
+          expect(mkdir).toHaveBeenCalledWith(path.win32.resolve(String.raw`C:\project`, directory), { recursive: true })
+        } finally {
+          vi.restoreAllMocks()
+          syncBuiltinESMExports()
+        }
+      },
+    )
+
+    it.each(['absolute', 'relative'])('writes workspace chunks to a %s output directory', async (kind) => {
+      const directory = await fs.mkdtemp(join(tmpdir(), 'scalar-workspace-'))
+      const output = join(directory, 'nested output', 'chunks')
+      const store = await createServerWorkspaceStore({
+        mode: 'static',
+        directory: kind === 'absolute' ? output : relative(cwd(), output),
+        documents: [{ name: 'default', document: exampleDocument() }],
+      })
+
+      try {
+        await store.generateWorkspaceChunks()
+        const workspace = JSON.parse(await fs.readFile(join(output, WORKSPACE_FILE_NAME), 'utf-8'))
+        expect(workspace.documents.default.info.title).toBe('Scalar Galaxy')
+        const operation = JSON.parse(
+          await fs.readFile(join(output, 'chunks/default/operations/~1planets/get.json'), 'utf-8'),
+        )
+        expect(operation.summary).toBe('List planets')
+      } finally {
+        await fs.rm(directory, { recursive: true, force: true })
+      }
+    })
+
     it('should generate the workspace file and also all the related chunks', async () => {
       const dir = 'temp'
 
