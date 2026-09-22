@@ -1,5 +1,6 @@
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it } from 'vitest'
+import YAML from 'yaml'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -317,6 +318,37 @@ describe('normalize-boolean-schemas', () => {
     expect(JSON.parse(exported ?? '{}').components.schemas.Never).toStrictEqual({ not: {} })
     expect(store.exportDocument('boolean', 'yaml')).not.toContain('__scalar_')
   })
+
+  it.each(['3.0.4', '3.1.2', '3.2.1'])(
+    'keeps authored additionalProperties booleans in original and saved exports for %s',
+    async (openapi) => {
+      const store = createWorkspaceStore()
+      const schemas = {
+        Closed: { type: 'object', additionalProperties: false },
+        Open: { type: 'object', additionalProperties: true },
+      }
+      await store.addDocument({
+        name: 'booleans',
+        document: { openapi, info: { title: 'Boolean exports', version: '1' }, components: { schemas } },
+      })
+      const document = store.workspace.documents.booleans
+      if (!document || !isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+      expect(JSON.parse(JSON.stringify(document.components?.schemas))).toStrictEqual(schemas)
+      for (const save of [false, true]) {
+        if (save) {
+          expect(await store.saveDocument('booleans')).toBe(true)
+        }
+        const json = store.exportDocument('booleans', 'json') ?? ''
+        const yaml = store.exportDocument('booleans', 'yaml') ?? ''
+        expect(JSON.parse(json).components.schemas).toStrictEqual(schemas)
+        expect(YAML.parse(yaml).components.schemas).toStrictEqual(schemas)
+        expect(json).not.toContain('__scalar_')
+        expect(yaml).not.toContain('__scalar_')
+      }
+    },
+  )
 
   it('preserves boolean schema semantics through server ingestion', async () => {
     const store = await createServerWorkspaceStore({

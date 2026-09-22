@@ -10,7 +10,7 @@ Ordinary vendor extensions and example/default/enum/const payloads are opaque. T
 
 ## Internal markers and exports
 
-`__scalar_` distinguishes untyped schema objects inside the store. `getRaw` deliberately returns this backing representation; it is not a sanitized export API. The public proxy's serialization and schema rendering hide internal marker properties. Use `exportDocument(name, 'json' | 'yaml')` for API-description exports; tests cover exports both before and after saving normalized data. `exportWorkspace` is internal workspace persistence state and has a different purpose.
+`__scalar_` distinguishes untyped schema objects inside the store. `getRaw` deliberately returns this backing representation; it is not a sanitized export API. The public proxy's serialization and schema rendering hide internal marker properties. Use `exportDocument(name, 'json' | 'yaml')` for API-description exports; tests cover exports both before and after saving normalized data. Saving uses the existing `getEditableDocument` pipeline and its `removeExtraScalarKeys` bundler plugin to strip markers before either JSON or YAML export. Direct public proxy serialization uses the existing default `json-magic` marker filtering. No additional per-format marker filter is introduced. Literal `additionalProperties: false` stays `false` before and after saving. Other normalized boolean schema positions export as `{}` or `{ not: {} }` after saving; original unsaved exports retain their authored booleans. `exportWorkspace` is internal workspace persistence state and has a different purpose.
 
 ## Measured server normalization cost
 
