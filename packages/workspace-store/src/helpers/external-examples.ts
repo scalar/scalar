@@ -8,6 +8,8 @@ import type { ExampleObject } from '@/schemas/v3.2/strict/openapi-document'
 export type ExternalExampleState = {
   status: 'idle' | 'loading' | 'loaded' | 'error'
   value?: unknown
+  /** Preserve wire text when a 3.2 example also supplies structured data. */
+  serializedValue?: string
   load: () => Promise<void>
 }
 
@@ -39,6 +41,7 @@ export const createExternalExampleResolver = (
             const selectedLoader = [loader, options.fileLoader].find((candidate) => candidate?.validate(url))
             const result = await selectedLoader?.exec(url)
             if (result?.ok) {
+              state.serializedValue = typeof result.raw === 'string' ? result.raw : undefined
               state.value = result.data === undefined ? result.raw : result.data
               state.status = 'loaded'
             } else {

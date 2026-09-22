@@ -78,7 +78,13 @@ export const useExternalExamples = (
     resolve: (example) => {
       if (!example || example.value !== undefined || !example.externalValue) return example
       const state = getResolver()(example)
-      return state.status === 'loaded' ? { ...example, value: state.value } : example
+      if (state.status !== 'loaded') return example
+      // A 3.2 example can pair structured data with external wire text. Keep both in the
+      // resolved view so raw consumers display the download and form editors retain the data.
+      if (example.dataValue !== undefined && state.serializedValue !== undefined) {
+        return { ...example, serializedValue: state.serializedValue }
+      }
+      return { ...example, value: state.value }
     },
     retry: async () => {
       await Promise.all(states.value.map((state) => state.load()))

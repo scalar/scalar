@@ -30,6 +30,10 @@ describe('get-example-content', () => {
     expect(getExampleContent(undefined, { dataValue: 'hello' }, { contentType: 'text/plain' })).toBe('hello')
   })
 
+  it('preserves explicit legacy null response examples', () => {
+    expect(getExampleContent(undefined, { value: null })).toBe('null')
+  })
+
   it('keeps legacy formatted JSON examples', () => {
     expect(getExampleContent(undefined, { value: '{"id":1}' })).toBe('{\n  "id": 1\n}')
   })
