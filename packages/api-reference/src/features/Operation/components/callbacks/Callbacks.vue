@@ -28,6 +28,7 @@ const { path, callbacks, breadcrumb } = defineProps<{
   document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
+    | 'expandAllParameters'
     | 'hideModels'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'

@@ -7,6 +7,14 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([
+    [{}, true],
+    [{ expandAllParameters: true }, true],
+    [{ expandAllParameters: false }, false],
+  ])('preserves parameter expansion for %j', (config, expected) => {
+    expect(apiReferenceConfigurationSchema.parse(config).expandAllParameters).toBe(expected)
+  })
+
   describe('schema', () => {
     it('validates a minimal configuration', () => {
       const minimalConfig = {}

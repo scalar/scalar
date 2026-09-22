@@ -123,6 +123,7 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   method: 'post',
   operation,
   options: {
+    expandAllParameters: true,
     expandAllResponses: false,
     expandAllSchemaProperties: false,
     schemaKeyboardNav: false,

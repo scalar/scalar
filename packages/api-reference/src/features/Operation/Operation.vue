@@ -10,6 +10,7 @@ export type OperationProps = {
   /** The subset of the configuration object required for the operation component */
   options: Pick<
     ApiReferenceConfigurationRaw,
+    | 'expandAllParameters'
     | 'expandAllResponses'
     | 'hideModels'
     | 'hideTestRequestButton'

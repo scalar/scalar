@@ -73,6 +73,7 @@ describe('Callbacks', () => {
         callbacks: mockCallbacks,
         eventBus: null,
         options: {
+          expandAllParameters: true,
           hideModels: false,
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
@@ -133,6 +134,7 @@ describe('Callbacks', () => {
           callbacks: oneNameManyRows,
           eventBus: null,
           options: {
+            expandAllParameters: true,
             hideModels: false,
             orderRequiredPropertiesFirst: false,
             orderSchemaPropertiesBy: 'alpha' as const,

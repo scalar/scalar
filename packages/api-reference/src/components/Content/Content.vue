@@ -77,6 +77,7 @@ const {
   /** The subset of the configuration object required for the content component */
   options: Pick<
     ApiReferenceConfigurationRaw,
+    | 'expandAllParameters'
     | 'authentication'
     | 'baseServerURL'
     | 'documentDownloadType'

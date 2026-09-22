@@ -765,6 +765,8 @@ type ExtendedConfiguration = {
   defaultOpenAllTags: boolean
   /** Whether to expand all models by default. Warning: this can cause performance issues on big documents */
   expandAllModelSections: boolean
+  /** Whether to show parameter details by default. Set to false to collapse each parameter. */
+  expandAllParameters: boolean
   /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
   expandAllResponses: boolean
   /** Whether to expand all nested schema properties. Warning: this can cause performance issues on big documents */

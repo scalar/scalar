@@ -8,12 +8,57 @@ import OperationParameters from './OperationParameters.vue'
 
 describe('OperationParameters', () => {
   const defaultSchemaOptions = {
+    expandAllParameters: true,
     hideModels: false,
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
     schemaKeyboardNav: false,
   }
+
+  it.each(['path', 'query', 'header', 'cookie'] as const)(
+    'opens and closes scalar %s parameter details when expansion is disabled',
+    async (location) => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          eventBus: null,
+          options: { ...defaultSchemaOptions, expandAllParameters: false },
+          parameters: [
+            {
+              in: location,
+              name: 'limit',
+              required: true,
+              schema: { type: 'integer', enum: [10, 20] },
+            },
+          ],
+        },
+      })
+      const toggle = wrapper.get('button[aria-expanded]')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      expect(toggle.text()).toContain('limit')
+      expect(toggle.text()).toContain('integer')
+      expect(toggle.text()).toContain('required')
+      expect(wrapper.text()).not.toContain('20')
+      await toggle.trigger('click')
+      expect(toggle.attributes('aria-expanded')).toBe('true')
+      expect(wrapper.text()).toContain('20')
+      await toggle.trigger('click')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      expect(wrapper.text()).not.toContain('20')
+    },
+  )
+
+  it('keeps details visible when parameter expansion is enabled', () => {
+    const wrapper = mount(OperationParameters, {
+      props: {
+        eventBus: null,
+        options: defaultSchemaOptions,
+        parameters: [{ in: 'query', name: 'limit', schema: { type: 'integer', enum: [10, 20] } }],
+      },
+    })
+    expect(wrapper.text()).toContain('20')
+    expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
+  })
 
   describe('path parameters', () => {
     it('renders path parameters', () => {

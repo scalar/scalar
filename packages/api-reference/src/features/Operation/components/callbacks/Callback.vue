@@ -30,6 +30,7 @@ const { method, name, url, options, document, breadcrumb } = defineProps<{
   breadcrumb?: string[]
   options: Pick<
     OperationProps['options'],
+    | 'expandAllParameters'
     | 'hideModels'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
