@@ -1007,4 +1007,318 @@ paths:
       '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Schemas\n\n### Value\n\n- **Type:**\n\n**One of:**\n\n`string`\n\n`number`\n',
     )
   })
+  it('preserves an optional request body description without inventing an operation ID', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Optional body', version: '1' },
+      paths: {
+        '/pets': {
+          post: {
+            requestBody: { required: false, description: 'Optional pet data.', content: {} },
+            responses: { '204': { description: 'Saved' } },
+          },
+        },
+      },
+    })
+    expect(result).toContain('Optional pet data.')
+    expect(result).toMatch(/Required:.*`false`/)
+    expect(result).not.toContain('Operation ID:')
+  })
+  it('renders a primitive component description once with its Markdown formatting', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Components', version: '1' },
+      components: { schemas: { Status: { type: 'string', description: 'A **unique status**.', enum: ['ready'] } } },
+    })
+    expect(result.match(/unique status/g)).toStrictEqual(['unique status'])
+    expect(result).toContain('**unique status**')
+    expect(result).toContain('"ready"')
+    expect(result).not.toContain('Example:')
+  })
+  it('preserves request and response examples independently, including falsy values without schemas', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Examples', version: '1' },
+      components: { examples: { Response: { summary: 'Referenced response', value: false } } },
+      paths: {
+        '/examples': {
+          post: {
+            requestBody: { content: { 'application/json': { example: 0 } } },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'string', example: 'generated replacement' },
+                    examples: { supplied: { $ref: '#/components/examples/Response' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+      0,
+      false,
+    ])
+    expect(markdown).toContain('Referenced response')
+    expect(markdown).not.toContain('generated replacement')
+  })
+
+  it('preserves referenced response headers, response links, and multipart encoding', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Details', version: '1' },
+      components: {
+        headers: { Rate: { description: 'Remaining calls', schema: { type: 'integer' }, example: 0 } },
+        links: {
+          Next: {
+            operationRef: '#/paths/~1next/get',
+            parameters: { cursor: '$response.body#/cursor' },
+            requestBody: false,
+          },
+        },
+      },
+      paths: {
+        '/upload': {
+          post: {
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: { type: 'object', properties: { file: { type: 'string' } } },
+                  encoding: {
+                    file: {
+                      contentType: 'text/plain',
+                      style: 'form',
+                      explode: false,
+                      allowReserved: false,
+                      headers: { 'X-Part': { schema: { type: 'string' }, example: 'part-value' } },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                headers: { 'X-Rate': { $ref: '#/components/headers/Rate' }, 'X-Empty': { example: null } },
+                links: { next: { $ref: '#/components/links/Next' } },
+              },
+            },
+          },
+        },
+      },
+    })
+    const request = markdown.split('#### Request Body')[1]!.split('#### Responses')[0]!
+    for (const expected of ['text/plain', 'Explode: `false`', 'Allow reserved: `false`', 'X-Part', 'part-value'])
+      expect(request).toContain(expected)
+    expect(request).not.toContain('X-Rate')
+    const response = markdown.split('#### Responses')[1]!
+    for (const expected of [
+      'X-Rate',
+      'Remaining calls',
+      '#/paths/~1next/get',
+      '$response.body#/cursor',
+      '**Request body:** `false`',
+    ])
+      expect(response).toContain(expected)
+    expect(response).not.toContain('X-Part')
+    expect(response).toContain('X-Empty')
+    expect(
+      [...response.matchAll(/```json\s*\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!)),
+    ).toStrictEqual([0, null])
+  })
+  it('preserves supplied XML through document loading', async () => {
+    for (const value of [null, false, 0, '', '<Pet id="42" />']) {
+      const markdown = await createMarkdownFromOpenApi({
+        openapi: '3.1.1',
+        info: { title: 'XML examples', version: '1' },
+        paths: {
+          '/xml': {
+            get: { responses: { '200': { description: 'OK', content: { 'application/xml': { example: value } } } } },
+          },
+        },
+      })
+      expect(markdown).toContain(`\`\`\`xml\n${String(value)}${value === '' ? '' : '\n'}\`\`\``)
+    }
+  })
+
+  it('keeps generated request and response examples in their respective directions', async () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        id: { type: 'integer', readOnly: true, example: 42 },
+        secret: { type: 'string', writeOnly: true, example: 'secret' },
+        name: { type: 'string', example: 'Ada' },
+      },
+    }
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Directions', version: '1' },
+      paths: {
+        '/pets': {
+          post: {
+            requestBody: { content: { 'application/json': { schema } } },
+            responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } },
+          },
+        },
+      },
+    })
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+      { secret: 'secret', name: 'Ada' },
+      { id: 42, name: 'Ada' },
+    ])
+  })
+
+  it('preserves boolean schemas through document loading', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Boolean schemas', version: '1' },
+      components: {
+        schemas: {
+          Allowed: true,
+          Forbidden: false,
+          Container: {
+            type: 'object',
+            properties: { anything: true, nothing: false, values: { type: 'array', items: false } },
+            allOf: [true],
+            not: false,
+          },
+        },
+      },
+    })
+    expect(markdown).toContain('**Type:** `any`')
+    expect(markdown).toContain('**Type:** `never`')
+    expect(markdown.match(/any \(true schema\)/g)?.length).toBe(3)
+    expect(markdown.match(/never \(false schema\)/g)?.length).toBe(4)
+  })
+
+  it('preserves parameter examples and content examples without schema fallbacks', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Parameter examples', version: '1' },
+      components: { examples: { Empty: { value: '', description: 'An **empty** query.' } } },
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            parameters: [
+              {
+                name: 'query',
+                in: 'query',
+                schema: { type: 'string', example: 'unused' },
+                examples: { empty: { $ref: '#/components/examples/Empty' } },
+              },
+              { name: 'filter', in: 'query', content: { 'application/json': { example: false } } },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+      '',
+      false,
+    ])
+    expect(markdown).toContain('An **empty** query.')
+    expect(markdown).toContain('**Operation ID:** `search`')
+    expect(markdown).not.toContain('unused')
+  })
+
+  it('renders form encoding only on supported media types and ignores reserved headers', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Encoding', version: '1' },
+      paths: {
+        '/form': {
+          post: {
+            requestBody: {
+              content: {
+                'application/x-www-form-urlencoded': {
+                  schema: { type: 'object', properties: { field: { type: 'string' } } },
+                  encoding: {
+                    field: {
+                      style: 'form',
+                      explode: false,
+                      headers: { 'X-Ignored': { description: 'Not multipart' } },
+                    },
+                  },
+                },
+                'application/json': { encoding: { ignored: { contentType: 'text/ignored' } } },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                headers: {
+                  'content-type': { description: 'Reserved header' },
+                  'X-Content': { content: { 'application/json': { example: 0 } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(markdown).toContain('**Encoding:**')
+    expect(markdown).toContain('Explode: `false`')
+    expect(markdown).toContain('**`X-Content`**')
+    expect(markdown).not.toContain('Not multipart')
+    expect(markdown).not.toContain('text/ignored')
+    expect(markdown).not.toContain('Reserved header')
+    const response = markdown.split('#### Responses')[1]!
+    expect(
+      [...response.matchAll(/```json\s*\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!)),
+    ).toStrictEqual([0])
+  })
+  it('retains constraints beside boolean schema references through document loading', async () => {
+    const markdown = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.1.1',
+        info: { title: 'Boolean siblings', version: '1' },
+        components: {
+          schemas: {
+            Any: true,
+            String: { $ref: '#/components/schemas/Any', type: 'string', minLength: 3 },
+          },
+        },
+      },
+      { model: 'String' },
+    )
+    expect(markdown).toContain('**Type:** `string`')
+    expect(markdown).toContain('minLength: `3`')
+  })
+
+  it.each(['3.0.4', '3.1.2', '3.2.0'])(
+    'renders named examples according to the declared version %s',
+    async (openapi) => {
+      const markdown = await createMarkdownFromOpenApi({
+        openapi,
+        info: { title: 'Versioned examples', version: '1' },
+        components: { examples: { Falsy: { dataValue: false } } },
+        paths: {
+          '/examples': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'boolean' },
+                      examples: { supplied: { $ref: '#/components/examples/Falsy' } },
+                    },
+                    'application/xml': { examples: { supplied: { serializedValue: '<ok/>' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      expect(markdown.includes('```json\nfalse\n```')).toBe(openapi === '3.2.0')
+      expect(markdown.includes('```xml\n<ok/>\n```')).toBe(openapi === '3.2.0')
+    },
+  )
 })

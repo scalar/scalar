@@ -14,6 +14,8 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { restoreBooleanSchemas } from './restore-boolean-schemas'
+
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
  * JSON Magic owns `$id` and anchor indexing, which keeps local-reference behavior
@@ -121,6 +123,7 @@ export const loadDocument = async (
   }
 
   // Upgrade before indexing so reference resolution sees one consistent dialect.
+  const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
   const upgraded = upgrade(raw, '3.2')
   const upgradedSchemas = getSchemas(upgraded)
   const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
@@ -155,6 +158,11 @@ export const loadDocument = async (
   // Restore non-enumerable shared links afterward so rendering never expands the graph.
   attachRefValues(document, true, schemas)
   const coerced = coerceValue(OpenAPIDocumentSchema, document)
+  // Rendering must use the declared version for features added after OpenAPI 3.1.
+  coerced['x-original-oas-version'] = declaredOpenapiVersion
+
+  // Boolean schemas were introduced in OpenAPI 3.1; older descriptions retain their existing coercion.
+  if (/^3\.[12]\./.test(declaredOpenapiVersion)) restoreBooleanSchemas(document, coerced)
 
   // Keep extension resources that local and bundled references can target.
   for (const [key, value] of Object.entries(document)) {

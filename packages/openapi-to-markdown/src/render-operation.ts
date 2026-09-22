@@ -11,6 +11,8 @@ import type { ListItem, RootContent } from 'mdast'
 
 import { field, heading, inlineCode, item, list, paragraph, strong, text } from './markdown-nodes'
 import type { DescriptionParser } from './parse-description'
+import { renderExamples } from './render-examples'
+import { renderEncoding, renderHeaders, renderResponseLinks } from './render-operation-details'
 import type { SchemaRenderer } from './render-schema'
 import { renderSecurity } from './render-security'
 
@@ -30,6 +32,7 @@ export const renderOperation = async (
   webhook: boolean,
   { description, schemas }: RenderContext,
 ): Promise<RootContent[]> => {
+  const openapiVersion = document['x-original-oas-version'] ?? document.openapi
   const stability = operation['x-scalar-stability']
   const title =
     (operation.summary || `${method.toUpperCase()} ${path}`) +
@@ -38,6 +41,7 @@ export const renderOperation = async (
     field('Method', inlineCode(method.toUpperCase())),
     field(webhook ? 'Webhook' : 'Path', inlineCode(path)),
   ]
+  if (operation.operationId) metadata.push(field('Operation ID', inlineCode(operation.operationId)))
   if (operation.tags) metadata.push(field('Tags', text(operation.tags.join(', '))))
   if (stability) metadata.push(field('Stability', text(stability)))
   const nodes: RootContent[] = [heading(3, text(title)), list(metadata), ...(await description(operation.description))]
@@ -87,24 +91,33 @@ export const renderOperation = async (
     if (parameter.allowEmptyValue) fields.push(field('Allow Empty Value', text('true')))
     if ('allowReserved' in parameter && parameter.allowReserved) fields.push(field('Allow Reserved', text('true')))
     nodes.push(list(fields), ...(await description(parameter.description)))
-    if ('schema' in parameter && parameter.schema) nodes.push(...schemas.render(parameter.schema))
+    if ('schema' in parameter && parameter.schema !== undefined) nodes.push(...schemas.render(parameter.schema))
+    if ('example' in parameter || 'examples' in parameter)
+      nodes.push(
+        ...(await renderExamples(
+          { example: parameter.example, examples: parameter.examples },
+          description,
+          'application/json',
+          'write',
+          openapiVersion,
+        )),
+      )
     for (const [mediaType, content] of Object.entries('content' in parameter ? (parameter.content ?? {}) : {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
-      if (content.schema) nodes.push(...schemas.render(content.schema))
+      if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion)))
     }
   }
   const body: RequestBodyObject | undefined = getResolvedRef(operation.requestBody, mergeSiblingReferences)
-  if (body?.content) {
+  if (body) {
     nodes.push(heading(4, text('Request Body')), ...(await description(body.description)))
-    if (body.required) nodes.push(paragraph(strong(text('Required:')), text(' true')))
-    for (const [mediaType, content] of Object.entries(body.content)) {
+    if (typeof body.required === 'boolean')
+      nodes.push(paragraph(strong(text('Required:')), text(' '), inlineCode(body.required)))
+    for (const [mediaType, content] of Object.entries(body.content ?? {})) {
       nodes.push(heading(5, text(`Content-Type: ${mediaType}`)))
-      if (content.schema)
-        nodes.push(
-          ...schemas.render(content.schema),
-          paragraph(strong(text('Example:'))),
-          schemas.example(content.schema, mediaType.includes('xml')),
-        )
+      if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion)))
+      nodes.push(...(await renderEncoding(content.encoding, mediaType, description, schemas, openapiVersion)))
     }
   }
   const responses = Object.entries(operation.responses ?? {}).flatMap(([status, reference]) => {
@@ -114,14 +127,14 @@ export const renderOperation = async (
   if (responses.length) nodes.push(heading(4, text('Responses')))
   for (const { status, response } of responses) {
     nodes.push(heading(5, text(`Status: ${status}${response.description ? ` ${response.description}` : ''}`)))
+    nodes.push(
+      ...(await renderHeaders(response.headers, description, schemas, openapiVersion)),
+      ...(await renderResponseLinks(response.links, description)),
+    )
     for (const [mediaType, content] of Object.entries(response.content ?? {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
-      if (content.schema)
-        nodes.push(
-          ...schemas.render(content.schema),
-          paragraph(strong(text('Example:'))),
-          schemas.example(content.schema, mediaType.includes('xml')),
-        )
+      if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'read', openapiVersion)))
     }
   }
   return nodes
