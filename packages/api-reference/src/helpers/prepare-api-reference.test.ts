@@ -29,6 +29,27 @@ describe('prepare-api-reference', () => {
     expect(onDocumentSelect).not.toHaveBeenCalled()
   })
 
+  it('prepares configured servers and document environment defaults consistently', async () => {
+    const prepared = await prepareApiReference({
+      servers: [{ url: 'https://configured.example.com/{region}', variables: { region: { default: 'eu' } } }],
+      content: {
+        ...content,
+        'x-scalar-environments': { production: { variables: [{ name: 'token', value: 'secret' }] } },
+        'x-scalar-active-environment': 'production',
+      },
+    })
+    const document = prepared.clientWorkspace.documents['api-1']
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected the prepared OpenAPI document')
+    }
+    expect(document.servers).toStrictEqual([
+      { url: 'https://configured.example.com/{region}', variables: { region: { default: 'eu' } } },
+    ])
+    expect(document['x-scalar-selected-server']).toBe('https://configured.example.com/{region}')
+    expect(prepared.workspace.meta['x-scalar-active-environment']).toBe('production')
+    expect(prepared.clientWorkspace.meta['x-scalar-active-environment']).toBe('production')
+  })
+
   it('loads only the default source and resolves external references before returning', async () => {
     const customFetch = vi.fn((input: string | URL | Request) => {
       const url = String(input)

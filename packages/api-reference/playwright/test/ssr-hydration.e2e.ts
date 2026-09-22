@@ -25,6 +25,8 @@ const content = {
     description: 'This content stays readable while the client prepares.',
   },
   servers: [{ url: 'https://example.com' }],
+  'x-scalar-environments': { production: { color: '#00cc66', variables: [{ name: 'token', value: 'example' }] } },
+  'x-scalar-active-environment': 'production',
   tags: [{ name: 'Things' }],
   paths: {
     '/things': {
@@ -83,6 +85,7 @@ test.beforeAll(async () => {
     agent: { disabled: true },
     withDefaultFonts: false,
     defaultOpenFirstTag: true,
+    servers: [{ url: 'https://configured.example.com/{region}', variables: { region: { default: 'eu' } } }],
   }
   const app = createSSRApp({
     render: () =>

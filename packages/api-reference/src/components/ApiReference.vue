@@ -54,7 +54,10 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
-import { isAsyncApiDocument, isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import {
+  isAsyncApiDocument,
+  isOpenApiDocument,
+} from '@scalar/workspace-store/schemas/type-guards'
 import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
@@ -121,8 +124,8 @@ import {
 } from '@/helpers/normalize-configurations'
 import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
-import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import type { PreparedApiReference } from '@/helpers/prepare-api-reference'
+import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { withLocalizedConfigurationDefaults } from '@/helpers/with-localized-configuration-defaults'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
