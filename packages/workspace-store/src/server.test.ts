@@ -1236,6 +1236,34 @@ describe('escape-paths', () => {
 })
 
 describe('externalize-component-references', () => {
+  it.each(['ssr', 'static'] as const)(
+    'does not change the prototype for an unrecognized component type in %s mode',
+    (mode) => {
+      // This component type is invalid OpenAPI, but the exported helper must still handle untrusted input safely.
+      const result = externalizeComponentReferences(
+        {
+          openapi: '3.1.0',
+          info: { title: 'Prototype type', version: '1.0.0' },
+          'x-scalar-original-document-hash': '',
+          // @ts-expect-error Exercise malformed component types received at runtime.
+          components: { ['__proto__']: { Example: { type: 'string' } } },
+        },
+        mode === 'ssr'
+          ? { mode, name: 'api', baseUrl: 'https://example.com' }
+          : { mode, name: 'api', directory: 'assets' },
+      )
+      const ref =
+        mode === 'ssr'
+          ? 'https://example.com/api/components/__proto__/Example#'
+          : './chunks/api/components/__proto__/Example.json#'
+      const expected = { ['__proto__']: { Example: { $ref: ref, $global: true } } }
+
+      expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
+      expect(Object.hasOwn(result, '__proto__')).toBe(true)
+      expect(JSON.parse(JSON.stringify(result))).toStrictEqual(expected)
+    },
+  )
+
   it.each(['ssr', 'static'] as const)('preserves prototype-named components in %s mode', (mode) => {
     const result = externalizeComponentReferences(
       {
@@ -1264,6 +1292,7 @@ describe('externalize-component-references', () => {
 
     // Compare entries because the schema named `constructor` shadows the property used by deep equality.
     expect(Object.keys(result)).toStrictEqual(['schemas'])
+    assert(result.schemas)
     expect(Object.entries(result.schemas)).toStrictEqual(Object.entries(expected))
     expect(Object.getPrototypeOf(result.schemas)).toBe(Object.prototype)
     expect(Object.entries(JSON.parse(JSON.stringify(result)).schemas)).toStrictEqual(Object.entries(expected))
