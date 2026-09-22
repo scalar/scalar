@@ -18,11 +18,13 @@ import { upgrade } from '@scalar/openapi-upgrader'
  * the whole document up front.
  *
  * @param document - The OpenAPI document to process. Can be a string (URL/path) or an object.
+ * @param origin - Source file path or URL for resolving references in an already loaded document.
  * @returns A promise that resolves to the OpenAPI 3.2 document with lazily resolvable references.
  * @throws Error if the document cannot be processed or is invalid.
  */
 export async function processOpenApiDocument(
   document: string | Record<string, any> | undefined,
+  origin?: string,
 ): Promise<OpenAPIV3_2.Document> {
   // Handle empty/undefined input gracefully
   if (!document || (typeof document === 'object' && Object.keys(document).length === 0)) {
@@ -42,12 +44,14 @@ export async function processOpenApiDocument(
   // Confine local file `$ref`s to the document's own directory (or the working directory when the
   // document is an object or inline string), and refuse to fetch private or internal addresses.
   // Without these guards a `$ref` could read arbitrary local files or reach internal services.
-  const basePath = typeof document === 'string' && isFilePath(document) ? path.dirname(path.resolve(document)) : cwd()
+  const source = origin ?? document
+  const basePath = typeof source === 'string' && isFilePath(source) ? path.dirname(path.resolve(source)) : cwd()
 
   try {
     // Bundle external references with Node.js plugins
     // Include parseJson and parseYaml to handle string inputs
     bundled = await bundle(document, {
+      origin,
       plugins: [parseJson(), parseYaml(), readFiles({ basePath }), fetchUrls({ blockPrivateNetworks: true })],
       treeShake: false,
     })

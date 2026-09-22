@@ -19,6 +19,9 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyo
 export type MockServerLogger = (line: string) => void
 
 type BaseMockServerOptions = {
+  /** Source file path or URL used to resolve relative references in an already loaded document. */
+  origin?: string
+
   /**
    * The OpenAPI document to use for mocking.
    * Can be a string (URL or file path) or an object.

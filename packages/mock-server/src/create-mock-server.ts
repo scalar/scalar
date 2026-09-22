@@ -1,3 +1,5 @@
+import { normalize } from '@scalar/json-magic/helpers/normalize'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type Context, Hono, type MiddlewareHandler } from 'hono'
@@ -104,8 +106,15 @@ export async function createMockServer(configuration: MockServerOptions): Promis
     )
   })
 
-  /** Dereferenced OpenAPI document */
-  const schema = await processOpenApiDocument(configuration?.document ?? configuration?.specification)
+  const input = configuration?.document ?? configuration?.specification
+  const schema = await processOpenApiDocument(input, configuration?.origin)
+  const sourceDocument = typeof input === 'string' ? normalize(input) : input
+  // Source locations need a bundled export so relative references remain usable outside the server.
+  const exportDocument =
+    configuration?.origin ||
+    (typeof input === 'string' && (sourceDocument === null || typeof sourceDocument !== 'object'))
+      ? getRaw(schema)
+      : input
 
   // Seed data from schemas with x-seed extension
   // This happens before routes are set up so data is available immediately
@@ -272,14 +281,10 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   })
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) =>
-    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'json'),
-  )
+  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, exportDocument, 'json'))
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) =>
-    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'yaml'),
-  )
+  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, exportDocument, 'yaml'))
 
   return app
 }

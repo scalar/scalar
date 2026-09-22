@@ -189,6 +189,19 @@ The given OpenAPI document is automatically exposed:
 
 - `/openapi.json` and `/openapi.yaml`
 
+### Already loaded documents
+
+When passing a parsed object or inline JSON/YAML with relative references, set `origin` to its source file path or URL. The mock server uses that location to resolve references without reading the root document again.
+
+```ts
+const app = await createMockServer({
+  document,
+  origin: 'https://example.com/openapi.json',
+})
+```
+
+For file and URL inputs, the JSON and YAML export routes return the loaded, bundled API description. Inline inputs without `origin` keep their original format version.
+
 ### Path keys with a query string
 
 Some documents describe a variant of an operation by putting a query string in the path key:
