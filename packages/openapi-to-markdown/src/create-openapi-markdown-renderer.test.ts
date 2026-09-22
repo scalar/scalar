@@ -4,12 +4,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  type OpenApiRenderOptions,
-  createHtmlFromOpenApi,
-  createMarkdownFromOpenApi,
-  createOpenApiMarkdownRenderer,
-} from './index'
+import { type OpenApiRenderOptions, createMarkdownFromOpenApi, createOpenApiMarkdownRenderer } from './index'
 
 const document = {
   openapi: '3.1.0',
@@ -91,10 +86,60 @@ describe('create-openapi-markdown-renderer', () => {
     expect(operation).not.toContain('Pet created event')
   })
 
-  it('keeps the HTML API available on demand', async () => {
-    const renderer = await createOpenApiMarkdownRenderer(document)
-    expect(await renderer.renderHtml({ introduction: true })).toContain('<h1>Pets</h1>')
-    expect(await createHtmlFromOpenApi(document, { introduction: true })).toContain('<h1>Pets</h1>')
+  it('renders chained path-item references with sibling overrides', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Chained paths', version: '1' },
+      paths: {
+        '/pets': {
+          $ref: '#/components/pathItems/Alias',
+          parameters: [{ name: 'outer', in: 'header', schema: { type: 'string' } }],
+        },
+      },
+      components: {
+        pathItems: {
+          Alias: {
+            $ref: '#/components/pathItems/Target',
+            get: { summary: 'Alias get' },
+          },
+          Target: {
+            get: { summary: 'Original get' },
+            post: { summary: 'Create pet' },
+          },
+        },
+      },
+    })
+
+    const markdown = await renderer.render()
+    expect(markdown).toContain('### Alias get')
+    expect(markdown).toContain('### Create pet')
+    expect(markdown).not.toContain('Original get')
+    const selected = await renderer.render({ operation: { path: '/pets', method: 'post' } })
+    expect(selected).toContain('### Create pet')
+    expect(selected).toContain('outer')
+    expect(selected).not.toContain('Alias get')
+  })
+
+  it('renders path-item chains bundled from external files', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'chained-markdown-'))
+    try {
+      await writeFile(join(dir, 'alias.json'), JSON.stringify({ $ref: './target.json' }))
+      await writeFile(join(dir, 'target.json'), JSON.stringify({ get: { summary: 'External pets' } }))
+      const input = join(dir, 'api.json')
+      await writeFile(
+        input,
+        JSON.stringify({
+          openapi: '3.1.1',
+          info: { title: 'External chain', version: '1' },
+          paths: { '/pets': { $ref: './alias.json' } },
+        }),
+      )
+      const renderer = await createOpenApiMarkdownRenderer(input)
+      expect(await renderer.render()).toContain('### External pets')
+      expect(await renderer.render({ operation: { path: '/pets', method: 'get' } })).toContain('### External pets')
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 
   it('loads file references only during creation and retains the prepared document', async () => {
