@@ -45,7 +45,8 @@ const badgeStyle = computed(() =>
    in JavaScript and no opinion about which format the color was written in. */
 @supports (color: lch(from red calc((50 - l) * infinity) 0 0)) {
   .badge-colored {
-    color: lch(from var(--badge-color) calc((50 - l) * infinity) 0 0);
+    /* Keep text opaque even when the background color is transparent. */
+    color: lch(from var(--badge-color) calc((50 - l) * infinity) 0 0 / 1);
   }
 }
 
