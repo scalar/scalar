@@ -14,3 +14,5 @@ The editor intentionally offers the 3.2 field set to documents declaring 3.1 as 
 Migration: the OpenAPI 3.1 loose-schema generator (`@scalar/workspace-store/schemas/v3.1/openapi`, published through the wildcard as `@scalar/workspace-store/schemas/v3.1/openapi/index`) and its `@scalar/workspace-store/schemas/v3.1/openapi/reference` helpers have been removed. Import the generator from `@scalar/workspace-store/schemas/v3.2/openapi/index` and the reference helpers from `@scalar/workspace-store/schemas/v3.2/openapi/reference` instead. The `./schemas/*` wildcard and the 3.1 strict-schema exports remain available; the explicit 3.2 strict-schema exports are additive. Locally generated types now use the `OpenAPIV3_2` namespace instead of `OpenAPIV3_1`.
 
 Inline the editor path-extension reference so Monaco retains the leading-slash path pattern and does not report valid paths as unknown properties.
+
+Document ingestion continues to upgrade only to OpenAPI 3.1, so existing inline XML bodies without `xml.name` remain loadable. This schema migration does not opt consumers into the stricter OpenAPI 3.2 XML upgrade.

@@ -140,6 +140,25 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('loads unnamed inline XML bodies without upgrading the document to 3.2', async () => {
+    const schema = { type: 'object', properties: { id: { type: 'string', xml: { attribute: true } } } }
+    const requestBody = { content: { 'application/xml': { schema } } }
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'XML compatibility', version: '1.0.0' },
+      paths: { '/pets': { post: { requestBody, responses: { '200': { description: 'OK' } } } } },
+    }
+    const original = structuredClone(input)
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'xml', document: input })
+    const document = getOpenApiDocument(store, 'xml')
+    const operation = getResolvedRef(getPathItemOperation(document?.paths?.['/pets'], 'post'))
+
+    expect(document?.openapi).toBe('3.1.0')
+    expect(getResolvedRef(operation?.requestBody)).toStrictEqual(requestBody)
+    expect(input).toStrictEqual(original)
+  })
+
   let server: FastifyInstance
   const port = 9988
   const url = `http://localhost:${port}`

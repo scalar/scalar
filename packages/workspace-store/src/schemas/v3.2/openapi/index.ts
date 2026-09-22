@@ -718,8 +718,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
     object(
       {
         summary: optional(string({ typeComment: 'Short description for the example.' })),
-        dataValue: optional(any({ typeComment: 'The example value before serialization.' })),
-        serializedValue: optional(string({ typeComment: 'The example value after serialization.' })),
         description: optional(
           string({
             typeComment:
@@ -829,7 +827,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   const mediaType: Schema = object(
     {
       description: optional(string()),
-      itemSchema: optional(maybeRef(lazy((): Schema => schema))),
       prefixEncoding: optional(array(encoding)),
       itemEncoding: optional(encoding),
       schema: optional(maybeRef(lazy((): Schema => schema))),
