@@ -1413,8 +1413,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return getRaw(getResolvedRef(holder))
   }
 
-  /** Navigation children being loaded, per document, so concurrent resolves share one request. */
-  const navigationChildrenLoads = new Map<string, Promise<void>>()
+  /** Share concurrent requests only within the same document instance, including after a workspace reload. */
+  const navigationChildrenLoads = new WeakMap<OpenApiDocument, Promise<void>>()
 
   /**
    * Loads a compact document's navigation children and assigns them onto its navigation in place.
@@ -1439,7 +1439,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
-    const pending = navigationChildrenLoads.get(documentName)
+    const pending = navigationChildrenLoads.get(document)
 
     if (pending) {
       return pending
@@ -1448,7 +1448,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const load = (async () => {
       const chunk = await fetchNavigationChunk(documentName, ref, document['x-scalar-original-source-url'])
 
-      if (chunk === undefined) {
+      // A replaced or deleted document must not publish changes from a stale request.
+      if (chunk === undefined || workspace.documents[documentName] !== document) {
         return
       }
 
@@ -1458,12 +1459,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       delete document[extensions.document.navigationChunk]
     })()
 
-    navigationChildrenLoads.set(documentName, load)
+    navigationChildrenLoads.set(document, load)
 
     try {
       await load
     } finally {
-      navigationChildrenLoads.delete(documentName)
+      navigationChildrenLoads.delete(document)
     }
   }
 

@@ -191,7 +191,7 @@ const serveCompactWorkspace = async (
 const addCompactDocument = async (
   onTestFinished: (fn: () => Promise<void>) => void,
   props?: Parameters<typeof createWorkspaceStore>[0],
-) => {
+): Promise<{ store: ReturnType<typeof createWorkspaceStore>; requests: string[] }> => {
   const { url, requests } = await serveCompactWorkspace(onTestFinished)
   const store = createWorkspaceStore(props)
   await store.addDocument({ name: 'default', url })
@@ -505,6 +505,61 @@ describe('chunk-index', () => {
     expect(requests.slice(1)).toStrictEqual(['/chunks/default/navigation.json'])
     expect(navigationOf(store)?.children?.length).toBeGreaterThan(0)
   })
+
+  it.for([
+    { reactive: true, replacement: 'reload' },
+    { reactive: false, replacement: 'reload' },
+    { reactive: true, replacement: 'delete and add' },
+    { reactive: false, replacement: 'delete and add' },
+  ] as const)(
+    'loads replacement navigation during a pending request ($replacement, reactive: $reactive)',
+    async ({ reactive, replacement }, { onTestFinished }) => {
+      let releaseFirstRequest: (() => void) | undefined
+      const firstRequestGate = new Promise<void>((resolve) => {
+        releaseFirstRequest = resolve
+      })
+      onTestFinished(() => releaseFirstRequest?.())
+      const navigationRequests: string[] = []
+      const { store } = await addCompactDocument(onTestFinished, {
+        reactive,
+        fetch: async (input, init): Promise<Response> => {
+          if (String(input).endsWith('/navigation.json')) {
+            navigationRequests.push(String(input))
+            if (navigationRequests.length === 1) {
+              await firstRequestGate
+            }
+          }
+          return fetch(input, init)
+        },
+      })
+      const { sparse } = await buildDocuments('static', 'default', 'assets')
+      const originalNavigation = navigationOf(store)
+      const snapshot = structuredClone(store.exportWorkspace())
+      const first = store.resolve(['x-scalar-navigation'])
+      await vi.waitFor(() => expect(navigationRequests.length).toBe(1))
+
+      if (replacement === 'reload') {
+        store.loadWorkspace(snapshot)
+      } else {
+        store.deleteDocument('default')
+        const url = snapshot.documents['default']?.['x-scalar-original-source-url']
+        assert(url)
+        await store.addDocument({ name: 'default', url })
+      }
+      const second = store.resolve(['x-scalar-navigation'])
+      releaseFirstRequest?.()
+      await Promise.all([first, second])
+
+      expect(navigationOf(store)?.children).toStrictEqual(wholeNavigation(sparse).children)
+      expect(getActiveOpenApiDocument(store)?.['x-scalar-navigation-chunk']).toBeUndefined()
+      expect(navigationRequests.length).toBe(2)
+      // A stale completion must not publish mutations from the detached document.
+      expect(originalNavigation?.children).toStrictEqual([])
+
+      await store.resolve(['x-scalar-navigation'])
+      expect(navigationRequests.length).toBe(2)
+    },
+  )
 
   it('loads the navigation children with reactive: false', async ({ onTestFinished }) => {
     const { store, requests } = await addCompactDocument(onTestFinished, { reactive: false })
