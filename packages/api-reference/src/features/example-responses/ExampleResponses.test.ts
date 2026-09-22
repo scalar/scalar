@@ -289,6 +289,32 @@ describe('ExampleResponses', () => {
     expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual({ shared: true, message: 'email' })
   })
 
+  it('selects and copies a framed stream item variant', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Stream',
+            content: {
+              'application/jsonl': {
+                itemSchema: coerceValue(SchemaObjectSchema, {
+                  oneOf: [
+                    { title: 'First', type: 'object', properties: { id: { const: 1 } } },
+                    { title: 'Second', type: 'object', properties: { id: { const: 2 } } },
+                  ],
+                }),
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{"id":2}\n')
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('{"id":2}\n')
+  })
+
   it('displays and copies the same framed streaming example', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {

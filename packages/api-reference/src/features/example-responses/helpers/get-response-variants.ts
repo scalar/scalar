@@ -14,7 +14,7 @@ type ResponseVariants = {
 
 /** Keep explicit schema samples ahead of generated union variants. */
 export const getResponseVariants = (response: MediaTypeObject | undefined): ResponseVariants | undefined => {
-  const schema = resolve.schema(response?.schema)
+  const schema = resolve.schema(response?.schema ?? response?.itemSchema)
   if (
     !schema ||
     schema.examples?.[0] !== undefined ||
