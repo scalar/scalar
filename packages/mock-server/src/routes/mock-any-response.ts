@@ -3,18 +3,19 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type { Context } from 'hono'
-import { accepts } from 'hono/accepts'
 import { streamSSE } from 'hono/streaming'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { generateResponseExample } from '@/utils/generate-response-example'
+import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
+import { getStreamingResponse, sendStreamingResponse } from '@/utils/streaming-response'
 
 /**
  * Mock any response
@@ -80,17 +81,20 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   }
 
   // Content-Type
-  const acceptedContentType = accepts(c, {
-    header: 'Accept',
-    supports: supportedContentTypes,
-    default: supportedContentTypes.includes('application/json')
-      ? 'application/json'
-      : (supportedContentTypes[0] ?? 'text/plain;charset=UTF-8'),
-  })
+  const acceptedContentType = negotiateContentType(c, selectedResponse.content)
 
   c.header('Content-Type', acceptedContentType)
 
   const acceptedResponse = selectedResponse?.content?.[acceptedContentType]
+
+  const streamingResponse = getStreamingResponse(acceptedResponse, acceptedContentType, {
+    exampleName: prefer.example,
+    variables: pathParameters(c),
+  })
+  if (streamingResponse) {
+    c.status(statusCode)
+    return sendStreamingResponse(c, streamingResponse)
+  }
 
   const responseSchema = acceptedResponse?.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 

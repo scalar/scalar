@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "test", "esbuild.ts", "env.d.ts"],
   "compilerOptions": {
+    // hono/streaming exposes Node stream types in its declarations.
     "types": ["node"],
     "paths": {
       "@/*": ["./src/*"],
