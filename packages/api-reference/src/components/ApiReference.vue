@@ -126,6 +126,7 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
@@ -1564,11 +1565,25 @@ eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 /** Handle a scroll to navigation item event */
 eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 
+/**
+ * Sentinel rendered at the very start of the document. Its position resolves which entry an
+ * intersecting section selects while the top of the document is still in view, and it drives the
+ * observer set up further down.
+ */
+const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
+
 /** Handle an intersecting navigation item event */
-eventBus.on('intersecting:nav-item', ({ id }) => {
+eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   if (!intersectionEnabled.value) {
     return
   }
+
+  // Resolved from the sentinel's position, not from the order the observers report in
+  const id = resolveIntersectingEntry({
+    id: intersectingId,
+    documentStartId: infoSectionId.value,
+    documentStartTop: documentStartRef.value?.getBoundingClientRect().top,
+  })
 
   sidebarState.setSelected(id)
   setBreadcrumb(id)
@@ -1634,8 +1649,6 @@ onBeforeMount(() => {
 
 // ---------------------------------------------------------------------------
 // Document start intersection observer
-
-const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
 
 /**
  * Uses `immediate` so the sentinel fires as soon as it enters the viewport (not just at the center strip).
