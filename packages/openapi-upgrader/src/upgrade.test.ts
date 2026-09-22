@@ -59,6 +59,7 @@ describe('upgrade', () => {
 
     expect(document).toStrictEqual(null)
   })
+
   it.each([{ swagger: '2.0' }, { openapi: '3.0.4' }, { openapi: '3.1.2' }])(
     'upgrades %j through the public 3.2 pipeline without mutating input',
     (version) => {
@@ -226,5 +227,114 @@ describe('upgrade', () => {
       diagnostics: [],
     })
     expect(run({ onIncompatible: 'throw' })).toStrictEqual({ ...input, openapi: '3.2.0' })
+  })
+
+  it.each(['3.0', '3.1', '3.2'] as const)('preserves Swagger nullability when upgrading to %s', (version) => {
+    const nullableNumber = { type: 'number', 'x-nullable': true }
+    const data = { type: 'number', 'x-nullable': true }
+    const input = {
+      swagger: '2.0',
+      info: { title: 'Nullable values', version: '1' },
+      paths: {},
+      definitions: {
+        Value: {
+          type: 'object',
+          properties: {
+            value: nullableNumber,
+            requiredValue: { type: 'number', 'x-nullable': false },
+            invalid: { type: 'number', 'x-nullable': 'true' },
+            plain: { type: 'number' },
+            list: { type: 'array', 'x-nullable': true, items: nullableNumber },
+            map: { type: 'object', additionalProperties: nullableNumber },
+            reference: { $ref: '#/definitions/Number', 'x-nullable': true },
+            composed: { allOf: [{ $ref: '#/definitions/Number' }], 'x-nullable': true },
+            example: nullableNumber,
+            default: nullableNumber,
+            'x-nullable': { type: 'boolean' },
+          },
+          example: data,
+          default: data,
+          'x-custom': data,
+        },
+        Number: nullableNumber,
+      },
+    }
+    const document =
+      version === '3.0' ? upgrade(input, '3.0') : version === '3.1' ? upgrade(input, '3.1') : upgrade(input, '3.2')
+    const number = version === '3.0' ? { type: 'number', nullable: true } : { type: ['number', 'null'] }
+    const reference =
+      version === '3.0'
+        ? { $ref: '#/components/schemas/Number', nullable: true }
+        : { anyOf: [{ $ref: '#/components/schemas/Number' }, { type: 'null' }] }
+
+    expect(document.components?.schemas).toStrictEqual({
+      Value: {
+        type: 'object',
+        properties: {
+          value: number,
+          requiredValue: { type: 'number', nullable: false },
+          invalid: { type: 'number', 'x-nullable': 'true' },
+          plain: { type: 'number' },
+          list: {
+            ...(version === '3.0' ? { type: 'array', nullable: true } : { type: ['array', 'null'] }),
+            items: number,
+          },
+          map: { type: 'object', additionalProperties: number },
+          reference,
+          composed:
+            version === '3.0' ? { allOf: [{ $ref: '#/components/schemas/Number' }], nullable: true } : reference,
+          example: number,
+          default: number,
+          'x-nullable': { type: 'boolean' },
+        },
+        ...(version === '3.0' ? { example: data } : { examples: [data] }),
+        default: data,
+        'x-custom': data,
+      },
+      Number: number,
+    })
+  })
+
+  it('preserves nullability in request, response, parameter and header schemas', () => {
+    const number = { type: 'number', 'x-nullable': true }
+    const response = { description: 'A value', schema: number, headers: { 'X-Value': number } }
+    const document = upgrade(
+      {
+        swagger: '2.0',
+        info: { title: 'Nullable values', version: '1' },
+        parameters: { value: { name: 'value', in: 'query', ...number } },
+        responses: { Value: response },
+        paths: {
+          '/values': {
+            post: {
+              parameters: [{ name: 'body', in: 'body', schema: number }],
+              responses: { 200: response },
+            },
+            get: {
+              parameters: [{ name: 'value', in: 'query', ...number }],
+              responses: { 200: { description: 'OK' } },
+            },
+            put: {
+              parameters: [{ name: 'value', in: 'formData', ...number }],
+              responses: { 200: { description: 'OK' } },
+            },
+          },
+        },
+      },
+      '3.1',
+    )
+    const schema = { type: ['number', 'null'] }
+    expect(document.paths?.['/values']?.post?.requestBody?.content?.['application/json']?.schema).toStrictEqual(schema)
+    expect(document.paths?.['/values']?.post?.responses?.[200]?.content?.['application/json']?.schema).toStrictEqual(
+      schema,
+    )
+    expect(document.paths?.['/values']?.post?.responses?.[200]?.headers?.['X-Value']?.schema).toStrictEqual(schema)
+    expect(document.paths?.['/values']?.get?.parameters?.[0]?.schema).toStrictEqual(schema)
+    expect(
+      document.paths?.['/values']?.put?.requestBody?.content?.['multipart/form-data']?.schema?.properties?.value,
+    ).toStrictEqual(schema)
+    expect(document.components?.parameters?.value?.schema).toStrictEqual(schema)
+    expect(document.components?.responses?.Value?.content?.['application/json']?.schema).toStrictEqual(schema)
+    expect(document.components?.responses?.Value?.headers?.['X-Value']?.schema).toStrictEqual(schema)
   })
 })

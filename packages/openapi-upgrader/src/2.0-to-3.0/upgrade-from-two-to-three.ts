@@ -227,6 +227,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
   // Schemas
   if (document.definitions) {
+    for (const schema of Object.values(document.definitions)) {
+      migrateSchemaNullability(schema)
+    }
+
     document.components = Object.assign({}, document.components, {
       schemas: document.definitions,
     })
@@ -347,6 +351,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
           // Transform schema to content
           if (responseObj.schema) {
+            migrateSchemaNullability(responseObj.schema)
             if (typeof responseObj.content !== 'object') {
               responseObj.content = {}
             }
@@ -490,6 +495,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     }, {})
                   }
                   if (responseItem.schema) {
+                    migrateSchemaNullability(responseItem.schema)
                     const produces = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
 
                     if (typeof responseItem.content !== 'object') {
@@ -638,6 +644,36 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   return document as OpenAPIV3.Document
 }
 
+/**
+ * Swagger tooling uses x-nullable for the nullability keyword introduced in OpenAPI 3.0.
+ * Visit only subschemas so example/default values and custom extensions remain user data.
+ */
+const migrateSchemaNullability = (schema: unknown): void => {
+  if (!isObjectLike(schema)) {
+    return
+  }
+
+  if (typeof schema['x-nullable'] === 'boolean') {
+    schema.nullable = schema['x-nullable']
+    delete schema['x-nullable']
+  }
+
+  if (isObjectLike(schema.properties)) {
+    for (const property of Object.values(schema.properties)) {
+      migrateSchemaNullability(property)
+    }
+  }
+
+  migrateSchemaNullability(schema.items)
+  migrateSchemaNullability(schema.additionalProperties)
+
+  if (Array.isArray(schema.allOf)) {
+    for (const member of schema.allOf) {
+      migrateSchemaNullability(member)
+    }
+  }
+}
+
 function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
   const schemaProperties = [
     'type',
@@ -656,9 +692,10 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     'uniqueItems',
     'enum',
     'multipleOf',
+    'x-nullable',
   ]
 
-  return schemaProperties.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
+  const schema = schemaProperties.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
     if (Object.hasOwn(obj, property)) {
       acc[property] = obj[property]
       delete obj[property]
@@ -666,6 +703,9 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
 
     return acc
   }, {})
+
+  migrateSchemaNullability(schema)
+  return schema
 }
 
 function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
@@ -855,6 +895,7 @@ function migrateBodyParameter(
   delete bodyParameter.in
 
   const { schema, ...requestBody } = bodyParameter
+  migrateSchemaNullability(schema)
 
   const requestBodyObject: OpenAPIV3.RequestBodyObject = {
     content: {},
