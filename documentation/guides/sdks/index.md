@@ -215,7 +215,8 @@
               <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="files" aria-selected="false" tabindex="-1">Files</button>
             </div>
             <div class="sdk-demo-code-head"><span data-sdk-demo-code-title>index.ts</span></div>
-            <pre class="sdk-demo-code" data-sdk-demo-code><span class="sdk-demo-tok-keyword">import</span> <span class="sdk-demo-tok-type">WarpAPI</span> <span class="sdk-demo-tok-keyword">from</span> <span class="sdk-demo-tok-string">"warp-hr"</span>;
+
+<pre class="sdk-demo-code" data-sdk-demo-code><span class="sdk-demo-tok-keyword">import</span> <span class="sdk-demo-tok-type">WarpAPI</span> <span class="sdk-demo-tok-keyword">from</span> <span class="sdk-demo-tok-string">"warp-hr"</span>;
 
 <span class="sdk-demo-tok-keyword">const</span> client = <span class="sdk-demo-tok-keyword">new</span> <span class="sdk-demo-tok-type">WarpAPI</span>({
   apiKey: process.env[<span class="sdk-demo-tok-string">"WARP_API_KEY"</span>], <span class="sdk-demo-tok-comment">// defaults to the WARP_API_KEY env var</span>
@@ -225,6 +226,47 @@
 <span class="sdk-demo-tok-keyword">for</span> <span class="sdk-demo-tok-keyword">await</span> (<span class="sdk-demo-tok-keyword">const</span> assignment <span class="sdk-demo-tok-keyword">of</span> client.timeOff.<span class="sdk-demo-tok-fn">listAssignments</span>({ limit: <span class="sdk-demo-tok-number">50</span> })) {
   console.<span class="sdk-demo-tok-fn">log</span>(assignment.id, assignment.policy.name);
 }</pre>
+<div class="sdk-demo-static-samples" data-sdk-demo-static-only>
+              <div class="sdk-demo-code-head"><span>main.py</span></div>
+
+<pre class="sdk-demo-code">import os
+
+from warp import Warp
+
+client = Warp(api_key=os.environ.get("WARP_API_KEY"))
+
+# Auto-paginating: the next cursor page is fetched as you iterate.
+for assignment in client.time_off.list_assignments(limit=50):
+    print(assignment.id, assignment.policy.name)</pre>
+<div class="sdk-demo-code-head"><span>main.go</span></div>
+
+<pre class="sdk-demo-code">package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	sdk "github.com/TeamWarp/warp-go-sdk"
+	"github.com/TeamWarp/warp-go-sdk/option"
+)
+
+func main() {
+	client := sdk.NewClient(option.WithAPIKey(os.Getenv("WARP_API_KEY")))
+
+	iter := client.TimeOff.ListAssignmentsAutoPaging(context.Background(),
+		sdk.TimeOffListAssignmentsParams{Limit: sdk.Int(50)})
+
+	for iter.Next() {
+		assignment := iter.Current()
+		fmt.Println(assignment.ID, assignment.Policy.Name)
+	}
+
+	if err := iter.Err(); err != nil {
+		panic(err)
+	}
+}</pre>
+</div>
             <div class="sdk-demo-files" data-sdk-demo-files hidden></div>
           </div>
         </div>
@@ -1816,6 +1858,12 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     color: var(--scalar-color-3);
     font-family: var(--scalar-font-code);
     font-size: var(--scalar-micro);
+  }
+
+  /* The Python and Go quickstarts stand in for the target switcher when the
+     script has not run. Once the demo is live its own panel supersedes them. */
+  [data-sdk-demo-ready='true'] .sdk-demo-static-samples {
+    display: none;
   }
 
   .sdk-demo-panel {
