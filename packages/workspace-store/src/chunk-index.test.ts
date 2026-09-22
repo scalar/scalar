@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
@@ -6,11 +7,15 @@ import { cwd } from 'node:process'
 import { getActiveOpenApiDocument } from '@test/helpers'
 import fastify from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { effect } from 'vue'
 
 import { createWorkspaceStore } from '@/client'
 import { CHUNK_INDEX_KEY, type ChunkIndex, expandChunkIndex } from '@/helpers/chunk-index'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { updateSelectedSecuritySchemes } from '@/mutators/auth'
+import type { TraversedDocument } from '@/schemas/navigation'
+import { isOpenApiDocument } from '@/schemas/type-guards'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -49,6 +54,8 @@ vi.mock('@/navigation', async (importOriginal) => {
 const documentFixture = {
   openapi: '3.1.0',
   info: { title: 'Chunked API', version: '1.0.0' },
+  // Reaches the navigation as `icon`, so the inline header has a field beyond the required ones.
+  'x-scalar-icon': 'interface-content-book',
   components: {
     schemas: {
       // Names that have to survive filename and JSON Pointer escaping.
@@ -123,6 +130,75 @@ const buildDocuments = async (
   }
 }
 
+/** The navigation a non-compact store sends, which is the whole tree. */
+const wholeNavigation = (sparse: Record<string, unknown>): TraversedDocument =>
+  sparse['x-scalar-navigation'] as TraversedDocument
+
+/** The navigation a document carries, read the way every consumer reads it: plain property access. */
+const navigationOf = (store: ReturnType<typeof createWorkspaceStore>): TraversedDocument | undefined =>
+  getActiveOpenApiDocument(store)?.['x-scalar-navigation']
+
+/**
+ * Publishes a compact workspace to a local server and records every request made to it.
+ *
+ * The sparse document is served beside its chunks and loaded by url, which is what gives the client
+ * an origin to resolve the relative `./chunks/` references against. The generated files are read
+ * once up front, so a request can only reach the fixture.
+ */
+const serveCompactWorkspace = async (
+  onTestFinished: (fn: () => Promise<void>) => void,
+): Promise<{ url: string; requests: string[] }> => {
+  const directory = `scalar-compact-${randomUUID()}`
+  const basePath = `${cwd()}/${directory}`
+  onTestFinished(async () => {
+    await fs.rm(basePath, { recursive: true, force: true })
+  })
+
+  const serverStore = await createServerWorkspaceStore({
+    mode: 'static',
+    directory,
+    compact: true,
+    documents: [{ name: 'default', document: getDocument() }],
+  })
+  await serverStore.generateWorkspaceChunks()
+  await fs.writeFile(`${basePath}/default.json`, JSON.stringify(serverStore.getWorkspace().documents['default']))
+
+  const files = new Map<string, string>(
+    await Promise.all(
+      (await fs.readdir(basePath, { recursive: true }))
+        .filter((path) => path.endsWith('.json'))
+        .map(async (path) => [`/${path}`, await fs.readFile(join(basePath, path), 'utf-8')] as const),
+    ),
+  )
+
+  const server = fastify({ logger: false })
+  onTestFinished(async () => {
+    await server.close()
+  })
+
+  const requests: string[] = []
+  server.get('/*', (req, res) => {
+    requests.push(req.url)
+    const content = files.get(decodeURIComponent(req.url))
+    return content === undefined ? res.code(404).send() : res.send(content)
+  })
+  const url = await server.listen({ port: 0, host: '127.0.0.1' })
+
+  return { url: `${url}/default.json`, requests }
+}
+
+/** A store holding the published compact document, plus the requests it has made so far. */
+const addCompactDocument = async (
+  onTestFinished: (fn: () => Promise<void>) => void,
+  props?: Parameters<typeof createWorkspaceStore>[0],
+): Promise<{ store: ReturnType<typeof createWorkspaceStore>; requests: string[] }> => {
+  const { url, requests } = await serveCompactWorkspace(onTestFinished)
+  const store = createWorkspaceStore(props)
+  await store.addDocument({ name: 'default', url })
+
+  return { store, requests }
+}
+
 describe('chunk-index', () => {
   beforeEach(() => {
     bundleSpy.mockClear()
@@ -138,12 +214,41 @@ describe('chunk-index', () => {
   ] as const
 
   it.each(modes)('sends an index in place of the chunk references in $mode mode', async ({ mode, navigationRef }) => {
-    const { compact } = await buildDocuments(mode, name, 'assets')
+    const { sparse, compact } = await buildDocuments(mode, name, 'assets')
 
     expect(compact['paths']).toBeUndefined()
     expect(compact['components']).toBeUndefined()
     expect((compact[CHUNK_INDEX_KEY] as ChunkIndex).mode).toBe(mode)
-    expect(compact['x-scalar-navigation']).toStrictEqual({ '$ref': navigationRef, $global: true })
+
+    // The navigation header travels inline, whole but for the children, which are the chunk.
+    const { children, ...header } = wholeNavigation(sparse)
+    expect(children?.length).toBeGreaterThan(0)
+    expect(compact['x-scalar-navigation']).toStrictEqual({ ...header, children: [] })
+    expect(compact['x-scalar-navigation-chunk']).toBe(navigationRef)
+
+    // A document that was not sent compact keeps its navigation whole and names no chunk.
+    expect(sparse['x-scalar-navigation-chunk']).toBeUndefined()
+  })
+
+  it('keeps the auth mutators working on a compact document', async () => {
+    const { compact } = await buildDocuments('static', 'doc', 'assets')
+
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'doc', document: compact })
+
+    // The name the auth and history stores key on, by plain access and without resolving anything.
+    expect(navigationOf(store)?.name).toBe('doc')
+
+    await updateSelectedSecuritySchemes(store, store.workspace.activeDocument ?? null, {
+      selectedRequirements: [{ apiKey: [] }],
+      newSchemes: [],
+      meta: { type: 'document' },
+    })
+
+    expect(store.auth.getAuthSelectedSchemas({ type: 'document', documentName: 'doc' })).toStrictEqual({
+      selectedIndex: 0,
+      selectedSchemes: [{ apiKey: [] }],
+    })
   })
 
   it.each(modes)(
@@ -165,9 +270,12 @@ describe('chunk-index', () => {
         })(),
       )
 
-      // Navigation is the one intended difference: a reference to a chunk rather than the tree.
-      expect(expanded['x-scalar-navigation']).toStrictEqual({ '$ref': navigationRef, $global: true })
+      // The navigation children are the one intended difference: they are still in their chunk.
+      const { children: _children, ...header } = wholeNavigation(reference)
+      expect(expanded['x-scalar-navigation']).toStrictEqual({ ...header, children: [] })
+      expect(expanded['x-scalar-navigation-chunk']).toBe(navigationRef)
       delete expanded['x-scalar-navigation']
+      delete expanded['x-scalar-navigation-chunk']
       delete reference['x-scalar-navigation']
 
       // The client hashes the bytes it was handed, and the two wire forms are deliberately
@@ -320,89 +428,189 @@ describe('chunk-index', () => {
     }
   })
 
-  it('resolves the same chunks as a non-compact document, and the navigation only on request', async ({
-    onTestFinished,
-  }) => {
-    const server = fastify({ logger: false })
-    onTestFinished(async () => {
-      await server.close()
+  it('resolves the same chunks as a non-compact document', async ({ onTestFinished }) => {
+    const { store, requests } = await addCompactDocument(onTestFinished)
+
+    // Nothing beyond the document itself is loaded up front — the navigation children included
+    expect(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get')).toStrictEqual({
+      '$ref': './chunks/default/operations/~1users/get.json#',
+      '$ref-value': undefined,
+      $global: true,
     })
-    const dir = `scalar-compact-${Date.now()}`
-    const basePath = `${cwd()}/${dir}`
+    expect(requests).toStrictEqual(['/default.json'])
 
-    const serverStore = await createServerWorkspaceStore({
-      mode: 'static',
-      directory: dir,
-      compact: true,
-      documents: [{ name: 'default', document: getDocument() }],
-    })
-    await serverStore.generateWorkspaceChunks()
+    await store.resolve(['paths', '/users', 'get'])
 
-    await fs.writeFile(`${basePath}/default.json`, JSON.stringify(serverStore.getWorkspace().documents['default']))
+    const operation = getResolvedRef(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get'))
+    expect(operation?.summary).toBe('Get all users')
+    const expectedSchema = { type: 'object', properties: { id: { type: 'string' } } }
+    expect(getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.['User'])).toStrictEqual(expectedSchema)
+    expect(requests.slice(1).sort()).toStrictEqual([
+      '/chunks/default/components/schemas/User.json',
+      '/chunks/default/operations/~1users/get.json',
+    ])
 
-    // Read the generated fixtures once so requests only access a fixed set of in-memory files.
-    const files = new Map<string, string>(
-      await Promise.all(
-        (await fs.readdir(basePath, { recursive: true }))
-          .filter((path) => path.endsWith('.json'))
-          .map(async (path) => [`/${path}`, await fs.readFile(join(basePath, path), 'utf-8')] as const),
-      ),
-    )
-    const requests: string[] = []
-    server.get('/*', (req, res) => {
-      requests.push(req.url)
-      const content = files.get(decodeURIComponent(req.url))
-      return content === undefined ? res.code(404).send() : res.send(content)
-    })
-    const url = await server.listen({ port: 0, host: '127.0.0.1' })
+    // A property referencing a shared component reaches the schema through its stub
+    const response = getResolvedRef(operation?.responses?.['200'])
+    const schema = getResolvedRef(response?.content?.['application/json']?.schema)
+    assert(schema && typeof schema === 'object' && 'items' in schema)
+    const items = schema.items
+    assert(items && typeof items === 'object' && '$ref' in items)
+    expect(items.$ref).toBe('#/components/schemas/User')
+    expect(getResolvedRef(items)).toStrictEqual(expectedSchema)
 
-    try {
-      const store = createWorkspaceStore()
-      await store.addDocument({ name: 'default', url: `${url}/default.json` })
+    // A second operation using the same schema costs one request, its own chunk
+    await store.resolve(['paths', '/users', 'post'])
+    expect(requests.slice(3)).toStrictEqual(['/chunks/default/operations/~1users/post.json'])
+  })
 
-      // Nothing beyond the document itself is loaded up front — the navigation included
-      expect(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get')).toStrictEqual({
-        '$ref': './chunks/default/operations/~1users/get.json#',
-        '$ref-value': undefined,
-        $global: true,
+  it('loads the navigation children on request, and only once', async ({ onTestFinished }) => {
+    const { store, requests } = await addCompactDocument(onTestFinished)
+    const { sparse } = await buildDocuments('static', 'default', 'assets')
+
+    // The header is there from the start; the children are empty until they are asked for.
+    expect(navigationOf(store)?.title).toBe('Chunked API')
+    expect(navigationOf(store)?.children).toStrictEqual([])
+    expect(requests).toStrictEqual(['/default.json'])
+
+    await store.resolve(['x-scalar-navigation'])
+
+    expect(requests.slice(1)).toStrictEqual(['/chunks/default/navigation.json'])
+    // Read by plain access: materializing leaves the navigation a tree, not a reference.
+    expect(navigationOf(store)?.children).toStrictEqual(wholeNavigation(sparse).children)
+    expect(navigationOf(store)).toStrictEqual(wholeNavigation(sparse))
+
+    // Navigation has one owner, so the children go straight onto it: the document says nothing
+    // about a chunk any more, and nothing was parked in `x-ext` on the way.
+    const document = onTheWire(store.exportWorkspace().documents['default'])
+    expect(document['x-scalar-navigation-chunk']).toBeUndefined()
+    expect(document['x-ext']).toBeUndefined()
+    expect(document['x-ext-urls']).toBeUndefined()
+
+    // The children are on the document now, so asking again costs nothing.
+    await store.resolve(['x-scalar-navigation'])
+    expect(requests.slice(2)).toStrictEqual([])
+  })
+
+  it('loads the navigation children once for concurrent resolves', async ({ onTestFinished }) => {
+    const { store, requests } = await addCompactDocument(onTestFinished)
+
+    await Promise.all([
+      store.resolve(['x-scalar-navigation']),
+      store.resolve(['x-scalar-navigation']),
+      // A path under the navigation loads the children too.
+      store.resolve(['x-scalar-navigation', 'children', '0']),
+    ])
+
+    expect(requests.slice(1)).toStrictEqual(['/chunks/default/navigation.json'])
+    expect(navigationOf(store)?.children?.length).toBeGreaterThan(0)
+  })
+
+  it.for([
+    { reactive: true, replacement: 'reload' },
+    { reactive: false, replacement: 'reload' },
+    { reactive: true, replacement: 'delete and add' },
+    { reactive: false, replacement: 'delete and add' },
+  ] as const)(
+    'loads replacement navigation during a pending request ($replacement, reactive: $reactive)',
+    async ({ reactive, replacement }, { onTestFinished }) => {
+      let releaseFirstRequest: (() => void) | undefined
+      const firstRequestGate = new Promise<void>((resolve) => {
+        releaseFirstRequest = resolve
       })
-      expect(requests).toStrictEqual(['/default.json'])
-
-      await store.resolve(['paths', '/users', 'get'])
-
-      const operation = getResolvedRef(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get'))
-      expect(operation?.summary).toBe('Get all users')
-      const expectedSchema = { type: 'object', properties: { id: { type: 'string' } } }
-      expect(getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.['User'])).toStrictEqual(
-        expectedSchema,
-      )
-      expect(requests.slice(1).sort()).toStrictEqual([
-        '/chunks/default/components/schemas/User.json',
-        '/chunks/default/operations/~1users/get.json',
-      ])
-
-      // A property referencing a shared component reaches the schema through its stub
-      const response = getResolvedRef(operation?.responses?.['200'])
-      const schema = getResolvedRef(response?.content?.['application/json']?.schema)
-      assert(schema && typeof schema === 'object' && 'items' in schema)
-      const items = schema.items
-      assert(items && typeof items === 'object' && '$ref' in items)
-      expect(items.$ref).toBe('#/components/schemas/User')
-      expect(getResolvedRef(items)).toStrictEqual(expectedSchema)
-
-      // A second operation using the same schema costs one request, its own chunk
-      await store.resolve(['paths', '/users', 'post'])
-      expect(requests.slice(3)).toStrictEqual(['/chunks/default/operations/~1users/post.json'])
-
-      // The navigation is a chunk like any other: not fetched until it is asked for
-      await store.resolve(['x-scalar-navigation'])
-      expect(requests.slice(4)).toStrictEqual(['/chunks/default/navigation.json'])
+      onTestFinished(() => releaseFirstRequest?.())
+      const navigationRequests: string[] = []
+      const { store } = await addCompactDocument(onTestFinished, {
+        reactive,
+        fetch: async (input, init): Promise<Response> => {
+          if (String(input).endsWith('/navigation.json')) {
+            navigationRequests.push(String(input))
+            if (navigationRequests.length === 1) {
+              await firstRequestGate
+            }
+          }
+          return fetch(input, init)
+        },
+      })
       const { sparse } = await buildDocuments('static', 'default', 'assets')
-      expect(getResolvedRef(getActiveOpenApiDocument(store)?.['x-scalar-navigation'])).toStrictEqual(
-        sparse['x-scalar-navigation'],
-      )
-    } finally {
-      await fs.rm(basePath, { recursive: true, force: true })
-    }
+      const originalNavigation = navigationOf(store)
+      const snapshot = structuredClone(store.exportWorkspace())
+      const first = store.resolve(['x-scalar-navigation'])
+      await vi.waitFor(() => expect(navigationRequests.length).toBe(1))
+
+      if (replacement === 'reload') {
+        store.loadWorkspace(snapshot)
+      } else {
+        store.deleteDocument('default')
+        const url = snapshot.documents['default']?.['x-scalar-original-source-url']
+        assert(url)
+        await store.addDocument({ name: 'default', url })
+      }
+      const second = store.resolve(['x-scalar-navigation'])
+      releaseFirstRequest?.()
+      await Promise.all([first, second])
+
+      expect(navigationOf(store)?.children).toStrictEqual(wholeNavigation(sparse).children)
+      expect(getActiveOpenApiDocument(store)?.['x-scalar-navigation-chunk']).toBeUndefined()
+      expect(navigationRequests.length).toBe(2)
+      // A stale completion must not publish mutations from the detached document.
+      expect(originalNavigation?.children).toStrictEqual([])
+
+      await store.resolve(['x-scalar-navigation'])
+      expect(navigationRequests.length).toBe(2)
+    },
+  )
+
+  it('loads the navigation children with reactive: false', async ({ onTestFinished }) => {
+    const { store, requests } = await addCompactDocument(onTestFinished, { reactive: false })
+    const { sparse } = await buildDocuments('static', 'default', 'assets')
+
+    expect(navigationOf(store)?.children).toStrictEqual([])
+
+    await store.resolve(['x-scalar-navigation'])
+
+    expect(requests.slice(1)).toStrictEqual(['/chunks/default/navigation.json'])
+    expect(navigationOf(store)?.children).toStrictEqual(wholeNavigation(sparse).children)
+  })
+
+  it('re-runs an effect reading the navigation children when they load', async ({ onTestFinished }) => {
+    const { store } = await addCompactDocument(onTestFinished)
+    const document = store.workspace.documents['default']
+
+    const counts: number[] = []
+    effect(() => {
+      counts.push(isOpenApiDocument(document) ? (document['x-scalar-navigation']?.children?.length ?? 0) : 0)
+    })
+
+    expect(counts).toStrictEqual([0])
+
+    await store.resolve(['x-scalar-navigation'])
+
+    expect(counts.length).toBe(2)
+    expect(counts[1]).toBeGreaterThan(0)
+  })
+
+  it('leaves the children loadable for a workspace exported before they were', async ({ onTestFinished }) => {
+    const { store, requests } = await addCompactDocument(onTestFinished)
+    const { sparse } = await buildDocuments('static', 'default', 'assets')
+
+    const second = createWorkspaceStore()
+    second.loadWorkspace(structuredClone(store.exportWorkspace()))
+
+    expect(navigationOf(second)?.name).toBe('default')
+    expect(navigationOf(second)?.children).toStrictEqual([])
+
+    await second.resolve(['x-scalar-navigation'])
+
+    expect(requests.slice(1)).toStrictEqual(['/chunks/default/navigation.json'])
+    expect(navigationOf(second)?.children).toStrictEqual(wholeNavigation(sparse).children)
+
+    // Once loaded, the children travel with the workspace and cost the next store nothing.
+    const third = createWorkspaceStore()
+    third.loadWorkspace(structuredClone(second.exportWorkspace()))
+    await third.resolve(['x-scalar-navigation'])
+
+    expect(requests.slice(2)).toStrictEqual([])
+    expect(navigationOf(third)?.children).toStrictEqual(wholeNavigation(sparse).children)
   })
 })
