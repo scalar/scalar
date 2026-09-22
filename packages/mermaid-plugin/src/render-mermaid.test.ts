@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { renderMermaid } from './render-mermaid'
 
-const render = vi.hoisted(() => vi.fn())
-vi.mock('mermaid', () => ({ default: { initialize: vi.fn(), render } }))
+const { render, initialize } = vi.hoisted(() => ({ render: vi.fn(), initialize: vi.fn() }))
+vi.mock('mermaid', () => ({ default: { initialize, render } }))
 
 const createSource = (): HTMLElement => {
   const element = document.createElement('div')
@@ -23,6 +23,11 @@ describe('render-mermaid', () => {
     const source = element.firstElementChild
     const controller = new AbortController()
     const cleanup = await renderMermaid({ element, source: 'graph LR; A-->B', signal: controller.signal })
+    expect(initialize).toHaveBeenCalledWith({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      suppressErrorRendering: true,
+    })
     expect(Array.from(element.querySelectorAll('svg'), (svg) => svg.outerHTML)).toStrictEqual(['<svg></svg>'])
     expect(Array.from(element.querySelectorAll('button'), (button) => button.textContent)).toStrictEqual([
       'Zoom in',
