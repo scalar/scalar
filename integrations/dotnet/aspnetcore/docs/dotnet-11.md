@@ -30,4 +30,8 @@ The repository uses the .NET 11 RC1 SDK in `integrations/dotnet/global.json`. Ke
 
 `Scalar.AspNetCore.Microsoft` has a project-local `VersionSuffix` of `rc.1` while it depends on ASP.NET Core 11 RC1. The publish workflow passes `VersionPrefix` so this package receives the prerelease suffix and its `Scalar.AspNetCore` dependency keeps the stable version published separately. Use `dotnet pack src/Scalar.AspNetCore.Microsoft -p:VersionPrefix=<version>` when packaging manually.
 
+The suffix applies to the entire NuGet package, including its .NET 9 and .NET 10 assemblies. Stable-only consumers will not receive these updates. Opt into prereleases when upgrading, for example with `dotnet add package Scalar.AspNetCore.Microsoft --prerelease`, or remain on the last stable version until stable publication resumes. `Scalar.AspNetCore` and `Scalar.AspNetCore.Swashbuckle` continue to publish stable versions.
+
+The playground Docker build intentionally uses the RC1 SDK to build the referenced multi-target project. Its runtime image remains .NET 10.
+
 Before a stable release, update the RC1 SDK and package references to the final .NET 11 versions and remove `VersionSuffix` from `Scalar.AspNetCore.Microsoft.csproj`.

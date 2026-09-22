@@ -2,6 +2,12 @@
 
 This folder contains the .NET packages for Scalar API documentation.
 
+## SDK prerequisites
+
+All projects under `integrations/dotnet`, including Aspire, Azure Functions, and Swashbuckle, require the .NET SDK **11.0.100-rc.1.26425.128** selected by `global.json`. Installing only the .NET 10 SDK is insufficient: SDK roll-forward does not select an older major version. Install this RC SDK alongside the .NET 8, 9, and 10 runtimes needed by the test targets. Confirm the selected SDK by running `dotnet --version` from this directory.
+
+The ASP.NET Core playground Docker build also intentionally uses the .NET 11 RC1 SDK; its runtime image remains .NET 10. See the [.NET 11 preview release notes](./aspnetcore/docs/dotnet-11.md) for the impact on NuGet updates.
+
 ## Structure
 
 - **`shared/`** - Contains `Scalar.Shared` project with shared resources
