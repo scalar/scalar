@@ -85,6 +85,44 @@ const buildGraph = (size: number, links: number, values: number, prefix: boolean
 }
 
 describe('coerce-differential', () => {
+  it('preserves branch selection and aliases after exhausting the dependency mask budget', () => {
+    const schema = recursiveSchema(0, false)
+    const inputs = Array.from({ length: 2048 }, (_, index) => buildGraph(1, 0, index % 3, true))
+    // Revisit early inputs after the budget is exhausted to exercise existing cached pairs too.
+    inputs.push(inputs[0]!, inputs[1]!)
+    let reads = 0
+    const tail: Record<string, unknown>[] = Array.from({ length: 8 }, () => ({
+      get kind() {
+        reads++
+        return 'b'
+      },
+    }))
+    for (let index = 0; index < tail.length - 1; index++) {
+      tail[index]!.next = tail[index + 1]
+    }
+    inputs.push(tail[0]!)
+    const before = graphShape(inputs)
+    reads = 0
+    const actual = coerce(array(schema), inputs)
+    const actualReads = reads
+    reads = 0
+    const expected = coerceWithoutScoreMemoization(array(schema), inputs)
+    // Once the budget is exhausted, a fresh tail must use the original scorer's traversal count.
+    expect(actualReads).toBe(reads)
+    expect(graphShape(actual)).toStrictEqual(graphShape(expected))
+    expect(graphShape(inputs)).toStrictEqual(before)
+  })
+
+  it('does not cache partially recorded dependencies when the budget is exhausted inside a traversal', () => {
+    const schema = recursiveSchema(0, false)
+    const children = Array.from({ length: 2048 }, (_, index) => buildGraph(1, 0, index % 3, false))
+    const properties = Object.fromEntries(children.map((_, index) => [`child${index}`, schema]))
+    const branch = object(properties)
+    const value = Object.fromEntries(children.map((child, index) => [`child${index}`, child]))
+    const root = union([branch, object({ ...properties, selected: literal('second') })])
+    expect(graphShape(coerce(root, value))).toStrictEqual(graphShape(coerceWithoutScoreMemoization(root, value)))
+  })
+
   it.each([0, 1, 2, 3])(
     'matches independent non-memoized branch selection for recursive schema variant %s',
     (variant) => {

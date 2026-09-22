@@ -72,15 +72,27 @@ type ScoringContext = {
   pairs: WeakMap<object, Map<Schema, ScoringPair>>
   active: bigint
   nextBit: bigint
+  memoizationDisabled: boolean
   frame?: ScoringFrame
 }
+
+/** Bound mask storage and bitwise work even when a call visits many independent cycles. */
+const dependencyBitLimit = 1n << 1024n
 
 /**
  * Assign bits only to cycle-dependent pairs so ordinary acyclic data does not build a growing bitset.
  * Compact masks avoid repeatedly copying ancestor maps while scoring larger rings.
  */
 const dependencyBit = (pair: ScoringPair, scoring: ScoringContext): bigint => {
+  if (scoring.memoizationDisabled) {
+    return 0n
+  }
   if (pair.bit === undefined) {
+    if (scoring.nextBit === dependencyBitLimit) {
+      // Do not cache partially recorded dependencies, including frames already on the stack.
+      scoring.memoizationDisabled = true
+      return 0n
+    }
     pair.bit = scoring.nextBit
     scoring.nextBit <<= 1n
     if (pair.active) {
@@ -124,12 +136,13 @@ const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache, scorin
     }
     return 1
   }
-  if (pair.completed !== undefined) {
+  if (!scoring.memoizationDisabled && pair.completed !== undefined) {
     return pair.completed
   }
 
   const cached = pair.contextual
   if (
+    !scoring.memoizationDisabled &&
     cached &&
     (scoring.active & cached.dependencies.active) === cached.dependencies.active &&
     (scoring.active & cached.dependencies.inactive) === 0n
@@ -148,9 +161,15 @@ const scoreUnion = (schema: Schema, value: unknown, lazyCache: LazyCache, scorin
 
   try {
     const score = scoreUnionInner(schema, value, lazyCache, scoring)
+    if (scoring.memoizationDisabled) {
+      return score
+    }
     if (frame.cyclic) {
       // This frame activates its own pair internally, but a caller must enter with that pair inactive.
       const bit = dependencyBit(pair, scoring)
+      if (scoring.memoizationDisabled) {
+        return score
+      }
       frame.dependencies.active &= ~bit
       frame.dependencies.inactive |= bit
       pair.contextual = { score, dependencies: frame.dependencies }
@@ -440,4 +459,5 @@ export const coerce = <S extends Schema>(
     pairs: new WeakMap(),
     active: 0n,
     nextBit: 1n,
+    memoizationDisabled: false,
   }) as SafeStatic<S>
