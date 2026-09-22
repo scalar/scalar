@@ -1,9 +1,11 @@
+import { bundle } from '@scalar/json-magic/bundle'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it } from 'vitest'
 import YAML from 'yaml'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { removeExtraScalarKeys } from '@/plugins/bundler'
 import { isOpenApiDocument } from '@/schemas/type-guards'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -283,40 +285,106 @@ describe('normalize-boolean-schemas', () => {
     expect(normalized.components.schemas.Alias).toBe(node)
     expect(recursive.properties).toStrictEqual({ child: recursive, forbidden: false })
   })
-  it.each(['3.1.1', '3.2.0'])('preserves boolean schema semantics through client ingestion for %s', async (openapi) => {
-    const store = createWorkspaceStore()
-    const input = {
-      openapi,
-      info: { title: 'Boolean schemas', version: '1' },
+  it.each([
+    { openapi: '3.1.1', additionalProperties: false },
+    { openapi: '3.1.1', additionalProperties: true },
+    { openapi: '3.2.0', additionalProperties: false },
+    { openapi: '3.2.0', additionalProperties: true },
+  ])(
+    'preserves additionalProperties: $additionalProperties across $openapi saves and exports',
+    async ({ openapi, additionalProperties }) => {
+      const store = createWorkspaceStore()
+      const input = {
+        openapi,
+        info: { title: 'Boolean schemas', version: '1' },
+        components: {
+          schemas: {
+            Any: true,
+            Never: false,
+            Object: {
+              type: 'object',
+              additionalProperties,
+              properties: { allowed: true, forbidden: false },
+              example: { forbidden: false },
+            },
+          },
+        },
+      }
+      await store.addDocument({ name: 'boolean', document: input })
+      const document = store.workspace.documents.boolean
+      if (!document || !isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+      const expectedSchemas = {
+        Any: {},
+        Never: { not: {} },
+        Object: {
+          type: 'object',
+          additionalProperties,
+          properties: { allowed: {}, forbidden: { not: {} } },
+          example: { forbidden: false },
+        },
+      }
+      expect(JSON.parse(JSON.stringify(document.components?.schemas))).toStrictEqual(expectedSchemas)
+      expect(input.components.schemas.Never).toBe(false)
+      // getRaw is the internal backing-data API; user serialization uses the proxy view.
+      expect(JSON.stringify(getRaw(document))).toContain('__scalar_')
+      expect(JSON.stringify(document)).not.toContain('__scalar_')
+
+      // Before saving, exports retain the authored document, including all boolean schemas.
+      expect(JSON.parse(store.exportDocument('boolean', 'json') ?? '{}').components.schemas).toStrictEqual(
+        input.components.schemas,
+      )
+      expect(YAML.parse(store.exportDocument('boolean', 'yaml') ?? '{}').components.schemas).toStrictEqual(
+        input.components.schemas,
+      )
+
+      // Saving and editing share one cleanup boundary before either serializer runs.
+      const editable = await store.getEditableDocument('boolean')
+      if (!editable || !isOpenApiDocument(editable)) {
+        throw new Error('Expected an editable OpenAPI document')
+      }
+      expect(editable.components?.schemas).toStrictEqual(expectedSchemas)
+      expect(JSON.stringify(editable)).not.toContain('__scalar_')
+      expect(await store.saveDocument('boolean')).toBe(true)
+      for (const format of ['json', 'yaml'] as const) {
+        const exported = store.exportDocument('boolean', format) ?? '{}'
+        expect(exported).not.toContain('__scalar_')
+        const parsed = format === 'json' ? JSON.parse(exported) : YAML.parse(exported)
+        expect(parsed.components.schemas).toStrictEqual(expectedSchemas)
+      }
+      expect(JSON.parse(store.exportDocument('boolean', 'json', true) ?? '{}').components.schemas).toStrictEqual(
+        expectedSchemas,
+      )
+      expect(JSON.stringify(getRaw(document))).toContain('__scalar_')
+    },
+  )
+
+  it('removes normalized markers at the bundler boundary without relying on proxy filtering', async () => {
+    const normalized = normalizeBooleanSchemas({
       components: {
         schemas: {
           Any: true,
           Never: false,
-          Object: { type: 'object', properties: { allowed: true, forbidden: false }, example: { forbidden: false } },
+          Object: { type: 'object', additionalProperties: false, properties: { blocked: false } },
+          List: { type: 'array', items: false },
+          Choice: { anyOf: [true, false] },
         },
       },
-    }
-    await store.addDocument({ name: 'boolean', document: input })
-    const document = store.workspace.documents.boolean
-    if (!document || !isOpenApiDocument(document)) {
-      throw new Error('Expected an OpenAPI document')
-    }
-    expect(JSON.parse(JSON.stringify(document.components?.schemas))).toStrictEqual({
-      Any: {},
-      Never: { not: {} },
-      Object: { type: 'object', properties: { allowed: {}, forbidden: { not: {} } }, example: { forbidden: false } },
     })
-    expect(input.components.schemas.Never).toBe(false)
-    // getRaw is the internal backing-data API; user serialization uses the proxy view.
-    expect(JSON.stringify(getRaw(document))).toContain('__scalar_')
-    expect(JSON.stringify(document)).not.toContain('__scalar_')
-    expect(store.exportDocument('boolean', 'json')).not.toContain('__scalar_')
-    expect(store.exportDocument('boolean', 'yaml')).not.toContain('__scalar_')
-    expect(await store.saveDocument('boolean')).toBe(true)
-    const exported = store.exportDocument('boolean', 'json')
-    expect(exported).not.toContain('__scalar_')
-    expect(JSON.parse(exported ?? '{}').components.schemas.Never).toStrictEqual({ not: {} })
-    expect(store.exportDocument('boolean', 'yaml')).not.toContain('__scalar_')
+    expect(JSON.stringify(normalized)).toContain('__scalar_')
+    const cleaned = await bundle(normalized, { treeShake: false, plugins: [removeExtraScalarKeys()] })
+    expect(cleaned).toStrictEqual({
+      components: {
+        schemas: {
+          Any: {},
+          Never: { not: {} },
+          Object: { type: 'object', additionalProperties: false, properties: { blocked: { not: {} } } },
+          List: { type: 'array', items: { not: {} } },
+          Choice: { anyOf: [{}, { not: {} }] },
+        },
+      },
+    })
   })
 
   it.each(['3.0.4', '3.1.2', '3.2.1'])(

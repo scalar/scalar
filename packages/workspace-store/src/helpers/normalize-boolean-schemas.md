@@ -10,7 +10,17 @@ Ordinary vendor extensions and example/default/enum/const payloads are opaque. T
 
 ## Internal markers and exports
 
-`__scalar_` distinguishes untyped schema objects inside the store. `getRaw` deliberately returns this backing representation; it is not a sanitized export API. The public proxy's serialization and schema rendering hide internal marker properties. Use `exportDocument(name, 'json' | 'yaml')` for API-description exports; tests cover exports both before and after saving normalized data. Saving uses the existing `getEditableDocument` pipeline and its `removeExtraScalarKeys` bundler plugin to strip markers before either JSON or YAML export. Direct public proxy serialization uses the existing default `json-magic` marker filtering. No additional per-format marker filter is introduced. Literal `additionalProperties: false` stays `false` before and after saving. Other normalized boolean schema positions export as `{}` or `{ not: {} }` after saving; original unsaved exports retain their authored booleans. `exportWorkspace` is internal workspace persistence state and has a different purpose.
+`__scalar_` distinguishes untyped schema objects inside the store. `getRaw` deliberately returns this backing representation; it is not a sanitized export API. The public proxy's serialization and schema rendering hide internal marker properties.
+
+The save/edit boundary, `getEditableDocument`, runs the existing `removeExtraScalarKeys` bundler plugin on the unpacked data. `saveDocument` stores that cleaned result; JSON, minified JSON, and YAML exports serialize the same saved baseline without separate marker-removal logic. Regression coverage also passes raw normalized objects through this plugin, independently of proxy filtering.
+
+Use `exportDocument(name, 'json' | 'yaml')` for API-description exports; tests cover exports both before and after saving normalized data. `exportWorkspace` is internal workspace persistence state and has a different purpose.
+
+## Authored and saved representations
+
+Before saving, exports retain the original API description. After saving, normalized schema positions export `true` as `{}` and `false` as `{ not: {} }`. These preserve validation semantics but can produce textual differences in a round-trip. The internal `__scalar_` marker also represents ordinary untyped object schemas, so it does not record whether an author originally wrote a boolean; converting every empty object or negation back to a boolean would rewrite authored object schemas too.
+
+Boolean `additionalProperties` already passes object coercion and is never normalized: `additionalProperties: false` stays literal `false` in the working model, editable document, and saved JSON/YAML exports. The same is true for `additionalProperties: true`. Client-ingestion regressions cover both values in OpenAPI 3.0, 3.1, and 3.2.
 
 ## Measured server normalization cost
 

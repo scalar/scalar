@@ -1333,7 +1333,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return null
     }
 
-    // Reverse all external references and restore original $refs
+    // This is the shared cleanup boundary for editing and saving. Both JSON and YAML
+    // exports read the cleaned saved baseline, so serializers need no marker filtering.
+    // Reverse all external references and restore original $refs.
     const original = (await bundle(deepClone(rawDocument), {
       plugins: [openApiDocument(), restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
