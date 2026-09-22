@@ -12,7 +12,13 @@ import type {
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
-  { contentType = 'application/json' }: { contentType?: string } = {},
+  {
+    contentType = 'application/json',
+    compositionSelection,
+  }: {
+    contentType?: string
+    compositionSelection?: Record<string, number>
+  } = {},
 ): string | undefined => {
   if (example !== undefined) {
     const selected = getExampleValue(getResolvedRefDeep(example))
@@ -29,9 +35,14 @@ export const getExampleContent = (
   }
 
   if (response?.schema) {
-    const content = getExampleFromSchema(getResolvedRefDeep(response.schema) as SchemaObject, {
+    const schema = getResolvedRefDeep(response.schema) as SchemaObject | undefined
+    if (!schema) {
+      return undefined
+    }
+    const content = getExampleFromSchema(schema, {
       emptyString: 'string',
       mode: 'read',
+      compositionSelection,
     })
     if (content === undefined) {
       return undefined

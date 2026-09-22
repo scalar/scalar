@@ -6,6 +6,80 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it.each(['oneOf', 'anyOf'] as const)(
+    'ignores type-inapplicable root keywords for selected %s branches without changing the source',
+    (composition) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        properties: { objectOnly: { const: 'unused' } },
+        items: { type: 'string', const: 'arrayOnly' },
+        [composition]: [
+          { type: 'string', minLength: 3 },
+          { type: 'array', items: { type: 'string', const: 'selected' } },
+        ],
+      })
+      const original = structuredClone(schema)
+      expect(getExampleFromSchema(schema, { emptyString: 'text', compositionSelection: { [composition]: 0 } })).toBe(
+        'text',
+      )
+      expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 1 } })).toStrictEqual(['selected'])
+      expect(schema).toStrictEqual(original)
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)('selects root %s branches before shared type inference', (composition) => {
+    const cases = [
+      { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] },
+      {
+        type: 'array',
+        [composition]: [{ items: { type: 'string', const: 'first' } }, { items: { type: 'string', const: 'second' } }],
+      },
+      {
+        items: { type: 'string' },
+        [composition]: [{ items: { type: 'string', const: 'first' } }, { items: { type: 'string', const: 'second' } }],
+      },
+      { properties: { shared: { const: true } }, [composition]: [{ type: 'object' }, { type: 'null' }] },
+    ]
+    const expected = ['second', ['second'], ['second'], null]
+    cases.forEach((definition, index) => {
+      const schema = coerceValue(SchemaObjectSchema, definition)
+      const original = structuredClone(schema)
+      expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 1 } })).toStrictEqual(
+        expected[index],
+      )
+      expect(schema).toStrictEqual(original)
+    })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('does not reuse a selected %s index in a nested union', (composition) => {
+    for (const type of ['string', undefined]) {
+      const schema = coerceValue(SchemaObjectSchema, {
+        ...(type ? { type } : {}),
+        [composition]: [{ const: 'outer' }, { [composition]: [{ const: 'inner first' }, { const: 'inner second' }] }],
+      })
+      expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 1 } })).toBe('inner first')
+    }
+  })
+
+  it('consumes a root object selection while preserving selections on child properties', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { shared: { const: true } },
+      oneOf: [
+        { properties: { outer: { const: true } } },
+        {
+          oneOf: [
+            { properties: { child: { oneOf: [{ const: 'first' }, { const: 'second' }] } } },
+            { properties: { wrong: { const: true } } },
+          ],
+        },
+      ],
+    })
+    expect(getExampleFromSchema(schema, { compositionSelection: { oneOf: 1, 'child.oneOf': 1 } })).toStrictEqual({
+      shared: true,
+      child: 'second',
+    })
+  })
+
   it.each(['oneOf', 'anyOf'] as const)('uses discriminator fallback in %s examples', (composition) => {
     const variants = ['Cat', 'Dog', 'OtherPet'].map((name) => ({
       $ref: '#/components/schemas/' + name,
