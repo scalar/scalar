@@ -97,6 +97,33 @@ describe('for-each-path-item-operation', () => {
     expect(Object.getOwnPropertyDescriptor(path, '$ref-value')?.enumerable).toBe(false)
   })
 
+  it('does not follow reference links inherited by a target', () => {
+    const path = {
+      $ref: '#/components/pathItems/Target',
+      '$ref-value': { get: { summary: 'List pets' } },
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(Object.prototype, '$ref-value')
+    Object.defineProperty(Object.prototype, '$ref-value', {
+      value: { post: { summary: 'Inherited operation' } },
+      configurable: true,
+    })
+
+    try {
+      const resolved = getResolvedPathItem(path)
+      expect(Object.hasOwn(resolved ?? {}, '$ref-value')).toBe(false)
+      expect(resolved).toStrictEqual({
+        $ref: '#/components/pathItems/Target',
+        get: { summary: 'List pets' },
+      })
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(Object.prototype, '$ref-value', descriptor)
+      } else {
+        Reflect.deleteProperty(Object.prototype, '$ref-value')
+      }
+    }
+  })
+
   it('terminates a cycle of hidden reference links without exposing the link', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const cycle = { $ref: '#/components/pathItems/Loop' }
