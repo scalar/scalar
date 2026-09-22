@@ -101,6 +101,10 @@ const getRowIdentity = (row: TableRow, index: number): string => {
 
 type KeyedRow = { data: TableRow; identity: string; key: string }
 
+/**
+ * Retain the latest placeholder edit across unrelated refreshes. Once its key moves to a saved
+ * row, the empty-name-and-value check below prevents it from being reused for another row.
+ */
 const pendingRow = shallowRef<{ name: string; key: string }>()
 
 /** Keep the edited placeholder mounted when it becomes a saved row, preserving focus and local edits. */

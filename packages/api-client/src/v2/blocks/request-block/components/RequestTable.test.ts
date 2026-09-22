@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import RequestTable from './RequestTable.vue'
+import type { TableRow } from './RequestTableRow.vue'
 
 const environment = {
   description: 'Test Environment',
@@ -331,6 +332,73 @@ describe('RequestTable', () => {
     expect(wrapper.findAllComponents({ name: 'RequestTableRow' }).map((row) => row.props('data'))).toEqual(
       updated.slice(0, 2),
     )
+    wrapper.unmount()
+  })
+  it('keeps focus when entering a new parameter value before its key', async () => {
+    const wrapper = mount(RequestTable, {
+      attachTo: document.body,
+      props: { data: [], environment },
+    })
+    const editor = wrapper.findAll<HTMLElement>('[contenteditable="true"]')[1]!
+    editor.element.focus()
+    editor.element.textContent = 'hello'
+    await editor.trigger('input')
+    await wrapper.setProps({
+      data: [{ name: '', value: 'hello', isDisabled: false, originalParameter: { name: '', in: 'header' } }],
+    })
+
+    expect(document.activeElement).toBe(editor.element)
+    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toStrictEqual([
+      '',
+      'hello',
+      '',
+      '',
+    ])
+    editor.element.textContent = 'hello world'
+    await editor.trigger('input')
+    expect(wrapper.emitted('upsertRow')?.at(-1)).toStrictEqual([
+      0,
+      { name: '', value: 'hello world', isDisabled: false },
+    ])
+    wrapper.unmount()
+  })
+
+  it('retains a pending row edit across an unrelated refresh before the save arrives', async () => {
+    const initial: TableRow = {
+      name: 'existing',
+      value: 'old',
+      originalParameter: { name: 'existing', in: 'header' },
+    }
+    const wrapper = mount(RequestTable, {
+      attachTo: document.body,
+      props: { data: [initial], environment },
+    })
+    const editor = wrapper.findAll<HTMLElement>('[contenteditable="true"]')[2]!
+    editor.element.focus()
+    editor.element.textContent = 'x-demo-header'
+    await editor.trigger('input')
+    await wrapper.setProps({ data: [{ ...initial, value: 'updated' }] })
+    await wrapper.setProps({
+      data: [
+        { ...initial, value: 'updated' },
+        {
+          name: 'x-demo-header',
+          value: '',
+          isDisabled: false,
+          originalParameter: { name: 'x-demo-header', in: 'header' },
+        },
+      ],
+    })
+
+    expect(document.activeElement).toBe(editor.element)
+    expect(wrapper.findAll('[contenteditable="true"]').map((input) => input.element.textContent)).toStrictEqual([
+      'existing',
+      'updated',
+      'x-demo-header',
+      '',
+      '',
+      '',
+    ])
     wrapper.unmount()
   })
 })
