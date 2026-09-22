@@ -264,35 +264,35 @@
           </div>
           <div class="sdk-demo-share-people">
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Marc Laventure" href="https://www.linkedin.com/in/marc-laventure/" target="_blank" rel="noopener noreferrer" aria-label="Marc Laventure on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/marc.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/marc-sticker.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Marc</span>
             </a>
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Cameron Rohani" href="https://www.linkedin.com/in/cameron-rohani-5ba99a99/" target="_blank" rel="noopener noreferrer" aria-label="Cameron Rohani on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/cam.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/cam-sticker-final.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Cameron</span>
             </a>
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Hans Pagel" href="https://www.linkedin.com/in/hans-pagel-35303a18a/" target="_blank" rel="noopener noreferrer" aria-label="Hans Pagel on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/hans.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/hans-sticker-final.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Hans</span>
             </a>
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Peter McGrath" href="https://www.linkedin.com/in/peter-mcgrath-cpa-795470111/" target="_blank" rel="noopener noreferrer" aria-label="Peter McGrath on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/peter.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/peter-sticker-final.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Peter</span>
             </a>
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Geoff" href="https://www.linkedin.com/in/geoffgscott/" target="_blank" rel="noopener noreferrer" aria-label="Geoff on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/geoff.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/geoff-sticker-final.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Geoff</span>
             </a>
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Amrit" href="https://www.linkedin.com/in/amrit-kahlon/" target="_blank" rel="noopener noreferrer" aria-label="Amrit on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/amrit.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/amrit-sticker-final.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Amrit</span>
             </a>
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Brynn" href="https://www.linkedin.com/in/bnhwkr/" target="_blank" rel="noopener noreferrer" aria-label="Brynn on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/brynn.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/brynn-sticker-final.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Brynn</span>
             </a>
             <a class="sdk-demo-share-person" data-sdk-demo-profile="Redis" href="https://www.linkedin.com/in/redis-stasa-14b2aa24a/" target="_blank" rel="noopener noreferrer" aria-label="Redis on LinkedIn">
-              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="/sdks/team/redis.png" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
+              <span class="sdk-demo-share-avatar" aria-hidden="true"><img class="sdk-demo-share-avatar-photo" src="https://cdn.scalar.com/marketing/landing/redis-sticker-final.svg" alt="" loading="lazy" /><span class="sdk-demo-share-avatar-badge"></span></span>
               <span class="sdk-demo-share-person-name">Redis</span>
             </a>
           </div>
