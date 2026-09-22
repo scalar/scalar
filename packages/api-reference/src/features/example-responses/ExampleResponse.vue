@@ -33,9 +33,25 @@ const { translate } = useLocalization()
 const resolvedExample = computed(() => getResolvedRef(example))
 
 /** Preformatted content is shared with the response card clipboard action. */
-const prettyPrintedContent = computed(
-  () => content ?? getExampleContent(response, example, { contentType, openapiVersion }),
-)
+const generatedExample = computed(() => {
+  let error: string | undefined
+  const value =
+    content ??
+    getExampleContent(response, example, {
+      contentType,
+      openapiVersion,
+      onDiagnostic: (diagnostic) => {
+        if (diagnostic.severity === 'error' && error === undefined) {
+          error =
+            diagnostic.code === 'limit-exceeded'
+              ? 'The XML example exceeds the generation limit. Supply a serialized XML example to display the complete payload.'
+              : `Unable to generate an XML example: ${diagnostic.message}`
+        }
+      },
+    })
+  return { value, error }
+})
+const prettyPrintedContent = computed(() => generatedExample.value.value)
 
 const VIRTUALIZATION_THRESHOLD = 20_000
 
@@ -77,7 +93,7 @@ const shouldVirtualize = computed(() => {
     <div
       v-else
       class="empty-state">
-      {{ translate('response.noBody') }}
+      {{ generatedExample.error ?? translate('response.noBody') }}
     </div>
   </div>
 </template>

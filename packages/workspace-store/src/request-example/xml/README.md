@@ -86,8 +86,8 @@ bound synchronous work, so sufficiently large legitimate examples can exceed the
 
 Limit violations reject the complete document and return a `limit-exceeded` error.
 The generation helpers report errors to `console.warn` by default; an `onDiagnostic`
-callback can display them in an application. Current UI consumers fall back to
-their data representation and do not display a dedicated XML error message. To
+callback can display them in an application. The response example panel displays generation errors and explains the serialized
+example escape hatch for limit violations. Other consumers retain their data fallback. To
 preserve a complete large payload without generating an XML tree, supply a
 media-level `serializedValue` (or a legacy string `value`).
 
@@ -107,7 +107,7 @@ The implementation stays in three layers: bounded tree writing, schema mapping w
 
 `serializeXmlPart(value, schema?)` is the strict multipart integration boundary. It uses the same schema-aware serializer in write mode, keeps an explicit `xml.name` or the fallback `root`, and throws if a complete document cannot be produced. It is exported from the request-example entry point for multipart builders. Serialized string payloads bypass this structured-data adapter. The positional multipart PR uses the identical adapter API; its legacy implementation must be replaced by this one when the branches are combined.
 
-An unsupported property pattern is never interpreted as a nonmatch: mapping rejects the complete XML document, returns `unsupported-pattern` with the property path, and invokes `onDiagnostic` or the default console warning. It does not silently omit that property. The strict part adapter additionally throws. UI callers currently retain their documented data fallback rather than showing a dedicated diagnostic panel.
+An unsupported property pattern is never interpreted as a nonmatch: mapping rejects the complete XML document, returns `unsupported-pattern` with the property path, and invokes `onDiagnostic` or the default console warning. It does not silently omit that property. The strict part adapter additionally throws. The response example panel displays the diagnostic; other UI callers retain their documented data fallback.
 
 ## Default JSON performance check
 

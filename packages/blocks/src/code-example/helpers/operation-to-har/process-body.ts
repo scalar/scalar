@@ -1,5 +1,5 @@
-import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
+import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'

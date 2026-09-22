@@ -42,6 +42,22 @@ describe('ExampleResponse', () => {
     expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
   })
 
+  it('explains XML generation limits instead of displaying an empty response', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        contentType: 'application/xml',
+        response: coerceValue(MediaTypeObjectSchema, { schema: { type: 'object', xml: { name: 'root' } } }),
+        example: {
+          dataValue: Object.fromEntries(Array.from({ length: 10_001 }, (_, index) => [`item${index}`, index])),
+        },
+      },
+    })
+    expect(wrapper.text()).toBe(
+      'The XML example exceeds the generation limit. Supply a serialized XML example to display the complete payload.',
+    )
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+  })
+
   describe('basic rendering', () => {
     it('renders example when provided', () => {
       const example: ExampleObject = {

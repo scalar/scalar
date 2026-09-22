@@ -4,7 +4,11 @@ import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
-import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import {
+  type XmlExampleOptions,
+  getExampleFromSchema,
+  getXmlBodyExample,
+} from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -19,7 +23,9 @@ export const getExampleContent = (
     contentType = 'application/json',
     compositionSelection,
     openapiVersion,
+    onDiagnostic,
   }: {
+    onDiagnostic?: XmlExampleOptions['onDiagnostic']
     openapiVersion?: string
     contentType?: string
     compositionSelection?: Record<string, number>
@@ -28,8 +34,10 @@ export const getExampleContent = (
   if (isXmlMediaType(contentType)) {
     return getXmlBodyExample(response?.schema as SchemaObject | undefined, example, {
       mode: 'read',
+      compositionSelection,
       emptyString: 'string',
       openapiVersion,
+      onDiagnostic,
     }).xml
   }
   if (example !== undefined) {
@@ -63,6 +71,7 @@ export const getExampleContent = (
     const content = getExampleFromSchema(schema, {
       emptyString: 'string',
       mode: 'read',
+      compositionSelection,
       compositionSelection,
     })
     if (content === undefined) {

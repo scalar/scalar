@@ -751,3 +751,34 @@ paths:
 ```
 
 See [Testing in the API Client](./guides/app/testing.md) for all available assertions and the full `pm` API reference.
+
+## XML examples
+
+XML examples use the schema's `xml` metadata for element names, attributes, namespaces,
+and array wrappers. Automatic generation has depth and node limits to keep large API
+descriptions responsive. When a response example exceeds these limits, the response
+panel explains that a complete serialized example is needed.
+
+To display an existing XML payload without generating a tree, use an OpenAPI 3.2
+media-level `serializedValue`. It is preserved exactly, including whitespace:
+
+```yaml
+openapi: 3.2.0
+info:
+  title: XML example
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: Pets
+          content:
+            application/xml:
+              examples:
+                pets:
+                  serializedValue: '<pets><pet id="1">Milo</pet></pets>'
+```
+
+For OpenAPI 3.0 or 3.1, use a string `value` in the media-level Example Object.
+Schema-level string examples represent data and are escaped as XML text.
