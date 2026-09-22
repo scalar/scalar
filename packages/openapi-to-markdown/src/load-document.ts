@@ -124,7 +124,7 @@ export const loadDocument = async (
 
   // Upgrade before indexing so reference resolution sees one consistent dialect.
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
-  const upgraded = upgrade(raw, '3.2')
+  const { document: upgraded } = upgrade(raw, '3.2', { onIncompatible: 'collect' })
   const upgradedSchemas = getSchemas(upgraded)
   const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
 

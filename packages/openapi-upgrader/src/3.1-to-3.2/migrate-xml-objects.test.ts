@@ -18,6 +18,7 @@ describe('migrate-xml-objects', () => {
     ['schema default', { components: { schemas: { Data: { default: payload } } } }],
     ['schema const', { components: { schemas: { Data: { const: payload } } } }],
     ['schema enum', { components: { schemas: { Data: { enum: [payload] } } } }],
+    ['legacy definitions', { components: { schemas: { Data: { definitions: { Example: payload } } } } }],
     ['schema extension', { components: { schemas: { Data: { 'x-data': payload } } } }],
     ['document extension', { 'x-data': { schema: payload } }],
     ['reusable example', { components: { examples: { schema: { value: payload } } } }],
@@ -79,7 +80,7 @@ describe('migrate-xml-objects', () => {
     expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual(expected)
   })
 
-  it.each(['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'])(
+  it.each(['properties', 'patternProperties', '$defs', 'dependentSchemas'])(
     'migrates schemas in %s without treating member names as keywords',
     (keyword) => {
       const input = document({
@@ -181,7 +182,7 @@ describe('migrate-xml-objects', () => {
 
   it('migrates schemas in callbacks, webhooks, headers, and inline operations', () => {
     const buildDocument = (xml: Record<string, unknown>): Record<string, unknown> => {
-      const schema = { type: 'string', xml }
+      const schema = { type: 'string', xml: { name: 'Data', ...xml } }
       const pathItem = {
         parameters: [{ name: 'id', in: 'query', schema }],
         post: {
@@ -234,7 +235,7 @@ describe('migrate-xml-objects', () => {
             properties: { id: { type: 'string', xml }, friend: { $ref: '#/x-ext/pet~1schema' } },
             examples: [payload],
           },
-          response: { content: { 'application/xml': { schema: { type: 'string', xml } } } },
+          response: { content: { 'application/xml': { schema: { type: 'string', xml: { name: 'Data', ...xml } } } } },
           callback: { '{$request.query.url}': { post: { parameters: [{ schema: { type: 'string', xml } }] } } },
           example: { value: payload },
           untouched: payload,

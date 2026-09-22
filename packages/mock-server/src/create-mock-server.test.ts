@@ -369,6 +369,33 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe('2\n3\n')
   })
 
+  it('serves existing routes when an XML schema requires a 3.2 migration decision', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Pets',
+                content: {
+                  'application/json': { example: { id: 7 } },
+                  'application/xml': { schema: { type: 'object', properties: { id: { type: 'integer' } } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const server = await createMockServer({ document })
+    const response = await server.request('/pets', { headers: { Accept: 'application/json' } })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ id: 7 })
+  })
+
   // The error-handling tests below silence the log the server writes. Restoring through a hook
   // rather than inline keeps a failing assertion from leaving `console.error` mocked for the rest
   // of the file.

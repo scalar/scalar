@@ -10,6 +10,42 @@ import { describe, expect, it } from 'vitest'
 import { processOpenApiDocument } from './process-openapi-document'
 
 describe('process-openapi-document', () => {
+  it('retains incompatible 3.1 XML descriptions without partial migrations', async () => {
+    const document = {
+      openapi: '3.1.2',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {
+        '/pets/{id}': {
+          parameters: [{ name: 'id', in: 'path', required: true, allowReserved: true }],
+          get: {
+            responses: {
+              '200': {
+                description: 'Pets',
+                content: { 'application/xml': { schema: { type: 'object', properties: { id: { type: 'integer' } } } } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const original = structuredClone(document)
+
+    const result = await processOpenApiDocument(document)
+
+    expect(getRaw(result)).toStrictEqual(original)
+    expect(document).toStrictEqual(original)
+  })
+
+  it('continues rejecting malformed versions instead of using the compatibility fallback', async () => {
+    await expect(
+      processOpenApiDocument({
+        openapi: '3.1',
+        info: { title: 'Pets', version: '1.0.0' },
+        paths: {},
+      }),
+    ).rejects.toThrow('invalid OpenAPI version "3.1"')
+  })
+
   it.each(['2.0', '3.0.4', '3.1.2', '3.2.0'])('processes an OpenAPI %s document as 3.2', async (version) => {
     const result = await processOpenApiDocument({
       ...(version === '2.0' ? { swagger: version } : { openapi: version }),
