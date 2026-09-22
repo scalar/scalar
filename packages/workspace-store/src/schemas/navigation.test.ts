@@ -1,3 +1,4 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Static } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { RequiredDeep } from 'type-fest'
@@ -27,6 +28,12 @@ describe('navigation', () => {
     expectTypeOf<'PURGE'>().toExtend<OperationMethod>()
     expectTypeOf<string>().toExtend<OperationMethod>()
     expectTypeOf<number>().not.toExtend<OperationMethod>()
+
+    // Fixed-field consumers retain typo checking despite the open navigation boundary.
+    expectTypeOf<'get'>().toExtend<HttpMethod>()
+    expectTypeOf<'gte'>().not.toExtend<HttpMethod>()
+    expectTypeOf<'PURGE'>().not.toExtend<HttpMethod>()
+    expectTypeOf<string>().not.toExtend<HttpMethod>()
 
     const describeMethod = (method: OperationMethod): string => {
       switch (method) {

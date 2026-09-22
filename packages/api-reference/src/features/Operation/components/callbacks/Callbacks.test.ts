@@ -27,6 +27,7 @@ describe('Callbacks', () => {
           hideModels: false,
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
+          expandAllParameters: false,
           expandAllSchemaProperties: false,
           schemaKeyboardNav: false,
         },
