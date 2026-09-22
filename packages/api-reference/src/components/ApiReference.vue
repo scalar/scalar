@@ -64,6 +64,7 @@ import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
   computed,
+  defineAsyncComponent,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -79,11 +80,7 @@ import {
   AsyncApiSidebarFilters,
   filterAsyncApiNavigation,
 } from '@/blocks/scalar-asyncapi-sidebar-filters-block'
-import {
-  AgentScalarButton,
-  AgentScalarDrawer,
-  OpenMCPButton,
-} from '@/components/AgentScalar'
+import { AgentScalarButton, OpenMCPButton } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import { provideSchemaExpansion } from '@/components/Content/Schema/helpers/schema-expansion'
@@ -1414,6 +1411,18 @@ const agent = useAgent({
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
 
+const AgentScalarDrawer = defineAsyncComponent(
+  () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
+)
+const hasOpenedAgent = ref(false)
+
+// Keep the conversation mounted so closing and reopening preserves its state.
+watch(agent.showAgent, (open) => {
+  if (open) {
+    hasOpenedAgent.value = true
+  }
+})
+
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
@@ -1716,7 +1725,7 @@ const showMCPButton = computed(() => {
       :lang="documentLang">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
-        v-if="agent.agentEnabled.value"
+        v-if="agent.agentEnabled.value && hasOpenedAgent"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :externalUrls="mergedConfig.externalUrls"
         :workspaceStore />
