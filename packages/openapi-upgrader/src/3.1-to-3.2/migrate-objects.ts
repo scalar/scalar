@@ -84,7 +84,10 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
           return undefined
         }
         // Read only stored values, never inherited properties or accessors.
-        return isObject(value) || Array.isArray(value) ? Object.getOwnPropertyDescriptor(value, key)?.value : undefined
+        if ((!isObject(value) && !Array.isArray(value)) || !Object.hasOwn(value, key)) {
+          return undefined
+        }
+        return Object.getOwnPropertyDescriptor(value, key)?.value
       }, document)
     } catch {
       return undefined

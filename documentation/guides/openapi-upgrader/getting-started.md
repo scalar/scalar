@@ -204,4 +204,4 @@ must add error handling before doing so; this package does not automatically
 fall back to a partially converted document. In particular, an inline XML body
 schema without an inferable element name requires an explicit `xml.name`.
 
-The Markdown converter handles `UpgradeIncompatibilityError` by retaining the OpenAPI 3.1 description and its declared version. Compatible descriptions still upgrade to 3.2. It does not catch malformed-version, cyclic-object, or excessive-alias errors. Other callers can import this error class from `@scalar/openapi-upgrader` to make the same distinction.
+The Markdown converter and mock server handle `UpgradeIncompatibilityError` by retaining the OpenAPI 3.1 description and its declared version. Compatible descriptions still upgrade to 3.2. It does not catch malformed-version, cyclic-object, or excessive-alias errors. Other callers can import this error class from `@scalar/openapi-upgrader` to make the same distinction.

@@ -754,6 +754,19 @@ describe('upgrade-from-three-one-to-three-two', () => {
     },
   )
 
+  it('does not mutate a prototype supplied as the document', () => {
+    const prototype = document({
+      components: { parameters: { Id: { name: 'id', in: 'path', allowReserved: true } } },
+    })
+    const documents = Object.create(prototype)
+    const original = structuredClone(prototype)
+
+    const result = upgrade(documents['__proto__'])
+
+    expect(at(result, 'components', 'parameters', 'Id').allowReserved).toBeUndefined()
+    expect(prototype).toStrictEqual(original)
+  })
+
   it('migrates own reference targets named __proto__ and constructor', () => {
     const parameters: UnknownObject = JSON.parse(
       '{"__proto__":{"name":"id","in":"path","required":true,"allowReserved":true},"constructor":{"name":"token","in":"cookie","allowReserved":true}}',
