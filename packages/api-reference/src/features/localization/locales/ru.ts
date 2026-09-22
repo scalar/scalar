@@ -134,6 +134,10 @@ export const ru = {
     label: 'Модели',
   },
   actions: {
+    copyAsMarkdown: 'Копировать как Markdown',
+    copied: 'Скопировано',
+    copyMarkdownFailed: 'Не удалось скопировать Markdown',
+
     copyLink: 'Скопировать ссылку',
     copyLinkTo: 'Скопировать ссылку на {name}',
     copyToClipboard: 'Скопировать ссылку в буфер обмена',

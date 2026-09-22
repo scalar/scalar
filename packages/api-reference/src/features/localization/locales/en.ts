@@ -133,6 +133,10 @@ export const en = {
     label: 'Models',
   },
   actions: {
+    copyAsMarkdown: 'Copy as Markdown',
+    copied: 'Copied',
+    copyMarkdownFailed: 'Failed to copy Markdown',
+
     copyLink: 'Copy link',
     copyLinkTo: 'Copy link to {name}',
     copyToClipboard: 'Copy link to clipboard',

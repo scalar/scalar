@@ -23,6 +23,7 @@ import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
@@ -150,7 +151,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             position="before" />
         </div>
         <!-- Right -->
-        <div class="flex gap-1">
+        <div class="flex items-center gap-1">
           <!-- x-badges after -->
           <XBadges
             :badges="operation['x-badges']"
@@ -172,9 +173,15 @@ const { level: headingLevel } = useDocumentOutline('operation')
           </Anchor>
         </div>
 
-        <!-- Required auth badge -->
-        <div class="operation-auth">
+        <!-- Operation actions -->
+        <div class="operation-auth mb-1.5 flex min-h-8 items-center gap-3">
           <SecurityRequirementBadge :requiredSecurity />
+          <CopyMarkdownButton
+            v-if="document"
+            :document
+            :isWebhook
+            :method
+            :path />
         </div>
 
         <!-- Description -->
