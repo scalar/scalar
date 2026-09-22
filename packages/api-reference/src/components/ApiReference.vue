@@ -13,7 +13,8 @@ if (version && typeof window !== 'undefined') {
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
-import type { ApiClientModal } from '@scalar/api-client/modal'
+import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -1426,39 +1427,41 @@ watch(agent.showAgent, (open) => {
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
-// Setup the ApiClient on mount.
-// The modal is dynamic-imported so its dependency graph (CodeMirror, the request
-// editor, the response viewer, etc.) becomes a separate chunk that loads
-// asynchronously after the API reference paints.
+// Reference controls must keep working before the modal installs its own event handlers.
+const stopReferenceClientEvents = initializeWorkspaceEventHandlers({
+  eventBus,
+  store: ref(clientStore),
+  hooks: {},
+})
 const modal = useTemplateRef<HTMLElement>('modal')
-const apiClient = ref<ApiClientModal | null>(null)
-onMounted(async () => {
-  if (!modal.value) {
-    return
-  }
-
-  const { createApiClientModal } = await import('@scalar/api-client/modal')
-
-  // Bail if the component unmounted while the chunk was loading.
-  if (!modal.value) {
-    return
-  }
-
-  apiClient.value = createApiClientModal({
-    el: modal.value,
-    eventBus,
-    workspaceStore: clientStore,
-    options: runtimeConfig,
-    plugins: [
-      ...pluginManager.getApiClientPlugins(),
-      ...mapConfigPlugins(mergedConfig, environment),
-    ],
-  })
+const clientLoadingStatus = ref<'idle' | 'loading' | 'error'>('idle')
+const apiClient = useLazyApiClient({
+  eventBus,
+  status: clientLoadingStatus,
+  load: async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
+    return () => {
+      if (!modal.value) {
+        return null
+      }
+      stopReferenceClientEvents()
+      return createApiClientModal({
+        el: modal.value,
+        eventBus,
+        workspaceStore: clientStore,
+        options: runtimeConfig,
+        plugins: [
+          ...pluginManager.getApiClientPlugins(),
+          ...mapConfigPlugins(mergedConfig, environment),
+        ],
+      })
+    }
+  },
 })
 onBeforeUnmount(() => {
   stopPreloadingDocuments()
+  stopReferenceClientEvents()
   pluginManager.notifyDestroy()
-  apiClient.value?.app.unmount()
 })
 
 // ---------------------------------------------------------------------------
@@ -1972,6 +1975,16 @@ const showMCPButton = computed(() => {
       </div>
       <!-- Client Modal mount point -->
       <div ref="modal" />
+      <div
+        v-if="clientLoadingStatus !== 'idle'"
+        class="bg-b-1 text-c-1 fixed right-4 bottom-4 z-[10001] rounded-lg border px-4 py-3 text-sm shadow-lg"
+        :role="clientLoadingStatus === 'error' ? 'alert' : 'status'">
+        {{
+          clientLoadingStatus === 'loading'
+            ? 'Loading request editor…'
+            : 'Could not load the request editor. Refresh the page and try again.'
+        }}
+      </div>
     </div>
     <ScalarToasts />
   </div>

@@ -279,6 +279,11 @@
       "types": "./dist/v2/features/modal/index.d.ts",
       "default": "./dist/v2/features/modal/index.js"
     },
+    "./modal/use-lazy-api-client": {
+      "import": "./dist/v2/features/modal/use-lazy-api-client.js",
+      "types": "./dist/v2/features/modal/use-lazy-api-client.d.ts",
+      "default": "./dist/v2/features/modal/use-lazy-api-client.js"
+    },
     "./modal/map-hidden-clients-config": {
       "import": "./dist/v2/features/modal/helpers/map-hidden-clients-config.js",
       "types": "./dist/v2/features/modal/helpers/map-hidden-clients-config.d.ts",

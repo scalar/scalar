@@ -46,6 +46,10 @@ describe('ApiReference.modal', () => {
       },
     })
 
+    await flushPromises()
+    expect(wrapper.find(dialogSelector).exists()).toBe(false)
+    wrapper.vm.eventBus.emit('ui:open:client-modal', { method: 'get', path: '/widgets' })
+
     await vi.waitFor(
       () => {
         const dialog = wrapper.get(dialogSelector)
@@ -54,6 +58,8 @@ describe('ApiReference.modal', () => {
       },
       { timeout: 10_000 },
     )
+    wrapper.vm.eventBus.emit('ui:close:client-modal')
+    await flushPromises()
     expect(wrapper.find(openDialogSelector).exists()).toBe(false)
     expect(wrapper.vm.workspaceStore.workspace['x-scalar-active-document']).toBe('widgets-api')
 
