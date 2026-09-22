@@ -48,7 +48,7 @@ function migrateXmlObjects(obj: any): void {
 
 /**
  * Convert navigation groups to the tag hierarchy introduced in OpenAPI 3.2.
- * Reject ambiguous hierarchies instead of silently discarding group membership.
+ * Keep the original extension when a hierarchy cannot be migrated without losing information.
  */
 const migrateTagGroups = (document: UnknownObject): void => {
   if (!Object.hasOwn(document, 'x-tagGroups')) {
@@ -57,16 +57,19 @@ const migrateTagGroups = (document: UnknownObject): void => {
 
   const groups = document['x-tagGroups']
   if (!Array.isArray(groups)) {
-    throw new Error('Cannot migrate x-tagGroups: expected an array of groups.')
+    console.warn('Cannot migrate x-tagGroups: expected an array of groups.')
+    return
   }
 
   const tags = new Map<string, Record<string, unknown>>()
   if (document.tags !== undefined && !Array.isArray(document.tags)) {
-    throw new Error('Cannot migrate x-tagGroups: expected a tags array.')
+    console.warn('Cannot migrate x-tagGroups: expected a tags array.')
+    return
   }
   for (const tag of document.tags ?? []) {
     if (!isObject(tag) || typeof tag.name !== 'string' || tags.has(tag.name)) {
-      throw new Error('Cannot migrate x-tagGroups: expected uniquely named tags.')
+      console.warn('Cannot migrate x-tagGroups: expected uniquely named tags.')
+      return
     }
     tags.set(tag.name, tag)
   }
@@ -75,16 +78,19 @@ const migrateTagGroups = (document: UnknownObject): void => {
   const groupNames = new Set<string>()
   for (const group of groups) {
     if (!isObject(group) || typeof group.name !== 'string' || !Array.isArray(group.tags)) {
-      throw new Error('Cannot migrate x-tagGroups: each group must have a name and a tags array.')
+      console.warn('Cannot migrate x-tagGroups: each group must have a name and a tags array.')
+      return
     }
     groupNames.add(group.name)
     for (const name of group.tags) {
       if (typeof name !== 'string') {
-        throw new Error('Cannot migrate x-tagGroups: group members must be tag names.')
+        console.warn('Cannot migrate x-tagGroups: group members must be tag names.')
+        return
       }
       const parent = parents.get(name)
       if (parent !== undefined && parent !== group.name) {
-        throw new Error(`Cannot migrate x-tagGroups: tag "${name}" belongs to multiple groups.`)
+        console.warn(`Cannot migrate x-tagGroups: tag "${name}" belongs to multiple groups.`)
+        return
       }
       parents.set(name, group.name)
     }
@@ -126,7 +132,8 @@ const migrateTagGroups = (document: UnknownObject): void => {
       }
       const tag = tags.get(tagName)
       if (tag?.parent !== undefined && tag.parent !== groupName) {
-        throw new Error(`Cannot migrate x-tagGroups: tag "${tagName}" already has a different parent.`)
+        console.warn(`Cannot migrate x-tagGroups: tag "${tagName}" already has a different parent.`)
+        return
       }
       migrated.set(tagName, { ...tag, name: tagName, parent: groupName })
     }
@@ -149,24 +156,23 @@ const migrateTagGroups = (document: UnknownObject): void => {
  * @see https://github.com/OAI/OpenAPI-Specification/compare/main...v3.2-dev
  */
 export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
-  const document = originalDocument
-
   // Version
   if (
-    document !== null &&
-    typeof document === 'object' &&
-    typeof document.openapi === 'string' &&
-    document.openapi?.startsWith('3.1')
+    originalDocument !== null &&
+    typeof originalDocument === 'object' &&
+    typeof originalDocument.openapi === 'string' &&
+    originalDocument.openapi?.startsWith('3.1')
   ) {
+    // Copy the root before writing: callers may obtain it through an untrusted property name.
+    const document = { ...originalDocument }
     migrateTagGroups(document)
     document.openapi = '3.2.0'
-  } else {
-    // Skip if it's something else than 3.1.x
+
+    // Migrate XML object properties
+    migrateXmlObjects(document)
+
     return document
   }
-
-  // Migrate XML object properties
-  migrateXmlObjects(document)
-
-  return document
+  // Skip if it's something else than 3.1.x
+  return originalDocument
 }

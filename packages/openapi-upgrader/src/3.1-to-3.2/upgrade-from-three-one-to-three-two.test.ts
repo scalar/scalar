@@ -1,5 +1,5 @@
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-one-to-three-two'
 
@@ -221,12 +221,63 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
     { tags: [{ name: 'pets', parent: 'Other' }], 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] },
     { tags: [], 'x-tagGroups': [{ name: 'Store', tags: [42] }] },
     { tags: [], 'x-tagGroups': null },
-  ])('rejects ambiguous or invalid groups without partially upgrading: %j', (groups) => {
+    { tags: {}, 'x-tagGroups': [] },
+    { tags: [{ name: 'pets' }, { name: 'pets' }], 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] },
+    { tags: [null], 'x-tagGroups': [] },
+    { 'x-tagGroups': [null] },
+  ])('preserves ambiguous or invalid groups while upgrading: %j', (groups) => {
     const input = { openapi: '3.1.0', ...groups }
     const original = structuredClone(input)
 
-    expect(() => upgradeFromThreeOneToThreeTwo(input)).toThrow('Cannot migrate x-tagGroups:')
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({ ...original, openapi: '3.2.0' })
+      expect(warning).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('Cannot migrate x-tagGroups:'))
+      expect(input).toStrictEqual(original)
+    } finally {
+      warning.mockRestore()
+    }
+  })
+
+  it('treats prototype property names as ordinary tag names', () => {
+    const input = JSON.parse(
+      '{"openapi":"3.1.0","__proto__":{"tags":["__proto__-group"]},"x-tagGroups":[{"name":"__proto__","tags":["__proto__","constructor","prototype"]}]}',
+    )
+    const original = structuredClone(input)
+    const prototype = Object.getOwnPropertyDescriptors(Object.prototype)
+
+    const result = upgradeFromThreeOneToThreeTwo(input)
+
+    expect(result.tags).toStrictEqual([
+      { name: '__proto__-group-2', summary: '__proto__', kind: 'nav' },
+      { name: '__proto__', parent: '__proto__-group-2' },
+      { name: 'constructor', parent: '__proto__-group-2' },
+      { name: 'prototype', parent: '__proto__-group-2' },
+    ])
+    expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
+    expect(Object.getOwnPropertyNames(Object.prototype)).toStrictEqual(Object.keys(prototype))
+    for (const [name, descriptor] of Object.entries(prototype)) {
+      const current = Object.getOwnPropertyDescriptor(Object.prototype, name)
+      expect(current?.value).toBe(descriptor.value)
+      expect(current?.get).toBe(descriptor.get)
+      expect(current?.set).toBe(descriptor.set)
+    }
     expect(input).toStrictEqual(original)
+  })
+
+  it('does not modify a prototype reached through an untrusted document name', () => {
+    const prototype = { openapi: '3.1.0', 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] }
+    const documents = Object.create(prototype)
+    const original = structuredClone(prototype)
+
+    expect(upgradeFromThreeOneToThreeTwo(documents['__proto__'])).toStrictEqual({
+      openapi: '3.2.0',
+      tags: [
+        { name: 'Store', kind: 'nav' },
+        { name: 'pets', parent: 'Store' },
+      ],
+    })
+    expect(prototype).toStrictEqual(original)
   })
 
   it('merges repeated groups and repeated membership without duplicating tags', () => {
