@@ -98,6 +98,29 @@ describe('processBody', () => {
     ).toStrictEqual({ mimeType: 'application/json', text: expected })
   })
 
+  it('uses the explicit item content type instead of schema defaults in snippets', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { default: { value: ['hello', { id: 1 }] } },
+            schema: {
+              type: 'array',
+              prefixItems: [coerceValue(SchemaObjectSchema, {}), { type: 'object' }],
+            },
+            itemEncoding: { contentType: 'application/vnd.example+json; charset=utf-8' },
+          },
+        },
+      },
+      example: 'default',
+    })
+    const boundary = result?.mimeType.match(/boundary="?([^";]+)/)?.[1]
+    expect(result?.text?.split(`--${boundary}`).slice(1, -1)).toStrictEqual([
+      '\r\nContent-Type: application/vnd.example+json; charset=utf-8\r\n\r\n"hello"\r\n',
+      '\r\nContent-Type: application/vnd.example+json; charset=utf-8\r\n\r\n{"id":1}\r\n',
+    ])
+  })
+
   it.each([1, 2, 3])('preserves snippet part order with a prefix of length %i', (length) => {
     const result = processBody({
       requestBody: {

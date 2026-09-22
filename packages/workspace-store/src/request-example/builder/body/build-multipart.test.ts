@@ -36,6 +36,23 @@ describe('build-multipart', () => {
     ])
   })
 
+  it('replaces schema content-type defaults with the explicit item encoding', async () => {
+    const parts = buildMultipart(
+      ['hello', { id: 1 }, ['nested']],
+      'multipart/mixed',
+      { itemEncoding: { contentType: 'application/vnd.example+json; charset=utf-8' } },
+      {
+        type: 'array',
+        prefixItems: [coerceValue(SchemaObjectSchema, {}), { type: 'object' }, { type: 'array' }],
+      },
+    )
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      'Content-Type: application/vnd.example+json; charset=utf-8\r\n\r\n"hello"',
+      'Content-Type: application/vnd.example+json; charset=utf-8\r\n\r\n{"id":1}',
+      'Content-Type: application/vnd.example+json; charset=utf-8\r\n\r\n["nested"]',
+    ])
+  })
+
   it('retains author parameters when resolving a matching wildcard to a concrete media type', async () => {
     const parts = buildMultipart([new Blob(['image'], { type: 'image/png' })], 'multipart/mixed', {
       itemEncoding: { contentType: 'image/*; charset=utf-8' },
