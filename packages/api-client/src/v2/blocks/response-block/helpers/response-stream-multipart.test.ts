@@ -88,7 +88,30 @@ describe('response-stream-multipart', () => {
   it('rejects oversized parts without waiting for the closing delimiter', () => {
     const parser = createMultipartParser('multipart/mixed; boundary=x', vi.fn())
     parser.push(encode('--x\r\n\r\n'))
-    expect(() => parser.push(new Uint8Array(8 * 1024 * 1024))).toThrow('8 MiB display limit')
+    expect(() => parser.push(new Uint8Array(8 * 1024 * 1024 + 16))).toThrow('8 MiB display limit')
+  })
+
+  it.each(Array.from({ length: 10 }, (_, split) => split))(
+    'accepts an exactly 8 MiB part with closing delimiter split at byte %s',
+    (split) => {
+      const limit = 8 * 1024 * 1024
+      const closing = encode('\r\n--x--\r\n')
+      const output: string[] = []
+      const parser = createMultipartParser('multipart/mixed; boundary=x', (text) => output.push(text))
+      parser.push(encode(`--x\r\n\r\n${'a'.repeat(limit - 2)}`))
+      parser.push(closing.subarray(0, split))
+      parser.push(closing.subarray(split))
+      parser.finish()
+      expect(output.join('')).toBe(`Part 1\n\n${'a'.repeat(limit - 2)}\n`)
+    },
+  )
+
+  it('rejects a completed part one byte above 8 MiB without emitting it', () => {
+    const emit = vi.fn()
+    const parser = createMultipartParser('multipart/mixed; boundary=x', emit)
+    parser.push(encode(`--x\r\n\r\n${'a'.repeat(8 * 1024 * 1024 - 1)}`))
+    expect(() => parser.push(encode('\r\n--x--\r\n'))).toThrow('8 MiB display limit')
+    expect(emit).not.toHaveBeenCalled()
   })
 
   it('reports truncated responses and invalid boundaries', () => {

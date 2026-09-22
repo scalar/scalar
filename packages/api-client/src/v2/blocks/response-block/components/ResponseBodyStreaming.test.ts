@@ -30,18 +30,18 @@ describe('ResponseBodyStreaming', () => {
     await wrapper.findComponent(ScalarButton).trigger('click')
     await flushPromises()
     expect(cancelled).toBe(true)
+    expect(stream.locked).toBe(false)
     expect(wrapper.text()).toContain('"id": 1')
     expect(wrapper.text()).not.toContain('Listening')
   })
 
   it('cancels with a visible error when multibyte output exceeds 16 MiB', async () => {
     let cancelled = false
-    const chunk = new TextEncoder().encode('月'.repeat(2 * 1024 * 1024))
+    const chunk = new TextEncoder().encode('🌙'.repeat(4 * 1024 * 1024))
     const stream = new ReadableStream<Uint8Array>({
       start: (controller) => {
         controller.enqueue(chunk)
-        controller.enqueue(chunk)
-        controller.enqueue(chunk)
+        controller.enqueue(Uint8Array.of(97))
       },
       cancel: () => {
         cancelled = true
@@ -49,9 +49,11 @@ describe('ResponseBodyStreaming', () => {
     })
     const wrapper = mount(ResponseBodyStreaming, { props: { reader: stream.getReader() } })
     await flushPromises()
+    expect(wrapper.text()).toContain('🌙'.repeat(4 * 1024 * 1024))
     expect(wrapper.text()).toContain('Stream display reached its 16 MiB limit.')
     expect(wrapper.text()).not.toContain('Listening')
     expect(cancelled).toBe(true)
+    expect(stream.locked).toBe(false)
   })
 
   it.each([

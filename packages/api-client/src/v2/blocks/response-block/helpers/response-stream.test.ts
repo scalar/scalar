@@ -50,6 +50,21 @@ describe('response-stream', () => {
     }
   })
 
+  it.each([
+    ['application/jsonl', '{"name":"月🌙"}\r\nfalse\n', '{\n  "name": "月🌙"\n}\nfalse\n'],
+    ['application/json-seq', '\x1e{\n"name":"月🌙"\n}\n\x1efalse\n', '{\n  "name": "月🌙"\n}\nfalse\n'],
+    ['multipart/mixed; boundary=x', '--x\r\n\r\n月🌙\r\n--x--\r\n', 'Part 1\n\n月🌙\n'],
+  ])('preserves UTF-8 and framing at every chunk size for %s', (type, body, expected) => {
+    const bytes = encode(body)
+    for (let size = 1; size <= bytes.length; size++) {
+      const chunks: Uint8Array[] = []
+      for (let offset = 0; offset < bytes.length; offset += size) {
+        chunks.push(bytes.subarray(offset, offset + size))
+      }
+      expect(parseChunks(type, chunks)).toBe(expected)
+    }
+  })
+
   it('reports malformed JSON Lines records and continues with subsequent records', () => {
     expect(parseChunks('application/jsonl', [encode('\n{broken}\ntrue\n')])).toBe(
       '[Invalid JSON record]\n{broken}\ntrue\n',
@@ -101,7 +116,8 @@ describe('response-stream', () => {
     const prefix = type === 'application/json-seq' ? '\x1e"' : '"'
     const bytes = encode(`${prefix}${'月'.repeat(2_796_202)}`)
     parser.push(bytes)
-    expect(() => parser.push(encode('月'))).toThrow('8 MiB display limit')
+    parser.push(encode('a'))
+    expect(() => parser.push(encode('b'))).toThrow('8 MiB display limit')
   })
 
   it('rejects invalid UTF-8 JSON instead of silently changing its data', () => {

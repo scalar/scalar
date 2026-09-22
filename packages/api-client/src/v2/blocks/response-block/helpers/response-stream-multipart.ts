@@ -116,7 +116,8 @@ export const createMultipartParser = (
       offset = 0
       lineOffset = 0
     }
-    if (length > MAX_PART_SIZE) {
+    // Keep room for the CRLF and an incomplete delimiter without counting framing as part bytes.
+    if (length > MAX_PART_SIZE + marker.length + 6) {
       throw new Error('Multipart part exceeds the 8 MiB display limit.')
     }
     if (final && !closed) {
