@@ -28,19 +28,6 @@ const { resolveLocalization, provideLocalization, useLocalization } = createLoca
 })
 
 describe('create-localization', () => {
-  it.each(['$&', "$'", '$`', '$$', '$1'])('preserves literal replacement patterns in parameters: %s', (name) => {
-    const wrapper = mount(
-      defineComponent({
-        setup() {
-          const { translate } = useLocalization()
-          return () => h('span', translate('schema.save', { name }))
-        },
-      }),
-    )
-    expect(wrapper.text()).toBe(`Save ${name}`)
-    wrapper.unmount()
-  })
-
   it('uses the default locale when none is provided', () => {
     const resolved = resolveLocalization()
 
@@ -89,6 +76,22 @@ describe('create-localization', () => {
 
     expect(wrapper.text()).toBe('Speichern Draft')
     expect(wrapper.find('div').attributes('data-direction')).toBe('ltr')
+  })
+
+  it.each(['$&', "$'", '$`', '$1', '$$'])('preserves literal %s in repeated interpolation values', (name) => {
+    const Component = defineComponent({
+      setup() {
+        const { translate } = provideLocalization({
+          translations: { schema: { save: 'Save {name}, then reopen {name}.' } },
+        })
+        return () => h('div', translate('schema.save', { name }))
+      },
+    })
+
+    const wrapper = mount(Component)
+
+    expect(wrapper.text()).toBe(`Save ${name}, then reopen ${name}.`)
+    wrapper.unmount()
   })
 
   it('falls back to the key itself when a translation is missing', () => {

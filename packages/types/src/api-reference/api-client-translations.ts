@@ -200,6 +200,10 @@ export type ApiClientTranslations = {
     confirmation: string
   }
   oauth2: {
+    deviceAuthorizationUrl: string
+    deviceVerificationPrompt: string
+    waitingForAuthorization: string
+    cancelDeviceAuthorization: string
     accessToken: string
     refreshUrl: string
     refresh: string
@@ -360,6 +364,7 @@ export type ApiClientTranslations = {
     noValue: string
   }
   authOptions: {
+    oauth2DeviceAuthorization: string
     apiKeyCookie: string
     apiKeyHeader: string
     apiKeyQuery: string

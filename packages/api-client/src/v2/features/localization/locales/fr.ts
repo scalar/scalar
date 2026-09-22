@@ -205,6 +205,11 @@ export const fr = {
       'Cette action est irréversible. Vous allez supprimer le schéma de sécurité {name} de la collection.',
   },
   'oauth2': {
+    deviceAuthorizationUrl: 'URL d’autorisation du périphérique',
+    deviceVerificationPrompt: 'Ouvrez la page de vérification et saisissez ce code :',
+    waitingForAuthorization: 'En attente d’autorisation…',
+    cancelDeviceAuthorization: 'Annuler',
+
     'accessToken': 'Jeton d’accès',
     'refreshUrl': 'URL de renouvellement',
     'refresh': 'Actualiser',
@@ -369,6 +374,7 @@ export const fr = {
     'noValue': 'Aucune valeur',
   },
   'authOptions': {
+    oauth2DeviceAuthorization: 'Autorisation de périphérique OAuth2',
     'apiKeyCookie': 'Clé API dans les cookies',
     'apiKeyHeader': 'Clé API dans les en-têtes',
     'apiKeyQuery': 'Clé API dans les paramètres de requête',

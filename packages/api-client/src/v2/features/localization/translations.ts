@@ -203,6 +203,11 @@ export const en = {
     confirmation: "This cannot be undone. You're about to delete the {name} security scheme from the collection.",
   },
   oauth2: {
+    deviceAuthorizationUrl: 'Device Authorization URL',
+    deviceVerificationPrompt: 'Open the verification page and enter this code:',
+    waitingForAuthorization: 'Waiting for authorization…',
+    cancelDeviceAuthorization: 'Cancel',
+
     accessToken: 'Access Token',
     refreshUrl: 'Refresh URL',
     refresh: 'Refresh',
@@ -365,6 +370,7 @@ export const en = {
     noValue: 'No value',
   },
   authOptions: {
+    oauth2DeviceAuthorization: 'OAuth2 Device Authorization',
     apiKeyCookie: 'API Key in Cookies',
     apiKeyHeader: 'API Key in Headers',
     apiKeyQuery: 'API Key in Query Params',

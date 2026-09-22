@@ -206,6 +206,11 @@ export const de = {
       'Dies kann nicht rückgängig gemacht werden. Sie löschen das Sicherheitsschema {name} aus der Sammlung.',
   },
   'oauth2': {
+    deviceAuthorizationUrl: 'URL für die Geräteautorisierung',
+    deviceVerificationPrompt: 'Öffnen Sie die Bestätigungsseite und geben Sie diesen Code ein:',
+    waitingForAuthorization: 'Warten auf Autorisierung…',
+    cancelDeviceAuthorization: 'Abbrechen',
+
     'accessToken': 'Zugriffstoken',
     'refreshUrl': 'Aktualisierungs-URL',
     'refresh': 'Aktualisieren',
@@ -371,6 +376,7 @@ export const de = {
     'noValue': 'Kein Wert',
   },
   'authOptions': {
+    oauth2DeviceAuthorization: 'OAuth2-Geräteautorisierung',
     'apiKeyCookie': 'API-Schlüssel in Cookies',
     'apiKeyHeader': 'API-Schlüssel in Headern',
     'apiKeyQuery': 'API-Schlüssel in Abfrageparametern',

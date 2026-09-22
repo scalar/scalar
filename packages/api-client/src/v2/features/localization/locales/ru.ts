@@ -204,6 +204,11 @@ export const ru = {
     'confirmation': 'Это действие нельзя отменить. Вы собираетесь удалить схему безопасности {name} из коллекции.',
   },
   'oauth2': {
+    deviceAuthorizationUrl: 'URL авторизации устройства',
+    deviceVerificationPrompt: 'Откройте страницу подтверждения и введите этот код:',
+    waitingForAuthorization: 'Ожидание авторизации…',
+    cancelDeviceAuthorization: 'Отмена',
+
     'accessToken': 'Токен доступа',
     'refreshUrl': 'URL обновления',
     'refresh': 'Обновить',
@@ -366,6 +371,7 @@ export const ru = {
     'noValue': 'Нет значения',
   },
   'authOptions': {
+    oauth2DeviceAuthorization: 'Авторизация устройства OAuth2',
     'apiKeyCookie': 'Ключ API в cookie',
     'apiKeyHeader': 'Ключ API в заголовках',
     'apiKeyQuery': 'Ключ API в параметрах запроса',

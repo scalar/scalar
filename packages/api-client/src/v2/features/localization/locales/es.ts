@@ -204,6 +204,11 @@ export const es = {
     'confirmation': 'Esta acción no se puede deshacer. Va a eliminar el esquema de seguridad {name} de la colección.',
   },
   'oauth2': {
+    deviceAuthorizationUrl: 'URL de autorización del dispositivo',
+    deviceVerificationPrompt: 'Abre la página de verificación e introduce este código:',
+    waitingForAuthorization: 'Esperando autorización…',
+    cancelDeviceAuthorization: 'Cancelar',
+
     'accessToken': 'Token de acceso',
     'refreshUrl': 'URL de actualización',
     'refresh': 'Actualizar',
@@ -368,6 +373,7 @@ export const es = {
     'noValue': 'Sin valor',
   },
   'authOptions': {
+    oauth2DeviceAuthorization: 'Autorización de dispositivo OAuth2',
     'apiKeyCookie': 'Clave API en cookies',
     'apiKeyHeader': 'Clave API en encabezados',
     'apiKeyQuery': 'Clave API en parámetros de consulta',

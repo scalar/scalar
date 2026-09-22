@@ -202,6 +202,11 @@ export const ar = {
     'confirmation': 'لا يمكن التراجع عن هذا الإجراء. أنت على وشك حذف مخطط الأمان {name} من المجموعة.',
   },
   'oauth2': {
+    deviceAuthorizationUrl: 'رابط تفويض الجهاز',
+    deviceVerificationPrompt: 'افتح صفحة التحقق وأدخل هذا الرمز:',
+    waitingForAuthorization: 'في انتظار التفويض…',
+    cancelDeviceAuthorization: 'إلغاء',
+
     'accessToken': 'رمز الوصول',
     'refreshUrl': 'رابط التجديد',
     'refresh': 'تحديث',
@@ -362,6 +367,7 @@ export const ar = {
     'noValue': 'لا توجد قيمة',
   },
   'authOptions': {
+    oauth2DeviceAuthorization: 'تفويض الجهاز عبر OAuth2',
     'apiKeyCookie': 'مفتاح API في ملفات تعريف الارتباط',
     'apiKeyHeader': 'مفتاح API في الترويسات',
     'apiKeyQuery': 'مفتاح API في معاملات الاستعلام',

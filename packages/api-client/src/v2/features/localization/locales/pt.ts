@@ -205,6 +205,11 @@ export const pt = {
       'Esta ação não pode ser desfeita. Você está prestes a excluir o esquema de segurança {name} da coleção.',
   },
   'oauth2': {
+    deviceAuthorizationUrl: 'URL de autorização do dispositivo',
+    deviceVerificationPrompt: 'Abra a página de verificação e insira este código:',
+    waitingForAuthorization: 'Aguardando autorização…',
+    cancelDeviceAuthorization: 'Cancelar',
+
     'accessToken': 'Token de acesso',
     'refreshUrl': 'URL de renovação',
     'refresh': 'Atualizar',
@@ -368,6 +373,7 @@ export const pt = {
     'noValue': 'Sem valor',
   },
   'authOptions': {
+    oauth2DeviceAuthorization: 'Autorização de dispositivo OAuth2',
     'apiKeyCookie': 'Chave de API em cookies',
     'apiKeyHeader': 'Chave de API em cabeçalhos',
     'apiKeyQuery': 'Chave de API em parâmetros de consulta',

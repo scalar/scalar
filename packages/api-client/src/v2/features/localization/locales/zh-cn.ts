@@ -202,6 +202,11 @@ export const zhCn = {
     'confirmation': '此操作无法撤销。您即将从集合中删除安全方案 {name}。',
   },
   'oauth2': {
+    deviceAuthorizationUrl: '设备授权 URL',
+    deviceVerificationPrompt: '打开验证页面并输入此代码：',
+    waitingForAuthorization: '正在等待授权…',
+    cancelDeviceAuthorization: '取消',
+
     'accessToken': '访问令牌',
     'refreshUrl': '刷新 URL',
     'refresh': '刷新',
@@ -362,6 +367,7 @@ export const zhCn = {
     'noValue': '无值',
   },
   'authOptions': {
+    oauth2DeviceAuthorization: 'OAuth2 设备授权',
     'apiKeyCookie': 'Cookie 中的 API 密钥',
     'apiKeyHeader': '请求头中的 API 密钥',
     'apiKeyQuery': '查询参数中的 API 密钥',

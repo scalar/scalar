@@ -465,7 +465,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2Update({ deviceAuthorizationUrl: v })
         ">
-        Device Authorization URL
+        {{ translate('apiClient.oauth2.deviceAuthorizationUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
     <DataTableRow v-if="devicePrompt">
@@ -474,7 +474,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           class="bg-b-2 flex flex-col gap-3 rounded-lg border p-3 text-sm"
           role="status">
           <p class="text-c-2 text-xs leading-normal">
-            Open the verification page and enter this code:
+            {{ translate('apiClient.oauth2.deviceVerificationPrompt') }}
           </p>
           <strong
             class="bg-b-1 font-code w-fit max-w-full rounded border px-3 py-2 text-base font-medium tracking-widest break-all select-all">
@@ -491,12 +491,14 @@ const handleSecretLocationUpdate = (value: string): void => {
             {{ devicePrompt.verificationUri }}
           </a>
           <div class="flex items-center justify-between gap-3">
-            <p class="text-c-2 text-xs">Waiting for authorization…</p>
+            <p class="text-c-2 text-xs">
+              {{ translate('apiClient.oauth2.waitingForAuthorization') }}
+            </p>
             <ScalarButton
               size="xs"
               variant="outlined"
               @click="cancelDeviceAuthorization">
-              Cancel
+              {{ translate('apiClient.oauth2.cancelDeviceAuthorization') }}
             </ScalarButton>
           </div>
         </div>
