@@ -5,7 +5,6 @@ import { traverse } from '@/helpers/traverse'
 
 import { migrateXmlObjects } from './migrate-xml-objects'
 
-
 /**
  * Convert navigation groups to the tag hierarchy introduced in OpenAPI 3.2.
  * Keep the original extension when a hierarchy cannot be migrated without losing information.

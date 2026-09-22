@@ -1,3 +1,5 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 type ObjectKind =
@@ -10,6 +12,7 @@ type ObjectKind =
   | 'media'
   | 'encoding'
   | 'schema'
+  | 'callback'
 type Child = readonly [key: string, kind: ObjectKind, collection?: boolean]
 
 /** Only these fields contain schemas or OpenAPI objects that can lead to schemas. */
@@ -56,6 +59,7 @@ const children: Record<ObjectKind, readonly Child[]> = {
     ['encoding', 'encoding', true],
   ],
   encoding: [['headers', 'parameter', true]],
+  callback: [],
   schema: [
     ['properties', 'schema', true],
     ['patternProperties', 'schema', true],
@@ -81,50 +85,69 @@ const children: Record<ObjectKind, readonly Child[]> = {
 }
 
 /** Migrate XML metadata without interpreting examples or other payload data as schemas. */
-export const migrateXmlObjects = (value: unknown, kind: ObjectKind = 'document'): void => {
-  if (!isObject(value)) {
-    return
-  }
+export const migrateXmlObjects = (document: unknown): void => {
+  const visited = new Map<ObjectKind, WeakSet<object>>()
 
-  if (kind === 'schema' && isObject(value.xml)) {
-    if (value.xml.wrapped === true && value.xml.attribute === true) {
-      throw new Error('Invalid XML configuration: wrapped and attribute cannot be true at the same time.')
+  const visit = (value: unknown, kind: ObjectKind): void => {
+    if (!isObject(value)) {
+      return
     }
-    if (value.xml.wrapped === true) {
-      delete value.xml.wrapped
-      value.xml.nodeType = 'element'
-    }
-    if (value.xml.attribute === true) {
-      delete value.xml.attribute
-      value.xml.nodeType = 'attribute'
-    }
-  }
 
-  for (const [key, childKind, collection] of children[kind]) {
-    const child = value[key]
-    if (collection && (isObject(child) || Array.isArray(child))) {
-      for (const [name, member] of Object.entries(child)) {
-        // Paths and Responses Objects allow extensions; named maps can use x- names.
-        if (name.startsWith('x-') && (key === 'paths' || (key === 'responses' && kind === 'operation'))) {
-          continue
-        }
-        migrateXmlObjects(member, childKind)
+    const seen = visited.get(kind) ?? new WeakSet<object>()
+    if (seen.has(value)) {
+      return
+    }
+    seen.add(value)
+    visited.set(kind, seen)
+
+    // Bundled targets inherit the reference location's context, including targets in extensions.
+    if (typeof value.$ref === 'string' && value.$ref.startsWith('#/')) {
+      visit(getValueAtPath(document, parseJsonPointerSegments(value.$ref.slice(1))), kind)
+    }
+
+    if (kind === 'schema' && isObject(value.xml)) {
+      if (value.xml.wrapped === true && value.xml.attribute === true) {
+        throw new Error('Invalid XML configuration: wrapped and attribute cannot be true at the same time.')
       }
-    } else if (!collection) {
-      migrateXmlObjects(child, childKind)
+      if (value.xml.wrapped === true) {
+        delete value.xml.wrapped
+        value.xml.nodeType = 'element'
+      }
+      if (value.xml.attribute === true) {
+        delete value.xml.attribute
+        value.xml.nodeType = 'attribute'
+      }
     }
-  }
 
-  // Callback maps have two named levels before reaching a Path Item Object.
-  if ((kind === 'operation' || kind === 'components') && isObject(value.callbacks)) {
-    for (const callback of Object.values(value.callbacks)) {
-      if (isObject(callback)) {
-        for (const [expression, pathItem] of Object.entries(callback)) {
-          if (!expression.startsWith('x-') && expression !== '$ref') {
-            migrateXmlObjects(pathItem, 'pathItem')
+    for (const [key, childKind, collection] of children[kind]) {
+      const child = value[key]
+      if (collection && (isObject(child) || Array.isArray(child))) {
+        for (const [name, member] of Object.entries(child)) {
+          // Paths and Responses Objects allow extensions; named maps can use x- names.
+          if (name.startsWith('x-') && (key === 'paths' || (key === 'responses' && kind === 'operation'))) {
+            continue
           }
+          visit(member, childKind)
+        }
+      } else if (!collection) {
+        visit(child, childKind)
+      }
+    }
+
+    // Callback maps have two named levels before reaching a Path Item Object.
+    if ((kind === 'operation' || kind === 'components') && isObject(value.callbacks)) {
+      for (const callback of Object.values(value.callbacks)) {
+        visit(callback, 'callback')
+      }
+    }
+    if (kind === 'callback') {
+      for (const [expression, pathItem] of Object.entries(value)) {
+        if (!expression.startsWith('x-') && expression !== '$ref') {
+          visit(pathItem, 'pathItem')
         }
       }
     }
   }
+
+  visit(document, 'document')
 }

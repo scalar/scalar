@@ -220,4 +220,30 @@ describe('migrate-xml-objects', () => {
 
     expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual(expected)
   })
+  it('migrates recursive bundled references only in their OpenAPI context', () => {
+    const build = (xml: Record<string, unknown>): Record<string, unknown> =>
+      document({
+        components: {
+          schemas: { Pet: { $ref: '#/x-ext/pet~1schema' } },
+          responses: { Pet: { $ref: '#/x-ext/response' } },
+          callbacks: { Event: { $ref: '#/x-ext/callback' } },
+          examples: { Sample: { $ref: '#/x-ext/example' } },
+        },
+        'x-ext': {
+          'pet/schema': {
+            properties: { id: { type: 'string', xml }, friend: { $ref: '#/x-ext/pet~1schema' } },
+            examples: [payload],
+          },
+          response: { content: { 'application/xml': { schema: { type: 'string', xml } } } },
+          callback: { '{$request.query.url}': { post: { parameters: [{ schema: { type: 'string', xml } }] } } },
+          example: { value: payload },
+          untouched: payload,
+        },
+      })
+
+    expect(upgradeFromThreeOneToThreeTwo(build({ attribute: true }))).toStrictEqual({
+      ...build({ nodeType: 'attribute' }),
+      openapi: '3.2.0',
+    })
+  })
 })
