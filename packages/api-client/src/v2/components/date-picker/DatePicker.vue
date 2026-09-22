@@ -28,7 +28,7 @@ import {
   DateFieldInput,
   DateFieldRoot,
 } from 'radix-vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 
 import {
   formatValue,
@@ -74,7 +74,8 @@ const selection = computed<DateParts | null>(() => parseValue(modelValue, type))
 const draft = ref<DateParts>(selection.value ?? partsFromDate(new Date()))
 
 /** The month the calendar shows before a date is chosen. */
-const placeholder = ref<DateValue>(
+// Calendar values are immutable class instances; keep their private fields intact.
+const placeholder = shallowRef<DateValue>(
   new CalendarDate(draft.value.year, draft.value.month, draft.value.day),
 )
 
@@ -234,8 +235,8 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
           v-slot="{ weekDays, grid }"
           class="px-2"
           :locale="locale"
-          :modelValue="calendarValue as DateValue | undefined"
-          :placeholder="placeholder as DateValue"
+          :modelValue="calendarValue"
+          :placeholder="placeholder"
           @update:modelValue="(v) => handleCalendarSelect(v, close)"
           @update:placeholder="(v) => (placeholder = v)">
           <CalendarHeader class="mb-2 flex items-center justify-between">
@@ -273,12 +274,12 @@ const timeSegments = <T extends { part: string }>(segments: T[]): T[] => {
                 <CalendarCell
                   v-for="weekDate in weekDates"
                   :key="weekDate.toString()"
-                  :date="weekDate"
-                  class="text-center text-sm">
+                  class="text-center text-sm"
+                  :date="weekDate">
                   <CalendarCellTrigger
+                    class="text-c-1 hover:bg-b-2 data-[selected]:bg-b-btn data-[selected]:text-c-btn data-[outside-view]:text-c-3 mx-auto flex size-8 cursor-pointer items-center justify-center rounded text-sm outline-offset-2 data-[today]:font-bold"
                     :day="weekDate"
-                    :month="month.value"
-                    class="text-c-1 hover:bg-b-2 data-[selected]:bg-b-btn data-[selected]:text-c-btn data-[outside-view]:text-c-3 mx-auto flex size-8 cursor-pointer items-center justify-center rounded text-sm outline-offset-2 data-[today]:font-bold" />
+                    :month="month.value" />
                 </CalendarCell>
               </CalendarGridRow>
             </CalendarGridBody>
