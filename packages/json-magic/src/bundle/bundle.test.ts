@@ -60,7 +60,7 @@ describe('bundle', () => {
     const input = {
       $id: 'https://example.com/api.json',
       schemas: {
-        Pet: { $id: '/schemas/pet', category: { $ref: '/schemas/category' } },
+        Pet: { $id: '/schemas/pet', category: { $ref: 'https://example.com/schemas/category' } },
         Category: { $id: '/schemas/category', type: 'string' },
       },
     }

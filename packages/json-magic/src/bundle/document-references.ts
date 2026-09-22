@@ -132,9 +132,10 @@ export const documentReferences = (
       const isUnresolved = value === undefined
       // Fragment-only schema references are relative to their own resource, even when embedded.
       const isLocalSchemaReference = resource.schema && !prefix
-      // An absolute identifier declared in the root document remains usable by downstream consumers.
-      const isAbsoluteRootSchemaReference =
-        !resource.embedded && resource.schema && prefix === uri && resource.identifier === uri
+      // References matching an authored root schema identifier remain usable by downstream consumers.
+      // Preserve relative identifiers too: rewriting them changes schema names shown by renderers.
+      const isDeclaredRootSchemaReference =
+        !resource.embedded && resource.schema && Boolean(prefix) && prefix === resource.identifier
       // Fragment-only document references already address the root without relocation.
       const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix
 
@@ -144,7 +145,7 @@ export const documentReferences = (
         document: resource.document,
         documentPath: resource.documentPath,
         preserveReference:
-          isUnresolved || isLocalSchemaReference || isAbsoluteRootSchemaReference || isLocalRootDocumentReference,
+          isUnresolved || isLocalSchemaReference || isDeclaredRootSchemaReference || isLocalRootDocumentReference,
       }
     },
   }

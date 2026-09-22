@@ -10,6 +10,24 @@ import { restoreOriginalRefs } from './index'
 import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
 
 describe('openapi-document', () => {
+  it('preserves root-relative schema identifiers and anchors without a document identity', async () => {
+    const document = {
+      openapi: '3.1.2',
+      components: {
+        schemas: {
+          Details: { $id: '/models/details', properties: { id: { $anchor: 'identifier', type: 'integer' } } },
+          Ref: { $ref: '/models/details#identifier' },
+        },
+      },
+    }
+    await bundle(document, { origin: 'https://example.com/api.json', treeShake: false, plugins: [openApiDocument()] })
+    expect(document.components.schemas.Ref.$ref).toBe('/models/details#identifier')
+    expect(createMagicProxy(document).components.schemas.Ref).toStrictEqual({
+      $ref: '/models/details#identifier',
+      '$ref-value': { $anchor: 'identifier', type: 'integer' },
+    })
+  })
+
   it('does not enable network loading when only the local file loader is configured', async () => {
     const document = { openapi: '3.2.1', $self: 'https://example.com/api.json', item: { $ref: './model.json' } }
     await bundle(document, {
