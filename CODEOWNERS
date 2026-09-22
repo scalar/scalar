@@ -2,7 +2,7 @@
 * @marclave @hanspagel @amritk @hwkr @cameronrohani
 
 # Changesets
-/.changeset @cameronrohani
+/.changeset
 
 # Amrit + Redis
 /packages/api-client @marclave @hanspagel @amritk @DemonHa @cameronrohani
