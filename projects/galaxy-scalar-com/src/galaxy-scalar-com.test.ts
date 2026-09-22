@@ -1,6 +1,6 @@
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
-import type { Context, Hono } from 'hono'
+import { type Context, Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { configureApiReference, createApp } from './galaxy-scalar-com'
@@ -90,7 +90,7 @@ describe('galaxy-scalar-com', () => {
           }),
           // Vitest builds run without the production `--define`, so the branch
           // bundle is served from the local route.
-          cdn: '/scalar.js',
+          bundle: '/scalar/standalone.esm.js',
         }),
       )
     })
@@ -99,8 +99,41 @@ describe('galaxy-scalar-com', () => {
       configureApiReference(mockApp as Hono)
 
       expect(mockApp.get).toHaveBeenCalledWith('/', expect.any(Function))
-      expect(mockApp.get).toHaveBeenCalledWith('/scalar.js', expect.any(Function))
+      expect(mockApp.get).toHaveBeenCalledWith('/scalar/*', expect.any(Function))
     })
+
+    it('renders a module import for the branch-built ESM entry point', async () => {
+      const { Scalar: renderScalar } =
+        await vi.importActual<typeof import('@scalar/hono-api-reference')>('@scalar/hono-api-reference')
+      vi.mocked(Scalar).mockImplementationOnce(renderScalar)
+      const app = new Hono()
+      configureApiReference(app)
+
+      const response = await app.request('/')
+      const html = await response.text()
+
+      expect(response.status).toBe(200)
+      expect(html).toContain('<script type="module">')
+      expect(html).toContain("import { createApiReference } from '/scalar/standalone.esm.js'")
+    })
+
+    it.each(['/scalar/standalone.esm.js', '/scalar/chunks/vendor-example.js'])(
+      'serves %s through the Pages assets binding',
+      async (path) => {
+        const app = new Hono()
+        configureApiReference(app)
+        const asset = new Response('export {}', { headers: { 'Content-Type': 'text/javascript' } })
+        const fetch = vi.fn().mockResolvedValue(asset)
+        const request = new Request(`https://galaxy.example${path}`)
+
+        const response = await app.request(request, undefined, { ASSETS: { fetch } })
+
+        expect(fetch).toHaveBeenCalledExactlyOnceWith(request)
+        expect(response.status).toBe(200)
+        expect(response.headers.get('Content-Type')).toBe('text/javascript')
+        expect(await response.text()).toBe('export {}')
+      },
+    )
 
     it('includes the AsyncAPI document as a source', () => {
       configureApiReference(mockApp as Hono)

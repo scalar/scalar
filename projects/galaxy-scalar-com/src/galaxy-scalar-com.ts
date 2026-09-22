@@ -26,11 +26,11 @@ export const createApp = async (): Promise<Hono> =>
 /**
  * Path the branch-built `@scalar/api-reference` bundle is served from.
  *
- * The build script copies the standalone bundle into the deploy output as
- * `scalar.js`; the route registered below serves it through the Cloudflare
- * Pages `ASSETS` binding.
+ * The build script copies the ESM entry point and its chunks into `scalar/` in the
+ * deploy output; the route below serves them through the Cloudflare Pages
+ * `ASSETS` binding, preserving relative imports between modules.
  */
-const LOCAL_BUNDLE_PATH = '/scalar.js'
+const LOCAL_BUNDLE_PATH = '/scalar/standalone.esm.js'
 
 /**
  * Whether this is a production build.
@@ -60,10 +60,10 @@ type AssetsBinding = { ASSETS: { fetch: (request: Request) => Promise<Response> 
  * Worker origin, so Scalar resolves the document URL against the current origin.
  */
 export const configureApiReference = (app: Hono): void => {
-  // Serve the branch-built standalone bundle that the build step copied into
+  // Serve the branch-built ESM entry point and chunks that the build step copied into
   // the deploy output. Production never requests this route — it loads the
   // reference UI from the CDN.
-  app.get(LOCAL_BUNDLE_PATH, (c) => (c.env as AssetsBinding).ASSETS.fetch(c.req.raw))
+  app.get('/scalar/*', (c) => (c.env as AssetsBinding).ASSETS.fetch(c.req.raw))
 
   app.get(
     '/',
@@ -95,7 +95,7 @@ export const configureApiReference = (app: Hono): void => {
       },
       // Staging and PR previews render the reference UI built from this branch;
       // production keeps the default jsDelivr CDN bundle.
-      ...(isProductionBuild ? {} : { cdn: LOCAL_BUNDLE_PATH }),
+      ...(isProductionBuild ? {} : { bundle: LOCAL_BUNDLE_PATH }),
     }),
   )
 }
