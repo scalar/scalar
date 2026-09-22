@@ -5,6 +5,18 @@ import { describe, expect, it } from 'vitest'
 import { getExampleContent } from './get-example-content'
 
 describe('get-example-content', () => {
+  it('frames structured streaming data while preserving serialized precedence', () => {
+    const options = { contentType: 'application/jsonl' }
+    expect(getExampleContent(undefined, { dataValue: [{ id: 1 }, { id: 2 }] }, options)).toBe('{"id":1}\n{"id":2}\n')
+    expect(getExampleContent(undefined, { dataValue: [{ id: 1 }], serializedValue: 'wire\n' }, options)).toBe('wire\n')
+  })
+
+  it('keeps multipart examples available without applying JSON stream framing', () => {
+    expect(getExampleContent(undefined, { value: { id: 1 } }, { contentType: 'multipart/mixed' })).toBe(
+      '{\n  "id": 1\n}',
+    )
+  })
+
   it('bounds expansion of shared legacy response examples', () => {
     const value = Array.from({ length: 16 }).reduce<Record<string, unknown>>(
       (shared) => ({ left: shared, right: shared }),

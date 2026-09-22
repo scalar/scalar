@@ -289,6 +289,58 @@ describe('ExampleResponses', () => {
     expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual({ shared: true, message: 'email' })
   })
 
+  it('selects and copies a framed stream item variant', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Stream',
+            content: {
+              'application/jsonl': {
+                itemSchema: coerceValue(SchemaObjectSchema, {
+                  oneOf: [
+                    { title: 'First', type: 'object', properties: { id: { const: 1 } } },
+                    { title: 'Second', type: 'object', properties: { id: { const: 2 } } },
+                  ],
+                }),
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{"id":2}\n')
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('{"id":2}\n')
+  })
+
+  it('displays and copies the same framed streaming example', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Stream',
+            content: {
+              'application/jsonl': {
+                itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
+    await wrapper.get('.code-copy').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{"id":7}\n')
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    expect(wrapper.text()).toContain('Stream item')
+    expect(wrapper.getComponent({ name: 'ExampleSchema' }).props('schema')).toStrictEqual({
+      type: 'object',
+      properties: { id: { type: 'integer', const: 7 } },
+    })
+  })
+
   it('renders a single example correctly', () => {
     const wrapper = mount(ExampleResponses, {
       props: {

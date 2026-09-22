@@ -1,20 +1,8 @@
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
+import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { escapeSingleQuotes } from '@/libs/shell'
-
-/**
- * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
- * (e.g. `application/vnd.api+json`), and parameterized variants
- * (e.g. `application/json;charset=utf-8`). Case-insensitive.
- */
-const isJsonContentType = (value: string | undefined): boolean => {
-  if (!value) {
-    return false
-  }
-  const { subtype } = parseMimeType(value)
-  return subtype === 'json' || subtype.endsWith('+json')
-}
 
 /**
  * shell/curl
@@ -107,7 +95,7 @@ export const shellCurl: Plugin = {
 
     // Body
     if (normalizedRequest.postData) {
-      if (isJsonContentType(normalizedRequest.postData.mimeType)) {
+      if (isJsonMediaType(normalizedRequest.postData.mimeType)) {
         // Pretty print JSON data
         if (normalizedRequest.postData.text) {
           try {
@@ -121,6 +109,10 @@ export const shellCurl: Plugin = {
             parts.push(`--data '${escapedText}'`)
           }
         }
+      } else if (isStreamingContentType(normalizedRequest.postData.mimeType ?? '')) {
+        // Use the explicit binary mode consistently for framed streaming media types.
+        const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
+        parts.push(`--data-binary '${escapedText}'`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
         parts.push(`--data-binary '${escapedText}'`)
@@ -147,7 +139,7 @@ export const shellCurl: Plugin = {
             const rawValue = param.value ?? ''
             // Pretty-print parts whose contentType is JSON so the snippet stays readable,
             // mirroring what we already do for `--data` JSON bodies above.
-            const isJsonPart = isJsonContentType(param.contentType)
+            const isJsonPart = isJsonMediaType(param.contentType)
             let displayValue = rawValue
             if (isJsonPart && rawValue) {
               try {

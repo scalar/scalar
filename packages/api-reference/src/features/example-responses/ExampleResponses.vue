@@ -276,7 +276,9 @@ const copyExample = (): void => {
             width="12px" />
         </button>
         <label
-          v-if="currentResponseContent?.schema"
+          v-if="
+            currentResponseContent?.schema ?? currentResponseContent?.itemSchema
+          "
           class="scalar-card-checkbox">
           {{ translate('response.showSchema') }}
           <input
@@ -290,10 +292,24 @@ const copyExample = (): void => {
     </ExampleResponseTabList>
     <ScalarCardSection class="grid flex-1">
       <!-- Schema -->
-      <ExampleSchema
-        v-if="currentResponseContent?.schema && showSchema"
-        :id="id"
-        :schema="currentResponseContent?.schema" />
+      <template
+        v-if="
+          showSchema &&
+          (currentResponseContent?.schema ?? currentResponseContent?.itemSchema)
+        ">
+        <ExampleSchema
+          v-if="currentResponseContent?.schema"
+          :id="id"
+          :schema="currentResponseContent.schema" />
+        <template v-if="currentResponseContent?.itemSchema">
+          <p class="text-c-2 px-3 pt-2 text-sm">
+            {{ translate('common.streamItem') }}
+          </p>
+          <ExampleSchema
+            :id="`${id}-item`"
+            :schema="currentResponseContent.itemSchema" />
+        </template>
+      </template>
 
       <div
         v-else-if="externalExamples.pending.value"
@@ -315,6 +331,7 @@ const copyExample = (): void => {
         v-else
         :id="id"
         :content="exampleContent"
+        :contentType="currentContentType"
         :example="currentExample"
         :response="currentResponseContent" />
     </ScalarCardSection>

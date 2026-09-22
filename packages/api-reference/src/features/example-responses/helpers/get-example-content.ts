@@ -1,6 +1,8 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
+import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
+import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
@@ -22,6 +24,14 @@ export const getExampleContent = (
 ): string | undefined => {
   if (example !== undefined) {
     const selected = getExampleValue(getResolvedRefDeep(example))
+    if (isStreamingContentType(contentType) && selected?.source !== 'serialized') {
+      const value = selected?.value
+      return value === undefined
+        ? ''
+        : typeof value === 'string'
+          ? value
+          : (serializeStreamExample(value, contentType, false) ?? JSON.stringify(value, null, 2))
+    }
     const explicitText = getExplicitExampleText(selected, contentType, 2)
     if (explicitText !== undefined) {
       return explicitText
@@ -34,8 +44,9 @@ export const getExampleContent = (
     return typeof value === 'string' ? prettyPrintJson(value) : (JSON.stringify(value, null, 2) ?? '')
   }
 
-  if (response?.schema) {
-    const schema = getResolvedRefDeep(response.schema) as SchemaObject | undefined
+  const contentSchema = response?.schema ?? response?.itemSchema
+  if (contentSchema) {
+    const schema = getResolvedRefDeep(contentSchema) as SchemaObject | undefined
     if (!schema) {
       return undefined
     }
@@ -48,7 +59,10 @@ export const getExampleContent = (
       return undefined
     }
     // Schema generation returns unknown, but produces JSON values supported by the formatter.
-    return prettyPrintJson(content as Parameters<typeof prettyPrintJson>[0])
+    return (
+      serializeStreamExample(content, contentType, response?.schema === undefined) ??
+      prettyPrintJson(content as Parameters<typeof prettyPrintJson>[0])
+    )
   }
 
   return undefined

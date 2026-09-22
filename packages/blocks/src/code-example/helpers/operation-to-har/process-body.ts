@@ -2,6 +2,7 @@ import { json2xml } from '@scalar/helpers/file/json2xml'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
+import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   coerceLeafValueToSchemaType,
@@ -246,12 +247,16 @@ export const processBody = ({
 
     return {
       mimeType: harMimeType,
-      text: typeof exampleValue === 'string' ? exampleValue : JSON.stringify(exampleValue),
+      text:
+        typeof exampleValue === 'string'
+          ? exampleValue
+          : (serializeStreamExample(exampleValue, _contentType, false) ?? JSON.stringify(exampleValue)),
     }
   }
 
   // Try to extract examples from the schema
-  const contentSchema = getResolvedRef(requestBody.content[_contentType]?.schema)
+  const mediaType = requestBody.content[_contentType]
+  const contentSchema = getResolvedRef(mediaType?.schema ?? mediaType?.itemSchema)
   if (typeof contentSchema !== 'undefined') {
     const resolvedContentSchema = getResolvedRefDeep(contentSchema) as SchemaObject
     const extractedExample = getExampleFromSchema(
@@ -283,7 +288,9 @@ export const processBody = ({
 
       return {
         mimeType: harMimeType,
-        text: typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample),
+        text:
+          serializeStreamExample(extractedExample, _contentType, mediaType?.schema === undefined) ??
+          (typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample)),
       }
     }
   }
