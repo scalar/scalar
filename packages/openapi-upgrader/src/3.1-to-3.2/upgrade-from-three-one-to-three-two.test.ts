@@ -1,5 +1,5 @@
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { upgradeFromThreeOneToThreeTwo } from '@/3.1-to-3.2/upgrade-from-three-one-to-three-two'
 
@@ -45,498 +45,257 @@ describe('upgradeFromThreeOneToThreeTwo', () => {
     })
   })
 
-  describe('x-tagGroups migration', () => {
-    it('migrates x-tagGroups to kind property for navigation groups', () => {
+  it('migrates group names and member order to parent tags and removes x-tagGroups', () => {
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'API', version: '1.0.0' },
+      paths: {},
+      tags: [{ name: 'pets', description: 'Pet operations' }, { name: 'users' }, { name: 'other' }],
+      'x-tagGroups': [
+        { name: 'Store', tags: ['users', 'pets'] },
+        { name: 'Administration', tags: ['admins'] },
+      ],
+    }
+
+    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({
+      openapi: '3.2.0',
+      info: { title: 'API', version: '1.0.0' },
+      paths: {},
+      tags: [
+        { name: 'Store', kind: 'nav' },
+        { name: 'users', parent: 'Store' },
+        { name: 'pets', description: 'Pet operations', parent: 'Store' },
+        { name: 'Administration', kind: 'nav' },
+        { name: 'admins', parent: 'Administration' },
+        { name: 'other' },
+      ],
+    })
+  })
+
+  it.each(['Navigation', 'Audience', 'Badge'])('does not infer tag kinds from the %s group name', (name) => {
+    const input = {
+      openapi: '3.1.0',
+      tags: [{ name: 'pets', description: 'Pet operations', 'x-displayName': 'Pets', kind: 'custom' }],
+      'x-tagGroups': [{ name, tags: ['pets'] }],
+    }
+
+    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({
+      openapi: '3.2.0',
+      tags: [
+        { name, kind: 'nav' },
+        { name: 'pets', description: 'Pet operations', 'x-displayName': 'Pets', kind: 'custom', parent: name },
+      ],
+    })
+  })
+
+  it('declares tags that were only used on operations without changing operation tags', () => {
+    const paths = { '/pets': { get: { tags: ['pets'], responses: { '200': { description: 'OK' } } } } }
+    const input = { openapi: '3.1.0', paths, 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] }
+
+    expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({
+      openapi: '3.2.0',
+      paths,
+      tags: [
+        { name: 'Store', kind: 'nav' },
+        { name: 'pets', parent: 'Store' },
+      ],
+    })
+  })
+
+  it.each([undefined, [{ name: 'Pets', description: 'Pet operations' }]])(
+    'gives a group that shares a member name a unique name and preserves its label: %j',
+    (tags) => {
       const input = {
         openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
+        ...(tags ? { tags } : {}),
+        'x-tagGroups': [{ name: 'Pets', tags: ['Pets'] }],
+      }
+      const result = upgradeFromThreeOneToThreeTwo(input)
+
+      expect(result).toStrictEqual({
+        openapi: '3.2.0',
         tags: [
-          {
-            name: 'account-updates',
-            summary: 'Account Updates',
-            description: 'Account update operations',
-          },
+          { name: 'Pets-group', summary: 'Pets', kind: 'nav' },
+          { ...(tags?.[0] ?? {}), name: 'Pets', parent: 'Pets-group' },
         ],
+      })
+      expect(upgradeFromThreeOneToThreeTwo(result)).toStrictEqual(result)
+    },
+  )
+
+  it('reserves declared, undeclared, and future group names when choosing a suffix', () => {
+    const paths = { '/pets': { get: { tags: ['Pets-group-2'], responses: { '200': { description: 'OK' } } } } }
+    const input = {
+      openapi: '3.1.0',
+      paths,
+      tags: [{ name: 'Pets' }, { name: 'Pets-group' }],
+      'x-tagGroups': [
+        { name: 'Pets', tags: ['Pets'] },
+        { name: 'Pets-group-3', tags: ['users'] },
+      ],
+    }
+    const repeated = structuredClone(input)
+    const result = upgradeFromThreeOneToThreeTwo(input)
+
+    expect(result).toStrictEqual({
+      openapi: '3.2.0',
+      paths,
+      tags: [
+        { name: 'Pets-group-4', summary: 'Pets', kind: 'nav' },
+        { name: 'Pets', parent: 'Pets-group-4' },
+        { name: 'Pets-group-3', kind: 'nav' },
+        { name: 'users', parent: 'Pets-group-3' },
+        { name: 'Pets-group' },
+      ],
+    })
+    expect(upgradeFromThreeOneToThreeTwo(repeated)).toStrictEqual(result)
+  })
+
+  it('avoids collisions with operation-only tags in webhooks, callbacks, and reusable path items', () => {
+    const operation = (tag: string): Record<string, unknown> => ({
+      tags: [tag],
+      responses: { '200': { description: 'OK' } },
+    })
+    const webhooks = { event: { post: operation('Pets') } }
+    const components = {
+      pathItems: { pets: { get: operation('Pets-group') } },
+      callbacks: { event: { '{$request.body#/url}': { post: operation('Pets-group-2') } } },
+    }
+
+    expect(
+      upgradeFromThreeOneToThreeTwo({
+        openapi: '3.1.0',
+        webhooks,
+        components,
+        'x-tagGroups': [{ name: 'Pets', tags: ['cats'] }],
+      }),
+    ).toStrictEqual({
+      openapi: '3.2.0',
+      webhooks,
+      components,
+      tags: [
+        { name: 'Pets-group-3', summary: 'Pets', kind: 'nav' },
+        { name: 'cats', parent: 'Pets-group-3' },
+      ],
+    })
+  })
+
+  it('keeps generated group names unique when multiple groups collide', () => {
+    expect(
+      upgradeFromThreeOneToThreeTwo({
+        openapi: '3.1.0',
         'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['account-updates'],
-          },
+          { name: 'Pets', tags: ['Pets'] },
+          { name: 'Pets-group', tags: ['Pets-group'] },
         ],
-      }
+      }).tags,
+    ).toStrictEqual([
+      { name: 'Pets-group-2', summary: 'Pets', kind: 'nav' },
+      { name: 'Pets', parent: 'Pets-group-2' },
+      { name: 'Pets-group-group', summary: 'Pets-group', kind: 'nav' },
+      { name: 'Pets-group', parent: 'Pets-group-group' },
+    ])
+  })
 
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'account-updates',
-        summary: 'Account Updates',
-        description: 'Account update operations',
-        kind: 'nav',
-      })
+  it('removes empty x-tagGroups without adding a tags array', () => {
+    expect(upgradeFromThreeOneToThreeTwo({ openapi: '3.1.0', 'x-tagGroups': [] })).toStrictEqual({
+      openapi: '3.2.0',
     })
+  })
 
-    it('migrates x-tagGroups to kind property for audience groups', () => {
-      const input = {
+  it('leaves tags unchanged when there are no groups', () => {
+    expect(upgradeFromThreeOneToThreeTwo({ openapi: '3.1.0', tags: [{ name: 'pets' }] })).toStrictEqual({
+      openapi: '3.2.0',
+      tags: [{ name: 'pets' }],
+    })
+  })
+
+  it.each([
+    {
+      tags: [],
+      'x-tagGroups': [
+        { name: 'Store', tags: ['pets'] },
+        { name: 'Admin', tags: ['pets'] },
+      ],
+    },
+    { tags: [{ name: 'pets', parent: 'Other' }], 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] },
+    { tags: [], 'x-tagGroups': [{ name: 'Store', tags: [42] }] },
+    { tags: [], 'x-tagGroups': null },
+    { tags: {}, 'x-tagGroups': [] },
+    { tags: [{ name: 'pets' }, { name: 'pets' }], 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] },
+    { tags: [null], 'x-tagGroups': [] },
+    { 'x-tagGroups': [null] },
+  ])('preserves ambiguous or invalid groups while upgrading: %j', (groups) => {
+    const input = { openapi: '3.1.0', ...groups }
+    const original = structuredClone(input)
+
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      expect(upgradeFromThreeOneToThreeTwo(input)).toStrictEqual({ ...original, openapi: '3.2.0' })
+      expect(warning).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('Cannot migrate x-tagGroups:'))
+      expect(input).toStrictEqual(original)
+    } finally {
+      warning.mockRestore()
+    }
+  })
+
+  it('treats prototype property names as ordinary tag names', () => {
+    const input = JSON.parse(
+      '{"openapi":"3.1.0","__proto__":{"tags":["__proto__-group"]},"x-tagGroups":[{"name":"__proto__","tags":["__proto__","constructor","prototype"]}]}',
+    )
+    const original = structuredClone(input)
+    const prototype = Object.getOwnPropertyDescriptors(Object.prototype)
+
+    const result = upgradeFromThreeOneToThreeTwo(input)
+
+    expect(result.tags).toStrictEqual([
+      { name: '__proto__-group-2', summary: '__proto__', kind: 'nav' },
+      { name: '__proto__', parent: '__proto__-group-2' },
+      { name: 'constructor', parent: '__proto__-group-2' },
+      { name: 'prototype', parent: '__proto__-group-2' },
+    ])
+    expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
+    expect(Object.getOwnPropertyNames(Object.prototype)).toStrictEqual(Object.keys(prototype))
+    for (const [name, descriptor] of Object.entries(prototype)) {
+      const current = Object.getOwnPropertyDescriptor(Object.prototype, name)
+      expect(current?.value).toBe(descriptor.value)
+      expect(current?.get).toBe(descriptor.get)
+      expect(current?.set).toBe(descriptor.set)
+    }
+    expect(input).toStrictEqual(original)
+  })
+
+  it('does not modify a prototype reached through an untrusted document name', () => {
+    const prototype = { openapi: '3.1.0', 'x-tagGroups': [{ name: 'Store', tags: ['pets'] }] }
+    const documents = Object.create(prototype)
+    const original = structuredClone(prototype)
+
+    expect(upgradeFromThreeOneToThreeTwo(documents['__proto__'])).toStrictEqual({
+      openapi: '3.2.0',
+      tags: [
+        { name: 'Store', kind: 'nav' },
+        { name: 'pets', parent: 'Store' },
+      ],
+    })
+    expect(prototype).toStrictEqual(original)
+  })
+
+  it('merges repeated groups and repeated membership without duplicating tags', () => {
+    expect(
+      upgradeFromThreeOneToThreeTwo({
         openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'partner',
-            summary: 'Partner',
-            description: 'Operations available to the partners network',
-          },
-          {
-            name: 'external',
-            summary: 'External',
-            description: 'Operations available to external consumers',
-            externalDocs: {
-              description: 'Find more info here',
-              url: 'https://example.com',
-            },
-          },
-        ],
         'x-tagGroups': [
-          {
-            name: 'Audience',
-            tags: ['partner', 'external'],
-          },
+          { name: 'Store', tags: ['pets', 'pets'] },
+          { name: 'Store', tags: ['users'] },
         ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'partner',
-        summary: 'Partner',
-        description: 'Operations available to the partners network',
-        kind: 'audience',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'external',
-        summary: 'External',
-        description: 'Operations available to external consumers',
-        kind: 'audience',
-        externalDocs: {
-          description: 'Find more info here',
-          url: 'https://example.com',
-        },
-      })
-    })
-
-    it('migrates x-tagGroups to kind property for badge groups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'beta',
-            summary: 'Beta Features',
-            description: 'Experimental features',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Badge',
-            tags: ['beta'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags![0]).toMatchObject({
-        name: 'beta',
-        summary: 'Beta Features',
-        description: 'Experimental features',
-        kind: 'badge',
-      })
-    })
-
-    it('handles multiple tag groups with different kinds', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'account-updates',
-            summary: 'Account Updates',
-            description: 'Account update operations',
-          },
-          {
-            name: 'partner',
-            summary: 'Partner',
-            description: 'Operations available to the partners network',
-          },
-          {
-            name: 'beta',
-            summary: 'Beta Features',
-            description: 'Experimental features',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['account-updates'],
-          },
-          {
-            name: 'Audience',
-            tags: ['partner'],
-          },
-          {
-            name: 'Badge',
-            tags: ['beta'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(3)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'account-updates',
-        kind: 'nav',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'partner',
-        kind: 'audience',
-      })
-      expect(result.tags?.[2]).toMatchObject({
-        name: 'beta',
-        kind: 'badge',
-      })
-    })
-
-    it('defaults to nav kind for unknown group types', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'custom-tag',
-            summary: 'Custom Tag',
-            description: 'A custom tag',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'CustomGroup',
-            tags: ['custom-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'custom-tag',
-        summary: 'Custom Tag',
-        description: 'A custom tag',
-        kind: 'nav',
-      })
-    })
-
-    it('handles case-insensitive group name matching', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'nav-tag',
-            summary: 'Navigation Tag',
-            description: 'A navigation tag',
-          },
-          {
-            name: 'audience-tag',
-            summary: 'Audience Tag',
-            description: 'An audience tag',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'NAVIGATION',
-            tags: ['nav-tag'],
-          },
-          {
-            name: 'AUDIENCE',
-            tags: ['audience-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'nav-tag',
-        kind: 'nav',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'audience-tag',
-        kind: 'audience',
-      })
-    })
-
-    it('handles partial group name matching', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'nav-tag',
-            summary: 'Navigation Tag',
-            description: 'A navigation tag',
-          },
-          {
-            name: 'audience-tag',
-            summary: 'Audience Tag',
-            description: 'An audience tag',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Main Navigation',
-            tags: ['nav-tag'],
-          },
-          {
-            name: 'User Audience',
-            tags: ['audience-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'nav-tag',
-        kind: 'nav',
-      })
-      expect(result.tags?.[1]).toMatchObject({
-        name: 'audience-tag',
-        kind: 'audience',
-      })
-    })
-
-    it('does not modify tags that are not in x-tagGroups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'ungrouped-tag',
-            summary: 'Ungrouped Tag',
-            description: 'A tag not in any group',
-          },
-          {
-            name: 'grouped-tag',
-            summary: 'Grouped Tag',
-            description: 'A tag in a group',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['grouped-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(2)
-      expect(result.tags![0]).toMatchObject({
-        name: 'ungrouped-tag',
-        summary: 'Ungrouped Tag',
-        description: 'A tag not in any group',
-        // No kind property should be added
-      })
-      expect(result.tags![0]!.kind).toBeUndefined()
-      expect(result.tags![1]).toMatchObject({
-        name: 'grouped-tag',
-        summary: 'Grouped Tag',
-        description: 'A tag in a group',
-        kind: 'nav',
-      })
-    })
-
-    it('handles documents without x-tagGroups', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'simple-tag',
-            summary: 'Simple Tag',
-            description: 'A simple tag',
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags![0]).toMatchObject({
-        name: 'simple-tag',
-        summary: 'Simple Tag',
-        description: 'A simple tag',
-      })
-      expect(result.tags![0]?.kind).toBeUndefined()
-    })
-
-    it('handles documents without tags array', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['missing-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toEqual([])
-    })
-
-    it('handles empty x-tagGroups array', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'simple-tag',
-            summary: 'Simple Tag',
-            description: 'A simple tag',
-          },
-        ],
-        'x-tagGroups': [],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toBeDefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags![0]?.kind).toBeUndefined()
-    })
-
-    it('preserves existing tag properties when adding kind', () => {
-      const input = {
-        openapi: '3.1.0',
-        info: {
-          title: 'API',
-          version: '1.0.0',
-        },
-        paths: {},
-        tags: [
-          {
-            name: 'complex-tag',
-            summary: 'Complex Tag',
-            description: 'A complex tag with many properties',
-            externalDocs: {
-              description: 'External documentation',
-              url: 'https://example.com/docs',
-            },
-            'x-custom-extension': 'custom-value',
-          },
-        ],
-        'x-tagGroups': [
-          {
-            name: 'Navigation',
-            tags: ['complex-tag'],
-          },
-        ],
-      }
-
-      const result: OpenAPIV3_2.Document = upgradeFromThreeOneToThreeTwo(input)
-
-      expect(result.openapi).toBe('3.2.0')
-      expect(result['x-tagGroups']).toBeUndefined()
-      expect(result.tags).toHaveLength(1)
-      expect(result.tags?.[0]).toMatchObject({
-        name: 'complex-tag',
-        summary: 'Complex Tag',
-        description: 'A complex tag with many properties',
-        kind: 'nav',
-        externalDocs: {
-          description: 'External documentation',
-          url: 'https://example.com/docs',
-        },
-        'x-custom-extension': 'custom-value',
-      })
+      }),
+    ).toStrictEqual({
+      openapi: '3.2.0',
+      tags: [
+        { name: 'Store', kind: 'nav' },
+        { name: 'pets', parent: 'Store' },
+        { name: 'users', parent: 'Store' },
+      ],
     })
   })
 

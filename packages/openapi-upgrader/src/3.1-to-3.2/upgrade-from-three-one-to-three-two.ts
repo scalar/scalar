@@ -1,4 +1,7 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { UnknownObject } from '@scalar/types/utils'
+
+import { traverse } from '@/helpers/traverse'
 
 /**
  * Recursively migrate XML object properties from 3.1 to 3.2 format
@@ -44,55 +47,107 @@ function migrateXmlObjects(obj: any): void {
 }
 
 /**
- * Migrate x-tagGroups to kind property on tags
+ * Convert navigation groups to the tag hierarchy introduced in OpenAPI 3.2.
+ * Keep the original extension when a hierarchy cannot be migrated without losing information.
  */
-function migrateTagGroups(document: UnknownObject) {
-  if (document['x-tagGroups'] && Array.isArray(document['x-tagGroups'])) {
-    const tagGroups = document['x-tagGroups'] as Array<{
-      name: string
-      tags: string[]
-    }>
+const migrateTagGroups = (document: UnknownObject): void => {
+  if (!Object.hasOwn(document, 'x-tagGroups')) {
+    return
+  }
 
-    // Ensure tags array exists
-    if (!document.tags) {
-      document.tags = []
+  const groups = document['x-tagGroups']
+  if (!Array.isArray(groups)) {
+    console.warn('Cannot migrate x-tagGroups: expected an array of groups.')
+    return
+  }
+
+  const tags = new Map<string, Record<string, unknown>>()
+  if (document.tags !== undefined && !Array.isArray(document.tags)) {
+    console.warn('Cannot migrate x-tagGroups: expected a tags array.')
+    return
+  }
+  for (const tag of document.tags ?? []) {
+    if (!isObject(tag) || typeof tag.name !== 'string' || tags.has(tag.name)) {
+      console.warn('Cannot migrate x-tagGroups: expected uniquely named tags.')
+      return
     }
+    tags.set(tag.name, tag)
+  }
 
-    // Create a map of tag names to their group information
-    const tagGroupMap = new Map<string, string>()
-
-    for (const group of tagGroups) {
-      for (const tagName of group.tags) {
-        tagGroupMap.set(tagName, group.name)
+  const parents = new Map<string, string>()
+  const groupNames = new Set<string>()
+  for (const group of groups) {
+    if (!isObject(group) || typeof group.name !== 'string' || !Array.isArray(group.tags)) {
+      console.warn('Cannot migrate x-tagGroups: each group must have a name and a tags array.')
+      return
+    }
+    groupNames.add(group.name)
+    for (const name of group.tags) {
+      if (typeof name !== 'string') {
+        console.warn('Cannot migrate x-tagGroups: group members must be tag names.')
+        return
       }
+      const parent = parents.get(name)
+      if (parent !== undefined && parent !== group.name) {
+        console.warn(`Cannot migrate x-tagGroups: tag "${name}" belongs to multiple groups.`)
+        return
+      }
+      parents.set(name, group.name)
     }
+  }
 
-    // Update existing tags with kind property based on group name
-    if (Array.isArray(document.tags)) {
-      for (const tag of document.tags) {
-        if (typeof tag === 'object' && tag !== null && 'name' in tag && typeof tag.name === 'string') {
-          const groupName = tagGroupMap.get(tag.name)
-          if (groupName) {
-            // Map group names to kind values
-            // This is a simplified mapping - in practice, you might want more sophisticated logic
-            if (groupName.toLowerCase().includes('nav') || groupName.toLowerCase().includes('navigation')) {
-              tag.kind = 'nav'
-            } else if (groupName.toLowerCase().includes('audience')) {
-              tag.kind = 'audience'
-            } else if (groupName.toLowerCase().includes('badge')) {
-              tag.kind = 'badge'
-            } else {
-              // Default to nav for unknown group types
-              tag.kind = 'nav'
-            }
-          }
+  const occupiedNames = new Set([...tags.keys(), ...parents.keys()])
+  // Reserve undeclared operation tags too, including callbacks and reusable path items.
+  // Conservatively reserving other string-valued tags arrays is harmless.
+  traverse(document, (node) => {
+    if (Array.isArray(node.tags)) {
+      for (const name of node.tags) {
+        if (typeof name === 'string') {
+          occupiedNames.add(name)
         }
       }
     }
+    return node
+  })
+  const reservedNames = new Set([...occupiedNames, ...groupNames])
 
-    // Remove x-tagGroups
-    delete document['x-tagGroups']
+  const migrated = new Map<string, Record<string, unknown>>()
+  for (const name of groupNames) {
+    let groupName = name
+    if (occupiedNames.has(name)) {
+      groupName = `${name}-group`
+      for (let suffix = 2; reservedNames.has(groupName); suffix++) {
+        groupName = `${name}-group-${suffix}`
+      }
+    }
+    reservedNames.add(groupName)
+    migrated.set(groupName, {
+      name: groupName,
+      ...(groupName !== name ? { summary: name } : {}),
+      kind: 'nav',
+    })
+    for (const [tagName, parent] of parents) {
+      if (parent !== name) {
+        continue
+      }
+      const tag = tags.get(tagName)
+      if (tag?.parent !== undefined && tag.parent !== groupName) {
+        console.warn(`Cannot migrate x-tagGroups: tag "${tagName}" already has a different parent.`)
+        return
+      }
+      migrated.set(tagName, { ...tag, name: tagName, parent: groupName })
+    }
   }
+  for (const [name, tag] of tags) {
+    if (!migrated.has(name)) {
+      migrated.set(name, tag)
+    }
+  }
+
+  if (groups.length > 0) {
+    document.tags = [...migrated.values()]
+  }
+  delete document['x-tagGroups']
 }
 
 /**
@@ -101,26 +156,23 @@ function migrateTagGroups(document: UnknownObject) {
  * @see https://github.com/OAI/OpenAPI-Specification/compare/main...v3.2-dev
  */
 export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
-  const document = originalDocument
-
   // Version
   if (
-    document !== null &&
-    typeof document === 'object' &&
-    typeof document.openapi === 'string' &&
-    document.openapi?.startsWith('3.1')
+    originalDocument !== null &&
+    typeof originalDocument === 'object' &&
+    typeof originalDocument.openapi === 'string' &&
+    originalDocument.openapi?.startsWith('3.1')
   ) {
+    // Copy the root before writing: callers may obtain it through an untrusted property name.
+    const document = { ...originalDocument }
+    migrateTagGroups(document)
     document.openapi = '3.2.0'
-  } else {
-    // Skip if it's something else than 3.1.x
+
+    // Migrate XML object properties
+    migrateXmlObjects(document)
+
     return document
   }
-
-  // Migrate x-tagGroups to kind property
-  migrateTagGroups(document)
-
-  // Migrate XML object properties
-  migrateXmlObjects(document)
-
-  return document
+  // Skip if it's something else than 3.1.x
+  return originalDocument
 }
