@@ -1,4 +1,4 @@
-import { cwd } from 'node:process'
+import { resolve } from 'node:path'
 
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
@@ -733,7 +733,7 @@ export async function createServerWorkspaceStore(
       }
 
       // Write the workspace document
-      const basePath = `${cwd()}/${workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER}`
+      const basePath = resolve(workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER)
       const writeChunk = await createChunkWriter(basePath)
       await writeChunk([WORKSPACE_FILE_NAME], workspace)
 
