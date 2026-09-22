@@ -262,8 +262,8 @@ brew install teamwarp/tap/warp
 
 ## Authenticate
 
-Set WARP_API_KEY, or run warp auth login to store a token in the
-system keychain.
+Set WARP_API_KEY in the environment and every command picks it
+up.
 
 ## Look up a command
 
@@ -419,15 +419,14 @@ const ADDITIONAL_TARGETS = ['java', 'ruby']
 
 /* One generation run, as the build log renders it. Each entry is a line and
  * the delay before the next one, so the log paces like a real run. */
-const BUILD_LOG = [
+const buildLog = (installed) => [
   ['Loading registry document @warp/warp-hr@1.5.0', 320],
   ['Bundling external $refs — 18 documents', 420],
   ['Compiling to IR — 64 operations, 112 schemas', 620],
-  ['Emitting typescript → sdk/typescript', 380],
-  ['Emitting python → sdk/python', 340],
-  ['Emitting go → sdk/go', 340],
-  ['Emitting cli → sdk/cli', 340],
-  ['Formatting with Biome, ruff and gofmt', 460],
+  /* One line per target the reader actually has, so adding Java or Ruby shows
+   * up in the run rather than building a list the log never mentions. */
+  ...installed.map((target) => [`Emitting ${target} → sdk/${target}`, 340]),
+  ['Formatting generated output', 460],
   ['Writing openapi.augmented.json — 64 code samples', 400],
   ['Pushing generated output to scalar-generated', 420],
   ['Three-way merge onto scalar-next — 1 custom file carried forward', 520],
@@ -748,9 +747,10 @@ const makeDraggable = (node, handle) => {
 /** Render state. `build` tracks the simulated generation run. */
 const createState = () => ({
   installed: [...INITIAL_TARGETS],
+  generated: [...INITIAL_TARGETS],
   selected: 'typescript',
   tab: 'quickstart',
-  version: '1.4.0',
+  version: '1.5.0',
   build: 'live',
   builtAt: '4 minutes ago',
   logIndex: 0,
@@ -800,6 +800,9 @@ const initSdkDemo = (root) => {
   root.dataset.sdkDemoReady = 'true'
 
   const state = createState()
+
+  /* Rebuilt whenever a run starts, so it reflects the targets installed then. */
+  let buildSteps = buildLog(state.installed)
   const timers = new Set()
 
   const later = (fn, delay) => {
@@ -914,7 +917,7 @@ const initSdkDemo = (root) => {
     nodes.steps.replaceChildren()
 
     const running = state.build === 'running'
-    const progress = state.logIndex / BUILD_LOG.length
+    const progress = state.logIndex / buildSteps.length
     const rows = [
       ['Codegen', running ? progress > 0.75 : true],
       ['Build', running ? progress >= 1 : true],
@@ -942,7 +945,7 @@ const initSdkDemo = (root) => {
     }
     nodes.log.replaceChildren()
 
-    BUILD_LOG.slice(0, state.logIndex).forEach(([line], index) => {
+    buildSteps.slice(0, state.logIndex).forEach(([line], index) => {
       const row = el('div', 'sdk-demo-log-line')
       row.append(el('span', 'sdk-demo-log-prompt', '$'))
       row.append(el('span', 'sdk-demo-log-text', line))
@@ -1019,8 +1022,10 @@ const initSdkDemo = (root) => {
 
       button.append(mark, body)
 
-      const dot = el('span', 'sdk-demo-dot sdk-demo-dot-green')
-      dot.setAttribute('aria-label', 'Generated')
+      /* Pending until a build has emitted it, matching the dashboard's statuses. */
+      const built = state.generated.includes(key)
+      const dot = el('span', `sdk-demo-dot sdk-demo-dot-${built ? 'green' : 'amber'}`)
+      dot.setAttribute('aria-label', built ? 'Generated' : 'Pending')
       button.append(dot)
 
       nodes.targets.append(button)
@@ -1142,33 +1147,35 @@ const initSdkDemo = (root) => {
 
     state.build = 'running'
     state.logIndex = 0
+    buildSteps = buildLog(state.installed)
     setBuildWindowOpen(true)
     render()
 
     /* With reduced motion the run still happens, it just lands at once. */
     if (REDUCED_MOTION()) {
-      state.logIndex = BUILD_LOG.length
+      state.logIndex = buildSteps.length
       finishBuild()
       return
     }
 
     const step = (index) => {
-      if (index >= BUILD_LOG.length) {
+      if (index >= buildSteps.length) {
         finishBuild()
         return
       }
       state.logIndex = index + 1
       renderSteps()
       renderLog()
-      later(() => step(index + 1), BUILD_LOG[index][1])
+      later(() => step(index + 1), buildSteps[index][1])
     }
 
     later(() => step(0), 260)
   }
 
   const finishBuild = () => {
-    const [major, minor] = state.version.split('.')
-    state.version = `${major}.${Number(minor) + 1}.0`
+    /* Versions are explicit in the dashboard: a build generates the version you
+     * are on, and a new one is drafted deliberately. See guides/sdks/managing.md. */
+    state.generated = [...state.installed]
     state.build = 'live'
     state.builtAt = 'just now'
     render()
@@ -1196,6 +1203,7 @@ const initSdkDemo = (root) => {
     resetPosition(nodes.buildWindow)
     resetPosition(nodes.apiWindow)
     Object.assign(state, createState())
+    buildSteps = buildLog(state.installed)
     render()
     showHint()
   }

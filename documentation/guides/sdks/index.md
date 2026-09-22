@@ -166,7 +166,7 @@
               <span class="sdk-demo-dot sdk-demo-dot-green" data-sdk-demo-status-dot></span>
               <div class="sdk-demo-status-text">
                 <span class="sdk-demo-status-label" data-sdk-demo-status-label>Build live</span>
-                <span class="sdk-demo-status-meta"><code data-sdk-demo-version>v1.4.0</code><span data-sdk-demo-status-meta>4 minutes ago</span></span>
+                <span class="sdk-demo-status-meta"><code data-sdk-demo-version>v1.5.0</code><span data-sdk-demo-status-meta>4 minutes ago</span></span>
               </div>
             </div>
             <div class="sdk-demo-steps" data-sdk-demo-steps>
