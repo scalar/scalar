@@ -60,6 +60,9 @@ describe('RequestBlock', () => {
       .findAllComponents(RequestParams)
       .find((section) => section.props('title') === 'Query String')!
     expect(querySection.props('showAddRowPlaceholder')).toBe(false)
+    expect(querySection.text()).toContain(
+      'This parameter supplies the entire query string, so additional named parameters cannot be added. Existing named parameters are sent after it; duplicate keys are preserved.',
+    )
     expect(querySection.props('rows').map((row) => row.value)).toStrictEqual(['%7B%22term%22%3A%22hello%22%7D'])
     wrapper.unmount()
   })

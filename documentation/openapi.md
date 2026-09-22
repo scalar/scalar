@@ -39,7 +39,7 @@ parameters:
 
 A `serializedValue` under a media type describes serialized media content and still undergoes URI encoding. The parameter-level example bypasses that step; provide any escaping required by the target server and HTTP client yourself.
 
-OpenAPI 3.2 does not allow mixing `in: querystring` and named `in: query` parameters. For existing descriptions containing both, Scalar preserves the values and emits the whole-query content first, followed by named query parameters and query authentication parameters.
+OpenAPI 3.2 does not allow mixing `in: querystring` and named `in: query` parameters. For existing descriptions containing both, Scalar preserves the values and emits the whole-query content first, followed by named query parameters and query authentication parameters. Duplicate keys are preserved: a whole-query `status=available` and a named `status=sold` produce `?status=available&status=sold`. Scalar does not choose which value wins; that depends on the receiving server. The editor explains why additional named parameters cannot be added while keeping existing rows editable.
 
 ## Custom Specification Extensions
 

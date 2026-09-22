@@ -739,12 +739,21 @@ const filterLabels = computed(() => ({
       <RequestParams
         v-show="isSectionVisible('Query')"
         :id="filterIds.Query"
+        :description="
+          hasQuerystringParameter
+            ? 'This parameter supplies the entire query string, so additional named parameters cannot be added. Existing named parameters are sent after it; duplicate keys are preserved.'
+            : undefined
+        "
         :environment
         :eventBus
         :exampleKey
         :rows="sections.query ?? []"
         :showAddRowPlaceholder="!hasQuerystringParameter"
-        :title="hasQuerystringParameter ? 'Query String' : translate('apiClient.requestBlock.queryParameters')"
+        :title="
+          hasQuerystringParameter
+            ? 'Query String'
+            : translate('apiClient.requestBlock.queryParameters')
+        "
         v-on="parameterHandlers.query" />
 
       <!-- Request Body -->

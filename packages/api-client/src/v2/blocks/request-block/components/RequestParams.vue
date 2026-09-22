@@ -27,6 +27,8 @@ const {
   exampleKey: string
   title: string
   label?: string
+  /** Explain restrictions on parameter editing when needed. */
+  description?: string
   invalidParams?: Set<string>
   globalRoute?: string
   showAddRowPlaceholder?: boolean
@@ -91,6 +93,11 @@ const handleUpserRow = (index: number, payload: TableRowUpsertPayload) => {
         </ScalarTooltip>
       </div>
     </template>
+    <p
+      v-if="description"
+      class="text-c-2 px-3 py-2 text-sm">
+      {{ description }}
+    </p>
     <RequestTable
       class="flex-1"
       :columns="['32px', '', '']"

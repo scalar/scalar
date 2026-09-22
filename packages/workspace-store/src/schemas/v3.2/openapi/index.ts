@@ -724,8 +724,6 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
               'Long description for the example. CommonMark syntax MAY be used for rich text representation.',
           }),
         ),
-        dataValue: optional(any()),
-        serializedValue: optional(string()),
         value: optional(
           any({
             typeComment: 'Embedded literal example. The value field and externalValue field are mutually exclusive.',

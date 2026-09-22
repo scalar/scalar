@@ -63,6 +63,20 @@ describe('resolve-request-factory-url', () => {
     )
   })
 
+  it('preserves conflicting duplicate keys with whole-query values before named values', () => {
+    const request = createRequestFactory({
+      querystring: {
+        value: 'status=available&limit=10',
+        contentType: 'application/x-www-form-urlencoded',
+        kind: 'uri-ready',
+      },
+      query: new URLSearchParams({ status: 'sold' }),
+    })
+    expect(unwrap(request, defaultOptions)).toBe(
+      'https://api.example.com/v1/users?status=available&limit=10&status=sold',
+    )
+  })
+
   it('an enabled empty querystring clears a query from the path', () => {
     const request = createRequestFactory({
       path: { raw: '/v1/users?old=true', variables: {} },
