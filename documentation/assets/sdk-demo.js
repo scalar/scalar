@@ -1,7 +1,7 @@
 /*
  * Interactive SDK Generator demo.
  *
- * Drives the mini-browser widget on documentation/guides/sdks/demo.md. The page
+ * Drives the mini-browser widget on documentation/guides/sdks/index.md. The page
  * ships a complete, static TypeScript view so the demo still reads correctly
  * without JavaScript; everything below is progressive enhancement that swaps
  * that view as the reader picks targets, runs a build, or changes tabs.
@@ -1190,6 +1190,7 @@ const initSdkDemo = (root) => {
     if (nodes.siteTab) {
       nodes.siteTab.hidden = true
     }
+    unloadEmbeds()
     showPage('dashboard')
     resetPosition(nodes.frame)
     resetPosition(nodes.buildWindow)
@@ -1349,6 +1350,16 @@ const initSdkDemo = (root) => {
     }
   }
 
+  /* Hiding an iframe leaves it playing, so closing or resetting the demo has to
+   * drop the src. showPage sets it again the next time the tab is opened. */
+  const unloadEmbeds = () => {
+    for (const embed of [nodes.videoEmbed, nodes.siteEmbed]) {
+      if (embed && embed.src) {
+        embed.removeAttribute('src')
+      }
+    }
+  }
+
   const setClosed = (on) => {
     if (on) {
       root.dataset.sdkDemoClosed = 'true'
@@ -1357,6 +1368,7 @@ const initSdkDemo = (root) => {
       setApiWindowOpen(false)
       setOverviewOpen(false)
       setShareOpen(false)
+      unloadEmbeds()
     } else {
       delete root.dataset.sdkDemoClosed
     }
