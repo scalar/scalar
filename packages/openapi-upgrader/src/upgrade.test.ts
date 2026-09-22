@@ -68,6 +68,18 @@ describe('upgrade', () => {
     },
   )
 
+  it.each(['3.0', '3.1'] as const)('does not apply 3.2 parameter migration when targeting %s', (target) => {
+    const input = {
+      openapi: '3.1.2',
+      info: { title: 'API', version: '1' },
+      paths: {},
+      components: { parameters: { Id: { name: 'id', in: 'path', allowReserved: true } } },
+    }
+    const before = structuredClone(input)
+    expect(target === '3.0' ? upgrade(input, '3.0') : upgrade(input, '3.1')).toStrictEqual(before)
+    expect(input).toStrictEqual(before)
+  })
+
   it('applies XML and tag migrations through the public API', () => {
     const input = {
       openapi: '3.1.2',

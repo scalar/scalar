@@ -14,7 +14,13 @@ export const cloneDocument = (document: UnknownObject): UnknownObject => {
   const ancestors = new WeakSet<object>()
   const expansion = { sourceEntries: 0, copiedEntries: 0, sizes: new Map<object, number>() }
   const clone = (value: unknown): unknown => {
-    if (value === null || ['string', 'number', 'boolean', 'undefined'].includes(typeof value)) {
+    if (
+      value === null ||
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean' ||
+      typeof value === 'undefined'
+    ) {
       return value
     }
     if (!Array.isArray(value) && !isObject(value)) {

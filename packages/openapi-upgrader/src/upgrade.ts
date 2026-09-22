@@ -17,25 +17,15 @@ export function upgrade(
   value: UnknownObject,
   targetVersion: '3.0' | '3.1' | '3.2',
 ): OpenAPIV3.Document | OpenAPIV3_1.Document | OpenAPIV3_2.Document {
-  // Swagger 2.0 -> OpenAPI 3.0
-  const input = targetVersion === '3.2' ? cloneDocument(value) : value
-  const openapi30 = upgradeFromTwoToThree(input)
-  if (targetVersion === '3.0') {
-    return openapi30
-  }
-
-  // OpenAPI 3.0 -> OpenAPI 3.1
-  const openapi31 = upgradeFromThreeToThreeOne(openapi30)
-  if (targetVersion === '3.1') {
-    return openapi31
-  }
-
-  // The pipeline already owns its clone; do not copy the whole document a second time.
-  // OpenAPI 3.1 -> OpenAPI 3.2
-  const openapi32 = migrateThreeOneToThreeTwo(openapi31)
   if (targetVersion === '3.2') {
-    return openapi32
+    // Every step in the 3.2 pipeline owns the same clone, including earlier converters.
+    const input = cloneDocument(value)
+    const openapi30 = upgradeFromTwoToThree(input)
+    const openapi31 = upgradeFromThreeToThreeOne(openapi30)
+    return migrateThreeOneToThreeTwo(openapi31)
   }
 
-  return openapi32
+  // Preserve the earlier targets without entering the 3.2 migration.
+  const openapi30 = upgradeFromTwoToThree(value)
+  return targetVersion === '3.0' ? openapi30 : upgradeFromThreeToThreeOne(openapi30)
 }
