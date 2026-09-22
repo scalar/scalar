@@ -35,6 +35,29 @@ describe('objectToString', () => {
 }`)
   })
 
+  it('preserves nested arrays at every depth', () => {
+    expect(objectToString({ coordinates: [[1, 2], [], [[[3]]]] })).toBe(`{
+  coordinates: [[1, 2], [], [[[3]]]]
+}`)
+  })
+
+  it('preserves top-level arrays', () => {
+    expect(objectToString([[1], [], [null, true, 'text']])).toBe("[[1], [], [null, true, 'text']]")
+    expect(objectToString([])).toBe('[]')
+  })
+
+  it('indents objects inside nested arrays', () => {
+    expect(objectToString({ items: [[{ values: [[1]] }]] })).toBe(`{
+  items: [
+    [
+      {
+        values: [[1]]
+      }
+    ]
+  ]
+}`)
+  })
+
   it('quotes object keys that are not valid identifiers', () => {
     expect(
       objectToString({
