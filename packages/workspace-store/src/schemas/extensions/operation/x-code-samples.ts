@@ -5,6 +5,8 @@ const XCodeSampleSchema = Type.Object({
   lang: Type.Optional(Type.String()),
   label: Type.Optional(Type.String()),
   source: Type.String(),
+  example: Type.Optional(Type.String()),
+  contentType: Type.Optional(Type.String()),
 })
 
 /** A single ReadMe custom code sample (`x-readme.code-samples`). */
@@ -49,6 +51,10 @@ export type XCodeSample = {
   lang?: string
   label?: string
   source: string
+  /** Request body example key used by this sample. */
+  example?: string
+  /** Request body media type used by this sample. */
+  contentType?: string
 }
 
 /** A single ReadMe custom code sample. */
@@ -71,6 +77,8 @@ export const XCodeSample = object({
   lang: optional(string()),
   label: optional(string()),
   source: string(),
+  example: optional(string()),
+  contentType: optional(string()),
 })
 
 const XReadmeCodeSample = object({

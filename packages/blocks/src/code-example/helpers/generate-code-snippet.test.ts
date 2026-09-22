@@ -28,6 +28,35 @@ describe('generateCodeSnippet', () => {
     securitySchemes: [],
   }
 
+  it('matches linked samples by both example key and media type', () => {
+    const customCodeSamples: XCodeSample[] = [
+      { lang: 'python', example: 'basic', contentType: 'application/json', source: 'json_sample()' },
+      { lang: 'python', example: 'basic', contentType: 'text/plain', source: 'text_sample()' },
+      { lang: 'python', example: 'other', source: 'any_media_sample()' },
+    ]
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        customCodeSamples,
+        clientId: 'custom/python',
+        example: 'basic',
+        contentType: 'text/plain',
+      }),
+    ).toBe('text_sample()')
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        customCodeSamples,
+        clientId: 'custom/python',
+        example: 'other',
+        contentType: 'text/plain',
+      }),
+    ).toBe('any_media_sample()')
+    expect(
+      generateCodeSnippet({ ...baseParams, customCodeSamples, clientId: 'custom/python', example: 'missing' }),
+    ).toBe('No code sample available for this example.')
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
   })

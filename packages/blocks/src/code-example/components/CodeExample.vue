@@ -160,6 +160,7 @@ import {
 
 import { filterClientsByQuery } from '../helpers/filter-clients-by-query'
 import { findClient } from '../helpers/find-client'
+import { getCustomClientIds } from '../helpers/generate-client-options'
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import { getClients } from '../helpers/get-clients'
 import { getCustomCodeSamples } from '../helpers/get-custom-code-samples'
@@ -329,6 +330,21 @@ const resolvedOperation = computed(() =>
     externalExamples.resolve,
   ),
 )
+
+/** Only offer body examples when the displayed content can follow the selection. */
+const showExamplePicker = computed(() => {
+  if (Object.keys(requestBodyExamples.value).length < 2) return false
+  if (isWebhook || !localSelectedClient.value?.id.startsWith('custom/'))
+    return true
+
+  const samples = customCodeSamples.value.samples
+  const ids = getCustomClientIds(samples)
+  return samples.some(
+    (sample, index) =>
+      sample.example !== undefined &&
+      ids[index] === localSelectedClient.value?.id,
+  )
+})
 
 /** Generate HAR data for webhook requests */
 const webhookHar = computed(() => {
@@ -522,11 +538,11 @@ const id = useId()
 
     <!-- Footer -->
     <ScalarCardFooter
-      v-if="Object.keys(requestBodyExamples).length > 1 || $slots.footer"
+      v-if="showExamplePicker || $slots.footer"
       class="request-card-footer bg-b-3">
       <!-- Example picker -->
       <div
-        v-if="Object.keys(requestBodyExamples).length > 1"
+        v-if="showExamplePicker"
         class="request-card-footer-addon">
         <template v-if="Object.keys(requestBodyExamples).length">
           <ExamplePicker

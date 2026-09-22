@@ -7,6 +7,8 @@ export const XCodeSample = object(
     lang: optional(string({ typeComment: 'Programming language for syntax highlighting' })),
     label: optional(string({ typeComment: 'Label shown in the code sample picker' })),
     source: string({ typeComment: 'Source code for the sample' }),
+    example: optional(string({ typeComment: 'Request body example key used by this sample' })),
+    contentType: optional(string({ typeComment: 'Request body media type used by this sample' })),
   },
   {
     typeName: 'XCodeSample',
