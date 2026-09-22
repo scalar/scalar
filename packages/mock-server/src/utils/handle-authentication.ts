@@ -1,4 +1,4 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
@@ -48,7 +48,7 @@ function isValidBearerAuth(authHeader?: string): boolean {
 }
 
 /** Check whether a single security scheme is satisfied by the request. */
-function isSchemeSatisfied(scheme: OpenAPIV3_1.SecuritySchemeObject, c: Context): boolean {
+function isSchemeSatisfied(scheme: OpenAPIV3_2.SecuritySchemeObject, c: Context): boolean {
   switch (scheme.type) {
     case 'http': {
       const authHeader = c.req.header('Authorization')
@@ -93,7 +93,7 @@ function isSchemeSatisfied(scheme: OpenAPIV3_1.SecuritySchemeObject, c: Context)
  *
  * Returns `null` for schemes that do not map to an HTTP authentication challenge.
  */
-function getChallenge(scheme: OpenAPIV3_1.SecuritySchemeObject): string | null {
+function getChallenge(scheme: OpenAPIV3_2.SecuritySchemeObject): string | null {
   switch (scheme.type) {
     case 'http':
       if ('scheme' in scheme && scheme.scheme?.toLowerCase() === 'basic') {
@@ -122,11 +122,11 @@ function getChallenge(scheme: OpenAPIV3_1.SecuritySchemeObject): string | null {
 /** Resolve all schemes referenced by a single security requirement object. */
 function resolveSchemes(
   requirement: OpenAPIV3.SecurityRequirementObject,
-  schema?: OpenAPIV3_1.Document,
-): OpenAPIV3_1.SecuritySchemeObject[] {
+  schema?: OpenAPIV3_2.Document,
+): OpenAPIV3_2.SecuritySchemeObject[] {
   return Object.keys(requirement)
     .map((name) => getResolvedRef(schema?.components?.securitySchemes?.[name]))
-    .filter((scheme): scheme is OpenAPIV3_1.SecuritySchemeObject => Boolean(scheme) && 'type' in (scheme ?? {}))
+    .filter((scheme): scheme is OpenAPIV3_2.SecuritySchemeObject => Boolean(scheme) && 'type' in (scheme ?? {}))
 }
 
 /**
@@ -137,7 +137,7 @@ function resolveSchemes(
  * only when *every* scheme it lists is satisfied. An empty requirement object (`{}`)
  * means authentication is optional and always passes.
  */
-export function handleAuthentication(schema?: OpenAPIV3_1.Document, operation?: OpenAPIV3_1.OperationObject) {
+export function handleAuthentication(schema?: OpenAPIV3_2.Document, operation?: OpenAPIV3_2.OperationObject) {
   return async (c: Context, next: () => Promise<void>): Promise<Response | void> => {
     // Operation-level security overrides the global security requirement.
     const security = operation?.security ?? schema?.security
