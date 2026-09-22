@@ -33,8 +33,10 @@ const stopClientEvents = initializeWorkspaceEventHandlers({
   store: ref(workspaceStore),
   hooks: {},
 })
+const clientLoadingStatus = ref<'idle' | 'loading' | 'error'>('idle')
 useLazyApiClient({
   eventBus,
+  status: clientLoadingStatus,
   load: async () => {
     const { createApiClientModal } = await import('@scalar/api-client/modal')
     return () => {
@@ -77,6 +79,16 @@ async function handleSubmit() {
 
 <template>
   <div ref="clientModal" />
+  <div
+    v-if="clientLoadingStatus !== 'idle'"
+    class="bg-b-1 text-c-1 fixed right-4 bottom-4 z-[10001] rounded-lg border px-4 py-3 text-sm shadow-lg"
+    :role="clientLoadingStatus === 'error' ? 'alert' : 'status'">
+    {{
+      clientLoadingStatus === 'loading'
+        ? 'Loading request editor…'
+        : 'Could not load the request editor. Refresh the page and try again.'
+    }}
+  </div>
   <Layout
     @submit="handleSubmit"
     @uploadApi="$emit('uploadApi')" />

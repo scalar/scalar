@@ -1434,8 +1434,10 @@ const stopReferenceClientEvents = initializeWorkspaceEventHandlers({
   hooks: {},
 })
 const modal = useTemplateRef<HTMLElement>('modal')
+const clientLoadingStatus = ref<'idle' | 'loading' | 'error'>('idle')
 const apiClient = useLazyApiClient({
   eventBus,
+  status: clientLoadingStatus,
   load: async () => {
     const { createApiClientModal } = await import('@scalar/api-client/modal')
     return () => {
@@ -1973,6 +1975,16 @@ const showMCPButton = computed(() => {
       </div>
       <!-- Client Modal mount point -->
       <div ref="modal" />
+      <div
+        v-if="clientLoadingStatus !== 'idle'"
+        class="bg-b-1 text-c-1 fixed right-4 bottom-4 z-[10001] rounded-lg border px-4 py-3 text-sm shadow-lg"
+        :role="clientLoadingStatus === 'error' ? 'alert' : 'status'">
+        {{
+          clientLoadingStatus === 'loading'
+            ? 'Loading request editor…'
+            : 'Could not load the request editor. Refresh the page and try again.'
+        }}
+      </div>
     </div>
     <ScalarToasts />
   </div>

@@ -1,7 +1,7 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { effectScope } from 'vue'
+import { effectScope, shallowRef } from 'vue'
 
 import type { ApiClientModal } from './helpers/create-api-client-modal'
 import { useLazyApiClient } from './use-lazy-api-client'
@@ -31,8 +31,9 @@ const setup = () => {
   const load = vi.fn(() => deferred.promise)
   const scope = effectScope()
   scopes.push(scope)
-  const result = scope.run(() => useLazyApiClient({ eventBus, load }))!
-  return { eventBus, opened, unmount, client, createClient, deferred, load, scope, result }
+  const status = shallowRef<'idle' | 'loading' | 'error'>('idle')
+  const result = scope.run(() => useLazyApiClient({ eventBus, load, status }))!
+  return { eventBus, opened, unmount, client, createClient, deferred, load, scope, result, status }
 }
 
 describe('use-lazy-api-client', () => {
@@ -125,7 +126,7 @@ describe('use-lazy-api-client', () => {
   it('reports a failed download and retries on the next open request', async () => {
     const { eventBus, deferred, createClient, load, opened } = setup()
     const error = new Error('Offline')
-    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const log = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     eventBus.emit('ui:open:client-modal')
     deferred.reject(error)
     await flushPromises()
@@ -135,6 +136,53 @@ describe('use-lazy-api-client', () => {
     eventBus.emit('ui:open:client-modal', { id: 'retry' })
     await flushPromises()
     expect(opened).toHaveBeenCalledExactlyOnceWith({ id: 'retry' })
+  })
+
+  it('exposes loading and error states, then clears the error on retry', async () => {
+    const { eventBus, deferred, load, createClient, status } = setup()
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    expect(status.value).toBe('idle')
+    eventBus.emit('ui:open:client-modal')
+    expect(status.value).toBe('loading')
+    deferred.reject(new Error('Offline'))
+    await flushPromises()
+    expect(status.value).toBe('error')
+    load.mockResolvedValueOnce(createClient)
+    eventBus.emit('ui:open:client-modal')
+    expect(status.value).toBe('loading')
+    await flushPromises()
+    expect(status.value).toBe('idle')
+  })
+
+  it('hides loading feedback on close and suppresses errors after cancellation', async () => {
+    const { eventBus, deferred, status } = setup()
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    eventBus.emit('ui:open:client-modal')
+    eventBus.emit('ui:close:client-modal')
+    expect(status.value).toBe('idle')
+    deferred.reject(new Error('Offline'))
+    await flushPromises()
+    expect(status.value).toBe('idle')
+  })
+
+  it('creates the client without an active effect scope or Vue warnings', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const client = { app: { unmount: vi.fn() } } as unknown as ApiClientModal
+    const warn = vi.spyOn(console, 'warn')
+    const opened = vi.fn()
+    const result = useLazyApiClient({
+      eventBus,
+      load: () =>
+        Promise.resolve(() => {
+          eventBus.on('ui:open:client-modal', opened)
+          return client
+        }),
+    })
+    eventBus.emit('ui:open:client-modal', { id: 'outside-scope' })
+    await flushPromises()
+    expect(result.value).toBe(client)
+    expect(opened).toHaveBeenCalledExactlyOnceWith({ id: 'outside-scope' })
+    expect(warn).not.toHaveBeenCalled()
   })
 
   it('allows a retry when the mount element was unavailable', async () => {
