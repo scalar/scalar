@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "catalog:*",
-    "@hono/node-ws": "catalog:*",
+    "@hono/node-server": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
@@ -68,10 +68,12 @@
     "ajv-formats": "catalog:*",
     "hono": "catalog:*",
     "quickjs-emscripten": "catalog:*",
+    "ws": "catalog:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",
+    "@types/ws": "catalog:*",
     "vite": "catalog:*"
   }
 }

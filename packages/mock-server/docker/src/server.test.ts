@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { startMockServer } from './server'
 
 // Mock @hono/node-server
-vi.mock('@hono/node-server', () => ({
+vi.mock('@hono/node-server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@hono/node-server')>()),
   serve: vi.fn(),
 }))
 
@@ -254,17 +255,17 @@ describe('startMockServer', () => {
     consoleSpy.mockRestore()
   })
 
-  it('uses the AsyncAPI mock server and injects WebSocket support for AsyncAPI documents', async () => {
+  it('passes WebSocket support to the server for AsyncAPI documents', async () => {
     const document = '{"asyncapi":"3.1.0","info":{"title":"Test","version":"1.0.0"}}'
-    const mockInjectWebSocket = vi.fn()
-    const mockServer = { close: vi.fn() }
+    const { createAsyncApiMockServer } =
+      await vi.importActual<typeof import('@scalar/mock-server')>('@scalar/mock-server')
+    const { websocket } = await createAsyncApiMockServer({ document })
 
     mockIsAsyncApiDocument.mockReturnValue(true)
     mockCreateAsyncApiMockServer.mockResolvedValue({
       app: mockApp as unknown as Hono,
-      injectWebSocket: mockInjectWebSocket,
+      websocket,
     })
-    mockServe.mockReturnValue(mockServer)
 
     await startMockServer({ document, format: 'json' })
 
@@ -273,7 +274,10 @@ describe('startMockServer', () => {
     )
     // The REST mocker is not used for AsyncAPI documents.
     expect(mockCreateMockServer).not.toHaveBeenCalled()
-    // WebSocket handling is attached to the running server.
-    expect(mockInjectWebSocket).toHaveBeenCalledWith(mockServer)
+    expect(mockServe.mock.calls[0]?.[0]).toStrictEqual({
+      fetch: mockApp.fetch,
+      port: 3000,
+      websocket,
+    })
   })
 })
