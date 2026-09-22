@@ -164,10 +164,13 @@ export const createSchemaRenderer = (): SchemaRenderer => {
     }
     if (value.not !== undefined)
       nodes.push(paragraph(strong(text('Not:'))), ...render(value.not, depth + 1, childAncestors))
-    const object = value.type === 'object' || value.properties.length > 0
     const array = value.type === 'array' || value.items !== undefined
     if (!options.hideDetails) {
-      const annotations = details(value, false, options.hideDescription, !object && !array)
+      // Child sections imply a single container type, but never its nullable alternatives.
+      const impliedType =
+        (value.type === 'object' && value.properties.length > 0) ||
+        (value.type === 'array' && value.items !== undefined)
+      const annotations = details(value, false, options.hideDescription, !impliedType)
       if (annotations.length) nodes.push(paragraph(...annotations))
     }
     if (value.properties.length) {

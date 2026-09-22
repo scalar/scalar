@@ -150,6 +150,22 @@ describe('render-schema', () => {
     expect(output.replaceAll('`', '')).toContain('city')
   })
 
+  it('preserves the type of an array without an items schema', () => {
+    expect(renderText(schema({ type: 'array' }))).toBe('array')
+  })
+
+  it('preserves nullable array types alongside their items', () => {
+    expect(render(schema({ type: ['array', 'null'], items: { type: 'string' } }))).toBe(
+      '`array | null`\n\n**Array of:**\n\n`string`\n',
+    )
+  })
+
+  it('preserves nullable object types alongside their properties', () => {
+    expect(render(schema({ type: ['object', 'null'], properties: { name: { type: 'string' } } }))).toBe(
+      '`object | null`\n\n- **`name`**\n\n  `string`\n',
+    )
+  })
+
   it('renders array of objects schema', () => {
     const schemaValue = schema({
       type: 'array',

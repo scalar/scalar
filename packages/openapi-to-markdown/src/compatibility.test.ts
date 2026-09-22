@@ -35,6 +35,8 @@ describe('compatibility', () => {
   it('preserves document structure and content with explicit metadata and ancestor cycle detection', async () => {
     // Based on the legacy renderer at f3c39a6723, with explicit operation IDs, schema
     // descriptions, required flags, and cycles stopped at the first repeated ancestor.
+    // Each of the five removed 28-line blocks was a duplicate parent expansion:
+    // field0/field1/field2, owner.id/name, and parent already appear in its ancestor.
     const expected = readFileSync(new URL('./fixtures/compatibility.md', import.meta.url), 'utf8')
     const markdown = await createMarkdownFromOpenApi(fixture)
     expect(semanticTree(parser.parse(markdown))).toStrictEqual(semanticTree(parser.parse(expected)))
