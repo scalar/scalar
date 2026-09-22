@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest'
 
-import { isStreamingContentType } from './is-streaming-content-type'
+import { getStreamFormat, isStreamingContentType } from './is-streaming-content-type'
 
 describe('is-streaming-content-type', () => {
+  it.each([
+    ['Text/Event-Stream; charset=utf-8', 'sse'],
+    ['application/jsonl', 'json-lines'],
+    ['application/x-ndjson', 'json-lines'],
+    ['application/json-lines', 'json-lines'],
+    ['application/vnd.example+json-seq', 'json-seq'],
+    ['multipart/mixed; boundary=example', 'multipart'],
+    ['application/json', undefined],
+  ])('classifies %s as %s', (contentType, expected) => {
+    expect(getStreamFormat(contentType)).toBe(expected)
+  })
+
   it.each([
     'text/event-stream',
     'Text/Event-Stream; charset=utf-8',

@@ -8,6 +8,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
+  it('retains structured stream data and supplies its framed wire representation', () => {
+    const dataValue = [{ id: 1 }, { id: 2 }]
+    const body = { content: { 'application/jsonl': { examples: { selected: { dataValue } } } } }
+    expect(getExampleFromBody(body, 'application/jsonl', 'selected')).toStrictEqual({
+      dataValue,
+      value: '{"id":1}\n{"id":2}\n',
+      serializedValue: '{"id":1}\n{"id":2}\n',
+    })
+  })
+
   it.each([
     {
       contentType: 'text/event-stream',

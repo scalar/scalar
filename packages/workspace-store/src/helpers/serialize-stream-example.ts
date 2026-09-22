@@ -1,4 +1,4 @@
-import { getStreamFormat } from '@scalar/helpers/http/is-streaming-media-type'
+import { getStreamFormat } from '@scalar/helpers/http/is-streaming-content-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 /**

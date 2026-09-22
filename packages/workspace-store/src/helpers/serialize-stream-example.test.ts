@@ -1,4 +1,4 @@
-import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
+import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import { describe, expect, it, vi } from 'vitest'
 
 import { serializeStreamExample } from './serialize-stream-example'
@@ -81,7 +81,7 @@ describe('serialize-stream-example', () => {
   it.each(['application/json', 'text/json-seq'])(
     'leaves unsupported media type %s to its existing serializer',
     (type) => {
-      expect(isStreamingMediaType(type)).toBe(false)
+      expect(isStreamingContentType(type)).toBe(false)
       expect(serializeStreamExample({ id: 1 }, type, true)).toBeUndefined()
     },
   )

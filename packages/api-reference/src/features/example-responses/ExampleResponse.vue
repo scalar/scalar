@@ -17,7 +17,7 @@ const {
   example,
   response,
   content,
-  contentType = '',
+  contentType = 'application/json',
 } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
