@@ -12,7 +12,10 @@ import type {
 export const getExampleContent = (
   response: MediaTypeObject | undefined,
   example: ExampleObject | undefined,
-  { contentType = 'application/json', compositionSelection }: {
+  {
+    contentType = 'application/json',
+    compositionSelection,
+  }: {
     contentType?: string
     compositionSelection?: Record<string, number>
   } = {},

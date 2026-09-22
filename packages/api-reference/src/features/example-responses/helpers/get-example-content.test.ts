@@ -52,7 +52,9 @@ describe('get-example-content', () => {
     expect(getExampleContent(response, undefined, options)).toBe('second')
     expect(getExampleContent(response, { value: 'explicit' }, options)).toBe('explicit')
     expect(getExampleContent(response, { dataValue: 'explicit' }, options)).toBe('explicit')
-    expect(getExampleContent(response, { dataValue: 'explicit' }, { ...options, contentType: 'application/json' })).toBe('"explicit"')
+    expect(
+      getExampleContent(response, { dataValue: 'explicit' }, { ...options, contentType: 'application/json' }),
+    ).toBe('"explicit"')
     expect(getExampleContent(response, { serializedValue: '  explicit\n' }, options)).toBe('  explicit\n')
   })
 })
