@@ -116,11 +116,15 @@ const matchesPendingUpdate = (key: symbol, row: TableRow): boolean => {
 // so it cannot retain the previous placeholder's text or focused input.
 const keyedRows = computed<DisplayRow[]>((previous = []) => {
   const available = new Set(previous)
+  // Reserve identities still present in the store before transferring an edited key.
+  // The appended placeholder is excluded so a newly saved row can inherit its editor.
+  const savedIdentities = new Set(data.map(getRowKey))
   const rows = displayData.value.map((row, index) => {
     const identity = getRowKey(row, index)
     const existing = [...available].find((entry) => entry.identity === identity)
     const pending = [...available].find(
       (entry) =>
+        !savedIdentities.has(entry.identity) &&
         !entry.data.sourceParameterValuePath &&
         matchesPendingUpdate(entry.key, row),
     )

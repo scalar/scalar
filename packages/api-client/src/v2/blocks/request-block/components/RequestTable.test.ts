@@ -11,6 +11,48 @@ const environment = {
 }
 
 describe('RequestTable', () => {
+  it('saves a new header once and removes it after it is unchecked', async () => {
+    const wrapper = mount(RequestTable, {
+      attachTo: document.body,
+      props: { data: [], environment, label: 'Header' },
+    })
+    const key = wrapper.get('[aria-label="Header Key"][contenteditable]')
+    const editor = key.element as HTMLElement
+    editor.focus()
+    editor.textContent = 'x-demo-header'
+    await key.trigger('input')
+    expect(wrapper.emitted('upsertRow')).toStrictEqual([[0, { name: 'x-demo-header', value: '', isDisabled: true }]])
+
+    const saved = {
+      name: 'x-demo-header',
+      value: '',
+      isDisabled: false,
+      originalParameter: { name: 'x-demo-header', in: 'header' as const },
+    }
+    await wrapper.setProps({ data: [saved] })
+    expect(document.activeElement).toBe(editor)
+    expect(wrapper.findAll('[aria-label="Header Key"][contenteditable]').map((input) => input.text())).toStrictEqual([
+      'x-demo-header',
+      '',
+    ])
+
+    // Clicking the checkbox blurs the key first. This must not submit the placeholder again.
+    await key.trigger('blur')
+    await wrapper.get('input[aria-label="Include x-demo-header in request"]').setValue(false)
+    expect(wrapper.emitted('upsertRow')).toStrictEqual([
+      [0, { name: 'x-demo-header', value: '', isDisabled: true }],
+      [0, { name: 'x-demo-header', value: '', isDisabled: true }],
+    ])
+    await wrapper.setProps({ data: [{ ...saved, isDisabled: true }] })
+    await wrapper.get('button[aria-label="Delete x-demo-header"]').trigger('click')
+    expect(wrapper.emitted('deleteRow')).toStrictEqual([[0]])
+    await wrapper.setProps({ data: [] })
+    expect(wrapper.findAll('[aria-label="Header Key"][contenteditable]').map((input) => input.text())).toStrictEqual([
+      '',
+    ])
+    wrapper.unmount()
+  })
+
   it('renders with empty data', () => {
     const wrapper = mount(RequestTable, {
       props: {
@@ -376,6 +418,33 @@ describe('RequestTable', () => {
       0,
       { name: '', value: 'hello world', isDisabled: false },
     ])
+    wrapper.unmount()
+  })
+
+  it('keeps a pending editor when another row arrives with matching name and value', async () => {
+    const initial: TableRow = {
+      name: 'existing',
+      value: '',
+      originalParameter: { name: 'existing', in: 'header' },
+    }
+    const wrapper = mount(RequestTable, {
+      attachTo: document.body,
+      props: { data: [initial], environment },
+    })
+    const editor = wrapper.find<HTMLElement>('[contenteditable="true"]')
+    editor.element.focus()
+    editor.element.textContent = 'incoming'
+    await editor.trigger('input')
+
+    // An unrelated refresh must not steal the editor while its original row still exists.
+    await wrapper.setProps({
+      data: [{ name: 'incoming', value: '', originalParameter: { name: 'incoming', in: 'header' } }, initial],
+    })
+    expect(document.activeElement).toBe(editor.element)
+    expect(wrapper.findAll<HTMLElement>('[contenteditable="true"]')[2]!.element).toBe(editor.element)
+    editor.element.textContent = 'renamed'
+    await editor.trigger('input')
+    expect(wrapper.emitted('upsertRow')?.at(-1)).toStrictEqual([1, { name: 'renamed', value: '', isDisabled: false }])
     wrapper.unmount()
   })
 
