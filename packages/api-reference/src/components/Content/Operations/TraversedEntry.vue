@@ -56,8 +56,9 @@ const {
   /** The http client options for the dropdown */
   clientOptions: ClientOptionGroup[]
   /** The subset of the configuration object required for the operation component */
-  options: { expandAllParameters?: boolean } & Pick<
+  options: Pick<
     ApiReferenceConfigurationRaw,
+    | 'expandAllParameters'
     | 'expandAllResponses'
     | 'hideTestRequestButton'
     | 'layout'

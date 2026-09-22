@@ -24,8 +24,9 @@ const { parameters = [], requestBody } = defineProps<{
   eventBus: WorkspaceEventBus | null
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
-  options: { expandAllParameters?: boolean } & Pick<
+  options: Pick<
     OperationProps['options'],
+    | 'expandAllParameters'
     | 'hideModels'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'

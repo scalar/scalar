@@ -225,7 +225,8 @@ const hasChildElements = (input: unknown): boolean => {
  */
 const shouldCollapse = computed<boolean>(() =>
   Boolean(
-    isCompactParameter.value ||
+    (isCompactParameter.value &&
+      Boolean(parameter.description || schema.value)) ||
     content.value ||
     headers.value ||
     hasChildElements(value.value) ||

@@ -8,6 +8,7 @@ import OperationParameters from './OperationParameters.vue'
 
 describe('OperationParameters', () => {
   const defaultSchemaOptions = {
+    expandAllParameters: true,
     hideModels: false,
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
@@ -47,11 +48,11 @@ describe('OperationParameters', () => {
     },
   )
 
-  it.each([undefined, true])('keeps details visible with expandAllParameters=%s', (expandAllParameters) => {
+  it('keeps details visible when parameter expansion is enabled', () => {
     const wrapper = mount(OperationParameters, {
       props: {
         eventBus: null,
-        options: { ...defaultSchemaOptions, expandAllParameters },
+        options: defaultSchemaOptions,
         parameters: [{ in: 'query', name: 'limit', schema: { type: 'integer', enum: [10, 20] } }],
       },
     })

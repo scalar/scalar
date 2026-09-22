@@ -553,6 +553,8 @@ By default the models are all closed in the model section at the bottom, this fl
 
 ### expandAllParameters
 
+**Type:** `boolean`
+
 Show parameter details by default. Set to `false` to start path, query, header, and cookie parameters collapsed. Click a parameter to show its details. Names, types, and required markers stay visible.
 
 The default is `true`. This does not change response or nested schema expansion settings.

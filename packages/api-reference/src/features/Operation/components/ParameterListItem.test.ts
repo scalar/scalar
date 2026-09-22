@@ -17,6 +17,40 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('keeps a compact parameter without details static', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: true,
+        eventBus: null,
+        name: 'limit',
+        options: baseOptions,
+        parameter: { in: 'query', name: 'limit', required: true },
+      },
+    })
+
+    expect(wrapper.text()).toContain('limit')
+    expect(wrapper.text()).toContain('required')
+    expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
+  })
+
+  it('opens a compact parameter description without a schema', async () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: true,
+        eventBus: null,
+        name: 'limit',
+        options: baseOptions,
+        parameter: { in: 'query', name: 'limit', description: 'Maximum results.' },
+      },
+    })
+
+    const toggle = wrapper.get('button[aria-expanded]')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+    expect(wrapper.text()).toContain('Maximum results.')
+  })
+
   it('opens a compact parameter when its anchor is the initial scroll target', () => {
     scrollTargetId.value = 'operation.query.limit'
     try {

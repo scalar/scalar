@@ -75,8 +75,9 @@ const {
   /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
   documentSlug: string
   /** The subset of the configuration object required for the content component */
-  options: { expandAllParameters?: boolean } & Pick<
+  options: Pick<
     ApiReferenceConfigurationRaw,
+    | 'expandAllParameters'
     | 'authentication'
     | 'baseServerURL'
     | 'documentDownloadType'
