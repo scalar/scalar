@@ -71,29 +71,35 @@ describe('process-openapi-document', () => {
     }
   })
 
-  it('resolves a schema reference to the document declared by $self', async () => {
-    const result = await processOpenApiDocument({
-      openapi: '3.2.1',
-      $self: 'https://example.com/api.json',
-      info: { title: 'Example', version: '1' },
-      paths: {},
-      components: {
-        schemas: {
-          Value: { type: 'string' },
-          Model: { $id: 'model.json', properties: { value: { $ref: 'api.json#/components/schemas/Value' } } },
+  it.each(['https://example.com/api.json', './api.json'])(
+    'resolves schema references using $self %s and the supplied origin',
+    async (self) => {
+      const result = await processOpenApiDocument(
+        {
+          openapi: '3.2.1',
+          $self: self,
+          info: { title: 'Example', version: '1' },
+          paths: {},
+          components: {
+            schemas: {
+              Value: { type: 'string' },
+              Model: { $id: 'model.json', properties: { value: { $ref: 'api.json#/components/schemas/Value' } } },
+            },
+          },
         },
-      },
-    })
-    expect(result.components?.schemas?.Model).toStrictEqual({
-      $id: 'model.json',
-      properties: {
-        value: {
-          $ref: 'https://example.com/api.json#/components/schemas/Value',
-          '$ref-value': { type: 'string' },
+        'https://example.com/mirror.json',
+      )
+      expect(result.components?.schemas?.Model).toStrictEqual({
+        $id: 'model.json',
+        properties: {
+          value: {
+            $ref: 'https://example.com/api.json#/components/schemas/Value',
+            '$ref-value': { type: 'string' },
+          },
         },
-      },
-    })
-  })
+      })
+    },
+  )
 
   it.each([false, true])('does not request loopback URLs through $ref or $self (self=%s)', async (useSelf) => {
     const requests: string[] = []

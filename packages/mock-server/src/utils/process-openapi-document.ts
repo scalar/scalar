@@ -4,6 +4,7 @@ import { cwd } from 'node:process'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
+import { isHttpUrl } from '@scalar/json-magic/helpers/is-http-url'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -71,7 +72,9 @@ export async function processOpenApiDocument(
   }
 
   // Upgrading must not activate a $self field authored in an older OpenAPI version.
-  const documentUri = resolveOpenApiDocument(bundled, '/')?.baseUri
+  const retrievalUri =
+    origin ?? (typeof document === 'string' && (isFilePath(document) || isHttpUrl(document)) ? document : '/')
+  const documentUri = resolveOpenApiDocument(bundled, retrievalUri)?.baseUri
 
   let upgraded: OpenAPIV3_2.Document
 
