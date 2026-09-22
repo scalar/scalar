@@ -65,23 +65,29 @@ describe('buildRequestParameters', () => {
     expect(getCookieHeader(result.cookies, undefined)).toBe(expected)
   })
 
-  it('warns and expands cookie arrays when the invalid explode: false is provided', () => {
+  it('warns once per name while expanding repeated invalid cookie parameters', () => {
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const result = buildRequestParameters([
-      {
-        name: 'color',
-        in: 'cookie',
-        style: 'cookie',
-        explode: false,
-        required: true,
-        examples: { default: { value: ['blue', 'black'] } },
-      },
-    ])
-    expect(getCookieHeader(result.cookies, undefined)).toBe('color=blue; color=black')
-    expect(warning).toHaveBeenCalledExactlyOnceWith(
-      'Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.',
-    )
-    warning.mockRestore()
+    try {
+      for (const name of ['color', 'color', 'size', 'size']) {
+        const result = buildRequestParameters([
+          {
+            name,
+            in: 'cookie',
+            style: 'cookie',
+            explode: false,
+            required: true,
+            examples: { default: { value: ['blue', 'black'] } },
+          },
+        ])
+        expect(getCookieHeader(result.cookies, undefined)).toBe(`${name}=blue; ${name}=black`)
+      }
+      expect(warning.mock.calls).toStrictEqual([
+        ['Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.'],
+        ['Cookie parameter "size" uses invalid explode: false with style: cookie; serializing with explode: true.'],
+      ])
+    } finally {
+      warning.mockRestore()
+    }
   })
 
   describe('getExample (internal helper)', () => {
