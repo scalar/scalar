@@ -160,7 +160,7 @@ The conversion:
 - Removes `allowReserved` from path and cookie parameters, where it was ignored in
   OpenAPI 3.1, so it does not unexpectedly affect serialization in OpenAPI 3.2.
 
-Conversion walks the whole document and throws one `UpgradeIncompatibilityError` (an `AggregateError` subclass) containing
+By default, conversion walks the whole document and throws one `UpgradeIncompatibilityError` (an `AggregateError` subclass) containing
 all detected incompatibilities, with a JSON pointer for each issue that needs an
 author's decision: conflicting XML `wrapped` and `attribute` flags, repeated path or server variables, an optional
 discriminator property without `defaultMapping`, or an unnamed inline XML element.
@@ -180,8 +180,8 @@ supports its declared dialects and referenced documents.
 
 #### Handling an unsuccessful upgrade
 
-Both public upgrade entry points are synchronous and propagate errors to their
-caller. No converted document is returned on failure. Catch the error at the
+Both public upgrade entry points are synchronous. In the default strict mode,
+errors propagate to the caller and no converted document is returned on failure. Catch the error at the
 loading boundary and keep the original description available for correction:
 
 ```typescript
@@ -198,10 +198,68 @@ try {
 }
 ```
 
-Existing workspace-store and mock-server call sites target `3.1`, so they do not
-run these new 3.2 compatibility checks. Callers changing their target to `3.2`
-must add error handling before doing so; this package does not automatically
-fall back to a partially converted document. In particular, an inline XML body
-schema without an inferable element name requires an explicit `xml.name`.
+#### Collecting diagnostics without failing a document load
 
-The Markdown converter and mock server handle `UpgradeIncompatibilityError` by retaining the OpenAPI 3.1 description and its declared version. Compatible descriptions still upgrade to 3.2. It does not catch malformed-version, cyclic-object, or excessive-alias errors. Other callers can import this error class from `@scalar/openapi-upgrader` to make the same distinction.
+Use `upgrade(input, '3.2', { onIncompatible: 'collect' })` to return a
+`{ document, diagnostics }` result instead of throwing for compatibility issues:
+
+```typescript
+import { upgrade } from '@scalar/openapi-upgrader'
+
+const input = {
+  openapi: '3.1.2',
+  info: { title: 'Pets', version: '1.0.0' },
+  paths: {
+    '/pets': {
+      get: {
+        responses: {
+          '200': {
+            description: 'A pet',
+            content: {
+              'application/xml': {
+                schema: { type: 'object', properties: { id: { type: 'integer' } } },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
+const { document, diagnostics } = upgrade(input, '3.2', {
+  onIncompatible: 'collect',
+})
+
+console.log(document.openapi)
+// Output: 3.1.2
+console.log(diagnostics.map((issue) => issue.message))
+// Reports the unnamed inline XML schema at:
+// #/paths/~1pets/get/responses/200/content/application~1xml/schema
+```
+
+When compatibility checks succeed, `document` is the upgraded OpenAPI 3.2
+API description and `diagnostics` is an empty array. When compatibility issues
+are detected, `diagnostics` contains every detected error with its JSON pointer,
+and `document` is a complete OpenAPI 3.1 fallback. OpenAPI 3.1 input keeps its
+original patch version; Swagger 2.0 and OpenAPI 3.0 input first convert to 3.1.
+The fallback contains no partial 3.2 transformations and does not invent XML
+names or discriminator defaults. The input remains unchanged, and the returned
+document is an independent copy.
+
+Collect mode reports the same compatibility issues as strict mode, including
+analysis truncation. Malformed versions, cyclic objects, and excessive alias
+expansion still throw ordinary errors. An empty diagnostics array means that no
+migration incompatibility was detected; it does not certify full OpenAPI validity.
+
+The `UpgradeOptions` and `UpgradeResult` types are exported from
+`@scalar/openapi-upgrader`. The third argument is available when targeting `3.2`.
+Omitting it, or using `{ onIncompatible: 'throw' }`, keeps the existing return type
+and strict behavior. The direct `upgradeFromThreeOneToThreeTwo` entry point remains
+strict; use `upgrade` to collect diagnostics.
+
+The Markdown converter and mock server use collect mode, so compatible descriptions
+upgrade to 3.2 and incompatible descriptions continue loading as 3.1. The workspace
+store still targets 3.1 and does not run these compatibility checks. A caller moving
+to 3.2 can choose collect mode to preserve existing descriptions while reporting
+migration issues, or strict mode when a successful 3.2 migration is required.

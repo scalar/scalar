@@ -4,8 +4,11 @@
  * use ordinary Errors and must not be treated as a compatibility fallback.
  */
 export class UpgradeIncompatibilityError extends AggregateError {
+  override errors: Error[]
+
   constructor(errors: Error[]) {
     super(errors, errors.map((error) => error.message).join('\n'))
+    this.errors = errors
     this.name = 'UpgradeIncompatibilityError'
   }
 }

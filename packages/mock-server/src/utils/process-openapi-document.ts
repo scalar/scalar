@@ -7,7 +7,7 @@ import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
 import { isHttpUrl } from '@scalar/json-magic/helpers/is-http-url'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
-import { UpgradeIncompatibilityError, upgrade } from '@scalar/openapi-upgrader'
+import { upgrade } from '@scalar/openapi-upgrader'
 import { openApiDocument, resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
 
 /**
@@ -81,16 +81,7 @@ export async function processOpenApiDocument(
   let upgraded: OpenAPIV3_1.Document | OpenAPIV3_2.Document
 
   try {
-    try {
-      upgraded = upgrade(bundled, '3.2')
-    } catch (error) {
-      if (!(error instanceof UpgradeIncompatibilityError)) {
-        throw error
-      }
-      // Keep serving existing descriptions without inventing XML names or discriminator
-      // defaults. The declared 3.1 version must survive this compatibility fallback.
-      upgraded = upgrade(bundled, '3.1')
-    }
+    upgraded = upgrade(bundled, '3.2', { onIncompatible: 'collect' }).document
   } catch (error) {
     throw new Error(
       `Failed to upgrade OpenAPI document to 3.2: ${error instanceof Error ? error.message : String(error)}`,
