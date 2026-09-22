@@ -4,15 +4,15 @@ import { useLoadingState } from '@scalar/components/loading'
 import { ScalarTextInputCopy } from '@scalar/components/text-input'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { useLocalization } from '@/features/localization'
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
 
 const { workspace, externalUrls } = defineProps<{
-  workspace: WorkspaceStore
+  workspace: ReferenceStore
   externalUrls: ExternalUrls
 }>()
 

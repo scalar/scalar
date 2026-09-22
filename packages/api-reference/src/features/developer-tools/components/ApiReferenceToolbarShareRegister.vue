@@ -13,15 +13,15 @@ import {
 } from '@scalar/icons'
 import { type ScalarIconComponent } from '@scalar/icons/types'
 import type { ExternalUrls } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { useLocalization } from '@/features/localization'
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 
 import ApiReferenceToolbarBlurb from './ApiReferenceToolbarBlurb.vue'
 import ApiReferenceToolbarRegisterButton from './ApiReferenceToolbarRegisterButton.vue'
 
 const { workspace, externalUrls } = defineProps<{
-  workspace: WorkspaceStore
+  workspace: ReferenceStore
   externalUrls: ExternalUrls
 }>()
 const { translate } = useLocalization()

@@ -4,8 +4,9 @@ import type {
   ApiReferenceConfigurationWithSource,
   ExternalUrls,
 } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { Ref } from 'vue'
+
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 
 const {
   agentScalarConfiguration,
@@ -15,7 +16,7 @@ const {
 } = defineProps<{
   agentScalarConfiguration?: ApiReferenceConfigurationWithSource['agent']
   externalUrls: ExternalUrls
-  workspaceStore: WorkspaceStore
+  workspaceStore: ReferenceStore
   prefilledMessage?: Ref<string>
 }>()
 </script>

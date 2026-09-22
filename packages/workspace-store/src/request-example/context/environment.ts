@@ -18,7 +18,7 @@ import type { WorkspaceDocument } from '@/schemas/workspace'
  * @returns An object with the environment name (or null) and a validated XScalarEnvironment
  */
 export const getActiveEnvironment = (
-  workspace: WorkspaceStore | null,
+  workspace: Pick<WorkspaceStore, 'workspace'> | null,
   document: WorkspaceDocument | null,
 ): {
   name: string | null

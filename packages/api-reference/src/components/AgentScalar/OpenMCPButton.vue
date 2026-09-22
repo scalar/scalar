@@ -5,10 +5,10 @@ import { ScalarIconArrowUpRight } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useToasts } from '@scalar/use-toasts'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
 import { useLocalization } from '@/features/localization'
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const props = defineProps<{
@@ -18,7 +18,7 @@ const props = defineProps<{
   }
   externalUrls: ExternalUrls
   url?: string
-  workspace: WorkspaceStore
+  workspace: ReferenceStore
 }>()
 
 const { copyToClipboard } = useClipboard()

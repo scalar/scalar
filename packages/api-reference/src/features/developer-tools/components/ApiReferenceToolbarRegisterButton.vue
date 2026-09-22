@@ -3,10 +3,10 @@ import { ScalarButton } from '@scalar/components/button'
 import { useLoadingState } from '@scalar/components/loading'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { nextTick } from 'vue'
 
 import { useLocalization } from '@/features/localization'
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 const {
@@ -14,7 +14,7 @@ const {
   workspace,
   externalUrls,
 } = defineProps<{
-  workspace: WorkspaceStore
+  workspace: ReferenceStore
   externalUrls: ExternalUrls
   sdks?: string[]
 }>()

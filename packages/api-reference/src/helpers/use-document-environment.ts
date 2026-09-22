@@ -3,7 +3,7 @@ import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { watch } from 'vue'
 
 /** Apply document environment defaults to an embedded store without replacing user selections. */
-export const useDocumentEnvironment = (store: WorkspaceStore): void => {
+export const useDocumentEnvironment = (store: Pick<WorkspaceStore, 'workspace' | 'update'>): void => {
   const selection = {
     applyingDefault: false,
     hasUserOverride: store.workspace['x-scalar-active-environment'] !== undefined,

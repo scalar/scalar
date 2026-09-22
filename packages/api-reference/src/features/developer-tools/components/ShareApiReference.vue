@@ -1,15 +1,15 @@
 <script lang="ts" setup>
 import { ScalarFormSection } from '@scalar/components/form'
 import type { ExternalUrls } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { useLocalization } from '@/features/localization'
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 
 import ApiReferenceToolbarPopover from './ApiReferenceToolbarPopover.vue'
 import ApiReferenceToolbarShareTemporary from './ApiReferenceToolbarShareTemporary.vue'
 
 const { workspace, externalUrls } = defineProps<{
-  workspace: WorkspaceStore
+  workspace: ReferenceStore
   externalUrls: ExternalUrls
 }>()
 const { translate } = useLocalization()

@@ -4,10 +4,10 @@ import type {
   ApiReferenceConfiguration,
   ExternalUrls,
 } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 
 import ApiReferenceToolbarTitle from './components/ApiReferenceToolbarTitle.vue'
 import DeployApiReference from './components/DeployApiReference.vue'
@@ -15,7 +15,7 @@ import ModifyConfiguration from './components/ModifyConfiguration.vue'
 import ShareApiReference from './components/ShareApiReference.vue'
 
 const { configuration, externalUrls } = defineProps<{
-  workspace?: WorkspaceStore
+  workspace?: ReferenceStore
   configuration?: Partial<ApiReferenceConfiguration>
   externalUrls: ExternalUrls
 }>()

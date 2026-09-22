@@ -11,7 +11,7 @@ export const mapConfigToWorkspaceStore = ({
   isDarkMode,
 }: {
   config: MaybeRefOrGetter<ApiReferenceConfigurationRaw>
-  store: WorkspaceStore
+  store: Pick<WorkspaceStore, 'update'>
   isDarkMode: Ref<boolean>
 }) => {
   // Update the workspace store if default client changes

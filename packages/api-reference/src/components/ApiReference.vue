@@ -98,6 +98,7 @@ import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue
 import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
+import { createReferenceStore } from '@/helpers/create-reference-store'
 import { downloadDocument } from '@/helpers/download'
 import {
   getIdFromUrl,
@@ -476,9 +477,9 @@ function syncSlugAndUrlWithDocument(
 /** Workspace Store Initialization */
 
 /**
- * Initializes the new client workspace store.
+ * The store that renders the reference documents.
  */
-const workspaceStore = createWorkspaceStore({
+const workspaceStore = createReferenceStore({
   verbose: isDevelopment,
 })
 

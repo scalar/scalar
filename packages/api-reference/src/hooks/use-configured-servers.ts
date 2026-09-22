@@ -13,7 +13,7 @@ export const useConfiguredServers = ({
   clientStore,
 }: {
   configurations: MaybeRefOrGetter<Record<string, NormalizedConfiguration>>
-  sourceStore: WorkspaceStore
+  sourceStore: Pick<WorkspaceStore, 'workspace'>
   clientStore: WorkspaceStore
 }): void => {
   watch(

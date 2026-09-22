@@ -5,16 +5,16 @@ import type {
   ApiReferenceConfigurationWithSource,
   ExternalUrls,
 } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { defineAsyncComponent } from 'vue'
 
 import { useLocalization } from '@/features/localization'
+import type { ReferenceStore } from '@/helpers/create-reference-store'
 import { useAgentContext } from '@/hooks/use-agent'
 
 defineProps<{
   agentScalarConfiguration?: ApiReferenceConfigurationWithSource['agent']
   externalUrls: ExternalUrls
-  workspaceStore: WorkspaceStore
+  workspaceStore: ReferenceStore
 }>()
 
 const agentContext = useAgentContext()
