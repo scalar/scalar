@@ -4,13 +4,17 @@ import type { OpenIDConnectDiscovery } from './fetch-openid-connect-discovery'
 
 type FlowUpdates = { [Key in keyof OAuthFlowsObject]?: Partial<NonNullable<OAuthFlowsObject[Key]>> }
 
-/** Supplements endpoints in declared flows. Explicit scopes, including an empty scope set, remain authoritative. */
+/** Supplements declared endpoints while preserving explicit scopes, including empty scope sets. */
 export const oauth2MetadataToFlows = (metadata: OpenIDConnectDiscovery, flows: OAuthFlowsObject): FlowUpdates => {
   const scopes = Object.fromEntries((metadata.scopes_supported ?? []).map((scope) => [scope, '']))
   const grants = new Set(metadata.grant_types_supported ?? ['authorization_code', 'implicit'])
   const authorizationUrl = metadata.authorization_endpoint
   const tokenUrl = metadata.token_endpoint
+  const deviceAuthorizationUrl = metadata.device_authorization_endpoint
   const discovered: FlowUpdates = {
+    ...(grants.has('urn:ietf:params:oauth:grant-type:device_code') && deviceAuthorizationUrl && tokenUrl
+      ? { deviceAuthorization: { deviceAuthorizationUrl, tokenUrl, scopes } }
+      : {}),
     ...(grants.has('implicit') && authorizationUrl ? { implicit: { authorizationUrl, scopes } } : {}),
     ...(grants.has('password') && tokenUrl ? { password: { tokenUrl, scopes } } : {}),
     ...(grants.has('client_credentials') && tokenUrl ? { clientCredentials: { tokenUrl, scopes } } : {}),
@@ -29,6 +33,9 @@ export const oauth2MetadataToFlows = (metadata: OpenIDConnectDiscovery, flows: O
         key,
         {
           ...('authorizationUrl' in flow && !flow.authorizationUrl && authorizationUrl ? { authorizationUrl } : {}),
+          ...('deviceAuthorizationUrl' in flow && !flow.deviceAuthorizationUrl && deviceAuthorizationUrl
+            ? { deviceAuthorizationUrl }
+            : {}),
           ...('tokenUrl' in flow && !flow.tokenUrl && tokenUrl ? { tokenUrl } : {}),
         },
       ])

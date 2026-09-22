@@ -9,6 +9,7 @@ export type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
+  OAuthFlowDeviceAuthorizationSecret,
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,

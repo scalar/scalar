@@ -1,9 +1,9 @@
-import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /**
- * Extract path from URL. Metadata is fetched at its exact declared URL, so its routes
- * preserve trailing slashes instead of using the token-route normalization.
+ * Extract path from URL. Metadata routes preserve trailing slashes because discovery
+ * fetches the exact declared URL, unlike normalized token routes.
  */
 export function getPathFromUrl(
   url: string,
@@ -57,7 +57,7 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
       continue
     }
 
-    const flows = scheme.flows // Type assertion no longer needed
+    const flows: OpenAPIV3_2.OAuthFlows | undefined = scheme.flows
 
     // Helper to safely add valid OAuth URLs
     const addOAuthUrl = (url?: string) => {
@@ -66,6 +66,8 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
       }
     }
 
+    addOAuthUrl(flows?.deviceAuthorization?.tokenUrl)
+    addOAuthUrl(flows?.deviceAuthorization?.refreshUrl)
     addOAuthUrl(flows?.password?.tokenUrl)
     addOAuthUrl(flows?.password?.refreshUrl)
     addOAuthUrl(flows?.clientCredentials?.tokenUrl)
