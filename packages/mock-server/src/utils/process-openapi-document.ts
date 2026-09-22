@@ -70,6 +70,9 @@ export async function processOpenApiDocument(
     throw new Error('Bundled document is invalid: expected an object')
   }
 
+  // Upgrading must not activate a $self field authored in an older OpenAPI version.
+  const documentUri = resolveOpenApiDocument(bundled, '/')?.baseUri
+
   let upgraded: OpenAPIV3_2.Document
 
   try {
@@ -87,5 +90,5 @@ export async function processOpenApiDocument(
 
   // Wrap the document in a magic proxy so internal references resolve lazily via `$ref-value`.
   // External references were already pulled inline by `bundle` above, so only local `$ref`s remain.
-  return createMagicProxy(upgraded, { documentUri: resolveOpenApiDocument(upgraded, '/')?.baseUri })
+  return createMagicProxy(upgraded, { documentUri })
 }

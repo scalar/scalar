@@ -175,6 +175,12 @@ export const restoreOriginalRefs = (): LifecyclePlugin => {
     onAfterNodeProcess: (node, context) => {
       const ref = node['$ref']
       const root = context.rootNode
+      const authoredRefs = root['x-scalar-original-refs']
+      const authored = isObject(authoredRefs) ? authoredRefs[JSON.stringify(context.path)] : undefined
+      if (isObject(authored) && typeof authored.original === 'string' && authored.rewritten === ref) {
+        node['$ref'] = authored.original
+        return
+      }
       const extUrls = root['x-ext-urls']
 
       // Only process if $ref is a string and x-ext-urls is a valid object

@@ -577,7 +577,7 @@ After `applyChanges` returns, the merged document becomes both the new active do
 
 ## OpenAPI document identity
 
-The store honors `$self` when resolving relative references in an OpenAPI description. Relative identities resolve against the document source URL. External documents keep their own identities, including across partial bundles.
+The store honors `$self` when resolving relative references in an OpenAPI 3.2 description. Relative identities resolve against the document source URL. External documents keep their own identities, including across partial bundles.
 
 Other OpenAPI bundling callers can opt in with the same plugin:
 
@@ -597,3 +597,5 @@ const resolved = createMagicProxy(document, {
 ```
 
 The plugin interprets `$self` only on complete OpenAPI documents. Example payloads and API server URLs are unchanged.
+
+Authored reference spellings (including `./` and fragments) are retained across partial bundles and restored by `getEditableDocument`. Loader permissions still apply to the resolved location: `$self` does not enable a loader or widen its file or network access.

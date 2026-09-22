@@ -645,13 +645,14 @@ const METADATA_ONLY_DOCUMENT_KEYS = new Set<string>([
  */
 const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T): T => {
   const result = deepClone(input)
-  type BundlerKeys = 'x-ext' | 'x-ext-urls'
+  type BundlerKeys = 'x-ext' | 'x-ext-urls' | 'x-scalar-original-refs'
   // Top level keys that need to be excluded from the original document
   // Nested keys are removed during the previous step of the bundler process
   const EXCLUDE_KEYS: string[] = [
     // Bundler metadata fields added temporarily during document processing
     'x-ext',
     'x-ext-urls',
+    'x-scalar-original-refs',
     // Scalar internal/external metadata fields
     'x-scalar-navigation',
     'x-scalar-is-dirty',

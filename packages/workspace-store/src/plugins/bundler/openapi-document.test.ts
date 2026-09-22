@@ -1,13 +1,100 @@
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
+import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { getHash } from '@scalar/json-magic/bundle/value-generator'
 import { getSegmentsFromPath } from '@scalar/json-magic/helpers/get-segments-from-path'
 import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it } from 'vitest'
 
+import { restoreOriginalRefs } from './index'
 import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
 
 describe('openapi-document', () => {
+  it('does not enable network loading when only the local file loader is configured', async () => {
+    const document = { openapi: '3.2.1', $self: 'https://example.com/api.json', item: { $ref: './model.json' } }
+    await bundle(document, {
+      origin: '/safe/api.json',
+      treeShake: false,
+      plugins: [openApiDocument(), readFiles({ basePath: '/safe' })],
+    })
+    expect(document.item).toStrictEqual({ $ref: './model.json' })
+  })
+
+  it.each([true, false])('restores authored references after partial bundles (treeShake=%s)', async (treeShake) => {
+    const document = {
+      openapi: '3.2.1',
+      $self: './canonical/api.json',
+      item: { $ref: './models.json#/Model' },
+    }
+    const config = {
+      origin: 'https://example.com/input.json',
+      treeShake,
+      urlMap: true,
+      plugins: [
+        openApiDocument(),
+        {
+          type: 'loader' as const,
+          validate: () => true,
+          exec: () => Promise.resolve({ ok: true as const, data: { Model: { type: 'string' } }, raw: '{}' }),
+        },
+      ],
+    }
+    await bundle(document, { ...config, depth: 1 })
+    const restored = JSON.parse(JSON.stringify(document))
+    await bundle(restored, { ...config, plugins: [openApiDocument(), restoreOriginalRefs()] })
+    expect(restored.$self).toBe('./canonical/api.json')
+    expect(restored.item).toStrictEqual({ $ref: './models.json#/Model' })
+  })
+
+  it('restores references bundled from a selected subtree without overwriting later edits', async () => {
+    const document = {
+      openapi: '3.2.1',
+      $self: 'https://example.com/api.json',
+      nested: { item: { $ref: './models.json#/Model' } },
+    }
+    await bundle(document.nested, {
+      root: document,
+      treeShake: false,
+      urlMap: true,
+      plugins: [
+        openApiDocument(),
+        {
+          type: 'loader',
+          validate: () => true,
+          exec: () => Promise.resolve({ ok: true, data: { Model: { type: 'string' } }, raw: '{}' }),
+        },
+      ],
+    })
+    const restored = JSON.parse(JSON.stringify(document))
+    await bundle(restored, { treeShake: false, plugins: [openApiDocument(), restoreOriginalRefs()] })
+    expect(restored.nested.item.$ref).toBe('./models.json#/Model')
+    document.nested.item.$ref = './edited.json'
+    await bundle(document, { treeShake: false, plugins: [openApiDocument(), restoreOriginalRefs()] })
+    expect(document.nested.item.$ref).toBe('./edited.json')
+  })
+
+  it.each(['2.0', '3.0.4', '3.1.2'])('ignores $self in OpenAPI %s', async (openapi) => {
+    const document = { openapi, $self: 'https://untrusted.example.com/api.json', item: { $ref: './model.json' } }
+    const requested: string[] = []
+    await bundle(document, {
+      origin: 'https://example.com/api.json',
+      treeShake: false,
+      plugins: [
+        openApiDocument(),
+        {
+          type: 'loader',
+          validate: () => true,
+          exec: (uri) => {
+            requested.push(uri)
+            return Promise.resolve({ ok: false })
+          },
+        },
+      ],
+    })
+    expect(requested).toStrictEqual(['https://example.com/model.json'])
+    expect(document.$self).toBe('https://untrusted.example.com/api.json')
+  })
+
   it.each([
     ['https://example.com/api.json#here', 'https://example.com/api.json'],
     ['./api.json?version=2#here', 'https://example.com/api.json?version=2'],
