@@ -9,6 +9,8 @@ let diagramCount = 0
 const loadRenderer = (): Promise<typeof import('mermaid')['default']> => {
   renderer ??= import('mermaid')
     .then(({ default: mermaid }) => {
+      // API descriptions are untrusted. Strict mode sanitizes generated SVG and disables
+      // callbacks; this output is inserted after Scalar’s Markdown sanitizer has run.
       mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', suppressErrorRendering: true })
       return mermaid
     })
