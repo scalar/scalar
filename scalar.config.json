@@ -2511,7 +2511,7 @@
                       },
                       "cli": {
                         "description": "Configuration reference for generating a CLI from your OpenAPI document with Scalar.",
-                        "filepath": "documentation/guides/sdks/cli.md",
+                        "filepath": "documentation/guides/sdks/configuration/cli.md",
                         "type": "page",
                         "title": "CLI"
                       },
