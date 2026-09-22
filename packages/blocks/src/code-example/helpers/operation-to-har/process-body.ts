@@ -5,12 +5,15 @@ import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
+  buildRequestBody,
   coerceLeafValueToSchemaType,
   getExample,
   getExampleFromSchema,
+  needsMultipartEncoding,
   resolveLeafSchema,
   serializeFormPropertyWithEncoding,
   serializeMultipartArray,
+  serializeMultipartBody,
 } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
@@ -199,6 +202,28 @@ export const processBody = ({
     return `@${unwrappedFile.name || 'filename'}`
   }
   const encoding = requestBody.content[_contentType]?.encoding
+
+  const media = requestBody.content[_contentType]
+  if (media && needsMultipartEncoding(_contentType, media)) {
+    const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
+    const body = buildRequestBody(
+      { ...requestBody, 'x-scalar-selected-content-type': { [exampleName]: _contentType } },
+      exampleName,
+      requestBodyCompositionSelection,
+    )
+    if (body?.mode === 'multipart') {
+      const encoded = serializeMultipartBody(body.value, body.contentType)
+      return {
+        mimeType: encoded.contentType,
+        // HAR text cannot embed file bytes synchronously. Keep visible file placeholders.
+        text: encoded.chunks
+          .map((chunk) =>
+            chunk instanceof File ? formatBinaryFile(chunk) : chunk instanceof Blob ? 'BINARY' : String(chunk),
+          )
+          .join(''),
+      }
+    }
+  }
 
   // Check if this is a form data content type
   const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'
