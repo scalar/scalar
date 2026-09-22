@@ -7,10 +7,50 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
+
+import { provideLocalization } from '@/features/localization'
 
 import ExampleResponse from './ExampleResponse.vue'
 
 describe('ExampleResponse', () => {
+  it('does not generate an example while an external example is pending', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        response: { schema: { type: 'string', example: 'generated fallback' } },
+        example: undefined,
+        pending: true,
+      },
+    })
+    expect(wrapper.text()).toBe('No Body')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('localizes an XML failure received from the shared display and copy generation', () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization({ translations: { response: { xmlGenerationFailed: 'XML error: {message}' } } })
+          return () =>
+            h(ExampleResponse, {
+              response: undefined,
+              example: undefined,
+              contentType: 'application/xml',
+              generationError: {
+                severity: 'error',
+                code: 'unsupported-pattern',
+                message: 'Unsupported pattern',
+                path: [],
+              },
+            })
+        },
+      }),
+    )
+    expect(wrapper.text()).toBe('XML error: Unsupported pattern')
+    wrapper.unmount()
+  })
+
   it.each([
     {
       contentType: 'text/event-stream',

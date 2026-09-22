@@ -1,16 +1,12 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type {
-  MediaTypeObject,
   OpenApiDocument,
   OperationObject,
   ParameterObject,
   PathItemObject,
   RequestBodyObject,
   ResponseObject,
-  SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { ListItem, RootContent } from 'mdast'
 
@@ -103,34 +99,14 @@ export const renderOperation = async (
           'application/json',
           'write',
           openapiVersion,
+          document.openapi,
         )),
       )
     for (const [mediaType, content] of Object.entries('content' in parameter ? (parameter.content ?? {}) : {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion)))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi)))
     }
-  }
-  const renderMediaExample = (content: MediaTypeObject, mediaType: string, mode: 'read' | 'write'): RootContent[] => {
-    if (isXmlMediaType(mediaType)) {
-      const example =
-        content.example !== undefined
-          ? { value: content.example }
-          : getResolvedRef(Object.values(content.examples ?? {})[0])
-      // XML mapping needs the reference wrapper and its target as separate layers.
-      const result = getXmlBodyExample(content.schema as SchemaObject | undefined, example, {
-        mode,
-        openapiVersion: document.openapi,
-      })
-      if (!content.schema && !example) return []
-      return [
-        paragraph(strong(text('Example:'))),
-        result.xml === undefined
-          ? paragraph(text('Unable to generate an XML example.'))
-          : { type: 'code', lang: 'xml', value: result.xml },
-      ]
-    }
-    return []
   }
   const body: RequestBodyObject | undefined = getResolvedRef(operation.requestBody, mergeSiblingReferences)
   if (body) {
@@ -140,8 +116,10 @@ export const renderOperation = async (
     for (const [mediaType, content] of Object.entries(body.content ?? {})) {
       nodes.push(heading(5, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(isXmlMediaType(mediaType) ? renderMediaExample(content, mediaType, 'write') : await renderExamples(content, description, mediaType, 'write', openapiVersion)))
-      nodes.push(...(await renderEncoding(content.encoding, mediaType, description, schemas, openapiVersion)))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi)))
+      nodes.push(
+        ...(await renderEncoding(content.encoding, mediaType, description, schemas, openapiVersion, document.openapi)),
+      )
     }
   }
   const responses = Object.entries(operation.responses ?? {}).flatMap(([status, reference]) => {
@@ -152,13 +130,13 @@ export const renderOperation = async (
   for (const { status, response } of responses) {
     nodes.push(heading(5, text(`Status: ${status}${response.description ? ` ${response.description}` : ''}`)))
     nodes.push(
-      ...(await renderHeaders(response.headers, description, schemas, openapiVersion)),
+      ...(await renderHeaders(response.headers, description, schemas, openapiVersion, document.openapi)),
       ...(await renderResponseLinks(response.links, description)),
     )
     for (const [mediaType, content] of Object.entries(response.content ?? {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(isXmlMediaType(mediaType) ? renderMediaExample(content, mediaType, 'read') : await renderExamples(content, description, mediaType, 'read', openapiVersion)))
+      nodes.push(...(await renderExamples(content, description, mediaType, 'read', openapiVersion, document.openapi)))
     }
   }
   return nodes

@@ -1,5 +1,5 @@
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type {
   ExampleObject,
   RequestBodyObject,
@@ -84,7 +84,11 @@ export const getExampleFromBody = (
       compositionSelection: requestBodyCompositionSelection,
       schemaPath: ['requestBody'],
     })
-    return result.xml === undefined ? null : { ...example, value: result.xml }
+    if (result.xml === undefined) return null
+    // Consumers select dataValue before value, so retain the serialized result for editor and wire output.
+    return example?.dataValue !== undefined
+      ? { ...example, value: result.xml, serializedValue: result.xml }
+      : { ...example, value: result.xml }
   }
   const selected = getExampleValue(example)
   if (example && selected) {

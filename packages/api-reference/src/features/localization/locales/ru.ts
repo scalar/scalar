@@ -76,6 +76,9 @@ export const ru = {
     callbacks: 'Обратные вызовы',
   },
   response: {
+    xmlGenerationLimit:
+      'Пример XML превышает ограничение генерации. Укажите сериализованный пример XML, чтобы отобразить содержимое полностью.',
+    xmlGenerationFailed: 'Не удалось создать пример XML: {message}',
     exampleResponses: 'Примеры ответов',
     noBody: 'Нет тела',
     showSchema: 'Показать схему',

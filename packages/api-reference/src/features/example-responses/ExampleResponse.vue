@@ -4,6 +4,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { XmlDiagnostic } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -20,12 +21,16 @@ const {
   content,
   contentType = 'application/json',
   openapiVersion,
+  generationError,
+  pending = false,
 } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
   /** Reuse the card's formatted value so generation and copying cannot diverge. */
   content?: string
   openapiVersion?: string
+  generationError?: XmlDiagnostic
+  pending?: boolean
   contentType?: string
 }>()
 const { translate } = useLocalization()
@@ -34,24 +39,30 @@ const resolvedExample = computed(() => getResolvedRef(example))
 
 /** Preformatted content is shared with the response card clipboard action. */
 const generatedExample = computed(() => {
-  let error: string | undefined
+  let error = generationError
   const value =
-    content ??
-    getExampleContent(response, example, {
-      contentType,
-      openapiVersion,
-      onDiagnostic: (diagnostic) => {
-        if (diagnostic.severity === 'error' && error === undefined) {
-          error =
-            diagnostic.code === 'limit-exceeded'
-              ? 'The XML example exceeds the generation limit. Supply a serialized XML example to display the complete payload.'
-              : `Unable to generate an XML example: ${diagnostic.message}`
-        }
-      },
-    })
+    pending || error
+      ? undefined
+      : (content ??
+        getExampleContent(response, example, {
+          contentType,
+          openapiVersion,
+          onDiagnostic: (diagnostic) => {
+            if (diagnostic.severity === 'error' && error === undefined) {
+              error = diagnostic
+            }
+          },
+        }))
   return { value, error }
 })
 const prettyPrintedContent = computed(() => generatedExample.value.value)
+const errorMessage = computed(() => {
+  const error = generatedExample.value.error
+  if (!error) return undefined
+  return error.code === 'limit-exceeded'
+    ? translate('response.xmlGenerationLimit')
+    : translate('response.xmlGenerationFailed', { message: error.message })
+})
 
 const VIRTUALIZATION_THRESHOLD = 20_000
 
@@ -93,7 +104,7 @@ const shouldVirtualize = computed(() => {
     <div
       v-else
       class="empty-state">
-      {{ generatedExample.error ?? translate('response.noBody') }}
+      {{ errorMessage ?? translate('response.noBody') }}
     </div>
   </div>
 </template>

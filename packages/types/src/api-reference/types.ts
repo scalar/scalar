@@ -445,6 +445,8 @@ export type ApiReferenceTranslations = {
   }
   response: {
     exampleResponses: string
+    xmlGenerationLimit: string
+    xmlGenerationFailed: string
     noBody: string
     showSchema: string
     status: string

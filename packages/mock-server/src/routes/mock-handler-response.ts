@@ -2,7 +2,7 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
 import type { StatusCode } from 'hono/utils/http-status'
 
@@ -14,8 +14,8 @@ import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
 import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
-import { getStreamingResponse, sendStreamingResponse } from '@/utils/streaming-response'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
+import { getStreamingResponse, sendStreamingResponse } from '@/utils/streaming-response'
 
 /**
  * Get example response from OpenAPI spec for a given status code.

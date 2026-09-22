@@ -76,6 +76,9 @@ export const pt = {
     callbacks: 'Callbacks',
   },
   response: {
+    xmlGenerationLimit:
+      'O exemplo XML excede o limite de geração. Forneça um exemplo XML serializado para exibir o conteúdo completo.',
+    xmlGenerationFailed: 'Não foi possível gerar um exemplo XML: {message}',
     exampleResponses: 'Exemplos de Respostas',
     noBody: 'Sem Corpo',
     showSchema: 'Mostrar Schema',

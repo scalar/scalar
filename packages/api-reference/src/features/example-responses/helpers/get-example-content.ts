@@ -1,9 +1,9 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
-import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import {
   type XmlExampleOptions,
   getExampleFromSchema,
@@ -71,7 +71,6 @@ export const getExampleContent = (
     const content = getExampleFromSchema(schema, {
       emptyString: 'string',
       mode: 'read',
-      compositionSelection,
       compositionSelection,
     })
     if (content === undefined) {

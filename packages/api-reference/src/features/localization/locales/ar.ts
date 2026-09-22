@@ -75,6 +75,8 @@ export const ar = {
     callbacks: 'عمليات الاستدعاء',
   },
   response: {
+    xmlGenerationLimit: 'يتجاوز مثال XML حد الإنشاء. قدّم مثال XML متسلسلاً لعرض المحتوى كاملاً.',
+    xmlGenerationFailed: 'تعذّر إنشاء مثال XML: {message}',
     exampleResponses: 'أمثلة الاستجابات',
     noBody: 'لا يوجد جسم',
     showSchema: 'عرض المخطط',

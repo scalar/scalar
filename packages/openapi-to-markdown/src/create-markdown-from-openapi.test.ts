@@ -8,6 +8,37 @@ import { describe, expect, it, vi } from 'vitest'
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
 describe('createMarkdownFromOpenApi', () => {
+  it('uses migrated XML reference semantics for an older API description', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.0',
+      info: { title: 'Migrated XML', version: '1.0.0' },
+      components: {
+        schemas: { Address: { type: 'object', properties: { city: { type: 'string', example: 'Berlin' } } } },
+      },
+      paths: {
+        '/address': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Address',
+                content: {
+                  'application/xml': {
+                    schema: {
+                      type: 'object',
+                      xml: { name: 'document' },
+                      properties: { address: { $ref: '#/components/schemas/Address' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(markdown).toContain('<document>\n  <Address>\n    <city>Berlin</city>\n  </Address>\n</document>')
+  })
+
   it('retains XML reference wrappers when rendering with the TypeScript exporter', async () => {
     const result = await createMarkdownFromOpenApi({
       openapi: '3.2.0',

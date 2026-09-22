@@ -16,7 +16,10 @@ import {
   useExampleVisibility,
   useExternalExamples,
 } from '@scalar/workspace-store/helpers/use-external-examples'
-import { getExample } from '@scalar/workspace-store/request-example'
+import {
+  getExample,
+  type XmlDiagnostic,
+} from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   ResponsesObject,
@@ -237,8 +240,9 @@ watch(
   { flush: 'sync' },
 )
 
-const exampleContent = computed(() =>
-  externalExamples.pending.value
+const exampleResult = computed(() => {
+  let error: XmlDiagnostic | undefined
+  const content = externalExamples.pending.value
     ? undefined
     : getExampleContent(currentResponseContent.value, currentExample.value, {
         contentType: currentContentType.value,
@@ -250,8 +254,13 @@ const exampleContent = computed(() =>
             }
           : undefined,
         openapiVersion,
-      }),
-)
+        onDiagnostic: (diagnostic) => {
+          if (diagnostic.severity === 'error' && !error) error = diagnostic
+        },
+      })
+  return { content, error }
+})
+const exampleContent = computed(() => exampleResult.value.content)
 
 const copyExample = (): void => {
   if (exampleContent.value !== undefined) {
@@ -344,7 +353,9 @@ const copyExample = (): void => {
         :content="exampleContent"
         :contentType="currentContentType"
         :example="currentExample"
+        :generationError="exampleResult.error"
         :openapiVersion
+        :pending="externalExamples.pending.value"
         :response="currentResponseContent" />
     </ScalarCardSection>
     <ScalarCardFooter

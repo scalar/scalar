@@ -52,6 +52,30 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('fills the XML raw editor with serialized structured data', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                xml: { name: 'pet' },
+                properties: { id: { type: 'integer', xml: { attribute: true } } },
+              },
+              examples: { 'example-1': { dataValue: { id: 7 } } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe(
+      '<?xml version="1.0" encoding="UTF-8"?>\n<pet id="7"/>',
+    )
+    wrapper.unmount()
+  })
+
   it('fills the raw editor with a framed stream item example', () => {
     const wrapper = mount(RequestBody, {
       props: {

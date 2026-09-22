@@ -1,6 +1,7 @@
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Example-bearing media types, parameters, and headers share the same precedence rules. */
@@ -15,7 +16,7 @@ type MarkdownExample = {
   name?: string
   summary?: string
   description?: string
-} & ({ value: unknown } | { externalValue: string } | { serializedValue: string } | { omitted: true })
+} & ({ value: unknown } | { externalValue: string } | { serializedValue: string } | { omitted: true } | { dataValue: unknown } | { error: string })
 
 /** Mirrors the depth at which `getExampleFromSchema` stops following nested schemas. */
 const EXAMPLE_DEPTH = 10
@@ -76,12 +77,15 @@ export const countGeneratedExampleValues = (root: unknown, limit = MAX_GENERATED
   return count(root, 0)
 }
 
+
 /** Preserve supplied values; generate a fallback only when examples are not supplied. */
 export const getMarkdownExamples = (
   source: ExampleSource,
   mediaType: string,
   mode?: 'read' | 'write',
   openapiVersion = '3.2.0',
+  // Schema metadata can be upgraded while example fields still follow the original version.
+  schemaOpenapiVersion = openapiVersion,
 ): MarkdownExample[] => {
   if (source.example !== undefined) return [{ value: source.example }]
   if (source.examples && Object.keys(source.examples).length) {
@@ -98,15 +102,23 @@ export const getMarkdownExamples = (
         return [{ ...metadata, serializedValue: example.serializedValue }]
       if (typeof example.externalValue === 'string') return [{ ...metadata, externalValue: example.externalValue }]
       if (/^3\.2\./.test(openapiVersion) && example.dataValue !== undefined)
-        return [{ ...metadata, value: example.dataValue }]
+        return [{ ...metadata, dataValue: example.dataValue }]
       return []
     })
   }
   const schema = getResolvedRef<unknown>(source.schema)
   if (!isObject(schema)) return []
   if (countGeneratedExampleValues(source.schema) > MAX_GENERATED_EXAMPLE_VALUES) return [{ omitted: true }]
+  if (isXmlMediaType(mediaType)) {
+    const result = getXmlBodyExample(source.schema as SchemaObject, undefined, {
+      mode,
+      openapiVersion: schemaOpenapiVersion,
+    })
+    return [
+      result.xml === undefined ? { error: 'Unable to generate an XML example.' } : { serializedValue: result.xml },
+    ]
+  }
   const value = getExampleFromSchema(getResolvedRef(source.schema as SchemaObject, mergeSiblingReferences), {
-    xml: mediaType.includes('xml'),
     mode,
   })
   return value === undefined ? [] : [{ value }]

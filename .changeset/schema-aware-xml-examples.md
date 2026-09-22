@@ -4,6 +4,7 @@
 '@scalar/blocks': minor
 '@scalar/api-client': patch
 '@scalar/api-reference': patch
+'@scalar/types': patch
 '@scalar/mock-server': minor
 '@scalar/openapi-to-markdown': minor
 ---

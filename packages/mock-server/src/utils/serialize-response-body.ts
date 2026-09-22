@@ -2,7 +2,7 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { serializeXmlExample } from '@scalar/workspace-store/request-example'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 type Schema = NonNullable<OpenAPIV3_1.ComponentsObject['schemas']>[string]
 
