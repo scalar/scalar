@@ -3,16 +3,17 @@ import { describe, expect, it } from 'vitest'
 import { getStreamingResponse } from './streaming-response'
 
 describe('streaming-response', () => {
-  it.each(['application/jsonl', 'application/x-ndjson', 'Application/JSONL; charset=utf-8'])(
-    'generates three records for %s',
-    (contentType) => {
-      expect(getStreamingResponse({ itemSchema: { type: 'integer', const: 42 } }, contentType)).toStrictEqual({
-        body: [42, 42, 42],
-        chunks: ['42\n', '42\n', '42\n'],
-        contentType,
-      })
-    },
-  )
+  it.each([
+    'application/jsonl',
+    'application/x-ndjson',
+    'Application/JSONL; charset=utf-8',
+  ])('generates three records for %s', (contentType) => {
+    expect(getStreamingResponse({ itemSchema: { type: 'integer', const: 42 } }, contentType)).toStrictEqual({
+      body: [42, 42, 42],
+      chunks: ['42\n', '42\n', '42\n'],
+      contentType,
+    })
+  })
 
   it.each(['application/json-seq', 'application/geo+json-seq'])('frames JSON sequences for %s', (contentType) => {
     expect(

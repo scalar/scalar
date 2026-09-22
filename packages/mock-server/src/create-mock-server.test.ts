@@ -143,20 +143,21 @@ describe('createMockServer', () => {
       }
     })
 
-    it.each(['object', 'json', 'yaml'])(
-      'preserves the original OpenAPI version for inline %s input',
-      async (format) => {
-        const document = { openapi: '3.0.4', info: { title: 'Inline API', version: '1.0.0' }, paths: {} }
-        const inputs = { object: document, json: JSON.stringify(document), yaml: stringify(document) }
-        const input = inputs[format as keyof typeof inputs]
-        const app = await createMockServer({ document: input, logger: false })
-        for (const extension of ['json', 'yaml']) {
-          const response = await app.request(`/openapi.${extension}`)
-          expect(response.status).toBe(200)
-          expect(parse(await response.text())).toEqual(document)
-        }
-      },
-    )
+    it.each([
+      'object',
+      'json',
+      'yaml',
+    ])('preserves the original OpenAPI version for inline %s input', async (format) => {
+      const document = { openapi: '3.0.4', info: { title: 'Inline API', version: '1.0.0' }, paths: {} }
+      const inputs = { object: document, json: JSON.stringify(document), yaml: stringify(document) }
+      const input = inputs[format as keyof typeof inputs]
+      const app = await createMockServer({ document: input, logger: false })
+      for (const extension of ['json', 'yaml']) {
+        const response = await app.request(`/openapi.${extension}`)
+        expect(response.status).toBe(200)
+        expect(parse(await response.text())).toEqual(document)
+      }
+    })
   })
 
   it.each([
@@ -197,25 +198,26 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe(chunk.repeat(3))
   })
 
-  it.each(['return undefined', "return res['200']", 'return [{ data: "handler" }]'])(
-    'streams custom handler responses with itemSchema: %s',
-    async (handler) => {
-      const server = await createMockServer({
-        logger: false,
-        document: {
-          openapi: '3.2.1',
-          info: { title: 'Stream', version: '1' },
-          paths: {
-            '/events': {
-              get: {
-                'x-handler': handler,
-                responses: {
-                  '200': {
-                    description: 'Events',
-                    content: {
-                      'text/event-stream': {
-                        itemSchema: { type: 'object', properties: { data: { type: 'string', const: 'generated' } } },
-                      },
+  it.each([
+    'return undefined',
+    "return res['200']",
+    'return [{ data: "handler" }]',
+  ])('streams custom handler responses with itemSchema: %s', async (handler) => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            get: {
+              'x-handler': handler,
+              responses: {
+                '200': {
+                  description: 'Events',
+                  content: {
+                    'text/event-stream': {
+                      itemSchema: { type: 'object', properties: { data: { type: 'string', const: 'generated' } } },
                     },
                   },
                 },
@@ -223,15 +225,15 @@ describe('createMockServer', () => {
             },
           },
         },
-      })
-      const response = await server.request('/events')
-      expect(response.status).toBe(200)
-      expect(response.headers.get('content-type')).toBe('text/event-stream')
-      expect(await response.text()).toBe(
-        handler.includes('handler') ? 'data: handler\n\n' : 'data: generated\n\n'.repeat(3),
-      )
-    },
-  )
+      },
+    })
+    const response = await server.request('/events')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('text/event-stream')
+    expect(await response.text()).toBe(
+      handler.includes('handler') ? 'data: handler\n\n' : 'data: generated\n\n'.repeat(3),
+    )
+  })
 
   it.each([
     { example: [{ unknown: true }], expected: '' },
@@ -376,65 +378,65 @@ describe('createMockServer', () => {
     vi.restoreAllMocks()
   })
 
-  it.each(['oneOf', 'anyOf'] as const)(
-    'serves generated root primitive and array %s responses',
-    async (composition) => {
-      const cases = [
-        { schema: { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] }, expected: 'first' },
-        {
-          schema: {
-            type: 'array',
-            [composition]: [
-              { items: { type: 'string', const: 'first' } },
-              { items: { type: 'string', const: 'second' } },
-            ],
-          },
-          expected: ['first'],
+  it.each([
+    'oneOf',
+    'anyOf',
+  ] as const)('serves generated root primitive and array %s responses', async (composition) => {
+    const cases = [
+      { schema: { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] }, expected: 'first' },
+      {
+        schema: {
+          type: 'array',
+          [composition]: [
+            { items: { type: 'string', const: 'first' } },
+            { items: { type: 'string', const: 'second' } },
+          ],
         },
-        {
-          schema: {
-            properties: { ignored: { const: true } },
-            items: { type: 'string', const: 'ignored' },
-            [composition]: [{ type: 'string', minLength: 3 }, { type: 'number' }],
-          },
-          expected: 'string',
+        expected: ['first'],
+      },
+      {
+        schema: {
+          properties: { ignored: { const: true } },
+          items: { type: 'string', const: 'ignored' },
+          [composition]: [{ type: 'string', minLength: 3 }, { type: 'number' }],
         },
-        {
-          schema: {
-            properties: { ignored: { const: true } },
-            [composition]: [{ type: 'array', items: { type: 'string', const: 'selected' } }, { type: 'string' }],
-          },
-          expected: ['selected'],
+        expected: 'string',
+      },
+      {
+        schema: {
+          properties: { ignored: { const: true } },
+          [composition]: [{ type: 'array', items: { type: 'string', const: 'selected' } }, { type: 'string' }],
         },
-        {
-          schema: {
-            type: 'string',
-            [composition]: [
-              { [composition]: [{ const: 'nested first' }, { const: 'nested second' }] },
-              { const: 'outer second' },
-            ],
-          },
-          expected: 'nested first',
+        expected: ['selected'],
+      },
+      {
+        schema: {
+          type: 'string',
+          [composition]: [
+            { [composition]: [{ const: 'nested first' }, { const: 'nested second' }] },
+            { const: 'outer second' },
+          ],
         },
-      ]
-      for (const { schema, expected } of cases) {
-        const document = {
-          openapi: '3.1.0',
-          info: { title: 'Root unions', version: '1' },
-          paths: {
-            '/union': {
-              get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
-            },
+        expected: 'nested first',
+      },
+    ]
+    for (const { schema, expected } of cases) {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Root unions', version: '1' },
+        paths: {
+          '/union': {
+            get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
           },
-        }
-        const server = await createMockServer({ document })
-        const response = await server.request('/union')
-        expect(response.status).toBe(200)
-        expect(response.headers.get('content-type')).toContain('application/json')
-        expect(await response.json()).toStrictEqual(expected)
+        },
       }
-    },
-  )
+      const server = await createMockServer({ document })
+      const response = await server.request('/union')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('application/json')
+      expect(await response.json()).toStrictEqual(expected)
+    }
+  })
 
   it('supports deprecated specification key', async () => {
     const specification = {

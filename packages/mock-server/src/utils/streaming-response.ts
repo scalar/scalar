@@ -1,4 +1,4 @@
-import { isStreamingMediaType } from '@scalar/helpers/http/is-streaming-media-type'
+import { getStreamFormat } from '@scalar/helpers/http/is-streaming-content-type'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
@@ -34,7 +34,8 @@ export const getStreamingResponse = (
   if (mediaType?.itemSchema === undefined) {
     return undefined
   }
-  if (!isStreamingMediaType(contentType)) {
+  const format = getStreamFormat(contentType)
+  if (format === undefined || format === 'multipart') {
     return undefined
   }
 
