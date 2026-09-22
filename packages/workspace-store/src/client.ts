@@ -243,6 +243,15 @@ type WorkspaceProps = {
  * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
  */
 export type WorkspaceStore = {
+  /** Register a derived-state synchronizer. Returns a function that unregisters it. */
+  onSynchronize: (synchronize: () => void) => () => void
+  /**
+   * Apply registered derived state after a batch of direct writes to a non-reactive store.
+   * Document loading, replacement, deletion and metadata updates call this automatically.
+   * Synchronizers run in registration order and must not depend on later synchronizers.
+   */
+  settle: () => void
+
   /** Resolve external examples without mutating the document or its edit history. */
   externalExamples: (documentName?: string) => ExternalExampleResolver
 
@@ -680,6 +689,21 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
  */
 export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): WorkspaceStore => {
   const { verbose = false, reactive: isReactiveWorkspace = true } = workspaceProps ?? {}
+  const synchronizers = new Set<() => void>()
+  const synchronization = { running: false }
+  const settle = (): void => {
+    if (synchronization.running) {
+      return
+    }
+    synchronization.running = true
+    try {
+      for (const synchronize of synchronizers) {
+        synchronize()
+      }
+    } finally {
+      synchronization.running = false
+    }
+  }
 
   const withMeasurementSync = <F extends () => unknown>(
     name: string,
@@ -1129,6 +1153,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       workspace.documents[name] = needsOverridesProxy(asyncApiOverrides)
         ? createOverridesProxy(asyncApiDocument, { overrides: asyncApiOverrides })
         : asyncApiDocument
+      settle()
       return
     }
 
@@ -1202,6 +1227,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     workspace.documents[name] = needsOverridesProxy(documentOverrides)
       ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
       : magicDocument
+    settle()
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -1235,6 +1261,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           'x-scalar-original-document-hash': 'not-a-hash',
         }
 
+        settle()
         return false
       }
 
@@ -1251,6 +1278,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           'x-scalar-original-document-hash': 'not-a-hash',
         }
 
+        settle()
         return false
       }
 
@@ -1372,6 +1400,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   const visitedNodesCache = new Set()
 
   return {
+    settle,
+    onSynchronize: (synchronize) => {
+      synchronizers.add(synchronize)
+      return () => {
+        synchronizers.delete(synchronize)
+      }
+    },
     externalExamples: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
       const document = workspace.documents[name]
@@ -1398,6 +1433,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     update(key, value) {
       preventPollution(key)
       Object.assign(workspace, { [key]: value })
+      settle()
     },
     getEditableDocument,
     getOriginalDocument,
@@ -1415,6 +1451,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       preventPollution(key)
       Object.assign(currentDocument, { [key]: value })
+      settle()
       return true
     },
     async replaceDocument(documentName: string, input: Record<string, unknown>) {
@@ -1513,6 +1550,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (wasActiveDocument) {
         workspace['x-scalar-active-document'] = remainingDocuments[0] ?? undefined
       }
+      settle()
 
       // Fire the deleteDocument event
       fireWorkspaceChange({
@@ -1611,12 +1649,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(workspace, input.meta)
       history.load(input.history)
       auth.load(input.auth)
+      settle()
     },
     importWorkspaceFromSpecification: (specification: WorkspaceSpecification) => {
       const { documents, overrides, info: _info, workspace: _workspaceVersion, ...meta } = specification
 
       // Assign workspace metadata
       safeAssign(workspace, meta)
+      settle()
 
       // Add workspace documents
       return Promise.all(

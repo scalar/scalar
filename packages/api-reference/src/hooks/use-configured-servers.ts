@@ -2,7 +2,7 @@ import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { type MaybeRefOrGetter, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, isReactive, onScopeDispose, toValue, watch } from 'vue'
 
 import type { NormalizedConfiguration } from '@/helpers/normalize-configurations'
 
@@ -14,7 +14,7 @@ type ServerEntry = {
 
 /**
  * Keep configured servers in the client document so variable edits target the displayed servers.
- * Returns a synchronizer for server stores, whose document writes do not trigger watchers.
+ * Non-reactive stores run the same synchronization at their mutation boundaries.
  */
 export const useConfiguredServers = ({
   configurations,
@@ -24,7 +24,7 @@ export const useConfiguredServers = ({
   configurations: MaybeRefOrGetter<Record<string, NormalizedConfiguration>>
   sourceStore: WorkspaceStore
   clientStore: WorkspaceStore
-}): (() => void) => {
+}): void => {
   const getEntries = (): ServerEntry[] =>
     Object.values(toValue(configurations)).map(({ slug, config }) => ({
       slug,
@@ -52,13 +52,19 @@ export const useConfiguredServers = ({
       }
     }
   }
+  const state: { previous: ServerEntry[] } = { previous: [] }
+  const synchronize = (entries: ServerEntry[]): void => {
+    sync(entries, state.previous)
+    state.previous = entries
+  }
+  if (!isReactive(clientStore.workspace)) {
+    onScopeDispose(clientStore.onSynchronize(() => synchronize(getEntries())))
+  }
   watch(
     getEntries,
-    sync,
+    synchronize,
     // ensureDocumentLoaded reads servers immediately after addDocument, so overrides must be applied
     // synchronously when the document is added, before the initial server selection is computed.
     { immediate: true, flush: 'sync' },
   )
-
-  return () => sync(getEntries())
 }

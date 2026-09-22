@@ -23,7 +23,9 @@ const content = {
   servers: [server('original', 'https://{env}.other.example.com')],
 }
 
-const setup = async (): Promise<{
+const setup = async (
+  reactive = true,
+): Promise<{
   configurations: Ref<ReturnType<typeof normalizeConfigurations>>
   sourceStore: WorkspaceStore
   clientStore: WorkspaceStore
@@ -31,8 +33,8 @@ const setup = async (): Promise<{
   edit: () => void
 }> => {
   const configurations = ref(normalizeConfigurations({ slug: 'test', content, servers: [server()] }))
-  const sourceStore = createWorkspaceStore()
-  const clientStore = createWorkspaceStore()
+  const sourceStore = createWorkspaceStore({ reactive })
+  const clientStore = createWorkspaceStore({ reactive })
   await sourceStore.addDocument({ name: 'test', document: content })
   const scope = effectScope()
   scopes.push(scope)
@@ -55,9 +57,9 @@ const setup = async (): Promise<{
   return { configurations, sourceStore, clientStore, document, edit }
 }
 
-describe('use-configured-servers', () => {
+describe.each([true, false])('use-configured-servers (reactive: %s)', (reactive) => {
   it('edits configured servers without changing the configuration or source document', async () => {
-    const { configurations, sourceStore, document, edit } = await setup()
+    const { configurations, sourceStore, document, edit } = await setup(reactive)
     edit()
     expect(document.servers).toStrictEqual([server('staging')])
     expect(configurations.value.test?.config.servers).toStrictEqual([server()])
@@ -66,7 +68,7 @@ describe('use-configured-servers', () => {
   })
 
   it('keeps edits when an unrelated configuration value changes', async () => {
-    const { configurations, document, edit } = await setup()
+    const { configurations, document, edit } = await setup(reactive)
     edit()
     configurations.value.test!.config.hideModels = true
     configurations.value = { ...configurations.value }
@@ -74,34 +76,34 @@ describe('use-configured-servers', () => {
   })
 
   it('applies in-place changes to configured defaults', async () => {
-    const { configurations, document, edit } = await setup()
+    const { configurations, document, edit } = await setup(reactive)
     edit()
     configurations.value.test!.config.servers![0]!.variables!.env!.default = 'dev'
     expect(document.servers).toStrictEqual([server('dev')])
   })
 
   it('restores document servers when the configuration override is removed', async () => {
-    const { configurations, document, edit } = await setup()
+    const { configurations, document, edit } = await setup(reactive)
     edit()
     configurations.value.test!.config.servers = undefined
     expect(document.servers).toStrictEqual(content.servers)
   })
 
   it('respects an empty configured server list', async () => {
-    const { configurations, document } = await setup()
+    const { configurations, document } = await setup(reactive)
     configurations.value.test!.config.servers = []
     expect(document.servers).toStrictEqual([])
   })
 
   it('applies configured servers again when the client document is reloaded', async () => {
-    const { clientStore } = await setup()
+    const { clientStore } = await setup(reactive)
     await clientStore.addDocument({ name: 'test', document: { ...content, info: { title: 'Reloaded', version: '2' } } })
     const document = clientStore.workspace.documents.test
     expect(isOpenApiDocument(document) && document.servers).toStrictEqual([server()])
   })
 
   it('keeps server values separate across documents', async () => {
-    const { configurations, clientStore, document, edit } = await setup()
+    const { configurations, clientStore, document, edit } = await setup(reactive)
     edit()
     configurations.value = {
       ...configurations.value,

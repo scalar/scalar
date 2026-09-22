@@ -499,12 +499,12 @@ const clientStore = createWorkspaceStore({
   ],
 })
 
-const syncWorkspaceEnvironment = useDocumentEnvironment(workspaceStore)
-const syncClientEnvironment = useDocumentEnvironment(clientStore)
+useDocumentEnvironment(workspaceStore)
+useDocumentEnvironment(clientStore)
 // The modal edits its own document but shares downloads and the configured source transport.
 clientStore.externalExamples = workspaceStore.externalExamples
 
-const syncConfiguredServers = useConfiguredServers({
+useConfiguredServers({
   configurations: configList,
   sourceStore: workspaceStore,
   clientStore,
@@ -973,10 +973,6 @@ const addDocument: typeof workspaceStore.addDocument = async (
     history: {},
     meta: {},
   })
-  // Non-reactive server stores do not trigger the configured-server watcher on load.
-  if (isServerRendering) {
-    syncConfiguredServers()
-  }
   return result
 }
 
@@ -1189,12 +1185,6 @@ const changeSelectedDocument = async (
   // Always set it to active; if the document is null we show a loading state
   workspaceStore.update('x-scalar-active-document', slug)
   clientStore.update('x-scalar-active-document', slug)
-
-  // Apply defaults explicitly after loading; server stores do not notify the environment watchers.
-  if (isServerRendering) {
-    syncWorkspaceEnvironment()
-    syncClientEnvironment()
-  }
 
   // Now that the navigation is available, canonicalize a legacy webhook deep link:
   // old ids dropped the dot in the event name (`account-holdercreated`), so rewrite

@@ -13,11 +13,11 @@ const environments = {
   staging: { color: '#ff0000', variables: [{ name: 'uuidv4', value: 'staging-id' }] },
 }
 
-describe('use-document-environment', () => {
+describe.each([true, false])('use-document-environment (reactive: %s)', (reactive) => {
   it.each(['3.0.0', '3.1.0'])('resolves document variables in both embedded stores for OpenAPI %s', async (openapi) => {
     const scope = effectScope()
     try {
-      for (const store of [createWorkspaceStore(), createWorkspaceStore()]) {
+      for (const store of [createWorkspaceStore({ reactive }), createWorkspaceStore({ reactive })]) {
         scope.run(() => useDocumentEnvironment(store))
         await store.addDocument({
           name: 'api',
@@ -41,7 +41,7 @@ describe('use-document-environment', () => {
   })
 
   it('uses the first environment when the document does not select one', async () => {
-    const store = createWorkspaceStore()
+    const store = createWorkspaceStore({ reactive })
     const scope = effectScope()
     try {
       scope.run(() => useDocumentEnvironment(store))
@@ -59,7 +59,7 @@ describe('use-document-environment', () => {
   it.each(['staging', undefined])(
     'preserves a user selection of %s when document defaults change',
     async (selection) => {
-      const store = createWorkspaceStore()
+      const store = createWorkspaceStore({ reactive })
       const scope = effectScope()
       try {
         scope.run(() => useDocumentEnvironment(store))
@@ -87,7 +87,7 @@ describe('use-document-environment', () => {
   )
 
   it('follows document defaults when switching documents and clears them for documents without environments', async () => {
-    const store = createWorkspaceStore()
+    const store = createWorkspaceStore({ reactive })
     const scope = effectScope()
     try {
       scope.run(() => useDocumentEnvironment(store))
@@ -117,7 +117,7 @@ describe('use-document-environment', () => {
   it.each(['staging', undefined])(
     'keeps a user choice of %s after an intervening document matches it',
     async (selection) => {
-      const store = createWorkspaceStore()
+      const store = createWorkspaceStore({ reactive })
       const scope = effectScope()
       try {
         scope.run(() => useDocumentEnvironment(store))

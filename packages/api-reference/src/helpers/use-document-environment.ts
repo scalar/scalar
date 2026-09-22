@@ -1,14 +1,15 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { watch } from 'vue'
+import { isReactive, onScopeDispose, watch } from 'vue'
 
 /**
  * Apply document environment defaults to an embedded store without replacing user selections.
- * Returns a synchronizer for server stores, whose document writes do not trigger watchers.
+ * Non-reactive stores run the same synchronization at their mutation boundaries.
  */
-export const useDocumentEnvironment = (store: WorkspaceStore): (() => void) => {
+export const useDocumentEnvironment = (store: WorkspaceStore): void => {
   const selection = {
     applyingDefault: false,
+    previous: store.workspace['x-scalar-active-environment'],
     hasUserOverride: store.workspace['x-scalar-active-environment'] !== undefined,
   }
 
@@ -41,7 +42,16 @@ export const useDocumentEnvironment = (store: WorkspaceStore): (() => void) => {
       selection.applyingDefault = false
     }
   }
-  watch(getSelection, sync, { immediate: true, flush: 'sync' })
-
-  return () => sync(getSelection())
+  const synchronize = (): void => {
+    // Plain stores have no watcher to remember explicit environment choices.
+    if (store.workspace['x-scalar-active-environment'] !== selection.previous) {
+      selection.hasUserOverride = true
+    }
+    sync(getSelection())
+    selection.previous = store.workspace['x-scalar-active-environment']
+  }
+  if (!isReactive(store.workspace)) {
+    onScopeDispose(store.onSynchronize(synchronize))
+  }
+  watch(getSelection, synchronize, { immediate: true, flush: 'sync' })
 }
