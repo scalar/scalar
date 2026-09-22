@@ -226,30 +226,29 @@ export function escapePaths(
 export function externalizeComponentReferences(
   document: OpenApiDocument,
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
-) {
-  const result: Record<string, any> = {}
-
+): Record<string, Record<string, { $ref: string; $global: boolean }>> {
   if (!document.components) {
-    return result
+    return {}
   }
 
-  Object.entries(document.components).forEach(([type, component]) => {
-    if (!component || typeof component !== 'object') {
-      return
-    }
+  // Define both dictionary levels as own properties so untrusted keys cannot invoke prototype setters.
+  return Object.fromEntries(
+    Object.entries(document.components)
+      .filter(([, component]) => component && typeof component === 'object')
+      .map(([type, component]) => [
+        type,
+        Object.fromEntries(
+          Object.keys(component).map((name) => {
+            const ref =
+              meta.mode === 'ssr'
+                ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
+                : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
 
-    result[type] = {}
-    Object.keys(component).forEach((name) => {
-      const ref =
-        meta.mode === 'ssr'
-          ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
-          : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
-
-      result[type][name] = { '$ref': ref, $global: true }
-    })
-  })
-
-  return result
+            return [name, { '$ref': ref, $global: true }]
+          }),
+        ),
+      ]),
+  )
 }
 
 /**
