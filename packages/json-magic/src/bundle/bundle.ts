@@ -1,7 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
-import { getId, getSchemas } from '@/helpers/get-schemas'
+import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
 import { isHttpUrl } from '@/helpers/is-http-url'
@@ -12,6 +11,7 @@ import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
+import { type DocumentResolver, documentReferences } from './document-references'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -172,6 +172,7 @@ export const resolveAndCopyReferences = (
   documentKey: string,
   bundleLocalRefs = false,
   processedNodes = new Set(),
+  documentMetadata: Record<string, unknown> = {},
 ) => {
   const referencedValue = getValueByPath(sourceDocument, getSegmentsFromPath(referencePath)).value
 
@@ -180,7 +181,31 @@ export const resolveAndCopyReferences = (
   }
   processedNodes.add(referencedValue)
 
-  setValueAtPath(targetDocument, referencePath, referencedValue)
+  // Only relocated copies need canonical metadata; keep the authored source unchanged.
+  const segments = getSegmentsFromPath(referencePath)
+  const copiedValue =
+    segments.length === 2 && isObject(referencedValue) && Object.keys(documentMetadata).length > 0
+      ? { ...referencedValue, ...documentMetadata }
+      : referencedValue
+  setValueAtPath(targetDocument, referencePath, copiedValue)
+
+  // Keep every enclosing base when copying a subtree, so later partial bundles
+  // resolve against the same document and schema resources as the original.
+  for (let length = 2; length < segments.length; length++) {
+    const ancestorPath = segments.slice(0, length)
+    const ancestor = getValueByPath(sourceDocument, ancestorPath).value
+    if (!isObject(ancestor)) {
+      continue
+    }
+    if (length === 2) {
+      for (const [key, value] of Object.entries(documentMetadata)) {
+        setValueAtPath(targetDocument, `/${[...ancestorPath, key].map(escapeJsonPointer).join('/')}`, value)
+      }
+    }
+    if (typeof ancestor.$id === 'string') {
+      setValueAtPath(targetDocument, `/${[...ancestorPath, '$id'].map(escapeJsonPointer).join('/')}`, ancestor.$id)
+    }
+  }
 
   // Do the same for each local ref
   const traverse = (node: unknown) => {
@@ -202,6 +227,7 @@ export const resolveAndCopyReferences = (
           documentKey,
           bundleLocalRefs,
           processedNodes,
+          documentMetadata,
         )
       }
       // Bundle the local refs as well
@@ -214,6 +240,7 @@ export const resolveAndCopyReferences = (
           documentKey,
           bundleLocalRefs,
           processedNodes,
+          documentMetadata,
         )
       }
     }
@@ -382,6 +409,11 @@ type Config = {
    * Allows tracking the progress and status of reference resolution.
    */
   hooks?: Partial<{
+    /** Called once a complete document is available, including cached and saved documents.
+     * The first resolver returning an identity supplies its base URI and retained metadata.
+     * This hook is synchronous because identities are indexed before following references.
+     */
+    resolveDocument: DocumentResolver
     /**
      * Optional hook called when the bundler starts resolving a $ref.
      * Useful for tracking or logging the beginning of a reference resolution.
@@ -539,9 +571,6 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // We need this when we want to do a partial bundle of a document
   const documentRoot = config.root ?? rawSpecification
 
-  // Extract all $id and $anchor values from the document to identify local schemas
-  const schemas = getSchemas(documentRoot)
-
   // Determines if the bundling operation is partial.
   // Partial bundling occurs when:
   // - A root document is provided that is different from the raw specification being bundled, or
@@ -557,12 +586,6 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // For string inputs that are URLs or file paths, uses the input as the origin.
   // For non-string inputs or other string types, returns an '/' as a root path.
   const getDefaultOrigin = () => {
-    // Id field is the first priority
-    const id = getId(documentRoot)
-    if (id) {
-      return id
-    }
-
     if (config.origin) {
       return config.origin
     }
@@ -578,7 +601,26 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     return '/'
   }
 
-  const defaultOrigin = getDefaultOrigin()
+  const references = documentReferences(config.externalDocumentsKey, (document, retrievalUri) => {
+    for (const resolver of [
+      config.hooks?.resolveDocument,
+      ...lifecyclePlugin.map((plugin) => plugin.resolveDocument),
+    ]) {
+      const identity = resolver?.(document, retrievalUri)
+      if (identity !== undefined) {
+        return identity
+      }
+    }
+    return undefined
+  })
+  references.register(documentRoot, getDefaultOrigin())
+  const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
+  const hasRootIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
+  const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
+    return hasRootIdentity && references.isSchemaResource(sourceOrigin) && sourceOrigin !== defaultOrigin
+      ? `${defaultOrigin}${pointer}`
+      : pointer
+  }
 
   // Create the cache to store the compressed values to their map values
   if (documentRoot[config.externalDocumentsMappingsKey] === undefined) {
@@ -588,6 +630,27 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     config.compress ?? getHash,
     documentRoot[config.externalDocumentsMappingsKey],
   )
+
+  // Index supplied and previously bundled documents before resolving canonical identities.
+  const storedDocuments = documentRoot[config.externalDocumentsKey]
+  if (isObject(storedDocuments)) {
+    for (const [key, document] of Object.entries(storedDocuments)) {
+      const retrievalUri = resolveReferencePath(
+        defaultOrigin,
+        documentRoot[config.externalDocumentsMappingsKey][key] ?? key,
+      )
+      references.register(document, retrievalUri, [config.externalDocumentsKey, key])
+    }
+  }
+  for (const [uri, pending] of cache) {
+    const result = await pending
+    if (result.ok) {
+      const retrievalUri = resolveReferencePath(defaultOrigin, uri)
+      const relativeUri = toRelativePath(retrievalUri, defaultOrigin)
+      const key = await generate(relativeUri)
+      references.register(result.data, retrievalUri, [config.externalDocumentsKey, key])
+    }
+  }
 
   /**
    * Executes lifecycle hooks defined both in the bundler configuration and any extended lifecycle plugins.
@@ -647,6 +710,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // A node with its own `$id` establishes a new base for resolving relative references within it.
     // Fall back to the origin inherited from the parent document otherwise.
     const id = getId(root)
+    const nodeOrigin = references.origin(root) ?? (id ? resolveReferencePath(origin, id) : origin)
 
     const context = {
       path: currentPath,
@@ -655,7 +719,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       parentNode: parent,
       rootNode: documentRoot as UnknownObject,
       loaders: loaderPlugins,
-      origin: id ?? origin,
+      origin: nodeOrigin,
     }
 
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
@@ -671,14 +735,29 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // In case of partial bundling, we still need to ensure that all dependencies
       // of the local reference are bundled to create a complete and self-contained partial bundle
       // This is important to maintain the integrity of the partial bundle
-      const localRef = convertToLocalRef(ref, id ?? origin, schemas)
+      const local = references.resolve(ref, nodeOrigin)
+      const localRef = local?.path
 
       if (localRef !== undefined) {
+        // A fragment under an embedded $id resolves within that schema, not the document.
+        // Without a declared root identity, retain references to root resources rather
+        // than baking a retrieval location into an otherwise portable bundle.
+        const preserveRootResourceReference =
+          !hasRootIdentity &&
+          local.document === documentRoot &&
+          references.isSchemaResource(nodeOrigin) &&
+          nodeOrigin !== defaultOrigin
+        if (!local.preserveReference && !preserveRootResourceReference) {
+          root.$ref = referenceToRoot(localRef ? `#/${localRef}` : '#', nodeOrigin)
+        }
         if (isPartialBundling) {
           const segments = getSegmentsFromPath(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
 
-          const targetValue = getValueByPath(documentRoot, segments)
+          const targetValue = {
+            value: local.value,
+            context: isObject(local.value) ? references.origin(local.value) : nodeOrigin,
+          }
 
           // When doing partial bundling, we need to recursively bundle all dependencies
           // referenced by this local reference to ensure the partial bundle is complete.
@@ -699,6 +778,31 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             referencedFromPath,
           )
         }
+        if (local.documentPath.length > 0) {
+          const origin =
+            isObject(local.document) || Array.isArray(local.document) ? references.origin(local.document) : nodeOrigin
+          await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          if (config.treeShake) {
+            const [key, documentKey] = local.documentPath
+            resolveAndCopyReferences(
+              documentRoot,
+              { [key]: { [documentKey]: local.document } },
+              `/${localRef}`,
+              key,
+              documentKey,
+              false,
+              new Set(),
+              references.identity(local.document)?.metadata,
+            )
+          } else {
+            const metadata = references.identity(local.document)?.metadata
+            setValueAtPath(
+              documentRoot,
+              `/${local.documentPath.map(escapeJsonPointer).join('/')}`,
+              isObject(local.document) && metadata ? { ...local.document, ...metadata } : local.document,
+            )
+          }
+        }
         await executeHooks('onAfterNodeProcess', root, context)
         return
       }
@@ -707,7 +811,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
-      const resolvedPath = resolveReferencePath(id ?? origin, prefix)
+      const resolvedPath = resolveReferencePath(nodeOrigin, prefix)
       const relativePath = toRelativePath(resolvedPath, defaultOrigin)
 
       // Generate a unique compressed path for the external document
@@ -730,19 +834,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
         // of internal references, which would corrupt the reference paths
         if (!seen) {
-          // Skip prefixing for chunks since they are meant to be self-contained and their
-          // internal references should remain relative to their original location. Chunks
-          // are typically used for modular components that need to maintain their own
-          // reference context without being affected by the main document's structure.
+          // Index the whole external document before following references within it.
+          // Chunks retain the referring context because they are already self-contained.
           if (!isChunk) {
-            // Update internal references in the resolved document to use the correct base path.
-            // When we embed external documents, their internal references need to be updated to
-            // maintain the correct path context relative to the main document. This is crucial
-            // because internal references in the external document are relative to its original
-            // location, but when embedded, they need to be relative to their new location in
-            // the main document's x-ext section. Without this update, internal references
-            // would point to incorrect locations and break the document structure.
-            prefixInternalRefRecursive(result.data, [extensions.externalDocuments, compressedPath])
+            references.register(result.data, resolvedPath, [config.externalDocumentsKey, compressedPath])
           }
 
           // Recursively process the resolved content
@@ -779,6 +874,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath]).substring(1),
             config.externalDocumentsKey,
             compressedPath,
+            false,
+            new Set(),
+            references.identity(result.data)?.metadata,
           )
         } else if (!seen) {
           // Store the external document in the main document's x-ext key
@@ -786,13 +884,21 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // This preserves all content and is faster since we don't need to analyze and copy
           // specific parts. This approach is ideal when storing the result in memory
           // as it avoids the overhead of tree shaking operations
-          setValueAtPath(documentRoot, `/${config.externalDocumentsKey}/${compressedPath}`, result.data)
+          const metadata = references.identity(result.data)?.metadata
+          setValueAtPath(
+            documentRoot,
+            `/${config.externalDocumentsKey}/${compressedPath}`,
+            isObject(result.data) && metadata ? { ...result.data, ...metadata } : result.data,
+          )
         }
 
         // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
-        root.$ref = prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
+        root.$ref = referenceToRoot(
+          prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath]),
+          nodeOrigin,
+        )
 
         await executeHooks('onResolveSuccess', root)
 
@@ -818,7 +924,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
       await bundler(
         root[key],
-        id ?? origin,
+        nodeOrigin,
         isChunkParent,
         depth + 1,
         [...currentPath, key],

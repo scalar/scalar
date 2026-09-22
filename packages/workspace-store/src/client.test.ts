@@ -1584,6 +1584,51 @@ describe('create-workspace-store', () => {
     )
   })
 
+  it('preserves a relative $self and resolves schema references after exporting and loading a workspace', async () => {
+    server.get('/input.yaml', () => ({
+      openapi: '3.2.1',
+      $self: './api/openapi.yaml',
+      info: { title: 'Relative identity', version: '1' },
+      components: {
+        schemas: {
+          Value: { type: 'string' },
+          Model: {
+            $id: 'models/model.json',
+            type: 'object',
+            properties: { value: { $ref: '../openapi.yaml#/components/schemas/Value' } },
+          },
+        },
+      },
+    }))
+    await server.listen({ port })
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'default', url: `${url}/input.yaml` })
+    const document = getOpenApiDocument(store, 'default')
+    const model = getResolvedRef(document?.components?.schemas?.Model)
+    assert(model && 'properties' in model)
+    expect(getResolvedRef(model.properties?.value)).toStrictEqual({ type: 'string' })
+    const editable = await store.getEditableDocument('default')
+    assert(editable && isOpenApiDocument(editable))
+    expect(editable.$self).toBe('./api/openapi.yaml')
+    expect(editable?.components?.schemas?.Model).toStrictEqual({
+      $id: 'models/model.json',
+      type: 'object',
+      properties: { value: { $ref: '../openapi.yaml#/components/schemas/Value' } },
+    })
+    expect(editable).not.toHaveProperty('x-scalar-original-refs')
+    const exported = store.exportWorkspace()
+    assert(exported.documents.default && isOpenApiDocument(exported.documents.default))
+    expect(exported.documents.default.$self).toBe('./api/openapi.yaml')
+
+    const restored = createWorkspaceStore()
+    restored.loadWorkspace(exported)
+    const restoredDocument = getOpenApiDocument(restored, 'default')
+    const restoredModel = getResolvedRef(restoredDocument?.components?.schemas?.Model)
+    assert(restoredModel && 'properties' in restoredModel)
+    expect(getResolvedRef(restoredModel.properties?.value)).toStrictEqual({ type: 'string' })
+    expect(restoredDocument?.$self).toBe('./api/openapi.yaml')
+  })
+
   it('should resolve relative references on the document correctly', async () => {
     server.get('/', () => ({
       openapi: '3.1.1',

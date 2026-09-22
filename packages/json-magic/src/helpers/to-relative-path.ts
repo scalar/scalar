@@ -10,7 +10,13 @@ import { isHttpUrl } from '@/helpers/is-http-url'
  * - If input is a remote URL but base is local, returns input as is.
  * - Otherwise, computes the relative path between two local paths.
  */
-export const toRelativePath = (input: string, base: string) => {
+export const toRelativePath = (input: string, base: string): string => {
+  // This format-agnostic helper has no document-identity registry. Preserve every
+  // non-HTTP URI, not only known $self values: file:, urn:, and custom schemes must
+  // not become filesystem paths. Loader plugins decide whether a URI is fetchable.
+  if (URL.canParse(input) && !isHttpUrl(input) && !/^[a-z]:[\\/]/i.test(input)) {
+    return input
+  }
   // Both input and base are remote URLs
   if (isHttpUrl(input) && isHttpUrl(base)) {
     const inputUrl = new URL(input)
@@ -21,10 +27,14 @@ export const toRelativePath = (input: string, base: string) => {
     }
 
     // Get the directory of the base URL pathname (not the file itself)
-    const baseDir = path.dirname(path.posix.resolve('/', baseUrl.pathname))
+    const baseDir = baseUrl.pathname.endsWith('/') ? baseUrl.pathname : path.dirname(baseUrl.pathname)
     const inputPath = path.posix.resolve('/', inputUrl.pathname)
     // Return the relative path from baseDir to inputPath
-    return path.posix.relative(baseDir, inputPath)
+    const relativePath = path.posix.relative(baseDir, inputPath)
+    const suffix = relativePath && inputUrl.pathname.endsWith('/') ? '/' : ''
+    const relativeUri = `${relativePath}${suffix}${inputUrl.search}${inputUrl.hash}`
+    // Keep the absolute URI when path normalization would change its identity.
+    return new URL(relativeUri, base).href === inputUrl.href ? relativeUri : input
   }
 
   // Base is a remote URL, input is a local path
@@ -42,7 +52,7 @@ export const toRelativePath = (input: string, base: string) => {
   }
 
   // Both input and base are local paths; return the relative path
-  const baseDir = path.dirname(path.resolve(base))
+  const baseDir = base.endsWith('/') ? path.resolve(base) : path.dirname(path.resolve(base))
   const inputPath = path.resolve(input)
   return path.relative(baseDir, inputPath)
 }

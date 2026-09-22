@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -71,7 +71,37 @@ describe('process-openapi-document', () => {
     }
   })
 
-  it('does not request loopback URLs through a $ref', async () => {
+  it.each(['https://example.com/api.json', './api.json'])(
+    'resolves schema references using $self %s and the supplied origin',
+    async (self) => {
+      const result = await processOpenApiDocument(
+        {
+          openapi: '3.2.1',
+          $self: self,
+          info: { title: 'Example', version: '1' },
+          paths: {},
+          components: {
+            schemas: {
+              Value: { type: 'string' },
+              Model: { $id: 'model.json', properties: { value: { $ref: 'api.json#/components/schemas/Value' } } },
+            },
+          },
+        },
+        'https://example.com/mirror.json',
+      )
+      expect(result.components?.schemas?.Model).toStrictEqual({
+        $id: 'model.json',
+        properties: {
+          value: {
+            $ref: 'https://example.com/api.json#/components/schemas/Value',
+            '$ref-value': { type: 'string' },
+          },
+        },
+      })
+    },
+  )
+
+  it.each([false, true])('does not request loopback URLs through $ref or $self (self=%s)', async (useSelf) => {
     const requests: string[] = []
     const server = createServer((request, response) => {
       requests.push(request.url ?? '')
@@ -91,10 +121,13 @@ describe('process-openapi-document', () => {
       }
 
       const document = {
-        openapi: '3.1.0',
+        openapi: '3.2.1',
+        ...(useSelf ? { $self: `http://127.0.0.1:${address.port}/api.json` } : {}),
         info: { title: 'Test', version: '1.0.0' },
         paths: {},
-        components: { schemas: { Leaked: { $ref: `http://127.0.0.1:${address.port}/secret.json` } } },
+        components: {
+          schemas: { Leaked: { $ref: useSelf ? './secret.json' : `http://127.0.0.1:${address.port}/secret.json` } },
+        },
       }
 
       const result = await processOpenApiDocument(document)
@@ -105,6 +138,31 @@ describe('process-openapi-document', () => {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()))
       })
+    }
+  })
+
+  it('confines a file-backed document even when $self points outside its directory', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'mock-self-'))
+    try {
+      const allowed = join(directory, 'allowed')
+      await mkdir(allowed)
+      await writeFile(join(directory, 'secret.json'), JSON.stringify({ secret: 'outside-self-secret' }))
+      const document = join(allowed, 'api.json')
+      await writeFile(
+        document,
+        JSON.stringify({
+          openapi: '3.2.1',
+          $self: '../canonical.json',
+          info: { title: 'Test', version: '1' },
+          paths: {},
+          components: { schemas: { Secret: { $ref: './secret.json' } } },
+        }),
+      )
+      const result = await processOpenApiDocument(document)
+      expect(JSON.stringify(result)).not.toContain('outside-self-secret')
+      expect(result.components?.schemas?.Secret?.$ref).toBe('./secret.json')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
     }
   })
 
