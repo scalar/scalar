@@ -200,7 +200,7 @@ const app = await createMockServer({
 })
 ```
 
-For file and URL inputs, the JSON and YAML export routes return the loaded, bundled OpenAPI 3.1 document. Inline inputs without `origin` keep their original format version.
+For file and URL inputs, the JSON and YAML export routes return the loaded, bundled API description. Inline inputs without `origin` keep their original format version.
 
 ### Path keys with a query string
 
