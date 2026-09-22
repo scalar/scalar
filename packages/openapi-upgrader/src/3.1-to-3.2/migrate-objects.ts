@@ -46,6 +46,21 @@ const schemaSingles = [
 
 /** Reject only incompatibilities that can be established within this document. */
 export const migrateObjects = (document: UnknownObject): Set<string> => {
+  // A cloned JSON object still inherits Object.prototype. Keep traversal in own
+  // data properties, including when the host already has polluted prototypes.
+  // Maps also allow literal __proto__ and constructor reference segments safely.
+  const properties = new WeakMap<object, Map<string, unknown>>()
+  const own = (value: object, key: string): unknown => {
+    const entries =
+      properties.get(value) ??
+      new Map(
+        Object.entries(Object.getOwnPropertyDescriptors(value))
+          .filter(([, descriptor]) => Object.hasOwn(descriptor, 'value'))
+          .map(([name, descriptor]) => [name, descriptor.value]),
+      )
+    properties.set(value, entries)
+    return entries.get(key)
+  }
   const operationTags = new Set<string>()
   const errors: Error[] = []
   const requiredCache = new WeakMap<object, Map<string, boolean | undefined>>()
@@ -87,7 +102,7 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
         if ((!isObject(value) && !Array.isArray(value)) || !Object.hasOwn(value, key)) {
           return undefined
         }
-        return Object.getOwnPropertyDescriptor(value, key)?.value
+        return own(value, key)
       }, document)
     } catch {
       return undefined
@@ -272,17 +287,19 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
     seen.add(visitKey)
     visited.set(value, seen)
     const child = (key: string, type: Kind): void =>
-      visit(value[key], type, `${path}/${escapeJsonPointer(key)}`, schemaDialect, schemaBaseChanged)
+      visit(own(value, key), type, `${path}/${escapeJsonPointer(key)}`, schemaDialect, schemaBaseChanged)
     const list = (key: string, type: Kind): void => {
-      if (Array.isArray(value[key])) {
-        value[key].forEach((item: unknown, index: number) =>
+      const items = own(value, key)
+      if (Array.isArray(items)) {
+        items.forEach((item: unknown, index: number) =>
           visit(item, type, `${path}/${key}/${index}`, schemaDialect, schemaBaseChanged),
         )
       }
     }
     const map = (key: string, type: Kind): void => {
-      if (isObject(value[key])) {
-        for (const [name, item] of Object.entries(value[key])) {
+      const items = own(value, key)
+      if (isObject(items)) {
+        for (const [name, item] of Object.entries(items)) {
           if (key === 'responses' && name.startsWith('x-')) {
             continue
           }
@@ -299,7 +316,7 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
       if (schemaDialect !== undefined) {
         return
       }
-      const xml = value.xml
+      const xml = own(value, 'xml')
       if (isObject(xml)) {
         if (xml.wrapped === true && xml.attribute === true) {
           fail(`${path}/xml`, 'wrapped and attribute cannot both be true.')
@@ -341,8 +358,9 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
     }
     switch (kind) {
       case 'document': {
-        if (isObject(value.paths)) {
-          for (const [name, item] of Object.entries(value.paths)) {
+        const paths = own(value, 'paths')
+        if (isObject(paths)) {
+          for (const [name, item] of Object.entries(paths)) {
             if (!name.startsWith('/')) {
               continue
             }
@@ -353,7 +371,8 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
         }
         map('webhooks', 'pathItem')
         list('servers', 'server')
-        if (isObject(value.components)) {
+        const componentObjects = own(value, 'components')
+        if (isObject(componentObjects)) {
           const components: Record<string, Kind> = {
             schemas: 'schema',
             parameters: 'parameter',
@@ -364,7 +383,7 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
             pathItems: 'pathItem',
           }
           for (const [key, type] of Object.entries(components)) {
-            const entries = value.components[key]
+            const entries = own(componentObjects, key)
             if (isObject(entries)) {
               for (const [name, item] of Object.entries(entries)) {
                 visit(item, type, `${path}/components/${key}/${escapeJsonPointer(name)}`)

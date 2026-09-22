@@ -11,3 +11,5 @@ Tag `kind` values may change: navigation groups are classified from actual opera
 Expose `UpgradeIncompatibilityError` so Markdown generation can retain OpenAPI 3.1 for descriptions requiring author decisions instead of failing or silently changing semantics. Clone safety and malformed-version errors still propagate.
 
 The mock server also retains OpenAPI 3.1 when the strict 3.2 migration reports compatibility diagnostics. Existing inline XML descriptions continue loading without inventing element names.
+
+Read only own data properties during migration so inherited parameter lists, XML metadata, and reference targets cannot modify prototype-owned objects.

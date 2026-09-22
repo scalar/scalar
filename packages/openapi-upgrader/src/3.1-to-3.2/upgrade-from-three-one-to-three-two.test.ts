@@ -754,6 +754,26 @@ describe('upgrade-from-three-one-to-three-two', () => {
     },
   )
 
+  it('does not migrate parameter lists inherited from Object.prototype', () => {
+    const parameter = { name: 'id', in: 'path', allowReserved: true }
+    const input = document({ paths: { '/items': { get: { responses: {} } } } })
+    const previous = Object.getOwnPropertyDescriptor(Object.prototype, 'parameters')
+    Object.defineProperty(Object.prototype, 'parameters', {
+      value: [parameter],
+      configurable: true,
+    })
+    try {
+      expect(upgrade(input)).toStrictEqual({ ...input, openapi: '3.2.0' })
+      expect(parameter).toStrictEqual({ name: 'id', in: 'path', allowReserved: true })
+    } finally {
+      if (previous) {
+        Object.defineProperty(Object.prototype, 'parameters', previous)
+      } else {
+        Reflect.deleteProperty(Object.prototype, 'parameters')
+      }
+    }
+  })
+
   it('does not mutate a prototype supplied as the document', () => {
     const prototype = document({
       components: { parameters: { Id: { name: 'id', in: 'path', allowReserved: true } } },
