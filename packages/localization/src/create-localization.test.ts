@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { createLocalization } from './create-localization'
 
@@ -78,6 +78,22 @@ describe('create-localization', () => {
     expect(wrapper.find('div').attributes('data-direction')).toBe('ltr')
   })
 
+  it.each(['$&', "$'", '$`', '$1', '$$'])('preserves literal %s in repeated interpolation values', (name) => {
+    const Component = defineComponent({
+      setup() {
+        const { translate } = provideLocalization({
+          translations: { schema: { save: 'Save {name}, then reopen {name}.' } },
+        })
+        return () => h('div', translate('schema.save', { name }))
+      },
+    })
+
+    const wrapper = mount(Component)
+
+    expect(wrapper.text()).toBe(`Save ${name}, then reopen ${name}.`)
+    wrapper.unmount()
+  })
+
   it('falls back to the key itself when a translation is missing', () => {
     const Child = defineComponent({
       setup() {
@@ -95,5 +111,84 @@ describe('create-localization', () => {
     })
 
     expect(mount(Parent).text()).toBe('schema.missing')
+  })
+
+  it('keeps a cached cross-package context reactive after its first consumer unmounts', async () => {
+    const other = createLocalization<{ client: { send: string } }, 'client.send'>({
+      localeTranslations: {
+        en: { client: { send: 'Send' } },
+        ar: { client: { send: 'إرسال' } },
+      },
+      defaultLocale: 'en',
+      rtlLocales: new Set(['ar']),
+    })
+    const locale = ref('en')
+    const consumer = ref('first')
+    const contexts: ReturnType<typeof other.useLocalization>[] = []
+    const Child = defineComponent({
+      setup() {
+        const context = other.useLocalization()
+        contexts.push(context)
+        return () =>
+          h('button', { lang: context.locale.value, dir: context.direction.value }, context.translate('client.send'))
+      },
+    })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization(() => ({ locale: locale.value }))
+          return () => (consumer.value ? h(Child, { key: consumer.value }) : null)
+        },
+      }),
+    )
+    expect(wrapper.text()).toBe('Send')
+    consumer.value = ''
+    await nextTick()
+    consumer.value = 'second'
+    await nextTick()
+    expect(contexts[0]).toBe(contexts[1])
+    locale.value = 'ar'
+    await nextTick()
+    expect(wrapper.text()).toBe('إرسال')
+    expect(wrapper.attributes('lang')).toBe('ar')
+    expect(wrapper.attributes('dir')).toBe('rtl')
+    wrapper.unmount()
+  })
+
+  it('merges a consumer dictionary with reactive translations from a different package', async () => {
+    const other = createLocalization<{ client: { send: string; cancel: string } }, 'client.send' | 'client.cancel'>({
+      localeTranslations: { en: { client: { send: 'Send', cancel: 'Cancel' } } },
+      defaultLocale: 'en',
+      rtlLocales: new Set(['ar']),
+    })
+    const overrides = ref({ client: { send: 'Senden' } })
+    const contexts: ReturnType<typeof other.useLocalization>[] = []
+    const Child = defineComponent({
+      setup() {
+        const context = other.useLocalization()
+        contexts.push(context)
+        return () => h('span', `${context.translate('client.send')} / ${context.translate('client.cancel')}`)
+      },
+    })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization(() => ({
+            locale: 'de',
+            translations: { ...overrides.value, common: { greeting: 'Hallo' } },
+          }))
+          return () => h('div', [h(Child), h(Child)])
+        },
+      }),
+    )
+    expect(wrapper.findAll('span').map((span) => span.text())).toStrictEqual(['Senden / Cancel', 'Senden / Cancel'])
+    expect(contexts[0]).toBe(contexts[1])
+    overrides.value = { client: { send: 'Abschicken' } }
+    await nextTick()
+    expect(wrapper.findAll('span').map((span) => span.text())).toStrictEqual([
+      'Abschicken / Cancel',
+      'Abschicken / Cancel',
+    ])
+    wrapper.unmount()
   })
 })

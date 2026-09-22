@@ -62,6 +62,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import OpenApiClientButton from './OpenApiClientButton.vue'
@@ -85,6 +86,8 @@ const emit = defineEmits<{
   /** Update the full destination URL used to deliver a webhook. */
   (e: 'update:webhook-url', url: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const handleSelectEnvironment = (environmentName: string) => {
   eventBus.emit('workspace:update:active-environment', environmentName)
@@ -143,7 +146,7 @@ const handleAddEnvironment = () => {
       <ScalarIconButton
         v-if="layout !== 'modal' && !isWebhook"
         :icon="ScalarIconGearSix"
-        label="Operation settings"
+        :label="translate('apiClient.header.operationSettings')"
         size="sm"
         weight="bold"
         @click="emit('navigate:settings')" />
@@ -176,7 +179,9 @@ const handleAddEnvironment = () => {
           icon="Close"
           size="lg"
           thickness="2" />
-        <span class="sr-only">Close Client</span>
+        <span class="sr-only">{{
+          translate('apiClient.header.closeClient')
+        }}</span>
       </button>
 
       <!--
@@ -193,7 +198,9 @@ const handleAddEnvironment = () => {
           icon="Close"
           size="md"
           thickness="1.75" />
-        <span class="sr-only">Close Client</span>
+        <span class="sr-only">{{
+          translate('apiClient.header.closeClient')
+        }}</span>
       </button>
     </div>
   </div>

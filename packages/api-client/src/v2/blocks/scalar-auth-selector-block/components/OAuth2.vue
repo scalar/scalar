@@ -47,6 +47,7 @@ import {
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import type { DeviceAuthorizationPrompt } from '../helpers/oauth-device-authorization'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -114,6 +115,8 @@ const cancelDeviceAuthorization = (): void => {
 }
 onBeforeUnmount(cancelDeviceAuthorization)
 watch(() => [type, name, flows], cancelDeviceAuthorization)
+
+const { translate } = useLocalization()
 
 const loader = useLoadingState()
 const { toast } = useToasts()
@@ -325,7 +328,10 @@ const handleAuthorize = async (): Promise<void> => {
     })
   } else {
     console.error(error)
-    toast(error?.message ?? 'Failed to authorize', 'error')
+    toast(
+      error?.message ?? translate('apiClient.oauth2.failedToauthorize'),
+      'error',
+    )
   }
 }
 
@@ -374,7 +380,10 @@ const handleRefresh = async (): Promise<void> => {
     })
   } else {
     console.error(error)
-    toast(error?.message ?? 'Failed to refresh token', 'error')
+    toast(
+      error?.message ?? translate('apiClient.oauth2.failedToRefreshToken'),
+      'error',
+    )
   }
 }
 
@@ -407,7 +416,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': v })
         ">
-        Access Token
+        {{ translate('apiClient.oauth2.accessToken') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -418,7 +427,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         :modelValue="flow.refreshUrl ?? ''"
         :placeholder="refreshUrlPlaceholder"
         @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
-        Refresh URL
+        {{ translate('apiClient.oauth2.refreshUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -433,7 +442,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleRefresh">
-          Refresh
+          {{ translate('apiClient.oauth2.refresh') }}
         </ScalarButton>
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
@@ -441,7 +450,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleClearAccessTokens">
-          Clear
+          {{ translate('apiClient.oauth2.clear') }}
         </ScalarButton>
       </div>
     </DataTableRow>
@@ -456,7 +465,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2Update({ deviceAuthorizationUrl: v })
         ">
-        Device Authorization URL
+        {{ translate('apiClient.oauth2.deviceAuthorizationUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
     <DataTableRow v-if="devicePrompt">
@@ -465,7 +474,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           class="bg-b-2 flex flex-col gap-3 rounded-lg border p-3 text-sm"
           role="status">
           <p class="text-c-2 text-xs leading-normal">
-            Open the verification page and enter this code:
+            {{ translate('apiClient.oauth2.deviceVerificationPrompt') }}
           </p>
           <strong
             class="bg-b-1 font-code w-fit max-w-full rounded border px-3 py-2 text-base font-medium tracking-widest break-all select-all">
@@ -482,12 +491,14 @@ const handleSecretLocationUpdate = (value: string): void => {
             {{ devicePrompt.verificationUri }}
           </a>
           <div class="flex items-center justify-between gap-3">
-            <p class="text-c-2 text-xs">Waiting for authorization…</p>
+            <p class="text-c-2 text-xs">
+              {{ translate('apiClient.oauth2.waitingForAuthorization') }}
+            </p>
             <ScalarButton
               size="xs"
               variant="outlined"
               @click="cancelDeviceAuthorization">
-              Cancel
+              {{ translate('apiClient.oauth2.cancelDeviceAuthorization') }}
             </ScalarButton>
           </div>
         </div>
@@ -506,7 +517,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2Update({ authorizationUrl: v })
           }
         ">
-        Auth URL
+        {{ translate('apiClient.oauth2.authUrl') }}
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput
@@ -520,7 +531,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2Update({ tokenUrl: v })
           }
         ">
-        Token URL
+        {{ translate('apiClient.oauth2.tokenUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -531,7 +542,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         :placeholder="
           options.captureOAuth2Callback
             ? `${resolveDefaultOAuth2RedirectUri(options) || 'http://127.0.0.1'} (handled automatically)`
-            : 'Optional redirect URL'
+            : translate('apiClient.oauth2.optionalRedirectUrl')
         "
         @update:modelValue="
           (v) => {
@@ -539,7 +550,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2SecretsUpdate({ 'x-scalar-secret-redirect-uri': v })
           }
         ">
-        Redirect URL
+        {{ translate('apiClient.oauth2.redirectUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -556,7 +567,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-username': v })
           ">
-          Username
+          {{ translate('apiClient.oauth2.username') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
 
@@ -569,7 +580,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-password': v })
           ">
-          Password
+          {{ translate('apiClient.oauth2.password') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
     </template>
@@ -582,7 +593,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-client-id': v })
         ">
-        Client ID
+        {{ translate('apiClient.oauth2.clientID') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -596,7 +607,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           (v) =>
             handleOauth2SecretsUpdate({ 'x-scalar-secret-client-secret': v })
         ">
-        Client Secret
+        {{ translate('apiClient.oauth2.clientSecret') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -612,7 +623,7 @@ const handleSecretLocationUpdate = (value: string): void => {
               'x-usePkce': v as XusePkce['x-usePkce'],
             })
         ">
-        Use PKCE
+        {{ translate('apiClient.oauth2.usePKCE') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -627,7 +638,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         placeholder="header"
         readOnly
         @update:modelValue="(v) => handleSecretLocationUpdate(v)">
-        Credentials Location
+        {{ translate('apiClient.oauth2.credentialsLocation') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -654,7 +665,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="clearOauth2Secrets">
-          Clear
+          {{ translate('apiClient.oauth2.clear') }}
         </ScalarButton>
 
         <ScalarButton
@@ -663,7 +674,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleAuthorize">
-          Authorize
+          {{ translate('apiClient.oauth2.authorize') }}
         </ScalarButton>
       </div>
     </DataTableRow>

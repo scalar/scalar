@@ -1401,6 +1401,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/localization':
+        specifier: workspace:*
+        version: link:../localization
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils

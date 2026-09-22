@@ -39,7 +39,6 @@ export type AddressBarProps = {
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
-import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
@@ -72,6 +71,7 @@ import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/
 import { usePathMasking } from '@/v2/blocks/scalar-address-bar-block/hooks/use-path-masking'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'
@@ -98,6 +98,8 @@ const emit = defineEmits<{
   /** Update the full destination URL used to deliver a webhook. */
   (e: 'update:webhook-url', url: string): void
 }>()
+
+const { translate } = useLocalization()
 
 // ───────────────────────────────────────────────────────────────────
 // Template refs & reactive state
@@ -147,8 +149,8 @@ const pathPlaceholder = computed(() => {
     return ''
   }
   return isWebhook
-    ? 'Enter the full webhook URL, e.g. https://example.com/hook'
-    : 'Enter a URL'
+    ? translate('apiClient.addressBar.webhookUrlPlaceholder')
+    : translate('apiClient.addressBar.urlPlaceholder')
 })
 
 /** Whether either dropdown (server or history) is open */
@@ -512,7 +514,8 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal"
+        dir="ltr">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
@@ -530,7 +533,7 @@ defineExpose({
         <CodeInput
           ref="addressBarRef"
           alwaysEmitChange
-          aria-label="Path"
+          :aria-label="translate('apiClient.addressBar.path')"
           class="ml-1 min-w-fit pl-px outline-none"
           disableCloseBrackets
           :disabled="layout === 'modal' && !isWebhook"
@@ -557,7 +560,9 @@ defineExpose({
         variant="ghost"
         @click="requestCopyUrl">
         <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
+        <span class="sr-only">{{
+          translate('apiClient.addressBar.copyUrl')
+        }}</span>
       </ScalarButton>
 
       <AddressBarHistory
@@ -573,11 +578,12 @@ defineExpose({
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
           <div class="min-w-0 flex-1">
-            A
-            <em>{{ methodConflict?.toUpperCase() ?? method.toUpperCase() }}</em>
-            request to
-            <ScalarWrappingText :text="pathConflict ?? path" />
-            already exists in this document
+            {{
+              translate('apiClient.addressBar.duplicateRequest', {
+                method: (methodConflict ?? method).toUpperCase(),
+                path: pathConflict ?? path,
+              })
+            }}
           </div>
         </div>
       </div>
@@ -595,10 +601,17 @@ defineExpose({
             class="relative shrink-0 fill-current"
             icon="Play"
             size="xs" />
-          <span class="text-xxs flex">Send</span>
+          <span class="text-xxs flex">{{
+            translate('apiClient.addressBar.send')
+          }}</span>
         </span>
-        <span class="sr-only">
-          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+        <span class="sr-only"
+          >{{
+            translate('apiClient.addressBar.sendRequest', {
+              method,
+              url: `${server?.url ?? ''}${path}`,
+            })
+          }}
         </span>
       </ScalarButton>
     </div>
@@ -622,7 +635,9 @@ defineExpose({
         variant="ghost"
         @click="requestCopyUrl">
         <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
+        <span class="sr-only">{{
+          translate('apiClient.addressBar.copyUrl')
+        }}</span>
       </ScalarButton>
       <ScalarButton
         ref="mobileSendButtonRef"
@@ -637,10 +652,17 @@ defineExpose({
             class="relative shrink-0 fill-current"
             icon="Play"
             size="xs" />
-          <span class="text-xxs">Send</span>
+          <span class="text-xxs">{{
+            translate('apiClient.addressBar.send')
+          }}</span>
         </span>
-        <span class="sr-only">
-          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+        <span class="sr-only"
+          >{{
+            translate('apiClient.addressBar.sendRequest', {
+              method,
+              url: `${server?.url ?? ''}${path}`,
+            })
+          }}
         </span>
       </ScalarButton>
     </div>
@@ -705,11 +727,6 @@ defineExpose({
   width: 24px;
   right: 0;
   cursor: text;
-}
-.scroll-timeline-x-address:empty:before {
-  content: 'Enter URL or cURL request';
-  color: var(--scalar-color-3);
-  pointer-events: none;
 }
 
 .address-bar-bg-states {

@@ -9,12 +9,15 @@ import {
 
 import HelpfulLink from '@/components/HelpfulLink.vue'
 import { CollapsibleSection } from '@/v2/components/layout'
-
-type Header = { name: string; value: string }
+import { useLocalization } from '@/v2/features/localization'
 
 defineProps<{
   headers: Header[]
 }>()
+
+const { translate } = useLocalization()
+
+type Header = { name: string; value: string }
 
 const findHeaderInfo = (name: string): HttpHeader | undefined =>
   httpHeaders[name.toLowerCase() as keyof typeof httpHeaders]
@@ -32,8 +35,12 @@ const findHeaderInfo = (name: string): HttpHeader | undefined =>
         :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']"
         scroll>
         <DataTableRow class="sr-only !block">
-          <DataTableHeader>Header Key</DataTableHeader>
-          <DataTableHeader>Header Value</DataTableHeader>
+          <DataTableHeader>
+            {{ translate('apiClient.headers.headerKey') }}
+          </DataTableHeader>
+          <DataTableHeader>
+            {{ translate('apiClient.headers.headerValue') }}
+          </DataTableHeader>
         </DataTableRow>
         <DataTableRow
           v-for="item in headers"
@@ -62,7 +69,7 @@ const findHeaderInfo = (name: string): HttpHeader | undefined =>
     <div
       v-else
       class="text-c-3 bg-b-1 flex min-h-[64px] items-center justify-center border-t px-4 text-sm">
-      No headers
+      {{ translate('apiClient.headers.noHeaders') }}
     </div>
   </CollapsibleSection>
 </template>
