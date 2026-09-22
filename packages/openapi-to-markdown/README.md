@@ -134,10 +134,8 @@ Schema normalization and description parsing are cached within each renderer. Re
 schema expansion still tracks ancestors and stops at a depth of ten. Output may use tighter
 list spacing and normalized Markdown escaping compared with earlier versions.
 
-### HTML output
-
-`createHtmlFromOpenApi` and `renderer.renderHtml` remain available. They convert the
-Markdown output to HTML on demand, without loading a Vue renderer.
+The package only generates Markdown. To produce HTML, pass the Markdown output to a
+Markdown renderer in your application.
 
 ## Community
 

@@ -4,12 +4,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  type OpenApiRenderOptions,
-  createHtmlFromOpenApi,
-  createMarkdownFromOpenApi,
-  createOpenApiMarkdownRenderer,
-} from './index'
+import { type OpenApiRenderOptions, createMarkdownFromOpenApi, createOpenApiMarkdownRenderer } from './index'
 
 const document = {
   openapi: '3.1.0',
@@ -89,31 +84,6 @@ describe('create-openapi-markdown-renderer', () => {
     expect(operation).toContain('limit')
     expect(operation).not.toContain('Create pet')
     expect(operation).not.toContain('Pet created event')
-  })
-
-  it('keeps the HTML API available on demand', async () => {
-    const renderer = await createOpenApiMarkdownRenderer(document)
-    expect(await renderer.renderHtml({ introduction: true })).toContain('<h1>Pets</h1>')
-    expect(await createHtmlFromOpenApi(document, { introduction: true })).toContain('<h1>Pets</h1>')
-  })
-
-  it('renders GFM tables and strikethrough in both HTML entry points', async () => {
-    const input = {
-      openapi: '3.1.1',
-      info: {
-        title: 'GFM',
-        version: '1',
-        description: '| Field | Value |\n| --- | --- |\n| name | pet |\n\n~~deprecated~~',
-      },
-    }
-    const renderer = await createOpenApiMarkdownRenderer(input)
-    const html = await renderer.renderHtml({ introduction: true })
-
-    expect(html).toContain('<table>')
-    expect(html).toContain('<th>Field</th>')
-    expect(html).toContain('<td>pet</td>')
-    expect(html).toContain('<del>deprecated</del>')
-    expect(await createHtmlFromOpenApi(input, { introduction: true })).toBe(html)
   })
 
   it('renders chained path-item references with sibling overrides', async () => {

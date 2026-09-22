@@ -8,7 +8,6 @@ type AnyDocument = OpenApiDocument | Record<string, unknown> | string
 /** A resolved API description that can render multiple pages without loading it again. */
 export type OpenApiMarkdownRenderer = {
   render: (options?: OpenApiRenderOptions) => Promise<string>
-  renderHtml: (options?: OpenApiRenderOptions) => Promise<string>
 }
 
 /**
@@ -21,26 +20,7 @@ export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise
   const renderDocument = createDocumentRenderer()
   const render = async (options?: OpenApiRenderOptions): Promise<string> =>
     await renderDocument(selectDocument(content, options))
-  return {
-    render,
-    renderHtml: async (options) => {
-      const [
-        { unified },
-        { default: remarkParse },
-        { default: remarkGfm },
-        { default: remarkRehype },
-        { default: rehypeStringify },
-      ] = await Promise.all([
-        import('unified'),
-        import('remark-parse'),
-        import('remark-gfm'),
-        import('remark-rehype'),
-        import('rehype-stringify'),
-      ])
-      const processor = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify)
-      return processor.processSync(await render(options)).toString()
-    },
-  }
+  return { render }
 }
 
 /** Generate Markdown from an API description, optionally scoped to a single page. */
@@ -50,10 +30,4 @@ export const createMarkdownFromOpenApi = async (
 ): Promise<string> => {
   const renderer = await createOpenApiMarkdownRenderer(input)
   return renderer.render(options)
-}
-
-/** Generate HTML through the optional Markdown conversion path. */
-export const createHtmlFromOpenApi = async (input: AnyDocument, options?: OpenApiRenderOptions): Promise<string> => {
-  const renderer = await createOpenApiMarkdownRenderer(input)
-  return renderer.renderHtml(options)
 }
