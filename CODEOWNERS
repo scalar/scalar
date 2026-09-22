@@ -1,9 +1,6 @@
 # Default code owners (overwritten by more specific entries)
 * @marclave @hanspagel @amritk @hwkr @cameronrohani
 
-# Changesets
-/.changeset @cameronrohani
-
 # Amrit + Redis
 /packages/api-client @marclave @hanspagel @amritk @DemonHa @cameronrohani
 /packages/json-magic @marclave @hanspagel @amritk @DemonHa @cameronrohani
