@@ -117,6 +117,32 @@ describe('galaxy-scalar-com', () => {
       expect(html).toContain("import { createApiReference } from '/scalar/standalone.esm.js'")
     })
 
+    it('renders the published ESM build in production', async () => {
+      vi.stubGlobal('GALAXY_IS_PRODUCTION', true)
+      vi.resetModules()
+
+      try {
+        const { configureApiReference: configureProduction } = await import('./galaxy-scalar-com')
+        const { Scalar: renderScalar } =
+          await vi.importActual<typeof import('@scalar/hono-api-reference')>('@scalar/hono-api-reference')
+        vi.mocked(Scalar).mockImplementationOnce(renderScalar)
+        const app = new Hono()
+        configureProduction(app)
+
+        const response = await app.request('/')
+        const html = await response.text()
+
+        expect(response.status).toBe(200)
+        expect(html).toContain('<script type="module">')
+        expect(html).toContain(
+          "import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'",
+        )
+      } finally {
+        vi.unstubAllGlobals()
+        vi.resetModules()
+      }
+    })
+
     it.each(['/scalar/standalone.esm.js', '/scalar/chunks/vendor-example.js'])(
       'serves %s through the Pages assets binding',
       async (path) => {

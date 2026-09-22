@@ -37,7 +37,7 @@ const LOCAL_BUNDLE_PATH = '/scalar/standalone.esm.js'
  *
  * Wrangler's `--define` flag (see the `build` script) replaces this identifier
  * with a literal `true` or `false` at build time, decided by the CI deploy
- * environment. Production loads the published `@scalar/api-reference` bundle
+ * environment. Production loads the published `@scalar/api-reference` ESM bundle
  * from the jsDelivr CDN; staging and PR previews load the bundle built from the
  * current branch instead, so reference UI changes can be reviewed before they
  * are released to npm.
@@ -94,8 +94,8 @@ export const configureApiReference = (app: Hono): void => {
         key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
       },
       // Staging and PR previews render the reference UI built from this branch;
-      // production keeps the default jsDelivr CDN bundle.
-      ...(isProductionBuild ? {} : { bundle: LOCAL_BUNDLE_PATH }),
+      // production explicitly loads the published ESM build from jsDelivr.
+      bundle: isProductionBuild ? true : LOCAL_BUNDLE_PATH,
     }),
   )
 }
