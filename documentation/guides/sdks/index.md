@@ -192,7 +192,7 @@
               <span class="sdk-demo-target-mark"><svg aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#3178C6"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z" /></svg></span>
               <span class="sdk-demo-target-body">
                 <span class="sdk-demo-target-head">
-                  <span class="sdk-demo-target-name">Typescript</span>
+                  <span class="sdk-demo-target-name">TypeScript</span>
                 </span>
                 <span class="sdk-demo-target-registry">npm</span>
               </span>
@@ -209,14 +209,14 @@
           </div>
           <div class="sdk-demo-panel">
             <div class="sdk-demo-tabs" role="tablist" data-sdk-demo-tablist aria-label="Generated output">
-              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="quickstart" aria-selected="true">Quickstart</button>
-              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="reference" aria-selected="false" tabindex="-1">api.md</button>
-              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="skill" aria-selected="false" tabindex="-1">SKILL.md</button>
-              <button class="sdk-demo-tab" type="button" role="tab" data-sdk-demo-tab="files" aria-selected="false" tabindex="-1">Files</button>
+              <button class="sdk-demo-tab" type="button" role="tab" id="sdk-demo-tab-quickstart" aria-controls="sdk-demo-panel-code" data-sdk-demo-tab="quickstart" aria-selected="true">Quickstart</button>
+              <button class="sdk-demo-tab" type="button" role="tab" id="sdk-demo-tab-reference" aria-controls="sdk-demo-panel-code" data-sdk-demo-tab="reference" aria-selected="false" tabindex="-1">api.md</button>
+              <button class="sdk-demo-tab" type="button" role="tab" id="sdk-demo-tab-skill" aria-controls="sdk-demo-panel-code" data-sdk-demo-tab="skill" aria-selected="false" tabindex="-1">SKILL.md</button>
+              <button class="sdk-demo-tab" type="button" role="tab" id="sdk-demo-tab-files" aria-controls="sdk-demo-panel-files" data-sdk-demo-tab="files" aria-selected="false" tabindex="-1">Files</button>
             </div>
             <div class="sdk-demo-code-head"><span data-sdk-demo-code-title>index.ts</span></div>
 
-<pre class="sdk-demo-code" data-sdk-demo-code><span class="sdk-demo-tok-keyword">import</span> <span class="sdk-demo-tok-type">WarpAPI</span> <span class="sdk-demo-tok-keyword">from</span> <span class="sdk-demo-tok-string">"warp-hr"</span>;
+<pre class="sdk-demo-code" id="sdk-demo-panel-code" role="tabpanel" tabindex="0" data-sdk-demo-code><span class="sdk-demo-tok-keyword">import</span> <span class="sdk-demo-tok-type">WarpAPI</span> <span class="sdk-demo-tok-keyword">from</span> <span class="sdk-demo-tok-string">"warp-hr"</span>;
 
 <span class="sdk-demo-tok-keyword">const</span> client = <span class="sdk-demo-tok-keyword">new</span> <span class="sdk-demo-tok-type">WarpAPI</span>({
   apiKey: process.env[<span class="sdk-demo-tok-string">"WARP_API_KEY"</span>], <span class="sdk-demo-tok-comment">// defaults to the WARP_API_KEY env var</span>
@@ -226,7 +226,7 @@
 <span class="sdk-demo-tok-keyword">for</span> <span class="sdk-demo-tok-keyword">await</span> (<span class="sdk-demo-tok-keyword">const</span> assignment <span class="sdk-demo-tok-keyword">of</span> client.timeOff.<span class="sdk-demo-tok-fn">listAssignments</span>({ limit: <span class="sdk-demo-tok-number">50</span> })) {
   console.<span class="sdk-demo-tok-fn">log</span>(assignment.id, assignment.policy.name);
 }</pre>
-<div class="sdk-demo-static-samples" data-sdk-demo-static-only>
+<div class="sdk-demo-static-samples">
               <div class="sdk-demo-code-head"><span>main.py</span></div>
 
 <pre class="sdk-demo-code">import os
@@ -267,7 +267,7 @@ func main() {
 	}
 }</pre>
 </div>
-            <div class="sdk-demo-files" data-sdk-demo-files hidden></div>
+            <div class="sdk-demo-files" id="sdk-demo-panel-files" role="tabpanel" tabindex="0" data-sdk-demo-files hidden></div>
           </div>
         </div>
         <div class="sdk-demo-video" data-sdk-demo-video hidden>
@@ -388,7 +388,7 @@ func main() {
       <p class="sdk-demo-closed-text">You closed the demo.</p>
       <button class="sdk-demo-closed-button" type="button" data-sdk-demo-reopen>Open it again</button>
     </div>
-    <div class="sdk-demo-hint" data-sdk-demo-hint hidden>
+    <div class="sdk-demo-hint" data-sdk-demo-hint aria-hidden="true" hidden>
       <span class="sdk-demo-hint-pill">
         <span class="sdk-demo-hint-dot" aria-hidden="true"></span>
         Click to interact
@@ -1113,6 +1113,11 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     flex-shrink: 0;
   }
 
+  .sdk-demo-overview-search:focus-within {
+    outline: var(--scalar-border-width) solid var(--scalar-color-accent);
+    outline-offset: 2px;
+  }
+
   .sdk-demo-overview-search input {
     width: 100%;
     min-width: 0;
@@ -1309,7 +1314,6 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
     color: var(--scalar-color-3);
     font-size: 32px;
     font-weight: 300;
-    cursor: default;
   }
 
   /* ---------------------------------------------------------------------
@@ -1490,7 +1494,7 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
   .sdk-demo-zoom-scrim {
     position: fixed;
     inset: 0;
-    z-index: 59;
+    z-index: 10001;
     background: rgb(0 0 0 / 45%);
   }
 
@@ -1501,7 +1505,7 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
   .sdk-demo[data-sdk-demo-zoom='true'] .sdk-demo-stage {
     position: fixed;
     inset: 16px;
-    z-index: 60;
+    z-index: 10002;
   }
 
   .sdk-demo[data-sdk-demo-zoom='true'] .sdk-demo-frame {
@@ -1943,7 +1947,7 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
   }
 
   .sdk-demo-tok-type {
-    color: var(--scalar-color-yellow);
+    color: var(--scalar-color-1);
   }
 
   .sdk-demo-tok-fn {
