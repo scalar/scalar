@@ -29,6 +29,28 @@ import {
 } from './server'
 
 describe('create-server-store', () => {
+  it('loads unnamed inline XML bodies without upgrading the document to 3.2', async () => {
+    const schema = { type: 'object', properties: { id: { type: 'string', xml: { attribute: true } } } }
+    const requestBody = { content: { 'application/xml': { schema } } }
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'XML compatibility', version: '1.0.0' },
+      paths: { '/pets': { post: { requestBody, responses: { '200': { description: 'OK' } } } } },
+    }
+    const original = structuredClone(input)
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'xml', document: input }],
+    })
+    const document = getOpenApiServerDocument(store, 'xml')
+    const operation = store.get('#/xml/operations/~1pets/post')
+
+    expect(document?.openapi).toBe('3.1.0')
+    expect(operation).toStrictEqual(input.paths['/pets'].post)
+    expect(input).toStrictEqual(original)
+  })
+
   it('keeps a __proto__ schema in the sparse server document', async () => {
     const store = await createServerWorkspaceStore({
       mode: 'ssr',

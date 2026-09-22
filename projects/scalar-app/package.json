@@ -87,6 +87,7 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
+    "@scalar/json-schema-validator": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@todesktop/cli": "1.27.0",
     "@types/node": "catalog:*",

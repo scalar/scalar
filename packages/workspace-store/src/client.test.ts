@@ -140,6 +140,25 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('loads unnamed inline XML bodies without upgrading the document to 3.2', async () => {
+    const schema = { type: 'object', properties: { id: { type: 'string', xml: { attribute: true } } } }
+    const requestBody = { content: { 'application/xml': { schema } } }
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'XML compatibility', version: '1.0.0' },
+      paths: { '/pets': { post: { requestBody, responses: { '200': { description: 'OK' } } } } },
+    }
+    const original = structuredClone(input)
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'xml', document: input })
+    const document = getOpenApiDocument(store, 'xml')
+    const operation = getResolvedRef(getPathItemOperation(document?.paths?.['/pets'], 'post'))
+
+    expect(document?.openapi).toBe('3.1.0')
+    expect(getResolvedRef(operation?.requestBody)).toStrictEqual(requestBody)
+    expect(input).toStrictEqual(original)
+  })
+
   let server: FastifyInstance
   const port = 9988
   const url = `http://localhost:${port}`
@@ -1478,7 +1497,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0.0"},"components":{"schemas":{"JsonObject":{"additionalProperties":{"$ref":"#/components/schemas/JsonValue"},"type":"object"},"JsonValue":{"anyOf":[{"type":"string"},{"type":"number","format":"double"},{"type":"boolean"},{"$ref":"#/components/schemas/JsonObject"}],"__scalar_":""}}},"paths":{"/get":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JsonObject"}}},"description":""}}}}},"x-original-oas-version":"3.1.0","x-scalar-original-document-hash":"c5b2baf356d07163","x-ext-urls":{},"x-scalar-order":["default/description/introduction","default/GET/get","default/models"],"x-scalar-navigation":{"id":"default","type":"document","title":"Hello World","name":"default","children":[{"id":"default/description/introduction","title":"Introduction","type":"text"},{"id":"default/GET/get","title":"/get","path":"/get","method":"get","ref":"#/paths/~1get/get","type":"operation","isDeprecated":false},{"type":"models","id":"default/models","title":"Models","name":"Models","children":[{"id":"default/models/JsonObject","title":"JsonObject","name":"JsonObject","ref":"#/components/schemas/JsonObject","type":"model"},{"id":"default/models/JsonValue","title":"JsonValue","name":"JsonValue","ref":"#/components/schemas/JsonValue","type":"model"}]}]}}',
+      '{"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0.0"},"components":{"schemas":{"JsonObject":{"additionalProperties":{"$ref":"#/components/schemas/JsonValue"},"type":"object"},"JsonValue":{"anyOf":[{"type":"string"},{"type":"number","format":"double"},{"type":"boolean"},{"$ref":"#/components/schemas/JsonObject"}],"__scalar_":""}}},"paths":{"/get":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JsonObject"}}}}}}}},"x-original-oas-version":"3.1.0","x-scalar-original-document-hash":"c5b2baf356d07163","x-ext-urls":{},"x-scalar-order":["default/description/introduction","default/GET/get","default/models"],"x-scalar-navigation":{"id":"default","type":"document","title":"Hello World","name":"default","children":[{"id":"default/description/introduction","title":"Introduction","type":"text"},{"id":"default/GET/get","title":"/get","path":"/get","method":"get","ref":"#/paths/~1get/get","type":"operation","isDeprecated":false},{"type":"models","id":"default/models","title":"Models","name":"Models","children":[{"id":"default/models/JsonObject","title":"JsonObject","name":"JsonObject","ref":"#/components/schemas/JsonObject","type":"model"},{"id":"default/models/JsonValue","title":"JsonValue","name":"JsonValue","ref":"#/components/schemas/JsonValue","type":"model"}]}]}}',
     )
   })
 
