@@ -37,6 +37,7 @@ There is no root export. Every module is imported from its own entry point, so y
 | `@scalar/json-magic/bundle/plugins/node` | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles` |
 | `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory` |
 | `@scalar/json-magic/dereference` | `dereference` |
+| `@scalar/json-magic/join` | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types |
 | `@scalar/json-magic/diff` | `diff`, `merge`, `apply`, the `Difference` type |
 | `@scalar/json-magic/magic-proxy` | `createMagicProxy`, `getRaw` |
 | `@scalar/json-magic/helpers/*` | Small standalone helpers, see [Helpers](#helpers) |
@@ -49,6 +50,53 @@ There is no root export. Every module is imported from its own entry point, so y
 | Read through `$ref` pointers without rewriting the document | [`magic-proxy`](#magic-proxy) |
 | Resolve every `$ref`, internal and external, in one call | [`dereference`](#dereference) |
 | Compare two documents and merge concurrent edits | [`diff`](#diff) |
+
+## join
+
+`join` combines JSON objects without assuming a document standard. It merges objects recursively and replaces arrays and scalar values with those from later inputs. It does not mutate inputs, upgrade document versions, resolve references, or rename definitions. Literal keys such as `__proto__`, `constructor`, and `prototype` are preserved as own data properties without changing object prototypes.
+
+```ts
+import { join } from '@scalar/json-magic/join'
+
+const result = join(
+  [
+    { title: 'First', catalog: { apple: { price: 2 } }, labels: [{ name: 'fruit' }] },
+    { title: 'Second', catalog: { pear: { price: 3 } }, labels: [{ name: 'fruit' }] },
+  ],
+  {
+    strategy: ({ path }) => {
+      if (path[0] === 'catalog' && path.length === 2) {
+        return 'conflict'
+      }
+      if (path[0] === 'labels') {
+        return { uniqueBy: 'name' }
+      }
+      return 'merge'
+    },
+  },
+)
+
+if (result.ok) {
+  console.log(result.document) // Both catalog entries, title "Second", one fruit label
+} else {
+  console.log(result.conflicts) // Example: [{ path: ['catalog', 'apple'] }]
+}
+```
+
+The optional `strategy` callback receives `{ path, current, incoming }` for each visited field. Paths are arrays of literal keys, so a key containing `/` remains one segment. The root always merges; returning `replace` or `conflict` for an object treats that object as a whole and does not visit its children.
+
+| Strategy | Behavior |
+| --- | --- |
+| `merge` (default) | Recursively merge objects; replace other values using the later input. |
+| `merge-by-index` | Recursively merge objects and arrays, combining array entries at matching indexes and retaining trailing entries. |
+| `skip` | Ignore this incoming field, leaving any existing value unchanged. |
+| `replace` | Replace the entire value, including objects. |
+| `conflict` | Report a duplicate key, even if both values are equal or the earlier value is null. |
+| `{ uniqueBy: 'name' }` | Combine arrays, retaining the first item for each identity property value. Items without that property remain distinct. Use scalar identity values. Non-array incoming values replace the existing value. |
+
+An empty input list returns `{ ok: true, document: {} }`. Conflicts return `{ ok: false, conflicts }` without a partial document. Inputs must be acyclic JSON objects.
+
+For OpenAPI, use `join` from `@scalar/openapi-parser`, which supplies OpenAPI rules, version upgrades, and optional component prefixes. Other formats can supply their own rules; this module does not include an AsyncAPI adapter.
 
 ## bundle
 
