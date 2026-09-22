@@ -18,6 +18,24 @@ const wireParts = async (body: Blob): Promise<string[]> => {
 }
 
 describe('build-multipart', () => {
+  it.each([1, 2, 3])('maps a prefix of length %i without changing item order', async (length) => {
+    const parts = buildMultipart(
+      ['first', 'second'],
+      'multipart/mixed',
+      {
+        prefixEncoding: Array.from({ length }, () => ({ contentType: 'application/json' })),
+        itemEncoding: { contentType: 'text/plain; charset=utf-8' },
+      },
+      { type: 'array', items: { type: 'string' } },
+    )
+    expect(await wireParts(encodeMultipartBody(parts, 'multipart/mixed'))).toStrictEqual([
+      'Content-Type: application/json\r\n\r\n"first"',
+      length === 1
+        ? 'Content-Type: text/plain; charset=utf-8\r\n\r\nsecond'
+        : 'Content-Type: application/json\r\n\r\n"second"',
+    ])
+  })
+
   it('retains author parameters when resolving a matching wildcard to a concrete media type', async () => {
     const parts = buildMultipart([new Blob(['image'], { type: 'image/png' })], 'multipart/mixed', {
       itemEncoding: { contentType: 'image/*; charset=utf-8' },

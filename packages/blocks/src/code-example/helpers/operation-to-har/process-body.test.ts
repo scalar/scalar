@@ -98,6 +98,29 @@ describe('processBody', () => {
     ).toStrictEqual({ mimeType: 'application/json', text: expected })
   })
 
+  it.each([1, 2, 3])('preserves snippet part order with a prefix of length %i', (length) => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { default: { value: ['first', 'second'] } },
+            schema: { type: 'array', items: { type: 'string' } },
+            prefixEncoding: Array.from({ length }, () => ({ contentType: 'application/json' })),
+            itemEncoding: { contentType: 'text/plain; charset=utf-8' },
+          },
+        },
+      },
+      example: 'default',
+    })
+    const boundary = result?.mimeType.match(/boundary="?([^";]+)/)?.[1]
+    expect(result?.text?.split(`--${boundary}`).slice(1, -1)).toStrictEqual([
+      '\r\nContent-Type: application/json\r\n\r\n"first"\r\n',
+      length === 1
+        ? '\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nsecond\r\n'
+        : '\r\nContent-Type: application/json\r\n\r\n"second"\r\n',
+    ])
+  })
+
   it('includes in snippets XML roots, untyped defaults, and wildcard parameters consistently', () => {
     const requestBody = {
       content: {

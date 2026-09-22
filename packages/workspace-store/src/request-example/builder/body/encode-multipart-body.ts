@@ -11,6 +11,21 @@ const escapeParameter = (value: string): string =>
     .replace(/\n/g, '%0A')
     .replace(/"/g, '%22')
 
+/** Keep equal-length boundaries distinct from nested delimiters and resolved text. */
+const createBoundary = (chunks: BlobPart[]): string => {
+  const text = chunks.filter((chunk) => typeof chunk === 'string').join('')
+  for (const _attempt of Array.from({ length: 10 })) {
+    // getRandomValues also works on HTTP playgrounds, where randomUUID is unavailable.
+    // Binary blobs stay untouched; 192 random bits make accidental byte collisions negligible.
+    const random = crypto.getRandomValues(new Uint8Array(24))
+    const boundary = `----scalar-${Array.from(random, (byte) => byte.toString(16).padStart(2, '0')).join('')}`
+    if (!text.includes(boundary)) {
+      return boundary
+    }
+  }
+  throw new Error('Unable to generate a distinct multipart boundary')
+}
+
 /** Serialize nested multipart bodies for both fetch and synchronous code snippets. */
 export const serializeMultipartBody = (
   parts: MultipartPart[],
@@ -25,11 +40,7 @@ export const serializeMultipartBody = (
     throw new Error('Invalid multipart content type')
   }
   const mime = parseMimeType(contentType)
-  // getRandomValues also works on HTTP playgrounds, where randomUUID is unavailable.
-  const random = crypto.getRandomValues(new Uint8Array(24))
-  const boundary = `----scalar-${Array.from(random, (byte) => byte.toString(16).padStart(2, '0')).join('')}`
-  mime.parameters.set('boundary', boundary)
-  const chunks: BlobPart[] = parts.flatMap((part): BlobPart[] => {
+  const partsChunks = parts.map((part): BlobPart[] => {
     const encoded =
       part.type === 'multipart'
         ? serializeMultipartBody(part.value, part.contentType, replace, nesting + 1)
@@ -56,12 +67,15 @@ export const serializeMultipartBody = (
         return name.toLowerCase() === 'content-type' ? '' : `${name}: ${resolved}\r\n`
       })
       .join('')
-    const headers = `--${boundary}\r\n${disposition}${partContentType ? `Content-Type: ${partContentType}\r\n` : ''}${extraHeaders}\r\n`
+    const headers = `${disposition}${partContentType ? `Content-Type: ${partContentType}\r\n` : ''}${extraHeaders}\r\n`
     const chunks = encoded.chunks.map((value) =>
       typeof value === 'string' && !part.contentType ? value.replace(/\r\n|\r|\n/g, '\r\n') : value,
     )
     return [headers, ...chunks, '\r\n']
   })
+  const boundary = createBoundary(partsChunks.flat())
+  mime.parameters.set('boundary', boundary)
+  const chunks = partsChunks.flatMap((part) => [`--${boundary}\r\n`, ...part])
   return { chunks: [...chunks, `--${boundary}--\r\n`], contentType: mime.toString() }
 }
 
