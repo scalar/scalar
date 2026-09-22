@@ -1,3 +1,5 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getExampleContent } from './get-example-content'
@@ -36,5 +38,21 @@ describe('get-example-content', () => {
 
   it('keeps legacy formatted JSON examples', () => {
     expect(getExampleContent(undefined, { value: '{"id":1}' })).toBe('{\n  "id": 1\n}')
+  })
+  it('accepts content type and composition selection together', () => {
+    const response = {
+      schema: coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          { type: 'string', const: 'first' },
+          { type: 'string', const: 'second' },
+        ],
+      }),
+    }
+    const options = { contentType: 'text/plain', compositionSelection: { oneOf: 1 } }
+    expect(getExampleContent(response, undefined, options)).toBe('second')
+    expect(getExampleContent(response, { value: 'explicit' }, options)).toBe('explicit')
+    expect(getExampleContent(response, { dataValue: 'explicit' }, options)).toBe('explicit')
+    expect(getExampleContent(response, { dataValue: 'explicit' }, { ...options, contentType: 'application/json' })).toBe('"explicit"')
+    expect(getExampleContent(response, { serializedValue: '  explicit\n' }, options)).toBe('  explicit\n')
   })
 })

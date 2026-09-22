@@ -233,7 +233,11 @@ const exampleContent = computed(() =>
     : getExampleContent(currentResponseContent.value, currentExample.value, {
         contentType: currentContentType.value,
         compositionSelection: responseVariants.value
-          ? { [responseVariants.value.composition]: Number(currentVariantKey.value) }
+          ? {
+              [responseVariants.value.composition]: Number(
+                currentVariantKey.value,
+              ),
+            }
           : undefined,
       }),
 )

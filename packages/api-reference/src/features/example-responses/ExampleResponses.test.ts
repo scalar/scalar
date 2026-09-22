@@ -251,6 +251,8 @@ describe('ExampleResponses', () => {
     await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'second')
     expect(wrapper.text()).toContain('explicit second')
     expect(wrapper.text()).not.toContain('generated')
+    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
+    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('explicit second')
   })
 
   it('selects referenced variants without dropping shared response properties', async () => {
