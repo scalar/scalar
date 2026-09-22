@@ -2,11 +2,13 @@ import '@/style.css'
 
 import { createApiReference } from '@/standalone/lib/html-api'
 
-import { mermaidPlugin } from '../../../mermaid-plugin/src'
+const plugins = new URLSearchParams(window.location.search).has('withoutPlugin')
+  ? []
+  : [(await import('../../../mermaid-plugin/src')).mermaidPlugin()]
 
 const graph = '```mermaid\nflowchart LR\n  Request --> Authentication\n  Authentication --> Response\n```'
 createApiReference('#app', {
-  plugins: [mermaidPlugin()],
+  plugins,
   content: {
     openapi: '3.1.0',
     info: {
