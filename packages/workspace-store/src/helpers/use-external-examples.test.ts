@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { effectScope, nextTick, ref } from 'vue'
 
 import { createExternalExampleResolver } from './external-examples'
+import { getExampleValue } from './get-example-value'
 import { useExternalExamples } from './use-external-examples'
 
 describe('use-external-examples', () => {
@@ -35,6 +36,33 @@ describe('use-external-examples', () => {
     releases.get('https://example.com/second')?.(Response.json({ selected: 2 }))
     await vi.waitFor(() => expect(resolver({ externalValue: 'https://example.com/second' }).status).toBe('loaded'))
     expect(examples.resolve(selected.value)?.value).toEqual({ selected: 3 })
+    scope.stop()
+  })
+
+  it('preserves downloaded wire text alongside structured data without changing the document', async () => {
+    const wireText = '<message>hello</message>\n'
+    const resolver = createExternalExampleResolver({ fetch: () => Promise.resolve(new Response(wireText)) })
+    const example = {
+      externalValue: 'https://example.com/message.xml',
+      dataValue: { message: 'hello' },
+      summary: 'A message',
+    }
+    const scope = effectScope()
+    const examples = scope.run(() =>
+      useExternalExamples(
+        () => [example],
+        () => true,
+        () => resolver,
+      ),
+    )!
+    await vi.waitFor(() => expect(examples.pending.value).toBe(false))
+    expect(getExampleValue(examples.resolve(example))).toStrictEqual({ source: 'serialized', value: wireText })
+    expect(examples.resolve(example)?.dataValue).toStrictEqual({ message: 'hello' })
+    expect(example).toStrictEqual({
+      externalValue: 'https://example.com/message.xml',
+      dataValue: { message: 'hello' },
+      summary: 'A message',
+    })
     scope.stop()
   })
 

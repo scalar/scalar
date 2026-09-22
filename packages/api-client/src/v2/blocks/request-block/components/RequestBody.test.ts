@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
 import RequestBody from './RequestBody.vue'
+import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
 
 // Mock the useFileDialog hook
@@ -51,6 +52,68 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it.each(['application/json', 'application/yaml'])(
+    'uses dataValue in the %s form even with wire text',
+    async (contentType) => {
+      const dataValue = { id: 'structured' }
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          defaultView: 'form',
+          requestBody: {
+            content: { [contentType]: { examples: { 'example-1': { dataValue, serializedValue: 'wire text' } } } },
+          },
+        },
+      })
+      await nextTick()
+      expect(wrapper.findComponent(RequestBodyStructured).props('parsedValue')).toStrictEqual(dataValue)
+      expect(wrapper.emitted('update:value')).toBeUndefined()
+      wrapper.unmount()
+    },
+  )
+
+  it.each([
+    ['application/json', ' { "id": "wire" } '],
+    ['application/xml', '<id>wire</id>'],
+  ])('preserves %s wire text in the raw editor when dataValue also exists', async (contentType, serializedValue) => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            [contentType]: { examples: { 'example-1': { dataValue: { id: 'structured' }, serializedValue } } },
+          },
+        },
+      },
+    })
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe(serializedValue)
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it.each(['{"id":1}', '', null, false, 0])('keeps structured primitive %j in the raw editor', async (dataValue) => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        defaultView: 'form',
+        requestBody: {
+          content: {
+            'application/json': {
+              examples: { 'example-1': { dataValue } },
+            },
+          },
+        },
+      },
+    })
+    await nextTick()
+
+    expect(wrapper.findComponent(RequestBodyStructured).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe(JSON.stringify(dataValue, null, 2))
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    wrapper.unmount()
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
     mockFiles.value = null
