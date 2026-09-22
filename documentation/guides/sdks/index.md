@@ -89,7 +89,7 @@
           </label>
         </div>
         <div class="sdk-demo-overview-grid">
-          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="dashboard" data-title="Warp HR SDK Scalar dashboard" aria-current="page">
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-tab-open="true" data-sdk-demo-page-tab="dashboard" data-title="Warp HR SDK Scalar dashboard" aria-current="page">
             <span class="sdk-demo-tab-card-head">
               <span class="sdk-demo-tab-card-mark" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -119,7 +119,7 @@
               </span>
             </span>
           </button>
-          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-page-tab="video" data-title="untitled">
+          <button class="sdk-demo-tab-card" type="button" data-sdk-demo-tab-open="true" data-sdk-demo-page-tab="video" data-title="untitled">
             <span class="sdk-demo-tab-card-head">
               <span class="sdk-demo-tab-card-mark sdk-demo-tab-card-mark-video" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="currentColor">
