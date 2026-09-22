@@ -1,5 +1,7 @@
 # scalar_api_reference
 
+## 0.2.6
+
 ## 0.2.5
 
 ### Bundled API Reference

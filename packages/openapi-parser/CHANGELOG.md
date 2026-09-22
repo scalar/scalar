@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.29.5
+
+### Patch Changes
+
+- [#10274](https://github.com/scalar/scalar/pull/10274): Add a standard-agnostic `join` utility with configurable merge strategies and conflict reporting to `@scalar/json-magic/join`. Use it in the OpenAPI parser while retaining OpenAPI upgrades, component prefixes, and OpenAPI conflict reports in the parser.
+
 ## 0.29.4
 
 ## 0.29.3
