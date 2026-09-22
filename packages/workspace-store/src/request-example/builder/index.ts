@@ -7,6 +7,7 @@ export {
   resolveLeafSchema,
 } from './body/schema-value-coercion'
 export { type SerializedFormProperty, serializeFormPropertyWithEncoding } from './body/serialize-form-property'
+export { serializeMultipartArray } from './body/serialize-multipart-array'
 export {
   BUILD_REQUEST_FAILED,
   type BuildRequestData,
@@ -21,6 +22,7 @@ export { filterGlobalCookie } from './header/filter-global-cookies'
 export { isParamDisabled } from './header/is-param-disabled'
 export {
   serializeContentValue,
+  serializeCookieStyle,
   serializeDeepObjectStyle,
   serializeFormStyle,
   serializeFormStyleForCookies,
@@ -52,6 +54,7 @@ export type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
+  OAuthFlowDeviceAuthorizationSecret,
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,

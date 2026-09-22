@@ -1,4 +1,7 @@
-import type { AnyApiDefinitionFormat, UnknownObject, FilterResult } from '@/types/index'
+import type { UnknownObject } from '@scalar/types/utils'
+
+import type { AnyApiDefinitionFormat, FilterResult } from '@/types/index'
+
 import { getEntrypoint } from './get-entrypoint'
 import { makeFilesystem } from './make-filesystem'
 import { traverse } from './traverse'

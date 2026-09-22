@@ -4,6 +4,8 @@ Scalar SDK generation is driven by a single config object that describes the SDK
 
 Use the config to keep SDK behavior predictable across generated targets. The top-level `targets` map controls which artifacts are generated, while `resources` controls the public client shape.
 
+For SDK-specific behavior embedded in an OpenAPI document, see [OpenAPI Extensions](openapi-extensions.md). Root-level Scalar extensions mirror the corresponding configuration blocks, while operation and schema extensions can refine individual generated methods and types.
+
 ## Minimal config
 
 ```json
@@ -70,6 +72,8 @@ Add a key under `targets` for every artifact you want Scalar to generate.
 Supported target keys are `typescript`, `python`, `cli`, `go`, `rust`, `java`, `kotlin`, `swift`, `ruby`, `php`, `csharp`, `cpp`, and `dart`.
 
 Set `skip: true` on a target to keep its config in place without generating it.
+
+Set `promotion: "manual"` on a target to hold each build at staging until you promote it, instead of pushing to its production repository automatically. See [GitHub Repositories](publishing/github.md#promotion).
 
 ## Resources
 
@@ -157,7 +161,7 @@ Client options can send values in headers, query parameters, body parameters, or
 
 ## Pagination
 
-Define reusable pagination schemes in `pagination`, then reference them from methods with `paginated`.
+Define reusable pagination schemes in `pagination`, then reference them from methods with `paginated`. Schemes are declared, never inferred from parameter names, so a method paginates only when it names one. See [Pagination](pagination.md) for the full field vocabulary, one worked example per strategy, and the generated helpers each target produces.
 
 ```json
 {
@@ -189,7 +193,24 @@ Define reusable pagination schemes in `pagination`, then reference them from met
 }
 ```
 
-Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `offset`, and `pageNumber`.
+Bind a scheme to a method with `paginated`, which takes a scheme name, or `false` to keep the method unpaginated:
+
+```json
+{
+  "resources": {
+    "users": {
+      "methods": {
+        "list": {
+          "endpoint": "get /users",
+          "paginated": "cursor"
+        }
+      }
+    }
+  }
+}
+```
+
+Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `offset`, `pageNumber`, and `fakePage` for an operation that returns a whole collection in one response but should still be iterated as a page.
 
 ## Serialization
 
@@ -211,7 +232,7 @@ Supported array formats are `comma`, `repeat`, `indices`, and `brackets`. Suppor
 
 ## OpenAPI Overrides
 
-Use `openapi` for SDK-specific overrides that sit next to the source API description.
+Use `openapi` for SDK-specific overrides that sit next to the source API document.
 
 ```json
 {
@@ -252,7 +273,7 @@ Use `openapi` for SDK-specific overrides that sit next to the source API descrip
 
 ## Diagnostics
 
-Generation reports diagnostics about your OpenAPI document. Use `diagnostics` to decide which of them fail the build.
+Every build analyzes your OpenAPI document and this configuration together and reports what generation had to skip, guess, or degrade. Use `diagnostics` to decide which of those findings fail the build. See [Diagnostics](diagnostics.md) for how the analysis works and the full list of rules.
 
 ```json
 {
@@ -273,4 +294,3 @@ Generation reports diagnostics about your OpenAPI document. Use `diagnostics` to
 | `maxErrors`   | Maximum allowed errors before the build fails.                              |
 | `rules`       | Per-rule severity override keyed by rule id, such as `Endpoint/NotConfigured`. Set a rule to `off` to disable it. |
 | `ignored`     | Per-rule suppressions keyed by rule id.                                     |
-

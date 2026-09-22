@@ -1,8 +1,11 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { type Dereference, getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { unpackProxyShallow } from '@scalar/workspace-store/helpers/unpack-proxy'
 
-type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value': Node | RefNode<Node> }
+// `$ref-value` is optional, matching `get-resolved-ref.ts` and the reference schemas: an unresolved
+// `{ $ref }` has none yet. The runtime branches on `'$ref' in current` and defers to `getResolvedRef`,
+// so it already copes with an absent value.
+type RefNode<Node> = Partial<Node> & { $ref: string; '$ref-value'?: Node | RefNode<Node> }
 type NodeInput<Node> = Node | RefNode<Node>
 
 /**
@@ -42,7 +45,9 @@ export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference
       return current
     }
 
-    const rawValue = unpackProxyObject(current, { depth: 1 })
+    // Identity only: the raw object keys the caches below and is never read from or returned, so the
+    // outermost proxies come off and the node's own properties are left alone.
+    const rawValue = unpackProxyShallow(current)
 
     // We don't have to recurse into the same object again
     // This helps us having to manually remove the tracked node after we recurse into the tree
@@ -59,6 +64,8 @@ export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference
     visited.add(rawValue)
 
     if ('$ref' in current) {
+      // `getResolvedRef` follows a chain of pure pass-through references, so a component that resolve()
+      // left behind as a `$global` stub reaches the node the stub points at rather than the stub.
       const resolved = getResolvedRef(current)
       const result = resolveNode(resolved)
 
@@ -66,28 +73,36 @@ export const getResolvedRefDeep = <Node>(node: NodeInput<Node>): DeepDereference
       // target — most notably the `$defs`/`$dynamicAnchor` binding used to express a generic schema like
       // `Paginated<Planet>`. Per OpenAPI 3.1, siblings of a `$ref` override the resolved value, so we merge
       // them on top. Without this the dynamic-ref binding is dropped and `$dynamicRef` cannot resolve.
-      const siblings = Object.entries(current).filter(([key]) => key !== '$ref' && key !== '$ref-value')
-      if (siblings.length > 0 && isObject(result)) {
-        const merged: Record<string, unknown> = { ...result }
-        for (const [key, value] of siblings) {
-          merged[key] = resolveNode(value)
+      let merged: Record<string, unknown> | undefined = undefined
+      if (isObject(result)) {
+        for (const key of Object.keys(current)) {
+          if (key === '$ref' || key === '$ref-value') {
+            continue
+          }
+          merged ??= { ...result }
+          merged[key] = resolveNode(current[key])
         }
-        cachedResults.set(rawValue, merged)
-        return merged
       }
 
-      cachedResults.set(rawValue, result)
-      return result
+      const value = merged ?? result
+      cachedResults.set(rawValue, value)
+      return value
     }
 
     // For arrays
     if (Array.isArray(current)) {
-      const result = current.map(resolveNode)
+      const result = new Array(current.length)
+      for (let index = 0; index < current.length; index++) {
+        result[index] = resolveNode(current[index])
+      }
       cachedResults.set(rawValue, result)
       return result
     }
 
-    const result = Object.fromEntries(Object.entries(current).map(([key, value]) => [key, resolveNode(value)]))
+    const result: Record<string, unknown> = {}
+    for (const key of Object.keys(current)) {
+      result[key] = resolveNode(current[key])
+    }
     cachedResults.set(rawValue, result)
     return result
   }

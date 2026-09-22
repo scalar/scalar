@@ -1,19 +1,20 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from '@/helpers/traverse'
 
 type XExampleExtensions = {
-  xExample: Record<string, unknown> | undefined
-  xExamples: Record<string, unknown> | undefined
+  xExample: unknown
+  xExamples: unknown
 }
 
 const DEFAULT_MEDIA_TYPE = 'application/json'
 
 /** Extracts and removes x-example and x-examples extensions from an object */
 function extractXExampleExtensions(obj: Record<string, unknown>): XExampleExtensions {
-  const xExample = obj['x-example'] as Record<string, unknown> | undefined
-  const xExamples = obj['x-examples'] as Record<string, unknown> | undefined
+  const xExample = obj['x-example']
+  const xExamples = obj['x-examples']
 
   delete obj['x-example']
   delete obj['x-examples']
@@ -41,11 +42,11 @@ function isNamedExamplesCollection(value: unknown): value is Record<string, Reco
 
 /** Checks if a schema is empty (no meaningful properties defined) */
 function isEmptySchema(schema: unknown): boolean {
-  if (typeof schema !== 'object' || schema === null) {
+  if (!isObjectLike(schema)) {
     return true
   }
 
-  const s = schema as Record<string, unknown>
+  const s = schema
   const substantiveValidationKeywords = [
     'enum',
     'const',
@@ -96,8 +97,8 @@ function isEmptySchema(schema: unknown): boolean {
 function removeEmptySchemaOnlyContentEntries(content: Record<string, unknown>): void {
   const keys = Object.keys(content)
   const hasEntryWithExample = keys.some((key) => {
-    const entry = content[key] as Record<string, unknown> | undefined
-    return entry?.example !== undefined || entry?.examples !== undefined
+    const entry = content[key]
+    return isObjectLike(entry) && (entry.example !== undefined || entry.examples !== undefined)
   })
 
   if (!hasEntryWithExample) {
@@ -105,8 +106,8 @@ function removeEmptySchemaOnlyContentEntries(content: Record<string, unknown>): 
   }
 
   for (const key of keys) {
-    const entry = content[key] as Record<string, unknown> | undefined
-    if (!entry) continue
+    const entry = content[key]
+    if (!isObjectLike(entry)) continue
 
     const hasExample = entry.example !== undefined || entry.examples !== undefined
     const hasOnlySchema = entry.schema !== undefined && !hasExample && Object.keys(entry).length === 1
@@ -134,7 +135,7 @@ function isExampleObject(value: unknown): value is OpenAPIV3.ExampleObject {
     return false
   }
 
-  const obj = value as Record<string, unknown>
+  const obj = value
   const hasValueOrExternalValue = 'value' in obj || 'externalValue' in obj
   const onlyHasAllowedProperties = Object.keys(obj).every((key) => EXAMPLE_OBJECT_PROPERTIES.has(key))
 
@@ -164,13 +165,10 @@ function isMediaTypeKey(key: string): boolean {
 
 /** Transforms x-example entries to OpenAPI 3.x examples format */
 function transformXExampleToExamples(xExample: Record<string, unknown>): Record<string, OpenAPIV3.ExampleObject> {
-  return Object.entries(xExample).reduce(
-    (acc, [key, value]) => {
-      acc[key] = { value }
-      return acc
-    },
-    {} as Record<string, OpenAPIV3.ExampleObject>,
-  )
+  return Object.entries(xExample).reduce<Record<string, OpenAPIV3.ExampleObject>>((acc, [key, value]) => {
+    acc[key] = { value }
+    return acc
+  }, {})
 }
 
 /** Update the flow names to OpenAPI 3.1.0 format */
@@ -267,8 +265,8 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         }
 
         const param =
-          document.parameters && typeof document.parameters === 'object' && schemaName in document.parameters
-            ? (document.parameters as Record<string, unknown>)[schemaName]
+          isObjectLike(document.parameters) && schemaName in document.parameters
+            ? document.parameters[schemaName]
             : undefined
 
         if (param && typeof param === 'object' && 'in' in param && (param.in === 'body' || param.in === 'formData')) {
@@ -285,10 +283,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     const params: Record<string, OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject> = {}
     const bodyParams: Record<string, OpenAPIV3.RequestBodyObject> = {}
-    const parameters =
-      document.parameters && typeof document.parameters === 'object'
-        ? (document.parameters as Record<string, unknown>)
-        : {}
+    const parameters = isObjectLike(document.parameters) ? document.parameters : {}
     for (const [name, param] of Object.entries(parameters)) {
       if (param && typeof param === 'object') {
         // Handle reference objects
@@ -341,13 +336,13 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     const responses = document.responses as Record<string, unknown>
 
     for (const [name, response] of Object.entries(responses)) {
-      if (response && typeof response === 'object') {
+      if (isObjectLike(response)) {
         // Handle reference objects
         if ('$ref' in response) {
           migratedResponses[name] = response as OpenAPIV3.ReferenceObject
         } else {
           // Transform the response object
-          const responseObj = response as Record<string, unknown>
+          const responseObj = response
           const produces = (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
 
           // Transform schema to content
@@ -406,19 +401,18 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           }
 
           // Transform headers if present
-          if (responseObj.headers && typeof responseObj.headers === 'object') {
-            responseObj.headers = Object.entries(responseObj.headers as Record<string, unknown>).reduce(
-              (acc, [headerName, header]) => {
-                if (header && typeof header === 'object') {
-                  return {
-                    [headerName]: transformResponseHeader(header as OpenAPIV2.HeaderObject),
-                    ...acc,
-                  }
+          if (isObjectLike(responseObj.headers)) {
+            responseObj.headers = Object.entries(responseObj.headers).reduce<
+              Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
+            >((acc, [headerName, header]) => {
+              if (header && typeof header === 'object') {
+                return {
+                  [headerName]: transformResponseHeader(header),
+                  ...acc,
                 }
-                return acc
-              },
-              {} as Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>,
-            )
+              }
+              return acc
+            }, {})
           }
 
           migratedResponses[name] = responseObj as OpenAPIV3.ResponseObject
@@ -437,10 +431,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   if (typeof document.paths === 'object') {
     for (const path in document.paths) {
       if (Object.hasOwn(document.paths, path)) {
-        const pathItem =
-          document.paths && typeof document.paths === 'object' && path in document.paths
-            ? (document.paths as Record<string, unknown>)[path]
-            : undefined
+        const pathItem = isObjectLike(document.paths) && path in document.paths ? document.paths[path] : undefined
 
         if (!pathItem || typeof pathItem !== 'object') {
           continue
@@ -486,18 +477,17 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                   const responseItem = operationItem.responses[response]
 
                   if (responseItem.headers && typeof responseItem.headers === 'object') {
-                    responseItem.headers = Object.entries(responseItem.headers).reduce(
-                      (acc, [name, header]) => {
-                        if (header && typeof header === 'object') {
-                          return {
-                            [name]: transformResponseHeader(header as OpenAPIV2.HeaderObject),
-                            ...acc,
-                          }
+                    responseItem.headers = Object.entries(responseItem.headers).reduce<
+                      Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
+                    >((acc, [name, header]) => {
+                      if (header && typeof header === 'object') {
+                        return {
+                          [name]: transformResponseHeader(header),
+                          ...acc,
                         }
-                        return acc
-                      },
-                      {} as Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>,
-                    )
+                      }
+                      return acc
+                    }, {})
                   }
                   if (responseItem.schema) {
                     const produces = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
@@ -668,14 +658,14 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     'multipleOf',
   ]
 
-  return schemaProperties.reduce((acc, property) => {
+  return schemaProperties.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
     if (Object.hasOwn(obj, property)) {
       acc[property] = obj[property]
       delete obj[property]
     }
 
     return acc
-  }, {} as OpenAPIV3.SchemaObject)
+  }, {})
 }
 
 function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
@@ -685,7 +675,7 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
   if (location === 'body') {
     throw new Error('Encountered a body parameter which should have been filtered out by the caller')
   }
-  return location as OpenAPIV3.ParameterLocation
+  return location
 }
 
 function transformParameterObject(
@@ -701,7 +691,7 @@ function transformParameterObject(
   const serializationStyle = getParameterSerializationStyle(parameter)
   const schema = transformItemsObject(parameter)
 
-  const { xExample, xExamples } = extractXExampleExtensions(parameter as Record<string, unknown>)
+  const { xExample, xExamples } = extractXExampleExtensions(parameter)
 
   // Input:
   // x-example:
@@ -723,12 +713,12 @@ function transformParameterObject(
   if (isNonEmptyObject(xExample)) {
     parameter.examples = transformXExampleToExamples(xExample)
   } else if (isNonEmptyObject(xExamples)) {
-    parameter.examples = Object.entries(xExamples).reduce(
+    parameter.examples = Object.entries(xExamples).reduce<Record<string, OpenAPIV3.ExampleObject>>(
       (acc, [key, exampleValue]) => {
         acc[key] = wrapAsExampleObject(exampleValue)
         return acc
       },
-      {} as Record<string, OpenAPIV3.ExampleObject>,
+      {},
     )
   }
 
@@ -819,11 +809,8 @@ function getParameterSerializationStyle(parameter: OpenAPIV2.ParameterObject): P
 
   const collectionFormat = parameter.collectionFormat ?? 'csv'
 
-  if (
-    parameter.in in serializationStyles &&
-    collectionFormat in serializationStyles[parameter.in as keyof typeof serializationStyles]
-  ) {
-    return serializationStyles[parameter.in as keyof typeof serializationStyles][collectionFormat as CollectionFormat]
+  if (parameter.in in serializationStyles && collectionFormat in serializationStyles[parameter.in]) {
+    return serializationStyles[parameter.in][collectionFormat as CollectionFormat]
   }
 
   return {}
@@ -841,9 +828,8 @@ function getFormDataEncoding(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.En
     return undefined
   }
 
-  const encoding = querySerialization[parameter.collectionFormat as CollectionFormat] as
-    | ParameterSerializationStyle
-    | undefined
+  const encoding: ParameterSerializationStyle | undefined =
+    querySerialization[parameter.collectionFormat as CollectionFormat]
 
   if (!encoding || Object.keys(encoding).length === 0) {
     return undefined
@@ -863,7 +849,7 @@ function migrateBodyParameter(
 ): OpenAPIV3.RequestBodyObject {
   // Extract x-example and x-examples before deleting other properties
   // @see https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-examples
-  const { xExample, xExamples } = extractXExampleExtensions(bodyParameter as Record<string, unknown>)
+  const { xExample, xExamples } = extractXExampleExtensions(bodyParameter)
 
   delete bodyParameter.name
   delete bodyParameter.in
@@ -897,13 +883,12 @@ function migrateBodyParameter(
         }
         // Named examples without value wrappers - wrap each individually
         else if (isNamedExamplesCollection(examples)) {
-          requestBodyObject.content[type].examples = Object.entries(examples).reduce(
-            (acc, [key, exampleValue]) => {
-              acc[key] = wrapAsExampleObject(exampleValue)
-              return acc
-            },
-            {} as Record<string, OpenAPIV3.ExampleObject>,
-          )
+          requestBodyObject.content[type].examples = Object.entries(examples).reduce<
+            Record<string, OpenAPIV3.ExampleObject>
+          >((acc, [key, exampleValue]) => {
+            acc[key] = wrapAsExampleObject(exampleValue)
+            return acc
+          }, {})
         }
         // Single example value - wrap as default
         else {
@@ -915,13 +900,12 @@ function migrateBodyParameter(
       // Fallback: x-examples keyed by example name instead of media type
       // e.g. x-examples: { Request: { email: "test@example.com" } }
       else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
-        requestBodyObject.content[type].examples = Object.entries(xExamples).reduce(
-          (acc, [key, exampleValue]) => {
-            acc[key] = wrapAsExampleObject(exampleValue)
-            return acc
-          },
-          {} as Record<string, OpenAPIV3.ExampleObject>,
-        )
+        requestBodyObject.content[type].examples = Object.entries(xExamples).reduce<
+          Record<string, OpenAPIV3.ExampleObject>
+        >((acc, [key, exampleValue]) => {
+          acc[key] = wrapAsExampleObject(exampleValue)
+          return acc
+        }, {})
       }
 
       // Handle x-example (singular) only when we did not set examples for this type

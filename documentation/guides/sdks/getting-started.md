@@ -45,5 +45,7 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 - [Try the interactive demo](index.md) at the top of the SDK Generator overview to walk the flow again without the dashboard
 - [Build, version, and download](managing.md) your targets
 - [Configure](configuration.md) each SDK or CLI
+- [Add pagination helpers](pagination.md) to your list endpoints
 - [Publish to a package registry](publishing/overview.md)
 - [Add custom code](custom-code.md) that survives regeneration
+- [Read the diagnostics](diagnostics.md) each build reports about your API description

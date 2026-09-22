@@ -1,7 +1,7 @@
 import type { AnyEventListener, ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OpenApiDocument, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import type { Component, DefineComponent } from 'vue'
 
 /** Shared fields present on every response body handler variant */
@@ -71,11 +71,15 @@ type ClientPluginHooks = {
     variablesStore?: VariablesStore
   }) => void | Promise<void>
   /**
-   * Runs after a response is received. Receives the current document and operation so plugins can
-   * modify the response after it is received (for example, adding headers or modifying the body).
+   * Runs before response metadata and body processing. Return a Response to replace the response
+   * used by subsequent plugins and the client. Return nothing to keep the current response.
+   * Each hook receives a clone, so reading its body does not consume the client response.
+   * For streaming responses, avoid reading the entire body unless the stream is finite.
    */
   responseReceived: (payload: {
     response: Response
+    /** Request duration in milliseconds, when supplied by the client. */
+    responseDuration?: number
     /** Request builder object that was used to build the request. Mutating this object will not affect the request object. */
     requestBuilder: RequestFactory
     /** Request rebuilt from the sent request payload, not the same instance sent to the server. */
@@ -83,7 +87,7 @@ type ClientPluginHooks = {
     document: OpenApiDocument
     operation: OperationObject
     variablesStore?: VariablesStore
-  }) => void | Promise<void>
+  }) => Response | void | Promise<Response | void>
 }
 
 /** Direction of a WebSocket message frame */
@@ -265,10 +269,10 @@ type HookPayloadMap = {
 }
 
 /**
- * Execute any hook with type-safe payload handling.
+ * Execute a request hook with type-safe payload handling.
  * The payload type is inferred from the hook name to ensure correct usage.
  */
-export const executeHook = async <K extends keyof HookPayloadMap>(
+export const executeHook = async <K extends Exclude<keyof HookPayloadMap, 'responseReceived'>>(
   payload: HookPayloadMap[K],
   hookName: K,
   plugins: ClientPlugin[],
@@ -279,11 +283,42 @@ export const executeHook = async <K extends keyof HookPayloadMap>(
     const hook = plugin.hooks?.[hookName]
     if (hook) {
       const modifiedPayload = await hook(currentPayload as any)
-      currentPayload = (modifiedPayload ?? currentPayload) as HookPayloadMap[K]
+      currentPayload = modifiedPayload ?? currentPayload
     }
   }
 
   return currentPayload
+}
+
+/** Execute response hooks in order, releasing discarded stream branches after each hook. */
+export const executeResponseHook = async (
+  payload: HookPayloadMap['responseReceived'],
+  plugins: ClientPlugin[],
+): Promise<HookPayloadMap['responseReceived']> => {
+  let current = payload
+  for (const plugin of plugins) {
+    const hook = plugin.hooks?.responseReceived
+    if (hook) {
+      const previousResponse = current.response
+      const clone = previousResponse.clone()
+      let nextResponse: Response | undefined
+      try {
+        const response = await hook({ ...current, response: clone })
+        nextResponse = response ?? previousResponse
+        current = { ...current, response: nextResponse }
+      } finally {
+        // Release discarded tee branches on success or failure so open streams cannot buffer
+        // without a consumer. A transformed stream owns its locked input.
+        // Do not await cancellation: it can wait for the retained branch to finish.
+        for (const body of [previousResponse.body, clone.body]) {
+          if (body && body !== nextResponse?.body && !body.locked) {
+            void body.cancel().catch(() => {})
+          }
+        }
+      }
+    }
+  }
+  return current
 }
 
 type WebSocketHookPayloadMap = {
@@ -309,7 +344,7 @@ export const executeWebSocketHook = async <K extends keyof WebSocketHookPayloadM
     if (hook) {
       const result = await (hook as (p: WebSocketHookPayloadMap[K]) => unknown)(currentPayload)
       if (hookName === 'beforeConnect' && typeof result === 'string') {
-        currentPayload = { ...currentPayload, url: result } as WebSocketHookPayloadMap[K]
+        currentPayload = { ...currentPayload, url: result }
       }
     }
   }

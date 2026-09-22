@@ -1,9 +1,9 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/server'
 import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
@@ -181,10 +181,10 @@ describe('requestFactory', () => {
     })
   })
 
-  it('builds a body for DELETE when the method allows a body', () => {
+  it.each(['delete', 'query'] as const)('builds a body for %s when the method allows a body', (method) => {
     const { request } = requestFactory(
       createBaseArgs({
-        method: 'delete',
+        method,
         operation: {
           requestBody: {
             content: {
@@ -206,7 +206,7 @@ describe('requestFactory', () => {
   })
 
   it('normalizes the method to uppercase', () => {
-    const methods: HttpMethod[] = ['post', 'patch', 'put']
+    const methods: HttpMethod[] = ['post', 'patch', 'put', 'query']
 
     for (const method of methods) {
       const { request } = requestFactory(createBaseArgs({ method }))

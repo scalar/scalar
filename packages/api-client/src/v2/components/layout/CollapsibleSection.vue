@@ -14,6 +14,8 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
 import { useId } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
+
 import ValueEmitter from './ValueEmitter.vue'
 
 const {
@@ -33,6 +35,8 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
 
+const { translate } = useLocalization()
+
 const headingId = useId()
 </script>
 
@@ -49,7 +53,7 @@ const headingId = useId()
     :static="isStatic">
     <!-- We use this hack to emit the slot value back to the parent -->
     <ValueEmitter
-      :value="open as boolean"
+      :value="open"
       @change="(value) => emit('update:modelValue', value)" />
 
     <section
@@ -80,9 +84,9 @@ const headingId = useId()
                 :open="open" />
               <span
                 v-if="!open"
-                class="sr-only">
-                (Collapsed)
-              </span>
+                class="sr-only"
+                >{{ translate('apiClient.collapsibleSection.collapsed') }}</span
+              >
             </span>
 
             <!-- Badge showing item count when collapsed. -->
@@ -90,7 +94,11 @@ const headingId = useId()
               v-if="!open && itemCount"
               class="bg-b-2 text-c-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold">
               {{ itemCount }}
-              <span class="sr-only">Item{{ itemCount === 1 ? '' : 's' }}</span>
+              <span class="sr-only">{{
+                itemCount === 1
+                  ? translate('apiClient.collapsibleSection.item')
+                  : translate('apiClient.collapsibleSection.items')
+              }}</span>
             </span>
           </h2>
         </DisclosureButton>

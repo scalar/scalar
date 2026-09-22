@@ -18,6 +18,9 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
+> [!NOTE]
+> The plugin works with both Fastify v4 and v5. It ships as an ES module, so register it with a dynamic `import()` (as shown above) or a top-level `import` in an ESM project.
+
 ## Usage
 
 If you have an OpenAPI/Swagger document already, you can pass a URL to the plugin:
@@ -33,7 +36,7 @@ fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
-With [@fastify/swagger], we're picking it up automatically, so this would be enough:
+With [@fastify/swagger](https://github.com/fastify/fastify-swagger), we're picking it up automatically, so this would be enough:
 
 ```typescript
 await fastify.register(import('@scalar/fastify-api-reference'), {
@@ -42,6 +45,39 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 ```
 
 The fastify plugin takes our universal configuration object, [read more about configuration](../configuration.md) in the core package README.
+
+## Options
+
+The plugin accepts the following options:
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `routePrefix` | `string` | `/reference` | Path where the API reference is served. |
+| `configuration` | `object` | – | The universal Scalar [configuration object](../configuration.md) (`url`, `content`, `sources`, `title`, `theme`, `layout`, …). |
+| `openApiDocumentEndpoints` | `object` | `{ json: '/openapi.json', yaml: '/openapi.yaml' }` | Where the OpenAPI document is exposed, relative to `routePrefix`. |
+| `hooks` | `object` | – | Fastify `onRequest` and `preHandler` hooks applied to every route the plugin registers (useful for authentication). |
+| `logLevel` | `string` | – | Log level for the plugin's routes. Set to `silent` to silence them. |
+
+Scalar looks for the OpenAPI document in this order of precedence: `configuration.content`, then `configuration.url`, then [@fastify/swagger](https://github.com/fastify/fastify-swagger) if it is registered.
+
+## Exposing the OpenAPI document
+
+When you provide the document via `configuration.content` or [@fastify/swagger](https://github.com/fastify/fastify-swagger), the plugin re-exposes it (parsed by [`@scalar/openapi-parser`](https://github.com/scalar/scalar/tree/main/packages/openapi-parser)) under `routePrefix`, so other tooling can consume it:
+
+- `/reference/openapi.json`
+- `/reference/openapi.yaml`
+
+These endpoints are served with permissive CORS headers so external tools can fetch them. You can change the paths:
+
+```typescript
+await fastify.register(import('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  openApiDocumentEndpoints: {
+    json: '/openapi.json',
+    yaml: '/openapi.yaml',
+  },
+})
+```
 
 ## Themes
 
@@ -56,6 +92,35 @@ await fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
+## Content Security Policy (CSP)
+
+The plugin serves the Scalar bundle from your own origin (`${routePrefix}/js/scalar.js`), so you do not need to allowlist a CDN — `script-src 'self'` already covers it.
+
+To run under a strict CSP without `script-src 'unsafe-inline'` (and without `'unsafe-eval'`), pass a `nonce`. It is applied to the inline bootstrap `<script>` and `<style>` the plugin emits, and exposed to the bundle via a `<meta property="csp-nonce">` tag so the stylesheet it injects at runtime carries the same nonce:
+
+```typescript
+await fastify.register(import('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  configuration: {
+    nonce: 'r4nd0m-nonce-value',
+  },
+})
+```
+
+A matching policy looks like this:
+
+```
+Content-Security-Policy: script-src 'self' 'nonce-r4nd0m-nonce-value'; style-src 'self' 'unsafe-inline'
+```
+
+> [!NOTE]
+> `style-src` still needs `'unsafe-inline'`. The reference renders inline `style="..."` attributes that a nonce cannot authorize — that is a limitation of CSP itself, not of the plugin.
+
+> [!NOTE]
+> The `nonce` is read once, when the plugin is registered, so the same value is sent on every response. A per-request nonce is not currently supported.
+
+Depending on how you use the reference you may need to extend other directives too — for example `connect-src` so the built-in API client can reach your API, and `img-src`/`font-src` for images and fonts referenced by your document or theme.
+
 ## Logging
 
 The plugin is compatible with the Fastify logger. You can configure the log level for the routes registered by the plugin:
@@ -66,6 +131,34 @@ fastify.register(import('@scalar/fastify-api-reference'), {
   logLevel: 'silent',
 })
 ```
+
+## Authentication
+
+Because the plugin registers standard Fastify routes, you can protect the API reference with any Fastify auth plugin through the `hooks` option. Here is an example using [@fastify/basic-auth](https://github.com/fastify/fastify-basic-auth):
+
+```typescript
+import FastifyBasicAuth from '@fastify/basic-auth'
+
+await fastify.register(FastifyBasicAuth, {
+  validate(username, password, request, reply, done) {
+    if (username === 'admin' && password === 'admin') {
+      done()
+    } else {
+      done(new Error('Access denied'))
+    }
+  },
+  authenticate: true,
+})
+
+await fastify.register(import('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  hooks: {
+    onRequest: fastify.basicAuth,
+  },
+})
+```
+
+The `onRequest` and `preHandler` hooks are applied to every route the plugin registers — the HTML page, the bundled JavaScript, and the OpenAPI document endpoints.
 
 ## Guide
 

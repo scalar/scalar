@@ -1,5 +1,29 @@
 # @scalar/scripts
 
+## 0.4.47
+
+## 0.4.46
+
+## 0.4.45
+
+## 0.4.44
+
+## 0.4.43
+
+### Patch Changes
+
+- [#10160](https://github.com/scalar/scalar/pull/10160): Pass request duration to post-response scripts as `pm.response.responseTime` in milliseconds and enable the response-time example.
+- [#10102](https://github.com/scalar/scalar/pull/10102): Allow response hooks to return a replacement Response before the client processes its body, status, and headers. Add the onResponseReceived configuration callback for API References. Existing hooks can still read responses and return nothing.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+## 0.4.42
+
+## 0.4.41
+
 ## 0.4.40
 
 ### Patch Changes

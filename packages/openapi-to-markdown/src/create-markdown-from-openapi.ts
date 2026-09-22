@@ -1,299 +1,33 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { isObject } from '@scalar/helpers/object/is-object'
-import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { normalize } from '@scalar/json-magic/helpers/normalize'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { minify } from 'html-minifier-terser'
-import rehypeParse from 'rehype-parse'
-import rehypeRemark from 'rehype-remark'
-import rehypeSanitize from 'rehype-sanitize'
-import remarkGfm from 'remark-gfm'
-import remarkStringify from 'remark-stringify'
-import { unified } from 'unified'
-import { createSSRApp } from 'vue'
-import { renderToString } from 'vue/server-renderer'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import MarkdownReference from './components/MarkdownReference.vue'
+import { loadDocument } from './load-document'
+import { createDocumentRenderer } from './render-document'
+import { type OpenApiRenderOptions, selectDocument } from './select-document'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
-export type { HttpMethod }
-export type OperationSelector =
-  | {
-      path: string
-      method: HttpMethod | Uppercase<HttpMethod>
-    }
-  | {
-      operationId: string
-    }
-  | {
-      pointer: string
-    }
-export type OpenApiRenderOptions = {
-  operation?: OperationSelector
-}
-type WorkspaceInput =
-  | {
-      document: Record<string, unknown>
-    }
-  | {
-      url: string
-    }
-  | {
-      path: string
-    }
-type OperationMatch = {
-  path: string
-  method: HttpMethod
+/** A resolved API description that can render multiple pages without loading it again. */
+export type OpenApiMarkdownRenderer = {
+  render: (options?: OpenApiRenderOptions) => Promise<string>
 }
 
-const HTTP_METHODS: HttpMethod[] = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
-const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS)
+/**
+ * Load and resolve an API description once, then render any number of selections.
+ * Each renderer owns its document; create a new renderer to pick up source changes.
+ */
+export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise<OpenApiMarkdownRenderer> => {
+  const content = await loadDocument(input)
 
-const isHttpUrl = (value: string): boolean => {
-  try {
-    const url = new URL(value)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
+  const renderDocument = createDocumentRenderer()
+  const render = async (options?: OpenApiRenderOptions): Promise<string> =>
+    await renderDocument(selectDocument(content, options))
+  return { render }
 }
 
-const toWorkspaceInput = (input: AnyDocument): WorkspaceInput => {
-  if (typeof input !== 'string') {
-    return { document: input as Record<string, unknown> }
-  }
-
-  const normalized = normalize(input)
-
-  if (isObject(normalized)) {
-    return { document: normalized as Record<string, unknown> }
-  }
-
-  if (isHttpUrl(input)) {
-    return { url: input }
-  }
-
-  return { path: input }
-}
-
-const normalizeHttpMethod = (method: string): HttpMethod | null => {
-  const normalized = method.toLowerCase()
-
-  if (HTTP_METHOD_SET.has(normalized)) {
-    return normalized as HttpMethod
-  }
-
-  return null
-}
-
-const normalizeJsonPointer = (pointer: string): string => {
-  if (pointer.startsWith('#/')) {
-    return pointer.slice(1)
-  }
-
-  if (pointer.startsWith('/')) {
-    return pointer
-  }
-
-  throw new Error(`Invalid JSON pointer "${pointer}". JSON pointers must start with "#/"`)
-}
-
-const parseJsonPointer = (pointer: string): string[] =>
-  normalizeJsonPointer(pointer)
-    .slice(1)
-    .split('/')
-    .map((segment) => segment.replaceAll('~1', '/').replaceAll('~0', '~'))
-
-const getOperationSelectorFromPointer = (pointer: string): Extract<OperationSelector, { path: string }> => {
-  const segments = parseJsonPointer(pointer)
-
-  if (segments.length !== 3 || segments[0] !== 'paths') {
-    throw new Error(`JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`)
-  }
-
-  const path = segments[1]
-  const method = segments[2]
-
-  if (!path || !method) {
-    throw new Error(`JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`)
-  }
-
-  return {
-    path,
-    method: method as HttpMethod,
-  }
-}
-
-const getPathEntries = (document: OpenApiDocument): Array<[string, PathItemObject]> => {
-  const paths = document.paths
-
-  if (!isObject(paths)) {
-    return []
-  }
-
-  return Object.entries(paths).flatMap(([path, pathItemRef]) => {
-    const pathItem = getResolvedPathItem(pathItemRef)
-
-    return pathItem ? [[path, pathItem]] : []
-  })
-}
-
-const filterPathItemToSingleOperation = (pathItem: PathItemObject, selectedMethod: HttpMethod): PathItemObject =>
-  Object.fromEntries(
-    Object.entries(pathItem).filter(([key]) => {
-      const method = normalizeHttpMethod(key)
-      return !method || method === selectedMethod
-    }),
-  )
-
-const findOperationByPathAndMethod = (
-  document: OpenApiDocument,
-  selector: Extract<OperationSelector, { path: string }>,
-): OperationMatch => {
-  const method = normalizeHttpMethod(selector.method)
-
-  if (!method) {
-    throw new Error(`Invalid HTTP method "${selector.method}". Supported methods: ${HTTP_METHODS.join(', ')}`)
-  }
-
-  const pathItemRef = document.paths?.[selector.path]
-
-  if (!getPathItemOperation(pathItemRef, method)) {
-    throw new Error(`Operation not found for path "${selector.path}" and method "${method.toUpperCase()}"`)
-  }
-
-  return {
-    path: selector.path,
-    method,
-  }
-}
-
-const findOperationsByOperationId = (document: OpenApiDocument, operationId: string): OperationMatch[] =>
-  getPathEntries(document).flatMap(([path, pathItem]) =>
-    Object.entries(pathItem).flatMap(([methodKey, operation]) => {
-      const method = normalizeHttpMethod(methodKey)
-
-      if (!method || !isObject(operation)) {
-        return []
-      }
-
-      const candidateOperationId =
-        'operationId' in operation && typeof operation.operationId === 'string' ? operation.operationId : undefined
-
-      if (candidateOperationId !== operationId) {
-        return []
-      }
-
-      return [{ path, method }]
-    }),
-  )
-
-const resolveOperationMatch = (document: OpenApiDocument, selector: OperationSelector): OperationMatch => {
-  if ('pointer' in selector) {
-    return findOperationByPathAndMethod(document, getOperationSelectorFromPointer(selector.pointer))
-  }
-
-  if ('operationId' in selector) {
-    const matches = findOperationsByOperationId(document, selector.operationId)
-
-    if (!matches.length) {
-      throw new Error(`Operation with operationId "${selector.operationId}" was not found`)
-    }
-
-    if (matches.length > 1) {
-      const uniqueCandidates = matches.map(({ path, method }) => `"${method.toUpperCase()} ${path}"`)
-
-      throw new Error(
-        `Multiple operations found for operationId "${selector.operationId}". Use { path, method } instead. Matches: ${uniqueCandidates.join(', ')}`,
-      )
-    }
-
-    return matches[0] as OperationMatch
-  }
-
-  return findOperationByPathAndMethod(document, selector)
-}
-
-const filterDocumentByOperation = (document: OpenApiDocument, selector: OperationSelector): OpenApiDocument => {
-  const match = resolveOperationMatch(document, selector)
-  const pathItem = getPathEntries(document).find(([path]) => path === match.path)?.[1]
-
-  if (!pathItem) {
-    throw new Error(`Operation not found for path "${match.path}" and method "${match.method.toUpperCase()}"`)
-  }
-
-  return {
-    ...document,
-    paths: {
-      [match.path]: filterPathItemToSingleOperation(pathItem, match.method),
-    },
-  }
-}
-
-export async function createHtmlFromOpenApi(input: AnyDocument, options?: OpenApiRenderOptions) {
-  const workspaceStore = createWorkspaceStore({
-    fileLoader: readFiles(),
-  })
-
-  const name = 'openapi-to-markdown'
-  const loaded = await workspaceStore.addDocument({
-    name,
-    ...toWorkspaceInput(input),
-  })
-
-  if (!loaded) {
-    throw new Error('Failed to load OpenAPI document')
-  }
-
-  const content = workspaceStore.workspace.documents[name]
-
-  if (!content) {
-    throw new Error('OpenAPI document could not be resolved')
-  }
-
-  const renderedContent =
-    options?.operation && isObject(content)
-      ? filterDocumentByOperation(content as OpenApiDocument, options.operation)
-      : content
-
-  // Create and configure a server-side rendered Vue app
-  const app = createSSRApp(MarkdownReference, {
-    content: renderedContent,
-  })
-
-  // Get static HTML
-  const html = await renderToString(app)
-
-  // Clean the output
-  return minify(html, {
-    removeComments: true,
-    removeEmptyElements: true,
-    collapseWhitespace: true,
-    continueOnParseError: true,
-    noNewlinesBeforeTagClose: true,
-    preserveLineBreaks: true,
-    removeEmptyAttributes: true,
-    decodeEntities: true,
-    useShortDoctype: true,
-  })
-}
-
-export async function createMarkdownFromOpenApi(content: AnyDocument, options?: OpenApiRenderOptions) {
-  return markdownFromHtml(await createHtmlFromOpenApi(content, options))
-}
-
-async function markdownFromHtml(html: string): Promise<string> {
-  const file = await unified()
-    .use(rehypeParse, { fragment: true })
-    .use(remarkGfm)
-    .use(rehypeSanitize)
-    .use(rehypeRemark)
-    .use(remarkStringify, {
-      bullet: '-',
-    })
-    .process(html)
-
-  return String(file)
+/** Generate Markdown from an API description, optionally scoped to a single page. */
+export const createMarkdownFromOpenApi = async (
+  input: AnyDocument,
+  options?: OpenApiRenderOptions,
+): Promise<string> => {
+  const renderer = await createOpenApiMarkdownRenderer(input)
+  return renderer.render(options)
 }

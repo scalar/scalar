@@ -1,6 +1,6 @@
 import type { AvailableClient } from '@scalar/snippetz'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { consoleErrorSpy } from '@test/vitest.setup'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -235,7 +235,7 @@ try {
     expect(withOptional).toBe("fetch('https://api.example.com/search?q=findme')")
   })
 
-  it('omits optional query parameters from snippets when defaultDisabledParameters is true', () => {
+  it('includes populated optional query parameters in snippets when defaultDisabledParameters is true', () => {
     const operationWithOptionalQuery: OperationObject = {
       ...mockOperation,
       parameters: [
@@ -251,7 +251,7 @@ try {
       ],
     }
 
-    const withoutOptional = generateCodeSnippet({
+    const withOptional = generateCodeSnippet({
       ...baseParams,
       clientId: 'js/fetch',
       path: '/search',
@@ -259,7 +259,7 @@ try {
       defaultDisabledParameters: true,
     })
 
-    expect(withoutOptional).toBe("fetch('https://api.example.com/search')")
+    expect(withOptional).toBe("fetch('https://api.example.com/search?q=findme')")
   })
 
   it('processes different clientId formats without errors', () => {

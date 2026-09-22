@@ -16,6 +16,7 @@ import {
   resolveResponseContentType,
   resolveResponseMimeType,
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
+import { getResponseStreamFormat } from '@/v2/blocks/response-block/helpers/response-stream'
 
 import { decodeBuffer } from './decode-buffer'
 
@@ -73,6 +74,7 @@ export const sendRequest = async ({
   request,
   plugins = [],
   customFetch = fetch,
+  onResponseReceived,
 }: {
   isUsingProxy: boolean
   requestPayload: RequestPayload
@@ -86,6 +88,8 @@ export const sendRequest = async ({
   plugins?: ClientPlugin[]
   /** Optional custom fetch implementation, overrides the global fetch */
   customFetch?: CustomFetch
+  /** Runs before response processing and returns the response to use. */
+  onResponseReceived?: (response: Response, responseDuration: number) => Promise<Response>
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -99,7 +103,7 @@ export const sendRequest = async ({
     const startTime = performance.now()
 
     // In electron we allow GET requests to have a body
-    const response = isElectron()
+    const fetchedResponse = isElectron()
       ? await customFetch(...requestPayload)
       : await customFetch(request ?? buildSafeBodyRequest(...requestPayload))
 
@@ -107,21 +111,25 @@ export const sendRequest = async ({
     const timestamp = Date.now()
     const duration = endTime - startTime
 
+    const response = onResponseReceived ? await onResponseReceived(fetchedResponse, duration) : fetchedResponse
+
     // Extract response metadata early for reuse
     const contentType = response.headers.get('content-type')
     const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
-    const responseUrl = new URL(response.url)
+    // A Response built with the Response constructor has an empty url. For intercepted responses,
+    // fall back to the original network response destination, and finally to the requested URL.
+    const responseUrl = new URL(response.url || fetchedResponse.url || requestPayload[0])
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
     const method = (requestPayload[1].method ?? 'GET') as HttpMethod
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
-     * Handle server-sent event streams separately.
+     * Handle sequential response formats without buffering the complete body.
      * These responses need a reader instead of buffered data.
      * We check this early to avoid unnecessary body reading.
      */
-    if (contentType?.startsWith('text/event-stream') && response.body) {
+    if (!shouldSkipBody && contentType && getResponseStreamFormat(contentType) && response.body) {
       return buildStreamingResponse({
         response,
         requestPayload,
@@ -134,7 +142,7 @@ export const sendRequest = async ({
       })
     }
 
-    return buildStandardResponse({
+    return await buildStandardResponse({
       response,
       requestPayload,
       timestamp,
@@ -175,7 +183,7 @@ const getCustomCookie = (response: Response): string[] | null => {
 }
 
 /**
- * Build a streaming response for server-sent events.
+ * Build a streaming response for sequential media types.
  * Streaming responses use a reader instead of buffering the entire body.
  */
 const buildStreamingResponse = ({
@@ -218,6 +226,8 @@ const buildStreamingResponse = ({
       requestPayload,
       response: {
         ...normalizedResponse,
+        status: response.status,
+        statusText,
         headers: responseHeaders,
         cookieHeaderKeys,
         reader: response.body!.getReader(),
@@ -297,13 +307,14 @@ const buildStandardResponse = async ({
       requestPayload,
       response: {
         ...normalizedResponse,
+        status: response.status,
+        statusText,
         headers: responseHeaders,
         cookieHeaderKeys,
         data: responseData,
         size: arrayBuffer.byteLength,
         duration,
         method,
-        status: response.status,
         path: fullPath,
       },
       originalResponse: response.clone(),

@@ -1,7 +1,7 @@
 import type {
   ParameterObject,
   ParameterWithSchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { deSerializeParameter } from './de-serialize-parameter'
@@ -357,6 +357,38 @@ describe('de-serialize-parameter', () => {
       const result = deSerializeParameter(example, param)
 
       expect(result).toEqual(['single'])
+    })
+
+    it('splits a numeric string too large for a safe JS number into an array instead of parsing it', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'values',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = '40702810506710000185'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['40702810506710000185'])
+    })
+
+    it('keeps a quoted numeric string as a single-item array for array schema type', () => {
+      const param: ParameterWithSchemaObject = {
+        name: 'values',
+        in: 'query',
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      }
+      const example = '"40702810506710000185"'
+
+      const result = deSerializeParameter(example, param)
+
+      expect(result).toEqual(['40702810506710000185'])
     })
 
     it('still parses valid JSON arrays for array schema type', () => {

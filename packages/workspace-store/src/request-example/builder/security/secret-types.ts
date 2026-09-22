@@ -16,10 +16,17 @@ import type {
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
+  OAuthFlowDeviceAuthorization,
   OAuthFlowImplicit,
   OAuthFlowPassword,
-} from '@/schemas/v3.1/strict/oauth-flow'
-import type { ApiKeyObject, HttpObject, OAuth2Object, OpenIdConnectObject } from '@/schemas/v3.1/strict/security-scheme'
+} from '@/schemas/v3.2/strict/oauth-flow'
+import type {
+  ApiKeyObject,
+  HttpObject,
+  MutualTlsObject,
+  OAuth2Object,
+  OpenIdConnectObject,
+} from '@/schemas/v3.2/strict/security-scheme'
 
 type OAuthFlowCommonSecret = XScalarSecretClientId &
   XScalarSecretToken &
@@ -46,15 +53,31 @@ export type OAuthFlowAuthorizationCodeSecret = OAuthFlowAuthorizationCode &
   XScalarSecretRedirectUri &
   XScalarCredentialsLocation
 
+/** Device authorization credentials and tokens shared by the auth UI and request builder. */
+export type OAuthFlowDeviceAuthorizationSecret = OAuthFlowDeviceAuthorization &
+  OAuthFlowCommonSecret &
+  XScalarSecretClientSecret
+
 export type OAuthFlowsObjectSecret = {
+  deviceAuthorization?: OAuthFlowDeviceAuthorizationSecret
   implicit?: OAuthFlowImplicitSecret
   password?: OAuthFlowPasswordSecret
   clientCredentials?: OAuthFlowClientCredentialsSecret
   authorizationCode?: OAuthFlowAuthorizationCodeSecret
 }
 
-export type ApiKeyObjectSecret = ApiKeyObject & XScalarSecretToken
+/** AsyncAPI API keys occupy broker credentials instead of an HTTP parameter. */
+export type BrokerApiKeyObject = {
+  type: 'apiKey'
+  in: 'user' | 'password'
+  name?: string
+  description?: string
+}
+
+export type ApiKeyObjectSecret = (ApiKeyObject | BrokerApiKeyObject) & XScalarSecretToken
 export type HttpObjectSecret = HttpObject & XScalarSecretHTTP & XScalarSecretToken
+/** Mutual TLS: the client certificate is presented at the TLS layer, so there is no secret to enter. */
+export type MutualTlsObjectSecret = MutualTlsObject
 export type OAuth2ObjectSecret = Omit<OAuth2Object, 'flows'> & { flows: OAuthFlowsObjectSecret }
 export type OpenIdConnectObjectSecret = OpenIdConnectObject & { flows?: OAuthFlowsObjectSecret }
 
@@ -82,6 +105,7 @@ export type GssapiObjectSecret = AsyncApiBrokerScheme<'gssapi'> & XScalarSecretS
 export type SecuritySchemeObjectSecret =
   | ApiKeyObjectSecret
   | HttpObjectSecret
+  | MutualTlsObjectSecret
   | OpenIdConnectObjectSecret
   | OAuth2ObjectSecret
   | SaslObjectSecret

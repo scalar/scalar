@@ -1,4 +1,5 @@
 import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
+import { createLowlight } from 'lowlight'
 import type { Heading, Root as MdastRoot, RootContent as MdastRootContent, Node, PhrasingContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -126,32 +127,41 @@ const transformInlineMarkdownInRawHtml = () => (tree: HastRoot) => {
   })
 }
 
-/**
- * Take a Markdown string and generate HTML from it
- */
-export function htmlFromMarkdown(
-  markdown: string,
-  options?: {
-    removeTags?: string[]
-    allowTags?: string[]
-    transform?: (node: Node) => Node
-    transformType?: string
-  },
-) {
-  // Add permitted tags and remove stripped ones
-  const removeTags = options?.removeTags ?? []
-  const tagNames = [...(defaultSchema.tagNames ?? []), ...(options?.allowTags ?? [])].filter(
-    (t) => !removeTags.includes(t),
-  )
+type HtmlFromMarkdownOptions = {
+  removeTags?: string[]
+  allowTags?: string[]
+  transform?: (node: Node) => Node
+  transformType?: string
+}
 
-  const html = unified()
+/**
+ * One lowlight instance shared by every markdown pipeline.
+ *
+ * Registering the standard grammars is the most expensive part of building a
+ * pipeline, and the registry is read-only once built (nothing here passes
+ * `aliases`, the only option that mutates a given instance), so it is created
+ * on first use and reused from then on.
+ */
+let sharedLowlight: ReturnType<typeof createLowlight> | undefined
+
+const getLowlight = (): ReturnType<typeof createLowlight> => {
+  sharedLowlight ??= createLowlight(standardLanguages)
+
+  return sharedLowlight
+}
+
+/**
+ * Build the markdown to HTML pipeline.
+ */
+const createProcessor = (tagNames: string[], transform: Options['transform'], transformType: string | undefined) =>
+  unified()
     // Parses markdown
     .use(remarkParse)
     // Support autolink literals, footnotes, strikethrough, tables and tasklists
     .use(remarkGfm)
     .use(transformNodes, {
-      transform: options?.transform,
-      type: options?.transformType,
+      transform,
+      type: transformType,
     })
     // Allows any HTML tags
     .use(remarkRehype, { allowDangerousHtml: true })
@@ -179,7 +189,8 @@ export function htmlFromMarkdown(
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
-      languages: standardLanguages,
+      // Reuse the grammar registry instead of rebuilding it for every pipeline
+      lowlight: getLowlight(),
       // Enable auto detection
       detect: true,
       // Adds Scalar's custom scrollbar styling to highlighted code blocks
@@ -191,10 +202,79 @@ export function htmlFromMarkdown(
     .use(rehypeFormat)
     // Converts the HTML AST to a string
     .use(rehypeStringify)
-    // Run the pipeline
-    .processSync(markdown)
 
-  return html.toString()
+/**
+ * Frozen pipelines keyed by the options that shape them.
+ *
+ * Every plugin in the chain is stateless once attached, so a pipeline can be
+ * frozen and reused for every call that shares the same options. This matters
+ * because API references render one description per schema row, and building
+ * the pipeline used to cost far more than running it. Calls with a `transform`
+ * callback are not cached, because that closure belongs to the caller.
+ */
+const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
+
+/**
+ * Matches strings that CommonMark, GFM and this pipeline all render as a single plain paragraph.
+ *
+ * The point is to skip the whole markdown pipeline for the many short, plain
+ * descriptions an API reference renders (property summaries such as "Integer
+ * numbers."), where parsing, sanitising, highlighting and formatting cost far
+ * more than the one paragraph they produce.
+ *
+ * The whitelist is deliberately conservative: a single line, no leading or
+ * trailing whitespace, no run of two spaces, no character that markdown or the
+ * serializer treats specially, and no block marker at the start. Every
+ * CommonMark block construct needs a leading space, `#`, `>`, a bullet, an
+ * ordered marker, `<`, a fence, a thematic break or a second line; every inline
+ * construct needs `\`, a backtick, `*`, `_`, `[`, `]`, `<`, `&`, `~`, a hard
+ * break or a GFM autolink literal (`www.`, `:/`, `mailto:`, `xmpp:`, `@`).
+ * `rehype-stringify` escapes only `<` and `&` in text, and `rehype-format`
+ * only collapses whitespace runs and trims block edges, both of which are
+ * excluded here, so the fast path returns exactly what the pipeline returns.
+ *
+ * The `i` flag is load bearing: GFM matches the `www.`, `mailto:` and `xmpp:`
+ * autolink prefixes case-insensitively, so the lookahead has to as well.
+ * Unicode whitespace is written as escapes because a literal U+2028 or U+2029
+ * inside a regular expression literal is a syntax error.
+ */
+const PLAIN_PARAGRAPH =
+  /^(?![-+=]|\d{1,9}[.)](?:\s|$))(?!.*(?: {2}|:\/|www\.|mailto:|xmpp:))[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff](?:[^\\`*_\[\]<>&#~|@\t\n\v\f\r\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff]*[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff])?$/i
+
+/**
+ * Take a Markdown string and generate HTML from it
+ */
+export function htmlFromMarkdown(markdown: string, options?: HtmlFromMarkdownOptions): string {
+  // Add permitted tags and remove stripped ones
+  const removeTags = options?.removeTags ?? []
+
+  // Plain text needs none of the pipeline, and the caller can only observe the
+  // returned string. A `transform` callback still has to see the AST, and a
+  // caller that removes `p` expects the paragraph to be stripped, so both keep
+  // the full pipeline.
+  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) {
+    return `\n<p>${markdown}</p>\n`
+  }
+
+  const allowTags = options?.allowTags ?? []
+  const tagNames = [...(defaultSchema.tagNames ?? []), ...allowTags].filter((t) => !removeTags.includes(t))
+
+  if (options?.transform) {
+    return createProcessor(tagNames, options.transform, options.transformType).processSync(markdown).toString()
+  }
+
+  const key = [[...removeTags].sort().join(','), [...allowTags].sort().join(','), options?.transformType ?? ''].join(
+    '|',
+  )
+
+  let processor = processorCache.get(key)
+
+  if (!processor) {
+    processor = createProcessor(tagNames, undefined, options?.transformType).freeze()
+    processorCache.set(key, processor)
+  }
+
+  return processor.processSync(markdown).toString()
 }
 
 /**

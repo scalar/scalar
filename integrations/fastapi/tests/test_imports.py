@@ -13,6 +13,10 @@ def test_scalar_fastapi_imports():
     from scalar_fastapi import get_scalar_api_reference
     assert callable(get_scalar_api_reference)
 
+    # Test the one-line helper import
+    from scalar_fastapi import add_scalar_reference
+    assert callable(add_scalar_reference)
+
     # Test enum imports
     from scalar_fastapi import Layout, SearchHotKey, Theme
     assert Layout.MODERN.value == "modern"

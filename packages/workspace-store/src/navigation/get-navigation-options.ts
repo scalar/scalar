@@ -72,17 +72,17 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
           })}/`
         : `${documentId}/`
 
-      return `${prefixTag}asyncapi-channel/${slugify(props.channelName)}`
+      return `${prefixTag}channel/${slugify(props.channelName)}`
     }
 
     // -------- Default AsyncAPI message id generation logic --------
     if (props.type === 'asyncapi-message') {
-      return `${props.parentId}/asyncapi-message/${slugify(props.messageName)}`
+      return `${props.parentId}/message/${slugify(props.messageName)}`
     }
 
     // -------- Default AsyncAPI operation id generation logic --------
     if (props.type === 'asyncapi-operation') {
-      return `${props.parentId}/asyncapi-operation/${slugify(props.operationName)}`
+      return `${props.parentId}/operation/${slugify(props.operationName)}`
     }
 
     // -------- Default operation id generation logic --------

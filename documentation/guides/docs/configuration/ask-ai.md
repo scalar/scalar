@@ -8,6 +8,12 @@ Ask AI is enabled by default for all Scalar Docs projects. No setup required.
 
 When a user asks a question, Ask AI searches through all your published documentation. It can combine information from multiple sources to give a complete answer, even when the answer spans several pages.
 
+## AsyncAPI documents
+
+We do not currently support AsyncAPI for Ask AI. [AsyncAPI](../../../asyncapi.md) documents render as API references on your site, but they are not part of the context Ask AI answers from, so it cannot describe your channels or messages.
+
+Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
+
 ## MCP integration
 
 You can connect your docs AI to LLMs like Cursor, Claude Code, Windsurf, and other tools that support Model Context Protocol (MCP). This gives the LLM the full context of your documentation, so it can answer questions about your API and product without you copy-pasting docs into the chat.
@@ -47,6 +53,8 @@ https://<your-domain>/mcp
 ## Configuration
 
 You can configure Ask AI in the [Scalar Dashboard](https://dashboard.scalar.com). Navigate to your Docs project and open the settings to enable or disable the feature, or to adjust its behavior.
+
+Appearance options — the button, its sidebar placement, the floating widget position, and suggested questions — can also be set via `siteConfig.agent` in `scalar.config.json`. See [site config](site-config.md#ask-ai) for the full list of properties.
 
 ## Usage tracking
 

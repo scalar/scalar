@@ -9,7 +9,7 @@ import type {
   OpenApiDocument,
   OperationObject,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, provide, ref, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -18,10 +18,12 @@ import { LinkList } from '@/components/LinkList'
 import OperationPath from '@/components/OperationPath.vue'
 import { Section, SectionContent, SectionHeaderTag } from '@/components/Section'
 import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
+import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
@@ -103,6 +105,14 @@ const requestBodyCompositionSelectionKey = computed(() =>
 )
 
 provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
+
+/**
+ * Selected response content type per status code. Shared between the response list (which writes
+ * the selection) and the example response panel (which reads it) so the two stay in sync.
+ */
+const selectedResponseContentTypes = ref<Record<string, string>>({})
+
+const { level: headingLevel } = useDocumentOutline('operation')
 </script>
 
 <template>
@@ -141,7 +151,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             position="before" />
         </div>
         <!-- Right -->
-        <div class="flex gap-1">
+        <div class="flex items-center gap-1">
           <!-- x-badges after -->
           <XBadges
             :badges="operation['x-badges']"
@@ -157,15 +167,21 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
             <SectionHeaderTag
               :id="labelId"
-              :level="3">
+              :level="headingLevel">
               {{ operationTitle }}
             </SectionHeaderTag>
           </Anchor>
         </div>
 
-        <!-- Required auth badge -->
-        <div class="operation-auth">
+        <!-- Operation actions -->
+        <div class="operation-auth mb-1.5 flex min-h-8 items-center gap-3">
           <SecurityRequirementBadge :requiredSecurity />
+          <CopyMarkdownButton
+            v-if="document"
+            :document
+            :isWebhook
+            :method
+            :path />
         </div>
 
         <!-- Description -->
@@ -204,6 +220,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
             :parameters="operation.parameters"
             :requestBody="getResolvedRef(operation.requestBody)" />
           <OperationResponses
+            v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
             :document
@@ -215,6 +232,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
           <ScalarErrorBoundary>
             <Callbacks
               v-if="operation.callbacks"
+              :breadcrumb="[id]"
               :callbacks="operation.callbacks"
               class="mt-6"
               :document
@@ -256,9 +274,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
                   :deprecated="operation?.deprecated"
                   :path="path" />
               </template>
-              <template
-                v-if="!isWebhook"
-                #footer="{ exampleName }">
+              <template #footer="{ exampleName }">
                 <div class="flex">
                   <AskAgentButton />
                   <TestRequestButton
@@ -281,6 +297,7 @@ provide(REQUEST_BODY_COMPOSITION_INDEX_SYMBOL, requestBodyCompositionSelection)
               v-if="operation.responses"
               :eventBus
               :responses="operation.responses"
+              :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample
               style="margin-top: 12px" />
           </ScalarErrorBoundary>

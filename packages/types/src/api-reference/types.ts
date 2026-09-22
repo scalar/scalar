@@ -1,6 +1,7 @@
 import type { PartialDeep } from 'type-fest'
 
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
+import type { ApiClientTranslations } from './api-client-translations'
 import type { PluginAuthState } from './api-reference-plugin'
 
 /** Some common properties used in all security schemes */
@@ -94,6 +95,13 @@ type OasSecurityOauth2FlowImplicit = {
   type: 'oauth2'
   'x-default-scopes'?: string[]
   flows: {
+    deviceAuthorization: FlowsCommon & {
+      type: 'deviceAuthorization'
+      deviceAuthorizationUrl: string
+      tokenUrl: string
+      clientSecret: string
+      'x-scalar-credentials-location'?: CredentialsLocationExtension
+    }
     implicit: FlowsCommon & {
       type: 'implicit'
       authorizationUrl: string
@@ -356,38 +364,19 @@ export type ApiReferenceTextDirection = 'ltr' | 'rtl'
 /** Text direction configuration. `auto` derives the direction from the locale. */
 export type ApiReferenceTextDirectionPreference = ApiReferenceTextDirection | 'auto'
 
+export type { ApiClientTranslations } from './api-client-translations'
+
 /** User-facing UI copy for API Reference shell labels. */
 export type ApiReferenceTranslations = {
+  /** Optional API Client strings. The client supplies its own English fallback. */
+  apiClient?: ApiClientTranslations
   common: {
-    additionalProperties: string
-    const: string
-    deprecated: string
     description: string
-    discriminator: string
-    enum: string
-    format: string
-    greaterThan: string
     httpMethod: string
-    keys: string
-    lessThan: string
-    max: string
-    min: string
-    maxLength: string
-    minLength: string
-    multipleOf: string
-    nullable: string
     path: string
-    pattern: string
-    copyPattern: string
-    propertyNames: string
-    readOnly: string
-    required: string
-    hideValues: string
-    showAllValues: string
-    type: string
-    unique: string
-    values: string
-    writeOnly: string
+    copyDefault: string
+    copyExample: string
+    streamItem: string
   }
   search: {
     label: string
@@ -395,6 +384,7 @@ export type ApiReferenceTranslations = {
     open: string
     placeholder: string
     clear: string
+    noResults: string
     keyboardShortcut: string
     command: string
     control: string
@@ -450,8 +440,6 @@ export type ApiReferenceTranslations = {
     testRequest: string
     webhook: string
     selectedContentType: string
-    hideHeaders: string
-    showHeaders: string
     callbacks: string
   }
   response: {
@@ -465,11 +453,9 @@ export type ApiReferenceTranslations = {
     examples: string
     default: string
     schema: string
+    noAllowedValues: string
     emptyObject: string
     showAdditionalProperties: string
-    childAttributes: string
-    hideChildAttributes: string
-    showChildAttributes: string
     forName: string
     showSchemaDetails: string
     oneOf: string
@@ -477,6 +463,36 @@ export type ApiReferenceTranslations = {
     allOf: string
     not: string
     unknownType: string
+    propertyCount: string
+    headerCount: string
+    recursiveReference: string
+    recursive: string
+    additionalProperties: string
+    const: string
+    deprecated: string
+    discriminator: string
+    enum: string
+    format: string
+    greaterThan: string
+    keys: string
+    lessThan: string
+    max: string
+    min: string
+    maxLength: string
+    minLength: string
+    multipleOf: string
+    nullable: string
+    propertyNames: string
+    pattern: string
+    copyPattern: string
+    readOnly: string
+    required: string
+    hideValues: string
+    showAllValues: string
+    type: string
+    unique: string
+    values: string
+    writeOnly: string
   }
   download: {
     openapi: string
@@ -486,6 +502,9 @@ export type ApiReferenceTranslations = {
     label: string
   }
   actions: {
+    copyAsMarkdown: string
+    copied: string
+    copyMarkdownFailed: string
     copyLink: string
     copyLinkTo: string
     copyToClipboard: string
@@ -690,6 +709,16 @@ type ExtendedConfiguration = {
     targetKey: TargetId
     clientKey: ClientId<TargetId>
   }
+  /**
+   * Initial view for the request body editor with structured (JSON/YAML) bodies.
+   *
+   * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.
+   * When a body cannot be shown as a form, Scalar falls back to `raw`. A document can override
+   * this per source with the `x-scalar-default-request-body-view` extension.
+   *
+   * @default 'raw'
+   */
+  defaultRequestBodyView?: 'form' | 'raw'
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onServerChange is fired on selected server change */
@@ -706,6 +735,8 @@ type ExtendedConfiguration = {
   onRequestBuilt?:
     | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)
     | undefined
+  /** Fired before response processing. Return a Response to replace it, or nothing to keep it. */
+  onResponseReceived?: (input: { response: Response; request: Request }) => Response | void | Promise<Response | void>
   /** onShowMore is fired when the user clicks the "Show more" button on the references */
   onShowMore?: (tagId: string) => void | Promise<void>
   /** onSidebarClick is fired when the user clicks on a sidebar item */
@@ -750,6 +781,8 @@ type ExtendedConfiguration = {
   defaultOpenAllTags: boolean
   /** Whether to expand all models by default. Warning: this can cause performance issues on big documents */
   expandAllModelSections: boolean
+  /** Whether to show parameter details by default. Set to false to collapse each parameter. */
+  expandAllParameters: boolean
   /** Whether to expand all responses by default. Warning: this can cause performance issues on big documents */
   expandAllResponses: boolean
   /** Whether to expand all nested schema properties. Warning: this can cause performance issues on big documents */
@@ -760,6 +793,8 @@ type ExtendedConfiguration = {
   operationsSorter?: 'alpha' | 'method' | ((a: any, b: any) => number)
   /** Order the schema properties by */
   orderSchemaPropertiesBy: 'alpha' | 'preserve'
+  /** Arrow-key navigation over the schema disclosure toggles */
+  schemaKeyboardNav: boolean
   /** Sort the schema properties by required ones first */
   orderRequiredPropertiesFirst: boolean
 }
@@ -835,6 +870,12 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
     requestBuilder: any
     envVariables: Record<string, string>
   }) => void | Promise<void> | undefined
+  /**
+   * Fired before response processing. Return a Response to replace the body, status, or headers
+   * used by the client, or return nothing to keep the current response. Receives a clone so
+   * reading the body does not consume the client response. Avoid reading unbounded streams.
+   */
+  onResponseReceived?: (input: { response: Response; request: Request }) => Response | void | Promise<Response | void>
   /**
    * Fired after the outbound fetch `Request` has been built, right before it is sent. The `request` is the exact
    * object handed to fetch: mutating its headers modifies the outgoing request, and hashing its body produces a

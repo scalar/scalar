@@ -3,11 +3,11 @@ import { type TLiteral, Type } from '@scalar/typebox'
 import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 
 import { compose } from '@/schemas/compose'
-import type { InfoObject } from '@/schemas/v3.1/strict/info'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
-import { TraversedEntryObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
-import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
-import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import type { InfoObject } from '@/schemas/v3.2/strict/info'
+import type { OperationObject } from '@/schemas/v3.2/strict/operation'
+import { TraversedEntryObjectRef } from '@/schemas/v3.2/strict/ref-definitions'
+import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
+import type { TagObject } from '@/schemas/v3.2/strict/tag'
 
 export const NavigationBaseSchemaDefinition = Type.Object({
   id: Type.String(),

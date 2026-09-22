@@ -3,13 +3,27 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   deletePathItemOperation,
   forEachPathItemOperation,
+  getPathItemOperation,
   getResolvedPathItem,
   pathItemIsEmpty,
+  setPathItemOperation,
 } from '@/helpers/for-each-path-item-operation'
 import type { NodeInput } from '@/helpers/get-resolved-ref'
-import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
+import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
 
-describe('getResolvedPathItem', () => {
+describe('for-each-path-item-operation', () => {
+  it('creates, traverses, reads, and deletes a QUERY operation', () => {
+    const pathItem: PathItemObject = {}
+    const operation = { summary: 'Search planets' }
+    setPathItemOperation(pathItem, 'query', operation)
+    const callback = vi.fn()
+    forEachPathItemOperation(pathItem, callback)
+    expect(callback.mock.calls).toStrictEqual([['query', operation]])
+    expect(getPathItemOperation(pathItem, 'query')).toStrictEqual(operation)
+    deletePathItemOperation(pathItem, 'query')
+    expect(pathItem).toStrictEqual({})
+  })
+
   it('includes parameters declared alongside a path $ref on the paths map', () => {
     const resolved = getResolvedPathItem({
       $ref: '#/components/pathItems/UsersPath',
@@ -54,6 +68,75 @@ describe('getResolvedPathItem', () => {
     const resolved = getResolvedPathItem(chainedPathItem())
 
     expect(resolved?.get).toEqual({ summary: 'List all moons' })
+  })
+
+  it('follows hidden reference links and preserves sibling overrides at every hop', () => {
+    const target = {
+      get: { summary: 'Original get' },
+      post: { summary: 'Create pet' },
+      parameters: [{ name: 'target', in: 'query' }],
+    }
+    const alias = {
+      $ref: '#/components/pathItems/Target',
+      get: { summary: 'Alias get' },
+    }
+    const path = {
+      $ref: '#/components/pathItems/Alias',
+      parameters: [{ name: 'outer', in: 'header' }],
+    } satisfies NodeInput<PathItemObject>
+    Object.defineProperty(alias, '$ref-value', { value: target })
+    Object.defineProperty(path, '$ref-value', { value: alias })
+
+    expect(getResolvedPathItem(path)).toStrictEqual({
+      $ref: '#/components/pathItems/Alias',
+      get: { summary: 'Alias get' },
+      post: { summary: 'Create pet' },
+      parameters: [{ name: 'outer', in: 'header' }],
+    })
+    expect(Object.getOwnPropertyDescriptor(alias, '$ref-value')?.enumerable).toBe(false)
+    expect(Object.getOwnPropertyDescriptor(path, '$ref-value')?.enumerable).toBe(false)
+  })
+
+  it('does not follow reference links inherited by a target', () => {
+    const path = {
+      $ref: '#/components/pathItems/Target',
+      '$ref-value': { get: { summary: 'List pets' } },
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(Object.prototype, '$ref-value')
+    Object.defineProperty(Object.prototype, '$ref-value', {
+      value: { post: { summary: 'Inherited operation' } },
+      configurable: true,
+    })
+
+    try {
+      const resolved = getResolvedPathItem(path)
+      expect(Object.hasOwn(resolved ?? {}, '$ref-value')).toBe(false)
+      expect(resolved).toStrictEqual({
+        $ref: '#/components/pathItems/Target',
+        get: { summary: 'List pets' },
+      })
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(Object.prototype, '$ref-value', descriptor)
+      } else {
+        Reflect.deleteProperty(Object.prototype, '$ref-value')
+      }
+    }
+  })
+
+  it('terminates a cycle of hidden reference links without exposing the link', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const cycle = { $ref: '#/components/pathItems/Loop' }
+    Object.defineProperty(cycle, '$ref-value', { value: cycle })
+
+    try {
+      const resolved = getResolvedPathItem(cycle)
+      expect(resolved).toStrictEqual({ $ref: '#/components/pathItems/Loop' })
+      expect(Object.hasOwn(resolved ?? {}, '$ref-value')).toBe(false)
+      expect(warn.mock.calls.length).toBe(1)
+    } finally {
+      warn.mockRestore()
+    }
   })
 
   it('keeps the outermost $ref when it follows a chain', () => {

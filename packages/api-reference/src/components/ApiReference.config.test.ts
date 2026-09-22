@@ -5,6 +5,8 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { toValue } from 'vue'
 
+import { ServerSelector } from '@/blocks/scalar-server-selector-block'
+
 import ApiReference from './ApiReference.vue'
 
 enableAutoUnmount(afterEach)
@@ -149,6 +151,47 @@ const createBasicDocument = (title = 'Test API') => ({
 })
 
 describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
+  it.each([undefined, [{ url: 'https://{env}.other.example.com', variables: { env: { default: 'original' } } }]])(
+    'shares edited configuration variables between the reference and modal with document servers %j',
+    async (documentServers) => {
+      const spy = vi.spyOn(apiClientModalModule, 'createApiClientModal')
+      const servers = [{ url: 'https://{env}.example.com', variables: { env: { default: 'prod' } } }]
+      const content = { ...createBasicDocument(), servers: documentServers }
+      const wrapper = mountComponent({ props: { configuration: { content: JSON.stringify(content), servers } } })
+      await flushPromises()
+
+      const selector = wrapper.findComponent(ServerSelector)
+      await selector.get('input').setValue('staging')
+      await flushPromises()
+
+      expect(spy).not.toHaveBeenCalled()
+      await wrapper.findComponent({ name: 'TestRequestButton' }).get('button').trigger('click')
+      await flushPromises()
+
+      expect(selector.props('selectedServer')?.variables?.env?.default).toBe('staging')
+      const modalOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
+      expect(modalOptions?.servers?.[0]?.variables?.env?.default).toBe('staging')
+      expect(servers[0]?.variables.env.default).toBe('prod')
+      expect(content.servers).toStrictEqual(documentServers)
+
+      await wrapper.setProps({ configuration: { content: JSON.stringify(content), servers, hideModels: true } })
+      await flushPromises()
+      expect(selector.props('selectedServer')?.variables?.env?.default).toBe('staging')
+
+      await wrapper.setProps({
+        configuration: {
+          content: JSON.stringify(content),
+          servers: [{ ...servers[0], variables: { env: { default: 'dev' } } }],
+        },
+      })
+      await flushPromises()
+      expect(selector.props('selectedServer')?.variables?.env?.default).toBe('dev')
+      expect(toValue(spy.mock.calls.at(-1)?.[0].options)?.servers?.[0]?.variables?.env?.default).toBe('dev')
+      wrapper.unmount()
+      spy.mockRestore()
+    },
+  )
+
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()
@@ -188,14 +231,14 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       .findAll('.property-name')
       .map((item) => item.text().split(' ')[0])
     expect(propertyNames).toStrictEqual([
-      'isAdminCopy',
-      'phoneCopy',
-      'addressCopy',
-      'ageCopy',
-      'createdAtCopy',
-      'emailCopy',
-      'nameCopy',
-      'updatedAtCopy',
+      'isAdmin',
+      'phone',
+      'address',
+      'age',
+      'createdAt',
+      'email',
+      'name',
+      'updatedAt',
     ])
 
     // hideTestRequestButton: undefined -> false
@@ -682,14 +725,14 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
       .map((item) => item.text().split(' ')[0])
 
     expect(propertyNames).toStrictEqual([
-      'nameCopy',
-      'ageCopy',
-      'isAdminCopy',
-      'createdAtCopy',
-      'updatedAtCopy',
-      'addressCopy',
-      'phoneCopy',
-      'emailCopy',
+      'name',
+      'age',
+      'isAdmin',
+      'createdAt',
+      'updatedAt',
+      'address',
+      'phone',
+      'email',
     ])
 
     // expandAllModelSections: true
@@ -740,7 +783,11 @@ describe('ApiReference custom fetch forwarding', () => {
     })
     await flushPromises()
 
-    expect(spy).toHaveBeenCalled()
+    expect(spy).not.toHaveBeenCalled()
+    await wrapper.findComponent({ name: 'TestRequestButton' }).get('button').trigger('click')
+    await flushPromises()
+
+    expect(spy).toHaveBeenCalledOnce()
     const passedOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
     expect(passedOptions?.customFetch).toBe(customFetch)
 
@@ -763,7 +810,11 @@ describe('ApiReference custom fetch forwarding', () => {
     })
     await flushPromises()
 
-    expect(spy).toHaveBeenCalled()
+    expect(spy).not.toHaveBeenCalled()
+    await wrapper.findComponent({ name: 'TestRequestButton' }).get('button').trigger('click')
+    await flushPromises()
+
+    expect(spy).toHaveBeenCalledOnce()
     const passedOptions = toValue(spy.mock.calls.at(-1)?.[0].options)
     expect(passedOptions?.customFetch).toBe(customFetch)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining(`deprecated 'fetch' attribute`))
@@ -829,5 +880,56 @@ describe('ApiReference AsyncAPI onServerChange', () => {
     expect((globalThis as unknown as Record<string, unknown>).pwned).toBeUndefined()
 
     wrapper.unmount()
+  })
+})
+
+describe('host-app hash routing', () => {
+  afterEach(() => {
+    locationMock.href = 'http://localhost:3000/'
+    locationMock.hash = ''
+    vi.restoreAllMocks()
+  })
+
+  it.each([
+    ['#docs/api-spec', '#docs/api-spec', false],
+    ['#docs/api-spec/tag/users', '#docs/api-spec', false],
+    ['#tag/users', '', false],
+    ['#docs/api-spec/second/tag/users', '#docs/api-spec', true],
+  ])('keeps the host route when opening and navigating from %s', async (hash, prefix, multi) => {
+    locationMock.hash = hash
+    locationMock.href = `http://localhost:3000/${hash}`
+    const updateLocation = (_data: unknown, _unused: string, url?: string | URL | null): void => {
+      const next = new URL(String(url), locationMock.href)
+      locationMock.href = next.href
+      locationMock.hash = next.hash
+    }
+    vi.spyOn(window.history, 'replaceState').mockImplementation(updateLocation)
+    vi.spyOn(window.history, 'pushState').mockImplementation(updateLocation)
+
+    const configuration = {
+      slug: 'doc',
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'Hash routing', version: '1.0.0' },
+        tags: [{ name: 'Users' }, { name: 'Payers' }],
+        paths: {
+          '/users': { get: { tags: ['Users'], responses: {} } },
+          '/payers': { get: { tags: ['Payers'], responses: {} } },
+        },
+      },
+    }
+    const wrapper = mountComponent({
+      props: {
+        configuration: multi ? [configuration, { ...configuration, slug: 'second' }] : configuration,
+      },
+    })
+    await flushPromises()
+
+    const expectedHash = `${prefix || '#'}${prefix ? '/' : ''}${multi ? 'second/' : ''}tag/payers`
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toContain(expectedHash)
+    const eventBus = wrapper.findComponent({ name: 'Content' }).props('eventBus')
+    eventBus.emit('select:nav-item', { id: `${multi ? 'second' : 'doc'}/tag/payers` })
+    await flushPromises()
+    expect(locationMock.hash).toBe(expectedHash)
   })
 })

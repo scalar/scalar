@@ -1,5 +1,60 @@
 # @scalar/openapi-to-markdown
 
+## 1.1.0
+
+### Minor Changes
+
+- [#10251](https://github.com/scalar/scalar/pull/10251): Preserve chained path-item references with non-enumerable links.
+
+  Remove the HTML output APIs `createHtmlFromOpenApi` and `renderer.renderHtml` from `@scalar/openapi-to-markdown`. Use `createMarkdownFromOpenApi` or `renderer.render` and convert the resulting Markdown with an application-provided renderer when HTML is needed.
+
+- [#10222](https://github.com/scalar/scalar/pull/10222): Add a Copy as Markdown button to operations and webhooks in both API Reference layouts. Add a browser entry point for converting resolved OpenAPI documents to Markdown.
+
+### Patch Changes
+
+- [#10275](https://github.com/scalar/scalar/pull/10275): Preserve operation and schema details, supplied and named examples, response headers and links, and request encoding metadata in Markdown output. Render composition siblings and schema annotations, respect readOnly/writeOnly when generating examples, and distinguish recursive references from deep schemas.
+- [#10211](https://github.com/scalar/scalar/pull/10211): Preserve literal data and tag groups when upgrading to OpenAPI 3.2, migrate XML metadata only in schemas, and remove incompatible legacy XML flags. Make 3.2 upgrades leave the input unchanged, match the complete source version, prevent previously inactive parameter settings from changing serialization, and report path-specific errors for detected compatibility issues that require an author's decision.
+
+  Tag `kind` values may change: navigation groups are classified from actual operation-tag usage instead of name substrings. Malformed 3.1 versions now report explicit errors, and successful 3.2 upgrades clone the input only once.
+
+  Expose `UpgradeIncompatibilityError` so Markdown generation can retain OpenAPI 3.1 for descriptions requiring author decisions instead of failing or silently changing semantics. Clone safety and malformed-version errors still propagate.
+
+  The mock server also retains OpenAPI 3.1 when the strict 3.2 migration reports compatibility diagnostics. Existing inline XML descriptions continue loading without inventing element names.
+
+  Read only own data properties during migration so inherited parameter lists, XML metadata, and reference targets cannot modify prototype-owned objects.
+
+  Add `upgrade(input, '3.2', { onIncompatible: 'collect' })` to return a complete document and compatibility diagnostics. Compatible descriptions upgrade to 3.2; incompatible descriptions retain 3.1 without partial transformations. Strict mode remains the default, and malformed-version and clone-safety errors still propagate. The Markdown converter and mock server now use the shared collect mode.
+
+## 1.0.2
+
+## 1.0.1
+
+## 1.0.0
+
+### Major Changes
+
+- [#10233](https://github.com/scalar/scalar/pull/10233): Generate Markdown directly from a Markdown syntax tree, avoiding Vue server rendering and the generated HTML conversion pipeline. Reuse normalized schemas and parsed descriptions across pages while preserving selection, schema coercion, reference resolution, and raw HTML description sanitization.
+
+  Keep the HTML API through an on-demand Markdown conversion. Markdown and HTML spacing and escaping may differ from previous output.
+
+### Minor Changes
+
+- [#10224](https://github.com/scalar/scalar/pull/10224): Add a reusable renderer that loads an OpenAPI document once and generates multiple Markdown or HTML pages from it.
+
+### Patch Changes
+
+- [#10241](https://github.com/scalar/scalar/pull/10241): Simplify reference link rebuilding after OpenAPI document coercion.
+
+## 0.6.0
+
+### Minor Changes
+
+- [#10169](https://github.com/scalar/scalar/pull/10169): Render scoped operation, tag, model, webhook, and introduction pages in Markdown and HTML while preserving referenced schemas and inherited context.
+
+## 0.5.44
+
+## 0.5.43
+
 ## 0.5.42
 
 ### Patch Changes

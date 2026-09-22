@@ -1,7 +1,10 @@
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { compositions } from './schema-composition'
+
+/** Display normalization tracks null branches without changing the stored OpenAPI schema. */
+type DisplaySchema = SchemaObject & { nullable?: boolean }
 
 /**
  * Shallow-merges schema-like objects, but unions `properties` and `required`
@@ -53,11 +56,11 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
 }
 
 /**
- * Optimize the value by removing nulls from compositions and merging root properties.
- *
- * TODO: figure out what this does
+ * Normalize compositions for display without changing the source schema. Null branches
+ * become nullable state, single branches are flattened, and shared properties and
+ * required fields are merged into variants so the renderer keeps their full context.
  */
-export function optimizeValueForDisplay(value: SchemaObject | undefined): SchemaObject | undefined {
+export function optimizeValueForDisplay(value: DisplaySchema | undefined): DisplaySchema | undefined {
   if (!value || typeof value !== 'object') {
     return value
   }
@@ -76,11 +79,14 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   }
 
   // Extract root properties efficiently (excluding composition and nullable)
-  const { [composition]: _, nullable: originalNullable, ...rootProperties } = value as any
+  const { [composition]: _, nullable: originalNullable, ...rootProperties } = value
   const hasRootProperties = Object.keys(rootProperties).length > 0
 
   // Check for null schemas and filter them out in one pass
-  const { filteredSchemas, hasNullSchema } = schemas.reduce(
+  const { filteredSchemas, hasNullSchema } = schemas.reduce<{
+    filteredSchemas: SchemaObject[]
+    hasNullSchema: boolean
+  }>(
     (acc, _schema) => {
       const schema = resolve.schema(_schema)
 
@@ -91,7 +97,7 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
       }
       return acc
     },
-    { filteredSchemas: [] as SchemaObject[], hasNullSchema: false },
+    { filteredSchemas: [], hasNullSchema: false },
   )
 
   // Determine if nullable should be set
@@ -104,9 +110,8 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
   // Root-level annotations (title, description, …) win over the member's: they
   // describe the combined schema, not the base it extends.
   if (filteredSchemas.length === 1) {
-    const mergedSchema = mergeSchemaProperties(filteredSchemas[0], rootProperties) as SchemaObject
+    const mergedSchema = mergeSchemaProperties(filteredSchemas[0], rootProperties) as DisplaySchema
     if (shouldBeNullable) {
-      // @ts-expect-error We use nullable
       mergedSchema.nullable = true
     }
     return mergedSchema
@@ -121,21 +126,35 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
     const mergedSchemas = filteredSchemas.map((_schema) => {
       const schema = resolve.schema(_schema)
 
-      // Flatten single-item allOf and merge with root properties
+      // Flatten single-item allOf and merge with root properties. If the
+      // variant has its own properties/required/$ref, the allOf member's own
+      // identity (`$ref`, `title`, `name`) is dropped before merging so it
+      // cannot overwrite the variant's, which would otherwise mislabel the
+      // flattened schema as the base it extends instead of the variant itself
+      // (#9964). `getModelNameFromSchema` labels a variant by title → name →
+      // $ref, so any of those leaking from the base is enough to mislabel it.
+      // A variant that is a bare wrapper around the allOf member has no
+      // identity of its own to protect, so the base's identity is kept as a
+      // fallback label.
       if (schema.allOf?.length === 1) {
         const { allOf, ...otherProps } = schema
-        return mergeSchemaProperties(rootProperties, otherProps, resolve.schema(allOf[0]))
+        const allOfMember = resolve.schema(allOf[0])!
+        const variantHasOwnIdentity = 'properties' in otherProps || 'required' in otherProps || '$ref' in otherProps
+        if (variantHasOwnIdentity) {
+          const { $ref: _ref, title: _title, name: _name, ...allOfMemberWithoutIdentity } = allOfMember
+          return mergeSchemaProperties(rootProperties, otherProps, allOfMemberWithoutIdentity)
+        }
+        return mergeSchemaProperties(rootProperties, otherProps, allOfMember)
       }
       return mergeSchemaProperties(rootProperties, schema)
     })
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
-    const result = { [composition]: mergedSchemas } as SchemaObject
+    const result = { [composition]: mergedSchemas } as DisplaySchema
     if (typeof value.description === 'string') {
       result.description = value.description
     }
     if (shouldBeNullable) {
-      // @ts-expect-error We use nullable
       result.nullable = true
     }
     return result
@@ -143,9 +162,8 @@ export function optimizeValueForDisplay(value: SchemaObject | undefined): Schema
 
   // Return with filtered schemas if any nulls were removed
   if (filteredSchemas.length !== schemas.length) {
-    const result: SchemaObject = { ...value, [composition]: filteredSchemas }
+    const result: DisplaySchema = { ...value, [composition]: filteredSchemas }
     if (shouldBeNullable) {
-      // @ts-expect-error We use nullable
       result.nullable = true
     }
     return result

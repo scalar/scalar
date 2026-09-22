@@ -1,4 +1,4 @@
-import type { ExampleObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { createParameterRows } from './create-parameter-rows'
@@ -571,6 +571,117 @@ describe('createParameterRows', () => {
         originalParameter: parameter,
         sourceParameterValuePath: undefined,
       },
+    ])
+  })
+
+  it('marks optional query, header, and cookie parameters disabled by default', () => {
+    const parameters: ParameterObject[] = [
+      { name: 'query', in: 'query', schema: { type: 'string' } },
+      { name: 'header', in: 'header', schema: { type: 'string' } },
+      { name: 'cookie', in: 'cookie', schema: { type: 'string' } },
+    ]
+
+    expect(
+      parameters.map((parameter) => {
+        const [row] = createParameterRows(parameter, 'default')
+
+        return {
+          name: row?.name,
+          isDisabled: row?.isDisabled,
+          isDisabledByDefault: row?.isDisabledByDefault,
+        }
+      }),
+    ).toStrictEqual([
+      { name: 'query', isDisabled: true, isDisabledByDefault: true },
+      { name: 'header', isDisabled: true, isDisabledByDefault: true },
+      { name: 'cookie', isDisabled: true, isDisabledByDefault: true },
+    ])
+  })
+
+  it('auto-enables an optional header with a pre-populated value (x-scenario-id bug)', () => {
+    const parameter: ParameterObject = {
+      name: 'x-scenario-id',
+      in: 'header',
+      required: false,
+      schema: { type: 'string', enum: ['200_createEnrollment_success', '400_bad_request'] },
+      examples: {
+        default: {
+          value: '200_createEnrollment_success',
+          // no x-disabled set — would normally start unchecked
+        },
+      },
+    }
+
+    const [row] = createParameterRows(parameter, 'default')
+
+    expect({
+      isDisabled: row?.isDisabled,
+      isDisabledByDefault: row?.isDisabledByDefault,
+    }).toStrictEqual({ isDisabled: false, isDisabledByDefault: true })
+  })
+
+  it('does not mark an explicitly disabled parameter as disabled by default', () => {
+    const parameter: ParameterObject = {
+      name: 'header',
+      in: 'header',
+      schema: { type: 'string' },
+      examples: {
+        default: {
+          value: 'scenario_a',
+          'x-disabled': true,
+        },
+      },
+    }
+
+    const [row] = createParameterRows(parameter, 'default')
+
+    expect({
+      isDisabled: row?.isDisabled,
+      isDisabledByDefault: row?.isDisabledByDefault,
+    }).toStrictEqual({ isDisabled: true, isDisabledByDefault: undefined })
+  })
+  it.each(['query', 'header', 'cookie'] as const)(
+    'preserves empty and falsy values for optional %s rows',
+    (location) => {
+      for (const value of [undefined, null, '', 0, false]) {
+        const parameter: ParameterObject = {
+          name: 'value',
+          in: location,
+          schema: { type: 'string' },
+          examples: { default: { value } },
+        }
+        const [row] = createParameterRows(parameter, 'default')
+        expect({
+          value: row?.value,
+          isDisabled: row?.isDisabled,
+          isDisabledByDefault: row?.isDisabledByDefault,
+        }).toStrictEqual({
+          value: value === undefined || value === null ? '' : String(value),
+          isDisabled: value !== 0 && value !== false,
+          isDisabledByDefault: true,
+        })
+      }
+    },
+  )
+
+  it.each(['form', 'deepObject'] as const)('enables populated expanded %s query parameters', (style) => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style,
+      explode: true,
+      schema: { type: 'object', properties: { count: { type: 'integer' }, active: { type: 'boolean' } } },
+      examples: { default: { value: { count: 0, active: false } } },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map((row) => ({
+        value: row.value,
+        isDisabled: row.isDisabled,
+        isDisabledByDefault: row.isDisabledByDefault,
+      })),
+    ).toStrictEqual([
+      { value: '0', isDisabled: false, isDisabledByDefault: true },
+      { value: 'false', isDisabled: false, isDisabledByDefault: true },
     ])
   })
 })

@@ -1,17 +1,22 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
+import { syncBuiltinESMExports } from 'node:module'
 import type { AddressInfo } from 'node:net'
+import { tmpdir } from 'node:os'
+import path, { join, relative } from 'node:path'
 import { cwd } from 'node:process'
 
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { type FastifyInstance, fastify } from 'fastify'
-import { assert, beforeEach, describe, expect, it } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isAsyncApiDocument } from '@/schemas'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {
@@ -24,6 +29,50 @@ import {
 } from './server'
 
 describe('create-server-store', () => {
+  it('loads unnamed inline XML bodies without upgrading the document to 3.2', async () => {
+    const schema = { type: 'object', properties: { id: { type: 'string', xml: { attribute: true } } } }
+    const requestBody = { content: { 'application/xml': { schema } } }
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'XML compatibility', version: '1.0.0' },
+      paths: { '/pets': { post: { requestBody, responses: { '200': { description: 'OK' } } } } },
+    }
+    const original = structuredClone(input)
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'xml', document: input }],
+    })
+    const document = getOpenApiServerDocument(store, 'xml')
+    const operation = store.get('#/xml/operations/~1pets/post')
+
+    expect(document?.openapi).toBe('3.1.0')
+    expect(operation).toStrictEqual(input.paths['/pets'].post)
+    expect(input).toStrictEqual(original)
+  })
+
+  it('keeps a __proto__ schema in the sparse server document', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'api',
+          document: {
+            openapi: '3.1.0',
+            info: { title: 'Prototype names', version: '1.0.0' },
+            components: { schemas: { ['__proto__']: { type: 'string' } } },
+          },
+        },
+      ],
+    })
+    const document = getOpenApiServerDocument(store, 'api')
+    expect(JSON.parse(JSON.stringify(document?.components))).toStrictEqual({
+      schemas: { ['__proto__']: { $ref: 'https://example.com/api/components/schemas/__proto__#', $global: true } },
+    })
+    expect(store.get('#/api/components/schemas/__proto__')).toStrictEqual({ type: 'string' })
+  })
+
   const exampleDocument = () => ({
     'openapi': '3.1.1',
     'info': {
@@ -50,6 +99,49 @@ describe('create-server-store', () => {
         },
       },
     },
+  })
+
+  it('stores QUERY operations as chunks and includes them in navigation', async () => {
+    const operation = {
+      summary: 'Search planets',
+      requestBody: {
+        content: { 'application/json': { schema: { type: 'object' } } },
+      },
+      responses: { '200': { description: 'Search results' } },
+    }
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'query-api',
+          document: {
+            openapi: '3.2.1',
+            info: { title: 'Search API', version: '1.0.0' },
+            paths: { '/planets': { query: operation } },
+          },
+        },
+      ],
+    })
+
+    expect(store.get('#/query-api/operations/~1planets/query')).toStrictEqual(operation)
+    const document = store.getWorkspace().documents['query-api']
+    assert(document && 'openapi' in document)
+    expect(document.paths?.['/planets']).toStrictEqual({
+      query: { $ref: 'https://example.com/query-api/operations/~1planets/query#', $global: true },
+    })
+    expect(document['x-scalar-navigation']?.children?.filter((entry) => entry.type === 'operation')).toStrictEqual([
+      {
+        id: 'query-api/QUERY/planets',
+        children: undefined,
+        method: 'query',
+        type: 'operation',
+        isDeprecated: false,
+        ref: '#/paths/~1planets/query',
+        path: '/planets',
+        title: 'Search planets',
+      },
+    ])
   })
 
   describe('ssr', () => {
@@ -323,6 +415,52 @@ describe('create-server-store', () => {
   })
 
   describe('ssg', () => {
+    it.each([String.raw`D:\nested output\chunks`, String.raw`\\server\share\chunks`, 'chunks'])(
+      'resolves the output root %s from a Windows working directory',
+      async (directory) => {
+        const store = await createServerWorkspaceStore({
+          mode: 'static',
+          directory,
+          documents: [{ name: 'default', document: exampleDocument() }],
+        })
+        const stopWriting = new Error('Stop after resolving the output root')
+        vi.spyOn(process, 'cwd').mockReturnValue(String.raw`C:\project`)
+        const mkdir = vi.spyOn(fs, 'mkdir').mockRejectedValue(stopWriting)
+        vi.spyOn(path, 'resolve').mockImplementation(path.win32.resolve)
+        syncBuiltinESMExports()
+
+        try {
+          await expect(store.generateWorkspaceChunks()).rejects.toBe(stopWriting)
+          expect(mkdir).toHaveBeenCalledWith(path.win32.resolve(String.raw`C:\project`, directory), { recursive: true })
+        } finally {
+          vi.restoreAllMocks()
+          syncBuiltinESMExports()
+        }
+      },
+    )
+
+    it.each(['absolute', 'relative'])('writes workspace chunks to a %s output directory', async (kind) => {
+      const directory = await fs.mkdtemp(join(tmpdir(), 'scalar-workspace-'))
+      const output = join(directory, 'nested output', 'chunks')
+      const store = await createServerWorkspaceStore({
+        mode: 'static',
+        directory: kind === 'absolute' ? output : relative(cwd(), output),
+        documents: [{ name: 'default', document: exampleDocument() }],
+      })
+
+      try {
+        await store.generateWorkspaceChunks()
+        const workspace = JSON.parse(await fs.readFile(join(output, WORKSPACE_FILE_NAME), 'utf-8'))
+        expect(workspace.documents.default.info.title).toBe('Scalar Galaxy')
+        const operation = JSON.parse(
+          await fs.readFile(join(output, 'chunks/default/operations/~1planets/get.json'), 'utf-8'),
+        )
+        expect(operation.summary).toBe('List planets')
+      } finally {
+        await fs.rm(directory, { recursive: true, force: true })
+      }
+    })
+
     it('should generate the workspace file and also all the related chunks', async () => {
       const dir = 'temp'
 
@@ -472,6 +610,40 @@ describe('create-server-store', () => {
       ).toBe(true)
 
       await fs.rmdir(basePath, { recursive: true })
+    })
+
+    it('escapes malicious component keys so chunks cannot escape the directory', async () => {
+      const dir = randomUUID()
+
+      const store = await createServerWorkspaceStore({
+        mode: 'static',
+        directory: dir,
+        documents: [
+          {
+            name: 'doc',
+            document: {
+              openapi: '3.1.0',
+              info: { title: 'Evil', version: '1.0.0' },
+              paths: {},
+              components: { schemas: { '../../../pwned': { type: 'string' } } },
+            },
+          },
+        ],
+      })
+
+      await store.generateWorkspaceChunks()
+
+      const basePath = `${cwd()}/${dir}`
+
+      // The slashes in the key are escaped, so it collapses into a single filename inside the
+      // schemas directory instead of walking up the tree.
+      const written = await fs.readdir(`${basePath}/chunks/doc/components/schemas`)
+      expect(written).toEqual(['..~1..~1..~1pwned.json'])
+
+      // Without escaping the write would have landed at `${basePath}/chunks/pwned.json`.
+      await expect(fs.access(`${basePath}/chunks/pwned.json`)).rejects.toThrow()
+
+      await fs.rm(basePath, { recursive: true, force: true })
     })
   })
 
@@ -1033,7 +1205,7 @@ describe('create-server-store', () => {
       const ordered = document as typeof document & { 'x-scalar-order'?: string[] }
       expect(ordered['x-scalar-order']).toEqual([
         'events/description/introduction',
-        'events/asyncapi-channel/planetevents',
+        'events/channel/planetevents',
         'events/models',
       ])
     })
@@ -1087,6 +1259,19 @@ describe('create-server-store', () => {
 })
 
 describe('filter-http-methods-only', () => {
+  it('ignores Paths Object extensions even when they contain HTTP method names', () => {
+    const result = filterHttpMethodsOnly({
+      'x-metadata': { get: { description: 'Not an operation' } },
+      '/path': {
+        get: { description: 'List items' },
+        // @ts-expect-error Exercise an extension alongside a real operation.
+        'x-metadata': { post: { description: 'Not an operation either' } },
+      },
+    })
+
+    expect(result).toStrictEqual({ '/path': { get: { description: 'List items' } } })
+  })
+
   it('should only keep the http methods', () => {
     const result = filterHttpMethodsOnly({
       '/path': {
@@ -1122,6 +1307,68 @@ describe('escape-paths', () => {
 })
 
 describe('externalize-component-references', () => {
+  it.each(['ssr', 'static'] as const)(
+    'does not change the prototype for an unrecognized component type in %s mode',
+    (mode) => {
+      // This component type is invalid OpenAPI, but the exported helper must still handle untrusted input safely.
+      const result = externalizeComponentReferences(
+        {
+          openapi: '3.1.0',
+          info: { title: 'Prototype type', version: '1.0.0' },
+          'x-scalar-original-document-hash': '',
+          // @ts-expect-error Exercise malformed component types received at runtime.
+          components: { ['__proto__']: { Example: { type: 'string' } } },
+        },
+        mode === 'ssr'
+          ? { mode, name: 'api', baseUrl: 'https://example.com' }
+          : { mode, name: 'api', directory: 'assets' },
+      )
+      const ref =
+        mode === 'ssr'
+          ? 'https://example.com/api/components/__proto__/Example#'
+          : './chunks/api/components/__proto__/Example.json#'
+      const expected = { ['__proto__']: { Example: { $ref: ref, $global: true } } }
+
+      expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
+      expect(Object.hasOwn(result, '__proto__')).toBe(true)
+      expect(JSON.parse(JSON.stringify(result))).toStrictEqual(expected)
+    },
+  )
+
+  it.each(['ssr', 'static'] as const)('preserves prototype-named components in %s mode', (mode) => {
+    const result = externalizeComponentReferences(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Prototype names', version: '1.0.0' },
+        'x-scalar-original-document-hash': '',
+        components: {
+          schemas: {
+            ['__proto__']: { type: 'string' },
+            constructor: { type: 'number' as const },
+            toString: { type: 'boolean' as const },
+          },
+        },
+      },
+      mode === 'ssr'
+        ? { mode, name: 'api', baseUrl: 'https://example.com' }
+        : { mode, name: 'api', directory: 'assets' },
+    )
+    const prefix = mode === 'ssr' ? 'https://example.com/api/components/schemas/' : './chunks/api/components/schemas/'
+    const suffix = mode === 'ssr' ? '#' : '.json#'
+    const expected = {
+      ['__proto__']: { $ref: `${prefix}__proto__${suffix}`, $global: true },
+      constructor: { $ref: `${prefix}constructor${suffix}`, $global: true },
+      toString: { $ref: `${prefix}toString${suffix}`, $global: true },
+    }
+
+    // Compare entries because the schema named `constructor` shadows the property used by deep equality.
+    expect(Object.keys(result)).toStrictEqual(['schemas'])
+    assert(result.schemas)
+    expect(Object.entries(result.schemas)).toStrictEqual(Object.entries(expected))
+    expect(Object.getPrototypeOf(result.schemas)).toBe(Object.prototype)
+    expect(Object.entries(JSON.parse(JSON.stringify(result)).schemas)).toStrictEqual(Object.entries(expected))
+  })
+
   it('should convert the components with refs correctly for ssr mode', () => {
     const result = externalizeComponentReferences(
       {
@@ -1322,5 +1569,158 @@ describe('externalize-path-references', () => {
         parameters: [{ name: 'tenant', in: 'header' }],
       },
     })
+  })
+})
+
+describe('getResolvedDocument', () => {
+  const galaxy = () => ({
+    'openapi': '3.1.1',
+    'info': { 'title': 'Scalar Galaxy', 'version': '0.3.2' },
+    'paths': {
+      '/planets': {
+        get: {
+          summary: 'List planets',
+          responses: {
+            '200': {
+              description: 'The planets',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { '$ref': '#/components/schemas/Planet' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    'components': {
+      'schemas': {
+        'Planet': { 'type': 'object', 'properties': { 'name': { 'type': 'string' } } },
+      },
+    },
+  })
+
+  const modes = [
+    { mode: 'static', directory: randomUUID() },
+    { mode: 'ssr', baseUrl: 'https://example.com' },
+  ] as const
+
+  it.each(modes)(
+    'returns the whole document in $mode mode while the workspace keeps the chunk references',
+    async (props) => {
+      const store = await createServerWorkspaceStore({
+        ...props,
+        documents: [{ name: 'galaxy', document: galaxy(), meta: { 'x-scalar-selected-server': 'test' } }],
+      })
+
+      const resolved = store.getResolvedDocument('galaxy')
+      assert(resolved && !isAsyncApiDocument(resolved))
+
+      // Real content where the sparse document has references
+      expect(getRaw(getPathItemOperation(resolved.paths?.['/planets'], 'get'))).toEqual(galaxy().paths['/planets'].get)
+      expect(getRaw(resolved.components?.schemas?.['Planet'])).toEqual(galaxy().components.schemas.Planet)
+
+      // The sparse document is untouched
+      const sparse = getOpenApiServerDocument(store, 'galaxy')
+      expect(getPathItemOperation(sparse?.paths?.['/planets'], 'get')).toHaveProperty('$global', true)
+      expect(sparse?.components?.schemas?.['Planet']).toHaveProperty('$global', true)
+
+      // Same metadata and navigation as the sparse document
+      expect(resolved['x-scalar-selected-server']).toBe('test')
+      expect(getRaw(resolved[extensions.document.navigation])).toEqual(getRaw(sparse?.[extensions.document.navigation]))
+    },
+  )
+
+  it('resolves local references on the returned document without fetching', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'static',
+      directory: randomUUID(),
+      documents: [{ name: 'galaxy', document: galaxy() }],
+    })
+
+    const resolved = store.getResolvedDocument('galaxy')
+    assert(resolved && !isAsyncApiDocument(resolved))
+
+    const operation = getResolvedRef(getPathItemOperation(resolved.paths?.['/planets'], 'get'))
+    const response = getResolvedRef(operation?.responses?.['200'])
+    const schema = getResolvedRef(response?.content?.['application/json']?.schema)
+    assert(schema && 'items' in schema)
+    const items = schema.items
+
+    expect(items).toMatchObject({ $ref: '#/components/schemas/Planet' })
+    expect(getRaw(getResolvedRef(items))).toEqual(galaxy().components.schemas.Planet)
+  })
+
+  it('serializes to plain references through getRaw', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'static',
+      directory: randomUUID(),
+      documents: [{ name: 'galaxy', document: galaxy() }],
+    })
+
+    const resolved = store.getResolvedDocument('galaxy')
+    assert(resolved)
+
+    const serialized = JSON.stringify(getRaw(resolved))
+
+    expect(serialized).not.toContain('$ref-value')
+    expect(serialized).toContain('"$ref":"#/components/schemas/Planet"')
+  })
+
+  it('shares the components and operations the chunks are written from', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'galaxy', document: galaxy() }],
+    })
+
+    const resolved = store.getResolvedDocument('galaxy')
+    assert(resolved && !isAsyncApiDocument(resolved))
+
+    expect(getRaw(resolved.components?.schemas?.['Planet'])).toBe(store.get('#/galaxy/components/schemas/Planet'))
+    expect(getRaw(getPathItemOperation(resolved.paths?.['/planets'], 'get'))).toBe(
+      store.get('#/galaxy/operations/~1planets/get'),
+    )
+  })
+
+  it('returns undefined for a name that was never added', async () => {
+    const store = await createServerWorkspaceStore({ mode: 'ssr', baseUrl: 'https://example.com', documents: [] })
+
+    expect(store.getResolvedDocument('missing')).toBeUndefined()
+  })
+
+  it('returns an asyncapi document whole, with its references resolving', async () => {
+    const store = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [
+        {
+          name: 'events',
+          document: {
+            'asyncapi': '3.0.0',
+            'info': { 'title': 'Scalar Galaxy Events', 'version': '1.0.0' },
+            'channels': {
+              'planetEvents': {
+                'address': 'planet/events',
+                'messages': { 'planetCreated': { '$ref': '#/components/messages/PlanetCreated' } },
+              },
+            },
+            'components': {
+              'messages': { 'PlanetCreated': { 'name': 'PlanetCreated', 'title': 'Planet Created' } },
+            },
+          },
+        },
+      ],
+    })
+
+    const resolved = store.getResolvedDocument('events')
+    assert(resolved && isAsyncApiDocument(resolved))
+
+    expect(
+      getResolvedRef(getResolvedRef(resolved.channels?.['planetEvents'])?.messages?.['planetCreated']),
+    ).toMatchObject({
+      title: 'Planet Created',
+    })
+    expect(resolved).not.toHaveProperty('openapi')
   })
 })

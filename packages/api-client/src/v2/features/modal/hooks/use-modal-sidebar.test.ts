@@ -1,5 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, ref } from 'vue'
@@ -579,5 +579,59 @@ describe('use-modal-sidebar', () => {
     expect(entry).toBeDefined()
     expect(state.isSelected(entry!.id)).toBe(true)
     expect(state.isExpanded(entry!.id)).toBe(true)
+  })
+
+  it('indexes, selects, and routes webhook entries independently from paths', async () => {
+    const store = await createTestStore({
+      openapi: '3.1.1',
+      paths: {
+        'delivery.created': {
+          get: { summary: 'An unrelated API path', operationId: 'getDelivery' },
+        },
+      },
+      webhooks: {
+        'delivery.created': {
+          post: { summary: 'Receive a delivery', operationId: 'receiveDelivery' },
+        },
+      },
+    })
+    const route = vi.fn()
+    const activeWebhook = ref(true)
+    const { state, getEntryByLocation, handleSelectItem } = useModalSidebar({
+      workspaceStore: store,
+      documentSlug: computed(() => 'test-doc'),
+      path: computed(() => 'delivery.created'),
+      method: computed(() => 'post'),
+      exampleName: computed(() => 'default'),
+      isWebhook: computed(() => activeWebhook.value),
+      route,
+    })
+
+    await waitForUpdates()
+
+    const webhook = getEntryByLocation({
+      document: 'test-doc',
+      path: 'delivery.created',
+      method: 'post',
+      isWebhook: true,
+    })
+    const apiPath = getEntryByLocation({
+      document: 'test-doc',
+      path: 'delivery.created',
+      method: 'get',
+    })
+
+    expect(webhook?.type).toBe('webhook')
+    expect(apiPath?.type).toBe('operation')
+    expect(state.isSelected(webhook!.id)).toBe(true)
+
+    handleSelectItem(webhook!.id)
+    expect(route).toHaveBeenCalledWith({
+      documentSlug: 'test-doc',
+      path: 'delivery.created',
+      method: 'post',
+      example: 'default',
+      isWebhook: true,
+    })
   })
 })

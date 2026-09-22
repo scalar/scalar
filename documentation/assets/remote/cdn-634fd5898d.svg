@@ -1,0 +1,297 @@
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="fa">
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i class="active"></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <i><em></em></i>
+      <div class="fa-gradient-2"></div>
+      <div class="fa-gradient"></div>
+    </div>
+    <style>.fa {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    --fa-orange: #fa9931;
+    --fa-yellow: #eefc01;
+    --fa-red: #ff5c36;
+  }
+  .fa i {
+    width: 1.69%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .fa i:nth-of-type(n + 35) {
+    pointer-events: all;
+  }
+  .fa-gradient,
+  .fa-gradient-2 {
+    background: linear-gradient(90deg, var(--fa-red), var(--fa-orange), var(--fa-yellow));
+    height: 80px;
+    width: 100%;
+    bottom: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+  .fa-gradient-2 {
+    height: 40px;
+    width: 16.9%;
+    right: 0;
+    bottom: 80px;
+  }
+  @supports (color: color(display-p3 1 1 1)) {
+    .fa {
+      --fa-orange: color(display-p3 0.980392 0.600000 0.192157 / 1.000000);
+      --fa-yellow: color(display-p3 0.933333 0.988235 0.003922 / 1.000000);
+      --fa-red: color(display-p3 1.000000 0.360784 0.211765 / 1.000000);
+    }
+  }
+  .fa i:after {
+    content: "";
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 40px;
+    height: 40px;
+    background: var(--scalar-background-2);
+    z-index: 1;
+    pointer-events: none;
+    transition: transform 0.2s ease-in-out;
+    transform: translate3d(0%, 0, 0);
+  }
+  .fa i em,
+  .fa i:before {
+    content: "";
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 40px;
+    background: var(--scalar-background-2);
+    z-index: 1;
+    pointer-events: none;
+    transition: transform 0.2s ease-in-out;
+    transform: translate3d(0%, 0, 0);
+  }
+  .fa i em {
+    bottom: 80px;
+  }
+  .fa i.active:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i:has(+ i + i + i + i + i + i + i + i + i + .active):after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i em {
+    transform: translate3d(0%, 0, 0);
+  }
+  .fa i.active + i:before,
+  .fa i.active + i + i:before,
+  .fa i:has(+ i + i + i + i + i + i + i + i + .active):after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i em {
+    transform: translate3d(10%, 0, 0);
+  }
+  .fa i:has(+ i + i + i + i + i + i + i + .active):after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i em {
+    transform: translate3d(20%, 0, 0);
+  }
+  .fa i.active + i + i + i:before,
+  .fa i:has(+ i + i + i + i + i + i + .active):after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i em {
+    transform: translate3d(30%, 0, 0);
+  }
+  .fa i.active + i + i + i + i:before,
+  .fa i:has(+ i + i + i + i + i + .active):after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i em {
+    transform: translate3d(40%, 0, 0);
+  }
+  .fa i.active + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i em,
+  .fa i:has(+ i + i + i + i + .active):after {
+    transform: translate3d(50%, 0, 0);
+  }
+  .fa i:has(+ i + i + i + .active):after,
+  .fa i.active + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i em {
+    transform: translate3d(60%, 0, 0);
+  }
+  .fa i:has(+ i + i + .active):after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i em {
+    transform: translate3d(70%, 0, 0);
+  }
+  .fa i:has(+ i + .active):after,
+  .fa i.active + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i +i em {
+    transform: translate3d(80%, 0, 0);
+  }
+  .fa i:has(+ i.active):after,
+  .fa i.active + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i +i +i em {
+    transform: translate3d(90%, 0, 0);
+    transition: none;
+  }
+  .fa i.active + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i + i +i +i + i +i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i +i +i +i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i +i +i +i +i +i +i em {
+    transform: translate3d(100%, 0, 0);
+    transition: none;
+  }
+  .fa i:has(+ i.active):before,
+  .fa i.active + i + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i + i +i +i + i +i:after {
+    transform: translate3d(-10%, 0, 0);
+  }
+  .fa i:has(+ i + .active):before,
+  .fa i.active + i + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i + i +i +i + i:after {
+    transform: translate3d(-20%, 0, 0);
+  }
+  .fa i:has(+ i + i + .active):before,
+  .fa i.active + i + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i + i +i +i:after {
+    transform: translate3d(-30%, 0, 0);
+  }
+  .fa i:has(+ i + i + i + .active):before,
+  .fa i.active + i + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i + i +i:after {
+    transform: translate3d(-40%, 0, 0);
+  }
+  .fa i.active + i + i + i + i + i:after,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i + i:after,
+  .fa i:has(+ i + i + i + i + .active):before {
+    transform: translate3d(-50%, 0, 0);
+  }
+  .fa i.active + i + i + i + i:after,
+  .fa i:has(+ i + i + i + i + i + .active):before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i +i:after {
+    transform: translate3d(-60%, 0, 0);
+  }
+  .fa i.active + i + i + i:after,
+  .fa i:has(+ i + i + i + i + i + i + .active):before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i +i:after {
+    transform: translate3d(-70%, 0, 0);
+  }
+  .fa i.active + i + i:after,
+  .fa i:has(+ i + i + i + i + i + i + i + .active):before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i +i:after {
+    transform: translate3d(-80%, 0, 0);
+  }
+  .fa i.active + i:after,
+  .fa i:has(+ i + i + i + i + i + i + i + i + .active):before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i:before,
+  .fa i.active + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i +i:after {
+    transform: translate3d(-90%, 0, 0);
+    transition: none;
+  }
+  .fa i.active:after,
+  .fa i:has(+ i + i + i + i + i + i + i + i + i + .active):before {
+    transform: translate3d(-100%, 0, 0);
+    transition: none;
+  }
+  .fa
+    i:has(+ i + i + i + i + i + i + i + i + i + i + .active):before {
+    transform: translate3d(-5%, 0, 0);
+  }
+  .fa
+    i:has(+ i + i + i + i + i + i + i + i + i + i + .active):after {
+    transform: translate3d(-5%, 0, 0);
+  }
+  .fa
+    i:has(~ i + i + i + i + i + i + i + i + i + i + .active):before {
+    transform: translate3d(-102%, 0, 0);
+    transition: none;
+  }</style>
+  </foreignObject>
+</svg>

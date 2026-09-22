@@ -1,5 +1,13 @@
 # @scalar/asyncapi-upgrader
 
+## 0.1.11
+
+## 0.1.10
+
+## 0.1.9
+
+## 0.1.8
+
 ## 0.1.7
 
 ### Patch Changes

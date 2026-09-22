@@ -1,16 +1,47 @@
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ExampleObject, MediaTypeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   ExampleObjectSchema,
   MediaTypeObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import ExampleResponse from './ExampleResponse.vue'
 
 describe('ExampleResponse', () => {
+  it.each([
+    {
+      contentType: 'text/event-stream',
+      value: { event: 'update', data: 'hello' },
+      expected: 'event: update\ndata: hello\n\n',
+    },
+    { contentType: 'application/jsonl', value: [{ id: 1 }, { id: 2 }], expected: '{"id":1}\n{"id":2}\n' },
+    { contentType: 'application/json-seq', value: [false, 0, null], expected: '\u001efalse\n\u001e0\n\u001enull\n' },
+    { contentType: 'application/jsonl', value: null, expected: 'null\n' },
+    { contentType: 'application/jsonl', value: false, expected: 'false\n' },
+    { contentType: 'application/jsonl', value: 0, expected: '0\n' },
+    { contentType: 'text/event-stream', value: 'data: unchanged\n\n', expected: 'data: unchanged\n\n' },
+  ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
+    const wrapper = mount(ExampleResponse, {
+      props: { response: {}, example: { value }, contentType },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe(expected)
+    wrapper.unmount()
+  })
+
+  it('renders a framed stream item example', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        response: { itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } } },
+        example: undefined,
+        contentType: 'application/jsonl',
+      },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
+  })
+
   describe('basic rendering', () => {
     it('renders example when provided', () => {
       const example: ExampleObject = {
@@ -46,6 +77,9 @@ describe('ExampleResponse', () => {
           example,
         },
       })
+
+      expect(wrapper.text()).toContain('Success response example')
+      expect(wrapper.text()).toContain('This is a successful API response')
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
@@ -1034,7 +1068,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles example with undefined value', () => {
@@ -1142,7 +1176,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles circular references in $refValues gracefully', () => {

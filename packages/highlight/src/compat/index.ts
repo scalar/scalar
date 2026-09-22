@@ -17,6 +17,8 @@
  * nothing to do with tokenizing code, and they stay where they are.
  */
 
+export type { ToHastOptions } from './hast'
+export { toHast } from './hast'
 export { HLJS_CLASSES, hljsClass } from './hljs'
 export type { StandardLanguageKey } from './languages'
 export {

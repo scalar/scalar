@@ -2,12 +2,87 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type RequestBodyObject,
   RequestBodyObjectSchema,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { describe, expect, it, vi } from 'vitest'
 
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
+  it('retains structured stream data and supplies its framed wire representation', () => {
+    const dataValue = [{ id: 1 }, { id: 2 }]
+    const body = { content: { 'application/jsonl': { examples: { selected: { dataValue } } } } }
+    expect(getExampleFromBody(body, 'application/jsonl', 'selected')).toStrictEqual({
+      dataValue,
+      value: '{"id":1}\n{"id":2}\n',
+      serializedValue: '{"id":1}\n{"id":2}\n',
+    })
+  })
+
+  it.each([
+    {
+      contentType: 'text/event-stream',
+      value: { event: 'update', data: 'hello' },
+      expected: 'event: update\ndata: hello\n\n',
+    },
+    { contentType: 'application/jsonl', value: [{ id: 1 }, { id: 2 }], expected: '{"id":1}\n{"id":2}\n' },
+    { contentType: 'application/json-seq', value: [false, 0, null], expected: '\u001efalse\n\u001e0\n\u001enull\n' },
+    { contentType: 'application/jsonl', value: null, expected: 'null\n' },
+    { contentType: 'application/jsonl', value: false, expected: 'false\n' },
+    { contentType: 'application/jsonl', value: 0, expected: '0\n' },
+    { contentType: 'text/event-stream', value: 'data: unchanged\n\n', expected: 'data: unchanged\n\n' },
+  ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
+    const body = { content: { [contentType]: { example: value } } }
+    expect(getExampleFromBody(body, contentType, 'default')).toStrictEqual({ value: expected })
+  })
+
+  it.each([
+    { type: 'integer', value: 0 },
+    { type: 'boolean', value: false },
+    { type: 'string', value: '' },
+  ] as const)('preserves generated non-streaming $type examples', ({ type, value }) => {
+    const body = { content: { 'application/json': { schema: { type, const: value } } } }
+    expect(getExampleFromBody(body, 'application/json', 'default')).toStrictEqual({ value })
+  })
+
+  it('reports an authored SSE example whose records are all omitted', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const body = { content: { 'text/event-stream': { example: [{ unknown: true }] } } }
+      expect(getExampleFromBody(body, 'text/event-stream', 'default')).toStrictEqual({ value: '' })
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'Skipped 1 SSE example item(s) with no valid event, id, retry, or data fields.',
+      )
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('generates a framed example from a referenced stream item schema', () => {
+    const body = {
+      content: {
+        'application/jsonl': {
+          itemSchema: {
+            $ref: '#/components/schemas/Entry',
+            '$ref-value': { type: 'object' as const, properties: { id: { type: 'integer' as const, const: 42 } } },
+          },
+        },
+      },
+    }
+    expect(getExampleFromBody(body, 'application/jsonl', 'default')).toStrictEqual({ value: '{"id":42}\n' })
+  })
+
+  it('keeps explicit wire-format string examples unchanged', () => {
+    const body = {
+      content: {
+        'application/jsonl': {
+          itemSchema: { type: 'integer' as const },
+          example: '1\n2\n',
+        },
+      },
+    }
+    expect(getExampleFromBody(body, 'application/jsonl', 'default')?.value).toBe('1\n2\n')
+  })
+
   it('returns existing example when found in content.examples', () => {
     const requestBody = {
       content: {

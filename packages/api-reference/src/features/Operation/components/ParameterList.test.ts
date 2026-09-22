@@ -1,4 +1,4 @@
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -13,6 +13,7 @@ describe('ParameterList', () => {
     orderRequiredPropertiesFirst: true,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    schemaKeyboardNav: false,
   }
 
   const createParameter = (name: string, overrides?: Partial<ParameterObject>): ParameterObject => ({
@@ -96,6 +97,7 @@ describe('ParameterList', () => {
       orderRequiredPropertiesFirst: false,
       orderSchemaPropertiesBy: 'preserve' as const,
       expandAllSchemaProperties: false,
+      schemaKeyboardNav: false,
     }
 
     const wrapper = mount(ParameterList, {

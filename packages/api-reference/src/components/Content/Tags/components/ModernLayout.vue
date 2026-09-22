@@ -5,6 +5,7 @@ import { computed, useId } from 'vue'
 
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
+import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 
 import TagSection from './TagSection.vue'
@@ -45,6 +46,8 @@ const showMore = computed(() => sectionCollapsed.value && hasChildren.value)
 
 /** Nested sections remain transparent so only first-level tags establish a surface. */
 const hasCollapsedSurface = computed(() => showMore.value && !nested)
+
+const { level: headingLevel } = useDocumentOutline('tag')
 </script>
 
 <template>
@@ -58,6 +61,7 @@ const hasCollapsedSurface = computed(() => showMore.value && !nested)
     role="region">
     <TagSection
       v-if="moreThanOneDefaultTag"
+      :headingLevel
       :eventBus="eventBus"
       :headerId="headerId"
       :isCollapsed="isCollapsed"

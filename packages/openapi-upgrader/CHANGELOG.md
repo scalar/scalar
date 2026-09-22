@@ -1,5 +1,46 @@
 # @scalar/openapi-upgrader
 
+## 0.3.0
+
+### Minor Changes
+
+- [#10211](https://github.com/scalar/scalar/pull/10211): Preserve literal data and tag groups when upgrading to OpenAPI 3.2, migrate XML metadata only in schemas, and remove incompatible legacy XML flags. Make 3.2 upgrades leave the input unchanged, match the complete source version, prevent previously inactive parameter settings from changing serialization, and report path-specific errors for detected compatibility issues that require an author's decision.
+
+  Tag `kind` values may change: navigation groups are classified from actual operation-tag usage instead of name substrings. Malformed 3.1 versions now report explicit errors, and successful 3.2 upgrades clone the input only once.
+
+  Expose `UpgradeIncompatibilityError` so Markdown generation can retain OpenAPI 3.1 for descriptions requiring author decisions instead of failing or silently changing semantics. Clone safety and malformed-version errors still propagate.
+
+  The mock server also retains OpenAPI 3.1 when the strict 3.2 migration reports compatibility diagnostics. Existing inline XML descriptions continue loading without inventing element names.
+
+  Read only own data properties during migration so inherited parameter lists, XML metadata, and reference targets cannot modify prototype-owned objects.
+
+  Add `upgrade(input, '3.2', { onIncompatible: 'collect' })` to return a complete document and compatibility diagnostics. Compatible descriptions upgrade to 3.2; incompatible descriptions retain 3.1 without partial transformations. Strict mode remains the default, and malformed-version and clone-safety errors still propagate. The Markdown converter and mock server now use the shared collect mode.
+
+### Patch Changes
+
+- [#10278](https://github.com/scalar/scalar/pull/10278): Only migrate XML metadata in schemas when upgrading to OpenAPI 3.2. Preserve example payloads and other data containing xml properties instead of changing them or throwing errors.
+- [#10276](https://github.com/scalar/scalar/pull/10276): Migrate x-tagGroups to OpenAPI 3.2 parent tags and remove the extension, preserving group names, member order, and tag metadata. Resolve group/tag name collisions with unique names and preserve group labels with summary. Warn and preserve the original tags and extension for ambiguous or malformed hierarchies so the API description can still render. Avoid mutating a document prototype during tag migration.
+
+## 0.2.17
+
+### Patch Changes
+
+- [#10236](https://github.com/scalar/scalar/pull/10236): Omit exclusive bounds without a minimum or maximum when upgrading OpenAPI 3.0 descriptions.
+- [#10236](https://github.com/scalar/scalar/pull/10236): Avoid undefined or inferred media types for base64-encoded data when upgrading OpenAPI 3.0 descriptions.
+- [#10236](https://github.com/scalar/scalar/pull/10236): Fix format conversion for nullable strings when upgrading OpenAPI 3.0 descriptions.
+- [#10236](https://github.com/scalar/scalar/pull/10236): Omit JSON type constraints for raw binary schemas and preserve media metadata when upgrading OpenAPI 3.0 descriptions.
+
+## 0.2.16
+
+### Patch Changes
+
+- [#9666](https://github.com/scalar/scalar/pull/9666): Only normalize OpenAPI Reference Objects during bundling, never Schema Objects. `normalizeRefs` used to strip every sibling except `$ref` on any node outside `components/schemas`, which also hit inline schemas. In JSON Schema 2020-12 a `$ref` may legally carry sibling keywords — for example a `$defs`/`$dynamicAnchor` binding that specializes a generic template like `Paginated<T>` — and such schemas appear inline anywhere a schema is allowed (a response's `content.<media>.schema`, an `allOf` branch, …). Dropping those siblings discarded the binding, leaving `$dynamicRef` to resolve to the template's empty fallback and rendering an empty array (for example the `data` array of `GET /planets` in the Scalar Galaxy). Reference Objects are still normalized as before. A new `@scalar/helpers/openapi/is-schema-path` helper detects schema positions.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 0.2.15
 
 ### Patch Changes

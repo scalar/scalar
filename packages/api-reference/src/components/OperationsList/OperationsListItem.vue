@@ -11,6 +11,7 @@ import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 
 const { operation } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
@@ -29,6 +30,8 @@ const pathOrTitle = computed(() => {
 const isWebhook = (
   _operation: TraversedEntry,
 ): _operation is TraversedWebhook => _operation.type === 'webhook'
+
+const { level: headingLevel } = useDocumentOutline('operation')
 </script>
 
 <template>
@@ -39,7 +42,7 @@ const isWebhook = (
     <SectionHeaderTag
       v-if="isCollapsed"
       class="sr-only"
-      :level="3">
+      :level="headingLevel">
       {{ operation.title }} (Hidden)
     </SectionHeaderTag>
     <a

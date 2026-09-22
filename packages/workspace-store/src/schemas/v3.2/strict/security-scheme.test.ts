@@ -8,6 +8,16 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SecuritySchemeObject, SecuritySchemeObjectSchema } from './openapi-document'
 
 describe('security-scheme', () => {
+  it('preserves OAuth2 metadata during coercion', () => {
+    const scheme = {
+      type: 'oauth2',
+      flows: {},
+      oauth2MetadataUrl: 'https://example.com/.well-known/oauth-authorization-server',
+    }
+    expect(coerceValue(SecuritySchemeObjectSchema, scheme)).toStrictEqual(scheme)
+    expect(Value.Check(SecuritySchemeObjectSchema, { ...scheme, oauth2MetadataUrl: 123 })).toBe(false)
+  })
+
   describe('strict type checking', () => {
     it('performs deep type checking on all schemas', () => {
       type SchemaType = RequiredDeep<Static<typeof SecuritySchemeObjectSchema>>
@@ -70,6 +80,26 @@ describe('security-scheme', () => {
           name: 'X-API-Key',
           in: 'header',
           deprecated: true,
+        })
+      })
+
+      it('preserves the x-scalar-ignore extension used to hide schemes from the auth UI', () => {
+        // Typed as SecuritySchemeObject so this also guards the type staying a 3.1 superset:
+        // if `x-scalar-ignore` were dropped from the schema, this would fail to type-check.
+        const validInput: SecuritySchemeObject = {
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          'x-scalar-ignore': true,
+        }
+
+        const result = coerceValue(SecuritySchemeObjectSchema, validInput)
+
+        expect(result).toEqual({
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          'x-scalar-ignore': true,
         })
       })
 

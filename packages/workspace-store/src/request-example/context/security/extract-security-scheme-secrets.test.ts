@@ -1,6 +1,6 @@
 import type { SecurityScheme } from '@scalar/types/entities'
 import { createAuthStore } from '@scalar/workspace-store/entities/auth'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import type {
@@ -13,6 +13,50 @@ import type {
 import { type ConfigAuthScheme, extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 
 describe('extractSecuritySchemeSecrets', () => {
+  it('preserves device authorization credentials and stored tokens', () => {
+    const store = createAuthStore()
+    store.setAuthSecrets('doc', 'device', {
+      type: 'oauth2',
+      deviceAuthorization: {
+        'x-scalar-secret-client-id': 'client',
+        'x-scalar-secret-client-secret': 'secret',
+        'x-scalar-secret-token': 'access',
+        'x-scalar-secret-refresh-token': 'refresh',
+      },
+    })
+    const result = extractSecuritySchemeSecrets(
+      {
+        type: 'oauth2',
+        flows: {
+          deviceAuthorization: {
+            deviceAuthorizationUrl: 'https://example.com/device',
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            scopes: {},
+          },
+        },
+      },
+      store,
+      'device',
+      'doc',
+    )
+    expect(result.type).toBe('oauth2')
+    if (result.type !== 'oauth2') {
+      throw new Error('Expected OAuth2')
+    }
+    expect(result.flows.deviceAuthorization).toStrictEqual({
+      deviceAuthorizationUrl: 'https://example.com/device',
+      tokenUrl: 'https://example.com/token',
+      refreshUrl: '',
+      scopes: {},
+      'x-scalar-secret-client-id': 'client',
+      'x-scalar-secret-client-secret': 'secret',
+      'x-scalar-secret-token': 'access',
+      'x-scalar-secret-refresh-token': 'refresh',
+      'x-scalar-secret-token-url': 'https://example.com/token',
+    })
+  })
+
   const documentSlug = 'test-document'
   const schemeName = 'test-scheme'
 

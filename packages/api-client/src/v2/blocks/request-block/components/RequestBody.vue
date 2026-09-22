@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
+import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
+import { ScalarCopyBackdrop } from '@scalar/components/copy'
 import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { CONTENT_TYPES } from '@scalar/helpers/http/content-types'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { ScalarIconMagicWand } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import {
+  getExampleValue,
+  getExplicitExampleText,
+} from '@scalar/workspace-store/helpers/get-example-value'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   getExampleFromBody,
@@ -18,8 +26,8 @@ import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensi
 import type {
   RequestBodyObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
@@ -35,6 +43,7 @@ import {
   DataTableRow,
 } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   requestBody,
@@ -42,6 +51,7 @@ const {
   environment,
   requestBodyCompositionSelection,
   title,
+  defaultView = 'raw',
 } = defineProps<{
   /** Request body */
   requestBody?: RequestBodyObject
@@ -53,6 +63,12 @@ const {
   environment: XScalarEnvironment
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>
+  /**
+   * Initial view for structured (JSON/YAML) bodies. Comes from the
+   * `x-scalar-default-request-body-view` document extension and falls back to `raw`
+   * whenever the body cannot be shown as a form.
+   */
+  defaultView?: 'form' | 'raw'
 }>()
 
 const emits = defineEmits<{
@@ -73,7 +89,16 @@ const emits = defineEmits<{
       'payload' | 'contentType'
     >,
   ): void
+  /**
+   * Create a new example seeded with values generated from the request body schema.
+   *
+   * The block itself owns the document and operation identity needed to create an example, so we
+   * only report the content type the user is currently looking at.
+   */
+  (e: 'generate:example', payload: { contentType: string }): void
 }>()
+
+const { translate } = useLocalization()
 
 // Map a content type to a language for the code editor
 const contentTypeToLanguageMap = {
@@ -85,6 +110,14 @@ const contentTypeToLanguageMap = {
 /** Selected content type with default */
 const selectedContentType = computed(
   () => getSelectedBodyContentType(requestBody, exampleKey) ?? 'none',
+)
+
+/** Keep the editor and copy label aligned with the selected content type. */
+const selectedLanguage = computed(
+  () =>
+    contentTypeToLanguageMap[
+      selectedContentType.value as keyof typeof contentTypeToLanguageMap
+    ] ?? 'plaintext',
 )
 
 /**
@@ -104,11 +137,25 @@ const contentTypeLabel = (raw: string): string => parseMimeType(raw).essence
  * The OpenAPI-defined extras are appended at the bottom so the well-known options stay on top, and
  * users can always pick the exact content type the operation actually accepts.
  */
+/** MIME values remain stable while their human-readable labels follow the locale. */
+const localizedContentTypes = computed(() => ({
+  ...CONTENT_TYPES,
+  'multipart/form-data': translate('apiClient.requestBody.multipartForm'),
+  'application/x-www-form-urlencoded': translate(
+    'apiClient.requestBody.formUrlEncoded',
+  ),
+  'application/octet-stream': translate('apiClient.requestBody.binaryFile'),
+  'other': translate('apiClient.requestBody.other'),
+  'none': translate('apiClient.requestBody.none'),
+}))
+
 const contentTypeOptions = computed<{ id: string; label: string }[]>(() => {
-  const builtIn = objectEntries(CONTENT_TYPES).map(([id, label]) => ({
-    id,
-    label,
-  }))
+  const builtIn = objectEntries(localizedContentTypes.value).map(
+    ([id, label]) => ({
+      id,
+      label,
+    }),
+  )
 
   const extras = Object.keys(requestBody?.content ?? {})
     .filter((type) => {
@@ -134,7 +181,8 @@ const selectedContentTypeModel = computed<{ id: string; label: string }>({
 
     const essence = contentTypeLabel(selectedContentType.value)
     const friendly =
-      CONTENT_TYPES[essence as keyof typeof CONTENT_TYPES] ?? essence
+      localizedContentTypes.value[essence as keyof typeof CONTENT_TYPES] ??
+      essence
 
     return {
       id: selectedContentType.value,
@@ -178,7 +226,16 @@ const bodyValue = computed(() => {
     return ''
   }
 
-  const value = example.value.value
+  const selected = getExampleValue(example.value)
+  const explicitText = getExplicitExampleText(
+    selected,
+    selectedContentType.value,
+    2,
+  )
+  if (explicitText !== undefined) {
+    return explicitText
+  }
+  const value = selected?.value
   if (typeof value === 'string') {
     return value
   }
@@ -189,7 +246,8 @@ const bodyValue = computed(() => {
 /** Resolved schema for the request body */
 const bodySchema = computed<SchemaObject | undefined>(() => {
   return resolve.schema(
-    requestBody?.content?.[selectedContentType.value]?.schema,
+    requestBody?.content?.[selectedContentType.value]?.schema ??
+      requestBody?.content?.[selectedContentType.value]?.itemSchema,
   )
 })
 
@@ -207,7 +265,12 @@ const parsedBody = computed<{ ok: boolean; value?: unknown }>(() => {
     return { ok: false }
   }
 
-  const raw = example.value?.value
+  const selected = getExampleValue(example.value ?? undefined)
+  // Structured data is already parsed; parsing strings again changes the payload type.
+  if (example.value?.dataValue !== undefined) {
+    return { ok: true, value: example.value.dataValue }
+  }
+  const raw = selected?.value
   // An empty body is still form-editable: rows come from the schema.
   if (raw === undefined || raw === null || raw === '') {
     return { ok: true, value: {} }
@@ -247,12 +310,19 @@ watch(
       requestBody !== previousRequestBody || exampleKey !== previousExampleKey
     const selectionChanged = selection !== previousSelection
 
+    // Going from no selection to a populated one is the modal applying the reference's selection as
+    // the panel opens, not the user switching branches. Resetting here would discard the body's named
+    // example on the very first open (issue #10075), so only a change between two populated selections
+    // counts as a real branch switch.
+    const hadNoPreviousSelection = previousSelection === '{}'
+
     // Only a genuine branch switch within the same operation should reset the edited body. An empty
     // selection means there is no composition to switch between (or the selection was cleared on an
     // operation change), so there is nothing to reset.
     if (
       operationChanged ||
       !selectionChanged ||
+      hadNoPreviousSelection ||
       Object.keys(requestBodyCompositionSelection ?? {}).length === 0
     ) {
       return
@@ -296,8 +366,8 @@ const showBodyViewToggle = computed(
       Boolean(bodySchema.value && isObjectSchema(bodySchema.value))),
 )
 
-/** Selected body view, raw by default so existing behavior is unchanged */
-const bodyView = ref<'form' | 'raw'>('raw')
+/** Selected body view, seeded from the document default (raw unless configured) */
+const bodyView = ref<'form' | 'raw'>(defaultView)
 
 // Fall back to raw when the form view stops being available (e.g. the content type
 // changed to a non-structured one, or an external edit made the body unparseable).
@@ -306,6 +376,17 @@ watch(isFormViewAvailable, (ok) => {
     bodyView.value = 'raw'
   }
 })
+
+/**
+ * Whether we can offer to generate a fresh example from the schema.
+ *
+ * Only structured (JSON/YAML) bodies qualify: they have a schema to generate from and a text
+ * representation we can seed the new example with. Binary and form bodies have their own editors,
+ * so the button would have nothing meaningful to write.
+ */
+const canGenerateExample = computed(() =>
+  Boolean(structuredCodec.value && bodySchema.value),
+)
 </script>
 <template>
   <CollapsibleSection>
@@ -329,18 +410,34 @@ watch(isFormViewAvailable, (ok) => {
               size="md" />
           </ScalarButton>
         </ScalarListbox>
-        <RequestBodyViewToggle
-          v-if="showBodyViewToggle"
-          :disabled="!isFormViewAvailable"
-          :modelValue="bodyView"
-          @update:modelValue="(v) => (bodyView = v)" />
+        <div class="flex items-center gap-1">
+          <!--
+            Generates a new example from the schema so the auto-generated fields stay reachable
+            even once the document ships custom examples.
+          -->
+          <ScalarIconButton
+            v-if="canGenerateExample"
+            aria-label="Generate example from schema"
+            :icon="ScalarIconMagicWand"
+            label="Generate example from schema"
+            size="sm"
+            tooltip
+            @click.stop="
+              emits('generate:example', { contentType: selectedContentType })
+            " />
+          <RequestBodyViewToggle
+            v-if="showBodyViewToggle"
+            :disabled="!isFormViewAvailable"
+            :modelValue="bodyView"
+            @update:modelValue="(v) => (bodyView = v)" />
+        </div>
       </DataTableHeader>
       <DataTableRow>
         <!-- No Body -->
         <template v-if="selectedContentType === 'none'">
           <div
             class="text-c-3 flex min-h-10 w-full items-center justify-center border-t p-2 text-sm">
-            <span>No Body</span>
+            <span>{{ translate('apiClient.requestBody.noBody') }}</span>
           </div>
         </template>
 
@@ -367,7 +464,7 @@ watch(isFormViewAvailable, (ok) => {
                     contentType: selectedContentType,
                   })
                 ">
-                Delete
+                {{ translate('apiClient.requestBody.delete') }}
               </ScalarButton>
             </template>
             <template v-else>
@@ -384,7 +481,7 @@ watch(isFormViewAvailable, (ok) => {
                       }),
                     )
                 ">
-                <span>Select File</span>
+                <span>{{ translate('apiClient.requestBody.selectFile') }}</span>
                 <ScalarIcon
                   class="ml-1"
                   icon="Upload"
@@ -431,27 +528,37 @@ watch(isFormViewAvailable, (ok) => {
                   contentType: selectedContentType,
                 })
             " />
-          <CodeInput
+          <!-- Editable raw body with a copy button revealed on hover/focus -->
+          <div
             v-else
-            class="border-t px-3"
-            content=""
-            :environment="environment"
-            :language="
-              contentTypeToLanguageMap[
-                selectedContentType as keyof typeof contentTypeToLanguageMap
-              ] ?? 'plaintext'
-            "
-            lineNumbers
-            lint
-            :modelValue="bodyValue"
-            withFakeData
-            @update:modelValue="
-              (value) =>
-                emits('update:value', {
-                  payload: value,
-                  contentType: selectedContentType,
-                })
-            " />
+            class="group/code-block relative border-t">
+            <CodeInput
+              class="px-3"
+              content=""
+              :environment="environment"
+              :language="selectedLanguage"
+              lineNumbers
+              lint
+              :modelValue="bodyValue"
+              withFakeData
+              @update:modelValue="
+                (value) =>
+                  emits('update:value', {
+                    payload: value,
+                    contentType: selectedContentType,
+                  })
+              " />
+            <ScalarCodeBlockCopy
+              v-if="bodyValue"
+              class="absolute top-1.5 right-1.5"
+              :content="bodyValue"
+              :lang="selectedLanguage"
+              showLang>
+              <template #backdrop>
+                <ScalarCopyBackdrop class="-top-1 -right-1.5" />
+              </template>
+            </ScalarCodeBlockCopy>
+          </div>
         </template>
       </DataTableRow>
     </DataTable>

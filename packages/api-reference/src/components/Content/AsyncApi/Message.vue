@@ -10,6 +10,7 @@ import { Anchor } from '@/components/Anchor'
 import { Schema } from '@/components/Content/Schema'
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import {
   getAsyncApiMessageHeadersSchema,
   getAsyncApiMessagePayloadSchema,
@@ -22,11 +23,13 @@ import {
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
 import { getChannelServerLabels } from './helpers/get-async-api-labels'
+import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
 import {
   resolveAsyncApiChannel,
   resolveAsyncApiMessage,
 } from './helpers/resolve-async-api-nodes'
+import MessageExamples from './MessageExamples.vue'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
@@ -83,7 +86,7 @@ const messageBindingProtocols = computed(() => {
     return []
   }
   const resolved = getResolvedRef(bindings)
-  return Object.entries(resolved)
+  return Object.entries(resolved ?? {})
     .filter(([, value]) => value != null)
     .map(([protocol]) => protocol.toLowerCase())
 })
@@ -142,6 +145,15 @@ const onToggle = (open: boolean) => {
   isExpanded.value = open
   eventBus?.emit('toggle:nav-item', { id: message.id, open })
 }
+
+// Computed lazily when the expanded accordion renders its examples, then cached until the message changes.
+const generatedPayload = computed<unknown>(() =>
+  resolvedMessage.value
+    ? getGeneratedPayloadExample(resolvedMessage.value)
+    : undefined,
+)
+
+const { level: headingLevel } = useDocumentOutline('message')
 </script>
 
 <template>
@@ -162,7 +174,7 @@ const onToggle = (open: boolean) => {
             <SectionHeaderTag
               :id="headerId"
               class="message-title"
-              :level="4">
+              :level="headingLevel">
               {{ headingText }}
             </SectionHeaderTag>
             <AsyncApiLabels :protocols="protocolLabels" />
@@ -170,36 +182,48 @@ const onToggle = (open: boolean) => {
         </Anchor>
       </template>
 
-      <ScalarMarkdown
-        v-if="description"
-        class="message-description"
-        :value="description"
-        withImages />
+      <div class="message-layout">
+        <div
+          v-if="description || headersSchema || payloadSchema"
+          class="message-details min-w-0">
+          <ScalarMarkdown
+            v-if="description"
+            class="message-description"
+            :value="description"
+            withImages />
 
-      <div
-        v-if="headersSchema"
-        class="message-schema">
-        <div class="message-schema-title">Headers</div>
-        <Schema
-          compact
-          :eventBus="eventBus"
-          name="Headers"
-          noncollapsible
-          :options="schemaOptions"
-          :schema="headersSchema" />
-      </div>
+          <div
+            v-if="headersSchema"
+            class="message-schema">
+            <div class="message-schema-title">Headers</div>
+            <Schema
+              :breadcrumb="[message.id, 'headers']"
+              compact
+              :eventBus="eventBus"
+              name="Headers"
+              noncollapsible
+              :options="schemaOptions"
+              :schema="headersSchema" />
+          </div>
 
-      <div
-        v-if="payloadSchema"
-        class="message-schema">
-        <div class="message-schema-title">Payload</div>
-        <Schema
-          compact
-          :eventBus="eventBus"
-          name="Payload"
-          noncollapsible
-          :options="schemaOptions"
-          :schema="payloadSchema" />
+          <div
+            v-if="payloadSchema"
+            class="message-schema">
+            <div class="message-schema-title">Payload</div>
+            <Schema
+              :breadcrumb="[message.id, 'payload']"
+              compact
+              :eventBus="eventBus"
+              name="Payload"
+              noncollapsible
+              :options="schemaOptions"
+              :schema="payloadSchema" />
+          </div>
+        </div>
+        <MessageExamples
+          class="message-examples"
+          :examples="resolvedMessage?.examples"
+          :generatedPayload="isExpanded ? generatedPayload : undefined" />
       </div>
     </SectionAccordion>
   </div>
@@ -246,5 +270,18 @@ const onToggle = (open: boolean) => {
   padding-bottom: 8px;
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   margin-bottom: 8px;
+}
+.message-layout {
+  display: grid;
+  gap: 16px;
+}
+/* Keep examples beside the schema when the reference has room, including embedded layouts. */
+@container narrow-references-container (min-width: 900px) {
+  .message-layout:has(> .message-details):has(> .message-examples) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
 }
 </style>

@@ -9,20 +9,21 @@ import type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
+  OAuthFlowDeviceAuthorizationSecret,
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
-  OpenIdConnectObjectSecret,
   SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type {
   OAuthFlowAuthorizationCode,
   OAuthFlowClientCredentials,
+  OAuthFlowDeviceAuthorization,
   OAuthFlowImplicit,
   OAuthFlowPassword,
-} from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/oauth-flow'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
 export type ConfigAuthScheme = SecuritySchemeObject & DeepPartial<SecurityScheme>
@@ -107,7 +108,7 @@ const extractOAuthFlowSecrets = (
 } => {
   const selectedScopes = new Set<string>()
 
-  const extractedFlows = objectEntries(flows ?? {}).reduce((acc, [key, flow]) => {
+  const extractedFlows = objectEntries(flows ?? {}).reduce<OAuthFlowsObjectSecret>((acc, [key, flow]) => {
     if (!isObject(flow)) {
       return acc
     }
@@ -176,6 +177,25 @@ const extractOAuthFlowSecrets = (
       } satisfies OAuthFlowClientCredentialsSecret
     }
 
+    // Device authorization flow
+    if (key === 'deviceAuthorization') {
+      acc[key] = {
+        ...(flow as OAuthFlowDeviceAuthorization),
+        ...mergeFlowSecrets(
+          [
+            'x-scalar-secret-client-id',
+            'x-scalar-secret-client-secret',
+            'x-scalar-secret-token',
+            'x-scalar-secret-token-url',
+          ],
+          flow,
+          storeSecrets?.deviceAuthorization,
+        ),
+        ...extractCredentialsLocation(flow, storeSecrets?.deviceAuthorization),
+        ...extractRefreshTokenSecret(storeSecrets?.deviceAuthorization),
+      } satisfies OAuthFlowDeviceAuthorizationSecret
+    }
+
     // Authorization code flow
     if (key === 'authorizationCode') {
       acc[key] = {
@@ -198,7 +218,7 @@ const extractOAuthFlowSecrets = (
     }
 
     return acc
-  }, {} as OAuthFlowsObjectSecret)
+  }, {})
 
   return { flows: extractedFlows, selectedScopes: Array.from(selectedScopes) }
 }
@@ -258,6 +278,7 @@ export const extractSecuritySchemeSecrets = (
         password: storeSecrets?.password,
         clientCredentials: storeSecrets?.clientCredentials,
         authorizationCode: storeSecrets?.authorizationCode,
+        deviceAuthorization: storeSecrets?.deviceAuthorization,
       },
       storeSecrets,
     )
@@ -265,7 +286,7 @@ export const extractSecuritySchemeSecrets = (
     return {
       ...scheme,
       ...(objectEntries(extracted.flows).length ? { flows: extracted.flows } : {}),
-    } as OpenIdConnectObjectSecret
+    }
   }
 
   return scheme as SecuritySchemeObjectSecret

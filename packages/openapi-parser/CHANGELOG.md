@@ -1,5 +1,52 @@
 # @scalar/openapi-parser
 
+## 0.29.5
+
+### Patch Changes
+
+- [#10274](https://github.com/scalar/scalar/pull/10274): Add a standard-agnostic `join` utility with configurable merge strategies and conflict reporting to `@scalar/json-magic/join`. Use it in the OpenAPI parser while retaining OpenAPI upgrades, component prefixes, and OpenAPI conflict reports in the parser.
+
+## 0.29.4
+
+## 0.29.3
+
+### Patch Changes
+
+- [#10216](https://github.com/scalar/scalar/pull/10216): Allow more time for parser comparison tests on slower CI runners.
+
+## 0.29.2
+
+### Patch Changes
+
+- [#10202](https://github.com/scalar/scalar/pull/10202): Explain invalid URI references and OpenAPI component names, and return parser errors for malformed reference escapes.
+- [#10113](https://github.com/scalar/scalar/pull/10113): Ignore unsafe component keys and check own properties when joining API descriptions.
+- [#10141](https://github.com/scalar/scalar/pull/10141): Report the actual document version after upgrading, including preserved OpenAPI 3.2 documents. Return no version for empty or unsupported input.
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+## 0.29.1
+
+### Patch Changes
+
+- [#10078](https://github.com/scalar/scalar/pull/10078): Guard mergeObjects (used by join) against prototype pollution, so a `__proto__`, `constructor`, or `prototype` key in an input document can no longer reach Object.prototype
+- [#9990](https://github.com/scalar/scalar/pull/9990): Fix `@scalar/types` leaking into the published type declarations. `@scalar/openapi-parser` referenced `@scalar/types` from its `.d.ts` files while only depending on it as a `devDependency`, so consumers hit `TS2307` (cannot find module). `@scalar/types` is now a regular dependency, and the package uses the shared `UnknownObject` and `AnyObject` utility types from `@scalar/types/utils` directly instead of defining its own local copies (`AnyObject` was added to `@scalar/types/utils` alongside the existing `UnknownObject`).
+
+  The generic `AnyObject` and `UnknownObject` types are no longer re-exported from `@scalar/openapi-parser`. Import them from `@scalar/types/utils` instead.
+
+## 0.29.0
+
+### Minor Changes
+
+- [#9967](https://github.com/scalar/scalar/pull/9967): Add a new `@scalar/openapi-validator` package that validates OpenAPI documents on its own. `@scalar/openapi-parser` now uses it under the hood.
+
+  Two type-level changes in `@scalar/openapi-parser` are worth noting:
+  - `ErrorObject.path` is now `string | string[]` instead of `string[]`. Schema errors carry a JSON Pointer string, semantic errors carry path segments — both shapes were already produced at runtime, the type just says so now. Narrow with `Array.isArray` before treating it as a list.
+  - The unused `ValidationOutcome` type and the internal `OpenApiDocument` alias are no longer exported.
+
 ## 0.28.16
 
 ### Patch Changes

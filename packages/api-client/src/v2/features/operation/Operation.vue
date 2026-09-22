@@ -10,6 +10,8 @@
 export default {}
 
 export type OperationProps = {
+  /** Hidden modals keep their operation mounted without downloading examples. */
+  isActive?: boolean
   /** The slug of the currently selected document in the workspace */
   documentSlug: string
   /** The currently active document — OpenAPI-only, the operation page has no AsyncAPI path */
@@ -24,6 +26,8 @@ export type OperationProps = {
   method?: HttpMethod
   /** The name of the currently selected example (for examples within an endpoint) */
   exampleName?: string
+  /** Resolve the selected entry from the OpenAPI webhooks map. */
+  isWebhook?: boolean
   /** The currently active environment */
   environment: XScalarEnvironment
   /** The workspace store */
@@ -41,21 +45,44 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  getOperationExamples,
+  resolveOperationExamples,
+} from '@scalar/workspace-store/helpers/operation-examples'
+import {
+  EXTERNAL_EXAMPLES,
+  useExampleVisibility,
+  useExternalExamples,
+} from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveProxyUrl,
   getRequestExampleContext,
+  getSelectedBodyContentType,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, toValue, type MaybeRefOrGetter } from 'vue'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  computed,
+  provide,
+  ref,
+  toValue,
+  type ComponentPublicInstance,
+  type MaybeRefOrGetter,
+} from 'vue'
 
 import { OperationBlock } from '@/v2/blocks/operation-block'
 import { APP_VERSION } from '@/v2/constants'
+import {
+  provideLocalization,
+  useLocalization,
+} from '@/v2/features/localization'
 import { mapHiddenClientsConfig } from '@/v2/features/modal/helpers/map-hidden-clients-config'
 import type { ClientLayout } from '@/v2/types/layout'
 import type { ApiClientOptions } from '@/v2/types/options'
 
 const {
+  isActive = true,
   document,
   layout,
   eventBus,
@@ -67,12 +94,23 @@ const {
   workspaceStore,
   plugins,
   documentSlug,
+  isWebhook = false,
 } = defineProps<
   OperationProps & {
     /** Selected anyOf/oneOf request-body variants keyed by schema path */
     requestBodyCompositionSelection?: Record<string, number>
   }
 >()
+
+const inheritedLocalization = useLocalization()
+const { translate, locale, direction } = provideLocalization(
+  () =>
+    toValue(options)?.localization ?? {
+      locale: inheritedLocalization.locale.value,
+      direction: inheritedLocalization.direction.value,
+      translations: inheritedLocalization.translations.value,
+    },
+)
 
 /**
  * Shared request-example context (operation, servers, auth scope, cookies). Recomputed when any
@@ -86,7 +124,7 @@ const requestExample = computed(() => {
   const result = getRequestExampleContext(
     workspaceStore,
     documentSlug,
-    { path, method, exampleName },
+    { path, method, exampleName, isWebhook },
     {
       baseServerUrl: toValue(options)?.baseServerURL,
       fallbackDocument: document,
@@ -101,7 +139,41 @@ const requestExample = computed(() => {
   return result.ok ? result.data : null
 })
 
-const operation = computed(() => requestExample.value?.operation ?? null)
+const sourceOperation = computed(() => requestExample.value?.operation ?? null)
+const getResolver = (): ReturnType<WorkspaceStore['externalExamples']> =>
+  workspaceStore.externalExamples(documentSlug)
+provide(EXTERNAL_EXAMPLES, getResolver)
+const contentType = computed(
+  () =>
+    getSelectedBodyContentType(
+      getResolvedRef(sourceOperation.value?.requestBody),
+      exampleName,
+    ) ?? undefined,
+)
+const container = ref<ComponentPublicInstance | null>(null)
+const visible = useExampleVisibility(container)
+const externalExamples = useExternalExamples(
+  () =>
+    sourceOperation.value
+      ? getOperationExamples(
+          sourceOperation.value,
+          exampleName ?? '',
+          contentType.value,
+        )
+      : [],
+  () => isActive && visible.value,
+  getResolver,
+)
+const operation = computed(() =>
+  sourceOperation.value
+    ? resolveOperationExamples(
+        sourceOperation.value,
+        exampleName ?? '',
+        contentType.value,
+        externalExamples.resolve,
+      )
+    : null,
+)
 const workspaceCookies = computed(
   () => requestExample.value?.cookies.workspace ?? [],
 )
@@ -163,12 +235,14 @@ const httpClients = computed(() =>
   <!-- Operation exists -->
   <template v-if="path && method && exampleName && operation && document">
     <OperationBlock
+      ref="container"
       :activeEnvironment="
         workspaceStore.workspace['x-scalar-active-environment']
       "
       :appVersion="APP_VERSION"
       :authMeta
       :defaultHeaders
+      :dir="direction"
       :document
       :documentCookies
       :documentSecurity="document?.security ?? []"
@@ -178,9 +252,13 @@ const httpClients = computed(() =>
       :environments
       :eventBus
       :exampleKey="exampleName"
+      :externalExamplesFailed="externalExamples.failed.value"
+      :externalExamplesPending="externalExamples.pending.value"
       :hideClientButton="toValue(options)?.hideClientButton ?? false"
       :history="workspaceStore.history.getHistory(documentSlug, path, method)"
       :httpClients
+      :isWebhook
+      :lang="locale"
       :layout
       :method
       :operation
@@ -202,13 +280,19 @@ const httpClients = computed(() =>
       :server="selectedServer"
       :serverMeta
       :servers
-      :workspaceCookies />
+      :sourceOperation="sourceOperation ?? undefined"
+      :workspaceCookies
+      @retry:externalExamples="externalExamples.retry" />
   </template>
 
   <!-- Empty state -->
   <div
     v-else
-    class="flex h-full w-full items-center justify-center">
-    <span class="text-c-3">Select an operation to view details</span>
+    class="flex h-full w-full items-center justify-center"
+    :dir="direction"
+    :lang="locale">
+    <span class="text-c-3">{{
+      translate('apiClient.operation.selectAnOperationToViewDetails')
+    }}</span>
   </div>
 </template>

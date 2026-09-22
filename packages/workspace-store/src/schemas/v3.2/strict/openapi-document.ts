@@ -3,6 +3,10 @@ import { type TSchema, Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { extensions } from '@/schemas/extensions'
 import {
+  type XScalarDefaultRequestBodyView,
+  XScalarDefaultRequestBodyViewSchema,
+} from '@/schemas/extensions/document/x-scalar-default-request-body-view'
+import {
   type XScalarEnvironments,
   xScalarEnvironmentsSchema,
 } from '@/schemas/extensions/document/x-scalar-environments'
@@ -92,6 +96,14 @@ export const OpenApiExtensionsSchema = compose(
     Type.Object({
       'x-original-oas-version': Type.String(),
       [extensions.document.navigation]: TraversedDocumentObjectRef,
+      /**
+       * The chunk a compact document's navigation children are loaded from.
+       *
+       * The navigation itself is always the tree, so every reader gets `name`, `title` and the rest
+       * by plain property access; only the children are externalized, and this says where they are
+       * until `resolve(['x-scalar-navigation'])` puts them on the document and removes the key.
+       */
+      [extensions.document.navigationChunk]: Type.String(),
     }),
   ),
   XScalarOriginalSourceUrlSchema,
@@ -106,6 +118,7 @@ export const OpenApiExtensionsSchema = compose(
   XScalarActiveEnvironmentSchema,
   XScalarWatchModeSchema,
   XScalarRegistryMetaSchema,
+  XScalarDefaultRequestBodyViewSchema,
   XPreRequestSchema,
   XPostResponseSchema,
 )
@@ -113,6 +126,7 @@ export const OpenApiExtensionsSchema = compose(
 export type OpenAPIExtensions = Partial<{
   'x-original-oas-version': string
   [extensions.document.navigation]: TraversedDocument
+  [extensions.document.navigationChunk]: string
 }> &
   XScalarOriginalSourceUrl &
   XScalarOriginalDocumentHash &
@@ -126,6 +140,7 @@ export type OpenAPIExtensions = Partial<{
   XScalarIsDirty &
   XScalarWatchMode &
   XScalarRegistryMeta &
+  XScalarDefaultRequestBodyView &
   XPreRequest &
   XPostResponse
 

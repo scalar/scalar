@@ -13,7 +13,8 @@ if (version && typeof window !== 'undefined') {
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
-import type { ApiClientModal } from '@scalar/api-client/modal'
+import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -47,6 +48,7 @@ import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
   getServers,
@@ -63,6 +65,7 @@ import { useScrollLock } from '@vueuse/core'
 import diff from 'microdiff'
 import {
   computed,
+  defineAsyncComponent,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -78,13 +81,10 @@ import {
   AsyncApiSidebarFilters,
   filterAsyncApiNavigation,
 } from '@/blocks/scalar-asyncapi-sidebar-filters-block'
-import {
-  AgentScalarButton,
-  AgentScalarDrawer,
-  OpenMCPButton,
-} from '@/components/AgentScalar'
+import { AgentScalarButton, OpenMCPButton } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
+import { provideSchemaExpansion } from '@/components/Content/Schema/helpers/schema-expansion'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
@@ -103,6 +103,7 @@ import {
   makeUrlFromId,
   matchesBasePath,
   redirectUrl,
+  resolveHashPrefix,
   type WebhookRedirectSource,
 } from '@/helpers/id-routing'
 import {
@@ -126,7 +127,9 @@ import {
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
+import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
@@ -179,6 +182,14 @@ const isSidebarOpen = ref(false)
  * @see https://github.com/tailwindlabs/headlessui/issues/2979
  */
 provideUseId(() => useId())
+
+/**
+ * Which schema properties are open, for this reference only.
+ *
+ * Deliberately per-instance rather than module-global: `createApiReference` can
+ * be called twice on one page, and two references must not share expansion.
+ */
+provideSchemaExpansion()
 
 // ---------------------------------------------------------------------------
 /**
@@ -344,8 +355,13 @@ const documentLang = computed(() =>
   apiReferenceLocalization.locale.value.replace('_', '-'),
 )
 
-/** Convenience break out var to determine which routing mode we are using */
-const basePath = computed(() => mergedConfig.value.pathRouting?.basePath)
+/** Keep the detected host route stable while navigation changes the section hash. */
+const inferredHashBasePath = ref<string>()
+
+/** Explicit routing always takes precedence over automatic host-prefix detection. */
+const basePath = computed(
+  () => mergedConfig.value.pathRouting?.basePath ?? inferredHashBasePath.value,
+)
 
 /**
  * Builds the href for a sidebar item so the sidebar renders real anchor tags.
@@ -411,7 +427,7 @@ if (typeof window !== 'undefined') {
     ),
     activeSlug.value,
     isMultiDocument.value,
-    mergedConfig.value.pathRouting?.basePath,
+    basePath.value,
   )
   if (canonical) {
     window.history.replaceState({}, '', canonical.toString())
@@ -442,7 +458,7 @@ function syncSlugAndUrlWithDocument(
   // We create a new URL and go to the root element if an ID is not provided
   const url = makeUrlFromId(
     elementId || slug,
-    config.pathRouting?.basePath,
+    config.pathRouting?.basePath ?? inferredHashBasePath.value,
     isMultiDocument.value,
   )
 
@@ -464,6 +480,8 @@ const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
 })
 
+provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
+
 /**
  * We need to keep the client store separate from the workspace store
  * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
@@ -475,6 +493,26 @@ const clientStore = createWorkspaceStore({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
     }),
   ],
+})
+
+useDocumentEnvironment(workspaceStore)
+useDocumentEnvironment(clientStore)
+// The modal edits its own document but shares downloads and the configured source transport.
+clientStore.externalExamples = workspaceStore.externalExamples
+
+useConfiguredServers({
+  configurations: configList,
+  sourceStore: workspaceStore,
+  clientStore,
+})
+
+/** Preserve config server precedence while reading the values users edit in the client store. */
+const runtimeConfig = computed<ApiReferenceConfiguration>(() => {
+  const config = mergedConfig.value
+  const document = clientStore.workspace.documents[activeSlug.value]
+  return config.servers !== undefined && isOpenApiDocument(document)
+    ? { ...config, servers: document.servers }
+    : config
 })
 
 /**
@@ -850,8 +888,11 @@ const environment = computed(
 )
 
 if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => workspaceStore
+  // The debug hook is optional because it only exists after a reference is mounted.
+  const debugWindow: Window & {
+    dataDumpWorkspace?: () => typeof workspaceStore
+  } = window
+  debugWindow.dataDumpWorkspace = () => workspaceStore
 }
 
 // For testing
@@ -996,13 +1037,10 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
       // Set the active server if the document is loaded successfully. Resolve relative servers
       // against this document's own base URL, not the active document's, so a background preload
       // does not derive its server from whichever document happens to be active.
-      const servers = getServers(
-        normalized.config.servers ?? document.servers,
-        {
-          baseServerUrl: config.baseServerURL,
-          documentUrl: normalized.source.url,
-        },
-      )
+      const servers = getServers(document.servers, {
+        baseServerUrl: config.baseServerURL,
+        documentUrl: normalized.source.url,
+      })
       if (servers.length > 0) {
         clientStore.updateDocument(
           slug,
@@ -1010,6 +1048,21 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
           servers[0]!.url,
         )
       }
+    }
+
+    // Seed the request body editor view from config, unless the document already sets it
+    // explicitly via the `x-scalar-default-request-body-view` extension.
+    if (
+      result === true &&
+      config.defaultRequestBodyView &&
+      isOpenApiDocument(document) &&
+      document['x-scalar-default-request-body-view'] === undefined
+    ) {
+      clientStore.updateDocument(
+        slug,
+        'x-scalar-default-request-body-view',
+        config.defaultRequestBodyView,
+      )
     }
   })().finally(() => {
     documentLoadPromises.delete(slug)
@@ -1114,11 +1167,12 @@ const changeSelectedDocument = async (
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, config)
 
-  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  // Sync the modal to the new document without naming an operation. Leaving path and
+  // method out resolves them to the document's first operation instead of a route that
+  // does not exist, so the modal still has something valid to show if it opens before
+  // a specific operation is selected.
   apiClient.value?.route({
     documentSlug: slug,
-    method: 'get',
-    path: '/',
   })
 
   // Load the document if it is not in the store yet (a background preload may already be loading it)
@@ -1137,7 +1191,7 @@ const changeSelectedDocument = async (
       slugify(config.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL),
       slug,
       isMultiDocument.value,
-      config.pathRouting?.basePath,
+      config.pathRouting?.basePath ?? inferredHashBasePath.value,
       collectWebhooks(
         workspaceStore.workspace.activeDocument?.['x-scalar-navigation']
           ?.children ?? [],
@@ -1148,7 +1202,7 @@ const changeSelectedDocument = async (
       elementId =
         getIdFromUrl(
           canonical.href,
-          config.pathRouting?.basePath,
+          config.pathRouting?.basePath ?? inferredHashBasePath.value,
           isMultiDocument.value ? undefined : slug,
         ) || elementId
     }
@@ -1287,11 +1341,38 @@ onBeforeMount(async () => {
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
+  if (basePath.value === undefined && window.location.hash) {
+    const hash = decodeURIComponent(window.location.hash.slice(1))
+    // Only load documents that could be named in the link, plus the default document.
+    const segments = new Set(hash.split('/'))
+    const candidates = Object.keys(configList.value).filter(
+      (slug) =>
+        slug === activeSlug.value ||
+        (isMultiDocument.value && segments.has(slug)),
+    )
+    await Promise.all(candidates.map((slug) => ensureDocumentLoaded(slug)))
+
+    const prefix = resolveHashPrefix(
+      hash,
+      sidebarState.index.value.keys(),
+      isMultiDocument.value,
+    )
+    inferredHashBasePath.value = prefix ? `#${prefix}` : undefined
+
+    if (isMultiDocument.value) {
+      const id = getIdFromUrl(window.location.href, basePath.value, undefined)
+      const slug = id.split('/')[0]
+      if (slug && configList.value[slug]) {
+        activeSlug.value = slug
+      }
+    }
+  }
+
   await changeSelectedDocument(
     activeSlug.value,
     getIdFromUrl(
       window.location.href,
-      configList.value[activeSlug.value]?.config.pathRouting?.basePath,
+      basePath.value,
       isMultiDocument.value ? undefined : activeSlug.value,
     ),
   )
@@ -1331,42 +1412,56 @@ const agent = useAgent({
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
 
+const AgentScalarDrawer = defineAsyncComponent(
+  () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
+)
+const hasOpenedAgent = ref(false)
+
+// Keep the conversation mounted so closing and reopening preserves its state.
+watch(agent.showAgent, (open) => {
+  if (open) {
+    hasOpenedAgent.value = true
+  }
+})
+
 // --------------------------------------------------------------------------- */
 // Api Client Modal
 
-// Setup the ApiClient on mount.
-// The modal is dynamic-imported so its dependency graph (CodeMirror, the request
-// editor, the response viewer, etc.) becomes a separate chunk that loads
-// asynchronously after the API reference paints.
+// Reference controls must keep working before the modal installs its own event handlers.
+const stopReferenceClientEvents = initializeWorkspaceEventHandlers({
+  eventBus,
+  store: ref(clientStore),
+  hooks: {},
+})
 const modal = useTemplateRef<HTMLElement>('modal')
-const apiClient = ref<ApiClientModal | null>(null)
-onMounted(async () => {
-  if (!modal.value) {
-    return
-  }
-
-  const { createApiClientModal } = await import('@scalar/api-client/modal')
-
-  // Bail if the component unmounted while the chunk was loading.
-  if (!modal.value) {
-    return
-  }
-
-  apiClient.value = createApiClientModal({
-    el: modal.value,
-    eventBus,
-    workspaceStore: clientStore,
-    options: mergedConfig,
-    plugins: [
-      ...pluginManager.getApiClientPlugins(),
-      ...mapConfigPlugins(mergedConfig, environment),
-    ],
-  })
+const clientLoadingStatus = ref<'idle' | 'loading' | 'error'>('idle')
+const apiClient = useLazyApiClient({
+  eventBus,
+  status: clientLoadingStatus,
+  load: async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
+    return () => {
+      if (!modal.value) {
+        return null
+      }
+      stopReferenceClientEvents()
+      return createApiClientModal({
+        el: modal.value,
+        eventBus,
+        workspaceStore: clientStore,
+        options: runtimeConfig,
+        plugins: [
+          ...pluginManager.getApiClientPlugins(),
+          ...mapConfigPlugins(mergedConfig, environment),
+        ],
+      })
+    }
+  },
 })
 onBeforeUnmount(() => {
   stopPreloadingDocuments()
+  stopReferenceClientEvents()
   pluginManager.notifyDestroy()
-  apiClient.value?.app.unmount()
 })
 
 // ---------------------------------------------------------------------------
@@ -1528,7 +1623,7 @@ onBeforeMount(() => {
   window.addEventListener('popstate', () => {
     const id = getIdFromUrl(
       window.location.href,
-      mergedConfig.value.pathRouting?.basePath,
+      basePath.value,
       isMultiDocument.value ? undefined : activeSlug.value,
     )
     if (id) {
@@ -1633,7 +1728,7 @@ const showMCPButton = computed(() => {
       :lang="documentLang">
       <!-- Agent Scalar -->
       <AgentScalarDrawer
-        v-if="agent.agentEnabled.value"
+        v-if="agent.agentEnabled.value && hasOpenedAgent"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :externalUrls="mergedConfig.externalUrls"
         :workspaceStore />
@@ -1803,7 +1898,7 @@ const showMCPButton = computed(() => {
           "
           :infoSectionId
           :items="sidebarItems"
-          :options="mergedConfig"
+          :options="runtimeConfig"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
           "
@@ -1880,6 +1975,16 @@ const showMCPButton = computed(() => {
       </div>
       <!-- Client Modal mount point -->
       <div ref="modal" />
+      <div
+        v-if="clientLoadingStatus !== 'idle'"
+        class="bg-b-1 text-c-1 fixed right-4 bottom-4 z-[10001] rounded-lg border px-4 py-3 text-sm shadow-lg"
+        :role="clientLoadingStatus === 'error' ? 'alert' : 'status'">
+        {{
+          clientLoadingStatus === 'loading'
+            ? 'Loading request editor…'
+            : 'Could not load the request editor. Refresh the page and try again.'
+        }}
+      </div>
     </div>
     <ScalarToasts />
   </div>

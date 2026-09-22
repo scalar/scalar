@@ -475,7 +475,9 @@ describe('fastifyApiReference', () => {
 
     await fastify.register(fastifyApiReference, {
       configuration: {
-        url: '/openapi.json',
+        // Use a content source so the document endpoints are registered too, and
+        // assert that every route the plugin adds respects `logLevel: 'silent'`.
+        content: exampleDocument(),
       },
       logLevel: 'silent',
     })
@@ -534,5 +536,31 @@ describe('fastifyApiReference', () => {
     expect(response3.status).toBe(404)
     expect(response4.status).toBe(404)
     expect(await response1.text()).toContain('/openapi.json')
+  })
+
+  it('does not expose the document endpoints for a url source', async () => {
+    fastify = Fastify({
+      logger: false,
+    })
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        url: '/openapi.json',
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const html = await fetch(`${address}/reference/`)
+    const js = await fetch(`${address}/reference/js/scalar.js`)
+    const json = await fetch(`${address}/reference/openapi.json`)
+    const yaml = await fetch(`${address}/reference/openapi.yaml`)
+
+    // The reference loads the user's URL directly, so we do not re-expose it here.
+    expect(html.status).toBe(200)
+    expect(js.status).toBe(200)
+    expect(json.status).toBe(404)
+    expect(yaml.status).toBe(404)
+    expect(await html.text()).toContain('/openapi.json')
   })
 })

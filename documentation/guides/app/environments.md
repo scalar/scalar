@@ -65,7 +65,7 @@ See [Scripts](./scripts.md) and [Testing](./testing.md) for more examples.
 
 ## Adding Environments to OpenAPI Documents
 
-Define environments directly in your OpenAPI description with the `x-scalar-environments` extension. They are imported automatically and appear in the environment picker.
+Define environments directly in your OpenAPI document with the `x-scalar-environments` extension. They are imported automatically and appear in the environment picker.
 
 ```yaml
 openapi: 3.1.0

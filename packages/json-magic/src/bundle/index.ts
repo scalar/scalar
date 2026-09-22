@@ -1,3 +1,5 @@
+export { resolveReferencePath } from '@/helpers/resolve-reference-path'
+
 export type { LifecyclePlugin, LoaderPlugin, Plugin, ResolveResult } from './bundle'
 export {
   bundle,
@@ -7,3 +9,4 @@ export {
   prefixInternalRefRecursive,
   resolveAndCopyReferences,
 } from './bundle'
+export type { DocumentIdentity, DocumentResolver } from './document-references'

@@ -1,20 +1,7 @@
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { escapeSingleQuotes } from '@/libs/shell'
-
-/**
- * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
- * (e.g. `application/vnd.api+json`), and parameterized variants
- * (e.g. `application/json;charset=utf-8`). Case-insensitive.
- */
-const isJsonContentType = (value: string | undefined): boolean => {
-  if (!value) {
-    return false
-  }
-  const { subtype } = parseMimeType(value)
-  return subtype === 'json' || subtype.endsWith('+json')
-}
 
 /**
  * Pretty-prints a JSON string and falls back to the original value when it
@@ -83,7 +70,7 @@ export const shellWget: Plugin = {
     if (normalizedRequest.postData) {
       const { mimeType, text, params } = normalizedRequest.postData
 
-      if (isJsonContentType(mimeType)) {
+      if (isJsonMediaType(mimeType)) {
         if (text) {
           parts.push(`--body-data '${escapeSingleQuotes(prettyPrintJson(text))}'`)
         }
@@ -103,7 +90,7 @@ export const shellWget: Plugin = {
             parts.push(`--body-file='${escapeSingleQuotes(param.fileName)}'`)
           } else {
             const rawValue = param.value ?? ''
-            const displayValue = isJsonContentType(param.contentType) && rawValue ? prettyPrintJson(rawValue) : rawValue
+            const displayValue = isJsonMediaType(param.contentType) && rawValue ? prettyPrintJson(rawValue) : rawValue
             parts.push(`--body-data '${escapeSingleQuotes(`${param.name}=${displayValue}`)}'`)
           }
         })

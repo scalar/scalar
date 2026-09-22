@@ -86,7 +86,7 @@
 
 ### Quickstart
 
-All you need is a single HTML file to create an amazing API reference:
+All you need is a single HTML file. Load the ESM build from our CDN, with no build step required:
 
 ```html
 <!doctype html>
@@ -102,13 +102,11 @@ All you need is a single HTML file to create an amazing API reference:
   <body>
     <div id="app"></div>
 
-    <!-- Load the Script -->
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script type="module">
+      import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
 
-    <!-- Initialize the Scalar API Reference -->
-    <script>
-      Scalar.createApiReference('#app', {
-        // The URL of the OpenAPI/Swagger document
+      createApiReference('#app', {
+        // The URL of the OpenAPI document
         url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
@@ -154,6 +152,7 @@ And there's an ever-growing list of plugins and integrations:
 - [Rust](https://scalar.com/products/api-references/integrations/rust)
 - [Spring Boot](https://scalar.com/products/api-references/integrations/spring-boot)
 - [SvelteKit](https://scalar.com/products/api-references/integrations/sveltekit)
+- [Symfony](https://scalar.com/products/api-references/integrations/symfony)
 - [Ts.ED](https://scalar.com/products/api-references/integrations/tsed)
 - [Vue.js](https://scalar.com/products/api-references/integrations/vue)
 

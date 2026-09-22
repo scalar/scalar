@@ -1,4 +1,4 @@
-import type { ComponentsObject, OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ComponentsObject, OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
 import {
@@ -287,6 +287,18 @@ describe('security-scheme', () => {
               payload: {
                 type: 'http',
                 scheme: 'bearer',
+              },
+              isDeletable: false,
+            },
+            {
+              id: 'oauth2DeviceAuthorization',
+              label: 'OAuth2 Device Authorization',
+              value: { oauth2DeviceAuthorization: [] },
+              payload: {
+                type: 'oauth2',
+                flows: {
+                  deviceAuthorization: { deviceAuthorizationUrl: '', tokenUrl: '', refreshUrl: '', scopes: {} },
+                },
               },
               isDeletable: false,
             },

@@ -1,7 +1,8 @@
+import { EditorView } from '@scalar/use-codemirror'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { enableAutoUnmount, mount } from '@vue/test-utils'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { DOMWrapper, enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { App } from 'vue'
 import { nextTick, ref, toValue } from 'vue'
@@ -89,6 +90,38 @@ describe('createApiClientModal', () => {
     document.body.innerHTML = ''
   })
 
+  it('updates localized labels and direction in the separately mounted modal app', async () => {
+    const options = ref<ApiClientOptions>({
+      localization: {
+        locale: 'de',
+      },
+    })
+    const modal = createApiClientModal({
+      el: mountElement,
+      workspaceStore: createWorkspaceStore(),
+      eventBus: createTestEventBus(),
+      options,
+    })
+    createdApps.push(modal.app)
+    expect(mountElement.textContent).toContain('Kein Dokument ausgewählt')
+    expect(mountElement.querySelector('[role="dialog"]')?.getAttribute('lang')).toBe('de')
+
+    options.value = { localization: { locale: 'ar' } }
+    await nextTick()
+    expect(mountElement.textContent).toContain('لم يتم تحديد مستند')
+    expect(mountElement.querySelector('[role="dialog"]')?.getAttribute('dir')).toBe('rtl')
+
+    modal.updateOptions({
+      localization: {
+        locale: 'en',
+        translations: { apiClient: { modal: { noDocumentSelected: 'Choose a document' } } },
+      },
+    })
+    await nextTick()
+    expect(mountElement.textContent).toContain('Choose a document')
+    expect(mountElement.querySelector('[role="dialog"]')?.getAttribute('dir')).toBe('ltr')
+  })
+
   it('creates modal and mounts automatically when mountOnInitialize is true', async () => {
     const workspaceStore = await setupWorkspaceStore()
 
@@ -157,6 +190,84 @@ describe('createApiClientModal', () => {
     expect(operationBlock.props('path')).toBe('/users')
     expect(operationBlock.props('method')).toBe('post')
     expect(operationBlock.props('exampleKey')).toBe('default')
+  })
+
+  it('preserves an edited request body when reopening the same operation', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'test-doc',
+      document: createTestDocument({
+        paths: {
+          '/widgets': {
+            post: {
+              summary: 'Create widget',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { name: { type: 'string' } } },
+                    example: { name: 'Original widget' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    })
+    workspaceStore.update('x-scalar-active-document', 'test-doc')
+    const eventBus = createTestEventBus()
+    const modal = createApiClientModal({ el: mountElement, workspaceStore, eventBus })
+    createdApps.push(modal.app)
+    const wrapper = new DOMWrapper(mountElement)
+    const dialogSelector = '[role="dialog"][aria-label="API Client"]'
+
+    /** Exclude read-only response and code-sample editors when locating the request body. */
+    const getBodyEditor = (): EditorView => {
+      const content = wrapper.get(`${dialogSelector} .cm-content[contenteditable="true"]`).element as HTMLElement
+      const editor = EditorView.findFromDOM(content)
+      if (!editor) {
+        throw new Error('The request body editor has not initialized')
+      }
+      return editor
+    }
+
+    eventBus.emit('ui:open:client-modal', { method: 'post', path: '/widgets' })
+    await vi.waitFor(() => {
+      expect(modal.modalState.open).toBe(true)
+      expect(JSON.parse(getBodyEditor().state.doc.toString())).toStrictEqual({ name: 'Original widget' })
+    })
+
+    const editor = getBodyEditor()
+    const editedBody = JSON.stringify({ name: 'Edited widget' }, null, 2)
+    const onBodyUpdate = vi.fn()
+    eventBus.on('operation:update:requestBody:value', onBodyUpdate)
+
+    // Exercise the real editor update and blur handlers, including persistence into the store.
+    editor.focus()
+    editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: editedBody } })
+    await wrapper.get(`${dialogSelector} .cm-content[contenteditable="true"]`).trigger('blur')
+    await vi.waitFor(() => {
+      expect(onBodyUpdate).toHaveBeenCalledWith({
+        payload: editedBody,
+        contentType: 'application/json',
+        meta: { path: '/widgets', method: 'post', exampleKey: 'default' },
+      })
+      expect(getBodyEditor().state.doc.toString()).toBe(editedBody)
+    })
+
+    eventBus.emit('ui:close:client-modal')
+    await flushPromises()
+    expect(modal.modalState.open).toBe(false)
+
+    eventBus.emit('ui:open:client-modal', { method: 'post', path: '/widgets' })
+    await vi.waitFor(async () => {
+      await flushPromises()
+      expect(modal.modalState.open).toBe(true)
+      const dialog = wrapper.get(dialogSelector)
+      expect(dialog.get('[data-testid="code-input-disabled"]').text()).toBe('/widgets')
+      expect(dialog.findAll('[type="button"]').some((button) => button.text() === 'POST')).toBe(true)
+      expect(getBodyEditor().state.doc.toString()).toBe(editedBody)
+    })
   })
 
   it('applies request body composition selection from the open-client-modal event', async () => {

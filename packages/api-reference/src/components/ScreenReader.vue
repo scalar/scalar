@@ -16,15 +16,8 @@ withDefaults(
   </span>
   <slot v-else />
 </template>
-<style scoped>
-.screenreader-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-</style>
+<!--
+  `.screenreader-only` is declared globally in styles/tailwind.config.css rather
+  than scoped here, so other components can hide text without wrapping it in
+  this component.
+-->

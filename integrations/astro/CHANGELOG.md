@@ -1,5 +1,23 @@
 # @scalar/astro
 
+## 0.4.21
+
+### Patch Changes
+
+- [#10304](https://github.com/scalar/scalar/pull/10304): Accept Astro 7 as a peer dependency. Astro 7 escapes attribute quotes as `&quot;`, so the render test now normalizes the entity before asserting.
+
+## 0.4.20
+
+## 0.4.19
+
+### Patch Changes
+
+- [#10132](https://github.com/scalar/scalar/pull/10132): Set Astro attribution by default. Add render tests and a repeatable type check.
+
+## 0.4.18
+
+## 0.4.17
+
 ## 0.4.16
 
 ### Patch Changes

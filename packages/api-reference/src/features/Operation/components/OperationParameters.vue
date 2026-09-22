@@ -7,7 +7,7 @@ import type {
   ParameterObject,
   ReferenceType,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
@@ -26,10 +26,12 @@ const { parameters = [], requestBody } = defineProps<{
   document?: OpenApiDocument
   options: Pick<
     OperationProps['options'],
+    | 'expandAllParameters'
     | 'hideModels'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'schemaKeyboardNav'
   >
 }>()
 const { translate } = useLocalization()
@@ -41,24 +43,23 @@ type ParameterLocation = 'cookie' | 'header' | 'path' | 'query'
 
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
-  (parameters ?? []).reduce(
+  (parameters ?? []).reduce<Record<ParameterLocation, ParameterObject[]>>(
     (acc, p) => {
       const parameter = getResolvedRef(p)
       // Filter out ignored parameters
-      if (!isHidden(parameter)) {
+      if (parameter && !isHidden(parameter)) {
         const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
         flattenedParameters.forEach((flattenedParameter) => {
-          acc[flattenedParameter.in as ParameterLocation].push(
-            flattenedParameter,
-          )
+          const location =
+            flattenedParameter.in === 'querystring'
+              ? 'query'
+              : flattenedParameter.in
+          acc[location].push(flattenedParameter)
         })
       }
       return acc
     },
-    { cookie: [], header: [], path: [], query: [] } as Record<
-      'cookie' | 'header' | 'path' | 'query',
-      ParameterObject[]
-    >,
+    { cookie: [], header: [], path: [], query: [] },
   ),
 )
 </script>
@@ -66,6 +67,7 @@ const splitParameters = computed(() =>
   <!-- Path parameters-->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -76,6 +78,7 @@ const splitParameters = computed(() =>
   <!-- Query parameters -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -86,6 +89,7 @@ const splitParameters = computed(() =>
   <!-- Headers -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"
@@ -96,6 +100,7 @@ const splitParameters = computed(() =>
   <!-- Cookies -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
     :options="options"

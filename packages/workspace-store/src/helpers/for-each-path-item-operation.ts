@@ -3,8 +3,8 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 
 import { type NodeInput, getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
-import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
+import type { OperationObject } from '@/schemas/v3.2/strict/operation'
+import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
 
 /**
  * How many `$ref` hops to follow before treating a chain as circular.
@@ -17,10 +17,10 @@ const MAX_REF_HOPS = 10
 /**
  * Whether a merged path item still carries an unfollowed hop.
  *
- * `mergeSiblingReferences` spreads the resolved target over the siblings. When that target is itself
- * a reference, the spread carries its `$ref-value` across as a real key, which is the signal that
- * one more hop is waiting. A fully resolved path item never has one: the `$ref` sibling is kept (it
- * is what the author wrote) but nothing resolves through it any more.
+ * `mergeSiblingReferences` preserves the resolved target's `$ref-value`, including non-enumerable
+ * links in plain documents. That link signals that one more hop is waiting. A fully resolved path
+ * item never has one: the `$ref` sibling is kept (it is what the author wrote) but nothing resolves
+ * through it any more.
  */
 const hasUnfollowedRef = (pathItem: PathItemObject | undefined): boolean =>
   isObjectLike(pathItem) && Object.hasOwn(pathItem, '$ref-value')
@@ -52,16 +52,16 @@ export const getResolvedPathItem = (pathItem: NodeInput<PathItemObject> | undefi
       // this with `document.paths[somePath]`, and a document is free to name a path `__proto__` —
       // which makes that lookup `Object.prototype`. Mutating whatever arrives is not worth the risk
       // when dropping a key costs a destructure.
-      const { '$ref-value': _unfollowed, ...withoutUnfollowedRef } = resolved as Record<string, unknown>
+      const { '$ref-value': _unfollowed, ...withoutUnfollowedRef }: Record<string, unknown> = resolved
 
       console.warn(
-        `Stopped resolving "${(resolved as { $ref?: string }).$ref}" after ${MAX_REF_HOPS} hops.\n\nThis reference most likely points at itself, directly or through another reference.`,
+        `Stopped resolving "${resolved.$ref}" after ${MAX_REF_HOPS} hops.\n\nThis reference most likely points at itself, directly or through another reference.`,
       )
 
-      return withoutUnfollowedRef as PathItemObject
+      return withoutUnfollowedRef
     }
 
-    resolved = getResolvedRef(resolved as NodeInput<PathItemObject>, mergeSiblingReferences)
+    resolved = getResolvedRef(resolved, mergeSiblingReferences)
   }
 
   return resolved

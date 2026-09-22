@@ -40,5 +40,6 @@ Once resolved, the merge lands on `scalar-next` and the release pull request ref
 ## Tips
 
 - **Keep custom code separate where you can.** New files in their own paths never conflict, so prefer adding a helper file over editing deep inside a generated one.
+- **Custom CI workflows count as custom code.** A workflow you add under `.github/workflows/` is carried forward like any other file, which is how you publish to an internal registry. See [Private Registries](publishing/private-registries.md).
 - **Review the release pull request.** It is the single place where generated changes and your customizations come together, so it is the natural review point before anything releases or [publishes](publishing/overview.md).
 - **Custom code is per repository.** Each target keeps its own customizations in its own repository.

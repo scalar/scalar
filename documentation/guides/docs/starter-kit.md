@@ -4,7 +4,7 @@ The [Docs Starter Kit](https://github.com/scalar/starter) is a ready-to-use temp
 
 ## Project structure
 
-The starter includes a minimal layout: a `docs/` folder (with `api-reference/` for OpenAPI documents and `content/` for free-form content) and a `scalar.config.json` file at the repository root.
+The starter includes a minimal layout: a `docs/` folder (with `api-reference/` for API documents and `content/` for free-form content) and a `scalar.config.json` file at the repository root.
 
 ## 1. Preview your docs
 
@@ -18,9 +18,9 @@ This starts a live preview at `http://localhost:7970` where every edit you make 
 
 Read more about [Preview deployments](deployment/preview-deployments.md) and the [CLI](deployment/cli.md).
 
-## 2. Include OpenAPI documents
+## 2. Include API documents
 
-Drop your OpenAPI files into `docs/api-reference/`, and add them to `scalar.config.json` to have them automatically become interactive API references.
+Drop your API documents into `docs/api-reference/`, and add them to `scalar.config.json` to have them automatically become interactive API references.
 
 The starter kit includes an example OpenAPI document to show you how it works.
 

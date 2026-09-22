@@ -1,7 +1,7 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { processParameters } from './process-parameters'
 
@@ -22,6 +22,48 @@ describe('parameter styles', () => {
     parameters: OperationObject['parameters']
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
+
+  it('warns authors before expanding invalid cookie-style explode: false in snippets', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/'),
+      parameters: [
+        { name: 'color', in: 'cookie', style: 'cookie', explode: false, required: true, example: ['blue', 'black'] },
+      ],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'Cookie', value: 'color=blue; color=black' }])
+    expect(warning).toHaveBeenCalledExactlyOnceWith(
+      'Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.',
+    )
+    warning.mockRestore()
+  })
+
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black'], expected: 'color=blue; color=black' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+  ])('preserves cookie style in the HAR header: $expected', ({ value, expected }) => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/'),
+      parameters: [{ name: 'color', in: 'cookie', style: 'cookie', required: true, example: value }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'Cookie', value: expected }])
+    expect(result.cookies).toStrictEqual([])
+  })
+
+  it('merges cookie style with existing headers and legacy cookies without changing the input header', () => {
+    const harRequest = createHarRequest('/')
+    harRequest.headers = [{ name: 'cookie', value: 'session=abc' }]
+    harRequest.cookies = [{ name: 'legacy', value: 'a b' }]
+    const result = runProcessParameters({
+      harRequest,
+      parameters: [{ name: 'token', in: 'cookie', style: 'cookie', required: true, example: '%2F+==' }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc; legacy=a%20b; token=%2F+==' }])
+    expect(result.cookies).toStrictEqual([])
+    expect(harRequest.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc' }])
+  })
 
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
@@ -1684,6 +1726,49 @@ describe('parameter styles', () => {
     })
   })
 
+  // The OpenAPI 3.2 `querystring` location is serialized like a regular query parameter so its
+  // value still lands in the query string instead of being silently dropped.
+  describe('querystring parameters', () => {
+    it('serializes a scalar querystring parameter into the query string', () => {
+      const result = runProcessParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'q',
+            in: 'querystring',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hello' }),
+          },
+        ],
+      })
+
+      expect(result.queryString).toEqual([{ name: 'q', value: 'hello' }])
+    })
+
+    it('expands an object querystring parameter into individual query params', () => {
+      const result = runProcessParameters({
+        harRequest: createHarRequest('/api/users'),
+        parameters: [
+          {
+            name: 'filter',
+            in: 'querystring',
+            required: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              example: { page: '1', limit: '10' },
+            }),
+          },
+        ],
+      })
+
+      // Form style defaults to explode: true, so the object expands into individual query params
+      expect(result.queryString).toEqual([
+        { name: 'page', value: '1' },
+        { name: 'limit', value: '10' },
+      ])
+    })
+  })
+
   describe('content-based parameters', () => {
     it('handles query parameter with object value in application/json content type', () => {
       const result = runProcessParameters({
@@ -2483,14 +2568,31 @@ describe('processParameters defaultDisabled', () => {
     },
   ]
 
-  it('omits optional query parameters when defaultDisabled is true', () => {
+  it('includes populated optional query parameters when defaultDisabled is true', () => {
     const result = processParameters({
       harRequest: createHarRequest('/items'),
       parameters: optionalQueryParameters,
       defaultDisabled: true,
     })
 
-    expect(result.queryString).toEqual([])
+    expect(result.queryString).toStrictEqual([{ name: 'filter', value: 'active' }])
+  })
+
+  it.each([undefined, null, ''])('omits empty optional values (%s) when defaultDisabled is true', (value) => {
+    const result = processParameters({
+      harRequest: createHarRequest('/items'),
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          examples: { default: { value } },
+        },
+      ],
+      example: 'default',
+      defaultDisabled: true,
+    })
+    expect(result.queryString).toStrictEqual([])
   })
 
   it('includes optional query parameters from schema when defaultDisabled is false', () => {

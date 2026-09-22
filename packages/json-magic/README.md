@@ -37,6 +37,7 @@ There is no root export. Every module is imported from its own entry point, so y
 | `@scalar/json-magic/bundle/plugins/node` | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles` |
 | `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory` |
 | `@scalar/json-magic/dereference` | `dereference` |
+| `@scalar/json-magic/join` | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types |
 | `@scalar/json-magic/diff` | `diff`, `merge`, `apply`, the `Difference` type |
 | `@scalar/json-magic/magic-proxy` | `createMagicProxy`, `getRaw` |
 | `@scalar/json-magic/helpers/*` | Small standalone helpers, see [Helpers](#helpers) |
@@ -50,9 +51,70 @@ There is no root export. Every module is imported from its own entry point, so y
 | Resolve every `$ref`, internal and external, in one call | [`dereference`](#dereference) |
 | Compare two documents and merge concurrent edits | [`diff`](#diff) |
 
+## join
+
+`join` combines JSON objects without assuming a document standard. It merges objects recursively and replaces arrays and scalar values with those from later inputs. It does not mutate inputs, upgrade document versions, resolve references, or rename definitions. Literal keys such as `__proto__`, `constructor`, and `prototype` are preserved as own data properties without changing object prototypes.
+
+```ts
+import { join } from '@scalar/json-magic/join'
+
+const result = join(
+  [
+    { title: 'First', catalog: { apple: { price: 2 } }, labels: [{ name: 'fruit' }] },
+    { title: 'Second', catalog: { pear: { price: 3 } }, labels: [{ name: 'fruit' }] },
+  ],
+  {
+    strategy: ({ path }) => {
+      if (path[0] === 'catalog' && path.length === 2) {
+        return 'conflict'
+      }
+      if (path[0] === 'labels') {
+        return { uniqueBy: 'name' }
+      }
+      return 'merge'
+    },
+  },
+)
+
+if (result.ok) {
+  console.log(result.document) // Both catalog entries, title "Second", one fruit label
+} else {
+  console.log(result.conflicts) // Example: [{ path: ['catalog', 'apple'] }]
+}
+```
+
+The optional `strategy` callback receives `{ path, current, incoming }` for each visited field. Paths are arrays of literal keys, so a key containing `/` remains one segment. The root always merges; returning `replace` or `conflict` for an object treats that object as a whole and does not visit its children.
+
+| Strategy | Behavior |
+| --- | --- |
+| `merge` (default) | Recursively merge objects; replace other values using the later input. |
+| `merge-by-index` | Recursively merge objects and arrays, combining array entries at matching indexes and retaining trailing entries. |
+| `skip` | Ignore this incoming field, leaving any existing value unchanged. |
+| `replace` | Replace the entire value, including objects. |
+| `conflict` | Report a duplicate key, even if both values are equal or the earlier value is null. |
+| `{ uniqueBy: 'name' }` | Combine arrays, retaining the first item for each identity property value. Items without that property remain distinct. Use scalar identity values. Non-array incoming values replace the existing value. |
+
+An empty input list returns `{ ok: true, document: {} }`. Conflicts return `{ ok: false, conflicts }` without a partial document. Inputs must be acyclic JSON objects.
+
+For OpenAPI, use `join` from `@scalar/openapi-parser`, which supplies OpenAPI rules, version upgrades, and optional component prefixes. Other formats can supply their own rules; this module does not include an AsyncAPI adapter.
+
 ## bundle
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
+
+Document formats can supply a `resolveDocument` lifecycle hook returning `{ baseUri, metadata }`. The bundler resolves relative references against that base URI and retains the supplied root metadata when tree shaking. The hook also applies to cached and previously bundled documents. Without a hook, the retrieval URI remains the document base. JSON Schema `$id` values resolve against their enclosing base.
+
+When reading qualified root references with `createMagicProxy`, pass the canonical URI as `documentUri`. Interpretation of format-specific identity fields belongs in the caller or a plugin.
+
+URI resolution applies to every bundling path, including descriptions without `$self`:
+
+- Absolute scheme-bearing references (`https:`, `file:`, `urn:`, `mailto:`, or custom schemes) retain their identity. This does not enable fetching those schemes; loader plugins still decide what they support.
+- Hierarchical URI bases use URL resolution. Root-relative references replace the pathname; protocol-relative references replace the host. A new document path drops the base query and fragment, while query-only or fragment-only references keep the applicable parts of the base.
+- A base ending in `/` denotes a directory. Without the slash, the final segment is a document name. Scheme-less paths continue to use filesystem resolution, including Windows drive paths.
+- Opaque identities such as URNs support absolute and fragment references, but cannot provide a directory for a relative document path. Such a resolution throws rather than inventing a local path.
+- Relativization preserves query strings, fragments, and directory slashes. HTTP references become relative only when resolving them again reproduces the original URL. Non-HTTP URIs remain absolute: the generic helper has no document registry, so limiting this rule to known `$self` values would corrupt other identifiers.
+
+These are intentional URI compatibility changes, rather than behavior limited to OpenAPI `$self`.
 
 External documents are stored under the `x-ext` key, and the mapping between the generated keys and their original URLs is stored under `x-ext-urls`. Both keys are configurable, see [Options](#options).
 

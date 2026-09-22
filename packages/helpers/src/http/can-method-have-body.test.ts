@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { canMethodHaveBody } from './can-method-have-body'
+import { buildSafeBodyRequest, canMethodHaveBody } from './can-method-have-body'
 import type { HttpMethod } from './http-methods'
 
 vi.mock('@/general/is-electron', () => ({
@@ -19,16 +19,27 @@ describe('can-method-have-body', () => {
     vi.clearAllMocks()
   })
 
+  it('preserves a QUERY body in the final request', async () => {
+    const request = buildSafeBodyRequest('https://example.com/search', {
+      method: 'QUERY',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{"name":"Ada"}',
+    })
+    expect(request.method).toBe('QUERY')
+    expect(request.headers.get('Content-Type')).toBe('application/json')
+    expect(await request.text()).toBe('{"name":"Ada"}')
+  })
+
   describe('HTTP methods with body support', () => {
-    it.each(['post', 'put', 'patch', 'delete'] as const)('returns true for %s method', (method) => {
+    it.each(['post', 'put', 'patch', 'delete', 'query'] as const)('returns true for %s method', (method) => {
       expect(canMethodHaveBody(method)).toBe(true)
     })
 
-    it.each(['POST', 'PUT', 'PATCH', 'DELETE'] as const)('handles uppercase %s method', (method) => {
+    it.each(['POST', 'PUT', 'PATCH', 'DELETE', 'QUERY'] as const)('handles uppercase %s method', (method) => {
       expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
     })
 
-    it.each(['Post', 'Put', 'Patch', 'Delete'] as const)('handles mixed case %s method', (method) => {
+    it.each(['Post', 'Put', 'Patch', 'Delete', 'Query'] as const)('handles mixed case %s method', (method) => {
       expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
     })
   })
@@ -56,9 +67,12 @@ describe('can-method-have-body', () => {
       expect(canMethodHaveBody(method as HttpMethod)).toBe(true)
     })
 
-    it.each(['post', 'put', 'patch', 'delete'] as const)('still returns true for %s method in Electron', (method) => {
-      expect(canMethodHaveBody(method)).toBe(true)
-    })
+    it.each(['post', 'put', 'patch', 'delete', 'query'] as const)(
+      'still returns true for %s method in Electron',
+      (method) => {
+        expect(canMethodHaveBody(method)).toBe(true)
+      },
+    )
   })
 
   describe('return type', () => {

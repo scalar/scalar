@@ -20,6 +20,48 @@ test.describe('collection-editor.monaco.e2e', () => {
    */
   test.setTimeout(120_000)
 
+  test('validates path names without rejecting valid OpenAPI 3.1 and 3.2 paths', async ({ page }) => {
+    await page.goto('/')
+    await waitForScalarAppShellReady(page)
+    await page.goto(EDITOR_ROUTE)
+
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+    const modifier = await page.evaluate(() => (navigator.platform.startsWith('Mac') ? 'Meta' : 'Control'))
+    const editor = page.locator('.monaco-editor').first()
+    await editor.waitFor({ state: 'visible' })
+
+    await page.getByRole('button', { name: /^Problems/ }).click()
+
+    for (const openapi of ['3.1.0', '3.2.0']) {
+      const setPaths = async (path: string): Promise<void> => {
+        await editor.locator('.view-line').first().click()
+        await page.keyboard.press(`${modifier}+a`)
+        await page.evaluate(
+          (text) => navigator.clipboard.writeText(text),
+          JSON.stringify(
+            {
+              openapi,
+              info: { title: 'Editor compatibility', version: '1.0.0' },
+              paths: {
+                [path]: { get: { responses: { '200': { description: 'OK' } } } },
+                'x-description': 'An extension alongside the path',
+              },
+            },
+            null,
+            2,
+          ),
+        )
+        await page.keyboard.press(`${modifier}+v`)
+      }
+
+      // An invalid document first proves the worker has finished validating before we expect no problems.
+      await setPaths('users')
+      await expect(page.getByRole('button', { name: /Property users is not allowed/ })).toBeVisible()
+      await setPaths('/users')
+      await expect(page.getByRole('button', { name: 'Problems 0 0', exact: true })).toBeVisible()
+    }
+  })
+
   test('Monaco mounts and YAML mode does not throw (monaco-yaml + workers)', async ({ page }) => {
     const consoleErrors: string[] = []
     page.on('console', (message) => {

@@ -8,10 +8,14 @@ export default {
   name: 'AddressBar',
 }
 export type AddressBarProps = {
+  /** An external example must finish loading before sending. */
+  executionDisabled?: boolean
   /** Current request path */
   path: string
   /** Current request method */
   method: HttpMethodType
+  /** Whether the request target belongs to an OpenAPI webhook. */
+  isWebhook?: boolean
   /** Openapi document slug */
   documentSlug: string
   /** Currently selected example key for the current operation */
@@ -35,7 +39,6 @@ export type AddressBarProps = {
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
-import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { REQUEST_METHODS } from '@scalar/helpers/http/http-info'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
@@ -48,7 +51,7 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   computed,
   nextTick,
@@ -68,6 +71,7 @@ import { useLoadingAnimation } from '@/v2/blocks/scalar-address-bar-block/hooks/
 import { usePathMasking } from '@/v2/blocks/scalar-address-bar-block/hooks/use-path-masking'
 import { CodeInput } from '@/v2/components/code-input'
 import { ServerDropdown } from '@/v2/components/server'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import AddressBarHistory, { type History } from './AddressBarHistory.vue'
@@ -83,6 +87,7 @@ const {
   servers,
   environment,
   serverMeta,
+  isWebhook = false,
 } = defineProps<AddressBarProps>()
 
 const emit = defineEmits<{
@@ -90,7 +95,11 @@ const emit = defineEmits<{
   (e: 'execute'): void
   /** Select a request history item by index */
   (e: 'select:history:item', payload: { index: number }): void
+  /** Update the full destination URL used to deliver a webhook. */
+  (e: 'update:webhook-url', url: string): void
 }>()
+
+const { translate } = useLocalization()
 
 // ───────────────────────────────────────────────────────────────────
 // Template refs & reactive state
@@ -127,6 +136,22 @@ const style = computed(() => ({
 
 /** Whether there is a path or method conflict */
 const hasConflict = computed(() => methodConflict.value || pathConflict.value)
+
+/**
+ * Placeholder for the path field.
+ *
+ * Webhooks have no server to prefix the path, so the field doubles as the full
+ * destination URL. Hint that a complete URL (including the host) is expected,
+ * rather than a bare path.
+ */
+const pathPlaceholder = computed(() => {
+  if (server) {
+    return ''
+  }
+  return isWebhook
+    ? translate('apiClient.addressBar.webhookUrlPlaceholder')
+    : translate('apiClient.addressBar.urlPlaceholder')
+})
 
 /** Whether either dropdown (server or history) is open */
 const isDropdownOpen = computed(
@@ -256,6 +281,20 @@ const emitPathMethodUpdate = (
   targetPath: string,
   blurTargetSelector: string | null = null,
 ): void => {
+  if (isWebhook) {
+    // A webhook has no OpenAPI server, so the field holds the full destination
+    // URL. Keep exactly what the user entered — do not split it into an invisible
+    // server plus a leftover path, and do not force a leading slash. That split
+    // is what made a typed URL collapse to a stray "/" on blur.
+    const webhookUrl = targetPath.trim()
+    addressBarRef.value?.setCodeMirrorContent(webhookUrl)
+    emit('update:webhook-url', webhookUrl)
+    methodConflict.value = null
+    pathConflict.value = null
+    nextTick(() => refocusBlurTarget(blurTargetSelector))
+    return
+  }
+
   const extractedPath = extractAndSelectServer(targetPath)
   const normalizedPath = normalizePath(extractedPath)
 
@@ -322,7 +361,8 @@ const handleMethodChange = (newMethod: HttpMethodType): void =>
  * blur that precedes the click, so we still replay Send and other buttons.
  */
 const handlePathBlur = (newPath: string, event: FocusEvent): void => {
-  const relatedTarget = event.relatedTarget as Element | null
+  const relatedTarget =
+    event.relatedTarget instanceof Element ? event.relatedTarget : null
   const blurTargetSelector =
     tabbedOut.value ||
     ('sourceCapabilities' in event && event.sourceCapabilities === null)
@@ -354,9 +394,25 @@ const handlePathSubmit = (
 
 /** Unset the server when backspace is pressed on an empty path */
 const handlePathBackspace = (event: KeyboardEvent): void => {
-  if ((event.target as HTMLElement)?.innerText === '\n') {
+  if (event.target instanceof HTMLElement && event.target.innerText === '\n') {
+    // A webhook has no server to unset; its full URL lives in the field itself.
+    if (isWebhook) {
+      return
+    }
     eventBus.emit('server:update:selected', { url: '', meta: serverMeta })
   }
+}
+
+const handleServerSelect = (
+  payload: ApiReferenceEvents['server:update:selected'],
+): void => {
+  eventBus.emit('server:update:selected', payload)
+}
+
+const handleServerVariable = (
+  payload: ApiReferenceEvents['server:update:variables'],
+): void => {
+  eventBus.emit('server:update:variables', payload)
 }
 
 /** Address bar copy is handled in OperationBlock (same URL as Send). */
@@ -450,7 +506,7 @@ defineExpose({
       -->
       <div class="hidden @3xl:flex">
         <HttpMethod
-          :isEditable="layout !== 'modal'"
+          :isEditable="layout !== 'modal' && !isWebhook"
           isSquare
           :method="methodConflict ?? method"
           teleport
@@ -458,32 +514,29 @@ defineExpose({
       </div>
 
       <div
-        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal">
+        class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full bg-blend-normal"
+        dir="ltr">
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
-          :layout="layout"
+          :layout="isWebhook ? 'modal' : layout"
           :meta="serverMeta"
           :server="server"
           :servers="servers"
           :target="id"
           @update:open="(value) => (isServerDropdownOpen = value)"
-          @update:selectedServer="
-            (payload) => eventBus.emit('server:update:selected', payload)
-          "
+          @update:selectedServer="handleServerSelect"
           @update:servers="navigateToServersPage"
-          @update:variable="
-            (payload) => eventBus.emit('server:update:variables', payload)
-          " />
+          @update:variable="handleServerVariable" />
 
         <!-- Path + URL + env vars -->
         <CodeInput
           ref="addressBarRef"
           alwaysEmitChange
-          aria-label="Path"
+          :aria-label="translate('apiClient.addressBar.path')"
           class="ml-1 min-w-fit pl-px outline-none"
           disableCloseBrackets
-          :disabled="layout === 'modal'"
+          :disabled="layout === 'modal' && !isWebhook"
           disableEnter
           disableTabIndent
           :emitOnBlur="false"
@@ -492,7 +545,7 @@ defineExpose({
           importCurl
           :layout="layout"
           :modelValue="path"
-          :placeholder="server ? '' : 'Enter a URL'"
+          :placeholder="pathPlaceholder"
           server
           @blur="handlePathBlur"
           @keydown.delete="handlePathBackspace"
@@ -507,7 +560,9 @@ defineExpose({
         variant="ghost"
         @click="requestCopyUrl">
         <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
+        <span class="sr-only">{{
+          translate('apiClient.addressBar.copyUrl')
+        }}</span>
       </ScalarButton>
 
       <AddressBarHistory
@@ -523,11 +578,12 @@ defineExpose({
           class="text-c-danger bg-b-danger border-c-danger flex items-center gap-1 rounded border p-1">
           <ScalarIconWarningCircle size="sm" />
           <div class="min-w-0 flex-1">
-            A
-            <em>{{ methodConflict?.toUpperCase() ?? method.toUpperCase() }}</em>
-            request to
-            <ScalarWrappingText :text="pathConflict ?? path" />
-            already exists in this document
+            {{
+              translate('apiClient.addressBar.duplicateRequest', {
+                method: (methodConflict ?? method).toUpperCase(),
+                path: pathConflict ?? path,
+              })
+            }}
           </div>
         </div>
       </div>
@@ -536,7 +592,7 @@ defineExpose({
         ref="sendButtonRef"
         class="relative hidden h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold @3xl:flex"
         data-addressbar-action="send"
-        :disabled="isLoading"
+        :disabled="isLoading || executionDisabled"
         @click="emit('execute')">
         <span
           aria-hidden="true"
@@ -545,10 +601,17 @@ defineExpose({
             class="relative shrink-0 fill-current"
             icon="Play"
             size="xs" />
-          <span class="text-xxs flex">Send</span>
+          <span class="text-xxs flex">{{
+            translate('apiClient.addressBar.send')
+          }}</span>
         </span>
-        <span class="sr-only">
-          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+        <span class="sr-only"
+          >{{
+            translate('apiClient.addressBar.sendRequest', {
+              method,
+              url: `${server?.url ?? ''}${path}`,
+            })
+          }}
         </span>
       </ScalarButton>
     </div>
@@ -561,7 +624,7 @@ defineExpose({
     <div
       class="mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 @3xl:hidden">
       <HttpMethod
-        :isEditable="layout !== 'modal'"
+        :isEditable="layout !== 'modal' && !isWebhook"
         isSquare
         :method="methodConflict ?? method"
         teleport
@@ -572,13 +635,15 @@ defineExpose({
         variant="ghost"
         @click="requestCopyUrl">
         <ScalarIconCopy />
-        <span class="sr-only">Copy URL</span>
+        <span class="sr-only">{{
+          translate('apiClient.addressBar.copyUrl')
+        }}</span>
       </ScalarButton>
       <ScalarButton
         ref="mobileSendButtonRef"
         class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
         data-addressbar-action="send"
-        :disabled="isLoading"
+        :disabled="isLoading || executionDisabled"
         @click="emit('execute')">
         <span
           aria-hidden="true"
@@ -587,10 +652,17 @@ defineExpose({
             class="relative shrink-0 fill-current"
             icon="Play"
             size="xs" />
-          <span class="text-xxs">Send</span>
+          <span class="text-xxs">{{
+            translate('apiClient.addressBar.send')
+          }}</span>
         </span>
-        <span class="sr-only">
-          Send {{ method }} request to {{ server?.url ?? '' }}{{ path }}
+        <span class="sr-only"
+          >{{
+            translate('apiClient.addressBar.sendRequest', {
+              method,
+              url: `${server?.url ?? ''}${path}`,
+            })
+          }}
         </span>
       </ScalarButton>
     </div>
@@ -655,11 +727,6 @@ defineExpose({
   width: 24px;
   right: 0;
   cursor: text;
-}
-.scroll-timeline-x-address:empty:before {
-  content: 'Enter URL or cURL request';
-  color: var(--scalar-color-3);
-  pointer-events: none;
 }
 
 .address-bar-bg-states {

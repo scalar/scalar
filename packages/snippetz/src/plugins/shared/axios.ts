@@ -4,7 +4,6 @@ import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
 type AxiosHeaders = Record<string, string | string[]>
-type Primitive = string | number | boolean | null | undefined
 
 const escapeJsString = (value: string): string =>
   value.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
@@ -15,17 +14,14 @@ const sanitizeForGeneratedCode = (value: unknown): unknown => {
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => sanitizeForGeneratedCode(item)) as unknown[]
+    return value.map((item) => sanitizeForGeneratedCode(item))
   }
 
   if (value && typeof value === 'object' && !(value instanceof Raw)) {
-    return Object.entries(value).reduce(
-      (acc, [key, objectValue]) => {
-        acc[key] = sanitizeForGeneratedCode(objectValue) as Primitive | Record<string, unknown> | unknown[]
-        return acc
-      },
-      {} as Record<string, Primitive | Record<string, unknown> | unknown[]>,
-    )
+    return Object.entries(value).reduce<Record<string, unknown>>((acc, [key, objectValue]) => {
+      acc[key] = sanitizeForGeneratedCode(objectValue)
+      return acc
+    }, {})
   }
 
   return value

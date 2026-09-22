@@ -36,8 +36,8 @@ import { type XusePkce } from '@scalar/workspace-store/schemas/extensions/securi
 import type {
   OAuthFlow,
   ServerObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 import OAuthScopesInput from '@/v2/blocks/scalar-auth-selector-block/components/OAuthScopesInput.vue'
 import {
@@ -47,7 +47,9 @@ import {
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/oauth'
 import { resolveDefaultOAuth2RedirectUri } from '@/v2/blocks/scalar-auth-selector-block/helpers/resolve-default-oauth2-redirect-url'
 import { DataTableRow } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
+import type { DeviceAuthorizationPrompt } from '../helpers/oauth-device-authorization'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 const {
@@ -105,6 +107,17 @@ const emits = defineEmits<{
   ): void
 }>()
 
+const devicePrompt = ref<DeviceAuthorizationPrompt | null>(null)
+let deviceController: AbortController | undefined
+const cancelDeviceAuthorization = (): void => {
+  deviceController?.abort()
+  devicePrompt.value = null
+}
+onBeforeUnmount(cancelDeviceAuthorization)
+watch(() => [type, name, flows], cancelDeviceAuthorization)
+
+const { translate } = useLocalization()
+
 const loader = useLoadingState()
 const { toast } = useToasts()
 
@@ -142,7 +155,9 @@ const clientSecretValue = computed((): string => {
 
 /** Updates the security scheme base */
 const handleOauth2Update = (
-  payload: Partial<OAuthFlow & XScalarCredentialsLocation>,
+  payload: Partial<OAuthFlow & XScalarCredentialsLocation> & {
+    deviceAuthorizationUrl?: string
+  },
 ): void => {
   // OpenIdConnect uses the secrets update for all
   if (scheme.type === 'openIdConnect') {
@@ -169,7 +184,13 @@ const handleOauth2Update = (
 /** Updates the flow secrets */
 const handleOauth2SecretsUpdate = (
   payload: Omit<Partial<SecretsOAuthFlows[keyof SecretsOAuthFlows]>, 'type'>,
-): void =>
+): void => {
+  // This component only renders for oauth2/openIdConnect. Other scheme types (e.g. mutualTLS)
+  // carry no flow secrets, so there is nothing to persist and no matching secrets payload type.
+  if (scheme.type !== 'oauth2' && scheme.type !== 'openIdConnect') {
+    return
+  }
+
   eventBus.emit('auth:update:security-scheme-secrets', {
     payload: {
       type: scheme.type,
@@ -177,6 +198,7 @@ const handleOauth2SecretsUpdate = (
     },
     name,
   })
+}
 
 /** Clears the flow secrets */
 const clearOauth2Secrets = (): void => {
@@ -271,6 +293,8 @@ const handleAuthorize = async (): Promise<void> => {
   }
 
   loader.start()
+  const controller = new AbortController()
+  deviceController = controller
 
   const [error, tokens] = await authorizeOauth2(
     flows,
@@ -281,9 +305,19 @@ const handleAuthorize = async (): Promise<void> => {
     getEnvironmentVariables(environment),
     options.customFetch,
     options.captureOAuth2Callback,
+    {
+      signal: controller.signal,
+      onPrompt: (prompt) => {
+        devicePrompt.value = prompt
+      },
+    },
   )
+  devicePrompt.value = null
 
   await loader.clear()
+  if (controller.signal.aborted) {
+    return
+  }
 
   if (tokens?.accessToken) {
     handleOauth2SecretsUpdate({
@@ -294,7 +328,10 @@ const handleAuthorize = async (): Promise<void> => {
     })
   } else {
     console.error(error)
-    toast(error?.message ?? 'Failed to authorize', 'error')
+    toast(
+      error?.message ?? translate('apiClient.oauth2.failedToauthorize'),
+      'error',
+    )
   }
 }
 
@@ -343,7 +380,10 @@ const handleRefresh = async (): Promise<void> => {
     })
   } else {
     console.error(error)
-    toast(error?.message ?? 'Failed to refresh token', 'error')
+    toast(
+      error?.message ?? translate('apiClient.oauth2.failedToRefreshToken'),
+      'error',
+    )
   }
 }
 
@@ -376,7 +416,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': v })
         ">
-        Access Token
+        {{ translate('apiClient.oauth2.accessToken') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -387,7 +427,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         :modelValue="flow.refreshUrl ?? ''"
         :placeholder="refreshUrlPlaceholder"
         @update:modelValue="(v) => handleOauth2Update({ refreshUrl: v })">
-        Refresh URL
+        {{ translate('apiClient.oauth2.refreshUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -402,7 +442,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleRefresh">
-          Refresh
+          {{ translate('apiClient.oauth2.refresh') }}
         </ScalarButton>
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
@@ -410,7 +450,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleClearAccessTokens">
-          Clear
+          {{ translate('apiClient.oauth2.clear') }}
         </ScalarButton>
       </div>
     </DataTableRow>
@@ -418,6 +458,52 @@ const handleSecretLocationUpdate = (value: string): void => {
 
   <!-- Authorization Form: Shows when user needs to authorize -->
   <template v-else>
+    <DataTableRow v-if="'deviceAuthorizationUrl' in flow">
+      <RequestAuthDataTableInput
+        :environment
+        :modelValue="flow.deviceAuthorizationUrl"
+        @update:modelValue="
+          (v) => handleOauth2Update({ deviceAuthorizationUrl: v })
+        ">
+        {{ translate('apiClient.oauth2.deviceAuthorizationUrl') }}
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+    <DataTableRow v-if="devicePrompt">
+      <div class="w-full p-2">
+        <div
+          class="bg-b-2 flex flex-col gap-3 rounded-lg border p-3 text-sm"
+          role="status">
+          <p class="text-c-2 text-xs leading-normal">
+            {{ translate('apiClient.oauth2.deviceVerificationPrompt') }}
+          </p>
+          <strong
+            class="bg-b-1 font-code w-fit max-w-full rounded border px-3 py-2 text-base font-medium tracking-widest break-all select-all">
+            {{ devicePrompt.userCode }}
+          </strong>
+          <a
+            class="text-c-accent w-fit max-w-full text-xs break-all underline underline-offset-2"
+            :href="
+              devicePrompt.verificationUriComplete ||
+              devicePrompt.verificationUri
+            "
+            rel="noopener noreferrer"
+            target="_blank">
+            {{ devicePrompt.verificationUri }}
+          </a>
+          <div class="flex items-center justify-between gap-3">
+            <p class="text-c-2 text-xs">
+              {{ translate('apiClient.oauth2.waitingForAuthorization') }}
+            </p>
+            <ScalarButton
+              size="xs"
+              variant="outlined"
+              @click="cancelDeviceAuthorization">
+              {{ translate('apiClient.oauth2.cancelDeviceAuthorization') }}
+            </ScalarButton>
+          </div>
+        </div>
+      </div>
+    </DataTableRow>
     <DataTableRow>
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
@@ -431,7 +517,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2Update({ authorizationUrl: v })
           }
         ">
-        Auth URL
+        {{ translate('apiClient.oauth2.authUrl') }}
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput
@@ -445,7 +531,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2Update({ tokenUrl: v })
           }
         ">
-        Token URL
+        {{ translate('apiClient.oauth2.tokenUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -456,7 +542,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         :placeholder="
           options.captureOAuth2Callback
             ? `${resolveDefaultOAuth2RedirectUri(options) || 'http://127.0.0.1'} (handled automatically)`
-            : 'Optional redirect URL'
+            : translate('apiClient.oauth2.optionalRedirectUrl')
         "
         @update:modelValue="
           (v) => {
@@ -464,7 +550,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             handleOauth2SecretsUpdate({ 'x-scalar-secret-redirect-uri': v })
           }
         ">
-        Redirect URL
+        {{ translate('apiClient.oauth2.redirectUrl') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -481,7 +567,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-username': v })
           ">
-          Username
+          {{ translate('apiClient.oauth2.username') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
 
@@ -494,7 +580,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-password': v })
           ">
-          Password
+          {{ translate('apiClient.oauth2.password') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
     </template>
@@ -507,7 +593,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-client-id': v })
         ">
-        Client ID
+        {{ translate('apiClient.oauth2.clientID') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -521,7 +607,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           (v) =>
             handleOauth2SecretsUpdate({ 'x-scalar-secret-client-secret': v })
         ">
-        Client Secret
+        {{ translate('apiClient.oauth2.clientSecret') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -537,7 +623,7 @@ const handleSecretLocationUpdate = (value: string): void => {
               'x-usePkce': v as XusePkce['x-usePkce'],
             })
         ">
-        Use PKCE
+        {{ translate('apiClient.oauth2.usePKCE') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -552,7 +638,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         placeholder="header"
         readOnly
         @update:modelValue="(v) => handleSecretLocationUpdate(v)">
-        Credentials Location
+        {{ translate('apiClient.oauth2.credentialsLocation') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -562,9 +648,9 @@ const handleSecretLocationUpdate = (value: string): void => {
         :flow
         :flowType="type"
         :selectedScopes
+        @delete:scope="(v) => emits('delete:scope', v)"
         @update:selectedScopes="(v) => emits('update:selectedScopes', v)"
-        @upsert:scope="(v) => emits('upsert:scope', v)"
-        @delete:scope="(v) => emits('delete:scope', v)" />
+        @upsert:scope="(v) => emits('upsert:scope', v)" />
     </DataTableRow>
 
     <DataTableRow
@@ -579,7 +665,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="clearOauth2Secrets">
-          Clear
+          {{ translate('apiClient.oauth2.clear') }}
         </ScalarButton>
 
         <ScalarButton
@@ -588,7 +674,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleAuthorize">
-          Authorize
+          {{ translate('apiClient.oauth2.authorize') }}
         </ScalarButton>
       </div>
     </DataTableRow>

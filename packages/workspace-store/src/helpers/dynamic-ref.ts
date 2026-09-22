@@ -1,6 +1,8 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import type { SchemaObject } from '@/schemas/v3.1/strict/schema'
+import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
 
 /**
  * Resolution of JSON Schema 2020-12 `$dynamicRef` / `$dynamicAnchor`.
@@ -27,10 +29,7 @@ export type DynamicScope = SchemaObject[]
 
 /** Narrow a schema to one that carries a `$dynamicRef`. */
 export const isDynamicRef = (schema: unknown): schema is SchemaObject & { $dynamicRef: string } =>
-  typeof schema === 'object' &&
-  schema !== null &&
-  '$dynamicRef' in schema &&
-  typeof (schema as { $dynamicRef?: unknown }).$dynamicRef === 'string'
+  typeof schema === 'object' && schema !== null && '$dynamicRef' in schema && typeof schema.$dynamicRef === 'string'
 
 /**
  * Whether a schema introduces something a `$dynamicRef` could later bind to.
@@ -40,7 +39,7 @@ export const isDynamicRef = (schema: unknown): schema is SchemaObject & { $dynam
  * subschemas are skipped to keep the scope small.
  */
 const carriesDynamicAnchor = (schema: SchemaObject): boolean =>
-  '$dynamicAnchor' in schema || '$id' in schema || '$defs' in (schema as SchemaWithDefs)
+  '$dynamicAnchor' in schema || '$id' in schema || '$defs' in schema
 
 /**
  * Collect the `$dynamicAnchor` declarations of a single schema resource, keyed by anchor name.
@@ -53,7 +52,7 @@ const anchorCache = new WeakMap<object, Map<string, SchemaObject>>()
 
 export const collectDynamicAnchors = (resource: SchemaObject): Map<string, SchemaObject> => {
   // Cache per raw schema object so repeated lookups during a walk stay cheap.
-  const cacheTarget = unpackProxyObject(resource, { depth: 1 }) as object
+  const cacheTarget: object = unpackProxyObject(resource, { depth: 1 })
   const cached = anchorCache.get(cacheTarget)
   if (cached) {
     return cached
@@ -65,16 +64,17 @@ export const collectDynamicAnchors = (resource: SchemaObject): Map<string, Schem
     if (!node || typeof node !== 'object') {
       return
     }
-    const anchor = (node as { $dynamicAnchor?: unknown }).$dynamicAnchor
+    const anchor = node.$dynamicAnchor
     if (typeof anchor === 'string' && !anchors.has(anchor)) {
       // Resolve any sibling `$ref` so the stored target is the concrete schema (e.g. `User`).
-      anchors.set(anchor, getResolvedRef(node, mergeSiblingReferences) as SchemaObject)
+      anchors.set(anchor, getResolvedRef(node, mergeSiblingReferences))
     }
   }
 
   add(resource)
 
-  const defs = (resource as SchemaWithDefs).$defs
+  const schemaWithDefs: SchemaWithDefs = resource
+  const defs = schemaWithDefs.$defs
   if (defs && typeof defs === 'object') {
     for (const key of Object.keys(defs)) {
       add(defs[key])
@@ -85,9 +85,22 @@ export const collectDynamicAnchors = (resource: SchemaObject): Map<string, Schem
   return anchors
 }
 
-/** Append a schema to the dynamic scope when it could hold a `$dynamicAnchor`, otherwise return it unchanged. */
-export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): DynamicScope =>
-  carriesDynamicAnchor(schema) ? [...scope, schema] : scope
+/**
+ * Append a schema resource to the dynamic scope when it could hold a `$dynamicAnchor`.
+ *
+ * A schema that carries the binding inline — its own `$dynamicAnchor`, or the `$id`/`$defs` binding
+ * written next to a `$ref` (how `Paginated<Planet>` is expressed) — enters the scope directly. A bare
+ * `$ref` to a *named* binding resource (e.g. `$ref: '#/components/schemas/PaginatedUserResponse'`)
+ * hides that resource's `$id`/`$defs` behind the ref, so the anchor is invisible here; follow the ref
+ * to reach the resource. Ordinary `$ref`s resolve to a schema without an anchor and are still skipped;
+ * an unresolved `$ref` resolves to `undefined` and is skipped too.
+ *
+ * See https://github.com/scalar/scalar/issues/9883.
+ */
+export const pushDynamicScope = (scope: DynamicScope, schema: SchemaObject): DynamicScope => {
+  const resource = carriesDynamicAnchor(schema) ? schema : getResolvedRef(schema)
+  return isObject(resource) && carriesDynamicAnchor(resource) ? [...scope, resource] : scope
+}
 
 /**
  * Resolve a `$dynamicRef` fragment against the dynamic scope.

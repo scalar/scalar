@@ -32,15 +32,15 @@ app.get(
 )
 ```
 
-## OpenAPI Documents
+## API Documents
 
 There is just one thing that is really required to render at least something: The content.
 
-There are a bunch of ways to pass your OpenAPI document:
+There are a bunch of ways to pass your API document:
 
 ### URL
 
-Pass an absolute or relative URL to your OpenAPI document.
+Pass an absolute or relative URL to your API document.
 
 ```javascript
 Scalar.createApiReference('#app', {
@@ -50,13 +50,13 @@ Scalar.createApiReference('#app', {
 
 This can be JSON or YAML.
 
-It's the recommended way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser and subsequent requests are pretty fast then, even if the document grows over time.
+It's the recommended way to pass your API document. In most cases, the document can be cached by the browser and subsequent requests are pretty fast then, even if the document grows over time.
 
 > No OpenAPI document? All backend frameworks have some kind of OpenAPI generator. Just search for "yourframework generate openapi document".
 
 ### Content
 
-> While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with extensive OpenAPI specifications, consider using a URL to an external OpenAPI document instead.
+> While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with large API documents, consider using a URL to an external document instead.
 
 You can just directly pass JSON/YAML content:
 
@@ -77,7 +77,7 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Documents
 
-Add multiple OpenAPI documents to render all of them. We will need a slug and title to distinguish them in the UI and in the URL. You can just omit those attributes, and we will try our best to still distinguish them, though.
+Add multiple API documents to render all of them. We will need a slug and title to distinguish them in the UI and in the URL. You can just omit those attributes, and we will try our best to still distinguish them, though.
 
 ```javascript
 Scalar.createApiReference('#app', {
@@ -112,7 +112,7 @@ Scalar.createApiReference('#app', {
     // API #2
     {
       url: 'https://example.com/openapi.json',
-      // This will make it the default OpenAPI document:
+      // This will make it the default document:
       default: true,
     }
   ]
@@ -121,7 +121,7 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Configurations
 
-Sometimes, you want to modify the configuration for your OpenAPI documents. And the good news is: You can.
+Sometimes, you want to modify the configuration for your API documents. And the good news is: You can.
 
 Pass an array of configurations to render multiple documents with specific configurations:
 
@@ -182,7 +182,7 @@ Scalar.createApiReference('#app', [
       // API #2
       {
         url: 'https://example.com/openapi.json',
-        // This will make it the default OpenAPI document:
+        // This will make it the default document:
         default: true,
       }
     ]
@@ -220,6 +220,8 @@ Agent adds an AI chat interface to your API reference. Users can ask questions a
 - Won’t appear in production unless a key is provided
 - Requires an [Agent key](guides/agent/key.md) for production deployments
 - Your OpenAPI document is uploaded on first message
+
+We do not currently support AsyncAPI for Agent. An [AsyncAPI](asyncapi.md) document still renders as an API reference, but Agent skips it, so it will not answer questions about your channels or messages. Need it? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
 
 Related: [How to get an Agent key](guides/agent/key.md)
 
@@ -390,7 +392,7 @@ If you want to prefix all relative servers with a base URL, you can do so here.
 
 **Type:** `string | Record<string, any> | () => Record<string, any>`
 
-Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
+Directly pass an API document (JSON or YAML) as a string:
 
 ```javascript
 {
@@ -495,6 +497,30 @@ Whether to always start with all tags open, regardless of the URL.
 }
 ```
 
+### defaultRequestBodyView
+
+**Type:** `'form' | 'raw'`
+
+Which view the request body editor opens in for structured (JSON/YAML) bodies. Use `form` to start in the schema-driven form view, or `raw` for the code editor. When a body cannot be shown as a form, Scalar falls back to `raw`.
+
+**Default:** `'raw'`
+
+```javascript
+{
+  defaultRequestBodyView: 'form'
+}
+```
+
+You can also set this per document with the `x-scalar-default-request-body-view` extension in your OpenAPI document, which takes precedence over this option:
+
+```yaml
+openapi: 3.1.0
+x-scalar-default-request-body-view: form
+info:
+  title: Example
+  version: 1.0.0
+```
+
 ### documentDownloadType
 
 **Type:** `'json' | 'yaml' | 'both' | 'direct' | 'none'`
@@ -525,6 +551,21 @@ By default the models are all closed in the model section at the bottom, this fl
 }
 ```
 
+### expandAllParameters
+
+**Type:** `boolean`
+
+Show parameter details by default. Set to `false` to start path, query, header, and cookie parameters collapsed. Click a parameter to show its details. Names, types, and required markers stay visible.
+
+The default is `true`. This does not change response or nested schema expansion settings.
+
+```js
+Scalar.createApiReference('#app', {
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+  expandAllParameters: false,
+})
+```
+
 ### expandAllResponses
 
 **Type:** `boolean`
@@ -544,9 +585,9 @@ By default response sections are closed in the operations. This flag will open t
 
 **Type:** `boolean`
 
-When true, nested child properties are expanded by default. The
-"Show/Hide Child Attributes" toggle stays available so users can collapse
-sections manually.
+When true, nested child properties are expanded by default. Each row keeps its
+own disclosure control (the +/- control in the row's gutter), so readers can
+still collapse sections manually.
 
 Warning: this can cause performance issues on big documents.
 
@@ -1035,6 +1076,23 @@ This is useful for desktop wrappers like Electron where the page URL is often `f
 }
 ```
 
+### schemaKeyboardNav
+
+**Type:** `boolean`
+
+Enables arrow-key navigation over the schema disclosure toggles, following the
+APG tree pattern's bindings (arrows, Home, End). Off by default until
+screen-reader interaction questions are settled; the flat Tab order works
+regardless.
+
+**Default:** `false`
+
+```javascript
+{
+  schemaKeyboardNav: true
+}
+```
+
 ### searchHotKey
 
 **Type:** `string`
@@ -1053,7 +1111,7 @@ Key used with CTRL/CMD to open the search modal.
 
 **Type:** `Server[]`
 
-Pass a list of servers to override the servers in your OpenAPI document.
+Pass a list of servers to override the servers in your API document.
 
 ```javascript
 {
@@ -1125,7 +1183,7 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
 
 **Type:** `string`
 
-Pass the URL of an OpenAPI document (JSON or YAML).
+Pass the URL of an API document (JSON or YAML).
 
 ```javascript
 {
@@ -1154,7 +1212,7 @@ Custom functions to control specific behaviors and URL generation.
 
 **Type:** `(input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>`
 
-Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) used both when loading the OpenAPI document and when sending "Test Request" calls from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
+Custom [fetch function](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) used both when loading the API document and when sending "Test Request" calls from the API client. Can be used to add custom headers, attach credentials (for example `credentials: 'include'`), handle auth, etc.
 
 ```javascript
 {
@@ -1272,7 +1330,7 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 
 **Type:** `(input: { title: string; document: { title: string; slug: string } }) => string`
 
-Customize the browser tab title. The function is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the title of the section currently in view together with the active OpenAPI document.
+Customize the browser tab title. The function is called whenever the section in view changes — on sidebar clicks, on scroll, and when switching documents — and receives the title of the section currently in view together with the active API document.
 
 > Note: This must be passed through JavaScript, setting a data attribute will not work.
 
@@ -1522,6 +1580,38 @@ Use [`onBeforeRequest`](#onbeforerequest) instead when you need to mutate the re
   }
 }
 ```
+
+### onResponseReceived
+
+**Type:** `({ response: Response; request: Request }) => Response | void | Promise<Response | void>`
+
+Runs when the embedded API client receives a response, before Scalar processes its body, status, and headers. Return a new `Response` to replace them, or return nothing to keep the current response. The callback receives a clone, so you can read its body to save a token without consuming the response shown in the client.
+
+```javascript
+{
+  onResponseReceived: async ({ response }) => {
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      return
+    }
+
+    const data = await response.json()
+    const headers = new Headers(response.headers)
+    headers.delete('content-length')
+
+    return Response.json({ ...data, additionalField: 'value' }, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    })
+  }
+}
+```
+
+Client plugins can use `hooks.responseReceived` with the same return behavior. Plugins run in order, and each receives a clone of the latest response. To change headers, return a new `Response`; mutating the clone and returning nothing leaves the response unchanged.
+
+For streaming responses, avoid `response.text()` or `response.json()` unless the stream is finite. To transform a stream, return a `Response` backed by a stream instead. Post-response scripts continue to receive stream status and headers with an empty body. Hook errors are reported as request failures.
+
+If a hook acquires a stream reader with `response.body.getReader()`, release its lock in a `finally` block with `reader.releaseLock()` before the hook returns or throws. Scalar cannot cancel a discarded clone while its body is locked. A returned streaming response may retain the reader while consuming the stream, but it must release the reader when it finishes or is canceled.
 
 ### onRequestSent
 

@@ -53,7 +53,7 @@ const { cx } = useBindCx()
         </div>
       </slot>
       <slot name="backdrop">
-        <ScalarFloatingBackdrop />
+        <ScalarFloatingBackdrop class="rounded-xl border shadow-md" />
       </slot>
     </div>
   </component>

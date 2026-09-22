@@ -63,6 +63,19 @@ export type HttpObject = Description & {
   bearerFormat?: string
 }
 
+const MutualTlsSchema = compose(
+  DescriptionSchema,
+  Type.Object({
+    /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
+    type: Type.Literal('mutualTLS'),
+  }),
+)
+
+export type MutualTlsObject = Description & {
+  /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
+  type: 'mutualTLS'
+}
+
 const OAuth2 = compose(
   DescriptionSchema,
   Type.Object({
@@ -103,6 +116,12 @@ export type OpenIdConnectObject = Description & {
  *
  * Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials and authorization code) as defined in RFC6749, and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit flow is about to be deprecated by OAuth 2.0 Security Best Current Practice. Recommended for most use cases is Authorization Code Grant flow with PKCE.
  */
-export const SecuritySchemeObjectSchemaDefinition = Type.Union([ApiKeySchema, HttpSchema, OAuth2, OpenIdConnect])
+export const SecuritySchemeObjectSchemaDefinition = Type.Union([
+  ApiKeySchema,
+  HttpSchema,
+  MutualTlsSchema,
+  OAuth2,
+  OpenIdConnect,
+])
 
-export type SecuritySchemeObject = ApiKeyObject | HttpObject | OAuth2Object | OpenIdConnectObject
+export type SecuritySchemeObject = ApiKeyObject | HttpObject | MutualTlsObject | OAuth2Object | OpenIdConnectObject

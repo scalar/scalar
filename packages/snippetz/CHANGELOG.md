@@ -1,5 +1,52 @@
 # @scalar/snippetz
 
+## 0.10.0
+
+### Minor Changes
+
+- [#10198](https://github.com/scalar/scalar/pull/10198): Support OpenAPI 3.2 cookie serialization with semicolon-separated entries and no percent-encoding in requests and code examples.
+
+  Browser XHR and jQuery code examples now set explicit Cookie header values through `document.cookie` and enable credentialed requests, including when no structured HAR cookies are supplied. Run the cookie setup on the request origin. Requests without cookie-style parameters retain structured HAR cookies alongside explicit Cookie headers.
+
+  Warn once per parameter name in the developer console when cookie-style parameters declare invalid `explode: false`, then use the expanded fallback consistently for requests and snippets. Browser cookie setup cannot assign cookies to an unrelated API domain; credentialed cross-origin responses require the appropriate CORS configuration and eligible stored cookies.
+
+### Patch Changes
+
+- [#10178](https://github.com/scalar/scalar/pull/10178): Share JSON media-type detection across curl, wget, and RestSharp snippets.
+
+  Share streaming media type detection and format selection between cURL snippets and streaming example serialization.
+
+- [#10178](https://github.com/scalar/scalar/pull/10178): Support OpenAPI 3.2 streaming item schemas in the workspace store, request body examples, and API reference schema views. Frame generated and structured examples as JSON Lines, JSON Sequence, or server-sent events while preserving explicit wire-format strings.
+
+  Preserve generated falsy request examples (`0`, `false`, and empty strings) for non-streaming bodies as well.
+
+  Use cURL `--data-binary` for supported streaming media types, making framed body handling explicit. Authored arrays and objects are framed as stream records; authored wire-format strings remain unchanged. SSE records with no valid fields are safely omitted with one console warning per serialization call reporting the omitted count, including when all records are omitted.
+
+## 0.9.32
+
+## 0.9.31
+
+### Patch Changes
+
+- [#10120](https://github.com/scalar/scalar/pull/10120): Add `--globoff` to generated curl commands whose URL contains square brackets, or curly braces in the query string, so snippets for bracket-notation query parameters such as `filter[user_id]=me` and glob-set values such as `ids={1,2,3}` can be pasted into a shell and run as they are. Curly braces in the path, which are almost always placeholders like `/users/{id}`, are left untouched.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+- [#10142](https://github.com/scalar/scalar/pull/10142): Send multipart array properties as separate parts with the same field name, applying encoding to each item. Preserve JSON item content types, uploaded files, and array values after form edits, and generate matching code snippets.
+
+  Send JSON form fields without an upload filename and preserve fields and files in request history.
+
+  Rename the RestSharp snippet's internal `getMethod` helper so it no longer clashes with the `getMethod` that Nitro bundles into server builds (the new multipart imports shifted chunking and surfaced the collision).
+
+- [#10128](https://github.com/scalar/scalar/pull/10128): Replace legacy HTTP snippet generators with native snippetz plugins.
+
+## 0.9.30
+
+## 0.9.29
+
 ## 0.9.28
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 import { extractPathFromUrl, normalizePath } from '@scalar/postman-to-openapi'
 import { forEachPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { extractRequestMethod } from '@/features/command-palette/helpers/postman-request-tree'
 

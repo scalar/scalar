@@ -64,4 +64,26 @@ describe('upgrade', () => {
 
     expect(specification).toStrictEqual(null)
   })
+
+  it.each(['2.0', '3.0.0', '3.1.0', '3.2.0'])('reports the resulting version when upgrading %s', (sourceVersion) => {
+    const input = {
+      ...(sourceVersion === '2.0' ? { swagger: sourceVersion } : { openapi: sourceVersion }),
+      info: { title: 'Version test', version: '1.0.0' },
+      paths: {},
+    }
+    const result = upgrade(input)
+
+    expect(result.version).toBe(sourceVersion === '3.2.0' ? '3.2' : '3.1')
+    expect(result.specification.openapi).toBe(
+      sourceVersion === '3.2.0' || sourceVersion === '3.1.0' ? sourceVersion : '3.1.1',
+    )
+  })
+
+  it('does not invent a version for empty or unsupported input', () => {
+    expect(upgrade(null)).toStrictEqual({ specification: null, version: undefined })
+    expect(upgrade({ openapi: '4.0.0' })).toStrictEqual({
+      specification: { openapi: '4.0.0' },
+      version: undefined,
+    })
+  })
 })

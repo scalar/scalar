@@ -6,5 +6,10 @@ test.describe('ScalarDropdown', () =>
       // Open the dropdown
       await page.getByRole('button', { name: 'Click Me' }).click()
       await snapshot()
+
+      if (story === 'Base') {
+        await page.getByRole('menuitem', { name: 'An item', exact: true }).hover()
+        await snapshot('hover')
+      }
     }),
   ))

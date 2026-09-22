@@ -5,7 +5,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type {
   OpenApiDocument,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
@@ -18,6 +18,8 @@ import {
   sortPropertyNames,
 } from '@/components/Content/Schema/helpers/sort-property-names'
 import LinkButton from '@/components/Content/Schema/LinkButton.vue'
+import { SectionHeaderTag } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
@@ -33,9 +35,12 @@ const { requestBody, options, document } = defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     hideModels: boolean | undefined
     expandAllSchemaProperties: boolean | undefined
+    schemaKeyboardNav: boolean | undefined
   }
 }>()
 const { translate } = useLocalization()
+
+const { level: headingLevel } = useDocumentOutline('operationSection')
 
 /**
  * The maximum number of properties to show in the request body schema.
@@ -58,7 +63,9 @@ if (requestBody?.content) {
 
 /** Raw schema (possibly with $ref) for the selected content type */
 const rawSchema = computed(
-  () => requestBody?.content?.[selectedContentType.value]?.schema,
+  () =>
+    requestBody?.content?.[selectedContentType.value]?.schema ??
+    requestBody?.content?.[selectedContentType.value]?.itemSchema,
 )
 
 const schema = computed(() => getResolvedRef(rawSchema.value))
@@ -154,7 +161,16 @@ const shouldRenderRequestBody = computed(
     class="request-body"
     role="group">
     <div class="request-body-header">
-      <div class="request-body-title">
+      <!--
+        `flex!` restates the display this title has always had. The heading tag
+        brings `.section-header-label` (`display: inline`, for the titles that
+        sit inside an Anchor); the `!important` on `flex!` wins over it outright,
+        so the flex row holds regardless of source order or specificity. The
+        other group titles pin `block!` for the same reason.
+      -->
+      <SectionHeaderTag
+        class="request-body-title flex!"
+        :level="headingLevel">
         <slot name="title" />
         <span
           v-if="modelLink"
@@ -172,12 +188,12 @@ const shouldRenderRequestBody = computed(
           </LinkButton>
           <template v-else>{{ modelLink.label }}</template>
         </span>
-      </div>
+      </SectionHeaderTag>
       <div class="flex items-center gap-2">
         <div
           v-if="requestBody.required"
           class="request-body-required">
-          {{ translate('common.required') }}
+          {{ translate('schema.required') }}
         </div>
         <ContentTypeSelect
           v-model="selectedContentType"
@@ -189,6 +205,30 @@ const shouldRenderRequestBody = computed(
         <ScalarMarkdown :value="requestBody.description" />
       </div>
     </div>
+
+    <p
+      v-if="
+        requestBody.content?.[selectedContentType]?.itemSchema &&
+        !requestBody.content?.[selectedContentType]?.schema
+      "
+      class="text-c-2 pt-2 text-sm">
+      {{ translate('common.streamItem') }}
+    </p>
+
+    <Schema
+      v-if="
+        requestBody.content?.[selectedContentType]?.schema &&
+        requestBody.content?.[selectedContentType]?.itemSchema
+      "
+      compact
+      :eventBus="eventBus"
+      :name="translate('common.streamItem')"
+      noncollapsible
+      :options="{ ...options, hideReadOnly: true, document }"
+      :schema="
+        getResolvedRef(requestBody.content[selectedContentType]?.itemSchema)
+      "
+      schemaContext="requestBody" />
 
     <!-- For over 12 properties we want to show 12 and collapse the rest -->
     <div
@@ -206,6 +246,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          schemaKeyboardNav: options.schemaKeyboardNav,
           hideModels: options.hideModels,
           document,
         }"
@@ -225,6 +266,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          schemaKeyboardNav: options.schemaKeyboardNav,
           hideModels: options.hideModels,
           document,
         }"
@@ -249,6 +291,7 @@ const shouldRenderRequestBody = computed(
           orderRequiredPropertiesFirst: options.orderRequiredPropertiesFirst,
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
+          schemaKeyboardNav: options.schemaKeyboardNav,
           hideModels: options.hideModels,
           document,
         }"

@@ -16,7 +16,7 @@ This page describes what a developer portal on Scalar includes, how it compares 
 | AI assistant | Ask AI, enabled by default on every Scalar Docs project |
 | Versioning | Multiple documentation versions with a version selector |
 | Custom domains | Included on Pro, plus a free subdomain on `apidocumentation.com` |
-| Access control | Email domain access groups on Pro; SSO/SAML and RBAC on Enterprise |
+| Access control | Email domain access groups on Pro; SSO/SAML on Business; RBAC on Enterprise |
 
 ## What a Scalar developer portal includes
 
@@ -42,7 +42,7 @@ On Scalar, the single source of truth is literal. In the SDK generator, `docs` i
 
 - **API-first companies** whose product is the API, and whose portal is the product page, the manual, and the toolbox at once.
 - **Developer tools companies** where documentation quality is judged by developers who read a lot of documentation.
-- **Teams shipping public APIs** that need the surrounding infrastructure: multiple documentation [versions](../guides/docs/configuration/versions.md) with a version selector, [custom domains](../guides/docs/configuration/domains.md), and access control — from email domain access groups on Pro to SSO/SAML and RBAC on Enterprise.
+- **Teams shipping public APIs** that need the surrounding infrastructure: multiple documentation [versions](../guides/docs/configuration/versions.md) with a version selector, [custom domains](../guides/docs/configuration/domains.md), and access control — from email domain access groups on Pro to SSO/SAML on Business and RBAC on Enterprise.
 
 ## How it compares to ReadMe and Mintlify
 
@@ -58,9 +58,10 @@ Both are credible choices for a developer portal, and the honest comparison is a
 
 Scalar publishes its prices, so you can work out what a portal costs without talking to sales. Full details are on the [pricing page](../guides/pricing.md).
 
-- **Free ($0)** — hosted OpenAPI docs, the built-in API client, and one editor seat. Enough to put a real reference online.
-- **Pro ($72/month)** — the full developer portal: custom domains and subdomains, Git Sync, Markdown and MDX, guides, versions, landing pages, email domain access control, and hosted MCP servers. Each SDK language is a $100/month add-on.
-- **Enterprise (custom)** — adds SSO/SAML, RBAC, priority support with SLAs, migration services, and a dedicated Slack or Teams channel. [Book a demo](https://scalar.cal.com/).
+- **Free ($0)** — hosted OpenAPI docs, the built-in API client, one SDK for APIs up to 25 endpoints, and one editor seat. Enough to put a real reference online.
+- **Pro ($150/month)** — the full developer portal: custom domains and subdomains, Git Sync, Markdown and MDX, guides, versions, landing pages, email domain access control, and hosted MCP servers. Includes 5 editor seats, access groups, and one SDK for APIs up to 100 endpoints; additional SDKs are $150/month each.
+- **Business ($600/month)** — everything in Pro, plus SSO/SAML and subpath hosting, 10 editor seats, APIs up to 250 endpoints, and additional SDKs priced by size: $150/month each for up to 100 endpoints or $600/month each for 101–250 endpoints, with volume discounts. The included SDK applies to the most expensive band first. See [SDK pricing](../guides/pricing.md) for details.
+- **Enterprise (custom)** — adds RBAC, priority support with SLAs, migration services, and a dedicated Slack or Teams channel. [Book a demo](https://scalar.cal.com/).
 
 ## Portals built on Scalar
 

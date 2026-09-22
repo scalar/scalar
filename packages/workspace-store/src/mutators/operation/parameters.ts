@@ -5,10 +5,10 @@ import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { ExampleObject } from '@/schemas/v3.1/strict/example'
-import type { ParameterObject } from '@/schemas/v3.1/strict/parameter'
-import type { PathItemObject } from '@/schemas/v3.1/strict/path-item'
-import type { ReferenceType } from '@/schemas/v3.1/strict/reference'
+import type { ParameterObject } from '@/schemas/v3.2/strict/parameter'
+import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
+import type { ReferenceType } from '@/schemas/v3.2/strict/reference'
+import { isContentTypeParameterObject } from '@/schemas/v3.2/strict/type-guards'
 
 const getPathItemsForParameterMutation = (pathItemRef: NodeInput<PathItemObject> | undefined): PathItemObject[] => {
   if (!pathItemRef || typeof pathItemRef !== 'object') {
@@ -60,10 +60,29 @@ export const upsertOperationParameter = (
 ) => {
   // We are editing an existing parameter
   if (originalParameter) {
-    // To support content-type parameters in the API client, we just assume an
-    // examples property can be set.
-    const param = originalParameter as typeof originalParameter & {
-      examples: Record<string, ReferenceType<ExampleObject>>
+    const param = originalParameter
+    const target = isContentTypeParameterObject(param) ? Object.values(param.content ?? {})[0] : param
+    if (!target) {
+      return
+    }
+
+    if (target !== param) {
+      // Keep authored examples and migrate edits saved by older clients. Those edits
+      // already take precedence when reading, so they must also win during migration.
+      target.examples = {
+        ...(target.example !== undefined ? { default: { value: target.example } } : {}),
+        ...target.examples,
+        ...('example' in param && param.example !== undefined ? { default: { value: param.example } } : {}),
+        ...('examples' in param ? param.examples : {}),
+      }
+      // A media type cannot carry both the singular example and the examples map.
+      delete target.example
+      if ('examples' in param) {
+        delete param.examples
+      }
+      if ('example' in param) {
+        delete param.example
+      }
     }
     // Only update the name when the payload carries a non-empty value — an
     // empty name in the payload means the key input blurred before rendering
@@ -71,15 +90,12 @@ export const upsertOperationParameter = (
     if (payload.name || !param.name) {
       param.name = payload.name
     }
-    if (!param.examples) {
-      param.examples = {}
+    target.examples ??= {}
+    target.examples[meta.exampleKey] ??= {}
+    const example = getResolvedRef(target.examples[meta.exampleKey])
+    if (!example) {
+      return
     }
-
-    // Create the example if it doesn't exist
-    if (!param.examples[meta.exampleKey]) {
-      param.examples[meta.exampleKey] = {}
-    }
-    const example = getResolvedRef(param.examples[meta.exampleKey])!
 
     // Update the example value and disabled state
     example.value = payload.value
@@ -256,5 +272,5 @@ export const deleteAllOperationParameters = (
   }
 
   // Filter out parameters of the specified type
-  operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it).in !== type) ?? []
+  operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it)?.in !== type) ?? []
 }

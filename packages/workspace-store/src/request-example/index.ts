@@ -9,6 +9,7 @@ export type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
+  OAuthFlowDeviceAuthorizationSecret,
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
@@ -50,14 +51,19 @@ export {
   resolveLeafSchema,
   resolveRequestFactoryUrl,
   serializeContentValue,
+  serializeCookieStyle,
   serializeDeepObjectStyle,
   serializeFormPropertyWithEncoding,
   serializeFormStyle,
   serializeFormStyleForCookies,
+  serializeMultipartArray,
   serializePipeDelimitedStyle,
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from './builder'
+export { needsMultipartEncoding } from './builder/body/build-multipart'
+export { buildRequestBody } from './builder/body/build-request-body'
+export { serializeMultipartBody } from './builder/body/encode-multipart-body'
 export type { MergedSecuritySchemes } from './context'
 export {
   type BuildRequestExampleContext,

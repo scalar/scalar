@@ -1,5 +1,50 @@
 # @scalar/json-magic
 
+## 0.15.0
+
+### Minor Changes
+
+- [#10206](https://github.com/scalar/scalar/pull/10206): Preserve authored references between embedded schema resources when the containing document has no declared identity. This keeps references valid across `$id` scopes and when exporting the bundle to a different retrieval URL.
+- [#10274](https://github.com/scalar/scalar/pull/10274): Add a standard-agnostic `join` utility with configurable merge strategies and conflict reporting to `@scalar/json-magic/join`. Use it in the OpenAPI parser while retaining OpenAPI upgrades, component prefixes, and OpenAPI conflict reports in the parser.
+- [#10206](https://github.com/scalar/scalar/pull/10206): Add generic document identity hooks for bundling and an explicit root URI option for reference proxies. Honor OpenAPI 3.2 `$self` through an OpenAPI plugin in workspace-store, including external documents and partial bundles, and enable it in OpenAPI bundling callers.
+
+  URI resolution now honors root-relative and protocol-relative URLs, query/fragment references, and trailing-slash directory bases for all bundler consumers. Absolute non-HTTP identifiers remain unchanged instead of becoming filesystem paths; loader support is unchanged. Relative HTTP references retain query strings and fragments and are emitted only when they round-trip to the original URL.
+
+  Preserve authored reference spellings through serialized partial bundles and editable exports, while keeping older OpenAPI resolution and configured loader restrictions unchanged.
+
+  Keep references matching authored root schema identifiers intact so schema labels and anchors retain their existing behavior.
+
+## 0.14.0
+
+### Minor Changes
+
+- [#10241](https://github.com/scalar/scalar/pull/10241): Expose helpers for indexing locally embedded `$id` and `$anchor` resources and resolving a reference to its local path.
+
+### Patch Changes
+
+- [#10257](https://github.com/scalar/scalar/pull/10257): Resolve a relative reference reached through a local pointer during a partial bundle against the document origin; it was resolved against an empty base and failed.
+
+## 0.13.5
+
+### Patch Changes
+
+- [#9817](https://github.com/scalar/scalar/pull/9817): Resolve relative `externalValue` URLs on example objects against the document origin, so external request and response examples load even when referenced with a relative path
+- [#9666](https://github.com/scalar/scalar/pull/9666): Only normalize OpenAPI Reference Objects during bundling, never Schema Objects. `normalizeRefs` used to strip every sibling except `$ref` on any node outside `components/schemas`, which also hit inline schemas. In JSON Schema 2020-12 a `$ref` may legally carry sibling keywords — for example a `$defs`/`$dynamicAnchor` binding that specializes a generic template like `Paginated<T>` — and such schemas appear inline anywhere a schema is allowed (a response's `content.<media>.schema`, an `allOf` branch, …). Dropping those siblings discarded the binding, leaving `$dynamicRef` to resolve to the template's empty fallback and rendering an empty array (for example the `data` array of `GET /planets` in the Scalar Galaxy). Reference Objects are still normalized as before. A new `@scalar/helpers/openapi/is-schema-path` helper detects schema positions.
+- [#10112](https://github.com/scalar/scalar/pull/10112): Pin guarded requests to validated public IP addresses and reject custom transports that bypass the connection checks.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+## 0.13.4
+
+### Patch Changes
+
+- [#10079](https://github.com/scalar/scalar/pull/10079): Harden the mock server against SSRF and local file disclosure through OpenAPI `$ref`s. External `$ref` resolution now refuses to fetch private, loopback, link-local, and metadata addresses, and confines local file reads to the document's directory. The `fetchUrls` and `readFiles` bundling plugins gain opt-in `blockPrivateNetworks` and `basePath` options, so other callers keep their current behavior unless they opt in.
+
+## 0.13.3
+
 ## 0.13.2
 
 ### Patch Changes

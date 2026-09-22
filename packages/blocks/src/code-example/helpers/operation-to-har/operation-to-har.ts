@@ -8,7 +8,7 @@ import {
   restoreConventionalDefaultHeaderNames,
 } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 
 import { APP_VERSION } from '@/constants'
@@ -127,9 +127,17 @@ export const operationToHar = ({
     bodySize: -1,
   }
 
+  let hasCookieStyleEntries = false
+
   // Handle parameters
   if (operation.parameters) {
-    const { url, headers, queryString, cookies } = processParameters({
+    const {
+      url,
+      headers,
+      queryString,
+      cookies,
+      hasCookieStyleEntries: processedCookieStyleEntries,
+    } = processParameters({
       harRequest,
       parameters: operation.parameters,
       example,
@@ -142,6 +150,7 @@ export const operationToHar = ({
         ?.filter((cookie) => filterGlobalCookie({ cookie, url, disabledGlobalCookies }))
         ?.map((cookie) => ({ name: cookie.name, value: cookie.value })) ?? []
 
+    hasCookieStyleEntries = processedCookieStyleEntries
     harRequest.url = url
     harRequest.headers = headers
     harRequest.queryString = queryString
@@ -169,7 +178,13 @@ export const operationToHar = ({
           (header) => header.name.toLowerCase() === 'content-type',
         )
         // Update existing header if it has an empty value
-        if (existingContentTypeHeader && !existingContentTypeHeader.value) {
+        if (
+          existingContentTypeHeader &&
+          (!existingContentTypeHeader.value ||
+            (postData.mimeType.startsWith('multipart/') &&
+              postData.mimeType.includes('boundary=') &&
+              postData.text !== undefined))
+        ) {
           existingContentTypeHeader.value = postData.mimeType
         }
         // Add new header if none exists
@@ -189,6 +204,17 @@ export const operationToHar = ({
     harRequest.headers.push(...headers)
     harRequest.queryString.push(...queryString)
     harRequest.cookies.push(...cookies)
+  }
+
+  // Keep authentication and global cookies in the explicit header as well, so
+  // snippet generators cannot replace cookie-style parameters with their own header.
+  const cookieHeader = harRequest.headers.find((header) => header.name.toLowerCase() === 'cookie')
+  if (hasCookieStyleEntries && cookieHeader && harRequest.cookies.length) {
+    const extraCookies = harRequest.cookies
+      .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
+      .join('; ')
+    cookieHeader.value = cookieHeader.value ? `${cookieHeader.value}; ${extraCookies}` : extraCookies
+    harRequest.cookies = []
   }
 
   // Calculate headers size without allocating a large joined string

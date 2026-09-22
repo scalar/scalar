@@ -8,4 +8,5 @@ export {
   Scalar as apiReference,
 }
 
+export type { ServeConfiguration } from './scalar'
 export type { ApiReferenceConfiguration } from './types'

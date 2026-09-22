@@ -9,6 +9,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { useDocumentOutline } from '@/features/document-outline'
 
 const { tag, isCollapsed } = defineProps<{
   tag: TraversedTag
@@ -17,6 +18,8 @@ const { tag, isCollapsed } = defineProps<{
   /** Whether this tag sits inside a parent tag's container (drops its own padding). */
   nested?: boolean
 }>()
+
+const { level: headingLevel } = useDocumentOutline('tag')
 </script>
 
 <template>
@@ -36,7 +39,7 @@ const { tag, isCollapsed } = defineProps<{
           @copyAnchorUrl="
             () => eventBus?.emit('copy-url:nav-item', { id: tag.id })
           ">
-          <SectionHeaderTag :level="2">
+          <SectionHeaderTag :level="headingLevel">
             {{ tag.title }}
           </SectionHeaderTag>
         </Anchor>

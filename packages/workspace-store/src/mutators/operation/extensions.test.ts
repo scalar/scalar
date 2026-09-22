@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { updateOperationExtension } from './extensions'
 
@@ -37,7 +37,7 @@ describe('updateOperationExtension', () => {
       throw new Error('Expected operation in test setup')
     }
 
-    expect(getResolvedRef(operation)['x-post-response']).toBe('console.log(response)')
+    expect(getResolvedRef(operation)?.['x-post-response']).toBe('console.log(response)')
   })
 
   it('overwrites an existing extension value', () => {
@@ -97,7 +97,7 @@ describe('updateOperationExtension', () => {
       throw new Error('Expected operation in test setup')
     }
 
-    expect(getResolvedRef(operation)['x-scalar-disable-parameters']).toEqual({
+    expect(getResolvedRef(operation)?.['x-scalar-disable-parameters']).toEqual({
       'global-headers': {
         default: {
           Authorization: false,

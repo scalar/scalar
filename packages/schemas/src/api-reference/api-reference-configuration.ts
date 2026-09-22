@@ -135,6 +135,9 @@ export const apiReferenceConfigurationSchema = intersection([
         typeComment: 'Determine the HTTP client that is selected by default',
       },
     ),
+    defaultRequestBodyView: optional(union([literal('form'), literal('raw')]), {
+      typeComment: 'Initial view for the request body editor with structured (JSON/YAML) bodies',
+    }),
     customCss: optional(string(), {
       typeComment: 'Custom CSS to be added to the page',
     }),
@@ -171,6 +174,12 @@ export const apiReferenceConfigurationSchema = intersection([
       {
         typeComment:
           'Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API.',
+      },
+    ),
+    onResponseReceived: optional(
+      fn<(input: { response: Response; request: Request }) => Response | void | Promise<Response | void>>(),
+      {
+        typeComment: 'Fired before response processing. Return a Response to replace it, or nothing to keep it.',
       },
     ),
     onShowMore: optional(fn<(tagId: string) => Promise<void> | void>(), {
@@ -246,6 +255,10 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Whether to expand all models by default. Warning: this can cause performance issues on big documents',
     }),
+    expandAllParameters: boolean({
+      default: true,
+      typeComment: 'Whether to show parameter details by default. Set to false to collapse each parameter.',
+    }),
     expandAllResponses: boolean({
       default: false,
       typeComment:
@@ -254,7 +267,7 @@ export const apiReferenceConfigurationSchema = intersection([
     expandAllSchemaProperties: boolean({
       default: false,
       typeComment:
-        'Whether to expand all nested schema properties by default. The Show/Hide Child Attributes toggle remains available so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
+        'Whether to expand all nested schema properties by default. Each row keeps its own disclosure control, so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
     }),
     tagsSorter: optional(union([literal('alpha'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort tags',
@@ -264,6 +277,11 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     orderSchemaPropertiesBy: union([literal('alpha'), literal('preserve')], {
       typeComment: 'Order the schema properties by',
+    }),
+    schemaKeyboardNav: boolean({
+      default: false,
+      typeComment:
+        'Arrow-key navigation over the schema disclosure toggles (APG tree bindings). Off until screen-reader interaction questions are settled',
     }),
     orderRequiredPropertiesFirst: boolean({
       default: true,
@@ -276,7 +294,9 @@ const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
 export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => {
-  const input = coerce(apiReferenceConfigurationSchema, rawInput)
+  const parsed = coerce(apiReferenceConfigurationSchema, rawInput)
+  // Migration removes the deprecated field from this same configuration object.
+  const input: Omit<typeof parsed, 'showToolbar'> & Partial<Pick<typeof parsed, 'showToolbar'>> = parsed
 
   if (input.hideDownloadButton) {
     console.warn(
@@ -339,7 +359,6 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
 
     input.showDeveloperTools = input.showToolbar
 
-    // @ts-expect-error - We're deleting the deprecated attribute
     delete input.showToolbar
   }
 

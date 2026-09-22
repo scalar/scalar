@@ -1,52 +1,38 @@
 <script lang="ts" setup>
-import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
+import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
-import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExampleObject,
   MediaTypeObject,
-  SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
-const { example, response } = defineProps<{
+import { getExampleContent } from './helpers/get-example-content'
+
+const {
+  example,
+  response,
+  content,
+  contentType = 'application/json',
+} = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
+  /** Reuse the card's formatted value so generation and copying cannot diverge. */
+  content?: string
+  contentType?: string
 }>()
 const { translate } = useLocalization()
 
-/** Get content from the appropriate source */
-const getContent = () => {
-  if (example !== undefined) {
-    return getResolvedRefDeep(example)?.value ?? ''
-  }
+const resolvedExample = computed(() => getResolvedRef(example))
 
-  if (response?.schema) {
-    return getExampleFromSchema(
-      // Should be safe to deep resolve the schema here because we don't have to do any sibling resolution for example generation
-      getResolvedRefDeep(response.schema) as SchemaObject,
-      {
-        emptyString: 'string',
-        mode: 'read',
-      },
-    )
-  }
-
-  return undefined
-}
-
-/** Pre-pretty printed content string, avoids multiple pretty prints*/
-const prettyPrintedContent = computed(() => {
-  const content = getContent()
-  if (content === undefined) {
-    return undefined
-  }
-  return prettyPrintJson(content)
-})
+/** Preformatted content is shared with the response card clipboard action. */
+const prettyPrintedContent = computed(
+  () => content ?? getExampleContent(response, example, { contentType }),
+)
 
 const VIRTUALIZATION_THRESHOLD = 20_000
 
@@ -59,23 +45,37 @@ const shouldVirtualize = computed(() => {
 })
 </script>
 <template>
-  <!-- Example -->
-  <ScalarCodeBlock
-    v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
-    class="bg-b-2"
-    lang="json"
-    :prettyPrintedContent="prettyPrintedContent" />
+  <div class="bg-b-2">
+    <div
+      v-if="resolvedExample?.summary || resolvedExample?.description"
+      class="flex flex-col gap-2 px-3 py-3">
+      <div
+        v-if="resolvedExample.summary"
+        class="text-c-1 font-medium">
+        {{ resolvedExample.summary }}
+      </div>
+      <ScalarMarkdown
+        v-if="resolvedExample.description"
+        :value="resolvedExample.description" />
+    </div>
+    <!-- Example -->
+    <ScalarCodeBlock
+      v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
+      class="bg-b-2"
+      lang="json"
+      :prettyPrintedContent="prettyPrintedContent" />
 
-  <ScalarVirtualCodeBlock
-    v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
-    class="bg-b-2"
-    :content="prettyPrintedContent"
-    lang="json" />
+    <ScalarVirtualCodeBlock
+      v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
+      class="bg-b-2"
+      :content="prettyPrintedContent"
+      lang="json" />
 
-  <div
-    v-else
-    class="empty-state">
-    {{ translate('response.noBody') }}
+    <div
+      v-else
+      class="empty-state">
+      {{ translate('response.noBody') }}
+    </div>
   </div>
 </template>
 

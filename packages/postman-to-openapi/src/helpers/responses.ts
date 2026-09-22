@@ -42,7 +42,7 @@ export function extractResponses(
   const statusCodes = item ? extractStatusCodesFromTests(item) : []
 
   // Create a map of status codes to descriptions from responses
-  const responseMap = responses.reduce((acc, response) => {
+  const responseMap = responses.reduce<OpenAPIV3_1.ResponsesObject>((acc, response) => {
     const statusCode = response.code?.toString() || 'default'
     const hasNoContentStatusCode = hasNoResponseBodyStatusCode(statusCode)
     const hasExplicitBodyExample = response.body !== undefined && response.body !== null && response.body !== ''
@@ -74,7 +74,7 @@ export function extractResponses(
       ...(content ? { content } : {}),
     }
     return acc
-  }, {} as OpenAPIV3_1.ResponsesObject)
+  }, {})
 
   // Add status codes from tests if not already present
   const fallbackMediaType = acceptMediaType ?? 'application/json'

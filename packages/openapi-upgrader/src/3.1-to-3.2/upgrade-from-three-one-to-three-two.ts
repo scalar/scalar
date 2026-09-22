@@ -1,126 +1,47 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import type { UnknownObject } from '@scalar/types/utils'
 
-/**
- * Recursively migrate XML object properties from 3.1 to 3.2 format
- */
-function migrateXmlObjects(obj: any): void {
-  if (obj === null || typeof obj !== 'object') {
-    return
+import { cloneDocument } from '../helpers/clone-document'
+import { migrateObjects } from './migrate-objects'
+import { migrateTagGroups } from './migrate-tag-groups'
+
+/** Reject malformed 3.1 declarations instead of silently leaving a requested upgrade incomplete. */
+const isThreeOneDocument = (document: UnknownObject): boolean => {
+  if (!isObject(document) || typeof document.openapi !== 'string') {
+    return false
   }
-
-  // Handle arrays
-  if (Array.isArray(obj)) {
-    for (const item of obj) {
-      migrateXmlObjects(item)
-    }
-    return
+  if (/^3\.1\.\d+$/.test(document.openapi)) {
+    return true
   }
-
-  // Handle xml property migration
-  if (obj.xml && typeof obj.xml === 'object') {
-    if (obj.xml.wrapped === true && obj.xml.attribute === true) {
-      throw new Error('Invalid XML configuration: wrapped and attribute cannot be true at the same time.')
-    }
-
-    // Migrate wrapped: true to nodeType: 'element'
-    if (obj.xml.wrapped === true) {
-      delete obj.xml.wrapped
-      obj.xml.nodeType = 'element'
-    }
-
-    // Migrate attribute: true to nodeType: 'attribute'
-    if (obj.xml.attribute === true) {
-      delete obj.xml.attribute
-      obj.xml.nodeType = 'attribute'
-    }
+  if (/^3\.1(?:\D|$)/.test(document.openapi)) {
+    throw new Error(
+      `Cannot upgrade to OpenAPI 3.2: invalid OpenAPI version "${document.openapi}". Expected 3.1.x with a numeric patch version.`,
+    )
   }
-
-  // Recursively process all object properties
-  for (const key in obj) {
-    if (Object.hasOwn(obj, key)) {
-      migrateXmlObjects(obj[key])
-    }
-  }
+  return false
 }
 
-/**
- * Migrate x-tagGroups to kind property on tags
- */
-function migrateTagGroups(document: UnknownObject) {
-  if (document['x-tagGroups'] && Array.isArray(document['x-tagGroups'])) {
-    const tagGroups = document['x-tagGroups'] as Array<{
-      name: string
-      tags: string[]
-    }>
-
-    // Ensure tags array exists
-    if (!document.tags) {
-      document.tags = []
-    }
-
-    // Create a map of tag names to their group information
-    const tagGroupMap = new Map<string, string>()
-
-    for (const group of tagGroups) {
-      for (const tagName of group.tags) {
-        tagGroupMap.set(tagName, group.name)
-      }
-    }
-
-    // Update existing tags with kind property based on group name
-    if (Array.isArray(document.tags)) {
-      for (const tag of document.tags) {
-        if (typeof tag === 'object' && tag !== null && 'name' in tag) {
-          const groupName = tagGroupMap.get(tag.name as string)
-          if (groupName) {
-            // Map group names to kind values
-            // This is a simplified mapping - in practice, you might want more sophisticated logic
-            if (groupName.toLowerCase().includes('nav') || groupName.toLowerCase().includes('navigation')) {
-              tag.kind = 'nav'
-            } else if (groupName.toLowerCase().includes('audience')) {
-              tag.kind = 'audience'
-            } else if (groupName.toLowerCase().includes('badge')) {
-              tag.kind = 'badge'
-            } else {
-              // Default to nav for unknown group types
-              tag.kind = 'nav'
-            }
-          }
-        }
-      }
-    }
-
-    // Remove x-tagGroups
-    delete document['x-tagGroups']
-  }
-}
-
-/**
- * Upgrade OpenAPI 3.1 to 3.2
- *
- * @see https://github.com/OAI/OpenAPI-Specification/compare/main...v3.2-dev
- */
-export function upgradeFromThreeOneToThreeTwo(originalDocument: UnknownObject) {
-  const document = originalDocument
-
-  // Version
-  if (
-    document !== null &&
-    typeof document === 'object' &&
-    typeof document.openapi === 'string' &&
-    document.openapi?.startsWith('3.1')
-  ) {
-    document.openapi = '3.2.0'
-  } else {
-    // Skip if it's something else than 3.1.x
+/** Apply the final migration to a document already owned by the upgrade pipeline. */
+export const migrateThreeOneToThreeTwo = (document: UnknownObject): UnknownObject => {
+  if (!isThreeOneDocument(document)) {
     return document
   }
-
-  // Migrate x-tagGroups to kind property
-  migrateTagGroups(document)
-
-  // Migrate XML object properties
-  migrateXmlObjects(document)
-
+  const operationTags = migrateObjects(document)
+  migrateTagGroups(document, operationTags)
+  document.openapi = '3.2.0'
   return document
+}
+
+/**
+ * Upgrade OpenAPI 3.1.x to 3.2 without changing the input.
+ *
+ * Collects incompatibilities requiring an author's decision in an AggregateError
+ * with a JSON pointer for each issue. External references and custom schema dialects are not validated.
+ * Malformed 3.1 versions, object cycles, and excessive alias expansion throw ordinary Errors.
+ */
+export const upgradeFromThreeOneToThreeTwo = (originalDocument: UnknownObject): UnknownObject => {
+  if (!isThreeOneDocument(originalDocument)) {
+    return originalDocument
+  }
+  return migrateThreeOneToThreeTwo(cloneDocument(originalDocument))
 }

@@ -7,7 +7,7 @@ type AsyncApiSecurity = NonNullable<AsyncApiOperationObject['security']>
 const getTraitSecurity = (traits: NonNullable<AsyncApiOperationObject['traits']>): AsyncApiSecurity | undefined =>
   traits.reduce<AsyncApiSecurity | undefined>((security, traitRef) => {
     const trait = getResolvedRef(traitRef)
-    return trait.security !== undefined ? trait.security : security
+    return trait?.security !== undefined ? trait.security : security
   }, undefined)
 
 /**
@@ -23,16 +23,16 @@ export const resolveOperationWithTraits = (operation: AsyncApiOperationObject): 
 
   const traitBindings = traits.reduce<AsyncApiOperationObject['bindings'] | undefined>((accumulated, traitRef) => {
     const trait = getResolvedRef(traitRef)
-    if (!trait.bindings) {
+    if (!trait?.bindings) {
       return accumulated
     }
 
     const resolvedTraitBindings = getResolvedRef(trait.bindings)
     return accumulated
-      ? ({
+      ? {
           ...getResolvedRef(accumulated),
           ...resolvedTraitBindings,
-        } as AsyncApiOperationObject['bindings'])
+        }
       : resolvedTraitBindings
   }, undefined)
 
@@ -41,10 +41,10 @@ export const resolveOperationWithTraits = (operation: AsyncApiOperationObject): 
 
   const bindings =
     traitBindings && operation.bindings
-      ? ({
+      ? {
           ...getResolvedRef(traitBindings),
           ...getResolvedRef(operation.bindings),
-        } as AsyncApiOperationObject['bindings'])
+        }
       : (operation.bindings ?? traitBindings)
 
   return {

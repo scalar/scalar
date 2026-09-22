@@ -93,6 +93,12 @@ The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so 
 
 Publishing requires a [linked repository](github.md): a target with no `destinations.production` gets no workflows at all.
 
+## Package name availability
+
+When you enable publishing, the dialog checks the target's package name against its registry and tells you whether it looks available or already taken — so you catch a name conflict up front, not after a release merges and the publish step fails.
+
+A taken name is a **warning, never a block**: the registry cannot tell whether a name is already yours, and republishing under your own name is normal. The check runs for **npm** and **PyPI** today; other registries show nothing.
+
 ## Authentication
 
 By default Scalar uses **OIDC trusted publishing** wherever the registry supports it. The publish job exchanges a short-lived GitHub identity token for a registry credential at publish time, so there is **no token to create, store, or rotate**. You register your repository and workflow as a trusted publisher on the registry once.
@@ -148,6 +154,11 @@ Connect each target to a repository so builds sync to it. See [GitHub Repositori
   <scalar-step id="next-registries" title="Set up the registry" interactivity="none">
 
 Register a trusted publisher or add the required secrets for your registry. See [Package Registries](registries.md).
+
+  </scalar-step>
+  <scalar-step id="next-private" title="Publish to an internal registry" interactivity="none">
+
+Artifactory, AWS CodeArtifact, Nexus, and the like are published from a workflow your repository owns, which Scalar carries forward on every build. See [Private Registries](private-registries.md).
 
   </scalar-step>
 </scalar-steps>

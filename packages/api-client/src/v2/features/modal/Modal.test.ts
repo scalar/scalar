@@ -1,6 +1,6 @@
 import { useModal } from '@scalar/components/modal'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, ref } from 'vue'
@@ -65,6 +65,7 @@ const documentSlug = computed<string | undefined>(() => 'test-doc')
 const path = computed<string | undefined>(() => '/users')
 const method = computed<'get' | 'post' | undefined>(() => 'get')
 const exampleName = computed<string | undefined>(() => 'default')
+const isWebhook = computed(() => false)
 
 /**
  * Creates fresh per-test reactive wrappers around the shared store.
@@ -83,6 +84,7 @@ const createProps = () => {
     path,
     method,
     exampleName,
+    isWebhook,
     route: vi.fn(),
   })
 
@@ -102,6 +104,7 @@ const createProps = () => {
       options: createModalOptions(),
       plugins: [],
       exampleName: computed(() => exampleName.value),
+      isWebhook,
       requestBodyCompositionSelection,
       modalState,
       sidebarState,
@@ -211,6 +214,7 @@ describe('Modal', () => {
         options: createModalOptions(),
         plugins: [],
         exampleName: computed(() => undefined),
+        isWebhook,
         requestBodyCompositionSelection,
         modalState,
         sidebarState,
@@ -405,6 +409,7 @@ describe('Modal', () => {
         options: createModalOptions(),
         plugins: [],
         exampleName: rawExampleName,
+        isWebhook,
         requestBodyCompositionSelection: ref<Record<string, number>>({}),
         modalState,
         sidebarState: useModalSidebar({

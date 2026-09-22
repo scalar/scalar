@@ -1,5 +1,5 @@
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import type { MediaTypeObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { MediaTypeObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { normalizeMimeTypeObject } from './normalize-mime-type-object'
 
@@ -16,7 +16,7 @@ function hasMediaTypeContent(mediaType: MediaTypeObject | undefined): boolean {
     return false
   }
 
-  const hasSchema = Boolean(mediaType.schema)
+  const hasSchema = Boolean(mediaType.schema || mediaType.itemSchema)
   const hasExample = 'example' in mediaType && mediaType.example !== null
   const hasExamples = Boolean(mediaType.examples)
 

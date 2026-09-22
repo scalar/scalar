@@ -2,8 +2,8 @@ import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-met
 import type { AvailableClient } from '@scalar/types/snippetz'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
@@ -926,7 +926,7 @@ describe('RequestExample', () => {
             summary: 'Referenced operation',
             requestBody: {
               $ref: '#/components/requestBodies/TestBody',
-              // @ts-expect-error - this is a test
+              // Deliberately test an unresolved request body reference.
               '$ref-value': undefined,
             },
           },

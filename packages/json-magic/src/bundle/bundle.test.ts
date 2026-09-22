@@ -22,10 +22,101 @@ import {
   prefixInternalRefRecursive,
   resolveAndCopyReferences,
 } from './bundle'
+import { documentReferences } from './document-references'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it.each([undefined, 'https://example.com/api.json'])(
+    'preserves references across embedded schema scopes without root identity (origin: %s)',
+    async (origin) => {
+      const input = {
+        components: {
+          schemas: {
+            Pet: { $id: '/schemas/pet', properties: { category: { $ref: '/schemas/category' } } },
+            Category: { $id: '/schemas/category', type: 'string' },
+          },
+        },
+      }
+      await bundle(input, { origin, treeShake: false, plugins: [] })
+      expect(input.components.schemas.Pet.properties.category.$ref).toBe('/schemas/category')
+
+      // Serialization and relocation must retain the target, not the retrieval host.
+      const exported = JSON.parse(JSON.stringify(input))
+      const relocatedOrigin = 'https://download.example.org/export.json'
+      const references = documentReferences('x-ext')
+      references.register(exported, relocatedOrigin)
+      const pet = exported.components.schemas.Pet
+      const sourceOrigin = new URL(pet.$id, relocatedOrigin).href
+      const resolved = references.resolve(pet.properties.category.$ref, sourceOrigin)
+      expect(resolved?.value).toBe(exported.components.schemas.Category)
+      expect(new URL(pet.properties.category.$ref, sourceOrigin).href).toBe(
+        'https://download.example.org/schemas/category',
+      )
+    },
+  )
+
+  it('qualifies embedded schema references using a declared root identity', async () => {
+    const input = {
+      $id: 'https://example.com/api.json',
+      schemas: {
+        Pet: { $id: '/schemas/pet', category: { $ref: 'https://example.com/schemas/category' } },
+        Category: { $id: '/schemas/category', type: 'string' },
+      },
+    }
+    await bundle(input, { treeShake: false, plugins: [] })
+    const references = documentReferences('x-ext')
+    references.register(input, 'https://download.example.org/export.json')
+    expect(input.schemas.Pet.category.$ref).toBe('https://example.com/api.json#/schemas/Category')
+    expect(references.resolve(input.schemas.Pet.category.$ref, 'https://example.com/schemas/pet')?.value).toBe(
+      input.schemas.Category,
+    )
+  })
+
+  it('uses the retrieval URI without interpreting format-specific identity fields', async () => {
+    const input = { openapi: '3.2.1', $self: 'https://other.example.com/api.json', item: { $ref: 'value.json' } }
+    const requested: string[] = []
+    await bundle(input, {
+      origin: 'https://example.com/root.json',
+      treeShake: false,
+      plugins: [
+        {
+          type: 'loader',
+          validate: () => true,
+          exec: (uri) => {
+            requested.push(uri)
+            return Promise.resolve({ ok: true, data: { type: 'string' }, raw: '{}' })
+          },
+        },
+      ],
+    })
+    expect(requested).toStrictEqual(['https://example.com/value.json'])
+    expect(input.$self).toBe('https://other.example.com/api.json')
+  })
+
+  it('uses caller-defined document identity and retains metadata when tree shaking', async () => {
+    const external = { identity: 'https://example.com/value.json', format: { version: 1 }, value: { type: 'string' } }
+    const input = { item: { $ref: 'https://example.com/value.json#/value' } }
+    await bundle(input, {
+      treeShake: true,
+      compress: () => 'value',
+      cache: new Map([
+        ['https://mirror.example.com/value.json', Promise.resolve({ ok: true, data: external, raw: '{}' })],
+      ]),
+      plugins: [],
+      hooks: {
+        resolveDocument: (document) =>
+          document === external
+            ? { baseUri: external.identity, metadata: { identity: external.identity, format: external.format } }
+            : undefined,
+      },
+    })
+    expect(input).toStrictEqual({
+      item: { $ref: '#/x-ext/value/value' },
+      'x-ext': { value: external },
+    })
+  })
+
   describe('external urls', () => {
     let server: FastifyInstance
     let url: string
@@ -1019,6 +1110,42 @@ describe('bundle', () => {
       })
     })
 
+    it('resolves a relative chunk reference reached through a local pointer against the document origin', async () => {
+      const operation = { summary: 'List users', items: { $ref: '#/components/schemas/User' } }
+      const user = { type: 'object' }
+
+      server.get('/chunks/operation', (_, reply) => {
+        reply.send(operation)
+      })
+      server.get('/chunks/User', (_, reply) => {
+        reply.send(user)
+      })
+
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+      // Chunk references written relative to the document, the way a static workspace writes them
+      const input = {
+        paths: { '/users': { get: { $ref: './chunks/operation#', $global: true } } },
+        components: { schemas: { User: { $ref: './chunks/User#', $global: true } } },
+      }
+
+      // Only the operation is asked for. Its chunk points back at the schema through a local
+      // pointer, and that schema is itself a relative chunk reference.
+      await bundle(input.paths['/users'].get, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        root: input,
+        origin: `${url}/openapi.json`,
+      })
+
+      const bundled = input as typeof input & { 'x-ext': Record<string, unknown> }
+
+      expect(bundled.paths['/users'].get).toEqual({ $global: true, $ref: expect.stringMatching(/^#\/x-ext\//) })
+      expect(bundled.components.schemas.User).toEqual({ $global: true, $ref: expect.stringMatching(/^#\/x-ext\//) })
+      expect(Object.values(bundled['x-ext'])).toEqual(expect.arrayContaining([operation, user]))
+    })
+
     it('when bundle partial document we ensure all the dependencies references are resolved', async () => {
       const chunk1 = {
         a: {
@@ -1632,7 +1759,7 @@ describe('bundle', () => {
       })
 
       expect(exec).toHaveBeenCalledOnce()
-      expect(exec).toHaveBeenCalledWith('/b')
+      expect(exec).toHaveBeenCalledWith(`${url}/b`)
     })
 
     it('prioritizes $id when resolving refs with origin #2', async () => {
@@ -2612,6 +2739,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
@@ -2633,6 +2761,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
 
@@ -2656,6 +2785,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
       expect(onAfterNodeProcess).toHaveBeenNthCalledWith(
@@ -2675,6 +2805,7 @@ describe('bundle', () => {
             },
           },
           loaders: [],
+          origin: '/',
         },
       )
     })

@@ -3,7 +3,7 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import { refocusBlurTarget } from '@/v2/blocks/scalar-address-bar-block/helpers/refocus-blur-target'
@@ -41,6 +41,7 @@ describe('AddressBar', () => {
       props: {
         path: custom.path ?? '/api/test',
         method: (custom.method ?? 'get') as HttpMethod,
+        isWebhook: custom.isWebhook ?? false,
         server: custom.server ?? baseServer,
         servers: custom.servers ?? [baseServer],
         history: custom.history ?? [],
@@ -92,6 +93,27 @@ describe('AddressBar', () => {
     const el = document.createElement('div')
     el.id = 'address-bar-test-id'
     document.body.appendChild(el)
+  })
+
+  it('offers QUERY and updates the operation when selected', async () => {
+    const { wrapper, eventBus } = mountWithProps()
+    const listener = vi.fn()
+    eventBus.on('operation:update:pathMethod', listener)
+    const httpMethod = wrapper.findComponent({ name: 'HttpMethod' })
+    await httpMethod.find('button').trigger('click')
+    const listbox = httpMethod.findComponent({ name: 'ScalarListbox' })
+    const option = listbox.props('options').find((option: { id: string }) => option.id === 'query')
+    assert(option)
+    expect(option.label).toBe('QUERY')
+    listbox.vm.$emit('update:modelValue', option)
+    await nextTick()
+
+    expect(listener).toHaveBeenCalledTimes(1)
+    const [event] = listener.mock.calls[0]!
+    expect(event.meta).toStrictEqual({ method: 'get', path: '/api/test' })
+    expect(event.payload).toStrictEqual({ method: 'query', path: '/api/test' })
+    await wrapper.setProps({ method: 'query' })
+    expect(httpMethod.find('button').text()).toBe('QUERY')
   })
 
   it('emits operation:update:pathMethod via eventBus when HttpMethod is clicked and changed', async () => {
@@ -149,6 +171,65 @@ describe('AddressBar', () => {
      * triggered via the event bus after the path update resolves.
      */
     expect(wrapper.emitted('execute')).toBeFalsy()
+  })
+
+  it('emits the full webhook URL locally and does not split it into a server', async () => {
+    const { wrapper, eventBus } = mountWithProps({
+      path: '',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      server: null,
+      servers: [],
+    })
+    const eventBusSpy = vi.spyOn(eventBus, 'emit')
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+    const submitEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+
+    await codeInput.vm.$emit('submit', 'https://hooks.example.com/deliveries', submitEvent)
+    await nextTick()
+
+    // The whole URL is the destination — it is not split into server + path,
+    // and no server events leak into the document.
+    expect(wrapper.emitted('update:webhook-url')).toStrictEqual([['https://hooks.example.com/deliveries']])
+    expect(eventBusSpy).not.toHaveBeenCalledWith('operation:update:pathMethod', expect.anything())
+    expect(eventBusSpy).not.toHaveBeenCalledWith('server:add:server', expect.anything())
+    expect(eventBusSpy).not.toHaveBeenCalledWith('server:update:selected', expect.anything())
+    expect(codeInput.props('disabled')).toBe(false)
+  })
+
+  it('keeps an empty webhook destination empty on blur instead of inserting a slash', async () => {
+    const { wrapper } = mountWithProps({
+      path: '',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      servers: [],
+    })
+    await wrapper.setProps({ server: null })
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+
+    await codeInput.vm.$emit('blur', '', new FocusEvent('blur'))
+    await nextTick()
+
+    // An empty webhook field must stay empty, not normalize to "/", so the
+    // placeholder stays visible and the "URL required" guard reads correctly.
+    expect(wrapper.emitted('update:webhook-url')).toStrictEqual([['']])
+  })
+
+  it('hints that a webhook path field expects a full URL', async () => {
+    const { wrapper } = mountWithProps({
+      path: '/',
+      method: 'post',
+      isWebhook: true,
+      layout: 'modal',
+      servers: [],
+    })
+    // A fresh webhook has no server, so the path field doubles as the full URL.
+    await wrapper.setProps({ server: null })
+
+    const codeInput = wrapper.findComponent({ name: 'CodeInput' })
+    expect(codeInput.props('placeholder')).toContain('https://')
   })
 
   it('renders ServerDropdown only when servers are provided', () => {

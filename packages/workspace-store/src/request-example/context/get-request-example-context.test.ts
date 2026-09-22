@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { getRequestExampleContext } from './get-request-example-context'
 
@@ -30,6 +30,36 @@ const createMinimalDocument = (overrides: Partial<OpenApiDocument> = {}): OpenAp
 })
 
 describe('getRequestExampleContext', () => {
+  it('targets document variables when configured servers override operation servers', async () => {
+    const workspaceStore = createWorkspaceStore()
+    const configuredServers = [{ url: 'https://{env}.example.com', variables: { env: { default: 'prod' } } }]
+    await workspaceStore.addDocument({
+      name: 'test',
+      document: createMinimalDocument({
+        servers: configuredServers,
+        paths: { '/pets': { get: { servers: [{ url: 'https://operation.example.com' }], responses: {} } } },
+      }),
+    })
+    const result = getRequestExampleContext(
+      workspaceStore,
+      'test',
+      { path: '/pets', method: 'get', exampleName: 'default' },
+      { servers: configuredServers },
+    )
+    assert(result.ok)
+    expect(result.data.servers.meta).toStrictEqual({ type: 'document' })
+    expect(result.data.servers.selected).toStrictEqual(configuredServers[0])
+
+    const withoutOverride = getRequestExampleContext(
+      workspaceStore,
+      'test',
+      { path: '/pets', method: 'get', exampleName: 'default' },
+      {},
+    )
+    assert(withoutOverride.ok)
+    expect(withoutOverride.data.servers.meta).toStrictEqual({ type: 'operation', path: '/pets', method: 'get' })
+  })
+
   it('merges options.authentication securitySchemes into security.schemes', async () => {
     const workspaceStore = createWorkspaceStore()
     await workspaceStore.addDocument({
@@ -229,5 +259,102 @@ describe('getRequestExampleContext', () => {
         scheme: 'bearer',
       }),
     ])
+  })
+
+  it('resolves webhook operations without inheriting document servers', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        openapi: '3.1.1',
+        servers: [{ url: 'https://api.example.com' }],
+        webhooks: {
+          'delivery.created': {
+            post: {
+              summary: 'Receive a delivery',
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        eventType: { type: 'string' },
+                        deliveryId: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+              responses: {},
+            },
+          },
+        },
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: 'delivery.created',
+      method: 'post',
+      exampleName: 'default',
+      isWebhook: true,
+    })
+
+    assert(result.ok)
+    expect(result.data.operation.summary).toBe('Receive a delivery')
+    expect(result.data.servers.list).toStrictEqual([])
+    expect(result.data.servers.selected).toBeNull()
+  })
+
+  it('does not resolve webhook names as API paths', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        openapi: '3.1.1',
+        webhooks: {
+          'delivery.created': {
+            post: { responses: {} },
+          },
+        },
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: 'delivery.created',
+      method: 'post',
+      exampleName: 'default',
+    })
+
+    expect(result).toStrictEqual({
+      ok: false,
+      error: 'Path delivery.created not found',
+    })
+  })
+
+  it('reports a missing webhook operation method', async () => {
+    const workspaceStore = createWorkspaceStore()
+    await workspaceStore.addDocument({
+      name: 'doc',
+      document: createMinimalDocument({
+        openapi: '3.1.1',
+        webhooks: {
+          'delivery.created': {
+            post: { responses: {} },
+          },
+        },
+      }),
+    })
+
+    const result = getRequestExampleContext(workspaceStore, 'doc', {
+      path: 'delivery.created',
+      method: 'get',
+      exampleName: 'default',
+      isWebhook: true,
+    })
+
+    expect(result).toStrictEqual({
+      ok: false,
+      error: 'Method get not found on webhook delivery.created',
+    })
   })
 })

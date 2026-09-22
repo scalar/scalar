@@ -1,6 +1,6 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type OAuthFlowsObjectSecret, mergeSecurity } from '@scalar/workspace-store/request-example'
-import type { ComponentsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ComponentsObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -58,6 +58,131 @@ describe('oauth', () => {
   const mockServer = {
     url: 'https://api.example.com',
   } as ServerObject
+
+  it.each(['body', 'header'] as const)(
+    'trims OAuth client credentials in %s requests and refresh without changing stored secrets',
+    async (location) => {
+      const credentials = {
+        ...baseFlow,
+        tokenUrl,
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-refresh-token': ' refresh token ',
+        'x-scalar-secret-client-id': ' \tclient id\n ',
+        'x-scalar-secret-client-secret': ' \nclient secret\t ',
+        'x-scalar-credentials-location': location,
+      }
+      const flows = {
+        clientCredentials: credentials,
+        password: {
+          ...credentials,
+          'x-scalar-secret-username': ' user ',
+          'x-scalar-secret-password': ' password ',
+        },
+        authorizationCode: {
+          ...credentials,
+          authorizationUrl,
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': redirectUri,
+        },
+      } satisfies OAuthFlowsObjectSecret
+      const originalFlows = structuredClone(flows)
+      const customFetch = vi
+        .fn<typeof fetch>()
+        .mockImplementation(() => Promise.resolve(Response.json({ access_token: 'token' })))
+      const capture = vi
+        .fn()
+        .mockResolvedValue([null, { callbackUrl: `${redirectUri}?code=code&state=${state}`, redirectUri }])
+
+      for (const type of ['clientCredentials', 'password', 'authorizationCode'] as const) {
+        const result = await authorizeOauth2(flows, type, [], null, '', {}, customFetch, capture)
+        expect(result).toStrictEqual([null, { accessToken: 'token' }])
+        const request = customFetch.mock.lastCall![1]!
+        const body = new URLSearchParams(String(request.body))
+        expect(body.get('client_id')).toBe(location === 'body' ? 'client id' : null)
+        expect(body.get('client_secret')).toBe(location === 'body' ? 'client secret' : null)
+        expect(new Headers(request.headers).get('Authorization')).toBe(
+          location === 'header' ? `Basic ${encode('client+id:client+secret')}` : null,
+        )
+        if (type === 'password') {
+          expect(body.get('username')).toBe(' user ')
+          expect(body.get('password')).toBe(' password ')
+        }
+        if (type === 'authorizationCode') {
+          expect(new URL(capture.mock.lastCall![0].authorizationUrl).searchParams.get('client_id')).toBe('client id')
+        }
+
+        const refreshed = await refreshOauth2Token(flows, type, '', null, {}, customFetch)
+        expect(refreshed).toStrictEqual([null, { accessToken: 'token', refreshToken: ' refresh token ' }])
+        const refreshRequest = customFetch.mock.lastCall![1]!
+        const refreshBody = new URLSearchParams(String(refreshRequest.body))
+        expect(refreshBody.get('client_id')).toBe(location === 'body' ? 'client id' : null)
+        expect(refreshBody.get('client_secret')).toBe(location === 'body' ? 'client secret' : null)
+        expect(refreshBody.get('refresh_token')).toBe(' refresh token ')
+        expect(new Headers(refreshRequest.headers).get('Authorization')).toBe(
+          location === 'header' ? `Basic ${encode('client+id:client+secret')}` : null,
+        )
+      }
+      expect(flows).toStrictEqual(originalFlows)
+    },
+  )
+
+  it.each(['body', 'header'] as const)(
+    'treats a whitespace-only client secret as absent with %s credentials',
+    async (location) => {
+      const flows = {
+        authorizationCode: {
+          ...baseFlow,
+          authorizationUrl,
+          tokenUrl,
+          'x-usePkce': 'no',
+          'x-scalar-secret-redirect-uri': redirectUri,
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-client-id': ' client ',
+          'x-scalar-secret-client-secret': ' \t\n ',
+          'x-scalar-secret-refresh-token': 'refresh',
+          'x-scalar-credentials-location': location,
+        },
+      } satisfies OAuthFlowsObjectSecret
+      const customFetch = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ access_token: 'token' }))
+      const capture = vi
+        .fn()
+        .mockResolvedValue([null, { callbackUrl: `${redirectUri}?code=code&state=${state}`, redirectUri }])
+
+      expect(await authorizeOauth2(flows, 'authorizationCode', [], null, '', {}, customFetch, capture)).toStrictEqual([
+        null,
+        { accessToken: 'token' },
+      ])
+      customFetch.mockResolvedValue(Response.json({ access_token: 'token' }))
+      expect(await refreshOauth2Token(flows, 'authorizationCode', '', null, {}, customFetch)).toStrictEqual([
+        null,
+        { accessToken: 'token', refreshToken: 'refresh' },
+      ])
+      for (const [, request] of customFetch.mock.calls) {
+        const body = new URLSearchParams(String(request!.body))
+        expect(body.get('client_id')).toBe('client')
+        expect(body.has('client_secret')).toBe(false)
+        expect(new Headers(request!.headers).has('Authorization')).toBe(false)
+      }
+    },
+  )
+
+  it('trims the client ID in the implicit authorization popup', async () => {
+    const flows = {
+      implicit: {
+        ...baseFlow,
+        authorizationUrl,
+        'x-scalar-secret-client-id': ' client id ',
+        'x-scalar-secret-redirect-uri': redirectUri,
+        'x-scalar-secret-token': '',
+      },
+    } satisfies OAuthFlowsObjectSecret
+    const result = authorizeOauth2(flows, 'implicit', [], null, '')
+    const url = new URL(String(vi.mocked(window.open).mock.lastCall![0]))
+    expect(url.searchParams.get('client_id')).toBe('client id')
+    mockWindow.location.href = `${redirectUri}#access_token=token&state=${state}`
+    await vi.advanceTimersByTimeAsync(200)
+    expect(await result).toStrictEqual([null, { accessToken: 'token' }])
+  })
 
   describe('Server URL helpers', () => {
     it('resolves server URLs with OpenAPI server variables and environment variables', () => {

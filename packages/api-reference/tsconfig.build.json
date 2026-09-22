@@ -8,9 +8,15 @@
     "**/*.test.tsx",
     "**/*.test.ts",
     "**/*.bench.ts",
+    "**/*.stories.ts",
+    "**/*.e2e.ts",
     "test"
   ],
   "compilerOptions": {
+    // Pin the declaration root to src so importing a test-only module (e.g. @test/*) can never widen
+    // the inferred root and shift the emitted d.ts under dist/src/, which breaks the dist/index.d.ts
+    // entry every downstream package resolves.
+    "rootDir": "src",
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,

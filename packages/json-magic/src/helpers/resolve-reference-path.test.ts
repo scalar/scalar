@@ -96,36 +96,34 @@ describe('resolveReferencePath', () => {
   })
 
   describe('remote URLs with query parameters and fragments', () => {
-    it('preserves query parameters in base URL', () => {
+    it('drops the base query when resolving another document', () => {
       const base = 'https://example.com/api/openapi.json?version=v1'
       const relativePath = 'user.json'
       const result = resolveReferencePath(base, relativePath)
-      // Query parameters should be preserved in the base URL structure
-      expect(result).toContain('https://example.com/api/user.json')
+      expect(result).toBe('https://example.com/api/user.json')
     })
 
-    it('preserves hash fragments in base URL', () => {
+    it('drops the base fragment when resolving another document', () => {
       const base = 'https://example.com/api/openapi.json#section'
       const relativePath = 'user.json'
       const result = resolveReferencePath(base, relativePath)
-      // Hash should be preserved in the base URL structure
-      expect(result).toContain('https://example.com/api/user.json')
+      expect(result).toBe('https://example.com/api/user.json')
     })
 
-    it('handles relative path with query parameters (gets URL-encoded)', () => {
+    it('handles relative path with query parameters', () => {
       const base = 'https://example.com/api/openapi.json'
       const relativePath = 'user.json?version=v1'
       const result = resolveReferencePath(base, relativePath)
-      // Query parameters in relativePath are treated as part of the pathname and get encoded
-      expect(result).toBe('https://example.com/api/user.json%3Fversion=v1')
+      // Relative queries belong to the target URI.
+      expect(result).toBe('https://example.com/api/user.json?version=v1')
     })
 
-    it('handles relative path with hash fragment (gets URL-encoded)', () => {
+    it('handles relative path with hash fragment', () => {
       const base = 'https://example.com/api/openapi.json'
       const relativePath = 'user.json#UserSchema'
       const result = resolveReferencePath(base, relativePath)
-      // Hash fragments in relativePath are treated as part of the pathname and get encoded
-      expect(result).toBe('https://example.com/api/user.json%23UserSchema')
+      // Fragments belong to the target URI.
+      expect(result).toBe('https://example.com/api/user.json#UserSchema')
     })
   })
 
@@ -352,7 +350,7 @@ describe('resolveReferencePath', () => {
       const base = '/path/to/openapi.json'
       const relativePath = '../'
       const result = resolveReferencePath(base, relativePath)
-      expect(result).toBe('/path')
+      expect(result).toBe('/path/')
     })
 
     it('handles windows style paths', () => {
@@ -368,5 +366,35 @@ describe('resolveReferencePath', () => {
       const result = resolveReferencePath(base, relativePath)
       expect(result).toBe('/schemas/user.json')
     })
+  })
+})
+
+describe('resolveReferencePath URI compatibility', () => {
+  it.each([
+    ['https://example.com/api/root.json?old=1#old', '?new=2', 'https://example.com/api/root.json?new=2'],
+    ['https://example.com/api/root.json?old=1#old', '#next', 'https://example.com/api/root.json?old=1#next'],
+    ['https://example.com/api/root.json?old=1#old', '', 'https://example.com/api/root.json?old=1'],
+    ['https://example.com/api/root.json', '//cdn.example.com/schema.json', 'https://cdn.example.com/schema.json'],
+    ['https://example.com/api/root.json', '/schema.json?q=1#value', 'https://example.com/schema.json?q=1#value'],
+    ['https://example.com/api/', './schema.json', 'https://example.com/api/schema.json'],
+    ['https://example.com/api', './schema.json', 'https://example.com/schema.json'],
+    ['file:///api/root.json', '../schema.json#value', 'file:///schema.json#value'],
+    ['urn:example:root', '#value', 'urn:example:root#value'],
+    ['/api/', 'schema.json', '/api/schema.json'],
+    ['/api/root.json', 'models/', '/api/models/'],
+    ['C:\\api\\root.json', 'models\\schema.json', 'C:/api/models/schema.json'],
+  ])('resolves %s with %s as %s', (base, reference, expected) => {
+    expect(resolveReferencePath(base, reference)).toBe(expected)
+  })
+
+  it.each(['urn:example:schema', 'mailto:author@example.com', 'file:///api/schema.json', 'custom+schema:identity'])(
+    'preserves the absolute identity %s',
+    (reference) => {
+      expect(resolveReferencePath('https://example.com/api/root.json', reference)).toBe(reference)
+    },
+  )
+
+  it('rejects relative paths against opaque identities instead of inventing a filesystem location', () => {
+    expect(() => resolveReferencePath('urn:example:root', 'schema.json')).toThrow(TypeError)
   })
 })

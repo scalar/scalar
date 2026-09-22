@@ -58,7 +58,10 @@ function normalizeArray(parts: Array<string>, allowAboveRoot: boolean): Array<st
 // Split a filename into [root, dir, basename, ext], unix version
 // 'root' is just a slash, or nothing.
 const splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^/]+?|)(\.[^./]*|))(?:[/]*)$/
-const splitPath = (filename: string): Array<string> | undefined => splitPathRe.exec(filename)!.slice(1)
+const splitPath = (filename: string): [string, string, string, string] => {
+  const [, root = '', dir = '', basename = '', ext = ''] = splitPathRe.exec(filename)!
+  return [root, dir, basename, ext]
+}
 
 // path.resolve([from ...], to)
 // posix version
@@ -187,7 +190,7 @@ export const sep = '/'
 export const delimiter = ':'
 
 export function dirname(path: string): string {
-  const result = splitPath(path) as Array<string>
+  const result = splitPath(path)
   const root = result[0]
   let dir = result[1]
 
@@ -201,11 +204,11 @@ export function dirname(path: string): string {
     dir = dir.slice(0, -1)
   }
 
-  return (root as string) + dir
+  return root + dir
 }
 
 export function basename(path: string, ext?: string): string {
-  let f = splitPath(path)![2] as string
+  let f = splitPath(path)[2]
   // TODO: make this comparison case-insensitive on windows?
   if (ext && f.slice(-ext.length) === ext) {
     f = f.slice(0, -ext.length)
@@ -214,7 +217,7 @@ export function basename(path: string, ext?: string): string {
 }
 
 export function extname(path: string): string {
-  return splitPath(path)![3] as string
+  return splitPath(path)[3]
 }
 
 export const path = {

@@ -1,5 +1,6 @@
 import type { DereferenceResult, Queue, Task } from '@/types/index'
 import type { DereferenceOptions } from '@/utils/dereference'
+
 import { details } from '../actions/details'
 import { files } from '../actions/files'
 import { get } from '../actions/get'
@@ -31,7 +32,7 @@ export function dereferenceCommand<T extends Task[]>(previousQueue: Queue<T>, op
     },
   }
 
-  const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
+  const queue = queueTask<[...T, typeof task]>(previousQueue, task)
 
   return {
     details: () => details(queue),

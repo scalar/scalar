@@ -95,6 +95,12 @@ const chunk = store.get('#/document-name/components/schemas/Person')
 
 Create a new store in static mode
 
+Static generation treats the real path of the configured output directory as its trusted root,
+so an intentionally symlinked output directory is supported. Existing symbolic links below that
+root, including chunk files and `scalar-workspace.json`, are rejected. Keep the output directory
+and its ancestors under trusted control throughout generation: filesystem checks do not protect
+against an untrusted process concurrently replacing files or directories.
+
 ```ts
 // Create the store
 const store = await createServerWorkspaceStore({
@@ -188,6 +194,77 @@ console.log(store.getWorkspace().documents.remoteFile)
 console.log(store.getWorkspace().documents.fsFile)
 ```
 
+### Compact sparse documents
+
+The sparse document is what the browser has to download before it can render anything, and for a
+very large API it grows into a cost of its own: for Cloudflare's public API (3,540 operations, 6,775
+schemas) it is 4,447 KB, of which 2,937 KB is the navigation tree and 1,492 KB is the per-node chunk
+references.
+
+`compact: true` changes how that document is spelled on the wire, and nothing else:
+
+- `x-scalar-navigation` keeps its document entry — `name`, `title`, `icon` and the rest — and leaves
+  only its children in a chunk, written to `chunks/<document>/navigation.json` in `static` mode and
+  served by `get('#/<document>/navigation')` in `ssr` mode. `children` is an empty array until
+  `store.resolve(['x-scalar-navigation'])` loads them onto the document in place, and
+  `x-scalar-navigation-chunk` says where they are until it does. The navigation is never a reference,
+  so every reader takes it by plain property access whether or not the document was sent compact.
+- The per-node references under `components` and `paths` are replaced by one `x-scalar-chunk-index`
+  extension listing what exists, plus a template per kind saying how a reference to it is spelled.
+  The two sections are omitted; anything in them that was never externalized (a path item's
+  `parameters`, `summary`, `servers` or extensions) rides along in the index.
+
+```ts
+const store = await createServerWorkspaceStore({
+  mode: 'static',
+  directory: 'assets',
+  compact: true,
+  documents: [{ name: 'petstore', document }],
+})
+```
+
+```jsonc
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Petstore", "version": "1.0.0" },
+  "x-scalar-navigation": {
+    "id": "petstore",
+    "type": "document",
+    "title": "Petstore",
+    "name": "petstore",
+    "children": []
+  },
+  "x-scalar-navigation-chunk": "./chunks/petstore/navigation.json#",
+  "x-scalar-chunk-index": {
+    "mode": "static",
+    "refs": {
+      "components": "./chunks/petstore/components/{type}/{name}.json#",
+      "operations": "./chunks/petstore/operations/{path}/{method}.json#"
+    },
+    "components": { "schemas": ["Pet", "Error"] },
+    // `0` marks an operation that was externalized; every other key is kept as it was
+    "paths": { "/pets": { "summary": "Pets", "get": 0, "post": 0 } }
+  }
+}
+```
+
+The client store expands the index back into the same references as it ingests the document — through
+`addDocument`, `importWorkspaceFromSpecification`, `replaceDocument`, `revertDocumentChanges` or
+`loadWorkspace` — and drops the extension, so what it holds in memory is exactly what a non-compact
+server store would have produced, with the unloaded navigation children the one difference.
+`resolve()`, the bundler and anything enumerating `paths` or `components` see the shape they always
+have. The navigation chunk is loaded once: concurrent resolves share the request, a later one makes
+none, and a workspace exported before the children were loaded can still load them after
+`loadWorkspace` puts it in another store.
+
+`getResolvedDocument()` is unaffected and still carries the whole document and its navigation, and so
+are AsyncAPI documents, which are never externalized.
+
+| Document | sparse | compact | sparse, gzip | compact, gzip |
+| --- | --- | --- | --- | --- |
+| Cloudflare public API | 4,447 KB | 431 KB | 346 KB | 63 KB |
+| 100 operations over 150 shared schemas | 71 KB | 10 KB | 6 KB | 2 KB |
+
 ## Client-Side Workspace Store
 
 A reactive workspace store for managing OpenAPI documents with automatic reference resolution and chunked loading capabilities. Works seamlessly with server-side stores to handle large documents efficiently.
@@ -260,6 +337,33 @@ await store.addDocument({
 // Output: { openapi: 'x.x.x', ... }
 console.log(store.workspace.documents.default)
 ```
+
+#### Non-reactive mode
+
+By default the workspace is wrapped in Vue's `reactive` and in a change-detection proxy, so a write re-runs Vue effects and is broadcast to every registered plugin. A read-mostly consumer pays for both on every property read and gets nothing back for it — a server render, for example, walks one document across thousands of pages, mutates nothing and observes nothing.
+
+Pass `reactive: false` to get the same store API on plain objects:
+
+```ts
+const store = createWorkspaceStore({ reactive: false })
+
+// Hydrate from a workspace another store exported. Nothing is re-processed here.
+store.loadWorkspace(exportedWorkspace)
+
+// Everything reads exactly as it does by default, `$ref-value` included
+store.workspace.activeDocument?.paths?.['/users']?.get
+```
+
+Documents are still wrapped in the magic proxy, so reference resolution is unchanged, and the whole API — `addDocument`, `loadWorkspace`, `exportWorkspace`, `update`, `updateDocument`, `replaceDocument`, `resolve`, `auth` and the rest — keeps working. Writes take effect and are visible on the next read. They simply notify nobody:
+
+- Plugins receive no `onWorkspaceStateChanges` events for the workspace metadata, its documents, `originalDocuments`, `intermediateDocuments` or `overrides`. The auth and history stores keep their own reactivity and still fire their events, and `deleteDocument` still fires its own event.
+- There is no automatic dirty tracking. `x-scalar-is-dirty` changes only where the store writes it directly, in `saveDocument`, `replaceDocument` and `rebaseDocument`.
+- `getDocumentRevision` stays `0` for every document, because it counts the writes the change hooks see.
+- Vue effects and computeds that read the workspace never re-run.
+
+A document is also left unwrapped by the overrides proxy unless it actually has overrides, which leaves the magic proxy as the only hop on a read.
+
+Use this for a server render, or any other consumer that loads documents and then only reads them. Anything that renders the workspace in Vue, or relies on plugins to persist changes, wants the default.
 
 #### Document Persistence and Export
 
@@ -480,3 +584,28 @@ await result.applyChanges({ resolvedDocument: newDocument })
 ```
 
 After `applyChanges` returns, the merged document becomes both the new active document and the new saved baseline, so a subsequent `revertDocumentChanges` rolls back to the post-rebase state rather than the pre-rebase original.
+
+## OpenAPI document identity
+
+The store honors `$self` when resolving relative references in an OpenAPI 3.2 description. Relative identities resolve against the document source URL. External documents keep their own identities, including across partial bundles.
+
+Other OpenAPI bundling callers can opt in with the same plugin:
+
+```ts
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
+import { openApiDocument, resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
+
+const document = await bundle('https://example.com/openapi.json', {
+  plugins: [fetchUrls(), openApiDocument()],
+  treeShake: false,
+})
+const resolved = createMagicProxy(document, {
+  documentUri: resolveOpenApiDocument(document, '/')?.baseUri,
+})
+```
+
+The plugin interprets `$self` only on complete OpenAPI documents. Example payloads and API server URLs are unchanged.
+
+Authored reference spellings (including `./` and fragments) are retained across partial bundles and restored by `getEditableDocument`. Loader permissions still apply to the resolved location: `$self` does not enable a loader or widen its file or network access.

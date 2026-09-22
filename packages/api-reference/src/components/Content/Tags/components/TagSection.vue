@@ -16,11 +16,22 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import type { HeadingLevel } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
-const { tag, headerId, isCollapsed } = defineProps<{
+const {
+  tag,
+  headerId,
+  isCollapsed,
+  headingLevel = 1,
+} = defineProps<{
   tag: TraversedTag
+  /**
+   * Resolved by the parent, which owns this tag and the operations beside it.
+   * Defaults to the top of the page, like any other block rendered on its own.
+   */
+  headingLevel?: HeadingLevel
   headerId?: string
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
@@ -51,7 +62,7 @@ const hasChannels = computed(
         ">
         <SectionHeaderTag
           :id="headerId"
-          :level="2">
+          :level="headingLevel">
           {{ tag.title }}
           <ScreenReader v-if="isCollapsed">
             ({{ translate('navigation.collapsed') }})

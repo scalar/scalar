@@ -1,8 +1,11 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { encode as encodeBase64 } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
+import { buildRequestBody } from './body/build-request-body'
 import { buildRequest, resolveExecutableRequestUrl } from './build-request'
 import { INVALID_REQUEST_FACTORY_URL, MISSING_REQUEST_SERVER_BASE } from './resolve-request-factory-url'
 
@@ -32,6 +35,59 @@ const unwrap = (factory: RequestFactory, options: Parameters<typeof buildRequest
 }
 
 describe('buildRequest', () => {
+  it('sends XML roots, untyped defaults, and wildcard parameters consistently', async () => {
+    const requestBody = {
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ id: 1 }, 'untyped', 'plain'] } },
+          schema: {
+            type: 'array' as const,
+            prefixItems: [
+              { type: 'object' as const, xml: { name: 'user' } },
+              coerceValue(SchemaObjectSchema, {}),
+              { type: 'string' as const },
+            ],
+          },
+          prefixEncoding: [{ contentType: 'application/xml' }, {}, { contentType: 'text/*; charset=utf-8' }],
+        },
+      },
+    }
+    const [, init] = unwrap(createFactory({ method: 'POST', body: buildRequestBody(requestBody) }), {
+      envVariables: {},
+    }).requestPayload
+    expect(init.body).toBeInstanceOf(Blob)
+    const wire = await (init.body as Blob).text()
+    expect(wire).toContain(
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<user>\n  <id>1</id>\n</user>',
+    )
+    expect(wire).toContain('Content-Type: application/octet-stream\r\n\r\nuntyped')
+    expect(wire).toContain('Content-Type: text/plain; charset=utf-8\r\n\r\nplain')
+  })
+
+  it('sends nested multipart bodies with matching boundaries and resolved variables', async () => {
+    const body = buildRequestBody({
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ document: '{{name}}' }] } },
+          itemEncoding: { contentType: 'multipart/form-data', encoding: { document: { contentType: 'text/plain' } } },
+        },
+      },
+    })
+    const [, init] = unwrap(
+      createFactory({ method: 'POST', body, headers: new Headers({ 'Content-Type': 'multipart/mixed' }) }),
+      { envVariables: { name: 'Alice' } },
+    ).requestPayload
+    if (!(init.body instanceof Blob)) {
+      throw new Error('Expected a multipart Blob')
+    }
+    expect(new Headers(init.headers).get('content-type')).toBe(init.body.type)
+    const boundary = init.body.type.match(/boundary="?([^";]+)/)?.[1]
+    const wire = await init.body.text()
+    expect(wire.startsWith('--' + boundary + '\r\n')).toBe(true)
+    expect(wire.endsWith('--' + boundary + '--\r\n')).toBe(true)
+    expect(wire).toContain('name="document"\r\nContent-Type: text/plain\r\n\r\nAlice')
+  })
+
   beforeEach(() => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined)
   })
@@ -195,6 +251,35 @@ describe('buildRequest', () => {
     ).requestPayload
 
     expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer eyJ')
+  })
+
+  it.each([' \ttoken\r\n ', ' \t{{jwt}}\n '])('trims surrounding whitespace from bearer token %j', (value) => {
+    const factory = createFactory({
+      security: [{ in: 'header', name: 'Authorization', format: 'bearer', value }],
+    })
+    const [, requestInit] = unwrap(factory, { envVariables: { jwt: ' \ttoken\r\n ' } }).requestPayload
+
+    expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer token')
+    expect(factory.security[0]?.value).toBe(value)
+  })
+
+  it('preserves whitespace in Basic auth credentials', () => {
+    const [, requestInit] = unwrap(
+      createFactory({
+        security: [{ in: 'header', name: 'Authorization', format: 'basic', value: '{{u}}:{{p}}' }],
+      }),
+      { envVariables: { u: ' alice ', p: ' password ' } },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('Authorization')).toBe(`Basic ${encodeBase64(' alice : password ')}`)
+  })
+
+  it('preserves whitespace in query API keys', () => {
+    const [url] = unwrap(createFactory({ security: [{ in: 'query', name: 'api_key', value: '{{key}}' }] }), {
+      envVariables: { key: ' secret ' },
+    }).requestPayload
+
+    expect(new URL(url).searchParams.get('api_key')).toBe(' secret ')
   })
 
   it('merges security query parameters with env substitution into the request URL', () => {
@@ -771,5 +856,63 @@ describe('resolveExecutableRequestUrl', () => {
       proxyUrl: '',
     })
     expect(resolveExecutableRequestUrl(factory, {})).toBe(unwrap(factory, { envVariables: {} }).requestPayload[0])
+  })
+  it('sends repeated multipart parts with JSON media types, file bytes, and environment substitution', async () => {
+    const body = buildRequestBody({
+      content: {
+        'multipart/form-data': {
+          encoding: { files: { contentType: 'text/plain' } },
+          examples: {
+            default: {
+              value: {
+                tags: ['a', 'b'],
+                objects: [{ name: '{{name}}' }, { name: 'second' }],
+                files: [new File(['one'], 'one.txt'), new File(['two'], 'two.txt')],
+              },
+            },
+          },
+        },
+      },
+    })
+    const [url, init] = unwrap(createFactory({ method: 'POST', body }), {
+      envVariables: { name: 'first' },
+    }).requestPayload
+    const form = await new Request(url, init).formData()
+    expect(form.getAll('tags')).toEqual(['a', 'b'])
+    expect(form.getAll('objects')).toEqual(['{"name":"first"}', '{"name":"second"}'])
+    const wire = await new Request(url, init).text()
+    expect(wire).toContain('name="objects"\r\nContent-Type: application/json\r\n')
+    expect(wire).not.toContain('filename="blob"')
+    expect(
+      await Promise.all(
+        form.getAll('files').map(async (part) => {
+          if (typeof part === 'string') {
+            throw new Error('Expected an uploaded file')
+          }
+          return { name: part.name, type: part.type, text: await part.text() }
+        }),
+      ),
+    ).toEqual([
+      { name: 'one.txt', type: 'text/plain', text: 'one' },
+      { name: 'two.txt', type: 'text/plain', text: 'two' },
+    ])
+  })
+  it('keeps typed multipart fields and their boundary when routing through a proxy', async () => {
+    const result = unwrap(
+      createFactory({
+        method: 'POST',
+        proxyUrl: 'https://proxy.scalar.com',
+        body: {
+          mode: 'formdata',
+          value: [{ type: 'text', key: '{{field}}', value: '{"name":"{{name}}"}', contentType: 'application/json' }],
+        },
+      }),
+      { envVariables: { field: 'metadata', name: 'Ada' } },
+    )
+    expect(result.isUsingProxy).toBe(true)
+    const [url, init] = result.requestPayload
+    const request = new Request(url, init)
+    expect(request.headers.get('content-type')).toBe((init.body as Blob).type)
+    expect(Array.from((await request.formData()).entries())).toEqual([['metadata', '{"name":"Ada"}']])
   })
 })

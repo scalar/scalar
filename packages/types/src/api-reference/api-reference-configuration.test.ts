@@ -7,6 +7,25 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([
+    [{}, true],
+    [{ expandAllParameters: true }, true],
+    [{ expandAllParameters: false }, false],
+  ])('preserves parameter expansion for %j', (config, expected) => {
+    expect(apiReferenceConfigurationSchema.parse(config).expandAllParameters).toBe(expected)
+  })
+
+  it('preserves API Client translations in reference configuration', () => {
+    const localization = {
+      locale: 'de',
+      translations: {
+        operation: { testRequest: 'Anfrage testen' },
+        apiClient: { addressBar: { send: 'Senden' } },
+      },
+    }
+    expect(apiReferenceConfigurationSchema.parse({ localization }).localization).toStrictEqual(localization)
+  })
+
   describe('schema', () => {
     it('validates a minimal configuration', () => {
       const minimalConfig = {}
@@ -126,6 +145,18 @@ describe('api-reference-configuration', () => {
       validLayouts.forEach((layout) => {
         expect(apiReferenceConfigurationSchema.parse({ layout })).toMatchObject({ layout })
       })
+    })
+
+    it('validates defaultRequestBodyView enum values', () => {
+      const validViews = ['form', 'raw']
+      validViews.forEach((defaultRequestBodyView) => {
+        expect(apiReferenceConfigurationSchema.parse({ defaultRequestBodyView })).toMatchObject({
+          defaultRequestBodyView,
+        })
+      })
+
+      // It is optional, so an omitted value stays undefined (the raw view is the default behaviour).
+      expect(apiReferenceConfigurationSchema.parse({}).defaultRequestBodyView).toBeUndefined()
     })
 
     it('validates content and url configuration', () => {
@@ -369,6 +400,16 @@ describe('api-reference-configuration', () => {
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
       expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
+    })
+
+    it('preserves synchronous and async response replacements through configuration parsing', async () => {
+      const response = Response.json({ replaced: true })
+      const input = { response: new Response('original'), request: new Request('https://example.com') }
+      const syncConfig = apiReferenceConfigurationSchema.parse({ onResponseReceived: () => response })
+      const asyncConfig = apiReferenceConfigurationSchema.parse({ onResponseReceived: () => Promise.resolve(response) })
+
+      expect(syncConfig.onResponseReceived?.(input)).toBe(response)
+      expect(await asyncConfig.onResponseReceived?.(input)).toBe(response)
     })
 
     it('allows a function as onBeforeRequest', () => {

@@ -3,9 +3,9 @@ import type {
   MediaTypeObject,
   ParameterObject,
   RequestBodyObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 
 /** Helper to get example from examples object with fallback to example field */
 const getExampleFromExamples = (
@@ -13,7 +13,7 @@ const getExampleFromExamples = (
   exampleField: MediaTypeObject['example'],
   exampleName: string | undefined,
 ): ExampleObject | undefined => {
-  if (!examples && !exampleField) {
+  if (!examples && exampleField === undefined) {
     return undefined
   }
 
@@ -40,6 +40,8 @@ const getExampleFromExamples = (
  * Or the [deprecated] `example` field.
  * If no exampleKey is provided it will fallback to the first example in the examples object then the [deprecated]
  * `example` field.
+ * When the parameter carries both its own `examples`/`example` and a `content` object, the parameter-level value
+ * takes priority to preserve edits saved by older clients before they are migrated into the media type.
  * Used both for send-request and generating code snippets.
  */
 export const getExample = (
@@ -47,6 +49,14 @@ export const getExample = (
   exampleName: string | undefined,
   contentType: string | undefined,
 ): ExampleObject | undefined => {
+  // Schema-based parameters and content-based parameter edits saved by older clients.
+  if ('examples' in param || 'example' in param) {
+    const result = getExampleFromExamples(param.examples, param.example, exampleName)
+    if (result !== undefined) {
+      return result
+    }
+  }
+
   // Content based parameters
   if ('content' in param) {
     const content = param.content?.[contentType ?? Object.keys(param.content)[0] ?? '']
@@ -56,18 +66,13 @@ export const getExample = (
     }
   }
 
-  // Schema based parameters
-  if ('examples' in param || 'example' in param) {
-    const result = getExampleFromExamples(param.examples, param.example, exampleName)
-    if (result !== undefined) {
-      return result
-    }
-  }
-
   // Derive value from the schema
   const resolvedParam = getResolvedRef(param)
-  if ('schema' in resolvedParam && resolvedParam.schema) {
-    const schema = resolvedParam.schema
+  if (resolvedParam && 'schema' in resolvedParam && resolvedParam.schema) {
+    const schema = getResolvedRef(resolvedParam.schema, mergeSiblingReferences)
+    if (!schema) {
+      return undefined
+    }
 
     // Default value
     if ('default' in schema && schema.default !== undefined) {

@@ -17,11 +17,14 @@ export const generateLocationId = ({
   path,
   method,
   example,
+  isWebhook = false,
 }: {
   document: string
   path?: string
   method?: HttpMethod
   example?: string
+  /** Namespace webhook entries without changing existing operation IDs. */
+  isWebhook?: boolean
 }) => {
-  return JSON.stringify([document, path, method, example].filter(isDefined))
+  return JSON.stringify([document, isWebhook ? 'webhook' : undefined, path, method, example].filter(isDefined))
 }

@@ -6,12 +6,13 @@ import type {
 } from '@scalar/workspace-store/events'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
 import type { SecuritySchemeOption } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { DataTable } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestAuthTab from './RequestAuthTab.vue'
 
@@ -50,6 +51,8 @@ const {
   /** Type of the document the schemes belong to, forwarded to the auth tab */
   documentType?: 'openapi' | 'asyncapi'
 }>()
+
+const { translate } = useLocalization()
 
 /** Currently selected authentication scheme based on the active tab index */
 const activeScheme = computed<SecuritySchemeOption | undefined>(
@@ -153,7 +156,7 @@ defineExpose({
       v-else
       class="bg-b-1 text-c-3 flex min-h-16 items-center justify-center border-t px-4 text-sm"
       :class="{ 'min-h-[calc(4rem+0.5px)] rounded-b-lg border': isStatic }">
-      No authentication selected
+      {{ translate('apiClient.requestAuthDataTable.noauthenticationSelected') }}
     </div>
   </form>
 </template>

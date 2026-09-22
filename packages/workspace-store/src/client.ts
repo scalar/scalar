@@ -20,11 +20,16 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
+import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
+import { bumpDocumentRevision } from '@/helpers/document-revision'
+import { type ExternalExampleResolver, createExternalExampleResolver } from '@/helpers/external-examples'
 import { type UnknownObject, safeAssign } from '@/helpers/general'
 import { getFetch } from '@/helpers/get-fetch'
+import { type RefNode, getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
+import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
@@ -34,21 +39,24 @@ import {
   loadingStatus,
   normalizeAuthSchemes,
   normalizeRefs,
+  openApiDocument,
   refsEverywhere,
   removeExtraScalarKeys,
+  resolveOpenApiDocument,
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
+import type { TraversedDocument } from '@/schemas/navigation'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
-import { generateSchema } from '@/schemas/v3.1/openapi'
-import { recursiveRef } from '@/schemas/v3.1/openapi/reference'
+import { generateSchema } from '@/schemas/v3.2/openapi'
+import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenAPIExtensions,
   type OpenApiDocument,
-} from '@/schemas/v3.1/strict/openapi-document'
+} from '@/schemas/v3.2/strict/openapi-document'
 import type {
   DocumentMetaExtensions,
   Workspace,
@@ -206,6 +214,31 @@ type WorkspaceProps = {
   plugins?: WorkspacePlugin[]
   /** A file loader plugin for resolving local file references (for non browser environments) */
   fileLoader?: LoaderPlugin
+  /**
+   * Whether writes to the workspace are observable. Defaults to `true`.
+   *
+   * When `true`, the workspace is wrapped in Vue's `reactive` and in the change-detection proxy, so a
+   * write re-runs Vue effects, fires `onWorkspaceStateChanges` on every registered plugin, flips
+   * `x-scalar-is-dirty` and bumps `getDocumentRevision`.
+   *
+   * When `false`, the workspace and its documents are plain objects and the whole API keeps working
+   * unchanged: writes take effect and are visible on the next read, they simply notify nobody. This is
+   * for a read-mostly consumer such as a server render, where every property read otherwise pays for
+   * Vue reactivity and change detection and nothing observes the result. What does not happen:
+   *
+   * - no plugin `onWorkspaceStateChanges` events for the workspace meta, its documents,
+   *   `originalDocuments`, `intermediateDocuments` or `overrides` — the auth and history stores keep
+   *   their own reactivity and still fire their events, and `deleteDocument` still fires its own
+   * - no automatic dirty tracking: `x-scalar-is-dirty` changes only where the store writes it directly
+   *   (`saveDocument`, `replaceDocument`, `rebaseDocument`)
+   * - `getDocumentRevision` stays `0` for every document, since it counts writes seen by the hooks
+   * - Vue effects and computeds that read the workspace never re-run
+   *
+   * A document is also left unwrapped by the overrides proxy unless it actually has overrides, which
+   * leaves the magic proxy as the only hop on a read, so `$ref-value` still resolves exactly as it
+   * does in the default mode.
+   */
+  reactive?: boolean
 }
 
 /**
@@ -215,6 +248,9 @@ type WorkspaceProps = {
  * @see https://github.com/microsoft/TypeScript/issues/43817#issuecomment-827746462
  */
 export type WorkspaceStore = {
+  /** Resolve external examples without mutating the document or its edit history. */
+  externalExamples: (documentName?: string) => ExternalExampleResolver
+
   /**
    * The history store for the workspace
    */
@@ -612,21 +648,23 @@ const METADATA_ONLY_DOCUMENT_KEYS = new Set<string>([
  */
 const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T): T => {
   const result = deepClone(input)
-  type BundlerKeys = 'x-ext' | 'x-ext-urls'
+  type BundlerKeys = 'x-ext' | 'x-ext-urls' | 'x-scalar-original-refs'
   // Top level keys that need to be excluded from the original document
   // Nested keys are removed during the previous step of the bundler process
-  const EXCLUDE_KEYS = [
+  const EXCLUDE_KEYS: string[] = [
     // Bundler metadata fields added temporarily during document processing
     'x-ext',
     'x-ext-urls',
+    'x-scalar-original-refs',
     // Scalar internal/external metadata fields
     'x-scalar-navigation',
+    'x-scalar-navigation-chunk',
     'x-scalar-is-dirty',
     'x-original-oas-version',
     'x-scalar-original-document-hash',
     'x-scalar-original-source-url',
     'x-scalar-registry-meta',
-  ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[] as string[]
+  ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[]
 
   // Remove top-level properties that should only exist temporarily or for internal usage
   // These properties are used for internal purposes and are not needed in the final bundled document
@@ -648,7 +686,7 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
  * @returns An object containing methods and getters for managing the workspace
  */
 export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): WorkspaceStore => {
-  const { verbose = false } = workspaceProps ?? {}
+  const { verbose = false, reactive: isReactiveWorkspace = true } = workspaceProps ?? {}
 
   const withMeasurementSync = <F extends () => unknown>(
     name: string,
@@ -663,6 +701,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * This can include settings that can not be persisted between sessions (not JSON serializable)
    */
   const extraDocumentConfigurations: ExtraDocumentConfigurations = {}
+  const externalExampleResolvers = new WeakMap<object, ExternalExampleResolver>()
+  const fallbackExternalExamples = createExternalExampleResolver({
+    fetch: workspaceProps?.fetch,
+    fileLoader: workspaceProps?.fileLoader,
+  })
 
   /**
    * Notifies all workspace plugins of a workspace state change event.
@@ -677,10 +720,31 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   /**
+   * The plain workspace state, before any observability wrappers are applied.
+   */
+  const workspaceState: Workspace = {
+    ...workspaceProps?.meta,
+    documents: {},
+    /**
+     * Returns the currently active document from the workspace.
+     * The active document is determined by the 'x-scalar-active-document' metadata field,
+     * falling back to the first document in the workspace if no active document is specified.
+     *
+     * @returns The active document or undefined if no document is found
+     */
+    get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
+      return workspace.documents[getActiveDocumentName()]
+    },
+  }
+
+  /**
    * An object containing the reactive workspace state.
    *
    * Every change to the workspace, is tracked and broadcast to all registered plugins.
    * allowing for change tracking.
+   *
+   * With `reactive: false` the state is used as-is, so reads cost nothing beyond the plain object and
+   * nothing observes a write. See the `reactive` option for the full list of what stops happening.
    *
    * NOTE:
    * The detect changes proxy is applied separately beacause the vue reactitvity proxy have to be the outer most proxy.
@@ -690,191 +754,187 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * are also triggered reliably.
    * Do not reverse this order‼️
    */
-  const workspace = reactive<Workspace>(
-    createDetectChangesProxy(
-      {
-        ...workspaceProps?.meta,
-        documents: {},
-        /**
-         * Returns the currently active document from the workspace.
-         * The active document is determined by the 'x-scalar-active-document' metadata field,
-         * falling back to the first document in the workspace if no active document is specified.
-         *
-         * @returns The active document or undefined if no document is found
-         */
-        get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
-          return workspace.documents[getActiveDocumentName()]
-        },
-      },
-      {
-        hooks: {
-          onAfterChange(path) {
-            const type = path[0]
+  const workspace: Workspace = !isReactiveWorkspace
+    ? workspaceState
+    : reactive<Workspace>(
+        createDetectChangesProxy(workspaceState, {
+          hooks: {
+            onAfterChange(path) {
+              const type = path[0]
 
-            /** Document changes */
-            if (type === 'documents') {
-              // We are overriding the while documents object, ignore. This should not happen
-              if (path.length < 2) {
-                console.log('[WARN]: Overriding entire documents object is not supported')
+              /** Document changes */
+              if (type === 'documents') {
+                // We are overriding the while documents object, ignore. This should not happen
+                if (path.length < 2) {
+                  console.log('[WARN]: Overriding entire documents object is not supported')
+                  return
+                }
+
+                const documentName = path[1] as string
+                const document = workspace.documents[documentName] ?? {
+                  openapi: '3.1.0',
+                  info: { title: '', version: '' },
+                  'x-scalar-original-document-hash': '',
+                }
+                // Every write through the store passes here, which is what makes the revision a
+                // complete record of the document changing.
+                bumpDocumentRevision(document)
+                const event = {
+                  type: 'documents',
+                  documentName,
+                  value: unpackProxyObject(document),
+                  path: path.slice(2),
+                } satisfies WorkspaceStateChangeEvent
+
+                // Don't mark as dirty when the document is first created or when
+                // only metadata-only fields change. `x-scalar-registry-meta` is
+                // updated programmatically (commit hash, conflict cache) and
+                // does not represent a user edit.
+                if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
+                  // The document has been modified since it was last saved
+                  document['x-scalar-is-dirty'] = true
+                }
+
+                fireWorkspaceChange(event)
                 return
               }
 
-              const documentName = path[1] as string
-              const document = workspace.documents[documentName] ?? {
-                openapi: '3.1.0',
-                info: { title: '', version: '' },
-                'x-scalar-original-document-hash': '',
-              }
-              const event = {
-                type: 'documents',
-                documentName,
-                value: unpackProxyObject(document),
-                path: path.slice(2),
-              } satisfies WorkspaceStateChangeEvent
+              /** Active document changes */
+              if (type === 'activeDocument') {
+                const documentName = getActiveDocumentName()
+                const document = workspace.documents[documentName] ?? {
+                  openapi: '3.1.0',
+                  info: { title: '', version: '' },
+                  'x-scalar-original-document-hash': '',
+                }
+                bumpDocumentRevision(document)
+                // Active document changed
+                const event = {
+                  type: 'documents',
+                  documentName,
+                  value: unpackProxyObject(document),
+                  path: path.slice(2),
+                } satisfies WorkspaceStateChangeEvent
 
-              // Don't mark as dirty when the document is first created or when
-              // only metadata-only fields change. `x-scalar-registry-meta` is
-              // updated programmatically (commit hash, conflict cache) and
-              // does not represent a user edit.
-              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
-                // The document has been modified since it was last saved
-                document['x-scalar-is-dirty'] = true
+                // Don't mark as dirty when the document is first created or when
+                // only metadata-only fields change. `x-scalar-registry-meta` is
+                // updated programmatically (commit hash, conflict cache) and
+                // does not represent a user edit.
+                if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
+                  // The document has been modified since it was last saved
+                  document['x-scalar-is-dirty'] = true
+                }
+
+                fireWorkspaceChange(event)
+                return
               }
+
+              /** Workspace meta changes */
+              const { activeDocument: _a, documents: _d, ...meta } = workspace
+              const event = {
+                type: 'meta',
+                value: unpackProxyObject(meta, { depth: 1 }),
+              } satisfies WorkspaceStateChangeEvent
 
               fireWorkspaceChange(event)
               return
-            }
-
-            /** Active document changes */
-            if (type === 'activeDocument') {
-              const documentName = getActiveDocumentName()
-              const document = workspace.documents[documentName] ?? {
-                openapi: '3.1.0',
-                info: { title: '', version: '' },
-                'x-scalar-original-document-hash': '',
-              }
-              // Active document changed
-              const event = {
-                type: 'documents',
-                documentName,
-                value: unpackProxyObject(document),
-                path: path.slice(2),
-              } satisfies WorkspaceStateChangeEvent
-
-              // Don't mark as dirty when the document is first created or when
-              // only metadata-only fields change. `x-scalar-registry-meta` is
-              // updated programmatically (commit hash, conflict cache) and
-              // does not represent a user edit.
-              if (event.path.length > 0 && !METADATA_ONLY_DOCUMENT_KEYS.has(event.path[0] as string)) {
-                // The document has been modified since it was last saved
-                document['x-scalar-is-dirty'] = true
-              }
-
-              fireWorkspaceChange(event)
-              return
-            }
-
-            /** Workspace meta changes */
-            const { activeDocument: _a, documents: _d, ...meta } = workspace
-            const event = {
-              type: 'meta',
-              value: unpackProxyObject(meta, { depth: 1 }),
-            } satisfies WorkspaceStateChangeEvent
-
-            fireWorkspaceChange(event)
-            return
+            },
           },
-        },
-      },
-    ),
-  )
+        }),
+      )
+
+  /**
+   * The plain document snapshot maps, before the detect changes proxy is applied.
+   */
+  const documentSnapshots: Pick<InMemoryWorkspace, 'originalDocuments' | 'intermediateDocuments' | 'overrides'> = {
+    /**
+     * Holds the original, unmodified documents as they were initially loaded into the workspace.
+     * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
+     * This map preserves the pristine structure of each document, using deep clones to ensure that
+     * subsequent mutations in the workspace do not affect the originals.
+     * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
+     */
+    originalDocuments: {},
+    /**
+     * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
+     *
+     * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
+     * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
+     *
+     * Use this map to stage local changes that are ready to be propagated back to the remote registry.
+     * This separation allows us to distinguish between:
+     *   - The last known remote version (`originalDocuments`)
+     *   - The latest locally saved version (`intermediateDocuments`)
+     *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
+     */
+    intermediateDocuments: {},
+    /**
+     * Stores per-document overrides for OpenAPI documents.
+     * This object is used to override specific fields of a document
+     * when you cannot (or should not) modify the source document directly.
+     * For example, this enables UI-driven or temporary changes to be applied
+     * on top of the original document, without mutating the source.
+     * The key is the document name, and the value is a deep partial
+     * OpenAPI document representing the overridden fields.
+     */
+    overrides: {},
+  }
 
   /**
    * An object containing all the workspace state, wrapped in a detect changes proxy.
    *
    * Every change to the workspace state (documents, configs, metadata, etc.) can be detected here,
    * allowing for change tracking.
+   *
+   * With `reactive: false` the maps are used as-is and a write to them notifies nobody.
    */
-  const { originalDocuments, intermediateDocuments, overrides } = createDetectChangesProxy(
-    {
-      /**
-       * Holds the original, unmodified documents as they were initially loaded into the workspace.
-       * These documents are stored in their raw form—prior to any reactive wrapping, dereferencing, or bundling.
-       * This map preserves the pristine structure of each document, using deep clones to ensure that
-       * subsequent mutations in the workspace do not affect the originals.
-       * The originals are retained so that we can restore, compare, or sync with the remote registry as needed.
-       */
-      originalDocuments: {} as Record<string, UnknownObject>,
-      /**
-       * Stores the intermediate state of documents after local edits but before syncing with the remote registry.
-       *
-       * This map acts as a local "saved" version of the document, reflecting the user's changes after they hit "save".
-       * The `originalDocuments` map, by contrast, always mirrors the document as it exists in the remote registry.
-       *
-       * Use this map to stage local changes that are ready to be propagated back to the remote registry.
-       * This separation allows us to distinguish between:
-       *   - The last known remote version (`originalDocuments`)
-       *   - The latest locally saved version (`intermediateDocuments`)
-       *   - The current in-memory (possibly unsaved) workspace document (`workspace.documents`)
-       */
-      intermediateDocuments: {} as Record<string, UnknownObject>,
-      /**
-       * Stores per-document overrides for OpenAPI documents.
-       * This object is used to override specific fields of a document
-       * when you cannot (or should not) modify the source document directly.
-       * For example, this enables UI-driven or temporary changes to be applied
-       * on top of the original document, without mutating the source.
-       * The key is the document name, and the value is a deep partial
-       * OpenAPI document representing the overridden fields.
-       */
-      overrides: {} as InMemoryWorkspace['overrides'],
-    },
-    {
-      hooks: {
-        onAfterChange(path) {
-          const type = path[0]
+  const { originalDocuments, intermediateDocuments, overrides } = !isReactiveWorkspace
+    ? documentSnapshots
+    : createDetectChangesProxy(documentSnapshots, {
+        hooks: {
+          onAfterChange(path) {
+            const type = path[0]
 
-          if (!type) {
-            return
-          }
+            if (!type) {
+              return
+            }
 
-          if (path.length < 2) {
-            return
-          }
+            if (path.length < 2) {
+              return
+            }
 
-          const documentName = path[1] as string
-          if (type === 'originalDocuments') {
-            const event = {
-              type,
-              documentName: documentName,
-              value: unpackProxyObject(originalDocuments[documentName] ?? {}),
-              path: path.splice(2),
-            } satisfies WorkspaceStateChangeEvent
-            fireWorkspaceChange(event)
-          }
+            const documentName = path[1] as string
+            if (type === 'originalDocuments') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(originalDocuments[documentName] ?? {}),
+                path: path.splice(2),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
 
-          if (type === 'intermediateDocuments') {
-            const event = {
-              type,
-              documentName: documentName,
-              value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
-              path: path.splice(2),
-            } satisfies WorkspaceStateChangeEvent
-            fireWorkspaceChange(event)
-          }
+            if (type === 'intermediateDocuments') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(intermediateDocuments[documentName] ?? {}),
+                path: path.splice(2),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
 
-          if (type === 'overrides') {
-            const event = {
-              type,
-              documentName: documentName,
-              value: unpackProxyObject(overrides[documentName] ?? {}),
-            } satisfies WorkspaceStateChangeEvent
-            fireWorkspaceChange(event)
-          }
+            if (type === 'overrides') {
+              const event = {
+                type,
+                documentName: documentName,
+                value: unpackProxyObject(overrides[documentName] ?? {}),
+              } satisfies WorkspaceStateChangeEvent
+              fireWorkspaceChange(event)
+            }
+          },
         },
-      },
-    },
-  )
+      })
 
   /**
    * This store is used to track the history of requests and responses for documents and operations.
@@ -908,6 +968,19 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       },
     },
   })
+
+  /**
+   * Whether a document needs to be wrapped in the overrides proxy.
+   *
+   * A reactive workspace always wraps, so the default mode keeps every document the same shape it has
+   * always had. A non-reactive workspace wraps only a document that actually has overrides: with an
+   * empty override map the proxy resolves to the target on every read and write anyway, so all it adds
+   * is a proxy hop on every nested read. Nothing outside this file reads the proxy's identity, and the
+   * store rebuilds the document from the current override map whenever the map changes, so a document
+   * that gains overrides later gains the proxy along with them.
+   */
+  const needsOverridesProxy = (documentOverrides: unknown): boolean =>
+    isReactiveWorkspace || (isObject(documentOverrides) && Object.keys(documentOverrides).length > 0)
 
   /**
    * Returns the name of the currently active document in the workspace.
@@ -973,6 +1046,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const { name } = input
     const meta = deepClone(input.meta)
     const clonedRawInputDocument = withMeasurementSync('deepClone', () => deepClone(input.document))
+
+    // A compact sparse document is expanded back into per-node chunk references before anything
+    // else reads it, so every step below — including the check for a server-generated navigation —
+    // sees the document a non-compact server store would have sent.
+    withMeasurementSync('expandChunkIndex', () => expandChunkIndex(clonedRawInputDocument))
 
     withMeasurementSync('initialize', () => {
       if (input.initialize !== false) {
@@ -1045,7 +1123,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = withMeasurementSync('coerceValue', () =>
-        coerce(asyncApiObjectSchema as Schema, deepClone(getRaw(asyncApiDocument))),
+        coerce<Schema>(asyncApiObjectSchema, deepClone(getRaw(asyncApiDocument))),
       )
       withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
 
@@ -1054,9 +1132,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         asyncApiDocument[extensions.document.navigation] = navigation
       }
 
-      workspace.documents[name] = createOverridesProxy(asyncApiDocument, {
-        overrides: unpackProxyObject(overrides[name]),
-      })
+      const asyncApiOverrides = unpackProxyObject(overrides[name])
+      workspace.documents[name] = needsOverridesProxy(asyncApiOverrides)
+        ? createOverridesProxy(asyncApiDocument, { overrides: asyncApiOverrides })
+        : asyncApiDocument
       return
     }
 
@@ -1070,7 +1149,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },
-      { showInternal: true },
+      { showInternal: true, documentUri: resolveOpenApiDocument(inputDocument, input.documentSource ?? '/')?.baseUri },
     )
 
     // If the document navigation is not already present, bundle the entire document to resolve all references.
@@ -1084,8 +1163,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             treeShake: false,
             plugins: [
               ...loaders,
+              openApiDocument(),
               normalizeRefs(),
-              externalValueResolver(),
+              externalValueResolver({ lazy: true }),
               refsEverywhere(),
               normalizeAuthSchemes(),
               syncPathParameters(),
@@ -1097,7 +1177,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = withMeasurementSync('coerceValue', () =>
-        coerce(openapiSchema as Schema, deepClone(strictDocument)),
+        coerce<Schema>(openapiSchema, normalizeBooleanSchemas(deepClone(strictDocument))),
       )
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))
     }
@@ -1127,9 +1207,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // Create a proxied document with magic proxy and apply any overrides, then store it in the workspace documents map
     // We create a new proxy here in order to hide internal properties after validation and processing
     // This ensures that the workspace document only exposes the intended OpenAPI properties and extensions
-    workspace.documents[name] = createOverridesProxy(createMagicProxy(getRaw(strictDocument)) as OpenApiDocument, {
-      overrides: unpackProxyObject(overrides[name]),
-    })
+    const documentOverrides = unpackProxyObject(overrides[name])
+    const magicDocument = createMagicProxy(getRaw(strictDocument), {
+      documentUri: resolveOpenApiDocument(getRaw(strictDocument), input.documentSource ?? '/')?.baseUri,
+    }) as OpenApiDocument
+    workspace.documents[name] = needsOverridesProxy(documentOverrides)
+      ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
+      : magicDocument
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -1249,9 +1333,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return null
     }
 
-    // Reverse all external references and restore original $refs
+    // This is the shared cleanup boundary for editing and saving. Both JSON and YAML
+    // exports read the cleaned saved baseline, so serializers need no marker filtering.
+    // Reverse all external references and restore original $refs.
     const original = (await bundle(deepClone(rawDocument), {
-      plugins: [restoreOriginalRefs(), removeExtraScalarKeys()],
+      plugins: [openApiDocument(), restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
       urlMap: true,
     })) as WorkspaceDocument & { 'x-ext-urls'?: unknown; 'x-ext'?: unknown }
@@ -1295,11 +1381,123 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return true
   }
 
+  /**
+   * Fetches the chunk a compact document keeps its navigation children in.
+   *
+   * The reference is bundled on an object of its own rather than in the document, so nothing of it
+   * is left behind: the chunk lands in that object's `x-ext` and is dropped along with it, and the
+   * navigation is never a reference, not even while the request is in flight. Navigation has one
+   * owner, so the children go on the document as they are and there is nothing for a shared `x-ext`
+   * entry to save.
+   *
+   * `depth: 0` stops the bundler at the reference itself, which is as far as a navigation chunk
+   * goes: its entries address the document through their own `ref` strings and carry no `$ref`.
+   *
+   * The chunk is handed back unwrapped: what it holds goes on the document, and a magic proxy there
+   * would enumerate a virtual `$ref-value` and stop the document being structured-cloned into
+   * storage. Unwrapping one level is enough, because the proxy wraps lazily.
+   *
+   * @returns The navigation the chunk holds, or `undefined` when it could not be loaded — the
+   *   bundler reports that failure the same way it reports an unreachable component chunk.
+   */
+  const fetchNavigationChunk = async (
+    documentName: string,
+    ref: string,
+    origin: string | undefined,
+  ): Promise<TraversedDocument | undefined> => {
+    const holder: RefNode<TraversedDocument> = createMagicProxy(chunkReference(ref))
+
+    await bundle(getRaw(holder), {
+      plugins: [
+        fetchUrls({
+          fetch: extraDocumentConfigurations[documentName]?.fetch ?? workspaceProps?.fetch,
+          limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
+        }),
+        ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+      ],
+      treeShake: false,
+      origin,
+      depth: 0,
+      urlMap: true,
+    })
+
+    return getRaw(getResolvedRef(holder))
+  }
+
+  /** Share concurrent requests only within the same document instance, including after a workspace reload. */
+  const navigationChildrenLoads = new WeakMap<OpenApiDocument, Promise<void>>()
+
+  /**
+   * Loads a compact document's navigation children and assigns them onto its navigation in place.
+   *
+   * Only a compact document carries `x-scalar-navigation-chunk`, and only until its children are
+   * loaded, so the key answers both "is there anything to load" and "has it already happened". It
+   * travels with the document, which is what lets a workspace exported before the children were
+   * loaded still load them once it has been imported into another store. A failed load leaves the
+   * key in place, so asking again retries.
+   */
+  const loadNavigationChildren = async (documentName: string): Promise<void> => {
+    const document = workspace.documents[documentName]
+
+    if (!isOpenApiDocument(document)) {
+      return
+    }
+
+    const ref = document[extensions.document.navigationChunk]
+    const navigation = document[extensions.document.navigation]
+
+    if (ref === undefined || navigation === undefined) {
+      return
+    }
+
+    const pending = navigationChildrenLoads.get(document)
+
+    if (pending) {
+      return pending
+    }
+
+    const load = (async () => {
+      const chunk = await fetchNavigationChunk(documentName, ref, document['x-scalar-original-source-url'])
+
+      // A replaced or deleted document must not publish changes from a stale request.
+      if (chunk === undefined || workspace.documents[documentName] !== document) {
+        return
+      }
+
+      // Assigned through the store's document, so the write is observed: a Vue effect reading the
+      // children re-runs, and the workspace plugins see the document change.
+      navigation.children = chunk.children ?? []
+      delete document[extensions.document.navigationChunk]
+    })()
+
+    navigationChildrenLoads.set(document, load)
+
+    try {
+      await load
+    } finally {
+      navigationChildrenLoads.delete(document)
+    }
+  }
+
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
   const visitedNodesCache = new Set()
 
   return {
+    externalExamples: (documentName) => {
+      const name = documentName ?? getActiveDocumentName()
+      const document = workspace.documents[name]
+      if (!document) return fallbackExternalExamples
+      const existing = externalExampleResolvers.get(document)
+      if (existing) return existing
+      const resolver = createExternalExampleResolver({
+        origin: document['x-scalar-original-source-url'],
+        fileLoader: workspaceProps?.fileLoader,
+        fetch: extraDocumentConfigurations[name]?.fetch ?? workspaceProps?.fetch,
+      })
+      externalExampleResolvers.set(document, resolver)
+      return resolver
+    },
     get workspace() {
       return workspace
     },
@@ -1359,8 +1557,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         initialize: false,
       })
     },
-    resolve: (path) => {
+    resolve: async (path) => {
       const activeDocument = workspace.activeDocument
+
+      // The navigation is never a reference: a compact document externalizes its children alone, and
+      // loading them is all there is to resolve here. Everything a navigation entry points at, it
+      // points at with a `ref` string of its own, so the bundler has nothing left to follow.
+      if (path[0] === extensions.document.navigation) {
+        await loadNavigationChildren(getActiveDocumentName())
+        return getValueAtPath(activeDocument, path)
+      }
 
       const target = getValueAtPath(activeDocument, path)
 
@@ -1372,11 +1578,26 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       }
 
       // Bundle the target document with the active document as root, resolving any external references
-      // and tracking resolution status through hooks
+      // and tracking resolution status through hooks.
+      //
+      // The origin is the URL the document was loaded from. A static server workspace writes its chunk
+      // references relative to the document (`./chunks/…`), and without the origin the loader has
+      // nothing to resolve them against, so every chunk fails before a request is made. SSR
+      // workspaces write absolute URLs and never needed it.
       return bundle(target, {
         root: activeDocument,
+        origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
-        plugins: [fetchUrls(), loadingStatus(), externalValueResolver()],
+        plugins: [
+          openApiDocument(),
+          fetchUrls({
+            fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
+            limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
+          }),
+          ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+          loadingStatus(),
+          externalValueResolver({ lazy: true }),
+        ],
         urlMap: true,
         visitedNodes: visitedNodesCache,
       })
@@ -1480,15 +1701,30 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       } satisfies InMemoryWorkspace
     },
     loadWorkspace(input: InMemoryWorkspace) {
+      // A workspace from a compact server store carries an index rather than per-node chunk
+      // references; expanded here for the same reason `addInMemoryDocument` expands.
+      for (const document of Object.values(input.documents)) {
+        expandChunkIndex(document)
+      }
+
       safeAssign(
         workspace.documents,
         Object.fromEntries(
-          Object.entries(input.documents).map(([name, doc]) => [
-            name,
-            createOverridesProxy(createMagicProxy(doc), {
-              overrides: input.overrides[name],
-            }),
-          ]),
+          Object.entries(input.documents).map(([name, doc]) => {
+            // Hydration only rewraps: an exported document has already been upgraded, bundled, coerced
+            // and given its navigation, so nothing here re-processes it.
+            const magicDocument = createMagicProxy(doc, {
+              documentUri: resolveOpenApiDocument(doc, doc['x-scalar-original-source-url'] ?? '/')?.baseUri,
+            })
+            const documentOverrides = input.overrides[name]
+
+            return [
+              name,
+              needsOverridesProxy(documentOverrides)
+                ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
+                : magicDocument,
+            ]
+          }),
         ),
       )
 
@@ -1652,8 +1888,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           // (build-time generated specs typically declare no servers). When the
           // merged result already carries servers — whether from upstream or
           // preserved local edits — those stay authoritative.
-          const mergedServers = (mergedDocument as Record<string, unknown>).servers
-          const activeServers = (activeDocumentRaw as Record<string, unknown>).servers
+          const mergedServers = mergedDocument.servers
+          const activeServers = activeDocumentRaw.servers
           const mergedHasServers = Array.isArray(mergedServers) && mergedServers.length > 0
           const activeHasServers = Array.isArray(activeServers) && activeServers.length > 0
           const preservedServers =

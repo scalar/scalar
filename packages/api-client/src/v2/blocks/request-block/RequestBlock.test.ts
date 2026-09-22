@@ -1,5 +1,5 @@
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
@@ -36,6 +36,7 @@ const defaultProps = {
   selectedClient: 'shell/curl' as const,
   workspaceCookies: [],
   documentCookies: [],
+  documentSlug: 'test-document',
   defaultHeaders: {},
 } satisfies RequestBlockProps
 
@@ -202,9 +203,9 @@ describe('RequestBlock', () => {
     expect(bodyGet.isVisible()).toBe(false)
   })
 
-  it('shows request body for methods with a body', () => {
+  it.each(['post', 'query'] as const)('shows the request body for %s', (method) => {
     const wrapper = mount(RequestBlock, {
-      props: { ...defaultProps, method: 'post' },
+      props: { ...defaultProps, method },
       global: {
         stubs: {
           RouterLink: true,
@@ -655,5 +656,88 @@ describe('RequestBlock', () => {
     })
 
     expect(wrapper.text()).toContain('Plugin Request Component')
+  })
+  const operation = {
+    summary: 'Create a user',
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object' as const,
+            properties: { name: { type: 'string' as const, examples: ['Ada'] } },
+          },
+          examples: { custom: { value: { name: 'custom' } } },
+        },
+      },
+    },
+  }
+
+  it('creates a new example seeded with the generated body and navigates to it', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const createDraft = vi.fn()
+    const updateContentType = vi.fn()
+    const updateValue = vi.fn()
+    const navigate = vi.fn()
+
+    eventBus.on('operation:create:draft-example', createDraft)
+    eventBus.on('operation:update:requestBody:contentType', updateContentType)
+    eventBus.on('operation:update:requestBody:value', updateValue)
+    eventBus.on('ui:navigate', navigate)
+
+    const wrapper = mount(RequestBlock, {
+      props: { ...defaultProps, method: 'post' as const, eventBus, exampleKey: 'custom', operation },
+    })
+
+    await wrapper.findComponent(RequestBody).vm.$emit('generate:example', { contentType: 'application/json' })
+    await nextTick()
+
+    const meta = { path: defaultProps.path, method: 'post', exampleKey: 'Generated from schema' }
+
+    expect(createDraft).toHaveBeenCalledWith({
+      documentName: 'test-document',
+      meta: { path: defaultProps.path, method: 'post' },
+      exampleName: 'Generated from schema',
+    })
+    expect(updateContentType).toHaveBeenCalledWith({
+      payload: { contentType: 'application/json' },
+      meta,
+    })
+    expect(updateValue).toHaveBeenCalledWith({
+      payload: JSON.stringify({ name: 'Ada' }, null, 2),
+      contentType: 'application/json',
+      meta,
+    })
+    expect(navigate).toHaveBeenCalledWith({
+      page: 'example',
+      documentSlug: 'test-document',
+      path: defaultProps.path,
+      method: 'post',
+      exampleName: 'Generated from schema',
+    })
+  })
+
+  it('picks a free name when a generated example already exists', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const createDraft = vi.fn()
+    eventBus.on('operation:create:draft-example', createDraft)
+
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        method: 'post' as const,
+        eventBus,
+        exampleKey: 'custom',
+        operation: { ...operation, 'x-draft-examples': ['Generated from schema'] },
+      },
+    })
+
+    await wrapper.findComponent(RequestBody).vm.$emit('generate:example', { contentType: 'application/json' })
+    await nextTick()
+
+    expect(createDraft).toHaveBeenCalledExactlyOnceWith({
+      documentName: 'test-document',
+      meta: { path: defaultProps.path, method: 'post' },
+      exampleName: 'Generated from schema (2)',
+    })
   })
 })

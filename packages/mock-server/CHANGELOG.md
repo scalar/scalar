@@ -1,5 +1,149 @@
 # @scalar/mock-server
 
+## 0.15.0
+
+### Minor Changes
+
+- [#10290](https://github.com/scalar/scalar/pull/10290): Update Hono and its Node.js server, WebSocket, and OpenAPI integration dependencies.
+
+  Replace the deprecated `@hono/node-ws` adapter with Node server v2 WebSocket support. `createAsyncApiMockServer()` now returns `websocket` instead of `injectWebSocket`. Start the server with `serve({ fetch: app.fetch, websocket })` instead of calling `injectWebSocket(server)`.
+
+  AsyncAPI callers must upgrade to `@hono/node-server` v2. Node server v1 ignores the `websocket` option, so WebSocket channels will silently stop accepting connections if the server dependency is not upgraded.
+
+- [#10286](https://github.com/scalar/scalar/pull/10286): Fix JSON and YAML exports for file and URL inputs. Add an origin option to resolve relative references in already loaded documents without fetching the root document again.
+- [#10288](https://github.com/scalar/scalar/pull/10288): Upgrade documents to OpenAPI 3.2 when preparing mock responses, and use OpenAPI 3.2 for the empty-document default.
+- [#10176](https://github.com/scalar/scalar/pull/10176): Generate finite SSE, JSON Lines, NDJSON, and JSON Sequence mock responses from OpenAPI 3.2 itemSchema definitions, including custom handler responses.
+
+  Honor named examples in custom stream handlers and keep media-type recognition consistent with stream serialization.
+
+  Use the same stream serializer as documentation examples. SSE objects without valid fields are omitted with a console warning per serialization call; other records still stream normally. The mock serializes each item separately to retain individual chunk writes.
+
+- [#10191](https://github.com/scalar/scalar/pull/10191): Support OpenAPI 3.2 OAuth device authorization with verification codes, cancellable token polling, stored credentials, and OAuth metadata discovery. Add mock device authorization and approval endpoints with pending, denial, expiry, and polling backoff responses.
+
+  Use consistent form-encoded Basic credentials and environment substitution across OAuth token and refresh flows. Allow HTTP metadata and verification links on local development hosts and reserved test domains, coerce discovery fields consistently, and report device-code expiry clearly.
+
+### Patch Changes
+
+- [#10211](https://github.com/scalar/scalar/pull/10211): Preserve literal data and tag groups when upgrading to OpenAPI 3.2, migrate XML metadata only in schemas, and remove incompatible legacy XML flags. Make 3.2 upgrades leave the input unchanged, match the complete source version, prevent previously inactive parameter settings from changing serialization, and report path-specific errors for detected compatibility issues that require an author's decision.
+
+  Tag `kind` values may change: navigation groups are classified from actual operation-tag usage instead of name substrings. Malformed 3.1 versions now report explicit errors, and successful 3.2 upgrades clone the input only once.
+
+  Expose `UpgradeIncompatibilityError` so Markdown generation can retain OpenAPI 3.1 for descriptions requiring author decisions instead of failing or silently changing semantics. Clone safety and malformed-version errors still propagate.
+
+  The mock server also retains OpenAPI 3.1 when the strict 3.2 migration reports compatibility diagnostics. Existing inline XML descriptions continue loading without inventing element names.
+
+  Read only own data properties during migration so inherited parameter lists, XML metadata, and reference targets cannot modify prototype-owned objects.
+
+  Add `upgrade(input, '3.2', { onIncompatible: 'collect' })` to return a complete document and compatibility diagnostics. Compatible descriptions upgrade to 3.2; incompatible descriptions retain 3.1 without partial transformations. Strict mode remains the default, and malformed-version and clone-safety errors still propagate. The Markdown converter and mock server now use the shared collect mode.
+
+- [#10203](https://github.com/scalar/scalar/pull/10203): Add a picker for generated response examples with anyOf or oneOf schema variants.
+
+  Apply union selections to primitive and array examples in the shared generator without reusing the selection for nested unions.
+
+  The shared generator change also affects request examples, snippets, mock responses, and AsyncAPI payloads: root primitive/array unions now generate their chosen branch before type inference from sibling properties or items. For example, a string schema with `oneOf: [{ const: "first" }, { const: "second" }]` now generates `"first"` by default, and selecting the second branch generates `"second"`. Keywords for unrelated types do not force object/array generation. Root selections are consumed once; nested unions retain their own default or path-specific choice.
+
+  Do not show a response variant picker for an empty enum, which permits no valid alternatives.
+
+  Preserve the generated branch shape in mock HTTP responses instead of re-wrapping selected primitive values as arrays based on root sibling `items`. Explicit authored examples retain the existing array normalization.
+
+- [#10206](https://github.com/scalar/scalar/pull/10206): Add generic document identity hooks for bundling and an explicit root URI option for reference proxies. Honor OpenAPI 3.2 `$self` through an OpenAPI plugin in workspace-store, including external documents and partial bundles, and enable it in OpenAPI bundling callers.
+
+  URI resolution now honors root-relative and protocol-relative URLs, query/fragment references, and trailing-slash directory bases for all bundler consumers. Absolute non-HTTP identifiers remain unchanged instead of becoming filesystem paths; loader support is unchanged. Relative HTTP references retain query strings and fragments and are emitted only when they round-trip to the original URL.
+
+  Preserve authored reference spellings through serialized partial bundles and editable exports, while keeping older OpenAPI resolution and configured loader restrictions unchanged.
+
+  Keep references matching authored root schema identifiers intact so schema labels and anchors retain their existing behavior.
+
+## 0.14.4
+
+### Patch Changes
+
+- [#10289](https://github.com/scalar/scalar/pull/10289): Update `@faker-js/faker` from 10.4.0 to 10.6.0.
+
+## 0.14.3
+
+## 0.14.2
+
+### Patch Changes
+
+- [#10179](https://github.com/scalar/scalar/pull/10179): Serve OAuth2 authorization server metadata at the declared oauth2MetadataUrl, advertising local mock endpoints and the configured grants and scopes.
+
+  Normalize absolute OAuth token URLs to route paths when registering mock authentication routes.
+
+- [#10179](https://github.com/scalar/scalar/pull/10179): Warn when OAuth2 metadata routes collide with declared API paths. Keep the OAuth2 metadata field in OpenAPI 3.2 schemas and document the HTTP exception for local development.
+
+## 0.14.1
+
+### Patch Changes
+
+- [#10190](https://github.com/scalar/scalar/pull/10190): Update Hono to allow HTTP QUERY requests in default CORS preflight responses.
+- [#10164](https://github.com/scalar/scalar/pull/10164): Serve deprecated response schemas from the mock instead of answering a declared JSON response with an empty body, and generate a deprecated AsyncAPI message payload instead of sending `null`. `getExampleFromSchema` takes a new `includeDeprecated` option for callers that must produce a value satisfying the schema. A declared response header that generates no value is now skipped rather than clearing a header of the same name the mock already set, such as the CORS headers.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+## 0.14.0
+
+### Minor Changes
+
+- [#10082](https://github.com/scalar/scalar/pull/10082): Run `x-handler` and `x-seed` code in a real sandbox
+
+  Handler and seed code used to run with the `Function` constructor, which gave it full access to the Node.js host (`process`, `require`, and more). It now runs inside a QuickJS WebAssembly sandbox with memory and time limits, so even untrusted code from a remote or `$ref`-loaded document cannot reach the host.
+
+  The `store`, `faker`, `req`, `res`, `schema`, and `seed` APIs work as before. The one exception is faker methods that take a callback (for example `faker.helpers.multiple(fn)`), which are no longer supported because functions cannot cross the sandbox boundary.
+
+### Patch Changes
+
+- [#10079](https://github.com/scalar/scalar/pull/10079): Harden the mock server against SSRF and local file disclosure through OpenAPI `$ref`s. External `$ref` resolution now refuses to fetch private, loopback, link-local, and metadata addresses, and confines local file reads to the document's directory. The `fetchUrls` and `readFiles` bundling plugins gain opt-in `blockPrivateNetworks` and `basePath` options, so other callers keep their current behavior unless they opt in.
+
+## 0.13.0
+
+### Minor Changes
+
+- [#10051](https://github.com/scalar/scalar/pull/10051): feat: add a `logger` option to control startup logging
+
+  `createMockServer()` prints authentication instructions for the security schemes of the document when it starts. That is helpful in a terminal, but it is noise when the mock server runs inside a test harness or another program, which so far left callers replacing the global console.
+
+  Pass `logger: false` to silence those instructions, or a `(line: string) => void` sink to route them elsewhere:
+
+  ```ts
+  const app = await createMockServer({ document, logger: false })
+  ```
+
+  Diagnostics are not affected: warnings and errors about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
+
+  `createAsyncApiMockServer()` already accepted a `logger` sink; it now takes the same `boolean | ((line: string) => void)` shape, so both factories are silenced and redirected the same way. It stays silent by default — pass `logger: true` to print its transport lifecycle lines.
+
+  The `MockServerLogger` type is now exported as well, so a custom sink can be typed outside of the package.
+
+- [#10037](https://github.com/scalar/scalar/pull/10037): Frame `text/event-stream` responses as Server-Sent Events instead of returning a single JSON body with an SSE content type. Each event is written as a `data:` line terminated by a blank line, then the stream closes.
+  - Named `examples` are read as the sequence of events the endpoint emits, in declaration order (`Prefer: example=<name>` still pins the stream to that one example).
+  - An array example is read as the event sequence too, one event per item.
+  - An example that already spells out SSE framing (`data:` and `event:` lines, or a `:` comment heartbeat) is written as its own framing, with only its terminating blank line normalized, instead of being wrapped in a second `data:` line. Such examples describe a whole stream, so a map of them is read as alternatives and the first one is served.
+  - With no example, the schema-generated payload is emitted three times so the stream has more than one event to iterate — unless the schema already generates a sequence (a multi-item array, or a string that spells the wire format out), which is sent once, not repeated.
+
+- [#10038](https://github.com/scalar/scalar/pull/10038): Answer unhandled errors with a structured JSON `500` naming the operation that failed, instead of the previous plain-text `Internal Server Error`. The body reports the error `message` along with the matched operation's `method`, OpenAPI `path`, and `operationId` (when the document declares one), and the error is still logged to the console. Errors that already carry their own response keep the status and body they chose.
+
+### Patch Changes
+
+- [#9967](https://github.com/scalar/scalar/pull/9967): Align the `ajv` and `ajv-formats` dependencies with the shared workspace catalog (`ajv@^8.20.0`).
+- [#10039](https://github.com/scalar/scalar/pull/10039): Fix request validation falling open for recursive schemas. Resolving a schema that references itself leaves a `'[circular]'` marker where the cycle was cut, which Ajv refused to compile, so the mock server logged an error and skipped validating the request body — or every parameter in that location. The recursion point now compiles as an always-valid schema, and a constraint that would flip that into a stricter one (`not`, `if`, `oneOf`, `contains`, and the keywords that only qualify them) is dropped, so the rest of the schema is enforced again without rejecting requests the document allows.
+- [#10035](https://github.com/scalar/scalar/pull/10035): Fix JSON responses for primitive string bodies. A response declaring `application/json` with a `type: string` schema (or a plain string example) was written to the wire verbatim, so clients received the bare characters `string` instead of `"string"` and could not parse the payload.
+
+  A string body is now JSON-encoded whenever the negotiated media type carries a single JSON document, which includes suffixed types such as `application/problem+json` and parameterized ones such as `application/json; charset=utf-8`. Two things keep their raw string: every other media type, where the characters are already the payload (`text/plain`, `text/event-stream`, XML, and the line-delimited JSON types), and a body that is already the value the schema describes — anything that parses when the schema declares a non-string type, or a JSON object or array when the schema says nothing, both of which are documents the author serialized by hand.
+
+  XML is now matched on the parsed media type subtype rather than by substring, so only a genuine XML type is serialized as an XML document. A media type that merely contains `xml` somewhere, such as one carrying it in a parameter, no longer is.
+
+- [#10044](https://github.com/scalar/scalar/pull/10044): fix: escape spec-derived path keys and route path keys that carry a query string
+
+  Path keys such as `/v1/messages?beta=true` used to be registered verbatim as routes, where the query string was read as routing syntax. On a parameterized path that made the router compile an invalid regular expression and every single request failed with an empty `500`. The query is now peeled off and matched against the incoming request, so `/v1/messages?beta=true` answers only requests that send `beta=true` and `/v1/messages` keeps answering the rest.
+
+  Characters that would otherwise be read as routing syntax (`:`, `*`, `|`, and braces outside a path parameter) are escaped, so a path key can no longer act as a pattern. Note that this also applies to `*`: a path key ending in `*` is now served as a literal path instead of matching everything below it.
+
+  One limitation is worth knowing: Hono allows a single parameter per path segment, so a segment that mixes a path parameter with escaped literal text (`/v1/jobs/{jobId}:cancel`) routes to the right operation but does not bind `jobId` by name. Request validation reads it as missing, so a document describing such a path needs the server-wide `validateRequest: false` for now.
+
 ## 0.12.13
 
 ### Patch Changes

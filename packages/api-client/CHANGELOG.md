@@ -1,5 +1,143 @@
 # @scalar/api-client
 
+## 3.20.0
+
+### Minor Changes
+
+- [#10207](https://github.com/scalar/scalar/pull/10207): Display JSON Lines, JSON Sequences, and multipart response parts as they arrive instead of waiting for the complete response. Preserve cancellation and show malformed records, incomplete multipart responses, and bounded display limits.
+
+  JSON Lines responses (including `application/jsonl` and `application/x-ndjson`), JSON Sequences (`application/json-seq` and `+json-seq`) and `multipart/mixed` or `multipart/x-mixed-replace` responses now use the streaming text viewer, including finite responses. Other multipart subtypes, such as `multipart/form-data`, retain the buffered viewer. Nested parts use hierarchical labels, such as Part 1.1.
+
+  The streaming viewer shows received bytes and offers Copy text and Download text for the displayed transcript, including after completion, cancellation, or a framing error. These exports contain formatted records and multipart labels/base64 rather than the original wire body. Streams retain at most 16 MiB of displayed text and reject records/parts above 8 MiB; preview plugins and virtualized raw-body rendering remain available only in the buffered viewer. HTTP status, headers, and declared Content-Length remain visible.
+
+- [#10175](https://github.com/scalar/scalar/pull/10175): Support API Client UI translations through `localization.translations.apiClient`, including the client embedded in API Reference. Ship client translations for English, Russian, Spanish, French, German, Simplified Chinese, Arabic, and Portuguese to match API Reference. Preserve English fallbacks across package providers and react to locale, direction, and translation updates.
+- [#10191](https://github.com/scalar/scalar/pull/10191): Support OpenAPI 3.2 OAuth device authorization with verification codes, cancellable token polling, stored credentials, and OAuth metadata discovery. Add mock device authorization and approval endpoints with pending, denial, expiry, and polling backoff responses.
+
+  Use consistent form-encoded Basic credentials and environment substitution across OAuth token and refresh flows. Allow HTTP metadata and verification links on local development hosts and reserved test domains, coerce discovery fields consistently, and report device-code expiry clearly.
+
+- [#10178](https://github.com/scalar/scalar/pull/10178): Support OpenAPI 3.2 streaming item schemas in the workspace store, request body examples, and API reference schema views. Frame generated and structured examples as JSON Lines, JSON Sequence, or server-sent events while preserving explicit wire-format strings.
+
+  Preserve generated falsy request examples (`0`, `false`, and empty strings) for non-streaming bodies as well.
+
+  Use cURL `--data-binary` for supported streaming media types, making framed body handling explicit. Authored arrays and objects are framed as stream records; authored wire-format strings remain unchanged. SSE records with no valid fields are safely omitted with one console warning per serialization call reporting the omitted count, including when all records are omitted.
+
+### Patch Changes
+
+- [#10177](https://github.com/scalar/scalar/pull/10177): Use OpenAPI 3.2 schemas throughout workspace-store consumers, stories, tests, and type generation. Update the app editor to offer OpenAPI 3.2 validation and completion while continuing to accept existing 3.1 documents.
+
+  Preserve OpenAPI 3.2 fields in the loose workspace schema, including tag hierarchy, streaming media types, nested encoding, additional operations, and OAuth device authorization.
+
+  The editor intentionally offers the 3.2 field set to documents declaring 3.1 as well; it does not flag 3.2-only fields solely because the declared version is 3.1. This does not certify conformance to the declared version or automatically update it. Before using 3.2-only fields, migrate and explicitly declare OpenAPI 3.2, and verify support in other validators and generators. Remove the unused 3.1 loose-schema generator to prevent schema drift.
+
+  Migration: the OpenAPI 3.1 loose-schema generator (`@scalar/workspace-store/schemas/v3.1/openapi`, published through the wildcard as `@scalar/workspace-store/schemas/v3.1/openapi/index`) and its `@scalar/workspace-store/schemas/v3.1/openapi/reference` helpers have been removed. Import the generator from `@scalar/workspace-store/schemas/v3.2/openapi/index` and the reference helpers from `@scalar/workspace-store/schemas/v3.2/openapi/reference` instead. The `./schemas/*` wildcard and the 3.1 strict-schema exports remain available; the explicit 3.2 strict-schema exports are additive. Locally generated types now use the `OpenAPIV3_2` namespace instead of `OpenAPIV3_1`.
+
+  Inline the editor path-extension reference so Monaco retains the leading-slash path pattern and does not report valid paths as unknown properties.
+
+  Document ingestion continues to upgrade only to OpenAPI 3.1, so existing inline XML bodies without `xml.name` remain loadable. This schema migration does not opt consumers into the stricter OpenAPI 3.2 XML upgrade.
+
+- [#10284](https://github.com/scalar/scalar/pull/10284): Load the API client modal on its first open request instead of downloading it when the API reference or agent chat mounts. Preserve the requested operation, example, and request-body variant while loading. Show loading feedback and retry guidance if the request editor cannot be downloaded.
+- [#10281](https://github.com/scalar/scalar/pull/10281): Fix duplicate rows and lost focus when entering request headers, cookies, and query parameters, and remove unchecked parameters cleanly.
+- [#10208](https://github.com/scalar/scalar/pull/10208): Share OpenAPI 3.2 example-value selection across request bodies, response examples, and code snippets. Preserve serialized payloads verbatim, serialize structured JSON strings correctly, retain falsy values, and replace original example sources after body edits. Keep dataValue and serializedValue during document ingestion.
+
+  Editing a request body, including form fields, discards its authored `externalValue` URL and replaces it with the edited inline value in the workspace and exported API description. Rendering or focusing a form field preserves the external source.
+
+  Form editors prefer structured `dataValue` when both example fields exist, while raw editors, requests, and code snippets preserve `serializedValue` as wire text. Structured examples now affect generated request payloads and snippets; XML remains raw-only in the request editor.
+
+- [#10303](https://github.com/scalar/scalar/pull/10303): Preserve parameter edits when another parameter changes, including parameters displaying downloaded examples. Keep downloaded values out of the document until explicitly edited, and use examples and defaults from resolved schema references when building requests.
+
+## 3.19.3
+
+### Patch Changes
+
+- [#10255](https://github.com/scalar/scalar/pull/10255): fix(api-client): auto-enable optional header/query/cookie rows that have a pre-populated value
+
+  Optional parameters (headers, query params, cookies) start disabled by default. When the API
+  description provides a default or enum value for such a parameter (e.g. `x-scenario-id` with an enum),
+  the row was rendered with its checkbox unchecked even though a value was already selected — so the
+  parameter was silently dropped from every request until the user manually checked it.
+
+  The fix auto-enables any row that is only disabled by default (no explicit `x-disabled: true`) and
+  already carries a non-empty value, mirroring the existing behaviour when a user types a value into
+  a previously-empty row.
+
+  Use the same enablement rules for the parameter editor, outgoing requests, and generated code snippets.
+
+- [#10240](https://github.com/scalar/scalar/pull/10240): Load external examples on demand when their selected preview is visible or Test Request opens, instead of downloading every payload while loading the API description. Share and cache downloads, preserve relative URL origins, and show loading and retry states while preventing incomplete requests from being sent.
+
+## 3.19.2
+
+## 3.19.1
+
+### Patch Changes
+
+- [#10229](https://github.com/scalar/scalar/pull/10229): Fix the API client modal getting stuck on "Select an operation to view details" for a document's first operation after its active document re-syncs. The reference used to hand the modal a route to a nonexistent path and method during that re-sync; the modal now leaves the current operation in place instead.
+- [#9912](https://github.com/scalar/scalar/pull/9912): add line wrapping toggle for request and response bodies
+- [#10179](https://github.com/scalar/scalar/pull/10179): Support OpenAPI 3.2 OAuth2 metadata URLs in workspace schemas and the shared authentication UI. Fetch HTTPS authorization server metadata or HTTP metadata from local development URLs to discover flows or fill missing endpoints while preserving explicit configuration.
+
+  For local development, Scalar deliberately relaxes the OpenAPI 3.2 TLS requirement: metadata URLs and discovered endpoints may use HTTP for local development URLs recognized by the shared `isLocalUrl` helper, including loopback hosts, `0.0.0.0`, and reserved development domains such as `*.test` and `*.example`. Other hosts require HTTPS.
+
+  Discovery leaves `refreshUrl` unchanged. Token refresh already falls back to the flow's token URL when no refresh URL is configured, so a discovered token endpoint also supports refresh without overriding an explicit refresh URL.
+
+- [#9852](https://github.com/scalar/scalar/pull/9852): Render OpenAPI 3.2 response summaries, server names in the server selectors, and a strikethrough on deprecated security schemes.
+- [#9889](https://github.com/scalar/scalar/pull/9889): feat: add a copy button to the request body editor
+
+  The raw request body editor now shows a copy-to-clipboard button (revealed on hover, matching the response panel) so you can grab the whole body without selecting the text by hand. The editor stays fully editable at any size.
+
+- [#10231](https://github.com/scalar/scalar/pull/10231): Trim surrounding whitespace from OAuth2 client IDs and client secrets when authorizing and refreshing tokens.
+- [#10238](https://github.com/scalar/scalar/pull/10238): Display responses with vendor `+xml` media types as XML text and use `.xml` for downloads.
+
+## 3.19.0
+
+### Minor Changes
+
+- [#10102](https://github.com/scalar/scalar/pull/10102): Allow response hooks to return a replacement Response before the client processes its body, status, and headers. Add the onResponseReceived configuration callback for API References. Existing hooks can still read responses and return nothing.
+
+### Patch Changes
+
+- [#10123](https://github.com/scalar/scalar/pull/10123): Fall back to the requested URL when a custom fetch returns a response without one. Errors raised while reading the response body are now returned as an error result instead of escaping the request helper.
+- [#10086](https://github.com/scalar/scalar/pull/10086): Enable optional query parameters when their value is entered.
+- [#10080](https://github.com/scalar/scalar/pull/10080): Fix the Test Request body showing schema defaults instead of the example on first open. This happened for the first operation when its body used oneOf/anyOf and had a named example.
+- [#10160](https://github.com/scalar/scalar/pull/10160): Pass request duration to post-response scripts as `pm.response.responseTime` in milliseconds and enable the response-time example.
+- [#10072](https://github.com/scalar/scalar/pull/10072): Add a "generate example from schema" button to the request body, so the schema-generated fields stay reachable once an operation ships custom examples
+- [#10081](https://github.com/scalar/scalar/pull/10081): Keep the `mutualTLS` security scheme type instead of turning it into an apiKey form, and show read-only authentication guidance for mutual TLS and unsupported browser broker credentials.
+- [#10167](https://github.com/scalar/scalar/pull/10167): fix: hide the code snippet section when all clients are hidden
+- [#10170](https://github.com/scalar/scalar/pull/10170): Keep form fields checked for composed body schemas so the initial form matches the fields sent in the request.
+- [#10148](https://github.com/scalar/scalar/pull/10148): Typing a value into an unchecked optional form body row now enables that row, so the value is sent with the request. This matches how optional query parameters already behave.
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+- [#10149](https://github.com/scalar/scalar/pull/10149): Keep focus while editing request body field names by saving name changes on blur.
+- [#10142](https://github.com/scalar/scalar/pull/10142): Send multipart array properties as separate parts with the same field name, applying encoding to each item. Preserve JSON item content types, uploaded files, and array values after form edits, and generate matching code snippets.
+
+  Send JSON form fields without an upload filename and preserve fields and files in request history.
+
+  Rename the RestSharp snippet's internal `getMethod` helper so it no longer clashes with the `getMethod` that Nitro bundles into server builds (the new multipart imports shifted chunking and surfaced the collision).
+
+## 3.18.0
+
+### Minor Changes
+
+- [#9937](https://github.com/scalar/scalar/pull/9937): Add a way to open the request body editor in the Form view by default. Set the `defaultRequestBodyView: 'form'` config option, or the `x-scalar-default-request-body-view` extension in your OpenAPI document (which also works per source). Defaults to `raw`, and falls back to `raw` when a body cannot be shown as a form.
+
+### Patch Changes
+
+- [#10046](https://github.com/scalar/scalar/pull/10046): Stop sending optional form-body properties by default. Optional `multipart/form-data` and `application/x-www-form-urlencoded` properties now start unchecked and are left out of the request unless you enable them, matching how optional parameters already behave. Required properties are unaffected.
+
+## 3.17.0
+
+### Minor Changes
+
+- feat: test OpenAPI webhooks from the API reference and API client
+
+### Patch Changes
+
+- [#9983](https://github.com/scalar/scalar/pull/9983): Bump the `zod` catalog to `^4.4.3` so the standalone bundle ships a single `zod` instead of two (`4.3.5` from `@scalar/types` plus `4.4.3` from the `ai` / `@ai-sdk` peer). This makes `standalone.js` ~68KB raw / ~18KB gzip smaller.
+- [#10024](https://github.com/scalar/scalar/pull/10024): Fix "Test Request" discarding an edited request body when the operation it opens is already the one on screen. Reopening the entry the modal already shows does not route anywhere, so the request body kept its edited value while the composition selection was replaced with whatever the reference page had selected. The request body read that as a manual `oneOf`/`anyOf` branch switch and regenerated itself from the schema. An open modal now keeps the selection it is already showing, while opening a different entry still re-establishes it.
+
 ## 3.16.3
 
 ### Patch Changes

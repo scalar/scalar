@@ -1,8 +1,16 @@
 # OpenAPI Specification
 
-We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
+We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0, OpenAPI 3.1 or OpenAPI 3.2 specification](https://github.com/OAI/OpenAPI-Specification).
 
 On top of that, we've added a few things for your convenience:
+
+## Editor completion and version compatibility
+
+The Scalar App editor offers OpenAPI 3.2 completion and structural diagnostics for documents declaring either OpenAPI 3.1 or 3.2. This permissive editing policy helps you work with newer fields, but the absence of editor errors does not certify that a document conforms to its declared OpenAPI version.
+
+For example, the editor accepts `itemSchema`, `additionalOperations`, and `style: cookie` even when the document still declares `openapi: 3.1.0`. Those fields are not part of OpenAPI 3.1, and tools that validate that version may reject the document. Editor completion does not automatically change the declared version.
+
+Before using OpenAPI 3.2-only fields, migrate the document to OpenAPI 3.2 and explicitly set a matching version such as `openapi: 3.2.0`. Check that your validators, generators, and other consumers support that version, and validate the resulting document with a validator that respects the declared version. If you need to remain compatible with OpenAPI 3.1 consumers, keep the declaration and field usage within OpenAPI 3.1.
 
 ## Custom Specification Extensions
 
@@ -183,7 +191,9 @@ paths:
 
 `externalValue` is a standard OpenAPI field on an [Example Object](https://spec.openapis.org/oas/v3.1.0#example-object). It lets you keep large request or response examples outside of your OpenAPI document and point to them by URL instead. This is useful when a single document would otherwise contain hundreds or thousands of big example payloads.
 
-Scalar fetches the referenced payload while loading the document and uses it for the example selector, the request preview, the generated code snippets, and the Test Request dialog.
+Scalar fetches an external example only when its selected preview becomes visible or you open it in Test Request. Other examples, including examples on hidden operations, are not downloaded during document loading. The request preview, generated code snippets, and Test Request use the same resolved payload.
+
+Successful downloads are cached for the loaded document. Selecting an example again reuses its payload; replacing the document clears the cache. While an example loads, Scalar shows a loading message. If the download fails, you can retry. Sending the request is disabled until its selected example is ready.
 
 ```yaml
 paths:
@@ -213,6 +223,49 @@ A few things to keep in mind:
 - Relative URLs (like the one above) are resolved against the URL your document was loaded from.
 - The referenced URL must be reachable by the browser (CORS applies), and should return JSON or YAML.
 
+## Nested tags (OpenAPI 3.2)
+
+In OpenAPI 3.2, you can nest tags with the native `parent` field instead of `x-tagGroups`. Set `parent` to the `name` of another tag declared in the document. Tags can be nested across multiple levels, and a parent tag can have operations of its own alongside its child tags.
+
+Use `summary` for a readable tag title in the navigation and section headings. Operations still reference the tag's `name`. If `x-displayName` is also set, it takes precedence over `summary`.
+
+```yaml
+openapi: 3.2.0
+info:
+  title: Example
+  version: '1.0.0'
+tags:
+  - name: galaxy
+    summary: Galaxy
+  - name: planets
+    summary: Planets
+    parent: galaxy
+  - name: moons
+    summary: Moons
+    parent: planets
+paths:
+  /planets:
+    get:
+      summary: Get all planets
+      tags:
+        - planets
+      responses:
+        '200':
+          description: A list of planets
+  /moons:
+    get:
+      summary: Get all moons
+      tags:
+        - moons
+      responses:
+        '200':
+          description: A list of moons
+```
+
+This creates the hierarchy **Galaxy → Planets → Moons**. The Planets section contains both its own operation and the nested Moons section.
+
+When at least one `parent` relationship points to a declared tag without forming a cycle, Scalar uses native nesting for the document instead of `x-tagGroups`. Unknown parents, self-references, and circular relationships do not create nesting. If no valid nesting relationship remains, Scalar falls back to `x-tagGroups`.
+
 ## x-displayName
 
 You can overwrite tag names with `x-displayName`.
@@ -235,7 +288,7 @@ paths:
 
 ## x-tagGroups
 
-You can group your tags with `x-tagGroups`.
+You can group your tags with `x-tagGroups`. This remains supported for existing API descriptions and OpenAPI versions before 3.2. For OpenAPI 3.2, use [native nested tags](#nested-tags-openapi-32) with `parent` instead.
 
 ```diff
 openapi: 3.1.0

@@ -83,6 +83,10 @@ func TestBasicEndpoints(t *testing.T) {
 		if len(w.Body.String()) == 0 {
 			t.Error("Expected non-empty YAML response")
 		}
+
+		if !strings.Contains(w.Body.String(), "version: __COMMIT_SHA__") {
+			t.Error("Expected OpenAPI document to contain the commit SHA placeholder")
+		}
 	})
 
 	t.Run("Root path with query params requires scalar_url", func(t *testing.T) {
@@ -225,8 +229,8 @@ func TestCORSHandling(t *testing.T) {
 				headers.Get("Access-Control-Allow-Headers"))
 		}
 
-		if headers.Get("Access-Control-Allow-Methods") != "POST, GET, OPTIONS, PUT, DELETE, PATCH" {
-			t.Errorf("Expected Access-Control-Allow-Methods header to be 'POST, GET, OPTIONS, PUT, DELETE, PATCH', got '%s'",
+		if headers.Get("Access-Control-Allow-Methods") != "POST, GET, OPTIONS, PUT, DELETE, PATCH, QUERY" {
+			t.Errorf("Expected Access-Control-Allow-Methods header to be 'POST, GET, OPTIONS, PUT, DELETE, PATCH, QUERY', got '%s'",
 				headers.Get("Access-Control-Allow-Methods"))
 		}
 
@@ -244,6 +248,59 @@ func TestCORSHandling(t *testing.T) {
 
 func TestProxyBehavior(t *testing.T) {
 	proxyServer := NewProxyServer(true)
+
+	t.Run("Allows QUERY preflight and forwards the request body", func(t *testing.T) {
+		const body = `{"name":"Earth","habitable":true}`
+		calls := 0
+		target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			calls++
+			if r.Method != "QUERY" {
+				t.Errorf("Expected QUERY method, got %s", r.Method)
+			}
+			if r.Header.Get("Content-Type") != "application/json" {
+				t.Errorf("Expected JSON content type, got %s", r.Header.Get("Content-Type"))
+			}
+			data, err := io.ReadAll(r.Body)
+			if err != nil || string(data) != body {
+				t.Errorf("Expected body %s, got %s (error: %v)", body, data, err)
+			}
+			w.Write(data)
+		}))
+		defer target.Close()
+
+		handler := corsMiddleware(http.HandlerFunc(proxyServer.handleRequest))
+		path := "/?scalar_url=" + url.QueryEscape(target.URL)
+		preflight := httptest.NewRequest(http.MethodOptions, path, nil)
+		preflight.Header.Set("Origin", "http://example.com")
+		preflight.Header.Set("Access-Control-Request-Method", "QUERY")
+		preflight.Header.Set("Access-Control-Request-Headers", "content-type")
+		preflightResponse := httptest.NewRecorder()
+		handler.ServeHTTP(preflightResponse, preflight)
+		if preflightResponse.Code != http.StatusOK {
+			t.Fatalf("Expected successful preflight, got %d", preflightResponse.Code)
+		}
+		if !strings.Contains(preflightResponse.Header().Get("Access-Control-Allow-Methods"), "QUERY") {
+			t.Fatal("Expected preflight to allow QUERY")
+		}
+		if calls != 0 {
+			t.Fatal("Preflight must not reach the upstream server")
+		}
+
+		req := httptest.NewRequest("QUERY", path, strings.NewReader(body))
+		req.Header.Set("Origin", "http://example.com")
+		req.Header.Set("Content-Type", "application/json")
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, req)
+		if response.Code != http.StatusOK || response.Body.String() != body {
+			t.Errorf("Expected successful echoed response, got %d: %s", response.Code, response.Body.String())
+		}
+		if calls != 1 {
+			t.Errorf("Expected one upstream request, got %d", calls)
+		}
+		if !strings.Contains(response.Header().Get("Access-Control-Allow-Methods"), "QUERY") {
+			t.Error("Expected response to allow QUERY")
+		}
+	})
 
 	t.Run("Follows redirects correctly", func(t *testing.T) {
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
@@ -332,7 +389,7 @@ func TestProxyBehavior(t *testing.T) {
 				expectedOrigin, headers.Get("Access-Control-Allow-Origin"))
 		}
 
-		expectedMethods := "POST, GET, OPTIONS, PUT, DELETE, PATCH"
+		expectedMethods := "POST, GET, OPTIONS, PUT, DELETE, PATCH, QUERY"
 		if headers.Get("Access-Control-Allow-Methods") != expectedMethods {
 			t.Errorf("Expected Access-Control-Allow-Methods header to be '%s', got '%s'",
 				expectedMethods, headers.Get("Access-Control-Allow-Methods"))
@@ -342,6 +399,33 @@ func TestProxyBehavior(t *testing.T) {
 		expectedBody := "final destination"
 		if w.Body.String() != expectedBody {
 			t.Errorf("Expected body '%s', got '%s'", expectedBody, w.Body.String())
+		}
+	})
+
+	t.Run("Keeps credential headers on same-host redirect", func(t *testing.T) {
+		gotAuth := ""
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/initial" {
+				http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
+				return
+			}
+			gotAuth = r.Header.Get("Authorization")
+			w.Write([]byte("final destination"))
+		})
+		defer server.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+server.url+"/initial", nil)
+		req.Header.Set("Authorization", "Bearer secret-token")
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		if gotAuth != "Bearer secret-token" {
+			t.Errorf("Expected Authorization to be forwarded on same-host redirect, got '%s'", gotAuth)
 		}
 	})
 
@@ -519,9 +603,9 @@ func TestProxyBehavior(t *testing.T) {
 	t.Run("Does not forward any cookies by default", func(t *testing.T) {
 		// Create a test server that checks for the Cookie header
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
-			// Check that Cookie header is empty
-			if cookie := r.Header.Get("Cookie"); cookie != "" {
-				t.Errorf("Expected Cookie header to be empty, got '%s'", cookie)
+			// Check that Cookie header is omitted completely rather than sent as empty value
+			if _, exists := r.Header["Cookie"]; exists {
+				t.Errorf("Expected Cookie header to be omitted, but was present: %v", r.Header["Cookie"])
 			}
 			w.Write([]byte("success"))
 		})
@@ -566,6 +650,26 @@ func TestProxyBehavior(t *testing.T) {
 		proxyServer.handleRequest(w, req)
 
 		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
+
+	t.Run("Omits Cookie header completely when X-Scalar-Cookie is empty string", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if _, exists := r.Header["Cookie"]; exists {
+				t.Errorf("Expected Cookie header to be omitted, but got: %v", r.Header["Cookie"])
+			}
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("X-Scalar-Cookie", "")
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
 		if w.Code != http.StatusOK {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}
@@ -857,4 +961,37 @@ func TestCidrPolicy(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
 		}
 	})
+}
+
+func TestBlockedTransitionAddresses(t *testing.T) {
+	// IPv6 transition addresses embed an IPv4 destination. When that IPv4 sits
+	// in a blocked range the whole address must be blocked, otherwise a
+	// hostname with an AAAA record pointing at such an address (or a direct dial
+	// after the brackets are stripped) would bypass the IPv4 blocklist.
+	blocked := []string{
+		"2002:a9fe:a9fe::",       // 6to4 -> 169.254.169.254
+		"2002:c0a8:0101::",       // 6to4 -> 192.168.1.1
+		"64:ff9b::a9fe:a9fe",     // NAT64 -> 169.254.169.254
+		"64:ff9b::c0a8:0101",     // NAT64 -> 192.168.1.1
+		"::a9fe:a9fe",            // IPv4-compatible -> 169.254.169.254
+		"::ffff:169.254.169.254", // IPv4-mapped -> 169.254.169.254
+	}
+
+	for _, host := range blocked {
+		if !isBlockedHost(host) {
+			t.Errorf("Expected %s to be blocked", host)
+		}
+	}
+
+	// Transition addresses that embed a public IPv4 stay allowed.
+	allowed := []string{
+		"2002:0808:0808::",   // 6to4 -> 8.8.8.8
+		"64:ff9b::0808:0808", // NAT64 -> 8.8.8.8
+	}
+
+	for _, host := range allowed {
+		if isBlockedHost(host) {
+			t.Errorf("Expected %s to be allowed", host)
+		}
+	}
 }

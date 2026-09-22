@@ -19,10 +19,13 @@ import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/Respon
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 const { layout, totalPerformedRequests, response, requestPayload } =
   defineProps<{
+    /** Wait for the selected external request example before sending. */
+    executionDisabled?: boolean
     /** Preprocessed response */
     response: ResponseInstance | null
     /** Original request as a [url, RequestInit] tuple */
@@ -39,6 +42,8 @@ const { layout, totalPerformedRequests, response, requestPayload } =
     eventBus: WorkspaceEventBus
   }>()
 
+const { translate } = useLocalization()
+
 // Headers
 const responseHeaders = computed(() => {
   const headers = response?.headers
@@ -50,6 +55,10 @@ const responseHeaders = computed(() => {
       }))
     : []
 })
+
+const responseContentType = computed(
+  () => response?.headers['content-type'] ?? response?.headers['Content-Type'],
+)
 
 // Cookies
 const responseCookies = computed(
@@ -65,12 +74,12 @@ const activeFilter = ref<Filter>('All')
 
 const filters = computed<Filter[]>(() => ['All', ...responseSections])
 
-const filterIds = computed(
-  () =>
-    Object.fromEntries(
-      filters.value.map((section) => [section, useId()]),
-    ) as Record<Filter, string>,
-)
+const filterIds = computed<Record<Filter, string>>(() => ({
+  All: useId(),
+  Cookies: useId(),
+  Headers: useId(),
+  Body: useId(),
+}))
 
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
@@ -130,18 +139,29 @@ defineExpose({
   activeFilter,
   filters,
 })
+
+const filterLabels = computed(() => ({
+  All: translate('apiClient.sectionFilter.all'),
+  Auth: translate('apiClient.sectionFilter.auth'),
+  Variables: translate('apiClient.sectionFilter.variables'),
+  Cookies: translate('apiClient.sectionFilter.cookies'),
+  Headers: translate('apiClient.sectionFilter.headers'),
+  Query: translate('apiClient.sectionFilter.query'),
+  Body: translate('apiClient.sectionFilter.body'),
+}))
 </script>
 <template>
-  <ViewLayoutSection aria-label="Response">
+  <ViewLayoutSection
+    :aria-label="translate('apiClient.responseBlock.response')">
     <template #title>
       <div class="flex h-8 flex-1 items-center">
         <div
           aria-live="polite"
           class="flex items-center"
           :class="{ 'animate-response-heading': response }">
-          <span class="response-heading pointer-events-none absolute">
-            Response
-          </span>
+          <span class="response-heading pointer-events-none absolute">{{
+            translate('apiClient.responseBlock.response')
+          }}</span>
           <ResponseMetaInformation
             v-if="response"
             class="animate-response-children"
@@ -151,7 +171,8 @@ defineExpose({
         <SectionFilter
           v-model="activeFilter"
           :filterIds="filterIds"
-          :filters="filters" />
+          :filters="filters"
+          :labels="filterLabels" />
       </div>
     </template>
     <div
@@ -164,6 +185,7 @@ defineExpose({
       <template v-if="!response">
         <ResponseEmpty
           :appVersion="appVersion"
+          :executionDisabled
           :layout="layout"
           :totalPerformedRequests="totalPerformedRequests"
           @addRequest="
@@ -190,7 +212,9 @@ defineExpose({
           class="response-section-content-headers"
           :headers="requestHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
-          <template #title>Request Headers</template>
+          <template #title>
+            {{ translate('apiClient.responseBlock.requestHeaders') }}
+          </template>
         </HeadersComponent>
         <!-- Response headers section -->
         <HeadersComponent
@@ -199,7 +223,9 @@ defineExpose({
           class="response-section-content-headers"
           :headers="responseHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
-          <template #title>Response Headers</template>
+          <template #title>
+            {{ translate('apiClient.responseBlock.responseHeaders') }}
+          </template>
         </HeadersComponent>
 
         <!-- Inject response section plugin components -->
@@ -219,6 +245,7 @@ defineExpose({
             v-if="'reader' in response"
             :id="filterIds.Body"
             class="response-section-content-body"
+            :contentType="responseContentType"
             :reader="response.reader" />
 
           <!-- Virtualized Text for massive responses -->
@@ -241,7 +268,7 @@ defineExpose({
             layout="client"
             :plugins="plugins"
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
-            title="Body" />
+            :title="translate('apiClient.responseBlock.body')" />
         </template>
       </template>
       <ResponseLoadingOverlay :eventBus="eventBus" />

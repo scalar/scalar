@@ -58,14 +58,29 @@
     "packages/types/src/openapi/3.1/index.generated.ts": ["types"],
     // Public extension type namespaces are consumed via @scalar/types/extensions/* package exports
     "packages/types/src/extensions/**/*.ts": ["types", "exports"],
-    // The v3.2 schemas mirror v3.1 as a superset. These exports are used by their v3.1 counterparts
-    // (resolve.ts, navigation.ts, and the openapi-types codegen script) and become used once the
-    // store is wired to v3.2. Until then knip cannot see a consumer.
-    "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"],
-    "packages/workspace-store/src/schemas/v3.2/strict/ref-definitions.ts": ["exports"],
-    "packages/workspace-store/src/schemas/v3.2/strict/schema.ts": ["types"]
+    // The v3.1 and v3.2 strict schema trees mirror each other as a superset. The store is now wired
+    // to the v3.2 tree, so these v3.1 mirror exports (TraversedEntryObjectRef, MaybeRefSchemaObject)
+    // no longer have an internal consumer. They are kept for parity with v3.2 and the 3.1 upgrade
+    // path, and remain reachable via the package `./schemas/*` export.
+    "packages/workspace-store/src/schemas/v3.1/strict/ref-definitions.ts": ["exports"],
+    "packages/workspace-store/src/schemas/v3.1/strict/schema.ts": ["types"]
   },
   "workspaces": {
+    ".": {
+      "ignoreDependencies": [
+        // Executed from the repo root by tooling/changelog-generator/src/version.ts.
+        "@changesets/cli"
+      ]
+    },
+    "integrations/rust": {
+      "ignoreDependencies": [
+        // The build copies the standalone bundle; Changesets tracks its version for Rust releases.
+        "@scalar/api-reference"
+      ]
+    },
+    "tooling/changelog-generator": {
+      "entry": ["src/index.ts", "src/version.ts"]
+    },
     "packages/api-client": {
       "entry": [
         "src/components/HttpMethod/index.ts",
@@ -145,6 +160,14 @@
     "packages/api-reference-react": {
       "entry": ["src/index.ts", "playground/main.tsx"]
     },
+    "packages/asyncapi-validator": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/src/main.ts",
+        "playground/vite.config.ts"
+      ]
+    },
     "packages/build-tooling": {
       "entry": ["src/index.ts", "src/esbuild/index.ts", "src/vite/index.ts"]
     },
@@ -198,6 +221,7 @@
       "entry": [
         "src/bundle/index.ts",
         "src/magic-proxy/index.ts",
+        "src/join/index.ts",
         "src/diff/index.ts",
         "src/dereference/index.ts",
         "src/bundle/plugins/node.ts",
@@ -225,6 +249,10 @@
     "packages/object-utils": {
       "entry": ["src/*/index.ts"]
     },
+    "packages/openapi-to-markdown": {
+      // Run manually to compare the old and new renderers.
+      "entry": ["src/index.ts", "benchmarks/compare.mjs"]
+    },
     "packages/openapi-parser": {
       "entry": [
         //
@@ -235,6 +263,14 @@
     },
     "packages/openapi-types": {
       "entry": ["src/index.ts", "src/helpers/index.ts"]
+    },
+    "packages/openapi-validator": {
+      "entry": [
+        "src/index.ts",
+        //
+        "playground/src/main.ts",
+        "playground/vite.config.ts"
+      ]
     },
     "packages/sidebar": {
       "entry": [
@@ -317,9 +353,6 @@
         // Exposed via the `./sandbox` subpath export, which knip cannot map back to src.
         "src/libs/execute-scripts/postman-adapter/sandbox-frame-entry.ts"
       ]
-    },
-    "packages/openapi-to-markdown": {
-      "ignoreDependencies": ["vue"]
     },
     "packages/react-renderer": {
       "ignoreDependencies": ["react", "react-dom", "vue"]
@@ -425,7 +458,9 @@
       "ignoreBinaries": ["mvn"]
     },
     "integrations/nestjs": {},
-    "integrations/nextjs": {},
+    "integrations/nextjs": {
+      "entry": ["src/index.ts", "index.ts", "playwright/fixture/app/**/route.ts", "playwright/fixture/next.config.mjs"]
+    },
     "integrations/nuxt": {
       "entry": [
         "src/module.ts",

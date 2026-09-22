@@ -6,7 +6,8 @@
 
 import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
-import type { LifecyclePlugin } from '@scalar/json-magic/bundle'
+import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
+import { type LifecyclePlugin, resolveReferencePath } from '@scalar/json-magic/bundle'
 
 import { isLocalRef } from '@/helpers/general'
 import {
@@ -45,9 +46,10 @@ export const loadingStatus = (): LifecyclePlugin => {
  *
  * This is useful for inlining external content (like examples or schemas) into the OpenAPI document during bundling.
  *
- * @param node - The node being processed, which may contain an 'externalValue' property.
+ * In lazy mode, preserve the absolute URL for on-demand client resolution without fetching a payload.
+ * The default eager mode remains available to existing bundler consumers.
  */
-export const externalValueResolver = (): LifecyclePlugin => {
+export const externalValueResolver = (options?: { lazy?: boolean }): LifecyclePlugin => {
   return {
     type: 'lifecycle',
     onAfterNodeProcess: async (node, context) => {
@@ -55,22 +57,34 @@ export const externalValueResolver = (): LifecyclePlugin => {
       const cache = context.resolutionCache
 
       // Only process if 'externalValue' is a string
-      if (typeof externalValue !== 'string') {
+      if (typeof externalValue !== 'string' || node['value'] !== undefined) {
         return
       }
 
-      const loader = context.loaders.find((it) => it.validate(externalValue))
+      // `externalValue` may be relative (for example `/examples/pet.json`). Resolve it against the
+      // origin of the document it lives in so it becomes an absolute URL a loader can fetch.
+      const resolvedValue = resolveReferencePath(context.origin, externalValue)
+
+      if (options?.lazy) {
+        const path = context.path.at(-2) === 'examples' ? context.path : (context.referencedFromPath ?? context.path)
+        if (path.at(-2) !== 'examples' || isSchemaPath(path)) return
+        // Preserve the referenced document origin before bundling loses that context.
+        node['externalValue'] = resolvedValue
+        return
+      }
+
+      const loader = context.loaders.find((it) => it.validate(resolvedValue))
 
       // We can not process the external value
       if (!loader) {
         return
       }
 
-      if (!cache.has(externalValue)) {
-        cache.set(externalValue, loader.exec(externalValue))
+      if (!cache.has(resolvedValue)) {
+        cache.set(resolvedValue, loader.exec(resolvedValue))
       }
 
-      const result = await cache.get(externalValue)
+      const result = await cache.get(resolvedValue)
 
       // If fetch is successful, assign the data to the node's 'value' property
       if (result?.ok) {
@@ -158,9 +172,15 @@ export const refsEverywhere = (): LifecyclePlugin => {
 export const restoreOriginalRefs = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
-    onBeforeNodeProcess: (node, context) => {
+    onAfterNodeProcess: (node, context) => {
       const ref = node['$ref']
       const root = context.rootNode
+      const authoredRefs = root['x-scalar-original-refs']
+      const authored = isObject(authoredRefs) ? authoredRefs[JSON.stringify(context.path)] : undefined
+      if (isObject(authored) && typeof authored.original === 'string' && authored.rewritten === ref) {
+        node['$ref'] = authored.original
+        return
+      }
       const extUrls = root['x-ext-urls']
 
       // Only process if $ref is a string and x-ext-urls is a valid object
@@ -232,36 +252,29 @@ export const normalizeAuthSchemes = (): LifecyclePlugin => {
 
 /**
  * Lifecycle plugin to normalize $ref nodes:
- * Ensures that for any non-schema object containing a $ref, only $ref,
+ * Ensures that for any OpenAPI Reference Object containing a $ref, only $ref,
  * summary, description, and $status properties are preserved.
  * This keeps $ref references clean and predictable for downstream consumers.
+ *
+ * Schema Objects are deliberately skipped: in JSON Schema 2020-12 a $ref may
+ * carry sibling keywords, so their siblings must not be stripped.
  */
 export const normalizeRefs = (): LifecyclePlugin => {
   return {
     type: 'lifecycle',
     onBeforeNodeProcess: (node, context) => {
-      const { path } = context
+      const { path, referencedFromPath } = context
+      const isSchema = isSchemaPath(path) || isSchemaPath(referencedFromPath)
 
-      // If the node is a $ref and we are not on the schema object, we need to normalize the $ref
-      if (typeof node['$ref'] === 'string' && !(path[0] === 'components' && path[1] === 'schemas')) {
-        // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'.
-        // The JSON Schema 2020-12 reference keywords are also kept: a schema-position `$ref` may carry a
-        // `$defs`/`$dynamicAnchor` binding as a sibling to specialize a generic template (the `Paginated<T>`
-        // pattern). Such a schema can appear inline anywhere a schema is allowed — for example a response's
-        // `content.<media>.schema` — not only under `components/schemas`. Dropping these siblings here would
-        // discard the item-type binding, leaving `$dynamicRef` to resolve to the template's empty fallback and
-        // rendering an empty array. See https://github.com/scalar/scalar/issues/9414.
-        const keepProperties = new Set([
-          '$ref',
-          'summary',
-          'description',
-          '$status',
-          '$id',
-          '$anchor',
-          '$dynamicAnchor',
-          '$dynamicRef',
-          '$defs',
-        ])
+      // Normalization only applies to OpenAPI Reference Objects, where a `$ref` may sit next to nothing but
+      // `summary` and `description`. Schema Objects are left untouched: in JSON Schema 2020-12 a `$ref` may
+      // legally carry sibling keywords — for example a `$defs`/`$dynamicAnchor` binding that specializes a
+      // generic template (the `Paginated<T>` pattern) — and such schemas appear inline, in reusable schemas,
+      // and in raw external schema documents. Stripping those siblings would discard the binding and leave
+      // `$dynamicRef` resolving to the template's empty fallback. See https://github.com/scalar/scalar/issues/9414.
+      if (typeof node['$ref'] === 'string' && !isSchema) {
+        // Remove any other properties from the node and only keep the '$ref', 'summary', 'description' and '$status'
+        const keepProperties = new Set(['$ref', 'summary', 'description', '$status'])
 
         Object.keys(node).forEach((key) => {
           if (!keepProperties.has(key)) {
@@ -392,3 +405,5 @@ export const removeExtraScalarKeys = (): LifecyclePlugin => {
     },
   }
 }
+
+export { openApiDocument, resolveOpenApiDocument } from './openapi-document'

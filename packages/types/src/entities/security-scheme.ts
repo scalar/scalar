@@ -75,6 +75,19 @@ export const securityHttpSchema = oasSecuritySchemeHttp.merge(extendedSecuritySc
 export type SecuritySchemaHttp = z.infer<typeof securityHttpSchema>
 
 // ---------------------------------------------------------------------------
+// MUTUAL TLS
+
+// Mutual TLS presents a client certificate at the TLS layer, so there is no name/value pair or
+// token for the user to enter. The scheme is modeled so its type survives coercion and the auth UI
+// can react to it instead of falling back to the generic apiKey form.
+const oasSecuritySchemeMutualTls = commonProps.extend({
+  type: z.literal('mutualTLS'),
+})
+
+export const securityMutualTlsSchema = oasSecuritySchemeMutualTls.merge(extendedSecuritySchema)
+export type SecuritySchemeMutualTls = z.infer<typeof securityMutualTlsSchema>
+
+// ---------------------------------------------------------------------------
 // OPENID CONNECT
 const oasSecuritySchemeOpenId = commonProps.extend({
   type: z.literal('openIdConnect'),
@@ -148,6 +161,13 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
   flows: z
     .object({
       /** Configuration for the OAuth Implicit flow */
+      deviceAuthorization: flowsCommon.extend({
+        type: z.literal('deviceAuthorization').default('deviceAuthorization'),
+        deviceAuthorizationUrl: z.string().default(''),
+        tokenUrl,
+        clientSecret: z.string().default(''),
+        'x-scalar-credentials-location': credentialsLocationExtension,
+      }),
       implicit: flowsCommon.extend({
         'type': z.literal('implicit').default('implicit'),
         authorizationUrl,
@@ -200,10 +220,16 @@ export const securityOauthSchema = oasSecuritySchemeOauth2.merge(extendedSecurit
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
 export type SecuritySchemeOauth2Payload = z.input<typeof securityOauthSchema>
 export type Oauth2Flow = NonNullable<
-  SecuritySchemeOauth2['flows']['authorizationCode' | 'clientCredentials' | 'implicit' | 'password']
+  SecuritySchemeOauth2['flows'][
+    | 'authorizationCode'
+    | 'clientCredentials'
+    | 'implicit'
+    | 'password'
+    | 'deviceAuthorization']
 >
 /** Payload for the oauth 2 flows + extensions */
 export type Oauth2FlowPayload = NonNullable<SecuritySchemeOauth2Payload['flows']>[
+  | 'deviceAuthorization'
   | 'authorizationCode'
   | 'clientCredentials'
   | 'implicit'
@@ -229,13 +255,20 @@ export const oasSecurityRequirementSchema = z.record(z.string(), z.array(z.strin
 export const oasSecuritySchemeSchema = z.union([
   oasSecuritySchemeApiKey,
   oasSecuritySchemeHttp,
+  oasSecuritySchemeMutualTls,
   oasSecuritySchemeOauth2,
   oasSecuritySchemeOpenId,
 ])
 
 /** Extended security schemes for workspace usage */
 export const securitySchemeSchema = z
-  .discriminatedUnion('type', [securityApiKeySchema, securityHttpSchema, securityOpenIdSchema, securityOauthSchema])
+  .discriminatedUnion('type', [
+    securityApiKeySchema,
+    securityHttpSchema,
+    securityMutualTlsSchema,
+    securityOpenIdSchema,
+    securityOauthSchema,
+  ])
   .transform((data) => {
     // Set selected scopes from x-default-scopes
     if (data.type === 'oauth2' && data['x-default-scopes']?.length) {

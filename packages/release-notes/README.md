@@ -43,17 +43,21 @@ scalar-release-notes \
 Create `release-notes.config.mjs`:
 
 ```js
-import { createAnthropicProvider, defineReleaseNotesConfig } from '@scalar/release-notes'
+import { defineReleaseNotesConfig } from '@scalar/release-notes'
 
 export default defineReleaseNotesConfig({
-  provider: createAnthropicProvider({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-    model: 'claude-sonnet-4-5',
-  }),
+  // A built-in provider name: 'anthropic' (default) or 'openai'.
+  provider: 'anthropic',
+  model: 'claude-sonnet-4-5',
+  // Environment variable holding the provider API key.
+  // Defaults to ANTHROPIC_API_KEY or OPENAI_API_KEY.
+  apiKeyEnv: 'ANTHROPIC_API_KEY',
   github: {
     repo: 'owner/repo',
     token: process.env.GITHUB_TOKEN,
     baseBranch: 'main',
+    // Set to false to generate from the CHANGELOG alone, with no GitHub API calls.
+    pullRequestContext: true,
   },
   products: [
     {
@@ -69,37 +73,70 @@ export default defineReleaseNotesConfig({
 })
 ```
 
+For full control over how a provider is created, pass a provider object instead of a name. See [Providers](#providers).
+
 JavaScript, JSON, and TypeScript config files are discovered by name. TypeScript config loading depends on your runtime being able to import `.ts` files, for example through `tsx`.
 
 The published JSON Schema for `RELEASE_NOTES.json` is available at `@scalar/release-notes/schema`.
 
+## Pull request context
+
+When `github.repo` is configured, every referenced pull request (`#123`) is fetched from the GitHub REST API and its title and description are fed to the provider as extra context. Turn it off to skip those calls and generate from the CHANGELOG alone:
+
+```js
+export default defineReleaseNotesConfig({
+  github: {
+    repo: 'owner/repo',
+    pullRequestContext: false,
+  },
+})
+```
+
+Or per run:
+
+```bash
+scalar-release-notes --all --no-pull-request-context
+```
+
+The flag only turns pull request context off. There is no counterpart that turns it back on for a config that set `pullRequestContext: false`.
+
 ## Providers
+
+A built-in provider is selected by name (`'anthropic'` or `'openai'`) in the config or with `--provider`, and is constructed with its defaults. Pass a provider object instead when you need control over how it is built.
+
+`model` and `apiKeyEnv` belong to the provider their own config selects, so switching provider drops them. Passing `--provider openai` ignores the `model` and `apiKeyEnv` of a config that selects Anthropic, whether it names Anthropic or relies on the default. Pass `--model` and `--api-key-env` alongside it to set them for the new provider.
 
 Use Anthropic:
 
 ```js
-import { createAnthropicProvider } from '@scalar/release-notes'
+import { createAnthropicProvider, defineReleaseNotesConfig } from '@scalar/release-notes'
 
-createAnthropicProvider({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  model: 'claude-sonnet-4-5',
+export default defineReleaseNotesConfig({
+  provider: createAnthropicProvider({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+    model: 'claude-sonnet-4-5',
+  }),
 })
 ```
 
 Use OpenAI:
 
 ```js
-import { createOpenAIProvider } from '@scalar/release-notes'
+import { createOpenAIProvider, defineReleaseNotesConfig } from '@scalar/release-notes'
 
-createOpenAIProvider({
-  apiKey: process.env.OPENAI_API_KEY,
-  model: 'gpt-4.1-mini',
+export default defineReleaseNotesConfig({
+  provider: createOpenAIProvider({
+    apiKey: process.env.OPENAI_API_KEY,
+    model: 'gpt-4.1-mini',
+  }),
 })
 ```
 
 Use a custom provider:
 
 ```js
+import { defineReleaseNotesConfig } from '@scalar/release-notes'
+
 export default defineReleaseNotesConfig({
   provider: {
     name: 'internal-agent',
@@ -109,6 +146,8 @@ export default defineReleaseNotesConfig({
   },
 })
 ```
+
+A provider object builds itself, so the top-level `apiKeyEnv` does not apply to it. A top-level `model` still does: it is passed to `generateJson`.
 
 The provider can return either a JSON object or a JSON string. The package validates the result before writing `RELEASE_NOTES.json`.
 
@@ -136,7 +175,7 @@ OpenAI:
 
 ## Markdown Sync
 
-Regenerate Markdown from JSON without using AI:
+Regenerate Markdown from JSON without using AI. The config file is still read and its `provider` field still validated, so an unusable `provider` value fails here too:
 
 ```bash
 scalar-release-notes sync-release-notes-markdown \

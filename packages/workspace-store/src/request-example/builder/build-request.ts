@@ -5,6 +5,7 @@ import { safeRun } from '@scalar/helpers/types/safe-run'
 import { redirectToProxy, shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { encode as encodeBase64 } from 'js-base64'
 
+import { encodeMultipartBody } from '@/request-example/builder/body/encode-multipart-body'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
@@ -43,7 +44,8 @@ const formatSecurityValue = (
   }
 
   if (security.format === 'bearer') {
-    return `Bearer ${substitutedValue}`
+    // Normalize pasted tokens after resolving variables, which may also contain surrounding whitespace.
+    return `Bearer ${substitutedValue.trim()}`
   }
 
   return substitutedValue
@@ -163,6 +165,14 @@ const buildRequestInner = (
 
   /** Create a new body object with the replaced values */
   const body: BodyInit | null = (() => {
+    if (request.body?.mode === 'multipart') {
+      const encoded = encodeMultipartBody(request.body.value, request.body.contentType, (value) =>
+        replaceEnvVariables(value, replace),
+      )
+      headers.set('content-type', encoded.type)
+      return encoded
+    }
+
     if (request.body?.mode === 'raw') {
       if (typeof request.body.value === 'string') {
         return replaceEnvVariables(request.body.value, replace)
@@ -171,15 +181,20 @@ const buildRequestInner = (
     }
 
     if (request.body?.mode === 'formdata') {
+      const parts = request.body.value.map((item) => ({
+        ...item,
+        key: replaceEnvVariables(item.key, replace),
+      }))
+      const resolvedParts = parts.map((item) =>
+        item.type === 'text' ? { ...item, value: replaceEnvVariables(item.value, replace) } : item,
+      )
+      if (request.body.value.some((item) => item.type === 'text' && item.contentType)) {
+        const encoded = encodeMultipartBody(resolvedParts)
+        headers.set('content-type', encoded.type)
+        return encoded
+      }
       const form = new FormData()
-
-      request.body.value.forEach((item) => {
-        if (item.type === 'text') {
-          form.append(replaceEnvVariables(item.key, replace), replaceEnvVariables(item.value, replace))
-          return
-        }
-        form.append(replaceEnvVariables(item.key, replace), item.value)
-      })
+      resolvedParts.forEach((item) => form.append(item.key, item.value))
       return form
     }
 

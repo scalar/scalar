@@ -1,5 +1,23 @@
 # @scalar/nextjs-api-reference
 
+## 0.12.2
+
+## 0.12.1
+
+## 0.12.0
+
+### Minor Changes
+
+- [#10100](https://github.com/scalar/scalar/pull/10100): Support request-specific async configuration and custom response headers. Export configuration and handler option types.
+
+### Patch Changes
+
+- [#10105](https://github.com/scalar/scalar/pull/10105): Add production browser compatibility coverage for Next.js 15 and 16.
+
+## 0.11.18
+
+## 0.11.17
+
 ## 0.11.16
 
 ### Patch Changes

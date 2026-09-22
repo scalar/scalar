@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { isTypeObject } from './is-type-object'
 
 describe('is-type-object', () => {

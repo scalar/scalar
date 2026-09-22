@@ -7,6 +7,8 @@ steps:
         'build',
         '-t',
         'gcr.io/${_PROJECT_ID}/${_SERVICE_GO_PROXY}',
+        '--build-arg',
+        'COMMIT_SHA=$COMMIT_SHA',
         '-f',
         './Dockerfile',
         '.',

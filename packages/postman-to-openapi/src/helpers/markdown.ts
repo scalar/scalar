@@ -31,7 +31,7 @@ export function parseMdTable(md: string): TableObject {
   const tableObj: TableObject = rows.reduce((accTable: TableObject, cell) => {
     const cellObj: TableCell = cell.reduce((accCell: TableCell, field, index) => {
       if (headers[index] && typeof headers[index] === 'string') {
-        accCell[headers[index] as string] = field
+        accCell[headers[index]] = field
       }
       return accCell
     }, {})

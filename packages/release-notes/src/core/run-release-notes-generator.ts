@@ -66,7 +66,9 @@ const loadDependencyChangelog = async (changelogPath: string): Promise<Dependenc
   try {
     changelog = await readFile(resolvedPath, 'utf-8')
   } catch (error) {
-    console.warn(`Skipping dependency changelog ${changelogPath}: ${(error as Error).message}`)
+    console.warn(
+      `Skipping dependency changelog ${changelogPath}: ${error instanceof Error ? error.message : String(error)}`,
+    )
     return null
   }
 
@@ -156,10 +158,13 @@ export const runReleaseNotesGeneratorForProduct = async (
   })
   const changelogSection = section ?? ''
   const dependencyChangelogText = dependencyChangelogs.map((entry) => entry.changelogSection).join('\n')
-  const pullRequestNumbers = extractPullRequestNumbers(
-    [changelogSection, dependencyChangelogText].filter(Boolean).join('\n'),
-    options.github?.repo,
-  )
+  const includePullRequestContext = options.github?.pullRequestContext !== false
+  const pullRequestNumbers = includePullRequestContext
+    ? extractPullRequestNumbers(
+        [changelogSection, dependencyChangelogText].filter(Boolean).join('\n'),
+        options.github?.repo,
+      )
+    : []
   const pullRequests =
     pullRequestNumbers.length && options.github?.repo
       ? await fetchPullRequests({

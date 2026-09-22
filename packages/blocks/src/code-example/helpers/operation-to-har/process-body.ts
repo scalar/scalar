@@ -1,18 +1,25 @@
 import { json2xml } from '@scalar/helpers/file/json2xml'
-import { isObjectLike } from '@scalar/helpers/object/is-object'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
+import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
+  buildRequestBody,
+  coerceLeafValueToSchemaType,
   getExample,
   getExampleFromSchema,
+  needsMultipartEncoding,
+  resolveLeafSchema,
   serializeFormPropertyWithEncoding,
+  serializeMultipartArray,
+  serializeMultipartBody,
 } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
   RequestBodyObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Param, PostData } from 'har-format'
 
 import type { OperationToHarProps } from './operation-to-har'
@@ -30,9 +37,8 @@ type MultipartEncodingMap = MediaTypeObject['encoding']
  * Per OpenAPI 3.1.x Encoding Object, each property's serialization is governed
  * by an optional Encoding entry. When `style` / `explode` / `allowReserved` is
  * set, the value is serialized RFC6570-style and `contentType` is ignored.
- * When only `contentType` is set, the property becomes a single part with that
- * type. Otherwise spec defaults apply (object → `application/json` for multipart,
- * primitives → `text/plain`).
+ * Multipart arrays apply the encoding to each item and repeat the property name.
+ * Object items default to JSON, and uploaded files retain their filename references.
  *
  * @param obj - The form-data payload, either an object keyed by property name
  *   or a HAR-style `{ name, value, isDisabled }[]` array.
@@ -41,14 +47,15 @@ type MultipartEncodingMap = MediaTypeObject['encoding']
  * @param parentKey - When set, we are flattening a nested object inside another
  *   property; encoding is ignored and keys are joined with `.` (legacy default).
  * @param isMultipart - True for `multipart/form-data`. Gates the spec defaults
- *   for object/array properties that should become a single `application/json`
- *   part. Urlencoded bodies skip those branches and fall through to flattening.
+ *   for object properties and array items. Urlencoded bodies retain their existing
+ *   serialization and flattening behavior.
  */
 const objectToFormParams = (
   obj: object | { name: string; value: unknown; isDisabled: boolean }[],
   encoding?: MultipartEncodingMap,
   parentKey?: string,
   isMultipart = false,
+  schema?: SchemaObject,
 ): Param[] => {
   const params: Param[] = []
 
@@ -63,6 +70,21 @@ const objectToFormParams = (
     }
 
     const partEncoding = parentKey ? undefined : encoding?.[key]
+
+    if (isMultipart && !parentKey) {
+      const restored = Array.isArray(obj) ? coerceLeafValueToSchemaType(value, resolveLeafSchema(schema, [key])) : value
+      const arrayParts = serializeMultipartArray(key, Array.isArray(restored) ? restored : value, partEncoding)
+      if (arrayParts) {
+        for (const part of arrayParts) {
+          params.push({
+            name: part.key,
+            value: part.value instanceof File ? `@${part.value.name}` : part.value,
+            ...(part.contentType ? { contentType: part.contentType } : {}),
+          })
+        }
+        continue
+      }
+    }
     /**
      * Per OpenAPI 3.1.1: when style, explode, or allowReserved is explicitly set on the
      * encoding entry, contentType (implicit or explicit) is ignored and the value is
@@ -127,24 +149,6 @@ const objectToFormParams = (
         value: JSON.stringify(unpackProxyObject(value)),
         contentType: 'application/json',
       })
-    } else if (
-      Array.isArray(value) &&
-      isMultipart &&
-      !parentKey &&
-      !hasFormStyle &&
-      value.some((item) => isObjectLike(item) && !(item instanceof File))
-    ) {
-      /**
-       * Per OpenAPI 3.x: a top-level multipart array whose items are objects defaults to a single
-       * `application/json` part containing the whole array. Serializing each item into its own part
-       * would drop the enclosing array wrapper and emit a bare object (see issue #9688), so keep the
-       * array intact and stringify it as one value.
-       */
-      params.push({
-        name: key,
-        value: JSON.stringify(unpackProxyObject(value)),
-        contentType: 'application/json',
-      })
     } else if (Array.isArray(value)) {
       for (const item of value) {
         if (item instanceof File) {
@@ -199,6 +203,28 @@ export const processBody = ({
   }
   const encoding = requestBody.content[_contentType]?.encoding
 
+  const media = requestBody.content[_contentType]
+  if (media && needsMultipartEncoding(_contentType, media)) {
+    const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
+    const body = buildRequestBody(
+      { ...requestBody, 'x-scalar-selected-content-type': { [exampleName]: _contentType } },
+      exampleName,
+      requestBodyCompositionSelection,
+    )
+    if (body?.mode === 'multipart') {
+      const encoded = serializeMultipartBody(body.value, body.contentType)
+      return {
+        mimeType: encoded.contentType,
+        // HAR text cannot embed file bytes synchronously. Keep visible file placeholders.
+        text: encoded.chunks
+          .map((chunk) =>
+            chunk instanceof File ? formatBinaryFile(chunk) : chunk instanceof Blob ? 'BINARY' : String(chunk),
+          )
+          .join(''),
+      }
+    }
+  }
+
   // Check if this is a form data content type
   const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'
 
@@ -206,7 +232,12 @@ export const processBody = ({
   const isXml = _contentType === 'application/xml'
 
   // Get the example value
-  const _example = getExample(requestBody, example, contentType)?.value
+  const selected = getExampleValue(getExample(requestBody, example, contentType))
+  const explicitText = getExplicitExampleText(selected, _contentType)
+  if (explicitText !== undefined) {
+    return { mimeType: harMimeType, text: explicitText }
+  }
+  const _example = selected?.value
 
   // Return the provided top level example
   if (typeof _example !== 'undefined') {
@@ -215,7 +246,13 @@ export const processBody = ({
     if (isFormData && typeof exampleValue === 'object' && exampleValue !== null) {
       return {
         mimeType: harMimeType,
-        params: objectToFormParams(exampleValue, encoding, undefined, _contentType === 'multipart/form-data'),
+        params: objectToFormParams(
+          exampleValue,
+          encoding,
+          undefined,
+          _contentType === 'multipart/form-data',
+          getResolvedRef(requestBody.content[_contentType]?.schema, mergeSiblingReferences),
+        ),
       }
     }
 
@@ -235,12 +272,16 @@ export const processBody = ({
 
     return {
       mimeType: harMimeType,
-      text: typeof exampleValue === 'string' ? exampleValue : JSON.stringify(exampleValue),
+      text:
+        typeof exampleValue === 'string'
+          ? exampleValue
+          : (serializeStreamExample(exampleValue, _contentType, false) ?? JSON.stringify(exampleValue)),
     }
   }
 
   // Try to extract examples from the schema
-  const contentSchema = getResolvedRef(requestBody.content[_contentType]?.schema)
+  const mediaType = requestBody.content[_contentType]
+  const contentSchema = getResolvedRef(mediaType?.schema ?? mediaType?.itemSchema)
   if (typeof contentSchema !== 'undefined') {
     const resolvedContentSchema = getResolvedRefDeep(contentSchema) as SchemaObject
     const extractedExample = getExampleFromSchema(
@@ -272,7 +313,9 @@ export const processBody = ({
 
       return {
         mimeType: harMimeType,
-        text: typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample),
+        text:
+          serializeStreamExample(extractedExample, _contentType, mediaType?.schema === undefined) ??
+          (typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample)),
       }
     }
   }

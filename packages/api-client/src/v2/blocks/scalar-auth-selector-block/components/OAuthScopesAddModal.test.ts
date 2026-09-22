@@ -135,21 +135,24 @@ describe('OAuthScopesAddModal', () => {
     expect(state.open).toBe(true)
   })
 
-  it('shows a duplicate-name inline error when the scope name already exists', async () => {
-    const wrapper = mountWithProps({ scopes: ['read:user', 'write:user'] })
-    await openModal(wrapper)
+  it.each(['read:user', '$&', "$'", '$`', '$$'])(
+    'preserves the duplicate scope name in the inline error: %s',
+    async (scopeName) => {
+      const wrapper = mountWithProps({ scopes: [scopeName, 'write:user'] })
+      await openModal(wrapper)
 
-    const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
-    await inputs[0]!.vm.$emit('update:modelValue', 'read:user')
-    await nextTick()
+      const inputs = wrapper.findAllComponents({ name: 'CommandActionInput' })
+      await inputs[0]!.vm.$emit('update:modelValue', scopeName)
+      await nextTick()
 
-    const error = queryAlert()
-    expect(error).not.toBeNull()
-    expect(error?.textContent).toContain('A scope named "read:user" already exists.')
+      const error = queryAlert()
+      expect(error).not.toBeNull()
+      expect(error?.textContent).toContain(`A scope named "${scopeName}" already exists.`)
 
-    const form = wrapper.findComponent({ name: 'CommandActionForm' })
-    expect(form.props('disabled')).toBe(true)
-  })
+      const form = wrapper.findComponent({ name: 'CommandActionForm' })
+      expect(form.props('disabled')).toBe(true)
+    },
+  )
 
   it('does not show a duplicate error in edit mode when the original name is unchanged', async () => {
     const wrapper = mountWithProps({

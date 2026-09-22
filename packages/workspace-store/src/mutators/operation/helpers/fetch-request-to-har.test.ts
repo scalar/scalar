@@ -1,5 +1,6 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 
+import { encodeMultipartBody } from '@/request-example/builder/body/encode-multipart-body'
 import type { RequestPayload } from '@/request-example/builder/build-request'
 
 import { fetchRequestToHar } from './fetch-request-to-har'
@@ -570,4 +571,52 @@ describe('fetchRequestToHar', () => {
       expect(result.queryString).toEqual([{ name: 'scalar_url', value: 'https://api.example.com/users' }])
     }
   })
+  it('captures encoded multipart fields and files without raw binary text', async () => {
+    const body = encodeMultipartBody([
+      { type: 'text', key: 'data', value: '{"id":1}', contentType: 'application/json' },
+      { type: 'text', key: 'data', value: '{"id":2}', contentType: 'application/json' },
+      { type: 'file', key: 'upload', value: new File([new Uint8Array([0, 255])], 'data.bin') },
+    ])
+    const requestPayload: [string, RequestInit] = [
+      'https://example.com',
+      {
+        method: 'POST',
+        body,
+        headers: { 'content-type': body.type },
+      },
+    ]
+    const har = await fetchRequestToHar({ requestPayload })
+    expect(har.postData).toEqual({
+      mimeType: 'multipart/form-data',
+      params: [
+        { name: 'data', value: '{"id":1}' },
+        { name: 'data', value: '{"id":2}' },
+        { name: 'upload', value: '@data.bin' },
+      ],
+    })
+    expect(har.bodySize).toBe(body.size)
+    const omitted = await fetchRequestToHar({ requestPayload, bodySizeLimit: body.size - 1 })
+    expect(omitted.postData).toEqual({ mimeType: 'multipart/form-data', text: '' })
+    expect(omitted.bodySize).toBe(-1)
+    expect(await fetchRequestToHar({ requestPayload })).toEqual(har)
+  })
+  it.each([new Blob(['malformed multipart']), new File(['malformed multipart'], 'raw.multipart')])(
+    'records requests with malformed raw multipart bodies without failing',
+    async (body) => {
+      const har = await fetchRequestToHar({
+        requestPayload: [
+          'https://example.com',
+          {
+            method: 'POST',
+            body,
+            headers: { 'content-type': 'multipart/form-data; boundary=missing' },
+          },
+        ],
+      })
+      expect(har.url).toBe('https://example.com')
+      expect(har.method).toBe('POST')
+      expect(har.postData).toEqual({ mimeType: 'multipart/form-data', text: '' })
+      expect(har.bodySize).toBe(-1)
+    },
+  )
 })

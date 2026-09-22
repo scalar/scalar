@@ -1,23 +1,29 @@
 import { Type } from '@scalar/typebox'
 
 import { compose } from '@/schemas/compose'
+import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
 import type { OAuthFlowsObject } from '@/schemas/v3.2/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.2/strict/ref-definitions'
 
-const DescriptionSchema = Type.Object({
-  /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-  description: Type.Optional(Type.String()),
-  /** Declares this security scheme to be deprecated. Consumers SHOULD refrain from usage of the declared scheme. Added in OpenAPI 3.2. */
-  deprecated: Type.Optional(Type.Boolean()),
-})
+// Shared base for every security scheme: a description plus the ignore extension, so any
+// scheme can be hidden from the auth UI with `x-scalar-ignore`. See documentation/openapi.md.
+const DescriptionSchema = compose(
+  Type.Object({
+    /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
+    description: Type.Optional(Type.String()),
+    /** Declares this security scheme to be deprecated. Consumers SHOULD refrain from usage of the declared scheme. Added in OpenAPI 3.2. */
+    deprecated: Type.Optional(Type.Boolean()),
+  }),
+  XScalarIgnoreSchema,
+)
 
 type Description = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   /** Declares this security scheme to be deprecated. Consumers SHOULD refrain from usage of the declared scheme. Added in OpenAPI 3.2. */
   deprecated?: boolean
-}
+} & XScalarIgnore
 
 const ApiKeySchema = compose(
   DescriptionSchema,
@@ -61,6 +67,19 @@ export type HttpObject = Description & {
   bearerFormat?: string
 }
 
+const MutualTlsSchema = compose(
+  DescriptionSchema,
+  Type.Object({
+    /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
+    type: Type.Literal('mutualTLS'),
+  }),
+)
+
+export type MutualTlsObject = Description & {
+  /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
+  type: 'mutualTLS'
+}
+
 const OAuth2 = compose(
   DescriptionSchema,
   Type.Object({
@@ -68,7 +87,7 @@ const OAuth2 = compose(
     type: Type.Literal('oauth2'),
     /** REQUIRED. An object containing configuration information for the flow types supported. */
     flows: OAuthFlowsObjectRef,
-    /** URL to the OAuth2 authorization server metadata (RFC8414). TLS is required. Added in OpenAPI 3.2. */
+    /** URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP for local development URLs. Added in OpenAPI 3.2. */
     oauth2MetadataUrl: Type.Optional(Type.String()),
   }),
   XDefaultScopesSchema,
@@ -79,7 +98,7 @@ export type OAuth2Object = Description & {
   type: 'oauth2'
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: OAuthFlowsObject
-  /** URL to the OAuth2 authorization server metadata (RFC8414). TLS is required. Added in OpenAPI 3.2. */
+  /** URL to the OAuth2 authorization server metadata (RFC8414). Use HTTPS, or HTTP for local development URLs. Added in OpenAPI 3.2. */
   oauth2MetadataUrl?: string
 } & XDefaultScopes
 
@@ -105,6 +124,12 @@ export type OpenIdConnectObject = Description & {
  *
  * Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials and authorization code) as defined in RFC6749, and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit flow is about to be deprecated by OAuth 2.0 Security Best Current Practice. Recommended for most use cases is Authorization Code Grant flow with PKCE.
  */
-export const SecuritySchemeObjectSchemaDefinition = Type.Union([ApiKeySchema, HttpSchema, OAuth2, OpenIdConnect])
+export const SecuritySchemeObjectSchemaDefinition = Type.Union([
+  ApiKeySchema,
+  HttpSchema,
+  MutualTlsSchema,
+  OAuth2,
+  OpenIdConnect,
+])
 
-export type SecuritySchemeObject = ApiKeyObject | HttpObject | OAuth2Object | OpenIdConnectObject
+export type SecuritySchemeObject = ApiKeyObject | HttpObject | MutualTlsObject | OAuth2Object | OpenIdConnectObject

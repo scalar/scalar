@@ -5,11 +5,16 @@ import { ScalarTeleportRoot } from '@scalar/components/teleport'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import { nextTick, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
+
 const props = defineProps<{ modalState: ModalState }>()
+
 const emit = defineEmits<{
   (e: 'open'): void
   (e: 'close'): void
 }>()
+
+const { translate } = useLocalization()
 
 const client = ref<HTMLElement | null>(null)
 
@@ -51,7 +56,7 @@ onBeforeUnmount(() => {
       :class="{ 'scalar-client--open': modalState.open }">
       <div
         ref="client"
-        aria-label="API Client"
+        :aria-label="translate('apiClient.modalClientContainer.label')"
         aria-modal="true"
         v-bind="$attrs"
         class="scalar-app-layout scalar-client"

@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -10,8 +12,8 @@ import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isAsyncApiDocument } from '@/schemas'
-import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
 // Test document
@@ -105,6 +107,58 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it('preserves and resolves streaming item schemas when importing OpenAPI 3.2', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'stream',
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        components: { schemas: { Event: { type: 'object', properties: { id: { type: 'integer' } } } } },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Events',
+                  content: {
+                    'application/jsonl': { itemSchema: { $ref: '#/components/schemas/Event' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const pathItem = getResolvedRef(getOpenApiDocument(store, 'stream')?.paths?.['/events'])
+    const operation = getResolvedRef(pathItem?.get)
+    const response = getResolvedRef(operation?.responses?.['200'])
+    expect(getResolvedRef(response?.content?.['application/jsonl']?.itemSchema)).toStrictEqual({
+      type: 'object',
+      properties: { id: { type: 'integer' } },
+    })
+  })
+
+  it('loads unnamed inline XML bodies without upgrading the document to 3.2', async () => {
+    const schema = { type: 'object', properties: { id: { type: 'string', xml: { attribute: true } } } }
+    const requestBody = { content: { 'application/xml': { schema } } }
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'XML compatibility', version: '1.0.0' },
+      paths: { '/pets': { post: { requestBody, responses: { '200': { description: 'OK' } } } } },
+    }
+    const original = structuredClone(input)
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'xml', document: input })
+    const document = getOpenApiDocument(store, 'xml')
+    const operation = getResolvedRef(getPathItemOperation(document?.paths?.['/pets'], 'post'))
+
+    expect(document?.openapi).toBe('3.1.0')
+    expect(getResolvedRef(operation?.requestBody)).toStrictEqual(requestBody)
+    expect(input).toStrictEqual(original)
+  })
+
   let server: FastifyInstance
   const port = 9988
   const url = `http://localhost:${port}`
@@ -115,6 +169,26 @@ describe('create-workspace-store', () => {
     return async () => {
       await server.close()
     }
+  })
+
+  it('loads QUERY operations from OpenAPI 3.2 documents', async () => {
+    const store = createWorkspaceStore()
+    const operation = {
+      summary: 'Search planets',
+      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+      responses: { '200': { description: 'Search results' } },
+    }
+    await store.addDocument({
+      name: 'query-api',
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Search API', version: '1.0.0' },
+        paths: { '/planets': { query: operation } },
+      },
+    })
+    const document = getOpenApiDocument(store, 'query-api')
+    assert(document)
+    expect(getRaw(getPathItemOperation(document.paths?.['/planets'], 'query'))).toStrictEqual(operation)
   })
 
   it('correctly update workspace metadata', () => {
@@ -533,6 +607,85 @@ describe('create-workspace-store', () => {
     ).toEqual({
       ...getDocument().components.schemas.User,
     })
+  })
+
+  it('resolves static chunks relative to the url the document was loaded from', async () => {
+    const dir = randomUUID()
+    const basePath = `${cwd()}/${dir}`
+
+    // Two operations sharing one schema, so the second resolve can show the schema is not fetched twice
+    const document = {
+      ...getDocument(),
+      paths: {
+        '/users': {
+          get: getDocument().paths['/users'].get,
+          post: {
+            summary: 'Create a user',
+            requestBody: {
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+    }
+
+    const serverStore = await createServerWorkspaceStore({
+      mode: 'static',
+      directory: dir,
+      documents: [{ name: 'default', document }],
+    })
+    await serverStore.generateWorkspaceChunks()
+
+    // The sparse document is published beside its chunks and loaded by url, which is what gives the
+    // client an origin to resolve the relative `./chunks/` references against
+    await fs.writeFile(`${basePath}/default.json`, JSON.stringify(serverStore.getWorkspace().documents['default']))
+
+    const requests: string[] = []
+    server.get('/*', async (req, res) => {
+      requests.push(req.url)
+      res.send(await fs.readFile(`${basePath}${decodeURIComponent(req.url)}`, 'utf-8'))
+    })
+    await server.listen({ port })
+
+    try {
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'default', url: `${url}/default.json` })
+
+      // Nothing beyond the document itself is loaded up front
+      expect(getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get')).toEqual({
+        '$ref': './chunks/default/operations/~1users/get.json#',
+        $global: true,
+      })
+      expect(requests).toEqual(['/default.json'])
+
+      await store.resolve(['paths', '/users', 'get'])
+
+      const get = getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any
+      expect(get['$ref-value'].summary).toBe('Get all users')
+      // The shared schema lands in the document's components, once
+      expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
+      expect(requests.slice(1).sort()).toEqual([
+        '/chunks/default/components/schemas/User.json',
+        '/chunks/default/operations/~1users/get.json',
+      ])
+
+      // A property referencing a shared component reaches the schema, although the component is itself a
+      // stub: `#/components/schemas/User` resolves to the stub, and the stub to the chunk's contents
+      const items = get['$ref-value'].responses[200].content['application/json'].schema.items
+      expect(items.$ref).toBe('#/components/schemas/User')
+      expect(getResolvedRef(items)).toMatchObject({ type: 'object' })
+      expect(getResolvedRef(items).properties.id.description).toBe('The user ID')
+
+      // A second operation using the same schema costs one request, its own chunk
+      await store.resolve(['paths', '/users', 'post'])
+
+      const post = getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'post') as any
+      expect(post['$ref-value'].summary).toBe('Create a user')
+      expect(requests.slice(3)).toEqual(['/chunks/default/operations/~1users/post.json'])
+    } finally {
+      await fs.rm(basePath, { recursive: true, force: true })
+    }
   })
 
   it('load files form the remote url', async () => {
@@ -963,7 +1116,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('correctly resolves any `externalValue` on the example object', async () => {
+  it('preserves external examples without fetching their payloads', async () => {
     server.get('/', () => ({ someKey: 'someValue' }))
     await server.listen({ port })
 
@@ -1041,9 +1194,6 @@ describe('create-workspace-store', () => {
                     examples: {
                       someExample: {
                         externalValue: url,
-                        value: {
-                          someKey: 'someValue',
-                        },
                       },
                     },
                     schema: {
@@ -1347,7 +1497,7 @@ describe('create-workspace-store', () => {
     })
 
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0.0"},"components":{"schemas":{"JsonObject":{"additionalProperties":{"$ref":"#/components/schemas/JsonValue"},"type":"object"},"JsonValue":{"anyOf":[{"type":"string"},{"type":"number","format":"double"},{"type":"boolean"},{"$ref":"#/components/schemas/JsonObject"}],"__scalar_":""}}},"paths":{"/get":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JsonObject"}}},"description":""}}}}},"x-original-oas-version":"3.1.0","x-scalar-original-document-hash":"c5b2baf356d07163","x-ext-urls":{},"x-scalar-order":["default/description/introduction","default/GET/get","default/models"],"x-scalar-navigation":{"id":"default","type":"document","title":"Hello World","name":"default","children":[{"id":"default/description/introduction","title":"Introduction","type":"text"},{"id":"default/GET/get","title":"/get","path":"/get","method":"get","ref":"#/paths/~1get/get","type":"operation","isDeprecated":false},{"type":"models","id":"default/models","title":"Models","name":"Models","children":[{"id":"default/models/JsonObject","title":"JsonObject","name":"JsonObject","ref":"#/components/schemas/JsonObject","type":"model"},{"id":"default/models/JsonValue","title":"JsonValue","name":"JsonValue","ref":"#/components/schemas/JsonValue","type":"model"}]}]}}',
+      '{"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0.0"},"components":{"schemas":{"JsonObject":{"additionalProperties":{"$ref":"#/components/schemas/JsonValue"},"type":"object"},"JsonValue":{"anyOf":[{"type":"string"},{"type":"number","format":"double"},{"type":"boolean"},{"$ref":"#/components/schemas/JsonObject"}],"__scalar_":""}}},"paths":{"/get":{"get":{"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JsonObject"}}}}}}}},"x-original-oas-version":"3.1.0","x-scalar-original-document-hash":"c5b2baf356d07163","x-ext-urls":{},"x-scalar-order":["default/description/introduction","default/GET/get","default/models"],"x-scalar-navigation":{"id":"default","type":"document","title":"Hello World","name":"default","children":[{"id":"default/description/introduction","title":"Introduction","type":"text"},{"id":"default/GET/get","title":"/get","path":"/get","method":"get","ref":"#/paths/~1get/get","type":"operation","isDeprecated":false},{"type":"models","id":"default/models","title":"Models","name":"Models","children":[{"id":"default/models/JsonObject","title":"JsonObject","name":"JsonObject","ref":"#/components/schemas/JsonObject","type":"model"},{"id":"default/models/JsonValue","title":"JsonValue","name":"JsonValue","ref":"#/components/schemas/JsonValue","type":"model"}]}]}}',
     )
   })
 
@@ -1484,6 +1634,51 @@ describe('create-workspace-store', () => {
     expect(JSON.stringify(getRaw(store.workspace.activeDocument))).toEqual(
       '{"openapi":"3.1.1","info":{"title":"Missing Object Type Example","version":"1.0.0"},"paths":{"/user":{"get":{"summary":"Get user info","responses":{"200":{"description":"User object without explicit type: object","content":{"application/json":{"schema":{"items":{"properties":{"id":{"type":"string"},"name":{"type":"string"}},"type":"object"},"type":"array"}}}}}}}},"x-original-oas-version":"3.1.1","x-scalar-original-document-hash":"0311c6350d2492f6","x-ext-urls":{},"x-scalar-order":["default/description/introduction","default/GET/user"],"x-scalar-navigation":{"id":"default","type":"document","title":"Missing Object Type Example","name":"default","children":[{"id":"default/description/introduction","title":"Introduction","type":"text"},{"id":"default/GET/user","title":"Get user info","path":"/user","method":"get","ref":"#/paths/~1user/get","type":"operation","isDeprecated":false}]}}',
     )
+  })
+
+  it('preserves a relative $self and resolves schema references after exporting and loading a workspace', async () => {
+    server.get('/input.yaml', () => ({
+      openapi: '3.2.1',
+      $self: './api/openapi.yaml',
+      info: { title: 'Relative identity', version: '1' },
+      components: {
+        schemas: {
+          Value: { type: 'string' },
+          Model: {
+            $id: 'models/model.json',
+            type: 'object',
+            properties: { value: { $ref: '../openapi.yaml#/components/schemas/Value' } },
+          },
+        },
+      },
+    }))
+    await server.listen({ port })
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'default', url: `${url}/input.yaml` })
+    const document = getOpenApiDocument(store, 'default')
+    const model = getResolvedRef(document?.components?.schemas?.Model)
+    assert(model && 'properties' in model)
+    expect(getResolvedRef(model.properties?.value)).toStrictEqual({ type: 'string' })
+    const editable = await store.getEditableDocument('default')
+    assert(editable && isOpenApiDocument(editable))
+    expect(editable.$self).toBe('./api/openapi.yaml')
+    expect(editable?.components?.schemas?.Model).toStrictEqual({
+      $id: 'models/model.json',
+      type: 'object',
+      properties: { value: { $ref: '../openapi.yaml#/components/schemas/Value' } },
+    })
+    expect(editable).not.toHaveProperty('x-scalar-original-refs')
+    const exported = store.exportWorkspace()
+    assert(exported.documents.default && isOpenApiDocument(exported.documents.default))
+    expect(exported.documents.default.$self).toBe('./api/openapi.yaml')
+
+    const restored = createWorkspaceStore()
+    restored.loadWorkspace(exported)
+    const restoredDocument = getOpenApiDocument(restored, 'default')
+    const restoredModel = getResolvedRef(restoredDocument?.components?.schemas?.Model)
+    assert(restoredModel && 'properties' in restoredModel)
+    expect(getResolvedRef(restoredModel.properties?.value)).toStrictEqual({ type: 'string' })
+    expect(restoredDocument?.$self).toBe('./api/openapi.yaml')
   })
 
   it('should resolve relative references on the document correctly', async () => {
@@ -4342,13 +4537,13 @@ describe('create-workspace-store', () => {
                 'children': [
                   {
                     'channelName': 'chat',
-                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage/asyncapi-message/sendmessage',
+                    'id': 'chatapp/channel/chat/operation/sendchatmessage/message/sendmessage',
                     'messageName': 'sendMessage',
                     'title': 'Send a chat message',
                     'type': 'asyncapi-message',
                   },
                 ],
-                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/sendchatmessage',
+                'id': 'chatapp/channel/chat/operation/sendchatmessage',
                 'operationName': 'sendChatMessage',
                 'title': 'sendChatMessage',
                 'type': 'asyncapi-operation',
@@ -4360,19 +4555,19 @@ describe('create-workspace-store', () => {
                 'children': [
                   {
                     'channelName': 'chat',
-                    'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage/asyncapi-message/receivemessage',
+                    'id': 'chatapp/channel/chat/operation/receivechatmessage/message/receivemessage',
                     'messageName': 'receiveMessage',
                     'title': 'Receive a chat message',
                     'type': 'asyncapi-message',
                   },
                 ],
-                'id': 'chatapp/asyncapi-channel/chat/asyncapi-operation/receivechatmessage',
+                'id': 'chatapp/channel/chat/operation/receivechatmessage',
                 'operationName': 'receiveChatMessage',
                 'title': 'receiveChatMessage',
                 'type': 'asyncapi-operation',
               },
             ],
-            'id': 'chatapp/asyncapi-channel/chat',
+            'id': 'chatapp/channel/chat',
             'title': '/chat',
             'type': 'asyncapi-channel',
           },
@@ -4382,6 +4577,37 @@ describe('create-workspace-store', () => {
         'title': 'Simple Chat WebSocket API',
         'type': 'document',
       })
+    })
+  })
+
+  describe('openapi security schemes', () => {
+    it('preserves a mutualTLS security scheme during ingestion', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'mtls',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Example', version: '1.0' },
+          paths: {
+            '/ping': { get: { security: [{ mutualTLS: [] }], responses: { '200': { description: 'OK' } } } },
+          },
+          components: {
+            securitySchemes: {
+              mutualTLS: { type: 'mutualTLS', description: 'some desc' },
+            },
+          },
+        },
+      })
+
+      const document = store.workspace.documents['mtls']
+      assert(document && isOpenApiDocument(document))
+
+      // Coercion used to downgrade the unknown type to the first union member (apiKey), which is
+      // why the UI rendered a Name/Value form. The type must survive so the auth UI can react to it.
+      const scheme = getResolvedRef(getResolvedRef(document.components)?.securitySchemes?.mutualTLS)
+      expect(scheme?.type).toBe('mutualTLS')
+      expect(scheme?.description).toBe('some desc')
     })
   })
 })

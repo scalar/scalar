@@ -8,7 +8,10 @@ import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 export type { Result } from '@scalar/helpers/types/result'
 
 export type RequestExampleMeta = {
+  /** API path, or webhook name when `isWebhook` is true. */
   path: string
   method: HttpMethod
   exampleName: string
+  /** Resolve the operation from `document.webhooks` instead of `document.paths`. */
+  isWebhook?: boolean
 }

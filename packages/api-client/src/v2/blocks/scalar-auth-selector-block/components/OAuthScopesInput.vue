@@ -10,7 +10,7 @@ import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type {
   OAuthFlow,
   OAuthFlowsObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import {
@@ -18,6 +18,7 @@ import {
   DataTableCheckbox,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
 
@@ -41,6 +42,8 @@ const emits = defineEmits<{
     payload: Omit<ApiReferenceEvents['auth:delete:scopes'], 'name'>,
   ): void
 }>()
+
+const { translate } = useLocalization()
 
 const searchQuery = ref('')
 
@@ -211,11 +214,16 @@ const handleDeleteScope = (scopeKey: string) => {
             ]"
             :disabled="!hasScopes">
             <template v-if="hasScopes">
-              Scopes Selected
-              {{ selectedScopes.length || 0 }} /
-              {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
+              {{
+                translate('apiClient.oauthScopesInput.selectedScopes', {
+                  count: selectedScopes.length,
+                  total: Object.keys(flow?.scopes ?? {}).length,
+                })
+              }}
             </template>
-            <template v-else> No Scopes Defined </template>
+            <template v-else>
+              {{ translate('apiClient.oauthScopesInput.noScopesDefined') }}
+            </template>
           </DisclosureButton>
 
           <div class="flex shrink-0 items-center gap-1.75">
@@ -225,7 +233,7 @@ const handleDeleteScope = (scopeKey: string) => {
               size="sm"
               variant="ghost"
               @click.stop="openAddScopeModal">
-              Add Scope
+              {{ translate('apiClient.oauthScopesInput.addScope') }}
             </ScalarButton>
 
             <!-- Deselect All -->
@@ -235,7 +243,7 @@ const handleDeleteScope = (scopeKey: string) => {
               size="sm"
               variant="ghost"
               @click.stop="deselectAllScopes">
-              Deselect All
+              {{ translate('apiClient.oauthScopesInput.deselectAll') }}
             </ScalarButton>
 
             <!-- Select All -->
@@ -245,7 +253,7 @@ const handleDeleteScope = (scopeKey: string) => {
               size="sm"
               variant="ghost"
               @click.stop="selectAllScopes">
-              Select All
+              {{ translate('apiClient.oauthScopesInput.selectAll') }}
             </ScalarButton>
 
             <DisclosureButton
@@ -290,7 +298,11 @@ const handleDeleteScope = (scopeKey: string) => {
                     @click.stop>
                     <ScalarIconButton
                       :icon="ScalarIconPencilSimple"
-                      :label="`Edit ${label}`"
+                      :label="
+                        translate('apiClient.oauthScopesInput.editScope', {
+                          name: label,
+                        })
+                      "
                       size="sm"
                       @click.stop="
                         openEditScopeModal({
@@ -300,7 +312,11 @@ const handleDeleteScope = (scopeKey: string) => {
                       " />
                     <ScalarIconButton
                       :icon="ScalarIconTrash"
-                      :label="`Delete ${label}`"
+                      :label="
+                        translate('apiClient.oauthScopesInput.deleteScope', {
+                          name: label,
+                        })
+                      "
                       size="sm"
                       @click.stop="handleDeleteScope(id)" />
                   </div>
@@ -311,7 +327,11 @@ const handleDeleteScope = (scopeKey: string) => {
                   letting the row fire too would toggle the scope a second time.
                 -->
                 <DataTableCheckbox
-                  :ariaLabel="`Select ${label} scope`"
+                  :ariaLabel="
+                    translate('apiClient.oauthScopesInput.selectScope', {
+                      name: label,
+                    })
+                  "
                   :modelValue="selectedScopes.includes(id)"
                   @click.stop
                   @update:modelValue="setScope(id, $event)" />

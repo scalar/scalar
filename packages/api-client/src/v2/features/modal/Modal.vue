@@ -12,6 +12,8 @@ export type ModalProps = {
   method: ComputedRef<HttpMethod | undefined>
   /** The example name must be initialized and passed in */
   exampleName: ComputedRef<string | undefined>
+  /** Whether the active route resolves from `document.webhooks`. */
+  isWebhook: ComputedRef<boolean>
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection: Ref<Record<string, number>>
   /** Controls the visibility of the modal */
@@ -41,7 +43,7 @@ import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
   computed,
   onBeforeUnmount,
@@ -54,6 +56,7 @@ import {
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import { provideLocalization } from '@/v2/features/localization'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -73,6 +76,10 @@ const {
 } = defineProps<
   Omit<ModalProps, 'options'> & { options: ApiClientOptionsRef }
 >()
+
+const { translate, locale, direction } = provideLocalization(
+  () => options.value.localization,
+)
 
 const activeWorkspace: ScalarListboxOption = {
   label: 'default',
@@ -152,7 +159,10 @@ defineExpose({
 </script>
 
 <template>
-  <ModalClientContainer :modalState>
+  <ModalClientContainer
+    :dir="direction"
+    :lang="locale"
+    :modalState>
     <!-- Toasts -->
     <ScalarToasts />
 
@@ -184,6 +194,8 @@ defineExpose({
         :environment
         :eventBus
         :exampleName="exampleName?.value"
+        :isActive="modalState.open"
+        :isWebhook="isWebhook.value"
         layout="modal"
         :method="method?.value"
         :options
@@ -196,7 +208,9 @@ defineExpose({
     <div
       v-else
       class="flex h-full w-full items-center justify-center">
-      <span class="text-c-3">No document selected</span>
+      <span class="text-c-3">{{
+        translate('apiClient.modal.noDocumentSelected')
+      }}</span>
     </div>
   </ModalClientContainer>
 </template>

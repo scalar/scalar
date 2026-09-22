@@ -1,5 +1,41 @@
 # scalar-app
 
+## 1.1.32
+
+### Patch Changes
+
+- [#10177](https://github.com/scalar/scalar/pull/10177): Use OpenAPI 3.2 schemas throughout workspace-store consumers, stories, tests, and type generation. Update the app editor to offer OpenAPI 3.2 validation and completion while continuing to accept existing 3.1 documents.
+
+  Preserve OpenAPI 3.2 fields in the loose workspace schema, including tag hierarchy, streaming media types, nested encoding, additional operations, and OAuth device authorization.
+
+  The editor intentionally offers the 3.2 field set to documents declaring 3.1 as well; it does not flag 3.2-only fields solely because the declared version is 3.1. This does not certify conformance to the declared version or automatically update it. Before using 3.2-only fields, migrate and explicitly declare OpenAPI 3.2, and verify support in other validators and generators. Remove the unused 3.1 loose-schema generator to prevent schema drift.
+
+  Migration: the OpenAPI 3.1 loose-schema generator (`@scalar/workspace-store/schemas/v3.1/openapi`, published through the wildcard as `@scalar/workspace-store/schemas/v3.1/openapi/index`) and its `@scalar/workspace-store/schemas/v3.1/openapi/reference` helpers have been removed. Import the generator from `@scalar/workspace-store/schemas/v3.2/openapi/index` and the reference helpers from `@scalar/workspace-store/schemas/v3.2/openapi/reference` instead. The `./schemas/*` wildcard and the 3.1 strict-schema exports remain available; the explicit 3.2 strict-schema exports are additive. Locally generated types now use the `OpenAPIV3_2` namespace instead of `OpenAPIV3_1`.
+
+  Inline the editor path-extension reference so Monaco retains the leading-slash path pattern and does not report valid paths as unknown properties.
+
+  Document ingestion continues to upgrade only to OpenAPI 3.1, so existing inline XML bodies without `xml.name` remain loadable. This schema migration does not opt consumers into the stricter OpenAPI 3.2 XML upgrade.
+
+## 1.1.31
+
+## 1.1.30
+
+## 1.1.29
+
+## 1.1.28
+
+### Patch Changes
+
+- [#10166](https://github.com/scalar/scalar/pull/10166): Fix the workspace settings options turning into an unreadable dark row while being clicked, give the selected option a visible highlight and make light theme swatches visible against the background
+
+## 1.1.27
+
+## 1.1.26
+
+### Patch Changes
+
+- [#10025](https://github.com/scalar/scalar/pull/10025): Compose the app header from `ScalarHeaderColumn` children, fixing the header overflowing the viewport on mobile
+
 ## 1.1.25
 
 ## 1.1.24

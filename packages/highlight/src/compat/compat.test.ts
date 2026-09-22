@@ -33,6 +33,7 @@ import { colorAgreement } from '../../test/colors'
 import { textFromHtml } from '../../test/html'
 import { referenceLanguages } from '../../test/languages'
 import { samples } from '../../test/samples'
+import { STYLED_CLASSES } from '../../test/styled'
 import { hljsClass } from './hljs'
 import { syntaxHighlight } from './index'
 import { standardLanguages, unsupportedLanguages } from './languages'
@@ -148,47 +149,7 @@ describe('parity with the lowlight pipeline', () => {
         // Every class we produce has to be one `code.css` already styles,
         // otherwise a token silently loses its colour after the swap.
         const known = new Set(Object.values(classesOf(referenceHighlight(code, options))))
-        const styled = new Set([
-          ...known,
-          // Styled by code.css but not necessarily present in this sample.
-          'hljs-comment',
-          'hljs-quote',
-          'hljs-number',
-          'hljs-regexp',
-          'hljs-string',
-          'hljs-built_in',
-          'hljs-title class_',
-          'hljs-keyword',
-          'hljs-title function_',
-          'hljs-subst',
-          'hljs-name',
-          'hljs-attr',
-          'hljs-attribute',
-          'hljs-addition',
-          'hljs-literal',
-          'hljs-selector-tag',
-          'hljs-type',
-          'hljs-selector-attr',
-          'hljs-selector-pseudo',
-          'hljs-doctag',
-          'hljs-section',
-          'hljs-title',
-          'hljs-selector-id',
-          'hljs-template-variable',
-          'hljs-variable',
-          'hljs-strong',
-          'hljs-bullet',
-          'hljs-link',
-          'hljs-meta',
-          'hljs-symbol',
-          'hljs-deletion',
-          'hljs-formula',
-          'hljs-emphasis',
-          // Emitted by highlight.js, unstyled by code.css — harmless either way.
-          'hljs-punctuation',
-          'hljs-params',
-          'hljs-property',
-        ])
+        const styled = new Set([...known, ...STYLED_CLASSES])
 
         const unexpected = [...classesOf(after)].filter((c) => !styled.has(c))
         expect(unexpected, `unstyled classes: ${unexpected.join(', ')}`).toEqual([])

@@ -4,7 +4,15 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { ExampleObject } from '@/schemas/v3.1/strict/example'
+import type { ExampleObject } from '@/schemas/v3.2/strict/example'
+
+/** An edit replaces the authored source so the old serialized/data value cannot win. */
+const replaceExampleValue = (example: ExampleObject, value: unknown): void => {
+  delete example.serializedValue
+  delete example.dataValue
+  delete example.externalValue
+  example.value = value
+}
 
 /** Ensure the json that we need exists up to the example object in the request body */
 const findOrCreateRequestBodyExample = (
@@ -26,7 +34,7 @@ const findOrCreateRequestBodyExample = (
     operation.requestBody = {
       content: {},
     }
-    requestBody = getResolvedRef(operation.requestBody)
+    requestBody = operation.requestBody
   }
 
   // Ensure that the example exists
@@ -70,7 +78,7 @@ export const updateOperationRequestBodyContentType = (
     operation.requestBody = {
       content: {},
     }
-    requestBody = getResolvedRef(operation.requestBody)
+    requestBody = operation.requestBody
   }
 
   if (!requestBody!['x-scalar-selected-content-type']) {
@@ -105,7 +113,7 @@ export const updateOperationRequestBodyExample = (
     return
   }
 
-  example.value = payload
+  replaceExampleValue(example, payload)
 }
 
 /**
@@ -123,5 +131,5 @@ export const updateOperationRequestBodyFormValue = (
     return
   }
 
-  example.value = unpackProxyObject(payload, { depth: 3 })
+  replaceExampleValue(example, unpackProxyObject(payload, { depth: 3 }))
 }

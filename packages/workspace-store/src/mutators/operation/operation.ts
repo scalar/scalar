@@ -1,4 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { findVariables } from '@scalar/helpers/regex/find-variables'
@@ -125,7 +124,7 @@ export const updateOperationMeta = (
     return
   }
 
-  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method as HttpMethod))
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     console.error('Operation not found', { meta, document })
     return
@@ -181,7 +180,7 @@ export const updateOperationPathMethod = (
   }
 
   // Check for conflicts at the target location
-  if (getPathItemOperation(document.paths?.[finalPath], finalMethod as HttpMethod)) {
+  if (getPathItemOperation(document.paths?.[finalPath], finalMethod)) {
     callback('conflict', blurTargetSelector)
     return
   }
@@ -192,7 +191,7 @@ export const updateOperationPathMethod = (
     return
   }
 
-  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method as HttpMethod))
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.[meta.path], meta.method))
   if (!operation) {
     console.error('Operation not found', { meta, document })
     return
@@ -245,7 +244,7 @@ export const updateOperationPathMethod = (
   preventPollution(finalMethod)
 
   // Move the operation to the new location
-  setPathItemOperation(document.paths[finalPath], finalMethod as HttpMethod, unpackProxyObject(operation))
+  setPathItemOperation(document.paths[finalPath], finalMethod, unpackProxyObject(operation))
 
   // Remove the operation from the old location
   if (isHttpMethod(meta.method)) {
@@ -362,6 +361,7 @@ export const deleteOperationExample = (
   // Remove the example from all operation parameters
   operation.parameters?.forEach((parameter) => {
     const resolvedParameter = getResolvedRef(parameter)
+    if (!resolvedParameter) return
 
     // Remove from content-level examples (if parameter uses content)
     if ('content' in resolvedParameter && resolvedParameter.content) {
@@ -424,6 +424,7 @@ export const renameOperationExample = (
 
   operation.parameters?.forEach((parameter) => {
     const resolvedParameter = getResolvedRef(parameter)
+    if (!resolvedParameter) return
 
     if ('examples' in resolvedParameter && resolvedParameter.examples) {
       records.push(resolvedParameter.examples)

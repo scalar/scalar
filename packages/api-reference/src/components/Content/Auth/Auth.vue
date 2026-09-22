@@ -15,7 +15,7 @@ import {
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 import { computed } from 'vue'
 
@@ -25,7 +25,11 @@ const { document, environment, eventBus, options, securitySchemes, authStore } =
   defineProps<{
     options: Pick<
       ApiReferenceConfigurationRaw,
-      'authentication' | 'oauth2RedirectUri' | 'persistAuth' | 'proxyUrl'
+      | 'authentication'
+      | 'customFetch'
+      | 'oauth2RedirectUri'
+      | 'persistAuth'
+      | 'proxyUrl'
     >
     authStore: AuthStore
     document: WorkspaceDocument | undefined
@@ -97,7 +101,10 @@ const selectedSecurity = computed(() =>
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"
-    :options="{ oauth2RedirectUri: options.oauth2RedirectUri }"
+    :options="{
+      oauth2RedirectUri: options.oauth2RedirectUri,
+      customFetch: options.customFetch,
+    }"
     :persistAuth="options.persistAuth"
     :proxyUrl="options.proxyUrl ?? ''"
     :securityRequirements

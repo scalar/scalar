@@ -167,6 +167,16 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       clientKey: z.custom<ClientId<TargetId>>(),
     })
     .optional(),
+  /**
+   * Initial view for the request body editor with structured (JSON/YAML) bodies.
+   *
+   * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.
+   * When a body cannot be shown as a form, Scalar falls back to `raw`. A document can override
+   * this per source with the `x-scalar-default-request-body-view` extension.
+   *
+   * @default 'raw'
+   */
+  defaultRequestBodyView: z.enum(['form', 'raw']).optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
   /** onServerChange is fired on selected server change */
@@ -219,6 +229,10 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional() as z.ZodType<
     | ((a: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => Promise<void> | void)
     | undefined
+  >,
+  /** Fired before response processing. Return a Response to replace it, or nothing to keep it. */
+  onResponseReceived: z.function().optional() as z.ZodType<
+    ((input: { response: Response; request: Request }) => Response | void | Promise<Response | void>) | undefined
   >,
   /**
    * onShowMore is fired when the user clicks the "Show more" button on the references
@@ -413,6 +427,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   expandAllModelSections: z.boolean().optional().default(false).catch(false),
   /**
+   * Whether to show parameter details by default. Set to false to collapse each parameter.
+   * @default true
+   */
+  expandAllParameters: z.boolean().optional().default(true).catch(true),
+  /**
    * Whether to expand all responses by default
    *
    * Warning: this can cause performance issues on big documents
@@ -420,9 +439,9 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   expandAllResponses: z.boolean().optional().default(false).catch(false),
   /**
-   * Whether to expand all nested schema properties by default. The
-   * Show/Hide Child Attributes toggle remains available so nested sections can
-   * still be collapsed manually.
+   * Whether to expand all nested schema properties by default. Each row keeps
+   * its own disclosure control, so nested sections can still be collapsed
+   * manually.
    *
    * Warning: this can cause performance issues on big documents
    * @default false
@@ -464,6 +483,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional()
     .default('alpha')
     .catch('alpha'),
+  /**
+   * Arrow-key navigation over the schema disclosure toggles.
+   * @default false
+   */
+  schemaKeyboardNav: z.boolean().optional().default(false).catch(false),
   /**
    * Sort the schema properties by required ones first
    * @default true
@@ -530,6 +554,12 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
     envVariables: Record<string, string>
   }) => void | Promise<void> | undefined
   /**
+   * Fired before response processing. Return a Response to replace the body, status, or headers
+   * used by the client, or return nothing to keep the current response. Receives a clone so
+   * reading the body does not consume the client response. Avoid reading unbounded streams.
+   */
+  onResponseReceived?: (input: { response: Response; request: Request }) => Response | void | Promise<Response | void>
+  /**
    * Fired after the outbound fetch `Request` has been built, right before it is sent. The `request` is the exact
    * object handed to fetch: mutating its headers modifies the outgoing request, and hashing its body produces a
    * hash that matches what the server receives (useful for request signing — a rebuilt `multipart/form-data` body
@@ -566,7 +596,9 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
 /** Configuration for the Api Reference */
 export const apiReferenceConfigurationWithSourceSchema: ZodType<
   Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
-> = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((configuration) => {
+> = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((parsed) => {
+  // Migration removes the deprecated field from this same configuration object.
+  const configuration: Omit<typeof parsed, 'showToolbar'> & Partial<Pick<typeof parsed, 'showToolbar'>> = parsed
   // Migrate hideDownloadButton to documentDownloadType
   if (configuration.hideDownloadButton) {
     console.warn(
@@ -635,7 +667,6 @@ export const apiReferenceConfigurationWithSourceSchema: ZodType<
 
     configuration.showDeveloperTools = configuration.showToolbar
 
-    // @ts-expect-error - We're deleting the deprecated attribute
     delete configuration.showToolbar
   }
 

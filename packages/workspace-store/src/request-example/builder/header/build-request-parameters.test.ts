@@ -1,7 +1,8 @@
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.1/strict/example'
-import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { describe, expect, it, vi } from 'vitest'
 
+import { getCookieHeader } from './build-request-cookie-header'
 import { buildRequestParameters } from './build-request-parameters'
 
 /**
@@ -23,6 +24,72 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it('sends pre-populated optional parameters while respecting explicit disable choices', () => {
+    const parameters: ParameterObject[] = [
+      { name: 'x-scenario-id', in: 'header', schema: { type: 'string', enum: ['success', 'failure'] } },
+      { name: 'count', in: 'query', schema: { type: 'integer', default: 0 } },
+      { name: 'active', in: 'cookie', schema: { type: 'boolean' }, examples: { default: { value: false } } },
+      {
+        name: 'disabled',
+        in: 'header',
+        schema: { type: 'string' },
+        examples: { default: { value: 'omit', 'x-disabled': true } },
+      },
+      { name: 'empty', in: 'query', schema: { type: 'string', default: '' } },
+    ]
+    const result = buildRequestParameters(parameters, 'default')
+    expect(result.headers).toStrictEqual({ 'x-scenario-id': 'success' })
+    expect(result.urlParams.toString()).toBe('count=0')
+    expect(result.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'active', value: 'false' },
+    ])
+  })
+
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black', 'brown'], expected: 'color=blue; color=black; color=brown' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+    { value: [], expected: '' },
+    { value: {}, expected: '' },
+  ])('serializes cookie style $expected', ({ value, expected }) => {
+    const result = buildRequestParameters([
+      {
+        name: 'color',
+        in: 'cookie',
+        style: 'cookie',
+        required: true,
+        examples: { default: { value } },
+      },
+    ])
+    expect(getCookieHeader(result.cookies, undefined)).toBe(expected)
+  })
+
+  it('warns once per name while expanding repeated invalid cookie parameters', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      for (const name of ['color', 'color', 'size', 'size']) {
+        const result = buildRequestParameters([
+          {
+            name,
+            in: 'cookie',
+            style: 'cookie',
+            explode: false,
+            required: true,
+            examples: { default: { value: ['blue', 'black'] } },
+          },
+        ])
+        expect(getCookieHeader(result.cookies, undefined)).toBe(`${name}=blue; ${name}=black`)
+      }
+      expect(warning.mock.calls).toStrictEqual([
+        ['Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.'],
+        ['Cookie parameter "size" uses invalid explode: false with style: cookie; serializing with explode: true.'],
+      ])
+    } finally {
+      warning.mockRestore()
+    }
+  })
+
   describe('getExample (internal helper)', () => {
     /**
      * Tests for the internal getExample function which extracts examples from parameters.
@@ -117,7 +184,7 @@ describe('buildRequestParameters', () => {
       expect(result.headers).toEqual({})
     })
 
-    it('returns empty result when parameters are optional (not required)', () => {
+    it('includes optional parameters with populated examples', () => {
       const params = [
         createParameter(
           { name: 'X-Optional-Header', in: 'header', value: 'optional', required: false },
@@ -127,8 +194,7 @@ describe('buildRequestParameters', () => {
 
       const result = buildRequestParameters(params)
 
-      // Optional parameters are disabled by default
-      expect(result.headers).toEqual({})
+      expect(result.headers).toStrictEqual({ 'X-Optional-Header': 'optional' })
     })
 
     it('includes optional parameters when explicitly enabled via x-disabled: false', () => {
@@ -800,6 +866,37 @@ describe('buildRequestParameters', () => {
       // Form style query parameters default to explode: true
       // Array values should be serialized as multiple parameters
       expect(result.urlParams.get('user')).toEqual('{"name":"John","age":30}')
+    })
+  })
+
+  // The OpenAPI 3.2 `querystring` location is handled like a regular query parameter so its
+  // value still lands in the query string instead of being silently dropped.
+  describe('querystring parameters', () => {
+    it('builds a scalar querystring parameter into the query string', () => {
+      const params = [
+        createParameter({ name: 'q', in: 'querystring', value: 'hello' }, { default: { value: 'hello' } }),
+      ]
+
+      const result = buildRequestParameters(params)
+
+      expect(result.urlParams.get('q')).toBe('hello')
+    })
+
+    it('expands an object querystring parameter into individual query params', () => {
+      const params = [
+        {
+          name: 'filter',
+          in: 'querystring',
+          required: true,
+          examples: { default: { value: { page: '1', limit: '10' } } },
+        },
+      ] satisfies ParameterObject[]
+
+      const result = buildRequestParameters(params)
+
+      // Form style defaults to explode: true, so the object expands into individual query params
+      expect(result.urlParams.get('page')).toBe('1')
+      expect(result.urlParams.get('limit')).toBe('10')
     })
   })
 

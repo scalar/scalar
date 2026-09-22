@@ -3,19 +3,30 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { nextTick, ref } from 'vue'
 
 import SectionFilterButton from '@/components/SectionFilterButton.vue'
+import { useLocalization } from '@/v2/features/localization'
 
-const { filters = [], filterIds } = defineProps<{
+const {
+  filters = [],
+  filterIds,
+  labels,
+} = defineProps<{
   filters?: T[]
-  filterIds?: Record<T, string>
+  /** Localized labels keyed by stable filter IDs. */
+  labels?: Partial<Record<T, string>>
+  /** IDs for the currently available sections. */
+  filterIds?: Partial<Record<T, string>>
 }>()
 
 const model = defineModel<T>()
 
 const tablist = ref<HTMLDivElement>()
+const { direction } = useLocalization()
 
 /** Keyboard navigation */
-const navigateSection = (direction: 'next' | 'prev') => {
-  const offset = direction === 'prev' ? -1 : 1
+const navigateSection = (arrow: 'left' | 'right'): void => {
+  // Flex rows reverse in RTL, so the visual arrow direction reverses the index step.
+  const offset =
+    (arrow === 'left' ? -1 : 1) * (direction.value === 'rtl' ? -1 : 1)
   const index = model.value ? filters.indexOf(model.value) : 0
   const length = filters.length
 
@@ -39,10 +50,10 @@ const navigateSection = (direction: 'next' | 'prev') => {
 <template>
   <div
     ref="tablist"
-    class="filter-hover context-bar-group ml-auto hidden lg:flex"
+    class="filter-hover context-bar-group ms-auto hidden lg:flex"
     role="tablist"
-    @keydown.left="navigateSection('prev')"
-    @keydown.right="navigateSection('next')">
+    @keydown.left="navigateSection('left')"
+    @keydown.right="navigateSection('right')">
     <div
       class="request-section-content request-section-content-filter fade-request-section-content text-c-3 pointer-events-auto relative hidden w-full justify-end gap-[1.5px] rounded py-1.75 text-xs xl:flex">
       <SectionFilterButton
@@ -53,11 +64,13 @@ const navigateSection = (direction: 'next' | 'prev') => {
         role="tab"
         :selected="model === filter"
         @click="model = filter">
-        {{ filter }}
+        {{ labels?.[filter] ?? filter }}
       </SectionFilterButton>
       <div
-        class="filter-button context-bar-group-hover:text-c-1 absolute -right-[30px] flex items-center">
-        <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
+        class="filter-button context-bar-group-hover:text-c-1 absolute -end-[30px] flex items-center">
+        <span class="context-bar-group-hover:hidden me-1.5">{{
+          model ? (labels?.[model] ?? model) : model
+        }}</span>
         <ScalarIcon
           icon="FilterList"
           size="md"
@@ -74,12 +87,19 @@ const navigateSection = (direction: 'next' | 'prev') => {
     transparent
   );
 }
+.fade-request-section-content:dir(rtl) {
+  background: linear-gradient(
+    to right,
+    var(--scalar-background-1) 64%,
+    transparent
+  );
+}
 .filter-hover {
   height: 100%;
-  padding-right: 39px;
-  padding-left: 24px;
+  padding-inline-end: 39px;
+  padding-inline-start: 24px;
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   transition: width 0s ease-in-out 0.2s;
   overflow: hidden;
 }
@@ -92,7 +112,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   width: 100%;
   height: fit-content;
   background-color: var(--scalar-background-1);

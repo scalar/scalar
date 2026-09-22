@@ -1,6 +1,7 @@
 import type { FilterResult, Queue, Task } from '@/types/index'
 import type { DereferenceOptions } from '@/utils/dereference'
 import type { FilterCallback } from '@/utils/filter'
+
 import { details } from '../actions/details'
 import { files } from '../actions/files'
 import { get } from '../actions/get'
@@ -30,7 +31,7 @@ export function filterCommand<T extends Task[]>(previousQueue: Queue<T>, options
     options,
   }
 
-  const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
+  const queue = queueTask<[...T, typeof task]>(previousQueue, task)
 
   return {
     dereference: (dereferenceOptions?: DereferenceOptions) => dereferenceCommand(queue, dereferenceOptions),

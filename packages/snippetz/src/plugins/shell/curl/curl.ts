@@ -1,20 +1,8 @@
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
+import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { escapeSingleQuotes } from '@/libs/shell'
-
-/**
- * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
- * (e.g. `application/vnd.api+json`), and parameterized variants
- * (e.g. `application/json;charset=utf-8`). Case-insensitive.
- */
-const isJsonContentType = (value: string | undefined): boolean => {
-  if (!value) {
-    return false
-  }
-  const { subtype } = parseMimeType(value)
-  return subtype === 'json' || subtype.endsWith('+json')
-}
 
 /**
  * shell/curl
@@ -43,7 +31,8 @@ export const shellCurl: Plugin = {
       ? separator +
         normalizedRequest.queryString
           .map((param) => {
-            // Ensure both name and value are fully URI encoded
+            // Keep the name and value raw so the snippet still reads like the documented endpoint; curl's own
+            // glob parser is handled with `--globoff` below rather than by percent-encoding the URL
             return `${param.name}=${param.value}`
           })
           .join('&')
@@ -53,6 +42,17 @@ export const shellCurl: Plugin = {
     const isShellSafe = /^[A-Za-z0-9._~:/%@+,=-]*$/.test(url)
     const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`
     parts[0] = `curl ${urlPart}`
+
+    // curl reads `[]` (ranges) and `{}` (sets) in a URL as its own globbing syntax, no matter how the shell
+    // quotes them. Square brackets always break curl (`filter[id]=1` throws "bad range"), so disable globbing
+    // whenever they appear. Curly braces in the path are almost always placeholders like `/users/{id}` that you
+    // replace before running, so we leave those to avoid adding the flag to nearly every snippet — but braces in
+    // the query string are real glob sets (`?ids={1,2,3}` fans out into three requests), so disable it there.
+    const queryStart = url.indexOf('?')
+    const queryPart = queryStart === -1 ? '' : url.slice(queryStart)
+    if (/[[\]]/.test(url) || /[{}]/.test(queryPart)) {
+      parts.push('--globoff')
+    }
 
     // Method
     if (normalizedRequest.method !== 'GET') {
@@ -95,7 +95,7 @@ export const shellCurl: Plugin = {
 
     // Body
     if (normalizedRequest.postData) {
-      if (isJsonContentType(normalizedRequest.postData.mimeType)) {
+      if (isJsonMediaType(normalizedRequest.postData.mimeType)) {
         // Pretty print JSON data
         if (normalizedRequest.postData.text) {
           try {
@@ -109,6 +109,10 @@ export const shellCurl: Plugin = {
             parts.push(`--data '${escapedText}'`)
           }
         }
+      } else if (isStreamingContentType(normalizedRequest.postData.mimeType ?? '')) {
+        // Use the explicit binary mode consistently for framed streaming media types.
+        const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
+        parts.push(`--data-binary '${escapedText}'`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         const escapedText = escapeSingleQuotes(normalizedRequest.postData.text ?? '')
         parts.push(`--data-binary '${escapedText}'`)
@@ -135,7 +139,7 @@ export const shellCurl: Plugin = {
             const rawValue = param.value ?? ''
             // Pretty-print parts whose contentType is JSON so the snippet stays readable,
             // mirroring what we already do for `--data` JSON bodies above.
-            const isJsonPart = isJsonContentType(param.contentType)
+            const isJsonPart = isJsonMediaType(param.contentType)
             let displayValue = rawValue
             if (isJsonPart && rawValue) {
               try {

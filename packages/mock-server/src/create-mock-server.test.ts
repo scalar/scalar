@@ -1,8 +1,468 @@
-import { describe, expect, it } from 'vitest'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+import { HTTPException } from 'hono/http-exception'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { parse, stringify } from 'yaml'
 
 import { createMockServer } from './create-mock-server'
 
+/**
+ * A document with a single operation. Pass an `operationId` to have the document declare one; leave
+ * it off to cover the case where it does not.
+ */
+const documentWithOnePet = (operationId?: string): Record<string, unknown> => ({
+  openapi: '3.1.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/pets/{petId}': {
+      get: {
+        ...(operationId ? { operationId } : {}),
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      },
+    },
+  },
+})
+
+/**
+ * A response header name that is not a valid HTTP token. Building the response throws while the
+ * mock handler runs, which is how a valid-looking document realistically produces a `500`: nothing
+ * validates the header name up front, so the failure only surfaces on the request.
+ */
+const documentWithBrokenResponseHeader: Record<string, unknown> = {
+  openapi: '3.1.0',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  paths: {
+    '/pets/{petId}': {
+      get: {
+        operationId: 'getPet',
+        responses: {
+          '200': {
+            description: 'OK',
+            headers: {
+              'X Invalid Name': {
+                schema: {
+                  type: 'string',
+                  example: 'nope',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
 describe('createMockServer', () => {
+  describe('document sources', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: { '/pets': { $ref: './pets.json' } },
+      components: {
+        schemas: { Pet: { type: 'object', properties: { friend: { $ref: '#/components/schemas/Pet' } } } },
+      },
+    }
+    const pathItem = {
+      get: {
+        responses: { '200': { description: 'Pets', content: { 'application/json': { example: { name: 'Fido' } } } } },
+      },
+    }
+
+    const assertExports = async (app: Awaited<ReturnType<typeof createMockServer>>): Promise<void> => {
+      const response = await app.request('/pets')
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ name: 'Fido' })
+      for (const format of ['json', 'yaml']) {
+        const exported = await app.request(`/openapi.${format}`)
+        expect(exported.status).toBe(200)
+        expect(exported.headers.get('content-type')).toContain(format)
+        const content = parse(await exported.text())
+        expect(content).toMatchObject({ info: document.info, 'x-ext': expect.any(Object) })
+        expect(JSON.stringify(content)).toContain('Fido')
+        expect(JSON.stringify(content)).not.toContain('$ref-value')
+      }
+    }
+
+    it.each([false, true])('exports a file document and its relative references (preloaded: %s)', async (preloaded) => {
+      const directory = await mkdtemp(join(tmpdir(), 'mock-exports-'))
+      const file = join(directory, 'openapi.json')
+      try {
+        await writeFile(file, JSON.stringify(document))
+        await writeFile(join(directory, 'pets.json'), JSON.stringify(pathItem))
+        const app = await createMockServer({
+          document: preloaded ? structuredClone(document) : file,
+          ...(preloaded ? { origin: file } : {}),
+          logger: false,
+        })
+        await assertExports(app)
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    })
+
+    it.each([false, true])('exports a URL document without refetching (preloaded: %s)', async (preloaded) => {
+      // Guarded URL loading uses the bundler's Undici transport rather than global fetch.
+      const bundlerRequire = createRequire(import.meta.resolve('@scalar/json-magic/bundle'))
+      const { Agent, MockAgent } = bundlerRequire('undici') as typeof import('undici')
+      const transport = new MockAgent()
+      transport.disableNetConnect()
+      const pool = transport.get('https://203.0.113.1')
+      if (!preloaded) {
+        pool.intercept({ path: '/openapi.json', method: 'GET' }).reply(200, document)
+      }
+      pool.intercept({ path: '/pets.json', method: 'GET' }).reply(200, pathItem)
+      const dispatch = vi
+        .spyOn(Agent.prototype, 'dispatch')
+        .mockImplementation((options, handler) => pool.dispatch(options, handler))
+      try {
+        const app = await createMockServer({
+          document: preloaded ? structuredClone(document) : 'https://203.0.113.1/openapi.json',
+          ...(preloaded ? { origin: 'https://203.0.113.1/openapi.json' } : {}),
+          logger: false,
+        })
+        await assertExports(app)
+        expect(dispatch).toHaveBeenCalledTimes(preloaded ? 1 : 2)
+        transport.assertNoPendingInterceptors()
+      } finally {
+        dispatch.mockRestore()
+        await transport.close()
+      }
+    })
+
+    it.each(['object', 'json', 'yaml'])(
+      'preserves the original OpenAPI version for inline %s input',
+      async (format) => {
+        const document = { openapi: '3.0.4', info: { title: 'Inline API', version: '1.0.0' }, paths: {} }
+        const inputs = { object: document, json: JSON.stringify(document), yaml: stringify(document) }
+        const input = inputs[format as keyof typeof inputs]
+        const app = await createMockServer({ document: input, logger: false })
+        for (const extension of ['json', 'yaml']) {
+          const response = await app.request(`/openapi.${extension}`)
+          expect(response.status).toBe(200)
+          expect(parse(await response.text())).toEqual(document)
+        }
+      },
+    )
+  })
+
+  it.each([
+    ['application/jsonl', '{"message":"hello"}\n'],
+    ['application/x-ndjson', '{"message":"hello"}\n'],
+    ['application/json-seq', '\u001e{"message":"hello"}\n'],
+    ['text/event-stream', 'event: update\ndata: hello\n\n'],
+  ])('streams referenced OpenAPI 3.2 item schemas as %s', async (contentType, chunk) => {
+    const item =
+      contentType === 'text/event-stream'
+        ? { type: 'object', properties: { event: { const: 'update' }, data: { const: 'hello' } } }
+        : { type: 'object', properties: { message: { $ref: '#/components/schemas/Message' } } }
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        components: { schemas: { Item: item, Message: { type: 'string', const: 'hello' } } },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Items',
+                  content: {
+                    [contentType]: { itemSchema: { $ref: '#/components/schemas/Item' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe(contentType)
+    expect(await response.text()).toBe(chunk.repeat(3))
+  })
+
+  it.each(['return undefined', "return res['200']", 'return [{ data: "handler" }]'])(
+    'streams custom handler responses with itemSchema: %s',
+    async (handler) => {
+      const server = await createMockServer({
+        logger: false,
+        document: {
+          openapi: '3.2.1',
+          info: { title: 'Stream', version: '1' },
+          paths: {
+            '/events': {
+              get: {
+                'x-handler': handler,
+                responses: {
+                  '200': {
+                    description: 'Events',
+                    content: {
+                      'text/event-stream': {
+                        itemSchema: { type: 'object', properties: { data: { type: 'string', const: 'generated' } } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const response = await server.request('/events')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toBe('text/event-stream')
+      expect(await response.text()).toBe(
+        handler.includes('handler') ? 'data: handler\n\n' : 'data: generated\n\n'.repeat(3),
+      )
+    },
+  )
+
+  it.each([
+    { example: [{ unknown: true }], expected: '' },
+    { example: [{ id: 'bad\0id', retry: -1 }, { data: 'kept' }], expected: 'data: kept\n\n' },
+  ])('reports omitted SSE records without corrupting the HTTP stream: $expected', async ({ example, expected }) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const server = await createMockServer({
+        logger: false,
+        document: {
+          openapi: '3.2.0',
+          info: { title: 'Stream', version: '1' },
+          paths: {
+            '/events': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'Events',
+                    content: { 'text/event-stream': { itemSchema: {}, example } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const response = await server.request('/events')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toBe('text/event-stream')
+      expect(response.headers.get('x-accel-buffering')).toBe('no')
+      expect(await response.text()).toBe(expected)
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'Skipped 1 SSE example item(s) with no valid event, id, retry, or data fields.',
+      )
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('preserves the created status for custom handler streams', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            post: {
+              'x-handler': "store.create('events', { id: 'created' }); return [{ data: 'created' }]",
+              responses: {
+                '201': {
+                  description: 'Created events',
+                  content: {
+                    'text/event-stream': {
+                      itemSchema: { type: 'object', properties: { data: { type: 'string' } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { method: 'POST' })
+    expect(response.status).toBe(201)
+    expect(response.headers.get('content-type')).toBe('text/event-stream')
+    expect(await response.text()).toBe('data: created\n\n')
+  })
+
+  it.each([
+    ['application/jsonl', '1\n', '2\n'],
+    ['text/event-stream', 'data: first\n\n', 'data: second\n\n'],
+  ])('honors named stream examples returned by custom handlers as %s', async (contentType, first, second) => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            get: {
+              'x-handler': "return res['200']",
+              responses: {
+                '200': {
+                  description: 'Events',
+                  content: {
+                    [contentType]: {
+                      itemSchema: {},
+                      examples: { first: { value: first }, second: { value: second } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { headers: { Prefer: 'example=second' } })
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe(contentType)
+    expect(await response.text()).toBe(second)
+  })
+
+  it('keeps explicit examples and response headers for itemSchema streams', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '201': {
+                  description: 'Events',
+                  headers: { 'X-Stream': { schema: { type: 'string', const: 'yes' } } },
+                  content: {
+                    'application/jsonl': {
+                      itemSchema: { type: 'integer', const: 7 },
+                      examples: { first: { value: '1\n' }, second: { value: '2\n3\n' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { headers: { Prefer: 'code=201, example=second' } })
+    expect(response.status).toBe(201)
+    expect(response.headers.get('X-Stream')).toBe('yes')
+    expect(await response.text()).toBe('2\n3\n')
+  })
+
+  it('serves existing routes when an XML schema requires a 3.2 migration decision', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Pets',
+                content: {
+                  'application/json': { example: { id: 7 } },
+                  'application/xml': { schema: { type: 'object', properties: { id: { type: 'integer' } } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const server = await createMockServer({ document })
+    const response = await server.request('/pets', { headers: { Accept: 'application/json' } })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ id: 7 })
+  })
+
+  // The error-handling tests below silence the log the server writes. Restoring through a hook
+  // rather than inline keeps a failing assertion from leaving `console.error` mocked for the rest
+  // of the file.
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)(
+    'serves generated root primitive and array %s responses',
+    async (composition) => {
+      const cases = [
+        { schema: { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] }, expected: 'first' },
+        {
+          schema: {
+            type: 'array',
+            [composition]: [
+              { items: { type: 'string', const: 'first' } },
+              { items: { type: 'string', const: 'second' } },
+            ],
+          },
+          expected: ['first'],
+        },
+        {
+          schema: {
+            properties: { ignored: { const: true } },
+            items: { type: 'string', const: 'ignored' },
+            [composition]: [{ type: 'string', minLength: 3 }, { type: 'number' }],
+          },
+          expected: 'string',
+        },
+        {
+          schema: {
+            properties: { ignored: { const: true } },
+            [composition]: [{ type: 'array', items: { type: 'string', const: 'selected' } }, { type: 'string' }],
+          },
+          expected: ['selected'],
+        },
+        {
+          schema: {
+            type: 'string',
+            [composition]: [
+              { [composition]: [{ const: 'nested first' }, { const: 'nested second' }] },
+              { const: 'outer second' },
+            ],
+          },
+          expected: 'nested first',
+        },
+      ]
+      for (const { schema, expected } of cases) {
+        const document = {
+          openapi: '3.1.0',
+          info: { title: 'Root unions', version: '1' },
+          paths: {
+            '/union': {
+              get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
+            },
+          },
+        }
+        const server = await createMockServer({ document })
+        const response = await server.request('/union')
+        expect(response.status).toBe(200)
+        expect(response.headers.get('content-type')).toContain('application/json')
+        expect(await response.json()).toStrictEqual(expected)
+      }
+    },
+  )
+
   it('supports deprecated specification key', async () => {
     const specification = {
       openapi: '3.1.0',
@@ -153,6 +613,313 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toBe('application/jsonl')
     expect(await response.text()).toBe('{"foo":"bar"}')
+  })
+
+  it('GET /events -> frames a schema-generated text/event-stream response', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        type: {
+                          type: 'string',
+                          example: 'edit',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toBe('text/event-stream')
+    expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"edit"}\n\ndata: {"type":"edit"}\n\n')
+  })
+
+  it('GET /events -> emits one event per named example', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    examples: {
+                      summary: { value: { total_rows: 2 } },
+                      row: { value: { count: 42 } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('data: {"total_rows":2}\n\ndata: {"count":42}\n\n')
+  })
+
+  it('GET /events -> picks a single event with Prefer: example', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    examples: {
+                      summary: { value: { total_rows: 2 } },
+                      row: { value: { count: 42 } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events', {
+      headers: { Prefer: 'example=row' },
+    })
+
+    expect(await response.text()).toBe('data: {"count":42}\n\n')
+  })
+
+  it('GET /events -> writes an already framed example verbatim', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    schema: {
+                      type: 'object',
+                      properties: { type: { type: 'string' } },
+                    },
+                    example: 'data: {"type":"edit"}\n\n',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(await response.text()).toBe('data: {"type":"edit"}\n\n')
+  })
+
+  it('GET /events -> frames a multi-item array schema as its own sequence', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    schema: {
+                      type: 'array',
+                      example: [{ type: 'edit' }, { type: 'delete' }],
+                      items: {
+                        type: 'object',
+                        properties: { type: { type: 'string' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(await response.text()).toBe('data: {"type":"edit"}\n\ndata: {"type":"delete"}\n\n')
+  })
+
+  it('GET /events -> splits a multi-line payload across data lines', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': { example: 'user created\nid: 42' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events')
+
+    expect(await response.text()).toBe('data: user created\ndata: id: 42\n\n')
+  })
+
+  it('GET /events -> keeps the status code and declared headers of the streamed response', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': { example: { from: '200' } },
+                },
+              },
+              '201': {
+                description: 'Created',
+                headers: {
+                  'X-Stream-Id': {
+                    schema: {
+                      type: 'string',
+                      example: 'stream-1',
+                    },
+                  },
+                },
+                content: {
+                  'text/event-stream': { example: { from: '201' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/events', {
+      headers: { Prefer: 'code=201' },
+    })
+
+    expect(response.status).toBe(201)
+    expect(response.headers.get('X-Stream-Id')).toBe('stream-1')
+    expect(await response.text()).toBe('data: {"from":"201"}\n\n')
+  })
+
+  it('GET /events -> keeps returning a buffered body for the JSON variant', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/events': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: { type: 'edit' },
+                  },
+                  'text/event-stream': {
+                    example: { type: 'edit' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const json = await server.request('/events', { headers: { Accept: 'application/json' } })
+    expect(json.headers.get('Content-Type')).toBe('application/json')
+    expect(await json.text()).toBe('{"type":"edit"}')
+
+    const stream = await server.request('/events', { headers: { Accept: 'text/event-stream' } })
+    expect(stream.headers.get('Content-Type')).toBe('text/event-stream')
+    expect(await stream.text()).toBe('data: {"type":"edit"}\n\n')
   })
 
   it('GET /foobar -> omits writeOnly properties in responses', async () => {
@@ -328,6 +1095,259 @@ describe('createMockServer', () => {
 
     expect(response.status).toBe(200)
     expect(await response.text()).toContain('<foo>bar</foo>')
+  })
+
+  it('GET /foobar -> JSON-encodes a string schema body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('"string"')
+  })
+
+  it('GET /foobar -> JSON-encodes a string enum body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                      enum: ['available', 'pending', 'sold'],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('"available"')
+  })
+
+  it('GET /foobar -> JSON-encodes a formatted string body', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                      format: 'date-time',
+                      example: '2024-01-01T00:00:00Z',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('"2024-01-01T00:00:00Z"')
+  })
+
+  it('GET /foobar -> JSON-encodes a string body for a suffixed JSON media type', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '400': {
+                description: 'Bad Request',
+                content: {
+                  'application/problem+json': {
+                    example: 'something went wrong',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(400)
+    expect(response.headers.get('Content-Type')).toBe('application/problem+json')
+    expect(await response.text()).toBe('"something went wrong"')
+  })
+
+  it('GET /foobar -> keeps a pre-serialized JSON example raw', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        foo: {
+                          type: 'string',
+                        },
+                      },
+                    },
+                    example: '{"foo":"bar"}',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ foo: 'bar' })
+  })
+
+  it('GET /foobar -> keeps a line-delimited JSON string body raw', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/x-ndjson': {
+                    example: '{"foo":"bar"}\n{"foo":"baz"}',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Content-Type')).toBe('application/x-ndjson')
+    expect(await response.text()).toBe('{"foo":"bar"}\n{"foo":"baz"}')
+  })
+
+  it('GET /foobar -> keeps a plain text string body raw', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/plain': {
+                    schema: {
+                      type: 'string',
+                      example: 'foobar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('foobar')
   })
 
   it('uses http verbs only to register routes', async () => {
@@ -573,7 +1593,7 @@ describe('createMockServer', () => {
     })
   })
 
-  it('GET /foobar -> wraps schema examples for array responses', async () => {
+  it.each(['example', 'examples'] as const)('GET /foobar -> wraps schema %s for array responses', async (keyword) => {
     const document = {
       openapi: '3.1.0',
       info: {
@@ -598,9 +1618,7 @@ describe('createMockServer', () => {
                           },
                         },
                       },
-                      example: {
-                        foo: 'bar',
-                      },
+                      [keyword]: keyword === 'example' ? { foo: 'bar' } : [{ foo: 'bar' }],
                     },
                   },
                 },
@@ -781,18 +1799,21 @@ describe('createMockServer', () => {
     let response = await server.request('/foobar', {
       method: 'OPTIONS',
       headers: {
-        origin: 'https://example.com',
+        'Origin': 'https://example.com',
+        'Access-Control-Request-Method': 'QUERY',
+        'Access-Control-Request-Headers': 'content-type',
       },
     })
 
     expect(response.status).toBe(204)
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('content-type')
 
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
 
     const allowMethodsHeader = response.headers.get('Access-Control-Allow-Methods')
     expect(allowMethodsHeader).toBeTypeOf('string')
     expect(allowMethodsHeader?.split(',').sort()).toStrictEqual(
-      ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'].sort(),
+      ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'QUERY'].sort(),
     )
 
     // Get request
@@ -1001,5 +2022,562 @@ describe('createMockServer', () => {
 
     expect(response.status).toBe(301)
     expect(response.headers.get('Location')).toBe('/new-location')
+  })
+
+  it('returns a structured JSON 500 naming the operation that failed', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: documentWithOnePet('getPet'),
+      onRequest: () => {
+        throw new Error('Boom')
+      },
+    })
+
+    const response = await server.request('/pets/1')
+
+    expect(response.status).toBe(500)
+    expect(response.headers.get('Content-Type')).toBe('application/json')
+    expect(await response.json()).toStrictEqual({
+      error: 'Internal Server Error',
+      message: 'Boom',
+      operation: {
+        method: 'GET',
+        path: '/pets/{petId}',
+        operationId: 'getPet',
+      },
+    })
+  })
+
+  it('omits the operationId when the operation does not declare one', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: documentWithOnePet(),
+      onRequest: () => {
+        throw new Error('Boom')
+      },
+    })
+
+    const response = await server.request('/pets/1')
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toStrictEqual({
+      error: 'Internal Server Error',
+      message: 'Boom',
+      operation: {
+        method: 'GET',
+        path: '/pets/{petId}',
+      },
+    })
+  })
+
+  it('logs the operation alongside the error', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: documentWithOnePet('getPet'),
+      onRequest: () => {
+        throw new Error('Boom')
+      },
+    })
+
+    await server.request('/pets/1')
+
+    expect(consoleErrorSpy.mock.calls[0]?.[0]).toBe('Error while mocking GET /pets/{petId}:')
+    expect(consoleErrorSpy.mock.calls[0]?.[1]).toStrictEqual(new Error('Boom'))
+  })
+
+  it('names the operation when building the mock response fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({ document: documentWithBrokenResponseHeader })
+
+    const response = await server.request('/pets/1')
+    // The runtime words this failure, so it is the one field matched loosely, on the header name.
+    const { message, ...body } = (await response.json()) as { message: string }
+
+    expect(response.status).toBe(500)
+    expect(body).toStrictEqual({
+      error: 'Internal Server Error',
+      operation: {
+        method: 'GET',
+        path: '/pets/{petId}',
+        operationId: 'getPet',
+      },
+    })
+    expect(message).toContain('X Invalid Name')
+  })
+
+  it('omits the operation when the failing route is not a mocked operation', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const server = await createMockServer({
+      document: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
+    })
+
+    // Routes added to the returned app mock no operation, so there is nothing to name.
+    server.get('/custom', () => {
+      throw new Error('Boom')
+    })
+
+    const response = await server.request('/custom')
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toStrictEqual({
+      error: 'Internal Server Error',
+      message: 'Boom',
+    })
+    expect(consoleErrorSpy.mock.calls[0]?.[0]).toBe('Error handling GET /custom:')
+  })
+
+  it('keeps the status and body of an error that carries its own response', async () => {
+    const server = await createMockServer({
+      document: documentWithOnePet(),
+      onRequest: () => {
+        throw new HTTPException(418, { message: 'I am a teapot' })
+      },
+    })
+
+    const response = await server.request('/pets/1')
+
+    expect(response.status).toBe(418)
+    expect(await response.text()).toBe('I am a teapot')
+  })
+
+  it('routes a path key whose segment mixes a parameter with literal text', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Hello World', version: '1.0.0' },
+      paths: {
+        '/v1/jobs/{jobId}:cancel': {
+          post: {
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: true } } } } },
+          },
+        },
+        '/v1/jobs/{jobId}': {
+          get: {
+            responses: { '200': { description: 'OK', content: { 'application/json': { example: { ok: false } } } } },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({ document })
+
+    expect(await (await server.request('/v1/jobs/42:cancel', { method: 'POST' })).json()).toStrictEqual({ ok: true })
+
+    // Before the literal text was escaped this route was a plain parameter, so it answered any
+    // single segment — including one without the `:cancel` the operation is named for.
+    expect((await server.request('/v1/jobs/42', { method: 'POST' })).status).toBe(404)
+  })
+
+  // `deprecated` marks a field as discouraged, not as absent from the wire, so a mocked response has
+  // to keep it: without these the mock answered a declared `application/json` response with zero
+  // bytes, and a generated client that decodes the declared body raised on it.
+  describe('deprecated response schemas', () => {
+    it('serves a generated body for a response whose whole schema is deprecated', async () => {
+      // Regression: an API deprecated end to end (cohere's finetuning endpoints) came back `200`
+      // with an empty body, because the annotation is tested on the root schema too.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Finetuning API', version: '1.0.0' },
+        paths: {
+          '/finetuning': {
+            post: {
+              responses: {
+                '200': {
+                  description: 'Created',
+                  // Reached through a `$ref`, the way the failing responses reach theirs.
+                  content: { 'application/json': { schema: { $ref: '#/components/schemas/FinetunedModel' } } },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            FinetunedModel: {
+              deprecated: true,
+              type: 'object',
+              required: ['id'],
+              properties: { id: { type: 'string' } },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/finetuning', { method: 'POST' })
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Type')).toBe('application/json')
+
+      // Asserted as text, not parsed JSON: the bug under test is a zero-byte body, which shows up
+      // here as a clean diff against `''` where `.json()` would throw before reporting anything.
+      expect(await response.text()).toBe('{"id":"string"}')
+    })
+
+    it('includes a required deprecated property in the generated body', async () => {
+      // A deprecated server still returns the field, so dropping a required one made the generated
+      // body violate the very schema it was generated from.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Model API', version: '1.0.0' },
+        paths: {
+          '/models': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Model',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        required: ['name', 'legacyName'],
+                        properties: { name: { type: 'string' }, legacyName: { type: 'string', deprecated: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/models')
+
+      expect(response.status).toBe(200)
+
+      expect(await response.text()).toBe('{"name":"string","legacyName":"string"}')
+    })
+
+    it('sets a response header whose schema is deprecated', async () => {
+      // A header value is generated from its schema like any other, so the annotation suppressed it
+      // there too and the declared header went out missing rather than merely empty.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Header API', version: '1.0.0' },
+        paths: {
+          '/things': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  headers: {
+                    'X-Legacy-Id': { schema: { type: 'string', deprecated: true, example: 'legacy-1' } },
+                  },
+                  content: { 'application/json': { example: { ok: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/things')
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('X-Legacy-Id')).toBe('legacy-1')
+    })
+  })
+
+  describe('response headers', () => {
+    it('does not delete an already-set header when a declared header schema generates nothing', async () => {
+      // Hono treats `undefined` as a delete, so a header value that generates nothing has to be
+      // skipped rather than passed to `c.header()`. This loop is the first thing to set the declared
+      // headers, so what a delete actually removes is a header set earlier by middleware.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Header API', version: '1.0.0' },
+        paths: {
+          '/things': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  // An unresolvable `$ref` resolves to `undefined`, so nothing is generated for it.
+                  // Note an empty schema would not do: that generates `null`, which the guard has
+                  // always skipped, so it could not tell the two guards apart.
+                  headers: { 'Access-Control-Allow-Origin': { schema: { $ref: '#/components/schemas/Missing' } } },
+                  content: { 'application/json': { example: { ok: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/things')
+
+      expect(response.status).toBe(200)
+      // The wildcard `cors()` sets by default, not an echoed request origin.
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    })
+  })
+
+  describe('path keys with a query string', () => {
+    /** Build a document with a plain path key and a variant that pins `beta=true`. */
+    const documentWithBetaVariant = (paths: string[]) => ({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: Object.fromEntries(
+        paths.map((path) => [
+          path,
+          {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { example: { path } } },
+                },
+              },
+            },
+          },
+        ]),
+      ),
+    })
+
+    it('routes the variant and the plain sibling independently', async () => {
+      const server = await createMockServer({
+        document: documentWithBetaVariant(['/v1/messages?beta=true', '/v1/messages']),
+      })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({
+        path: '/v1/messages?beta=true',
+      })
+      expect(await (await server.request('/v1/messages')).json()).toStrictEqual({ path: '/v1/messages' })
+    })
+
+    it('routes the variant even when the plain sibling comes first in the document', async () => {
+      const server = await createMockServer({
+        document: documentWithBetaVariant(['/v1/messages', '/v1/messages?beta=true']),
+      })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({
+        path: '/v1/messages?beta=true',
+      })
+    })
+
+    it('ignores a request that does not carry the pinned value', async () => {
+      const server = await createMockServer({ document: documentWithBetaVariant(['/v1/messages?beta=true']) })
+
+      expect((await server.request('/v1/messages?beta=false')).status).toBe(404)
+      expect((await server.request('/v1/messages')).status).toBe(404)
+      expect((await server.request('/v1/messages?beta=true')).status).toBe(200)
+    })
+
+    it('keeps the path parameters of a variant', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/models/{model_id}?beta=true': {
+            get: {
+              parameters: [{ name: 'model_id', in: 'path', required: true, schema: { type: 'string' } }],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { example: { beta: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect((await server.request('/v1/models/claude?beta=true')).status).toBe(200)
+    })
+
+    it('leaves a literal path ahead of a parameterized one that pins a query', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/v1/messages': {
+            get: {
+              responses: {
+                '200': { description: 'OK', content: { 'application/json': { example: { via: 'literal' } } } },
+              },
+            },
+          },
+          '/v1/{anything}?beta=true': {
+            get: {
+              responses: {
+                '200': { description: 'OK', content: { 'application/json': { example: { via: 'catch-all' } } } },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect(await (await server.request('/v1/messages?beta=true')).json()).toStrictEqual({ via: 'literal' })
+    })
+
+    it('still runs authentication and validation for a variant', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        components: {
+          securitySchemes: {
+            bearerAuth: { type: 'http', scheme: 'bearer' },
+          },
+        },
+        paths: {
+          '/v1/messages?beta=true': {
+            get: {
+              security: [{ bearerAuth: [] }],
+              parameters: [{ name: 'limit', in: 'query', required: true, schema: { type: 'integer' } }],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { example: { beta: true } } },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      expect((await server.request('/v1/messages?beta=true&limit=1')).status).toBe(401)
+
+      const headers = { Authorization: 'Bearer super-secret-token' }
+
+      expect((await server.request('/v1/messages?beta=true', { headers })).status).toBe(422)
+      expect((await server.request('/v1/messages?beta=true&limit=1', { headers })).status).toBe(200)
+    })
+
+    it('answers requests for a document whose parameterized path keys carry a query string', async () => {
+      // Path keys like these used to make Hono compile an invalid regular expression, so every
+      // single request failed with an empty `500`.
+      const server = await createMockServer({
+        document: documentWithBetaVariant(['/a/{x}/b?q=1', '/a/{x}/b/{y}?q=1']),
+      })
+
+      expect((await server.request('/a/1/b?q=1')).status).toBe(200)
+      expect((await server.request('/a/1/b/2?q=1')).status).toBe(200)
+    })
+  })
+
+  describe('logger', () => {
+    /**
+     * A document with a security scheme, so the server has authentication instructions to print.
+     *
+     * Built per test, because `createMockServer` bundles and upgrades the object it is handed.
+     */
+    const authenticatedDocument = () => ({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      security: [{ apiKey: [] }],
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            name: 'X-API-Key',
+            in: 'header',
+          },
+        },
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // The spies replace the global console, so restore them even when an assertion throws first.
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('prints the authentication instructions by default', async () => {
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      await createMockServer({ document: authenticatedDocument() })
+
+      expect(consoleLogSpy).toHaveBeenCalledWith('Authentication:')
+    })
+
+    it('prints no authentication instructions when logging is disabled', async () => {
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+      await createMockServer({ document: authenticatedDocument(), logger: false })
+
+      expect(consoleLogSpy).not.toHaveBeenCalled()
+    })
+
+    it('routes the instructions through a custom logger', async () => {
+      const logger = vi.fn()
+
+      await createMockServer({ document: authenticatedDocument(), logger })
+
+      expect(logger).toHaveBeenCalledWith('Authentication:')
+    })
+
+    it('warns about unsupported security schemes even when logging is disabled', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+      await createMockServer({
+        document: {
+          ...authenticatedDocument(),
+          security: [{ mutualTls: [] }],
+          components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
+        },
+        logger: false,
+      })
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: mutualTLS')
+    })
+
+    it('answers requests as usual when logging is disabled', async () => {
+      const server = await createMockServer({ document: authenticatedDocument(), logger: false })
+
+      const response = await server.request('/foobar', {
+        headers: { 'X-API-Key': 'super-secret' },
+      })
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ foo: 'bar' })
+    })
   })
 })

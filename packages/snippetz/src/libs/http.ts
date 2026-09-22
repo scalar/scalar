@@ -121,13 +121,10 @@ export const accumulateRepeatedValue = (data: Record<string, string | string[]>,
  * Reduces query parameters into an object while preserving repeated keys as arrays.
  */
 export function reduceQueryParams(query: HarRequest['queryString'] = []): Record<string, string | string[]> {
-  return query.reduce(
-    (acc, { name, value }) => {
-      accumulateRepeatedValue(acc, name, value)
-      return acc
-    },
-    {} as Record<string, string | string[]>,
-  )
+  return query.reduce<Record<string, string | string[]>>((acc, { name, value }) => {
+    accumulateRepeatedValue(acc, name, value)
+    return acc
+  }, {})
 }
 
 /**

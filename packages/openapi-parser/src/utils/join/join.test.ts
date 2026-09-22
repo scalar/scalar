@@ -1,7 +1,188 @@
-import { join } from '@/utils/join/join'
 import { describe, expect, it } from 'vitest'
 
+import { join } from '@/utils/join/join'
+
 describe('join', () => {
+  it('preserves literal schema property names in components and inline responses', async () => {
+    const schema = {
+      type: 'object',
+      properties: JSON.parse(
+        '{"constructor":{"type":"string"},"prototype":{"type":"number"},"__proto__":{"type":"boolean"}}',
+      ),
+      required: ['constructor'],
+    }
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Example', version: '1.0.0' },
+      components: { schemas: { Thing: schema } },
+      paths: {
+        '/things': {
+          get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
+        },
+      },
+    }
+    // Comparing serialized data avoids treating the literal constructor property as a type identity.
+    expect(JSON.stringify(await join([document]))).toBe(JSON.stringify({ ok: true, document }))
+    expect(Object.hasOwn(Object.prototype, 'type')).toBe(false)
+  })
+
+  it('preserves index merging for info extension arrays', async () => {
+    expect(
+      await join([
+        { info: { title: 'First', 'x-list': [{ name: 'First' }] } },
+        { info: { title: 'Second', 'x-list': [{ other: true }, { name: 'Second' }] } },
+      ]),
+    ).toStrictEqual({
+      ok: true,
+      document: {
+        info: { title: 'First', 'x-list': [{ other: true, name: 'First' }, { name: 'Second' }] },
+        paths: {},
+        components: undefined,
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+      },
+    })
+  })
+
+  it('preserves metadata precedence, list deduplication, and shallow merging of other fields', async () => {
+    const result = await join([
+      {
+        info: { title: 'First', contact: { name: 'First' } },
+        tags: [{ name: 'shared', description: 'First' }],
+        servers: [{ url: 'https://example.com', description: 'First' }],
+        'x-settings': { first: true },
+      },
+      {
+        info: { title: 'Last', contact: { email: 'hello@example.com' } },
+        tags: [{ name: 'shared', description: 'Last' }],
+        servers: [{ url: 'https://example.com', description: 'Last' }],
+        'x-settings': { last: true },
+      },
+    ])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: { title: 'First', contact: { name: 'First', email: 'hello@example.com' } },
+        paths: {},
+        webhooks: undefined,
+        components: undefined,
+        tags: [{ name: 'shared', description: 'Last' }],
+        servers: [{ url: 'https://example.com', description: 'Last' }],
+        'x-settings': { first: true },
+      },
+    })
+  })
+
+  it('preserves the public shape and category order of conflicts', async () => {
+    const document = {
+      components: { schemas: { Shared: { type: 'string' } } },
+      webhooks: { event: { post: {} } },
+      paths: { '/a/b': { get: {} } },
+    }
+
+    expect(await join([document, document])).toStrictEqual({
+      ok: false,
+      conflicts: [
+        { type: 'path', path: '/a/b', method: 'get' },
+        { type: 'webhook', path: 'event', method: 'post' },
+        { type: 'component', componentType: 'schemas', name: 'Shared' },
+      ],
+    })
+  })
+
+  it.each([null, undefined, false, 0, ''])('replaces lower-precedence falsy path items (%s)', async (value) => {
+    for (const field of ['paths', 'webhooks']) {
+      const result = await join([{ [field]: { '/a': { get: {} } } }, { [field]: { '/a': value } }])
+
+      expect(result).toStrictEqual({
+        ok: true,
+        document: {
+          info: {},
+          paths: {},
+          components: undefined,
+          servers: undefined,
+          tags: undefined,
+          webhooks: undefined,
+          [field]: { '/a': { get: {} } },
+        },
+      })
+    }
+  })
+
+  it.each([null, undefined, false, 0, ''])('replaces lower-precedence falsy components (%s)', async (value) => {
+    const result = await join([
+      { components: { schemas: { Example: { type: 'string' } } } },
+      { components: { schemas: { Example: value } } },
+    ])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        components: { schemas: { Example: { type: 'string' } } },
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+      },
+    })
+  })
+
+  it.each(['__proto__', 'constructor', 'prototype'])('ignores unsafe component type %s', async (key) => {
+    const input = JSON.parse(`{"components":{"${key}":{"scalarJoinMarker":{"type":"string"}}}}`)
+
+    const result = await join([input])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        components: undefined,
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+      },
+    })
+    expect(Object.hasOwn(Object.prototype, 'scalarJoinMarker')).toBe(false)
+    expect(Reflect.get({}, 'scalarJoinMarker')).toBeUndefined()
+  })
+
+  it('keeps inherited-looking component names as own data without false conflicts', async () => {
+    const result = await join([{ components: { schemas: { toString: { type: 'string' } } } }])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+        components: { schemas: { toString: { type: 'string' } } },
+      },
+    })
+  })
+
+  it.each(['__proto__', 'constructor', 'prototype'])('ignores unsafe component name %s', async (key) => {
+    const input = JSON.parse(`{"components":{"schemas":{"${key}":{"type":"string"},"Safe":{"type":"number"}}}}`)
+    const result = await join([input])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: {},
+        paths: {},
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+        components: { schemas: { Safe: { type: 'number' } } },
+      },
+    })
+  })
+
   it('should handle joining info objects, prioritizing the first input document', async () => {
     const result = await join([
       {

@@ -1,3 +1,4 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { Plugin } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
@@ -5,24 +6,11 @@ import { encode } from 'js-base64'
 import { joinUrlAndQuery } from '@/libs/http'
 
 /**
- * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
- * (e.g. `application/vnd.api+json`), and parameterized variants
- * (e.g. `application/json;charset=utf-8`). Case-insensitive.
- */
-const isJsonContentType = (value: string | undefined): boolean => {
-  if (!value) {
-    return false
-  }
-  const { subtype } = parseMimeType(value)
-  return subtype === 'json' || subtype.endsWith('+json')
-}
-
-/**
  * Maps an HTTP method to a RestSharp `Method` enum member. The enum uses
  * PascalCase members (`Method.Get`, `Method.Post`, ...), so we title-case the
  * method name to cover both the well-known verbs and any custom ones.
  */
-const getMethod = (method: string): string => {
+const getRestSharpMethod = (method: string): string => {
   const titleCased = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase()
   return `Method.${titleCased}`
 }
@@ -84,7 +72,7 @@ export const csharpRestsharp: Plugin = {
 
     // Client and request
     lines.push(`var client = new RestClient("${escapeCSharpString(url)}");`)
-    lines.push(`var request = new RestRequest("", ${getMethod(normalizedRequest.method)});`)
+    lines.push(`var request = new RestRequest("", ${getRestSharpMethod(normalizedRequest.method)});`)
 
     // Basic Auth (added as an Authorization header so the client stays request-scoped)
     const { username, password } = configuration?.auth ?? {}
@@ -117,7 +105,7 @@ export const csharpRestsharp: Plugin = {
       // `charset`) still match the form, multipart, and octet-stream branches.
       const essence = mimeType ? parseMimeType(mimeType).essence : undefined
 
-      if (isJsonContentType(mimeType)) {
+      if (isJsonMediaType(mimeType)) {
         if (text) {
           let body = text
           try {

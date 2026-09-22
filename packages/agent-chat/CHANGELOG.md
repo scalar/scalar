@@ -1,5 +1,30 @@
 # @scalar/agent-chat
 
+## 0.12.35
+
+### Patch Changes
+
+- [#10284](https://github.com/scalar/scalar/pull/10284): Load the API client modal on its first open request instead of downloading it when the API reference or agent chat mounts. Preserve the requested operation, example, and request-body variant while loading. Show loading feedback and retry guidance if the request editor cannot be downloaded.
+- [#10206](https://github.com/scalar/scalar/pull/10206): Add generic document identity hooks for bundling and an explicit root URI option for reference proxies. Honor OpenAPI 3.2 `$self` through an OpenAPI plugin in workspace-store, including external documents and partial bundles, and enable it in OpenAPI bundling callers.
+
+  URI resolution now honors root-relative and protocol-relative URLs, query/fragment references, and trailing-slash directory bases for all bundler consumers. Absolute non-HTTP identifiers remain unchanged instead of becoming filesystem paths; loader support is unchanged. Relative HTTP references retain query strings and fragments and are emitted only when they round-trip to the original URL.
+
+  Preserve authored reference spellings through serialized partial bundles and editable exports, while keeping older OpenAPI resolution and configured loader restrictions unchanged.
+
+  Keep references matching authored root schema identifiers intact so schema labels and anchors retain their existing behavior.
+
+## 0.12.34
+
+## 0.12.33
+
+## 0.12.32
+
+## 0.12.31
+
+## 0.12.30
+
+## 0.12.29
+
 ## 0.12.28
 
 ### Patch Changes

@@ -8,6 +8,14 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([
+    [{}, true],
+    [{ expandAllParameters: true }, true],
+    [{ expandAllParameters: false }, false],
+  ])('preserves parameter expansion for %j', (config, expected) => {
+    expect(coerce(apiReferenceConfigurationSchema, config).expandAllParameters).toBe(expected)
+  })
+
   describe('schema', () => {
     it('validates a minimal configuration', () => {
       const minimalConfig = {}
@@ -123,6 +131,18 @@ describe('api-reference-configuration', () => {
       validLayouts.forEach((layout) => {
         expect(coerce(apiReferenceConfigurationSchema, { layout })).toMatchObject({ layout })
       })
+    })
+
+    it('keeps defaultRequestBodyView enum values', () => {
+      const validViews = ['form', 'raw']
+      validViews.forEach((defaultRequestBodyView) => {
+        expect(coerce(apiReferenceConfigurationSchema, { defaultRequestBodyView })).toMatchObject({
+          defaultRequestBodyView,
+        })
+      })
+
+      // It is optional, so an omitted value stays undefined (the raw view is the default behaviour).
+      expect(coerce(apiReferenceConfigurationSchema, {}).defaultRequestBodyView).toBeUndefined()
     })
 
     it('validates content and url configuration', () => {
@@ -386,6 +406,18 @@ describe('api-reference-configuration', () => {
       const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
 
       expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
+    })
+
+    it('preserves synchronous and async response replacements through configuration coercion', async () => {
+      const response = Response.json({ replaced: true })
+      const input = { response: new Response('original'), request: new Request('https://example.com') }
+      const syncConfig = coerce(apiReferenceConfigurationSchema, { onResponseReceived: () => response })
+      const asyncConfig = coerce(apiReferenceConfigurationSchema, {
+        onResponseReceived: () => Promise.resolve(response),
+      })
+
+      expect(syncConfig.onResponseReceived?.(input)).toBe(response)
+      expect(await asyncConfig.onResponseReceived?.(input)).toBe(response)
     })
 
     it('allows a function as onBeforeRequest', () => {

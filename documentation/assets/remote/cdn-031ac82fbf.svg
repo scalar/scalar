@@ -1,0 +1,487 @@
+<svg height="0" width="0">
+    <defs>
+      <filter id="pointLight1">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="light1"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped1">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="lightFlipped1"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight2">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="106" y="36.25" z="300" id="light2"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped2">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="106" y="108.75" z="300" id="lightFlipped2"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight3">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="light3"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped3">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="lightFlipped3"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight4">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="103" y="95.75" z="300" id="light4"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped4">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="103" y="104.25" z="300" id="lightFlipped4"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight5">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="light5"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped5">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="lightFlipped5"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight6">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="light6"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped6">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="lightFlipped6"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight7">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="light7"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped7">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="lightFlipped7"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight8">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="light8"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped8">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="lightFlipped8"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLight9">
+        <feGaussianBlur stdDeviation="1" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.1" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="light9"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="pointLightFlipped9">
+        <feGaussianBlur stdDeviation="10" result="blur"></feGaussianBlur>
+        <feSpecularLighting result="spec" in="blur" specularExponent="100" specularConstant="0.7" lighting-color="white">
+          <fePointLight x="100" y="100" z="300" id="lightFlipped9"></fePointLight>
+        </feSpecularLighting>
+        <feBlend in="spec" in2="SourceGraphic" operator="screen" result="lit"></feBlend>
+        <feComposite in="lit" in2="SourceAlpha" operator="in"></feComposite>
+      </filter>
+      <filter id="dropShadow">
+        <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="black" flood-opacity="0.6"></feDropShadow>
+      </filter>
+      <filter id="expandAndFill">
+        <feOffset dx="0" dy="0" in="SourceAlpha" result="shape"></feOffset>
+        <feFlood flood-color="rgb(179, 179, 179)" result="flood"></feFlood>
+        <feComposite operator="in" in="flood" in2="shape"></feComposite>
+      </filter>
+    </defs>
+    <style>  :root {
+    --sticker-peel-easing: 2s
+        linear(
+            0,
+            0.002 0.4%,
+            0.008 0.9%,
+            0.02 1.4%,
+            0.035 1.9%,
+            0.055 2.4%,
+            0.083 3%,
+            0.11 3.5%,
+            0.146 4.1%,
+            0.214 5.1%,
+            0.297 6.2%,
+            0.624 10.2%,
+            0.756 11.9%,
+            0.821 12.8%,
+            0.874 13.6%,
+            0.93 14.5%,
+            0.975 15.3%,
+            1.016 16.1%,
+            1.053 16.9%,
+            1.085 17.7%,
+            1.116 18.6%,
+            1.139 19.4%,
+            1.16 20.3%,
+            1.176 21.2%,
+            1.187 22.1%,
+            1.195 23.2%,
+            1.197 24.4%,
+            1.193 25.6%,
+            1.183 26.9%,
+            1.17 28.1%,
+            1.153 29.4%,
+            1.055 35.6%,
+            1.031 37.3%,
+            1.012 38.8%,
+            0.994 40.6%,
+            0.98 42.3%,
+            0.97 44.1%,
+            0.964 45.9%,
+            0.961 48.3%,
+            0.964 51.1%,
+            0.97 53.7%,
+            0.997 62.7%,
+            1.003 66%,
+            1.007 69.3%,
+            1.007 74.4%,
+            1 89.2%,
+            1
+        );
+    --sticker-peel-hover-easing: 1s linear(0, 0.008 1.1%, 0.031 2.2%, 0.129 4.8%, 0.257 7.2%, 0.671 14.2%, 0.789 16.5%, 0.881 18.6%, 0.957 20.7%, 1.019 22.9%, 1.063 25.1%, 1.094 27.4%, 1.114 30.7%, 1.112 34.5%, 1.018 49.9%, 0.99 59.1%, 1); /* HELPERS */
+}
+.sticker-8,
+.sticker-1 {
+    --sticker-rotate: 7deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 36%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    left: 300px;
+    top: -160px;
+    --flap-width: 158px;
+    clip-path: path("M180.24 17.34a7.2 7.2 0 0 1 6.27 8.03l-8.43 68.7a7.21 7.21 0 0 1-2.19 4.34l-17.34 16.5a7.21 7.21 0 0 1-5.84 1.93l-7.28-.89-1.17 9.6a3.93 3.93 0 0 1-4.38 3.4L83.18 122a3.93 3.93 0 0 1-3.43-4.38l1.18-9.59-74.51-9.15a7.2 7.2 0 0 1-6.28-8.03l1.8-14.58c.1-.8.32-1.58.68-2.3l34.1-69.38A7.2 7.2 0 0 1 44.07.62l136.17 16.72Z");
+}
+.sticker-8 {
+  left: initial;
+  right: -100px;
+  top: initial;
+  bottom: 80px;
+}
+.sticker-2 {
+    --sticker-rotate: 10deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 40%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --flap-width: 145px;
+}
+.sticker-3 {
+    --sticker-rotate: -7deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 40%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --flap-width: 113px;
+    left: -100px;
+    bottom: 80px;
+}
+.sticker-4 {
+    --sticker-rotate: -7deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 40%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --flap-width: 136px;
+}
+.sticker-5 {
+    --sticker-rotate: 10deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 35%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --flap-width: 120px;
+  clip-path: path("M15.45 12.3C16.34 4.9 23-.42 30.41.3L160 13l-8.5 109-30.87 18-.89 7.23a13.74 13.74 0 0 1-15.3 11.96l-91.8-11.27A13.74 13.74 0 0 1 .66 132.6l14.78-120.3Z");
+  left: 600px;
+  top: 60px;
+}
+.sticker-6 {
+    --sticker-rotate: 10deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 35%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --flap-width: 120px;
+  left: 60px;
+  top: 140px;
+}
+.sticker-7 {
+    --sticker-rotate: -5deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 35%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --flap-width: 130px;
+    left: 280px;
+    top: 20px;
+}
+.sticker-9 {
+    --sticker-rotate: 0deg;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 35%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --flap-width: 180px;
+    right: 80px;
+}
+.sticker-container {
+    position: relative;
+}
+.sticker-container * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.sticker-main {
+    clip-path: polygon(var(--sticker-start) var(--sticker-start), var(--sticker-end) var(--sticker-start), var(--sticker-end) var(--sticker-end), var(--sticker-start) var(--sticker-end));
+    transition: clip-path var(--sticker-peel-hover-easing);
+}
+.sticker-container:hover .sticker-main {
+    clip-path: polygon(var(--sticker-start) var(--sticker-peelback-hover), var(--sticker-end) var(--sticker-peelback-hover), var(--sticker-end) var(--sticker-end), var(--sticker-start) var(--sticker-end));
+    transition: clip-path var(--sticker-peel-hover-easing);
+}
+.sticker-container:active .sticker-main {
+    clip-path: polygon(var(--sticker-start) var(--sticker-peelback-active), var(--sticker-end) var(--sticker-peelback-active), var(--sticker-end) var(--sticker-end), var(--sticker-start) var(--sticker-end));
+    transition: clip-path var(--sticker-peel-easing);
+}
+.sticker-lighting svg {
+    transform: rotate(var(--sticker-rotate));
+    filter: url(#outerStroke);
+}
+.flap {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: calc(-100% - var(--sticker-p) - var(--sticker-p));
+    clip-path: polygon(var(--sticker-start) var(--sticker-start), var(--sticker-end) var(--sticker-start), var(--sticker-end) var(--sticker-start), var(--sticker-start) var(--sticker-start));
+    transform: scaleY(-1);
+    transition: all var(--sticker-peel-hover-easing);
+}
+.sticker-container:hover .flap {
+    clip-path: polygon(var(--sticker-start) var(--sticker-start), var(--sticker-end) var(--sticker-start), var(--sticker-end) var(--sticker-peelback-hover), var(--sticker-start) var(--sticker-peelback-hover));
+    top: calc(-100% + 2 * var(--sticker-peelback-hover) - 1px);
+    transition: all var(--sticker-peel-hover-easing);
+}
+.sticker-container:active .flap {
+    clip-path: polygon(var(--sticker-start) var(--sticker-start), var(--sticker-end) var(--sticker-start), var(--sticker-end) var(--sticker-peelback-active), var(--sticker-start) var(--sticker-peelback-active));
+    top: calc(-100% + 2 * var(--sticker-peelback-active) - 1px);
+    transition: all var(--sticker-peel-easing);
+} /* Update the hover effects to use specific filters for each sticker */
+.sticker-1 .sticker-lighting {
+    filter: url(#pointLight1);
+}
+.sticker-1:hover .flap-lighting {
+    filter: url(#pointLightFlipped1);
+}
+.sticker-2:hover .sticker-lighting {
+    filter: url(#pointLight2);
+}
+.sticker-2:hover .flap-lighting {
+    filter: url(#pointLightFlipped2);
+}
+.sticker-3:hover .sticker-lighting {
+    filter: url(#pointLight3);
+}
+.sticker-3:hover .flap-lighting {
+    filter: url(#pointLightFlipped3);
+}
+.sticker-4:hover .sticker-lighting {
+    filter: url(#pointLight4);
+}
+.sticker-4:hover .flap-lighting {
+    filter: url(#pointLightFlipped4);
+}
+.sticker-5:hover .sticker-lighting {
+    filter: url(#pointLight5);
+}
+.sticker-5:hover .flap-lighting {
+  filter: url(#pointLightFlipped5);
+}
+.sticker-6:hover .sticker-lighting {
+    filter: url(#pointLight6);
+}
+.sticker-6:hover .flap-lighting {
+  filter: url(#pointLightFlipped6);
+}
+.sticker-7:hover .sticker-lighting {
+    filter: url(#pointLight7);
+}
+.sticker-7:hover .flap-lighting {
+  filter: url(#pointLightFlipped7);
+}
+.sticker-8:hover .sticker-lighting {
+    filter: url(#pointLight8);
+}
+.sticker-8:hover .flap-lighting {
+  filter: url(#pointLightFlipped8);
+}
+.sticker-9:hover .sticker-lighting {
+    filter: url(#pointLight9);
+}
+.sticker-9:hover .flap-lighting {
+  filter: url(#pointLightFlipped9);
+}
+.flap-image,
+.flap svg,
+.shadow-image,
+.shadow svg,
+.shadow svg {
+    transform: rotate(var(--sticker-rotate));
+    filter: url(#expandAndFill);
+}
+.shadow {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    width: 100%;
+    height: 100%;
+    filter: brightness(0) blur(4px);
+    opacity: 0.2;
+}
+.sticker-main,
+.flap {
+    will-change: clip-path, transform;
+}
+.draggable {
+    position: absolute;
+    cursor: grab;
+}
+.sticker-2 {
+    z-index: 1000;right: -120px; bottom: 80px;
+}
+.sticker-4 {
+    left: -120px;
+    bottom: 80px;
+}
+.draggable:active {
+    cursor: grabbing;
+}
+.stickers {
+    right: 0;
+    position: absolute;
+}
+.sticker-lighting svg,
+.shadow svg,
+.flap svg {
+    width: var(--flap-width);
+    user-select: none;
+    pointer-events: none;
+}
+.sticker-filter-effect {
+    position: absolute;
+}
+@supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
+    .sticker-filter-effect {
+        display: none;
+    }
+    .draggable {
+        pointer-events: none;
+    }
+    .sticker-lighting svg {
+      filter: none;
+    }
+}
+@-moz-document url-prefix() {
+    .sticker-filter-effect {
+        display: none;
+    }
+    .draggable {
+        pointer-events: none;
+    }
+    .sticker-lighting svg {
+      filter: none;
+    }
+    .draggable svg {
+      all: auto !important;
+    }
+}
+@supports (-ms-ime-align: auto) {
+    .sticker-filter-effect {
+        display: none;
+    }
+    .sticker-lighting svg {
+      filter: none;
+    }
+    .draggable {
+        pointer-events: none;
+    }
+}</style>
+  </svg>

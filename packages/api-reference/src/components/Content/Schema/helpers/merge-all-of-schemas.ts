@@ -1,8 +1,9 @@
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-guards'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 /**
  * Schema keywords whose value should reflect the *last* occurrence when merging
@@ -11,6 +12,44 @@ import { isArraySchema } from '@scalar/workspace-store/schemas/v3.1/strict/type-
  * OpenAPI/JSON Schema tooling like Swagger UI.
  */
 const LAST_WINS_KEYS = new Set<string>(['description', 'title'])
+
+const ENUM_ANNOTATIONS = ['x-enum-varnames', 'x-enumNames', 'x-enum-descriptions', 'x-enumDescriptions'] as const
+
+/** Keep positional annotations attached to their values when intersecting enum constraints. */
+const mergeEnums = (
+  existing: SchemaObject,
+  incoming: SchemaObject,
+  override: boolean = false,
+): Partial<SchemaObject> => {
+  const values =
+    existing.enum === undefined
+      ? incoming.enum?.slice()
+      : incoming.enum === undefined
+        ? existing.enum.slice()
+        : existing.enum.filter((value) => incoming.enum?.some((candidate) => isObjectEqual(value, candidate)))
+
+  if (values === undefined) {
+    return {}
+  }
+
+  const merged: Partial<SchemaObject> = { enum: values }
+  for (const key of ENUM_ANNOTATIONS) {
+    const source = incoming[key] !== undefined && (override || existing[key] === undefined) ? incoming : existing
+    const annotation = source[key]
+    const sourceValues = source.enum
+    if (Array.isArray(annotation)) {
+      merged[key] =
+        sourceValues === undefined
+          ? annotation
+          : values.map(
+              (value) => annotation[sourceValues.findIndex((candidate) => isObjectEqual(value, candidate))] ?? '',
+            )
+    } else if (annotation !== undefined && (key === 'x-enum-descriptions' || key === 'x-enumDescriptions')) {
+      merged[key] = annotation
+    }
+  }
+  return merged
+}
 
 /**
  * Merges multiple OpenAPI schema objects into a single schema object.
@@ -71,6 +110,18 @@ export const mergeAllOfSchemas = (
     }
   }
 
+  // Drop a `discriminator` inherited from an `allOf` member: a merged subtype is
+  // one concrete branch, not a choice-point, and keeping the base's mapping makes
+  // it look like the base again, recursing the selector inference (issue #9674).
+  // A discriminator the schema declares itself is kept.
+  const declaresOwnDiscriminator =
+    'discriminator' in baseSchema ||
+    Boolean(rootSchema && typeof rootSchema === 'object' && 'discriminator' in rootSchema)
+
+  if ('discriminator' in result && !declaresOwnDiscriminator) {
+    delete (result as Record<string, unknown>).discriminator
+  }
+
   return result
 }
 
@@ -94,8 +145,11 @@ const mergeSchemaIntoResult = (
     return
   }
 
+  const mergedEnums = mergeEnums(result, schema, override)
+
   // Loop through all schema properties and handle them appropriately
   for (const key of schemaKeys) {
+    const propertyName: string = key
     const value = getResolvedRef(schema[key]) as any
 
     if (value === undefined) {
@@ -103,7 +157,7 @@ const mergeSchemaIntoResult = (
     }
 
     // Required
-    if ((key as string) === 'required') {
+    if (propertyName === 'required') {
       // Merge required fields with deduplication
       if (Array.isArray(value) && value.length > 0) {
         // @ts-expect-error
@@ -117,7 +171,7 @@ const mergeSchemaIntoResult = (
       }
     }
     // Properties
-    else if ((key as string) === 'properties') {
+    else if (propertyName === 'properties') {
       // Merge properties recursively
       if (value && typeof value === 'object') {
         // @ts-expect-error
@@ -131,7 +185,7 @@ const mergeSchemaIntoResult = (
       }
     }
     // Items
-    else if ((key as string) === 'items') {
+    else if (propertyName === 'items') {
       // Handle items (for both arrays and objects with items)
       const items = resolve.schema(value)
       if (items) {
@@ -171,11 +225,9 @@ const mergeSchemaIntoResult = (
         }
       }
     }
-    // Enum
+    // Enum values and their annotations are applied together after the other keywords.
     else if (key === 'enum') {
-      if (Array.isArray(value) && value.length > 0) {
-        result.enum = [...new Set([...(result.enum || []), ...value])]
-      }
+      continue
     }
     // OneOf/AnyOf
     else if (key === 'oneOf' || key === 'anyOf') {
@@ -197,11 +249,12 @@ const mergeSchemaIntoResult = (
     // Annotation keywords (see LAST_WINS_KEYS) always take the latest value so a later
     // allOf member can override an earlier one.
     else {
-      if (override || LAST_WINS_KEYS.has(key as string) || result[key] === undefined) {
+      if (override || LAST_WINS_KEYS.has(propertyName) || result[key] === undefined) {
         result[key] = value
       }
     }
   }
+  Object.assign(result, mergedEnums)
 }
 
 /**
@@ -266,7 +319,7 @@ const mergePropertiesIntoResult = (
     // schema instead of recursing into it again. This mirrors the guard in
     // `mergeItems` and covers schemas that point back at themselves through a
     // plain object property (e.g. a tree node whose `parent` $refs the node).
-    const schemaRef = (schema as { $ref?: string }).$ref
+    const schemaRef = schema.$ref
     if (typeof schemaRef === 'string' && seenRefs.has(schemaRef)) {
       result[key] = existing
       continue
@@ -274,7 +327,7 @@ const mergePropertiesIntoResult = (
     const nextSeenRefs = typeof schemaRef === 'string' ? new Set(seenRefs).add(schemaRef) : seenRefs
 
     if (schema.allOf) {
-      result[key] = mergeAllOfSchemas({ allOf: [existing, ...schema.allOf] } as SchemaObject, undefined, nextSeenRefs)
+      result[key] = mergeAllOfSchemas({ allOf: [existing, schema] } as SchemaObject, undefined, nextSeenRefs)
     } else if (isArraySchema(schema) && isArraySchema(existing) && schema.items) {
       const existingItems = resolve.schema(existing.items)
       result[key] = {
@@ -294,7 +347,11 @@ const mergePropertiesIntoResult = (
       }
       // Simple merge without property recursion
       else {
-        result[key] = { ...schema, ...existing }
+        result[key] = {
+          ...schema,
+          ...existing,
+          ...mergeEnums(existing, schema),
+        }
       }
     }
   }
@@ -388,15 +445,12 @@ const mergeItemsInner = (
     return mergeAllOfSchemas({ allOf: allOfSchemas } as SchemaObject, undefined, seenRefs)
   }
 
-  const merged = { ...existing, ...incoming }
-
-  // Recursively merge properties if both have properties
+  // Construct the merged object after narrowing both schemas so their property types survive.
   if ('properties' in existing && 'properties' in incoming) {
-    // @ts-expect-error
-    merged.properties = { ...existing.properties }
-    // @ts-expect-error
+    const merged = { ...existing, ...incoming, properties: { ...existing.properties } }
     mergePropertiesIntoResult(merged.properties, incoming.properties, seenRefs)
+    return merged
   }
 
-  return merged as SchemaObject
+  return { ...existing, ...incoming }
 }

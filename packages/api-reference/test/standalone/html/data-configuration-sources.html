@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <!--
+      Two documents configured through the standalone `data-configuration` attribute.
+      This is the exact path fixed by "preserve standalone configuration sources": the
+      top-level `sources` array must survive to the renderer instead of being stripped.
+    -->
+    <script
+      id="api-reference"
+      data-configuration='{
+        "sources": [
+          {
+            "slug": "public",
+            "content": {
+              "openapi": "3.1.0",
+              "info": { "title": "Public API", "version": "1.0.0" },
+              "paths": {}
+            }
+          },
+          {
+            "slug": "admin",
+            "content": {
+              "openapi": "3.1.0",
+              "info": { "title": "Admin API", "version": "1.0.0" },
+              "paths": {}
+            }
+          }
+        ]
+      }'></script>
+    <script src="/scalar.js"></script>
+  </body>
+</html>

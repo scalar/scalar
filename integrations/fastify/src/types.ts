@@ -24,12 +24,11 @@ export type FastifyApiReferenceOptions = {
   /**
    * Set where the OpenAPI specification is exposed under `${routePrefix}`.
    *
-   * The specification is always available on these endpoints, parsed by `@scalar/openapi-parser`.
+   * The specification is available on these endpoints (parsed by `@scalar/openapi-parser`)
+   * when it is provided via `configuration.content` or `@fastify/swagger`.
    *
-   * The specification is sourced from, in order of precedence:
-   * - `configuration.spec.content`
-   * - `configuration.spec.url` – fetched via `@scalar/openapi-parser/plugins/fetch-urls`
-   * - `@fastify/swagger` – if `configuration.spec` is not provided
+   * A `configuration.url` source is loaded directly by the reference in the browser, so it
+   * is not re-exposed on these endpoints.
    *
    * These endpoints can be used to fetch the OpenAPI specification for your own programmatic use.
    *

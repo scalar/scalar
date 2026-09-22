@@ -10,7 +10,7 @@ import { initializeWorkspaceEventHandlers } from '@/v2/workspace-events'
 
 // Frozen so this shared fallback cannot be mutated in place, which would leak a stale selection into
 // every future open that falls back to empty. Callers only ever reassign the ref, never mutate it.
-const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION = Object.freeze({}) as Record<string, number>
+const EMPTY_REQUEST_BODY_COMPOSITION_SELECTION: Record<string, number> = Object.freeze({})
 
 export function initializeModalEvents({
   eventBus,
@@ -31,7 +31,23 @@ export function initializeModalEvents({
   initializeWorkspaceEventHandlers({
     eventBus,
     store: ref(store),
-    hooks: {},
+    hooks: {
+      'operation:create:draft-example': {
+        onAfterExecute: ({ documentName, meta: { path, method }, exampleName }): void => {
+          // The new example must be in the sidebar before its location can be selected.
+          store.buildSidebar(documentName)
+          const entry = sidebarState.getEntryByLocation({
+            document: documentName,
+            path,
+            method,
+            example: exampleName,
+          })
+          if (entry) {
+            sidebarState.handleSelectItem(entry.id)
+          }
+        },
+      },
+    },
   })
 
   //------------------------------------------------------------------------------------
@@ -46,12 +62,11 @@ export function initializeModalEvents({
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   eventBus.on('ui:open:client-modal', (payload) => {
     // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
-    // to reset it on close. Keep this assignment unconditional to preserve that invariant.
-    const nextRequestBodyCompositionSelection = (
+    // to reset it on close.
+    const nextRequestBodyCompositionSelection: Record<string, number> =
       payload && 'requestBodyCompositionSelection' in payload && payload.requestBodyCompositionSelection
         ? payload.requestBodyCompositionSelection
         : EMPTY_REQUEST_BODY_COMPOSITION_SELECTION
-    ) as Record<string, number>
 
     // Just open the modal
     if (!payload) {
@@ -59,6 +74,8 @@ export function initializeModalEvents({
       modalState.show()
       return
     }
+
+    const previousSelectedId = sidebarState.state.selectedItem.value
 
     // We route to the exact ID
     if ('id' in payload && payload.id) {
@@ -96,7 +113,13 @@ export function initializeModalEvents({
 
     // Apply the selection after routing so the request body compares it with the selection used
     // for this operation, rather than briefly resetting the operation that was previously open.
-    requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
+    // Reopening the entry already on screen routes nowhere, so a new selection would read as a
+    // manual branch switch and discard the edited body.
+    const isReopeningVisibleEntry = modalState.open && sidebarState.state.selectedItem.value === previousSelectedId
+
+    if (!isReopeningVisibleEntry) {
+      requestBodyCompositionSelection.value = nextRequestBodyCompositionSelection
+    }
 
     modalState.show()
   })

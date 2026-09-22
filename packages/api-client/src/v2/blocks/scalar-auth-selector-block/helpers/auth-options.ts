@@ -1,9 +1,9 @@
-import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 type AuthOption = { label: string; payload: SecuritySchemeObject }
 
 /** Predefined authentication options */
-export const authOptions: Record<string, AuthOption> = {
+export const authOptions = {
   apiKeyCookie: {
     label: 'API Key in Cookies',
     payload: {
@@ -40,6 +40,13 @@ export const authOptions: Record<string, AuthOption> = {
     payload: {
       type: 'http',
       scheme: 'bearer',
+    },
+  },
+  oauth2DeviceAuthorization: {
+    label: 'OAuth2 Device Authorization',
+    payload: {
+      type: 'oauth2',
+      flows: { deviceAuthorization: { deviceAuthorizationUrl: '', tokenUrl: '', refreshUrl: '', scopes: {} } },
     },
   },
   oauth2Implicit: {
@@ -96,4 +103,4 @@ export const authOptions: Record<string, AuthOption> = {
       },
     },
   },
-}
+} satisfies Record<string, AuthOption>

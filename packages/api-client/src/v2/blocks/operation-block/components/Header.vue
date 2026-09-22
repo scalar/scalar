@@ -7,10 +7,14 @@
   and close button for modal. Layout and visibility depend on `layout` and `source` props.
  */
 export type HeaderProps = {
+  /** An external example must finish loading before sending. */
+  executionDisabled?: boolean
   /** Current request path */
   path: string
   /** Current request method */
   method: HttpMethod
+  /** Whether this request comes from an OpenAPI webhook. */
+  isWebhook?: boolean
   /** Client layout */
   layout: ClientLayout
   /** Hides the client button on the header */
@@ -54,10 +58,11 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import OpenApiClientButton from './OpenApiClientButton.vue'
@@ -78,7 +83,11 @@ const emit = defineEmits<{
   (e: 'add:environment'): void
   /** Navigate to the settings page for the current entity */
   (e: 'navigate:settings'): void
+  /** Update the full destination URL used to deliver a webhook. */
+  (e: 'update:webhook-url', url: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const handleSelectEnvironment = (environmentName: string) => {
   eventBus.emit('workspace:update:active-environment', environmentName)
@@ -108,7 +117,9 @@ const handleAddEnvironment = () => {
       :environments
       :eventBus
       :exampleKey
+      :executionDisabled
       :history
+      :isWebhook
       :layout
       :method
       :path
@@ -117,9 +128,8 @@ const handleAddEnvironment = () => {
       :servers
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
-      @select:history:item="
-        (payload) => emit('select:history:item', payload)
-      " />
+      @select:history:item="(payload) => emit('select:history:item', payload)"
+      @update:webhook-url="(value) => emit('update:webhook-url', value)" />
 
     <div class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl:mb-0">
       <!--
@@ -134,9 +144,9 @@ const handleAddEnvironment = () => {
         @select:environment="handleSelectEnvironment" />
       <!-- Operation settings -->
       <ScalarIconButton
-        v-if="layout !== 'modal'"
+        v-if="layout !== 'modal' && !isWebhook"
         :icon="ScalarIconGearSix"
-        label="Operation settings"
+        :label="translate('apiClient.header.operationSettings')"
         size="sm"
         weight="bold"
         @click="emit('navigate:settings')" />
@@ -169,7 +179,9 @@ const handleAddEnvironment = () => {
           icon="Close"
           size="lg"
           thickness="2" />
-        <span class="sr-only">Close Client</span>
+        <span class="sr-only">{{
+          translate('apiClient.header.closeClient')
+        }}</span>
       </button>
 
       <!--
@@ -186,7 +198,9 @@ const handleAddEnvironment = () => {
           icon="Close"
           size="md"
           thickness="1.75" />
-        <span class="sr-only">Close Client</span>
+        <span class="sr-only">{{
+          translate('apiClient.header.closeClient')
+        }}</span>
       </button>
     </div>
   </div>

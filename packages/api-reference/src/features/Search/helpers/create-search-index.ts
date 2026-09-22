@@ -11,7 +11,7 @@ import type {
   OperationObject,
   ResponsesObject,
   SchemaObject,
-} from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import type { FuseData } from '@/features/Search/types'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
@@ -173,8 +173,8 @@ function addEntryToIndex(
   // Operation
   if (entry.type === 'operation') {
     const pathItem = getResolvedPathItem(openApiDocument?.paths?.[entry.path])
-    const operation = (getResolvedRef(getPathItemOperation(openApiDocument?.paths?.[entry.path], entry.method)) ??
-      {}) as OperationObject
+    const operation: OperationObject =
+      getResolvedRef(getPathItemOperation(openApiDocument?.paths?.[entry.path], entry.method)) ?? {}
     const operationWithPathParams = {
       ...operation,
       parameters: combineParams(pathItem?.parameters, operation.parameters),

@@ -19,7 +19,7 @@ export type SidebarGroupLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6
  *
  * @default 0
  */
-export const SIDEBAR_GROUPS_SYMBOL = Symbol() as InjectionKey<SidebarGroupLevel>
+export const SIDEBAR_GROUPS_SYMBOL: InjectionKey<SidebarGroupLevel> = Symbol()
 
 /**
  * Get the current level of the sidebar groups

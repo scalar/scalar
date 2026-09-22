@@ -1,5 +1,88 @@
 # @scalar/components
 
+## 0.30.1
+
+## 0.30.0
+
+### Minor Changes
+
+- [#10269](https://github.com/scalar/scalar/pull/10269): Add title filtering and keyboard-friendly search to the multi-document API selector.
+
+## 0.29.3
+
+### Patch Changes
+
+- [#10245](https://github.com/scalar/scalar/pull/10245): Use design system borders, shadows, and radii for dropdown surfaces and items.
+
+## 0.29.2
+
+### Patch Changes
+
+- [#10133](https://github.com/scalar/scalar/pull/10133): Restore the empty Astro logo.
+- [#10074](https://github.com/scalar/scalar/pull/10074): perf(components): defer ScalarFloating's first positioning to the next tick
+
+  `useFloating`'s `autoUpdate` ran `computePosition` inside the mount flush, so every floating element forced a style and layout pass while it was mounting, whether or not it was open. A page that mounts ten closed dropdowns paid ten forced passes before anything appeared.
+
+  `whileElementsMounted` now starts `autoUpdate` from `nextTick`, chained on the current flush so it still runs before paint, with a disposed flag so an element unmounted within that tick never starts one. On a large API reference document this takes layout events per interaction from eleven to two, and the layout objects walked from 278,715 to 49,539.
+
+  This affects every consumer of `ScalarFloating`, including the dropdown, listbox, popover, combobox, menu and tooltip components. The full component end-to-end suite (203 tests, 219 screenshots) shows no snapshot change, and `ScalarFloating`'s own suite covers all twelve placements, resizing and the constrained max-size case.
+
+- [#10138](https://github.com/scalar/scalar/pull/10138): Test sidebar content and accessible attribute forwarding.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+## 0.29.1
+
+### Patch Changes
+
+- [#10058](https://github.com/scalar/scalar/pull/10058): chore: upgrade to Storybook 10.5.10 and drop the third-party dark mode addon
+
+## 0.29.0
+
+### Minor Changes
+
+- [#10025](https://github.com/scalar/scalar/pull/10025): **Breaking:** `ScalarHeader` no longer lays out its own columns. The `start` and `end` slots have been removed in favour of composing `ScalarHeaderColumn` children in the default slot, and a new `is` prop lets the header render as something other than a `header` element.
+
+  Columns hug their content. Give the content-bearing column `flex-1` so it takes the free space — that is also the column that absorbs the shrinking when space runs out.
+
+  ```diff
+  <ScalarHeader>
+  -   <template #start>
+  -     <ScalarMenu />
+  -   </template>
+  -   <template #end>
+  -     <ScalarHeaderButton cta>Register</ScalarHeaderButton>
+  -   </template>
+  +   <ScalarHeaderColumn class="flex-1">
+  +     <ScalarMenu />
+  +   </ScalarHeaderColumn>
+  +   <ScalarHeaderColumn class="justify-end">
+  +     <ScalarHeaderButton cta>Register</ScalarHeaderButton>
+  +   </ScalarHeaderColumn>
+  </ScalarHeader>
+  ```
+
+  **Put `flex-1` on both side columns only when there is a genuine `justify-center` middle column.** In a two-column header it splits the width 50/50 instead, which clips the content-bearing side on narrow screens:
+
+  ```html
+  <ScalarHeader>
+    <ScalarHeaderColumn class="flex-1">…</ScalarHeaderColumn>
+    <ScalarHeaderColumn class="justify-center">…</ScalarHeaderColumn>
+    <ScalarHeaderColumn class="flex-1 justify-end">…</ScalarHeaderColumn>
+  </ScalarHeader>
+  ```
+
+  Passing the old slots logs a deprecation warning, and typed consumers get a `vue-tsc` error. One case cannot be detected: a header that used _only_ the middle slot now renders its contents left-aligned rather than centred, because that content is indistinguishable from the new default slot. Wrap it as above.
+
+  `is` is worth reaching for when a header is nested inside an existing `header` landmark — `is="div"` avoids exposing a second `banner` role.
+
+  `ScalarMenu`'s default logo now renders at a fixed size. It previously inherited `ScalarIcon`'s `size: 'full'`, and because the Scalar logo ships a `viewBox` with no intrinsic dimensions, that percentage width resolved against the available space in WebKit — stretching the logo box to fill the header and leaving the mark floating in the middle of it.
+
+  This also fixes the app header overflowing narrow viewports, including on iOS Safari. `ScalarHeaderColumn` carries `min-w-0`, so a `flex-1` column shrinks and its long title ellipsizes instead of pushing the header past the screen. Hug columns still size to their content, so keep a trailing action cluster narrow enough to fit on its own.
+
 ## 0.28.1
 
 ### Patch Changes

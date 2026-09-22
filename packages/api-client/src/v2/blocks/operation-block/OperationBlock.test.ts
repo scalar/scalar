@@ -9,8 +9,8 @@ import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
-import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/operation'
+import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -58,7 +58,7 @@ vi.mock('@scalar/use-toasts', () => ({
 vi.mock('./components/Header.vue', () => ({
   default: {
     name: 'Header',
-    emits: ['execute', 'select:history:item'],
+    emits: ['execute', 'select:history:item', 'update:webhook-url'],
     template: '<div data-test="header"></div>',
   },
 }))
@@ -315,7 +315,80 @@ describe('OperationBlock', () => {
       requestPayload: ['https://api.example.com/api/users', expect.objectContaining({ method: 'GET' })],
       request: expect.any(Request),
       plugins: [],
+      customFetch: undefined,
+      onResponseReceived: expect.any(Function),
     })
+  })
+
+  it('requires an explicit destination before sending a webhook', async () => {
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        isWebhook: true,
+        path: 'delivery.created',
+        method: 'post',
+        server: null,
+        servers: [],
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    expect(mockToast).toHaveBeenCalledWith('Webhook URL required. Enter a destination first.', 'error')
+    expect(requestFactory).not.toHaveBeenCalled()
+    expect(sendRequest).not.toHaveBeenCalled()
+  })
+
+  it('sends a webhook to its full destination URL without changing its route identity', async () => {
+    const eventBus = createMockEventBus()
+    vi.mocked(sendRequest).mockResolvedValue([
+      null,
+      {
+        timestamp: Date.now(),
+        requestPayload: ['https://hooks.example.com/deliveries', { method: 'POST', headers: new Headers() }],
+        response: {
+          status: 204,
+          cookieHeaderKeys: [],
+        } as unknown as ResponseInstance,
+        originalResponse: new Response(null, { status: 204 }),
+      },
+    ])
+
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus,
+        isWebhook: true,
+        path: 'delivery.created',
+        method: 'post',
+        server: null,
+        servers: [],
+      },
+    })
+    const header = wrapper.findComponent({ name: 'Header' })
+    // The whole URL is the destination — there is no separate server for a webhook.
+    header.vm.$emit('update:webhook-url', 'https://hooks.example.com/deliveries')
+    await flushPromises()
+
+    await triggerExecute(wrapper)
+
+    expect(requestFactory).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'post',
+        path: 'https://hooks.example.com/deliveries',
+        server: null,
+      }),
+    )
+    expect(eventBus.emit).toHaveBeenCalledWith(
+      'hooks:on:request:sent',
+      expect.objectContaining({
+        meta: {
+          method: 'post',
+          path: 'delivery.created',
+          exampleKey: 'default',
+        },
+      }),
+    )
   })
 
   it('forwards server and customFetch to beforeRequest plugins', async () => {
@@ -940,6 +1013,8 @@ describe('OperationBlock', () => {
       requestPayload: [expect.any(String), expect.any(Object)],
       request: expect.any(Request),
       plugins: [],
+      customFetch: undefined,
+      onResponseReceived: expect.any(Function),
     })
   })
 
@@ -1024,6 +1099,47 @@ describe('OperationBlock', () => {
     // generates a fresh random multipart boundary, so a rebuilt request hashes differently
     const rebuiltRequest = buildSafeBodyRequest('https://api.example.com/upload', { method: 'POST', body: formData })
     expect(await sha256Base64(rebuiltRequest)).not.toBe(hookHash)
+  })
+
+  it('renders the intercepted response and persists tokens saved by response hooks', async () => {
+    const actual = await vi.importActual<typeof import('./helpers/send-request')>('./helpers/send-request')
+    vi.mocked(sendRequest).mockImplementationOnce(actual.sendRequest)
+    const durations: (number | undefined)[] = []
+    const eventBus = createMockEventBus()
+    const wrapper = mount(OperationBlock, {
+      props: {
+        ...createDefaultProps(),
+        eventBus,
+        activeEnvironment: 'default',
+        options: { customFetch: () => Promise.resolve(Response.json({ token: 'saved' })) },
+        plugins: [
+          {
+            hooks: {
+              responseReceived: async ({ response, responseDuration, variablesStore }) => {
+                durations.push(responseDuration)
+                const data = await response.json()
+                variablesStore?.setEnvironment?.([{ key: 'token', value: data.token }])
+                return Response.json({ loggedIn: true }, { status: 201 })
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    await triggerExecute(wrapper)
+
+    const { response } = getResponseBlockProps(wrapper)
+    expect(durations).toStrictEqual([response?.duration])
+    expect(typeof durations[0]).toBe('number')
+    expect(response?.status).toBe(201)
+    expect(response && 'data' in response ? response.data : undefined).toBe('{"loggedIn":true}')
+    expect(eventBus.emit).toHaveBeenCalledWith('environment:upsert:environment-variable', {
+      environmentName: 'default',
+      variable: { name: 'token', value: 'saved' },
+      index: undefined,
+      collectionType: 'workspace',
+    })
   })
 
   it('stores response after successful request execution', async () => {
