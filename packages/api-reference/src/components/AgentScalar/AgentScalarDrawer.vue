@@ -24,6 +24,7 @@ const { translate } = useLocalization()
 
 <template>
   <Transition
+    appear
     enterActiveClass="transition-opacity duration-500"
     enterFromClass="opacity-0"
     enterToClass="opacity-100"
@@ -36,6 +37,7 @@ const { translate } = useLocalization()
       @click="agentContext?.closeAgent()" />
   </Transition>
   <Transition
+    appear
     enterActiveClass="transition-transform duration-300"
     enterFromClass="-translate-x-full"
     enterToClass="translate-x-0"
