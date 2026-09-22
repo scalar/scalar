@@ -114,7 +114,7 @@ const asOpenApiDocumentV3_1 = (document: UnknownObject): OpenApiDocumentV3_1 => 
  *
  * - Merges the "info" object, paths, webhooks, tags, and servers from all input documents.
  * - If there are conflicting paths or webhooks (same path and method), returns a list of conflicts.
- * - Tags (by name) and servers (by URL) retain the last input occurrence.
+ * - For tags (by name) and servers (by URL), the last input document wins.
  * - Metadata uses the first input document when fields overlap.
  *
  * @param inputs - Array of OpenAPI documents (UnknownObject) to join
