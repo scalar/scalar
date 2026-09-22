@@ -1,5 +1,19 @@
 # @scalar/json-magic
 
+## 0.15.0
+
+### Minor Changes
+
+- [#10206](https://github.com/scalar/scalar/pull/10206): Preserve authored references between embedded schema resources when the containing document has no declared identity. This keeps references valid across `$id` scopes and when exporting the bundle to a different retrieval URL.
+- [#10274](https://github.com/scalar/scalar/pull/10274): Add a standard-agnostic `join` utility with configurable merge strategies and conflict reporting to `@scalar/json-magic/join`. Use it in the OpenAPI parser while retaining OpenAPI upgrades, component prefixes, and OpenAPI conflict reports in the parser.
+- [#10206](https://github.com/scalar/scalar/pull/10206): Add generic document identity hooks for bundling and an explicit root URI option for reference proxies. Honor OpenAPI 3.2 `$self` through an OpenAPI plugin in workspace-store, including external documents and partial bundles, and enable it in OpenAPI bundling callers.
+
+  URI resolution now honors root-relative and protocol-relative URLs, query/fragment references, and trailing-slash directory bases for all bundler consumers. Absolute non-HTTP identifiers remain unchanged instead of becoming filesystem paths; loader support is unchanged. Relative HTTP references retain query strings and fragments and are emitted only when they round-trip to the original URL.
+
+  Preserve authored reference spellings through serialized partial bundles and editable exports, while keeping older OpenAPI resolution and configured loader restrictions unchanged.
+
+  Keep references matching authored root schema identifiers intact so schema labels and anchors retain their existing behavior.
+
 ## 0.14.0
 
 ### Minor Changes

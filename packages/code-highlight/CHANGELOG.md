@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.4.7
+
+### Patch Changes
+
+- [#10212](https://github.com/scalar/scalar/pull/10212): Improve type safety for schema display metadata, schema property merging, deprecated configuration migration, and cyclic test fixtures. Load Vite declarations for raw playground imports.
+
 ## 0.4.6
 
 ### Patch Changes

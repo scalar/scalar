@@ -1,5 +1,50 @@
 # @scalar/api-client
 
+## 3.20.0
+
+### Minor Changes
+
+- [#10207](https://github.com/scalar/scalar/pull/10207): Display JSON Lines, JSON Sequences, and multipart response parts as they arrive instead of waiting for the complete response. Preserve cancellation and show malformed records, incomplete multipart responses, and bounded display limits.
+
+  JSON Lines responses (including `application/jsonl` and `application/x-ndjson`), JSON Sequences (`application/json-seq` and `+json-seq`) and `multipart/mixed` or `multipart/x-mixed-replace` responses now use the streaming text viewer, including finite responses. Other multipart subtypes, such as `multipart/form-data`, retain the buffered viewer. Nested parts use hierarchical labels, such as Part 1.1.
+
+  The streaming viewer shows received bytes and offers Copy text and Download text for the displayed transcript, including after completion, cancellation, or a framing error. These exports contain formatted records and multipart labels/base64 rather than the original wire body. Streams retain at most 16 MiB of displayed text and reject records/parts above 8 MiB; preview plugins and virtualized raw-body rendering remain available only in the buffered viewer. HTTP status, headers, and declared Content-Length remain visible.
+
+- [#10175](https://github.com/scalar/scalar/pull/10175): Support API Client UI translations through `localization.translations.apiClient`, including the client embedded in API Reference. Ship client translations for English, Russian, Spanish, French, German, Simplified Chinese, Arabic, and Portuguese to match API Reference. Preserve English fallbacks across package providers and react to locale, direction, and translation updates.
+- [#10191](https://github.com/scalar/scalar/pull/10191): Support OpenAPI 3.2 OAuth device authorization with verification codes, cancellable token polling, stored credentials, and OAuth metadata discovery. Add mock device authorization and approval endpoints with pending, denial, expiry, and polling backoff responses.
+
+  Use consistent form-encoded Basic credentials and environment substitution across OAuth token and refresh flows. Allow HTTP metadata and verification links on local development hosts and reserved test domains, coerce discovery fields consistently, and report device-code expiry clearly.
+
+- [#10178](https://github.com/scalar/scalar/pull/10178): Support OpenAPI 3.2 streaming item schemas in the workspace store, request body examples, and API reference schema views. Frame generated and structured examples as JSON Lines, JSON Sequence, or server-sent events while preserving explicit wire-format strings.
+
+  Preserve generated falsy request examples (`0`, `false`, and empty strings) for non-streaming bodies as well.
+
+  Use cURL `--data-binary` for supported streaming media types, making framed body handling explicit. Authored arrays and objects are framed as stream records; authored wire-format strings remain unchanged. SSE records with no valid fields are safely omitted with one console warning per serialization call reporting the omitted count, including when all records are omitted.
+
+### Patch Changes
+
+- [#10177](https://github.com/scalar/scalar/pull/10177): Use OpenAPI 3.2 schemas throughout workspace-store consumers, stories, tests, and type generation. Update the app editor to offer OpenAPI 3.2 validation and completion while continuing to accept existing 3.1 documents.
+
+  Preserve OpenAPI 3.2 fields in the loose workspace schema, including tag hierarchy, streaming media types, nested encoding, additional operations, and OAuth device authorization.
+
+  The editor intentionally offers the 3.2 field set to documents declaring 3.1 as well; it does not flag 3.2-only fields solely because the declared version is 3.1. This does not certify conformance to the declared version or automatically update it. Before using 3.2-only fields, migrate and explicitly declare OpenAPI 3.2, and verify support in other validators and generators. Remove the unused 3.1 loose-schema generator to prevent schema drift.
+
+  Migration: the OpenAPI 3.1 loose-schema generator (`@scalar/workspace-store/schemas/v3.1/openapi`, published through the wildcard as `@scalar/workspace-store/schemas/v3.1/openapi/index`) and its `@scalar/workspace-store/schemas/v3.1/openapi/reference` helpers have been removed. Import the generator from `@scalar/workspace-store/schemas/v3.2/openapi/index` and the reference helpers from `@scalar/workspace-store/schemas/v3.2/openapi/reference` instead. The `./schemas/*` wildcard and the 3.1 strict-schema exports remain available; the explicit 3.2 strict-schema exports are additive. Locally generated types now use the `OpenAPIV3_2` namespace instead of `OpenAPIV3_1`.
+
+  Inline the editor path-extension reference so Monaco retains the leading-slash path pattern and does not report valid paths as unknown properties.
+
+  Document ingestion continues to upgrade only to OpenAPI 3.1, so existing inline XML bodies without `xml.name` remain loadable. This schema migration does not opt consumers into the stricter OpenAPI 3.2 XML upgrade.
+
+- [#10284](https://github.com/scalar/scalar/pull/10284): Load the API client modal on its first open request instead of downloading it when the API reference or agent chat mounts. Preserve the requested operation, example, and request-body variant while loading. Show loading feedback and retry guidance if the request editor cannot be downloaded.
+- [#10281](https://github.com/scalar/scalar/pull/10281): Fix duplicate rows and lost focus when entering request headers, cookies, and query parameters, and remove unchecked parameters cleanly.
+- [#10208](https://github.com/scalar/scalar/pull/10208): Share OpenAPI 3.2 example-value selection across request bodies, response examples, and code snippets. Preserve serialized payloads verbatim, serialize structured JSON strings correctly, retain falsy values, and replace original example sources after body edits. Keep dataValue and serializedValue during document ingestion.
+
+  Editing a request body, including form fields, discards its authored `externalValue` URL and replaces it with the edited inline value in the workspace and exported API description. Rendering or focusing a form field preserves the external source.
+
+  Form editors prefer structured `dataValue` when both example fields exist, while raw editors, requests, and code snippets preserve `serializedValue` as wire text. Structured examples now affect generated request payloads and snippets; XML remains raw-only in the request editor.
+
+- [#10303](https://github.com/scalar/scalar/pull/10303): Preserve parameter edits when another parameter changes, including parameters displaying downloaded examples. Keep downloaded values out of the document until explicitly edited, and use examples and defaults from resolved schema references when building requests.
+
 ## 3.19.3
 
 ### Patch Changes

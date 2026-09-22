@@ -1,5 +1,15 @@
 # @scalar/void-server
 
+## 2.5.11
+
+### Patch Changes
+
+- [#10290](https://github.com/scalar/scalar/pull/10290): Update Hono and its Node.js server, WebSocket, and OpenAPI integration dependencies.
+
+  Replace the deprecated `@hono/node-ws` adapter with Node server v2 WebSocket support. `createAsyncApiMockServer()` now returns `websocket` instead of `injectWebSocket`. Start the server with `serve({ fetch: app.fetch, websocket })` instead of calling `injectWebSocket(server)`.
+
+  AsyncAPI callers must upgrade to `@hono/node-server` v2. Node server v1 ignores the `websocket` option, so WebSocket channels will silently stop accepting connections if the server dependency is not upgraded.
+
 ## 2.5.10
 
 ### Patch Changes

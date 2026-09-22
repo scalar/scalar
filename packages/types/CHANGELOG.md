@@ -1,5 +1,26 @@
 # @scalar/types
 
+## 0.21.0
+
+### Minor Changes
+
+- [#10191](https://github.com/scalar/scalar/pull/10191): Support OpenAPI 3.2 OAuth device authorization with verification codes, cancellable token polling, stored credentials, and OAuth metadata discovery. Add mock device authorization and approval endpoints with pending, denial, expiry, and polling backoff responses.
+
+  Use consistent form-encoded Basic credentials and environment substitution across OAuth token and refresh flows. Allow HTTP metadata and verification links on local development hosts and reserved test domains, coerce discovery fields consistently, and report device-code expiry clearly.
+
+- [#10283](https://github.com/scalar/scalar/pull/10283): Add `expandAllParameters`, defaulting to `true`. Set it to `false` to start operation parameters collapsed and expand each parameter on click.
+- [#10178](https://github.com/scalar/scalar/pull/10178): Support OpenAPI 3.2 streaming item schemas in the workspace store, request body examples, and API reference schema views. Frame generated and structured examples as JSON Lines, JSON Sequence, or server-sent events while preserving explicit wire-format strings.
+
+  Preserve generated falsy request examples (`0`, `false`, and empty strings) for non-streaming bodies as well.
+
+  Use cURL `--data-binary` for supported streaming media types, making framed body handling explicit. Authored arrays and objects are framed as stream records; authored wire-format strings remain unchanged. SSE records with no valid fields are safely omitted with one console warning per serialization call reporting the omitted count, including when all records are omitted.
+
+### Patch Changes
+
+- [#10175](https://github.com/scalar/scalar/pull/10175): Support API Client UI translations through `localization.translations.apiClient`, including the client embedded in API Reference. Ship client translations for English, Russian, Spanish, French, German, Simplified Chinese, Arabic, and Portuguese to match API Reference. Preserve English fallbacks across package providers and react to locale, direction, and translation updates.
+- [#10222](https://github.com/scalar/scalar/pull/10222): Add a Copy as Markdown button to operations and webhooks in both API Reference layouts. Add a browser entry point for converting resolved OpenAPI documents to Markdown.
+- [#10212](https://github.com/scalar/scalar/pull/10212): Improve type safety for schema display metadata, schema property merging, deprecated configuration migration, and cyclic test fixtures. Load Vite declarations for raw playground imports.
+
 ## 0.20.1
 
 ### Patch Changes

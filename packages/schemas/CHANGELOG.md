@@ -1,5 +1,15 @@
 # @scalar/schemas
 
+## 0.11.0
+
+### Minor Changes
+
+- [#10283](https://github.com/scalar/scalar/pull/10283): Add `expandAllParameters`, defaulting to `true`. Set it to `false` to start operation parameters collapsed and expand each parameter on click.
+
+### Patch Changes
+
+- [#10212](https://github.com/scalar/scalar/pull/10212): Improve type safety for schema display metadata, schema property merging, deprecated configuration migration, and cyclic test fixtures. Load Vite declarations for raw playground imports.
+
 ## 0.10.0
 
 ### Minor Changes
