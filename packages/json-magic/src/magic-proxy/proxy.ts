@@ -245,7 +245,8 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           return undefined
         }
 
-        const resolved = resolveDynamicRef(dynamicRef, args.dynamicScope)
+        // A reference on the resource root belongs to that resource, including its bookend.
+        const resolved = resolveDynamicRef(dynamicRef, childScope)
         if (resolved === undefined) {
           return undefined
         }

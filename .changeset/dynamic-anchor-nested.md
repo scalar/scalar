@@ -9,3 +9,5 @@ Resolve JSON Schema 2020-12 `$dynamicRef` inside the magic proxy. The proxy now 
 Rendering also binds a `$dynamicRef` that is an object property (not only array items) to its concrete type, so those properties no longer show up unresolved.
 
 Expose the dynamic-reference accessor through `@scalar/workspace-store/resolve` so API Reference does not depend directly on json-magic at runtime.
+
+Resolve references declared directly on a schema resource against that resource’s own anchors, including when the resource has no matching anchor.

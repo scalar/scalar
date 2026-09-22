@@ -9,6 +9,26 @@ import { createMagicProxy } from '@/magic-proxy/proxy'
  * exercise that behavior through the proxy itself (not the standalone resolver). See #9414.
  */
 describe('proxy-dynamic-ref', () => {
+  it('resolves a dynamic reference declared on its resource boundary', () => {
+    const proxy = createMagicProxy({
+      $id: 'urn:resource',
+      $dynamicRef: '#node',
+      $defs: { node: { $dynamicAnchor: 'node', type: 'string' } },
+    })
+
+    expect(Reflect.get(proxy, '$dynamicRef-value').type).toBe('string')
+  })
+
+  it('does not borrow a bookend across a dynamic reference resource boundary', () => {
+    const proxy = createMagicProxy({
+      $id: 'urn:outer',
+      $defs: { node: { $dynamicAnchor: 'node', type: 'string' } },
+      properties: { nested: { $id: 'urn:inner', $dynamicRef: '#node' } },
+    })
+
+    expect(Reflect.get(proxy.properties.nested, '$dynamicRef-value')).toBeUndefined()
+  })
+
   it.each([{ $dynamicAnchor: 'other' }, { $defs: {} }])(
     'keeps inline anchor containers in their enclosing resource: %j',
     (container) => {
