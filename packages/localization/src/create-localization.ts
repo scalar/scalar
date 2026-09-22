@@ -145,7 +145,7 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     }
 
     return Object.entries(params).reduce(
-      (result, [param, paramValue]) => result.replaceAll(`{${param}}`, String(paramValue)),
+      (result, [param, paramValue]) => result.replaceAll(`{${param}}`, () => String(paramValue)),
       template,
     )
   }

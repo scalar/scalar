@@ -78,6 +78,22 @@ describe('create-localization', () => {
     expect(wrapper.find('div').attributes('data-direction')).toBe('ltr')
   })
 
+  it.each(['$&', "$'", '$`', '$1', '$$'])('preserves literal %s in repeated interpolation values', (name) => {
+    const Component = defineComponent({
+      setup() {
+        const { translate } = provideLocalization({
+          translations: { schema: { save: 'Save {name}, then reopen {name}.' } },
+        })
+        return () => h('div', translate('schema.save', { name }))
+      },
+    })
+
+    const wrapper = mount(Component)
+
+    expect(wrapper.text()).toBe(`Save ${name}, then reopen ${name}.`)
+    wrapper.unmount()
+  })
+
   it('falls back to the key itself when a translation is missing', () => {
     const Child = defineComponent({
       setup() {
