@@ -73,6 +73,8 @@ export type RequestBlockProps = {
   layout: ClientLayout
   method: HttpMethod
   operation: OperationObject
+  /** Operation before downloaded examples are overlaid, for parameter edit targets. */
+  sourceOperation?: OperationObject
   path: string
   plugins: ClientPlugin[]
   proxyUrl: string
@@ -102,6 +104,7 @@ const {
   layout,
   method,
   operation,
+  sourceOperation,
   path,
   plugins,
   proxyUrl,
@@ -204,20 +207,22 @@ const recordExpandedRowRename = (
 /** Parameters grouped by type (path, query, header, cookie) */
 const sections = computed(() =>
   groupBy(
-    operation.parameters
-      ?.map((param) => getResolvedRef(param))
-      .filter((param) => param !== undefined)
-      .flatMap((param) =>
-        createParameterRows(param, exampleKey, {
-          hiddenValuePaths:
-            param.in === 'query' ? getHiddenValuePaths(param) : [],
-          renamedValuePaths:
-            param.in === 'query' ? getRenamedValuePaths(param) : [],
-        }).map((row) => ({
-          ...row,
-          in: param.in,
-        })),
-      ) ?? [],
+    operation.parameters?.flatMap((reference, index) => {
+      const param = getResolvedRef(reference)
+      if (!param) return []
+      return createParameterRows(param, exampleKey, {
+        hiddenValuePaths:
+          param.in === 'query' ? getHiddenValuePaths(param) : [],
+        renamedValuePaths:
+          param.in === 'query' ? getRenamedValuePaths(param) : [],
+      }).map((row) => ({
+        ...row,
+        // Overlays retain parameter order, but their downloaded values are read-only.
+        originalParameter:
+          getResolvedRef(sourceOperation?.parameters?.[index]) ?? param,
+        in: param.in,
+      }))
+    }) ?? [],
     'in',
     ({ in: _in, ...row }) => {
       return row
