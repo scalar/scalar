@@ -17,6 +17,9 @@ export const es = {
     'cookies': 'Cookies',
     'headers': 'Encabezados',
     'queryParameters': 'Parámetros de consulta',
+    'queryString': 'Cadena de consulta',
+    'queryStringDescription':
+      'Este parámetro proporciona toda la cadena de consulta, por lo que no se pueden añadir más parámetros con nombre. Los parámetros con nombre existentes se envían después; se conservan las claves duplicadas.',
     'requestBody': 'Cuerpo de la solicitud',
     'requestName': 'Nombre de la solicitud',
     'label': 'Solicitud: {name}',

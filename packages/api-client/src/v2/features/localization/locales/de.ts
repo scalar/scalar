@@ -17,6 +17,9 @@ export const de = {
     'cookies': 'Cookies',
     'headers': 'Header',
     'queryParameters': 'Abfrageparameter',
+    'queryString': 'Abfragezeichenfolge',
+    'queryStringDescription':
+      'Dieser Parameter enthält die gesamte Abfragezeichenfolge. Daher können keine weiteren benannten Parameter hinzugefügt werden. Vorhandene benannte Parameter werden danach gesendet; doppelte Schlüssel bleiben erhalten.',
     'requestBody': 'Anfrageinhalt',
     'requestName': 'Anfragename',
     'label': 'Anfrage: {name}',

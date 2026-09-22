@@ -17,6 +17,9 @@ export const en = {
     cookies: 'Cookies',
     headers: 'Headers',
     queryParameters: 'Query Parameters',
+    queryString: 'Query String',
+    queryStringDescription:
+      'This parameter supplies the entire query string, so additional named parameters cannot be added. Existing named parameters are sent after it; duplicate keys are preserved.',
     requestBody: 'Request Body',
     requestName: 'Request Name',
     label: 'Request: {name}',

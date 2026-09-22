@@ -17,6 +17,9 @@ export const pt = {
     'cookies': 'Cookies',
     'headers': 'Cabeçalhos',
     'queryParameters': 'Parâmetros de consulta',
+    'queryString': 'String de consulta',
+    'queryStringDescription':
+      'Este parâmetro fornece toda a string de consulta, por isso não é possível adicionar outros parâmetros nomeados. Os parâmetros nomeados existentes são enviados depois; as chaves duplicadas são preservadas.',
     'requestBody': 'Corpo da requisição',
     'requestName': 'Nome da requisição',
     'label': 'Requisição: {name}',

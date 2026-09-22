@@ -17,6 +17,9 @@ export const zhCn = {
     'cookies': 'Cookie',
     'headers': '请求头',
     'queryParameters': '查询参数',
+    'queryString': '查询字符串',
+    'queryStringDescription':
+      '此参数提供完整的查询字符串，因此无法添加其他命名参数。现有命名参数将在其后发送；重复的键会被保留。',
     'requestBody': '请求体',
     'requestName': '请求名称',
     'label': '请求：{name}',

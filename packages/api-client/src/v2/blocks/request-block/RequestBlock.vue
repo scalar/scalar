@@ -741,7 +741,7 @@ const filterLabels = computed(() => ({
         :id="filterIds.Query"
         :description="
           hasQuerystringParameter
-            ? 'This parameter supplies the entire query string, so additional named parameters cannot be added. Existing named parameters are sent after it; duplicate keys are preserved.'
+            ? translate('apiClient.requestBlock.queryStringDescription')
             : undefined
         "
         :environment
@@ -751,7 +751,7 @@ const filterLabels = computed(() => ({
         :showAddRowPlaceholder="!hasQuerystringParameter"
         :title="
           hasQuerystringParameter
-            ? 'Query String'
+            ? translate('apiClient.requestBlock.queryString')
             : translate('apiClient.requestBlock.queryParameters')
         "
         v-on="parameterHandlers.query" />
