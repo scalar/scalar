@@ -1769,6 +1769,30 @@
                           ]
                         }
                       },
+                      "social-cards": {
+                        "title": "Social Cards",
+                        "type": "page",
+                        "filepath": "documentation/guides/docs/configuration/social-cards.md",
+                        "description": "Replace the generated social card with your own TSX template, drawn per page when your documentation site builds.",
+                        "head": {
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/social-cards"
+                            }
+                          ],
+                          "meta": [
+                            {
+                              "name": "description",
+                              "content": "Replace the generated social card with your own TSX template, drawn per page when your documentation site builds."
+                            },
+                            {
+                              "name": "robots",
+                              "content": "index, follow"
+                            }
+                          ]
+                        }
+                      },
                       "ask-ai": {
                         "title": "Ask AI",
                         "type": "page",
