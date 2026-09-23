@@ -357,6 +357,7 @@ export type ApiClientTranslations = {
   operationBlock: {
     webhookUrlRequired: string
     pathParametersRequired: string
+    forbiddenMethod: string
   }
   dataTableCheckbox: {
     toggle: string

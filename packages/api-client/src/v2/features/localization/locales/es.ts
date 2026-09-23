@@ -367,6 +367,7 @@ export const es = {
   'operationBlock': {
     'webhookUrlRequired': 'Se requiere la URL del webhook. Introduzca primero un destino.',
     'pathParametersRequired': 'Los parámetros de ruta deben tener valores.',
+    'forbiddenMethod': 'La API Fetch no puede enviar solicitudes {method}.',
   },
   'dataTableCheckbox': {
     'toggle': 'Alternar',

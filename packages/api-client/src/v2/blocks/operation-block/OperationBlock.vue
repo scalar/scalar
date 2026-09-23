@@ -100,6 +100,7 @@ import { ScalarButton } from '@scalar/components/button'
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
+import { isForbiddenHttpMethod } from '@scalar/helpers/http/is-forbidden-http-method'
 import {
   executeHook,
   executeResponseHook,
@@ -447,6 +448,19 @@ const handleExecute = async () => {
     // Save any pre-request script writes before bailing out on a build failure.
     persistScriptEnvironment()
     toast(built.message ?? built.error, 'error')
+    return
+  }
+
+  // Check the final method because pre-request scripts can change it.
+  const requestMethod = built.data.requestPayload[1].method ?? 'GET'
+  if (isForbiddenHttpMethod(requestMethod)) {
+    persistScriptEnvironment()
+    toast(
+      translate('apiClient.operationBlock.forbiddenMethod', {
+        method: requestMethod.toUpperCase(),
+      }),
+      'error',
+    )
     return
   }
 
