@@ -16,35 +16,45 @@ npx @scalar/cli help
 
 ## Installation
 
-### Standalone download (no Node.js required)
+### Install script (no Node.js required)
 
-Download the portable CLI for your platform. You do not need Node.js, npm, or Bun installed. The archive includes everything needed to run the CLI, including a private Node.js runtime for docs preview.
+Install the latest stable CLI without Node.js, npm, Bun, or administrator access. The installer selects the download for your platform and verifies its SHA-256 checksum before installing it.
 
-| Platform              | Download (v2.5.1)                                                             |
-| --------------------- | ----------------------------------------------------------------------------- |
-| macOS (Apple Silicon) | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-darwin-arm64.tar.gz) |
-| macOS (Intel)         | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-darwin-x64.tar.gz)   |
-| Linux (x64, glibc)    | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-linux-x64.tar.gz)    |
-| Linux (ARM64, glibc)  | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-linux-arm64.tar.gz)  |
-| Windows (x64)         | [Download](https://cdn.scalar.com/cli/2.5.1/scalar-2.5.1-win32-x64.tar.gz)    |
+#### macOS and Linux
 
-The [download manifest](https://cdn.scalar.com/cli/2.5.1/manifest.json) lists the SHA-256 checksum for each archive. Each download also has a checksum file at the same URL with `.sha256` appended.
-
-Extract the whole archive and keep the `app` and `runtime` folders beside the executable. From the extracted directory, run:
+Run in Bash:
 
 ```bash
-# macOS and Linux
-./scalar --help
+curl -fsSL https://cdn.scalar.com/cli/install.sh | bash
 ```
+
+Supports macOS (Apple Silicon and Intel) and Linux (ARM64 and x64, with glibc). Requires `curl`, `tar`, and either `sha256sum` or `shasum`.
+
+The installer stores releases in `~/.local/share/scalar/releases` and links the executable to `~/.local/bin/scalar`. Follow the printed instructions to add `~/.local/bin` to your `PATH` if needed.
+
+#### Windows
+
+Run in PowerShell:
 
 ```powershell
-# Windows PowerShell
-.\scalar.exe --help
+irm https://cdn.scalar.com/cli/install.ps1 | iex
 ```
 
-Add the extracted directory to your `PATH` to use `scalar` from any directory. If Git's `scalar` command is already on your `PATH`, use the full path to this executable to avoid a naming conflict.
+Supports Windows x64 and requires `tar.exe`, included in Windows 10 version 1803 and later. The installer installs to `%LOCALAPPDATA%\Scalar\current` and adds it to your user and current-session `PATH`. Open a new terminal for other sessions to pick up the change.
 
-To update, download and extract a newer version, then replace your portable installation. `scalar upgrade` displays these instructions for portable installations. Docs preview downloads its preview server separately, so its first run needs an internet connection.
+#### Verify and update
+
+After installation, run:
+
+```bash
+scalar --help
+```
+
+Git also includes a command named `scalar`. If your shell selects Git's command, use the full path to the installed Scalar CLI or put the Scalar installation first in your `PATH`.
+
+To update, run the same install command again. On Windows, close running Scalar processes first. On macOS and Linux, earlier releases remain in `~/.local/share/scalar/releases` and can be removed after upgrading.
+
+You can download and inspect either install script before running it. The installation includes a private Node.js runtime for docs preview. Docs preview downloads its preview server separately, so its first run needs an internet connection.
 
 ### Install with npm
 
