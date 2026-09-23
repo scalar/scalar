@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { recursiveRef } from './reference'
 
-describe('recursiveRef', () => {
+describe('reference', () => {
   const schema = recursiveRef(object({ title: optional(string()) }))
 
   it('follows a chain of references to the resolved value', () => {

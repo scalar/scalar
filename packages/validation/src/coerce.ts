@@ -256,12 +256,6 @@ const trackCycle = (
 }
 
 /**
- * The caches that already hit {@link MAX_COERCE_DEPTH}. We warn once per cache rather than once per
- * truncated subtree. Each `coerce` call gets its own cache unless the caller passes one in.
- */
-const depthWarnings = new WeakSet<object>()
-
-/**
  * Internal coercion implementation. Takes the wide `Schema` union and returns `unknown` so that
  * recursive calls do not pay the cost of relating two generic `Static<S>` instantiations, which
  * can overflow the type checker now that `LazyStatic` resolves recursive schemas without a depth
@@ -273,13 +267,14 @@ const coerceInner = (
   cache: WeakMap<object, Map<Schema, unknown>>,
   lazyCache: LazyCache,
   depth: number,
+  warningState: { emitted: boolean },
 ): unknown => {
   // Stop before the stack overflows. Return the value unchanged, not a schema default: callers
   // merge the result back into the document, so a default would overwrite real content. Leaving
   // the subtree un-normalized loses nothing.
   if (depth >= MAX_COERCE_DEPTH) {
-    if (!depthWarnings.has(cache)) {
-      depthWarnings.add(cache)
+    if (!warningState.emitted) {
+      warningState.emitted = true
       console.warn(
         `[@scalar/validation] coerce stopped at nesting depth ${MAX_COERCE_DEPTH}; deeper values are left as-is.`,
       )
@@ -335,7 +330,7 @@ const coerceInner = (
     if (value === undefined) {
       return undefined
     }
-    return coerceInner(schema.schema, value, cache, lazyCache, depth + 1)
+    return coerceInner(schema.schema, value, cache, lazyCache, depth + 1, warningState)
   }
   if (schema.type === 'array') {
     if (!Array.isArray(value)) {
@@ -346,7 +341,7 @@ const coerceInner = (
     const result: unknown[] = new Array(value.length)
     trackCycle(value, schema, result, cache)
     for (let i = 0; i < value.length; i++) {
-      result[i] = coerceInner(schema.items, value[i], cache, lazyCache, depth + 1)
+      result[i] = coerceInner(schema.items, value[i], cache, lazyCache, depth + 1, warningState)
     }
     return result
   }
@@ -359,7 +354,7 @@ const coerceInner = (
     const result: Record<string, unknown> = {}
     trackCycle(value, schema, result, cache)
     for (const key of Object.keys(value)) {
-      result[key] = coerceInner(schema.value, value[key], cache, lazyCache, depth + 1)
+      result[key] = coerceInner(schema.value, value[key], cache, lazyCache, depth + 1, warningState)
     }
     return result
   }
@@ -376,7 +371,7 @@ const coerceInner = (
       if (propSchema.type === 'optional' && raw === undefined) {
         continue
       }
-      result[key] = coerceInner(propSchema, raw, cache, lazyCache, depth + 1)
+      result[key] = coerceInner(propSchema, raw, cache, lazyCache, depth + 1, warningState)
     }
     return result
   }
@@ -389,12 +384,15 @@ const coerceInner = (
       { schema: schema.schemas[0]!, score: 0 },
     )
     // We need some way to pick one of the union values
-    return coerceInner(branch.schema, value, cache, lazyCache, depth + 1)
+    return coerceInner(branch.schema, value, cache, lazyCache, depth + 1, warningState)
   }
   if (schema.type === 'intersection') {
     return schema.schemas.reduce<Record<string, unknown>>(
       (acc, subSchema) =>
-        Object.assign(acc, coerceInner(subSchema, value, cache, lazyCache, depth + 1) as Record<string, unknown>),
+        Object.assign(
+          acc,
+          coerceInner(subSchema, value, cache, lazyCache, depth + 1, warningState) as Record<string, unknown>,
+        ),
       {},
     )
   }
@@ -402,10 +400,10 @@ const coerceInner = (
     return schema.value
   }
   if (schema.type === 'lazy') {
-    return coerceInner(resolveLazy(schema, lazyCache), value, cache, lazyCache, depth + 1)
+    return coerceInner(resolveLazy(schema, lazyCache), value, cache, lazyCache, depth + 1, warningState)
   }
   if (schema.type === 'evaluate') {
-    return coerceInner(schema.schema, schema.expression(value), cache, lazyCache, depth + 1)
+    return coerceInner(schema.schema, schema.expression(value), cache, lazyCache, depth + 1, warningState)
   }
 
   // We need to assert here that schema has the type never so we know we handle all cases
@@ -453,4 +451,4 @@ export const coerce = <S extends Schema>(
   value: unknown,
   cache: WeakMap<object, Map<Schema, unknown>> = new WeakMap(),
   lazyCache: LazyCache = new WeakMap(),
-): SafeStatic<S> => coerceInner(schema, value, cache, lazyCache, 0) as SafeStatic<S>
+): SafeStatic<S> => coerceInner(schema, value, cache, lazyCache, 0, { emitted: false }) as SafeStatic<S>
