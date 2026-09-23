@@ -1,4 +1,5 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { getExampleValue } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ParameterObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
@@ -46,7 +47,15 @@ export const getParameterExamples = ({
   const recordExamples = Object.values({
     ...paramExamples,
     ...(isObjectLike(contentExamples) ? contentExamples : {}),
-  }).filter(filterUndefined)
+  })
+    .map((entry) => {
+      const resolved = getResolvedRef(entry)
+      if (isObjectLike(resolved) && ('dataValue' in resolved || 'serializedValue' in resolved)) {
+        return { value: getExampleValue(resolved)?.value }
+      }
+      return entry
+    })
+    .filter(filterUndefined)
 
   const fallbackExample =
     recordExamples.length === 0 && 'example' in parameter && parameter.example !== undefined ? [parameter.example] : []

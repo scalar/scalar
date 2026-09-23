@@ -3,7 +3,7 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/
 import { encode as encodeBase64 } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { RequestFactory } from '@/request-example/builder/request-factory'
+import { type RequestFactory, requestFactory } from '@/request-example/builder/request-factory'
 
 import { buildRequestBody } from './body/build-request-body'
 import { buildRequest, resolveExecutableRequestUrl } from './build-request'
@@ -35,6 +35,34 @@ const unwrap = (factory: RequestFactory, options: Parameters<typeof buildRequest
 }
 
 describe('buildRequest', () => {
+  it('preserves serialized parameter text through the final request URL and headers', () => {
+    const { request } = requestFactory({
+      exampleName: 'default',
+      method: 'get',
+      path: '/users/{id}',
+      environment: { variables: [] },
+      globalCookies: [],
+      proxyUrl: '',
+      server: { url: 'https://example.com' },
+      defaultHeaders: {},
+      isElectron: false,
+      selectedSecuritySchemes: [],
+      operation: {
+        parameters: [
+          { name: 'id', in: 'path', required: true, examples: { default: { serializedValue: 'a%2Fb' } } },
+          { name: 'term', in: 'query', examples: { default: { serializedValue: 'term=a%20b&term=c%2Fd' } } },
+          { name: 'flag', in: 'query', examples: { default: { dataValue: false } } },
+          { name: 'X-Audit', in: 'header', examples: { default: { serializedValue: 'hello-wire' } } },
+          { name: 'preferences', in: 'cookie', examples: { default: { serializedValue: 'a=1; b=hello%20world' } } },
+        ],
+      },
+    })
+    const [url, init] = unwrap(request, { envVariables: {} }).requestPayload
+    expect(url).toBe('https://example.com/users/a%2Fb?flag=false&term=a%20b&term=c%2Fd')
+    expect(new Headers(init.headers).get('X-Audit')).toBe('hello-wire')
+    expect(new Headers(init.headers).get('Cookie')).toBe('a=1; b=hello%20world')
+  })
+
   it('sends XML roots, untyped defaults, and wildcard parameters consistently', async () => {
     const requestBody = {
       content: {

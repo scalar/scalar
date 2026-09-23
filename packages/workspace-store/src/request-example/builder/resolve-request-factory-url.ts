@@ -48,7 +48,9 @@ export const resolveRequestFactoryUrl = (
     Object.fromEntries(
       Object.entries(request.path.variables).map(([key, value]) => [
         key,
-        encodeURIComponent(replaceEnvVariables(value, variables)),
+        request.path.serializedParameters?.has(key)
+          ? replaceEnvVariables(value, variables)
+          : encodeURIComponent(replaceEnvVariables(value, variables)),
       ]),
     ),
   )
@@ -99,6 +101,11 @@ export const resolveRequestFactoryUrl = (
     url.search = [query, extra].filter(Boolean).join('&')
   } else {
     url.search = mergeSearchParams(url.searchParams, operationQueryParams, securityQueryParams).toString()
+  }
+
+  if (request.serializedQuery?.length) {
+    const query = request.serializedQuery.map((value) => replaceEnvVariables(value, variables)).join('&')
+    url.search = [url.search.slice(1), query].filter(Boolean).join('&')
   }
 
   return ok(url.toString())

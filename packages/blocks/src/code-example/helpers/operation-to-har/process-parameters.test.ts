@@ -6,6 +6,39 @@ import { describe, expect, it, vi } from 'vitest'
 import { processParameters } from './process-parameters'
 
 describe('parameter styles', () => {
+  it('preserves new example values and serialized query/path/cookie text', () => {
+    const result = processParameters({
+      harRequest: {
+        url: 'https://example.com/{id}',
+        method: 'GET',
+        headers: [],
+        queryString: [],
+        cookies: [],
+        httpVersion: 'HTTP/1.1',
+        headersSize: 0,
+        bodySize: 0,
+      },
+      defaultDisabled: true,
+      parameters: [
+        { name: 'id', in: 'path', required: true, examples: { default: { serializedValue: 'a%2Fb' } } },
+        { name: 'term', in: 'query', examples: { default: { serializedValue: 'term=a%20b&term=c%2Fd' } } },
+        { name: 'X-Audit', in: 'header', examples: { default: { serializedValue: 'hello-wire' } } },
+        { name: 'color', in: 'cookie', style: 'cookie', examples: { default: { dataValue: ['blue', 'black'] } } },
+        { name: 'preferences', in: 'cookie', examples: { default: { serializedValue: 'greeting=hello%20world' } } },
+      ],
+    })
+    expect(result).toStrictEqual({
+      url: 'https://example.com/a%2Fb?term=a%20b&term=c%2Fd',
+      headers: [
+        { name: 'X-Audit', value: 'hello-wire' },
+        { name: 'Cookie', value: 'color=blue; color=black; greeting=hello%20world' },
+      ],
+      queryString: [],
+      cookies: [],
+      hasCookieStyleEntries: true,
+    })
+  })
+
   const createHarRequest = (url: string): HarRequest => ({
     url,
     method: 'get',

@@ -1,4 +1,5 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { getParameterExample } from '@scalar/workspace-store/helpers/get-parameter-example'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getQuerystringParameter,
@@ -6,7 +7,6 @@ import {
 } from '@scalar/workspace-store/helpers/querystring-parameter'
 import {
   deSerializeParameter,
-  getExample,
   getExampleFromSchema,
   isParamDisabled,
   serializeContentValue,
@@ -92,14 +92,10 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
  * Prioritizes example data over schema examples.
  * Returns null if the parameter is disabled so we can skip it.
  */
-const getParameterValue = (
-  param: ParameterObject,
-  example: string | undefined,
-  contentType: string | undefined,
-  defaultDisabled: boolean,
-): unknown => {
+const getParameterValue = (param: ParameterObject, example: string | undefined, defaultDisabled: boolean): unknown => {
   // Try to get value from example first
-  const exampleValue = getExample(param, example, contentType)
+  const selected = getParameterExample(param, example)
+  const exampleValue = selected.example
 
   // If the parameter is disabled, return undefined so we can skip it.
   if (isParamDisabled(param, exampleValue, defaultDisabled)) {
@@ -107,8 +103,8 @@ const getParameterValue = (
   }
 
   // If the example value is set, return it.
-  if (exampleValue?.value !== undefined) {
-    return deSerializeParameter(exampleValue.value, param)
+  if (selected.value !== undefined) {
+    return deSerializeParameter(selected.value, param)
   }
 
   // Fall back to schema example if available
@@ -145,6 +141,8 @@ export const processParameters = ({
   const newQueryString = [...harRequest.queryString]
   const cookieStyleEntries: HarRequest['cookies'] = []
   let newUrl = harRequest.url
+  const serializedQuery: string[] = []
+  const serializedCookies: string[] = []
 
   // Filter out references
   const deReferencedParams = deReferenceParams(parameters)
@@ -166,7 +164,44 @@ export const processParameters = ({
       continue
     }
 
-    const paramValue = getParameterValue(param, example, undefined, defaultDisabled)
+    const selected = getParameterExample(param, example)
+    if (selected.serialized && !isParamDisabled(param, selected.example, defaultDisabled)) {
+      const wireValue = String(selected.value)
+      switch (param.in) {
+        case 'path':
+          newUrl = newUrl.replaceAll(`{${param.name}}`, () => wireValue)
+          break
+        case 'query':
+          serializedQuery.push(wireValue)
+          break
+        case 'header':
+          newHeaders.push({ name: param.name, value: wireValue })
+          break
+        case 'cookie':
+          serializedCookies.push(wireValue)
+          break
+      }
+      continue
+    }
+    if (selected.mediaSerialized && !isParamDisabled(param, selected.example, defaultDisabled)) {
+      const text = String(selected.value)
+      switch (param.in) {
+        case 'query':
+          newQueryString.push({ name: param.name, value: encodeQueryValue(text, param) })
+          break
+        case 'header':
+          newHeaders.push({ name: param.name, value: text })
+          break
+        case 'path':
+          newUrl = newUrl.replaceAll(`{${param.name}}`, () => encodeURIComponent(text))
+          break
+        case 'cookie':
+          harRequest.cookies.push({ name: param.name, value: text })
+          break
+      }
+      continue
+    }
+    const paramValue = getParameterValue(param, example, defaultDisabled)
     if (paramValue === undefined) {
       continue
     }
@@ -285,10 +320,11 @@ export const processParameters = ({
 
   // HAR cookie entries are encoded by snippet generators. Use a complete header
   // when cookie style is present, preserving legacy encoding for other cookies.
-  if (cookieStyleEntries.length) {
+  if (cookieStyleEntries.length || serializedCookies.length) {
     const cookieValue = [
       ...harRequest.cookies.map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`),
       ...cookieStyleEntries.map((cookie) => `${cookie.name}=${cookie.value}`),
+      ...serializedCookies,
     ].join('; ')
     const existing = newHeaders.find((header) => header.name.toLowerCase() === 'cookie')
     if (existing) {
@@ -301,12 +337,19 @@ export const processParameters = ({
     }
   }
 
+  if (serializedQuery.length) {
+    const hashIndex = newUrl.indexOf('#')
+    const hash = hashIndex < 0 ? '' : newUrl.slice(hashIndex)
+    const base = hashIndex < 0 ? newUrl : newUrl.slice(0, hashIndex)
+    newUrl = `${base}${base.includes('?') ? '&' : '?'}${serializedQuery.join('&')}${hash}`
+  }
+
   return {
     url: newUrl,
     headers: newHeaders,
     queryString: newQueryString,
-    cookies: cookieStyleEntries.length ? [] : harRequest.cookies,
-    hasCookieStyleEntries: cookieStyleEntries.length > 0,
+    cookies: cookieStyleEntries.length || serializedCookies.length ? [] : harRequest.cookies,
+    hasCookieStyleEntries: cookieStyleEntries.length > 0 || serializedCookies.length > 0,
   }
 }
 

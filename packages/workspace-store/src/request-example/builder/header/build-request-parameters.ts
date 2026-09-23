@@ -8,9 +8,9 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { getParameterExample } from '@/helpers/get-parameter-example'
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 
-import { getExample } from '../helpers/get-example'
 import { isParamDisabled } from './is-param-disabled'
 import {
   serializeContentValue,
@@ -48,6 +48,8 @@ export const buildRequestParameters = (
   pathVariables: Record<string, string>
   allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
+  serializedQuery?: string[]
+  serializedPathParameters?: Set<string>
 } => {
   const result: ReturnType<typeof buildRequestParameters> = {
     cookies: [],
@@ -66,7 +68,8 @@ export const buildRequestParameters = (
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
     if (!param) continue
-    const example = getExample(param, exampleName, undefined)
+    const selected = getParameterExample(param, exampleName)
+    const { example, value } = selected
 
     // Skip disabled examples
     if (!example || isParamDisabled(param, example)) {
@@ -74,9 +77,45 @@ export const buildRequestParameters = (
     }
 
     /** Replace environment variables in the key and value */
-    const value = example.value
+    if (selected.serialized) {
+      const wireValue = String(value)
+      switch (param.in) {
+        case 'query':
+          ;(result.serializedQuery ??= []).push(wireValue)
+          break
+        case 'path':
+          result.pathVariables[param.name] = wireValue
+          ;(result.serializedPathParameters ??= new Set()).add(param.name)
+          break
+        case 'header':
+          result.headers[param.name] = wireValue
+          break
+        case 'cookie':
+          result.headers.Cookie = [result.headers.Cookie, wireValue].filter(Boolean).join('; ')
+          break
+      }
+      continue
+    }
 
     /** De-serialize the example value if it is a string and matches the schema type */
+    if (selected.mediaSerialized) {
+      const text = String(value)
+      switch (param.in) {
+        case 'query':
+          result.urlParams.set(param.name, text)
+          break
+        case 'header':
+          result.headers[param.name] = text
+          break
+        case 'path':
+          result.pathVariables[param.name] = text
+          break
+        case 'cookie':
+          result.cookies.push(coerceValue(xScalarCookieSchema, { name: param.name, value: text, path: '/' }))
+          break
+      }
+      continue
+    }
     const deSerializedValue = deSerializeParameter(value, param)
     const paramName = param.name
 

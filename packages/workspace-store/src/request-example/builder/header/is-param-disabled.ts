@@ -1,5 +1,7 @@
 import type { ExampleObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { getExampleValue } from '@/helpers/get-example-value'
+
 /**
  * Determines if a parameter is disabled
  *
@@ -24,7 +26,8 @@ export const isParamDisabled = (
   }
 
   // Keep the editor, generated snippets, and outgoing requests aligned for pre-populated values.
-  const hasValue = example?.value !== undefined && example.value !== '' && example.value !== null
+  const value = getExampleValue(example)?.value
+  const hasValue = value !== undefined && value !== '' && value !== null
   if (!defaultDisabled || hasValue) {
     return false
   }

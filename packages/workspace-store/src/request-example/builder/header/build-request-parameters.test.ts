@@ -24,6 +24,22 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it('uses structured examples for query, header, path and cookie parameters', () => {
+    const result = buildRequestParameters([
+      { name: 'term', in: 'query', examples: { default: { dataValue: 'hello-data' } } },
+      { name: 'X-Audit', in: 'header', examples: { default: { serializedValue: 'hello-wire' } } },
+      { name: 'id', in: 'path', required: true, examples: { default: { dataValue: 0 } } },
+      { name: 'color', in: 'cookie', style: 'cookie', examples: { default: { dataValue: ['blue', 'black'] } } },
+    ])
+    expect([...result.urlParams]).toStrictEqual([['term', 'hello-data']])
+    expect(result.headers).toStrictEqual({ 'X-Audit': 'hello-wire' })
+    expect(result.pathVariables).toStrictEqual({ id: '0' })
+    expect(result.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'color', value: 'blue' },
+      { name: 'color', value: 'black' },
+    ])
+  })
+
   it('sends pre-populated optional parameters while respecting explicit disable choices', () => {
     const parameters: ParameterObject[] = [
       { name: 'x-scenario-id', in: 'header', schema: { type: 'string', enum: ['success', 'failure'] } },

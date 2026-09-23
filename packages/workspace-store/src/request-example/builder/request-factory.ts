@@ -106,6 +106,8 @@ export type RequestFactory = {
      * @example { "userId": "{env.USER_ID}" }
      */
     variables: Record<string, string>
+    /** Names whose example is already URI-encoded. */
+    serializedParameters?: Set<string>
     /**
      * The raw request path string, as entered by the user or read from the OpenAPI schema.
      * Placeholders are not yet substituted.
@@ -137,6 +139,9 @@ export type RequestFactory = {
    * The actual query string is assembled later, after variable and environment expansion.
    */
   query: URLSearchParams
+
+  /** URI-ready named-parameter examples, appended without re-encoding. */
+  serializedQuery?: string[]
 
   /** OpenAPI 3.2 whole-query parameter, serialized after environment substitution. */
   querystring?: QuerystringParameter
@@ -289,9 +294,11 @@ export const requestFactory = ({
     proxyUrl,
     path: {
       variables: params.pathVariables,
+      ...(params.serializedPathParameters ? { serializedParameters: params.serializedPathParameters } : {}),
       raw: path,
     },
     query: params.urlParams,
+    ...(params.serializedQuery ? { serializedQuery: params.serializedQuery } : {}),
     ...(querystring ? { querystring } : {}),
     method: isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method,
     headers,
