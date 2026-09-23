@@ -127,6 +127,7 @@ export const operationToHar = ({
   }
 
   let hasCookieStyleEntries = false
+  let hasSerializedQuery = false
 
   // Handle parameters
   if (operation.parameters) {
@@ -136,6 +137,7 @@ export const operationToHar = ({
       queryString,
       cookies,
       hasCookieStyleEntries: processedCookieStyleEntries,
+      hasSerializedQuery: processedSerializedQuery,
     } = processParameters({
       harRequest,
       parameters: operation.parameters,
@@ -150,6 +152,7 @@ export const operationToHar = ({
         ?.map((cookie) => ({ name: cookie.name, value: cookie.value })) ?? []
 
     hasCookieStyleEntries = processedCookieStyleEntries
+    hasSerializedQuery = processedSerializedQuery ?? false
     harRequest.url = url
     harRequest.headers = headers
     harRequest.queryString = queryString
@@ -197,9 +200,8 @@ export const operationToHar = ({
     }
   }
 
-  const hasQuerystringParameter = operation.parameters?.some(
-    (parameter) => getResolvedRef(parameter)?.in === 'querystring',
-  )
+  const hasUriReadyQuery =
+    hasSerializedQuery || operation.parameters?.some((parameter) => getResolvedRef(parameter)?.in === 'querystring')
 
   // Handle security schemes
   if (securitySchemes) {
@@ -208,7 +210,7 @@ export const operationToHar = ({
     // Named parameter values are already serialized, but authentication values are still raw.
     harRequest.queryString.push(
       ...queryString.map((parameter) =>
-        hasQuerystringParameter ? { ...parameter, value: encodeURIComponent(parameter.value) } : parameter,
+        hasUriReadyQuery ? { ...parameter, value: encodeURIComponent(parameter.value) } : parameter,
       ),
     )
     harRequest.cookies.push(...cookies)
@@ -225,9 +227,9 @@ export const operationToHar = ({
     harRequest.cookies = []
   }
 
-  // Whole-query content must remain URI-ready, including any query authentication appended to it.
+  // Whole-query content and serialized examples must retain their authored URI encoding.
   // Keeping all query data in the URL avoids snippet generators introducing a second question mark.
-  if (hasQuerystringParameter && harRequest.queryString.length) {
+  if (hasUriReadyQuery && harRequest.queryString.length) {
     const hashIndex = harRequest.url.indexOf('#')
     const hash = hashIndex === -1 ? '' : harRequest.url.slice(hashIndex)
     const url = hashIndex === -1 ? harRequest.url : harRequest.url.slice(0, hashIndex)

@@ -22,6 +22,8 @@ import type { OperationObject, ParameterObject } from '@scalar/workspace-store/s
 import type { Request as HarRequest } from 'har-format'
 
 type ProcessedParameters = {
+  /** Named serialized examples already embedded in the URL. */
+  hasSerializedQuery?: boolean
   url: string
   headers: HarRequest['headers']
   queryString: HarRequest['queryString']
@@ -350,6 +352,7 @@ export const processParameters = ({
     queryString: newQueryString,
     cookies: cookieStyleEntries.length || serializedCookies.length ? [] : harRequest.cookies,
     hasCookieStyleEntries: cookieStyleEntries.length > 0 || serializedCookies.length > 0,
+    ...(serializedQuery.length ? { hasSerializedQuery: true } : {}),
   }
 }
 

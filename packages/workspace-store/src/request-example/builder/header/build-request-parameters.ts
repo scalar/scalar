@@ -76,7 +76,7 @@ export const buildRequestParameters = (
       continue
     }
 
-    /** Replace environment variables in the key and value */
+    /** Parameter-level wire text already contains its name, delimiters, and encoding. */
     if (selected.serialized) {
       const wireValue = String(value)
       switch (param.in) {
@@ -97,7 +97,6 @@ export const buildRequestParameters = (
       continue
     }
 
-    /** De-serialize the example value if it is a string and matches the schema type */
     if (selected.mediaSerialized) {
       const text = String(value)
       switch (param.in) {
@@ -116,6 +115,7 @@ export const buildRequestParameters = (
       }
       continue
     }
+    /** De-serialize the example value if it is a string and matches the schema type */
     const deSerializedValue = deSerializeParameter(value, param)
     const paramName = param.name
 

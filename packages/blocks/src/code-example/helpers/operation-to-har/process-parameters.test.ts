@@ -29,6 +29,7 @@ describe('parameter styles', () => {
     })
     expect(result).toStrictEqual({
       url: 'https://example.com/a%2Fb?term=a%20b&term=c%2Fd',
+      hasSerializedQuery: true,
       headers: [
         { name: 'X-Audit', value: 'hello-wire' },
         { name: 'Cookie', value: 'color=blue; color=black; greeting=hello%20world' },
