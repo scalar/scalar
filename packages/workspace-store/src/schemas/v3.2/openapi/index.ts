@@ -950,6 +950,8 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
               'When this is true, parameter values are serialized using reserved expansion, as defined by RFC6570. This field only applies to parameters with an in value of query. The default value is false.',
           }),
         ),
+        example: optional(any()),
+        examples: optional(record(string(), maybeRef(example))),
         content: optional(record(string(), maybeRef(lazy((): Schema => mediaType)), { typeName: 'ParameterContent' })),
       },
       { typeName: 'ParameterObjectWithContent' },

@@ -17,6 +17,9 @@ export const fr = {
     'cookies': 'Cookies',
     'headers': 'En-têtes',
     'queryParameters': 'Paramètres de requête',
+    'queryString': 'Chaîne de requête',
+    'queryStringDescription':
+      'Ce paramètre fournit la chaîne de requête entière. Aucun paramètre nommé supplémentaire ne peut donc être ajouté. Les paramètres nommés existants sont envoyés à sa suite ; les clés en double sont conservées.',
     'requestBody': 'Corps de la requête',
     'requestName': 'Nom de la requête',
     'label': 'Requête : {name}',

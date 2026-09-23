@@ -1,6 +1,10 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
+  getQuerystringParameter,
+  serializeQuerystringParameter,
+} from '@scalar/workspace-store/helpers/querystring-parameter'
+import {
   deSerializeParameter,
   getExample,
   getExampleFromSchema,
@@ -66,17 +70,13 @@ const getParameterStyleAndExplode = (param: ParameterObject): { style: string; e
     return { style: 'style' in param && param.style === 'cookie' ? 'cookie' : 'form', explode }
   }
 
-  // The 3.2 `querystring` location has no style/explode of its own, so it falls through to the
-  // `form` default here and is then serialized like a regular query parameter (see the switch below).
-  const defaultStyle =
-    (
-      {
-        path: 'simple',
-        query: 'form',
-        header: 'simple',
-        cookie: 'form',
-      } as Record<string, string>
-    )[param.in] ?? 'form'
+  const defaultStyle = {
+    path: 'simple',
+    query: 'form',
+    querystring: 'form',
+    header: 'simple',
+    cookie: 'form',
+  }[param.in]
 
   // Use provided style or default based on location
   const style = 'style' in param && param.style ? param.style : defaultStyle
@@ -154,6 +154,18 @@ export const processParameters = ({
       continue
     }
 
+    if (param.in === 'querystring') {
+      const querystring = getQuerystringParameter(param, example, { defaultDisabled })
+      if (querystring) {
+        const hashIndex = newUrl.indexOf('#')
+        const hash = hashIndex === -1 ? '' : newUrl.slice(hashIndex)
+        const base = (hashIndex === -1 ? newUrl : newUrl.slice(0, hashIndex)).split('?')[0]
+        const query = serializeQuerystringParameter(querystring)
+        newUrl = `${base}${query ? `?${query}` : ''}${hash}`
+      }
+      continue
+    }
+
     const paramValue = getParameterValue(param, example, undefined, defaultDisabled)
     if (paramValue === undefined) {
       continue
@@ -167,11 +179,7 @@ export const processParameters = ({
         break
       }
 
-      // The 3.2 `querystring` location represents the whole query string. Handle it like a
-      // regular query parameter so its value still lands in the query string instead of
-      // being silently dropped.
-      case 'query':
-      case 'querystring': {
+      case 'query': {
         // Content type parameters should be serialized according to the parameter's own content type
         if ('content' in param && param.content) {
           // We grab the first for now but eventually we should support selecting the content type per parameter

@@ -15,6 +15,8 @@ export type ApiClientTranslations = {
     cookies: string
     headers: string
     queryParameters: string
+    queryString: string
+    queryStringDescription: string
     requestBody: string
     requestName: string
     label: string

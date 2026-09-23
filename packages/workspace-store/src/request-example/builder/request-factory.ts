@@ -6,6 +6,7 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 
+import { type QuerystringParameter, getQuerystringParameter } from '@/helpers/querystring-parameter'
 import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import {
   type BuildRequestSecurityResult,
@@ -136,6 +137,9 @@ export type RequestFactory = {
    */
   query: URLSearchParams
 
+  /** OpenAPI 3.2 whole-query parameter, serialized after environment substitution. */
+  querystring?: QuerystringParameter
+
   /**
    * Headers to be sent with this request, combining spec-provided defaults, user overrides,
    * and (potentially) security-related fields. All header values are unsubstituted at this stage.
@@ -235,6 +239,10 @@ export const requestFactory = ({
 
   /** Build out the request parameters */
   const params = buildRequestParameters(operation.parameters ?? [], exampleName)
+  const querystringParameter = operation.parameters
+    ?.map((parameter) => getResolvedRef(parameter))
+    .find((parameter) => parameter?.in === 'querystring')
+  const querystring = querystringParameter ? getQuerystringParameter(querystringParameter, exampleName) : undefined
   const security = buildRequestSecurity(selectedSecuritySchemes)
 
   const headers = new Headers({
@@ -283,6 +291,7 @@ export const requestFactory = ({
       raw: path,
     },
     query: params.urlParams,
+    ...(querystring ? { querystring } : {}),
     method: method.toUpperCase(),
     headers,
     body,

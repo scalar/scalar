@@ -1,6 +1,7 @@
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { type NodeInput, getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getQuerystringParameter, serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
@@ -60,8 +61,11 @@ export const upsertOperationParameter = (
 ) => {
   // We are editing an existing parameter
   if (originalParameter) {
+    const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, { includeDisabled: true })
+    const preserveQuerystringValue = querystring && payload.value === serializeQuerystringParameter(querystring)
     const param = originalParameter
-    const target = isContentTypeParameterObject(param) ? Object.values(param.content ?? {})[0] : param
+    const target =
+      param.in !== 'querystring' && isContentTypeParameterObject(param) ? Object.values(param.content ?? {})[0] : param
     if (!target) {
       return
     }
@@ -98,7 +102,27 @@ export const upsertOperationParameter = (
     }
 
     // Update the example value and disabled state
-    example.value = payload.value
+    if (param.in === 'querystring') {
+      // The whole-query editor displays the URI-ready value, including percent encoding.
+      delete example.value
+      delete example.dataValue
+      // Inline edits replace the external example source as well as its cached representation.
+      delete example.externalValue
+      delete example.serializedValue
+      // Toggling an unchanged preview must preserve data and environment placeholders
+      // so future environment changes still happen before serialization.
+      if (preserveQuerystringValue && querystring.kind !== 'uri-ready') {
+        if (querystring.kind === 'serialized') {
+          example.value = querystring.value
+        } else {
+          example.dataValue = querystring.value
+        }
+      } else {
+        example.serializedValue = String(payload.value)
+      }
+    } else {
+      example.value = payload.value
+    }
     example['x-disabled'] = payload.isDisabled
     return
   }
@@ -272,5 +296,8 @@ export const deleteAllOperationParameters = (
   }
 
   // Filter out parameters of the specified type
-  operation.parameters = operation.parameters?.filter((it) => getResolvedRef(it)?.in !== type) ?? []
+  operation.parameters =
+    operation.parameters?.filter(
+      (it) => getResolvedRef(it)?.in !== type && !(type === 'query' && getResolvedRef(it)?.in === 'querystring'),
+    ) ?? []
 }
