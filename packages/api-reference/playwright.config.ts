@@ -38,6 +38,7 @@ export default defineConfig({
     ? 'test/snapshots-cdn/**/*.e2e.ts'
     : [
         'test/features/*.e2e.ts',
+        'playwright/test/mermaid.e2e.ts',
         'test/snapshots/**/*.e2e.ts',
         'test/configuration/**/*.e2e.ts',
         'test/standalone/**/*.e2e.ts',
