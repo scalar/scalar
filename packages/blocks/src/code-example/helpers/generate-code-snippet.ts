@@ -39,7 +39,7 @@ type GenerateCodeSnippetProps = {
   defaultDisabledParameters?: boolean
 }
 
-/** Generate the code snippet for the selected example OR operation */
+/** Generate the code snippet for the selected example OR operation, or null when a linked sample is unavailable. */
 export const generateCodeSnippet = ({
   clientId,
   customCodeSamples,
@@ -54,7 +54,7 @@ export const generateCodeSnippet = ({
   globalCookies,
   requestBodyCompositionSelection,
   defaultDisabledParameters,
-}: GenerateCodeSnippetProps): string => {
+}: GenerateCodeSnippetProps): string | null => {
   try {
     if (!clientId) {
       return ''
@@ -74,7 +74,7 @@ export const generateCodeSnippet = ({
       const sample =
         samples.find((sample) => sample.example === exampleKey && sample.contentType === mediaType) ??
         samples.find((sample) => sample.example === exampleKey && sample.contentType === undefined)
-      return sample?.source ?? 'No code sample available for this example.'
+      return sample?.source ?? null
     }
 
     const harRequest = operationToHar({

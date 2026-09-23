@@ -54,7 +54,21 @@ describe('generateCodeSnippet', () => {
     ).toBe('any_media_sample()')
     expect(
       generateCodeSnippet({ ...baseParams, customCodeSamples, clientId: 'custom/python', example: 'missing' }),
-    ).toBe('No code sample available for this example.')
+    ).toBeNull()
+  })
+
+  it('requires an exact media type match including parameters', () => {
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        clientId: 'custom/python',
+        example: 'basic',
+        contentType: 'application/json; charset=utf-8',
+        customCodeSamples: [
+          { lang: 'python', example: 'basic', contentType: 'application/json', source: 'json_sample()' },
+        ],
+      }),
+    ).toBeNull()
   })
 
   beforeEach(() => {

@@ -160,7 +160,6 @@ import {
 
 import { filterClientsByQuery } from '../helpers/filter-clients-by-query'
 import { findClient } from '../helpers/find-client'
-import { getCustomClientIds } from '../helpers/generate-client-options'
 import { generateCodeSnippet } from '../helpers/generate-code-snippet'
 import { getClients } from '../helpers/get-clients'
 import { getCustomCodeSamples } from '../helpers/get-custom-code-samples'
@@ -331,20 +330,10 @@ const resolvedOperation = computed(() =>
   ),
 )
 
-/** Only offer body examples when the displayed content can follow the selection. */
-const showExamplePicker = computed(() => {
-  if (Object.keys(requestBodyExamples.value).length < 2) return false
-  if (isWebhook || !localSelectedClient.value?.id.startsWith('custom/'))
-    return true
-
-  const samples = customCodeSamples.value.samples
-  const ids = getCustomClientIds(samples)
-  return samples.some(
-    (sample, index) =>
-      sample.example !== undefined &&
-      ids[index] === localSelectedClient.value?.id,
-  )
-})
+/** Keep the picker available because it also selects the example opened by Test Request. */
+const showExamplePicker = computed(
+  () => Object.keys(requestBodyExamples.value).length > 1,
+)
 
 /** Generate HAR data for webhook requests */
 const webhookHar = computed(() => {
@@ -368,7 +357,7 @@ const webhookHar = computed(() => {
 })
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() => {
+const generatedCode = computed<string | null>(() => {
   if (isWebhook) {
     return webhookHar.value?.postData?.text ?? ''
   }
@@ -444,14 +433,16 @@ const selectClient = (option: ClientOption) => {
 const VIRTUALIZATION_THRESHOLD = 20_000
 
 const shouldVirtualize = computed(
-  () => (generatedCode.value.length ?? 0) > VIRTUALIZATION_THRESHOLD,
+  () => (generatedCode.value?.length ?? 0) > VIRTUALIZATION_THRESHOLD,
 )
 
 const id = useId()
 </script>
 <template>
   <ScalarCard
-    v-if="generatedCode || externalExamples.pending.value"
+    v-if="
+      generatedCode === null || generatedCode || externalExamples.pending.value
+    "
     ref="elem"
     class="request-card dark-mode">
     <!-- Header -->
@@ -515,6 +506,12 @@ const id = useId()
           </ScalarButton>
         </template>
         <template v-else>Loading example…</template>
+      </div>
+      <div
+        v-else-if="generatedCode === null"
+        class="text-c-2 p-4"
+        role="status">
+        No code sample available for this example.
       </div>
       <div
         v-else

@@ -109,7 +109,7 @@ paths:
           source: client.widgets.create(name="Premium", description="More features")
 ```
 
-The same fields work with `x-scalar-examples`, `x-code-samples`, and `x-custom-examples`. Omit `contentType` to use a sample for any media type with that example key. Static samples without `example` keep their own language-menu entries and do not show the body example switcher. If a linked sample is missing for the selected example, Scalar displays an unavailable message.
+The same fields work with `x-scalar-examples`, `x-code-samples`, and `x-custom-examples`. Omit `contentType` to use a sample for any media type with that example key. The `contentType` must exactly match the request body media type key, including any parameters: `application/json; charset=utf-8` does not match `application/json`. Static samples without `example` keep their own language-menu entries. Their source stays unchanged when switching body examples, but the switcher still controls which example opens in Test Request. If a linked sample is missing for the selected example, Scalar displays an unavailable message.
 
 ### Code samples from other tools
 
@@ -157,7 +157,7 @@ paths:
         node: await client.accounts.list();
 ```
 
-`x-readme.code-samples` is a list of samples using ReadMe's field names (`language`, `code`, `name`):
+`x-readme.code-samples` is a list of samples using ReadMe's field names (`language`, `code`, `name`). ReadMe's `correspondingExample` refers to a response example, so it is not used to link samples to request body examples:
 
 ```yaml
 paths:

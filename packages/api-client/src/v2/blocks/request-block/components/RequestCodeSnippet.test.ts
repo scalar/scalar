@@ -31,6 +31,44 @@ const createProps = (overrides: Partial<Props> = {}): Props => ({
 })
 
 describe('RequestCodeSnippet', () => {
+  it('follows the selected request example and shows missing samples as a status', async () => {
+    const wrapper = mount(RequestCodeSnippet, {
+      props: createProps({
+        selectedClient: 'custom/python',
+        selectedExample: 'first',
+        operation: {
+          requestBody: {
+            content: {
+              'application/json': {
+                examples: {
+                  first: { value: { name: 'First' } },
+                  second: { value: { name: 'Second' } },
+                  missing: { value: {} },
+                },
+              },
+            },
+          },
+          'x-codeSamples': [
+            { lang: 'python', example: 'first', source: 'create("First")' },
+            { lang: 'python', example: 'second', source: 'create("Second")' },
+          ],
+        },
+      }),
+    })
+
+    await wrapper.get('button[aria-expanded]').trigger('click')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("First")')
+
+    await wrapper.setProps({ selectedExample: 'second' })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("Second")')
+    expect(wrapper.findComponent({ name: 'ScalarCombobox' }).props('modelValue').id).toBe('custom/python')
+
+    await wrapper.setProps({ selectedExample: 'missing' })
+    expect(wrapper.get('[role="status"]').text()).toBe('No code sample available for this example.')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   describe('visibility', () => {
     it('is visible when client options are available', () => {
       const clientOptions: ClientOptionGroup[] = [

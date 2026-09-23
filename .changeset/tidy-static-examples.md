@@ -1,8 +1,9 @@
 ---
 "@scalar/blocks": minor
+"@scalar/api-client": patch
 "@scalar/schemas": minor
 "@scalar/types": minor
 "@scalar/workspace-store": minor
 ---
 
-Connect SDK code samples to named request body examples using optional example and contentType fields. Hide the example switcher for static samples without a link.
+Connect SDK code samples to named request body examples using optional example and contentType fields. Keep the example switcher available for static samples and use the selected request example in API client snippets. Display unavailable linked samples as a status message.

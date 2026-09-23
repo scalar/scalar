@@ -85,7 +85,7 @@ const handleClientChange = (option: ClientOption | undefined) => {
 }
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() =>
+const generatedCode = computed<string | null>(() =>
   generateCodeSnippet({
     defaultDisabledParameters: true,
     clientId: localSelectedClient.value?.id,
@@ -150,7 +150,14 @@ const hasClients = computed(() =>
         presentational>
         <DataTableRow>
           <div class="overflow-hidden">
+            <div
+              v-if="generatedCode === null"
+              class="text-c-2 p-4"
+              role="status">
+              No code sample available for this example.
+            </div>
             <ScalarCodeBlock
+              v-else
               class="text-base"
               :content="generatedCode"
               :hideCredentials="secretCredentials"
