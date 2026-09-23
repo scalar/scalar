@@ -77,4 +77,26 @@ describe('render-mermaid', () => {
     expect(element.querySelector('svg')).toBeNull()
     cleanup?.()
   })
+
+  it('restores completed diagrams while a later render is still pending on cancellation', async () => {
+    let finish: ((result: { svg: string }) => void) | undefined
+    const pendingDiagram = new Promise<{ svg: string }>((resolve) => {
+      finish = resolve
+    })
+    render.mockResolvedValueOnce({ svg: '<svg></svg>' }).mockReturnValueOnce(pendingDiagram)
+    const element = createSource()
+    element.append(createSource().firstElementChild!)
+    const sources = Array.from(element.children)
+    const controller = new AbortController()
+    const pending = renderMermaid({ element, source: '', signal: controller.signal })
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(2))
+    expect(element.querySelectorAll('svg').length).toBe(1)
+    controller.abort()
+    expect(Array.from(element.children)).toStrictEqual(sources)
+    finish?.({ svg: '<svg></svg>' })
+    const cleanup = await pending
+    cleanup?.()
+    expect(Array.from(element.children)).toStrictEqual(sources)
+    expect(element.querySelector('svg')).toBeNull()
+  })
 })

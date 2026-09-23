@@ -19,7 +19,14 @@ export const useMarkdownRenderHooks = (
       const cleanups: (() => void)[] = []
       onCleanup(() => {
         controller.abort()
-        for (const cleanup of cleanups.reverse()) cleanup()
+        for (const cleanup of cleanups.reverse()) {
+          try {
+            cleanup()
+          } catch (error: unknown) {
+            // One plugin must not prevent other plugins from releasing their resources.
+            console.error('Could not dispose Markdown enhancement:', error)
+          }
+        }
       })
       for (const hook of hooks) {
         void Promise.resolve()
