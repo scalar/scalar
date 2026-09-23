@@ -2084,6 +2084,32 @@ describe('create-workspace-store', () => {
     expect(fn).toHaveBeenCalledWith('/local-file.yaml')
   })
 
+  describe('live OpenAPI version metadata', () => {
+    it.each([
+      ['3.1.2', '3.2.0'],
+      ['3.2.0', '3.1.2'],
+      ['3.1.2', '3.1.2'],
+      ['2.0', '3.2.0'],
+      ['3.2.0', '2.0'],
+    ])('updates the badge from %s to %s without changing the saved baseline', async (initialVersion, nextVersion) => {
+      const document = (version: string, title: string): Record<string, unknown> => ({
+        ...(version === '2.0' ? { swagger: version } : { openapi: version }),
+        info: { title, version: '1.0.0' },
+        paths: {},
+      })
+      const original = document(initialVersion, 'Hello World')
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'default', document: original })
+
+      await store.replaceDocument('default', document(nextVersion, 'ABC World'))
+
+      expect(getActiveOpenApiDocument(store)?.info.title).toBe('ABC World')
+      expect(getActiveOpenApiDocument(store)?.['x-original-oas-version']).toBe(nextVersion)
+      expect(store.exportWorkspace().originalDocuments.default).toEqual(original)
+      expect(store.exportWorkspace().intermediateDocuments.default).toEqual(original)
+    })
+  })
+
   describe('loading documents from filesystem', () => {
     it('loads a document from a file path using fileLoader', async () => {
       const mockDocument = {
