@@ -34,22 +34,22 @@ const titleId = useId()
       class="section-accordion-header group/heading">
       <DisclosureButton
         :aria-labelledby="titleId"
-        class="section-accordion-button"
+        class="section-accordion-button absolute inset-0 cursor-pointer border-none bg-transparent p-0"
         @click="() => emit('update:modelValue', !modelValue)" />
       <div
         :id="titleId"
-        class="section-accordion-button-content">
+        class="section-accordion-button-content pointer-events-none relative">
         <slot name="title" />
       </div>
       <div
         v-if="$slots.actions"
-        class="section-accordion-button-actions">
+        class="section-accordion-button-actions pointer-events-none relative">
         <slot
           :active="isHovered || modelValue"
           name="actions" />
       </div>
       <ScalarIconCaretRight
-        class="section-accordion-chevron size-4.5 transition-transform"
+        class="section-accordion-chevron pointer-events-none size-4.5 transition-transform"
         :class="{ 'rotate-90': modelValue }" />
     </div>
     <DisclosurePanel
@@ -99,27 +99,6 @@ const titleId = useId()
 
   padding: 6px;
   cursor: pointer;
-}
-
-/*
- * The toggle stretches across the header so a click anywhere in the row opens the section. The
- * title and the actions lie over it and let pointer events through to it, so clicking the row's
- * text reaches the button itself and Headless UI's open state stays in step with `modelValue`.
- */
-.section-accordion-button {
-  position: absolute;
-  inset: 0;
-
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.section-accordion-button-content,
-.section-accordion-button-actions {
-  position: relative;
-  pointer-events: none;
 }
 
 /* The controls the header carries — the copy link in the title, the actions — keep their clicks. */

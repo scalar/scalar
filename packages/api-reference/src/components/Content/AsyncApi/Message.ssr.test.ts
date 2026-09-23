@@ -1,7 +1,7 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { renderToString } from '@vue/server-renderer'
-import { expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import Message from './Message.vue'
@@ -29,7 +29,7 @@ const document = {
 } as AsyncApiDocument
 
 /** The deepest nesting of `button` elements the markup reaches. */
-const maxButtonDepth = (html: string) => {
+const maxButtonDepth = (html: string): number => {
   let depth = 0
   let deepest = 0
 
@@ -47,9 +47,11 @@ const maxButtonDepth = (html: string) => {
  * rendered tree. The accordion header and the copy-link button it holds must therefore stay
  * separate buttons.
  */
-it('renders the message header without nesting buttons', async () => {
-  const html = await renderToString(createSSRApp({ render: () => h(Message, { message, document, eventBus: null }) }))
+describe('Message.ssr', () => {
+  it('renders the message header without nesting buttons', async () => {
+    const html = await renderToString(createSSRApp({ render: () => h(Message, { message, document, eventBus: null }) }))
 
-  expect(html).toContain('<button')
-  expect(maxButtonDepth(html)).toBe(1)
+    expect(html).toContain('<button')
+    expect(maxButtonDepth(html)).toBe(1)
+  })
 })

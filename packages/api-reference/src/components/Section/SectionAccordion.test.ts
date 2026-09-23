@@ -1,10 +1,10 @@
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import SectionAccordion from './SectionAccordion.vue'
 
 /** Mounts a closed accordion, reporting toggles through the returned spy. */
-const mountAccordion = (title: string) => {
+const mountAccordion = (title: string): { wrapper: VueWrapper; onUpdate: ReturnType<typeof vi.fn> } => {
   const onUpdate = vi.fn()
   const wrapper = mount(SectionAccordion, {
     props: { modelValue: false, 'onUpdate:modelValue': onUpdate },
