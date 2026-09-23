@@ -49,12 +49,21 @@ const reference = object(
 
 export const normalRef = (schema: Schema): Schema => union([schema, reference])
 
-const e = (value: unknown) => {
-  if (isObject(value) && '$ref' in value) {
-    return e(value['$ref-value'])
+/**
+ * Follows a chain of references to the value at its end. References can form a loop (`A` points at
+ * `B` and `B` points back at `A`, or a schema points at itself), so we stop at the first reference we
+ * have already passed. Without that, a loop in an untrusted document overflows the stack.
+ */
+const e = (value: unknown): unknown => {
+  const seen = new Set<unknown>()
+  let current = value
+
+  while (isObject(current) && '$ref' in current && !seen.has(current)) {
+    seen.add(current)
+    current = current['$ref-value']
   }
 
-  return value
+  return current
 }
 export const recursiveRef = (schema: Schema): Schema =>
   union([schema, intersection([reference, object({ '$ref-value': evaluate(e, schema) }), referenceExtensions])])
