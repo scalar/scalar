@@ -1,5 +1,7 @@
 <script lang="ts">
 export type CodeExampleProps = {
+  /** Localized status text shown when the selected example has no linked code sample. */
+  codeSampleUnavailable?: string
   /**
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
@@ -175,6 +177,7 @@ import HttpMethod from './HttpMethod.vue'
 
 const {
   integration,
+  codeSampleUnavailable = 'No code sample available for this example.',
   clientOptions,
   selectedClient,
   selectedServer = null,
@@ -330,6 +333,11 @@ const resolvedOperation = computed(() =>
   ),
 )
 
+/** Keep the picker available because it also selects the example opened by Test Request. */
+const showExamplePicker = computed(
+  () => Object.keys(requestBodyExamples.value).length > 1,
+)
+
 /** Generate HAR data for webhook requests */
 const webhookHar = computed(() => {
   if (!isWebhook) return null
@@ -352,7 +360,7 @@ const webhookHar = computed(() => {
 })
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() => {
+const generatedCode = computed<string | null>(() => {
   if (isWebhook) {
     return webhookHar.value?.postData?.text ?? ''
   }
@@ -428,14 +436,16 @@ const selectClient = (option: ClientOption) => {
 const VIRTUALIZATION_THRESHOLD = 20_000
 
 const shouldVirtualize = computed(
-  () => (generatedCode.value.length ?? 0) > VIRTUALIZATION_THRESHOLD,
+  () => (generatedCode.value?.length ?? 0) > VIRTUALIZATION_THRESHOLD,
 )
 
 const id = useId()
 </script>
 <template>
   <ScalarCard
-    v-if="generatedCode || externalExamples.pending.value"
+    v-if="
+      generatedCode === null || generatedCode || externalExamples.pending.value
+    "
     ref="elem"
     class="request-card dark-mode">
     <!-- Header -->
@@ -501,6 +511,12 @@ const id = useId()
         <template v-else>Loading example…</template>
       </div>
       <div
+        v-else-if="generatedCode === null"
+        class="text-c-2 p-4"
+        role="status">
+        {{ codeSampleUnavailable }}
+      </div>
+      <div
         v-else
         :id="`${id}-example`"
         class="code-snippet">
@@ -522,11 +538,11 @@ const id = useId()
 
     <!-- Footer -->
     <ScalarCardFooter
-      v-if="Object.keys(requestBodyExamples).length > 1 || $slots.footer"
+      v-if="showExamplePicker || $slots.footer"
       class="request-card-footer bg-b-3">
       <!-- Example picker -->
       <div
-        v-if="Object.keys(requestBodyExamples).length > 1"
+        v-if="showExamplePicker"
         class="request-card-footer-addon">
         <template v-if="Object.keys(requestBodyExamples).length">
           <ExamplePicker

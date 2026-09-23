@@ -314,6 +314,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :key="requestBodyCompositionSelectionKey"
             class="operation-example-card"
             :clientOptions
+            :codeSampleUnavailable="
+              translate('operation.codeSampleUnavailable')
+            "
             :eventBus
             fallback
             :isWebhook

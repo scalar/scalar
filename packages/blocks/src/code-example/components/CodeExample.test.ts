@@ -166,6 +166,127 @@ describe('RequestExample', () => {
     eventBus: mockEventBus,
   }
 
+  it('keeps the SDK language selected while switching linked request examples', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [
+            { lang: 'python', example: 'example1', contentType: 'application/json', source: 'create("first")' },
+            { lang: 'python', example: 'example2', contentType: 'application/json', source: 'create("second")' },
+            {
+              lang: 'typescript',
+              example: 'example1',
+              contentType: 'application/json',
+              source: 'await create("first")',
+            },
+            {
+              lang: 'typescript',
+              example: 'example2',
+              contentType: 'application/json',
+              source: 'await create("second")',
+            },
+          ],
+        },
+      },
+    })
+
+    const languagePicker = wrapper.findComponent({ name: 'ScalarCombobox' })
+    expect(languagePicker.props('options')[0].options.map(({ id }: { id: string }) => id)).toEqual([
+      'custom/python',
+      'custom/typescript',
+    ])
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("first")')
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'example2')
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("second")')
+    expect(languagePicker.props('modelValue').id).toBe('custom/python')
+
+    await wrapper.setProps({ selectedClient: 'custom/typescript' })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('await create("second")')
+  })
+
+  it('keeps static samples unchanged while selecting the Test Request example', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        method: 'post',
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'python', source: 'client.items.create()' }],
+        },
+      },
+      slots: { footer: '<button>Test Request</button>' },
+    })
+
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+    expect(wrapper.text()).toContain('Test Request')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('client.items.create()')
+
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.exists()).toBe(true)
+    await picker.vm.$emit('update:modelValue', 'example2')
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('client.items.create()')
+    expect(wrapper.emitted('update:exampleKey')?.at(-1)).toEqual(['example2'])
+
+    await wrapper.setProps({ selectedClient: 'js/fetch' })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain('another')
+
+    await wrapper.setProps({ selectedClient: 'custom/python' })
+
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('client.items.create()')
+  })
+
+  it('shows unavailable linked samples as a status instead of copyable code', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'python', example: 'example1', source: 'create("first")' }],
+        },
+      },
+    })
+
+    await wrapper.setProps({ selectedExample: 'example2' })
+    expect(wrapper.get('[role="status"]').text()).toBe('No code sample available for this example.')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+
+    await wrapper.setProps({ codeSampleUnavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.' })
+    expect(wrapper.get('[role="status"]').text()).toBe('Für dieses Beispiel ist kein Codebeispiel verfügbar.')
+
+    await wrapper.setProps({ selectedExample: 'example1' })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("first")')
+  })
+
+  it('offers body examples for webhooks even when a custom client is selected', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        method: 'post',
+        isWebhook: true,
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'python', source: 'client.items.create()' }],
+        },
+      },
+    })
+
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.exists()).toBe(true)
+    await picker.vm.$emit('update:modelValue', 'example2')
+    await nextTick()
+    expect(JSON.parse(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content'))).toEqual({ another: 'data' })
+  })
+
   describe('Component Rendering', () => {
     it('renders the component with basic props', () => {
       const wrapper = mount(RequestExample, {

@@ -430,6 +430,7 @@ export type ApiReferenceTranslations = {
     selectAll: string
   }
   operation: {
+    codeSampleUnavailable: string
     body: string
     cookies: string
     headers: string

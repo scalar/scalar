@@ -109,6 +109,7 @@ export const es = {
     'fixBody': 'Corrija el cuerpo para cambiar a la vista de formulario',
   },
   'requestCodeSnippet': {
+    unavailable: 'No hay ninguna muestra de código disponible para este ejemplo.',
     'codeSnippet': 'Fragmento de código',
   },
   'requestTable': {

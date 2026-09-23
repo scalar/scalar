@@ -10,6 +10,12 @@ describe('XCodeSamples', () => {
     source: 'console.log("Hello, world!");',
   }
 
+  it('preserves the link to a named request body example', () => {
+    const value = { 'x-codeSamples': [{ ...sampleCode, example: 'detailed', contentType: 'application/json' }] }
+    expect(validate(XCodeSamples, value)).toBe(true)
+    expect(coerce(XCodeSamples, value)).toEqual(value)
+  })
+
   it('allows a single code sample', () => {
     const value = { 'x-codeSamples': [sampleCode] }
     expect(validate(XCodeSamples, value)).toBe(true)

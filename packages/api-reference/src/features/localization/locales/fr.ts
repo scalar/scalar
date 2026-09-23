@@ -62,6 +62,7 @@ export const fr = {
     selectAll: 'Sélectionner parmi tous les clients',
   },
   operation: {
+    codeSampleUnavailable: 'Aucun extrait de code disponible pour cet exemple.',
     body: 'Corps',
     cookies: 'Cookies',
     headers: 'En-têtes',

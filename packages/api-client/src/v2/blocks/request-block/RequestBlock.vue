@@ -803,6 +803,7 @@ const filterLabels = computed(() => ({
             'x-scalar-selected-content-type'
           ]?.[exampleKey]
         "
+        :selectedExample="exampleKey"
         :selectedServer="server ?? undefined" />
     </div>
   </ViewLayoutSection>

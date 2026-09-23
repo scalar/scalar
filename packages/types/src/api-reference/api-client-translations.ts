@@ -106,6 +106,7 @@ export type ApiClientTranslations = {
     fixBody: string
   }
   requestCodeSnippet: {
+    unavailable: string
     codeSnippet: string
   }
   requestTable: {

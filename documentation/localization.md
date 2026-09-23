@@ -129,3 +129,9 @@ The other built-in dictionaries are in
 Preserve placeholders such as `{method}`, `{url}`, and `{name}` in translated messages. Translation
 values render as text. Request URLs, HTTP methods, MIME types, credentials, and content from your API
 description remain unchanged.
+
+### Unavailable code samples
+
+The status shown when a linked SDK sample is missing follows the selected locale in both API Reference layouts and the API Client. Override `operation.codeSampleUnavailable` for the API Reference or `apiClient.requestCodeSnippet.unavailable` for the API Client in `localization.translations`.
+
+When using the standalone `CodeExample` component or `createCodeExample`, pass `codeSampleUnavailable` to supply localized status text. It defaults to English.

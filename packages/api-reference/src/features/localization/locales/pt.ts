@@ -62,6 +62,7 @@ export const pt = {
     selectAll: 'Selecionar de todos os clientes',
   },
   operation: {
+    codeSampleUnavailable: 'Nenhuma amostra de código disponível para este exemplo.',
     body: 'Corpo',
     cookies: 'Cookies',
     headers: 'Cabeçalhos',

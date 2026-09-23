@@ -62,6 +62,7 @@ export const ru = {
     selectAll: 'Выбрать из всех клиентов',
   },
   operation: {
+    codeSampleUnavailable: 'Для этого примера нет доступного образца кода.',
     body: 'Тело',
     cookies: 'Cookie',
     headers: 'Заголовки',

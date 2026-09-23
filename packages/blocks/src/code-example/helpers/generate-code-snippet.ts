@@ -1,5 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
@@ -38,7 +39,7 @@ type GenerateCodeSnippetProps = {
   defaultDisabledParameters?: boolean
 }
 
-/** Generate the code snippet for the selected example OR operation */
+/** Generate the code snippet for the selected example OR operation, or null when a linked sample is unavailable. */
 export const generateCodeSnippet = ({
   clientId,
   customCodeSamples,
@@ -53,7 +54,7 @@ export const generateCodeSnippet = ({
   globalCookies,
   requestBodyCompositionSelection,
   defaultDisabledParameters,
-}: GenerateCodeSnippetProps): string => {
+}: GenerateCodeSnippetProps): string | null => {
   try {
     if (!clientId) {
       return ''
@@ -62,9 +63,18 @@ export const generateCodeSnippet = ({
     // Use the selected custom example, matched by its language-keyed id
     if (clientId.startsWith('custom')) {
       const ids = getCustomClientIds(customCodeSamples)
-      const index = ids.indexOf(clientId as CustomCodeSampleId)
+      const samples = customCodeSamples.filter((_, index) => ids[index] === clientId)
+      if (!samples.some((sample) => sample.example !== undefined)) {
+        return samples[0]?.source ?? 'Custom example not found'
+      }
 
-      return customCodeSamples[index]?.source ?? 'Custom example not found'
+      const content = getResolvedRef(operation.requestBody)?.content ?? {}
+      const mediaType = contentType ?? Object.keys(content)[0]
+      const exampleKey = example ?? Object.keys(content[mediaType ?? '']?.examples ?? {})[0]
+      const sample =
+        samples.find((sample) => sample.example === exampleKey && sample.contentType === mediaType) ??
+        samples.find((sample) => sample.example === exampleKey && sample.contentType === undefined)
+      return sample?.source ?? null
     }
 
     const harRequest = operationToHar({

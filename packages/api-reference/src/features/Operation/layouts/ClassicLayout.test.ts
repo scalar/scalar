@@ -1,16 +1,19 @@
 import { ScalarListbox } from '@scalar/components/listbox'
+import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
+import { provideLocalization } from '@/features/localization'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
 
 import ClassicLayout from './ClassicLayout.vue'
+import ModernLayout from './ModernLayout.vue'
 
 const requiredSecurity: RequiredSecurity = { state: 'none', requirements: [] }
 
@@ -160,6 +163,43 @@ const getRequestBodyCompositionSelection = <T>(wrapper: VueWrapper<T>) =>
     | undefined
 
 describe('ClassicLayout', () => {
+  it.each([
+    { name: 'classic', Layout: ClassicLayout },
+    { name: 'modern', Layout: ModernLayout },
+  ])('localizes missing linked samples in the $name layout', async ({ Layout }) => {
+    const localization = ref<ApiReferenceLocalization>({ locale: 'de' })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization(localization)
+          return () =>
+            h(Layout, {
+              ...props,
+              selectedClient: 'custom/python',
+              selectedExample: 'missing',
+              operation: {
+                'x-codeSamples': [{ lang: 'python', example: 'first', source: 'create()' }],
+                requestBody: { content: { 'application/json': { examples: { missing: { value: {} } } } } },
+              },
+            })
+        },
+      }),
+    )
+    expect(wrapper.get('[role="status"]').text()).toBe('Für dieses Beispiel ist kein Codebeispiel verfügbar.')
+
+    localization.value = { locale: 'fr' }
+    await nextTick()
+    expect(wrapper.get('[role="status"]').text()).toBe('Aucun extrait de code disponible pour cet exemple.')
+
+    localization.value = {
+      locale: 'fr',
+      translations: { operation: { codeSampleUnavailable: 'Exemple indisponible.' } },
+    }
+    await nextTick()
+    expect(wrapper.get('[role="status"]').text()).toBe('Exemple indisponible.')
+    wrapper.unmount()
+  })
+
   it('updates shared request body composition state when the root selection changes', async () => {
     const wrapper = mount(ClassicLayout, {
       props: props,

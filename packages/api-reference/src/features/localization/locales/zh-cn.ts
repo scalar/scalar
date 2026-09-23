@@ -61,6 +61,7 @@ export const zhCn = {
     selectAll: '从所有客户端中选择',
   },
   operation: {
+    codeSampleUnavailable: '此示例暂无可用的代码示例。',
     body: '请求体',
     cookies: 'Cookie',
     headers: '请求头',
