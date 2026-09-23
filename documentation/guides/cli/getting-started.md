@@ -122,7 +122,9 @@ Windows (PowerShell):
 irm https://cdn.scalar.com/cli/install.ps1 | iex
 ```
 
-The installers pick the archive for your platform and verify its SHA-256 checksum before installing. macOS and Linux support x64 and ARM64; Linux requires glibc. Windows supports x64 and requires `tar.exe`, included in Windows 10 version 1803 and later. Re-run the installer to upgrade.
+The installers pick the archive for your platform and verify its SHA-256 checksum before installing. macOS and Linux support x64 and ARM64; Linux requires glibc. Windows supports x64 and requires `tar.exe`, included in Windows 10 version 1803 and later.
+
+Follow any printed `PATH` instructions, then run `scalar --help`. To update, run the same install command again; on Windows, close running Scalar processes first.
 
 ### npm
 
