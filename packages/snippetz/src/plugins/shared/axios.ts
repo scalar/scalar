@@ -1,31 +1,9 @@
 import type { Plugin, TargetId } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
-import { Raw, objectToString } from '@/libs/javascript'
+import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
 
 type AxiosHeaders = Record<string, string | string[]>
-
-const escapeJsString = (value: string): string =>
-  value.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
-
-const sanitizeForGeneratedCode = (value: unknown): unknown => {
-  if (typeof value === 'string') {
-    return escapeJsString(value)
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => sanitizeForGeneratedCode(item))
-  }
-
-  if (value && typeof value === 'object' && !(value instanceof Raw)) {
-    return Object.entries(value).reduce<Record<string, unknown>>((acc, [key, objectValue]) => {
-      acc[key] = sanitizeForGeneratedCode(objectValue)
-      return acc
-    }, {})
-  }
-
-  return value
-}
 
 const addHeaderValue = (headers: AxiosHeaders, name: string, value: string): void => {
   if (value === '') {
@@ -147,29 +125,29 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
 
     const options: Record<string, unknown> = {
       method: normalizedRequest.method,
-      url: escapeJsString(normalizedRequest.url ?? ''),
+      url: normalizedRequest.url ?? '',
     }
 
     const params = reduceQueryParams(normalizedRequest.queryString)
     if (Object.keys(params).length) {
-      options.params = sanitizeForGeneratedCode(params)
+      options.params = params
     }
 
     const headers = buildHeaders(normalizedRequest)
     if (headers) {
-      options.headers = sanitizeForGeneratedCode(headers)
+      options.headers = headers
     }
 
     if (configuration?.auth?.username && configuration?.auth?.password) {
       options.auth = {
-        username: escapeJsString(configuration.auth.username),
-        password: escapeJsString(configuration.auth.password),
+        username: configuration.auth.username,
+        password: configuration.auth.password,
       }
     }
 
     const { setup, data } = buildData(normalizedRequest)
     if (data !== undefined) {
-      options.data = data instanceof Raw ? data : sanitizeForGeneratedCode(data)
+      options.data = data
     }
 
     const setupBlock = setup.length ? `${setup.join('\n')}\n\n` : ''

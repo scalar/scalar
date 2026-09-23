@@ -78,6 +78,29 @@ describe('jsFetch', () => {
 })`)
   })
 
+  it('preserves nested arrays in the JSON body', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com/test',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({ type: 'Example', coordinates: [[[1]]] }),
+      },
+    })
+
+    expect(result).toBe(`fetch('https://example.com/test', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    type: 'Example',
+    coordinates: [[[1]]]
+  })
+})`)
+  })
+
   it('has raw body', () => {
     const result = jsFetch.generate({
       url: 'https://example.com',
