@@ -7,8 +7,9 @@ function needsQuotes(key: string) {
   return !/^[$A-Z_][0-9A-Z_$]*$/i.test(key)
 }
 
-function escapeObjectKey(key: string) {
-  return key.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
+/** Escapes a value for a single-quoted JavaScript string literal. */
+export const escapeJsString = (value: string): string => {
+  return value.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
 }
 
 /**
@@ -33,7 +34,7 @@ export function objectToString(obj: object, indent = 0): string {
   if (Array.isArray(obj)) {
     const items = obj.map((item) => {
       if (typeof item === 'string') {
-        return `'${item}'`
+        return `'${escapeJsString(item)}'`
       }
       if (item && typeof item === 'object') {
         return objectToString(item)
@@ -53,7 +54,7 @@ export function objectToString(obj: object, indent = 0): string {
   }
 
   for (const [key, value] of Object.entries(obj)) {
-    const formattedKey = needsQuotes(key) ? `'${escapeObjectKey(key)}'` : key
+    const formattedKey = needsQuotes(key) ? `'${escapeJsString(key)}'` : key
 
     if (value instanceof Raw) {
       const lines = value.value.split('\n')
@@ -75,7 +76,7 @@ export function objectToString(obj: object, indent = 0): string {
     } else if (value && typeof value === 'object') {
       parts.push(`${innerIndentation}${formattedKey}: ${objectToString(value, indent + 2)}`)
     } else if (typeof value === 'string') {
-      const formattedValue = `'${value}'`
+      const formattedValue = `'${escapeJsString(value)}'`
 
       parts.push(`${innerIndentation}${formattedKey}: ${formattedValue}`)
     } else {

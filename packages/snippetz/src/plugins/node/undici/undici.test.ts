@@ -94,6 +94,24 @@ const { statusCode, body } = await request('https://example.com', {
 })`)
   })
 
+  it('preserves nested arrays and escapes strings in a top-level array body', () => {
+    const result = nodeUndici.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify([[1, 2], [], ["it's", 'a\\b\nc']]),
+      },
+    })
+
+    expect(result).toBe(String.raw`import { request } from 'undici'
+
+const { statusCode, body } = await request('https://example.com', {
+  method: 'POST',
+  body: JSON.stringify([[1, 2], [], ['it\'s', 'a\\b\nc']])
+})`)
+  })
+
   it('has query string', () => {
     const result = nodeUndici.generate({
       url: 'https://example.com',

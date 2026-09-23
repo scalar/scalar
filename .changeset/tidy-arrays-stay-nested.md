@@ -2,4 +2,4 @@
 "@scalar/snippetz": patch
 ---
 
-Preserve nested arrays in JavaScript and Node.js request snippets.
+Preserve nested arrays and escape string values in JavaScript and Node.js request snippets.

@@ -58,6 +58,15 @@ describe('objectToString', () => {
 }`)
   })
 
+  it('escapes string values in objects and nested arrays', () => {
+    const value = "it's a \\path\nwith\rcarriage returns"
+
+    expect(objectToString({ value, items: [[value]] })).toBe(String.raw`{
+  value: 'it\'s a \\path\nwith\rcarriage returns',
+  items: [['it\'s a \\path\nwith\rcarriage returns']]
+}`)
+  })
+
   it('quotes object keys that are not valid identifiers', () => {
     expect(
       objectToString({
