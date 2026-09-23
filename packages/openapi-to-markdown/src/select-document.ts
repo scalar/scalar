@@ -1,14 +1,20 @@
 import { HTTP_METHODS, type HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import {
+  forEachPathItemOperation,
+  getPathItemOperation,
+  getResolvedPathItem,
+  setPathItemOperation,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { OperationMethod } from '@scalar/workspace-store/schemas/navigation'
 import type { OpenApiDocument, PathItemObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Identify one operation by path and method, operation ID, or JSON pointer. */
 export type OperationSelector =
   | {
       path: string
-      method: HttpMethod | Uppercase<HttpMethod>
+      method: OperationMethod
     }
   | {
       operationId: string
@@ -27,10 +33,10 @@ type PageSelectors = {
   operation: OperationSelector
   tag: string
   model: string
-  webhook: { name: string; method: HttpMethod | Uppercase<HttpMethod> }
+  webhook: { name: string; method: OperationMethod }
   introduction: true
 }
-type OperationMatch = { path: string; method: HttpMethod }
+type OperationMatch = { path: string; method: OperationMethod }
 
 const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS)
 
@@ -68,20 +74,23 @@ const parseJsonPointer = (pointer: string): string[] =>
 const getOperationSelectorFromPointer = (pointer: string): Extract<OperationSelector, { path: string }> => {
   const segments = parseJsonPointer(pointer)
 
-  if (segments.length !== 3 || segments[0] !== 'paths') {
+  if (
+    segments[0] !== 'paths' ||
+    !(segments.length === 3 || (segments.length === 4 && segments[2] === 'additionalOperations'))
+  ) {
     throw new Error(`JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`)
   }
 
   const path = segments[1]
-  const method = segments[2]
+  const method = segments.length === 4 ? segments[3] : segments[2]
 
-  if (!path || !method) {
+  if (!path || !method || (segments.length === 3 ? !HTTP_METHOD_SET.has(method) : HTTP_METHOD_SET.has(method))) {
     throw new Error(`JSON pointer "${pointer}" must target an operation object under "/paths/{path}/{method}"`)
   }
 
   return {
     path,
-    method: method as HttpMethod,
+    method,
   }
 }
 
@@ -99,19 +108,28 @@ const getPathEntries = (document: OpenApiDocument): Array<[string, PathItemObjec
   })
 }
 
-const filterPathItemToSingleOperation = (pathItem: PathItemObject, selectedMethod: HttpMethod): PathItemObject =>
-  Object.fromEntries(
-    Object.entries(pathItem).filter(([key]) => {
-      const method = normalizeHttpMethod(key)
-      return !method || method === selectedMethod
-    }),
+/** Keep path metadata while excluding every unselected fixed or additional operation. */
+const filterPathItemOperations = (pathItem: PathItemObject, methods: string[]): PathItemObject => {
+  const selected: PathItemObject = Object.fromEntries(
+    Object.entries(pathItem).filter(([key]) => !HTTP_METHOD_SET.has(key) && key !== 'additionalOperations'),
   )
+  forEachPathItemOperation(pathItem, (method, operation) => {
+    if (methods.includes(method)) {
+      setPathItemOperation(selected, method, operation)
+    }
+  })
+  return selected
+}
+
+/** Exact authored methods take precedence over the legacy uppercase fixed-method aliases. */
+const resolveMethod = (pathItem: PathItemObject | undefined, method: string): string | null =>
+  getPathItemOperation(pathItem, method) ? method : normalizeHttpMethod(method)
 
 const findOperationByPathAndMethod = (
   document: OpenApiDocument,
   selector: Extract<OperationSelector, { path: string }>,
 ): OperationMatch => {
-  const method = normalizeHttpMethod(selector.method)
+  const method = resolveMethod(getResolvedPathItem(document.paths?.[selector.path]), selector.method)
 
   if (!method) {
     throw new Error(`Invalid HTTP method "${selector.method}". Supported methods: ${HTTP_METHODS.join(', ')}`)
@@ -130,28 +148,23 @@ const findOperationByPathAndMethod = (
 }
 
 const findOperationsByOperationId = (document: OpenApiDocument, operationId: string): OperationMatch[] =>
-  getPathEntries(document).flatMap(([path, pathItem]) =>
-    Object.entries(pathItem).flatMap(([methodKey, operation]) => {
-      const method = normalizeHttpMethod(methodKey)
-
-      if (!method || !isObject(operation)) {
-        return []
+  getPathEntries(document).flatMap(([path, pathItem]) => {
+    const matches: OperationMatch[] = []
+    forEachPathItemOperation(pathItem, (method, operation) => {
+      if (getResolvedRef(operation)?.operationId === operationId) {
+        matches.push({ path, method })
       }
-
-      const candidateOperationId =
-        'operationId' in operation && typeof operation.operationId === 'string' ? operation.operationId : undefined
-
-      if (candidateOperationId !== operationId) {
-        return []
-      }
-
-      return [{ path, method }]
-    }),
-  )
+    })
+    return matches
+  })
 
 const resolveOperationMatch = (document: OpenApiDocument, selector: OperationSelector): OperationMatch => {
   if ('pointer' in selector) {
-    return findOperationByPathAndMethod(document, getOperationSelectorFromPointer(selector.pointer))
+    const match = getOperationSelectorFromPointer(selector.pointer)
+    if (!getPathItemOperation(document.paths?.[match.path], match.method)) {
+      throw new Error(`Operation not found at JSON pointer "${selector.pointer}"`)
+    }
+    return match
   }
 
   if ('operationId' in selector) {
@@ -186,7 +199,7 @@ const filterDocumentByOperation = (document: OpenApiDocument, selector: Operatio
   return {
     ...document,
     paths: {
-      [match.path]: filterPathItemToSingleOperation(pathItem, match.method),
+      [match.path]: filterPathItemOperations(pathItem, [match.method]),
     },
   }
 }
@@ -242,11 +255,14 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
     }
     selected.tags = metadata.length ? metadata : [{ name: options.tag }]
     for (const [path, item] of getPathEntries(document)) {
-      const methods = HTTP_METHODS.filter((method) => getPathItemOperation(item, method)?.tags?.includes(options.tag!))
+      const methods: string[] = []
+      forEachPathItemOperation(item, (method, operation) => {
+        if (getResolvedRef(operation)?.tags?.includes(options.tag!)) {
+          methods.push(method)
+        }
+      })
       if (methods.length) {
-        selected.paths![path] = Object.fromEntries(
-          Object.entries(item).filter(([key]) => !HTTP_METHOD_SET.has(key) || methods.includes(key as HttpMethod)),
-        )
+        selected.paths![path] = filterPathItemOperations(item, methods)
       }
     }
     if (!metadata.length && !Object.keys(selected.paths ?? {}).length) {
@@ -271,26 +287,31 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
     ) {
       throw new Error('Invalid webhook selector. Use { name, method }')
     }
-    const method = normalizeHttpMethod(selector.method)
+    const item = getResolvedPathItem(document.webhooks?.[selector.name])
+    const method = resolveMethod(item, selector.method)
     if (!method) {
       throw new Error(`Invalid HTTP method "${selector.method}"`)
     }
-    const item = getResolvedPathItem(document.webhooks?.[selector.name])
     if (!item || !getPathItemOperation(item, method)) {
       throw new Error(`Webhook "${selector.name}" with method "${method.toUpperCase()}" was not found`)
     }
-    selected.webhooks = { [selector.name]: filterPathItemToSingleOperation(item, method) }
+    selected.webhooks = { [selector.name]: filterPathItemOperations(item, [method]) }
   }
   const securityNames = new Set<string>()
   const tagNames = new Set<string>()
   for (const items of [selected.paths, selected.webhooks]) {
     for (const [path, itemRef] of Object.entries(items ?? {})) {
       const item = getResolvedPathItem(itemRef)!
-      const scoped = { ...item, parameters: undefined, servers: undefined }
-      for (const method of HTTP_METHODS) {
-        const operation = getPathItemOperation(item, method)
+      const scoped = {
+        ...item,
+        additionalOperations: item.additionalOperations ? { ...item.additionalOperations } : undefined,
+        parameters: undefined,
+        servers: undefined,
+      }
+      forEachPathItemOperation(item, (method, operationRef) => {
+        const operation = getResolvedRef(operationRef)
         if (!operation) {
-          continue
+          return
         }
         const parameters = new Map<string, NonNullable<typeof operation.parameters>[number]>()
         for (const ref of [...(item.parameters ?? []), ...(operation.parameters ?? [])]) {
@@ -308,14 +329,14 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
         for (const name of operation.tags ?? []) {
           tagNames.add(name)
         }
-        scoped[method] = {
+        setPathItemOperation(scoped, method, {
           ...operation,
           parameters: [...parameters.values()],
           servers: operation.servers ?? item.servers ?? document.servers,
           security,
           tags: options.tag !== undefined ? [options.tag] : operation.tags,
-        }
-      }
+        })
+      })
       items![path] = scoped
     }
   }

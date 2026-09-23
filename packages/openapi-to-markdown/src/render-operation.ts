@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OpenApiDocument,
@@ -32,15 +33,13 @@ export const renderOperation = async (
   webhook: boolean,
   { description, schemas }: RenderContext,
 ): Promise<RootContent[]> => {
+  const displayMethod = method === method.toLowerCase() && isHttpMethod(method) ? method.toUpperCase() : method
   const openapiVersion = document['x-original-oas-version'] ?? document.openapi
   const stability = operation['x-scalar-stability']
   const title =
-    (operation.summary || `${method.toUpperCase()} ${path}`) +
+    (operation.summary || `${displayMethod} ${path}`) +
     (stability ? ` (${stability})` : operation.deprecated ? ' ⚠️ Deprecated' : '')
-  const metadata = [
-    field('Method', inlineCode(method.toUpperCase())),
-    field(webhook ? 'Webhook' : 'Path', inlineCode(path)),
-  ]
+  const metadata = [field('Method', inlineCode(displayMethod)), field(webhook ? 'Webhook' : 'Path', inlineCode(path))]
   if (operation.operationId) metadata.push(field('Operation ID', inlineCode(operation.operationId)))
   if (operation.tags) metadata.push(field('Tags', text(operation.tags.join(', '))))
   if (stability) metadata.push(field('Stability', text(stability)))
