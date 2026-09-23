@@ -18,43 +18,21 @@ npx @scalar/cli help
 
 ### Install script (no Node.js required)
 
-Install the latest stable CLI without Node.js, npm, Bun, or administrator access. The installer selects the download for your platform and verifies its SHA-256 checksum before installing it.
+Install the latest stable CLI without Node.js or npm.
 
-#### macOS and Linux
-
-Run in Bash:
+**macOS and Linux (Bash):**
 
 ```bash
 curl -fsSL https://cdn.scalar.com/cli/install.sh | bash
 ```
 
-Supports macOS (Apple Silicon and Intel) and Linux (ARM64 and x64, with glibc). Requires `curl`, `tar`, and either `sha256sum` or `shasum`.
-
-The installer stores releases in `~/.local/share/scalar/releases` and links the executable to `~/.local/bin/scalar`. Follow the printed instructions to add `~/.local/bin` to your `PATH` if needed.
-
-#### Windows
-
-Run in PowerShell:
+**Windows (PowerShell):**
 
 ```powershell
 irm https://cdn.scalar.com/cli/install.ps1 | iex
 ```
 
-Supports Windows x64 and requires `tar.exe`, included in Windows 10 version 1803 and later. The installer installs to `%LOCALAPPDATA%\Scalar\current` and adds it to your user and current-session `PATH`. Open a new terminal for other sessions to pick up the change.
-
-#### Verify and update
-
-After installation, run:
-
-```bash
-scalar --help
-```
-
-Git also includes a command named `scalar`. If your shell selects Git's command, use the full path to the installed Scalar CLI or put the Scalar installation first in your `PATH`.
-
-To update, run the same install command again. On Windows, close running Scalar processes first. On macOS and Linux, earlier releases remain in `~/.local/share/scalar/releases` and can be removed after upgrading.
-
-You can download and inspect either install script before running it. The installation includes a private Node.js runtime for docs preview. Docs preview downloads its preview server separately, so its first run needs an internet connection.
+Follow any printed `PATH` instructions, then run `scalar --help`. To update, run the same install command again; on Windows, close running Scalar processes first.
 
 ### Install with npm
 
