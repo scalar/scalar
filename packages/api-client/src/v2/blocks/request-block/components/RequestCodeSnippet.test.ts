@@ -1,9 +1,12 @@
 import type { ClientOptionGroup, CodeExampleProps } from '@scalar/blocks/code-example'
+import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount, shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, vShow, withDirectives } from 'vue'
+import { defineComponent, h, nextTick, ref, vShow, withDirectives } from 'vue'
+
+import { provideLocalization } from '@/v2/features/localization'
 
 import RequestCodeSnippet from './RequestCodeSnippet.vue'
 
@@ -31,6 +34,41 @@ const createProps = (overrides: Partial<Props> = {}): Props => ({
 })
 
 describe('RequestCodeSnippet', () => {
+  it('localizes the unavailable status and reacts to locale and translation overrides', async () => {
+    const localization = ref<ApiReferenceLocalization>({ locale: 'de' })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization(localization)
+          return () =>
+            h(
+              RequestCodeSnippet,
+              createProps({
+                selectedClient: 'custom/python',
+                selectedExample: 'missing',
+                operation: { 'x-codeSamples': [{ lang: 'python', example: 'first', source: 'create()' }] },
+              }),
+            )
+        },
+      }),
+    )
+    await wrapper.get('button[aria-expanded]').trigger('click')
+    expect(wrapper.get('[role="status"]').text()).toBe('Für dieses Beispiel ist kein Codebeispiel verfügbar.')
+
+    localization.value = { locale: 'fr' }
+    await nextTick()
+    expect(wrapper.get('[role="status"]').text()).toBe('Aucun extrait de code disponible pour cet exemple.')
+
+    localization.value = {
+      locale: 'fr',
+      translations: { apiClient: { requestCodeSnippet: { unavailable: 'Exemple indisponible.' } } },
+    }
+    await nextTick()
+    expect(wrapper.get('[role="status"]').text()).toBe('Exemple indisponible.')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('follows the selected request example and shows missing samples as a status', async () => {
     const wrapper = mount(RequestCodeSnippet, {
       props: createProps({

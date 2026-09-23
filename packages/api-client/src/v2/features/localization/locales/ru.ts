@@ -106,6 +106,7 @@ export const ru = {
     'fixBody': 'Исправьте тело, чтобы переключиться в режим формы',
   },
   'requestCodeSnippet': {
+    unavailable: 'Для этого примера нет доступного образца кода.',
     'codeSnippet': 'Фрагмент кода',
   },
   'requestTable': {

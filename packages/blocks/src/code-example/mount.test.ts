@@ -36,6 +36,28 @@ const createStore = async () => {
 }
 
 describe('mount', () => {
+  it('accepts localized unavailable text when mounted without a Vue parent', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Examples', version: '1.0' },
+        paths: { '/hello': { post: { 'x-codeSamples': [{ lang: 'python', example: 'first', source: 'create()' }] } } },
+      },
+    })
+    const element = document.createElement('div')
+    mounted.push(
+      createCodeExample(element, {
+        store,
+        path: '/hello',
+        method: 'post',
+        codeSampleUnavailable: 'Exemple indisponible.',
+      }),
+    )
+    expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe('Exemple indisponible.')
+  })
+
   const mounted: Array<{ destroy: () => void }> = []
 
   afterEach(() => {

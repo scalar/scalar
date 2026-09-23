@@ -61,6 +61,7 @@ export const ar = {
     selectAll: 'اختر من جميع العملاء',
   },
   operation: {
+    codeSampleUnavailable: 'لا يوجد نموذج تعليمات برمجية متاح لهذا المثال.',
     body: 'الجسم',
     cookies: 'ملفات تعريف الارتباط',
     headers: 'الرؤوس',

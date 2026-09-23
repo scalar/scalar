@@ -106,6 +106,7 @@ export const en = {
     fixBody: 'Fix the body to switch to the form view',
   },
   requestCodeSnippet: {
+    unavailable: 'No code sample available for this example.',
     codeSnippet: 'Code Snippet',
   },
   requestTable: {

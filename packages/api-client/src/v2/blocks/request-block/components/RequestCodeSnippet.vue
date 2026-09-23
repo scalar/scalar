@@ -154,7 +154,7 @@ const hasClients = computed(() =>
               v-if="generatedCode === null"
               class="text-c-2 p-4"
               role="status">
-              No code sample available for this example.
+              {{ translate('apiClient.requestCodeSnippet.unavailable') }}
             </div>
             <ScalarCodeBlock
               v-else

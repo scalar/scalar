@@ -106,6 +106,7 @@ export const fr = {
     'fixBody': 'Corrigez le corps pour passer à la vue formulaire',
   },
   'requestCodeSnippet': {
+    unavailable: 'Aucun extrait de code disponible pour cet exemple.',
     'codeSnippet': 'Extrait de code',
   },
   'requestTable': {

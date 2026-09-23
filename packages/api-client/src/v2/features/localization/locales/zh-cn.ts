@@ -106,6 +106,7 @@ export const zhCn = {
     'fixBody': '修正请求体以切换到表单视图',
   },
   'requestCodeSnippet': {
+    unavailable: '此示例暂无可用的代码示例。',
     'codeSnippet': '代码片段',
   },
   'requestTable': {

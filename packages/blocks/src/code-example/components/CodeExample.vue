@@ -1,5 +1,7 @@
 <script lang="ts">
 export type CodeExampleProps = {
+  /** Localized status text shown when the selected example has no linked code sample. */
+  codeSampleUnavailable?: string
   /**
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
@@ -175,6 +177,7 @@ import HttpMethod from './HttpMethod.vue'
 
 const {
   integration,
+  codeSampleUnavailable = 'No code sample available for this example.',
   clientOptions,
   selectedClient,
   selectedServer = null,
@@ -511,7 +514,7 @@ const id = useId()
         v-else-if="generatedCode === null"
         class="text-c-2 p-4"
         role="status">
-        No code sample available for this example.
+        {{ codeSampleUnavailable }}
       </div>
       <div
         v-else

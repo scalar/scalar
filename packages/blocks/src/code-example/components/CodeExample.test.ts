@@ -259,6 +259,9 @@ describe('RequestExample', () => {
     expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
     expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
 
+    await wrapper.setProps({ codeSampleUnavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.' })
+    expect(wrapper.get('[role="status"]').text()).toBe('Für dieses Beispiel ist kein Codebeispiel verfügbar.')
+
     await wrapper.setProps({ selectedExample: 'example1' })
     expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("first")')
   })

@@ -106,6 +106,7 @@ export const ar = {
     'fixBody': 'صحح الجسم للتبديل إلى عرض النموذج',
   },
   'requestCodeSnippet': {
+    unavailable: 'لا يوجد نموذج تعليمات برمجية متاح لهذا المثال.',
     'codeSnippet': 'مقتطف برمجي',
   },
   'requestTable': {

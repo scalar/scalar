@@ -106,6 +106,7 @@ export const de = {
     'fixBody': 'Korrigieren Sie den Inhalt, um zur Formularansicht zu wechseln',
   },
   'requestCodeSnippet': {
+    unavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.',
     'codeSnippet': 'Codebeispiel',
   },
   'requestTable': {

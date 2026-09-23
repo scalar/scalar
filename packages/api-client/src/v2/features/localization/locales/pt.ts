@@ -106,6 +106,7 @@ export const pt = {
     'fixBody': 'Corrija o corpo para mudar para a visualização de formulário',
   },
   'requestCodeSnippet': {
+    unavailable: 'Nenhuma amostra de código disponível para este exemplo.',
     'codeSnippet': 'Trecho de código',
   },
   'requestTable': {

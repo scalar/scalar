@@ -62,6 +62,7 @@ export const de = {
     selectAll: 'Aus allen Clients auswählen',
   },
   operation: {
+    codeSampleUnavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.',
     body: 'Body',
     cookies: 'Cookies',
     headers: 'Header',
