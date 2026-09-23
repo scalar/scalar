@@ -591,7 +591,7 @@ describe('SchemaComposition', () => {
     })
     const wrapper = mount(SchemaComposition, { props: { schema, composition, level: 0, eventBus: null, options: {} } })
     const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
-    expect(listbox.props('options')).toEqual([
+    expect(listbox.props('options')).toStrictEqual([
       { id: '0', label: 'CN, HK · China account' },
       { id: '1', label: 'DK · AllowedCurrenciesForDK' },
       { id: '2', label: 'Other account' },
@@ -613,7 +613,7 @@ describe('SchemaComposition', () => {
         options: {},
       },
     })
-    expect(wrapper.findComponent({ name: 'ScalarListbox' }).props('options')).toEqual([
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).props('options')).toStrictEqual([
       { id: '0', label: 'CN · Account' },
     ])
     wrapper.unmount()
@@ -649,7 +649,9 @@ describe('SchemaComposition', () => {
         options: { expandAllSchemaProperties: true },
       },
     })
-    expect(wrapper.findAllComponents({ name: 'ScalarListbox' }).map((listbox) => listbox.props('options'))).toEqual([
+    expect(
+      wrapper.findAllComponents({ name: 'ScalarListbox' }).map((listbox) => listbox.props('options')),
+    ).toStrictEqual([
       [{ id: '0', label: 'CN · Account' }],
       [
         { id: '0', label: 'bank · Bank' },

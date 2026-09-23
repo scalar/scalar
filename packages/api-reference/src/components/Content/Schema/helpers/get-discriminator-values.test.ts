@@ -4,19 +4,19 @@ import { getDiscriminatorValues } from './get-discriminator-values'
 
 describe('get-discriminator-values', () => {
   it('matches a local reference', () => {
-    expect(getDiscriminatorValues('#/components/schemas/Account', { CN: '#/components/schemas/Account' })).toEqual([
-      'CN',
-    ])
+    expect(
+      getDiscriminatorValues('#/components/schemas/Account', { CN: '#/components/schemas/Account' }),
+    ).toStrictEqual(['CN'])
   })
 
   it('matches a bare component name', () => {
-    expect(getDiscriminatorValues('#/components/schemas/Account', { CN: 'Account' })).toEqual(['CN'])
+    expect(getDiscriminatorValues('#/components/schemas/Account', { CN: 'Account' })).toStrictEqual(['CN'])
   })
 
   it('keeps every value mapped to the same schema in source order', () => {
     expect(
       getDiscriminatorValues('#/components/schemas/Account', { CN: 'Account', HK: 'Account', DK: 'Other' }),
-    ).toEqual(['CN', 'HK'])
+    ).toStrictEqual(['CN', 'HK'])
   })
 
   it('matches external references without conflating equal component names', () => {
@@ -26,19 +26,19 @@ describe('get-discriminator-values', () => {
         DK: './other.yaml#/Account',
         HK: 'Account',
       }),
-    ).toEqual(['CN'])
+    ).toStrictEqual(['CN'])
   })
 
   it('does not infer values for inline schemas', () => {
-    expect(getDiscriminatorValues(undefined, { CN: 'Account' })).toEqual([])
+    expect(getDiscriminatorValues(undefined, { CN: 'Account' })).toStrictEqual([])
   })
 
   it('preserves an empty string mapping key', () => {
-    expect(getDiscriminatorValues('#/components/schemas/Account', { '': 'Account' })).toEqual([''])
+    expect(getDiscriminatorValues('#/components/schemas/Account', { '': 'Account' })).toStrictEqual([''])
   })
 
   it('returns no values without a matching mapping', () => {
-    expect(getDiscriminatorValues('#/components/schemas/Account', { CN: 'Other' })).toEqual([])
-    expect(getDiscriminatorValues('#/components/schemas/Account', undefined)).toEqual([])
+    expect(getDiscriminatorValues('#/components/schemas/Account', { CN: 'Other' })).toStrictEqual([])
+    expect(getDiscriminatorValues('#/components/schemas/Account', undefined)).toStrictEqual([])
   })
 })
