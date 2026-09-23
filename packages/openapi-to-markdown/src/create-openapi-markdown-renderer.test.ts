@@ -232,4 +232,67 @@ describe('create-openapi-markdown-renderer', () => {
     const concurrent = await Promise.all([renderer.render(a), renderer.render(b), renderer.render(a)])
     expect(concurrent).toStrictEqual([expected, await createMarkdownFromOpenApi(input, b), expected])
   })
+
+  describe('shared schemas', () => {
+    /** Every level references the next one from each property, without any cycle. */
+    const fanOut = (branching: number, levels: number) => {
+      const schemas: Record<string, unknown> = {}
+      for (let level = 0; level <= levels; level++) {
+        const properties: Record<string, unknown> = {}
+        for (let branch = 0; branch < branching; branch++) {
+          properties[`p${branch}`] =
+            level < levels ? { $ref: `#/components/schemas/L${level + 1}` } : { type: 'string', description: 'LEAF' }
+        }
+        schemas[`L${level}`] = { type: 'object', properties }
+      }
+      return {
+        openapi: '3.1.0',
+        info: { title: 'Fan-out', version: '1' },
+        paths: {
+          '/a': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { schema: { $ref: '#/components/schemas/L0' } } },
+                },
+              },
+            },
+          },
+        },
+        components: { schemas },
+      }
+    }
+
+    it('renders a densely shared schema graph in linear time and size', async () => {
+      const renderer = await createOpenApiMarkdownRenderer(fanOut(5, 10))
+      const start = performance.now()
+      const markdown = await renderer.render({ operation: { path: '/a', method: 'get' } })
+      expect(performance.now() - start).toBeLessThan(1000)
+      // Once inline in the response and once in the model section for L10.
+      expect(markdown.match(/LEAF/g)?.length).toBe(10)
+      expect(markdown.length).toBeLessThan(100_000)
+      for (let level = 0; level <= 10; level++) {
+        expect(markdown).toContain(`### L${level}`)
+      }
+    })
+
+    it('renders a densely shared schema graph once in the whole document', async () => {
+      const start = performance.now()
+      const markdown = await createMarkdownFromOpenApi(fanOut(5, 10))
+      expect(performance.now() - start).toBeLessThan(1000)
+      expect(markdown.match(/LEAF/g)?.length).toBe(10)
+      expect(markdown.length).toBeLessThan(100_000)
+    })
+
+    it('renders each shared schema once per page, independently of other pages', async () => {
+      const input = fanOut(2, 2)
+      const renderer = await createOpenApiMarkdownRenderer(input)
+      const page = { operation: { path: '/a', method: 'get' } } as const
+      const [first, second] = await Promise.all([renderer.render(page), renderer.render(page)])
+      expect(first).toBe(second)
+      expect(first).toContain('Schema `L2` is shown above.')
+      expect(await renderer.render(page)).toBe(first)
+    })
+  })
 })

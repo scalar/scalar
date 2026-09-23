@@ -3,7 +3,7 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 
-import { createSchemaRenderer } from './render-schema'
+import { type SchemaRenderer, createSchemaRenderer } from './render-schema'
 
 const render = (value: SchemaObject | boolean, depth = 0): string =>
   unified()
@@ -323,19 +323,149 @@ describe('render-schema', () => {
     expect(text).not.toContain('Circular')
   })
 
-  it('renders a shared reference in both branches without reporting a cycle', () => {
-    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+  it('renders a shared schema once and refers back to it afterwards', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string', description: 'Shared name' } } }
     const output = renderText(
       schema({
         type: 'object',
         properties: {
-          first: { $ref: '#/Shared', '$ref-value': shared },
-          second: { $ref: '#/Shared', '$ref-value': shared },
+          first: { $ref: '#/components/schemas/Shared', '$ref-value': shared },
+          second: { $ref: '#/components/schemas/Shared', '$ref-value': shared },
         },
       }),
     )
-    expect(output.match(/name/g)?.length).toBe(2)
+    expect(output.match(/Shared name/g)?.length).toBe(1)
+    expect(output).toContain('schema: Shared')
+    expect(output).toContain('Schema Shared is shown above.')
     expect(output).not.toContain('Circular')
+  })
+
+  it('keeps sibling annotations beside a reference to a schema that was already shown', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const output = renderText(
+      schema({
+        allOf: [
+          { $ref: '#/components/schemas/Shared', '$ref-value': shared },
+          { $ref: '#/components/schemas/Shared', '$ref-value': shared, description: 'Sibling note' },
+        ],
+      }),
+    )
+    expect(output.match(/- name/g)?.length).toBe(1)
+    expect(output).toContain('Sibling note')
+    expect(output).toContain('Schema Shared is shown above.')
+  })
+
+  it('expands a reference with structural siblings instead of pointing back to the shared schema', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const output = renderText(
+      schema({
+        allOf: [
+          { $ref: '#/components/schemas/Shared', '$ref-value': shared },
+          {
+            $ref: '#/components/schemas/Shared',
+            '$ref-value': shared,
+            properties: { extra: { type: 'string' } },
+          },
+        ],
+      }),
+    )
+    expect(output).toContain('extra')
+    expect(output).not.toContain('shown above')
+  })
+
+  it('renders small shared primitive schemas in place', () => {
+    const shared = { type: 'string', enum: ['usd', 'eur'] }
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          first: { $ref: '#/components/schemas/Currency', '$ref-value': shared },
+          second: { $ref: '#/components/schemas/Currency', '$ref-value': shared },
+        },
+      }),
+    )
+    expect(output.match(/possible values: "usd", "eur"/g)?.length).toBe(2)
+    expect(output).not.toContain('shown above')
+  })
+
+  it('keeps output linear for a densely shared schema graph', () => {
+    const levels = Array.from({ length: 11 }, () => ({ type: 'object', properties: {} as Record<string, unknown> }))
+    levels.forEach((level, index) => {
+      for (let branch = 0; branch < 5; branch++) {
+        level.properties[`p${branch}`] =
+          index < 10
+            ? { $ref: `#/components/schemas/L${index + 1}`, '$ref-value': levels[index + 1] }
+            : { type: 'string', description: 'LEAF' }
+      }
+    })
+    const output = renderText(schema(levels[0]!))
+    expect(output.match(/LEAF/g)?.length).toBe(5)
+    expect(output.match(/is shown above/g)?.length).toBe(40)
+  })
+
+  it('distinguishes a true cycle from a schema that was already shown', () => {
+    const node: Record<string, unknown> = { type: 'object' }
+    node.properties = {
+      name: { type: 'string' },
+      child: { $ref: '#/components/schemas/Node', '$ref-value': node },
+    }
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          first: { $ref: '#/components/schemas/Node', '$ref-value': node },
+          second: { $ref: '#/components/schemas/Node', '$ref-value': node },
+        },
+      }),
+    )
+    expect(output.match(/\[Circular Reference\]/g)?.length).toBe(1)
+    expect(output.match(/Schema Node is shown above\./g)?.length).toBe(1)
+  })
+
+  it('truncates output with a visible marker once the node budget is spent', () => {
+    const renderer = createSchemaRenderer({ maxNodes: 3 })
+    const properties = Object.fromEntries(
+      Array.from({ length: 5 }, (_, index) => [`field${index}`, { type: 'object', properties: { value: {} } }]),
+    )
+    const output = unified()
+      .use(remarkStringify, { bullet: '-' })
+      .stringify({ type: 'root', children: renderer.render(schema({ type: 'object', properties })) })
+    expect(output).toContain('[Schema output truncated]')
+    expect(output).toContain('field4')
+  })
+
+  it('tracks shown schemas and the node budget separately for each document', () => {
+    const renderer = createSchemaRenderer({ maxNodes: 2 })
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const value = schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared })
+    const other = schema({ type: 'object', properties: { other: { type: 'string' } } })
+    const serialize = (target: SchemaRenderer, input: SchemaObject): string =>
+      unified()
+        .use(remarkStringify, { bullet: '-' })
+        .stringify({ type: 'root', children: target.render(input) })
+    const first = renderer.forDocument()
+    expect(serialize(first, value)).toContain('name')
+    expect(serialize(first, value)).toContain('is shown above')
+    expect(serialize(first, other)).toContain('truncated')
+    first.beginSection()
+    expect(serialize(first, other)).not.toContain('truncated')
+    const second = renderer.forDocument()
+    expect(serialize(second, value)).toContain('name')
+    expect(renderer.view(value)).toBe(second.view(value))
+  })
+
+  it('points a deep reference to its schema section instead of truncating it', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string', description: 'Deep name' } } }
+    const renderer = createSchemaRenderer().forDocument({ Shared: shared })
+    const output = unified()
+      .use(remarkStringify, { bullet: '-' })
+      .stringify({
+        type: 'root',
+        children: renderer.render(schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared }), 64),
+      })
+      .replaceAll('`', '')
+    expect(output).toContain('Schema Shared is shown below under Schemas.')
+    expect(output).not.toContain('Maximum schema depth')
   })
 
   it('labels the depth guard separately from a circular reference', () => {
