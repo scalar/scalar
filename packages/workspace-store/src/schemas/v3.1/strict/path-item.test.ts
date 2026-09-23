@@ -8,6 +8,11 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { type PathItemObject, PathItemObjectSchema } from './openapi-document'
 
 describe('path-item', () => {
+  it('preserves additional operations when coercing the active schema', () => {
+    const input = { additionalOperations: { COPY: { summary: 'Copy' } } }
+    expect(coerceValue(PathItemObjectSchema, input)).toEqual(input)
+  })
+
   describe('strict type checking', () => {
     it('performs deep type checking on all nested properties', () => {
       type SchemaType = RequiredDeep<Static<typeof PathItemObjectSchema>>

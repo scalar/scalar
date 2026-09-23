@@ -1,9 +1,12 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
   deletePathItemOperation,
   forEachPathItemOperation,
   getPathItemOperation,
+  getPathItemOperationKey,
   getResolvedPathItem,
   pathItemIsEmpty,
   setPathItemOperation,
@@ -22,6 +25,72 @@ describe('for-each-path-item-operation', () => {
     expect(getPathItemOperation(pathItem, 'query')).toStrictEqual(operation)
     deletePathItemOperation(pathItem, 'query')
     expect(pathItem).toStrictEqual({})
+  })
+
+  it('keeps mixed-case custom methods distinct from fixed operations', () => {
+    const pathItem: PathItemObject = {
+      patch: { summary: 'Standard PATCH' },
+      additionalOperations: { pAtCh: { summary: 'Custom pAtCh' }, PATCH: { summary: 'Invalid duplicate' } },
+    }
+    const methods: string[] = []
+    forEachPathItemOperation(pathItem, (method) => methods.push(method))
+    expect(methods).toStrictEqual(['patch', 'pAtCh', 'PATCH'])
+    expect(getPathItemOperation(pathItem, 'pAtCh')).toStrictEqual({ summary: 'Custom pAtCh' })
+    expect(getPathItemOperationKey('pAtCh')).toBe('additionalOperations/pAtCh')
+    setPathItemOperation(pathItem, 'pAtCh', { summary: 'Updated custom operation' })
+    expect(getPathItemOperation(pathItem, 'pAtCh')).toStrictEqual({ summary: 'Updated custom operation' })
+    deletePathItemOperation(pathItem, 'pAtCh')
+    expect(getPathItemOperation(pathItem, 'pAtCh')).toBeUndefined()
+    expect(pathItem.patch).toStrictEqual({ summary: 'Standard PATCH' })
+  })
+
+  it('preserves uppercase and mixed-case explicitly authored operations', () => {
+    const methods: string[] = []
+    forEachPathItemOperation({ additionalOperations: { GET: {}, Get: {} } }, (method) => methods.push(method))
+    expect(methods).toStrictEqual(['GET', 'Get'])
+    expect(getPathItemOperationKey('custom/~method')).toBe('additionalOperations/custom~1~0method')
+  })
+
+  it('round-trips method names containing JSON pointer escape characters', () => {
+    const pathItem: PathItemObject = {}
+    const operation = { summary: 'Escaped method' }
+    setPathItemOperation(pathItem, 'custom/~method', operation)
+    const pointer = `/${getPathItemOperationKey('custom/~method')}`
+
+    expect(getValueAtPath(pathItem, parseJsonPointerSegments(pointer))).toStrictEqual(operation)
+    expect(getPathItemOperation(pathItem, 'custom/~method')).toStrictEqual(operation)
+    deletePathItemOperation(pathItem, 'custom/~method')
+    expect(pathItem).toStrictEqual({})
+  })
+
+  it('traverses and edits additional operations without changing their case', () => {
+    const pathItem: PathItemObject = {
+      get: { summary: 'Read' },
+      additionalOperations: { COPY: { summary: 'Copy' }, copy: { summary: 'Custom copy' } },
+    }
+    const methods: string[] = []
+    forEachPathItemOperation(pathItem, (method) => methods.push(method))
+    expect(methods).toEqual(['get', 'COPY', 'copy'])
+    expect(getPathItemOperation(pathItem, 'COPY')).toEqual({ summary: 'Copy' })
+    expect(getPathItemOperation(pathItem, 'copy')).toEqual({ summary: 'Custom copy' })
+    setPathItemOperation(pathItem, 'copy', { summary: 'Updated' })
+    expect(getPathItemOperation(pathItem, 'copy')).toEqual({ summary: 'Updated' })
+    expect(getPathItemOperationKey('COPY')).toBe('additionalOperations/COPY')
+    deletePathItemOperation(pathItem, 'COPY')
+    expect(pathItem.additionalOperations).toEqual({ copy: { summary: 'Updated' } })
+    deletePathItemOperation(pathItem, 'copy')
+    expect(pathItem).toEqual({ get: { summary: 'Read' } })
+  })
+
+  it('updates and deletes additional operations in referenced path items', () => {
+    const pathItem: NodeInput<PathItemObject> = {
+      $ref: '#/components/pathItems/example',
+      '$ref-value': { additionalOperations: { COPY: { summary: 'Original' } } },
+    }
+    setPathItemOperation(pathItem, 'COPY', { summary: 'Updated' })
+    expect(getPathItemOperation(pathItem, 'COPY')).toEqual({ summary: 'Updated' })
+    deletePathItemOperation(pathItem, 'COPY')
+    expect(getPathItemOperation(pathItem, 'COPY')).toBeUndefined()
   })
 
   it('includes parameters declared alongside a path $ref on the paths map', () => {

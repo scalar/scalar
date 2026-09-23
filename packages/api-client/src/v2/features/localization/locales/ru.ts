@@ -366,6 +366,7 @@ export const ru = {
   'operationBlock': {
     'webhookUrlRequired': 'Необходим URL вебхука. Сначала укажите адрес назначения.',
     'pathParametersRequired': 'Параметры пути должны иметь значения.',
+    'forbiddenMethod': 'Fetch API не может отправлять запросы {method}.',
   },
   'dataTableCheckbox': {
     'toggle': 'Переключить',

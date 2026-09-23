@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString } from '@/libs/http'
+import { buildQueryString, normalizeMethod } from '@/libs/http'
 
 const escapeRubyDoubleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
@@ -23,7 +23,8 @@ const standardMethods = new Set([
   'TRACE',
 ])
 
-const toRubyMethodClass = (method: string): string => method.charAt(0) + method.slice(1).toLowerCase()
+const toRubyMethodClass = (method: string): string =>
+  standardMethods.has(method) ? method.charAt(0) + method.slice(1).toLowerCase() : 'CustomRequest'
 
 const maybeAddCustomMethodClass = (lines: string[], method: string, hasBody: boolean): void => {
   if (standardMethods.has(method)) {
@@ -32,7 +33,7 @@ const maybeAddCustomMethodClass = (lines: string[], method: string, hasBody: boo
 
   const methodClass = toRubyMethodClass(method)
   lines.push(`class Net::HTTP::${methodClass} < Net::HTTPRequest`)
-  lines.push(`  METHOD = '${method}'`)
+  lines.push(`  METHOD = '${escapeRubySingleQuoted(method)}'`)
   lines.push(`  REQUEST_HAS_BODY = '${hasBody ? 'true' : 'false'}'`)
   lines.push('  RESPONSE_HAS_BODY = true')
   lines.push('end')
@@ -73,7 +74,7 @@ export const rubyNative: Plugin = {
       ...request,
     }
 
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     const queryString = buildQueryString(normalizedRequest.queryString)
     const rawUrl = `${normalizedRequest.url ?? ''}${queryString}`

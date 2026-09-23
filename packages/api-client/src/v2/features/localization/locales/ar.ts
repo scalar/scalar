@@ -362,6 +362,7 @@ export const ar = {
   'operationBlock': {
     'webhookUrlRequired': 'رابط Webhook مطلوب. أدخل وجهة أولًا.',
     'pathParametersRequired': 'يجب أن تكون لمعاملات المسار قيم.',
+    'forbiddenMethod': 'لا يمكن لواجهة Fetch API إرسال طلبات {method}.',
   },
   'dataTableCheckbox': {
     'toggle': 'تبديل',

@@ -1,5 +1,4 @@
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -49,7 +48,7 @@ export function initializeAppEventHandlers({
   }: {
     documentName: string
     path?: string
-    method?: HttpMethod
+    method?: string
     exampleName?: string
   }) => {
     if (documentName !== undefined && documentName !== currentRoute.value?.params.documentSlug) {

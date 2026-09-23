@@ -2,6 +2,7 @@ import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { normalizeMethod } from '@/libs/http'
 import { escapeSingleQuotes } from '@/libs/shell'
 
 /**
@@ -19,7 +20,7 @@ export const shellCurl: Plugin = {
     }
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Build curl command parts
     const parts: string[] = ['curl']

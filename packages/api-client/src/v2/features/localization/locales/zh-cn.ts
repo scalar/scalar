@@ -362,6 +362,7 @@ export const zhCn = {
   'operationBlock': {
     'webhookUrlRequired': 'Webhook URL 为必填项。请先输入目标地址。',
     'pathParametersRequired': '路径参数必须有值。',
+    'forbiddenMethod': 'Fetch API 无法发送 {method} 请求。',
   },
   'dataTableCheckbox': {
     'toggle': '切换',

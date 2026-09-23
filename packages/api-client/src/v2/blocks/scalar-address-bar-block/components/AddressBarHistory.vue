@@ -6,7 +6,6 @@ import {
 } from '@scalar/components/floating'
 import { ScalarIcon } from '@scalar/components/icon'
 import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -32,7 +31,7 @@ const emits = defineEmits<{
 const { translate } = useLocalization()
 
 export type History = {
-  method: HttpMethodType
+  method: string
   path: string
   duration: number
   status: number

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconPlay } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
@@ -15,7 +14,7 @@ const {
   requestBodyCompositionSelection,
 } = defineProps<{
   id: string
-  method: HttpMethod
+  method: string
   path: string
   eventBus: WorkspaceEventBus
   exampleName?: string

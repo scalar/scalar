@@ -368,6 +368,7 @@ export const pt = {
   'operationBlock': {
     'webhookUrlRequired': 'A URL do webhook é obrigatória. Digite um destino primeiro.',
     'pathParametersRequired': 'Os parâmetros de caminho devem ter valores.',
+    'forbiddenMethod': 'A API Fetch não pode enviar requisições {method}.',
   },
   'dataTableCheckbox': {
     'toggle': 'Alternar',

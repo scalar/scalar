@@ -46,31 +46,41 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
-  it('sends a referenced whole-query parameter after environment substitution', () => {
-    const { request } = requestFactory(
-      createBaseArgs({
-        server: { url: 'https://example.com' },
-        proxyUrl: '',
-        operation: {
-          parameters: [
-            {
-              $ref: '#/components/parameters/Search',
-              '$ref-value': {
-                name: 'metadata',
-                in: 'querystring',
-                required: true,
-                content: { 'application/x-www-form-urlencoded': { example: { q: '{{term}}' } } },
+  it.each(['get', 'PURGE', 'purge', 'customMethod'])(
+    'sends a referenced whole-query parameter with method %s after environment substitution',
+    (method) => {
+      const { request } = requestFactory(
+        createBaseArgs({
+          method,
+          server: { url: 'https://example.com' },
+          proxyUrl: '',
+          operation: {
+            parameters: [
+              {
+                $ref: '#/components/parameters/Search',
+                '$ref-value': {
+                  name: 'metadata',
+                  in: 'querystring',
+                  required: true,
+                  content: { 'application/x-www-form-urlencoded': { example: { q: '{{term}}' } } },
+                },
               },
-            },
-          ],
-        },
-      }),
-    )
-    const result = buildRequest(request, { envVariables: { term: 'a + b' } })
-    assert(result.ok)
-    expect(result.data.requestPayload[0]).toBe('https://example.com/v1/users?q=a+%2B+b')
-    expect(result.data.requestPayload[1].body).toBe(null)
-    expect(request.query.toString()).toBe('')
+            ],
+          },
+        }),
+      )
+      const result = buildRequest(request, { envVariables: { term: 'a + b' } })
+      assert(result.ok)
+      expect(result.data.requestPayload[0]).toBe('https://example.com/v1/users?q=a+%2B+b')
+      expect(result.data.requestPayload[1].body).toBe(null)
+      expect(result.data.requestPayload[1].method).toBe(method === 'get' ? 'GET' : method)
+      expect(request.query.toString()).toBe('')
+    },
+  )
+
+  it.each(['COPY', 'copy', 'customMethod', 'Get', 'pAtCh'])('preserves additional method %s', (method) => {
+    const { request } = requestFactory(createBaseArgs({ method }))
+    expect(request.method).toBe(method)
   })
 
   it('does not include default headers disabled for the example', () => {
@@ -185,29 +195,32 @@ describe('requestFactory', () => {
     expect(request.body).toBe(null)
   })
 
-  it('builds a JSON body for POST when an example exists', () => {
-    const { request } = requestFactory(
-      createBaseArgs({
-        method: 'post',
-        operation: {
-          requestBody: {
-            content: {
-              'application/json': {
-                examples: {
-                  default: { value: '{"name":"Ada"}' },
+  it.each(['post', 'QUERY', 'PROPFIND', 'customMethod'])(
+    'builds a JSON body for %s when an example exists',
+    (method) => {
+      const { request } = requestFactory(
+        createBaseArgs({
+          method,
+          operation: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    default: { value: '{"name":"Ada"}' },
+                  },
                 },
               },
             },
-          },
-        } as OperationObject,
-      }),
-    )
+          } as OperationObject,
+        }),
+      )
 
-    expect(request.body).toEqual({
-      mode: 'raw',
-      value: '{"name":"Ada"}',
-    })
-  })
+      expect(request.body).toEqual({
+        mode: 'raw',
+        value: '{"name":"Ada"}',
+      })
+    },
+  )
 
   it.each(['delete', 'query'] as const)('builds a body for %s when the method allows a body', (method) => {
     const { request } = requestFactory(

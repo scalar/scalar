@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { HttpMethod as HttpMethodBadge } from '@scalar/blocks/code-example'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCheck, ScalarIconMinus, ScalarIconX } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
@@ -18,7 +17,7 @@ const {
   failedTests,
 } = defineProps<{
   index: number
-  method: HttpMethod
+  method: string
   path: string
   exampleKey: string
   result: RunResult | null

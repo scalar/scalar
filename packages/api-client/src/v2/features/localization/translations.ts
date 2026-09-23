@@ -365,6 +365,7 @@ export const en = {
   operationBlock: {
     webhookUrlRequired: 'Webhook URL required. Enter a destination first.',
     pathParametersRequired: 'Path parameters must have values.',
+    forbiddenMethod: 'The Fetch API cannot send {method} requests.',
   },
   dataTableCheckbox: {
     toggle: 'Toggle',

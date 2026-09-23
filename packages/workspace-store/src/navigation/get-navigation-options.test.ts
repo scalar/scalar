@@ -138,6 +138,37 @@ describe('get-navigation-options', () => {
     expect(id).toBe('pet-store/GET/pets/{id}/edit')
   })
 
+  it('keeps fixed and authored method variants distinct in operation and webhook links', () => {
+    const { generateId } = getNavigationOptions('API')
+    const methods = ['get', 'GET', 'Get']
+    expect(
+      methods.map((method) => generateId({ type: 'operation', parentId: 'api', path: '/pets', method, operation: {} })),
+    ).toStrictEqual(['api/GET/pets', 'api/additionalOperations/GET/pets', 'api/additionalOperations/Get/pets'])
+    expect(
+      methods.map((method) => generateId({ type: 'webhook', parentId: 'api', name: 'pet.created', method })),
+    ).toStrictEqual([
+      'api/webhook/GET/pet.created',
+      'api/webhook/additionalOperations/GET/pet.created',
+      'api/webhook/additionalOperations/Get/pet.created',
+    ])
+  })
+
+  it.each([
+    ['COPY', 'COPY'],
+    ['copy', 'copy'],
+    ['query', 'QUERY'],
+    ['QUERY', 'additionalOperations/QUERY'],
+    ['Query', 'additionalOperations/Query'],
+  ])('keeps the deliberate anchor spelling for %s', (method, segment) => {
+    const { generateId } = getNavigationOptions('API')
+    expect(generateId({ type: 'operation', parentId: 'api', path: '/pets', method, operation: {} })).toBe(
+      `api/${segment}/pets`,
+    )
+    expect(generateId({ type: 'webhook', parentId: 'api', name: 'pet.created', method })).toBe(
+      `api/webhook/${segment}/pet.created`,
+    )
+  })
+
   it('generates operation ID with parent tag prefix', () => {
     const options = getNavigationOptions('Pet Store')
     const id = options.generateId({

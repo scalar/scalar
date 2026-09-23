@@ -71,13 +71,14 @@ export const REQUEST_METHODS = {
 /**
  * Accepts an HTTP Method name and returns some properties for the tag
  */
-export const getHttpMethodInfo = (methodName: string) => {
+export const getHttpMethodInfo = (methodName: string): HttpInfo => {
   const normalizedMethod = methodName.trim().toLowerCase() as HttpMethod
-  return (
-    REQUEST_METHODS[normalizedMethod] ?? {
-      short: normalizedMethod,
-      color: 'text-c-2',
-      backgroundColor: 'bg-c-2',
-    }
-  )
+  return Object.hasOwn(REQUEST_METHODS, normalizedMethod)
+    ? REQUEST_METHODS[normalizedMethod]
+    : {
+        short: methodName.trim(),
+        colorClass: 'text-c-2',
+        colorVar: 'var(--scalar-color-2)',
+        backgroundColor: 'bg-c-2',
+      }
 }

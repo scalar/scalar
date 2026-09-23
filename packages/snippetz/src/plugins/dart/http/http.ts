@@ -1,5 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { normalizeMethod } from '@/libs/http'
+
 /**
  * dart/http
  */
@@ -15,7 +17,7 @@ export const dartHttp: Plugin = {
     }
 
     // Normalize method to uppercase
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Start building the Dart code
     let code = `import 'package:http/http.dart' as http;\n\nvoid main() async {\n`
@@ -99,7 +101,22 @@ export const dartHttp: Plugin = {
     const method = normalizedRequest.method.toLowerCase()
     const headersPart = Object.keys(headers).length > 0 ? ', headers: headers' : ''
     const bodyPart = body ? ', body: body' : ''
-    code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
+    if (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(normalizedRequest.method)) {
+      code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
+    } else {
+      const wireMethod = normalizedRequest.method.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\$/g, '\\$')
+      code += `  final request = http.Request('${wireMethod}', Uri.parse('${url}'));\n`
+      if (Object.keys(headers).length > 0) {
+        code += '  request.headers.addAll(headers);\n'
+      }
+      if (body) {
+        code +=
+          normalizedRequest.postData?.mimeType === 'multipart/form-data'
+            ? '  request.bodyFields = body;\n'
+            : '  request.body = body;\n'
+      }
+      code += '  final response = await http.Response.fromStream(await request.send());\n'
+    }
     code += '  print(response.body);\n'
     code += '}'
 

@@ -1,4 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClient, ClientId, TargetId } from '@scalar/snippetz'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
@@ -20,7 +19,7 @@ type GenerateCodeSnippetProps = {
   /** The specific example value to use when generating the code snippet. */
   example: string | undefined
   /** The HTTP method for the operation (e.g., GET, POST, PUT). */
-  method: HttpMethod
+  method: string
   /** The OpenAPI operation object containing request/response details. */
   operation: OperationObject
   /** The API endpoint path (e.g., '/users/{id}'). */

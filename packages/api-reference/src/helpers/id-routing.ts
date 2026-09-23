@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { slugify } from '@scalar/helpers/string/slugify'
 
 /**
@@ -471,13 +472,15 @@ export type WebhookRedirectSource = {
  * - two webhooks collapse to the same legacy slug (the old bookmark is genuinely ambiguous).
  */
 const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] => {
-  const key = (method: string, slug: string) => `${method.toUpperCase()}/${slug}`
+  // Authored known-method variants use a new namespace and never had legacy aliases.
+  const legacyWebhooks = webhooks.filter(({ id }) => !id.includes('/webhook/additionalOperations/'))
+  const key = (method: string, slug: string) => `${isHttpMethod(method) ? method.toUpperCase() : method}/${slug}`
 
   // Index current slugs so a legacy redirect never clobbers a real, current URL, and count legacy
   // slugs so we can drop the ones two webhooks share.
   const currentKeys = new Set<string>()
   const legacyCounts = new Map<string, number>()
-  for (const { name, method, id } of webhooks) {
+  for (const { name, method, id } of legacyWebhooks) {
     currentKeys.add(key(method, id.slice(id.lastIndexOf('/') + 1)))
     const legacySlug = slugify(name)
     if (legacySlug) {
@@ -492,8 +495,8 @@ const buildWebhookRedirects = (webhooks: WebhookRedirectSource[]): IdRedirect[] 
   const boundary = `(?=$|/|${SCHEMA_PARAM_MARKERS.map(escapeRegex).join('|')})`
 
   const redirects: IdRedirect[] = []
-  for (const { name, method, id } of webhooks) {
-    const upperMethod = method.toUpperCase()
+  for (const { name, method, id } of legacyWebhooks) {
+    const upperMethod = isHttpMethod(method) ? method.toUpperCase() : method
     const currentSlug = id.slice(id.lastIndexOf('/') + 1)
     const legacySlug = slugify(name)
     const legacyKey = key(method, legacySlug)

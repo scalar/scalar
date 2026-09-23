@@ -237,6 +237,31 @@ describe('OperationBlock', () => {
     responseCache.clear()
   })
 
+  it.each(['CONNECT', 'connect', 'TRACE', 'Trace', 'TRACK', 'tRaCk'])(
+    'shows an error instead of sending the final request method %s',
+    async (method) => {
+      vi.mocked(buildRequest).mockReturnValue(
+        ok({
+          controller: new AbortController(),
+          requestPayload: ['https://api.example.com/api/users', { method, headers: new Headers() }],
+          isUsingProxy: false,
+        }),
+      )
+      // The final request can differ from the operation after pre-request scripts run.
+      const wrapper = mount(OperationBlock, { props: createDefaultProps() })
+
+      await triggerExecute(wrapper)
+
+      expect(mockToast).toHaveBeenCalledExactlyOnceWith(
+        `The Fetch API cannot send ${method.toUpperCase()} requests.`,
+        'error',
+      )
+      expect(sendRequest).not.toHaveBeenCalled()
+      expect(vi.mocked(executeHook).mock.calls.some(([, hook]) => hook === 'requestBuilt')).toBe(false)
+      wrapper.unmount()
+    },
+  )
+
   it('renders without errors with minimal props', () => {
     const wrapper = mount(OperationBlock, {
       props: createDefaultProps(),

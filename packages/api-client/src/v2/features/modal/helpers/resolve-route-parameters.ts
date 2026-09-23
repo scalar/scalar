@@ -1,7 +1,9 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import {
+  forEachPathItemOperation,
+  getPathItemOperation,
+} from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getOperationEntries } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry, TraversedExample } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -16,7 +18,7 @@ import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 export type RoutePayload = {
   /** API path, or webhook name when `isWebhook` is true. */
   path?: string
-  method?: HttpMethod
+  method?: string
   example?: string
   documentSlug?: string
   /** Resolve `path` from the OpenAPI webhooks map. */
@@ -110,23 +112,21 @@ export const resolveMethod = (
   path: string | undefined,
   method: string | undefined,
   isWebhook = false,
-): HttpMethod | undefined => {
+): string | undefined => {
   const document = getDocument(ctx)
 
   if (!document || !path) {
     return undefined
   }
 
-  if (method === 'default') {
-    const pathItem = getResolvedPathItem(isWebhook ? document.webhooks?.[path] : document.paths?.[path])
-    if (!pathItem) {
-      return undefined
-    }
-    const pathMethods = Object.keys(pathItem).filter(isHttpMethod)
-    return pathMethods[0]
+  const pathItem = isWebhook ? document.webhooks?.[path] : document.paths?.[path]
+  if (method === 'default' && !getPathItemOperation(pathItem, method)) {
+    const methods: string[] = []
+    forEachPathItemOperation(pathItem, (method) => methods.push(method))
+    return methods[0]
   }
 
-  return isHttpMethod(method) ? method : undefined
+  return method && (isHttpMethod(method) || getPathItemOperation(pathItem, method)) ? method : undefined
 }
 
 /**

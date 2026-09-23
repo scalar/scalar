@@ -35,7 +35,7 @@ export type OperationBlockProps = {
   /** Current request path */
   path: string
   /** Current request method */
-  method: HttpMethodType
+  method: string
   /** Whether `path` identifies an OpenAPI webhook. */
   isWebhook?: boolean
   /** HTTP clients */
@@ -100,7 +100,7 @@ import { ScalarButton } from '@scalar/components/button'
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { isForbiddenHttpMethod } from '@scalar/helpers/http/is-forbidden-http-method'
 import {
   executeHook,
   executeResponseHook,
@@ -451,6 +451,19 @@ const handleExecute = async () => {
     return
   }
 
+  // Check the final method because pre-request scripts can change it.
+  const requestMethod = built.data.requestPayload[1].method ?? 'GET'
+  if (isForbiddenHttpMethod(requestMethod)) {
+    persistScriptEnvironment()
+    toast(
+      translate('apiClient.operationBlock.forbiddenMethod', {
+        method: requestMethod.toUpperCase(),
+      }),
+      'error',
+    )
+    return
+  }
+
   // Store the abort controller for cancellation
   abortController.value = built.data.controller
 
@@ -571,7 +584,7 @@ onBeforeUnmount(() => {
 const operationHistory = computed<History[]>(() =>
   history
     .map((entry) => ({
-      method: entry.request.method as HttpMethodType,
+      method: entry.request.method as string,
       path: entry.request.url,
       duration: entry.time,
       status: entry.response.status,

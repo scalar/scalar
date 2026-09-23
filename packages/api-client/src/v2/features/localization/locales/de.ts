@@ -371,6 +371,7 @@ export const de = {
   'operationBlock': {
     'webhookUrlRequired': 'Webhook-URL erforderlich. Geben Sie zuerst ein Ziel ein.',
     'pathParametersRequired': 'Pfadparameter müssen Werte haben.',
+    'forbiddenMethod': 'Die Fetch-API kann keine {method}-Anfragen senden.',
   },
   'dataTableCheckbox': {
     'toggle': 'Umschalten',

@@ -1,6 +1,4 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
-import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
@@ -33,7 +31,7 @@ const createWebhookEntry = ({
   parentId,
 }: {
   ref: string
-  method: HttpMethod
+  method: string
   webhook: OperationObject
   name: string
   title: string
@@ -110,7 +108,7 @@ export const traverseWebhooks = ({
         return
       }
 
-      const ref = `#/webhooks/${name}/${method}`
+      const ref = `#/webhooks/${name}/${getPathItemOperationKey(method)}`
 
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
