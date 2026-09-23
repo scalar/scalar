@@ -1,12 +1,11 @@
-import { slugger } from '@scalar/helpers/string/slugger'
 import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
-import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+
 import {
-  type AnyApiReferenceConfiguration,
-  type ApiReferenceConfigurationRaw,
-  type ApiReferenceConfigurationWithSource,
-  isConfigurationWithSources,
-} from '@scalar/types/api-reference'
+  type ConfigurationWithSource,
+  type DocumentContent,
+  resolveConfigurationSources,
+} from '@/helpers/resolve-configuration-sources'
 
 /** Processed API Reference Configuration
  *
@@ -14,82 +13,31 @@ import {
  * Separate the source into a dedicated object
  * Returns the raw configuration to pass to components
  */
-export type NormalizedConfiguration = {
-  title: string
-  slug: string
-  config: ApiReferenceConfigurationRaw
-  default: boolean
-  agent: ApiReferenceConfigurationWithSource['agent']
-  source: { url: string; content?: never } | { content: Record<string, unknown>; url?: never }
-}
+export type NormalizedConfiguration = ConfigurationWithSource<Record<string, unknown>>
 
 type NormalizedConfigurations = Record<string, NormalizedConfiguration>
 
-type ConfigWithRequiredSource = Omit<ApiReferenceConfigurationWithSource, 'url' | 'content'> &
-  ({ url: string; content?: never } | { content: Record<string, unknown>; url?: never })
-
-const isConfigWithRequiredSource = (input: ApiReferenceConfigurationWithSource): input is ConfigWithRequiredSource => {
-  return !!input.url?.trim() || !!input.content
-}
-
 /**
- * Take any configuration and return a flat array of configurations.
+ * Take any configuration and return a flat array of configurations, with inline documents parsed.
+ *
+ * This parses synchronously, so it keeps the YAML parser as a static dependency. The API reference
+ * itself uses `resolveConfigurationSources` and parses documents as they load instead.
  */
 export const normalizeConfigurations = (
   configuration: AnyApiReferenceConfiguration | undefined,
-): NormalizedConfigurations => {
-  const { slug } = slugger()
-
-  const normalized: NormalizedConfigurations = {}
-
-  if (!configuration) {
-    return normalized
-  }
-
-  const configList = Array.isArray(configuration) ? configuration : [configuration]
-
-  configList
-    /** Create a flat array of configurations with their document source data integrated. */
-    .flatMap((c) => {
-      // Check if this config has a 'sources' array property
-      if (isConfigurationWithSources(c)) {
-        // Destructure to separate sources array from other config properties
-        const { sources: configSources, ...rest } = c
-
-        // For each source in the array:
-        // - Merge the source with the parent config properties
-        // - Handle undefined sources by returning empty array via ?? []
-        return configSources?.map((source) => ({ ...rest, ...source })) ?? []
-      }
-
-      // If config doesn't have sources array, treat the config itself as a source
-      return [c]
-    })
-    .map<ApiReferenceConfigurationWithSource>((source) => apiReferenceConfigurationWithSourceSchema(source))
-    /** Filter out configurations that failed validation or don't have a url or content */
-    .filter(isConfigWithRequiredSource)
-    /** Add required attributes to the source */
-    .map((source, index) => addSlugAndTitle(source, index, slug))
-    /** Separate the configuration and sources by slug */
-    .forEach((c) => {
-      const { url, content, ...config } = c
-      normalized[c.slug] = {
-        config,
-        title: c.title,
-        slug: c.slug,
-        default: !!c?.default,
-        agent: c.agent,
-        source: content ? { content: normalizeContent(content) ?? {} } : { url },
-      }
-    })
-
-  // Process them and return normalized
-  return normalized
-}
+): NormalizedConfigurations =>
+  Object.fromEntries(
+    Object.entries(resolveConfigurationSources(configuration)).map(([slug, resolved]) => [
+      slug,
+      resolved.source.url !== undefined
+        ? { ...resolved, source: { url: resolved.source.url } }
+        : { ...resolved, source: { content: normalizeContent(resolved.source.content) ?? {} } },
+    ]),
+  )
 
 /** Normalize content into a JS object or return null if it is falsey */
 export const normalizeContent = (
-  content: string | Record<string, unknown> | (() => string | Record<string, unknown>),
+  content: DocumentContent | (() => DocumentContent),
 ): Record<string, unknown> | null => {
   if (!content) {
     return null
@@ -104,36 +52,4 @@ export const normalizeContent = (
   }
 
   return content
-}
-
-/** Process a single spec configuration so that it has a title and a slug */
-const addSlugAndTitle = (
-  source: ConfigWithRequiredSource,
-  index = 0,
-  slug: (v: string) => string,
-): ConfigWithRequiredSource & { slug: string; title: string } => {
-  // Case 1: Title exists, generate slug from it
-  if (source.title) {
-    return {
-      ...source,
-      slug: source.slug || slug(source.title),
-      title: source.title,
-    }
-  }
-
-  // Case 2: Slug exists but no title, use slug as title
-  if (source.slug) {
-    return {
-      ...source,
-      slug: slug(source.slug),
-      title: source.slug,
-    }
-  }
-
-  // Case 3: Neither exists, use index
-  return {
-    ...source,
-    slug: `api-${index + 1}`,
-    title: `API #${index + 1}`,
-  }
 }

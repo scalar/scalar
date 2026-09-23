@@ -11,8 +11,14 @@ import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-sto
  */
 export type ReferenceStore = Pick<
   WorkspaceStore,
-  'workspace' | 'update' | 'addDocument' | 'exportWorkspace' | 'exportActiveDocument' | 'externalExamples'
->
+  'workspace' | 'update' | 'addDocument' | 'exportWorkspace' | 'externalExamples'
+> & {
+  /**
+   * JSON only. The reference converts to YAML itself and loads the serializer on demand, so the store it
+   * renders from never has to ship one.
+   */
+  exportActiveDocument: (format: 'json', minify?: boolean) => string | undefined
+}
 
 /**
  * Creates the store that renders the API reference.

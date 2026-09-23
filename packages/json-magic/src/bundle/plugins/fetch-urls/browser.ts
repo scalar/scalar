@@ -2,7 +2,7 @@ import { createLimiter } from '@scalar/helpers/general/create-limiter'
 
 import type { LoaderPlugin, ResolveResult } from '@/bundle'
 import { isHttpUrl } from '@/helpers/is-http-url'
-import { normalize } from '@/helpers/normalize'
+import { normalizeAsync } from '@/helpers/normalize-async'
 
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
@@ -37,7 +37,7 @@ const fetchUrl = async (
 
     if (result.ok) {
       const body = await result.text()
-      return { ok: true, data: normalize(body), raw: body }
+      return { ok: true, data: await normalizeAsync(body), raw: body }
     }
 
     const contentType = result.headers.get('Content-Type') ?? ''

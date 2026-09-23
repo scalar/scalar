@@ -4,7 +4,7 @@ import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type MaybeRefOrGetter, toValue, watch } from 'vue'
 
-import type { NormalizedConfiguration } from '@/helpers/normalize-configurations'
+import type { ConfigurationWithSource } from '@/helpers/resolve-configuration-sources'
 
 /** Keep configured servers in the client document so variable edits target the displayed servers. */
 export const useConfiguredServers = ({
@@ -12,7 +12,7 @@ export const useConfiguredServers = ({
   sourceStore,
   clientStore,
 }: {
-  configurations: MaybeRefOrGetter<Record<string, NormalizedConfiguration>>
+  configurations: MaybeRefOrGetter<Record<string, ConfigurationWithSource>>
   sourceStore: Pick<WorkspaceStore, 'workspace'>
   clientStore: WorkspaceStore
 }): void => {

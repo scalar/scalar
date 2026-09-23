@@ -126,9 +126,10 @@ import {
 import { mapConfigPlugins } from '@/helpers/map-config-plugins'
 import { mapConfigToWorkspaceStore } from '@/helpers/map-config-to-workspace-store'
 import {
-  normalizeConfigurations,
-  type NormalizedConfiguration,
-} from '@/helpers/normalize-configurations'
+  parseDocumentContent,
+  resolveConfigurationSources,
+  type ConfigurationWithSource,
+} from '@/helpers/resolve-configuration-sources'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
@@ -201,7 +202,9 @@ provideSchemaExpansion()
  * We will normalize the configurations and store them in a computed property.
  * The active configuration will be associated with the active document.
  */
-const configList = computed(() => normalizeConfigurations(props.configuration))
+const configList = computed(() =>
+  resolveConfigurationSources(props.configuration),
+)
 
 const isMultiDocument = computed(() => Object.keys(configList.value).length > 1)
 
@@ -1021,7 +1024,9 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
           }
         : {
             name: slug,
-            document: normalized.source.content ?? {},
+            document:
+              (await parseDocumentContent(normalized.source.content ?? {})) ??
+              {},
           },
       config,
     )
@@ -1247,8 +1252,8 @@ watch(
      * when we detect configuration changes.
      */
     const updateSource = async (
-      updated: NormalizedConfiguration,
-      previous: NormalizedConfiguration | undefined,
+      updated: ConfigurationWithSource,
+      previous: ConfigurationWithSource | undefined,
     ) => {
       const config = withLocalizedConfigurationDefaults(
         {
@@ -1291,22 +1296,31 @@ watch(
         return
       }
 
+      const previousContent =
+        previous && 'content' in previous.source
+          ? previous.source.content
+          : undefined
+
+      // Identical content diffs as unchanged, so skip parsing both copies to compare them.
+      if (updated.source.content === previousContent) {
+        return
+      }
+
       /**
        * We need to deeply check for document changes. Parse documents and then only rebase
        * if we detect deep changes in the two sources
        */
-      if (
-        diff(
-          updated.source.content,
-          previous && 'content' in previous.source
-            ? (previous.source.content ?? {})
-            : {},
-        ).length
-      ) {
+      const nextDocument =
+        (await parseDocumentContent(updated.source.content)) ?? {}
+      const previousDocument = previousContent
+        ? ((await parseDocumentContent(previousContent)) ?? {})
+        : {}
+
+      if (diff(nextDocument, previousDocument).length) {
         await addDocument(
           {
             name: updated.slug,
-            document: updated.source.content,
+            document: nextDocument,
           },
           config,
         )
@@ -1477,7 +1491,8 @@ eventBus.on('asyncapi-server:update:selected', ({ name }) => {
 
 /** Download the document from the store */
 eventBus.on('ui:download:document', ({ format }) => {
-  const document = workspaceStore.exportActiveDocument(format)
+  // Export JSON and let `downloadDocument` convert: it loads the YAML serializer only when asked for YAML.
+  const document = workspaceStore.exportActiveDocument('json')
 
   if (!document) {
     console.error('No document found to download')
