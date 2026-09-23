@@ -73,3 +73,5 @@ const myPlugin = () => ({
 ```
 
 The hook receives the original source, the rendered container, and a cancellation signal. It can return a cleanup callback or a promise for one. Hooks are scoped to their API Reference instance and must be registered in the initial configuration. Mark block-level enhancements with `data-markdown-block` so collapsed Markdown summaries hide the complete block until expansion. Treat the Markdown source as untrusted and sanitize any HTML that your plugin adds.
+
+Hooks run independently after sanitized Markdown reaches the DOM; an asynchronous hook does not delay other hooks. When a rendering is invalidated or unmounted, its signal is aborted before its returned cleanup callbacks run. A cleanup callback that resolves after cancellation runs immediately. Check `signal.aborted` after each asynchronous operation before modifying the DOM, and release any already-created resources on abort if your hook is still waiting for more work. A failing cleanup callback does not prevent other hooks from releasing their resources.

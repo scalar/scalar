@@ -66,4 +66,61 @@ describe('useMarkdownRenderHooks', () => {
     summary.unmount()
     plain.unmount()
   })
+
+  it('disposes a cancelled async rendering without disposing its replacement', async () => {
+    let finish: ((cleanup: () => void) => void) | undefined
+    const first = new Promise<() => void>((resolve) => {
+      finish = resolve
+    })
+    const firstCleanup = vi.fn()
+    const secondCleanup = vi.fn()
+    const contexts: Parameters<MarkdownRenderHook>[0][] = []
+    const hook: MarkdownRenderHook = (context) => {
+      contexts.push(context)
+      return context.source === 'First' ? first : secondCleanup
+    }
+    const wrapper = mount(ScalarMarkdown, {
+      props: { value: 'First' },
+      global: { provide: { [MARKDOWN_RENDER_HOOKS as symbol]: [hook] } },
+    })
+    await flushPromises()
+    await wrapper.setProps({ value: 'Second' })
+    await flushPromises()
+    expect(contexts.map(({ signal }) => signal.aborted)).toStrictEqual([true, false])
+    finish?.(firstCleanup)
+    await flushPromises()
+    expect(firstCleanup).toHaveBeenCalledTimes(1)
+    expect(secondCleanup).not.toHaveBeenCalled()
+    wrapper.unmount()
+    expect(firstCleanup).toHaveBeenCalledTimes(1)
+    expect(secondCleanup).toHaveBeenCalledTimes(1)
+  })
+
+  it('releases other plugins when a cleanup callback throws', async () => {
+    const cleanup = vi.fn()
+    const failure = new Error('Cleanup failed')
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const hooks: MarkdownRenderHook[] = [
+      () => cleanup,
+      () => () => {
+        throw failure
+      },
+    ]
+    const wrapper = mount(ScalarMarkdown, {
+      props: { value: 'First' },
+      global: { provide: { [MARKDOWN_RENDER_HOOKS as symbol]: hooks } },
+    })
+    try {
+      await flushPromises()
+      await wrapper.setProps({ value: 'Second' })
+      await flushPromises()
+      expect(cleanup).toHaveBeenCalledTimes(1)
+      expect(error).toHaveBeenCalledWith('Could not dispose Markdown enhancement:', failure)
+      wrapper.unmount()
+      expect(cleanup).toHaveBeenCalledTimes(2)
+      expect(error).toHaveBeenCalledTimes(2)
+    } finally {
+      error.mockRestore()
+    }
+  })
 })
