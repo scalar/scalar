@@ -272,7 +272,7 @@ describe('upgrade', () => {
         type: 'object',
         properties: {
           value: number,
-          requiredValue: { type: 'number', nullable: false },
+          requiredValue: { type: 'number' },
           invalid: { type: 'number', 'x-nullable': 'true' },
           plain: { type: 'number' },
           list: {
@@ -295,11 +295,12 @@ describe('upgrade', () => {
     })
   })
 
-  it('preserves nullability in request, response, parameter and header schemas', () => {
-    const number = { type: 'number', 'x-nullable': true }
-    const response = { description: 'A value', schema: number, headers: { 'X-Value': number } }
-    const document = upgrade(
-      {
+  it.each(['3.0', '3.1', '3.2'] as const)(
+    'preserves nullability in request, response, parameter and header schemas when upgrading to %s',
+    (version) => {
+      const number = { type: 'number', 'x-nullable': true }
+      const response = { description: 'A value', schema: number, headers: { 'X-Value': number } }
+      const input = {
         swagger: '2.0',
         info: { title: 'Nullable values', version: '1' },
         parameters: { value: { name: 'value', in: 'query', ...number } },
@@ -320,21 +321,24 @@ describe('upgrade', () => {
             },
           },
         },
-      },
-      '3.1',
-    )
-    const schema = { type: ['number', 'null'] }
-    expect(document.paths?.['/values']?.post?.requestBody?.content?.['application/json']?.schema).toStrictEqual(schema)
-    expect(document.paths?.['/values']?.post?.responses?.[200]?.content?.['application/json']?.schema).toStrictEqual(
-      schema,
-    )
-    expect(document.paths?.['/values']?.post?.responses?.[200]?.headers?.['X-Value']?.schema).toStrictEqual(schema)
-    expect(document.paths?.['/values']?.get?.parameters?.[0]?.schema).toStrictEqual(schema)
-    expect(
-      document.paths?.['/values']?.put?.requestBody?.content?.['multipart/form-data']?.schema?.properties?.value,
-    ).toStrictEqual(schema)
-    expect(document.components?.parameters?.value?.schema).toStrictEqual(schema)
-    expect(document.components?.responses?.Value?.content?.['application/json']?.schema).toStrictEqual(schema)
-    expect(document.components?.responses?.Value?.headers?.['X-Value']?.schema).toStrictEqual(schema)
-  })
+      }
+      const document =
+        version === '3.0' ? upgrade(input, '3.0') : version === '3.1' ? upgrade(input, '3.1') : upgrade(input, '3.2')
+      const schema = version === '3.0' ? { type: 'number', nullable: true } : { type: ['number', 'null'] }
+      expect(document.paths?.['/values']?.post?.requestBody?.content?.['application/json']?.schema).toStrictEqual(
+        schema,
+      )
+      expect(document.paths?.['/values']?.post?.responses?.[200]?.content?.['application/json']?.schema).toStrictEqual(
+        schema,
+      )
+      expect(document.paths?.['/values']?.post?.responses?.[200]?.headers?.['X-Value']?.schema).toStrictEqual(schema)
+      expect(document.paths?.['/values']?.get?.parameters?.[0]?.schema).toStrictEqual(schema)
+      expect(
+        document.paths?.['/values']?.put?.requestBody?.content?.['multipart/form-data']?.schema?.properties?.value,
+      ).toStrictEqual(schema)
+      expect(document.components?.parameters?.value?.schema).toStrictEqual(schema)
+      expect(document.components?.responses?.Value?.content?.['application/json']?.schema).toStrictEqual(schema)
+      expect(document.components?.responses?.Value?.headers?.['X-Value']?.schema).toStrictEqual(schema)
+    },
+  )
 })

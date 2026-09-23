@@ -654,7 +654,10 @@ const migrateSchemaNullability = (schema: unknown): void => {
   }
 
   if (typeof schema['x-nullable'] === 'boolean') {
-    schema.nullable = schema['x-nullable']
+    // False is already the default in OpenAPI 3.0 and needs no keyword in later versions.
+    if (schema['x-nullable']) {
+      schema.nullable = true
+    }
     delete schema['x-nullable']
   }
 
