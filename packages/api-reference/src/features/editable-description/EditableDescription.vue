@@ -140,18 +140,22 @@ const onKeydown = (event: KeyboardEvent): void => {
 }
 </script>
 
+<!--
+  Every branch is a single root element on purpose. A component with more than one
+  possible root is a fragment, and Vue cannot pass a parent's scoped-style id through
+  a fragment — call sites style these descriptions with scoped rules, so a fragment
+  here silently drops their font size and spacing.
+-->
 <template>
-  <template v-if="!isEditable">
-    <div
-      v-if="$slots.default"
-      :class="rootClass">
-      <slot />
-    </div>
-    <ScalarMarkdown
-      v-else
-      v-bind="attrs"
-      :value="displayValue" />
-  </template>
+  <ScalarMarkdown
+    v-if="!isEditable && !$slots.default"
+    v-bind="attrs"
+    :value="displayValue" />
+  <div
+    v-else-if="!isEditable"
+    :class="rootClass">
+    <slot />
+  </div>
   <div
     v-else-if="!isEditing"
     class="editable-description group/editable relative pr-6"
