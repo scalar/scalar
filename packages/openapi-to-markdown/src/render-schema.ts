@@ -50,7 +50,7 @@ type RenderOptions = {
   hideDescription?: boolean
   hideDetails?: boolean
   property?: boolean
-  /** Always expand this root, and record it under the given name, for example in its own model section. */
+  /** Record this root under the given name, for example in its own model section, even if it is not a reference. */
   name?: string
 }
 
@@ -252,11 +252,15 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       const value = view(input)
       const shared = typeof identity === 'object' && identity !== null ? identity : undefined
       const name = options.name ?? value.name
-      if (shared && value.name !== undefined && options.name === undefined) {
+      if (shared && name !== undefined) {
         // Expanding every path through a shared schema grows exponentially, so expand it once.
         const previous = shown.get(shared)
-        if (previous !== undefined) return reference(input, value, options, previous, 'above')
-        if (depth >= MAX_DEPTH && sections.has(shared))
+        if (previous !== undefined) {
+          // A model section already prints its own annotations above the schema.
+          const referenceOptions = options.name === undefined ? options : { ...options, hideDetails: true }
+          return reference(input, value, referenceOptions, previous, 'above')
+        }
+        if (value.name !== undefined && options.name === undefined && depth >= MAX_DEPTH && sections.has(shared))
           return reference(input, value, options, value.name, 'below under Schemas')
       }
       if (depth >= MAX_DEPTH) return [paragraph(text('[Maximum schema depth reached]'))]

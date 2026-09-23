@@ -454,6 +454,19 @@ describe('render-schema', () => {
     expect(renderer.view(value)).toBe(second.view(value))
   })
 
+  it('refers a model section back to a schema the document already expanded', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string', description: 'Shared name' } } }
+    const renderer = createSchemaRenderer().forDocument({ Shared: schema(shared) })
+    const serialize = (children: ReturnType<SchemaRenderer['render']>): string =>
+      unified().use(remarkStringify, { bullet: '-' }).stringify({ type: 'root', children }).replaceAll('`', '')
+    expect(serialize(renderer.render(schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared })))).toContain(
+      'Shared name',
+    )
+    expect(serialize(renderer.render(schema(shared), 0, [], { name: 'Shared' }))).toBe(
+      '*Schema Shared is shown above.*\n',
+    )
+  })
+
   it('points a deep reference to its schema section instead of truncating it', () => {
     const shared = { type: 'object', properties: { name: { type: 'string', description: 'Deep name' } } }
     const renderer = createSchemaRenderer().forDocument({ Shared: schema(shared) })

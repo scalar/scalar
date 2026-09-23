@@ -269,8 +269,9 @@ describe('create-openapi-markdown-renderer', () => {
       const start = performance.now()
       const markdown = await renderer.render({ operation: { path: '/a', method: 'get' } })
       expect(performance.now() - start).toBeLessThan(1000)
-      // Once inline in the response and once in the model section for L10.
-      expect(markdown.match(/LEAF/g)?.length).toBe(10)
+      // Inline in the response; the model sections refer back to it.
+      expect(markdown.match(/LEAF/g)?.length).toBe(5)
+      expect(markdown.match(/Schema `L10` is shown above\./g)?.length).toBe(5)
       expect(markdown.length).toBeLessThan(250_000)
       for (let level = 0; level <= 10; level++) {
         expect(markdown).toContain(`### L${level}`)
@@ -281,8 +282,15 @@ describe('create-openapi-markdown-renderer', () => {
       const start = performance.now()
       const markdown = await createMarkdownFromOpenApi(fanOut(5, 10))
       expect(performance.now() - start).toBeLessThan(1000)
-      expect(markdown.match(/LEAF/g)?.length).toBe(10)
+      expect(markdown.match(/LEAF/g)?.length).toBe(5)
       expect(markdown.length).toBeLessThan(250_000)
+    })
+
+    it('expands a model in its own section when the page has not shown it yet', async () => {
+      const markdown = await createMarkdownFromOpenApi(fanOut(2, 2), { model: 'L1' })
+      expect(markdown).toContain('### L1')
+      expect(markdown.match(/LEAF/g)?.length).toBe(2)
+      expect(markdown).not.toContain('Schema `L1` is shown')
     })
 
     it('renders each shared schema once per page, independently of other pages', async () => {
