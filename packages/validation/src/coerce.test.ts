@@ -1659,4 +1659,24 @@ describe('bounded recursion', () => {
       warn.mockRestore()
     }
   })
+
+  it('warns once when several subtrees are cut off in one call', () => {
+    const T: any = lazy(() => object({ name: string(), left: optional(T), right: optional(T) }))
+    const chain = (depth: number): Record<string, unknown> => {
+      let value: Record<string, unknown> = { name: 'leaf' }
+      for (let i = 0; i < depth; i++) {
+        value = { name: `node-${i}`, left: value }
+      }
+      return value
+    }
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    try {
+      coerce(T, { name: 'root', left: chain(600), right: chain(600) })
+
+      expect(warn).toHaveBeenCalledTimes(1)
+    } finally {
+      warn.mockRestore()
+    }
+  })
 })

@@ -91,9 +91,9 @@ describe('index', () => {
   })
 
   it('keeps the reference branch for a bundled $ref with siblings', () => {
-    // Bundled documents carry the resolved target in `$ref-value`. Its interesting structure sits
-    // more than three object levels below the union node that picks the branch, so union scoring
-    // stops descending before it reaches `city`. The `$ref` and `$ref-value` keys still decide it.
+    // Bundled documents carry the resolved target in `$ref-value` next to the `$ref`. The `type`
+    // sibling makes the inline Schema Object branch a candidate too, so this pins that the `$ref` and
+    // `$ref-value` keys still decide the branch, and that the resolved target comes through intact.
     const animal = {
       type: 'object',
       required: ['name'],

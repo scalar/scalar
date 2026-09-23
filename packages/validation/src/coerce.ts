@@ -11,8 +11,9 @@ import { validate } from './validate'
  * JSON could block the main thread for seconds). It also let a branch win
  * just because the value under it happened to be deep.
  *
- * Three is a safety margin, not a derived minimum. The deepest nesting any
- * branch-selection test relies on today is two.
+ * Three is a safety margin, not a derived minimum. The existing
+ * branch-selection tests only need the discriminator to be scored, which
+ * happens at any depth.
  */
 const MAX_VALUE_DEPTH = 3
 
