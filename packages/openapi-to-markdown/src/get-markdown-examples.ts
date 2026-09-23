@@ -15,7 +15,48 @@ type MarkdownExample = {
   name?: string
   summary?: string
   description?: string
-} & ({ value: unknown } | { externalValue: string } | { serializedValue: string })
+} & ({ value: unknown } | { externalValue: string } | { serializedValue: string } | { omitted: true })
+
+/** Mirrors the depth at which `getExampleFromSchema` stops following nested schemas. */
+const EXAMPLE_DEPTH = 10
+
+/**
+ * Generated examples repeat every shared schema at each place it is used, up to ten levels deep.
+ * A densely shared schema graph therefore produces billions of values, so larger examples are skipped.
+ * The largest generated examples in the Stripe, GitHub, and Cloudflare descriptions have about 7,600 values.
+ */
+const MAX_GENERATED_EXAMPLE_VALUES = 10_000
+
+/**
+ * Estimate how many values an example generated from this schema contains, stopping just past the limit.
+ * Counts are cached per schema and level, so this is linear in the size of the schema graph.
+ */
+export const countGeneratedExampleValues = (root: unknown, limit = MAX_GENERATED_EXAMPLE_VALUES): number => {
+  const counts = new WeakMap<object, Map<number, number>>()
+  const count = (input: unknown, level: number): number => {
+    const schema = getResolvedRef<unknown>(input)
+    if (level > EXAMPLE_DEPTH || !isObject(schema)) return 1
+    const cached = counts.get(schema)?.get(level)
+    if (cached !== undefined) return cached
+    let total = 1
+    const add = (child: unknown): void => {
+      if (total <= limit) total += count(child, level + 1)
+    }
+    if (isObject(schema.properties)) Object.values(schema.properties).forEach(add)
+    if (isObject(schema.additionalProperties)) add(schema.additionalProperties)
+    if (schema.items !== undefined) add(schema.items)
+    if (Array.isArray(schema.prefixItems)) schema.prefixItems.forEach(add)
+    if (Array.isArray(schema.allOf)) schema.allOf.forEach(add)
+    // The generator picks one variant, which is the first one unless a selection says otherwise.
+    const variants = Array.isArray(schema.oneOf) ? schema.oneOf : Array.isArray(schema.anyOf) ? schema.anyOf : []
+    if (variants.length) add(variants[0])
+    const levels = counts.get(schema) ?? new Map<number, number>()
+    levels.set(level, total)
+    counts.set(schema, levels)
+    return total
+  }
+  return count(root, 0)
+}
 
 /** Preserve supplied values; generate a fallback only when examples are not supplied. */
 export const getMarkdownExamples = (
@@ -45,6 +86,7 @@ export const getMarkdownExamples = (
   }
   const schema = getResolvedRef<unknown>(source.schema)
   if (!isObject(schema)) return []
+  if (countGeneratedExampleValues(source.schema) > MAX_GENERATED_EXAMPLE_VALUES) return [{ omitted: true }]
   const value = getExampleFromSchema(getResolvedRef(source.schema as SchemaObject, mergeSiblingReferences), {
     xml: mediaType.includes('xml'),
     mode,

@@ -21,9 +21,11 @@ const serializer = unified().use(remarkGfm).use(remarkStringify, { bullet: '-' }
 /** Build Markdown directly, retaining caches only for this immutable document snapshot. */
 export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promise<string>) => {
   const descriptions = createDescriptionParser()
-  const schemas = createSchemaRenderer()
+  const schemaRenderer = createSchemaRenderer()
   return async (document) => {
     const description = descriptions()
+    // Each page expands a shared schema once, then refers back to it.
+    const schemas = schemaRenderer.forDocument(document.components?.schemas)
     const { info } = document
     const metadata = [
       field('OpenAPI Version', inlineCode(document.openapi)),
@@ -117,6 +119,7 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
             nodes.push(heading(2, text(group.title)))
             hasOperations = true
           }
+          schemas.beginSection()
           nodes.push(
             ...(await renderOperation(document, path, method, pathItem, operation, group.webhook, {
               description,
@@ -130,6 +133,7 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
     const models = Object.entries(document.components?.schemas ?? {})
     if (models.length) nodes.push(heading(2, text('Schemas')))
     for (const [name, schema] of models) {
+      schemas.beginSection()
       const view = schemas.view(schema)
       nodes.push(
         heading(3, text(view.title ?? name)),
@@ -139,7 +143,7 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
             : item(paragraph(strong(text('Type:')))),
         ]),
         ...(await description(view.description)),
-        ...schemas.render(schema, 0, [], { hideDescription: true }),
+        ...schemas.render(schema, 0, [], { hideDescription: true, name }),
       )
       if (view.type === 'object')
         nodes.push(

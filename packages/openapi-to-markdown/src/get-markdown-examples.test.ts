@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getMarkdownExamples } from './get-markdown-examples'
+import { countGeneratedExampleValues, getMarkdownExamples } from './get-markdown-examples'
 
 const schema = { type: 'string', example: 'schema fallback' }
 
@@ -98,5 +98,30 @@ describe('get-markdown-examples', () => {
         version,
       ),
     ).toStrictEqual([{ name: 'legacy', summary: undefined, description: undefined, value: 0 }])
+  })
+
+  it('skips a generated example that would repeat a densely shared schema graph', () => {
+    const levels = Array.from({ length: 12 }, () => ({ type: 'object', properties: {} as Record<string, unknown> }))
+    levels.forEach((level, index) => {
+      for (let branch = 0; branch < 5; branch++) {
+        level.properties[`p${branch}`] =
+          index < 11 ? { $ref: `#/L${index + 1}`, '$ref-value': levels[index + 1] } : { type: 'string' }
+      }
+    })
+    expect(countGeneratedExampleValues(levels[0])).toBeGreaterThan(10_000)
+    expect(getMarkdownExamples({ schema: levels[0] }, 'application/json')).toStrictEqual([{ omitted: true }])
+    expect(getMarkdownExamples({ schema: levels[8] }, 'application/json')).toHaveLength(1)
+    expect(getMarkdownExamples({ schema: levels[8] }, 'application/json')[0]).toHaveProperty('value')
+  })
+
+  it('counts each generated value once per level, following the first variant of a choice', () => {
+    const shared = { type: 'object', properties: { id: { type: 'string' } } }
+    expect(
+      countGeneratedExampleValues({
+        type: 'object',
+        properties: { first: shared, second: shared },
+        anyOf: [{ type: 'string' }, shared],
+      }),
+    ).toBe(1 + 2 + 2 + 1)
   })
 })

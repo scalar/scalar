@@ -16,6 +16,10 @@ export const renderExamples = async (
   const nodes: RootContent[] = []
   for (const example of getMarkdownExamples(source, mediaType, mode, openapiVersion)) {
     nodes.push(paragraph(strong(text(example.name ? `Example: ${example.name}` : 'Example:'))))
+    if ('omitted' in example) {
+      nodes.push(paragraph(text('[Generated example omitted because it is too large]')))
+      continue
+    }
     if (example.summary) nodes.push(paragraph(text(example.summary)))
     nodes.push(...(await description(example.description)))
     if ('externalValue' in example) {

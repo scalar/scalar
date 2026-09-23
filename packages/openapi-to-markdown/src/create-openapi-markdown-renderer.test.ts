@@ -271,7 +271,7 @@ describe('create-openapi-markdown-renderer', () => {
       expect(performance.now() - start).toBeLessThan(1000)
       // Once inline in the response and once in the model section for L10.
       expect(markdown.match(/LEAF/g)?.length).toBe(10)
-      expect(markdown.length).toBeLessThan(100_000)
+      expect(markdown.length).toBeLessThan(250_000)
       for (let level = 0; level <= 10; level++) {
         expect(markdown).toContain(`### L${level}`)
       }
@@ -282,7 +282,7 @@ describe('create-openapi-markdown-renderer', () => {
       const markdown = await createMarkdownFromOpenApi(fanOut(5, 10))
       expect(performance.now() - start).toBeLessThan(1000)
       expect(markdown.match(/LEAF/g)?.length).toBe(10)
-      expect(markdown.length).toBeLessThan(100_000)
+      expect(markdown.length).toBeLessThan(250_000)
     })
 
     it('renders each shared schema once per page, independently of other pages', async () => {

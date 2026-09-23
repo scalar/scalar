@@ -456,7 +456,7 @@ describe('render-schema', () => {
 
   it('points a deep reference to its schema section instead of truncating it', () => {
     const shared = { type: 'object', properties: { name: { type: 'string', description: 'Deep name' } } }
-    const renderer = createSchemaRenderer().forDocument({ Shared: shared })
+    const renderer = createSchemaRenderer().forDocument({ Shared: schema(shared) })
     const output = unified()
       .use(remarkStringify, { bullet: '-' })
       .stringify({
