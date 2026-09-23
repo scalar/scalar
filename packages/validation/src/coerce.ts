@@ -4,6 +4,48 @@ import type { Static } from './types'
 import { validate } from './validate'
 
 /**
+ * How many object levels below a union node `scoreUnion` descends before it
+ * stops scoring child values. Picking a union branch is a local decision, so
+ * the shape near the union node is what matters. Scoring the whole subtree
+ * made the cost grow as 2^depth on recursive unions (a few hundred bytes of
+ * JSON could block the main thread for seconds). It also let a branch win
+ * just because the value under it happened to be deep.
+ *
+ * Three is a safety margin, not a derived minimum. The existing
+ * branch-selection tests only need the discriminator to be scored, which
+ * happens at any depth.
+ */
+const MAX_VALUE_DEPTH = 3
+
+/**
+ * How many `lazy` nodes deep one scoring path may go before it returns a
+ * neutral score. `lazy` is the only way to build an infinite schema, so this
+ * stops schema cycles that never descend into a value, such as
+ * `T = lazy(() => union([T, string()]))` scored against `'s'`.
+ *
+ * It limits depth, not fan-out. The in-progress guard only tracks objects, so
+ * a schema cycle that branches over a primitive can still do a lot of work.
+ * Only a schema author can build one of those, and the OpenAPI and AsyncAPI
+ * schemas do not contain one.
+ */
+const MAX_LAZY_DEPTH = 64
+
+/**
+ * How many nested `coerceInner` calls one `coerce` call makes before it
+ * stops and returns the remaining value unchanged. This has to fire before
+ * the JavaScript stack overflows, or it does nothing. Without it, a deeply
+ * nested document, or a schema cycle over a primitive such as
+ * `lazy(() => union([T, string()]))`, throws a `RangeError`.
+ *
+ * Measured against the real OpenAPI Schema Object in Node, the stack
+ * overflows at about 3,200 nested calls. That comes from 6 to 11 calls per
+ * document level, depending on shape. We stop at roughly a third of that,
+ * because browsers, web workers and the caller's own frames can leave less
+ * stack. Schema Objects nested 90 to 165 levels deep still coerce fully.
+ */
+const MAX_COERCE_DEPTH = 1000
+
+/**
  * Memoizes `schema.schema()` per lazy schema so that recursive definitions
  * such as `lazy(() => object({ child: lazy(() => T) }))` resolve to the same
  * inner schema reference across calls. Without this, every traversal would
@@ -61,12 +103,26 @@ const isDiscriminatorProperty = (schema: Schema): boolean => {
  * Markers are removed in `finally` so sibling union branches that share a
  * schema reference are scored independently rather than inheriting a stale
  * "in cycle" marker.
+ *
+ * The marker only stops *nested* re-entry. It does not stop the same pair
+ * being scored again through a sibling path, so it cannot bound the work on
+ * its own. Two budgets do that, each checked in the branch that uses it:
+ * - `valueDepth` counts descents into object properties below the union node.
+ *   Past {@link MAX_VALUE_DEPTH}, non-discriminator properties score a flat `1`
+ *   and are not descended into.
+ * - `lazyDepth` counts `lazy` nodes on the current path, capped at {@link MAX_LAZY_DEPTH}.
+ *
+ * Every schema node still runs its own type check at the cap. So an `object`
+ * schema against a string still scores `0`, and the budgets only cut off
+ * descent into child values.
  */
 const scoreUnion = (
   schema: Schema,
   value: unknown,
   lazyCache: LazyCache,
   scoringCache: WeakMap<object, Set<Schema>> = new WeakMap(),
+  valueDepth = 0,
+  lazyDepth = 0,
 ): number => {
   // Short-circuit on cycles: this exact (value, schema) pair is already being
   // scored higher up the call stack. The enclosing call's score subsumes any
@@ -107,8 +163,18 @@ const scoreUnion = (
         }
         const propSchema = schema.properties[key]
         const raw = value[key as keyof typeof value]
-        const base = scoreUnion(propSchema, raw, lazyCache, scoringCache)
-        if (isDiscriminatorProperty(propSchema)) {
+        const isDiscriminator = isDiscriminatorProperty(propSchema)
+        // Past the depth budget we stop descending into child values. Discriminators are still
+        // scored in full: they are finite trees of literals, optionals and unions (never `lazy`)
+        // that do not descend into the value, so this stays cheap. It also keeps a tag like
+        // `kind: literal('b')` deciding the branch when it sits below the budget.
+        const base =
+          valueDepth >= MAX_VALUE_DEPTH
+            ? isDiscriminator
+              ? scoreUnion(propSchema, raw, lazyCache, scoringCache, valueDepth, lazyDepth)
+              : 1
+            : scoreUnion(propSchema, raw, lazyCache, scoringCache, valueDepth + 1, lazyDepth)
+        if (isDiscriminator) {
           return acc + (base > 0 ? base * 10 : 0)
         }
         return acc + (base > 0 ? base : 1)
@@ -123,27 +189,39 @@ const scoreUnion = (
       return isObject(value) ? 1 : 0
     }
     if (schema.type === 'optional') {
-      return value === undefined ? 1 : scoreUnion(schema.schema, value, lazyCache, scoringCache)
+      return value === undefined ? 1 : scoreUnion(schema.schema, value, lazyCache, scoringCache, valueDepth, lazyDepth)
     }
     if (schema.type === 'union') {
       // For a union, use the highest score among all sub-schemas
-      return Math.max(...schema.schemas.map((branch) => scoreUnion(branch, value, lazyCache, scoringCache)))
+      return Math.max(
+        ...schema.schemas.map((branch) => scoreUnion(branch, value, lazyCache, scoringCache, valueDepth, lazyDepth)),
+      )
     }
     if (schema.type === 'intersection') {
       if (schema.schemas.length === 0) {
         return 1
       }
-      return schema.schemas.reduce((acc, sub) => acc + scoreUnion(sub, value, lazyCache, scoringCache), 0)
+      return schema.schemas.reduce(
+        (acc, sub) => acc + scoreUnion(sub, value, lazyCache, scoringCache, valueDepth, lazyDepth),
+        0,
+      )
     }
 
     if (schema.type === 'lazy') {
+      // We cannot know the type without resolving, so a neutral score is the only option here.
+      if (lazyDepth >= MAX_LAZY_DEPTH) {
+        return 1
+      }
       // For a lazy schema, evaluate the inner schema and recurse
-      return scoreUnion(resolveLazy(schema, lazyCache), value, lazyCache, scoringCache)
+      return scoreUnion(resolveLazy(schema, lazyCache), value, lazyCache, scoringCache, valueDepth, lazyDepth + 1)
     }
 
     if (schema.type === 'evaluate') {
-      // For an evaluate schema, evaluate the expression and recurse
-      return scoreUnion(schema.schema, schema.expression(value), lazyCache, scoringCache)
+      // For an evaluate schema, evaluate the expression and recurse. This spends no budget: the
+      // inner `object` branch still stops descending at the cap, and `lazy` still bounds cycles.
+      // Only a schema that points `evaluate` back at itself without a `lazy` in between could
+      // loop, and the builders in `schema.ts` cannot construct one.
+      return scoreUnion(schema.schema, schema.expression(value), lazyCache, scoringCache, valueDepth, lazyDepth)
     }
 
     // For primitives and any other type, return 1 if valid, otherwise 0
@@ -188,7 +266,22 @@ const coerceInner = (
   value: unknown,
   cache: WeakMap<object, Map<Schema, unknown>>,
   lazyCache: LazyCache,
+  depth: number,
+  warningState: { emitted: boolean },
 ): unknown => {
+  // Stop before the stack overflows. Return the value unchanged, not a schema default: callers
+  // merge the result back into the document, so a default would overwrite real content. Leaving
+  // the subtree un-normalized loses nothing.
+  if (depth >= MAX_COERCE_DEPTH) {
+    if (!warningState.emitted) {
+      warningState.emitted = true
+      console.warn(
+        `[@scalar/validation] coerce stopped at nesting depth ${MAX_COERCE_DEPTH}; deeper values are left as-is.`,
+      )
+    }
+    return value
+  }
+
   // Prevent infinite recursion by returning the in-progress result that was
   // staged by an enclosing call via trackCycle.
   if ((isObject(value) || Array.isArray(value)) && cache.get(value)?.has(schema)) {
@@ -237,7 +330,7 @@ const coerceInner = (
     if (value === undefined) {
       return undefined
     }
-    return coerceInner(schema.schema, value, cache, lazyCache)
+    return coerceInner(schema.schema, value, cache, lazyCache, depth + 1, warningState)
   }
   if (schema.type === 'array') {
     if (!Array.isArray(value)) {
@@ -248,7 +341,7 @@ const coerceInner = (
     const result: unknown[] = new Array(value.length)
     trackCycle(value, schema, result, cache)
     for (let i = 0; i < value.length; i++) {
-      result[i] = coerceInner(schema.items, value[i], cache, lazyCache)
+      result[i] = coerceInner(schema.items, value[i], cache, lazyCache, depth + 1, warningState)
     }
     return result
   }
@@ -261,7 +354,7 @@ const coerceInner = (
     const result: Record<string, unknown> = {}
     trackCycle(value, schema, result, cache)
     for (const key of Object.keys(value)) {
-      result[key] = coerceInner(schema.value, value[key], cache, lazyCache)
+      result[key] = coerceInner(schema.value, value[key], cache, lazyCache, depth + 1, warningState)
     }
     return result
   }
@@ -278,7 +371,7 @@ const coerceInner = (
       if (propSchema.type === 'optional' && raw === undefined) {
         continue
       }
-      result[key] = coerceInner(propSchema, raw, cache, lazyCache)
+      result[key] = coerceInner(propSchema, raw, cache, lazyCache, depth + 1, warningState)
     }
     return result
   }
@@ -291,12 +384,15 @@ const coerceInner = (
       { schema: schema.schemas[0]!, score: 0 },
     )
     // We need some way to pick one of the union values
-    return coerceInner(branch.schema, value, cache, lazyCache)
+    return coerceInner(branch.schema, value, cache, lazyCache, depth + 1, warningState)
   }
   if (schema.type === 'intersection') {
     return schema.schemas.reduce<Record<string, unknown>>(
       (acc, subSchema) =>
-        Object.assign(acc, coerceInner(subSchema, value, cache, lazyCache) as Record<string, unknown>),
+        Object.assign(
+          acc,
+          coerceInner(subSchema, value, cache, lazyCache, depth + 1, warningState) as Record<string, unknown>,
+        ),
       {},
     )
   }
@@ -304,10 +400,10 @@ const coerceInner = (
     return schema.value
   }
   if (schema.type === 'lazy') {
-    return coerceInner(resolveLazy(schema, lazyCache), value, cache, lazyCache)
+    return coerceInner(resolveLazy(schema, lazyCache), value, cache, lazyCache, depth + 1, warningState)
   }
   if (schema.type === 'evaluate') {
-    return coerceInner(schema.schema, schema.expression(value), cache, lazyCache)
+    return coerceInner(schema.schema, schema.expression(value), cache, lazyCache, depth + 1, warningState)
   }
 
   // We need to assert here that schema has the type never so we know we handle all cases
@@ -355,4 +451,4 @@ export const coerce = <S extends Schema>(
   value: unknown,
   cache: WeakMap<object, Map<Schema, unknown>> = new WeakMap(),
   lazyCache: LazyCache = new WeakMap(),
-): SafeStatic<S> => coerceInner(schema, value, cache, lazyCache) as SafeStatic<S>
+): SafeStatic<S> => coerceInner(schema, value, cache, lazyCache, 0, { emitted: false }) as SafeStatic<S>

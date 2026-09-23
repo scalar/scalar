@@ -2,7 +2,7 @@ import { coerce, generateTypes } from '@scalar/validation'
 import { describe, expect, it } from 'vitest'
 
 import { generateSchema } from './index'
-import { normalRef } from './reference'
+import { normalRef, recursiveRef } from './reference'
 
 describe('index', () => {
   const schema = generateSchema(normalRef)
@@ -88,5 +88,69 @@ describe('index', () => {
     }
 
     expect(coerce(schema, input)).toEqual({ ...input, 'x-scalar-original-document-hash': '' })
+  })
+
+  it('keeps the reference branch for a bundled $ref with siblings', () => {
+    // Bundled documents carry the resolved target in `$ref-value` next to the `$ref`. The `type`
+    // sibling makes the inline Schema Object branch a candidate too, so this pins that the `$ref` and
+    // `$ref-value` keys still decide the branch, and that the resolved target comes through intact.
+    const animal = {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: { type: 'string' },
+        owner: {
+          type: 'object',
+          properties: { address: { type: 'object', properties: { city: { type: 'string', enum: ['Paris'] } } } },
+        },
+      },
+    }
+    const pet = { $ref: '#/components/schemas/Animal', '$ref-value': animal, type: 'string', description: 'A pet' }
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1.0.0' },
+      components: {
+        schemas: {
+          Animal: animal,
+          Pet: pet,
+          Pets: { type: 'array', items: { $ref: '#/components/schemas/Pet', '$ref-value': pet } },
+        },
+      },
+    }
+
+    expect(coerce(generateSchema(recursiveRef), input)).toEqual({
+      ...input,
+      components: {
+        schemas: {
+          Animal: animal,
+          // The reference branch declares no `type`, so the `type: 'string'` sibling is dropped.
+          Pet: { $ref: '#/components/schemas/Animal', '$ref-value': animal, description: 'A pet' },
+          // `$ref-value` follows the chain of references through to the final target.
+          Pets: { type: 'array', items: { $ref: '#/components/schemas/Pet', '$ref-value': animal } },
+        },
+      },
+      'x-scalar-original-document-hash': '',
+    })
+  })
+
+  it('stops following `$ref-value` at references that point at each other', () => {
+    const a: Record<string, unknown> = { $ref: '#/components/schemas/B' }
+    const b: Record<string, unknown> = { $ref: '#/components/schemas/A' }
+    a['$ref-value'] = b
+    b['$ref-value'] = a
+    const input = {
+      openapi: '3.1.0',
+      info: { title: 'Loop', version: '1.0.0' },
+      components: { schemas: { A: a, B: b } },
+    }
+
+    expect(coerce(generateSchema(recursiveRef), input)).toMatchObject({
+      components: {
+        schemas: {
+          A: { $ref: '#/components/schemas/B' },
+          B: { $ref: '#/components/schemas/A' },
+        },
+      },
+    })
   })
 })

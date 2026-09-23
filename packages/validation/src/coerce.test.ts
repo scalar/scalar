@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { coerce } from '@/coerce'
 import {
+  type Schema,
   any,
   array,
   boolean,
@@ -1562,5 +1563,134 @@ describe('cyclic structures', () => {
     expect(result.tag).toBe('a')
     expect(result.next?.tag).toBe('b')
     expect(result.next?.next).toBe(result)
+  })
+})
+
+describe('coerce', () => {
+  it('lets a discriminator below the scoring depth budget pick the branch', () => {
+    // `kind` sits four object levels below the union node, past the point where scoring stops
+    // descending. Discriminators are still scored there, so `b` wins. Without that, both
+    // branches tie and the first one (`a`) is picked.
+    const branch = (kind: 'a' | 'b'): Schema =>
+      object({ l1: object({ l2: object({ l3: object({ kind: literal(kind), label: string() }) }) }) })
+    const T = union([branch('a'), branch('b')])
+
+    const result = coerce<Schema>(T, { l1: { l2: { l3: { kind: 'b', label: 'x' } } } })
+
+    expect(result).toEqual({ l1: { l2: { l3: { kind: 'b', label: 'x' } } } })
+  })
+
+  it('decides a deeply nested union from its own position, not the document root', () => {
+    // The union is four object levels into the value. Each union node starts its own scoring pass,
+    // so depth from the document root never spends the budget or stops a type check.
+    const wrap = (inner: Schema): Schema => object({ l1: object({ l2: object({ l3: object({ inner }) }) }) })
+
+    const toRecord = wrap(union([object({ a: string() }), record(string(), number())]))
+    expect(coerce(toRecord, { l1: { l2: { l3: { inner: { q: 1 } } } } })).toEqual({
+      l1: { l2: { l3: { inner: { q: 1 } } } },
+    })
+
+    const toString = wrap(union([object({ x: string() }), string()]))
+    expect(coerce(toString, { l1: { l2: { l3: { inner: 'hi' } } } })).toEqual({
+      l1: { l2: { l3: { inner: 'hi' } } },
+    })
+  })
+
+  it('keeps self-referential union scoring small on the same value', () => {
+    // Every branch leads straight back to `T` with the same value. The in-progress guard stops the
+    // re-entry. Without it, scoring fans out about 2^64 times before the lazy budget stops it.
+    let calls = 0
+    const count = (value: unknown): unknown => {
+      // Fail fast instead of hanging the test run if the fan-out comes back.
+      if (++calls > 1_000) {
+        throw new Error('Runaway union scoring')
+      }
+      return value
+    }
+    const T: Schema = lazy(() => union([object({}), evaluate(count, T), evaluate(count, T)]))
+
+    expect(coerce(T, {})).toEqual({})
+    expect(calls).toBeLessThan(20)
+  })
+
+  it('leaves the value as-is when a schema cycle never reaches an object', () => {
+    // `T` and `string()` both match, so the first branch (`T` again) keeps being picked with the same
+    // value. No object, array or record node is ever reached, so only the depth cap stops it.
+    const T: Schema = lazy(() => union([T, string()]))
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    try {
+      expect(coerce(T, 's')).toBe('s')
+      expect(warn).toHaveBeenCalledTimes(1)
+
+      const list: unknown[] = []
+      expect(coerce(T, list)).toBe(list)
+      expect(warn).toHaveBeenCalledTimes(2)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('warns for each call when the caller reuses a cycle cache', () => {
+    const schema: Schema = lazy(() => union([schema, string()]))
+    const cache = new WeakMap<object, Map<Schema, unknown>>()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    try {
+      expect(coerce(schema, 'first', cache)).toBe('first')
+      expect(coerce(schema, 'second', cache)).toBe('second')
+      expect(warn).toHaveBeenCalledTimes(2)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('leaves the deepest levels of a very deeply nested value as-is', () => {
+    const T: Schema = lazy(() => object({ name: string(), next: optional(T) }))
+    let value: Record<string, unknown> = { name: 'leaf' }
+    for (let i = 0; i < 5_000; i++) {
+      value = { name: `node-${i}`, next: value }
+    }
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    try {
+      const result = coerce(T, value) as Record<string, unknown>
+
+      expect(result).not.toBe(value)
+      expect(result.name).toBe('node-4999')
+      // Warns once per `coerce` call, not once per truncated subtree.
+      expect(warn).toHaveBeenCalledTimes(1)
+
+      // Walk down to the first value that was returned untouched.
+      let original: Record<string, unknown> = value
+      let coerced: Record<string, unknown> = result
+      while (coerced !== original) {
+        original = original.next as Record<string, unknown>
+        coerced = coerced.next as Record<string, unknown>
+      }
+      expect(original.name).toMatch(/^node-/)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('warns once when several subtrees are cut off in one call', () => {
+    const T: Schema = lazy(() => object({ name: string(), left: optional(T), right: optional(T) }))
+    const chain = (depth: number): Record<string, unknown> => {
+      let value: Record<string, unknown> = { name: 'leaf' }
+      for (let i = 0; i < depth; i++) {
+        value = { name: `node-${i}`, left: value }
+      }
+      return value
+    }
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    try {
+      coerce(T, { name: 'root', left: chain(600), right: chain(600) })
+
+      expect(warn).toHaveBeenCalledTimes(1)
+    } finally {
+      warn.mockRestore()
+    }
   })
 })

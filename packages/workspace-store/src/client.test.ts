@@ -1501,6 +1501,38 @@ describe('create-workspace-store', () => {
     )
   })
 
+  it('loads a document whose references point at each other or at themselves', async () => {
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      name: 'default',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Loop', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            A: { $ref: '#/components/schemas/B' },
+            B: { $ref: '#/components/schemas/A' },
+            Self: { $ref: '#/components/schemas/Self' },
+            User: { type: 'object', properties: { friend: { $ref: '#/components/schemas/A' } } },
+          },
+        },
+      },
+    })
+
+    expect(getRaw(store.workspace.documents.default!)).toMatchObject({
+      components: {
+        schemas: {
+          A: { $ref: '#/components/schemas/B' },
+          B: { $ref: '#/components/schemas/A' },
+          Self: { $ref: '#/components/schemas/Self' },
+          User: { type: 'object', properties: { friend: { $ref: '#/components/schemas/A' } } },
+        },
+      },
+    })
+  })
+
   it('a third circular reference', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
