@@ -31,6 +31,7 @@ async function main(): Promise<void> {
 
   await startMockServer({
     document,
+    origin: url ?? (process.env.OPENAPI_DOCUMENT ? path : (process.env.OPENAPI_DOCUMENT_URL ?? path)),
     format,
   })
 }

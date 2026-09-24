@@ -1,5 +1,9 @@
+import path from 'node:path'
+import { cwd } from 'node:process'
+
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
@@ -15,11 +19,13 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
  * Only AsyncAPI 3.1 is supported; 2.x documents should be upgraded before being passed in.
  *
  * @param document - The AsyncAPI document to process. Can be a string (URL/path) or an object.
+ * @param origin - Source file path or URL for resolving references in an already loaded document.
  * @returns A promise that resolves to the AsyncAPI document with lazily resolvable references.
  * @throws Error if the document cannot be processed or is invalid.
  */
 export async function processAsyncApiDocument(
   document: string | Record<string, any> | undefined,
+  origin?: string,
 ): Promise<AsyncApiDocument> {
   // Handle empty/undefined input gracefully with a minimal valid document.
   if (!document || (typeof document === 'object' && Object.keys(document).length === 0)) {
@@ -36,10 +42,15 @@ export async function processAsyncApiDocument(
 
   let bundled: Record<string, any>
 
+  // Keep references inside the source directory and prevent access to internal services.
+  const source = origin ?? document
+  const basePath = typeof source === 'string' && isFilePath(source) ? path.dirname(path.resolve(source)) : cwd()
+
   try {
     // Bundle external references; parse string inputs (JSON or YAML) along the way.
     bundled = await bundle(document, {
-      plugins: [parseJson(), parseYaml(), readFiles(), fetchUrls()],
+      origin,
+      plugins: [parseJson(), parseYaml(), readFiles({ basePath }), fetchUrls({ blockPrivateNetworks: true })],
       treeShake: false,
     })
   } catch (error) {

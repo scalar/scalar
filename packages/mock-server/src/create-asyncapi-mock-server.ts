@@ -19,6 +19,9 @@ export type AsyncApiMockServerOptions = {
    */
   document?: string | Record<string, any>
 
+  /** Source file path or URL for resolving references in an already loaded document. */
+  origin?: string
+
   /**
    * Additional transports appended after the built-in WebSocket and SSE transports. Use this to
    * support extra protocols (for example SignalR) without changing the core. The first transport
@@ -62,7 +65,7 @@ export type AsyncApiMockServer = {
 export async function createAsyncApiMockServer(options: AsyncApiMockServerOptions): Promise<AsyncApiMockServer> {
   const app = new Hono()
 
-  const document = await processAsyncApiDocument(options.document)
+  const document = await processAsyncApiDocument(options.document, options.origin)
   const channels = resolveChannels(document)
 
   const transports = [...defaultTransports, ...(options.transports ?? [])]

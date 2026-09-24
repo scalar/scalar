@@ -1,4 +1,8 @@
 import { once } from 'node:events'
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 import { serve } from '@hono/node-server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -12,6 +16,122 @@ describe('createAsyncApiMockServer', () => {
   // Some tests spy on the global console, so restore it even when an assertion throws first.
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  const documentWithReference = (reference: string): Record<string, unknown> => ({
+    asyncapi: '3.1.0',
+    info: { title: 'References', version: '1.0.0' },
+    servers: { local: { host: 'localhost', protocol: 'sse' } },
+    channels: { events: { address: 'events', messages: { event: { payload: { $ref: reference } } } } },
+    operations: { receive: { action: 'receive', channel: { $ref: '#/channels/events' } } },
+  })
+
+  it.each([false, true])('resolves confined file references (preloaded: %s)', async (preloaded) => {
+    const directory = await mkdtemp(join(tmpdir(), 'asyncapi-refs-'))
+    const file = join(directory, 'asyncapi.json')
+    const document = documentWithReference('./payload.json')
+    try {
+      await writeFile(file, JSON.stringify(document))
+      await writeFile(join(directory, 'payload.json'), JSON.stringify({ type: 'string', const: 'allowed' }))
+      const { app } = await createAsyncApiMockServer({
+        document: preloaded ? document : file,
+        ...(preloaded ? { origin: file } : {}),
+      })
+      expect(await (await app.request('/events')).text()).toBe('event: event\ndata: allowed\n\n')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.each(['../secret.json', './link.json'])(
+    'refuses file references escaping the source directory: %s',
+    async (reference) => {
+      const directory = await mkdtemp(join(tmpdir(), 'asyncapi-escape-'))
+      const sourceDirectory = join(directory, 'source')
+      try {
+        await mkdir(sourceDirectory)
+        await writeFile(join(directory, 'secret.json'), JSON.stringify({ type: 'string', const: 'secret-content' }))
+        await symlink(join(directory, 'secret.json'), join(sourceDirectory, 'link.json'))
+        const file = join(sourceDirectory, 'asyncapi.json')
+        await writeFile(file, JSON.stringify(documentWithReference(reference)))
+        const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+        const { app } = await createAsyncApiMockServer({ document: file })
+        expect(await (await app.request('/events')).text()).not.toContain('secret-content')
+        expect(warning.mock.calls.flat().some((value) => String(value).includes('outside the allowed directory'))).toBe(
+          true,
+        )
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    },
+  )
+
+  it.each(['127.0.0.1', '10.0.0.1', '169.254.169.254', '[::1]'])(
+    'refuses private network references: %s',
+    async (host) => {
+      const bundlerRequire = createRequire(import.meta.resolve('@scalar/json-magic/bundle'))
+      const { Agent } = bundlerRequire('undici') as typeof import('undici')
+      const dispatch = vi.spyOn(Agent.prototype, 'dispatch')
+      const fetch = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(Response.json({ type: 'string', const: 'private-content' }))
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const { app } = await createAsyncApiMockServer({ document: documentWithReference(`http://${host}/payload.json`) })
+      expect(dispatch).not.toHaveBeenCalled()
+      expect(fetch).not.toHaveBeenCalled()
+      expect(await (await app.request('/events')).text()).not.toContain('private-content')
+    },
+  )
+
+  it.each([false, true])('resolves public URL references (preloaded: %s)', async (preloaded) => {
+    const bundlerRequire = createRequire(import.meta.resolve('@scalar/json-magic/bundle'))
+    const { Agent, MockAgent } = bundlerRequire('undici') as typeof import('undici')
+    const transport = new MockAgent()
+    transport.disableNetConnect()
+    const pool = transport.get('https://203.0.113.1')
+    const document = documentWithReference('./payload.json')
+    if (!preloaded) {
+      pool.intercept({ path: '/asyncapi.json', method: 'GET' }).reply(200, document)
+    }
+    pool.intercept({ path: '/payload.json', method: 'GET' }).reply(200, { type: 'string', const: 'public-content' })
+    const dispatch = vi
+      .spyOn(Agent.prototype, 'dispatch')
+      .mockImplementation((options, handler) => pool.dispatch(options, handler))
+    try {
+      const { app } = await createAsyncApiMockServer({
+        document: preloaded ? document : 'https://203.0.113.1/asyncapi.json',
+        ...(preloaded ? { origin: 'https://203.0.113.1/asyncapi.json' } : {}),
+      })
+      expect(await (await app.request('/events')).text()).toBe('event: event\ndata: public-content\n\n')
+      expect(dispatch).toHaveBeenCalledTimes(preloaded ? 1 : 2)
+      transport.assertNoPendingInterceptors()
+    } finally {
+      dispatch.mockRestore()
+      await transport.close()
+    }
+  })
+
+  it('refuses redirects from public references to private addresses', async () => {
+    const bundlerRequire = createRequire(import.meta.resolve('@scalar/json-magic/bundle'))
+    const { Agent, MockAgent } = bundlerRequire('undici') as typeof import('undici')
+    const transport = new MockAgent()
+    transport.disableNetConnect()
+    const pool = transport.get('https://203.0.113.1')
+    pool
+      .intercept({ path: '/payload.json', method: 'GET' })
+      .reply(302, '', { headers: { location: 'http://127.0.0.1/secret.json' } })
+    const dispatch = vi
+      .spyOn(Agent.prototype, 'dispatch')
+      .mockImplementation((options, handler) => pool.dispatch(options, handler))
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      await createAsyncApiMockServer({ document: documentWithReference('https://203.0.113.1/payload.json') })
+      expect(dispatch).toHaveBeenCalledTimes(1)
+      transport.assertNoPendingInterceptors()
+    } finally {
+      dispatch.mockRestore()
+      await transport.close()
+    }
   })
 
   it('pushes and replies to messages over a real WebSocket connection', async () => {

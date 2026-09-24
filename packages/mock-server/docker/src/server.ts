@@ -10,6 +10,7 @@ import type { Hono } from 'hono'
 
 interface ServerConfig {
   document: string
+  origin?: string
   format: 'json' | 'yaml'
   port?: number
 }
@@ -42,6 +43,7 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   if (isAsyncApi) {
     const mock = await createAsyncApiMockServer({
       document,
+      origin: config.origin,
       logger: (line) => console.log(line),
       onMessage: ({ channel, direction, payload }) =>
         console.log(`${direction === 'in' ? '→' : '←'} ${channel}`, payload),

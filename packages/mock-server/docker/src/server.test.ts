@@ -267,11 +267,14 @@ describe('startMockServer', () => {
       websocket,
     })
 
-    await startMockServer({ document, format: 'json' })
+    await startMockServer({ document, format: 'json', origin: '/docs/asyncapi.json' })
 
-    expect(mockCreateAsyncApiMockServer).toHaveBeenCalledWith(
-      expect.objectContaining({ document, onMessage: expect.any(Function), logger: expect.any(Function) }),
-    )
+    expect(mockCreateAsyncApiMockServer).toHaveBeenCalledWith({
+      document,
+      origin: '/docs/asyncapi.json',
+      onMessage: expect.any(Function),
+      logger: expect.any(Function),
+    })
     // The REST mocker is not used for AsyncAPI documents.
     expect(mockCreateMockServer).not.toHaveBeenCalled()
     expect(mockServe.mock.calls[0]?.[0]).toStrictEqual({
