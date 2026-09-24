@@ -215,7 +215,8 @@ const validateInner = (
     } else {
       // We need to assert here that schema has the type never so we know we handle all cases
       const _exhaustive: never = schema
-      console.warn('Unknown schema type:', _exhaustive)
+      // Log only the type, never the whole schema object, which may carry values from the document.
+      console.warn('Unknown schema type:', (_exhaustive as { type?: unknown }).type)
       result = false
     }
 
