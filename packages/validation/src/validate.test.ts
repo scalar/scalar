@@ -1242,6 +1242,18 @@ describe('schema cycles on primitives', () => {
 
     expect(validate(schema, 0)).toBe(true)
     expect(validate(schema, 1)).toBe(false)
+
+    // And the other way round: only `0` passes, and `-0` is seen first.
+    const positive = evaluate((value) => (Object.is(value, 0) ? 's' : 1), string())
+    let reversed: Schema = union([
+      positive,
+      evaluate((value) => (typeof value === 'number' ? -value : value), positive),
+    ])
+    for (let level = 0; level < 10; level++) {
+      reversed = optional(reversed)
+    }
+
+    expect(validate(reversed, -0)).toBe(true)
   })
 
   it('starts over inside an object that an evaluate steps to', () => {
@@ -1251,6 +1263,27 @@ describe('schema cycles on primitives', () => {
     const o = { a: 7 }
     const Obj = object({ a: lazy((): Schema => L) })
     const L: Schema = lazy(() => union([evaluate(() => o, Obj)]))
+    let schema: Schema = L
+    for (let level = 0; level < 9; level++) {
+      schema = optional(schema)
+    }
+
+    expect(validate(schema, 7)).toBe(true)
+  })
+
+  it('starts over when an evaluate on an object steps back to a primitive', () => {
+    // `L` turns `7` into `o`, and `X` turns `o` back into `7` without going through a property.
+    // That second `7` sits below an object, so it is a new question, not the loop seen before.
+    const o = { a: 7 }
+    const X: Schema = lazy(() =>
+      union([
+        evaluate(
+          (value) => (isObject(value) ? value.a : value),
+          lazy((): Schema => L),
+        ),
+      ]),
+    )
+    const L: Schema = lazy(() => union([evaluate(() => o, X)]))
     let schema: Schema = L
     for (let level = 0; level < 9; level++) {
       schema = optional(schema)

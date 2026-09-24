@@ -200,16 +200,17 @@ const validateInner = (
     } else if (schema.type === 'literal') {
       result = value === schema.value
     } else if (schema.type === 'lazy') {
-      // The factory runs every time this node is validated (a memo hit skips it) and may build a
+      // The factory runs every time this node is validated (a memo hit or a loop-search hit skips it)
+      // and may build a
       // fresh schema object each time. That is fine, because the cycle guards and the memo key on
       // this `lazy` node, which stays the same. Keep the `lazy` node as its own frame: resolving it
       // away (or keying on what the factory returns) would let `lazy(() => union([T, string()]))`
       // recurse forever on a primitive.
       result = validateInner(schema.schema(), value, state, search, nextHops)
     } else if (schema.type === 'evaluate') {
-      // A result that is not an object or array stays in the reachability search, whether or not
-      // the expression changed the value. An object or array result ignores the search, and the
-      // search starts over below it.
+      // A result that is not an object or array stays in the reachability search this `evaluate`
+      // is in, if any, whether or not the expression changed the value. An object or array result
+      // ignores the search, and the search starts over below it.
       result = validateInner(schema.schema, schema.expression(value), state, search, nextHops)
     } else {
       // We need to assert here that schema has the type never so we know we handle all cases
