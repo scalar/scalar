@@ -224,14 +224,20 @@ export const getFormBodyRows = (
     return value.flatMap((exampleValue) => {
       if (isObject(exampleValue)) {
         const name = String(exampleValue.name)
-        if (contentType !== 'multipart/form-data') {
-          return mapRow({
-            name,
-            value: exampleValue.value instanceof File ? exampleValue.value : String(exampleValue.value),
-            isDisabled: Boolean(exampleValue.isDisabled),
-          })
-        }
-        return mapValue(name, exampleValue.value, Boolean(exampleValue.isDisabled), exampleValue.isArray === true)
+        const rows =
+          contentType === 'multipart/form-data'
+            ? mapValue(name, exampleValue.value, Boolean(exampleValue.isDisabled), exampleValue.isArray === true)
+            : [
+                mapRow({
+                  name,
+                  value: exampleValue.value instanceof File ? exampleValue.value : String(exampleValue.value),
+                  isDisabled: Boolean(exampleValue.isDisabled),
+                }),
+              ]
+        // An untouched optional row stays eligible for auto-enabling after another row is edited.
+        return rows.map((row) =>
+          row.isDisabled && exampleValue.isDisabledByDefault === true ? { ...row, isDisabledByDefault: true } : row,
+        )
       }
       return { name: '', value: exampleValue, isDisabled: false }
     })
