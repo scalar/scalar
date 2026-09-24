@@ -65,7 +65,7 @@ A shared object used by this API.
 
 ##### Content-Type: application/json
 
-A shared object used by this API.
+schema: `Resource` — A shared object used by this API.
 
 - **`field0` (required)**
 
@@ -81,7 +81,7 @@ A shared object used by this API.
 
 - **`owner`**
 
-  `object`
+  `object`, schema: `Owner`
 
   - **`id`**
 
@@ -93,7 +93,7 @@ A shared object used by this API.
 
 - **`parent`**
 
-  `object` — A shared object used by this API.
+  `object`, schema: `Resource` — A shared object used by this API.
 
   *\[Circular Reference]*
 
@@ -115,37 +115,7 @@ A shared object used by this API.
 
 ###### Content-Type: application/json
 
-A shared object used by this API.
-
-- **`field0` (required)**
-
-  `string` — Field 0
-
-- **`field1`**
-
-  `string` — Field 1
-
-- **`field2`**
-
-  `string` — Field 2
-
-- **`owner`**
-
-  `object`
-
-  - **`id`**
-
-    `integer`
-
-  - **`name`**
-
-    `string`
-
-- **`parent`**
-
-  `object` — A shared object used by this API.
-
-  *\[Circular Reference]*
+*Schema `Resource` is shown above.*
 
 **Example:**
 
@@ -211,37 +181,7 @@ A shared object used by this API.
 
 ##### Content-Type: application/json
 
-A shared object used by this API.
-
-- **`field0` (required)**
-
-  `string` — Field 0
-
-- **`field1`**
-
-  `string` — Field 1
-
-- **`field2`**
-
-  `string` — Field 2
-
-- **`owner`**
-
-  `object`
-
-  - **`id`**
-
-    `integer`
-
-  - **`name`**
-
-    `string`
-
-- **`parent`**
-
-  `object` — A shared object used by this API.
-
-  *\[Circular Reference]*
+*Schema `Resource` is shown above.*
 
 **Example:**
 
@@ -261,37 +201,7 @@ A shared object used by this API.
 
 ###### Content-Type: application/json
 
-A shared object used by this API.
-
-- **`field0` (required)**
-
-  `string` — Field 0
-
-- **`field1`**
-
-  `string` — Field 1
-
-- **`field2`**
-
-  `string` — Field 2
-
-- **`owner`**
-
-  `object`
-
-  - **`id`**
-
-    `integer`
-
-  - **`name`**
-
-    `string`
-
-- **`parent`**
-
-  `object` — A shared object used by this API.
-
-  *\[Circular Reference]*
+*Schema `Resource` is shown above.*
 
 **Example:**
 
@@ -332,13 +242,7 @@ A shared object used by this API.
 
 ##### Content-Type: application/json
 
-- **`id`**
-
-  `integer`
-
-- **`name`**
-
-  `string`
+*Schema `Owner` is shown above.*
 
 **Example:**
 
@@ -361,35 +265,7 @@ A shared object used by this API.
 
 A shared object used by this API.
 
-- **`field0` (required)**
-
-  `string` — Field 0
-
-- **`field1`**
-
-  `string` — Field 1
-
-- **`field2`**
-
-  `string` — Field 2
-
-- **`owner`**
-
-  `object`
-
-  - **`id`**
-
-    `integer`
-
-  - **`name`**
-
-    `string`
-
-- **`parent`**
-
-  `object` — A shared object used by this API.
-
-  *\[Circular Reference]*
+*Schema `Resource` is shown above.*
 
 **Example:**
 
@@ -416,13 +292,7 @@ A shared object used by this API.
 
 - **Type:**`object`
 
-* **`id`**
-
-  `integer`
-
-* **`name`**
-
-  `string`
+*Schema `Owner` is shown above.*
 
 **Example:**
 
