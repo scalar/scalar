@@ -44,8 +44,8 @@ const schemaSingles = [
   'contentSchema',
 ]
 
-/** Reject only incompatibilities that can be established within this document. */
-export const migrateObjects = (document: UnknownObject): Set<string> => {
+/** Apply migrations, optionally tolerating incompatibilities established within this document. */
+export const migrateObjects = (document: UnknownObject, onIncompatible: 'throw' | 'ignore' = 'throw'): Set<string> => {
   // A cloned JSON object still inherits Object.prototype. Keep traversal in own
   // data properties, including when the host already has polluted prototypes.
   // Maps also allow literal __proto__ and constructor reference segments safely.
@@ -460,7 +460,7 @@ export const migrateObjects = (document: UnknownObject): Set<string> => {
   for (const { schema, path, dialect } of xmlRoots) {
     validateXmlNames(schema, path, { inferredName: false, propertyName: false, dialect })
   }
-  if (errors.length > 0) {
+  if (errors.length > 0 && onIncompatible === 'throw') {
     throw new UpgradeIncompatibilityError(errors)
   }
   return operationTags

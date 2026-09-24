@@ -22,11 +22,14 @@ const isThreeOneDocument = (document: UnknownObject): boolean => {
 }
 
 /** Apply the final migration to a document already owned by the upgrade pipeline. */
-export const migrateThreeOneToThreeTwo = (document: UnknownObject): UnknownObject => {
+export const migrateThreeOneToThreeTwo = (
+  document: UnknownObject,
+  onIncompatible: 'throw' | 'ignore' = 'throw',
+): UnknownObject => {
   if (!isThreeOneDocument(document)) {
     return document
   }
-  const operationTags = migrateObjects(document)
+  const operationTags = migrateObjects(document, onIncompatible)
   migrateTagGroups(document, operationTags)
   document.openapi = '3.2.0'
   return document

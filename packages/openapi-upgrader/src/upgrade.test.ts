@@ -1,3 +1,4 @@
+import type { OpenAPIV3_2 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
@@ -204,19 +205,96 @@ describe('upgrade', () => {
     expect(() => upgrade(input, '3.2', { onIncompatible: 'throw' })).toThrow(UpgradeIncompatibilityError)
   })
 
-  it.each(['3.1', '3.1.0-rc1'])('propagates malformed version %s in collect mode', (openapi) => {
-    expect(() => upgrade({ openapi }, '3.2', { onIncompatible: 'collect' })).toThrow(
-      `invalid OpenAPI version "${openapi}"`,
-    )
+  it.each([
+    ['collect', '3.1'],
+    ['collect', '3.1.0-rc1'],
+    ['ignore', '3.1'],
+    ['ignore', '3.1.0-rc1'],
+  ] as const)('propagates malformed versions in %s mode: %s', (onIncompatible, openapi) => {
+    expect(() => upgrade({ openapi }, '3.2', { onIncompatible })).toThrow(`invalid OpenAPI version "${openapi}"`)
   })
 
-  it('propagates clone safety errors in collect mode', () => {
+  it.each(['collect', 'ignore'] as const)('propagates clone safety errors in %s mode', (onIncompatible) => {
     const cyclic: UnknownObject = { openapi: '3.1.2' }
     cyclic.self = cyclic
-    expect(() => upgrade(cyclic, '3.2', { onIncompatible: 'collect' })).toThrow('cyclic objects')
+    expect(() => upgrade(cyclic, '3.2', { onIncompatible })).toThrow('cyclic objects')
     const shared = Array.from({ length: 2000 }, () => 'x')
     const input = { openapi: '3.1.2', 'x-aliases': Array.from({ length: 1001 }, () => shared) }
-    expect(() => upgrade(input, '3.2', { onIncompatible: 'collect' })).toThrow('excessive YAML alias expansion')
+    expect(() => upgrade(input, '3.2', { onIncompatible })).toThrow('excessive YAML alias expansion')
+  })
+
+  it.each([{ swagger: '2.0' }, { openapi: '3.0.4' }, { openapi: '3.1.2' }, { openapi: '3.2.0' }])(
+    'returns compatible %j input as a document in ignore mode',
+    (version) => {
+      const input = { ...version, info: { title: 'API', version: '1' }, paths: {} }
+      const original = structuredClone(input)
+      const document = upgrade(input, '3.2', { onIncompatible: 'ignore' })
+
+      expect(document).toStrictEqual({ openapi: '3.2.0', info: input.info, paths: {} })
+      expect(input).toStrictEqual(original)
+      expect(document).not.toBe(input)
+      expectTypeOf(document).toEqualTypeOf<OpenAPIV3_2.Document>()
+    },
+  )
+
+  it.each(['3.0.4', '3.1.2'])('finishes migrations despite incompatibilities in %s input', (openapi) => {
+    const input = {
+      openapi,
+      info: { title: 'API', version: '1' },
+      paths: {},
+      servers: [{ url: 'https://{host}/{host}', variables: { host: { default: 'api' } } }],
+      components: {
+        parameters: { Id: { name: 'id', in: 'path', allowReserved: true } },
+        schemas: {
+          Attribute: { type: 'string', xml: { attribute: true } },
+          Pet: { type: 'object', discriminator: { propertyName: 'kind' } },
+        },
+        responses: { Xml: { description: 'OK', content: { 'application/xml': { schema: { type: 'object' } } } } },
+      },
+      'x-tagGroups': [{ name: 'Accounts', tags: ['users'] }],
+    }
+    const original = structuredClone(input)
+    const document = upgrade(input, '3.2', { onIncompatible: 'ignore' })
+
+    expect(document).toStrictEqual({
+      ...input,
+      openapi: '3.2.0',
+      components: {
+        ...input.components,
+        parameters: { Id: { name: 'id', in: 'path' } },
+        schemas: {
+          Attribute: { type: 'string', xml: { nodeType: 'attribute' } },
+          Pet: input.components.schemas.Pet,
+        },
+      },
+      tags: [
+        { name: 'Accounts', kind: 'nav' },
+        { name: 'users', parent: 'Accounts' },
+      ],
+    })
+    expect(input).toStrictEqual(original)
+    document.info.title = 'Changed'
+    expect(input).toStrictEqual(original)
+    expect(() => upgrade(input, '3.2')).toThrow(UpgradeIncompatibilityError)
+    expect(upgrade(input, '3.2', { onIncompatible: 'collect' }).document).toStrictEqual({
+      ...input,
+      openapi: openapi === '3.0.4' ? '3.1.1' : openapi,
+    })
+  })
+
+  it('uses attribute precedence for conflicting XML flags in ignore mode', () => {
+    const input = {
+      openapi: '3.1.2',
+      info: { title: 'API', version: '1' },
+      paths: {},
+      components: { schemas: { Value: { type: 'string', xml: { wrapped: true, attribute: true } } } },
+    }
+    expect(upgrade(input, '3.2', { onIncompatible: 'ignore' })).toStrictEqual({
+      ...input,
+      openapi: '3.2.0',
+      components: { schemas: { Value: { type: 'string', xml: { nodeType: 'attribute' } } } },
+    })
+    expect(() => upgrade(input, '3.2')).toThrow(UpgradeIncompatibilityError)
   })
 
   it('accepts a mode chosen at runtime', () => {
@@ -227,6 +305,7 @@ describe('upgrade', () => {
       diagnostics: [],
     })
     expect(run({ onIncompatible: 'throw' })).toStrictEqual({ ...input, openapi: '3.2.0' })
+    expect(run({ onIncompatible: 'ignore' })).toStrictEqual({ ...input, openapi: '3.2.0' })
   })
 
   it.each(['3.0', '3.1', '3.2'] as const)('preserves Swagger nullability when upgrading to %s', (version) => {
