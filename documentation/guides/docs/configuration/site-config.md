@@ -602,6 +602,33 @@ Every page on your site advertises the feed in its `<head>`, so feed readers and
 
 Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page — one per feed the page belongs to.
 
+## Access Control
+
+Set `isPrivate` to require visitors to sign in before they can view your documentation. Members of your workspace always have access. To let anyone else in, list the [access groups](private-docs.md) allowed to view the site.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "isPrivate": true,
+    "accessGroups": ["partners", "internal-team"],
+    "loginPortal": "acme-portal"
+  }
+}
+```
+
+### Properties
+
+| Property       | Type       | Default | Description |
+| -------------- | ---------- | ------- | ----------- |
+| `isPrivate`    | `boolean`  | `false` | Require visitors to sign in. |
+| `accessGroups` | `string[]` | —       | Slugs of the access groups allowed to view the site when `isPrivate` is `true`. Up to 50. |
+| `loginPortal`  | `string`   | —       | Slug of a custom login portal. Without one, visitors sign in on the default page. |
+
+Access groups and login portals are created in the [Scalar Dashboard](https://dashboard.scalar.com), and the config refers to them by slug. You can also manage these settings in your documentation project's **Settings → Privacy**, which reads and writes the same properties.
+
 ## Content Signals
 
 The `contentSignals` property declares how search and AI crawlers may use your published documentation. Scalar writes these preferences as a `Content-Signal` line in the generated `robots.txt`.

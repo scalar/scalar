@@ -4,6 +4,16 @@ Docs can automatically publish your documentation whenever changes are merged in
 
 Enable automatic deployment and configure which branch triggers it in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings. Every time you merge changes into your default branch, your documentation will be automatically published.
 
+The setting is stored in your `scalar.config.json` as `publishOnMerge`, so you can also turn it on or off in your repository:
+
+```json
+{
+  "publishOnMerge": true
+}
+```
+
+See [Publishing](../configuration/scalar.config.json.md#publishing) for the related preview settings.
+
 If your Docs project references an API document from the Registry, updating that Registry document also triggers the Docs project to publish again. Once your document is in the Registry, your documentation stays up to date automatically.
 
 ## Other Deployment Options

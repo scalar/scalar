@@ -41,6 +41,17 @@ Once you selected a group, your docs will be private with only that access group
 
 You can customize your login page to your branding if you want, and when you delete the access group changes will be made immediately and access will be revoked.
 
+## Configure in scalar.config.json
 
+The Private Docs toggle, access groups and login portal are also stored in your `scalar.config.json`, so you can set them in your repository:
 
+```json
+{
+  "siteConfig": {
+    "isPrivate": true,
+    "accessGroups": ["partners"]
+  }
+}
+```
 
+See [Access Control](site-config.md#access-control) for every property.
