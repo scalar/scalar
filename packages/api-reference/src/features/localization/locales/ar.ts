@@ -228,6 +228,13 @@ export const ar = {
     poweredByScalar: 'مدعوم من Scalar',
   },
   authentication: {
+    detailsRequired: 'المصادقة مطلوبة',
+    detailsOptional: 'المصادقة اختيارية',
+    apiKey: 'مفتاح API',
+    mutualTLS: 'TLS متبادل',
+    apiKeyCookie: 'أرسل مفتاح API في ملف تعريف الارتباط «{name}».',
+    apiKeyHeader: 'أرسل مفتاح API في الترويسة «{name}».',
+    apiKeyQuery: 'أرسل مفتاح API في معامل الاستعلام «{name}».',
     title: 'المصادقة',
     accepts: 'يقبل',
     allOf: 'كل ما يلي:',

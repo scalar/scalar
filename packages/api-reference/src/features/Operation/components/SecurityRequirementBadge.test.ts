@@ -101,13 +101,54 @@ describe('SecurityRequirementBadge', () => {
     wrapper.unmount()
   })
 
-  it('shows the scheme inline in the header for a single scheme, no list qualifier', async () => {
+  it('shows a separate authentication heading for a single scheme, no list qualifier', async () => {
     const wrapper = await mountAndOpen(optional)
     const text = document.body.textContent ?? ''
-    expect(text).toContain('Accepts')
+    expect(text).toContain('Authentication optional')
     expect(text).toContain('bearerAuth')
     expect(text).not.toContain('one of:')
     expect(text).not.toContain('all of:')
+    wrapper.unmount()
+  })
+
+  it('separates the required heading from cookie authentication details', async () => {
+    const wrapper = await mountAndOpen({
+      state: 'required',
+      requirements: [
+        {
+          schemes: [
+            {
+              name: 'AuthRequired',
+              scheme: { type: 'apiKey', in: 'cookie', name: 'access_token', description: 'A JWT token.' },
+              scopes: [],
+            },
+          ],
+        },
+      ],
+    })
+
+    const dialog = document.querySelector('[role="dialog"]')
+    expect(dialog?.getAttribute('aria-label')).toBe('Authentication required')
+    expect(dialog?.textContent).toContain('AuthRequired')
+    expect(dialog?.textContent).toContain('API key')
+    expect(dialog?.textContent).toContain('Send the API key in the “access_token” cookie.')
+    expect(dialog?.textContent).toContain('A JWT token.')
+    expect(dialog?.textContent).not.toContain('Requires AuthRequired apiKey')
+    wrapper.unmount()
+  })
+
+  it('identifies an AND group inside OR alternatives', async () => {
+    const wrapper = await mountAndOpen({
+      state: 'required',
+      requirements: [...requiredAndGroup.requirements, requiredOrAlternatives.requirements[0]!],
+    })
+
+    const text = document.body.textContent ?? ''
+    expect(text).toContain('one of:')
+    expect(text).toContain('all of:')
+    expect(text).toContain('read:items')
+    expect(text).toContain('write:items')
+    expect(text).toContain('X-API-Key')
     wrapper.unmount()
   })
 
@@ -164,10 +205,10 @@ describe('SecurityRequirementBadge', () => {
     await wrapper.find('.security-requirement-badge').trigger('mouseenter')
     await nextTick()
 
-    const schemeType = enclosing.querySelector('code')
-    expect(schemeType).not.toBeNull()
+    const panel = enclosing.querySelector('[role="dialog"]')
+    expect(panel).not.toBeNull()
 
-    schemeType!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    panel!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
 
     expect(enclosingClick).not.toHaveBeenCalled()

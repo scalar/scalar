@@ -232,6 +232,13 @@ export const pt = {
     poweredByScalar: 'Desenvolvido com Scalar',
   },
   authentication: {
+    detailsRequired: 'Autenticação obrigatória',
+    detailsOptional: 'Autenticação opcional',
+    apiKey: 'Chave de API',
+    mutualTLS: 'TLS mútuo',
+    apiKeyCookie: 'Envie a chave de API no cookie “{name}”.',
+    apiKeyHeader: 'Envie a chave de API no cabeçalho “{name}”.',
+    apiKeyQuery: 'Envie a chave de API no parâmetro de consulta “{name}”.',
     title: 'Autenticação',
     accepts: 'Aceita',
     allOf: 'todos de:',
