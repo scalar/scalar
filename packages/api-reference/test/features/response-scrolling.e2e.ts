@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
+const getAncestorScrollPositions = (element: Element): number[] => {
+  const positions: number[] = []
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    positions.push(parent.scrollTop)
+  }
+  return positions
+}
+
 test.describe('response scrolling', () => {
   for (const width of [1200, 1199, 800, 390]) {
     test(`scrolls long responses inside the body at ${width}px`, async ({ page }, testInfo) => {
@@ -32,24 +40,10 @@ test.describe('response scrolling', () => {
       await expect.poll(() => scroller.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true)
 
       await scroller.hover({ position: { x: 60, y: 60 } })
-      const ancestors = await scroller.evaluate((element) => {
-        const positions: number[] = []
-        for (let parent = element.parentElement; parent; parent = parent.parentElement) {
-          positions.push(parent.scrollTop)
-        }
-        return positions
-      })
+      const ancestors = await scroller.evaluate(getAncestorScrollPositions)
       await page.mouse.wheel(0, 200)
       await expect.poll(() => scroller.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
-      expect(
-        await scroller.evaluate((element) => {
-          const positions: number[] = []
-          for (let parent = element.parentElement; parent; parent = parent.parentElement) {
-            positions.push(parent.scrollTop)
-          }
-          return positions
-        }),
-      ).toEqual(ancestors)
+      expect(await scroller.evaluate(getAncestorScrollPositions)).toStrictEqual(ancestors)
 
       await scroller.focus()
       await page.keyboard.press('End')
