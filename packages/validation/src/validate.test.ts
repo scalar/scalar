@@ -1021,10 +1021,14 @@ describe('cyclic structures', () => {
 })
 
 describe('memoization', () => {
+  /** Counts how often the recursive schema is expanded, which is how much work validation did. */
+  let expansions = 0
+
   /** A recursive union with no discriminator: both branches look at `next` before anything else. */
-  const node: Schema = lazy(() =>
-    union([object({ next: optional(node), a: string() }), object({ next: optional(node), b: string() })]),
-  )
+  const node: Schema = lazy(() => {
+    expansions++
+    return union([object({ next: optional(node), a: string() }), object({ next: optional(node), b: string() })])
+  })
 
   /** Builds `depth` nested nodes whose innermost node matches neither branch. */
   const buildFailingChain = (depth: number): Record<string, unknown> => {
@@ -1037,15 +1041,28 @@ describe('memoization', () => {
 
   it('validates an undiscriminated recursive union in linear time', () => {
     // Every level fails in the first branch and is then tried again in the second one. Without the
-    // memo that is 2^depth work: about a second at depth 20, and far longer at depth 200.
-    for (const depth of [20, 200]) {
-      const start = performance.now()
-      const result = validate(node, buildFailingChain(depth))
-      const elapsed = performance.now() - start
-
-      expect(result).toBe(false)
-      expect(elapsed).toBeLessThan(500)
+    // memo that doubles the work per level. The depths stay small so a regression fails quickly
+    // instead of hanging: at depth 20 that is still about a million expansions.
+    const countExpansions = (depth: number): number => {
+      expansions = 0
+      expect(validate(node, buildFailingChain(depth))).toBe(false)
+      return expansions
     }
+
+    expect(countExpansions(10)).toBe(11)
+    expect(countExpansions(20)).toBe(21)
+  })
+
+  it('keeps memoizing after a cycle elsewhere in the same value', () => {
+    // The cycle through `self` must only keep the frames around it out of the memo. The chain next
+    // to it is still validated once per level.
+    const Root: Schema = lazy(() => object({ self: optional(Root), chain: node }))
+    const root: Record<string, unknown> = { chain: buildFailingChain(16) }
+    root.self = root
+
+    expansions = 0
+    expect(validate(Root, root)).toBe(false)
+    expect(expansions).toBeLessThan(50)
   })
 
   it('still accepts a valid deep chain', () => {
@@ -1132,8 +1149,7 @@ describe('schema cycles on primitives', () => {
   })
 
   it('handles a cycle through an evaluate that returns its input', () => {
-    // A `$ref` resolver returns anything that is not a reference unchanged. That is not a step to a
-    // new value, so it must not start the cycle guard over.
+    // A `$ref` resolver returns anything that is not a reference unchanged.
     const E: Schema = lazy(() => union([evaluate((value) => value, E), string()]))
 
     expect(validate(E, 's')).toBe(true)
@@ -1149,18 +1165,41 @@ describe('schema cycles on primitives', () => {
     expect(validate(E, true)).toBe(false)
   })
 
-  it('still catches the cycle in a sibling branch after an evaluate changed the value', () => {
-    // The first branch moves on from `1` to `2`. When it returns, the second branch is back on `1`
-    // and must still see that `L` is already being checked for it.
-    const withoutMatch: Schema = lazy(() =>
-      union([evaluate((value) => (value === 1 ? 2 : value), withoutMatch), withoutMatch, literal(3)]),
-    )
-    const withMatch: Schema = lazy(() =>
-      union([evaluate((value) => (value === 1 ? 2 : value), withMatch), withMatch, literal(2)]),
-    )
+  it('handles a cycle through an evaluate that swaps between two values', () => {
+    const swap = (value: unknown): unknown => (value === 1 ? 2 : value === 2 ? 1 : value)
+    const withoutMatch: Schema = lazy(() => union([evaluate(swap, withoutMatch), string()]))
+    const withMatch: Schema = lazy(() => union([evaluate(swap, withMatch), literal(2)]))
 
     expect(validate(withoutMatch, 1)).toBe(false)
     expect(validate(withMatch, 1)).toBe(true)
+  })
+
+  it('finds a match in a later branch after an earlier branch looped', () => {
+    // The first branch moves on from `1` to `2` and loops there. The second branch loops straight
+    // back on `1`. Only the last branch decides.
+    const step = (value: unknown): unknown => (value === 1 ? 2 : value)
+    const withoutMatch: Schema = lazy(() => union([evaluate(step, withoutMatch), withoutMatch, literal(3)]))
+    const withMatch: Schema = lazy(() => union([evaluate(step, withMatch), withMatch, literal(1)]))
+
+    expect(validate(withoutMatch, 1)).toBe(false)
+    expect(validate(withMatch, 1)).toBe(true)
+  })
+
+  it('checks a schema that reuses the same branch many times once per branch', () => {
+    // Each level offers the level below twice, so there are 2^20 paths down to `string()`.
+    let expansions = 0
+    let schema: Schema = string()
+    for (let level = 0; level < 20; level++) {
+      const below: Schema = schema
+      schema = lazy((): Schema => {
+        expansions++
+        return union([optional(below), optional(below)])
+      })
+    }
+
+    expect(validate(schema, 's')).toBe(true)
+    expect(validate(schema, 7)).toBe(false)
+    expect(expansions).toBeLessThan(1_000)
   })
 
   it('checks a property value against a schema its parent already used', () => {
@@ -1251,7 +1290,7 @@ describe('memoization parity', () => {
   }
 
   /** Small seeded generator (mulberry32), so a failure can be reproduced from its seed. */
-  const createRandom = (seed: number) => {
+  const createRandom = (seed: number): { int: (max: number) => number; pick: <T>(items: readonly T[]) => T } => {
     let state = seed >>> 0
     const next = (): number => {
       state = (state + 0x6d2b79f5) >>> 0
