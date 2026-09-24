@@ -157,14 +157,18 @@ type PathValue<T, P extends Path<T> | ArrayPath<T>> = T extends any
  */
 export function setNestedValue<T, P extends Path<T>>(obj: T, path: P, value: PathValue<T, P>) {
   const keys = path.split('.')
-  keys.forEach((key) => preventPollution(key))
 
   // Loop over to get the nested object reference. Then assign the value to it
   keys.reduce((acc, current, idx) => {
+    if (!Object.hasOwn(acc, current)) {
+      // Existing own keys are data; only inherited keys can lead into a prototype.
+      preventPollution(current)
+      if (idx !== keys.length - 1) {
+        throw new Error(`Cannot traverse inherited or missing property: ${current}`)
+      }
+    }
     if (idx === keys.length - 1) {
       acc[current] = value
-    } else if (!Object.hasOwn(acc, current)) {
-      throw new Error(`Cannot traverse inherited or missing property: ${current}`)
     }
 
     return acc[current]

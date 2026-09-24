@@ -38,6 +38,16 @@ const request = {
 }
 
 describe('Set a nested value', () => {
+  it.each(['__proto__', 'constructor', 'prototype'])('updates existing own JSON data named %s', (key) => {
+    const target: Record<string, unknown> = JSON.parse(`{"${key}":{"value":1}}`)
+    setNestedValue(target, `${key}.value`, 2)
+    expect(Object.getPrototypeOf(target)).toBe(Object.prototype)
+    expect(Object.getOwnPropertyDescriptor(target, key)?.value).toStrictEqual({ value: 2 })
+    setNestedValue(target, key, 3)
+    expect(Object.getOwnPropertyDescriptor(target, key)?.value).toBe(3)
+    expect(Object.getPrototypeOf(target)).toBe(Object.prototype)
+  })
+
   it.each(['__proto__.debugPolluted', 'constructor.prototype.debugPolluted', 'safe.__proto__.debugPolluted'])(
     'rejects unsafe path %s before mutation',
     (path) => {
