@@ -81,6 +81,10 @@ const toggleOnClick = () => {
 onClickOutside(triggerRef, close, { ignore: [panelRef] })
 onKeyStroke('Escape', () => {
   if (isOpen.value) {
+    // Descriptions can contain links, so do not discard the keyboard user's focus.
+    if (panelRef.value?.contains(document.activeElement)) {
+      triggerRef.value?.focus()
+    }
     close()
   }
 })

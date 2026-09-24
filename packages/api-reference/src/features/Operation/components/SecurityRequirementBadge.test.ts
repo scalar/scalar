@@ -152,6 +152,39 @@ describe('SecurityRequirementBadge', () => {
     wrapper.unmount()
   })
 
+  it('returns focus to the badge when Escape dismisses a focused description link', async () => {
+    const wrapper = await mountAndOpen({
+      state: 'required',
+      requirements: [
+        {
+          schemes: [
+            {
+              name: 'AuthRequired',
+              scheme: {
+                type: 'apiKey',
+                in: 'cookie',
+                name: 'access_token',
+                description: '[Authentication guide](https://example.com/auth)',
+              },
+              scopes: [],
+            },
+          ],
+        },
+      ],
+    })
+    const link = document.querySelector<HTMLAnchorElement>('[role="dialog"] a')
+    expect(link?.textContent).toBe('Authentication guide')
+    link!.focus()
+    expect(document.activeElement).toBe(link)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.activeElement).toBe(wrapper.get('button').element)
+    wrapper.unmount()
+  })
+
   it('does not bubble clicks to an enclosing click handler (e.g. DisclosureButton)', async () => {
     disableConsoleError()
     disableConsoleWarn()
