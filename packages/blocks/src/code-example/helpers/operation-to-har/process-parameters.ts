@@ -141,6 +141,7 @@ export const processParameters = ({
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
   const newQueryString = [...harRequest.queryString]
+  const newCookies = [...harRequest.cookies]
   const cookieStyleEntries: HarRequest['cookies'] = []
   let newUrl = harRequest.url
   const serializedQuery: string[] = []
@@ -198,7 +199,7 @@ export const processParameters = ({
           newUrl = newUrl.replaceAll(`{${param.name}}`, () => encodeURIComponent(text))
           break
         case 'cookie':
-          harRequest.cookies.push({ name: param.name, value: text })
+          newCookies.push({ name: param.name, value: text })
           break
       }
       continue
@@ -307,13 +308,13 @@ export const processParameters = ({
           for (const entry of serialized) {
             const key = entry.key || param.name
             const value = entry.value === null ? 'null' : String(entry.value)
-            harRequest.cookies.push({ name: key, value })
+            newCookies.push({ name: key, value })
           }
         }
         // Otherwise, convert to string
         else {
           const value = serialized === null ? 'null' : String(serialized)
-          harRequest.cookies.push({ name: param.name, value })
+          newCookies.push({ name: param.name, value })
         }
         break
       }
@@ -324,7 +325,7 @@ export const processParameters = ({
   // when cookie style is present, preserving legacy encoding for other cookies.
   if (cookieStyleEntries.length || serializedCookies.length) {
     const cookieValue = [
-      ...harRequest.cookies.map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`),
+      ...newCookies.map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`),
       ...cookieStyleEntries.map((cookie) => `${cookie.name}=${cookie.value}`),
       ...serializedCookies,
     ].join('; ')
@@ -350,7 +351,7 @@ export const processParameters = ({
     url: newUrl,
     headers: newHeaders,
     queryString: newQueryString,
-    cookies: cookieStyleEntries.length || serializedCookies.length ? [] : harRequest.cookies,
+    cookies: cookieStyleEntries.length || serializedCookies.length ? [] : newCookies,
     hasCookieStyleEntries: cookieStyleEntries.length > 0 || serializedCookies.length > 0,
     ...(serializedQuery.length ? { hasSerializedQuery: true } : {}),
   }

@@ -45,6 +45,21 @@ describe('upsertOperationParameter', () => {
     expect(parameter.examples?.default).toStrictEqual(expected)
   })
 
+  it('keeps edited serialized query text verbatim, including names and encoding', () => {
+    const parameter: ParameterObject = {
+      name: 'term',
+      in: 'query',
+      examples: { default: { serializedValue: 'term=old' } },
+    }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/', exampleKey: 'default' },
+      payload: { name: 'term', value: 'term=hello%20world&term=again', isDisabled: false },
+    })
+    expect(buildRequestParameters([parameter]).serializedQuery).toStrictEqual(['term=hello%20world&term=again'])
+  })
+
   it('preserves environment substitution when enabling an unchanged whole-query preview', () => {
     const parameter: ParameterObject = {
       name: 'form',

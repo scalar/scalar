@@ -41,7 +41,7 @@ describe('buildRequest', () => {
       method: 'get',
       path: '/users/{id}',
       environment: { color: '#FFFFFF', variables: [] },
-      globalCookies: [],
+      globalCookies: [{ name: 'session', value: 'global' }],
       proxyUrl: '',
       server: { url: 'https://example.com' },
       defaultHeaders: {},
@@ -53,6 +53,7 @@ describe('buildRequest', () => {
           { name: 'term', in: 'query', examples: { default: { serializedValue: 'term=a%20b&term=c%2Fd' } } },
           { name: 'flag', in: 'query', examples: { default: { dataValue: false } } },
           { name: 'X-Audit', in: 'header', examples: { default: { serializedValue: 'hello-wire' } } },
+          { name: 'regular', in: 'cookie', examples: { default: { value: 'a b' } } },
           { name: 'preferences', in: 'cookie', examples: { default: { serializedValue: 'a=1; b=hello%20world' } } },
         ],
       },
@@ -60,7 +61,7 @@ describe('buildRequest', () => {
     const [url, init] = unwrap(request, { envVariables: {} }).requestPayload
     expect(url).toBe('https://example.com/users/a%2Fb?flag=false&term=a%20b&term=c%2Fd')
     expect(new Headers(init.headers).get('X-Audit')).toBe('hello-wire')
-    expect(new Headers(init.headers).get('Cookie')).toBe('a=1; b=hello%20world')
+    expect(new Headers(init.headers).get('Cookie')).toBe('a=1; b=hello%20world; session=global; regular=a b')
   })
 
   it('sends XML roots, untyped defaults, and wildcard parameters consistently', async () => {

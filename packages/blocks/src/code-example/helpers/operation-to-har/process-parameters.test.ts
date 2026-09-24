@@ -1,5 +1,10 @@
+import { buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  type OperationObject,
+  type ParameterObject,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -56,6 +61,104 @@ describe('parameter styles', () => {
     parameters: OperationObject['parameters']
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
+
+  it.each([
+    { location: 'query', serialized: true, value: 'term=a%20b' },
+    { location: 'path', serialized: true, value: 'a%20b' },
+    { location: 'header', serialized: true, value: 'a b' },
+    { location: 'cookie', serialized: true, value: 'term=a%20b' },
+    { location: 'query', serialized: false, value: 'a b' },
+    { location: 'path', serialized: false, value: 'a b' },
+    { location: 'header', serialized: false, value: 'a b' },
+    { location: 'cookie', serialized: false, value: 'a b' },
+  ] as const)(
+    'aligns $location examples across client and snippets (serialized: $serialized)',
+    ({ location, serialized, value }) => {
+      const example = { serializedValue: value }
+      const parameter: ParameterObject = {
+        name: 'term',
+        in: location,
+        required: true,
+        ...(serialized
+          ? { examples: { default: example } }
+          : { content: { 'text/plain': { examples: { default: example } } } }),
+      }
+      const path = location === 'path' ? '/{term}' : '/'
+      const { request } = requestFactory({
+        exampleName: 'default',
+        method: 'get',
+        path,
+        environment: { color: '#FFFFFF', variables: [] },
+        globalCookies: [],
+        proxyUrl: '',
+        server: { url: 'https://example.com' },
+        defaultHeaders: {},
+        isElectron: false,
+        selectedSecuritySchemes: [],
+        operation: { parameters: [parameter] },
+      })
+      const built = buildRequest(request, { envVariables: {} })
+      if (!built.ok) {
+        throw new Error('Expected a successful request')
+      }
+      const [url, init] = built.data.requestPayload
+      const snippet = runProcessParameters({
+        harRequest: createHarRequest(`https://example.com${path}`),
+        parameters: [parameter],
+      })
+      const query = snippet.queryString.map(({ name, value }) => `${name}=${value}`).join('&')
+      expect(String(url).replaceAll('+', '%20')).toBe(`${snippet.url}${query ? `?${query}` : ''}`)
+      if (location === 'header') {
+        expect(new Headers(init.headers).get('term')).toBe(snippet.headers[0]?.value)
+      }
+      if (location === 'cookie') {
+        const cookie =
+          snippet.headers.find(({ name }) => name.toLowerCase() === 'cookie')?.value ??
+          snippet.cookies
+            .map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
+            .join('; ')
+        expect(new Headers(init.headers).get('cookie')).toBe(cookie)
+      }
+    },
+  )
+
+  it.each([false, true])('keeps cookie inputs unchanged with serialized cookies: %s', (includeSerialized) => {
+    const harRequest = createHarRequest('https://example.com/')
+    harRequest.headers = [{ name: 'Cookie', value: 'session=existing' }]
+    harRequest.cookies = [{ name: 'global', value: 'a b' }]
+    const original = structuredClone(harRequest)
+    const parameters: OperationObject['parameters'] = [
+      { name: 'regular', in: 'cookie', examples: { default: { value: 'c d' } } },
+      {
+        name: 'media',
+        in: 'cookie',
+        content: { 'text/plain': { examples: { default: { serializedValue: 'e f' } } } },
+      },
+      ...(includeSerialized
+        ? [{ name: 'wire', in: 'cookie' as const, examples: { default: { serializedValue: 'wire=g%20h' } } }]
+        : []),
+    ]
+    const result = runProcessParameters({ harRequest, parameters })
+    expect(harRequest).toStrictEqual(original)
+    expect(runProcessParameters({ harRequest, parameters })).toStrictEqual(result)
+    expect(result.cookies).toStrictEqual(
+      includeSerialized
+        ? []
+        : [
+            { name: 'global', value: 'a b' },
+            { name: 'regular', value: 'c d' },
+            { name: 'media', value: 'e f' },
+          ],
+    )
+    expect(result.headers).toStrictEqual([
+      {
+        name: 'Cookie',
+        value: includeSerialized
+          ? 'session=existing; global=a%20b; regular=c%20d; media=e%20f; wire=g%20h'
+          : 'session=existing',
+      },
+    ])
+  })
 
   it('warns authors before expanding invalid cookie-style explode: false in snippets', () => {
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)

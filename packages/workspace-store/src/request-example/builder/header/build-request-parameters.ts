@@ -67,7 +67,9 @@ export const buildRequestParameters = (
   // Second pass: process all parameters
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
-    if (!param) continue
+    if (!param) {
+      continue
+    }
     const selected = getParameterExample(param, exampleName)
     const { example, value } = selected
 
@@ -110,7 +112,13 @@ export const buildRequestParameters = (
           result.pathVariables[param.name] = text
           break
         case 'cookie':
-          result.cookies.push(coerceValue(xScalarCookieSchema, { name: param.name, value: text, path: '/' }))
+          result.cookies.push(
+            coerceValue(xScalarCookieSchema, {
+              name: encodeURIComponent(param.name),
+              value: encodeURIComponent(text),
+              path: '/',
+            }),
+          )
           break
       }
       continue
