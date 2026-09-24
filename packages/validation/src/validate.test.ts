@@ -1229,6 +1229,21 @@ describe('schema cycles on primitives', () => {
     expect(validate(schema, 1)).toBe(false)
   })
 
+  it('starts over inside an object that an evaluate steps to', () => {
+    // The loop search is already recording when `evaluate` turns `7` into `o`. Checking `o.a`,
+    // which is `7` again, is a new question inside an object, not the loop the search saw before.
+    // It leads back to `o` against `Obj`, which is still in progress, so that check passes.
+    const o = { a: 7 }
+    const Obj = object({ a: lazy((): Schema => L) })
+    const L: Schema = lazy(() => union([evaluate(() => o, Obj)]))
+    let schema: Schema = L
+    for (let level = 0; level < 9; level++) {
+      schema = optional(schema)
+    }
+
+    expect(validate(schema, 7)).toBe(true)
+  })
+
   it('checks a property value against a schema its parent already used', () => {
     // Moving into a property is a new value, so the guard starts over there.
     const P: Schema = lazy(() => union([object({ a: P }), number()]))
@@ -1357,15 +1372,20 @@ describe('memoization parity', () => {
   const KEYS = ['a', 'b'] as const
   const PRIMITIVES = ['a', 'x', 1, 2, null, true] as const
 
+  /** An object an `evaluate` can step to from a primitive, so a loop can pass through it. */
+  const SHARED_OBJECT = { a: 1, b: 'x' }
+
   /**
    * Pure expressions for `evaluate`: one returns its input, the others step to a different value.
-   * The counter keeps stepping between primitives, so it can close a loop through several values.
+   * The counter keeps stepping between primitives, so it can close a loop through several values,
+   * and the last one steps from a primitive into an object.
    */
   const EXPRESSIONS: readonly ((value: unknown) => unknown)[] = [
     (value) => value,
     (value) => (isObject(value) ? value.a : value),
     (value) => (value === 1 ? 'a' : value),
     (value) => (typeof value === 'number' ? (value + 1) % 4 : value),
+    (value) => (value === 2 ? SHARED_OBJECT : value),
   ]
 
   /** Builds a set of mutually recursive schemas and returns the first one. */

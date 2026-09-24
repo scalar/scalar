@@ -60,10 +60,11 @@ const searchKey = (value: unknown): unknown => (Object.is(value, -0) ? NEGATIVE_
  *
  * Finished results of `lazy` frames are memoized in the same map, but only when the frame never
  * hit that cycle short-circuit (see {@link ValidationState.tainted}). Only `lazy` frames, because
- * recursion always goes through one, and the `lazy` node is the one schema object that stays the
- * same between visits. A factory usually builds its schema inline, so everything below it is a
- * fresh object on every expansion, and remembering those would only fill the map with keys that
- * are never looked up again. The short-circuit needs a value that leads back to itself, or a schema
+ * recursion always goes through one, and a shared `lazy` node (like `const T = lazy(() => ...)`) is
+ * the one schema object that stays the same between visits. A factory usually builds its schema
+ * inline, so everything below it is a fresh object on every expansion, and remembering those would
+ * only fill the map with keys that are never looked up again. For the same reason, a factory that
+ * creates a new `lazy` node on each expansion gets no benefit from the memo. The short-circuit needs a value that leads back to itself, or a schema
  * that recurses on the same object without looking inside it, so a parsed JSON document checked
  * against a real schema is fully memoized. Anything that did hit it is validated again when
  * reached, just like before the memo existed.
@@ -276,7 +277,8 @@ const validateInner = (
  * Loops are answered differently depending on the value. When an object or
  * array leads back to a check that is already in progress for it, that check
  * counts as passing, and any real mismatch surfaces elsewhere. When a schema
- * loops back to itself on any other value, the loop does not count as a match:
+ * loops back to itself on any other value, without passing through an object or
+ * array, the loop does not count as a match:
  * `lazy(() => union([self, string()]))` accepts `'s'` and rejects `7`, but
  * accepts `{}`.
  *
