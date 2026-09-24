@@ -20,6 +20,7 @@ import {
   type RequestBodyCompositionSelection,
 } from '@/features/Operation/request-body-composition-index'
 
+import { getDiscriminatorValues } from './helpers/get-discriminator-values'
 import { getSchemaType } from './helpers/get-schema-type'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { type CompositionKeyword } from './helpers/schema-composition'
@@ -100,7 +101,12 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
     const label =
       (getModelNameWithArray(resolved)?.label ?? getSchemaType(resolved)) ||
       translate('schema.schema')
-    return { id: String(index), label }
+    const mapping = (props.schema.discriminator ?? props.discriminator)?.mapping
+    const values = getDiscriminatorValues(resolved.$ref, mapping)
+    return {
+      id: String(index),
+      label: values.length ? `${values.join(', ')} · ${label}` : label,
+    }
   }),
 )
 

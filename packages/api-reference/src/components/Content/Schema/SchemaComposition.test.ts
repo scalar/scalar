@@ -569,4 +569,95 @@ describe('SchemaComposition', () => {
       expect(errors).toEqual([])
     })
   })
+
+  it.each(['oneOf', 'anyOf'] as const)('shows mapping values alongside %s schema names and titles', (composition) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      discriminator: {
+        propertyName: 'payoutCountry',
+        mapping: {
+          CN: '#/components/schemas/AllowedCurrenciesForCN',
+          HK: 'AllowedCurrenciesForCN',
+          DK: '#/components/schemas/AllowedCurrenciesForDK',
+        },
+      },
+      [composition]: [
+        {
+          '$ref': '#/components/schemas/AllowedCurrenciesForCN',
+          '$ref-value': { type: 'object', title: 'China account' },
+        },
+        { '$ref': '#/components/schemas/AllowedCurrenciesForDK', '$ref-value': { type: 'object' } },
+        { title: 'Other account', type: 'object' },
+      ],
+    })
+    const wrapper = mount(SchemaComposition, { props: { schema, composition, level: 0, eventBus: null, options: {} } })
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    expect(listbox.props('options')).toStrictEqual([
+      { id: '0', label: 'CN, HK · China account' },
+      { id: '1', label: 'DK · AllowedCurrenciesForDK' },
+      { id: '2', label: 'Other account' },
+    ])
+    expect(wrapper.get('button').text()).toContain('CN, HK · China account')
+    wrapper.unmount()
+  })
+
+  it('uses a passed discriminator for a selector without its own discriminator', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          oneOf: [{ '$ref': '#/components/schemas/Account', '$ref-value': { type: 'object' } }],
+        }),
+        discriminator: { propertyName: 'country', mapping: { CN: 'Account' } },
+        composition: 'oneOf',
+        level: 0,
+        eventBus: null,
+        options: {},
+      },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).props('options')).toStrictEqual([
+      { id: '0', label: 'CN · Account' },
+    ])
+    wrapper.unmount()
+  })
+
+  it('keeps nested discriminator values separate from the outer selector', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          discriminator: { propertyName: 'country', mapping: { CN: 'Account' } },
+          oneOf: [
+            {
+              '$ref': '#/components/schemas/Account',
+              '$ref-value': {
+                type: 'object',
+                properties: {
+                  payment: {
+                    discriminator: { propertyName: 'method', mapping: { bank: 'Bank' } },
+                    oneOf: [
+                      { '$ref': '#/components/schemas/Bank', '$ref-value': { type: 'object' } },
+                      { title: 'Cash', type: 'object' },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        }),
+        discriminator: { propertyName: 'ignored', mapping: { wrong: 'Account' } },
+        composition: 'oneOf',
+        level: 0,
+        eventBus: null,
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    expect(
+      wrapper.findAllComponents({ name: 'ScalarListbox' }).map((listbox) => listbox.props('options')),
+    ).toStrictEqual([
+      [{ id: '0', label: 'CN · Account' }],
+      [
+        { id: '0', label: 'bank · Bank' },
+        { id: '1', label: 'Cash' },
+      ],
+    ])
+    wrapper.unmount()
+  })
 })
