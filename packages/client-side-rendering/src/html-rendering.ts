@@ -161,10 +161,16 @@ export function renderApiReference(
 }
 
 /**
+ * Keep JSON data out of the HTML parser's script end-tag and comment states. Apply this only to
+ * JSON, because escaping executable function source would also change JavaScript operators.
+ */
+const escapeJsonForScript = (json: string): string => json.replace(/</g, '\\u003c')
+
+/**
  * Helper function to serialize arrays that may contain functions
  */
 const serializeArrayWithFunctions = (arr: unknown[]): string => {
-  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : JSON.stringify(item))).join(', ')}]`
+  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : escapeJsonForScript(JSON.stringify(item) ?? 'null'))).join(', ')}]`
 }
 
 /**
@@ -174,6 +180,9 @@ const serializeArrayWithFunctions = (arr: unknown[]): string => {
  * or the request hooks) by emitting them as literal JavaScript source via `Function.prototype.toString()`.
  * That is what lets callbacks survive being written into an inline `<script>` tag, or across any other
  * boundary that would otherwise JSON-serialize the configuration and silently drop functions.
+ *
+ * Function values are trusted executable code, not untrusted configuration data. Their source
+ * must be safe to embed in an inline script.
  *
  * Note: functions must be arrow functions or `function` expressions. Object method shorthand
  * (`onBeforeRequest(request) {}`) does not serialize to a valid standalone expression.
@@ -185,15 +194,15 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
 
   for (const [key, value] of Object.entries(configuration)) {
     if (typeof value === 'function') {
-      functionProps.push(`"${key}": ${value.toString()}`)
+      functionProps.push(`${escapeJsonForScript(JSON.stringify(key))}: ${value.toString()}`)
       delete restConfig[key]
     } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
-      functionProps.push(`"${key}": ${serializeArrayWithFunctions(value)}`)
+      functionProps.push(`${escapeJsonForScript(JSON.stringify(key))}: ${serializeArrayWithFunctions(value)}`)
       delete restConfig[key]
     }
   }
 
-  const jsonString = JSON.stringify(restConfig, null, 2)
+  const jsonString = escapeJsonForScript(JSON.stringify(restConfig, null, 2))
   const indentedJsonString = jsonString
     .split('\n')
     .map((line, index) => (index === 0 ? line : `      ${line}`))
