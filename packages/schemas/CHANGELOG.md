@@ -1,5 +1,15 @@
 # @scalar/schemas
 
+## 0.12.0
+
+### Minor Changes
+
+- [#10310](https://github.com/scalar/scalar/pull/10310): Connect SDK code samples to named request body examples using optional example and contentType fields. Keep the example switcher available for static samples and use the selected request example in API client snippets. Display unavailable linked samples as a localized status message in all supported languages.
+
+### Patch Changes
+
+- [#10315](https://github.com/scalar/scalar/pull/10315): Stop following `$ref-value` chains at the first reference that loops back, so a document whose references point at each other (or at themselves) no longer overflows the stack while it loads.
+
 ## 0.11.0
 
 ### Minor Changes

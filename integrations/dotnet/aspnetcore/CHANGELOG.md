@@ -1,5 +1,7 @@
 # @scalar/aspnetcore
 
+## 2.17.9
+
 ## 2.17.8
 
 ### Bundled API Reference

@@ -1,5 +1,36 @@
 # @scalar/api-reference
 
+## 1.72.0
+
+### Minor Changes
+
+- [#10189](https://github.com/scalar/scalar/pull/10189): Support OpenAPI 3.2 `in: querystring` parameters, including content-based serialization, editing the entire query string, schema rendering, and generated request URLs.
+
+  Non-form whole-query content, including JSON delimiters, is percent-encoded in request URLs and code samples. Use an example with `serializedValue` on the parameter itself for URI-ready query content that must retain its existing encoding.
+
+  Preserve the encoding of named query values when they coexist with whole-query content in generated code samples, while encoding query authentication values once.
+
+  Explain why the whole-query editor disables adding named parameters. Existing named parameters follow the whole-query value, preserving duplicate keys for the server to interpret.
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Support OpenAPI 3.2 additionalOperations in operation storage, navigation, documentation, callbacks, and the API client. Preserve custom HTTP method spelling when displaying and sending requests and generating code samples.
+
+  Traversed operation and webhook methods now use the exported `OperationMethod` type, which accepts custom strings while retaining known-method editor completion. Consumers must handle unknown methods; this open type cannot provide exhaustive checking over the fixed HTTP method set. Unknown method presentation uses `colorClass` and `colorVar`, matching known methods. Preserve uppercase and mixed-case additional operation names consistently.
+
+### Patch Changes
+
+- [#10313](https://github.com/scalar/scalar/pull/10313): Render the accordion header's title and actions beside the toggle button instead of inside it. A `button` start tag inside an open `button` implies the end tag for the outer one, so the copy-link button in an AsyncAPI message heading (and the controls in an operation's header) were re-parented by the HTML parser and server-rendered sections could never hydrate. Clicking the header text or caret still toggles the section, while the copy-link and action buttons keep their own behavior.
+- [#10186](https://github.com/scalar/scalar/pull/10186): Preserve authored method variants in request data and navigation links. Generate custom-method requests with generic client APIs, and explain when RestSharp cannot represent a method.
+- [#10186](https://github.com/scalar/scalar/pull/10186): Support document-defined additional operations in Markdown operation, webhook, and tag selections. Preserve custom method spelling and inherited parameters, servers, and security when copying an operation as Markdown.
+- [#10322](https://github.com/scalar/scalar/pull/10322): Use OpenAPI 3.2 dataValue and serializedValue examples for named parameters in the editor, outgoing requests, and code samples. Preserve already serialized values without encoding them twice.
+
+  Optional parameters with `dataValue` or `serializedValue` examples are now enabled by default, matching legacy `value` examples. Explicitly disabled examples remain disabled.
+
+  Parameter-level `serializedValue` examples remain editable as raw wire text, including parameter names and percent encoding (for example, `term=hello` rather than `hello`). Media-level cookie examples are percent-encoded when sent, matching generated snippets. Generating snippets no longer modifies the input cookies.
+
+- [#10317](https://github.com/scalar/scalar/pull/10317): Show discriminator mapping values beside schema names in oneOf and anyOf selectors.
+- [#10313](https://github.com/scalar/scalar/pull/10313): Keep the introduction selected in the sidebar while the top of the document is in view. The sentinel at the start of the document and every description heading observe their own intersections, and the browser delivers those first records in no fixed order, so a server-rendered page could settle on whichever heading arrived last. The selection is now resolved from the sentinel's position instead of the order the events arrive in.
+- [#10310](https://github.com/scalar/scalar/pull/10310): Connect SDK code samples to named request body examples using optional example and contentType fields. Keep the example switcher available for static samples and use the selected request example in API client snippets. Display unavailable linked samples as a localized status message in all supported languages.
+
 ## 1.71.0
 
 ### Minor Changes

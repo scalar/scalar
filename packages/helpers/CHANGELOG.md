@@ -1,5 +1,15 @@
 # @scalar/helpers
 
+## 0.14.0
+
+### Minor Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Preserve request bodies for extension HTTP methods such as QUERY and PROPFIND in the browser client.
+- [#10189](https://github.com/scalar/scalar/pull/10189): Add shared content-entry selection for whole-query parameter consumers.
+- [#10186](https://github.com/scalar/scalar/pull/10186): Support OpenAPI 3.2 additionalOperations in operation storage, navigation, documentation, callbacks, and the API client. Preserve custom HTTP method spelling when displaying and sending requests and generating code samples.
+
+  Traversed operation and webhook methods now use the exported `OperationMethod` type, which accepts custom strings while retaining known-method editor completion. Consumers must handle unknown methods; this open type cannot provide exhaustive checking over the fixed HTTP method set. Unknown method presentation uses `colorClass` and `colorVar`, matching known methods. Preserve uppercase and mixed-case additional operation names consistently.
+
 ## 0.13.0
 
 ### Minor Changes

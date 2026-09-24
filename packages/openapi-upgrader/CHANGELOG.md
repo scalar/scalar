@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.3.1
+
+### Patch Changes
+
+- [#10306](https://github.com/scalar/scalar/pull/10306): Preserve Swagger 2.0 `x-nullable` when upgrading schemas, parameters, and headers.
+
 ## 0.3.0
 
 ### Minor Changes

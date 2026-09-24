@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.6.5
+
+### Patch Changes
+
+- [#10315](https://github.com/scalar/scalar/pull/10315): Bound how deep union scoring looks into a value, so `coerce` no longer takes exponential time on recursive unions. `coerce` now also stops at a nesting depth of 1,000 calls instead of overflowing the stack. It leaves deeper values unchanged and logs a warning.
+
 ## 0.6.4
 
 ### Patch Changes
