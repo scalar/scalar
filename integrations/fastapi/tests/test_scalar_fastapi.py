@@ -1,4 +1,5 @@
 import json
+from html.parser import HTMLParser
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -493,6 +494,44 @@ class TestEdgeCases:
         # ... it should be escaped instead.
         assert "API &amp; Documentation" in html_content
         assert "&lt;script&gt;" in html_content
+
+    @pytest.mark.parametrize(
+        "parameter, tag, attribute",
+        [
+            ("scalar_js_url", "script", "src"),
+            ("scalar_favicon_url", "link", "href"),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://cdn.example.com/resource?v=1&theme=dark",
+            "https://example.com/\" onload=\"alert('xss')",
+            "https://example.com/\"></script><script>alert('xss')</script><img src=\"",
+            "",
+        ],
+    )
+    def test_resource_urls_remain_single_attributes(self, parameter, tag, attribute, url):
+        """URL values cannot add attributes or elements to the generated page."""
+        class ElementParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.elements = []
+
+            def handle_starttag(self, tag, attrs):
+                self.elements.append((tag, dict(attrs)))
+
+        baseline = ElementParser()
+        baseline.feed(get_scalar_api_reference().body.decode())
+        actual = ElementParser()
+        actual.feed(get_scalar_api_reference(**{parameter: url}).body.decode())
+
+        expected = [
+            (name, {**attrs, attribute: url})
+            if name == tag and attribute in attrs else (name, attrs)
+            for name, attrs in baseline.elements
+        ]
+        assert actual.elements == expected
 
     def test_content_with_closing_script_tag_cannot_break_out(self):
         """A document containing </script> must not break out of the inline script"""
