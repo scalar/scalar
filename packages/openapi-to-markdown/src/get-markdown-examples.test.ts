@@ -110,8 +110,9 @@ describe('get-markdown-examples', () => {
     })
     expect(countGeneratedExampleValues(levels[0])).toBeGreaterThan(10_000)
     expect(getMarkdownExamples({ schema: levels[0] }, 'application/json')).toStrictEqual([{ omitted: true }])
-    expect(getMarkdownExamples({ schema: levels[8] }, 'application/json')).toHaveLength(1)
-    expect(getMarkdownExamples({ schema: levels[8] }, 'application/json')[0]).toHaveProperty('value')
+    expect(getMarkdownExamples({ schema: levels[11] }, 'application/json')).toStrictEqual([
+      { value: { p0: '', p1: '', p2: '', p3: '', p4: '' } },
+    ])
   })
 
   it('counts each generated value once per level, following the first variant of a choice', () => {
@@ -123,5 +124,44 @@ describe('get-markdown-examples', () => {
         anyOf: [{ type: 'string' }, shared],
       }),
     ).toBe(1 + 2 + 2 + 1)
+  })
+  it.each(['anyOf', 'oneOf'])('bounds a non-null %s variant after a null variant', (keyword) => {
+    const properties = Object.fromEntries(Array.from({ length: 10_001 }, (_, i) => [`p${i}`, { type: 'string' }]))
+    const schema = { [keyword]: [{ type: 'null' }, { type: 'object', properties }] }
+    expect(getMarkdownExamples({ schema }, 'application/json')).toStrictEqual([{ omitted: true }])
+  })
+
+  it('bounds pattern properties and structural reference siblings', () => {
+    const properties = Object.fromEntries(Array.from({ length: 10_001 }, (_, i) => [`p${i}`, { type: 'string' }]))
+    expect(
+      getMarkdownExamples({ schema: { type: 'object', patternProperties: properties } }, 'application/json'),
+    ).toStrictEqual([{ omitted: true }])
+    expect(
+      getMarkdownExamples(
+        {
+          schema: {
+            $ref: '#/components/schemas/Base',
+            '$ref-value': { type: 'object' },
+            properties,
+          },
+        },
+        'application/json',
+      ),
+    ).toStrictEqual([{ omitted: true }])
+  })
+
+  it('preserves a supplied schema example without expanding its large schema', () => {
+    const properties = Object.fromEntries(Array.from({ length: 10_001 }, (_, i) => [`p${i}`, { type: 'string' }]))
+    expect(
+      getMarkdownExamples({ schema: { type: 'object', properties, example: { id: 'supplied' } } }, 'application/json'),
+    ).toStrictEqual([{ value: { id: 'supplied' } }])
+  })
+  it('bounds a discriminator-selected variant beyond the first member', () => {
+    const properties = Object.fromEntries(Array.from({ length: 10_001 }, (_, i) => [`p${i}`, { type: 'string' }]))
+    const schema = {
+      oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Large', '$ref-value': { type: 'object', properties } }],
+      discriminator: { propertyName: 'kind', defaultMapping: 'Large' },
+    }
+    expect(getMarkdownExamples({ schema }, 'application/json')).toStrictEqual([{ omitted: true }])
   })
 })

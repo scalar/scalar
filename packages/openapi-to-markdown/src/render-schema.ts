@@ -250,7 +250,13 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         return [paragraph(emphasis(text('[Circular Reference]')))]
       }
       const value = view(input)
-      const shared = typeof identity === 'object' && identity !== null ? identity : undefined
+      // A named model with structural reference siblings is its own schema, not another
+      // occurrence of its target. Otherwise either rendering order can hide properties.
+      const sharedIdentity =
+        isObject(input) && '$ref' in input && Object.keys(input).some((key) => structuralKeywords.has(key))
+          ? input
+          : identity
+      const shared = typeof sharedIdentity === 'object' && sharedIdentity !== null ? sharedIdentity : undefined
       const name = options.name ?? value.name
       if (shared && name !== undefined) {
         // Expanding every path through a shared schema grows exponentially, so expand it once.

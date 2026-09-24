@@ -491,4 +491,32 @@ describe('render-schema', () => {
     expect(output).toContain('minLength: 3')
     expect(output.includes('never (false schema)')).toBe(!target)
   })
+  it.each([false, true])('keeps structural model siblings with extended model first: %s', (extendedFirst) => {
+    const base = schema({ type: 'object', properties: { original: { type: 'string' } } })
+    const extended = schema({
+      $ref: '#/components/schemas/Base',
+      '$ref-value': base,
+      properties: { extra: { type: 'number' } },
+    })
+    const renderer = createSchemaRenderer().forDocument({ Base: base, Extended: extended })
+    const models = extendedFirst
+      ? ([
+          ['Extended', extended],
+          ['Base', base],
+        ] as const)
+      : ([
+          ['Base', base],
+          ['Extended', extended],
+        ] as const)
+    const outputs = Object.fromEntries(
+      models.map(([name, model]) => [
+        name,
+        unified()
+          .use(remarkStringify)
+          .stringify({ type: 'root', children: renderer.render(model, 0, [], { name }) }),
+      ]),
+    )
+    expect(outputs.Base).toContain('original')
+    expect(outputs.Extended).toContain('extra')
+  })
 })

@@ -34,25 +34,43 @@ const MAX_GENERATED_EXAMPLE_VALUES = 10_000
 export const countGeneratedExampleValues = (root: unknown, limit = MAX_GENERATED_EXAMPLE_VALUES): number => {
   const counts = new WeakMap<object, Map<number, number>>()
   const count = (input: unknown, level: number): number => {
-    const schema = getResolvedRef<unknown>(input)
-    if (level > EXAMPLE_DEPTH || !isObject(schema)) return 1
-    const cached = counts.get(schema)?.get(level)
+    if (level > EXAMPLE_DEPTH || !isObject(input)) return 1
+    const cached = counts.get(input)?.get(level)
     if (cached !== undefined) return cached
+    const schema: unknown = getResolvedRef(input as SchemaObject, mergeSiblingReferences)
+    if (!isObject(schema)) return 1
+    // Supplied examples bypass schema expansion in the generator too.
+    if (schema.example !== undefined || (Array.isArray(schema.examples) && schema.examples.length > 0)) return 1
     let total = 1
     const add = (child: unknown): void => {
       if (total <= limit) total += count(child, level + 1)
     }
     if (isObject(schema.properties)) Object.values(schema.properties).forEach(add)
+    if (isObject(schema.patternProperties)) Object.values(schema.patternProperties).forEach(add)
     if (isObject(schema.additionalProperties)) add(schema.additionalProperties)
     if (schema.items !== undefined) add(schema.items)
     if (Array.isArray(schema.prefixItems)) schema.prefixItems.forEach(add)
     if (Array.isArray(schema.allOf)) schema.allOf.forEach(add)
-    // The generator picks one variant, which is the first one unless a selection says otherwise.
     const variants = Array.isArray(schema.oneOf) ? schema.oneOf : Array.isArray(schema.anyOf) ? schema.anyOf : []
-    if (variants.length) add(variants[0])
-    const levels = counts.get(schema) ?? new Map<number, number>()
+    // Object and array generation can use the first variant, while other unions skip null.
+    // A discriminator can choose any variant, so bound the largest candidate in that case.
+    const nonNull = variants.find((variant) => {
+      const resolved = getResolvedRef(variant, mergeSiblingReferences)
+      return isObject(resolved) && resolved.type !== 'null'
+    })
+    const candidates =
+      isObject(schema.discriminator) && schema.discriminator.defaultMapping !== undefined
+        ? variants
+        : [variants[0], nonNull]
+    let variantCount = 0
+    for (const candidate of candidates) {
+      if (candidate !== undefined && total <= limit && variantCount <= limit)
+        variantCount = Math.max(variantCount, count(candidate, level + 1))
+    }
+    total += variantCount
+    const levels = counts.get(input) ?? new Map<number, number>()
     levels.set(level, total)
-    counts.set(schema, levels)
+    counts.set(input, levels)
     return total
   }
   return count(root, 0)
