@@ -447,7 +447,7 @@ Add link elements for favicons, preloading resources, or other purposes:
 
 ## Banner
 
-The `banner` property shows a one-line announcement above the header on every page. Use it for launches, scheduled maintenance, or deprecation notices.
+The `banner` property shows an announcement above the header on every page, such as a launch or a scheduled maintenance.
 
 ```json
 // scalar.config.json
@@ -456,10 +456,9 @@ The `banner` property shows a one-line announcement above the header on every pa
   "scalar": "2.0.0",
   "siteConfig": {
     "banner": {
-      "content": "Version 2 is here, with a **new editor**. [See what changed](pages/changelog.md)",
+      "content": "Version 2 is here. [See what changed](pages/changelog.md)",
       "type": "info",
-      "dismissible": true,
-      "icon": "phosphor/regular/megaphone"
+      "dismissible": true
     }
   }
 }
@@ -467,28 +466,18 @@ The `banner` property shows a one-line announcement above the header on every pa
 
 ### Properties
 
-| Property      | Type                                  | Default  | Description                                                                                   |
-| ------------- | ------------------------------------- | -------- | --------------------------------------------------------------------------------------------- |
-| `content`     | `string`                              | —        | The banner text, as inline Markdown. Leave it empty to hide the banner                        |
-| `type`        | `"neutral" \| "info" \| "warning" \| "critical"` | `"info"` | The color of the banner: gray, your accent color, yellow, or red |
-| `dismissible` | `boolean`                             | `false`  | Show a close button. A dismissed banner stays hidden until you change its `content`           |
-| `icon`        | `string \| false`                     | —        | Icon before the text. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) or a [custom URL](../components/icons.mdx#custom-icons). Set to `false` for no icon. Defaults to the icon for the `type` |
+| Property      | Type                                             | Default  | Description                                                                                                 |
+| ------------- | ------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `content`     | `string`                                         | —        | Banner text as inline Markdown (bold, italic, code, links). An empty string hides the banner                |
+| `type`        | `"neutral" \| "info" \| "warning" \| "critical"` | `"info"` | Color of the banner                                                                                         |
+| `dismissible` | `boolean`                                        | `false`  | Show a close button. A dismissed banner reappears when `content` changes                                    |
+| `icon`        | `string \| false`                                | —        | An [icon key or URL](../components/icons.mdx). Defaults to an icon for the `type`; `false` hides it         |
 
-### Writing the Content
-
-`content` supports inline Markdown: **bold**, _italic_, `code`, and links. The banner is a single line of text, so headings are flattened into it, and lists, code blocks, images, components, and raw HTML are left out.
-
-To link to one of your pages, use its file path, relative to the root of your project. It becomes the page's URL when your site is built, like a link inside a page does:
-
-```markdown
-Version 2 is here. [See what changed](pages/changelog.md)
-```
-
-Links to other sites open in a new tab.
+Link to your own pages by their file path, relative to the project root, as you would inside a page. Links to other sites open in a new tab.
 
 ### Styling
 
-There is no color option in the config. To match your brand, set these variables in your [theme](themes.md):
+To change the colors, set these variables in your [theme](themes.md):
 
 ```css
 :root {
@@ -499,14 +488,7 @@ There is no color option in the config. To match your brand, set these variables
 }
 ```
 
-| Variable                       | Description                         |
-| ------------------------------ | ----------------------------------- |
-| `--scalar-banner-background`   | Background of the banner            |
-| `--scalar-banner-color`        | Text and link color                 |
-| `--scalar-banner-icon-color`   | Color of the icon before the text   |
-| `--scalar-banner-border-color` | Color of the border below the banner |
-
-To style one type only, target its `data-type` attribute, for example `.scalar-banner[data-type="warning"]`.
+To style one type, target `.scalar-banner[data-type="warning"]`.
 
 ## Footer
 
