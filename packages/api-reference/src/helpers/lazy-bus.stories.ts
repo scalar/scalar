@@ -41,3 +41,7 @@ export const StickyHeader = story(
 )
 export const NestedContainer = story(header, true)
 export const ExistingMargin = story(header, false, 100)
+
+export const DecorativeBackground = story(
+  `${header}<div class="section-flare" style="position:fixed;inset:0;pointer-events:none;background:linear-gradient(#7877c633,transparent)"><div style="position:fixed;inset:0;pointer-events:none"></div></div>`,
+)

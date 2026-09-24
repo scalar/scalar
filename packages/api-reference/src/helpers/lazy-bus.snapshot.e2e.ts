@@ -9,6 +9,7 @@ test.describe('LazyBus', () => {
     ['Stacked Headers', 100],
     ['Nested Container', 60],
     ['Existing Margin', 100],
+    ['Decorative Background', 60],
   ] as const) {
     test(story, async ({ page }) => {
       const target = page.getByRole('heading', { name: 'Scroll target' })

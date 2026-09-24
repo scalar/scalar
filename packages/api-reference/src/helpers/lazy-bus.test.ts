@@ -108,6 +108,27 @@ describe('lazy-bus', () => {
     }
     expect(getStickyHeaderOffset(target)).toBe(expected)
   })
+  it.each([false, true])('ignores theme decorations while measuring a real header (nested: %s)', (nested) => {
+    const target = document.createElement('h2')
+    const flare = document.createElement('div')
+    flare.className = 'section-flare'
+    const decoration = nested ? document.createElement('div') : flare
+    if (nested) {
+      flare.append(decoration)
+    }
+    decoration.style.position = 'fixed'
+    const header = document.createElement('nav')
+    header.style.position = 'fixed'
+    // A non-interactive header can still obscure content and must retain its offset.
+    header.style.pointerEvents = 'none'
+    document.body.append(target, flare, header)
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 400, 30))
+    vi.spyOn(decoration, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 800, 600))
+    vi.spyOn(header, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 800, 60))
+
+    expect(getStickyHeaderOffset(target)).toBe(60)
+  })
+
   it('skips computed styles for elements that cannot cover the target', () => {
     const target = document.createElement('h2')
     const sidebar = document.createElement('aside')

@@ -382,7 +382,13 @@ export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): 
   const targetX = target.left + target.width / 2
   const headers = Array.from(document.querySelectorAll<HTMLElement>('*'))
     .flatMap((candidate) => {
-      if (candidate === element || candidate.contains(element) || element.contains(candidate)) {
+      // Theme flares are decorative backgrounds, even when they cover the whole viewport.
+      if (
+        candidate.closest('.section-flare') ||
+        candidate === element ||
+        candidate.contains(element) ||
+        element.contains(candidate)
+      ) {
         return []
       }
       // Read geometry first: most nodes cannot cover the target. Computing styles
