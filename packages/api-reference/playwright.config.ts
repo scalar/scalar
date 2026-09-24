@@ -5,6 +5,14 @@ const IS_CDN = process.env.TEST_MODE === 'CDN'
 const CI = Boolean(process.env.CI)
 const isLinux = process.platform === 'linux' && !CI
 
+// Mermaid tests load playground modules, which need Vite rather than the standalone example server.
+const playgroundServer: PlaywrightTestConfig['webServer'] = IS_CDN
+  ? undefined
+  : {
+      command: 'pnpm dev --host 0.0.0.0 --port 5173 --strictPort',
+      url: 'http://localhost:5173/playground/mermaid/summary.html',
+    }
+
 /**
  * A list of reporters to use for the tests
  * @see https://playwright.dev/docs/test-reporters
@@ -50,7 +58,7 @@ export default defineConfig({
    * Outside of CI we run the playwright test server in a docker container for
    * consistent cross-platform results.
    */
-  webServer: CI ? undefined : getDockerServer(),
+  webServer: CI ? playgroundServer : getDockerServer(),
   snapshotPathTemplate: '{testFileDir}/{testFileName}.snapshots/{arg}{ext}',
   expect: {
     toHaveScreenshot: {
