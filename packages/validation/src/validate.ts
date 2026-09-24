@@ -32,6 +32,10 @@ const IN_FLIGHT = Symbol('in flight')
 /**
  * How many steps a value that is not an object or array may take through `union`, `optional`,
  * `lazy` and `evaluate` nodes before {@link validateInner} starts recording them to catch loops.
+ *
+ * Each frame that reaches this many steps starts its own record, so a schema that loops back to
+ * itself through k branches every L steps is explored about k^(8/L) times before loops are caught.
+ * Real schemas do not loop on primitives like that, so the extra work only shows up in contrived ones.
  */
 const UNTRACKED_HOPS = 8
 

@@ -1042,7 +1042,7 @@ describe('memoization', () => {
   it('validates an undiscriminated recursive union in linear time', () => {
     // Every level fails in the first branch and is then tried again in the second one. Without the
     // memo that doubles the work per level. The depths stay small so a regression fails quickly
-    // instead of hanging: at depth 20 that is still about a million expansions.
+    // instead of hanging: at depth 20 that is still about two million expansions.
     const countExpansions = (depth: number): number => {
       expansions = 0
       expect(validate(node, buildFailingChain(depth))).toBe(false)
@@ -1101,6 +1101,16 @@ describe('memoization', () => {
 
     expect(validate(W, x)).toBe(false)
     expect(validate(union([S, W]), x)).toBe(false)
+  })
+
+  it('passes pairs a caller lists as already being validated, without changing the list', () => {
+    const T = object({ a: number() })
+    const value = { a: 'one' }
+    const cache = new WeakMap<object, Set<Schema>>([[value, new Set<Schema>([T])]])
+
+    expect(validate(T, value, cache)).toBe(true)
+    expect(validate(T, value)).toBe(false)
+    expect([...(cache.get(value) ?? [])]).toEqual([T])
   })
 
   it('does not reuse results between calls', () => {
@@ -1166,7 +1176,11 @@ describe('schema cycles on primitives', () => {
   })
 
   it('handles a cycle through an evaluate that swaps between two values', () => {
-    const swap = (value: unknown): unknown => (value === 1 ? 2 : value === 2 ? 1 : value)
+    const swapped = new Map<unknown, unknown>([
+      [1, 2],
+      [2, 1],
+    ])
+    const swap = (value: unknown): unknown => (swapped.has(value) ? swapped.get(value) : value)
     const withoutMatch: Schema = lazy(() => union([evaluate(swap, withoutMatch), string()]))
     const withMatch: Schema = lazy(() => union([evaluate(swap, withMatch), literal(2)]))
 
@@ -1215,13 +1229,16 @@ describe('schema cycles on primitives', () => {
 describe('memoization parity', () => {
   /**
    * The validator as it was before memoization, kept here as the reference to compare against.
-   * It has no guard for schema cycles on primitives and overflows the stack there, so those cases
-   * are skipped. Everywhere it does finish, the memoized validator must give the same answer.
+   * That version overflowed the stack when a schema looped on a value that is not an object or
+   * array. Here it gets the simplest possible guard for that instead: a loop on the current path
+   * does not count as a match, and the path starts over at every object or array. It remembers
+   * nothing, so any difference points at the memo or at the shortcuts the real search takes.
    */
   const referenceValidate = (
     schema: Schema | undefined,
     value: unknown,
     cache: WeakMap<object, Set<Schema>> = new WeakMap(),
+    path: Map<unknown, Set<Schema>> = new Map(),
   ): boolean => {
     if (!schema) {
       return false
@@ -1235,7 +1252,20 @@ describe('memoization parity', () => {
       schemas.add(schema)
       cache.set(value, schemas)
     }
-    const next = (s: Schema | undefined, v: unknown): boolean => referenceValidate(s, v, cache)
+
+    const loops =
+      !trackable &&
+      (schema.type === 'union' || schema.type === 'optional' || schema.type === 'lazy' || schema.type === 'evaluate')
+    if (loops && path.get(value)?.has(schema)) {
+      return false
+    }
+    if (loops) {
+      path.set(value, (path.get(value) ?? new Set<Schema>()).add(schema))
+    }
+
+    /** Moves on to another check. The path only carries on between values that are not objects or arrays. */
+    const next = (s: Schema | undefined, v: unknown): boolean =>
+      referenceValidate(s, v, cache, loops && !isObject(v) && !Array.isArray(v) ? path : new Map())
     const check = (): boolean => {
       switch (schema.type) {
         case 'any':
@@ -1286,6 +1316,9 @@ describe('memoization parity', () => {
     if (trackable) {
       cache.get(value)?.delete(schema)
     }
+    if (loops) {
+      path.get(value)?.delete(schema)
+    }
     return result
   }
 
@@ -1307,11 +1340,15 @@ describe('memoization parity', () => {
   const KEYS = ['a', 'b'] as const
   const PRIMITIVES = ['a', 'x', 1, 2, null, true] as const
 
-  /** Pure expressions for `evaluate`: one returns its input, the others step to a different value. */
+  /**
+   * Pure expressions for `evaluate`: one returns its input, the others step to a different value.
+   * The counter keeps stepping between primitives, so it can close a loop through several values.
+   */
   const EXPRESSIONS: readonly ((value: unknown) => unknown)[] = [
     (value) => value,
     (value) => (isObject(value) ? value.a : value),
     (value) => (value === 1 ? 'a' : value),
+    (value) => (typeof value === 'number' ? (value + 1) % 4 : value),
   ]
 
   /** Builds a set of mutually recursive schemas and returns the first one. */
@@ -1353,7 +1390,7 @@ describe('memoization parity', () => {
       }
     }
 
-    for (let index = 0; index < slots.length; index++) {
+    for (const _ of slots) {
       definitions.push(build(0))
     }
     return slots[0] as Schema
@@ -1383,7 +1420,7 @@ describe('memoization parity', () => {
     return random.int(6) === 0 ? random.pick(PRIMITIVES) : nodes[0]
   }
 
-  it('matches the unmemoized validator on random cyclic values', () => {
+  it('matches the unmemoized validator on random cyclic values and looping schemas', () => {
     let compared = 0
     let rejected = 0
 
@@ -1392,16 +1429,7 @@ describe('memoization parity', () => {
       const schema = buildSchema(random)
       const value = buildValue(random)
 
-      let expected: boolean
-      try {
-        expected = referenceValidate(schema, value)
-      } catch (error) {
-        if (error instanceof RangeError) {
-          // The reference overflows on a schema cycle over a primitive; nothing to compare.
-          continue
-        }
-        throw error
-      }
+      const expected = referenceValidate(schema, value)
 
       compared++
       if (!expected) {
