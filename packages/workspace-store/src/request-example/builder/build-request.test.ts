@@ -40,7 +40,7 @@ describe('buildRequest', () => {
       exampleName: 'default',
       method: 'get',
       path: '/users/{id}',
-      environment: { variables: [] },
+      environment: { color: '#FFFFFF', variables: [] },
       globalCookies: [],
       proxyUrl: '',
       server: { url: 'https://example.com' },
