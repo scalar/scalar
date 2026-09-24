@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { getHeapStatistics } from 'node:v8'
 
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -26,6 +27,44 @@ const findReferences = (node: unknown, references: object[] = [], seen = new Wea
 
 const getReferenceTarget = (reference: object | undefined): unknown =>
   reference === undefined ? undefined : Object.getOwnPropertyDescriptor(reference, '$ref-value')?.value
+
+/**
+ * Build a description shaped like Stripe's expandable fields: every model links to many
+ * others, and the links cycle, so each model can reach almost every other model.
+ */
+const createDenselyLinkedDocument = (models: number, linksPerModel: number): Record<string, unknown> => {
+  const name = (index: number): string => `Model${index % models}`
+  const schemas: Record<string, unknown> = {}
+
+  for (let index = 0; index < models; index++) {
+    const properties: Record<string, unknown> = { id: { type: 'string' } }
+    for (let link = 1; link <= linksPerModel; link++) {
+      properties[`field${link}`] = {
+        anyOf: [{ type: 'string' }, { $ref: `#/components/schemas/${name(index + link * 7 + 1)}` }],
+      }
+    }
+    properties.list = { type: 'array', items: { $ref: `#/components/schemas/${name(index + 1)}` } }
+    schemas[name(index)] = { type: 'object', properties }
+  }
+
+  return {
+    openapi: '3.1.1',
+    info: { title: 'Densely linked', version: '1' },
+    paths: {
+      '/models': {
+        get: {
+          responses: {
+            '200': {
+              description: 'OK',
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/Model0' } } },
+            },
+          },
+        },
+      },
+    },
+    components: { schemas },
+  }
+}
 
 describe('load-document', () => {
   it.each([
@@ -256,5 +295,96 @@ paths:
       schemas: { value: true },
     })
     expect(JSON.stringify(input)).toBe(original)
+  })
+
+  it('keeps references whose targets fail strict schema checks', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Owners', version: '1' },
+      paths: {
+        '/app': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/App' } } },
+              },
+            },
+            'x-github': { category: 'apps' },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          App: {
+            type: 'object',
+            properties: {
+              owner: { oneOf: [{ $ref: '#/components/schemas/User' }, { $ref: '#/components/schemas/Org' }] },
+            },
+          },
+          User: { type: 'object', properties: { login: { type: 'string' } } },
+          Org: { type: 'object', properties: { slug: { type: 'string' } } },
+        },
+      },
+    })
+
+    const operation = getValueAtPath(document, ['paths', '/app', 'get'])
+    const schema = getValueAtPath(operation, ['responses', '200', 'content', 'application/json', 'schema'])
+
+    expect(schema).toStrictEqual({ $ref: '#/components/schemas/App' })
+    expect(getReferenceTarget(isObject(schema) ? schema : undefined)).toBe(document.components?.schemas?.App)
+    expect(getValueAtPath(operation, ['x-github'])).toStrictEqual({ category: 'apps' })
+  })
+
+  it('links references to targets that coercion drops', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Legacy definitions', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { $ref: '#/definitions/Pet' } } },
+              },
+            },
+          },
+        },
+      },
+      definitions: {
+        Pet: { type: 'object', properties: { owner: { $ref: '#/components/schemas/Owner' } } },
+      },
+      components: { schemas: { Owner: { type: 'object', properties: { name: { type: 'string' } } } } },
+    })
+
+    const target = getReferenceTarget(findReferences(document)[0])
+    const nested = getValueAtPath(target, ['properties', 'owner'])
+
+    expect('definitions' in document).toBe(false)
+    expect(target).toStrictEqual({ type: 'object', properties: { owner: { $ref: '#/components/schemas/Owner' } } })
+    // The fallback target is outside the coerced tree, so its own references still point into it.
+    expect(getReferenceTarget(isObject(nested) ? nested : undefined)).toBe(document.components?.schemas?.Owner)
+  })
+
+  it('loads densely linked descriptions without copying the reference graph', async () => {
+    const models = 60
+    const input = createDenselyLinkedDocument(models, 8)
+    const before = getHeapStatistics().total_heap_size
+
+    const document = await loadDocument(input)
+
+    // Copying every model reachable from each checked union and array grows the heap by ~180 MB here.
+    expect(getHeapStatistics().total_heap_size - before).toBeLessThan(64 * 1024 * 1024)
+
+    const schemas = document.components?.schemas ?? {}
+    const references = findReferences(document)
+    expect(Object.keys(schemas)).toHaveLength(models)
+    expect(references).toHaveLength(models * 9 + 1)
+    for (const reference of references) {
+      const target = getReferenceTarget(reference)
+      expect(Object.values(schemas)).toContain(target)
+      expect(Object.getOwnPropertyDescriptor(reference, '$ref-value')?.enumerable).toBe(false)
+    }
   })
 })

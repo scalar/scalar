@@ -16,15 +16,25 @@ import {
 
 import { restoreBooleanSchemas } from './restore-boolean-schemas'
 
+type AttachRefValuesOptions = {
+  /** Report external references without linking anything. */
+  detectOnly?: boolean
+  /** Resolve targets that are missing from the document, such as values coercion dropped. */
+  fallback?: unknown
+}
+
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
  * JSON Magic owns `$id` and anchor indexing, which keeps local-reference behavior
  * aligned with the external-reference bundler without retaining a second resolver.
  * Non-enumerable links preserve serialization and share recursive schema targets.
- * Casting temporarily uses enumerable links to satisfy TypeBox reference branches.
  * Returns whether external references remain and require bundling.
  */
-const attachRefValues = (document: unknown, enumerable = false, schemas = getSchemas(document)): boolean => {
+const attachRefValues = (
+  document: unknown,
+  schemas = getSchemas(document),
+  { detectOnly = false, fallback }: AttachRefValuesOptions = {},
+): boolean => {
   // A single traversal covers both normal trees and previously linked recursive objects.
   const seen = new WeakSet<object>()
   let hasExternalReferences = false
@@ -42,39 +52,30 @@ const attachRefValues = (document: unknown, enumerable = false, schemas = getSch
       const ref = node.$ref
       const path = ref === '#' ? '' : convertToLocalRef(ref, base, schemas)
 
-      // Point to the bundled target instead of copying it into every reference.
-      const target =
-        path === undefined ? undefined : getValueByPath(document, parseJsonPointerSegments(`/${path}`)).value
-
       // JSON Magic only needs to bundle references outside this document's resource index.
       if (path === undefined && ref.split('#')[0]) {
         hasExternalReferences = true
       }
 
-      if (enumerable) {
-        const followed = new WeakSet<object>()
-        let resolved = target
+      if (!detectOnly && path !== undefined) {
+        const segments = parseJsonPointerSegments(`/${path}`)
+        const linked = getValueByPath(document, segments).value
+        // Point to the bundled target instead of copying it into every reference.
+        const target =
+          linked === undefined && fallback !== undefined ? getValueByPath(fallback, segments).value : linked
 
-        // TypeBox needs the final target, so collapse a pre-existing reference chain safely.
-        while (isObject(resolved) && '$ref-value' in resolved && !followed.has(resolved)) {
-          followed.add(resolved)
-          resolved = resolved['$ref-value']
-        }
-        if (resolved !== undefined) {
+        if (target !== undefined) {
           Object.defineProperty(node, '$ref-value', {
-            value: resolved,
-            enumerable,
+            value: target,
+            enumerable: false,
             configurable: true,
             writable: true,
           })
         }
-      } else if (target !== undefined) {
-        Object.defineProperty(node, '$ref-value', {
-          value: target,
-          enumerable,
-          configurable: true,
-          writable: true,
-        })
+        // Fallback targets live outside the walked tree, so link their own references too.
+        if (linked === undefined) {
+          visit(target, base)
+        }
       }
     }
 
@@ -126,7 +127,7 @@ export const loadDocument = async (
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
   const { document: upgraded } = upgrade(raw, '3.2', { onIncompatible: 'collect' })
   const upgradedSchemas = getSchemas(upgraded)
-  const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
+  const hasExternalReferences = attachRefValues(upgraded, upgradedSchemas, { detectOnly: true })
 
   let document = upgraded
   let schemas = upgradedSchemas
@@ -151,12 +152,14 @@ export const loadDocument = async (
       throw new Error(errors.join('\n'))
     }
     schemas = getSchemas(document)
-    attachRefValues(document, false, schemas)
   }
 
-  // TypeBox's reference branches require an enumerable $ref-value during casting.
-  // Restore non-enumerable shared links afterward so rendering never expands the graph.
-  attachRefValues(document, true, schemas)
+  // Cast the document before linking references. TypeBox clones every value that already
+  // matches a union or array schema, and its clone follows all own properties, including
+  // non-enumerable `$ref-value` links. On densely linked descriptions, each clone would copy
+  // most of the reference graph again, which costs gigabytes of transient memory.
+  // Reference branches accept a missing `$ref-value`, and every target is cast in its own
+  // position, so one target that fails a strict check can no longer replace the reference.
   const coerced = coerceValue(OpenAPIDocumentSchema, document)
   // Rendering must use the declared version for features added after OpenAPI 3.1.
   coerced['x-original-oas-version'] = declaredOpenapiVersion
@@ -176,8 +179,8 @@ export const loadDocument = async (
     }
   }
 
-  // Redefine TypeBox's temporary links as non-enumerable links to coerced targets.
-  attachRefValues(coerced, false, schemas)
+  // Link references to coerced targets, falling back to source values that coercion dropped.
+  attachRefValues(coerced, schemas, { fallback: document })
 
   return coerced
 }
