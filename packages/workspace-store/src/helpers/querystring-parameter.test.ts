@@ -187,7 +187,7 @@ describe('querystring-parameter', () => {
 
   it('honors optional and explicitly disabled examples', () => {
     const input = { ...parameter('application/json', {}), required: false }
-    expect(serialize(input)).toBeUndefined()
+    expect(serialize(input)).toBe('%7B%7D')
     expect(serialize({ ...input, examples: { default: { dataValue: {}, 'x-disabled': false } } })).toBe('%7B%7D')
     expect(
       serialize({ ...input, required: true, examples: { default: { dataValue: {}, 'x-disabled': true } } }),

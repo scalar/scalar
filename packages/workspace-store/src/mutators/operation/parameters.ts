@@ -1,5 +1,6 @@
 import type { OperationEvents } from '@/events/definitions/operation'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getParameterExample } from '@/helpers/get-parameter-example'
 import { type NodeInput, getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getQuerystringParameter, serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -64,8 +65,11 @@ export const upsertOperationParameter = (
     const querystring = getQuerystringParameter(originalParameter, meta.exampleKey, { includeDisabled: true })
     const preserveQuerystringValue = querystring && payload.value === serializeQuerystringParameter(querystring)
     const param = originalParameter
+    const selected = getParameterExample(param, meta.exampleKey)
     const target =
-      param.in !== 'querystring' && isContentTypeParameterObject(param) ? Object.values(param.content ?? {})[0] : param
+      param.in !== 'querystring' && !selected.serialized && isContentTypeParameterObject(param)
+        ? Object.values(param.content ?? {})[0]
+        : param
     if (!target) {
       return
     }
@@ -121,7 +125,15 @@ export const upsertOperationParameter = (
         example.serializedValue = String(payload.value)
       }
     } else {
-      example.value = payload.value
+      delete example.dataValue
+      delete example.serializedValue
+      delete example.externalValue
+      if (selected.serialized || selected.mediaSerialized) {
+        delete example.value
+        example.serializedValue = String(payload.value)
+      } else {
+        example.value = payload.value
+      }
     }
     example['x-disabled'] = payload.isDisabled
     return

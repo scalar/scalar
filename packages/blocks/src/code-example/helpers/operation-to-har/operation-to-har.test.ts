@@ -9,6 +9,39 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it.each(snippetz().plugins())(
+    'preserves mixed serialized query examples in $target/$client',
+    ({ target, client }) => {
+      const request = operationToHar({
+        method: 'get',
+        path: '/items',
+        server: { url: 'https://example.com' },
+        operation: {
+          parameters: [
+            {
+              name: 'term',
+              in: 'query',
+              required: true,
+              examples: { default: { serializedValue: 'term=a%20b&term=c%2Fd' } },
+            },
+            { name: 'flag', in: 'query', required: true, examples: { default: { dataValue: false } } },
+            { name: 'tag', in: 'query', required: true, example: 'a+b' },
+          ],
+        },
+        securitySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': 'a+b%20' }],
+      })
+      const expected = 'https://example.com/items?term=a%20b&term=c%2Fd&flag=false&tag=a%2Bb&key=a%2Bb%2520'
+      expect(request.url).toBe(expected)
+      expect(request.queryString).toStrictEqual([])
+      const snippet = snippetz().findPlugin(target, client)?.generate(request)
+      expect(snippet).toBeDefined()
+      expect(snippet).not.toContain('?flag=')
+      if (target === 'rust' || target === 'ruby') {
+        expect(snippet).toContain(expected)
+      }
+    },
+  )
+
   it.each(snippetz().plugins())('preserves mixed cookie encodings in $target/$client', ({ target, client }) => {
     const request = operationToHar({
       method: 'get',

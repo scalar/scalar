@@ -28,6 +28,38 @@ const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => 
 }
 
 describe('upsertOperationParameter', () => {
+  it.each([
+    { authored: { dataValue: 'old', externalValue: 'old.json' }, expected: { value: 'new', 'x-disabled': false } },
+    {
+      authored: { serializedValue: 'term=old', dataValue: 'old' },
+      expected: { serializedValue: 'new', 'x-disabled': false },
+    },
+  ])('replaces the original example source when editing', ({ authored, expected }) => {
+    const parameter: ParameterObject = { name: 'term', in: 'query', examples: { default: authored } }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/', exampleKey: 'default' },
+      payload: { name: 'term', value: 'new', isDisabled: false },
+    })
+    expect(parameter.examples?.default).toStrictEqual(expected)
+  })
+
+  it('keeps edited serialized query text verbatim, including names and encoding', () => {
+    const parameter: ParameterObject = {
+      name: 'term',
+      in: 'query',
+      examples: { default: { serializedValue: 'term=old' } },
+    }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/', exampleKey: 'default' },
+      payload: { name: 'term', value: 'term=hello%20world&term=again', isDisabled: false },
+    })
+    expect(buildRequestParameters([parameter]).serializedQuery).toStrictEqual(['term=hello%20world&term=again'])
+  })
+
   it('preserves environment substitution when enabling an unchanged whole-query preview', () => {
     const parameter: ParameterObject = {
       name: 'form',

@@ -5,6 +5,23 @@ import { describe, expect, it } from 'vitest'
 import { getParameterExamples } from './get-parameter-examples'
 
 describe('get-parameter-examples', () => {
+  it('unwraps named parameter examples without losing false or null', () => {
+    expect(
+      getParameterExamples({
+        parameter: {
+          name: 'term',
+          in: 'query',
+          examples: {
+            data: { dataValue: { id: 1 } },
+            wire: { serializedValue: 'term=a%20b' },
+            no: { dataValue: false },
+            empty: { dataValue: null },
+          },
+        },
+      }),
+    ).toStrictEqual([{ value: { id: 1 } }, { value: 'term=a%20b' }, { value: false }, { value: null }])
+  })
+
   it('renders querystring data examples and prefers parameter examples', () => {
     expect(
       getParameterExamples({

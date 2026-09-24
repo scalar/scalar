@@ -1,11 +1,12 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
+import { getParameterExample } from '@scalar/workspace-store/helpers/get-parameter-example'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getQuerystringParameter,
   serializeQuerystringParameter,
 } from '@scalar/workspace-store/helpers/querystring-parameter'
-import { deSerializeParameter, getExample, isParamDisabled } from '@scalar/workspace-store/request-example'
+import { deSerializeParameter, isParamDisabled } from '@scalar/workspace-store/request-example'
 import type {
   ParameterObject,
   ParameterWithSchemaObject,
@@ -384,7 +385,9 @@ export const createParameterRows = (
     renamedValuePaths?: readonly { from: string[]; to: string[] }[]
   } = {},
 ): TableRow[] => {
-  const example = getExample(parameter, exampleKey, undefined)
+  const selected = getParameterExample(parameter, exampleKey)
+  const { example } = selected
+  const displayValue = selected.value === null && example?.dataValue === null ? 'null' : selected.value
   const isDisabled = isParamDisabled(parameter, example)
   // Preserve type-to-enable behavior until the user explicitly chooses a checkbox state.
   const isDisabledByDefault = !parameter.required && parameter.in !== 'path' && example?.['x-disabled'] === undefined
@@ -402,20 +405,36 @@ export const createParameterRows = (
       ),
     ]
   }
-  const mode = getExpansionMode(parameter, schema)
+  const mode = selected.serialized ? null : getExpansionMode(parameter, schema)
 
   // Non-expandable parameters: render as a single row.
   if (mode === null || !schema || !isObjectSchema(schema)) {
-    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled, isDisabledByDefault)]
+    return [
+      toSingleParameterRow(
+        parameter,
+        selected.serialized ? undefined : schema,
+        displayValue,
+        isDisabled,
+        isDisabledByDefault,
+      ),
+    ]
   }
 
   // Expand into per-property rows. The deserialized value is used so existing per-property values
   // can be displayed in the table even when the example arrives as a serialized string.
-  const value = example?.value === undefined ? undefined : deSerializeParameter(example.value, parameter)
+  const value = selected.value === undefined ? undefined : deSerializeParameter(selected.value, parameter)
 
   // Fall back to a single row only when the schema has no properties to expand.
   if (!schema.properties) {
-    return [toSingleParameterRow(parameter, schema, example?.value, isDisabled, isDisabledByDefault)]
+    return [
+      toSingleParameterRow(
+        parameter,
+        selected.serialized ? undefined : schema,
+        displayValue,
+        isDisabled,
+        isDisabledByDefault,
+      ),
+    ]
   }
 
   const hiddenValuePaths = new Set(options.hiddenValuePaths?.map(toPathKey) ?? [])

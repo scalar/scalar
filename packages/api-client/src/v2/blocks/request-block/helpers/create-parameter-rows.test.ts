@@ -4,6 +4,19 @@ import { describe, expect, it } from 'vitest'
 import { createParameterRows } from './create-parameter-rows'
 
 describe('createParameterRows', () => {
+  it.each([
+    { example: { dataValue: 'hello' }, value: 'hello' },
+    { example: { dataValue: false }, value: 'false' },
+    { example: { dataValue: 0 }, value: '0' },
+    { example: { serializedValue: 'term=a%20b' }, value: 'term=a%20b' },
+  ])('displays and enables authored parameter examples: $value', ({ example, value }) => {
+    const rows = createParameterRows(
+      { name: 'term', in: 'query', schema: { type: 'string' }, examples: { default: example } },
+      'default',
+    )
+    expect(rows.map(({ value, isDisabled }) => ({ value, isDisabled }))).toStrictEqual([{ value, isDisabled: false }])
+  })
+
   it('retains the whole-query value while disabled so it can be re-enabled', () => {
     const parameter: ParameterObject = {
       name: 'metadata',
