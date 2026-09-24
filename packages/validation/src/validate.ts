@@ -10,10 +10,10 @@ type ValidationState = {
   /**
    * What is known about each `(object, schema)` pair. {@link IN_FLIGHT} means the pair is being
    * validated further up the call stack, so reaching it again means the value graph has a cycle,
-   * and the call short-circuits to `true`. A boolean is a finished, memoized result. Without the
-   * memo, a value reachable through more than one branch (for example an undiscriminated
-   * recursive union) is validated again once per branch at every level, which takes exponential
-   * time in the nesting depth.
+   * and the call short-circuits to `true`. A boolean is a finished, memoized result of a `lazy`
+   * node. Without the memo, a value reachable through more than one branch (for example an
+   * undiscriminated recursive union) is validated again once per branch at every level, which
+   * takes exponential time in the nesting depth.
    */
   results: WeakMap<object, Map<Schema, boolean | typeof IN_FLIGHT>>
   /** Pairs a caller passed in as already being validated. They short-circuit like {@link IN_FLIGHT}. */
@@ -58,11 +58,15 @@ const searchKey = (value: unknown): unknown => (Object.is(value, -0) ? NEGATIVE_
  * marker only ever describes the live call stack. A stale marker left by a failed branch (for
  * example the first member of a `union`) would look like a cycle to later sibling branches.
  *
- * Finished results are memoized in the same map, but only when the frame never hit that cycle
- * short-circuit (see {@link ValidationState.tainted}). The short-circuit needs a value that leads
- * back to itself, or a schema that recurses on the same object without looking inside it, so a
- * parsed JSON document checked against a real schema is fully memoized. Anything that did hit it
- * is validated again when reached, just like before the memo existed.
+ * Finished results of `lazy` frames are memoized in the same map, but only when the frame never
+ * hit that cycle short-circuit (see {@link ValidationState.tainted}). Only `lazy` frames, because
+ * recursion always goes through one, and the `lazy` node is the one schema object that stays the
+ * same between visits. A factory usually builds its schema inline, so everything below it is a
+ * fresh object on every expansion, and remembering those would only fill the map with keys that
+ * are never looked up again. The short-circuit needs a value that leads back to itself, or a schema
+ * that recurses on the same object without looking inside it, so a parsed JSON document checked
+ * against a real schema is fully memoized. Anything that did hit it is validated again when
+ * reached, just like before the memo existed.
  *
  * Primitives (and other values that are not plain objects or arrays) cannot form cycles, but a
  * schema can: `T = lazy(() => union([T, string()]))` keeps asking whether `7` matches `T`. On such
@@ -107,7 +111,8 @@ const validateInner = (
 
     // Short-circuit on cycles: this exact `(value, schema)` pair is already being validated higher
     // up the call stack. Objects and arrays never reach the reachability search below, so they keep
-    // this coinductive `true`.
+    // this coinductive `true`. Pairs a caller listed count the same way and also taint, which is
+    // stricter than needed (that list never changes during the call), but keeps one simple rule.
     if (known === IN_FLIGHT || state.callerInFlight?.get(value)?.has(schema)) {
       state.tainted = true
       return true
@@ -194,20 +199,17 @@ const validateInner = (
     } else if (schema.type === 'literal') {
       result = value === schema.value
     } else if (schema.type === 'lazy') {
-      // The factory runs every time this node is validated (a memo hit skips it) and may build a fresh
-      // schema object each time. That is fine, because the cycle guards and the memo key on this
-      // `lazy` node, which stays the same. Keep the
-      // `lazy` node as its own frame: resolving it away (or keying on what the factory returns) would
-      // let `lazy(() => union([T, string()]))` recurse forever on a primitive.
+      // The factory runs every time this node is validated (a memo hit skips it) and may build a
+      // fresh schema object each time. That is fine, because the cycle guards and the memo key on
+      // this `lazy` node, which stays the same. Keep the `lazy` node as its own frame: resolving it
+      // away (or keying on what the factory returns) would let `lazy(() => union([T, string()]))`
+      // recurse forever on a primitive.
       result = validateInner(schema.schema(), value, state, search, nextHops)
     } else if (schema.type === 'evaluate') {
-      const evaluated = schema.expression(value)
-      // An object or array result leaves the reachability search, so it starts over from there.
-      // Any other result stays in it, whether or not the expression changed the value.
-      const staysInSearch = !isObject(evaluated) && !Array.isArray(evaluated)
-      result = staysInSearch
-        ? validateInner(schema.schema, evaluated, state, search, nextHops)
-        : validateInner(schema.schema, evaluated, state)
+      // A result that is not an object or array stays in the reachability search, whether or not
+      // the expression changed the value. An object or array result ignores the search, and the
+      // search starts over below it.
+      result = validateInner(schema.schema, schema.expression(value), state, search, nextHops)
     } else {
       // We need to assert here that schema has the type never so we know we handle all cases
       const _exhaustive: never = schema
@@ -215,9 +217,9 @@ const validateInner = (
       result = false
     }
 
-    // Replacing the marker with the result memoizes it. A tainted result keeps the marker, which is
+    // Replacing the marker with the result memoizes it. Any other frame keeps the marker, which is
     // removed below like on any other way out.
-    if (entries && !state.tainted) {
+    if (entries && !state.tainted && schema.type === 'lazy') {
       entries.set(schema, result)
     }
 
