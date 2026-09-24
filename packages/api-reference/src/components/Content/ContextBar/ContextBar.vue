@@ -182,6 +182,7 @@ onBeforeUnmount(() => {
     :aria-hidden="!hasBreadcrumb"
     :aria-label="hasBreadcrumb ? 'Breadcrumb' : undefined"
     class="context-bar bg-b-1.5 text-c-2 sticky top-(--refs-header-height) z-10 flex items-center gap-1.5 text-sm"
+    data-scalar-scroll-header
     :data-stuck="isStuck || undefined">
     <template
       v-for="(crumb, index) in displayCrumbs"

@@ -374,25 +374,19 @@ const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown):
 }
 
 /**
- * Measures the connected header region covering the target at its scrollport's top.
+ * Measures registered headers covering the target at its scrollport's top.
+ * Headers opt in with `data-scalar-scroll-header`; unrelated fixed elements are never measured.
  * Horizontal overlap excludes sidebars; sorting also handles stacked navigation bars.
  */
 export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): number => {
   const target = element.getBoundingClientRect()
   const targetX = target.left + target.width / 2
-  const headers = Array.from(document.querySelectorAll<HTMLElement>('*'))
+  const headers = Array.from(element.ownerDocument.querySelectorAll<HTMLElement>('[data-scalar-scroll-header]'))
     .flatMap((candidate) => {
-      // Theme flares are decorative backgrounds, even when they cover the whole viewport.
-      if (
-        candidate.closest('.section-flare') ||
-        candidate === element ||
-        candidate.contains(element) ||
-        element.contains(candidate)
-      ) {
+      if (candidate === element || candidate.contains(element) || element.contains(candidate)) {
         return []
       }
-      // Read geometry first: most nodes cannot cover the target. Computing styles
-      // for the whole API description on every freeze frame is unnecessarily costly.
+      // Ignore registered headers outside this target's horizontal scroll region.
       const rect = candidate.getBoundingClientRect()
       if (rect.height <= 0 || rect.bottom <= scrollportTop || rect.left > targetX || rect.right <= targetX) {
         return []
