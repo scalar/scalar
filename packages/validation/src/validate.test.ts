@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+import { isObject } from '@/helpers/is-object'
 import {
+  type Schema,
   any,
   array,
   boolean,
@@ -1015,5 +1017,363 @@ describe('cyclic structures', () => {
 
     expect(() => validate(T, arr)).not.toThrow()
     expect(validate(T, arr)).toBe(true)
+  })
+})
+
+describe('memoization', () => {
+  /** A recursive union with no discriminator: both branches look at `next` before anything else. */
+  const node: Schema = lazy(() =>
+    union([object({ next: optional(node), a: string() }), object({ next: optional(node), b: string() })]),
+  )
+
+  /** Builds `depth` nested nodes whose innermost node matches neither branch. */
+  const buildFailingChain = (depth: number): Record<string, unknown> => {
+    let value: Record<string, unknown> = {}
+    for (let i = 0; i < depth; i++) {
+      value = { next: value, a: 'x' }
+    }
+    return value
+  }
+
+  it('validates an undiscriminated recursive union in linear time', () => {
+    // Every level fails in the first branch and is then tried again in the second one. Without the
+    // memo that is 2^depth work: about a second at depth 20, and far longer at depth 200.
+    for (const depth of [20, 200]) {
+      const start = performance.now()
+      const result = validate(node, buildFailingChain(depth))
+      const elapsed = performance.now() - start
+
+      expect(result).toBe(false)
+      expect(elapsed).toBeLessThan(500)
+    }
+  })
+
+  it('still accepts a valid deep chain', () => {
+    let value: Record<string, unknown> = { b: 'leaf' }
+    for (let i = 0; i < 200; i++) {
+      value = { next: value, a: 'x' }
+    }
+
+    expect(validate(node, value)).toBe(true)
+  })
+
+  it('gives a shared node the same answer on every path that reaches it', () => {
+    // Parsed documents are trees, but cloning keeps shared objects shared, so the same object can
+    // sit under several parents. It must fail everywhere it is invalid.
+    const T: Schema = lazy(() => object({ name: string(), left: optional(T), right: optional(T) }))
+    const shared = { name: 42 }
+    const value = { name: 'root', left: { name: 'l', right: shared }, right: shared }
+
+    expect(validate(T, shared)).toBe(false)
+    expect(validate(T, value)).toBe(false)
+    expect(validate(T, { name: 'root', left: { name: 'l' }, right: { name: 'r' } })).toBe(true)
+  })
+
+  it('does not remember an answer that only held because of a cycle', () => {
+    // `x` and `y` point at each other. Checking `x` against `S` reaches `y` against `S2`, which leads
+    // back to `x` against `S` while that is still in flight, so it holds for now. `S` then fails on
+    // `bad`. The second branch `W` checks `y` against `S2` again, this time without `x` against `S`
+    // in flight, and must find that it fails. Remembering the first answer would accept `x`.
+    const S: Schema = lazy(() => object({ y: S2, bad: optional(string()) }))
+    const S2: Schema = lazy(() => object({ x: S }))
+    const W = object({ y: S2 })
+
+    const x: Record<string, unknown> = { bad: 5 }
+    const y = { x }
+    x.y = y
+
+    expect(validate(W, x)).toBe(false)
+    expect(validate(union([S, W]), x)).toBe(false)
+  })
+
+  it('does not reuse results between calls', () => {
+    const T = object({ a: number() })
+    const value: Record<string, unknown> = { a: 'one' }
+
+    expect(validate(T, value)).toBe(false)
+    value.a = 1
+    expect(validate(T, value)).toBe(true)
+  })
+})
+
+describe('schema cycles on primitives', () => {
+  // A schema can point back at itself without moving to a different value. For primitives nothing
+  // on the value side breaks that loop, so these used to overflow the stack.
+  const T: Schema = lazy(() => union([T, string()]))
+
+  it('accepts a primitive that another branch matches', () => {
+    expect(validate(T, 's')).toBe(true)
+  })
+
+  it('rejects a primitive that no branch matches', () => {
+    expect(validate(T, 7)).toBe(false)
+    expect(validate(T, null)).toBe(false)
+    expect(validate(T, undefined)).toBe(false)
+  })
+
+  it('rejects a value that is not a plain object', () => {
+    expect(validate(T, new Date())).toBe(false)
+  })
+
+  it('keeps accepting an object on a schema cycle, as before', () => {
+    // Objects and arrays are caught by the value cycle guard first, which answers `true`.
+    const WithObject: Schema = lazy(() => union([WithObject, object({ a: string() })]))
+
+    expect(validate(WithObject, {})).toBe(true)
+    expect(validate(T, [])).toBe(true)
+  })
+
+  it('handles a cycle through optional', () => {
+    const O: Schema = lazy(() => optional(union([O, number()])))
+
+    expect(validate(O, 1)).toBe(true)
+    expect(validate(O, undefined)).toBe(true)
+    expect(validate(O, 'one')).toBe(false)
+  })
+
+  it('handles a cycle through an evaluate that returns its input', () => {
+    // A `$ref` resolver returns anything that is not a reference unchanged. That is not a step to a
+    // new value, so it must not start the cycle guard over.
+    const E: Schema = lazy(() => union([evaluate((value) => value, E), string()]))
+
+    expect(validate(E, 's')).toBe(true)
+    expect(validate(E, 7)).toBe(false)
+  })
+
+  it('follows an evaluate that changes the value', () => {
+    const E: Schema = lazy(() =>
+      union([evaluate((value) => (typeof value === 'number' ? String(value) : value), E), string()]),
+    )
+
+    expect(validate(E, 7)).toBe(true)
+    expect(validate(E, true)).toBe(false)
+  })
+
+  it('still catches the cycle in a sibling branch after an evaluate changed the value', () => {
+    // The first branch moves on from `1` to `2`. When it returns, the second branch is back on `1`
+    // and must still see that `L` is already being checked for it.
+    const withoutMatch: Schema = lazy(() =>
+      union([evaluate((value) => (value === 1 ? 2 : value), withoutMatch), withoutMatch, literal(3)]),
+    )
+    const withMatch: Schema = lazy(() =>
+      union([evaluate((value) => (value === 1 ? 2 : value), withMatch), withMatch, literal(2)]),
+    )
+
+    expect(validate(withoutMatch, 1)).toBe(false)
+    expect(validate(withMatch, 1)).toBe(true)
+  })
+
+  it('checks a property value against a schema its parent already used', () => {
+    // Moving into a property is a new value, so the guard starts over there.
+    const P: Schema = lazy(() => union([object({ a: P }), number()]))
+
+    expect(validate(P, { a: 1 })).toBe(true)
+    expect(validate(P, { a: { a: 2 } })).toBe(true)
+    expect(validate(P, { a: 's' })).toBe(false)
+  })
+})
+
+describe('memoization parity', () => {
+  /**
+   * The validator as it was before memoization, kept here as the reference to compare against.
+   * It has no guard for schema cycles on primitives and overflows the stack there, so those cases
+   * are skipped. Everywhere it does finish, the memoized validator must give the same answer.
+   */
+  const referenceValidate = (
+    schema: Schema | undefined,
+    value: unknown,
+    cache: WeakMap<object, Set<Schema>> = new WeakMap(),
+  ): boolean => {
+    if (!schema) {
+      return false
+    }
+    const trackable = isObject(value) || Array.isArray(value)
+    if (trackable && cache.get(value)?.has(schema)) {
+      return true
+    }
+    if (trackable) {
+      const schemas = cache.get(value) ?? new Set<Schema>()
+      schemas.add(schema)
+      cache.set(value, schemas)
+    }
+    const next = (s: Schema | undefined, v: unknown): boolean => referenceValidate(s, v, cache)
+    const check = (): boolean => {
+      switch (schema.type) {
+        case 'any':
+        case 'unknown':
+          return true
+        case 'function':
+          return typeof value === 'function'
+        case 'number':
+          return typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value)
+        case 'string':
+          return typeof value === 'string'
+        case 'boolean':
+          return typeof value === 'boolean'
+        case 'nullable':
+          return value === null
+        case 'notDefined':
+          return value === undefined
+        case 'array':
+          return Array.isArray(value) && value.every((item) => next(schema.items, item))
+        case 'record':
+          return (
+            isObject(value) &&
+            Object.keys(value).every((key) => next(schema.key, key) && next(schema.value, value[key]))
+          )
+        case 'object':
+          return (
+            isObject(value) && Object.keys(schema.properties).every((key) => next(schema.properties[key], value[key]))
+          )
+        case 'optional':
+          return value === undefined || next(schema.schema, value)
+        case 'union':
+          return schema.schemas.some((branch) => next(branch, value))
+        case 'intersection':
+          return (
+            schema.schemas.length === 0 || (isObject(value) && schema.schemas.every((member) => next(member, value)))
+          )
+        case 'literal':
+          return value === schema.value
+        case 'lazy':
+          return next(schema.schema(), value)
+        case 'evaluate':
+          return next(schema.schema, schema.expression(value))
+      }
+    }
+
+    // No `try`/`finally` here: a thrown error ends the whole comparison, so the markers do not matter then.
+    const result = check()
+    if (trackable) {
+      cache.get(value)?.delete(schema)
+    }
+    return result
+  }
+
+  /** Small seeded generator (mulberry32), so a failure can be reproduced from its seed. */
+  const createRandom = (seed: number) => {
+    let state = seed >>> 0
+    const next = (): number => {
+      state = (state + 0x6d2b79f5) >>> 0
+      let t = state
+      t = Math.imul(t ^ (t >>> 15), t | 1)
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+    const int = (max: number): number => Math.floor(next() * max)
+    const pick = <T>(items: readonly T[]): T => items[int(items.length)] as T
+    return { int, pick }
+  }
+
+  const KEYS = ['a', 'b'] as const
+  const PRIMITIVES = ['a', 'x', 1, 2, null, true] as const
+
+  /** Pure expressions for `evaluate`: one returns its input, the others step to a different value. */
+  const EXPRESSIONS: readonly ((value: unknown) => unknown)[] = [
+    (value) => value,
+    (value) => (isObject(value) ? value.a : value),
+    (value) => (value === 1 ? 'a' : value),
+  ]
+
+  /** Builds a set of mutually recursive schemas and returns the first one. */
+  const buildSchema = (random: ReturnType<typeof createRandom>): Schema => {
+    const definitions: Schema[] = []
+    const slots: Schema[] = [0, 1, 2].map((index) => lazy(() => definitions[index] as Schema))
+
+    const build = (depth: number): Schema => {
+      const kind = random.int(depth >= 3 ? 3 : 12)
+      switch (kind) {
+        case 0:
+          return random.pick([string(), number(), nullable(), boolean(), literal('a'), literal(1)])
+        case 1:
+        case 2:
+          return random.pick(slots)
+        case 3:
+        case 4: {
+          const properties: Record<string, Schema> = {}
+          for (const key of KEYS) {
+            if (random.int(2) === 0) {
+              properties[key] = random.int(2) === 0 ? optional(build(depth + 1)) : build(depth + 1)
+            }
+          }
+          return object(properties)
+        }
+        case 5:
+          return optional(build(depth + 1))
+        case 6:
+        case 7:
+          return union(Array.from({ length: 2 + random.int(2) }, () => build(depth + 1)) as never)
+        case 8:
+          return intersection([build(depth + 1), build(depth + 1)] as never)
+        case 9:
+          return array(build(depth + 1))
+        case 10:
+          return record(string(), build(depth + 1))
+        default:
+          return evaluate(random.pick(EXPRESSIONS), build(depth + 1))
+      }
+    }
+
+    for (let index = 0; index < slots.length; index++) {
+      definitions.push(build(0))
+    }
+    return slots[0] as Schema
+  }
+
+  /** Builds a small graph of objects and arrays whose references can point anywhere, including back up. */
+  const buildValue = (random: ReturnType<typeof createRandom>): unknown => {
+    const nodes: (Record<string, unknown> | unknown[])[] = Array.from({ length: 1 + random.int(3) }, () =>
+      random.int(4) === 0 ? [] : {},
+    )
+    const pickValue = (): unknown => (random.int(2) === 0 ? random.pick(nodes) : random.pick(PRIMITIVES))
+
+    for (const node of nodes) {
+      if (Array.isArray(node)) {
+        const length = random.int(3)
+        for (let index = 0; index < length; index++) {
+          node.push(pickValue())
+        }
+      } else {
+        for (const key of KEYS) {
+          if (random.int(4) !== 0) {
+            node[key] = pickValue()
+          }
+        }
+      }
+    }
+    return random.int(6) === 0 ? random.pick(PRIMITIVES) : nodes[0]
+  }
+
+  it('matches the unmemoized validator on random cyclic values', () => {
+    let compared = 0
+    let rejected = 0
+
+    for (let seed = 1; seed <= 10_000; seed++) {
+      const random = createRandom(seed)
+      const schema = buildSchema(random)
+      const value = buildValue(random)
+
+      let expected: boolean
+      try {
+        expected = referenceValidate(schema, value)
+      } catch (error) {
+        if (error instanceof RangeError) {
+          // The reference overflows on a schema cycle over a primitive; nothing to compare.
+          continue
+        }
+        throw error
+      }
+
+      compared++
+      if (!expected) {
+        rejected++
+      }
+      expect(validate(schema, value), `seed ${seed}`).toBe(expected)
+    }
+
+    // Make sure the generator really exercises both answers instead of passing on trivial cases.
+    expect(compared).toBeGreaterThan(9_000)
+    expect(rejected).toBeGreaterThan(1_000)
+    expect(compared - rejected).toBeGreaterThan(1_000)
   })
 })
