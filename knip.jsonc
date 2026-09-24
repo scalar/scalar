@@ -379,8 +379,11 @@
     },
     "integrations/docusaurus": {
       "docusaurus": {
-        "config": ["playground/docusaurus.config.ts"],
+        // Analyze the playground statically: executing it imports the unbuilt integration.
+        // Keep configuration-only references (such as sidebars) in the entry list below.
+        "config": [],
         "entry": [
+          "playground/docusaurus.config.ts",
           "playground/sidebars.ts",
           "playground/src/{pages,components}/**/*.tsx",
           "playground/{blog,docs}/**/*.mdx",
@@ -395,7 +398,9 @@
       "ignoreDependencies": [
         // Used by webpack
         "path",
-        // Docusaurus aliases
+        // Virtual modules normally recognized while loading the Docusaurus configuration
+        "@docusaurus/Link",
+        "@docusaurus/useDocusaurusContext",
         "@theme/*",
         "@site/*"
       ]

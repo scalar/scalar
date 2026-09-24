@@ -397,6 +397,9 @@ pnpm --filter @scalar/<package-name> types:check
 Then, before opening or updating a PR, also run:
 
 ```bash
+# In a fresh worktree, build the packages loaded by tooling configurations.
+# Turbo also builds @scalar/themes; no integration build is needed.
+pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
 pnpm knip          # Detect unused exports, files, and dependencies
 ```
 
