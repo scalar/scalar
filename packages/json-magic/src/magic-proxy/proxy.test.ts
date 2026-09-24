@@ -3,6 +3,23 @@ import { describe, expect, it } from 'vitest'
 import { createMagicProxy, getRaw } from './proxy'
 
 describe('createMagicProxy', () => {
+  it.each(['#/__proto__/debugPolluted', '#/constructor/prototype/debugPolluted', '#/__proto__'])(
+    'writes reference %s as own data without changing prototypes',
+    ($ref) => {
+      const input = { item: { $ref } }
+      const before = Object.getOwnPropertyNames(Object.prototype)
+      try {
+        const proxy = createMagicProxy(input)
+        proxy.item['$ref-value'] = { marker: true }
+        expect(Object.getPrototypeOf(input)).toBe(Object.prototype)
+        expect(Object.getOwnPropertyNames(Object.prototype)).toStrictEqual(before)
+        expect(proxy.item['$ref-value']).toStrictEqual({ marker: true })
+      } finally {
+        Reflect.deleteProperty(Object.prototype, 'debugPolluted')
+      }
+    },
+  )
+
   it('resolves a qualified root pointer using the supplied document URI', () => {
     const input = { value: { type: 'string' }, item: { $ref: 'https://example.com/document.json#/value' } }
     const proxy = createMagicProxy(input, { documentUri: 'https://example.com/document.json' })

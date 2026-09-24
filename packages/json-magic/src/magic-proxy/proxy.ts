@@ -212,7 +212,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         }
 
         // Set the value on the parent node
-        getParentNode()[segments.at(-1)] = newValue
+        const parent = getParentNode()
+        const key = segments.at(-1)!
+        if (key === '__proto__') {
+          Object.defineProperty(parent, key, { value: newValue, enumerable: true, configurable: true, writable: true })
+        } else {
+          parent[key] = newValue
+        }
         return true
       }
 

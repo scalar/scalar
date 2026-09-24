@@ -4,6 +4,8 @@
  * Derived from @url https://github.com/react-hook-form/react-hook-form/tree/011fad503cc8d4543892f8e847b9bd58c1d9400f/src/types/path
  *
  */
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+
 import type { ArrayKey, BrowserNativeObject, IsAny, IsEqual, IsTuple, Primitive, TupleKeys } from './common'
 
 /**
@@ -155,11 +157,14 @@ type PathValue<T, P extends Path<T> | ArrayPath<T>> = T extends any
  */
 export function setNestedValue<T, P extends Path<T>>(obj: T, path: P, value: PathValue<T, P>) {
   const keys = path.split('.')
+  keys.forEach((key) => preventPollution(key))
 
   // Loop over to get the nested object reference. Then assign the value to it
   keys.reduce((acc, current, idx) => {
     if (idx === keys.length - 1) {
       acc[current] = value
+    } else if (!Object.hasOwn(acc, current)) {
+      throw new Error(`Cannot traverse inherited or missing property: ${current}`)
     }
 
     return acc[current]

@@ -18,12 +18,14 @@
  */
 export function createPathFromSegments(obj: any, segments: string[]) {
   return segments.reduce((acc, part) => {
-    if (acc[part] === undefined) {
-      if (isNaN(Number(part))) {
-        acc[part] = {}
-      } else {
-        acc[part] = []
-      }
+    if (!Object.hasOwn(acc, part) || acc[part] === undefined) {
+      // JSON keys may match prototype properties; create an own data property instead of following them.
+      Object.defineProperty(acc, part, {
+        value: isNaN(Number(part)) ? {} : [],
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      })
     }
     return acc[part]
   }, obj)

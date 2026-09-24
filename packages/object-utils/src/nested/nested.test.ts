@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { clone } from '../clone'
 
+import { clone } from '../clone'
 import { setNestedValue } from './nested'
 
 const nestedObj = {
@@ -38,6 +38,28 @@ const request = {
 }
 
 describe('Set a nested value', () => {
+  it.each(['__proto__.debugPolluted', 'constructor.prototype.debugPolluted', 'safe.__proto__.debugPolluted'])(
+    'rejects unsafe path %s before mutation',
+    (path) => {
+      const target: Record<string, unknown> = { safe: {} }
+      const before = Object.getOwnPropertyNames(Object.prototype)
+      try {
+        expect(() => setNestedValue(target, path, true)).toThrow('Prototype pollution key detected')
+        expect(target).toStrictEqual({ safe: {} })
+        expect(Object.getOwnPropertyNames(Object.prototype)).toStrictEqual(before)
+      } finally {
+        Reflect.deleteProperty(Object.prototype, 'debugPolluted')
+      }
+    },
+  )
+
+  it('does not mutate an inherited object through an otherwise ordinary path', () => {
+    const inherited = { nested: { value: 1 } }
+    const target = Object.create(inherited)
+    expect(() => setNestedValue(target, 'nested.value', 2)).toThrow('Cannot traverse inherited or missing property')
+    expect(inherited.nested.value).toBe(1)
+  })
+
   it('Basic nested set', () => {
     const baseObj = clone(nestedObj)
     const copy = clone(nestedObj)
