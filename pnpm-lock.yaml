@@ -407,7 +407,7 @@ overrides:
   fast-uri@3.1.2: 3.0.1
   lodash: 4.18.1
   property-information: 7.1.0
-  undici: 7.24.4
+  undici: 7.29.0
   scalar-app>undici: 8.10.0
 
 importers:
@@ -2187,8 +2187,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3
       undici:
-        specifier: 7.24.4
-        version: 7.24.4
+        specifier: 7.29.0
+        version: 7.29.0
       yaml:
         specifier: catalog:*
         version: 2.9.0
@@ -2302,8 +2302,8 @@ importers:
         specifier: catalog:*
         version: 8.18.1
       undici:
-        specifier: 7.24.4
-        version: 7.24.4
+        specifier: 7.29.0
+        version: 7.29.0
       vite:
         specifier: catalog:*
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
@@ -18508,8 +18508,8 @@ packages:
   undici-types@7.24.7:
     resolution: {integrity: sha512-XA+gOBkzYD3C74sZowtCLTpgtaCdqZhqCvR6y9LXvrKTt/IVU6bz49T4D+BPi475scshCCkb0IklJRw6T1ZlgQ==}
 
-  undici@7.24.4:
-    resolution: {integrity: sha512-BM/JzwwaRXxrLdElV2Uo6cTLEjhSb3WXboncJamZ15NgUURmvlXvxa6xkwIOILIjPNo9i8ku136ZvWV0Uly8+w==}
+  undici@7.29.0:
+    resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
     engines: {node: '>=20.18.1'}
 
   undici@8.10.0:
@@ -22577,7 +22577,7 @@ snapshots:
       semver: 7.7.4
       sumchecker: 3.0.1
     optionalDependencies:
-      undici: 7.24.4
+      undici: 7.29.0
     transitivePeerDependencies:
       - supports-color
 
@@ -22959,7 +22959,7 @@ snapshots:
       fast-querystring: 1.1.2
       fastify-plugin: 6.0.0
       toad-cache: 3.7.0
-      undici: 7.24.4
+      undici: 7.29.0
 
   '@fastify/swagger@9.8.1':
     dependencies:
@@ -29449,7 +29449,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.24.4
+      undici: 7.29.0
       whatwg-mimetype: 4.0.0
 
   chokidar@3.6.0:
@@ -30168,7 +30168,7 @@ snapshots:
       hast-util-select: 6.0.4
       html-url-attributes: 3.0.1
       levenshtein-edit-distance: 3.0.1
-      undici: 7.24.4
+      undici: 7.29.0
       unist-util-visit: 5.1.0
       vfile-message: 4.0.2
 
@@ -33233,7 +33233,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.1
-      undici: 7.24.4
+      undici: 7.29.0
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -33260,7 +33260,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.1
-      undici: 7.24.4
+      undici: 7.29.0
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -34354,7 +34354,7 @@ snapshots:
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       sharp: 0.34.5
-      undici: 7.24.4
+      undici: 7.29.0
       workerd: 1.20260421.1
       ws: 8.18.0
       youch: 4.1.0-beta.10
@@ -39022,7 +39022,7 @@ snapshots:
 
   undici-types@7.24.7: {}
 
-  undici@7.24.4: {}
+  undici@7.29.0: {}
 
   undici@8.10.0: {}
 
