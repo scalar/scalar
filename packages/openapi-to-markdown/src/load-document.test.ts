@@ -2,13 +2,26 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { getHeapStatistics } from 'node:v8'
 
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
+import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 import { loadDocument } from './load-document'
+
+// Record what TypeBox casts, since linked inputs make every clone copy the reference graph.
+const coercedInputs = vi.hoisted((): unknown[] => [])
+vi.mock('@scalar/workspace-store/schemas/typebox-coerce', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@scalar/workspace-store/schemas/typebox-coerce')>()
+  return {
+    ...actual,
+    coerceValue: ((schema, value) => {
+      coercedInputs.push(value)
+      return actual.coerceValue(schema, value)
+    }) satisfies typeof actual.coerceValue,
+  }
+})
 
 const findReferences = (node: unknown, references: object[] = [], seen = new WeakSet<object>()): object[] => {
   if (node === null || typeof node !== 'object' || seen.has(node)) {
@@ -27,6 +40,18 @@ const findReferences = (node: unknown, references: object[] = [], seen = new Wea
 
 const getReferenceTarget = (reference: object | undefined): unknown =>
   reference === undefined ? undefined : Object.getOwnPropertyDescriptor(reference, '$ref-value')?.value
+
+/** Whether any object in the tree carries a `$ref-value` link, enumerable or not. */
+const hasReferenceLinks = (node: unknown, seen = new WeakSet<object>()): boolean => {
+  if (node === null || typeof node !== 'object' || seen.has(node)) {
+    return false
+  }
+  seen.add(node)
+  if (Object.hasOwn(node, '$ref-value')) {
+    return true
+  }
+  return Object.values(node).some((child) => hasReferenceLinks(child, seen))
+}
 
 /**
  * Build a description shaped like Stripe's expandable fields: every model links to many
@@ -367,15 +392,115 @@ paths:
     expect(getReferenceTarget(isObject(nested) ? nested : undefined)).toBe(document.components?.schemas?.Owner)
   })
 
+  it('casts dropped schema targets before linking them', async () => {
+    const input = {
+      openapi: '3.1.1',
+      info: { title: 'Legacy definitions', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        pet: { $ref: '#/definitions/Pet' },
+                        anything: { $ref: '#/definitions/Anything' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      definitions: {
+        Pet: { type: 'object', required: true, enum: 'cat', properties: { name: { type: 'string' } } },
+        Anything: true,
+      },
+    }
+    const document = await loadDocument(input)
+    const [pet, anything] = findReferences(document).map(getReferenceTarget)
+
+    expect(isObject(pet) && pet.required).not.toBe(true)
+    expect(isObject(pet) && pet.enum).not.toBe('cat')
+    expect(getValueAtPath(pet, ['properties', 'name'])).toStrictEqual({ type: 'string' })
+    // OpenAPI 3.1 boolean schemas survive the cast, as they do everywhere else in the document.
+    expect(anything).toBe(true)
+    await expect(createMarkdownFromOpenApi(input)).resolves.toContain('name')
+  })
+
+  it('resolves references in dropped targets against the resource that contains them', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Resources', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          A: {
+            $id: 'https://example.com/a',
+            type: 'object',
+            properties: { pet: { $ref: 'https://example.com/b#/definitions/Pet' } },
+          },
+        },
+      },
+      // Coercion drops the root-level block, so every target in resource B is a fallback target.
+      definitions: {
+        B: {
+          $id: 'https://example.com/b',
+          definitions: {
+            Pet: { type: 'object', properties: { owner: { $ref: '#owner' } } },
+            Owner: { $anchor: 'owner', type: 'object', properties: { name: { type: 'string' } } },
+          },
+        },
+      },
+    })
+
+    const pet = getReferenceTarget(getValueAtPath(document, ['components', 'schemas', 'A', 'properties', 'pet']))
+    const owner = getValueAtPath(pet, ['properties', 'owner'])
+
+    // `#owner` names an anchor in resource B, not in resource A, where the reference came from.
+    expect(getReferenceTarget(isObject(owner) ? owner : undefined)).toMatchObject({
+      $anchor: 'owner',
+      properties: { name: { type: 'string' } },
+    })
+  })
+
+  it('links empty fragment references to the root of the current resource', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Linked list', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Node: { $id: 'https://example.com/node', type: 'object', properties: { next: { $ref: '#' } } },
+        },
+      },
+    })
+
+    const node = document.components?.schemas?.Node
+    const next = getValueAtPath(node, ['properties', 'next'])
+
+    expect(getReferenceTarget(isObject(next) ? next : undefined)).toBe(node)
+  })
+
   it('loads densely linked descriptions without copying the reference graph', async () => {
     const models = 60
     const input = createDenselyLinkedDocument(models, 8)
-    const before = getHeapStatistics().total_heap_size
+    coercedInputs.length = 0
 
     const document = await loadDocument(input)
 
-    // Copying every model reachable from each checked union and array grows the heap by ~180 MB here.
-    expect(getHeapStatistics().total_heap_size - before).toBeLessThan(64 * 1024 * 1024)
+    // TypeBox clones follow every own property, so a linked input would copy the reference graph
+    // at each checked union and array, which costs gigabytes on descriptions like Stripe's.
+    expect(coercedInputs.length).toBeGreaterThan(0)
+    for (const value of coercedInputs) {
+      expect(hasReferenceLinks(value)).toBe(false)
+    }
 
     const schemas = document.components?.schemas ?? {}
     const references = findReferences(document)

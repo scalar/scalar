@@ -12,15 +12,29 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,
+  SchemaObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { restoreBooleanSchemas } from './restore-boolean-schemas'
+import { type SchemaPosition, getChildPosition, restoreBooleanSchemas } from './restore-boolean-schemas'
 
 type AttachRefValuesOptions = {
   /** Report external references without linking anything. */
   detectOnly?: boolean
   /** Resolve targets that are missing from the document, such as values coercion dropped. */
-  fallback?: unknown
+  fallback?: {
+    /** The uncoerced source document. */
+    source: unknown
+    /** Keep boolean schemas, which OpenAPI 3.1 introduced, instead of casting them to objects. */
+    booleanSchemas: boolean
+  }
+}
+
+type ResolvedTarget = {
+  value: unknown
+  /** The base of the resource that contains the target. */
+  context: string
+  /** Whether the target is part of the walked document rather than the fallback source. */
+  linked: boolean
 }
 
 /**
@@ -28,6 +42,7 @@ type AttachRefValuesOptions = {
  * JSON Magic owns `$id` and anchor indexing, which keeps local-reference behavior
  * aligned with the external-reference bundler without retaining a second resolver.
  * Non-enumerable links preserve serialization and share recursive schema targets.
+ * With `detectOnly`, nothing is linked and the pass only looks for external references.
  * Returns whether external references remain and require bundling.
  */
 const attachRefValues = (
@@ -35,11 +50,64 @@ const attachRefValues = (
   schemas = getSchemas(document),
   { detectOnly = false, fallback }: AttachRefValuesOptions = {},
 ): boolean => {
-  // A single traversal covers both normal trees and previously linked recursive objects.
+  // Fallback targets are linked outside the walked tree and can be reached again from it,
+  // so one set keeps every object to a single visit.
   const seen = new WeakSet<object>()
+  // Large descriptions repeat the same reference strings thousands of times.
+  const targets = new Map<string, ResolvedTarget | undefined>()
+  // Share one cast copy between every schema reference to the same dropped target.
+  const castFallbacks = new WeakMap<object, unknown>()
   let hasExternalReferences = false
 
-  const visit = (node: unknown, context = getId(document) ?? ''): void => {
+  const lookUp = (path: string, ref: string): ResolvedTarget => {
+    // An empty path is a resource root, unless the fragment is the pointer to the empty key.
+    const segments = path === '' && !ref.includes('#/') ? [] : parseJsonPointerSegments(`/${path}`)
+    const linked = getValueByPath(document, segments)
+    if (linked.value !== undefined || fallback === undefined) {
+      return { ...linked, linked: true }
+    }
+    // The context is the base of the resource that contains the fallback target.
+    return { ...getValueByPath(fallback.source, segments), linked: false }
+  }
+
+  const resolve = (ref: string, base: string): ResolvedTarget | undefined => {
+    const key = `${base}\u0000${ref}`
+    if (targets.has(key)) {
+      return targets.get(key)
+    }
+
+    // JSON Magic has no entry for an empty fragment, which names the root of the current resource.
+    const path = ref === '#' ? (schemas.get(base) ?? '') : convertToLocalRef(ref, base, schemas)
+    const resolved = path === undefined ? undefined : lookUp(path, ref)
+
+    targets.set(key, resolved)
+    return resolved
+  }
+
+  // Cast dropped schemas like any other schema, so the renderer never sees uncoerced shapes.
+  const castFallback = (value: unknown): unknown => {
+    // OpenAPI 3.1 keeps boolean schemas, and a nested reference is linked once it is walked.
+    if (
+      value === undefined ||
+      (fallback?.booleanSchemas && typeof value === 'boolean') ||
+      (isObject(value) && typeof value.$ref === 'string')
+    ) {
+      return value
+    }
+    if (!isObject(value)) {
+      return coerceValue(SchemaObjectSchema, value)
+    }
+    if (!castFallbacks.has(value)) {
+      const cast = coerceValue(SchemaObjectSchema, value)
+      if (fallback?.booleanSchemas) {
+        restoreBooleanSchemas(value, cast, 'schema')
+      }
+      castFallbacks.set(value, cast)
+    }
+    return castFallbacks.get(value)
+  }
+
+  const visit = (node: unknown, context: string, position: SchemaPosition | undefined): void => {
     if (node === null || typeof node !== 'object' || seen.has(node)) {
       return
     }
@@ -50,19 +118,17 @@ const attachRefValues = (
 
     if (isObject(node) && typeof node.$ref === 'string') {
       const ref = node.$ref
-      const path = ref === '#' ? '' : convertToLocalRef(ref, base, schemas)
 
-      // JSON Magic only needs to bundle references outside this document's resource index.
-      if (path === undefined && ref.split('#')[0]) {
-        hasExternalReferences = true
-      }
-
-      if (!detectOnly && path !== undefined) {
-        const segments = parseJsonPointerSegments(`/${path}`)
-        const linked = getValueByPath(document, segments).value
-        // Point to the bundled target instead of copying it into every reference.
+      if (detectOnly) {
+        // JSON Magic only needs to bundle references outside this document's resource index.
+        if (ref.split('#')[0] && convertToLocalRef(ref, base, schemas) === undefined) {
+          hasExternalReferences = true
+        }
+      } else {
+        const resolved = resolve(ref, base)
+        // Point to the target instead of copying it into every reference.
         const target =
-          linked === undefined && fallback !== undefined ? getValueByPath(fallback, segments).value : linked
+          resolved && !resolved.linked && position === 'schema' ? castFallback(resolved.value) : resolved?.value
 
         if (target !== undefined) {
           Object.defineProperty(node, '$ref-value', {
@@ -73,18 +139,18 @@ const attachRefValues = (
           })
         }
         // Fallback targets live outside the walked tree, so link their own references too.
-        if (linked === undefined) {
-          visit(target, base)
+        if (resolved && !resolved.linked) {
+          visit(target, resolved.context, position)
         }
       }
     }
 
     // Preserve the nearest resource base while walking into child schemas.
-    for (const child of Object.values(node)) {
-      visit(child, base)
+    for (const [key, child] of Object.entries(node)) {
+      visit(child, base, Array.isArray(node) ? position : position && getChildPosition(position, key))
     }
   }
-  visit(document)
+  visit(document, getId(document) ?? '', 'document')
   return hasExternalReferences
 }
 
@@ -165,7 +231,10 @@ export const loadDocument = async (
   coerced['x-original-oas-version'] = declaredOpenapiVersion
 
   // Boolean schemas were introduced in OpenAPI 3.1; older descriptions retain their existing coercion.
-  if (/^3\.[12]\./.test(declaredOpenapiVersion)) restoreBooleanSchemas(document, coerced)
+  const booleanSchemas = /^3\.[12]\./.test(declaredOpenapiVersion)
+  if (booleanSchemas) {
+    restoreBooleanSchemas(document, coerced)
+  }
 
   // Keep extension resources that local and bundled references can target.
   for (const [key, value] of Object.entries(document)) {
@@ -179,8 +248,9 @@ export const loadDocument = async (
     }
   }
 
-  // Link references to coerced targets, falling back to source values that coercion dropped.
-  attachRefValues(coerced, schemas, { fallback: document })
+  // Link references to coerced targets. Targets that coercion dropped fall back to source values,
+  // which are cast in schema positions.
+  attachRefValues(coerced, schemas, { fallback: { source: document, booleanSchemas } })
 
   return coerced
 }
