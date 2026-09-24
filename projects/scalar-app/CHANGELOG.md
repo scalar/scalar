@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.1.33
+
+### Patch Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Accept custom HTTP methods in operation events and collection runner types.
+
 ## 1.1.32
 
 ### Patch Changes

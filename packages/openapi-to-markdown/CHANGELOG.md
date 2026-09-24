@@ -1,5 +1,17 @@
 # @scalar/openapi-to-markdown
 
+## 1.2.0
+
+### Minor Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Support document-defined additional operations in Markdown operation, webhook, and tag selections. Preserve custom method spelling and inherited parameters, servers, and security when copying an operation as Markdown.
+
+### Patch Changes
+
+- [#10329](https://github.com/scalar/scalar/pull/10329): Render each shared schema once per page. The first reference to a structured schema expands it and labels it with its name (for example `schema: Account`). Later references print "Schema `Account` is shown above." instead of expanding it again. Model sections for schemas already expanded on the page refer back to them too. True cycles still print `[Circular Reference]`. This keeps Markdown output proportional to the schema graph, rather than to the number of paths through it. Before this change, densely linked descriptions such as Stripe's ran out of memory when rendering a single operation.
+
+  A node budget per operation and model section adds a visible `[Schema output truncated]` marker as a last resort. Generated examples that would exceed 10,000 values are omitted with a note. References past the depth limit now point to the model's own section instead of being cut off.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,7 @@
 # @scalar/nestjs-api-reference
 
+## 1.2.22
+
 ## 1.2.21
 
 ## 1.2.20

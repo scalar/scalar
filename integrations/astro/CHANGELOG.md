@@ -1,5 +1,7 @@
 # @scalar/astro
 
+## 0.4.22
+
 ## 0.4.21
 
 ### Patch Changes

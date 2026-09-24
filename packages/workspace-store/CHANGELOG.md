@@ -1,5 +1,40 @@
 # @scalar/workspace-store
 
+## 0.66.0
+
+### Minor Changes
+
+- [#10189](https://github.com/scalar/scalar/pull/10189): Support OpenAPI 3.2 `in: querystring` parameters, including content-based serialization, editing the entire query string, schema rendering, and generated request URLs.
+
+  Non-form whole-query content, including JSON delimiters, is percent-encoded in request URLs and code samples. Use an example with `serializedValue` on the parameter itself for URI-ready query content that must retain its existing encoding.
+
+  Preserve the encoding of named query values when they coexist with whole-query content in generated code samples, while encoding query authentication values once.
+
+  Explain why the whole-query editor disables adding named parameters. Existing named parameters follow the whole-query value, preserving duplicate keys for the server to interpret.
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Support OpenAPI 3.2 additionalOperations in operation storage, navigation, documentation, callbacks, and the API client. Preserve custom HTTP method spelling when displaying and sending requests and generating code samples.
+
+  Traversed operation and webhook methods now use the exported `OperationMethod` type, which accepts custom strings while retaining known-method editor completion. Consumers must handle unknown methods; this open type cannot provide exhaustive checking over the fixed HTTP method set. Unknown method presentation uses `colorClass` and `colorVar`, matching known methods. Preserve uppercase and mixed-case additional operation names consistently.
+
+- [#10310](https://github.com/scalar/scalar/pull/10310): Connect SDK code samples to named request body examples using optional example and contentType fields. Keep the example switcher available for static samples and use the selected request example in API client snippets. Display unavailable linked samples as a localized status message in all supported languages.
+
+### Patch Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Preserve authored method variants in request data and navigation links. Generate custom-method requests with generic client APIs, and explain when RestSharp cannot represent a method.
+- [#10186](https://github.com/scalar/scalar/pull/10186): Include the current document-defined custom method in the request method picker and preserve its spelling when selected.
+
+  Keep QUERY operation chunk names aligned with their references when additional operations are supported.
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Preserve request bodies for extension HTTP methods such as QUERY and PROPFIND in the browser client.
+- [#10322](https://github.com/scalar/scalar/pull/10322): Use OpenAPI 3.2 dataValue and serializedValue examples for named parameters in the editor, outgoing requests, and code samples. Preserve already serialized values without encoding them twice.
+
+  Optional parameters with `dataValue` or `serializedValue` examples are now enabled by default, matching legacy `value` examples. Explicitly disabled examples remain disabled.
+
+  Parameter-level `serializedValue` examples remain editable as raw wire text, including parameter names and percent encoding (for example, `term=hello` rather than `hello`). Media-level cookie examples are percent-encoded when sent, matching generated snippets. Generating snippets no longer modifies the input cookies.
+
+- [#10319](https://github.com/scalar/scalar/pull/10319): Update the OpenAPI version badge when the document version changes during live editing.
+- [#10315](https://github.com/scalar/scalar/pull/10315): Stop following `$ref-value` chains at the first reference that loops back, so a document whose references point at each other (or at themselves) no longer overflows the stack while it loads.
+
 ## 0.65.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @scalar/types
 
+## 0.22.0
+
+### Minor Changes
+
+- [#10310](https://github.com/scalar/scalar/pull/10310): Connect SDK code samples to named request body examples using optional example and contentType fields. Keep the example switcher available for static samples and use the selected request example in API client snippets. Display unavailable linked samples as a localized status message in all supported languages.
+
+### Patch Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Show a clear error when a request uses a Fetch-forbidden method (CONNECT, TRACE, or TRACK), including methods changed by pre-request scripts, instead of throwing while building the request.
+- [#10189](https://github.com/scalar/scalar/pull/10189): Translate the whole-query editor label and explanation in all supported API Client locales.
+
 ## 0.21.0
 
 ### Minor Changes
