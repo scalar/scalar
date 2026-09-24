@@ -10,7 +10,7 @@ type ValidationState = {
   /**
    * What is known about each `(object, schema)` pair. {@link IN_FLIGHT} means the pair is being
    * validated further up the call stack, so reaching it again means the value graph has a cycle,
-   * and the call short-circuits to `true`. A boolean is a finished, memoized result of a `lazy`
+   * or the schema loops back to itself on the same object, and the call short-circuits to `true`. A boolean is a finished, memoized result of a `lazy`
    * node. Without the memo, a value reachable through more than one branch (for example an
    * undiscriminated recursive union) is validated again once per branch at every level, which
    * takes exponential time in the nesting depth.
@@ -19,7 +19,8 @@ type ValidationState = {
   /** Pairs a caller passed in as already being validated. They short-circuit like {@link IN_FLIGHT}. */
   callerInFlight: WeakMap<object, Set<Schema>> | undefined
   /**
-   * Whether the frame being validated, or anything below it, short-circuited on a value cycle.
+   * Whether the frame being validated, or anything below it, short-circuited on an in-flight pair
+   * (a value cycle, or a schema looping back to itself on the same object).
    * Such a result depends on which pairs happen to be in flight, not only on `(value, schema)`,
    * so it must not be memoized.
    */
@@ -200,12 +201,11 @@ const validateInner = (
     } else if (schema.type === 'literal') {
       result = value === schema.value
     } else if (schema.type === 'lazy') {
-      // The factory runs every time this node is validated (a memo hit or a loop-search hit skips it)
-      // and may build a
-      // fresh schema object each time. That is fine, because the cycle guards and the memo key on
-      // this `lazy` node, which stays the same. Keep the `lazy` node as its own frame: resolving it
-      // away (or keying on what the factory returns) would let `lazy(() => union([T, string()]))`
-      // recurse forever on a primitive.
+      // The factory runs every time this node is validated, unless a cycle, a memo hit or a
+      // loop-search hit answers first, and it may build a fresh schema object each time. That is
+      // fine, because the cycle guards and the memo key on this `lazy` node, which stays the same.
+      // Keep the `lazy` node as its own frame: resolving it away (or keying on what the factory
+      // returns) would let `lazy(() => union([T, string()]))` recurse forever on a primitive.
       result = validateInner(schema.schema(), value, state, search, nextHops)
     } else if (schema.type === 'evaluate') {
       // A result that is not an object or array stays in the reachability search this `evaluate`
