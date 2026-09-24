@@ -39,6 +39,15 @@ const IN_FLIGHT = Symbol('in flight')
  */
 const UNTRACKED_HOPS = 8
 
+/** Stands in for `-0` in the reachability search, where a `Map` would mix it up with `0`. */
+const NEGATIVE_ZERO = Symbol('-0')
+
+/**
+ * Turns a value into its key in the reachability search. A `Map` treats `0` and `-0` as the same
+ * key, but an `evaluate` expression can tell them apart, so they must be recorded separately.
+ */
+const searchKey = (value: unknown): unknown => (Object.is(value, -0) ? NEGATIVE_ZERO : value)
+
 /**
  * Internal validation implementation.
  *
@@ -113,7 +122,7 @@ const validateInner = (
       entries = new Map([[schema, IN_FLIGHT]])
       state.results.set(value, entries)
     }
-  } else if (visited?.get(value)?.has(schema)) {
+  } else if (visited?.get(searchKey(value))?.has(schema)) {
     return false
   }
 
@@ -125,11 +134,12 @@ const validateInner = (
     ? (visited ?? (hops >= UNTRACKED_HOPS ? new Map<unknown, Set<Schema>>() : undefined))
     : undefined
   if (search) {
-    const nodes = search.get(value)
+    const key = searchKey(value)
+    const nodes = search.get(key)
     if (nodes) {
       nodes.add(schema)
     } else {
-      search.set(value, new Set([schema]))
+      search.set(key, new Set([schema]))
     }
   }
   const nextHops = searching ? hops + 1 : 0
@@ -184,8 +194,9 @@ const validateInner = (
     } else if (schema.type === 'literal') {
       result = value === schema.value
     } else if (schema.type === 'lazy') {
-      // The factory runs on every visit and may build a fresh schema object each time. That is fine,
-      // because the cycle guards and the memo key on this `lazy` node, which stays the same. Keep the
+      // The factory runs every time this node is validated (a memo hit skips it) and may build a fresh
+      // schema object each time. That is fine, because the cycle guards and the memo key on this
+      // `lazy` node, which stays the same. Keep the
       // `lazy` node as its own frame: resolving it away (or keying on what the factory returns) would
       // let `lazy(() => union([T, string()]))` recurse forever on a primitive.
       result = validateInner(schema.schema(), value, state, search, nextHops)

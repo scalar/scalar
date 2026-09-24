@@ -1216,6 +1216,19 @@ describe('schema cycles on primitives', () => {
     expect(expansions).toBeLessThan(1_000)
   })
 
+  it('keeps 0 and -0 apart', () => {
+    // Only `-0` passes `E`. The second branch turns `0` into `-0`, after enough steps for the loop
+    // search to be recording, so it must not treat `-0` as the `0` it already saw.
+    const E = evaluate((value) => (Object.is(value, -0) ? 's' : 1), string())
+    let schema: Schema = union([E, evaluate((value) => (typeof value === 'number' ? -value : value), E)])
+    for (let level = 0; level < 10; level++) {
+      schema = optional(schema)
+    }
+
+    expect(validate(schema, 0)).toBe(true)
+    expect(validate(schema, 1)).toBe(false)
+  })
+
   it('checks a property value against a schema its parent already used', () => {
     // Moving into a property is a new value, so the guard starts over there.
     const P: Schema = lazy(() => union([object({ a: P }), number()]))
@@ -1227,6 +1240,9 @@ describe('schema cycles on primitives', () => {
 })
 
 describe('memoization parity', () => {
+  /** Stands in for `-0` as a key, since a `Map` would mix it up with `0`. */
+  const NEGATIVE_ZERO = Symbol('-0')
+
   /**
    * The validator as it was before memoization, kept here as the reference to compare against.
    * That version overflowed the stack when a schema looped on a value that is not an object or
@@ -1256,11 +1272,12 @@ describe('memoization parity', () => {
     const loops =
       !trackable &&
       (schema.type === 'union' || schema.type === 'optional' || schema.type === 'lazy' || schema.type === 'evaluate')
-    if (loops && path.get(value)?.has(schema)) {
+    const key = Object.is(value, -0) ? NEGATIVE_ZERO : value
+    if (loops && path.get(key)?.has(schema)) {
       return false
     }
     if (loops) {
-      path.set(value, (path.get(value) ?? new Set<Schema>()).add(schema))
+      path.set(key, (path.get(key) ?? new Set<Schema>()).add(schema))
     }
 
     /** Moves on to another check. The path only carries on between values that are not objects or arrays. */
@@ -1317,7 +1334,7 @@ describe('memoization parity', () => {
       cache.get(value)?.delete(schema)
     }
     if (loops) {
-      path.get(value)?.delete(schema)
+      path.get(key)?.delete(schema)
     }
     return result
   }
@@ -1421,7 +1438,6 @@ describe('memoization parity', () => {
   }
 
   it('matches the unmemoized validator on random cyclic values and looping schemas', () => {
-    let compared = 0
     let rejected = 0
 
     for (let seed = 1; seed <= 10_000; seed++) {
@@ -1431,7 +1447,6 @@ describe('memoization parity', () => {
 
       const expected = referenceValidate(schema, value)
 
-      compared++
       if (!expected) {
         rejected++
       }
@@ -1439,8 +1454,7 @@ describe('memoization parity', () => {
     }
 
     // Make sure the generator really exercises both answers instead of passing on trivial cases.
-    expect(compared).toBeGreaterThan(9_000)
     expect(rejected).toBeGreaterThan(1_000)
-    expect(compared - rejected).toBeGreaterThan(1_000)
+    expect(rejected).toBeLessThan(9_000)
   })
 })
