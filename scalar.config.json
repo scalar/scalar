@@ -2071,6 +2071,12 @@
                         "type": "page",
                         "title": "Page Link"
                       },
+                      "prompts": {
+                        "description": "Give readers a copyable AI prompt they can preview before handing it to their coding agent.",
+                        "filepath": "documentation/guides/docs/components/prompts.mdx",
+                        "type": "page",
+                        "title": "Prompts"
+                      },
                       "grid": {
                         "description": "Lay out cards and content in responsive grids in your Scalar Docs pages.",
                         "filepath": "documentation/guides/docs/components/grid.mdx",
