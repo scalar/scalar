@@ -64,10 +64,10 @@ const searchKey = (value: unknown): unknown => (Object.is(value, -0) ? NEGATIVE_
  * the one schema object that stays the same between visits. A factory usually builds its schema
  * inline, so everything below it is a fresh object on every expansion, and remembering those would
  * only fill the map with keys that are never looked up again. For the same reason, a factory that
- * creates a new `lazy` node on each expansion gets no benefit from the memo. The short-circuit needs a value that leads back to itself, or a schema
- * that recurses on the same object without looking inside it, so a parsed JSON document checked
- * against a real schema is fully memoized. Anything that did hit it is validated again when
- * reached, just like before the memo existed.
+ * creates a new `lazy` node on each expansion gets no benefit from the memo. The short-circuit
+ * needs a value that leads back to itself, or a schema that recurses on the same object without
+ * looking inside it, so a parsed JSON document checked against a real schema is fully memoized.
+ * Anything that did hit it is validated again when reached, just like before the memo existed.
  *
  * Primitives (and other values that are not plain objects or arrays) cannot form cycles, but a
  * schema can: `T = lazy(() => union([T, string()]))` keeps asking whether `7` matches `T`. On such

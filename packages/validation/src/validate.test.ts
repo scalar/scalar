@@ -1103,6 +1103,21 @@ describe('memoization', () => {
     expect(validate(union([S, W]), x)).toBe(false)
   })
 
+  it('keeps an earlier property taint when a later property is fine', () => {
+    // Same loop as above, but after `x` comes `ok`, which passes on its own. `S2` still depends on
+    // the cycle through `x`, so it must not be remembered once `ok` is done.
+    const S: Schema = lazy(() => object({ y: S2, bad: optional(string()) }))
+    const S2: Schema = lazy(() => object({ x: S, ok: string() }))
+    const W = object({ y: S2 })
+
+    const x: Record<string, unknown> = { bad: 5 }
+    const y = { x, ok: 's' }
+    x.y = y
+
+    expect(validate(W, x)).toBe(false)
+    expect(validate(union([S, W]), x)).toBe(false)
+  })
+
   it('passes pairs a caller lists as already being validated, without changing the list', () => {
     const T = object({ a: number() })
     const value = { a: 'one' }
