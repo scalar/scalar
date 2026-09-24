@@ -9,6 +9,19 @@ Configure preview deployments and pull request comments in the [Scalar Dashboard
 - Enable preview deployments for every pull request
 - Enable automatic comments on pull requests with a direct link to the preview
 
+### Configure in scalar.config.json
+
+These toggles are stored in your `scalar.config.json` as `publishPreviews` and `pullRequestComments`, so you can also set them in your repository:
+
+```json
+{
+  "publishPreviews": true,
+  "pullRequestComments": true
+}
+```
+
+See [Publishing](../configuration/scalar.config.json.md#publishing) for details.
+
 ### GitHub Pull Request Comments for Preview Deployments
 
 When enabled in the Dashboard, Scalar posts a comment on each pull request with a direct link to the preview deployment:

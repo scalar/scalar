@@ -65,15 +65,20 @@ Your editor will now provide autocomplete suggestions and highlight invalid prop
 
 ### Root properties
 
-| Property     | Type     | Description                                                                                                         |
-| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------- |
-| `$schema`    | `string` | JSON Schema URL for editor autocomplete and validation                                                              |
-| `scalar`     | `string` | Configuration version. Use `"2.0.0"` for the latest format                                                          |
-| `info`       | `object` | Project metadata (title, description)                                                                               |
-| `navigation` | `object` | Navigation structure (header links, routes, sidebar, tabs). See [Navigation](navigation.md) for details             |
-| `versions`   | `object` | Multi-version navigation structure. Use instead of `navigation` for versioned docs. See [Versions](versions.md)    |
-| `siteConfig` | `object` | Site-level configuration (domain, theme, head, logo)                                                                |
-| `assetsDir`  | `string` | Path to the assets directory (relative to repository root)                                                          |
+| Property              | Type      | Description                                                                                                     |
+| --------------------- | --------- | --------------------------------------------------------------------------------------------------------------- |
+| `$schema`             | `string`  | JSON Schema URL for editor autocomplete and validation                                                          |
+| `scalar`              | `string`  | Configuration version. Use `"2.0.0"` for the latest format                                                      |
+| `info`                | `object`  | Project metadata (title, description)                                                                           |
+| `navigation`          | `object`  | Navigation structure (header links, routes, sidebar, tabs). See [Navigation](navigation.md) for details         |
+| `versions`            | `object`  | Multi-version navigation structure. Use instead of `navigation` for versioned docs. See [Versions](versions.md) |
+| `siteConfig`          | `object`  | Site-level configuration (domain, theme, head, logo, access control)                                            |
+| `assetsDir`           | `string`  | Path to the assets directory (relative to repository root)                                                      |
+| `root`                | `string`  | Directory that route `filepath` values resolve against, relative to the configuration file                      |
+| `publishOnMerge`      | `boolean` | Publish the site when commits land on the tracked branch. See [Publishing](#publishing)                         |
+| `publishPreviews`     | `boolean` | Build a preview deployment for every pull request. See [Publishing](#publishing)                                |
+| `pullRequestComments` | `boolean` | Post the preview URL as a comment on each pull request. See [Publishing](#publishing)                           |
+| `ruleset`             | `object`  | Default Spectral ruleset and publish policy for every OpenAPI route. See [ruleset](#ruleset)                    |
 
 ### info
 
@@ -119,15 +124,78 @@ Configure your site's domain, appearance, and custom assets:
 
 #### siteConfig properties
 
-| Property      | Type     | Description                                                                                                                 |
-| ------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `theme`       | `string` | Visual theme (`default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`) |
-| `logo`        | `object` | Logo URLs for dark and light modes                                                                                          |
-| `head`        | `object` | Custom scripts, styles, meta tags, and links                                                                                |
-| `routing`     | `object` | URL redirects configuration                                                                                                 |
-| `subpath`     | `string` | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                         |
-| `colorScheme` | `object` | Light/dark mode appearance settings. See [Site](site-config.md#color-scheme)                                                |
-| `layout`      | `object` | Global layout options including search configuration. See [Site](site-config.md#layout)                                     |
+| Property         | Type                | Description                                                                                                                 |
+| ---------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `subdomain`      | `string`            | Subdomain to publish to, as in `<subdomain>.apidocumentation.com`. Must be unique on Scalar. See [Domains](domains.md)      |
+| `customDomain`   | `string`            | Custom domain for the site. See [Domains](domains.md)                                                                       |
+| `subpath`        | `string`            | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                         |
+| `isPrivate`      | `boolean`           | Require visitors to sign in. See [Access Control](site-config.md#access-control)                                            |
+| `accessGroups`   | `string[]`          | Slugs of the access groups allowed to view a private site. See [Access Control](site-config.md#access-control)              |
+| `loginPortal`    | `string`            | Slug of a custom login portal for a private site. See [Access Control](site-config.md#access-control)                       |
+| `theme`          | `string`            | Visual theme (`default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`) |
+| `logo`           | `object`            | Logo URLs for dark and light modes                                                                                          |
+| `head`           | `object`            | Custom scripts, styles, meta tags, and links                                                                                |
+| `routing`        | `object`            | URL redirects configuration                                                                                                 |
+| `colorScheme`    | `object`            | Light/dark mode appearance settings. See [Site](site-config.md#color-scheme)                                                |
+| `layout`         | `object`            | Global layout options including search configuration. See [Site](site-config.md#layout)                                     |
+| `agent`          | `object`            | Ask AI button settings. See [Ask AI](ask-ai.md)                                                                             |
+| `footer`         | `object`            | Custom HTML footer. See [Site](site-config.md#footer)                                                                       |
+| `rss`            | `object` or `array` | RSS feeds for changelog-style pages. See [Site](site-config.md#rss)                                                         |
+| `contentSignals` | `object` or `false` | Search and AI crawler preferences for `robots.txt`. See [Site](site-config.md#content-signals)                              |
+
+### Publishing
+
+When your project is connected to a GitHub or Bitbucket repository, three root properties control when Scalar publishes. The toggles under **Settings → Git Sync** in the dashboard read and write these same properties, so a change in either place shows up in the other.
+
+```json
+{
+  "publishOnMerge": true,
+  "publishPreviews": true,
+  "pullRequestComments": true
+}
+```
+
+| Property              | Type      | Default | Description                                                                                                                      |
+| --------------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `publishOnMerge`      | `boolean` | `true`  | Publish the live site when commits land on the tracked branch. See [Automatic Deployment](../deployment/automatic-deployment.md) |
+| `publishPreviews`     | `boolean` | `false` | Build a preview deployment for every pull request. See [Preview Deployments](../deployment/preview-deployments.md)               |
+| `pullRequestComments` | `boolean` | `false` | Post the preview URL as a comment on each pull request                                                                           |
+
+If a property is missing from the file, Scalar falls back to the setting stored on the repository connection. The tracked branch itself is set in the dashboard, not in `scalar.config.json`.
+
+### ruleset
+
+Lint every OpenAPI route with a [Spectral ruleset](../../registry/rules.md), and optionally block publishing when it finds problems. Point at a ruleset file in your repository, or at a ruleset in your team's registry:
+
+```json
+{
+  "ruleset": {
+    "filepath": "rules/spectral.yaml",
+    "blockPublishOn": "error"
+  }
+}
+```
+
+```json
+{
+  "ruleset": {
+    "namespace": "acme",
+    "slug": "api-guidelines",
+    "version": "1.2.0"
+  }
+}
+```
+
+| Property         | Type      | Description                                                                                                                         |
+| ---------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `filepath`       | `string`  | Path to a Spectral ruleset file, relative to the configuration root                                                                 |
+| `namespace`      | `string`  | Namespace of the ruleset in your team registry                                                                                      |
+| `slug`           | `string`  | Slug of the ruleset in your team registry                                                                                           |
+| `version`        | `string`  | Version of the ruleset in your team registry                                                                                        |
+| `disableSync`    | `boolean` | When `filepath` is set alongside registry coordinates, do not publish the file to the registry each time the docs publish           |
+| `blockPublishOn` | `string`  | Lowest severity that blocks publishing: `error`, `warning`, `info`, `hint`, or `none`. Omit it to use the registry ruleset's policy |
+
+An OpenAPI route can set its own `ruleset`. Its keys override the project-level ones one at a time, so a route can change `blockPublishOn` and keep the default ruleset.
 
 ### navigation
 
@@ -146,6 +214,9 @@ Here is a more complete example showing common configuration options:
     "description": "Everything you need to integrate with Acme"
   },
   "assetsDir": "docs/assets",
+  "publishOnMerge": true,
+  "publishPreviews": true,
+  "pullRequestComments": true,
   "siteConfig": {
     "subdomain": "acme",
     "theme": "default",
