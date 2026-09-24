@@ -1,7 +1,6 @@
 import http from 'node:http'
 
 import { shell } from 'electron/common'
-import { getPort } from 'get-port-please'
 
 import { env } from '@/environment'
 import { exchangeToken } from '@/helpers/auth/exchange-token'
@@ -13,11 +12,11 @@ const CALLBACK_HOST = '127.0.0.1'
 const CALLBACK_TIMEOUT_MS = 3 * 60 * 1000
 
 /**
- * Starts the local callback server on the chosen port.
+ * Lets the OS reserve an available port on the callback interface.
  * Resolving only after the listening event keeps the browser redirect from
  * racing ahead of the server setup.
  */
-const listenForCallback = (server: http.Server, port: number): Promise<void> =>
+const listenForCallback = (server: http.Server): Promise<void> =>
   new Promise((resolve, reject) => {
     /**
      * Cleans up the paired listener so a failed bind cannot resolve later.
@@ -37,7 +36,7 @@ const listenForCallback = (server: http.Server, port: number): Promise<void> =>
 
     server.once('error', onError)
     server.once('listening', onListening)
-    server.listen({ host: CALLBACK_HOST, port })
+    server.listen({ host: CALLBACK_HOST, port: 0 })
   })
 
 /**
@@ -107,7 +106,7 @@ const waitForExchangeTokenCallback = ({
   server: http.Server
 }): Promise<ExchangeTokenResult> =>
   new Promise<ExchangeTokenResult>((resolve) => {
-    const callbackOrigin = `http://${CALLBACK_HOST}:${port}`
+    const callbackOrigin = new URL(env.VITE_DASHBOARD_URL).origin
     let isFinished = false
 
     /**
@@ -182,11 +181,15 @@ const waitForExchangeTokenCallback = ({
  * then the app trades it for the durable access and refresh tokens it needs.
  */
 export const getExchangeToken = async (flow: 'login' | 'register'): Promise<TokenResponse | null> => {
-  const port = await getPort()
   const server = http.createServer()
 
   try {
-    await listenForCallback(server, port)
+    await listenForCallback(server)
+    const address = server.address()
+    if (!address || typeof address === 'string') {
+      throw new Error('Could not determine the login callback port')
+    }
+    const port = address.port
 
     // Arm the callback handler before opening the browser so a fast redirect
     // cannot arrive before the local server is ready to process it.

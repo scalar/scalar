@@ -2,9 +2,8 @@ import http from 'node:http'
 
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { exchangeTokenMock, getPortMock, openExternalMock } = vi.hoisted(() => ({
+const { exchangeTokenMock, openExternalMock } = vi.hoisted(() => ({
   exchangeTokenMock: vi.fn(),
-  getPortMock: vi.fn(),
   openExternalMock: vi.fn(),
 }))
 
@@ -12,10 +11,6 @@ vi.mock('electron/common', () => ({
   shell: {
     openExternal: openExternalMock,
   },
-}))
-
-vi.mock('get-port-please', () => ({
-  getPort: getPortMock,
 }))
 
 vi.mock('@/environment', () => ({
@@ -108,11 +103,9 @@ const sendCallbackRequest = ({
   })
 
 describe('get-exchange-token', () => {
-  let nextPort = 38200
   let consoleErrorSpy: Mock
 
   beforeEach(() => {
-    getPortMock.mockImplementation(() => nextPort++)
     exchangeTokenMock.mockResolvedValue([null, VALID_TOKEN_RESPONSE])
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
@@ -140,6 +133,35 @@ describe('get-exchange-token', () => {
     })
 
     await resultPromise
+  })
+
+  it('logs in while the default port is occupied', async () => {
+    const blocker = http.createServer()
+    await new Promise<void>((resolve, reject) => {
+      blocker.once('error', (error: NodeJS.ErrnoException) => {
+        // Another test or local service may already occupy the default port.
+        if (error.code === 'EADDRINUSE') {
+          resolve()
+        } else {
+          reject(error)
+        }
+      })
+      blocker.listen({ host: '127.0.0.1', port: 3000 }, resolve)
+    })
+
+    try {
+      const resultPromise = getExchangeToken('login')
+      await waitForLoginPageToOpen()
+      const port = parseOpenedCallbackPort()
+      await sendCallbackRequest({ path: '/callback?exchangeToken=token', port })
+
+      expect(await resultPromise).toEqual(VALID_TOKEN_RESPONSE)
+      expect(port).not.toBe(3000)
+    } finally {
+      if (blocker.listening) {
+        await new Promise<void>((resolve) => blocker.close(() => resolve()))
+      }
+    }
   })
 
   it('opens the dashboard register page when flow is register', async () => {
@@ -185,7 +207,7 @@ describe('get-exchange-token', () => {
       }),
     )
     expect(response.headers['content-type']).toBe('application/json')
-    expect(response.headers['access-control-allow-origin']).toBe(`http://127.0.0.1:${port}`)
+    expect(response.headers['access-control-allow-origin']).toBe('https://dashboard.scalar.test')
   })
 
   it('tears down the callback server after the login attempt finishes', async () => {
@@ -275,7 +297,7 @@ describe('get-exchange-token', () => {
         statusCode: 405,
       }),
     )
-    expect(response.headers['access-control-allow-origin']).toBe(`http://127.0.0.1:${port}`)
+    expect(response.headers['access-control-allow-origin']).toBe('https://dashboard.scalar.test')
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.any(Error))
   })
 
