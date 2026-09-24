@@ -15,6 +15,7 @@ import {
   SchemaObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { type KindPosition, getChildKind, referenceTargetSchemas } from './object-kinds'
 import { type SchemaPosition, getChildPosition, restoreBooleanSchemas } from './restore-boolean-schemas'
 
 type AttachRefValuesOptions = {
@@ -55,8 +56,8 @@ const attachRefValues = (
   const seen = new WeakSet<object>()
   // Large descriptions repeat the same reference strings thousands of times.
   const targets = new Map<string, ResolvedTarget | undefined>()
-  // Share one cast copy between every schema reference to the same dropped target.
-  const castFallbacks = new WeakMap<object, unknown>()
+  // Share one cast copy between every reference of the same kind to the same dropped target.
+  const castFallbacks = new WeakMap<object, Map<unknown, unknown>>()
   let hasExternalReferences = false
 
   const lookUp = (path: string, ref: string): ResolvedTarget => {
@@ -84,30 +85,52 @@ const attachRefValues = (
     return resolved
   }
 
-  // Cast dropped schemas like any other schema, so the renderer never sees uncoerced shapes.
-  const castFallback = (value: unknown): unknown => {
+  // Cast dropped targets like the objects they stand in for, so the renderer never sees uncoerced shapes.
+  const castFallback = (
+    value: unknown,
+    schema: Parameters<typeof coerceValue>[0],
+    position: SchemaPosition,
+  ): unknown => {
     // OpenAPI 3.1 keeps boolean schemas, and a nested reference is linked once it is walked.
     if (
       value === undefined ||
-      (fallback?.booleanSchemas && typeof value === 'boolean') ||
+      (fallback?.booleanSchemas && position === 'schema' && typeof value === 'boolean') ||
       (isObject(value) && typeof value.$ref === 'string')
     ) {
       return value
     }
     if (!isObject(value)) {
-      return coerceValue(SchemaObjectSchema, value)
+      return coerceValue(schema, value)
     }
-    if (!castFallbacks.has(value)) {
-      const cast = coerceValue(SchemaObjectSchema, value)
+    const casts = castFallbacks.get(value) ?? new Map<unknown, unknown>()
+    castFallbacks.set(value, casts)
+    if (!casts.has(schema)) {
+      const cast = coerceValue(schema, value)
       if (fallback?.booleanSchemas) {
-        restoreBooleanSchemas(value, cast, 'schema')
+        restoreBooleanSchemas(value, cast, position)
       }
-      castFallbacks.set(value, cast)
+      casts.set(schema, cast)
     }
-    return castFallbacks.get(value)
+    return casts.get(schema)
   }
 
-  const visit = (node: unknown, context: string, position: SchemaPosition | undefined): void => {
+  // Schemas are recognized by their position, and every other object by the field that holds it.
+  const getTargetSchema = (
+    position: SchemaPosition | undefined,
+    kind: KindPosition | undefined,
+  ): Parameters<typeof coerceValue>[0] | undefined => {
+    if (position === 'schema') {
+      return SchemaObjectSchema
+    }
+    return typeof kind === 'string' ? referenceTargetSchemas[kind] : undefined
+  }
+
+  const visit = (
+    node: unknown,
+    context: string,
+    position: SchemaPosition | undefined,
+    kind: KindPosition | undefined,
+  ): void => {
     if (node === null || typeof node !== 'object' || seen.has(node)) {
       return
     }
@@ -126,9 +149,9 @@ const attachRefValues = (
         }
       } else {
         const resolved = resolve(ref, base)
+        const schema = resolved && !resolved.linked ? getTargetSchema(position, kind) : undefined
         // Point to the target instead of copying it into every reference.
-        const target =
-          resolved && !resolved.linked && position === 'schema' ? castFallback(resolved.value) : resolved?.value
+        const target = schema ? castFallback(resolved?.value, schema, position ?? 'document') : resolved?.value
 
         if (target !== undefined) {
           Object.defineProperty(node, '$ref-value', {
@@ -140,17 +163,22 @@ const attachRefValues = (
         }
         // Fallback targets live outside the walked tree, so link their own references too.
         if (resolved && !resolved.linked) {
-          visit(target, resolved.context, position)
+          visit(target, resolved.context, position, kind)
         }
       }
     }
 
     // Preserve the nearest resource base while walking into child schemas.
     for (const [key, child] of Object.entries(node)) {
-      visit(child, base, Array.isArray(node) ? position : position && getChildPosition(position, key))
+      visit(
+        child,
+        base,
+        Array.isArray(node) ? position : position && getChildPosition(position, key),
+        kind && getChildKind(kind, key),
+      )
     }
   }
-  visit(document, getId(document) ?? '', 'document')
+  visit(document, getId(document) ?? '', 'document', 'document')
   return hasExternalReferences
 }
 

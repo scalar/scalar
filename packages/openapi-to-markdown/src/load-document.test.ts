@@ -434,6 +434,62 @@ paths:
     await expect(createMarkdownFromOpenApi(input)).resolves.toContain('name')
   })
 
+  it('casts dropped targets outside schemas as the objects they stand in for', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Custom root keys', version: '1' },
+      paths: {
+        '/items': {
+          get: {
+            parameters: [{ $ref: '#/legacy/Id' }],
+            requestBody: { $ref: '#/legacy/Body' },
+            responses: { '200': { $ref: '#/legacy/Ok' } },
+            callbacks: { onEvent: { '{$request.body#/url}': { $ref: '#/legacy/Hook' } } },
+          },
+        },
+      },
+      // Coercion drops unknown root keys, so every target below is a fallback target.
+      legacy: {
+        Id: { name: 'id', in: 'query', required: 'yes', schema: true },
+        Body: {
+          required: 'no',
+          content: { 'application/json': { examples: { item: { $ref: '#/legacy/Item' } } } },
+        },
+        Ok: { description: 5, headers: { Limit: { $ref: '#/legacy/Limit' } } },
+        Limit: { deprecated: 'soon', schema: { type: 'integer' } },
+        Item: { summary: 1, value: { id: 1 } },
+        Hook: { post: { responses: { '204': { description: 'Received' } } } },
+      },
+    })
+
+    const operation = getValueAtPath(document, ['paths', '/items', 'get'])
+    const target = (node: unknown, path: string[]): unknown => {
+      const reference = getValueAtPath(node, path)
+      return getReferenceTarget(isObject(reference) ? reference : undefined)
+    }
+    const body = target(operation, ['requestBody'])
+    const response = target(operation, ['responses', '200'])
+
+    // OpenAPI 3.1 boolean schemas survive inside the cast parameter.
+    expect(target(operation, ['parameters', '0'])).toStrictEqual({
+      name: 'id',
+      in: 'query',
+      required: false,
+      schema: true,
+    })
+    expect(isObject(body) && body.required).toBe(false)
+    expect(isObject(response) && response.description).toBe('')
+    // References inside cast targets are linked and cast in their own positions.
+    expect(target(response, ['headers', 'Limit'])).toStrictEqual({ deprecated: false, schema: { type: 'integer' } })
+    expect(target(body, ['content', 'application/json', 'examples', 'item'])).toStrictEqual({
+      summary: '',
+      value: { id: 1 },
+    })
+    expect(target(operation, ['callbacks', 'onEvent', '{$request.body#/url}'])).toStrictEqual({
+      post: { responses: { '204': { description: 'Received' } } },
+    })
+  })
+
   it('resolves references in dropped targets against the resource that contains them', async () => {
     const document = await loadDocument({
       openapi: '3.1.1',
