@@ -61,8 +61,8 @@ import { getPropertyDescription } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
 import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
+import { normalizeObjectComposition } from './helpers/normalize-object-composition'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
-import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import type { CompositionKeyword } from './helpers/schema-composition'
 import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
@@ -145,45 +145,14 @@ const dynamicScope = useDynamicScope()
  * `ParameterListItem` and `Headers` hand a schema in below a root and would otherwise leave the
  * whole subtree on the reactive and detect-changes proxies. See {@link unwrapForRead}.
  */
-const optimizedValue = computed(() => {
-  const value = optimizeValueForDisplay(
-    resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
-  )
-
-  // A named property owns its object boundary even when its fields come from
-  // several allOf members. Use the ordinary object row for a single object
-  // segment, but leave choice groups and unnamed composition containers intact.
-  if (
-    props.name &&
-    value?.allOf &&
-    !value.oneOf &&
-    !value.anyOf &&
-    !value.not
-  ) {
-    const { segments } = partitionAllOfCompositions(value)
-    const segment = segments[0]
-    if (
-      segments.length === 1 &&
-      segment?.kind === 'object' &&
-      isTypeObject(segment.schema)
-    ) {
-      // A member reference identifies only part of this object, not the
-      // combined property. Keep the property's own reference, if it has one.
-      const objectSchema = { ...segment.schema }
-      if ('$ref' in objectSchema) {
-        delete objectSchema.$ref
-      }
-      return {
-        ...objectSchema,
-        ...('$ref' in value && typeof value.$ref === 'string'
-          ? { $ref: value.$ref }
-          : {}),
-      }
-    }
-  }
-
-  return value
-})
+const optimizedValue = computed(() =>
+  normalizeObjectComposition(
+    optimizeValueForDisplay(
+      resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
+    ),
+    props.name,
+  ),
+)
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
   props.breadcrumb

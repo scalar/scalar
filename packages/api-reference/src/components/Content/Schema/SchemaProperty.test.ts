@@ -45,7 +45,9 @@ describe('SchemaProperty', () => {
       const panel = wrapper.get(`[id="${toggle.attributes('aria-controls')}"]`)
       expect(panel.get('[id="response.data.email"]').text()).toBe('email')
       expect(panel.get('[id="response.data.userUseTags"]').text()).toBe('userUseTags')
-      expect(panel.text()).toContain('emailType: stringrequired')
+      const email = wrapper.findAllComponents(SchemaProperty).find((property) => property.props('name') === 'email')!
+      expect(email.text()).toContain('Type: string')
+      expect(email.get('.property-required').text()).toBe('required')
 
       await toggle.trigger('click')
 
