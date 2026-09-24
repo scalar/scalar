@@ -106,7 +106,7 @@ const waitForExchangeTokenCallback = ({
   server: http.Server
 }): Promise<ExchangeTokenResult> =>
   new Promise<ExchangeTokenResult>((resolve) => {
-    const callbackOrigin = new URL(env.VITE_DASHBOARD_URL).origin
+    const dashboardOrigin = new URL(env.VITE_DASHBOARD_URL).origin
     let isFinished = false
 
     /**
@@ -135,7 +135,7 @@ const waitForExchangeTokenCallback = ({
      */
     const fail = (response: http.ServerResponse, message: string, statusCode: number): void => {
       writeCallbackResponse(response, {
-        corsOrigin: callbackOrigin,
+        corsOrigin: dashboardOrigin,
         message,
         statusCode,
         success: false,
@@ -166,7 +166,7 @@ const waitForExchangeTokenCallback = ({
       }
 
       writeCallbackResponse(response, {
-        corsOrigin: callbackOrigin,
+        corsOrigin: dashboardOrigin,
         message: 'Token exchanged.',
         statusCode: 200,
         success: true,

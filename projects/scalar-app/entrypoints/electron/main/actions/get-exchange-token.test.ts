@@ -155,7 +155,7 @@ describe('get-exchange-token', () => {
       const port = parseOpenedCallbackPort()
       await sendCallbackRequest({ path: '/callback?exchangeToken=token', port })
 
-      expect(await resultPromise).toEqual(VALID_TOKEN_RESPONSE)
+      expect(await resultPromise).toStrictEqual(VALID_TOKEN_RESPONSE)
       expect(port).not.toBe(3000)
     } finally {
       if (blocker.listening) {
