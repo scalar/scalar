@@ -35,6 +35,7 @@
   ],
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
     "@unhead/vue": "^2.1.12",
     "vue": "catalog:*"

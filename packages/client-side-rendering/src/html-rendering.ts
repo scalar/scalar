@@ -1,3 +1,5 @@
+import { escapeJsonForInlineScript } from '@scalar/helpers/json/escape-json-for-inline-script'
+import { serializePropertyKey } from '@scalar/helpers/json/serialize-property-key'
 import type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 
 export type { AnyApiReferenceConfiguration, HtmlRenderingConfiguration }
@@ -161,16 +163,10 @@ export function renderApiReference(
 }
 
 /**
- * Keep JSON data out of the HTML parser's script end-tag and comment states. Apply this only to
- * JSON, because escaping executable function source would also change JavaScript operators.
- */
-const escapeJsonForScript = (json: string): string => json.replace(/</g, '\\u003c')
-
-/**
  * Helper function to serialize arrays that may contain functions
  */
 const serializeArrayWithFunctions = (arr: unknown[]): string => {
-  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : escapeJsonForScript(JSON.stringify(item) ?? 'undefined'))).join(', ')}]`
+  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : escapeJsonForInlineScript(JSON.stringify(item) ?? 'undefined'))).join(', ')}]`
 }
 
 /**
@@ -194,15 +190,15 @@ export function serializeConfigToJs(configuration: Record<string, unknown>): str
 
   for (const [key, value] of Object.entries(configuration)) {
     if (typeof value === 'function') {
-      functionProps.push(`${escapeJsonForScript(JSON.stringify(key))}: ${value.toString()}`)
+      functionProps.push(`${serializePropertyKey(key)}: ${value.toString()}`)
       delete restConfig[key]
     } else if (Array.isArray(value) && value.some((item) => typeof item === 'function')) {
-      functionProps.push(`${escapeJsonForScript(JSON.stringify(key))}: ${serializeArrayWithFunctions(value)}`)
+      functionProps.push(`${serializePropertyKey(key)}: ${serializeArrayWithFunctions(value)}`)
       delete restConfig[key]
     }
   }
 
-  const jsonString = escapeJsonForScript(JSON.stringify(restConfig, null, 2))
+  const jsonString = escapeJsonForInlineScript(JSON.stringify(restConfig, null, 2))
   const indentedJsonString = jsonString
     .split('\n')
     .map((line, index) => (index === 0 ? line : `      ${line}`))
