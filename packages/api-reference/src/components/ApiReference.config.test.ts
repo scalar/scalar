@@ -932,4 +932,48 @@ describe('host-app hash routing', () => {
     await flushPromises()
     expect(locationMock.hash).toBe(expectedHash)
   })
+
+  it.each([
+    ['', false, '# Overview\nDetails'],
+    ['', false, 'Introductory prose'],
+    ['', false, ''],
+    ['docs/api-spec/', false, '# Overview\nDetails'],
+    ['', true, '# Overview\nDetails'],
+    ['docs/api-spec/', true, '# Overview\nDetails'],
+  ])(
+    'preserves introduction links through remounts with prefix %s and multi-document %s',
+    async (prefix, multi, description) => {
+      const slug = multi ? 'second' : 'doc'
+      const hash = `#${prefix}${multi ? `${slug}/` : ''}description/introduction`
+      locationMock.hash = hash
+      locationMock.href = `http://localhost:3000/${hash}`
+      const updateLocation = (_data: unknown, _unused: string, url?: string | URL | null): void => {
+        const next = new URL(String(url), locationMock.href)
+        locationMock.href = next.href
+        locationMock.hash = next.hash
+      }
+      vi.spyOn(window.history, 'replaceState').mockImplementation(updateLocation)
+      vi.spyOn(window.history, 'pushState').mockImplementation(updateLocation)
+
+      const configuration = {
+        slug: 'doc',
+        content: {
+          openapi: '3.1.0',
+          info: { title: 'Introduction routing', version: '1.0.0', description },
+          paths: {},
+        },
+      }
+      for (const _mount of [0, 1]) {
+        const wrapper = mountComponent({
+          props: { configuration: multi ? [configuration, { ...configuration, slug: 'second' }] : configuration },
+        })
+        await flushPromises()
+        const eventBus = wrapper.findComponent({ name: 'Content' }).props('eventBus')
+        eventBus.emit('select:nav-item', { id: `${slug}/description/introduction` })
+        await flushPromises()
+        expect(locationMock.hash).toBe(hash)
+        wrapper.unmount()
+      }
+    },
+  )
 })
