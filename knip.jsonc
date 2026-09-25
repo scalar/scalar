@@ -343,7 +343,7 @@
         "./src/schemas/v3.2/strict/openapi-document.ts",
         "./src/schemas/v3.2/strict/type-guards.ts",
         "./src/server.ts",
-        "./src/resolve.ts"
+        "./src/resolve/index.ts"
       ]
     },
     "packages/pre-post-request-scripts": {

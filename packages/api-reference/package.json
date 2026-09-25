@@ -147,6 +147,7 @@
     "@playwright/test": "catalog:*",
     "@scalar/core": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
     "@storybook/addon-docs": "10.5.10",
     "@storybook/addon-links": "10.5.10",
     "@storybook/vue3-vite": "10.5.10",
