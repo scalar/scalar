@@ -51,7 +51,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
     <p class="customer-sticker-name">
       <a class="t-editor__anchor" href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer">Bobcat</a>
     </p>
-    <p class="customer-sticker-description">American-based manufacturer of farm and construction equipment</p>
+    <p class="customer-sticker-description">Manufacturer of farm and construction equipment</p>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-thomson-reuters" aria-hidden="true">
@@ -73,7 +73,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
     <p class="customer-sticker-name">
       <a class="t-editor__anchor" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer">Thomson Reuters</a>
     </p>
-    <p class="customer-sticker-description">Provider of software and decision tools for legal and accounting companies</p>
+    <p class="customer-sticker-description">Software and decision tools for legal and accounting</p>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-clerk" aria-hidden="true">
@@ -93,7 +93,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
     <p class="customer-sticker-name">
       <a class="t-editor__anchor" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer">Clerk</a>
     </p>
-    <p class="customer-sticker-description">Authentication and user management platform built for the modern web</p>
+    <p class="customer-sticker-description">Authentication and user management for the modern web</p>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-lufthansa" aria-hidden="true">
@@ -113,7 +113,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
     <p class="customer-sticker-name">
       <a class="t-editor__anchor" href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer">Lufthansa</a>
     </p>
-    <p class="customer-sticker-description">Airline and travel APIs</p>
+    <p class="customer-sticker-description">Flight status, schedules, offers, and partner travel APIs</p>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-partech" aria-hidden="true">
@@ -176,7 +176,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
     <p class="customer-sticker-name">
       <a class="t-editor__anchor" href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer">Tailscale</a>
     </p>
-    <p class="customer-sticker-description">Secure, identity-based networking</p>
+    <p class="customer-sticker-description">Secure, identity-based networking for teams and devices</p>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-later" aria-hidden="true">
@@ -196,7 +196,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
     <p class="customer-sticker-name">
       <a class="t-editor__anchor" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer">Later</a>
     </p>
-    <p class="customer-sticker-description">Social media management platform for creators, agencies, and brands</p>
+    <p class="customer-sticker-description">Social media management for creators and brands</p>
   </article>
 </section>
 
@@ -221,7 +221,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
       </div>
     </div>
     <p class="customer-sticker-name">Warp</p>
-    <p class="customer-sticker-description">AI-native payroll, benefits, and compliance for fast-growing companies</p>
+    <p class="customer-sticker-description">AI-native payroll, benefits, and compliance for growing teams</p>
     <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
       <a class="customer-sdk-target" href="https://github.com/TeamWarp/warp-sdk-go" target="_blank" rel="noopener noreferrer" aria-label="Warp Go SDK on GitHub" title="Go">
         <scalar-icon src="../../assets/logos/go.svg"></scalar-icon>
@@ -283,7 +283,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     </div>
     <p class="customer-sticker-name">Dedalus Labs</p>
     <p class="customer-sticker-description">Fast, isolated compute infrastructure for AI agents</p>
-    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
+        <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
       <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-typescript" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs TypeScript SDK on GitHub" title="TypeScript">
         <scalar-icon src="../../assets/logos/typescript.svg"></scalar-icon>
       </a>
@@ -292,24 +292,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
       </a>
       <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-go" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Go SDK on GitHub" title="Go">
         <scalar-icon src="../../assets/logos/go.svg"></scalar-icon>
-      </a>
-      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-ruby" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Ruby SDK on GitHub" title="Ruby">
-        <scalar-icon src="simple/ruby"></scalar-icon>
-      </a>
-      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-php" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs PHP SDK on GitHub" title="PHP">
-        <scalar-icon src="simple/php"></scalar-icon>
-      </a>
-      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-java" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Java SDK on GitHub" title="Java">
-        <scalar-icon src="simple/openjdk"></scalar-icon>
-      </a>
-      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-kotlin" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Kotlin SDK on GitHub" title="Kotlin">
-        <scalar-icon src="simple/kotlin"></scalar-icon>
-      </a>
-      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-csharp" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs C# SDK on GitHub" title="C#">
-        <scalar-icon src="simple/dotnet"></scalar-icon>
-      </a>
-      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-cli" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs CLI SDK on GitHub" title="CLI">
-        <scalar-icon src="phosphor/bold/terminal-window"></scalar-icon>
       </a>
     </div>
   </article>
@@ -649,7 +631,10 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     font-weight: var(--scalar-bold);
     line-height: var(--scalar-line-height-2);
   }
+  /* Every description is written to fit three lines at 190px, and reserves three
+     whether or not it fills them, so the rows beneath line up across the grid. */
   .customer-sticker-description {
+    min-height: 3lh;
     color: var(--scalar-color-3);
     font-size: var(--scalar-font-size-2);
     line-height: var(--scalar-line-height-2);
