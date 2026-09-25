@@ -11,6 +11,80 @@ import {
 } from './security-scheme'
 
 describe('security-scheme', () => {
+  it.each(['authorizationCode', 'implicit', 'clientCredentials'] as const)(
+    'keeps one available %s option when scopes change',
+    (flow) => {
+      const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+        OAuth2: {
+          type: 'oauth2',
+          'x-default-scopes': ['read'],
+          flows: {
+            [flow]: {
+              authorizationUrl: 'https://example.com/authorize',
+              tokenUrl: 'https://example.com/token',
+              scopes: { read: 'Read', write: 'Write' },
+            },
+          },
+        },
+      }
+
+      for (const security of [[], [{}]]) {
+        for (const scopes of [['read'], ['read', 'write'], []]) {
+          const value = { OAuth2: scopes }
+          expect(getSecuritySchemeOptions(security, schemes, [value])).toStrictEqual([
+            formatScheme({ name: 'OAuth2', value }),
+          ])
+        }
+      }
+    },
+  )
+
+  it('uses default scopes when an available OAuth2 scheme is first selected', () => {
+    const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+      OAuth2: {
+        type: 'oauth2',
+        'x-default-scopes': ['read'],
+        flows: {},
+      },
+    }
+
+    expect(getSecuritySchemeOptions([{}], schemes, [])).toStrictEqual([
+      formatScheme({ name: 'OAuth2', value: { OAuth2: ['read'] } }),
+    ])
+    expect(schemes.OAuth2).toStrictEqual({
+      type: 'oauth2',
+      'x-default-scopes': ['read'],
+      flows: {},
+    })
+  })
+
+  it('preserves a selected combination alongside individual available schemes', () => {
+    const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+      OAuth2: { type: 'oauth2', flows: {}, 'x-default-scopes': ['read'] },
+      ApiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+    }
+    const combination = { OAuth2: ['write'], ApiKey: [] }
+
+    expect(getSecuritySchemeOptions([], schemes, [combination])).toStrictEqual([
+      formatScheme({ name: 'OAuth2', value: { OAuth2: ['read'] } }),
+      formatScheme({ name: 'ApiKey', value: { ApiKey: [] } }),
+      formatComplexScheme(combination),
+    ])
+  })
+
+  it('preserves distinct scoped selections of the same available scheme', () => {
+    const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+      OAuth2: { type: 'oauth2', flows: {} },
+    }
+    const read = { OAuth2: ['read'] }
+    const write = { OAuth2: ['write'] }
+
+    expect(getSecuritySchemeOptions([], schemes, [read, write])).toStrictEqual([
+      formatScheme({ name: 'OAuth2', value: write }),
+      formatScheme({ name: 'OAuth2', value: read }),
+    ])
+  })
+
   describe('formatScheme', () => {
     it('should format a basic API key scheme', () => {
       const result = formatScheme({
@@ -595,7 +669,7 @@ describe('security-scheme', () => {
       })
     })
 
-    it('should handle when selected schemes do not exist in the available options', () => {
+    it('uses selected scopes for the available option in the editable client', () => {
       const security: NonNullable<OpenApiDocument['security']> = []
 
       const securitySchemes: NonNullable<ComponentsObject['securitySchemes']> = {
@@ -627,12 +701,6 @@ describe('security-scheme', () => {
 
       const result = getSecuritySchemeOptions(security, securitySchemes, selectedSchemes, true)
       expect((result[1] as SecuritySchemeGroup).options).toStrictEqual([
-        {
-          id: '05f6eac51b164030',
-          label: 'UserAccessToken',
-          isDeletable: true,
-          value: { UserAccessToken: [] },
-        },
         {
           id: '8c854cac163762c9',
           label: 'UserAccessToken',
