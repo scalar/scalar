@@ -11,36 +11,6 @@
   </div>
 </div>
 
-<div class="logowall" role="list" aria-label="Companies building on Scalar">
-  <div class="logowall-item" role="listitem" aria-label="Thomson Reuters">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Maersk">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Lufthansa">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="PAR">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Bobcat">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Clerk">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Tailscale">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Supabase">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Fly.io">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
-  </div>
-</div>
-
 <a class="featured-story-card" href="/customers/warp" aria-label="Read the Warp customer story">
   <div class="featured-story-copy">
     <p class="featured-story-eyebrow">Featured Story</p>
@@ -262,14 +232,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
 </div>
 
 <style>
-  :root {
-    --scalar-container-width: 960px;
-  }
-  /* The page draws its own hero, so the title header stays hidden — but the table of
-     contents is on, and needs its column back. */
-  .t-editor .page-header {
-    display: none;
-  }
   main.content {
     overflow-x: clip;
   }
@@ -280,22 +242,8 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   .t-editor .editor-static .page-node,
   .t-editor .page-node,
   .t-editor .content {
-    max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
-  }
-  .container-full {
-    --scalar-container-sidebar-gap: calc(
-      (
-        (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
-          2
-      )
-    );
-    width: calc(100dvw - var(--scalar-sidebar-width));
-    margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
-  }
-  .hero.hero {
-    margin-top: 28px;
   }
   .small-test {
     max-width: 550px;
@@ -307,6 +255,11 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   }
   .customers-hero .t-editor__heading {
     --font-size: var(--scalar-heading-1);
+  }
+  /* The theme indents a page's first heading by 10px through a :first-of-type rule the
+     hero cannot outrank on class specificity alone. Zeroing it lines the heading up with
+     the one on /company. */
+  .customers-hero h1.t-editor__heading:first-of-type {
     margin-top: 0;
   }
   .customers-hero-actions {
@@ -320,26 +273,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   }
   .fill-current-bg {
     fill: var(--scalar-background-1);
-  }
-  /* Three columns keeps the nine logos in even rows, with no orphan on the last one. */
-  .logowall {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: center;
-    justify-items: center;
-    gap: 40px;
-    margin-top: 48px;
-  }
-  .logowall-item {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-  }
-  .logowall-item svg {
-    width: 100%;
-    height: auto;
-    max-height: 24px;
   }
   .ign-logo__fill {
     fill: var(--scalar-color-1);
@@ -639,17 +572,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     outline: 2px solid var(--scalar-color-accent);
     outline-offset: 3px;
   }
-  @media (max-width: 1000px) {
-    .t-editor.page {
-      padding-inline: 30px;
-    }
-    .container-full {
-      --scalar-container-sidebar-gap: 30px;
-      width: 100dvw;
-      padding-inline: 30px;
-      margin-inline: -30px;
-    }
-  }
   @media (max-width: 760px) {
     .customer-sticker-grid {
       grid-template-columns: repeat(2, minmax(0, 190px));
@@ -660,9 +582,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     }
   }
   @media (max-width: 720px) {
-    .customers-hero.hero {
-      margin-top: 40px;
-    }
     .customers-hero-actions {
       width: 100%;
     }
@@ -686,12 +605,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     }
     .featured-story-media {
       min-height: 220px;
-    }
-    .logowall {
-      gap: 28px 24px;
-    }
-    .logowall-item svg {
-      max-height: 20px;
     }
   }
   @media (hover: none), (pointer: coarse) {

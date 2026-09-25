@@ -1195,7 +1195,6 @@
             "type": "page",
             "layout": {
               "toc": true,
-              "pageTitle": false,
               "pageActions": false
             },
             "head": {
