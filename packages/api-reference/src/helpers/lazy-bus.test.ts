@@ -109,6 +109,18 @@ describe('lazy-bus', () => {
     }
     expect(getStickyHeaderOffset(target)).toBe(expected)
   })
+  it('counts the breadcrumb bar below a custom host header', () => {
+    const target = document.createElement('h2')
+    target.style.scrollMarginTop = '64px'
+    const breadcrumb = document.createElement('nav')
+    breadcrumb.dataset.scalarScrollHeader = ''
+    breadcrumb.style.position = 'sticky'
+    document.body.append(target, breadcrumb)
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 400, 30))
+    vi.spyOn(breadcrumb, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 64, 800, 48))
+    expect(getStickyHeaderOffset(target)).toBe(112)
+  })
+
   it.each([false, true])(
     'ignores unregistered decorations while measuring a registered header (nested: %s)',
     (nested) => {

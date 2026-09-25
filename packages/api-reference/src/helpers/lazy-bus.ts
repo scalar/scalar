@@ -396,7 +396,14 @@ export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): 
     })
     .sort((a, b) => a.top - b.top)
 
-  let bottom = scrollportTop
+  if (headers.length === 0) {
+    return 0
+  }
+
+  // The resolved margin already reserves space for an embedding site's custom
+  // header, even when that header is not registered with Scalar.
+  const margin = Number.parseFloat(window.getComputedStyle(element).scrollMarginTop) || 0
+  let bottom = scrollportTop + Math.max(0, margin)
   for (const header of headers) {
     if (header.top > bottom + 1) {
       break
