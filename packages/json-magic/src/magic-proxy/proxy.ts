@@ -196,6 +196,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   // (`$id`, `$defs`, or `$dynamicAnchor`) — documents without any never pay for it. Grown scopes are
   // interned so the same `(parentScope, resource)` yields one stable array identity for the caches.
   const childScope: DynamicScope =
+    args.dynamicRefsProbe.value !== false &&
     carriesDynamicAnchor(target as UnknownObject, args.dynamicScope) &&
     hasDynamicRefs() &&
     // An unrelated dynamic reference must not scope ordinary resources with no anchors. Once a

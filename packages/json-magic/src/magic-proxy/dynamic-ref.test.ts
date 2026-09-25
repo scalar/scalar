@@ -12,6 +12,19 @@ import {
 const schema = (value: Record<string, unknown>): Record<string, unknown> => value
 
 describe('dynamic-ref', () => {
+  it('isolates cached anchors from different views of the same raw resource', () => {
+    const raw = { $dynamicAnchor: 'item', type: 'string' }
+    const view = new Proxy(raw, {
+      get: (target, property, receiver) => (property === 'type' ? 'number' : Reflect.get(target, property, receiver)),
+    })
+    const unwrap = (value: unknown): unknown => (value === view ? raw : value)
+
+    expect(collectDynamicAnchors(view, unwrap).get('item')?.type).toBe('number')
+    expect(collectDynamicAnchors(raw, unwrap).get('item')?.type).toBe('string')
+    expect(collectDynamicAnchors(raw).get('item')?.type).toBe('string')
+    expect(collectDynamicAnchors(view, unwrap)).toBe(collectDynamicAnchors(view, unwrap))
+  })
+
   it('matches a schema carrying $dynamicRef', () => {
     expect(isDynamicRef({ $dynamicRef: '#itemType' })).toBe(true)
   })

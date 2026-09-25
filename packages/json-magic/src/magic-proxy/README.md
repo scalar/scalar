@@ -52,3 +52,5 @@ pnpm vitest bench --run --config packages/api-reference/vitest.config.ts package
 ```
 
 The benchmark suite uses Vitest's timed sampling and reports means; the alternating comparison above reports medians. Do not compare those statistics as if they were the same measurement.
+
+The dynamic-reference probe and anchor collections are snapshots for the lifetime of their proxy/resource view. Editing `$dynamicRef`, `$dynamicAnchor`, or resource boundaries after the first lookup does not invalidate them; recreate the root proxy after those structural edits. Anchor collections are isolated by traversal mode and resource view so an example builder cannot populate the proxy resolver's cache with values bound to another scope.

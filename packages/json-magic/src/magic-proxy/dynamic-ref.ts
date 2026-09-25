@@ -85,7 +85,7 @@ const dereferenceSiblingRef = (node: UnknownObject): UnknownObject => {
   return { ...(value as UnknownObject), ...rest }
 }
 
-const anchorCache = new WeakMap<object, Map<string, UnknownObject>>()
+const anchorCaches = new WeakMap<Unwrap, WeakMap<object, Map<string, UnknownObject>>>()
 
 /**
  * Collect the `$dynamicAnchor` declarations of a single schema resource, keyed by anchor name.
@@ -99,13 +99,20 @@ const anchorCache = new WeakMap<object, Map<string, UnknownObject>>()
  * is returned as-is and the caller resolves the `$ref` (as the magic proxy does on access).
  *
  * @param resource - The schema resource to scan.
- * @param unwrap - Strips reactive/override/magic proxies so cycle detection and caching use stable
+ * @param unwrap - Strips reactive/override/magic proxies so cycle detection uses stable
  *   raw-object identity. Defaults to the magic-proxy `getRaw`; workspace-store passes a fuller unpacker.
  * @see https://github.com/scalar/scalar/issues/9414
  */
 export const collectDynamicAnchors = (resource: UnknownObject, unwrap: Unwrap = getRaw): Map<string, UnknownObject> => {
-  // Cache per raw schema object so repeated lookups during a walk stay cheap.
-  const cacheTarget = unwrap(resource) as object
+  // Callers can expose different resolved values for the same raw resource. Keep
+  // both the traversal mode and the resource view isolated to avoid leaking a
+  // scoped proxy or a dereferenced sibling into another caller's resolution.
+  let anchorCache = anchorCaches.get(unwrap)
+  if (!anchorCache) {
+    anchorCache = new WeakMap()
+    anchorCaches.set(unwrap, anchorCache)
+  }
+  const cacheTarget = resource
   const cached = anchorCache.get(cacheTarget)
   if (cached) {
     return cached

@@ -1,6 +1,6 @@
 ---
 '@scalar/api-reference': patch
-'@scalar/json-magic': patch
+'@scalar/json-magic': minor
 '@scalar/workspace-store': patch
 ---
 
