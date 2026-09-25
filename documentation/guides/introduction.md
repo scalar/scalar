@@ -1035,7 +1035,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     zoom: calc(100cqw / 720px);
     border-radius: 16px;
     overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--hero-glass-tint, rgba(255, 255, 255, 0.08));
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
@@ -1050,27 +1050,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     overflow: hidden;
     background-color: transparent;
   }
-  [data-sdk-lang="typescript"] {
-    --hero-lang: #3178c6;
-  }
-  [data-sdk-lang="python"] {
-    --hero-lang: #ffd845;
-  }
-  [data-sdk-lang="java"] {
-    --hero-lang: #e76f00;
-  }
-  [data-sdk-lang="kotlin"] {
-    --hero-lang: #a97bff;
-  }
-  [data-sdk-lang="rust"] {
-    --hero-lang: #dea584;
-  }
-  [data-sdk-lang="go"] {
-    --hero-lang: #00add8;
-  }
-  [data-sdk-lang="bash"] {
-    --hero-lang: #89e051;
-  }
   .hero-glass-ide-main {
     flex: 1;
     display: flex;
@@ -1083,7 +1062,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     display: flex;
     align-items: stretch;
     overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: var(--hero-glass-tabs-tint, rgba(255, 255, 255, 0.06));
     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   }
   .hero-glass-tabs button {
@@ -1108,14 +1087,15 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   }
   .hero-glass-tabs button.active {
     color: rgb(255, 255, 255);
-    background-color: rgba(255, 255, 255, 0.18);
+    background-color: var(--hero-glass-tab-active-tint, rgba(255, 255, 255, 0.18));
   }
-  .hero-glass-tabs button.active::after {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: 1px;
-    background-color: var(--hero-lang, rgba(255, 255, 255, 0.4));
+  /* Warp reads as one solid tinted panel instead of stacked translucent
+     layers: the card's own backing carries the brand wash, so the tab strip
+     and the active tab sit on it without adding a band of their own. */
+  .hero-cell[data-hero-cell="warp-sdk"] {
+    --hero-glass-tint: #b74b0f8a;
+    --hero-glass-tabs-tint: transparent;
+    --hero-glass-tab-active-tint: transparent;
   }
   /* no copy chrome on the SDK panes */
   .hero-glass-codewrap .t-editor__language-picker {
