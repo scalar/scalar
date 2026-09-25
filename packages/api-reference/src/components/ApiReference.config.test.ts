@@ -932,14 +932,6 @@ describe('host-app hash routing', () => {
     await flushPromises()
     expect(locationMock.hash).toBe(expectedHash)
   })
-})
-
-describe('introduction hash routing', () => {
-  afterEach(() => {
-    locationMock.href = 'http://localhost:3000/'
-    locationMock.hash = ''
-    vi.restoreAllMocks()
-  })
 
   it.each([
     ['', false, '# Overview\nDetails'],
