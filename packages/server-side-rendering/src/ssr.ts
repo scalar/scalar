@@ -3,6 +3,8 @@ import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
+import { escapeJsonForInlineScript } from '@scalar/helpers/json/escape-json-for-inline-script'
+import { serializePropertyKey } from '@scalar/helpers/json/serialize-property-key'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useServerSeoMeta } from '@unhead/vue'
 import { createHead, renderSSRHead } from '@unhead/vue/server'
@@ -223,19 +225,6 @@ function escapeHtmlAttribute(str: string): string {
 }
 
 /**
- * Escape a JSON string so it is safe to embed inside an inline script tag.
- * This prevents user content from closing the script tag.
- */
-function escapeJsonForInlineScript(json: string): string {
-  return json
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026')
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029')
-}
-
-/**
  * Escape a function's source code so it is safe to embed inside an inline script tag.
  *
  * Unlike escapeJsonForInlineScript (which escapes all `<` and `>`), this only neutralizes
@@ -312,8 +301,6 @@ const assertNoNestedFunctions = (value: unknown, path: string): void => {
 const serializeJsonValue = (value: unknown): string => escapeJsonForInlineScript(JSON.stringify(value))
 
 const serializeJsonObject = (value: Record<string, unknown>): string => escapeJsonForInlineScript(JSON.stringify(value))
-
-const serializePropertyKey = (key: string): string => escapeJsonForInlineScript(JSON.stringify(key))
 
 const serializeArrayWithFunctions = (value: unknown[], path: string): string => {
   return `[${value
