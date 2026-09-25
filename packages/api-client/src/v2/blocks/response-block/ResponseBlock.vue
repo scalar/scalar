@@ -151,8 +151,10 @@ const filterLabels = computed(() => ({
 }))
 </script>
 <template>
+  <!-- Bound the stacked response section so long bodies keep their own scroll area. -->
   <ViewLayoutSection
-    :aria-label="translate('apiClient.responseBlock.response')">
+    :aria-label="translate('apiClient.responseBlock.response')"
+    class="max-xl:max-h-full">
     <template #title>
       <div class="flex h-8 flex-1 items-center">
         <div
