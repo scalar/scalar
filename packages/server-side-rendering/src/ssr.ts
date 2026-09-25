@@ -35,6 +35,30 @@ function parseDarkMode(config: Record<string, unknown>): boolean | null {
 }
 
 /**
+ * Resolve the `color-scheme` to render onto `<html>`, or `null` to let the stylesheet's
+ * `color-scheme: light dark` follow the operating system.
+ *
+ * A configured reference needs the concrete value in the markup: a light-only site on a dark
+ * machine would otherwise paint dark and snap to light once the script ran — or stay dark, if the
+ * script never runs at all.
+ */
+function resolveInitialColorScheme(config: Record<string, unknown>): 'dark' | 'light' | null {
+  const forced = parseForceDarkModeState(config)
+
+  if (forced) {
+    return forced
+  }
+
+  const darkMode = parseDarkMode(config)
+
+  if (darkMode !== null) {
+    return darkMode ? 'dark' : 'light'
+  }
+
+  return null
+}
+
+/**
  * Generate an inline script that detects the user's color mode preference
  * and applies the correct class to <body> before content paints.
  *
@@ -55,17 +79,21 @@ export function generateBodyScript(configuration: AnyApiReferenceConfiguration):
 
   /** When forceDarkModeState is set, we do not need runtime detection at all. */
   if (forced) {
-    return `<script>(function(){var cl=document.body.classList;cl.remove('dark-mode','light-mode');cl.add('${forced === 'dark' ? 'dark-mode' : 'light-mode'}')})()</script>`
+    return `<script>(function(){var cl=document.body.classList;cl.remove('dark-mode','light-mode');cl.add('${forced === 'dark' ? 'dark-mode' : 'light-mode'}');document.documentElement.style.colorScheme='${forced}'})()</script>`
   }
 
   /**
    * Runtime detection script: checks localStorage first, then system preference,
    * then falls back to the darkMode config value.
+   *
+   * The script's `pin` argument writes `color-scheme` to `<html>`. Explicit choices pin it; the
+   * system fallback does not, so the stylesheet keeps tracking the OS live instead of freezing at
+   * whatever was read on load.
    */
   const fallback =
-    darkMode === null ? `set(window.matchMedia('(prefers-color-scheme:dark)').matches)` : `set(${darkMode})`
+    darkMode === null ? `set(window.matchMedia('(prefers-color-scheme:dark)').matches,0)` : `set(${darkMode},1)`
 
-  return `<script>(function(){var cl=document.body.classList;function set(d){cl.remove('dark-mode','light-mode');cl.add(d?'dark-mode':'light-mode')}try{var s=localStorage.getItem('colorMode');if(s==='dark'||s==='light'){set(s==='dark');return}}catch(e){}${fallback}})()</script>`
+  return `<script>(function(){var cl=document.body.classList;function set(d,pin){cl.remove('dark-mode','light-mode');cl.add(d?'dark-mode':'light-mode');if(pin){document.documentElement.style.colorScheme=d?'dark':'light'}}try{var s=localStorage.getItem('colorMode');if(s==='dark'||s==='light'){set(s==='dark',1);return}}catch(e){}${fallback}})()</script>`
 }
 
 /**
@@ -94,11 +122,15 @@ function getInitialBodyClass(configuration: AnyApiReferenceConfiguration): 'dark
 
 type RenderedSsrHead = Awaited<ReturnType<typeof renderSSRHead>>
 
-const createHeadInstance = (pageTitle?: string) =>
+const createHeadInstance = (pageTitle?: string, colorScheme?: 'dark' | 'light' | null) =>
   createHead({
     init: [
       {
-        htmlAttrs: { lang: 'en' },
+        htmlAttrs: {
+          lang: 'en',
+          // Omitted when unconfigured, so the stylesheet keeps following the OS.
+          ...(colorScheme ? { style: `color-scheme: ${colorScheme}` } : {}),
+        },
         ...(pageTitle ? { title: pageTitle } : {}),
       },
     ],
@@ -138,7 +170,7 @@ async function renderApiReferenceApp(options: {
       return () => h(ApiReference, { configuration: normalizedConfiguration })
     },
   })
-  const head = createHeadInstance(options.pageTitle)
+  const head = createHeadInstance(options.pageTitle, resolveInitialColorScheme(normalizedConfiguration))
   app.use(head)
   app.config.idPrefix = 'scalar-refs'
 
