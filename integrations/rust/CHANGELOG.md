@@ -2,6 +2,10 @@
 
 ## 0.2.8
 
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.1
+
 ### Patch Changes
 
 - [#10347](https://github.com/scalar/scalar/pull/10347): Update the Rust lockfile to patched actix-http, time, bytes, and rand releases.
