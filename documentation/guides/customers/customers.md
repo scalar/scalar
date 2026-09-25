@@ -379,16 +379,20 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   }
   .featured-story-logos {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 10px 14px;
     margin-top: 26px;
     color: var(--scalar-color-1);
   }
+  /* width:auto sizes the mark from its viewBox, but flex was free to shrink that to
+     nothing once the copy column narrowed, so the logo vanished. */
   .featured-story-logo-warp {
     width: auto;
     height: 22px;
     max-width: 104px;
+    flex-shrink: 0;
   }
   .featured-story-logo-separator {
     color: var(--scalar-color-1);
@@ -431,13 +435,13 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     height: 100%;
     object-fit: cover;
   }
-  /* Fixed 190px tracks spread to the container edges. auto-fill rather than auto-fit
-     keeps the empty tracks, so a short section lines its stickers up under the section
-     above instead of flinging them to both edges. */
+  /* Even 1fr tracks, laid out the way the team grid on /company is. Fixed tracks
+     spread with justify-content leave a gulf down the middle once the row drops to
+     two columns; sharing the width and letting each sticker sit at the head of its
+     track keeps the spacing even at any count. */
   .customer-sticker-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 190px);
-    justify-content: space-between;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin: 24px 0 56px;
   }
@@ -655,9 +659,14 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     outline: 2px solid var(--scalar-color-accent);
     outline-offset: 3px;
   }
+  @media (max-width: 1279px) {
+    .customer-sticker-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
   @media (max-width: 760px) {
     .customer-sticker-grid {
-      grid-template-columns: repeat(2, minmax(0, 190px));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 40px 12px;
     }
     .customer-sticker-item {
@@ -681,10 +690,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     }
     .featured-story-card .featured-story-title {
       max-width: 340px;
-    }
-    .featured-story-logos {
-      flex-wrap: wrap;
-      row-gap: 10px;
     }
     .featured-story-media {
       min-height: 220px;
