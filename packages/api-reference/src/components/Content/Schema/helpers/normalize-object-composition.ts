@@ -28,8 +28,21 @@ export const normalizeObjectComposition = (
   if ('$ref' in objectSchema) {
     delete objectSchema.$ref
   }
+  // Member annotations describe only one part of the combined property. Keep the
+  // property's annotations authoritative without changing merged validation rules.
+  const annotations = {
+    title: value.title,
+    description: value.description,
+    deprecated: value.deprecated,
+    readOnly: value.readOnly,
+    writeOnly: value.writeOnly,
+    example: value.example,
+    examples: value.examples,
+    nullable: value.nullable,
+  }
   return {
     ...objectSchema,
+    ...annotations,
     ...('$ref' in value && typeof value.$ref === 'string' ? { $ref: value.$ref } : {}),
   }
 }
