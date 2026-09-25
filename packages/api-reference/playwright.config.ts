@@ -58,7 +58,7 @@ export default defineConfig({
    * Outside of CI we run the playwright test server in a docker container for
    * consistent cross-platform results.
    */
-  webServer: CI ? playgroundServer : getDockerServer(),
+  webServer: CI ? playgroundServer : [getDockerServer(), ...(playgroundServer ? [playgroundServer] : [])],
   snapshotPathTemplate: '{testFileDir}/{testFileName}.snapshots/{arg}{ext}',
   expect: {
     toHaveScreenshot: {

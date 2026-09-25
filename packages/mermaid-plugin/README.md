@@ -2,6 +2,8 @@
 
 Opt-in Mermaid diagrams for `@scalar/api-reference`. The plugin enhances Mermaid code fences throughout Markdown descriptions, including summaries and the embedded API client.
 
+This package is private while its initial npm release and trusted publisher are being set up. The installation command below applies after publication.
+
 ## Install
 
 ```sh
