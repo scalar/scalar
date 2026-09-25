@@ -12,10 +12,11 @@ export default {
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
-import { useId } from 'vue'
+import { computed, inject, toValue } from 'vue'
 
 import { useLocalization } from '@/v2/features/localization'
 
+import { COLLAPSIBLE_SECTION_HEADING_LEVEL } from './collapsible-section-heading-level'
 import ValueEmitter from './ValueEmitter.vue'
 
 const {
@@ -37,7 +38,12 @@ const emit = defineEmits<{
 
 const { translate } = useLocalization()
 
-const headingId = useId()
+/**
+ * Defaults to `h2`, for a section that sits directly below the page title. A
+ * parent that renders a title above its sections provides a deeper level.
+ */
+const headingLevel = inject(COLLAPSIBLE_SECTION_HEADING_LEVEL, 2)
+const headingTag = computed(() => `h${toValue(headingLevel)}`)
 </script>
 
 <template>
@@ -56,9 +62,10 @@ const headingId = useId()
       :value="open"
       @change="(value) => emit('update:modelValue', value)" />
 
-    <section
-      :aria-labelledby="headingId"
-      class="contents">
+    <!-- Deliberately unnamed: naming the section would turn it into a region
+         landmark wrapping its own heading, so screen readers announce the
+         title twice before reading the contents. -->
+    <section class="contents">
       <div
         class="bg-b-2 flex items-center"
         :class="isStatic && 'rounded-t-xl border-x border-t'">
@@ -74,11 +81,10 @@ const headingId = useId()
             size="md" />
 
           <!-- Heading with title -->
-          <h2
+          <component
+            :is="headingTag"
             class="text-c-1 m-0 flex flex-1 items-center gap-1.5 leading-[20px]">
-            <span
-              :id="headingId"
-              class="contents">
+            <span class="contents">
               <slot
                 name="title"
                 :open="open" />
@@ -100,7 +106,7 @@ const headingId = useId()
                   : translate('apiClient.collapsibleSection.items')
               }}</span>
             </span>
-          </h2>
+          </component>
         </DisclosureButton>
 
         <!-- Optional actions slot that hides when the panel is closed. -->

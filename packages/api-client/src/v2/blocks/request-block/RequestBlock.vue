@@ -30,7 +30,7 @@ import type {
   OperationObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, ref, useId, watch } from 'vue'
+import { computed, provide, ref, useId, watch } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
@@ -45,6 +45,10 @@ import { groupGlobalCookies } from '@/v2/blocks/request-block/helpers/group-glob
 import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 import type { OAuth2Options } from '@/v2/blocks/scalar-auth-selector-block/components/OAuth2.vue'
+import {
+  COLLAPSIBLE_SECTION_HEADING_LEVEL,
+  type CollapsibleSectionHeadingLevel,
+} from '@/v2/components/layout'
 import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -628,6 +632,20 @@ const handleGenerateExample = ({
 
 const labelRequestNameId = useId()
 
+/**
+ * Where the collapsible sections below sit in the heading outline.
+ *
+ * The modal renders the operation summary as a heading above them, so they are
+ * its subsections. Every other layout shows the summary as an editable input
+ * rather than a heading, which leaves the sections at the top level.
+ */
+provide(
+  COLLAPSIBLE_SECTION_HEADING_LEVEL,
+  computed<CollapsibleSectionHeadingLevel>(() =>
+    layout === 'modal' && operation.summary ? 3 : 2,
+  ),
+)
+
 const globalCookies = computed(() => [...workspaceCookies, ...documentCookies])
 
 /** Allow updating the operation extensions for the plugins */
@@ -667,11 +685,18 @@ const filterLabels = computed(() => ({
           :placeholder="requestNamePlaceholder"
           :value="operation.summary"
           @blur="handleSummaryUpdate" />
-        <span
-          v-else
+        <!-- In the modal the summary is the title of everything below it, so
+             it carries the heading role that lets screen reader users jump to
+             it. An operation without a summary renders nothing, because an
+             empty heading is worse than none. -->
+        <h2
+          v-else-if="operation.summary"
           class="text-c-1 flex h-8 items-center">
           {{ operation.summary }}
-        </span>
+        </h2>
+        <span
+          v-else
+          class="text-c-1 flex h-8 items-center" />
       </div>
       <SectionFilter
         v-model="selectedFilter"

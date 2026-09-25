@@ -59,6 +59,8 @@ export const ar = {
     heading: 'مكتبات العملاء',
     more: 'المزيد',
     selectAll: 'اختر من جميع العملاء',
+    searchLabel: 'البحث عن العملاء',
+    changeClient: 'تغيير لغة مثال الشيفرة',
   },
   operation: {
     codeSampleUnavailable: 'لا يوجد نموذج تعليمات برمجية متاح لهذا المثال.',
@@ -131,6 +133,7 @@ export const ar = {
   download: {
     openapi: 'تنزيل مستند OpenAPI',
     asyncapi: 'تنزيل مستند AsyncAPI',
+    asFormat: '{label} بصيغة {format}',
   },
   models: {
     label: 'النماذج',

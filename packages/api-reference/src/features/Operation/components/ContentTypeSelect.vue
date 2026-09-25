@@ -74,17 +74,17 @@ const contentTypeSelect = cva({
         weight="bold" />
     </ScalarButton>
   </ScalarListbox>
-  <!-- A focusable bare `div` announces as nothing in particular, so this
-       read-only readout of the single content type gets a role and the same
-       name as the dropdown branch -->
+  <!-- With a single content type there is nothing to choose, so this read-only
+       readout stays out of the tab order: a focus stop on static text strands
+       keyboard users on something they cannot act on. It keeps a role and the
+       same name as the dropdown branch so screen readers still announce it. -->
   <div
     v-else
     :aria-label="translate('operation.selectedContentType')"
     class="selected-content-type"
     :class="contentTypeSelect({ dropdown: false })"
     role="group"
-    v-bind="$attrs"
-    tabindex="0">
+    v-bind="$attrs">
     <span>{{ selectedContentType }}</span>
   </div>
 </template>

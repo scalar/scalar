@@ -254,6 +254,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
             <CodeExample
               :key="requestBodyCompositionSelectionKey"
               :clientOptions
+              :clientPickerLabel="translate('clientLibraries.changeClient')"
+              :clientSearchLabel="translate('clientLibraries.searchLabel')"
               :codeSampleUnavailable="
                 translate('operation.codeSampleUnavailable')
               "
