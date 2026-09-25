@@ -254,7 +254,7 @@ describe('RequestAuthTab', () => {
       expect(inputs[1].text()).toContain('Value')
     })
 
-    it('emits auth:update:security-scheme when API key name is updated', () => {
+    it('emits auth:update:security-scheme-secrets when API key name is updated', () => {
       const wrapper = mountWithProps({
         securitySchemes: {
           'ApiKeyAuth': {
@@ -272,7 +272,7 @@ describe('RequestAuthTab', () => {
       const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
       assert(inputs[0])
       const emitted = vi.fn()
-      eventBus.on('auth:update:security-scheme', emitted)
+      eventBus.on('auth:update:security-scheme-secrets', emitted)
       inputs[0].vm.$emit('update:modelValue', 'X-Custom-Key')
 
       expect(emitted).toHaveBeenCalledTimes(1)
@@ -283,6 +283,26 @@ describe('RequestAuthTab', () => {
         },
         name: 'ApiKeyAuth',
       })
+    })
+
+    it('clears the API key name using the clear button', async () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          ApiKeyAuth: { type: 'apiKey', in: 'header', name: 'apikey-aa', 'x-scalar-secret-token': 'secret' },
+        },
+        selectedSecuritySchemas: { ApiKeyAuth: [] },
+      })
+      const emitted = vi.fn()
+      const unsubscribe = eventBus.on('auth:update:security-scheme-secrets', emitted)
+      const input = wrapper.findAllComponents(RequestAuthDataTableInput)[0]
+      assert(input)
+      await input.get('button').trigger('click')
+      expect(emitted).toHaveBeenCalledExactlyOnceWith({
+        name: 'ApiKeyAuth',
+        payload: { type: 'apiKey', name: '' },
+      })
+      unsubscribe()
+      wrapper.unmount()
     })
 
     it('renders only the value input for an AsyncAPI apiKey (in: user), hiding the name field', () => {
