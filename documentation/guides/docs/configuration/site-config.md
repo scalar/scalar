@@ -1,6 +1,6 @@
 # Site Config
 
-The site configuration defines global settings for your documentation site: branding, custom head elements, footer content, and routing rules. These settings apply across your entire documentation site.
+The site configuration defines global settings for your documentation site: branding, custom head elements, an announcement banner, footer content, and routing rules. These settings apply across your entire documentation site.
 
 All site settings are configured within the `siteConfig` object in your `scalar.config.json` file.
 
@@ -444,6 +444,51 @@ Add link elements for favicons, preloading resources, or other purposes:
 | `rel`    | `string` | The relationship type (icon, preload) |
 | `href`   | `string` | The URL or path to the resource       |
 | `type`   | `string` | The MIME type of the resource         |
+
+## Banner
+
+The `banner` property shows an announcement above the header on every page, such as a launch or a scheduled maintenance.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "banner": {
+      "content": "Version 2 is here. [See what changed](pages/changelog.md)",
+      "type": "info",
+      "dismissible": true
+    }
+  }
+}
+```
+
+### Properties
+
+| Property      | Type                                             | Default  | Description                                                                                                 |
+| ------------- | ------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `content`     | `string`                                         | —        | Banner text as inline Markdown (bold, italic, code, links). An empty string hides the banner                |
+| `type`        | `"neutral" \| "info" \| "warning" \| "critical"` | `"info"` | Color of the banner                                                                                         |
+| `dismissible` | `boolean`                                        | `false`  | Show a close button. A dismissed banner reappears when `content` changes                                    |
+| `icon`        | `string \| false`                                | —        | An [icon key or URL](../components/icons.mdx). Defaults to an icon for the `type`; `false` hides it         |
+
+Link to your own pages by their file path, relative to the project root, as you would inside a page. Links to other sites open in a new tab.
+
+### Styling
+
+To change the colors, set these variables in your [theme](themes.md):
+
+```css
+:root {
+  --scalar-banner-background: #6e56cf;
+  --scalar-banner-color: #ffffff;
+  --scalar-banner-icon-color: #ffffff;
+  --scalar-banner-border-color: transparent;
+}
+```
+
+To style one type, target `.scalar-banner[data-type="warning"]`.
 
 ## Footer
 
