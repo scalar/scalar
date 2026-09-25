@@ -1,5 +1,13 @@
 # @scalar/mock-server-docker
 
+## 0.2.64
+
+### Patch Changes
+
+- [#10343](https://github.com/scalar/scalar/pull/10343): Restrict AsyncAPI external references to the source directory and public network addresses, and preserve the source location for preloaded documents.
+
+  URL inputs to `createAsyncApiMockServer` also reject private network addresses, including localhost. Load local files or pass preloaded document content for local development. Docker documents supplied through `OPENAPI_DOCUMENT` resolve relative references from their temporary `/tmp/openapi.json` or `/tmp/openapi.yaml` file, confined to `/tmp`. Both OpenAPI and AsyncAPI Docker documents preserve the selected source origin.
+
 ## 0.2.63
 
 ## 0.2.62

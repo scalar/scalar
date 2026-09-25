@@ -1,5 +1,7 @@
 # @scalar/openapi-parser
 
+## 0.29.7
+
 ## 0.29.6
 
 ## 0.29.5

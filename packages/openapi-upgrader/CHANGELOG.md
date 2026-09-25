@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.4.0
+
+### Minor Changes
+
+- [#10346](https://github.com/scalar/scalar/pull/10346): Add `onIncompatible: 'ignore'` for best-effort OpenAPI 3.2 upgrades. Apply available migrations and return the document despite compatibility issues, without mutating the input. Strict mode remains the default; malformed versions and clone errors still throw.
+
 ## 0.3.1
 
 ### Patch Changes

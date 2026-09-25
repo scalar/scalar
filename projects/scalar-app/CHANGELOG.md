@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.1.34
+
+### Patch Changes
+
+- [#10352](https://github.com/scalar/scalar/pull/10352): Fix desktop login callback port allocation and allow the dashboard to confirm successful login.
+
 ## 1.1.33
 
 ### Patch Changes

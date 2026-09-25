@@ -1,5 +1,7 @@
 # @scalar/express-api-reference
 
+## 0.10.23
+
 ## 0.10.22
 
 ## 0.10.21

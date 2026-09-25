@@ -1,5 +1,25 @@
 # @scalar/workspace-store
 
+## 0.67.0
+
+### Minor Changes
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Mock-server XML response bytes now use the shared schema-aware serializer instead of `json2xml`, including attributes, namespaces, and root naming. Existing XML response snapshots may need updating. Supplied serialized XML remains unchanged.
+
+  Generate XML examples from schema metadata, preserving attributes, namespaces, array wrappers, repeated elements, and OpenAPI 3.2 text and CDATA nodes. Use the same XML serialization for request bodies, code snippets, response examples, mock responses, and Markdown documentation. Preserve serialized media examples and escape schema string examples as element text.
+
+  Explain XML generation failures in response example panels, including the serialized-example escape hatch for large payloads. Expose XML generation failures in mock response headers with `X-Scalar-XML-Error`, containing the first error diagnostic code. Report diagnostics to other consumers through a callback or the developer console, and format element-only descendants within mixed content without changing text values.
+
+### Patch Changes
+
+- [#10341](https://github.com/scalar/scalar/pull/10341): Avoid excessive processing time when encoding chunk names with long runs of dots.
+- [#10342](https://github.com/scalar/scalar/pull/10342): Prevent prototype pollution when merging documents and writing nested values or JSON references, while preserving prototype-named JSON data properties.
+
+  Dot-separated mutations now reject new `constructor` and `prototype` keys, as well as `__proto__`, instead of creating these keys through inherited properties.
+
+- [#10334](https://github.com/scalar/scalar/pull/10334): Include optional form fields when selecting files or editing values, while preserving explicitly unchecked fields.
+- [#10192](https://github.com/scalar/scalar/pull/10192): Apply edited XML bodies instead of their original serialized or data examples, render schema-free XML examples in Markdown, and share reference decoding and response provenance selection.
+
 ## 0.66.0
 
 ### Minor Changes

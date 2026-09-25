@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.53
+
+### Patch Changes
+
+- [#10344](https://github.com/scalar/scalar/pull/10344): Share JSON and property-name escaping for inline scripts between client-side and server-side rendering.
+
 ## 0.1.52
 
 ## 0.1.51

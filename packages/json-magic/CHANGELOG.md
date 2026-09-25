@@ -1,5 +1,15 @@
 # @scalar/json-magic
 
+## 0.15.2
+
+### Patch Changes
+
+- [#10342](https://github.com/scalar/scalar/pull/10342): Prevent prototype pollution when merging documents and writing nested values or JSON references, while preserving prototype-named JSON data properties.
+
+  Dot-separated mutations now reject new `constructor` and `prototype` keys, as well as `__proto__`, instead of creating these keys through inherited properties.
+
+- [#10345](https://github.com/scalar/scalar/pull/10345): Update undici to 7.29.0 to address security vulnerabilities in HTTP requests, proxies, WebSockets, cookies, and caching.
+
 ## 0.15.1
 
 ## 0.15.0

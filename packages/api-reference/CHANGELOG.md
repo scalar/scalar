@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.72.1
+
+### Patch Changes
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Mock-server XML response bytes now use the shared schema-aware serializer instead of `json2xml`, including attributes, namespaces, and root naming. Existing XML response snapshots may need updating. Supplied serialized XML remains unchanged.
+
+  Generate XML examples from schema metadata, preserving attributes, namespaces, array wrappers, repeated elements, and OpenAPI 3.2 text and CDATA nodes. Use the same XML serialization for request bodies, code snippets, response examples, mock responses, and Markdown documentation. Preserve serialized media examples and escape schema string examples as element text.
+
+  Explain XML generation failures in response example panels, including the serialized-example escape hatch for large payloads. Expose XML generation failures in mock response headers with `X-Scalar-XML-Error`, containing the first error diagnostic code. Report diagnostics to other consumers through a callback or the developer console, and format element-only descendants within mixed content without changing text values.
+
+- [#10335](https://github.com/scalar/scalar/pull/10335): Clarify operation authentication tooltips with separate headings, readable scheme types, API key locations and names, and formatted descriptions.
+- [#10336](https://github.com/scalar/scalar/pull/10336): Preserve nested object boundaries for properties composed from multiple allOf schemas.
+- [#10333](https://github.com/scalar/scalar/pull/10333): Fix sidebar navigation scrolling past operations and models in themes with decorative backgrounds.
+
+  Measure only headers registered with `data-scalar-scroll-header` when scrolling to content. Scalar registers its mobile header and sticky breadcrumb bar automatically; embedding sites can register their own fixed or sticky headers with the same attribute.
+
+  Host headers are no longer discovered automatically. Register fixed or sticky host headers with `data-scalar-scroll-header`, or reserve their height with `--scalar-custom-header-height`. Registered Scalar breadcrumbs are counted below that reserved space.
+
 ## 1.72.0
 
 ### Minor Changes

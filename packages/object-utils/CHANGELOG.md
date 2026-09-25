@@ -1,5 +1,17 @@
 # @scalar/object-utils
 
+## 1.3.27
+
+### Patch Changes
+
+- [#10342](https://github.com/scalar/scalar/pull/10342): Prevent prototype pollution when merging documents and writing nested values or JSON references, while preserving prototype-named JSON data properties.
+
+  Dot-separated mutations now reject new `constructor` and `prototype` keys, as well as `__proto__`, instead of creating these keys through inherited properties.
+
+- [#10338](https://github.com/scalar/scalar/pull/10338): Update ts-deepmerge to prevent untrusted object properties from replacing built-in methods and breaking string conversion.
+
+  Properties named after built-in object methods, including `toString`, `valueOf`, and `hasOwnProperty`, are now omitted from merged data.
+
 ## 1.3.26
 
 ## 1.3.25
