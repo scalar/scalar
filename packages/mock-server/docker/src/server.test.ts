@@ -62,6 +62,12 @@ describe('startMockServer', () => {
     })
   })
 
+  it('preserves the OpenAPI document origin', async () => {
+    const document = '{"openapi":"3.0.0","info":{"title":"Test","version":"1.0.0"},"paths":{}}'
+    await startMockServer({ document, format: 'json', origin: '/docs/openapi.json' })
+    expect(mockCreateMockServer.mock.calls[0]?.[0].origin).toBe('/docs/openapi.json')
+  })
+
   it('should start server with default port 3000', async () => {
     const document = '{"openapi":"3.0.0","info":{"title":"Test"}}'
 
@@ -72,6 +78,7 @@ describe('startMockServer', () => {
 
     expect(mockCreateMockServer).toHaveBeenCalledWith({
       document,
+      origin: undefined,
       onRequest: expect.any(Function),
     })
     expect(mockServe).toHaveBeenCalledWith(
@@ -206,6 +213,7 @@ describe('startMockServer', () => {
 
     expect(mockCreateMockServer).toHaveBeenCalledWith({
       document,
+      origin: undefined,
       onRequest: expect.any(Function),
     })
 

@@ -53,6 +53,7 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   } else {
     app = await createMockServer({
       document,
+      origin: config.origin,
       onRequest({ context }) {
         console.log(context.req.method, context.req.path)
       },
