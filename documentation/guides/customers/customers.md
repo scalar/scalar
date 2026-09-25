@@ -265,17 +265,13 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   :root {
     --scalar-container-width: 960px;
   }
-  .t-editor__page-nav,
-  .page-nav,
-  .content .page-nav,
+  /* The page draws its own hero, so the title header stays hidden — but the table of
+     contents is on, and needs its column back. */
   .t-editor .page-header {
     display: none;
   }
   main.content {
     overflow-x: clip;
-  }
-  .t-editor.page {
-    margin-right: unset;
   }
   .t-editor .editor-content,
   .t-editor {
@@ -452,10 +448,9 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     height: 100%;
     object-fit: cover;
   }
-  /* Fixed 190px tracks spread to the container edges. The sticker's gradient ring is
-     measured in pixels, so the stage holds its size rather than tracking the column.
-     auto-fill rather than auto-fit keeps the empty tracks, so a short section lines its
-     stickers up under the section above instead of flinging them to both edges. */
+  /* Fixed 190px tracks spread to the container edges. auto-fill rather than auto-fit
+     keeps the empty tracks, so a short section lines its stickers up under the section
+     above instead of flinging them to both edges. */
   .customer-sticker-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, 190px);
@@ -471,18 +466,19 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   }
   .company-team-member-image {
     --company-team-member-background-dark: color-mix(in srgb, var(--company-team-member-background), black 7%);
-    --company-team-sticker-size: min(190px, 100%);
     --company-team-sticker-offset-x: -1px;
     --company-team-gradient-center-x: 50%;
-    --company-team-gradient-inner-radius: 82px;
-    --company-team-gradient-outer-radius: 95px;
+    /* Ratios of the stage's half-width rather than the 82px/95px the 190px design was
+       drawn at, so the halo stays inscribed once a narrow column shrinks the stage. */
+    --company-team-gradient-inner-radius: 86.32%;
+    --company-team-gradient-outer-radius: 100%;
     position: relative;
     display: block;
     width: 100%;
     aspect-ratio: 1;
     margin-bottom: 8px;
     background: radial-gradient(
-      circle at var(--company-team-gradient-center-x) 50%,
+      circle closest-side at var(--company-team-gradient-center-x) 50%,
       color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1)),
       color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1))
         var(--company-team-gradient-inner-radius),
@@ -493,8 +489,8 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     );
     border-radius: 0;
   }
-  /* The gradient ring is measured in pixels against a 190px sticker, so the stage
-     is capped rather than stretched to the wider column this page gives it. */
+  /* The sticker artwork is drawn for 190px, so the stage is capped rather than
+     stretched to the wider column this page gives it. */
   .customer-sticker-stage {
     max-width: 190px;
   }
@@ -560,7 +556,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   .customer-sticker-grid .company-team-sticker .flap svg {
     transform: none !important;
   }
-  .company-team-sticker > svg {
+  .company-team-sticker-interactive > svg {
     display: block;
     width: 100% !important;
     height: 100% !important;
@@ -577,11 +573,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   }
   .company-team-sticker:active {
     cursor: grabbing;
-  }
-  .company-team-sticker--static {
-    cursor: default;
-    overflow: hidden;
-    touch-action: pan-y;
   }
   .company-team-sticker-static {
     display: none;
@@ -661,8 +652,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   }
   @media (max-width: 760px) {
     .customer-sticker-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      justify-content: start;
+      grid-template-columns: repeat(2, minmax(0, 190px));
       gap: 40px 12px;
     }
     .customer-sticker-item {

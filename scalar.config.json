@@ -1194,7 +1194,7 @@
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
             "layout": {
-              "toc": false,
+              "toc": true,
               "pageTitle": false,
               "pageActions": false
             },
