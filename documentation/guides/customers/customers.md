@@ -41,7 +41,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="bobcat-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/bobcat-sticker.svg"
+          src="/bobcat-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -61,7 +61,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="thomson-reuters-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/thomson-reuters-sticker.svg"
+          src="/thomson-reuters-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -83,7 +83,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="clerk-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/clerk-sticker.svg"
+          src="/clerk-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -103,7 +103,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="lufthansa-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/lufthansa-sticker.svg"
+          src="/lufthansa-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -123,7 +123,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="partech-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/partech-sticker.svg"
+          src="/partech-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -146,7 +146,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="zoom-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/zoom-sticker.svg"
+          src="/zoom-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -166,7 +166,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="tailscale-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/tailscale-sticker.svg"
+          src="/tailscale-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -186,7 +186,7 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
         data-company-sticker-id-prefix="later-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/later-sticker.svg"
+          src="/later-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -213,7 +213,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
         data-company-sticker-id-prefix="warp-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/warp-sticker.svg"
+          src="/warp-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -233,7 +233,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
         data-company-sticker-id-prefix="profound-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/profound-sticker.svg"
+          src="/profound-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -253,7 +253,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
         data-company-sticker-id-prefix="dedalus-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/dedalus-sticker.svg"
+          src="/dedalus-sticker-static.svg"
           alt=""
           decoding="async"
           loading="lazy" />
@@ -439,7 +439,9 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   }
   .company-team-member-image {
     --company-team-member-background-dark: color-mix(in srgb, var(--company-team-member-background), black 7%);
-    --company-team-sticker-offset-x: -1px;
+    /* The company page nudges its stickers a pixel left to sit inside a wider stage.
+       Here the stage is the sticker's own size, so it stays centred. */
+    --company-team-sticker-offset-x: 0px;
     --company-team-gradient-center-x: 50%;
     /* Ratios of the stage's half-width rather than the 82px/95px the 190px design was
        drawn at, so the halo stays inscribed once a narrow column shrinks the stage. */
