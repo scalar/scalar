@@ -10,8 +10,8 @@ import { UpgradeIncompatibilityError } from './upgrade-incompatibility-error'
 
 /** Control how compatibility issues in the OpenAPI 3.2 migration are reported. */
 export type UpgradeOptions = {
-  /** Defaults to throwing. Collect mode retains OpenAPI 3.1 when migration is incompatible. */
-  onIncompatible: 'throw' | 'collect'
+  /** Defaults to throwing. Collect retains 3.1; ignore applies best-effort migrations despite incompatibilities. */
+  onIncompatible: 'throw' | 'collect' | 'ignore'
 }
 
 /** A complete document and the compatibility issues that prevented upgrading it to OpenAPI 3.2. */
@@ -26,13 +26,14 @@ export type UpgradeResult = {
  * Upgrade a Swagger 2.0 or OpenAPI description to the specified target version.
  * Targeting 3.2 is strict by default. Collect mode returns compatibility diagnostics
  * with a complete 3.1 fallback instead of throwing for migration incompatibilities.
+ * Ignore mode returns a best-effort 3.2 document that may change meaning or be invalid.
  */
 export function upgrade(value: UnknownObject, targetVersion: '3.0'): OpenAPIV3.Document
 export function upgrade(value: UnknownObject, targetVersion: '3.1'): OpenAPIV3_1.Document
 export function upgrade(
   value: UnknownObject,
   targetVersion: '3.2',
-  options?: { onIncompatible: 'throw' },
+  options?: { onIncompatible: 'throw' | 'ignore' },
 ): OpenAPIV3_2.Document
 export function upgrade(
   value: UnknownObject,
@@ -55,7 +56,7 @@ export function upgrade(
     const openapi30 = upgradeFromTwoToThree(input)
     const openapi31 = upgradeFromThreeToThreeOne(openapi30)
     try {
-      const document = migrateThreeOneToThreeTwo(openapi31)
+      const document = migrateThreeOneToThreeTwo(openapi31, options?.onIncompatible === 'ignore' ? 'ignore' : 'throw')
       return options?.onIncompatible === 'collect' ? { document, diagnostics: [] } : document
     } catch (error) {
       if (options?.onIncompatible !== 'collect' || !(error instanceof UpgradeIncompatibilityError)) {

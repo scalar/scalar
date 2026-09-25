@@ -256,10 +256,49 @@ The `UpgradeOptions` and `UpgradeResult` types are exported from
 `@scalar/openapi-upgrader`. The third argument is available when targeting `3.2`.
 Omitting it, or using `{ onIncompatible: 'throw' }`, keeps the existing return type
 and strict behavior. The direct `upgradeFromThreeOneToThreeTwo` entry point remains
-strict; use `upgrade` to collect diagnostics.
+strict; use `upgrade` to collect diagnostics or ignore incompatibilities.
 
 The Markdown converter and mock server use collect mode, so compatible descriptions
 upgrade to 3.2 and incompatible descriptions continue loading as 3.1. The workspace
 store still targets 3.1 and does not run these compatibility checks. A caller moving
 to 3.2 can choose collect mode to preserve existing descriptions while reporting
 migration issues, or strict mode when a successful 3.2 migration is required.
+
+### Best-effort upgrades despite incompatibilities
+
+Use `onIncompatible: 'ignore'` to apply available migrations and return a document
+labeled `3.2.0` even when compatibility checks fail:
+
+```typescript
+import { upgrade } from '@scalar/openapi-upgrader'
+
+const document = upgrade(
+  {
+    openapi: '3.1.2',
+    info: { title: 'Pets', version: '1.0.0' },
+    paths: {},
+    components: {
+      schemas: {
+        Pet: { type: 'object', discriminator: { propertyName: 'kind' } },
+      },
+    },
+  },
+  '3.2',
+  { onIncompatible: 'ignore' },
+)
+
+console.log(document.openapi)
+// Output: 3.2.0
+```
+
+Ignore mode returns the document directly, without diagnostics or a 3.1 fallback.
+It still migrates XML flags, parameter settings, and unambiguous tag groups, but
+does not invent missing XML names, discriminator defaults, or replacement template
+variables. For conflicting XML flags, `attribute: true` takes precedence over
+`wrapped: true` and becomes `nodeType: 'attribute'`.
+
+The result may be invalid under OpenAPI 3.2 or have different semantics. Use this
+mode when best-effort conversion is more useful than preserving the original
+meaning. The input remains unchanged. Malformed versions, cyclic objects, and
+excessive alias expansion still throw; ignore mode only tolerates migration
+incompatibilities. The default remains strict.
