@@ -220,10 +220,22 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
         <span class="company-team-sticker-interactive" data-company-sticker-src="/warp-sticker.svg"></span>
       </div>
     </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://github.com/TeamWarp" target="_blank" rel="noopener noreferrer">Warp</a>
-    </p>
+    <p class="customer-sticker-name">Warp</p>
     <p class="customer-sticker-description">AI-native payroll, benefits, and compliance for fast-growing companies</p>
+    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
+      <a class="customer-sdk-target" href="https://github.com/TeamWarp/warp-sdk-go" target="_blank" rel="noopener noreferrer" aria-label="Warp Go SDK on GitHub" title="Go">
+        <scalar-icon src="../../assets/logos/go.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/TeamWarp/warp-sdk-typescript" target="_blank" rel="noopener noreferrer" aria-label="Warp TypeScript SDK on GitHub" title="TypeScript">
+        <scalar-icon src="../../assets/logos/typescript.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/TeamWarp/warp-sdk-python" target="_blank" rel="noopener noreferrer" aria-label="Warp Python SDK on GitHub" title="Python">
+        <scalar-icon src="../../assets/logos/python.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/TeamWarp/warp-cli" target="_blank" rel="noopener noreferrer" aria-label="Warp CLI SDK on GitHub" title="CLI">
+        <scalar-icon src="phosphor/bold/terminal-window"></scalar-icon>
+      </a>
+    </div>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-profound" aria-hidden="true">
@@ -240,10 +252,19 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
         <span class="company-team-sticker-interactive" data-company-sticker-src="/profound-sticker.svg"></span>
       </div>
     </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://github.com/cooper-square-technologies" target="_blank" rel="noopener noreferrer">Profound</a>
-    </p>
+    <p class="customer-sticker-name">Profound</p>
     <p class="customer-sticker-description">Analytics for how brands show up in AI search answers</p>
+    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
+      <a class="customer-sdk-target" href="https://github.com/cooper-square-technologies/profound-typescript-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound TypeScript SDK on GitHub" title="TypeScript">
+        <scalar-icon src="../../assets/logos/typescript.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/cooper-square-technologies/profound-python-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Python SDK on GitHub" title="Python">
+        <scalar-icon src="../../assets/logos/python.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/cooper-square-technologies/profound-rust-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Rust SDK on GitHub" title="Rust">
+        <scalar-icon src="simple/rust"></scalar-icon>
+      </a>
+    </div>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-dedalus" aria-hidden="true">
@@ -260,10 +281,37 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
         <span class="company-team-sticker-interactive" data-company-sticker-src="/dedalus-sticker.svg"></span>
       </div>
     </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://github.com/dedalus-labs" target="_blank" rel="noopener noreferrer">Dedalus Labs</a>
-    </p>
+    <p class="customer-sticker-name">Dedalus Labs</p>
     <p class="customer-sticker-description">Fast, isolated compute infrastructure for AI agents</p>
+    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-typescript" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs TypeScript SDK on GitHub" title="TypeScript">
+        <scalar-icon src="../../assets/logos/typescript.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-python" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Python SDK on GitHub" title="Python">
+        <scalar-icon src="../../assets/logos/python.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-go" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Go SDK on GitHub" title="Go">
+        <scalar-icon src="../../assets/logos/go.svg"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-ruby" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Ruby SDK on GitHub" title="Ruby">
+        <scalar-icon src="simple/ruby"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-php" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs PHP SDK on GitHub" title="PHP">
+        <scalar-icon src="simple/php"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-java" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Java SDK on GitHub" title="Java">
+        <scalar-icon src="simple/openjdk"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-kotlin" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Kotlin SDK on GitHub" title="Kotlin">
+        <scalar-icon src="simple/kotlin"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-csharp" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs C# SDK on GitHub" title="C#">
+        <scalar-icon src="simple/dotnet"></scalar-icon>
+      </a>
+      <a class="customer-sdk-target" href="https://github.com/dedalus-labs/dedalus-cli" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs CLI SDK on GitHub" title="CLI">
+        <scalar-icon src="phosphor/bold/terminal-window"></scalar-icon>
+      </a>
+    </div>
   </article>
 </section>
 
@@ -605,6 +653,39 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     color: var(--scalar-color-3);
     font-size: var(--scalar-font-size-2);
     line-height: var(--scalar-line-height-2);
+  }
+  /* The same Generated SDKs row the story pages carry, minus the language labels:
+     the column is 190px wide, so each mark carries its language as its accessible
+     name instead. Every link goes to that language's own generated repository. */
+  .customer-sdk-targets {
+    display: flex;
+    max-width: 190px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    /* The negative inset keeps the row optically flush with the text above it while
+       the links carry enough padding to reach a 24px target. */
+    margin: 8px 0 0 -4px;
+  }
+  .customer-sdk-target {
+    display: inline-flex;
+    padding: 4px;
+    color: var(--scalar-color-2);
+    text-decoration: none;
+  }
+  .customer-sdk-target:hover {
+    color: var(--scalar-color-1);
+    text-decoration: none;
+  }
+  .customer-sdk-target:focus-visible {
+    border-radius: var(--scalar-radius);
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 3px;
+  }
+  .customer-sdk-target svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
   }
   /* Only PAR carries a story link, so it sits under the description rather than
      changing the shape of every other card. */
