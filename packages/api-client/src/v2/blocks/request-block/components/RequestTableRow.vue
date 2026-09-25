@@ -22,6 +22,7 @@ import {
   DataTableInputSelect,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { DatePicker, type DatePickerType } from '@/v2/components/date-picker'
 import { useLocalization } from '@/v2/features/localization'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'
@@ -171,6 +172,21 @@ const enumValue = computed<string[]>(() => {
 const typeValue = computed(() =>
   data.schema && 'type' in data.schema ? data.schema.type : undefined,
 )
+
+/**
+ * Which date/time picker (if any) this value should offer, based on the
+ * schema `format`. Free-text entry and `{{variables}}` keep working — the
+ * picker is an optional shortcut that writes a formatted value back into the
+ * same input.
+ */
+const dateFormat = computed<DatePickerType | undefined>(() => {
+  const format =
+    data.schema && 'format' in data.schema ? data.schema.format : undefined
+  const pickerFormats: DatePickerType[] = ['date', 'date-time', 'time']
+  return pickerFormats.includes(format as DatePickerType)
+    ? (format as DatePickerType)
+    : undefined
+})
 
 const validationResult = computed(() =>
   validateParameter(data.schema, value.value),
@@ -351,6 +367,12 @@ const handleKeydown = (event: KeyboardEvent): void => {
             tooltip="top"
             variant="ghost"
             @click="emit('navigate', data.globalRoute)" />
+
+          <DatePicker
+            v-if="dateFormat && data.isReadonly !== true"
+            :modelValue="displayValue"
+            :type="dateFormat"
+            @update:modelValue="(v) => handleUpdateRow({ value: v })" />
 
           <RequestTableTooltip
             v-if="data.isReadonly"

@@ -143,6 +143,9 @@ catalogs:
     '@hono/node-server':
       specifier: ^2.1.1
       version: 2.1.1
+    '@internationalized/date':
+      specifier: 3.5.4
+      version: 3.5.4
     '@nestjs/cli':
       specifier: ^11.0.14
       version: 11.0.14
@@ -1389,6 +1392,9 @@ importers:
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.40(typescript@5.9.3))
+      '@internationalized/date':
+        specifier: catalog:*
+        version: 3.5.4
       '@scalar/blocks':
         specifier: workspace:*
         version: link:../blocks
