@@ -335,8 +335,11 @@ const handleAuthorize = async (): Promise<void> => {
   }
 }
 
-/** Whether the current flow supports refreshing the access token */
-const supportsRefreshToken = computed(() => type !== 'implicit')
+/** Refreshing requires a token issued by the provider, not just a compatible flow. */
+const canRefreshToken = computed(
+  () =>
+    type !== 'implicit' && Boolean(flow.value['x-scalar-secret-refresh-token']),
+)
 
 /**
  * Refresh URL placeholder, shows tokenUrl as hint if refreshUrl is not specified.
@@ -354,7 +357,7 @@ const refreshUrlPlaceholder = computed(() => {
  * via grant_type=refresh_token.
  */
 const handleRefresh = async (): Promise<void> => {
-  if (loader.isLoading || type === 'implicit') {
+  if (loader.isLoading || type === 'implicit' || !canRefreshToken.value) {
     return
   }
 
@@ -420,7 +423,7 @@ const handleSecretLocationUpdate = (value: string): void => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="supportsRefreshToken">
+    <DataTableRow v-if="canRefreshToken">
       <RequestAuthDataTableInput
         class="border-r-transparent"
         :environment
@@ -436,7 +439,7 @@ const handleSecretLocationUpdate = (value: string): void => {
       class="min-w-full">
       <div class="flex h-8 items-center justify-end gap-2 border-t">
         <ScalarButton
-          v-if="supportsRefreshToken"
+          v-if="canRefreshToken"
           class="p-0 px-2 py-0.5"
           :loader
           size="sm"

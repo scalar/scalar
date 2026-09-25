@@ -686,4 +686,34 @@ describe('OAuth2', () => {
       name: 'OAuth2',
     })
   })
+
+  it.each([
+    ['authorizationCode', undefined, false],
+    ['authorizationCode', '', false],
+    ['authorizationCode', 'refresh-token', true],
+    ['password', undefined, false],
+    ['password', 'refresh-token', true],
+    ['clientCredentials', undefined, false],
+    ['clientCredentials', 'refresh-token', true],
+    ['deviceAuthorization', undefined, false],
+    ['deviceAuthorization', 'refresh-token', true],
+    ['implicit', 'refresh-token', false],
+  ])('shows refresh controls for %s with token %s: %s', (type, refreshToken, visible) => {
+    const wrapper = mountWithProps({
+      type,
+      flows: {
+        [type]: {
+          tokenUrl: 'https://issuer.example.com/token',
+          scopes: {},
+          'x-scalar-secret-token': 'access-token',
+          'x-scalar-secret-refresh-token': refreshToken,
+        },
+      },
+    })
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Refresh')).toBe(visible)
+    expect(
+      wrapper.findAllComponents(RequestAuthDataTableInput).some((input) => input.text().includes('Refresh URL')),
+    ).toBe(visible)
+    wrapper.unmount()
+  })
 })
