@@ -205,7 +205,12 @@ export const getSecuritySchemeOptions = (
     const scheme = getResolvedRef(schemeRef)
     // Skip schemes hidden from the auth UI via x-scalar-ignore.
     if (scheme && !isHidden(scheme as Hideable)) {
-      const formatted = formatScheme({ name, value: { [name]: [] } })
+      // Reuse the current selection so changing scopes does not create a second option.
+      // Defaults seed a new selection, but must not replace scopes the user deliberately cleared.
+      const value = selectedByRequirement.get(requirementSignature({ [name]: [] })) ?? {
+        [name]: scheme.type === 'oauth2' ? [...(scheme['x-default-scopes'] ?? [])] : [],
+      }
+      const formatted = formatScheme({ name, value })
       availableFormatted.push(formatted)
       existingIds.add(formatted.id)
     }
