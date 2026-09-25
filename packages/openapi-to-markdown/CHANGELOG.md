@@ -1,5 +1,27 @@
 # @scalar/openapi-to-markdown
 
+## 1.3.0
+
+### Minor Changes
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Mock-server XML response bytes now use the shared schema-aware serializer instead of `json2xml`, including attributes, namespaces, and root naming. Existing XML response snapshots may need updating. Supplied serialized XML remains unchanged.
+
+  Generate XML examples from schema metadata, preserving attributes, namespaces, array wrappers, repeated elements, and OpenAPI 3.2 text and CDATA nodes. Use the same XML serialization for request bodies, code snippets, response examples, mock responses, and Markdown documentation. Preserve serialized media examples and escape schema string examples as element text.
+
+  Explain XML generation failures in response example panels, including the serialized-example escape hatch for large payloads. Expose XML generation failures in mock response headers with `X-Scalar-XML-Error`, containing the first error diagnostic code. Report diagnostics to other consumers through a callback or the developer console, and format element-only descendants within mixed content without changing text values.
+
+### Patch Changes
+
+- [#10356](https://github.com/scalar/scalar/pull/10356): Load densely cross-linked API descriptions with far less memory. References are now linked after coercion, so TypeBox no longer copies the reference graph each time it checks a union or array. Stripe's API description loads in about 2 seconds with a peak of about 190 MB, down from about 17 seconds and 1.4 GB, so it now loads and renders with a 768 MB heap limit.
+
+  Coercion now checks each reference target in its own position, not through every reference that points to it. Before, a target that failed a strict schema check (for example, a schema with `oneOf` references) could turn the reference into an empty schema and drop sibling `x-` extensions. Those references and extensions are now kept, so affected response schemas render in full.
+
+  References to targets that coercion drops, such as a root-level `definitions` block, now link to a copy cast as the schema, parameter, response or other object the reference stands in for, and their anchors resolve against the resource that contains them. A `$ref: '#'` inside a schema with an `$id` now links to that schema.
+
+  Coerce reference targets stored in extension data and schema siblings on fallback references before rendering, avoiding crashes from malformed fields while preserving recursive links.
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Apply edited XML bodies instead of their original serialized or data examples, render schema-free XML examples in Markdown, and share reference decoding and response provenance selection.
+
 ## 1.2.0
 
 ### Minor Changes

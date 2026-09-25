@@ -1,5 +1,23 @@
 # @scalar/mock-server
 
+## 0.17.0
+
+### Minor Changes
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Mock-server XML response bytes now use the shared schema-aware serializer instead of `json2xml`, including attributes, namespaces, and root naming. Existing XML response snapshots may need updating. Supplied serialized XML remains unchanged.
+
+  Generate XML examples from schema metadata, preserving attributes, namespaces, array wrappers, repeated elements, and OpenAPI 3.2 text and CDATA nodes. Use the same XML serialization for request bodies, code snippets, response examples, mock responses, and Markdown documentation. Preserve serialized media examples and escape schema string examples as element text.
+
+  Explain XML generation failures in response example panels, including the serialized-example escape hatch for large payloads. Expose XML generation failures in mock response headers with `X-Scalar-XML-Error`, containing the first error diagnostic code. Report diagnostics to other consumers through a callback or the developer console, and format element-only descendants within mixed content without changing text values.
+
+### Patch Changes
+
+- [#10343](https://github.com/scalar/scalar/pull/10343): Restrict AsyncAPI external references to the source directory and public network addresses, and preserve the source location for preloaded documents.
+
+  URL inputs to `createAsyncApiMockServer` also reject private network addresses, including localhost. Load local files or pass preloaded document content for local development. Docker documents supplied through `OPENAPI_DOCUMENT` resolve relative references from their temporary `/tmp/openapi.json` or `/tmp/openapi.yaml` file, confined to `/tmp`. Both OpenAPI and AsyncAPI Docker documents preserve the selected source origin.
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Apply edited XML bodies instead of their original serialized or data examples, render schema-free XML examples in Markdown, and share reference decoding and response provenance selection.
+
 ## 0.16.0
 
 ### Minor Changes
