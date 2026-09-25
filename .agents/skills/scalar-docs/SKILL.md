@@ -263,6 +263,16 @@ The logo renders on the first surface the site has: **header** (if `navigation.h
 "theme": "purple"
 ```
 
+**Social card** — point `og.imageTemplate` at a TSX/JSX template in the project to replace the generated share image. The path is relative to the config file and must stay inside the project.
+
+```json
+"og": {
+  "imageTemplate": "./og/card.tsx"
+}
+```
+
+The template default-exports a pure function taking `{ title, description?, breadcrumb?, path, colors, logo, mode }` and returning JSX. It is drawn by [Satori](https://github.com/vercel/satori): flexbox only, inline styles only, no packages imported. An `og:image` in `siteConfig.head.meta` overrides it site-wide.
+
 ### domain
 
 **Subdomain** (free): `https://<subdomain>.apidocumentation.com`
