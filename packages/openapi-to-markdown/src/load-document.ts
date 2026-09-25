@@ -12,24 +12,147 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   OpenAPIDocumentSchema,
   type OpenApiDocument,
+  SchemaObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { restoreBooleanSchemas } from './restore-boolean-schemas'
+import { type KindPosition, getChildKind, referenceTargetSchemas } from './object-kinds'
+import { type SchemaPosition, getChildPosition, restoreBooleanSchemas } from './restore-boolean-schemas'
+
+type AttachRefValuesOptions = {
+  /** Report external references without linking anything. */
+  detectOnly?: boolean
+  /** Resolve targets that are missing from the document, such as values coercion dropped. */
+  fallback?: {
+    /** The uncoerced source document. */
+    source: unknown
+    /** Keep boolean schemas, which OpenAPI 3.1 introduced, instead of casting them to objects. */
+    booleanSchemas: boolean
+  }
+}
+
+type ResolvedTarget = {
+  value: unknown
+  /** The base of the resource that contains the target. */
+  context: string
+  /** Whether the target is part of the walked document rather than the fallback source. */
+  linked: boolean
+  /** The object schema that coercion applied at this position, if any. */
+  schema?: Parameters<typeof coerceValue>[0]
+}
 
 /**
  * Link references in a private, bundled document without proxies or expanded copies.
  * JSON Magic owns `$id` and anchor indexing, which keeps local-reference behavior
  * aligned with the external-reference bundler without retaining a second resolver.
  * Non-enumerable links preserve serialization and share recursive schema targets.
- * Casting temporarily uses enumerable links to satisfy TypeBox reference branches.
+ * With `detectOnly`, nothing is linked and the pass only looks for external references.
  * Returns whether external references remain and require bundling.
  */
-const attachRefValues = (document: unknown, enumerable = false, schemas = getSchemas(document)): boolean => {
-  // A single traversal covers both normal trees and previously linked recursive objects.
+const attachRefValues = (
+  document: unknown,
+  schemas = getSchemas(document),
+  { detectOnly = false, fallback }: AttachRefValuesOptions = {},
+): boolean => {
+  // Fallback targets are linked outside the walked tree and can be reached again from it,
+  // so one set keeps every object to a single visit.
   const seen = new WeakSet<object>()
+  // Large descriptions repeat the same reference strings thousands of times.
+  const targets = new Map<string, ResolvedTarget | undefined>()
+  // Share one cast copy between every reference of the same kind to the same dropped target.
+  const castFallbacks = new WeakMap<object, Map<unknown, unknown>>()
   let hasExternalReferences = false
 
-  const visit = (node: unknown, context = getId(document) ?? ''): void => {
+  const lookUp = (path: string, ref: string): ResolvedTarget => {
+    // An empty path is a resource root, unless the fragment is the pointer to the empty key.
+    const segments = path === '' && !ref.includes('#/') ? [] : parseJsonPointerSegments(`/${path}`)
+    const linked = getValueByPath(document, segments)
+    let position: SchemaPosition | undefined = 'document'
+    let kind: KindPosition | undefined = 'document'
+    let parent = document
+    for (const key of segments) {
+      kind = kind && getChildKind(kind, key)
+      position = Array.isArray(parent) ? position : position && getChildPosition(position, key)
+      // Arbitrary extension and example data has not passed an OpenAPI object schema.
+      if (position === 'document' && kind === undefined) position = undefined
+      parent = getValueByPath(parent, [key]).value
+    }
+    const schema = getTargetSchema(position, kind)
+    if ((linked.value !== undefined && schema !== undefined) || fallback === undefined) {
+      return { ...linked, linked: true, schema }
+    }
+    // The context is the base of the resource that contains the fallback target.
+    return { ...getValueByPath(fallback.source, segments), linked: false }
+  }
+
+  const resolve = (ref: string, base: string): ResolvedTarget | undefined => {
+    const key = `${base}\u0000${ref}`
+    if (targets.has(key)) {
+      return targets.get(key)
+    }
+
+    // JSON Magic has no entry for an empty fragment, which names the root of the current resource.
+    const path = ref === '#' ? (schemas.get(base) ?? '') : convertToLocalRef(ref, base, schemas)
+    const resolved = path === undefined ? undefined : lookUp(path, ref)
+
+    targets.set(key, resolved)
+    return resolved
+  }
+
+  // Cast dropped targets like the objects they stand in for, so the renderer never sees uncoerced shapes.
+  const castFallback = (
+    value: unknown,
+    schema: Parameters<typeof coerceValue>[0],
+    position: SchemaPosition,
+  ): unknown => {
+    // OpenAPI 3.1 keeps boolean schemas, and a nested reference is linked once it is walked.
+    if (value === undefined || (fallback?.booleanSchemas && position === 'schema' && typeof value === 'boolean')) {
+      return value
+    }
+    if (!isObject(value)) {
+      return coerceValue(schema, value)
+    }
+    const casts = castFallbacks.get(value) ?? new Map<unknown, unknown>()
+    castFallbacks.set(value, casts)
+    if (!casts.has(schema)) {
+      // Cast schema siblings without losing the reference. Other Reference Objects only
+      // support summary and description; casting them as their targets would add defaults.
+      // Path Item Objects declare their own $ref field, so their siblings are cast normally.
+      const reference = typeof value.$ref === 'string' ? value.$ref : undefined
+      const cast =
+        reference === undefined || schema === referenceTargetSchemas.pathItem
+          ? coerceValue(schema, value)
+          : position === 'schema'
+            ? { ...coerceValue(SchemaObjectSchema, value), $ref: reference }
+            : {
+                $ref: reference,
+                ...(typeof value.summary === 'string' ? { summary: value.summary } : {}),
+                ...(typeof value.description === 'string' ? { description: value.description } : {}),
+              }
+      if (fallback?.booleanSchemas) {
+        restoreBooleanSchemas(value, cast, position)
+      }
+      casts.set(schema, cast)
+    }
+    return casts.get(schema)
+  }
+
+  // Schemas are recognized by their position, and every other object by the field that holds it.
+  const getTargetSchema = (
+    position: SchemaPosition | undefined,
+    kind: KindPosition | undefined,
+  ): Parameters<typeof coerceValue>[0] | undefined => {
+    if (position === 'schema') {
+      return SchemaObjectSchema
+    }
+    return typeof kind === 'string' ? referenceTargetSchemas[kind] : undefined
+  }
+
+  const visit = (
+    node: unknown,
+    context: string,
+    position: SchemaPosition | undefined,
+    kind: KindPosition | undefined,
+  ): void => {
     if (node === null || typeof node !== 'object' || seen.has(node)) {
       return
     }
@@ -40,50 +163,42 @@ const attachRefValues = (document: unknown, enumerable = false, schemas = getSch
 
     if (isObject(node) && typeof node.$ref === 'string') {
       const ref = node.$ref
-      const path = ref === '#' ? '' : convertToLocalRef(ref, base, schemas)
 
-      // Point to the bundled target instead of copying it into every reference.
-      const target =
-        path === undefined ? undefined : getValueByPath(document, parseJsonPointerSegments(`/${path}`)).value
-
-      // JSON Magic only needs to bundle references outside this document's resource index.
-      if (path === undefined && ref.split('#')[0]) {
-        hasExternalReferences = true
-      }
-
-      if (enumerable) {
-        const followed = new WeakSet<object>()
-        let resolved = target
-
-        // TypeBox needs the final target, so collapse a pre-existing reference chain safely.
-        while (isObject(resolved) && '$ref-value' in resolved && !followed.has(resolved)) {
-          followed.add(resolved)
-          resolved = resolved['$ref-value']
+      if (detectOnly) {
+        // JSON Magic only needs to bundle references outside this document's resource index.
+        if (ref.split('#')[0] && convertToLocalRef(ref, base, schemas) === undefined) {
+          hasExternalReferences = true
         }
-        if (resolved !== undefined) {
+      } else if (getTargetSchema(position, kind)) {
+        const resolved = resolve(ref, base)
+        const expectedSchema = getTargetSchema(position, kind)
+        const schema = resolved?.schema === expectedSchema ? undefined : expectedSchema
+        // Point to the target instead of copying it into every reference.
+        const target = schema ? castFallback(resolved?.value, schema, position ?? 'document') : resolved?.value
+
+        if (target !== undefined) {
           Object.defineProperty(node, '$ref-value', {
-            value: resolved,
-            enumerable,
+            value: target,
+            enumerable: false,
             configurable: true,
             writable: true,
           })
         }
-      } else if (target !== undefined) {
-        Object.defineProperty(node, '$ref-value', {
-          value: target,
-          enumerable,
-          configurable: true,
-          writable: true,
-        })
+        // Fallback targets live outside the walked tree, so link their own references too.
+        if (resolved && (!resolved.linked || schema)) {
+          visit(target, resolved.context, position, kind)
+        }
       }
     }
 
     // Preserve the nearest resource base while walking into child schemas.
-    for (const child of Object.values(node)) {
-      visit(child, base)
+    for (const [key, child] of Object.entries(node)) {
+      const childKind = kind && getChildKind(kind, key)
+      const childPosition = Array.isArray(node) ? position : position && getChildPosition(position, key)
+      visit(child, base, childPosition === 'document' && childKind === undefined ? undefined : childPosition, childKind)
     }
   }
-  visit(document)
+  visit(document, getId(document) ?? '', 'document', 'document')
   return hasExternalReferences
 }
 
@@ -126,7 +241,7 @@ export const loadDocument = async (
   const declaredOpenapiVersion = typeof raw.openapi === 'string' ? raw.openapi : '2.0'
   const { document: upgraded } = upgrade(raw, '3.2', { onIncompatible: 'collect' })
   const upgradedSchemas = getSchemas(upgraded)
-  const hasExternalReferences = attachRefValues(upgraded, false, upgradedSchemas)
+  const hasExternalReferences = attachRefValues(upgraded, upgradedSchemas, { detectOnly: true })
 
   let document = upgraded
   let schemas = upgradedSchemas
@@ -151,18 +266,23 @@ export const loadDocument = async (
       throw new Error(errors.join('\n'))
     }
     schemas = getSchemas(document)
-    attachRefValues(document, false, schemas)
   }
 
-  // TypeBox's reference branches require an enumerable $ref-value during casting.
-  // Restore non-enumerable shared links afterward so rendering never expands the graph.
-  attachRefValues(document, true, schemas)
+  // Cast the document before linking references. TypeBox clones every value that already
+  // matches a union or array schema, and its clone follows all own properties, including
+  // non-enumerable `$ref-value` links. On densely linked descriptions, each clone would copy
+  // most of the reference graph again, which costs gigabytes of transient memory.
+  // Reference branches accept a missing `$ref-value`, and every target is cast in its own
+  // position, so one target that fails a strict check can no longer replace the reference.
   const coerced = coerceValue(OpenAPIDocumentSchema, document)
   // Rendering must use the declared version for features added after OpenAPI 3.1.
   coerced['x-original-oas-version'] = declaredOpenapiVersion
 
   // Boolean schemas were introduced in OpenAPI 3.1; older descriptions retain their existing coercion.
-  if (/^3\.[12]\./.test(declaredOpenapiVersion)) restoreBooleanSchemas(document, coerced)
+  const booleanSchemas = /^3\.[12]\./.test(declaredOpenapiVersion)
+  if (booleanSchemas) {
+    restoreBooleanSchemas(document, coerced)
+  }
 
   // Keep extension resources that local and bundled references can target.
   for (const [key, value] of Object.entries(document)) {
@@ -176,8 +296,9 @@ export const loadDocument = async (
     }
   }
 
-  // Redefine TypeBox's temporary links as non-enumerable links to coerced targets.
-  attachRefValues(coerced, false, schemas)
+  // Link references to coerced targets. Targets that coercion dropped fall back to source values,
+  // which are cast according to the object kind expected at the reference.
+  attachRefValues(coerced, schemas, { fallback: { source: document, booleanSchemas } })
 
   return coerced
 }
