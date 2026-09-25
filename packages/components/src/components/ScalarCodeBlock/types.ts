@@ -1,4 +1,4 @@
-import type { standardLanguages } from '@scalar/code-highlight'
+import type { standardLanguages } from '@scalar/highlight/compat'
 
-/** A standard language key supported by the code-highlight library */
+/** A standard language key supported by the highlighter */
 export type StandardLanguageKey = keyof typeof standardLanguages
