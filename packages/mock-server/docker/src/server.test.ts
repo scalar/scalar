@@ -62,6 +62,12 @@ describe('startMockServer', () => {
     })
   })
 
+  it('preserves the OpenAPI document origin', async () => {
+    const document = '{"openapi":"3.0.0","info":{"title":"Test","version":"1.0.0"},"paths":{}}'
+    await startMockServer({ document, format: 'json', origin: '/docs/openapi.json' })
+    expect(mockCreateMockServer.mock.calls[0]?.[0].origin).toBe('/docs/openapi.json')
+  })
+
   it('should start server with default port 3000', async () => {
     const document = '{"openapi":"3.0.0","info":{"title":"Test"}}'
 
@@ -72,6 +78,7 @@ describe('startMockServer', () => {
 
     expect(mockCreateMockServer).toHaveBeenCalledWith({
       document,
+      origin: undefined,
       onRequest: expect.any(Function),
     })
     expect(mockServe).toHaveBeenCalledWith(
@@ -206,6 +213,7 @@ describe('startMockServer', () => {
 
     expect(mockCreateMockServer).toHaveBeenCalledWith({
       document,
+      origin: undefined,
       onRequest: expect.any(Function),
     })
 
@@ -267,11 +275,14 @@ describe('startMockServer', () => {
       websocket,
     })
 
-    await startMockServer({ document, format: 'json' })
+    await startMockServer({ document, format: 'json', origin: '/docs/asyncapi.json' })
 
-    expect(mockCreateAsyncApiMockServer).toHaveBeenCalledWith(
-      expect.objectContaining({ document, onMessage: expect.any(Function), logger: expect.any(Function) }),
-    )
+    expect(mockCreateAsyncApiMockServer).toHaveBeenCalledWith({
+      document,
+      origin: '/docs/asyncapi.json',
+      onMessage: expect.any(Function),
+      logger: expect.any(Function),
+    })
     // The REST mocker is not used for AsyncAPI documents.
     expect(mockCreateMockServer).not.toHaveBeenCalled()
     expect(mockServe.mock.calls[0]?.[0]).toStrictEqual({

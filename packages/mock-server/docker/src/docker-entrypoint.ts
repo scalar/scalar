@@ -26,11 +26,12 @@ function parseCommandLineArgs(): { url?: string } {
 async function main(): Promise<void> {
   const { url } = parseCommandLineArgs()
 
-  const { path, format } = await loadDocument(url)
+  const { path, origin, format } = await loadDocument(url)
   const document = readFileSync(path, 'utf8')
 
   await startMockServer({
     document,
+    origin,
     format,
   })
 }

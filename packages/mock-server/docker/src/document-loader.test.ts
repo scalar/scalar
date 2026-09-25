@@ -51,6 +51,7 @@ describe('loadDocument', () => {
       expect(writeFileSync).toHaveBeenCalledWith('/tmp/openapi.json', jsonDoc, 'utf8')
       expect(result).toEqual({
         path: '/tmp/openapi.json',
+        origin: url,
         format: 'json',
       })
     })
@@ -70,6 +71,7 @@ describe('loadDocument', () => {
       expect(writeFileSync).toHaveBeenCalledWith('/tmp/openapi.yaml', yamlDoc, 'utf8')
       expect(result).toEqual({
         path: '/tmp/openapi.yaml',
+        origin: url,
         format: 'yaml',
       })
     })
@@ -99,7 +101,7 @@ describe('loadDocument', () => {
 
       const result = await loadDocument(url)
 
-      expect(result.path).toBe('/tmp/openapi.yaml')
+      expect(result).toStrictEqual({ path: '/tmp/openapi.yaml', origin: url, format: 'yaml' })
       expect(global.fetch).toHaveBeenCalledWith(url)
       expect(global.fetch).toHaveBeenCalledTimes(1)
       expect(writeFileSync).toHaveBeenCalledWith('/tmp/openapi.yaml', yamlDoc, 'utf8')
@@ -116,6 +118,7 @@ describe('loadDocument', () => {
       expect(writeFileSync).toHaveBeenCalledWith('/tmp/openapi.json', jsonDoc, 'utf8')
       expect(result).toEqual({
         path: '/tmp/openapi.json',
+        origin: '/tmp/openapi.json',
         format: 'json',
       })
     })
@@ -129,6 +132,7 @@ describe('loadDocument', () => {
       expect(writeFileSync).toHaveBeenCalledWith('/tmp/openapi.yaml', yamlDoc, 'utf8')
       expect(result).toEqual({
         path: '/tmp/openapi.yaml',
+        origin: '/tmp/openapi.yaml',
         format: 'yaml',
       })
     })
@@ -167,7 +171,7 @@ describe('loadDocument', () => {
 
       const result = await loadDocument()
 
-      expect(result.path).toBe('/tmp/openapi.json')
+      expect(result).toStrictEqual({ path: '/tmp/openapi.json', origin: '/tmp/openapi.json', format: 'json' })
       expect(global.fetch).not.toHaveBeenCalled()
     })
   })
@@ -189,6 +193,7 @@ describe('loadDocument', () => {
       expect(writeFileSync).toHaveBeenCalledWith('/tmp/openapi.json', jsonDoc, 'utf8')
       expect(result).toEqual({
         path: '/tmp/openapi.json',
+        origin: url,
         format: 'json',
       })
     })
@@ -209,6 +214,7 @@ describe('loadDocument', () => {
       expect(writeFileSync).toHaveBeenCalledWith('/tmp/openapi.yaml', yamlDoc, 'utf8')
       expect(result).toEqual({
         path: '/tmp/openapi.yaml',
+        origin: url,
         format: 'yaml',
       })
     })
@@ -252,9 +258,25 @@ describe('loadDocument', () => {
 
       const result = await loadDocument()
 
-      expect(result.path).toBe('/tmp/openapi.yaml')
+      expect(result).toStrictEqual({ path: '/tmp/openapi.yaml', origin: url, format: 'yaml' })
       expect(readdirSync).not.toHaveBeenCalled()
     })
+  })
+
+  it('preserves the mounted source when URL settings are empty', async () => {
+    process.env.OPENAPI_DOCUMENT = ''
+    process.env.OPENAPI_DOCUMENT_URL = ''
+    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(readdirSync).mockReturnValue(['asyncapi.yaml'] as unknown as ReturnType<typeof readdirSync>)
+    vi.mocked(statSync).mockReturnValue({ isDirectory: () => false } as ReturnType<typeof statSync>)
+    vi.mocked(readFileSync).mockReturnValue('asyncapi: 3.1.0')
+
+    expect(await loadDocument('')).toStrictEqual({
+      path: '/docs/asyncapi.yaml',
+      origin: '/docs/asyncapi.yaml',
+      format: 'yaml',
+    })
+    expect(global.fetch).not.toHaveBeenCalled()
   })
 
   describe('with volume mount', () => {
@@ -272,6 +294,7 @@ describe('loadDocument', () => {
       expect(readdirSync).toHaveBeenCalledWith('/docs')
       expect(result).toEqual({
         path: '/docs/openapi.yaml',
+        origin: '/docs/openapi.yaml',
         format: 'yaml',
       })
     })
@@ -288,6 +311,7 @@ describe('loadDocument', () => {
 
       expect(result).toEqual({
         path: '/docs/openapi.json',
+        origin: '/docs/openapi.json',
         format: 'json',
       })
     })
