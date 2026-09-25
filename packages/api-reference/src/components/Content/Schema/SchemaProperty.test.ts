@@ -13,6 +13,88 @@ import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
 describe('SchemaProperty', () => {
+  it.each(['inline', 'typed', 'referenced', 'nested'] as const)(
+    'keeps a named object with %s allOf members behind its own disclosure (#10324)',
+    async (variant) => {
+      const tags = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
+      })
+      const schema = coerceValue(SchemaObjectSchema, {
+        ...(variant === 'typed' ? { type: 'object' } : {}),
+        allOf: [
+          { type: 'object', properties: { email: { type: 'string' } }, required: ['email'] },
+          variant === 'referenced'
+            ? { $ref: '#/components/schemas/TagsLastUpdated', '$ref-value': tags }
+            : variant === 'nested'
+              ? { allOf: [tags] }
+              : tags,
+        ],
+      })
+      const wrapper = mount(SchemaProperty, {
+        props: { name: 'data', schema, eventBus: null, breadcrumb: ['response'], options: {} },
+      })
+
+      const toggle = wrapper.get('button[aria-expanded]')
+      expect(wrapper.get(`[id="${toggle.attributes('aria-labelledby')}"]`).text()).toBe('data')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+
+      await toggle.trigger('click')
+
+      expect(toggle.attributes('aria-expanded')).toBe('true')
+      const panel = wrapper.get(`[id="${toggle.attributes('aria-controls')}"]`)
+      expect(panel.get('[id="response.data.email"]').text()).toBe('email')
+      expect(panel.get('[id="response.data.userUseTags"]').text()).toBe('userUseTags')
+      const email = wrapper.findAllComponents(SchemaProperty).find((property) => property.props('name') === 'email')!
+      expect(email.text()).toContain('Type: string')
+      expect(email.get('.property-required').text()).toBe('required')
+
+      await toggle.trigger('click')
+
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      wrapper.unmount()
+    },
+  )
+
+  it('preserves every choice group in a named allOf property', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        name: 'data',
+        eventBus: null,
+        schema: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            { type: 'object', properties: { id: { type: 'string' } } },
+            {
+              oneOf: [
+                { title: 'Email', type: 'object', properties: { email: { type: 'string' } } },
+                { title: 'Phone', type: 'object', properties: { phone: { type: 'string' } } },
+              ],
+            },
+            {
+              oneOf: [
+                { title: 'Personal', type: 'object', properties: { personal: { type: 'string' } } },
+                { title: 'Business', type: 'object', properties: { business: { type: 'string' } } },
+              ],
+            },
+          ],
+        }),
+        options: {},
+      },
+    })
+
+    expect(wrapper.findAllComponents(ScalarListbox).map((selector) => selector.props('options'))).toStrictEqual([
+      [
+        { id: '0', label: 'Email' },
+        { id: '1', label: 'Phone' },
+      ],
+      [
+        { id: '0', label: 'Personal' },
+        { id: '1', label: 'Business' },
+      ],
+    ])
+    wrapper.unmount()
+  })
+
   it('renders nested composition selectors with correct titles', async () => {
     const wrapper = mount(SchemaProperty, {
       props: {

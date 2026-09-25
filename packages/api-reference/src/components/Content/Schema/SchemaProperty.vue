@@ -61,6 +61,7 @@ import { getPropertyDescription } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
 import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
+import { normalizeObjectComposition } from './helpers/normalize-object-composition'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
 import type { CompositionKeyword } from './helpers/schema-composition'
 import { shouldDisplayDescription } from './helpers/should-display-description'
@@ -145,8 +146,11 @@ const dynamicScope = useDynamicScope()
  * whole subtree on the reactive and detect-changes proxies. See {@link unwrapForRead}.
  */
 const optimizedValue = computed(() =>
-  optimizeValueForDisplay(
-    resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
+  normalizeObjectComposition(
+    optimizeValueForDisplay(
+      resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
+    ),
+    props.name,
   ),
 )
 

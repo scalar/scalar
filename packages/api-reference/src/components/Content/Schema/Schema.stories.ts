@@ -74,3 +74,33 @@ export const Composition: Story = {
     }),
   },
 }
+
+/** Keep composed child fields visually nested beneath their named property (#10324). */
+export const NestedAllOfObject: Story = {
+  // Leave room for the disclosure control, which extends into the schema gutter.
+  decorators: [() => ({ template: '<div style="padding-left: 16px"><story /></div>' })],
+  args: {
+    name: 'Response',
+    eventBus: null,
+    options: {},
+    schema: coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        requestId: { type: 'string' },
+        data: {
+          allOf: [
+            {
+              type: 'object',
+              required: ['email'],
+              properties: { email: { type: 'string' } },
+            },
+            {
+              type: 'object',
+              properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
+            },
+          ],
+        },
+      },
+    }),
+  },
+}

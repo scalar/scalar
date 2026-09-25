@@ -1,4 +1,4 @@
-import { takeSnapshot, test } from '@test/helpers'
+import { expect, takeSnapshot, test } from '@test/helpers'
 
 /**
  * Visual snapshots for the schema renderer.
@@ -14,4 +14,28 @@ test.describe('Schema', () => {
   test.use({ crop: 'component' })
 
   ;['Base', 'With Required', 'Composition'].forEach((story) => test(story, takeSnapshot))
+
+  test('Nested All Of Object', async ({ page, snapshot }) => {
+    const toggle = page.getByRole('button', { name: 'data', exact: true })
+    const email = page.getByText('email', { exact: true })
+    const tags = page.getByText('userUseTags', { exact: true })
+
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(email).toBeHidden()
+    await expect(tags).toBeHidden()
+    await snapshot('collapsed')
+
+    await toggle.click()
+
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(email).toBeVisible()
+    await expect(tags).toBeVisible()
+    await snapshot('expanded')
+
+    await toggle.click()
+
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(email).toBeHidden()
+    await expect(tags).toBeHidden()
+  })
 })
