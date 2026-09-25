@@ -122,9 +122,8 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
-import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
-import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import type { PreparedApiReference } from '@/helpers/prepare-api-reference'
+import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { withLocalizedConfigurationDefaults } from '@/helpers/with-localized-configuration-defaults'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
