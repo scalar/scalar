@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "astro": "^4.0.0 || ^5.0.0 || ^6.0.0"
+    "astro": "catalog:*"
   },
   "peerDependencies": {
     "astro": "^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0"

@@ -37,10 +37,10 @@ const references = new Map<string, ScalarReference>()
 /**
  * The subset of a Vite plugin this integration uses.
  *
- * Astro bundles its own Vite (currently v6), while the workspace catalog pins a
- * newer Vite whose `Plugin` type is not structurally identical. Describing just
- * the hooks used here keeps the plugin assignable to whichever Vite Astro ships,
- * without importing (and thereby version-locking) Vite's `Plugin` type.
+ * The supported Astro majors bundle different Vite versions. Astro 7 uses
+ * Vite 8 like the workspace, but Astro 5 and 6 use older versions whose `Plugin`
+ * types differ. Describing just these hooks keeps the plugin compatible with
+ * every supported Astro version without importing a version-specific type.
  */
 type VirtualModulePlugin = {
   name: string
