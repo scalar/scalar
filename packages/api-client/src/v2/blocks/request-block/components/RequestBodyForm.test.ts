@@ -5,9 +5,9 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
-import { DataTableCheckbox } from '@/v2/components/data-table'
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import { CodeInputLite } from '@/v2/components/code-input'
+import { DataTableCheckbox } from '@/v2/components/data-table'
 
 import RequestBodyForm from './RequestBodyForm.vue'
 import RequestTable from './RequestTable.vue'

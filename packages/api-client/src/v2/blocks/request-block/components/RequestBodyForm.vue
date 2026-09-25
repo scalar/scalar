@@ -141,7 +141,11 @@ const handleFileUpload = (index: number) => {
         ...currentRow,
         name: fieldName,
         value: file,
-        isDisabled: currentRow?.isDisabled ?? false,
+        // Selecting files enables untouched optional fields while preserving explicit choices.
+        isDisabled: currentRow?.isDisabledByDefault
+          ? false
+          : (currentRow?.isDisabled ?? false),
+        isDisabledByDefault: false,
       }))
       const insertionIndex = Math.min(index, localFormBodyRows.value.length)
       localFormBodyRows.value = [
