@@ -36,6 +36,8 @@ type ResolvedTarget = {
   context: string
   /** Whether the target is part of the walked document rather than the fallback source. */
   linked: boolean
+  /** The object schema that coercion applied at this position, if any. */
+  schema?: Parameters<typeof coerceValue>[0]
 }
 
 /**
@@ -64,8 +66,19 @@ const attachRefValues = (
     // An empty path is a resource root, unless the fragment is the pointer to the empty key.
     const segments = path === '' && !ref.includes('#/') ? [] : parseJsonPointerSegments(`/${path}`)
     const linked = getValueByPath(document, segments)
-    if (linked.value !== undefined || fallback === undefined) {
-      return { ...linked, linked: true }
+    let position: SchemaPosition | undefined = 'document'
+    let kind: KindPosition | undefined = 'document'
+    let parent = document
+    for (const key of segments) {
+      kind = kind && getChildKind(kind, key)
+      position = Array.isArray(parent) ? position : position && getChildPosition(position, key)
+      // Arbitrary extension and example data has not passed an OpenAPI object schema.
+      if (position === 'document' && kind === undefined) position = undefined
+      parent = getValueByPath(parent, [key]).value
+    }
+    const schema = getTargetSchema(position, kind)
+    if ((linked.value !== undefined && schema !== undefined) || fallback === undefined) {
+      return { ...linked, linked: true, schema }
     }
     // The context is the base of the resource that contains the fallback target.
     return { ...getValueByPath(fallback.source, segments), linked: false }
@@ -92,11 +105,7 @@ const attachRefValues = (
     position: SchemaPosition,
   ): unknown => {
     // OpenAPI 3.1 keeps boolean schemas, and a nested reference is linked once it is walked.
-    if (
-      value === undefined ||
-      (fallback?.booleanSchemas && position === 'schema' && typeof value === 'boolean') ||
-      (isObject(value) && typeof value.$ref === 'string')
-    ) {
+    if (value === undefined || (fallback?.booleanSchemas && position === 'schema' && typeof value === 'boolean')) {
       return value
     }
     if (!isObject(value)) {
@@ -105,7 +114,20 @@ const attachRefValues = (
     const casts = castFallbacks.get(value) ?? new Map<unknown, unknown>()
     castFallbacks.set(value, casts)
     if (!casts.has(schema)) {
-      const cast = coerceValue(schema, value)
+      // Cast schema siblings without losing the reference. Other Reference Objects only
+      // support summary and description; casting them as their targets would add defaults.
+      // Path Item Objects declare their own $ref field, so their siblings are cast normally.
+      const reference = typeof value.$ref === 'string' ? value.$ref : undefined
+      const cast =
+        reference === undefined || schema === referenceTargetSchemas.pathItem
+          ? coerceValue(schema, value)
+          : position === 'schema'
+            ? { ...coerceValue(SchemaObjectSchema, value), $ref: reference }
+            : {
+                $ref: reference,
+                ...(typeof value.summary === 'string' ? { summary: value.summary } : {}),
+                ...(typeof value.description === 'string' ? { description: value.description } : {}),
+              }
       if (fallback?.booleanSchemas) {
         restoreBooleanSchemas(value, cast, position)
       }
@@ -147,9 +169,10 @@ const attachRefValues = (
         if (ref.split('#')[0] && convertToLocalRef(ref, base, schemas) === undefined) {
           hasExternalReferences = true
         }
-      } else {
+      } else if (getTargetSchema(position, kind)) {
         const resolved = resolve(ref, base)
-        const schema = resolved && !resolved.linked ? getTargetSchema(position, kind) : undefined
+        const expectedSchema = getTargetSchema(position, kind)
+        const schema = resolved?.schema === expectedSchema ? undefined : expectedSchema
         // Point to the target instead of copying it into every reference.
         const target = schema ? castFallback(resolved?.value, schema, position ?? 'document') : resolved?.value
 
@@ -162,7 +185,7 @@ const attachRefValues = (
           })
         }
         // Fallback targets live outside the walked tree, so link their own references too.
-        if (resolved && !resolved.linked) {
+        if (resolved && (!resolved.linked || schema)) {
           visit(target, resolved.context, position, kind)
         }
       }
@@ -170,12 +193,9 @@ const attachRefValues = (
 
     // Preserve the nearest resource base while walking into child schemas.
     for (const [key, child] of Object.entries(node)) {
-      visit(
-        child,
-        base,
-        Array.isArray(node) ? position : position && getChildPosition(position, key),
-        kind && getChildKind(kind, key),
-      )
+      const childKind = kind && getChildKind(kind, key)
+      const childPosition = Array.isArray(node) ? position : position && getChildPosition(position, key)
+      visit(child, base, childPosition === 'document' && childKind === undefined ? undefined : childPosition, childKind)
     }
   }
   visit(document, getId(document) ?? '', 'document', 'document')
@@ -277,7 +297,7 @@ export const loadDocument = async (
   }
 
   // Link references to coerced targets. Targets that coercion dropped fall back to source values,
-  // which are cast in schema positions.
+  // which are cast according to the object kind expected at the reference.
   attachRefValues(coerced, schemas, { fallback: { source: document, booleanSchemas } })
 
   return coerced

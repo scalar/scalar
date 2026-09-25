@@ -426,9 +426,12 @@ paths:
     const document = await loadDocument(input)
     const [pet, anything] = findReferences(document).map(getReferenceTarget)
 
-    expect(isObject(pet) && pet.required).not.toBe(true)
-    expect(isObject(pet) && pet.enum).not.toBe('cat')
-    expect(getValueAtPath(pet, ['properties', 'name'])).toStrictEqual({ type: 'string' })
+    expect(pet).toStrictEqual({
+      type: 'object',
+      required: [],
+      enum: [],
+      properties: { name: { type: 'string' } },
+    })
     // OpenAPI 3.1 boolean schemas survive the cast, as they do everywhere else in the document.
     expect(anything).toBe(true)
     await expect(createMarkdownFromOpenApi(input)).resolves.toContain('name')
@@ -441,7 +444,7 @@ paths:
       paths: {
         '/items': {
           get: {
-            parameters: [{ $ref: '#/legacy/Id' }],
+            parameters: [{ $ref: '#/legacy/Id' }, { $ref: '#/legacy/IdAlias' }],
             requestBody: { $ref: '#/legacy/Body' },
             responses: { '200': { $ref: '#/legacy/Ok' } },
             callbacks: { onEvent: { '{$request.body#/url}': { $ref: '#/legacy/Hook' } } },
@@ -451,6 +454,7 @@ paths:
       // Coercion drops unknown root keys, so every target below is a fallback target.
       legacy: {
         Id: { name: 'id', in: 'query', required: 'yes', schema: true },
+        IdAlias: { $ref: '#/legacy/Id', summary: 5, description: 'An identifier' },
         Body: {
           required: 'no',
           content: { 'application/json': { examples: { item: { $ref: '#/legacy/Item' } } } },
@@ -477,6 +481,9 @@ paths:
       required: false,
       schema: true,
     })
+    const alias = target(operation, ['parameters', '1'])
+    expect(alias).toStrictEqual({ $ref: '#/legacy/Id', description: 'An identifier' })
+    expect(getReferenceTarget(isObject(alias) ? alias : undefined)).toBe(target(operation, ['parameters', '0']))
     expect(isObject(body) && body.required).toBe(false)
     expect(isObject(response) && response.description).toBe('')
     // References inside cast targets are linked and cast in their own positions.
@@ -520,7 +527,8 @@ paths:
     const owner = getValueAtPath(pet, ['properties', 'owner'])
 
     // `#owner` names an anchor in resource B, not in resource A, where the reference came from.
-    expect(getReferenceTarget(isObject(owner) ? owner : undefined)).toMatchObject({
+    expect(getReferenceTarget(isObject(owner) ? owner : undefined)).toStrictEqual({
+      type: 'object',
       $anchor: 'owner',
       properties: { name: { type: 'string' } },
     })
@@ -542,6 +550,111 @@ paths:
     const next = getValueAtPath(node, ['properties', 'next'])
 
     expect(getReferenceTarget(isObject(next) ? next : undefined)).toBe(node)
+  })
+
+  it.each(['definitions', 'x-models'])('casts schema targets stored in %s', async (key) => {
+    const input = {
+      openapi: '3.1.1',
+      info: { title: 'Custom targets', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          First: { $ref: `#/${key}/Pet` },
+          Second: { $ref: `#/${key}/Pet` },
+        },
+      },
+      [key]: { Pet: { type: 'object', required: true, properties: { name: { type: 'string' } } } },
+    }
+    const document = await loadDocument(input)
+    const first = getReferenceTarget(document.components?.schemas?.First)
+    const second = getReferenceTarget(document.components?.schemas?.Second)
+
+    expect(first).toStrictEqual({ type: 'object', required: [], properties: { name: { type: 'string' } } })
+    expect(second).toBe(first)
+    await expect(createMarkdownFromOpenApi(input)).resolves.toContain('name')
+  })
+
+  it('casts schema siblings of fallback references while preserving their links', async () => {
+    const input = {
+      openapi: '3.1.1',
+      info: { title: 'Reference siblings', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Root: { $ref: '#/definitions/Pet' },
+          Base: { type: 'object', properties: { id: { type: 'integer' } } },
+        },
+      },
+      definitions: {
+        Pet: {
+          $ref: '#/components/schemas/Base',
+          type: 'object',
+          required: true,
+          properties: { name: { type: 'string' }, child: { $ref: '#/definitions/Pet' } },
+        },
+      },
+    }
+    const document = await loadDocument(input)
+    const pet = getReferenceTarget(document.components?.schemas?.Root)
+    expect(pet).toStrictEqual({
+      $ref: '#/components/schemas/Base',
+      type: 'object',
+      required: [],
+      properties: { name: { type: 'string' }, child: { $ref: '#/definitions/Pet' } },
+    })
+    expect(getReferenceTarget(isObject(pet) ? pet : undefined)).toBe(document.components?.schemas?.Base)
+    expect(getReferenceTarget(getValueAtPath(pet, ['properties', 'child']))).toBe(pet)
+    await expect(createMarkdownFromOpenApi(input)).resolves.toContain('name')
+  })
+
+  it('preserves operation siblings on fallback path item references', async () => {
+    const document = await loadDocument({
+      openapi: '3.2.0',
+      info: { title: 'Path items', version: '1' },
+      paths: { '/items': { $ref: '#/legacy/Path' } },
+      legacy: {
+        Path: {
+          $ref: '#/components/pathItems/Base',
+          connect: { responses: { '200': { $ref: '#/legacy/Response' } } },
+        },
+        Response: { description: 5 },
+      },
+      components: { pathItems: { Base: { get: { responses: { '204': { description: 'Done' } } } } } },
+    })
+    const path = getReferenceTarget(getValueAtPath(document, ['paths', '/items']))
+    expect(path).toStrictEqual({
+      $ref: '#/components/pathItems/Base',
+      connect: { responses: { '200': { $ref: '#/legacy/Response' } } },
+    })
+    expect(getReferenceTarget(isObject(path) ? path : undefined)).toBe(document.components?.pathItems?.Base)
+    expect(getReferenceTarget(getValueAtPath(path, ['connect', 'responses', '200']))).toStrictEqual({ description: '' })
+  })
+
+  it('casts fallback references inside contentSchema and restores boolean schemas', async () => {
+    const document = await loadDocument({
+      openapi: '3.1.1',
+      info: { title: 'Encoded content', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Encoded: {
+            type: 'string',
+            contentMediaType: 'application/json',
+            contentSchema: { $ref: '#/definitions/Pet' },
+          },
+          Anything: { type: 'string', contentSchema: true },
+        },
+      },
+      definitions: { Pet: { type: 'object', required: true, properties: { name: { type: 'string' } } } },
+    })
+    expect(
+      getReferenceTarget(getValueAtPath(document, ['components', 'schemas', 'Encoded', 'contentSchema'])),
+    ).toStrictEqual({
+      type: 'object',
+      required: [],
+      properties: { name: { type: 'string' } },
+    })
+    expect(getValueAtPath(document, ['components', 'schemas', 'Anything', 'contentSchema'])).toBe(true)
   })
 
   it('loads densely linked descriptions without copying the reference graph', async () => {

@@ -35,7 +35,7 @@ export type KindPosition = ObjectKind | { values: ObjectKind }
 
 type TargetSchema = Parameters<typeof coerceValue>[0]
 
-const methods = ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace', 'query']
+const methods = ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace', 'connect', 'query']
 
 /**
  * Mirrors the OpenAPI 3.2 structure of the strict workspace schemas, so a reference knows which

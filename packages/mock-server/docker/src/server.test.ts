@@ -1,6 +1,6 @@
 import type { AsyncApiMockServer } from '@scalar/mock-server'
 import type { Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { startMockServer } from './server'
 
@@ -32,6 +32,17 @@ describe('startMockServer', () => {
   let mockCreateAsyncApiMockServer: ReturnType<typeof vi.fn>
   let mockIsAsyncApiDocument: ReturnType<typeof vi.fn>
   let mockScalar: ReturnType<typeof vi.fn>
+  let websocket: AsyncApiMockServer['websocket']
+
+  beforeAll(async () => {
+    // Loading the real handler can take longer on busy runners, so keep it outside the test timeout.
+    const { createAsyncApiMockServer } =
+      await vi.importActual<typeof import('@scalar/mock-server')>('@scalar/mock-server')
+    const server = await createAsyncApiMockServer({
+      document: '{"asyncapi":"3.1.0","info":{"title":"Test","version":"1.0.0"}}',
+    })
+    websocket = server.websocket
+  }, 60_000)
 
   beforeEach(async () => {
     vi.clearAllMocks()
@@ -266,9 +277,6 @@ describe('startMockServer', () => {
 
   it('passes WebSocket support to the server for AsyncAPI documents', async () => {
     const document = '{"asyncapi":"3.1.0","info":{"title":"Test","version":"1.0.0"}}'
-    // The server only passes the handler through, so a stub avoids loading the real package,
-    // which can exceed the test timeout on a busy runner.
-    const websocket = { server: {} } as AsyncApiMockServer['websocket']
 
     mockIsAsyncApiDocument.mockReturnValue(true)
     mockCreateAsyncApiMockServer.mockResolvedValue({

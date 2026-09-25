@@ -11,6 +11,7 @@ const schemaFields = new Set([
   'additionalProperties',
   'additionalItems',
   'contains',
+  'contentSchema',
   'propertyNames',
   'if',
   'then',
