@@ -1555,6 +1555,44 @@ Callback that triggers as soon as the references are lazy loaded.
 }
 ```
 
+### onDescriptionUpdate
+
+**Type:** `({ key: string; value: string }) => Promise<void> | void`
+
+Turns on in-page editing of descriptions. When this callback is set, every object in the document that carries an `x-scalar-edit-key` extension gets an edit control next to its description: the info block, tags, operations, parameters, request bodies, responses, and schemas (including their properties). Objects without the extension render exactly as before.
+
+Saving calls the callback with the object's `x-scalar-edit-key` and the new description, then updates the rendered document in place. The key is passed through untouched: the reference has no opinion about how descriptions are addressed, so the host chooses a scheme (a JSON pointer, a flat key, a database id) and stamps it onto the document it serves. Throwing or rejecting keeps the editor open with the draft and shows the error message.
+
+Nothing is persisted by the reference: the in-memory update keeps the current page consistent, and the text is only durable if your application stores it and merges it back in the next time the document is served. See [Editing Descriptions](./editing-descriptions.md) for the round trip, and [`x-scalar-edit-key`](./openapi.md#x-scalar-edit-key) for the extension.
+
+A `$ref` is looked through, so an edit made where a shared schema or parameter is used lands on the component it points at.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```yaml
+paths:
+  /planets:
+    get:
+      x-scalar-edit-key: paths/~1planets/get
+      description: List all the planets
+```
+
+```javascript
+{
+  onDescriptionUpdate: async ({ key, value }) => {
+    const response = await fetch('/api/docs/descriptions', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ key, value }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Could not save: ${response.status}`)
+    }
+  }
+}
+```
+
 ### onRequestBuilt
 
 **Type:** `({ request: Request; requestBuilder: RequestFactory; envVariables: Record<string, string> }) => void | Promise<void>`

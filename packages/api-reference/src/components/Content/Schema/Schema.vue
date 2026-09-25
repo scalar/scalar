@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -11,6 +10,10 @@ import { computed, inject, provide, useId } from 'vue'
 
 import type { SchemaOptions } from '@/components/Content/Schema/types'
 import ScreenReader from '@/components/ScreenReader.vue'
+import {
+  EditableDescription,
+  resolveEditTarget,
+} from '@/features/editable-description'
 import { useLocalization } from '@/features/localization'
 import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
 
@@ -260,6 +263,28 @@ const schemaDescription = computed(() => {
 })
 
 /**
+ * The object that owns the description on screen, so an edit lands where the
+ * text came from. Usually that is the schema itself; for a merged `allOf` it is
+ * the member that supplied the description, since the merge is a copy that the
+ * host never sees and cannot address.
+ */
+const descriptionTarget = computed((): unknown => {
+  const rawSchema = schema.value
+  const shown = schemaDescription.value
+
+  if (!rawSchema?.allOf || !shown || rawSchema.description === shown) {
+    return schemaProp
+  }
+
+  // The last member wins in the merge, so search from the end.
+  const owner = [...rawSchema.allOf]
+    .reverse()
+    .find((member) => resolveEditTarget(member)?.description === shown)
+
+  return owner ?? schemaProp
+})
+
+/**
  * Infer a selector for mapped discriminators that do not declare `oneOf`.
  * Threaded discriminators skip inference to avoid recursive allOf variants.
  */
@@ -376,7 +401,9 @@ const toggle = (): void => {
     <div
       v-if="schemaDescription"
       class="schema-card-description [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:mb-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:border-b-0! [.schema-card--level-0:nth-of-type(1)>&]:has-[+.schema-properties]:pb-0!">
-      <ScalarMarkdown :value="schemaDescription" />
+      <EditableDescription
+        :target="descriptionTarget"
+        :value="schemaDescription" />
     </div>
     <div
       v-if="isEmptySchemaObject(resolvedSchema)"

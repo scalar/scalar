@@ -378,6 +378,13 @@ export type ApiReferenceTranslations = {
     copyExample: string
     streamItem: string
   }
+  editing: {
+    edit: string
+    save: string
+    cancel: string
+    empty: string
+    failed: string
+  }
   search: {
     label: string
     inputLabel: string
@@ -728,6 +735,16 @@ type ExtendedConfiguration = {
   onDocumentSelect?: () => void | Promise<void>
   /** Callback fired when the reference is fully loaded */
   onLoaded?: (slug: string) => void | Promise<void>
+  /**
+   * Called when a reader saves an edited description.
+   *
+   * Providing this turns on in-page editing: every object that carries an `x-scalar-edit-key`
+   * extension gets an edit control next to its description. The reference does not know where
+   * the object lives in the document; `key` is the extension's value, passed through untouched,
+   * so the host decides how to address and store the change. Throwing (or rejecting) keeps the
+   * editor open with the draft intact.
+   */
+  onDescriptionUpdate?: (event: { key: string; value: string }) => void | Promise<void>
   /** Fired before the outbound request is built; callback receives a mutable request builder. Experimental API. */
   onBeforeRequest?:
     | ((input: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => void | Promise<void>)

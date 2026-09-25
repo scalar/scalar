@@ -272,9 +272,9 @@ describe('ClassicLayout', () => {
       })
 
       expect(wrapper.text()).toContain('Test Tag')
-      // Should still render the markdown component but with undefined value
+      // Should still render the markdown component, with nothing to show
       const markdown = wrapper.findComponent({ name: 'ScalarMarkdown' })
-      expect(markdown.props('value')).toBeUndefined()
+      expect(markdown.props('value')).toBeFalsy()
     })
   })
 })

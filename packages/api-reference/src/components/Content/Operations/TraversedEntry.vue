@@ -181,6 +181,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       v-else-if="
         isTag(entry) || (isTagGroup(entry) && options.layout === 'classic')
       "
+      :document
       :eventBus
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"

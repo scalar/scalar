@@ -82,7 +82,8 @@ const { level: headingLevel } = useDocumentOutline('document')
               <InfoDescription
                 :description="info?.description"
                 :eventBus="eventBus"
-                :headingSlugGenerator="headingSlugGenerator" />
+                :headingSlugGenerator="headingSlugGenerator"
+                :target="info" />
             </SectionColumn>
             <SectionColumn v-if="$slots.aside">
               <div class="sticky-cards">

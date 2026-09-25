@@ -9,6 +9,13 @@ export const ar = {
     copyDefault: 'نسخ القيمة الافتراضية',
     copyExample: 'نسخ القيمة النموذجية',
   },
+  editing: {
+    edit: 'تحرير الوصف',
+    save: 'حفظ',
+    cancel: 'إلغاء',
+    empty: 'لا يوجد وصف بعد',
+    failed: 'تعذر حفظ الوصف',
+  },
   search: {
     label: 'بحث',
     inputLabel: 'أدخل استعلام البحث',

@@ -2946,6 +2946,12 @@
                     "filepath": "documentation/plugins.md",
                     "type": "page"
                   },
+                  "editing-descriptions": {
+                    "title": "Editing Descriptions",
+                    "description": "Let readers edit descriptions in the reference and store the text in your own application.",
+                    "filepath": "documentation/editing-descriptions.md",
+                    "type": "page"
+                  },
                   "blocks": {
                     "title": "Blocks",
                     "type": "group",

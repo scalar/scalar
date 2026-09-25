@@ -150,6 +150,10 @@ export const apiReferenceConfigurationSchema = intersection([
     onLoaded: optional(fn<(slug: string) => Promise<void> | void>(), {
       typeComment: 'Callback fired when the reference is fully loaded',
     }),
+    onDescriptionUpdate: optional(fn<(event: { key: string; value: string }) => Promise<void> | void>(), {
+      typeComment:
+        'Called when a reader saves an edited description. Providing this turns on in-page editing for every object carrying an `x-scalar-edit-key` extension; `key` is that value, passed through untouched. Throwing keeps the editor open with the draft intact.',
+    }),
     onBeforeRequest: optional(
       fn<
         (input: {

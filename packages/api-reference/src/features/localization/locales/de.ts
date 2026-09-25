@@ -9,6 +9,13 @@ export const de = {
     copyDefault: 'Standardwert kopieren',
     copyExample: 'Beispielwert kopieren',
   },
+  editing: {
+    edit: 'Beschreibung bearbeiten',
+    save: 'Speichern',
+    cancel: 'Abbrechen',
+    empty: 'Noch keine Beschreibung',
+    failed: 'Beschreibung konnte nicht gespeichert werden',
+  },
   search: {
     label: 'Suchen',
     inputLabel: 'Suchbegriff eingeben',

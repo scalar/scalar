@@ -21,11 +21,56 @@
       import { sources } from './test/utils/sources.ts'
 
       // Dev-only URL switches, so an opt-in flag can be exercised
-      // without editing this file: ?kbd=1
+      // without editing this file: ?kbd=1, ?edit=1
       const params = new URLSearchParams(location.search)
+
+      /**
+       * Stands in for a host that stamps `x-scalar-edit-key` on the document it
+       * serves. A real one mints keys in whatever scheme its own store uses; the
+       * shape here is illustrative, and the reference never reads it.
+       */
+      const stampEditKeys = (node, path = []) => {
+        if (Array.isArray(node)) {
+          node.forEach((item, index) =>
+            stampEditKeys(item, [...path, String(index)]),
+          )
+        } else if (node && typeof node === 'object') {
+          if ('description' in node || 'properties' in node) {
+            node['x-scalar-edit-key'] = path.join('/')
+          }
+          Object.entries(node).forEach(([key, value]) =>
+            stampEditKeys(value, [...path, key]),
+          )
+        }
+
+        return node
+      }
+
+      /** A host that accepts every save except one, so both paths are visible. */
+      const editing = params.has('edit')
+        ? {
+            sources: sources.map((source) =>
+              source.content
+                ? {
+                    ...source,
+                    content: stampEditKeys(structuredClone(source.content)),
+                  }
+                : source,
+            ),
+            onDescriptionUpdate: async ({ key, value }) => {
+              console.log('[edit]', key, value)
+              await new Promise((resolve) => setTimeout(resolve, 300))
+
+              if (value.includes('fail')) {
+                throw new Error('Refused by the host (draft contains "fail")')
+              }
+            },
+          }
+        : {}
 
       Scalar.createApiReference('#app', {
         sources,
+        ...editing,
         ...(params.has('kbd') ? { schemaKeyboardNav: true } : {}),
         persistAuth: true,
         // Avoid CORS issues

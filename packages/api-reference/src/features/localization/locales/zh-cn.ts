@@ -9,6 +9,13 @@ export const zhCn = {
     copyDefault: '复制默认值',
     copyExample: '复制示例值',
   },
+  editing: {
+    edit: '编辑描述',
+    save: '保存',
+    cancel: '取消',
+    empty: '暂无描述',
+    failed: '无法保存描述',
+  },
   search: {
     label: '搜索',
     inputLabel: '输入搜索查询',
