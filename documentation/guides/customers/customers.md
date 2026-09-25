@@ -178,6 +178,26 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
     </p>
     <p class="customer-sticker-description">Secure, identity-based networking</p>
   </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-later" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-4"
+        data-company-sticker
+        data-company-sticker-id-prefix="later-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/later-sticker.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/later-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer">Later</a>
+    </p>
+    <p class="customer-sticker-description">Social media management platform for creators, agencies, and brands</p>
+  </article>
 </section>
 
 ## Scalar SDKs
@@ -204,26 +224,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
       <a class="t-editor__anchor" href="https://github.com/TeamWarp" target="_blank" rel="noopener noreferrer">Warp</a>
     </p>
     <p class="customer-sticker-description">AI-native payroll, benefits, and compliance for fast-growing companies</p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-later" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-4"
-        data-company-sticker
-        data-company-sticker-id-prefix="later-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/later-sticker.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/later-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer">Later</a>
-    </p>
-    <p class="customer-sticker-description">Social media management platform for creators, agencies, and brands</p>
   </article>
   <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-profound" aria-hidden="true">
