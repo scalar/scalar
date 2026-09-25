@@ -142,6 +142,10 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
       variables: pathParameters(c),
       mode: 'read',
     })
+    const error = result.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
+    if (error) {
+      c.header('X-Scalar-XML-Error', error.code)
+    }
     return result.xml === undefined ? c.body(null) : c.body(result.xml)
   }
 

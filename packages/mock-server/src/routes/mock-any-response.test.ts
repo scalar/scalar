@@ -20,12 +20,30 @@ const person = {
 }
 
 describe('mock-any-response', () => {
+  it.each([
+    [{ $ref: '#/components/schemas/Missing' }, {}, 'unresolved-reference'],
+    [
+      { type: 'array', xml: { name: 'items', wrapped: true }, items: { type: 'string', xml: { name: 'item' } } },
+      Array.from({ length: 10_001 }, () => 'value'),
+      'limit-exceeded',
+    ],
+  ])('exposes XML generation errors in response headers: %s', async (schema, dataValue, code) => {
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(c, operation('application/xml', { schema, examples: { supplied: { dataValue } } })),
+    )
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('X-Scalar-XML-Error')).toBe(code)
+    expect(await response.text()).toBe('')
+  })
+
   it.each(['application/xml', 'text/xml', 'application/problem+xml'])(
     'sends schema-aware XML for %s',
     async (mediaType) => {
       const app = new Hono().get('/', (c) => mockAnyResponse(c, operation(mediaType, { schema: person })))
       const response = await app.request('/')
       expect(response.status).toBe(200)
+      expect(response.headers.get('X-Scalar-XML-Error')).toBeNull()
       expect(response.headers.get('Content-Type')).toBe(mediaType)
       expect(await response.text()).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<person id="7"/>')
     },

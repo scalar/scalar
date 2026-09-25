@@ -1825,6 +1825,7 @@ describe('createMockServer', () => {
 
     expect(response.status).toBe(200)
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(response.headers.get('Access-Control-Expose-Headers')).toBe('X-Scalar-XML-Error')
 
     expect(await response.json()).toMatchObject({
       foo: 'bar',

@@ -150,7 +150,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       allowedMethods.add(method)
     }
   }
-  app.use(cors({ origin: '*', allowMethods: [...allowedMethods] }))
+  app.use(cors({ origin: '*', allowMethods: [...allowedMethods], exposeHeaders: ['X-Scalar-XML-Error'] }))
 
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)

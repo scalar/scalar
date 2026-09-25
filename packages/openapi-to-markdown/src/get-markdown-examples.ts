@@ -16,7 +16,14 @@ type MarkdownExample = {
   name?: string
   summary?: string
   description?: string
-} & ({ value: unknown } | { externalValue: string } | { serializedValue: string } | { omitted: true } | { dataValue: unknown } | { error: string })
+} & (
+  | { value: unknown }
+  | { externalValue: string }
+  | { serializedValue: string }
+  | { omitted: true }
+  | { dataValue: unknown }
+  | { error: string }
+)
 
 /** Mirrors the depth at which `getExampleFromSchema` stops following nested schemas. */
 const EXAMPLE_DEPTH = 10
@@ -76,7 +83,6 @@ export const countGeneratedExampleValues = (root: unknown, limit = MAX_GENERATED
   }
   return count(root, 0)
 }
-
 
 /** Preserve supplied values; generate a fallback only when examples are not supplied. */
 export const getMarkdownExamples = (

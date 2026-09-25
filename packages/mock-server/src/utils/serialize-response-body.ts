@@ -2,7 +2,8 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { serializeXmlExample } from '@scalar/workspace-store/request-example'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 type Schema = NonNullable<OpenAPIV3_1.ComponentsObject['schemas']>[string]
 
@@ -84,7 +85,7 @@ export const serializeResponseBody = (
   if (isXmlMediaType(contentType)) {
     return typeof body === 'string'
       ? body
-      : serializeXmlExample(body, (schema ?? {}) as SchemaObject, { mode: 'read' }).xml
+      : serializeXmlExample(body, coerceValue(SchemaObjectSchema, schema ?? {}), { mode: 'read' }).xml
   }
 
   if (typeof body === 'string') {

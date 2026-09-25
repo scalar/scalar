@@ -65,14 +65,17 @@ function getExampleFromResponse(
   const selectedExample = selectResponseExample(acceptedResponse, exampleName)
   if (isXmlMediaType(acceptedContentType)) {
     c.header('Content-Type', acceptedContentType)
-    return (
-      getXmlBodyExample(acceptedResponse.schema as SchemaObject | undefined, selectedExample, {
-        openapiVersion,
-        emptyString: 'string',
-        variables: pathParameters(c),
-        mode: 'read',
-      }).xml ?? null
-    )
+    const result = getXmlBodyExample(acceptedResponse.schema as SchemaObject | undefined, selectedExample, {
+      openapiVersion,
+      emptyString: 'string',
+      variables: pathParameters(c),
+      mode: 'read',
+    })
+    const error = result.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
+    if (error) {
+      c.header('X-Scalar-XML-Error', error.code)
+    }
+    return result.xml ?? null
   }
 
   const provenance = selectedExample?.provenance
