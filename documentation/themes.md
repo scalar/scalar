@@ -237,3 +237,15 @@ See the full list of [available CSS variables](https://github.com/scalar/scalar/
 If you use a different CSS framework that also relies on `@layer`, the same principle applies: declare the full layer order before any imports, with Scalar's layers listed first (lowest priority) and your framework's layers listed last (highest priority).
 
 For frameworks that do not use `@layer`, Scalar's layered styles will naturally have lower priority than unlayered styles, so no additional configuration is needed.
+
+## Fixed and sticky headers
+
+If your site has a fixed or sticky header above Scalar, register it with `data-scalar-scroll-header`. Scalar measures registered headers when scrolling to operations and models so the selected content remains visible. Scalar's own mobile header and sticky breadcrumb bar register automatically.
+
+```html
+<header data-scalar-scroll-header style="position: fixed; top: 0; left: 0; right: 0; height: 60px">
+  Site navigation
+</header>
+```
+
+Register each bar separately when headers are stacked. Only visible fixed or sticky headers that overlap the target horizontally and form a continuous region at the top of its scroll container contribute to the offset. Unregistered elements, such as decorative backgrounds, are ignored. Existing `scroll-margin-top` values are preserved.

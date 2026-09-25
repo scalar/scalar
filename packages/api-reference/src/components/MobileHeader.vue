@@ -41,7 +41,8 @@ const variants = cva({
     name="sidebar" />
   <div
     class="t-doc__header"
-    :class="variants({ open: isSidebarOpen })">
+    :class="variants({ open: isSidebarOpen })"
+    :data-scalar-scroll-header="!isSidebarOpen || undefined">
     <header
       class="flex h-(--scalar-header-height) w-full items-center border-b bg-inherit px-2">
       <ScalarIconButton
