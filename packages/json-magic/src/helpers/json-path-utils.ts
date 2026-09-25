@@ -19,13 +19,13 @@
 export function createPathFromSegments(obj: any, segments: string[]) {
   return segments.reduce((acc, part) => {
     if (!Object.hasOwn(acc, part) || acc[part] === undefined) {
-      // JSON keys may match prototype properties; create an own data property instead of following them.
-      Object.defineProperty(acc, part, {
-        value: isNaN(Number(part)) ? {} : [],
-        enumerable: true,
-        configurable: true,
-        writable: true,
-      })
+      const value = isNaN(Number(part)) ? {} : []
+      if (part === '__proto__') {
+        // Avoid the prototype setter while preserving ordinary proxy set notifications.
+        Object.defineProperty(acc, part, { value, enumerable: true, configurable: true, writable: true })
+      } else {
+        acc[part] = value
+      }
     }
     return acc[part]
   }, obj)

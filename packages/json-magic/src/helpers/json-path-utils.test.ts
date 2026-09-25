@@ -3,6 +3,24 @@ import { describe, expect, it, test } from 'vitest'
 import { createPathFromSegments } from './json-path-utils'
 
 describe('createPathFromSegments', () => {
+  it('notifies proxy set traps when creating ordinary path segments', () => {
+    const writes: string[] = []
+    const target = new Proxy<Record<string, unknown>>(
+      {},
+      {
+        set(object, key, value): boolean {
+          writes.push(String(key))
+          return Reflect.set(object, key, value)
+        },
+      },
+    )
+
+    createPathFromSegments(target, ['components', 'schemas'])
+
+    expect(writes).toStrictEqual(['components'])
+    expect(target).toStrictEqual({ components: { schemas: {} } })
+  })
+
   it.each(['debugPolluted', '123'])('creates own prototype-named paths ending in %s', (key) => {
     const target = {}
     const before = Object.getOwnPropertyNames(Object.prototype)
