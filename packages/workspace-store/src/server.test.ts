@@ -1244,6 +1244,9 @@ describe('create-server-store', () => {
         baseUrl: 'https://example.com',
         documents: [
           { name: '__proto__', document: exampleDocument() },
+          { name: '__proto__', document: exampleAsyncApiDocument() },
+          { name: 'constructor', document: exampleAsyncApiDocument() },
+          { name: 'prototype', document: exampleAsyncApiDocument() },
           { name: 'events', document: exampleAsyncApiDocument() },
         ],
       })

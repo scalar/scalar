@@ -3,6 +3,35 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { mergeObjects } from '@/helpers/merge-object'
 
 describe('mergeObjects', () => {
+  it('merges prototype-named JSON properties as own data', () => {
+    const source = JSON.parse('{"__proto__":{"debugPolluted":true},"constructor":{"prototype":{"debugPolluted":true}}}')
+    const target = {}
+    const before = Object.getOwnPropertyNames(Object.prototype)
+    try {
+      expect(mergeObjects(target, source)).toStrictEqual(source)
+      expect(Object.getPrototypeOf(target)).toBe(Object.prototype)
+      expect(Object.getOwnPropertyNames(Object.prototype)).toStrictEqual(before)
+      mergeObjects(target, JSON.parse('{"__proto__":{"other":true}}'))
+      expect(Object.getOwnPropertyDescriptor(target, '__proto__')?.value).toStrictEqual({
+        debugPolluted: true,
+        other: true,
+      })
+    } finally {
+      Reflect.deleteProperty(Object.prototype, 'debugPolluted')
+      Reflect.deleteProperty(Object.prototype, 'other')
+    }
+  })
+
+  it('does not copy inherited source keys or merge into inherited target objects', () => {
+    const inherited = { nested: { original: true } }
+    const target = Object.create(inherited)
+    const source = Object.assign(Object.create({ ignored: true }), { nested: { added: true } })
+    mergeObjects(target, source)
+    expect(Object.keys(target)).toStrictEqual(['nested'])
+    expect(target.nested).toStrictEqual({ added: true })
+    expect(inherited).toStrictEqual({ nested: { original: true } })
+  })
+
   it('requires narrowing merged values before using them', () => {
     const result = mergeObjects({ value: 'text' }, { value: 42 })
     expectTypeOf(result).toEqualTypeOf<Record<string, unknown>>()

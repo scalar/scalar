@@ -1,8 +1,48 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 
 import { createPathFromSegments } from './json-path-utils'
 
 describe('createPathFromSegments', () => {
+  it('notifies proxy set traps when creating ordinary path segments', () => {
+    const writes: string[] = []
+    const target = new Proxy<Record<string, unknown>>(
+      {},
+      {
+        set(object, key, value): boolean {
+          writes.push(String(key))
+          return Reflect.set(object, key, value)
+        },
+      },
+    )
+
+    createPathFromSegments(target, ['components', 'schemas'])
+
+    expect(writes).toStrictEqual(['components'])
+    expect(target).toStrictEqual({ components: { schemas: {} } })
+  })
+
+  it.each(['debugPolluted', '123'])('creates own prototype-named paths ending in %s', (key) => {
+    const target = {}
+    const before = Object.getOwnPropertyNames(Object.prototype)
+    try {
+      const leaf = createPathFromSegments(target, ['__proto__', key])
+      expect(Object.getPrototypeOf(target)).toBe(Object.prototype)
+      expect(Object.hasOwn(target, '__proto__')).toBe(true)
+      expect(Object.getOwnPropertyNames(Object.prototype)).toStrictEqual(before)
+      expect(leaf).toStrictEqual(key === '123' ? [] : {})
+    } finally {
+      Reflect.deleteProperty(Object.prototype, key)
+    }
+  })
+
+  it('creates an own constructor path instead of traversing Object', () => {
+    const target = {}
+    const leaf = createPathFromSegments(target, ['constructor', 'prototype', 'debugPolluted'])
+    expect(JSON.stringify(target)).toBe('{"constructor":{"prototype":{"debugPolluted":{}}}}')
+    expect(leaf).toStrictEqual({})
+    expect(Object.hasOwn(Object.prototype, 'debugPolluted')).toBe(false)
+  })
+
   test('creates nested objects for non-numeric segments', () => {
     const obj: any = {}
     const leaf = createPathFromSegments(obj, ['components', 'schemas', 'User'])
