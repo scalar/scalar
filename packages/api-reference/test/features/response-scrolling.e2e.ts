@@ -11,7 +11,7 @@ const getAncestorScrollPositions = (element: Element): number[] => {
 
 test.describe('response scrolling', () => {
   for (const width of [1200, 1199, 800, 390]) {
-    test(`scrolls long responses inside the body at ${width}px`, async ({ page }, testInfo) => {
+    test(`scrolls long responses inside the body at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
       await page.route('https://users.example.com/users', async (route) => {
         await route.fulfill({
@@ -36,7 +36,6 @@ test.describe('response scrolling', () => {
       const scroller = body.locator(':scope > [tabindex="0"]')
       await expect(body).toContainText('User 0')
       await scroller.scrollIntoViewIfNeeded()
-      await page.screenshot({ path: testInfo.outputPath('response-body.png'), animations: 'disabled' })
       await expect.poll(() => scroller.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true)
 
       await scroller.hover({ position: { x: 60, y: 60 } })
