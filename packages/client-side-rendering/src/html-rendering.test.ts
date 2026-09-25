@@ -532,6 +532,15 @@ describe('html-rendering', () => {
   })
 
   describe('serializeConfigToJs', () => {
+    it('preserves undefined entries in arrays containing callbacks', () => {
+      const result = serializeConfigToJs({ hooks: [() => 1, undefined, Symbol('hook')] })
+      const { hooks } = runInNewContext(`(${result})`)
+      expect(hooks[0]()).toBe(1)
+      expect(hooks[1]).toBeUndefined()
+      expect(hooks[2]).toBeUndefined()
+      expect(hooks.length).toBe(3)
+    })
+
     it('serializes a plain configuration to a JSON-like object literal', () => {
       const result = serializeConfigToJs({ url: 'https://example.com/openapi.json', theme: 'purple' })
       expect(result).toContain('"url": "https://example.com/openapi.json"')

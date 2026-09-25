@@ -170,7 +170,7 @@ const escapeJsonForScript = (json: string): string => json.replace(/</g, '\\u003
  * Helper function to serialize arrays that may contain functions
  */
 const serializeArrayWithFunctions = (arr: unknown[]): string => {
-  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : escapeJsonForScript(JSON.stringify(item) ?? 'null'))).join(', ')}]`
+  return `[${arr.map((item) => (typeof item === 'function' ? item.toString() : escapeJsonForScript(JSON.stringify(item) ?? 'undefined'))).join(', ')}]`
 }
 
 /**
