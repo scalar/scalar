@@ -1,0 +1,152 @@
+import Preview from './Preview.mdx'
+
+# Prompts
+
+Prompts hand readers a ready-made prompt for their AI coding agent. The prompt is previewed on the page so readers can see exactly what they're copying, and one click copies it. Long prompts are clipped with an expand button.
+
+The prompt itself is a fenced code block inside the component, so it's copied exactly as written: headings, lists, and code stay intact. If your prompt contains its own fenced code blocks, wrap it in a longer fence (four backticks) so the inner fences are kept as text.
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | — | Label shown in the header, next to the copy button. |
+
+## Examples
+
+### Basic Prompt
+
+<Preview>
+<Prompt title="Generate a users client">
+
+```text
+Read the OpenAPI document at /openapi.json and write a TypeScript client for the /users endpoints using fetch. Keep it dependency-free.
+```
+
+</Prompt>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-prompt title="Generate a users client">
+
+```text
+Read the OpenAPI document at /openapi.json and write a TypeScript client for the /users endpoints using fetch. Keep it dependency-free.
+```
+
+</scalar-prompt>
+````
+````mdx MDX
+<Prompt title="Generate a users client">
+
+```text
+Read the OpenAPI document at /openapi.json and write a TypeScript client for the /users endpoints using fetch. Keep it dependency-free.
+```
+
+</Prompt>
+````
+</CodeGroup>
+
+### Long Prompt with Code
+
+A prompt taller than the preview is clipped with a fade and an **Expand prompt** button. This one contains a fenced code block, so the prompt is wrapped in four backticks.
+
+<Preview>
+<Prompt title="Add Scalar to Next.js">
+
+````md
+# Add a Scalar API reference to a Next.js app
+
+Set up an interactive API reference for this Next.js project with `@scalar/nextjs-api-reference`.
+
+## Before you start
+
+- Find the OpenAPI document. Look for `openapi.json`, `openapi.yaml` or a route that serves one.
+- If there is none, stop and ask me where it lives. Do not generate one.
+
+## Steps
+
+1. Install the package with the project's package manager.
+2. Create `app/reference/route.ts`:
+
+```ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+export const GET = ApiReference({ url: '/openapi.json' })
+```
+
+3. Start the dev server and open `/reference` to check it renders.
+````
+
+</Prompt>
+</Preview>
+
+<CodeGroup>
+`````md Markdown
+<scalar-prompt title="Add Scalar to Next.js">
+
+````md
+# Add a Scalar API reference to a Next.js app
+
+…
+
+```ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+export const GET = ApiReference({ url: '/openapi.json' })
+```
+````
+
+</scalar-prompt>
+`````
+`````mdx MDX
+<Prompt title="Add Scalar to Next.js">
+
+````md
+# Add a Scalar API reference to a Next.js app
+
+…
+
+```ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+export const GET = ApiReference({ url: '/openapi.json' })
+```
+````
+
+</Prompt>
+`````
+</CodeGroup>
+
+### Without a Title
+
+<Preview>
+<Prompt>
+
+```text
+Summarize what changed in the last release.
+```
+
+</Prompt>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-prompt>
+
+```text
+Summarize what changed in the last release.
+```
+
+</scalar-prompt>
+````
+````mdx MDX
+<Prompt>
+
+```text
+Summarize what changed in the last release.
+```
+
+</Prompt>
+````
+</CodeGroup>
