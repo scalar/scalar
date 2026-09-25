@@ -115,6 +115,19 @@ const currentResponse = computed(() => {
   return getResolvedRef(responses?.[currentStatusCode])
 })
 
+/**
+ * What a status code means, for screen reader users.
+ *
+ * The tabs show bare numbers, so their meaning is only available to someone
+ * who already knows the code. The 3.2 `summary` is preferred because it is
+ * meant to be short; `description` is the fallback older documents carry.
+ */
+const getResponseMeaning = (statusCode: string): string | undefined => {
+  const response = getResolvedRef(responses?.[statusCode])
+
+  return response?.summary || response?.description || undefined
+}
+
 const normalizedResponseContent = computed(() =>
   normalizeMimeTypeObject(currentResponse.value?.content),
 )
@@ -282,6 +295,9 @@ const copyExample = (): void => {
         :aria-controls="id">
         <ScreenReader>{{ translate('response.status') }}:</ScreenReader>
         {{ statusCode }}
+        <ScreenReader v-if="getResponseMeaning(statusCode)">
+          {{ getResponseMeaning(statusCode) }}
+        </ScreenReader>
       </ExampleResponseTab>
 
       <template #actions>

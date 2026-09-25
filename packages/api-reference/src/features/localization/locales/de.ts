@@ -60,6 +60,8 @@ export const de = {
     heading: 'Client-Bibliotheken',
     more: 'Mehr',
     selectAll: 'Aus allen Clients auswählen',
+    searchLabel: 'Clients suchen',
+    changeClient: 'Sprache des Codebeispiels ändern',
   },
   operation: {
     codeSampleUnavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.',
@@ -133,6 +135,7 @@ export const de = {
   download: {
     openapi: 'OpenAPI-Dokument herunterladen',
     asyncapi: 'AsyncAPI-Dokument herunterladen',
+    asFormat: '{label} als {format}',
   },
   models: {
     label: 'Modelle',

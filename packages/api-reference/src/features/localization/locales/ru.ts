@@ -60,6 +60,8 @@ export const ru = {
     heading: 'Клиентские библиотеки',
     more: 'Ещё',
     selectAll: 'Выбрать из всех клиентов',
+    searchLabel: 'Поиск клиентов',
+    changeClient: 'Изменить язык примера кода',
   },
   operation: {
     codeSampleUnavailable: 'Для этого примера нет доступного образца кода.',
@@ -133,6 +135,7 @@ export const ru = {
   download: {
     openapi: 'Скачать OpenAPI-документ',
     asyncapi: 'Скачать AsyncAPI-документ',
+    asFormat: '{label} в формате {format}',
   },
   models: {
     label: 'Модели',

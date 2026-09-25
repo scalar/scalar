@@ -32,4 +32,19 @@ describe('ContentTypeSelect', () => {
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).exists()).toBe(false)
     expect(wrapper.text()).toContain('application/json')
   })
+
+  it('keeps the single content type readout out of the tab order', () => {
+    const wrapper = mount(ContentTypeSelect, {
+      props: {
+        content: {
+          'application/json': {},
+        },
+        modelValue: 'application/json',
+      },
+    })
+
+    // Nothing to choose, so the readout is static text a keyboard user would
+    // otherwise land on with no way to act on it.
+    expect(wrapper.find('[role="group"]').attributes('tabindex')).toBeUndefined()
+  })
 })

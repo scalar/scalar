@@ -573,6 +573,48 @@ describe('SidebarItem', () => {
       expect(wrapper.findComponent(ScalarSidebarSection).text()).toContain('User Operations')
     })
 
+    it('marks the open group as the current page when no child is selected', () => {
+      const item: Item = {
+        id: '1',
+        title: 'User API',
+        type: 'document',
+        name: 'userAPI',
+        children: [{ id: '2', title: 'Get User', type: 'operation', ref: 'ref-2', method: 'get', path: '/users' }],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          isSelected: (id: string) => id === '1',
+          item,
+        },
+      })
+
+      expect(wrapper.find('[aria-current="page"]').exists()).toBe(true)
+    })
+
+    it('leaves the group without aria-current when one of its children is selected', () => {
+      const item: Item = {
+        id: '1',
+        title: 'User API',
+        type: 'document',
+        name: 'userAPI',
+        children: [{ id: '2', title: 'Get User', type: 'operation', ref: 'ref-2', method: 'get', path: '/users' }],
+      }
+
+      const wrapper = mount(SidebarItem, {
+        props: {
+          ...baseProps,
+          // A selected child also reports its ancestors as selected, but only
+          // the deepest one is the page actually on screen.
+          isSelected: (id: string) => id === '1' || id === '2',
+          item,
+        },
+      })
+
+      expect(wrapper.find('[aria-current="page"]').exists()).toBe(false)
+    })
+
     it('renders ScalarSidebarGroup for non-group items with children', () => {
       const item: Item = {
         id: '1',

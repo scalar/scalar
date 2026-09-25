@@ -59,6 +59,8 @@ export const zhCn = {
     heading: '客户端库',
     more: '更多',
     selectAll: '从所有客户端中选择',
+    searchLabel: '搜索客户端',
+    changeClient: '更改代码示例语言',
   },
   operation: {
     codeSampleUnavailable: '此示例暂无可用的代码示例。',
@@ -131,6 +133,7 @@ export const zhCn = {
   download: {
     openapi: '下载 OpenAPI 文档',
     asyncapi: '下载 AsyncAPI 文档',
+    asFormat: '{label}（{format}）',
   },
   models: {
     label: '模型',

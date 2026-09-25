@@ -255,4 +255,24 @@ describe('DownloadLink', () => {
       expect(wrapper.find('a.download-link span').text()).toBe('Download AsyncAPI Document')
     })
   })
+
+  describe('accessible names', () => {
+    it('tells the two format buttons apart', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'both' })
+
+      // The visible text is identical on both, and the format badge only shows
+      // on hover, so the name has to carry the format.
+      expect(wrapper.findAll('.download-button').map((button) => button.attributes('aria-label'))).toEqual([
+        'Download OpenAPI Document as JSON',
+        'Download OpenAPI Document as YAML',
+      ])
+    })
+
+    it('keeps the visible label inside the accessible name', () => {
+      const wrapper = createWrapper({ documentDownloadType: 'json' })
+      const button = wrapper.find('.download-button')
+
+      expect(button.attributes('aria-label')).toContain(button.find('span').text())
+    })
+  })
 })
