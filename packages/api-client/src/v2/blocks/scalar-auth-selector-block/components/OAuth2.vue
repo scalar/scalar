@@ -336,8 +336,8 @@ const handleAuthorize = async (): Promise<void> => {
 }
 
 /** Refreshing requires a token issued by the provider, not just a compatible flow. */
-const canRefreshToken = computed(
-  () =>
+const canRefreshToken = computed<boolean>(
+  (): boolean =>
     type !== 'implicit' && Boolean(flow.value['x-scalar-secret-refresh-token']),
 )
 
