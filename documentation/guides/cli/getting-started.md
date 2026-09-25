@@ -1,4 +1,5 @@
 # Scalar CLI
+
 <div class="flex gap-2">
 <a href="https://www.npmjs.com/@scalar/cli" aria-label="View @scalar/cli on NPM"><img alt="NPM Version" src="https://img.shields.io/npm/v/@scalar/cli"></a>
 <a href="https://www.npmjs.com/@scalar/cli" aria-label="View NPM downloads for @scalar/cli"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@scalar/cli"></a>
@@ -8,13 +9,34 @@
 Reading this guide helps you to get started with our CLI. We have dozens of commands around API Docs rendering (Markdown + MDX), OpenAPI bundling & linting, pushing to our cloud for governance+hosting & much more!
 
 ## Quick Start
+
 ```
 npx @scalar/cli help
 ```
 
 ## Installation
 
-If you really want to become friends you should install the CLI:
+### Install script (no Node.js required)
+
+Install the latest stable CLI without Node.js or npm.
+
+**macOS and Linux (Bash):**
+
+```bash
+curl -fsSL https://cdn.scalar.com/cli/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://cdn.scalar.com/cli/install.ps1 | iex
+```
+
+Follow any printed `PATH` instructions, then run `scalar --help`. To update, run the same install command again; on Windows, close running Scalar processes first.
+
+### Install with npm
+
+If you already have Node.js and npm installed, you can install the CLI globally:
 
 ```bash
 npm -g install @scalar/cli
