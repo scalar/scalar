@@ -186,6 +186,26 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
 
 <section class="customer-sticker-grid" aria-label="Scalar SDK customers">
   <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-warp" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-6"
+        data-company-sticker
+        data-company-sticker-id-prefix="warp-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/warp-sticker.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/warp-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://github.com/TeamWarp" target="_blank" rel="noopener noreferrer">Warp</a>
+    </p>
+    <p class="customer-sticker-description">AI-native payroll, benefits, and compliance for fast-growing companies</p>
+  </article>
+  <article class="customer-sticker-item">
     <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-later" aria-hidden="true">
       <div
         class="company-team-sticker sticker-4"
@@ -206,24 +226,44 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     <p class="customer-sticker-description">Social media management platform for creators, agencies, and brands</p>
   </article>
   <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-warp" aria-hidden="true">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-profound" aria-hidden="true">
       <div
-        class="company-team-sticker sticker-6"
+        class="company-team-sticker sticker-10"
         data-company-sticker
-        data-company-sticker-id-prefix="warp-customer-sticker">
+        data-company-sticker-id-prefix="profound-customer-sticker">
         <img
           class="company-team-sticker-static"
-          src="/warp-sticker.svg"
+          src="/profound-sticker.svg"
           alt=""
           decoding="async"
           loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/warp-sticker.svg"></span>
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/profound-sticker.svg"></span>
       </div>
     </div>
     <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://docs.warp.dev/api/" target="_blank" rel="noopener noreferrer">Warp</a>
+      <a class="t-editor__anchor" href="https://github.com/cooper-square-technologies" target="_blank" rel="noopener noreferrer">Profound</a>
     </p>
-    <p class="customer-sticker-description">Agentic development environment and terminal</p>
+    <p class="customer-sticker-description">Analytics for how brands show up in AI search answers</p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-dedalus" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-11"
+        data-company-sticker
+        data-company-sticker-id-prefix="dedalus-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/dedalus-sticker.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/dedalus-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://github.com/dedalus-labs" target="_blank" rel="noopener noreferrer">Dedalus Labs</a>
+    </p>
+    <p class="customer-sticker-description">Fast, isolated compute infrastructure for AI agents</p>
   </article>
 </section>
 
@@ -446,7 +486,13 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     --company-team-member-background: #6864d1;
   }
   .customer-sticker-stage-warp {
-    --company-team-member-background: #0b0b0b;
+    --company-team-member-background: #000000;
+  }
+  .customer-sticker-stage-profound {
+    --company-team-member-background: #08090a;
+  }
+  .customer-sticker-stage-dedalus {
+    --company-team-member-background: #3b2e7e;
   }
   .customer-sticker-stage-zoom {
     --company-team-member-background: #0b5cff;
