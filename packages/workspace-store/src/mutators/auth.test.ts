@@ -14,6 +14,7 @@ import {
   updateSelectedSecuritySchemes,
   upsertScope,
 } from '@/mutators/auth'
+import { extractSecuritySchemeSecrets } from '@/request-example/context/security/extract-security-scheme-secrets'
 import type { WorkspaceDocument } from '@/schemas'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
@@ -2098,4 +2099,76 @@ describe('AsyncAPI document auth', () => {
     deleteScope(store, document, { name: 'oauth', flowType: 'clientCredentials', scope: 'read' })
     expect(flow.availableScopes).toStrictEqual({ write: 'Write' })
   })
+})
+
+describe('updateSecuritySchemeSecrets', () => {
+  it.each(['top-level', 'per-flow'] as const)(
+    'preserves the %s configured redirect through credentials and token updates',
+    async (source) => {
+      const redirectUri = 'https://app.example.com/callback'
+      const store = createWorkspaceStore()
+      await store.addDocument({ name: 'oauth', document: createDocument() })
+      const mutators = authMutatorsFactory({ store, document: store.workspace.activeDocument ?? null })
+      const scheme = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://issuer.example.com/authorize',
+            tokenUrl: 'https://issuer.example.com/token',
+            refreshUrl: '',
+            'x-usePkce': 'no',
+            scopes: {},
+            ...(source === 'per-flow' ? { 'x-scalar-redirect-uri': redirectUri } : {}),
+          },
+        },
+      } satisfies OAuth2Object
+      const readRedirect = (): string | undefined => {
+        const effective = extractSecuritySchemeSecrets(
+          scheme,
+          store.auth,
+          'OAuth',
+          'oauth',
+          source === 'top-level' ? redirectUri : undefined,
+        )
+        return effective.type === 'oauth2'
+          ? effective.flows.authorizationCode?.['x-scalar-secret-redirect-uri']
+          : undefined
+      }
+      expect(readRedirect()).toBe(redirectUri)
+      mutators.updateSecuritySchemeSecrets({
+        name: 'OAuth',
+        payload: { type: 'oauth2', authorizationCode: { 'x-scalar-credentials-location': 'body' } },
+      })
+      expect(readRedirect()).toBe(redirectUri)
+      mutators.updateSecuritySchemeSecrets({
+        name: 'OAuth',
+        payload: {
+          type: 'oauth2',
+          authorizationCode: {
+            'x-scalar-secret-token': 'access-token',
+            'x-scalar-secret-refresh-token': 'refresh-token',
+          },
+        },
+      })
+      expect(readRedirect()).toBe(redirectUri)
+      mutators.updateSecuritySchemeSecrets({
+        name: 'OAuth',
+        payload: {
+          type: 'oauth2',
+          authorizationCode: { 'x-scalar-secret-token': '', 'x-scalar-secret-refresh-token': '' },
+        },
+      })
+      expect(readRedirect()).toBe(redirectUri)
+      // An intentional clear still overrides the configured redirect after other edits.
+      mutators.updateSecuritySchemeSecrets({
+        name: 'OAuth',
+        payload: { type: 'oauth2', authorizationCode: { 'x-scalar-secret-redirect-uri': '' } },
+      })
+      mutators.updateSecuritySchemeSecrets({
+        name: 'OAuth',
+        payload: { type: 'oauth2', authorizationCode: { 'x-scalar-credentials-location': 'header' } },
+      })
+      expect(readRedirect()).toBe('')
+    },
+  )
 })
