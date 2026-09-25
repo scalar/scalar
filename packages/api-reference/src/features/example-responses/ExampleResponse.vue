@@ -2,7 +2,9 @@
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { XmlDiagnostic } from '@scalar/workspace-store/request-example'
 import type {
   ExampleObject,
   MediaTypeObject,
@@ -18,11 +20,17 @@ const {
   response,
   content,
   contentType = 'application/json',
+  openapiVersion,
+  generationError,
+  pending = false,
 } = defineProps<{
   response: MediaTypeObject | undefined
   example: ExampleObject | undefined
   /** Reuse the card's formatted value so generation and copying cannot diverge. */
   content?: string
+  openapiVersion?: string
+  generationError?: XmlDiagnostic
+  pending?: boolean
   contentType?: string
 }>()
 const { translate } = useLocalization()
@@ -30,9 +38,31 @@ const { translate } = useLocalization()
 const resolvedExample = computed(() => getResolvedRef(example))
 
 /** Preformatted content is shared with the response card clipboard action. */
-const prettyPrintedContent = computed(
-  () => content ?? getExampleContent(response, example, { contentType }),
-)
+const generatedExample = computed(() => {
+  let error = generationError
+  const value =
+    pending || error
+      ? undefined
+      : (content ??
+        getExampleContent(response, example, {
+          contentType,
+          openapiVersion,
+          onDiagnostic: (diagnostic) => {
+            if (diagnostic.severity === 'error' && error === undefined) {
+              error = diagnostic
+            }
+          },
+        }))
+  return { value, error }
+})
+const prettyPrintedContent = computed(() => generatedExample.value.value)
+const errorMessage = computed(() => {
+  const error = generatedExample.value.error
+  if (!error) return undefined
+  return error.code === 'limit-exceeded'
+    ? translate('response.xmlGenerationLimit')
+    : translate('response.xmlGenerationFailed', { message: error.message })
+})
 
 const VIRTUALIZATION_THRESHOLD = 20_000
 
@@ -62,19 +92,19 @@ const shouldVirtualize = computed(() => {
     <ScalarCodeBlock
       v-if="prettyPrintedContent !== undefined && !shouldVirtualize"
       class="bg-b-2"
-      lang="json"
+      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'"
       :prettyPrintedContent="prettyPrintedContent" />
 
     <ScalarVirtualCodeBlock
       v-else-if="prettyPrintedContent !== undefined && shouldVirtualize"
       class="bg-b-2"
       :content="prettyPrintedContent"
-      lang="json" />
+      :lang="isXmlMediaType(contentType) ? 'xml' : 'json'" />
 
     <div
       v-else
       class="empty-state">
-      {{ translate('response.noBody') }}
+      {{ errorMessage ?? translate('response.noBody') }}
     </div>
   </div>
 </template>

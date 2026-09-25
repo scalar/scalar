@@ -139,6 +139,7 @@ export const buildRequestBody = (
   exampleName = 'default',
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   requestBodyCompositionSelection?: Record<string, number>,
+  openapiVersion?: string,
 ): RequestBody | null => {
   if (!requestBody) {
     return null
@@ -151,7 +152,13 @@ export const buildRequestBody = (
   }
 
   /** An example value */
-  const example = getExampleFromBody(requestBody, bodyContentType, exampleName, requestBodyCompositionSelection)
+  const example = getExampleFromBody(
+    requestBody,
+    bodyContentType,
+    exampleName,
+    requestBodyCompositionSelection,
+    openapiVersion,
+  )
   if (!example) {
     return null
   }

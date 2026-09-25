@@ -33,6 +33,8 @@ type GenerateCodeSnippetProps = {
   /** Whether to include default headers (e.g., Accept, Content-Type) automatically. */
   includeDefaultHeaders?: boolean
   /** Selected oneOf/anyOf variants for nested request body example generation. */
+  /** Originating OpenAPI version, used for XML mapping rules. */
+  openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
   /** Whether to disable parameters by default. */
   defaultDisabledParameters?: boolean
@@ -51,6 +53,7 @@ export const generateCodeSnippet = ({
   server,
   securitySchemes,
   globalCookies,
+  openapiVersion,
   requestBodyCompositionSelection,
   defaultDisabledParameters,
 }: GenerateCodeSnippetProps): string | null => {
@@ -86,6 +89,7 @@ export const generateCodeSnippet = ({
       example,
       globalCookies,
       includeDefaultHeaders,
+      openapiVersion,
       requestBodyCompositionSelection,
       defaultDisabledParameters,
     })

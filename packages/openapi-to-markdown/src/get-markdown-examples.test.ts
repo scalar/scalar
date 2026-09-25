@@ -62,7 +62,7 @@ describe('get-markdown-examples', () => {
   })
   it.each([null, false, 0, ''])('preserves an OpenAPI 3.2 dataValue of %j', (value) => {
     expect(getMarkdownExamples({ examples: { supplied: { dataValue: value } } }, 'application/json')).toStrictEqual([
-      { name: 'supplied', summary: undefined, description: undefined, value },
+      { name: 'supplied', summary: undefined, description: undefined, dataValue: value },
     ])
   })
 

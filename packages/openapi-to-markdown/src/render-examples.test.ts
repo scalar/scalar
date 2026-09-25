@@ -6,6 +6,43 @@ import { renderExamples } from './render-examples'
 const description = createDescriptionParser()()
 
 describe('render-examples', () => {
+  it('preserves named XML metadata and external links while serializing structured values with schema attributes', async () => {
+    const nodes = await renderExamples(
+      {
+        schema: {
+          type: 'object',
+          xml: { name: 'pet' },
+          properties: { id: { type: 'integer', xml: { attribute: true } } },
+        },
+        examples: {
+          structured: { dataValue: { id: 7 }, summary: 'Structured pet', description: 'Pet description' },
+          wire: { serializedValue: '<pet id="8" />' },
+          remote: { externalValue: 'https://example.com/pet.xml' },
+        },
+      },
+      description,
+      'application/xml',
+    )
+    expect(nodes.filter((node) => node.type === 'code')).toStrictEqual([
+      { type: 'code', lang: 'xml', value: '<?xml version="1.0" encoding="UTF-8"?>\n<pet id="7"/>' },
+      { type: 'code', lang: 'xml', value: '<pet id="8" />' },
+    ])
+    expect(nodes[1]).toStrictEqual({ type: 'paragraph', children: [{ type: 'text', value: 'Structured pet' }] })
+    expect(nodes[2]).toStrictEqual({ type: 'paragraph', children: [{ type: 'text', value: 'Pet description' }] })
+    expect(nodes.at(-1)).toStrictEqual({
+      type: 'paragraph',
+      children: [
+        { type: 'strong', children: [{ type: 'text', value: 'External value:' }] },
+        { type: 'text', value: ' ' },
+        {
+          type: 'link',
+          url: 'https://example.com/pet.xml',
+          children: [{ type: 'text', value: 'https://example.com/pet.xml' }],
+        },
+      ],
+    })
+  })
+
   it.each([null, false, 0, ''])('preserves a supplied %j XML example', async (value) => {
     const nodes = await renderExamples({ example: value }, description, 'application/xml')
     expect(nodes.filter((node) => node.type === 'code')).toStrictEqual([

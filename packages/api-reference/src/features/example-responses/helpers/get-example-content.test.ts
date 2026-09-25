@@ -5,6 +5,24 @@ import { describe, expect, it } from 'vitest'
 import { getExampleContent } from './get-example-content'
 
 describe('get-example-content', () => {
+  it('applies response composition selection to XML serialization', () => {
+    const response = {
+      schema: coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          { type: 'object', xml: { name: 'first' }, properties: { id: { type: 'integer', example: 1 } } },
+          {
+            type: 'object',
+            xml: { name: 'second' },
+            properties: { id: { type: 'integer', example: 2, xml: { attribute: true } } },
+          },
+        ],
+      }),
+    }
+    expect(
+      getExampleContent(response, undefined, { contentType: 'application/xml', compositionSelection: { oneOf: 1 } }),
+    ).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<second id="2"/>')
+  })
+
   it('frames structured streaming data while preserving serialized precedence', () => {
     const options = { contentType: 'application/jsonl' }
     expect(getExampleContent(undefined, { dataValue: [{ id: 1 }, { id: 2 }] }, options)).toBe('{"id":1}\n{"id":2}\n')

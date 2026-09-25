@@ -163,6 +163,44 @@ describe('updateOperationRequestBodyExample', () => {
     expect(getResolvedRef(examples.default)?.value).toBe('{"name":"Ada"}')
   })
 
+  it.each([{ serializedValue: '<message>original</message>' }, { dataValue: 'original' }])(
+    'replaces XML source fields when editing or clearing an example: %j',
+    (original) => {
+      const document = createDocument({
+        paths: {
+          '/messages': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/xml': {
+                    schema: { type: 'string', xml: { name: 'message' } },
+                    examples: {
+                      default: { ...original, externalValue: 'https://example.com/original.xml' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      for (const payload of ['<message>edited</message>', '']) {
+        updateOperationRequestBodyExample(document, {
+          contentType: 'application/xml',
+          meta: { method: 'post', path: '/messages', exampleKey: 'default' },
+          payload,
+        })
+        const operation = getResolvedRef(getPathItemOperation(document.paths?.['/messages'], 'post'))
+        const requestBody = getResolvedRef(operation?.requestBody)
+        assert(requestBody)
+        expect(getExampleFromBody(requestBody, 'application/xml', 'default')?.value).toBe(payload)
+        expect(getResolvedRef(requestBody.content?.['application/xml']?.examples?.default)).toStrictEqual({
+          value: payload,
+        })
+      }
+    },
+  )
+
   it('updates existing example value if already present', () => {
     const document = createDocument({
       paths: {

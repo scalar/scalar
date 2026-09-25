@@ -75,6 +75,8 @@ export const zhCn = {
     callbacks: '回调',
   },
   response: {
+    xmlGenerationLimit: 'XML 示例超出生成限制。请提供序列化的 XML 示例以显示完整内容。',
+    xmlGenerationFailed: '无法生成 XML 示例：{message}',
     exampleResponses: '响应示例',
     noBody: '无内容',
     showSchema: '显示 Schema',

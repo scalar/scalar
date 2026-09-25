@@ -156,4 +156,39 @@ describe('RequestBodyStructured', () => {
       }
     },
   )
+  it('saves a deliberately cleared body key', async () => {
+    const wrapper = mount(RequestBodyStructured, {
+      props: { parsedValue: { existing: 'value' }, contentType: 'application/json', environment: defaultEnvironment },
+    })
+    const input = wrapper.findComponent(RequestTableRow).findAllComponents(CodeInputLite)[0]!
+    input.vm.$emit('update:modelValue', '')
+    await nextTick()
+    input.vm.$emit('blur', '')
+    await nextTick()
+    expect(wrapper.emitted('update:value')?.at(-1)).toStrictEqual(['{}'])
+    wrapper.unmount()
+  })
+
+  it('retains value focus after committing existing and new body keys', async () => {
+    const wrapper = mount(RequestBodyStructured, {
+      attachTo: document.body,
+      props: { parsedValue: { existing: 'value' }, contentType: 'application/json', environment: defaultEnvironment },
+    })
+    try {
+      for (const index of [0, 1]) {
+        const row = wrapper.findAllComponents(RequestTableRow)[index]!
+        const inputs = row.findAllComponents(CodeInputLite)
+        const valueEditor = inputs[1]!.get('[contenteditable="true"]').element as HTMLElement
+        inputs[0]!.vm.$emit('update:modelValue', `renamed${index}`)
+        await nextTick()
+        inputs[0]!.vm.$emit('blur', `renamed${index}`)
+        valueEditor.focus()
+        await nextTick()
+        expect(document.activeElement).toBe(valueEditor)
+        expect(valueEditor.isConnected).toBe(true)
+      }
+    } finally {
+      wrapper.unmount()
+    }
+  })
 })

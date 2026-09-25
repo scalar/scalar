@@ -1098,10 +1098,12 @@ describe('operationToHar', () => {
       expect(result.postData?.mimeType).toBe('application/xml')
       expect(result.postData?.text).toBe(
         `<?xml version="1.0" encoding="UTF-8"?>
-<user>
-  <name></name>
-  <email></email>
-</user>`,
+<root>
+  <user>
+    <name></name>
+    <email></email>
+  </user>
+</root>`,
       )
     })
 
@@ -1211,7 +1213,9 @@ describe('operationToHar', () => {
 
       expect(result.postData?.mimeType).toBe('application/xml')
       expect(result.postData?.text).toBe(`<?xml version="1.0" encoding="UTF-8"?>
-<name></name>`)
+<root>
+  <name></name>
+</root>`)
     })
 
     it('should set Content-Type header when request body is present', () => {

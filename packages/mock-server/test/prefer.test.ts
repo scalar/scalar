@@ -326,7 +326,7 @@ describe('Prefer header', () => {
       expect(await response.text()).toBe('null')
     })
 
-    it('does not feed a null example into json2xml for XML responses', async () => {
+    it('represents a null XML example with xsi:nil', async () => {
       const document = {
         openapi: '3.1.0',
         info: baseInfo,
@@ -349,7 +349,9 @@ describe('Prefer header', () => {
       const response = await server.request('/nothing', { headers: { Accept: 'application/xml' } })
 
       expect(response.status).toBe(200)
-      expect(await response.text()).toBe('null')
+      expect(await response.text()).toBe(
+        '<?xml version="1.0" encoding="UTF-8"?>\n<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>',
+      )
     })
   })
 

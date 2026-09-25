@@ -7,10 +7,50 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
+
+import { provideLocalization } from '@/features/localization'
 
 import ExampleResponse from './ExampleResponse.vue'
 
 describe('ExampleResponse', () => {
+  it('does not generate an example while an external example is pending', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        response: { schema: { type: 'string', example: 'generated fallback' } },
+        example: undefined,
+        pending: true,
+      },
+    })
+    expect(wrapper.text()).toBe('No Body')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('localizes an XML failure received from the shared display and copy generation', () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization({ translations: { response: { xmlGenerationFailed: 'XML error: {message}' } } })
+          return () =>
+            h(ExampleResponse, {
+              response: undefined,
+              example: undefined,
+              contentType: 'application/xml',
+              generationError: {
+                severity: 'error',
+                code: 'unsupported-pattern',
+                message: 'Unsupported pattern',
+                path: [],
+              },
+            })
+        },
+      }),
+    )
+    expect(wrapper.text()).toBe('XML error: Unsupported pattern')
+    wrapper.unmount()
+  })
+
   it.each([
     {
       contentType: 'text/event-stream',
@@ -40,6 +80,22 @@ describe('ExampleResponse', () => {
       },
     })
     expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
+  })
+
+  it('explains XML generation limits instead of displaying an empty response', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        contentType: 'application/xml',
+        response: coerceValue(MediaTypeObjectSchema, { schema: { type: 'object', xml: { name: 'root' } } }),
+        example: {
+          dataValue: Object.fromEntries(Array.from({ length: 10_001 }, (_, index) => [`item${index}`, index])),
+        },
+      },
+    })
+    expect(wrapper.text()).toBe(
+      'The XML example exceeds the generation limit. Supply a serialized XML example to display the complete payload.',
+    )
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
   })
 
   describe('basic rendering', () => {
@@ -1416,5 +1472,30 @@ describe('ExampleResponse', () => {
       expect(codeBlock.exists()).toBe(true)
       expect(codeBlock.props('prettyPrintedContent')).toEqual(prettyPrintJson({ message: 'Inline value' }))
     })
+  })
+  it('renders schema-aware XML with XML highlighting', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        contentType: 'application/problem+xml',
+        example: undefined,
+        response: coerceValue(MediaTypeObjectSchema, {
+          schema: {
+            type: 'object',
+            xml: { name: 'person' },
+            properties: { id: { example: 7, xml: { attribute: true } } },
+          },
+        }),
+      },
+    })
+    const code = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+    expect(code.props('lang')).toBe('xml')
+    expect(code.props('prettyPrintedContent')).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<person id="7"/>')
+  })
+
+  it('preserves serialized XML response examples', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: { contentType: 'text/xml', response: undefined, example: { value: '<person id="8" />\n' } },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('<person id="8" />\n')
   })
 })

@@ -13,6 +13,7 @@ export const renderHeaders = async (
   description: DescriptionParser,
   schemas: SchemaRenderer,
   openapiVersion: string,
+  schemaOpenapiVersion = openapiVersion,
 ): Promise<RootContent[]> => {
   const entries: ListItem[] = []
   for (const [name, reference] of Object.entries(headers ?? {})) {
@@ -34,6 +35,7 @@ export const renderHeaders = async (
           'application/json',
           undefined,
           openapiVersion,
+          schemaOpenapiVersion,
         )) as ListItem['children']),
       )
     }
@@ -41,7 +43,14 @@ export const renderHeaders = async (
       blocks.push(paragraph(strong(text('Content-Type:')), text(` ${mediaType}`)))
       if (content.schema !== undefined) blocks.push(...(schemas.render(content.schema) as ListItem['children']))
       blocks.push(
-        ...((await renderExamples(content, description, mediaType, undefined, openapiVersion)) as ListItem['children']),
+        ...((await renderExamples(
+          content,
+          description,
+          mediaType,
+          undefined,
+          openapiVersion,
+          schemaOpenapiVersion,
+        )) as ListItem['children']),
       )
     }
     entries.push(item(...blocks))
@@ -56,6 +65,7 @@ export const renderEncoding = async (
   description: DescriptionParser,
   schemas: SchemaRenderer,
   openapiVersion: string,
+  schemaOpenapiVersion = openapiVersion,
 ): Promise<RootContent[]> => {
   const multipart = mediaType.startsWith('multipart/')
   if (!multipart && mediaType !== 'application/x-www-form-urlencoded') return []
@@ -74,7 +84,13 @@ export const renderEncoding = async (
     if (fields.length) blocks.push(list(fields))
     if (multipart)
       blocks.push(
-        ...((await renderHeaders(entry.headers, description, schemas, openapiVersion)) as ListItem['children']),
+        ...((await renderHeaders(
+          entry.headers,
+          description,
+          schemas,
+          openapiVersion,
+          schemaOpenapiVersion,
+        )) as ListItem['children']),
       )
     entries.push(item(...blocks))
   }

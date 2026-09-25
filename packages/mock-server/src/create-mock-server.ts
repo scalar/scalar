@@ -150,7 +150,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       allowedMethods.add(method)
     }
   }
-  app.use(cors({ origin: '*', allowMethods: [...allowedMethods] }))
+  app.use(cors({ origin: '*', allowMethods: [...allowedMethods], exposeHeaders: ['X-Scalar-XML-Error'] }))
 
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
@@ -255,9 +255,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        handlers.push(async (c) => await mockHandlerResponse(c, operation, pathItem?.parameters))
+        handlers.push(async (c) => await mockHandlerResponse(c, operation, pathItem?.parameters, schema.openapi))
       } else {
-        handlers.push(async (c) => await mockAnyResponse(c, operation))
+        handlers.push(async (c) => await mockAnyResponse(c, operation, schema.openapi))
       }
 
       // The pinned query parameters are not part of the route, so they are checked here. A request
