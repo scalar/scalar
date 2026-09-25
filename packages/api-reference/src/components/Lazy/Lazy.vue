@@ -9,8 +9,17 @@
  */
 
 import { useIntersectionObserver } from '@vueuse/core'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  inject,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 
+import { HYDRATING_REFERENCE } from '@/helpers/hydrating-reference'
 import {
   getLazyPlaceholderHeight,
   requestLazyRender,
@@ -32,6 +41,8 @@ const PLACEHOLDER_HEIGHT_PX = 760
 const VIEWPORT_OVERSCAN_PX = 1200
 const VIEWPORT_ROOT_MARGIN = `${VIEWPORT_OVERSCAN_PX}px 0px`
 
+/** Keep existing server sections mounted; subsequently created sections remain lazy. */
+const renderedOnServer = inject(HYDRATING_REFERENCE, undefined)?.value ?? false
 const { isReady } = useLazyBus(id)
 const lazyContainerRef = ref<HTMLElement | null>(null)
 
@@ -41,7 +52,9 @@ const placeholderHeight = ref(
 let contentResizeObserver: ResizeObserver | null = null
 
 /** Once ready we always show (no eviction). Otherwise show when expanded (e.g. so child Lazy placeholders mount). */
-const shouldRender = computed(() => isReady.value || expanded)
+const shouldRender = computed(
+  () => renderedOnServer || isReady.value || expanded,
+)
 
 onMounted(() => {
   if (typeof window === 'undefined') {

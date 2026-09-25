@@ -5,7 +5,7 @@ import type {
   ExternalUrls,
 } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
@@ -23,6 +23,12 @@ const { configuration, externalUrls } = defineProps<{
 const overrides = defineModel<Partial<ApiReferenceConfiguration>>('overrides')
 const { translate } = useLocalization()
 
+/** The server cannot detect localhost; resolve automatic visibility after hydration. */
+const mounted = ref(false)
+onMounted(() => {
+  mounted.value = true
+})
+
 const showDeveloperTools = computed<boolean>(() => {
   if (configuration?.showDeveloperTools === 'always') {
     return true
@@ -32,7 +38,7 @@ const showDeveloperTools = computed<boolean>(() => {
     return false
   }
 
-  if (typeof window === 'undefined') {
+  if (!mounted.value) {
     return false
   }
 

@@ -66,3 +66,22 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
+
+### Hydrating server-rendered content
+
+`createApiReference(element, configuration)` prepares the initial document before hydrating an element containing server-rendered content. The existing HTML remains visible and accessible while the document and its external references load. If preparation fails, the existing HTML remains in place and the error is logged.
+
+A plain `<ApiReference :configuration="configuration" />` does not prepare client state automatically. For a custom Vue SSR integration, await `prepareApiReference` before mounting the client app and pass its result through the `prepared` prop:
+
+```ts
+import { ApiReference, prepareApiReference } from '@scalar/api-reference'
+import { createSSRApp, h } from 'vue'
+
+// Use the same configuration and app idPrefix as the server render.
+const configuration = { url: '/openapi.json' }
+const prepared = await prepareApiReference(configuration)
+const app = createSSRApp(() => h(ApiReference, { configuration, prepared }))
+app.mount('#app')
+```
+
+The server can continue rendering `ApiReference` with its `configuration` prop. Preparation loads the server's default document; browser preferences and deep-link navigation are applied after hydration. Each hydration needs its own prepared state. Server-rendered sections stay mounted, while subsequently opened documents use normal lazy rendering.
