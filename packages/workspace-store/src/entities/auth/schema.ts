@@ -25,6 +25,8 @@ import { SecurityRequirementObjectSchema } from '@/schemas/v3.2/strict/openapi-d
 const SecretsApiKeySchema = compose(
   Type.Object({
     type: Type.Literal('apiKey'),
+    /** User-entered parameter name, including an explicit empty value. */
+    name: Type.Optional(Type.String()),
   }),
   XScalarSecretTokenSchema,
 )
