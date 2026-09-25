@@ -81,6 +81,10 @@ const toggleOnClick = () => {
 onClickOutside(triggerRef, close, { ignore: [panelRef] })
 onKeyStroke('Escape', () => {
   if (isOpen.value) {
+    // Descriptions can contain links, so do not discard the keyboard user's focus.
+    if (panelRef.value?.contains(document.activeElement)) {
+      triggerRef.value?.focus()
+    }
     close()
   }
 })
@@ -99,11 +103,10 @@ const verb = computed(() =>
     : translate('authentication.accepts'),
 )
 
-/** Single group, single scheme — shown inline in the header. */
-const isSingleScheme = computed(
-  () =>
-    requiredSecurity.requirements.length === 1 &&
-    requiredSecurity.requirements[0]?.schemes.length === 1,
+const panelLabel = computed(() =>
+  requiredSecurity.state === 'required'
+    ? translate('authentication.detailsRequired')
+    : translate('authentication.detailsOptional'),
 )
 
 /** Single group with multiple schemes — all must be satisfied (AND). */
@@ -125,6 +128,9 @@ const isOrAlternatives = computed(
     placement="bottom-end">
     <button
       ref="triggerRef"
+      :aria-expanded="isOpen"
+      aria-haspopup="dialog"
+      :aria-label="label"
       class="security-requirement-badge inline-flex w-fit shrink-0 items-center justify-center gap-1 text-sm"
       :class="
         requiredSecurity.state === 'optional'
@@ -132,8 +138,6 @@ const isOrAlternatives = computed(
           : 'text-c-1 font-medium'
       "
       type="button"
-      :aria-expanded="isOpen"
-      aria-haspopup="dialog"
       @click.stop="toggleOnClick"
       @mouseenter="openOnHover"
       @mouseleave="scheduleClose">
@@ -151,60 +155,53 @@ const isOrAlternatives = computed(
       <div
         v-if="isOpen"
         ref="panelRef"
+        :aria-label="panelLabel"
         class="relative flex flex-col p-0.75"
+        role="dialog"
         @click.stop
         @mouseenter="cancelClose"
         @mouseleave="scheduleClose">
-        <div class="flex max-w-xs min-w-48 flex-col gap-1.5 p-2 text-sm">
-          <div class="font-medium">
+        <div
+          class="flex max-h-[min(32rem,80dvh)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-auto p-3 text-sm wrap-anywhere">
+          <div class="font-medium">{{ panelLabel }}</div>
+          <div
+            v-if="isOrAlternatives || isAndGroup"
+            class="text-c-2">
             {{ verb }}
-            <template v-if="isSingleScheme">
-              <SecurityRequirementBadgeScheme
-                is="span"
-                class="contents"
-                :scheme="requiredSecurity.requirements[0]!.schemes[0]!" />
-            </template>
-            <template v-else-if="isOrAlternatives">
+            <template v-if="isOrAlternatives">
               {{ translate('authentication.oneOf') }}
             </template>
             <template v-else-if="isAndGroup">
               {{ translate('authentication.allOf') }}
-            </template>
-            <template v-else>
-              {{ translate('authentication.authentication') }}
             </template>
           </div>
 
           <!-- Multiple OR alternatives -->
           <ul
             v-if="isOrAlternatives"
-            class="contents">
+            class="flex flex-col gap-3">
             <li
               v-for="(group, gi) in requiredSecurity.requirements"
               :key="gi"
-              class="markdown">
-              <!-- Single scheme in this OR branch -->
-              <SecurityRequirementBadgeScheme
-                is="span"
-                v-if="group.schemes.length === 1"
-                class="contents"
-                :scheme="group.schemes[0]!" />
-              <!-- Multiple AND schemes in this OR branch -->
-              <template v-else>
-                <ul class="contents">
-                  <SecurityRequirementBadgeScheme
-                    v-for="(scheme, si) in group.schemes"
-                    :key="si"
-                    :scheme />
-                </ul>
-              </template>
+              class="flex flex-col gap-2 border-t pt-3">
+              <div
+                v-if="group.schemes.length > 1"
+                class="text-c-2">
+                {{ verb }} {{ translate('authentication.allOf') }}
+              </div>
+              <ul class="flex flex-col gap-3">
+                <SecurityRequirementBadgeScheme
+                  v-for="(scheme, si) in group.schemes"
+                  :key="si"
+                  :scheme />
+              </ul>
             </li>
           </ul>
 
-          <!-- Single group, multiple AND schemes -->
+          <!-- Single requirement, with one or more schemes. -->
           <ul
-            v-else-if="isAndGroup"
-            class="contents">
+            v-else-if="requiredSecurity.requirements[0]"
+            class="flex flex-col gap-3">
             <SecurityRequirementBadgeScheme
               v-for="(scheme, key) in requiredSecurity.requirements[0]!.schemes"
               :key

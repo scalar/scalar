@@ -235,6 +235,13 @@ export const de = {
     poweredByScalar: 'Bereitgestellt von Scalar',
   },
   authentication: {
+    detailsRequired: 'Authentifizierung erforderlich',
+    detailsOptional: 'Authentifizierung optional',
+    apiKey: 'API-Schlüssel',
+    mutualTLS: 'Gegenseitiges TLS',
+    apiKeyCookie: 'Sende den API-Schlüssel im Cookie „{name}“.',
+    apiKeyHeader: 'Sende den API-Schlüssel im Header „{name}“.',
+    apiKeyQuery: 'Sende den API-Schlüssel im Abfrageparameter „{name}“.',
     title: 'Authentifizierung',
     accepts: 'Akzeptiert',
     allOf: 'alle von:',

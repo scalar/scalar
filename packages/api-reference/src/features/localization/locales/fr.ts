@@ -235,6 +235,13 @@ export const fr = {
     poweredByScalar: 'Propulsé par Scalar',
   },
   authentication: {
+    detailsRequired: 'Authentification requise',
+    detailsOptional: 'Authentification facultative',
+    apiKey: 'Clé API',
+    mutualTLS: 'TLS mutuel',
+    apiKeyCookie: 'Envoyez la clé API dans le cookie « {name} ».',
+    apiKeyHeader: 'Envoyez la clé API dans l’en-tête « {name} ».',
+    apiKeyQuery: 'Envoyez la clé API dans le paramètre de requête « {name} ».',
     title: 'Authentification',
     accepts: 'Accepte',
     allOf: 'tous les éléments :',

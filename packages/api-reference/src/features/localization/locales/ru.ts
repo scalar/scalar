@@ -235,6 +235,13 @@ export const ru = {
     poweredByScalar: 'Работает на Scalar',
   },
   authentication: {
+    detailsRequired: 'Требуется аутентификация',
+    detailsOptional: 'Аутентификация необязательна',
+    apiKey: 'Ключ API',
+    mutualTLS: 'Взаимная аутентификация TLS',
+    apiKeyCookie: 'Передайте ключ API в cookie «{name}».',
+    apiKeyHeader: 'Передайте ключ API в заголовке «{name}».',
+    apiKeyQuery: 'Передайте ключ API в параметре запроса «{name}».',
     title: 'Аутентификация',
     accepts: 'Принимает',
     allOf: 'все из:',

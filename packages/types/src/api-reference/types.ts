@@ -597,6 +597,13 @@ export type ApiReferenceTranslations = {
     poweredByScalar: string
   }
   authentication: {
+    detailsRequired: string
+    detailsOptional: string
+    apiKey: string
+    mutualTLS: string
+    apiKeyCookie: string
+    apiKeyHeader: string
+    apiKeyQuery: string
     title: string
     accepts: string
     allOf: string

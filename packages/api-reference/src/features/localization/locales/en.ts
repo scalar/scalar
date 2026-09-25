@@ -234,6 +234,13 @@ export const en = {
     poweredByScalar: 'Powered by Scalar',
   },
   authentication: {
+    detailsRequired: 'Authentication required',
+    detailsOptional: 'Authentication optional',
+    apiKey: 'API key',
+    mutualTLS: 'Mutual TLS',
+    apiKeyCookie: 'Send the API key in the “{name}” cookie.',
+    apiKeyHeader: 'Send the API key in the “{name}” header.',
+    apiKeyQuery: 'Send the API key in the “{name}” query parameter.',
     title: 'Authentication',
     accepts: 'Accepts',
     allOf: 'all of:',

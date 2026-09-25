@@ -230,6 +230,13 @@ export const zhCn = {
     poweredByScalar: '由 Scalar 提供支持',
   },
   authentication: {
+    detailsRequired: '需要身份验证',
+    detailsOptional: '身份验证可选',
+    apiKey: 'API 密钥',
+    mutualTLS: '双向 TLS',
+    apiKeyCookie: '在 Cookie “{name}” 中发送 API 密钥。',
+    apiKeyHeader: '在请求头 “{name}” 中发送 API 密钥。',
+    apiKeyQuery: '在查询参数 “{name}” 中发送 API 密钥。',
     title: '身份验证',
     accepts: '接受',
     allOf: '全部：',
