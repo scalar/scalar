@@ -73,6 +73,8 @@ export type TableRow = {
   schema?: SchemaObject
   /** Preserve array values even while their JSON text is temporarily invalid. */
   isArray?: boolean
+  /** Text representation used by array enum controls. */
+  arrayEncoding?: 'json' | 'comma-separated'
   /** Whether the parameter is required */
   isRequired?: boolean
   /**
@@ -308,6 +310,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
             name: label ?? '',
           })
         "
+        :arrayEncoding="data.arrayEncoding"
         class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
         :disabled="data.isReadonly"

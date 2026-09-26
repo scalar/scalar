@@ -3,6 +3,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
+import { parse as parseYaml } from 'yaml'
 
 import { CodeInputLite } from '@/v2/components/code-input'
 
@@ -42,6 +43,47 @@ const mountStructured = ({
   })
 
 describe('RequestBodyStructured', () => {
+  it.each(['application/json', 'application/yaml'])('preserves enum arrays in %s bodies', async (contentType) => {
+    const wrapper = mount(RequestBodyStructured, {
+      props: {
+        parsedValue: { tags: ['red', 'green'] },
+        bodySchema: {
+          type: 'object',
+          properties: {
+            tags: { type: 'array', items: { type: 'string', enum: ['red', 'green', 'blue', 'red,blue'] } },
+          },
+        },
+        contentType,
+        environment: defaultEnvironment,
+      },
+    })
+    const select = wrapper.getComponent({ name: 'ScalarComboboxMultiselect' })
+    expect(select.props('modelValue')).toStrictEqual([
+      { id: 'red', label: 'red', value: 'red' },
+      { id: 'green', label: 'green', value: 'green' },
+    ])
+
+    select.vm.$emit('update:modelValue', [
+      { id: 'blue', label: 'blue', value: 'blue' },
+      { id: 'red,blue', label: 'red,blue', value: 'red,blue' },
+    ])
+    await nextTick()
+    const serialized = wrapper.emitted('update:value')?.[0]?.[0] as string
+    const parsed: unknown = contentType === 'application/json' ? JSON.parse(serialized) : parseYaml(serialized)
+    expect(parsed).toStrictEqual({ tags: ['blue', 'red,blue'] })
+    await wrapper.setProps({ parsedValue: parsed })
+    expect(select.props('modelValue')).toStrictEqual([
+      { id: 'blue', label: 'blue', value: 'blue' },
+      { id: 'red,blue', label: 'red,blue', value: 'red,blue' },
+    ])
+
+    select.vm.$emit('update:modelValue', [])
+    await nextTick()
+    const cleared = wrapper.emitted('update:value')?.[1]?.[0] as string
+    expect(contentType === 'application/json' ? JSON.parse(cleared) : parseYaml(cleared)).toStrictEqual({ tags: [] })
+    wrapper.unmount()
+  })
+
   it('builds rows from the parsed value and schema', async () => {
     const wrapper = mountStructured({ parsedValue: { name: 'Ada', age: 36 } })
     await nextTick()
