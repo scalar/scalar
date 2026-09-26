@@ -270,6 +270,20 @@ const inferredDiscriminatorComposition = computed(() =>
 )
 
 /**
+ * Whether the panel holds the schema's property rows. Mirrors the branches in
+ * the panel below: any other root (a composition, a primitive, an array)
+ * renders a single nameless passthrough row that carries the real property
+ * list inside it, and a list of one row is structure the eye never sees.
+ * Announcing it makes assistive tech read "list with 1 item" before the list
+ * the reader actually wanted, so that wrapper is presentational instead.
+ */
+const rendersPropertyRows = computed(
+  (): boolean =>
+    !inferredDiscriminatorComposition.value &&
+    isTypeObject(resolvedSchema.value),
+)
+
+/**
  * Whether an enclosing Schema already established a tree root. `depth === 0`
  * alone is not enough: a nested Schema can mount at depth 0 (an `allOf`
  * member, or a caller that omits `depth`), and a second root would mount a
@@ -423,11 +437,14 @@ const toggle = (): void => {
       </div>
 
       <!-- The theme reset strips list-style, which makes Safari and VoiceOver
-           drop list semantics; an explicit role restores them. -->
+           drop list semantics; an explicit role restores them. When the panel
+           holds a single passthrough row instead of property rows, the wrapper
+           is presentational so only the real list nested inside it is
+           announced. -->
       <ul
         v-if="panelRendered"
         :id="panelId"
-        role="list">
+        :role="rendersPropertyRows ? 'list' : 'presentation'">
         <!-- Variant selector inferred from a discriminator mapping -->
         <SchemaComposition
           v-if="inferredDiscriminatorComposition"

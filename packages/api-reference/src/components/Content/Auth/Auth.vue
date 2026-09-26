@@ -98,6 +98,7 @@ const selectedSecurity = computed(() =>
     :documentType
     :environment
     :eventBus
+    :heading="false"
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"
