@@ -675,7 +675,6 @@ const filterLabels = computed(() => ({
       </div>
       <SectionFilter
         v-model="selectedFilter"
-        :filterIds="filterIds"
         :filters="filters"
         :labels="filterLabels" />
     </template>
