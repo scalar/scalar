@@ -169,9 +169,15 @@ defineExpose({
     <main
       v-if="document.value && path?.value && method?.value"
       class="relative flex h-full min-h-0 w-full flex-1">
+      <!--
+        Sits on the backdrop above the panel, mirroring the close button in the
+        opposite corner. Keeping it outside the panel leaves the header row to
+        the address bar, which has nothing left to collide with.
+      -->
       <SidebarToggle
         v-model="isSidebarOpen"
-        class="absolute top-2 left-4 z-10 max-md:top-4" />
+        class="fixed top-2 left-2 z-10"
+        variant="overlay" />
       <Sidebar
         v-show="isSidebarOpen"
         v-model:sidebarWidth="sidebarWidth"

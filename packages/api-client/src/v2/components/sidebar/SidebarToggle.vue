@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { useLocalization } from '@/v2/features/localization'
 
+const { variant = 'default' } = defineProps<{
+  /**
+   * How the toggle is drawn.
+   *
+   * `default` is a flat button that sits inside a panel. `overlay` is the
+   * circular treatment used when the toggle floats on the dimmed backdrop
+   * outside the modal, where it mirrors the close button on the other side.
+   */
+  variant?: 'default' | 'overlay'
+}>()
+
 const { translate } = useLocalization()
 
 const isSidebarOpen = defineModel<boolean>({
@@ -10,7 +21,12 @@ const isSidebarOpen = defineModel<boolean>({
 <template>
   <button
     :aria-pressed="isSidebarOpen"
-    class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 rounded p-2"
+    class="scalar-sidebar-toggle"
+    :class="
+      variant === 'overlay'
+        ? 'scalar-sidebar-toggle--overlay rounded-full'
+        : 'text-c-3 hover:bg-b-2 active:text-c-1 rounded p-2'
+    "
     type="button"
     @click="isSidebarOpen = !isSidebarOpen">
     <span class="sr-only">{{
@@ -46,3 +62,20 @@ const isSidebarOpen = defineModel<boolean>({
     </svg>
   </button>
 </template>
+
+<style scoped>
+/**
+ * Matches the modal close button on the opposite corner, so the two controls
+ * that sit on the backdrop read as a pair. The padding is set here rather than
+ * with a utility class so the 36px circle matches that button even when this
+ * component is consumed from a build that generates its own utilities.
+ */
+.scalar-sidebar-toggle--overlay {
+  color: white;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+.scalar-sidebar-toggle--overlay:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+</style>
