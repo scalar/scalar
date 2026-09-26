@@ -209,6 +209,76 @@ describe('content-based parameters', () => {
 })
 
 describe('schema-based parameters', () => {
+  it('collects declared property values without inventing missing examples', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      required: ['missing'],
+      properties: {
+        active: { type: 'string', pattern: '^eq\\.(true|false)$', example: 'eq.true' },
+        enabled: { type: 'boolean', examples: [false] },
+        count: { type: 'integer', default: 0 },
+        empty: { type: 'string', enum: [''] },
+        nullable: { type: 'null', example: null },
+        missing: { type: 'string' },
+        nested: { type: 'object', properties: { name: { type: 'string', example: 'Ada' } } },
+      },
+    }
+    expect(getExample({ schema }, undefined, undefined)).toStrictEqual({
+      value: { active: 'eq.true', enabled: false, count: 0, empty: '', nullable: null, nested: { name: 'Ada' } },
+    })
+  })
+
+  it.each([{}, null, false, 0, '', { active: 'edited' }])(
+    'preserves explicit parameter and root schema values: %j',
+    (value) => {
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: { active: { type: 'string', example: 'eq.true' } },
+      }
+      expect(getExample({ schema, example: value }, undefined, undefined)).toStrictEqual({ value })
+      expect(getExample({ schema: { ...schema, example: value } }, undefined, undefined)).toStrictEqual({ value })
+      expect(
+        getExample({ schema, examples: { saved: { value, 'x-disabled': true } } }, 'saved', undefined),
+      ).toStrictEqual({ value, 'x-disabled': true })
+    },
+  )
+
+  it('leaves objects without declared property values unset', () => {
+    expect(
+      getExample(
+        {
+          schema: {
+            type: 'object',
+            properties: { nested: { type: 'object', properties: { id: { type: 'integer' } } } },
+          },
+        },
+        undefined,
+        undefined,
+      ),
+    ).toBeUndefined()
+  })
+
+  it('resolves shared property references and stops recursive references with siblings', () => {
+    const shared: SchemaObject = { type: 'object', properties: { id: { type: 'integer', example: 42 } } }
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: {
+        first: { '$ref': '#/components/schemas/Shared', '$ref-value': shared },
+        second: { '$ref': '#/components/schemas/Shared', '$ref-value': shared },
+        local: {
+          '$ref': '#/components/schemas/Name',
+          '$ref-value': { type: 'string', example: 'target' },
+          example: 'local',
+        },
+        unresolved: { $ref: '#/components/schemas/Missing' },
+      },
+    }
+    schema.properties!.self = { '$ref': '#/components/schemas/Root', '$ref-value': schema, description: 'Recursive' }
+    expect(getExample({ schema }, undefined, undefined)).toStrictEqual({
+      value: { first: { id: 42 }, second: { id: 42 }, local: 'local' },
+    })
+  })
+
   it.each<{ schema: SchemaObject; value: unknown }>([
     { schema: { type: 'number', default: 0, enum: [1, 0, 2, 3], examples: [2], example: 3 }, value: 0 },
     { schema: { type: 'boolean', enum: [false, true], examples: [true], example: true }, value: false },

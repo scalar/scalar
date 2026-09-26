@@ -24,6 +24,29 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it.each(['deepObject', 'form'] as const)('sends property examples for %s object parameters', (style) => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style,
+      explode: true,
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: { active: { type: 'string', pattern: '^eq\\.(true|false)$', example: 'eq.true' } },
+      },
+    }
+    expect([...buildRequestParameters([parameter], 'default').urlParams]).toStrictEqual([
+      [style === 'deepObject' ? 'filter[active]' : 'active', 'eq.true'],
+    ])
+    expect([
+      ...buildRequestParameters(
+        [{ ...parameter, examples: { default: { value: { active: 'eq.false' }, 'x-disabled': true } } }],
+        'default',
+      ).urlParams,
+    ]).toStrictEqual([])
+  })
+
   it('uses structured examples for query, header, path and cookie parameters', () => {
     const result = buildRequestParameters([
       { name: 'term', in: 'query', examples: { default: { dataValue: 'hello-data' } } },
