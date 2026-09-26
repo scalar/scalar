@@ -1177,9 +1177,14 @@ const onBeforeMatch = (): void => {
   background-size: 100%;
 }
 
-.property--deprecated > * {
-  opacity: 0.75;
-}
+/*
+ * A deprecated row keeps its text at full strength rather than fading it. Fading blended
+ * the muted text into the card, leaving it at 3.0:1 where WCAG 1.4.3 asks 4.5:1 of body
+ * text, and the row already says "deprecated" three other ways: the stripes above, the
+ * strikethrough on the property name (see SchemaPropertyHeading) and the Deprecated badge
+ * beside it. The fade was the one signal carrying no information and the only one costing
+ * contrast, so do not reintroduce it.
+ */
 
 .property-description {
   margin-top: 6px;

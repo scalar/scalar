@@ -20,7 +20,7 @@ export const customTheme = `
 .light-mode .dark-mode,
 .light-mode {
   --scalar-color-1: #1b1b1b;
-  --scalar-color-2: #757575;
+  --scalar-color-2: #707070;
   --scalar-color-3: #8e8e8e;
   --scalar-color-accent: #3070ec;
 

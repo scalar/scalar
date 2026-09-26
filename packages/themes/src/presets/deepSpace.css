@@ -5,7 +5,7 @@
 }
 .light-mode {
   --scalar-color-1: rgb(9, 9, 11);
-  --scalar-color-2: rgb(113, 113, 122);
+  --scalar-color-2: rgb(109, 109, 117);
   --scalar-color-3: rgba(25, 25, 28, 0.5);
   --scalar-color-accent: var(--scalar-color-1);
 
@@ -58,7 +58,7 @@
   --scalar-color-green: #069061;
   --scalar-color-red: #ef0006;
   --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #0082d0;
+  --scalar-color-blue: #0072bd;
   --scalar-color-orange: #fb892c;
   --scalar-color-purple: #5203d1;
   --scalar-color-query: #007b80;

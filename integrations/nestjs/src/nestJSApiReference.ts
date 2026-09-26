@@ -13,7 +13,7 @@ export const customThemeCSS = `
 /* basic theme */
 .light-mode {
   --scalar-color-1: #1b1b1b;
-  --scalar-color-2: #757575;
+  --scalar-color-2: #707070;
   --scalar-color-3: #8e8e8e;
   --scalar-color-accent: #e0234d;
   --scalar-background-1: #fff;
@@ -57,7 +57,7 @@ export const customThemeCSS = `
   --scalar-color-green: #069061;
   --scalar-color-red: #ef0006;
   --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #0082d0;
+  --scalar-color-blue: #0072bd;
   --scalar-color-orange: #fb892c;
   --scalar-color-purple: #5203d1;
   --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);

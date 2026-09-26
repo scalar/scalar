@@ -63,7 +63,7 @@ Mode-specific base values (defined on `.light-mode` / `.dark-mode`):
 | `--scalar-background-3` | `#e7e7e7` | `#272727` |
 | `--scalar-background-accent` | `#8ab4f81f` | `#3ea6ff1f` |
 | `--scalar-color-1` | `#1b1b1b` | `#e7e7e7` |
-| `--scalar-color-2` | `#757575` | `#a4a4a4` |
+| `--scalar-color-2` | `#707070` | `#a4a4a4` |
 | `--scalar-color-3` | `#8e8e8e` | `#797979` |
 | `--scalar-color-accent` | `#0099ff` | `#00aeff` |
 | `--scalar-border-color` | `#dfdfdf` | `#2d2d2d` |
@@ -121,7 +121,7 @@ In component code, prefer these classes over raw variables.
 | Deep Space | `deep-space` | `rgb(9,9,11)` / `#fff` / mono | `#fafafa` / `#09090b` / mono |
 | Saturn | `saturn` | `#1b1b1b` / `#f3f3ee` / `#1763a6` | `#fafafa` / `#09090b` / `#4eb3ec` |
 | Kepler-11e | `kepler-11e` | `#1b1b1b` / `#fff` / `#7070ff` | `#f7f8f8` / `#000212` / `#828fff` |
-| Mars | `mars` | `#c75549` / `#f9f6f0` / `#c75549` | `rgba(255,255,255,.9)` / `#140507` / mono |
+| Mars | `mars` | `#b94f44` / `#f9f6f0` / `#b94f44` | `rgba(255,255,255,.9)` / `#140507` / mono |
 | Laserwave | `laserwave` | `#322b3b` / `#fff` / `#40b4c4` | `#fff` / `#27212e` / `#ed78c2` |
 | Elysia.js | `elysiajs` | `#1b1b1b` / `#fff` / `#f06292` | `rgba(255,255,255,.9)` / `#111728` / `#f06292` |
 | Fastify | `fastify` | `#1c1e21` / `#fff` / `#2f8555` | `rgba(255,255,255,.9)` / `#1b1b1d` / `#27c2a0` |
