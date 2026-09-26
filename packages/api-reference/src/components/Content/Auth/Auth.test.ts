@@ -104,4 +104,18 @@ describe('Auth', () => {
 
     expect(wrapper.text()).toBe('')
   })
+
+  it('labels the authentication card as a group rather than a heading', () => {
+    const wrapper = mountAuth({
+      bearerAuth: { type: 'http', scheme: 'bearer' },
+    } as unknown as MergedSecuritySchemes)
+
+    // The card offers controls, it does not open a passage of the reference, so
+    // its title belongs in no heading outline.
+    expect(wrapper.find('h1, h2, h3, h4, h5, h6').exists()).toBe(false)
+
+    const section = wrapper.get('section')
+    expect(section.attributes('role')).toBe('group')
+    expect(wrapper.get(`[id="${section.attributes('aria-labelledby')}"]`).text()).toContain('Authentication')
+  })
 })

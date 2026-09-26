@@ -47,6 +47,7 @@ const {
   createAnySecurityScheme = false,
   canDeleteSchemes = true,
   defaultOpen = true,
+  heading = true,
   isStatic = false,
   meta,
   proxyUrl,
@@ -69,6 +70,13 @@ const {
   canDeleteSchemes?: boolean
   /** Whether the authentication disclosure should start expanded */
   defaultOpen?: boolean
+  /**
+   * Whether the title belongs in the document outline. The client renders the
+   * selector as one section of a request, so it is a heading there. A surface
+   * that only offers the schemes as a card of controls, such as the reference,
+   * turns it off and the card is named as a group instead.
+   */
+  heading?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -232,6 +240,7 @@ defineExpose({
   <CollapsibleSection
     class="group/params relative"
     :defaultOpen
+    :heading
     :isStatic="isStatic"
     :itemCount="activeSchemeOptions.length"
     @update:modelValue="(open) => (isDisclosureOpen = open)">
