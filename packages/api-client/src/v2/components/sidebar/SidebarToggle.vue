@@ -84,14 +84,18 @@ const isSidebarOpen = defineModel<boolean>({
 }
 
 /**
- * Below the `md` breakpoint (800px) the sidebar covers the whole panel, so the
- * toggle moves onto the dimmed backdrop and matches the close button in the
- * opposite corner: white on a translucent fill, in a 36px circle. The padding
- * is literal rather than a utility class so that circle matches that button
- * even when this component is consumed from a build that generates its own
- * utilities.
+ * Below the `lg` breakpoint (1000px) the toggle moves onto the dimmed backdrop
+ * and matches the close button in the opposite corner: white on a translucent
+ * fill, in a 36px circle. The padding is literal rather than a utility class so
+ * that circle matches that button even when this component is consumed from a
+ * build that generates its own utilities.
+ *
+ * The breakpoint is where the address bar stops being able to centre itself.
+ * The bar caps at 768px, so once the panel is narrower than roughly 870px the
+ * bar's left edge slides under a toggle sitting inside the panel and clips the
+ * method chip. `lg` clears that crossover with room to spare.
  */
-@media (width < 800px) {
+@media (width < 1000px) {
   .scalar-sidebar-toggle--overlay {
     color: white;
     background: rgba(0, 0, 0, 0.1);

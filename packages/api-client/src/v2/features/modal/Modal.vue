@@ -170,14 +170,15 @@ defineExpose({
       v-if="document.value && path?.value && method?.value"
       class="relative flex h-full min-h-0 w-full flex-1">
       <!--
-        The toggle keeps its place inside the panel while the header has room
-        for it. Below `md` the sidebar covers the whole panel, so it moves onto
-        the backdrop and mirrors the close button in the opposite corner, which
-        leaves the cramped header row to the address bar.
+        The toggle keeps its place inside the panel while the header row is wide
+        enough for the address bar to centre itself clear of it. Below `lg` the
+        bar fills the row and its method chip reaches the panel edge, so the
+        toggle moves onto the backdrop and mirrors the close button in the
+        opposite corner, leaving the whole row to the bar.
       -->
       <SidebarToggle
         v-model="isSidebarOpen"
-        class="absolute top-2 left-4 z-10 max-md:fixed max-md:top-2 max-md:left-2"
+        class="absolute top-2 left-4 z-10 max-lg:fixed max-lg:top-2 max-lg:left-2"
         variant="overlay" />
       <Sidebar
         v-show="isSidebarOpen"
