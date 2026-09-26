@@ -75,7 +75,7 @@ Advanced / semantic palette (light → dark):
 | `--scalar-color-green` | `#069061` | `#00b648` |
 | `--scalar-color-red` | `#ef0006` | `#dc1b19` |
 | `--scalar-color-yellow` | `#edbe20` | `#ffc90d` |
-| `--scalar-color-blue` | `#0082d0` | `#4eb3ec` |
+| `--scalar-color-blue` | `#0072bd` | `#4eb3ec` |
 | `--scalar-color-orange` | `#ff5800` | `#ff8d4d` |
 | `--scalar-color-purple` | `#5203d1` | `#b191f9` |
 

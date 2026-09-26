@@ -1108,7 +1108,7 @@ describe('SchemaPropertyHeading', () => {
       const signature = wrapper.find('.property-type-signature')
       expect(signature.exists()).toBe(true)
       expect(signature.findAll('.property-type-token').map((token) => token.text())).toEqual(['string', '|', 'null'])
-      expect(signature.find('.property-type-token--punctuation').classes()).toContain('text-c-3')
+      expect(signature.find('.property-type-token--punctuation').classes()).toContain('text-c-2')
       expect(signature.find('.property-type-token--ident').classes()).toContain('font-code')
       // The trailing space separates the label from the type for a screen reader.
       expect(wrapper.find('.screenreader-only').element.textContent).toBe('Type: ')

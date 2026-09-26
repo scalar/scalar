@@ -134,3 +134,65 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
  * Helper to just take a snapshot of a story
  */
 export const takeSnapshot: TestBody = async ({ snapshot }) => await snapshot()
+
+const clamp = (value: number): number => Math.min(1, Math.max(0, value))
+
+const linearChannel = (channel: number): number =>
+  channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+
+/**
+ * Converts display-p3 channels to linear sRGB, the way a browser projects a wide-gamut color onto an
+ * ordinary monitor (through XYZ, then clipped per channel).
+ */
+const displayP3ToLinearSrgb = ([r, g, b]: [number, number, number]): [number, number, number] => {
+  const [lr, lg, lb] = [linearChannel(r), linearChannel(g), linearChannel(b)]
+  const x = 0.4865709 * lr + 0.2656677 * lg + 0.1982173 * lb
+  const y = 0.2289746 * lr + 0.6917385 * lg + 0.0792869 * lb
+  const z = 0.0451134 * lg + 1.0439444 * lb
+  return [
+    clamp(3.2404542 * x - 1.5371385 * y - 0.4985314 * z),
+    clamp(-0.969266 * x + 1.8760108 * y + 0.041556 * z),
+    clamp(0.0556434 * x - 0.2040259 * y + 1.0572252 * z),
+  ]
+}
+
+/**
+ * Parses a computed CSS color into linear sRGB channels in the 0-1 range.
+ *
+ * The themes declare their accents in `display-p3` where the browser supports it, and Chromium
+ * reports a `color-mix()` of such a token as `color(srgb r g b)` with channels that can sit outside
+ * 0-1. Both are clipped the way a display clips them. Everything else comes back as `rgb()` /
+ * `rgba()`.
+ */
+const parseComputedColor = (value: string): [number, number, number] => {
+  const numbers = value.match(/-?\d*\.?\d+/g)?.map(Number) ?? []
+
+  if (value.startsWith('color(display-p3')) {
+    const [r = 0, g = 0, b = 0] = numbers.slice(1)
+    return displayP3ToLinearSrgb([r, g, b])
+  }
+
+  if (value.startsWith('color(srgb')) {
+    const [r = 0, g = 0, b = 0] = numbers
+    return [linearChannel(clamp(r)), linearChannel(clamp(g)), linearChannel(clamp(b))]
+  }
+
+  const [r = 0, g = 0, b = 0] = numbers
+  return [linearChannel(r / 255), linearChannel(g / 255), linearChannel(b / 255)]
+}
+
+const luminance = (color: string): number => {
+  const [r, g, b] = parseComputedColor(color)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+/**
+ * WCAG 2.x contrast ratio between two computed CSS colors.
+ *
+ * Lets a test assert the criterion itself (for example 3:1 for a focus ring under 1.4.11) rather
+ * than a snapshot that would pass at any color.
+ */
+export const contrastRatio = (foreground: string, background: string): number => {
+  const [hi, lo] = [luminance(foreground), luminance(background)].sort((a, b) => b - a)
+  return (hi! + 0.05) / (lo! + 0.05)
+}

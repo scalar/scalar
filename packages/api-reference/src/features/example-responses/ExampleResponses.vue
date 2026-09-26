@@ -489,7 +489,7 @@ const copyExample = (): void => {
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:focus-visible)
   .scalar-card-checkbox-checkmark {
-  outline: 1px solid var(--scalar-color-accent);
+  outline: 1px solid var(--scalar-focus-color);
 }
 .scalar-card-checkbox:hover {
   color: var(--scalar-color--1);

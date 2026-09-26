@@ -330,6 +330,18 @@ const shouldRenderRequestBody = computed(
   padding: 2px 8px;
   height: 20px;
 }
+/*
+ * Same blend as the schema row's required label: the light-mode orange is
+ * 3.16:1 on the page, so pull it toward the text colour for the 12px pill to
+ * meet WCAG 1.4.3 (4.5:1). Dark mode already passes and keeps the plain token.
+ */
+.light-mode .request-body-required {
+  color: color-mix(
+    in srgb,
+    var(--scalar-color-orange),
+    var(--scalar-color-1) 32%
+  );
+}
 .request-body-description {
   margin-top: 6px;
   font-size: var(--scalar-small);
