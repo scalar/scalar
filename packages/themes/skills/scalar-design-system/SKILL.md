@@ -61,7 +61,7 @@ Reference `--scalar-*` variables in CSS; in components, prefer the Tailwind clas
 - `--scalar-border-color` — `#dfdfdf` (light) / `#2d2d2d` (dark); `--scalar-border-width` — `0.5px`.
 - `--scalar-shadow-1` (subtle), `--scalar-shadow-2` (lifted).
 
-**Semantic colors** (`--scalar-color-{green,red,yellow,blue,orange,purple}`, plus `--scalar-color-danger` / `--scalar-color-alert` and matching `--scalar-background-*`). Light: green `#069061`, red `#ef0006`, yellow `#edbe20`, blue `#0082d0`, orange `#ff5800`, purple `#5203d1`.
+**Semantic colors** (`--scalar-color-{green,red,yellow,blue,orange,purple}`, plus `--scalar-color-danger` / `--scalar-color-alert` and matching `--scalar-background-*`). Light: green `#069061`, red `#ef0006`, yellow `#edbe20`, blue `#0072bd`, orange `#ff5800`, purple `#5203d1`.
 
 **Radii:** `--scalar-radius` `3px`, `--scalar-radius-md` `3px`, `--scalar-radius-lg` `6px`, `--scalar-radius-xl` `8px`, `--scalar-radius-2xl` `12px`, `--scalar-radius-3xl` `16px`, `--scalar-radius-full` pill. All derive from `--scalar-radius`, so overriding it on `:root` rescales every corner, and `0` makes the interface square. Everything except `-full` clamps to `--scalar-radius-max` (`20px`) so a large radius cannot swallow a container's content. Reach for `--scalar-radius-md` rather than `--scalar-radius` on anything that holds content.
 

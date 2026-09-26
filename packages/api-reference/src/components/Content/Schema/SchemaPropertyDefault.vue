@@ -156,7 +156,7 @@ onKeyStroke('Escape', () => {
   color: var(--scalar-color-1);
 }
 .property-default-label span {
-  color: var(--scalar-color-3);
+  color: var(--scalar-color-2);
   position: relative;
   border-bottom: var(--scalar-border-width) dotted currentColor;
 }
