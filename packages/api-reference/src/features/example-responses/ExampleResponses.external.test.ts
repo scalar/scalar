@@ -42,7 +42,7 @@ describe('ExampleResponses.external', () => {
     })
     await vi.waitFor(() => expect(wrapper.text()).toContain('"accepted": true'))
     expect(fetch.mock.calls.length).toBe(1)
-    expect(wrapper.find('button[aria-label="Copy example value"]').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBeDefined()
   })
   it('loads the first example of a newly selected content type', async () => {
     vi.stubGlobal('IntersectionObserver', undefined)

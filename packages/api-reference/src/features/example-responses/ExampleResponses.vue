@@ -6,10 +6,8 @@ import {
   ScalarCardFooter,
   ScalarCardSection,
 } from '@scalar/components/card'
-import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -71,7 +69,6 @@ const {
 const { translate } = useLocalization()
 
 const id = useId()
-const { copyToClipboard } = useClipboard()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed<string[]>(() =>
@@ -261,12 +258,6 @@ const exampleResult = computed(() => {
   return { content, error }
 })
 const exampleContent = computed(() => exampleResult.value.content)
-
-const copyExample = (): void => {
-  if (exampleContent.value !== undefined) {
-    copyToClipboard(exampleContent.value)
-  }
-}
 </script>
 <template>
   <ScalarCard
@@ -285,16 +276,6 @@ const copyExample = (): void => {
       </ExampleResponseTab>
 
       <template #actions>
-        <button
-          v-if="exampleContent !== undefined"
-          :aria-label="translate('common.copyExample')"
-          class="code-copy"
-          type="button"
-          @click="copyExample">
-          <ScalarIcon
-            icon="Clipboard"
-            width="12px" />
-        </button>
         <label
           v-if="
             currentResponseContent?.schema ?? currentResponseContent?.itemSchema
@@ -401,27 +382,6 @@ const copyExample = (): void => {
   font-size: var(--scalar-font-size-3);
 }
 
-.code-copy {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--scalar-color-3);
-  border: none;
-  padding: 0;
-  margin-right: 12px;
-}
-.code-copy:hover {
-  color: var(--scalar-color-1);
-}
-.code-copy svg {
-  width: 13px;
-  height: 13px;
-}
 .response-card-footer {
   display: flex;
   flex-direction: row-reverse;
