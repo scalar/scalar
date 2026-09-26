@@ -6,8 +6,10 @@ const { variant = 'default' } = defineProps<{
    * How the toggle is drawn.
    *
    * `default` is a flat button that sits inside a panel. `overlay` is the
-   * circular treatment used when the toggle floats on the dimmed backdrop
-   * outside the modal, where it mirrors the close button on the other side.
+   * modal's treatment: the same flat button while the panel header has room
+   * for it, and a circular control on the dimmed backdrop once the viewport is
+   * narrow enough that the sidebar covers the panel, where it mirrors the
+   * close button in the opposite corner.
    */
   variant?: 'default' | 'overlay'
 }>()
@@ -24,7 +26,7 @@ const isSidebarOpen = defineModel<boolean>({
     class="scalar-sidebar-toggle"
     :class="
       variant === 'overlay'
-        ? 'scalar-sidebar-toggle--overlay rounded-full'
+        ? 'scalar-sidebar-toggle--overlay'
         : 'text-c-3 hover:bg-b-2 active:text-c-1 rounded p-2'
     "
     type="button"
@@ -65,17 +67,39 @@ const isSidebarOpen = defineModel<boolean>({
 
 <style scoped>
 /**
- * Matches the modal close button on the opposite corner, so the two controls
- * that sit on the backdrop read as a pair. The padding is set here rather than
- * with a utility class so the 36px circle matches that button even when this
- * component is consumed from a build that generates its own utilities.
+ * The wide state is the default variant written out in plain CSS. Spelling it
+ * out here rather than reusing the utility classes keeps the narrow state below
+ * from having to outrank a utility of the same specificity.
  */
 .scalar-sidebar-toggle--overlay {
-  color: white;
-  background: rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  color: var(--scalar-color-3);
+  border-radius: var(--scalar-radius-md);
+  padding: 8px;
 }
 .scalar-sidebar-toggle--overlay:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--scalar-background-2);
+}
+.scalar-sidebar-toggle--overlay:active {
+  color: var(--scalar-color-1);
+}
+
+/**
+ * Below the `md` breakpoint (800px) the sidebar covers the whole panel, so the
+ * toggle moves onto the dimmed backdrop and matches the close button in the
+ * opposite corner: white on a translucent fill, in a 36px circle. The padding
+ * is literal rather than a utility class so that circle matches that button
+ * even when this component is consumed from a build that generates its own
+ * utilities.
+ */
+@media (width < 800px) {
+  .scalar-sidebar-toggle--overlay {
+    color: white;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: var(--scalar-radius-full);
+    padding: 10px;
+  }
+  .scalar-sidebar-toggle--overlay:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
 </style>
