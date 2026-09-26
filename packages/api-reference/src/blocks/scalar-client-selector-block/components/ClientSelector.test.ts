@@ -1,7 +1,7 @@
 import { type ClientOptionGroup, DEFAULT_CLIENT } from '@scalar/blocks/code-example'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 
 import ClientSelector from './ClientSelector.vue'
 
@@ -194,6 +194,77 @@ describe('ClientLibraries', () => {
       expect(buttons.every((el) => el.getAttribute('role') === 'tab')).toBe(true)
       expect(wrapper.find('.client-libraries-more').exists()).toBe(true)
       expect(tablist.element.contains(wrapper.find('.client-libraries-more').element)).toBe(false)
+    })
+  })
+
+  describe('selected tab state', () => {
+    const stubs = {
+      'ScalarCodeBlock': true,
+      'ScalarMarkdown': true,
+      'ScalarIcon': true,
+      'ScalarCombobox': true,
+    }
+
+    /** aria-selected of every featured tab, in DOM order */
+    const selectedStates = (wrapper: ReturnType<typeof mount>) =>
+      wrapper.findAll('[role="tab"]').map((tab) => tab.attributes('aria-selected'))
+
+    it('marks no tab selected while a More client is active', async () => {
+      // Headless UI clamps the -1 index onto the first tab on mount; the
+      // override has to win over that.
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions: mockClientOptions, eventBus, selectedClient: 'shell/httpie' },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      expect(selectedStates(wrapper)).toEqual(['false', 'false'])
+    })
+
+    it('reflects the featured client and clears it when switching to More', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions: mockClientOptions, eventBus, selectedClient: 'node/undici' },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      expect(selectedStates(wrapper)).toEqual(['false', 'true'])
+
+      // Leaving a featured tab makes Headless UI clamp onto the last tab
+      await wrapper.setProps({ selectedClient: 'shell/httpie' })
+      await flushPromises()
+
+      expect(selectedStates(wrapper)).toEqual(['false', 'false'])
+    })
+
+    it('still selects a featured tab by click while a More client is active', async () => {
+      // Guards against clamping the index to a valid tab instead: Headless UI
+      // only emits a change when the clicked index differs from the prop.
+      const listener = vi.fn()
+      eventBus.on('workspace:update:selected-client', listener)
+
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions: mockClientOptions, eventBus, selectedClient: 'shell/httpie' },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      await wrapper.findAll('[role="tab"]')[0]?.trigger('click')
+
+      expect(listener).toHaveBeenCalledWith('shell/curl')
+    })
+
+    it('labels the More panel with the section heading', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions: mockClientOptions, eventBus, selectedClient: 'shell/httpie' },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      const panel = wrapper.get('[role="tabpanel"]')
+      const heading = wrapper.get(`#${panel.attributes('aria-labelledby')}`)
+
+      expect(heading.classes()).toContain('client-libraries-heading')
     })
   })
 })
