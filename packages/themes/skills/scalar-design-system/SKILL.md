@@ -45,7 +45,7 @@ Reference `--scalar-*` variables in CSS; in components, prefer the Tailwind clas
 | Variable | Light | Dark | Role |
 |---|---|---|---|
 | `--scalar-color-1` | `#1b1b1b` | `#e7e7e7` | Primary text |
-| `--scalar-color-2` | `#757575` | `#a4a4a4` | Secondary text |
+| `--scalar-color-2` | `#707070` | `#a4a4a4` | Secondary text |
 | `--scalar-color-3` | `#8e8e8e` | `#797979` | Muted text |
 | `--scalar-color-accent` | `#0099ff` | `#00aeff` | Accent / interactive |
 
@@ -110,7 +110,7 @@ Headline components (full list in [`references/components.md`](./references/comp
 
 Paper writes literal HTML/CSS to the canvas with `px` sizes and hex colors, so translate Scalar tokens into concrete values:
 
-- Ground `#fff`, text `#1b1b1b` (secondary `#757575`), accent `#0099ff`, borders `0.5px` `#dfdfdf`, radii 3–8px.
+- Ground `#fff`, text `#1b1b1b` (secondary `#707070`), accent `#0099ff`, borders `0.5px` `#dfdfdf`, radii 3–8px.
 - `Inter` for everything except code (`JetBrains Mono`); body text 16px, small 14px.
 - Spacing on a 4px grid (4, 8, 12, 16, 24…).
 - Default to light mode. Mirror the real component shapes (buttons, cards, sidebar rows) using these values.

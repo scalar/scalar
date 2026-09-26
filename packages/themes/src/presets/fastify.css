@@ -1,7 +1,7 @@
 .light-mode {
   color-scheme: light;
   --scalar-color-1: #1c1e21;
-  --scalar-color-2: #757575;
+  --scalar-color-2: #707070;
   --scalar-color-3: #8e8e8e;
   --scalar-color-disabled: #b4b1b1;
   --scalar-color-ghost: #a7a7a7;
@@ -28,7 +28,7 @@
   --scalar-color-green: #007300;
   --scalar-color-red: #af272b;
   --scalar-color-yellow: #b38200;
-  --scalar-color-blue: #3b8ba5;
+  --scalar-color-blue: #33788f;
   --scalar-color-orange: #fb892c;
   --scalar-color-purple: #5203d1;
   --scalar-color-query: #00766f;

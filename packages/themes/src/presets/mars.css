@@ -9,11 +9,11 @@
   --scalar-background-3: #e9e7e2;
   --scalar-border-color: rgba(203, 165, 156, 0.6);
 
-  --scalar-color-1: #c75549;
-  --scalar-color-2: #c75549;
-  --scalar-color-3: #c75549;
+  --scalar-color-1: #b24c41;
+  --scalar-color-2: #b24c41;
+  --scalar-color-3: #b24c41;
 
-  --scalar-color-accent: #c75549;
+  --scalar-color-accent: #b24c41;
   --scalar-background-accent: #dcbfa81f;
 
   --scalar-code-language-color-supersede: var(--scalar-color-1);
