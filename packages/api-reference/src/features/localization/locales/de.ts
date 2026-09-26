@@ -63,6 +63,7 @@ export const de = {
   },
   operation: {
     codeSampleUnavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.',
+    codeSample: 'Codebeispiel',
     body: 'Body',
     cookies: 'Cookies',
     headers: 'Header',

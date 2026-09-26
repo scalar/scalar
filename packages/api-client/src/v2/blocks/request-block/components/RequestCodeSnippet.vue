@@ -165,6 +165,7 @@ const hasClients = computed(() =>
               class="text-base"
               :content="generatedCode"
               :hideCredentials="secretCredentials"
+              :label="translate('apiClient.requestCodeSnippet.codeSnippet')"
               :lang="localSelectedClient?.lang ?? 'plaintext'"
               lineNumbers />
           </div>

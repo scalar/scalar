@@ -63,6 +63,7 @@ export const pt = {
   },
   operation: {
     codeSampleUnavailable: 'Nenhuma amostra de código disponível para este exemplo.',
+    codeSample: 'Exemplo de código',
     body: 'Corpo',
     cookies: 'Cookies',
     headers: 'Cabeçalhos',

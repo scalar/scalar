@@ -286,7 +286,7 @@ describe('AuthSelector', () => {
     }
 
     /** Mounts attached to the DOM (so the teleported popover mounts) and opens the auth combobox. */
-    const mountAndOpen = async (canDeleteSchemes: boolean) => {
+    const mountAndOpen = async (canDeleteSchemes: boolean, eventBus = createWorkspaceEventBus()) => {
       const wrapper = mount(AuthSelector, {
         attachTo: document.body,
         props: {
@@ -299,7 +299,7 @@ describe('AuthSelector', () => {
           proxyUrl: '',
           server: baseServer as any,
           title: 'Authentication',
-          eventBus: createWorkspaceEventBus(),
+          eventBus,
           meta: { type: 'document' },
         },
       })
@@ -333,6 +333,24 @@ describe('AuthSelector', () => {
       // The dropdown is open (schemes are listed) but no delete affordance is offered.
       expect(document.body.textContent).toContain('BearerAuth')
       expect(deleteControlCount()).toBe(0)
+
+      wrapper.unmount()
+    })
+
+    it('toggles the active scheme with Space while the search is empty', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:selected-security-schemes', fn)
+      const wrapper = await mountAndOpen(false, eventBus)
+
+      // The selected scheme is active when the dropdown opens, so Space deselects it
+      const input = document.body.querySelector('input[role="combobox"]')
+      expect(input).not.toBeNull()
+      input?.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }))
+      await nextTick()
+
+      expect(fn).toHaveBeenCalledOnce()
+      expect(fn.mock.calls[0]?.[0]?.selectedRequirements).not.toContainEqual({ BearerAuth: [] })
 
       wrapper.unmount()
     })
