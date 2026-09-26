@@ -19,6 +19,8 @@ const props = withDefaults(
     default?: CodeInputModelValue | undefined
     canAddCustomValue?: boolean
     type?: string | undefined
+    /** Body arrays use JSON; parameter arrays use comma-separated text. */
+    arrayEncoding?: 'json' | 'comma-separated'
   }>(),
   { canAddCustomValue: true },
 )
@@ -82,30 +84,45 @@ const arrayOptions = computed(() =>
 
 /** Filter the options by what is selected */
 const selectedArrayOptions = computed(() => {
-  const selectedValues = new Set(props.modelValue.toString().split(','))
+  const value = props.modelValue.toString()
+  let values: unknown = value.split(',')
+  if (props.arrayEncoding === 'json') {
+    try {
+      values = JSON.parse(value)
+    } catch {
+      values = []
+    }
+  }
+  const selectedValues = new Set(Array.isArray(values) ? values : [])
   return arrayOptions.value.filter((option) => selectedValues.has(option.id))
 })
 
 /** Update the model value when the selected options change */
-const updateSelectedOptions = (selectedOptions: any) => {
-  const selectedValues = selectedOptions.map((option: any) => option.value)
-  emit('update:modelValue', selectedValues.join(','))
+const updateSelectedOptions = (
+  selectedOptions: { id: string; label: string; value: string }[],
+): void => {
+  const selectedValues = selectedOptions.map((option) => option.value)
+  emit(
+    'update:modelValue',
+    props.arrayEncoding === 'json'
+      ? JSON.stringify(selectedValues)
+      : selectedValues.join(','),
+  )
 }
 </script>
 
 <template>
   <div
-    class="group-[.alert]:outline-orange group-[.error]:outline-red w-full pr-10 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
+    class="group-[.alert]:outline-orange group-[.error]:outline-red w-full min-w-0 pr-10 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
     <template v-if="type === 'array'">
       <ScalarComboboxMultiselect
         :modelValue="selectedArrayOptions"
         :options="arrayOptions"
         @update:modelValue="updateSelectedOptions">
         <ScalarButton
-          class="custom-scroll h-full justify-start gap-1.5 px-2 py-1.5 pr-6 font-normal outline-none"
-          fullWidth
+          class="custom-scroll h-full w-full min-w-0 justify-start gap-1.5 px-2 py-1.5 pr-6 font-normal outline-none"
           variant="ghost">
-          <span class="text-c-1 whitespace-nowrap">{{
+          <span class="text-c-1 truncate">{{
             selectedArrayOptions.length > 0
               ? selectedArrayOptions.map((option) => option.label).join(', ')
               : 'Select a value'
