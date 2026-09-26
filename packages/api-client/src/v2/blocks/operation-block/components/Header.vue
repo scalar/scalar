@@ -172,6 +172,7 @@ const handleAddEnvironment = () => {
       <button
         v-if="layout === 'modal' && source !== 'gitbook'"
         class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
+        data-modal-initial-focus
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon
@@ -191,6 +192,7 @@ const handleAddEnvironment = () => {
       <button
         v-if="layout === 'modal' && source === 'gitbook'"
         class="text-c-1 hover:bg-b-2 active:text-c-1 -mr-1.5 rounded p-2"
+        data-modal-initial-focus
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon

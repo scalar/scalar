@@ -1,9 +1,29 @@
 import type { ModalState } from '@scalar/components/modal'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { UseFocusTrapOptions } from '@vueuse/integrations/useFocusTrap'
+import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
+
+/**
+ * Capture the options handed to the focus trap while keeping the real trap in
+ * place, so the existing activation tests keep exercising focus-trap itself.
+ */
+const captured = vi.hoisted(() => ({
+  options: undefined as UseFocusTrapOptions | undefined,
+}))
+
+vi.mock('@vueuse/integrations/useFocusTrap', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@vueuse/integrations/useFocusTrap')>()
+  return {
+    ...mod,
+    useFocusTrap: (...args: Parameters<typeof mod.useFocusTrap>) => {
+      captured.options = args[1]
+      return mod.useFocusTrap(...args)
+    },
+  }
+})
 
 function createModalState(open = false): ModalState {
   return {
@@ -151,5 +171,44 @@ describe('ModalClient.vue', () => {
     })
 
     wrapper.unmount()
+  })
+
+  describe('initial focus', () => {
+    const resolveInitialFocus = (): unknown => {
+      const initialFocus = captured.options?.initialFocus
+      assert(typeof initialFocus === 'function')
+      return (initialFocus as () => unknown)()
+    }
+
+    it('resolves the marked element inside the dialog', () => {
+      const wrapper = mount(ModalClientContainer, {
+        props: { modalState: createModalState() },
+        slots: {
+          default: '<button id="first">First</button><button id="close" data-modal-initial-focus>Close</button>',
+        },
+      })
+
+      expect(resolveInitialFocus()).toBe(wrapper.find('#close').element)
+    })
+
+    it('keeps the default first tabbable element when nothing is marked', () => {
+      mount(ModalClientContainer, {
+        props: { modalState: createModalState() },
+        slots: { default: '<button id="first">First</button>' },
+      })
+
+      // `undefined` keeps focus-trap's default, whereas `null` would make it throw.
+      expect(resolveInitialFocus()).toBeUndefined()
+    })
+
+    it('falls back to the dialog container itself', () => {
+      const wrapper = mount(ModalClientContainer, {
+        props: { modalState: createModalState() },
+      })
+
+      const fallbackFocus = captured.options?.fallbackFocus
+      assert(typeof fallbackFocus === 'function')
+      expect(fallbackFocus()).toBe(wrapper.find('[role="dialog"]').element)
+    })
   })
 })

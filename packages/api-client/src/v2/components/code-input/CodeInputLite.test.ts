@@ -324,6 +324,23 @@ describe('CodeInputLite', () => {
       expect(editor.attributes('aria-autocomplete')).toBeUndefined()
     })
 
+    it('forwards aria-label and aria-labelledby to the editable surface only', () => {
+      const wrapper = mount(CodeInputLite, {
+        attachTo: document.body,
+        props: { modelValue: '', environment: env } as InstanceType<typeof CodeInputLite>['$props'],
+        attrs: { 'aria-label': 'Name', 'aria-labelledby': 'my-label' },
+      })
+
+      const editor = wrapper.get('.code-input-lite__editor')
+      expect(editor.attributes('aria-label')).toBe('Name')
+      expect(editor.attributes('aria-labelledby')).toBe('my-label')
+
+      // The wrapper is a generic div, and ARIA prohibits naming a generic element.
+      const editorWrapper = wrapper.get('.code-input-lite')
+      expect(editorWrapper.attributes('aria-label')).toBeUndefined()
+      expect(editorWrapper.attributes('aria-labelledby')).toBeUndefined()
+    })
+
     it('wires aria-controls and aria-activedescendant to a real listbox and option', async () => {
       const wrapper = mountInput({ modelValue: '' })
       api(wrapper).setContent('{{')

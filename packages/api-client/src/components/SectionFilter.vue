@@ -5,16 +5,10 @@ import { nextTick, ref } from 'vue'
 import SectionFilterButton from '@/components/SectionFilterButton.vue'
 import { useLocalization } from '@/v2/features/localization'
 
-const {
-  filters = [],
-  filterIds,
-  labels,
-} = defineProps<{
+const { filters = [], labels } = defineProps<{
   filters?: T[]
   /** Localized labels keyed by stable filter IDs. */
   labels?: Partial<Record<T, string>>
-  /** IDs for the currently available sections. */
-  filterIds?: Partial<Record<T, string>>
 }>()
 
 const model = defineModel<T>()
@@ -60,7 +54,6 @@ const navigateSection = (arrow: 'left' | 'right'): void => {
         v-for="filter in filters"
         :key="filter"
         class="filter-hover-item"
-        :controls="filterIds?.[filter]"
         role="tab"
         :selected="model === filter"
         @click="model = filter">

@@ -125,6 +125,25 @@ describe('RequestBlock', () => {
     expect(wrapper.attributes('aria-label')).toBe('Request: Summary')
   })
 
+  it('renders the filter tabs without aria-controls and keeps the tabpanel', () => {
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        operation: { ...(defaultProps.operation as any), summary: 'Summary' },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs.length).toBeGreaterThan(0)
+    expect(tabs.every((tab) => tab.attributes('aria-controls') === undefined)).toBe(true)
+    expect(wrapper.find('[role="tabpanel"]').exists()).toBe(true)
+  })
+
   it('shows Auth section opened in modal layout when security is required', () => {
     const wrapper = mount(RequestBlock, {
       props: {
