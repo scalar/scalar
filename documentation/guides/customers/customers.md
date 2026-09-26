@@ -11,36 +11,6 @@
   </div>
 </div>
 
-<div class="logowall" role="list" aria-label="Companies building on Scalar">
-  <div class="logowall-item" role="listitem" aria-label="Thomson Reuters">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Maersk">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Lufthansa">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="PAR">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Bobcat">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Clerk">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Tailscale">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tailscale.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Supabase">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-supabase.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item" role="listitem" aria-label="Fly.io">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-flyio.svg"></scalar-icon>
-  </div>
-</div>
-
 <a class="featured-story-card" href="/customers/warp" aria-label="Read the Warp customer story">
   <div class="featured-story-copy">
     <p class="featured-story-eyebrow">Featured Story</p>
@@ -51,75 +21,269 @@
       <img class="featured-story-logo-scalar featured-story-logo-scalar-light" src="/brand/scalar-wordmark-light.svg" alt="Scalar" />
       <img class="featured-story-logo-scalar featured-story-logo-scalar-dark" src="/brand/scalar-wordmark-dark.svg" alt="" aria-hidden="true" />
     </div>
+    <span class="featured-story-cta">Read the story →</span>
   </div>
   <div class="featured-story-media" aria-hidden="true">
     <img src="/warp-branding.png" alt="" />
   </div>
 </a>
 
-<div class="more-stories" role="list" aria-label="More customer stories">
-  <a class="more-story-card" role="listitem" href="/customers/partech" aria-label="Read the PAR customer story">
-    <div class="more-story-media" aria-hidden="true">
-      <img src="/partech-branding.png" alt="" />
-    </div>
-    <div class="more-story-copy">
-      <p class="more-story-eyebrow">Customer Story</p>
-      <h3 class="more-story-title">How PAR modernized its developer experience with Scalar</h3>
-    </div>
-  </a>
-</div>
+## Scalar Docs
 
-<div class="customer-docs-grid">
-  <article class="customer-docs-item">
-    <a class="customer-docs-image customer-docs-image-bobcat" href="https://developer.bobcat.com/" target="_blank" rel="noreferrer" aria-label="View Bobcat docs">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
-    </a>
-    <p class="customer-docs-copy">American-based manufacturer of farm and construction equipment</p>
-    <a class="customer-docs-link" href="https://developer.bobcat.com/" target="_blank" rel="noreferrer">View Docs -&gt;</a>
-  </article>
-  <article class="customer-docs-item">
-    <a class="customer-docs-image customer-docs-image-thomson-reuters" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noreferrer" aria-label="View Thomson Reuters docs">
-      <span class="customer-docs-logo">
-        <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
-      </span>
-    </a>
-    <p class="customer-docs-copy">Provider of software and decision tools for legal and accounting companies</p>
-    <a class="customer-docs-link" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noreferrer">View Docs -&gt;</a>
-  </article>
-  <article class="customer-docs-item">
-    <a class="customer-docs-image customer-docs-image-clerk" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noreferrer" aria-label="View Clerk docs">
-      <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
-    </a>
-    <p class="customer-docs-copy">Authentication and User Management platform built for the modern web</p>
-    <a class="customer-docs-link" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noreferrer">View Docs -&gt;</a>
-  </article>
-  <article class="customer-docs-item">
-    <div class="customer-docs-image customer-docs-image-later" aria-label="Later">
-      <img src="/later.svg" alt="Later" />
-    </div>
-    <p class="customer-docs-copy">Social media management platform for creators, agencies, and brands</p>
-  </article>
-</div>
+These teams use Scalar Docs to give developers a direct, dependable path from reading about an API to making the first request.
 
-<div class="sticker-filter-effect">
+<section class="customer-sticker-grid" aria-label="Scalar Docs customers">
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-bobcat" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-1"
+        data-company-sticker
+        data-company-sticker-id-prefix="bobcat-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/bobcat-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/bobcat-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer">Bobcat</a>
+    </p>
+    <p class="customer-sticker-description">Manufacturer of farm and construction equipment</p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-thomson-reuters" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-2"
+        data-company-sticker
+        data-company-sticker-id-prefix="thomson-reuters-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/thomson-reuters-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span
+          class="company-team-sticker-interactive"
+          data-company-sticker-src="/thomson-reuters-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer">Thomson Reuters</a>
+    </p>
+    <p class="customer-sticker-description">Software and decision tools for legal and accounting</p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-clerk" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-3"
+        data-company-sticker
+        data-company-sticker-id-prefix="clerk-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/clerk-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/clerk-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer">Clerk</a>
+    </p>
+    <p class="customer-sticker-description">Authentication and user management for the modern web</p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-lufthansa" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-5"
+        data-company-sticker
+        data-company-sticker-id-prefix="lufthansa-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/lufthansa-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/lufthansa-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer">Lufthansa</a>
+    </p>
+    <p class="customer-sticker-description">Flight status, schedules, offers, and partner travel APIs</p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-partech" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-9"
+        data-company-sticker
+        data-company-sticker-id-prefix="partech-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/partech-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/partech-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://developers.partech.com" target="_blank" rel="noopener noreferrer">PAR</a>
+    </p>
+    <p class="customer-sticker-description">Software and solutions for restaurant and retail brands</p>
+    <p class="customer-sticker-story">
+      <a class="t-editor__anchor" href="/customers/partech">Read the PAR story →</a>
+    </p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-zoom" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-7"
+        data-company-sticker
+        data-company-sticker-id-prefix="zoom-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/zoom-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/zoom-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://developers.zoom.us/docs/api/" target="_blank" rel="noopener noreferrer">Zoom</a>
+    </p>
+    <p class="customer-sticker-description">Video communications and collaboration platform</p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-tailscale" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-8"
+        data-company-sticker
+        data-company-sticker-id-prefix="tailscale-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/tailscale-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/tailscale-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer">Tailscale</a>
+    </p>
+    <p class="customer-sticker-description">Secure, identity-based networking for teams and devices</p>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-later" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-4"
+        data-company-sticker
+        data-company-sticker-id-prefix="later-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/later-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/later-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">
+      <a class="t-editor__anchor" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer">Later</a>
+    </p>
+    <p class="customer-sticker-description">Social media management for creators and brands</p>
+  </article>
+</section>
+
+## Scalar SDKs
+
+These teams use Scalar SDKs to turn their APIs into polished client libraries.
+
+<section class="customer-sticker-grid" aria-label="Scalar SDK customers">
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-warp" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-6"
+        data-company-sticker
+        data-company-sticker-id-prefix="warp-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/warp-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/warp-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">Warp</p>
+    <p class="customer-sticker-description">AI-native payroll, benefits, and compliance for growing teams</p>
+    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-sdk-go" target="_blank" rel="noopener noreferrer" aria-label="Warp Go SDK on GitHub">Go</a>
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-sdk-typescript" target="_blank" rel="noopener noreferrer" aria-label="Warp TypeScript SDK on GitHub">TypeScript</a>
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-sdk-python" target="_blank" rel="noopener noreferrer" aria-label="Warp Python SDK on GitHub">Python</a>
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-cli" target="_blank" rel="noopener noreferrer" aria-label="Warp CLI SDK on GitHub">CLI</a>
+    </div>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-profound" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-10"
+        data-company-sticker
+        data-company-sticker-id-prefix="profound-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/profound-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/profound-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">Profound</p>
+    <p class="customer-sticker-description">Analytics for how brands show up in AI search answers</p>
+    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/cooper-square-technologies/profound-typescript-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound TypeScript SDK on GitHub">TypeScript</a>
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/cooper-square-technologies/profound-python-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Python SDK on GitHub">Python</a>
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/cooper-square-technologies/profound-rust-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Rust SDK on GitHub">Rust</a>
+    </div>
+  </article>
+  <article class="customer-sticker-item">
+    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-dedalus" aria-hidden="true">
+      <div
+        class="company-team-sticker sticker-11"
+        data-company-sticker
+        data-company-sticker-id-prefix="dedalus-customer-sticker">
+        <img
+          class="company-team-sticker-static"
+          src="/dedalus-sticker-static.svg"
+          alt=""
+          decoding="async"
+          loading="lazy" />
+        <span class="company-team-sticker-interactive" data-company-sticker-src="/dedalus-sticker.svg"></span>
+      </div>
+    </div>
+    <p class="customer-sticker-name">Dedalus Labs</p>
+    <p class="customer-sticker-description">Fast, isolated compute infrastructure for AI agents</p>
+        <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/dedalus-labs/dedalus-typescript" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs TypeScript SDK on GitHub">TypeScript</a>
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/dedalus-labs/dedalus-python" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Python SDK on GitHub">Python</a>
+      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/dedalus-labs/dedalus-go" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Go SDK on GitHub">Go</a>
+    </div>
+  </article>
+</section>
+
+<div class="company-sticker-filter-effect sticker-filter-effect" aria-hidden="true">
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
 
 <style>
-  :root {
-    --scalar-container-width: 960px;
-  }
-  .t-editor__page-nav,
-  .page-nav,
-  .content .page-nav,
-  .t-editor .page-header {
-    display: none;
-  }
   main.content {
     overflow-x: clip;
-  }
-  .t-editor.page {
-    margin-right: unset;
   }
   .t-editor .editor-content,
   .t-editor {
@@ -128,22 +292,8 @@
   .t-editor .editor-static .page-node,
   .t-editor .page-node,
   .t-editor .content {
-    max-width: var(--scalar-container-width);
     padding-bottom: 0;
     margin-bottom: 0;
-  }
-  .container-full {
-    --scalar-container-sidebar-gap: calc(
-      (
-        (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
-          2
-      )
-    );
-    width: calc(100dvw - var(--scalar-sidebar-width));
-    margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
-  }
-  .hero.hero {
-    margin-top: 28px;
   }
   .small-test {
     max-width: 550px;
@@ -155,6 +305,11 @@
   }
   .customers-hero .t-editor__heading {
     --font-size: var(--scalar-heading-1);
+  }
+  /* The theme indents a page's first heading by 10px through a :first-of-type rule the
+     hero cannot outrank on class specificity alone. Zeroing it lines the heading up with
+     the one on /company. */
+  .customers-hero h1.t-editor__heading:first-of-type {
     margin-top: 0;
   }
   .customers-hero-actions {
@@ -168,26 +323,6 @@
   }
   .fill-current-bg {
     fill: var(--scalar-background-1);
-  }
-  /* Three columns keeps the nine logos in even rows, with no orphan on the last one. */
-  .logowall {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: center;
-    justify-items: center;
-    gap: 40px;
-    margin-top: 48px;
-  }
-  .logowall-item {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-  }
-  .logowall-item svg {
-    width: 100%;
-    height: auto;
-    max-height: 24px;
   }
   .ign-logo__fill {
     fill: var(--scalar-color-1);
@@ -244,16 +379,20 @@
   }
   .featured-story-logos {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 10px 14px;
     margin-top: 26px;
     color: var(--scalar-color-1);
   }
+  /* width:auto sizes the mark from its viewBox, but flex was free to shrink that to
+     nothing once the copy column narrowed, so the logo vanished. */
   .featured-story-logo-warp {
     width: auto;
     height: 22px;
     max-width: 104px;
+    flex-shrink: 0;
   }
   .featured-story-logo-separator {
     color: var(--scalar-color-1);
@@ -275,6 +414,17 @@
   .dark-mode .featured-story-logo-scalar-dark {
     display: block;
   }
+  /* The card is one big link, so the cue is styled text rather than a nested anchor. */
+  .featured-story-cta {
+    margin-top: 26px;
+    color: var(--scalar-color-2);
+    font-size: var(--scalar-small);
+    font-weight: var(--scalar-semibold);
+    line-height: var(--scalar-line-height-3);
+  }
+  .featured-story-card:hover .featured-story-cta {
+    color: var(--scalar-color-1);
+  }
   .featured-story-media {
     min-height: 320px;
     background: var(--scalar-background-2);
@@ -285,195 +435,245 @@
     height: 100%;
     object-fit: cover;
   }
-  .more-stories {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin: 48px 0 0;
-  }
-  /* A compact row so a second story reads as a follow-on, not a rival to the featured card. */
-  .more-story-card {
+  /* Even 1fr tracks, laid out the way the team grid on /company is. Fixed tracks
+     spread with justify-content leave a gulf down the middle once the row drops to
+     two columns; sharing the width and letting each sticker sit at the head of its
+     track keeps the spacing even at any count. */
+  .customer-sticker-grid {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
-    align-items: center;
-    overflow: hidden;
-    color: var(--scalar-color-1);
-    text-decoration: none;
-    background: var(--scalar-background-2);
-    border-radius: var(--scalar-radius-xl);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 24px 0 56px;
   }
-  .more-story-card:hover {
-    color: var(--scalar-color-1);
-    text-decoration: none;
-    background: var(--scalar-background-3);
-  }
-  .more-story-card:focus-visible {
-    outline: 2px solid var(--scalar-color-accent);
-    outline-offset: 4px;
-  }
-  .more-story-media {
-    aspect-ratio: 16 / 9;
-    height: 100%;
-  }
-  .more-story-media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .more-story-copy {
-    padding: 24px 32px;
-  }
-  .more-story-eyebrow {
-    margin: 0 0 8px;
-    color: var(--scalar-color-2);
-    font-size: var(--scalar-small);
-    font-weight: var(--scalar-regular);
-    line-height: var(--scalar-line-height-3);
-  }
-  .more-story-card .more-story-title {
-    margin: 0;
-    color: var(--scalar-color-1);
-    font-size: var(--scalar-font-size-2);
-    font-weight: var(--scalar-bold);
-    letter-spacing: 0;
-    line-height: var(--scalar-line-height-2);
-  }
-  .customer-docs-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 40px;
-    row-gap: 56px;
-    margin: 56px 0 100px;
-  }
-  .customer-docs-item {
+  .customer-sticker-item {
     display: flex;
     min-width: 0;
     flex-direction: column;
-    gap: 16px;
+    margin-bottom: 36px;
   }
-  .customer-docs-image {
-    display: flex;
-    aspect-ratio: 16 / 9;
-    align-items: center;
-    justify-content: center;
-    padding: 32px;
-    color: var(--scalar-color-1);
-    text-decoration: none;
-    background: var(--scalar-background-2);
-    border-radius: var(--scalar-radius-xl);
-  }
-  .customer-docs-image:hover {
-    color: var(--scalar-color-1);
-    background: var(--scalar-background-3);
-    text-decoration: none;
-  }
-  .customer-docs-image-bobcat,
-  .customer-docs-image-bobcat:hover {
-    color: #fff;
-    background: #ff3600;
-    border-color: #ff3600;
-  }
-  .customer-docs-image-bobcat svg {
-    fill: #fff;
-  }
-  .customer-docs-image-thomson-reuters {
-    color: #fff;
-    background: var(--scalar-background-2);
-    overflow: hidden;
+  .company-team-member-image {
+    --company-team-member-background-dark: color-mix(in srgb, var(--company-team-member-background), black 7%);
+    /* The company page nudges its stickers a pixel left to sit inside a wider stage.
+       Here the stage is the sticker's own size, so it stays centred. */
+    --company-team-sticker-offset-x: 0px;
+    --company-team-gradient-center-x: 50%;
+    /* Ratios of the stage's half-width rather than the 82px/95px the 190px design was
+       drawn at, so the halo stays inscribed once a narrow column shrinks the stage. */
+    --company-team-gradient-inner-radius: 86.32%;
+    --company-team-gradient-outer-radius: 100%;
     position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: 8px;
+    background: radial-gradient(
+      circle closest-side at var(--company-team-gradient-center-x) 50%,
+      color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1)),
+      color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1))
+        var(--company-team-gradient-inner-radius),
+      var(--company-team-member-background-dark) var(--company-team-gradient-inner-radius),
+      var(--company-team-member-background-dark) var(--company-team-gradient-outer-radius),
+      transparent var(--company-team-gradient-outer-radius),
+      transparent
+    );
+    border-radius: 0;
   }
-  .customer-docs-image-thomson-reuters::before {
-    content: '';
+  /* The sticker artwork is drawn for 190px, so the stage is capped rather than
+     stretched to the wider column this page gives it. */
+  .customer-sticker-stage {
+    max-width: 190px;
+  }
+  .customer-sticker-stage-bobcat {
+    --company-team-member-background: #ff3600;
+  }
+  .customer-sticker-stage-thomson-reuters {
+    --company-team-member-background: #d64000;
+  }
+  .customer-sticker-stage-clerk {
+    --company-team-member-background: #6c47ff;
+  }
+  .customer-sticker-stage-later {
+    --company-team-member-background: #5124c1;
+  }
+  .customer-sticker-stage-lufthansa {
+    --company-team-member-background: #05164d;
+  }
+  .customer-sticker-stage-partech {
+    --company-team-member-background: #6864d1;
+  }
+  .customer-sticker-stage-warp {
+    --company-team-member-background: #000000;
+  }
+  .customer-sticker-stage-profound {
+    --company-team-member-background: #08090a;
+  }
+  .customer-sticker-stage-dedalus {
+    --company-team-member-background: #3b2e7e;
+  }
+  .customer-sticker-stage-zoom {
+    --company-team-member-background: #0b5cff;
+  }
+  .customer-sticker-stage-tailscale {
+    --company-team-member-background: #1f1e1e;
+  }
+  .company-team-sticker {
+    --flap-width: 1254px;
+    --company-sticker-flap-light-height: calc(var(--sticker-peelback-hover) + var(--sticker-p));
+    --company-sticker-light-x: 50%;
+    --company-sticker-light-y: 50%;
+    --sticker-p: 40px;
+    --sticker-peelback-hover: 20%;
+    --sticker-peelback-active: 36%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    --sticker-rotate: 0deg;
     position: absolute;
-    inset: 0;
-    background: url('/thomson-reuters-lobby.png') center / cover;
-    filter: grayscale(1) brightness(0.6);
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: calc(var(--company-team-gradient-center-x) + var(--company-team-sticker-offset-x));
+    display: block;
+    width: 100%;
+    max-width: 190px;
+    height: auto;
+    aspect-ratio: 1;
+    cursor: grab;
+    clip-path: none;
+    overflow: hidden;
+    transform: translate(-50%, -50%) translateZ(0);
   }
-  .customer-docs-image-thomson-reuters:hover {
-    color: #fff;
-    background: var(--scalar-background-2);
-  }
-  .customer-docs-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 1;
-  }
-  .customer-docs-image.customer-docs-image-thomson-reuters svg {
-    width: min(82%, 220px);
-    max-height: 56px;
-    fill: #fff;
-    transform: scale(1.35);
+  .customer-sticker-grid .company-team-sticker .sticker-container {
+    transform: rotate(var(--sticker-rotate));
     transform-origin: center;
   }
-  .customer-docs-image.customer-docs-image-thomson-reuters svg * {
-    fill: #fff;
+  .customer-sticker-grid .company-team-sticker .sticker-lighting svg,
+  .customer-sticker-grid .company-team-sticker .shadow svg,
+  .customer-sticker-grid .company-team-sticker .flap svg {
+    transform: none !important;
   }
-  .customer-docs-image-clerk,
-  .customer-docs-image-clerk:hover {
-    color: var(--scalar-color-1);
-    background: var(--scalar-background-2) url('/clerk-background.webp') center / cover;
-  }
-  .customer-docs-image-later {
-    padding: 0;
-    overflow: hidden;
-    background: #000;
-  }
-  .customer-docs-image-later:hover {
-    background: #000;
-  }
-  .customer-docs-image-later img {
+  .company-team-sticker-interactive > svg {
     display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    overflow: visible !important;
+  }
+  .company-team-sticker .sticker-lighting,
+  .company-team-sticker .flap-lighting {
+    filter: none;
+  }
+  .company-team-sticker .sticker-container:hover .flap {
+    filter: brightness(1.3);
+  }
+  .company-team-sticker:active {
+    cursor: grabbing;
+  }
+  .company-team-sticker-static {
+    display: none;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    pointer-events: none;
+    transform: rotate(var(--sticker-rotate, 0deg));
+    transform-origin: center;
   }
-  .customer-docs-image:focus-visible,
-  .customer-docs-link:focus-visible {
-    outline: 2px solid var(--scalar-color-accent);
-    outline-offset: 4px;
+  .company-team-sticker-interactive {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: visible !important;
   }
-  .customer-docs-image svg {
-    width: min(68%, 160px);
-    height: auto;
-    max-height: 40px;
+  .company-stickers-static .company-team-sticker-interactive {
+    display: none !important;
   }
-  .customer-docs-copy {
+  .company-stickers-static .company-team-sticker {
+    cursor: default;
+  }
+  .company-stickers-static .company-team-sticker-static {
+    display: block;
+  }
+  .company-sticker-filter-effect {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .customer-sticker-name,
+  .customer-sticker-description,
+  .customer-sticker-story {
+    max-width: 190px;
     margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .customer-sticker-name {
     color: var(--scalar-color-1);
-    font-size: var(--scalar-font-size-2);
-    font-weight: var(--scalar-regular);
+    font-size: var(--scalar-heading-3);
+    font-weight: var(--scalar-bold);
     line-height: var(--scalar-line-height-2);
   }
-  .customer-docs-link {
-    width: fit-content;
-    color: var(--scalar-color-2);
+  /* Every description is written to fit three lines at 190px, and reserves three
+     whether or not it fills them, so the rows beneath line up across the grid. */
+  .customer-sticker-description {
+    min-height: 3lh;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-font-size-2);
+    line-height: var(--scalar-line-height-2);
+  }
+  /* The Generated SDKs row the story pages carry, as pills rather than marks: the
+     column is 190px wide, and a language reads faster than a glyph at this size.
+     Every pill links to that language's own generated repository. */
+  .customer-sdk-targets {
+    display: flex;
+    max-width: 190px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+  }
+  .customer-sdk-target {
+    display: inline-flex;
+    align-items: center;
+  }
+  .customer-sdk-target:hover {
+    text-decoration: none;
+  }
+  .customer-sdk-target:focus-visible {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 2px;
+  }
+  /* Only PAR carries a story link, so it sits under the description rather than
+     changing the shape of every other card. */
+  .customer-sticker-story {
+    margin-top: 8px;
     font-size: var(--scalar-small);
     font-weight: var(--scalar-semibold);
     line-height: var(--scalar-line-height-3);
-    text-decoration: none;
   }
-  .customer-docs-link:hover {
-    color: var(--scalar-color-1);
-    text-decoration: none;
+  .customer-sticker-name .t-editor__anchor:focus-visible,
+  .customer-sticker-story .t-editor__anchor:focus-visible {
+    border-radius: var(--scalar-radius);
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 3px;
   }
-  @media (max-width: 1000px) {
-    .t-editor.page {
-      padding-inline: 30px;
+  @media (max-width: 1279px) {
+    .customer-sticker-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .container-full {
-      --scalar-container-sidebar-gap: 30px;
-      width: 100dvw;
-      padding-inline: 30px;
-      margin-inline: -30px;
+  }
+  @media (max-width: 760px) {
+    .customer-sticker-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 40px 12px;
+    }
+    .customer-sticker-item {
+      margin-bottom: 0;
     }
   }
   @media (max-width: 720px) {
-    .customers-hero.hero {
-      margin-top: 40px;
-    }
     .customers-hero-actions {
       width: 100%;
     }
@@ -491,31 +691,26 @@
     .featured-story-card .featured-story-title {
       max-width: 340px;
     }
-    .featured-story-logos {
-      flex-wrap: wrap;
-      row-gap: 10px;
-    }
     .featured-story-media {
       min-height: 220px;
     }
-    .more-stories {
-      margin-top: 40px;
+  }
+  @media (hover: none), (pointer: coarse) {
+    .company-team-sticker-interactive {
+      display: none !important;
     }
-    .more-story-card {
-      grid-template-columns: 1fr;
+    .company-team-sticker-static {
+      display: block;
     }
-    .more-story-copy {
-      padding: 20px 24px 24px;
+    .company-team-member-image .company-team-sticker {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      transform: none;
     }
-    .logowall {
-      gap: 28px 24px;
-    }
-    .logowall-item svg {
-      max-height: 20px;
-    }
-    .customer-docs-grid {
-      grid-template-columns: 1fr;
-      row-gap: 40px;
+    .company-sticker-filter-effect {
+      display: none;
     }
   }
 </style>

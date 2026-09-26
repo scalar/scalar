@@ -3,7 +3,7 @@
   const interactiveStickerSelector = `${stickerSelector} .company-team-sticker-interactive`
   const stickerClassPattern = /^sticker-\d+$/
   const stickerFilterLimit = 9
-  const stickerRootSelector = '.company-team-section, .company-investors-layout'
+  const stickerRootSelector = '.company-team-section, .company-investors-layout, .customer-sticker-grid'
   const isInteractiveDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches
   const isSafari = /^((?!chrome|android).)*safari/i.test(window.navigator.userAgent)
   const shouldUseStaticStickers = !isInteractiveDevice || isSafari
@@ -52,6 +52,12 @@
   }
 
   const getStickerViewportSize = (sticker, svg) => {
+    // A previous pass wrote an inline pixel size, so clear it before measuring.
+    // Otherwise the stickers on a fluid grid stay latched to the width they had when
+    // the page first loaded and overflow their stage once the column narrows.
+    sticker.style.width = ''
+    sticker.style.height = ''
+
     const stickerStyles = window.getComputedStyle(sticker)
     let width = Number.parseFloat(stickerStyles.width)
     let height = Number.parseFloat(stickerStyles.height)
@@ -161,11 +167,47 @@
     })
   }
 
+  const loadLocalStickerSvg = async (container) => {
+    const src = container.dataset.companyStickerSrc
+
+    if (!src || container.dataset.companyStickerLoadState) {
+      return
+    }
+
+    container.dataset.companyStickerLoadState = 'loading'
+
+    try {
+      const response = await fetch(src)
+
+      if (!response.ok) {
+        throw new Error(`Failed to load sticker SVG: ${response.status}`)
+      }
+
+      container.innerHTML = await response.text()
+      container.dataset.companyStickerLoadState = 'loaded'
+      schedulePrepareCompanyStickers()
+    } catch (error) {
+      container.dataset.companyStickerLoadState = 'failed'
+      // Fall back to the static image that already sits alongside the interactive
+      // sticker, so a failed fetch shows the logo rather than an empty coloured ring.
+      container.closest('.company-team-member-image')?.classList.add('company-stickers-static')
+      console.error(error)
+    }
+  }
+
+  const loadLocalStickerSvgs = () => {
+    document.querySelectorAll(`${interactiveStickerSelector}[data-company-sticker-src]`).forEach((container) => {
+      void loadLocalStickerSvg(container)
+    })
+  }
+
   const prepareCompanyStickers = () => {
     if (shouldUseStaticStickers) {
       blockInteractiveStickerLoads()
       return
     }
+
+    loadLocalStickerSvgs()
 
     document.querySelectorAll(stickerSelector).forEach((sticker, index) => {
       namespaceStickerSvgIds(sticker)
