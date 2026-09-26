@@ -96,6 +96,8 @@ describe('RequestCodeSnippet', () => {
 
     await wrapper.get('button[aria-expanded]').trigger('click')
     expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("First")')
+    // The focusable code block is named so screen readers announce it on focus
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('label')).toBe('Code Snippet')
 
     await wrapper.setProps({ selectedExample: 'second' })
     expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("Second")')

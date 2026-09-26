@@ -10,6 +10,11 @@ export type CodeExampleProps = {
   /** Localized accessible name for the search field inside the client picker. */
   clientSearchLabel?: string
   /**
+   * Localized accessible name for the focusable code sample. The selected client's title is
+   * appended so the announcement also says which language the sample is in.
+   */
+  codeSampleLabel?: string
+  /**
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
    */
@@ -188,6 +193,7 @@ const {
   codeSampleUnavailable = 'No code sample available for this example.',
   clientPickerLabel = 'Change code sample language',
   clientSearchLabel = 'Search clients',
+  codeSampleLabel = 'Code sample',
   clientOptions,
   selectedClient,
   selectedServer = null,
@@ -337,6 +343,18 @@ watch([() => selectedClient, clients], ([newClient]) => {
  */
 const clientPickerAriaLabel = computed(() =>
   [clientPickerLabel, localSelectedClient.value?.title]
+    .filter(Boolean)
+    .join(': '),
+)
+
+/**
+ * Accessible name for the focusable code sample, e.g. "Code sample: Shell cURL".
+ *
+ * Screen readers announce only the name and role when focus lands on the scroller, so the
+ * name tells the user both what the region is and which client it is generated for.
+ */
+const codeSampleAriaLabel = computed(() =>
+  [codeSampleLabel, localSelectedClient.value?.title]
     .filter(Boolean)
     .join(': '),
 )
@@ -553,6 +571,7 @@ const id = useId()
           class="bg-b-2 h-full"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
+          :label="codeSampleAriaLabel"
           :lang="codeBlockLanguage"
           lineNumbers />
         <ScalarVirtualText

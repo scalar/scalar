@@ -135,3 +135,9 @@ description remain unchanged.
 The status shown when a linked SDK sample is missing follows the selected locale in both API Reference layouts and the API Client. Override `operation.codeSampleUnavailable` for the API Reference or `apiClient.requestCodeSnippet.unavailable` for the API Client in `localization.translations`.
 
 When using the standalone `CodeExample` component or `createCodeExample`, pass `codeSampleUnavailable` to supply localized status text. It defaults to English.
+
+### Code sample region name
+
+A code sample that overflows its box is a keyboard tab stop so it can be scrolled, and it is exposed as a named group so screen readers announce it when it receives focus. Override `operation.codeSample` for the API Reference in `localization.translations` to change the name (the selected client's title is appended, e.g. "Code sample: Shell cURL"). The API Client reuses `apiClient.requestCodeSnippet.codeSnippet`.
+
+When using the standalone `CodeExample` component or `createCodeExample`, pass `codeSampleLabel` to supply a localized name. It defaults to English.

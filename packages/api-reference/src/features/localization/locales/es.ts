@@ -64,6 +64,7 @@ export const es = {
   },
   operation: {
     codeSampleUnavailable: 'No hay ninguna muestra de código disponible para este ejemplo.',
+    codeSample: 'Ejemplo de código',
     body: 'Cuerpo',
     cookies: 'Cookies',
     headers: 'Encabezados',

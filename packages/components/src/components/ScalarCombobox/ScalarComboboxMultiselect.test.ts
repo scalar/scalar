@@ -174,6 +174,22 @@ describe('ScalarComboboxMultiselect', () => {
       expect(wrapper.find('ul[role="listbox"]').exists()).toBe(true)
     })
 
+    it('toggles the active option with Space and stays open', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxMultiselect, {
+        props: { options: singleOptions, modelValue: [], 'onUpdate:modelValue': onUpdate },
+        slots: { default: '<button>Toggle</button>' },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      await wrapper.find('input[type="text"]').trigger('keydown.space')
+
+      expect(onUpdate).toHaveBeenCalledWith([singleOptions[0]])
+      expect(wrapper.find('ul[role="listbox"]').exists()).toBe(true)
+    })
+
     it('navigates to add via arrow keys and Enter emits add (open remains)', async () => {
       const onAdd = vi.fn()
       const wrapper = mount(ScalarComboboxMultiselect, {
