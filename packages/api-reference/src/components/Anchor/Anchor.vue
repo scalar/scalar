@@ -29,7 +29,7 @@ const { cx } = useBindCx()
       <span>&ZeroWidthSpace;</span>
       <ScalarButton
         :aria-describedby="labelId"
-        class="absolute top-1/2 left-0 inline-block h-fit -translate-y-1/2 px-1.5 py-1 opacity-0 group-hover/heading:opacity-100 group-has-focus-visible/heading:opacity-100"
+        class="anchor-copy-button absolute top-1/2 left-0 inline-block h-fit -translate-y-1/2 px-1.5 py-1 opacity-0 group-hover/heading:opacity-100 group-has-focus-visible/heading:opacity-100"
         variant="ghost"
         @click.stop="() => emit('copyAnchorUrl')">
         <ScalarIconHash
@@ -40,3 +40,18 @@ const { cx } = useBindCx()
     </span>
   </span>
 </template>
+<style scoped>
+/*
+ * In the narrow layout the section inset is only 24px (Section.vue) while
+ * this box protrudes 30px past the heading text, so a heading that ends near
+ * the edge gave the page a horizontal scrollbar at 200-400% zoom (WCAG 1.4.10).
+ * Dropping the trailing 6px only there keeps the icon where it is and leaves
+ * the desktop focus ring and hit area untouched; the target stays 24x26px
+ * (WCAG 2.5.8). The query matches Section.vue's so both flip at the same width.
+ */
+@container narrow-references-container (max-width: 900px) {
+  .anchor-copy-button {
+    padding-right: 0;
+  }
+}
+</style>

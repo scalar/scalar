@@ -201,6 +201,6 @@ export const TreeNarrowReflow: Story = {
     components: { Schema },
     setup: () => ({ args }),
     template:
-      '<div style="width: 360px; padding: 16px; background: var(--scalar-background-1); container: narrow-references-container / inline-size"><Schema v-bind="args" /></div>',
+      '<div class="narrow-references-container" style="width: 360px; padding: 16px; background: var(--scalar-background-1); container: narrow-references-container / inline-size"><Schema v-bind="args" /></div>',
   }),
 }

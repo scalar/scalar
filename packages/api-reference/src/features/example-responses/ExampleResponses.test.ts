@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
 import ExampleResponses from './ExampleResponses.vue'
+import exampleResponsesSource from './ExampleResponses.vue?raw'
 
 const mockCopyToClipboard = vi.fn()
 
@@ -16,6 +17,16 @@ vi.mock('@scalar/use-hooks/useClipboard', () => ({
 }))
 
 describe('ExampleResponses', () => {
+  it('leaves the copy button focus ring to the theme reset', () => {
+    // jsdom does not apply scoped styles, so guard the source: a scoped
+    // `outline: none` on `.code-copy` beats the reset's `:focus-visible`
+    // rule on specificity and hides the keyboard focus ring (WCAG 2.4.7).
+    const copyRule = exampleResponsesSource.match(/\.code-copy\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(copyRule).not.toBe('')
+    expect(copyRule).not.toMatch(/outline/)
+  })
+
   it('does not offer union alternatives when an empty enum excludes every value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       enum: [],

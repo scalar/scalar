@@ -401,13 +401,17 @@ const copyExample = (): void => {
   font-size: var(--scalar-font-size-3);
 }
 
+/*
+ * No `outline: none` here: the theme reset draws the keyboard focus ring for
+ * every button, and this scoped rule would beat it on specificity and hide
+ * the ring (WCAG 2.4.7).
+ */
 .code-copy {
   display: flex;
   align-items: center;
   justify-content: center;
   appearance: none;
   -webkit-appearance: none;
-  outline: none;
   background: transparent;
   cursor: pointer;
   color: var(--scalar-color-3);

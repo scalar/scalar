@@ -1279,6 +1279,28 @@ describe('SchemaProperty', () => {
       expect(wrapper.find('.property-heading > :last-child').classes()).toContain('copy-link-trailing')
     })
 
+    it('gives the copy button a 24px hit area without changing its layout box', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 1,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      const classes = wrapper.find('.copy-link-trailing').classes()
+
+      // 14px icon + 2 x 5px padding = 24px (WCAG 2.5.8); the negative vertical
+      // margins cancel the padding so the row height stays the same, and the
+      // start/end margins keep the icon and the line's trailing extent where
+      // the 22px box had them.
+      expect(classes).toEqual(expect.arrayContaining(['p-1.25', '-my-1.25', 'ms-1.25', 'me-2!']))
+      expect(classes).not.toContain('p-1')
+    })
+
     it('renders an unlinked name as a bare span without the anchor wrapper', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
