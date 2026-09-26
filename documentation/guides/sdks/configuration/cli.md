@@ -34,7 +34,7 @@ Registry accounts, secrets, and first-release setup: [CLI publishing](../publish
 
 **Type:** `string`
 
-Command name the generated CLI is installed and invoked as, e.g. `warp-hr`. Defaults to the SDK slug. This is not the package name: `targets.cli.packageName` names the published npm package (`@acme/widget`), while this names the command that package installs (`widget`). One spelling serves the `package.json` `bin` key, the man page file names, the binary Homebrew installs, and the literal command printed in `--help`, the README, and the shell completion scripts, so it is restricted to `A-Za-z0-9._-`, starting with an alphanumeric and not ending in `-` or `.`. Case is preserved — `MyWidget` installs and runs as `MyWidget` — because npm links a `bin` key verbatim; only the Homebrew formula *file* is lowercased, since `brew` resolves it case-sensitively on Linux. A scoped, spaced, or shell-metacharacter name is rejected rather than sanitized because each install channel would sanitize it differently — npm and Homebrew disagree, and neither can install a command containing `/` — leaving the CLI documenting and completing a command name that no install produces.
+Command name the generated CLI is installed and invoked as, e.g. `acme-hr`. Defaults to the SDK slug. This is not the package name: `targets.cli.packageName` names the published npm package (`@acme/widget`), while this names the command that package installs (`widget`). One spelling serves the `package.json` `bin` key, the man page file names, the binary Homebrew installs, and the literal command printed in `--help`, the README, and the shell completion scripts, so it is restricted to `A-Za-z0-9._-`, starting with an alphanumeric and not ending in `-` or `.`. Case is preserved — `MyWidget` installs and runs as `MyWidget` — because npm links a `bin` key verbatim; only the Homebrew formula *file* is lowercased, since `brew` resolves it case-sensitively on Linux. A scoped, spaced, or shell-metacharacter name is rejected rather than sanitized because each install channel would sanitize it differently — npm and Homebrew disagree, and neither can install a command containing `/` — leaving the CLI documenting and completing a command name that no install produces.
 
 **Constraints:** `pattern: ^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9_])?$`
 
@@ -59,7 +59,8 @@ Primary published-output repository for this target. Configuring it is what give
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `repo` | `string` | ✅ | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | `string` |  | Default branch of the destination repository, and the base that release PRs are opened against. Generated output itself is always pushed to the fixed `scalar-generated` branch, which the platform merges with custom code on `scalar-next`; the release PR is raised from `scalar-next` against the branch named here, so merging it is the promotion. The branch is resolved by trying this value, then a `#branch` suffix on `repo`, then `main`, skipping any candidate that is not a safe git ref — the name is interpolated into generated workflow YAML, so an unsafe one is passed over rather than emitted, and an unsafe value here does not mask a usable suffix. |
+| `branch` | `string` |  | Default branch of the destination repository, and the base that release PRs are opened against. Generated output itself is always pushed to the fixed `scalar-generated` branch, which the platform merges with custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release PR is raised from the integration branch against the branch named here, so merging it is the promotion. The branch is resolved by trying this value, then a `#branch` suffix on `repo`, then `main`, skipping any candidate that is not a safe git ref — the name is interpolated into generated workflow YAML, so an unsafe one is passed over rather than emitted, and an unsafe value here does not mask a usable suffix. |
+| `integrationBranch` | `string` |  | The branch where generated output is combined with custom code; defaults to `scalar-next`. Commit customizations here: the platform merges each regeneration from `scalar-generated` into it, raises release PRs from it, and the emitted release workflow syncs each released version back to it. An empty string means the default. Names are case-sensitive, like git. A value is rejected rather than replaced by the default when it is not a safe git ref (it must start with a letter or digit, use only letters, digits, `.`, `_`, `/` and `-`, and be a name git accepts: no `..`, no empty or `.`-leading path component, no `.lock` component suffix, no trailing `.`, and not `HEAD`), when it equals the default branch, `scalar-generated` or `scalar-merge-conflict`, when it and one of those or `scalar-next` are `/`-separated path prefixes of each other (`scalar-next/v2`), when it starts with `scalar-generated--`, `scalar-merge-conflict--`, `scalar-heal--` or `release-please--`, or when it contains `--components--`: the name is interpolated into generated workflow YAML, and those names are reserved for branches the platform and release-please manage. |
 
 ## publish
 
@@ -180,15 +181,15 @@ Registry or package description metadata.
 
 Homebrew formula publishing configuration for CLI packages. Unlike every other registry this is not a boolean toggle: enabling it requires an object naming the `tapRepo` to push the formula to. `false` (or omitting the key) disables Homebrew publishing.
 
-There is no registry account and no OIDC path here, so `authMethod` is unused. Each release clones the tap over HTTPS as `x-access-token` with the `HOMEBREW_TAP_TOKEN` repository secret, renders the formula into that clone, and commits it straight to the tap's default branch — no pull request, no review. The workflow's ambient `GITHUB_TOKEN` cannot stand in for that secret, because that token is scoped to the repository the workflow runs in and the tap is a different repository.
+There is no registry account and no OIDC path here, so `authMethod` is unused. Each release clones the tap over HTTPS as `x-access-token` with the `HOMEBREW_TAP_TOKEN` repository secret, renders the formula into that clone, and commits it straight to the tap's default branch — or, with `pullRequest`, opens a pull request for it instead. The workflow's ambient `GITHUB_TOKEN` cannot stand in for that secret, because that token is scoped to the repository the workflow runs in and the tap is a different repository.
 
 Setting Homebrew publishing up, once:
 
 1. **Create the tap repository** and name it `homebrew-<tap>` — see `tapRepo` for the naming and visibility it needs.
-2. **Mint the token.** A [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) needs **Resource owner** set to the tap's owner (the user or organization, not the SDK repository's owner if they differ), **Repository access** set to *Only select repositories* → the tap, and exactly one repository permission: **Contents: Read and write**. **Metadata: Read-only** is added automatically alongside it; nothing else is required — no Administration, no Workflows, no account permissions. A classic token works too, with the `repo` scope (`public_repo` is enough for a public tap), but it carries that access to every repository its account can reach, which is why the fine-grained token is worth the extra minute.
+2. **Mint the token.** A [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) needs **Resource owner** set to the tap's owner (the user or organization, not the SDK repository's owner if they differ), **Repository access** set to *Only select repositories* → the tap, and one repository permission: **Contents: Read and write** — plus **Pull requests: Read and write** when `pullRequest` is set. **Metadata: Read-only** is added automatically alongside it; nothing else is required — no Administration, no Workflows, no account permissions. A classic token works too, with the `repo` scope (`public_repo` is enough for a public tap), but it carries that access to every repository its account can reach, which is why the fine-grained token is worth the extra minute.
 3. **Check the token can actually push.** A token never exceeds what its own account has, so that account needs write access to the tap, and a fine-grained token owned by an organization member may sit unusable until an organization owner approves it under the organization's personal-access-token policy.
 4. **Store it as `HOMEBREW_TAP_TOKEN`** in the *destination* repository — the one holding the generated SDK and its release workflows, not the tap — under **Settings → Secrets and variables → Actions → New repository secret**. It is read by the release job in `release-please.yml`, and by `sdk-release.yml` if the manual re-publish workflow is used, so it has to be visible to both. When `releaseEnvironment` is set, an environment secret of the same name overrides the repository one.
-5. **Leave the push a way through.** Because the commit lands on the tap's default branch directly, a branch protection rule or ruleset there that requires a pull request, a review, or a status check blocks the release at its final step. Either leave the tap's default branch unprotected or add a bypass for the token's account.
+5. **Leave the push a way through.** By default the commit lands on the tap's default branch directly, so a branch protection rule or ruleset there that requires a pull request, a review, or a status check blocks the release at its final step. Either leave the tap's default branch unprotected, add a bypass for the token's account, or set `pullRequest` so the release opens a pull request instead — which also needs **Pull requests: Read and write** on the token.
 6. **Track the expiry.** A fine-grained token expires, and an expired one fails the release the moment it tries to reach the tap — on the clone, not the push, since that is where the credential is first used — after the version has already been published to every other registry, so the fix is a re-run rather than a clean retry. Renew it ahead of time, or choose a lifetime you will not be surprised by.
 
 One requirement no token covers: the **destination** repository's release assets have to be fetchable anonymously. The Homebrew step re-downloads with a plain `curl` the executables the asset step uploaded moments earlier — that upload is authenticated, this download is not — and pins those same URLs into the formula. A private destination repository therefore fails the release on that download, and would publish a formula no `brew install` could fetch even if it did not.
@@ -234,6 +235,24 @@ Homepage rendered into the generated Homebrew formula. Defaults to the target's 
 
 Description rendered into the generated Homebrew formula. Defaults to `<binary> command-line interface`.
 
+#### pullRequest
+
+**Type:** `boolean`
+
+Open a pull request against the tap instead of committing the formula straight to its default branch. Use it when the tap's default branch is protected by a branch protection rule or ruleset that requires a pull request, a review, or a status check — the direct push would otherwise fail the release at its final step.
+
+Each release pushes the formula update to a `<formula>-<version>` branch of the tap and opens a pull request from it into the tap's default branch; a re-run force-updates that branch and reuses the pull request already open for it, so it never opens a second one. Nothing merges the pull request for you: `brew install` and `brew upgrade` keep serving the previous version until someone merges it.
+
+The `HOMEBREW_TAP_TOKEN` then needs **Pull requests: Read and write** on the tap as well as **Contents: Read and write** — the push goes to a new branch rather than the protected one, and the pull request is opened with the same token. Defaults to `false`.
+
+#### replaceCask
+
+**Type:** `boolean`
+
+Retire a Homebrew **cask** of the same name that the tap already ships, so users who installed the CLI as that cask move to this formula instead of being left on the cask's last version or ending up with both installed. Set it when this CLI takes over a tap whose previous release tooling published a cask — GoReleaser's `homebrew_casks`, for example, writes `Casks/<name>.rb` — and the formula this workflow writes has the same name.
+
+When the tap holds a `Casks/**/<formula>.rb` that installs this CLI's command — it declares `binary "<binaryName>"` and no `app` — the release deletes it and records `"<formula>": "<owner>/<tap>"` in the tap's `tap_migrations.json`, in the same commit as the formula. That pair is Homebrew's own cask-to-formula migration: the next `brew update` on a machine with the cask installed installs the formula in its place (or, where Homebrew requires the formula to be trusted first, prints the `brew trust` and `brew install` commands that finish the move), and a later `brew uninstall --cask <formula>` leaves the formula's links alone. A same-named cask for anything else, such as a desktop app, is left in place, and the release log says so. New installs resolve to the formula, since the tap no longer holds a cask by that name. Once the cask is gone later releases change nothing here, and the migration entry stays in place for machines that have not updated since. Defaults to `false`.
+
 ## defaultFormat
 
 **Type:** `string`
@@ -253,6 +272,14 @@ Default error output format for CLI target generation.
 Whether the generated CLI ships shell completion scripts and the `completion` subcommand that prints them. Defaults to true.
 
 **Default:** `true`
+
+## subresourceSeparator
+
+**Type:** `"colon" | "space"`
+
+How the generated CLI spells a command under a nested resource. `colon` joins the resource chain into one command group (`projects:tasks create`), the shape Heroku-style `oclif` CLIs use. `space` nests each subresource as a subcommand of its parent (`projects tasks create`), the shape `gh`, `kubectl`, and `gcloud` use; `--help`, shell completion, man pages, the README, and the smoke test all follow the nested tree. Under `space` a subresource and a method of its parent resource would be the same command if they shared a name, and so would a root method and a top-level resource that has only subresources. A subresource whose accessor clashes with a method is already renamed for every target (`policies-resource`); a clash that survives that, such as a method whose `publicIdentifier` differs from its name, fails generation naming both commands rather than silently renaming either. Top-level resources and root methods are spelled the same either way. Defaults to `colon`.
+
+**Default:** `"colon"`
 
 ## credentialStore
 
