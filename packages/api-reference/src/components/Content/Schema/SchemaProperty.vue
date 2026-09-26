@@ -604,6 +604,16 @@ const isTreeRow = computed(
     !isCyclicProperty.value,
 )
 
+/** Named, always-open rows still own an indented child panel, without a toggle. */
+const isStaticTreeRow = computed(
+  (): boolean =>
+    isExpandable.value &&
+    !!props.noncollapsible &&
+    !!props.name &&
+    shouldDisplayHeadingComputed.value &&
+    !isCyclicProperty.value,
+)
+
 const isTreeOpen = computed(
   (): boolean =>
     isTreeRow.value &&
@@ -1091,13 +1101,13 @@ const onBeforeMatch = (): void => {
     <!-- Nothing inside a panel may add trailing height below the last row,
          so the descendant resets reach into the child Schema cards. -->
     <SchemaRailPanel
-      v-if="isTreeRow && isTreePanelRendered"
+      v-if="(isTreeRow && isTreePanelRendered) || isStaticTreeRow"
       :id="treePanelId"
       ref="treePanel"
       class="property-children mt-1.5 mb-0.5 [&_.schema-card]:mb-0! [&_.schema-card]:pb-0! [&_.schema-properties]:mb-0! [&_.schema-properties]:pb-0! [&_ul]:my-0! [&_ul]:py-0! [&[hidden=until-found]]:my-0 [&[hidden=until-found]]:border-s-0 [&[hidden]:not([hidden=until-found])]:hidden"
-      closeOnRail
+      :closeOnRail="isTreeRow"
       :depth="depth + 1"
-      :hidden="isTreeOpen ? undefined : 'until-found'"
+      :hidden="isStaticTreeRow || isTreeOpen ? undefined : 'until-found'"
       @beforematch="onBeforeMatch"
       @close="toggleTree">
       <!-- The panel is one level deeper than the row it belongs to -->
@@ -1112,7 +1122,7 @@ const onBeforeMatch = (): void => {
          v-else of the panel: a collapsed tree row must not fall through here.
          6px under a description keeps the 12px rhythm. -->
     <div
-      v-if="isExpandable && !isCyclicProperty && !isTreeRow"
+      v-if="isExpandable && !isCyclicProperty && !isTreeRow && !isStaticTreeRow"
       class="children [.property-description+&]:mt-1.5!">
       <!-- A container adds no rail, so its children keep this row's depth -->
       <Schema
