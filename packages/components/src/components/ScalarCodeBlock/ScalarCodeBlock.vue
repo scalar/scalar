@@ -15,7 +15,8 @@ import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useId } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
+import { computed, ref, useId, useTemplateRef } from 'vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 import type { StandardLanguageKey } from './types'
@@ -27,6 +28,17 @@ type BaseProps = {
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
+  /**
+   * Accessible name for the code scroller while it is a tab stop. Long code scrolls inside a
+   * focusable region so keyboard users can reach it, and a focusable region needs a name or
+   * screen readers announce nothing when focus lands on it.
+   */
+  label?: string
+  /**
+   * Accessible name for the copy button. The visible label only reads "Copy" (and the language)
+   * while the block is hovered, so the name has to say what is copied on its own.
+   */
+  copyLabel?: string
 }
 
 /**
@@ -38,6 +50,8 @@ const {
   lang = 'plaintext',
   lineNumbers = false,
   copy = 'hover',
+  label = 'Code sample',
+  copyLabel,
   content,
   prettyPrintedContent,
   hideCredentials,
@@ -100,6 +114,32 @@ const showCopy = computed(() => copy && isContentValid.value)
  */
 const reserveCopySpace = computed(() => isOneLine.value && showCopy.value)
 
+/** The scroll container around the highlighted code */
+const scroller = useTemplateRef<HTMLDivElement>('scroller')
+
+/** The `<pre>` is `w-fit`, so it is the element whose size changes when the code changes */
+const code = useTemplateRef<HTMLPreElement>('code')
+
+/**
+ * Whether the code overflows its container. A scrollable region has to stay reachable by
+ * keyboard (WCAG 2.1.1), but a block that fits does not need a tab stop of its own; an
+ * accessibility audit flagged the extra stop on short samples. Starts as true so the region is
+ * never unreachable before the first measurement, or where ResizeObserver does not exist (SSR,
+ * jsdom). A `display: none` block gets no initial notification and keeps the default until it
+ * is shown, which is harmless because a hidden element cannot be focused anyway.
+ */
+const isScrollable = ref(true)
+
+/** ResizeObserver reports once on observe and again whenever either box changes size */
+useResizeObserver([scroller, code], () => {
+  const el = scroller.value
+  if (!el) {
+    return
+  }
+  isScrollable.value =
+    el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight
+})
+
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
@@ -111,12 +151,21 @@ const { cx } = useBindCx()
         'relative bg-b-1 min-h-0 min-w-0 focus-visible:outline',
       )
     ">
-    <!-- Inherits the corners so the inset focus ring follows a rounded code block -->
+    <!--
+      Inherits the corners so the inset focus ring follows a rounded code block.
+      Only a tab stop, and only named, while there is something to scroll. `-1` rather than no
+      attribute keeps click focus, so the copy button stays revealed after a click exactly as
+      before, and opts the element out of the browser's keyboard-focusable-scroller heuristic.
+    -->
     <div
-      tabindex="0"
-      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1">
+      ref="scroller"
+      :aria-label="isScrollable ? label : undefined"
+      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1"
+      :role="isScrollable ? 'group' : undefined"
+      :tabindex="isScrollable ? 0 : -1">
       <pre
         :id="id"
+        ref="code"
         class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
@@ -131,6 +180,7 @@ const { cx } = useBindCx()
         { 'opacity-100': copy === 'always' },
       ]"
       :content="prettyContent"
+      :copyLabel="copyLabel"
       :showLang="!isOneLine"
       :lang="lang"
       :aria-controls="id">

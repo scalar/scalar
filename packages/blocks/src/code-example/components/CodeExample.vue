@@ -3,6 +3,11 @@ export type CodeExampleProps = {
   /** Localized status text shown when the selected example has no linked code sample. */
   codeSampleUnavailable?: string
   /**
+   * Localized accessible name for the focusable code sample. The selected client's title is
+   * appended so the announcement also says which language the sample is in.
+   */
+  codeSampleLabel?: string
+  /**
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
    */
@@ -179,6 +184,7 @@ import HttpMethod from './HttpMethod.vue'
 const {
   integration,
   codeSampleUnavailable = 'No code sample available for this example.',
+  codeSampleLabel = 'Code sample',
   clientOptions,
   selectedClient,
   selectedServer = null,
@@ -318,6 +324,18 @@ watch([() => selectedClient, clients], ([newClient]) => {
     localSelectedClient.value = client
   }
 })
+
+/**
+ * Accessible name for the focusable code sample, e.g. "Code sample: Shell cURL".
+ *
+ * Screen readers announce only the name and role when focus lands on the scroller, so the
+ * name tells the user both what the region is and which client it is generated for.
+ */
+const codeSampleAriaLabel = computed(() =>
+  [codeSampleLabel, localSelectedClient.value?.title]
+    .filter(Boolean)
+    .join(': '),
+)
 
 const elem = ref<ComponentPublicInstance | null>(null)
 const visible = useExampleVisibility(elem)
@@ -529,6 +547,7 @@ const id = useId()
           class="bg-b-2 h-full"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
+          :label="codeSampleAriaLabel"
           :lang="codeBlockLanguage"
           lineNumbers />
         <ScalarVirtualText

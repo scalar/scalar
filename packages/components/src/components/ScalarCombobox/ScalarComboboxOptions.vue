@@ -205,6 +205,24 @@ function addNew() {
   query.value = ''
 }
 
+/**
+ * Space toggles the active option in multiselect mode while the search box is empty.
+ *
+ * The options look like checkboxes, so keyboard users press Space to toggle them. Without this
+ * handler Space types a leading space into the query, which filters out every option whose label
+ * has no space and hides the whole list without any feedback (found by an accessibility audit).
+ * Once a query has been typed, Space keeps inserting a character so multi-word labels stay
+ * searchable. Key auto-repeat is ignored so holding Space after opening the popover with it does
+ * not toggle the option repeatedly, and IME composition is left alone.
+ */
+function handleSpace(event: KeyboardEvent) {
+  if (!multiselect || query.value !== '' || event.repeat || event.isComposing) {
+    return
+  }
+  event.preventDefault()
+  toggleSelected(activeRef.value)
+}
+
 // Manual autofocus for the input
 const input = ref<HTMLInputElement | null>(null)
 
@@ -231,6 +249,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       @keydown.down.prevent="moveActive(1)"
       @keydown.enter.prevent="activeRef && toggleSelected(activeRef)"
       @keydown.esc.prevent="close?.()"
+      @keydown.space="handleSpace"
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul

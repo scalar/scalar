@@ -102,6 +102,63 @@ describe('ScalarComboboxOptions', () => {
       expect(onUpdate).toHaveBeenCalledWith([singleOptions[1]])
     })
 
+    it('toggles the active option with Space in multiselect mode when the query is empty', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.space')
+
+      expect(onUpdate).toHaveBeenCalledWith([singleOptions[1]])
+      // The list stays visible so the user can keep selecting
+      expect(wrapper.findAllComponents(ScalarComboboxOption)).toHaveLength(3)
+    })
+
+    it('keeps inserting a space once a query has been typed', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('Opt')
+      const event = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      input.element.dispatchEvent(event)
+
+      expect(onUpdate).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('ignores repeated and composing Space presses', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown', { key: ' ', repeat: true })
+      await input.trigger('keydown', { key: ' ', isComposing: true })
+
+      expect(onUpdate).not.toHaveBeenCalled()
+    })
+
+    it('leaves Space alone in single select mode', () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      const event = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      input.element.dispatchEvent(event)
+
+      expect(onUpdate).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
     it('closes on Escape without changing the selection', async () => {
       const close = vi.fn()
       const onUpdate = vi.fn()

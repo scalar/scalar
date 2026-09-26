@@ -62,6 +62,7 @@ export const en = {
   },
   operation: {
     codeSampleUnavailable: 'No code sample available for this example.',
+    codeSample: 'Code sample',
     body: 'Body',
     cookies: 'Cookies',
     headers: 'Headers',

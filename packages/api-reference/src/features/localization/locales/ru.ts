@@ -63,6 +63,7 @@ export const ru = {
   },
   operation: {
     codeSampleUnavailable: 'Для этого примера нет доступного образца кода.',
+    codeSample: 'Пример кода',
     body: 'Тело',
     cookies: 'Cookie',
     headers: 'Заголовки',

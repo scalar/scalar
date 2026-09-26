@@ -1,6 +1,6 @@
 import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick, ref } from 'vue'
 
 import ScalarCopyButton from '../ScalarCopy/ScalarCopyButton.vue'
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
@@ -9,12 +9,52 @@ const mockWriteText = vi.fn().mockResolvedValue(undefined)
 const mockCopy = vi.fn()
 const mockCopied = ref(false)
 
-vi.mock('@vueuse/core', () => ({
+// Keep the real module (useResizeObserver drives the tab stop) and only replace the clipboard
+vi.mock('@vueuse/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@vueuse/core')>()),
   useClipboard: vi.fn(() => ({
     copy: mockCopy,
     copied: mockCopied,
   })),
 }))
+
+/**
+ * jsdom has no ResizeObserver, so install a stub that records the callbacks and lets a test
+ * fire them by hand after faking the scroll metrics.
+ */
+const stubResizeObserver = () => {
+  const callbacks: ResizeObserverCallback[] = []
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(callback: ResizeObserverCallback) {
+        callbacks.push(callback)
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  )
+  return callbacks
+}
+
+/** Fakes the layout metrics jsdom never computes */
+const setScrollMetrics = (
+  element: Element,
+  metrics: {
+    scrollWidth: number
+    clientWidth: number
+    scrollHeight: number
+    clientHeight: number
+  },
+) => {
+  Object.defineProperties(element, {
+    scrollWidth: { value: metrics.scrollWidth, configurable: true },
+    clientWidth: { value: metrics.clientWidth, configurable: true },
+    scrollHeight: { value: metrics.scrollHeight, configurable: true },
+    clientHeight: { value: metrics.clientHeight, configurable: true },
+  })
+}
 
 // Mock navigator.clipboard
 Object.defineProperty(navigator, 'clipboard', {
@@ -41,7 +81,77 @@ beforeEach(() => {
   mockCopied.value = false
 })
 
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
 describe('ScalarCodeBlock', () => {
+  describe('keyboard access to the scroller', () => {
+    it('keeps the scroller focusable and named before it is measured', async () => {
+      wrapper = createWrapper()
+      await flushPromises()
+
+      const scroller = wrapper.get('.custom-scroll')
+      expect(scroller.attributes('tabindex')).toBe('0')
+      expect(scroller.attributes('role')).toBe('group')
+      expect(scroller.attributes('aria-label')).toBe('Code sample')
+    })
+
+    it('uses the label prop as the accessible name', async () => {
+      const labelled = mount(ScalarCodeBlock, {
+        props: { content: 'console.log()', lang: 'js', label: 'Codebeispiel' },
+      })
+      await flushPromises()
+
+      expect(labelled.get('.custom-scroll').attributes('aria-label')).toBe('Codebeispiel')
+    })
+
+    it('drops the tab stop when the code fits', async () => {
+      const callbacks = stubResizeObserver()
+      wrapper = createWrapper()
+      await flushPromises()
+
+      const scroller = wrapper.get('.custom-scroll')
+      setScrollMetrics(scroller.element, { scrollWidth: 100, clientWidth: 100, scrollHeight: 40, clientHeight: 40 })
+      callbacks[0]?.([], {} as ResizeObserver)
+      await nextTick()
+
+      expect(scroller.attributes('tabindex')).toBe('-1')
+      expect(scroller.attributes('role')).toBeUndefined()
+      expect(scroller.attributes('aria-label')).toBeUndefined()
+    })
+
+    it('keeps the tab stop while the code overflows and re-measures on resize', async () => {
+      const callbacks = stubResizeObserver()
+      wrapper = createWrapper()
+      await flushPromises()
+
+      const scroller = wrapper.get('.custom-scroll')
+      setScrollMetrics(scroller.element, { scrollWidth: 300, clientWidth: 100, scrollHeight: 40, clientHeight: 40 })
+      callbacks[0]?.([], {} as ResizeObserver)
+      await nextTick()
+
+      expect(scroller.attributes('tabindex')).toBe('0')
+      expect(scroller.attributes('role')).toBe('group')
+
+      // The container grew, so nothing scrolls any more
+      setScrollMetrics(scroller.element, { scrollWidth: 300, clientWidth: 300, scrollHeight: 40, clientHeight: 40 })
+      callbacks[0]?.([], {} as ResizeObserver)
+      await nextTick()
+
+      expect(scroller.attributes('tabindex')).toBe('-1')
+    })
+
+    it('keeps the copy button outside the scroll region', async () => {
+      wrapper = createWrapper()
+      await flushPromises()
+
+      // A focusable control inside the scroller could be focused while scrolled out of view
+      const copyButton = wrapper.findComponent(ScalarCopyButton)
+      expect(wrapper.get('.custom-scroll').element.contains(copyButton.element)).toBe(false)
+    })
+  })
+
   it('renders properly', async () => {
     wrapper = createWrapper()
 
@@ -145,6 +255,34 @@ describe('ScalarCodeBlock', () => {
       // Check that the button is not rendered
       const button = wrapper.find('button.copy-button')
       expect(button.exists()).toBe(false)
+    })
+
+    it('names the copy button after the language it copies', async () => {
+      wrapper = mount(ScalarCodeBlock, {
+        props: { content: 'line one\nline two', lang: 'javascript' },
+      })
+      await flushPromises()
+
+      const button = wrapper.findComponent(ScalarCopyButton).get('button')
+      expect(button.attributes('aria-label')).toBe('Copy JavaScript code')
+      // The visible word stays part of the name (WCAG 2.5.3)
+      expect(button.text()).toContain('Copy')
+    })
+
+    it('uses a plain name for a one-line block that shows no language', async () => {
+      wrapper = createWrapper()
+      await flushPromises()
+
+      expect(wrapper.findComponent(ScalarCopyButton).get('button').attributes('aria-label')).toBe('Copy code')
+    })
+
+    it('forwards a localized copy label', async () => {
+      wrapper = mount(ScalarCodeBlock, {
+        props: { content: 'console.log()', lang: 'js', copyLabel: 'Code kopieren' },
+      })
+      await flushPromises()
+
+      expect(wrapper.findComponent(ScalarCopyButton).get('button').attributes('aria-label')).toBe('Code kopieren')
     })
   })
 })

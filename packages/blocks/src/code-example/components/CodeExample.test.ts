@@ -17,7 +17,9 @@ enableAutoUnmount(afterEach)
 // Mock the useClipboard hook from VueUse
 const mockCopy = vi.fn()
 const mockCopied = ref(false)
-vi.mock('@vueuse/core', () => ({
+// Keep the real module (the code block's tab stop relies on useResizeObserver) and only replace the clipboard
+vi.mock('@vueuse/core', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@vueuse/core')>()),
   useClipboard: () => ({
     copy: mockCopy,
     copied: mockCopied,
@@ -1593,7 +1595,8 @@ describe('RequestExample', () => {
       // Check for proper ARIA attributes
       const button = copyButton.find('button')
       expect(button.exists()).toBe(true)
-      // The button may not have aria-label directly, but should have proper structure
+      // The name says what is copied even while the visible label is hidden
+      expect(button.attributes('aria-label')).toBe('Copy JSON code')
       // Check for proper controls attribute on the ScalarCodeBlockCopy component
       const ariaControls = copyButton.attributes('aria-controls')
       expect(ariaControls).toBeTruthy()
@@ -1717,18 +1720,19 @@ describe('RequestExample', () => {
   })
 
   describe('Accessibility', () => {
-    it('has proper ARIA labels', () => {
+    it('names the focusable code sample after the selected client', async () => {
       const wrapper = mount(RequestExample, {
         props: defaultProps,
       })
 
-      const card = wrapper.findComponent({ name: 'Card' })
-      if (card.exists()) {
-        expect(card.attributes('aria-labelledby')).toBeTruthy()
-        expect(card.attributes('role')).toBe('region')
-      } else {
-        expect(true).toBe(true)
-      }
+      // jsdom never reports overflow, so the scroller keeps its initial tab stop and name here
+      const scroller = wrapper.get('.code-snippet [tabindex]')
+      expect(scroller.attributes('tabindex')).toBe('0')
+      expect(scroller.attributes('role')).toBe('group')
+      expect(scroller.attributes('aria-label')).toBe('Code sample: Shell cURL')
+
+      await wrapper.setProps({ codeSampleLabel: 'Codebeispiel' })
+      expect(scroller.attributes('aria-label')).toBe('Codebeispiel: Shell cURL')
     })
   })
 })

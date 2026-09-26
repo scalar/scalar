@@ -62,6 +62,7 @@ export const zhCn = {
   },
   operation: {
     codeSampleUnavailable: '此示例暂无可用的代码示例。',
+    codeSample: '代码示例',
     body: '请求体',
     cookies: 'Cookie',
     headers: '请求头',

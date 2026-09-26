@@ -315,6 +315,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :key="requestBodyCompositionSelectionKey"
             class="operation-example-card"
             :clientOptions
+            :codeSampleLabel="translate('operation.codeSample')"
             :codeSampleUnavailable="
               translate('operation.codeSampleUnavailable')
             "
