@@ -15,7 +15,11 @@
     "documentation/assets/brand.js",
     "documentation/assets/enterprise-contact-form.js",
     "documentation/assets/company.js",
-    "documentation/assets/sdk-demo.js"
+    "documentation/assets/sdk-demo.js",
+    "documentation/assets/structured-data.js",
+    // Free tool widgets: the page scripts are referenced in scalar.config.json and
+    // load their modules with dynamic import() at runtime, which knip cannot trace
+    "documentation/assets/free-tools/*.js"
   ],
   "ignore": [
     // Loaded at runtime by `@scalar/release-notes` (release:version script), not statically imported

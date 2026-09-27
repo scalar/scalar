@@ -134,7 +134,7 @@
   box-shadow: inset 0 0 0 2px var(--scalar-color-accent);
 }
 
-.scalar-tool-textarea[data-dragging='true'] {
+.scalar-tool-textarea[data-dragging="true"] {
   background: var(--scalar-background-2);
 }
 
@@ -212,7 +212,7 @@
   font-size: 0.8125rem;
 }
 
-.scalar-tool-segment[aria-checked='true'] {
+.scalar-tool-segment[aria-checked="true"] {
   background: var(--scalar-background-3, var(--scalar-background-2));
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold, 600);
@@ -225,16 +225,16 @@
   border-left: 3px solid var(--scalar-border-color);
 }
 
-.scalar-tool-summary[data-state='valid'] {
+.scalar-tool-summary[data-state="valid"] {
   border-left-color: var(--scalar-color-green);
 }
 
-.scalar-tool-summary[data-state='invalid'],
-.scalar-tool-summary[data-state='parse-error'] {
+.scalar-tool-summary[data-state="invalid"],
+.scalar-tool-summary[data-state="parse-error"] {
   border-left-color: var(--scalar-color-red);
 }
 
-.scalar-tool-summary[data-state='warning'] {
+.scalar-tool-summary[data-state="warning"] {
   border-left-color: var(--scalar-color-orange);
 }
 
@@ -450,7 +450,7 @@
   font-size: 0.8125rem;
 }
 
-.scalar-tool-tab[aria-selected='true'] {
+.scalar-tool-tab[aria-selected="true"] {
   background: var(--scalar-background-2);
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold, 600);
@@ -502,7 +502,7 @@
 }
 
 /* Two editors side by side need less height each. */
-.scalar-tool[data-scalar-tool='openapi-diff'] .scalar-tool-textarea {
+.scalar-tool[data-scalar-tool="openapi-diff"] .scalar-tool-textarea {
   min-height: 18rem;
 }
 
