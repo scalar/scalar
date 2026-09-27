@@ -1,5 +1,7 @@
 # Scalar vs Postman
 
+*Last updated: September 2026*
+
 Postman is the default API client for millions of developers, and it earned that position. If you are evaluating API tooling, it is almost certainly already on your list — it may be the tool you are using right now.
 
 This page is written by Scalar, so read it with that in mind. Every claim we make about Postman links to Postman's own documentation, pricing page, or public repositories. If we have something wrong, tell us and we will fix it.
@@ -18,7 +20,7 @@ The short version: Postman is a large collaboration platform built around its ow
 | Where your work lives | Local, offline-first | Synced to Postman's cloud when signed in |
 | OpenAPI | The working format itself | [Imported and converted](https://learning.postman.com/docs/design-apis/specifications/import-a-specification/) to collections |
 | Documentation | Same platform, same OpenAPI document | [Generated from collections](https://learning.postman.com/docs/publishing-your-api/api-documentation-overview/); full sites via Fern |
-| SDK generation | Native — TypeScript, Python, C#, Java, PHP, Go | Code snippets in the client; SDKs via Fern |
+| SDK generation | Native. Generally available: TypeScript, Python, Go, CLI; more targets experimental | [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview), nine languages, Team plan and up; Fern sold separately |
 | Client pricing | Free on every plan | [Free tier; paid from $9/month](https://www.postman.com/pricing/) |
 | Platforms | Web, macOS, Windows, Linux | [Web, macOS, Windows, Linux](https://www.postman.com/downloads/) |
 
@@ -28,11 +30,13 @@ We would rather you hear this from us than find out after switching.
 
 **Ecosystem and reach.** Postman says it serves [more than 500,000 companies worldwide, including 98% of the Fortune 500](https://blog.postman.com/postman-acquires-fern/). The [Public API Network](https://www.postman.com/explore) is a genuine discovery channel where companies publish workspaces and collections for their public APIs. Nothing else in the category has this gravity, and if your users expect to find your API on Postman, that expectation is itself a reason to be there.
 
-**Protocol breadth today.** Postman's client handles [HTTP, gRPC, GraphQL, and WebSocket requests](https://learning.postman.com/docs/getting-started/basics/using-api-client/). Scalar's client is HTTP-first; gRPC, GraphQL, WebSocket, and SOAP clients are [on our roadmap](../guides/pricing.md) but not shipped. If you need to test non-HTTP protocols this week, Postman does it and we do not yet.
+**Protocol breadth today.** Postman's client handles [HTTP, WebSocket, gRPC, GraphQL, Socket.IO, and MQTT requests](https://learning.postman.com/docs/getting-started/basics/using-api-client/). Scalar's client is HTTP-first; gRPC, GraphQL, WebSocket, and SOAP clients are [on our roadmap](../guides/pricing.md) but not shipped. If you need to test non-HTTP protocols this week, Postman does it and we do not yet.
 
 **Team collaboration in the cloud.** Shared workspaces, commenting, role-based access control, and cloud sync across devices are mature and central to Postman. Scalar's client stores your work locally, and cloud sync is [coming soon](../guides/pricing.md) — which means teams that want a synced, shared workspace get one from Postman today and not from us.
 
 **Platform breadth.** [Scheduled monitors](https://learning.postman.com/docs/monitoring-your-api/intro-monitors/), [mock servers](https://learning.postman.com/docs/design-apis/mock-apis/set-up-mock-servers/), and a [large integration directory](https://learning.postman.com/docs/integrations/intro-integrations/) covering CI, APM, and messaging tools. Scalar has a [mock server](https://github.com/scalar/scalar/tree/main/packages/mock-server) and CI workflows, but Postman's breadth here is real.
+
+**SDKs from collections, in more languages.** The [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview) turns a collection or an OpenAPI document into client libraries in TypeScript, Python, Java, Kotlin, C#, Go, PHP, Ruby, and Rust, and preserves custom code across regenerations. If your source of truth is a Postman Collection rather than an OpenAPI document, that is a path Scalar does not offer.
 
 **Switching friction is real.** If your team has years of collections, monitors, mock servers, and workspace history in Postman, migrating is work. Our importer brings your collections across, but it does not bring your monitors, your mocks, or your history. Anyone who tells you switching is free is selling something.
 
@@ -68,9 +72,9 @@ And because the reference embeds the client, every operation in your docs has a 
 
 ## SDKs
 
-Postman's client generates [code snippets](https://github.com/postmanlabs/postman-code-generators) for a request in a wide range of languages — open source, and genuinely useful for copy-paste. But a snippet is not a client library. For SDK generation proper, Postman's answer is now Fern: since the [acquisition](https://blog.postman.com/postman-acquires-fern/), publishing client libraries from Postman means adopting Fern's stack, where the free tier [caps at 50 endpoints](https://buildwithfern.com/pricing) and most SDK capability is Enterprise, priced per SDK and billed annually with no published rate. We compare Fern's generated output in detail [on its own page](./fern.md).
+Postman's client generates [code snippets](https://github.com/postmanlabs/postman-code-generators) for a request in a wide range of languages — open source, and genuinely useful for copy-paste. For client libraries proper, Postman now has two answers. The [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview) is built into the platform on the [Team and Enterprise plans](https://www.postman.com/pricing/): it generates SDKs from a collection or an OpenAPI document in nine languages, with automated regeneration on Enterprise. And [Fern](https://buildwithfern.com/pricing), acquired in January 2026, is still sold as a separate product with its own free tier and per-SDK Enterprise pricing. We compare Fern's generated output in detail [on its own page](./fern.md).
 
-Scalar generates SDKs natively — TypeScript, Python, C#, Java, PHP, and Go — from the same OpenAPI document that renders your reference and drives the client, in the same generation run, so your docs, your client, and your libraries cannot describe different APIs. Custom code survives regeneration through a three-way merge, one language target is included with every plan, and additional targets start at a published [$150/month each](../guides/pricing.md). You can work out what it costs without talking to sales.
+The difference from Scalar is less about whether SDKs exist and more about what drives them. In Postman the collection is a first-class input, and SDK generation is priced into per-seat plans. Scalar generates SDKs natively from the same OpenAPI document that renders your reference and drives the client, in the same generation run, so your docs, your client, and your libraries cannot describe different APIs. Custom code survives regeneration through a three-way merge, one language target is included with every plan, and additional targets start at a published [$150/month each](../guides/pricing.md). You can work out what it costs without talking to sales.
 
 ## Scripting, tests, and moving over
 
@@ -80,18 +84,73 @@ The client [imports Postman Collections](../guides/app/import.md) (v2.0 and v2.1
 
 ## Pricing
 
-Postman's [pricing](https://www.postman.com/pricing/) at the time of writing: a free tier for one user, then Solo at $9/month, Team at $19 per user per month, and Enterprise at $49 per user per month, billed annually. The free tier is genuinely usable, and the paid tiers are reasonable for what the platform does — but the cost scales with every seat, and the features that make Postman sticky (shared workspaces, RBAC, higher API call limits) are the ones that add seats.
+| Plan | Scalar ([pricing](https://scalar.com/pricing)) | Postman ([pricing](https://www.postman.com/pricing/)) |
+| --- | --- | --- |
+| Free | $0: full API client for anyone; docs with 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints | $0, 1 user |
+| Entry paid | Pro, $150/month flat ($125/month billed yearly), 5 editor seats, 1 SDK | Solo, $9/month billed annually, 1 user |
+| Team tier | Business, $600/month flat ($500/month billed yearly), 10 editor seats, SSO | Team, $19 per user/month billed annually, includes SDK generation |
+| Top tier | Enterprise, custom | Enterprise, contact sales |
+
+Prices checked on 26 September 2026. Postman's monthly-billed prices are higher than the annual figures shown.
+
+A free tier for one user, then Solo and Team priced per user, with Enterprise now quoted by sales rather than listed. The free tier is genuinely usable, and the paid tiers are reasonable for what the platform does — but the cost scales with every seat, and the features that make Postman sticky (shared workspaces, RBAC, SDK generation) are the ones that add seats.
 
 Scalar's API client is free and open source for everyone, on every plan, with no per-seat fee, because it is not where we make money. The [docs platform](../guides/pricing.md) starts free and is $150/month on Pro with 5 editor seats included — a flat price, not per user.
 
+## Postman vs Scalar
+
+If Postman is already where your team works, start from what you would lose. Years of collections, monitors, mock servers, and shared workspace history do not move, and Postman's reach through the Public API Network is real distribution. If you test gRPC, GraphQL, WebSocket, or MQTT APIs every week, or you need cloud-synced team workspaces today, Postman remains the right call and we would not push you off it.
+
+Scalar makes sense when the friction is the account and the format. Teams usually look at Scalar because credentials for internal APIs are not supposed to sync to someone else's cloud, because the collection has quietly become a second source of truth next to the OpenAPI document, or because paying per seat for an API client feels wrong. Scalar's client is MIT licensed, works fully offline without an account, and reads your OpenAPI document directly.
+
+A gradual move is common. [Import your Postman Collections](../guides/app/import.md), keep your `pm.test()` scripts, and run both clients side by side for a sprint. Postman does not need to disappear on day one.
+
 ## Which should you choose?
 
-**Choose Postman if** your team needs gRPC, GraphQL, or WebSocket testing today, depends on monitors and mock servers at scale, wants cloud-synced team workspaces right now, or benefits from publishing to the Public API Network.
+**Choose Postman if** your team needs gRPC, GraphQL, WebSocket, or MQTT testing today, generates SDKs from Postman Collections rather than OpenAPI, depends on monitors and mock servers at scale, wants cloud-synced team workspaces right now, or benefits from publishing to the Public API Network.
 
 **Choose Scalar if** OpenAPI is your source of truth and you want it to stay that way, you want an API client you can read and fork under MIT, you want your requests and credentials to stay on your machine, you do not want per-seat pricing for an API client, or you want documentation, SDKs, and the client generated from the same document on one platform.
 
 [Try the API client](../guides/app/index.md), [start free](https://dashboard.scalar.com/register), or [talk to us](https://scalar.cal.com/).
 
+## Frequently asked questions
+
+<scalar-detail title="Is Scalar a free alternative to Postman?">
+
+The Scalar API client is free and MIT licensed for everyone, with no per-seat fee and no account required. Postman also has a free plan, [limited to one user](https://www.postman.com/pricing/); team collaboration starts on Team at $19 per user per month billed annually.
+
+</scalar-detail>
+
+<scalar-detail title="Can I import my Postman Collections into Scalar?">
+
+Yes. The Scalar client [imports Postman Collections](../guides/app/import.md) in v2.0 and v2.1, converting requests, folders, and basic authentication settings. Pre-request scripts and tests written with `pm.test()`, `pm.expect()`, and `pm.response` largely carry over. Monitors, mock servers, and workspace history do not.
+
+</scalar-detail>
+
+<scalar-detail title="Does Postman work offline?">
+
+Partly. Signed out, Postman's [lightweight API client](https://learning.postman.com/docs/getting-started/basics/using-api-client/) sends requests and keeps local history, but collections, environments, variables, and workspaces need you to sign in. Scalar's full client, including collections and environments, works offline without an account.
+
+</scalar-detail>
+
+<scalar-detail title="Does Scalar support gRPC, GraphQL, or WebSocket like Postman?">
+
+Not yet. Scalar's client is HTTP-first, with streaming support for server-sent events. gRPC, GraphQL, WebSocket, and SOAP clients are on the roadmap. If you need them this week, Postman supports them today.
+
+</scalar-detail>
+
+<scalar-detail title="Does Postman generate SDKs?">
+
+Yes. The [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview) is available on the Team and Enterprise plans and generates client libraries from collections or OpenAPI documents. Postman also owns Fern, which is sold separately. Scalar generates SDKs from your OpenAPI document; TypeScript, Python, Go, and a CLI are generally available, with other languages experimental.
+
+</scalar-detail>
+
+## Related
+
+- **Learn:** [What is an API client?](/learn/openapi/what-is-an-api-client) · [What is OpenAPI?](/learn/openapi/what-is-openapi)
+- **Docs:** [Import Postman Collections](../guides/app/import.md) · [Postman alternatives](/alternatives/postman) · [Scalar vs Fern](./fern.md)
+- **Product:** [Scalar API Client](/products/api-client) — an MIT, offline-first client that reads your OpenAPI document directly
+
 ---
 
-*This comparison is based on Postman's publicly available documentation, pricing page, and public repositories as of July 2026, and on Scalar's own source. Postman ships quickly and their platform may change. We have made a genuine effort to be accurate and to state where Postman is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+*This comparison is based on Postman's publicly available documentation, pricing page, and public repositories as of September 2026, and on Scalar's own source. Postman ships quickly and their platform may change. We have made a genuine effort to be accurate and to state where Postman is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
