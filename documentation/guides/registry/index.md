@@ -1,6 +1,8 @@
-# Registry
+# API registry for OpenAPI and AsyncAPI
 
-Store, version, and manage OpenAPI and AsyncAPI documents, JSON Schema, and Spectral rules in one source of truth with a deep Git integration.
+Keep every OpenAPI and AsyncAPI document your company publishes in one versioned API registry, and power docs, SDKs, and MCP servers from it.
+
+Scalar Registry stores, versions, and manages OpenAPI and AsyncAPI documents, JSON Schema, and Spectral rules in one source of truth with a deep Git integration.
 
 <div class="flex gap-2">
   <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
@@ -14,6 +16,24 @@ Store, version, and manage OpenAPI and AsyncAPI documents, JSON Schema, and Spec
   alt="Scalar Registry interface"
   size="full">
 </scalar-image>
+
+## Why teams put their APIs in Scalar
+
+- **One document, every interface.** A single API document in Registry feeds your [API documentation](/products/docs), [SDKs](/products/sdk-generator), and [hosted MCP servers](/products/agent/mcp), so they cannot drift apart.
+- **Built on open standards and open source.** Scalar's API tooling is developed in the open at [github.com/scalar/scalar](https://github.com/scalar/scalar), with 15.7k GitHub stars. The API reference that renders your registry documents is documented on [Microsoft Learn](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents#use-scalar-for-interactive-api-documentation) and is the default docs UI in eight frameworks.
+- **Used by teams that run many APIs.** Companies such as Thomson Reuters, Lufthansa, and PAR publish developer portals with Scalar; see [customers](/customers).
+
+## Publish from the command line or CI
+
+Registry fits the way API descriptions are already produced. Push a document with one [CLI](cli.md) command, `scalar registry publish ./openapi.yaml --namespace your-team --slug your-api`, or wire the same step into [GitHub Actions](github-actions.md) or [GitLab CI/CD](gitlab-ci.md) so every merge publishes a new version. The command is the same for OpenAPI and [AsyncAPI](../../asyncapi.md) documents. Prefer clicking? [Upload](upload.md) in the dashboard instead.
+
+## Governance with Spectral rules
+
+Store Spectral-compatible [rules](rules.md) in Registry and lint every document against the same ruleset, locally with `scalar document lint` or in CI before a change is published. Shared [JSON Schema](schemas.md) objects live next to the APIs that reference them, so common models are defined once.
+
+## Where your OpenAPI documents come from
+
+Many teams generate their OpenAPI document from code. The framework guides for [.NET](/docs-for/dotnet), [FastAPI](/docs-for/fastapi), and [NestJS](/docs-for/nestjs) show how, and the [learn hub](/learn) covers OpenAPI itself. Every plan includes Registry; plans differ in how many APIs you can publish (3 on Free, 15 on Pro, 25 on Business, unlimited on Enterprise). [Start free](https://dashboard.scalar.com/register) or [book a demo](https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a).
 
 ## Why a Registry?
 
@@ -98,6 +118,50 @@ Follow the [Getting Started guide](getting-started.md) to create an account and 
   <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
   <a class="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
 </div>
+
+## Frequently asked questions
+
+<scalar-detail title="What is an API registry?">
+
+An API registry is the central, versioned store for your API descriptions. Instead of OpenAPI files scattered across repositories and wikis, every team publishes to one place, and docs, SDKs, and other tools read from it.
+
+</scalar-detail>
+
+<scalar-detail title="Does Scalar Registry support AsyncAPI?">
+
+Yes. Registry stores and publishes AsyncAPI documents the same way as OpenAPI. `scalar document lint` also lints AsyncAPI with Spectral's AsyncAPI ruleset; `scalar document validate` is OpenAPI-only today.
+
+</scalar-detail>
+
+<scalar-detail title="How do I publish an OpenAPI document to the registry?">
+
+Run `scalar registry publish ./openapi.yaml --namespace your-team --slug your-api` with the Scalar CLI, use the [GitHub Actions](github-actions.md) or [GitLab CI/CD](gitlab-ci.md) examples, or upload the file in the dashboard.
+
+</scalar-detail>
+
+<scalar-detail title="Can I keep API documents private?">
+
+Yes. You control whether each API document is internal, shared with a team, or public, and the CLI can publish a version as private.
+
+</scalar-detail>
+
+<scalar-detail title="Can I lint API documents with my own rules?">
+
+Yes. Store Spectral-compatible rulesets in Registry and reference them with `scalar document lint --rule`, locally or in CI. See [rules](rules.md).
+
+</scalar-detail>
+
+<scalar-detail title="Is Registry free?">
+
+Registry is part of every plan, including Free. The Free plan covers up to 3 APIs, and larger plans raise that limit. See [pricing](/pricing).
+
+</scalar-detail>
+
+## Related
+
+- **Learn:** [What is OpenAPI?](/learn/openapi/what-is-openapi) · [API catalog](/learn/openapi/api-catalog)
+- **Docs:** [Publish with the CLI](/products/registry/cli)
+- **Product:** [SDK generator](/products/sdk-generator) — generate typed clients from the documents in your registry
 
 <style>
   .t-editor__anchor {

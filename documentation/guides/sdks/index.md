@@ -1,6 +1,6 @@
 <div class="relative flex flex-col gap-3 hero">
   <scalar-heading level="1" slug="sdk-generator" class="text-balance">
-    SDK Generator
+    SDK generator from OpenAPI
   </scalar-heading>
   <a
     class="sdk-migration-cta inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
@@ -13,7 +13,7 @@
     </span>
   </a>
   <p>
-    Idiomatic, type-safe client libraries generated from the OpenAPI document your team already maintains. Pick your targets, review real code in minutes, and publish from your own repositories through pull requests you control.
+    Generate idiomatic, type-safe SDKs and a CLI from the OpenAPI document your team already maintains. TypeScript, Python, Go, and CLI targets are generally available, and nine more languages are available as experimental targets. Pick your targets, review real code in minutes, and publish from your own repositories through pull requests you control.
   </p>
   <div class="flex flex-wrap gap-2">
     <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
@@ -479,6 +479,16 @@ func main() {
   </div>
 </div>
 
+## Why teams generate SDKs with Scalar
+
+- **SDKs that already ship.** Warp publishes its [TypeScript](https://github.com/TeamWarp/warp-sdk-typescript), [Python](https://github.com/TeamWarp/warp-sdk-python), and [Go](https://github.com/TeamWarp/warp-sdk-go) SDKs and its [CLI](https://github.com/TeamWarp/warp-cli) from Scalar, after moving off a discontinued vendor with no breaking changes for its users. [Read the Warp story](/customers/warp). Profound and Dedalus Labs generate their SDKs with Scalar too; see [customers](/customers).
+- **From the team behind a 15.7k-star open-source project.** The same OpenAPI tooling powers the MIT-licensed [Scalar API Reference](/products/api-references), which Microsoft Learn documents for ASP.NET Core and eight frameworks ship as their default documentation UI.
+- **Honest about maturity.** Four targets are generally available and carry end-to-end tests. Everything else is labeled experimental, in the dashboard and on this page, until it earns the label.
+
+An SDK generator reads your OpenAPI document and writes the client library your users would otherwise write by hand: typed models, one method per operation, authentication, retries, pagination, and a README. Scalar does that per language rather than from one shared template, so a Python client reads like Python and a Go client reads like Go. The language pages go deeper on [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Go](/sdk/go).
+
+Your OpenAPI document has to come from somewhere first. If it is generated from code, the framework guides for [.NET](/docs-for/dotnet), [FastAPI](/docs-for/fastapi), and [NestJS](/docs-for/nestjs) show how to get a clean document out of your app, and [generating an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) walks through the whole process. For the bigger picture, start at the [learn hub](/learn).
+
 ## Targets and registries
 
 Every target publishes to the registry its ecosystem expects, using workflows generated into your repository.
@@ -744,7 +754,7 @@ Every plan includes one SDK target, and pricing scales with the size of your SDK
 
 A target becomes billable when you save a version and queue its build. Drafts are never billed. [See the full comparison](../pricing.md) for SDKs and the other Scalar products.
 
-## Questions
+## Frequently asked questions
 
 <scalar-detail title="Which targets are production ready?">
 
@@ -796,6 +806,12 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
   <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
   <a class="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
 </div>
+
+## Related
+
+- **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [Build vs buy an SDK](/learn/sdk/build-vs-buy-sdk)
+- **Docs:** [Getting started with the SDK generator](/products/sdk-generator/getting-started)
+- **Product:** [Registry](/products/registry) — keep the OpenAPI document your SDKs follow versioned in one place
 
 <style>
   .t-editor__anchor {
