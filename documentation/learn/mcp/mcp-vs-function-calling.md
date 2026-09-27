@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 Function calling is a feature of a model's API that lets the model return a structured request to run a function you described, while the Model Context Protocol (MCP) is an open protocol that standardizes how an AI application discovers and calls tools that live in separate servers. They are not competitors. MCP sits one layer above function calling: an MCP client fetches tool definitions from a server and hands them to the model through function calling, then sends the model's chosen call back to the server to run.
 
 So the real question is rarely "MCP or function calling?" It is "should my tools be defined inside my application, or published by a server that any MCP-capable application can connect to?" This article explains both, shows the same tool in each format, and gives a practical way to decide.

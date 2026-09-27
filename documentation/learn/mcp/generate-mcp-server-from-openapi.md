@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 To generate an MCP server from OpenAPI, you turn the operations in your OpenAPI document into MCP tools: each tool gets a name (usually from the `operationId`), a description (from the `summary` and `description`), and a JSON Schema input built from the operation's parameters and request body, and its handler sends the matching HTTP request to your API. You can write that server yourself with an official MCP SDK, generate its code with a tool, or use a hosted service that serves the tools straight from the document.
 
 All three approaches work. They differ in how much code you own, where the server runs, and how well the result holds up when your API has hundreds of operations. This guide walks through each approach honestly, shows a complete, tested TypeScript server built on the official SDK, and then covers the design decisions that decide whether an agent can actually use what you generated: tool selection, naming, descriptions, authentication, pagination, and tool-count limits.

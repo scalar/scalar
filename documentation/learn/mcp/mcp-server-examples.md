@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 MCP server examples fall into two groups: the official reference servers maintained by the Model Context Protocol project, which show how the protocol works, and production servers run by companies such as GitHub, Stripe, Sentry and Linear, which let AI applications use their products. Every server on this page is real and public, and each entry links to the maintainer's own documentation so you can check the details yourself.
 
 We picked servers that are useful to learn from, not only popular ones. Between them they cover local and remote transports, OAuth and API keys, small and large tool sets, and the design choices that separate a pleasant server from a frustrating one.

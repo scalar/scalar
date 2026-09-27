@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 API mocking means running a fake version of an API that answers requests with realistic responses, so that frontend code, tests, demos and integrations can be built before the real backend exists or without depending on it. An OpenAPI mock server is the most practical way to do it: it reads your OpenAPI document and serves every endpoint described there, returning the examples and schemas you already wrote.
 
 The appeal is simple. The contract is already written down, so the mock is free. Change the document and the mock changes with it. No one has to hand-maintain a second copy of the API in a pile of JSON fixtures.

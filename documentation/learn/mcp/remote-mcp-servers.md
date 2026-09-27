@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 A remote MCP server is a Model Context Protocol server that runs on a network host and is reached over HTTP, instead of being started as a local subprocess on the same machine as the AI application. The client connects to a URL such as `https://mcp.example.com/mcp`, authenticates, and then lists and calls the server's tools exactly as it would with a local server.
 
 That one change, a URL instead of a command, is why remote servers have taken over for anything a team shares. Nobody installs Node or Python to use them, the provider can update them without asking anyone to upgrade, and access can be granted and revoked per person with OAuth. The trade-off is that you now operate a network service, with everything that implies about authentication, uptime and abuse.

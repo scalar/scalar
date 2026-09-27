@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An OpenAPI security scheme is a named description of one way a client can authenticate with your API, such as an API key in a header, an HTTP bearer token, an OAuth 2.0 flow, OpenID Connect, or a mutual TLS client certificate. You declare schemes under `components.securitySchemes`, then apply them with `security` requirements at the document or operation level, so every tool that reads the [OpenAPI document](/learn/openapi/what-is-openapi) knows exactly what credentials each request needs.
 
 OpenAPI 3.1 and 3.2 support five scheme types: `apiKey`, `http`, `oauth2`, `openIdConnect` and `mutualTLS`. This guide gives valid YAML for each one, explains how requirements combine, covers what changed in OpenAPI 3.2, and shows how Scalar's API reference and API client turn these declarations into a working authentication panel.

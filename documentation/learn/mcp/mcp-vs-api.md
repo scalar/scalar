@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An API is the interface a service exposes so other software can use it, while MCP (the Model Context Protocol) is a standard that lets AI applications discover and call tools, and those tools usually call APIs. So MCP is not an alternative to your API. It is a layer on top of it, designed for a different kind of consumer: a language model working inside a host application such as Claude, ChatGPT, Cursor, or VS Code.
 
 The confusion is understandable. Both involve requests, responses, JSON, and authentication, and both get described as "a way to connect to a service." The difference is who is on the other end and what they need. A developer reads API documentation once, writes code, and runs it many times. A model decides what to call on every turn, from a description it reads in that moment, with no code in between. MCP exists because those two consumers need different things.

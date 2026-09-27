@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 MCP server security is the set of controls that stop an MCP server, and the AI agent calling it, from being used to read or change data the user never meant to expose: authenticating every request, giving each tool the least access it needs, treating everything a tool receives or returns as untrusted, limiting how often tools run, and keeping an audit trail. Most of it is ordinary API security. The part that is new is that the caller is a language model, which follows instructions it reads, including instructions an attacker has planted.
 
 This guide is written for teams running MCP servers in front of real APIs. It covers the threat model, the controls the [MCP specification's security best practices](https://modelcontextprotocol.io/specification/2026-07-28/basic/security_best_practices) require, and the ones experience says you will want anyway. Authentication details, including the full OAuth flow, live in [MCP OAuth](/learn/mcp/mcp-oauth); this page links there rather than repeating it.

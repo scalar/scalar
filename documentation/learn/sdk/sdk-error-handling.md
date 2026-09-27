@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 SDK error handling is how a client library turns everything that can go wrong with an API call (an error status, a dropped connection, a timeout, a rate limit) into errors the caller can recognise and act on, and how it recovers on its own from the failures that are safe to retry. A good SDK makes the common cases boring: a 404 is a `NotFoundError` you can catch by type, a 503 is retried with backoff before you ever see it, and a retried `POST` does not charge a customer twice.
 
 Getting this right matters more than almost any other SDK feature, because error paths are where integrations fail in production and where hand-written code is least tested. This guide covers the pieces that make it work, with the real error module from a Scalar-generated SDK as the running example: typed error hierarchies in TypeScript, Python, and Go, which failures to retry and how to back off, idempotency keys, timeouts, and how an OpenAPI document tells a generator what errors an operation can return.

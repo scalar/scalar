@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 OpenAPI is an open, vendor-neutral standard for describing HTTP APIs in a machine-readable document, written in YAML or JSON, so that people and tools can understand what an API does without reading its source code. The standard is called the OpenAPI Specification (OAS), it is maintained by the OpenAPI Initiative under the Linux Foundation, and the file you write with it is usually called an OpenAPI document or an API description.
 
 That one file lists every endpoint, the parameters each one accepts, the shape of the request and response bodies, the status codes, and how authentication works. Once it exists, a long list of tools can read it: documentation renderers, API clients, SDK generators, mock servers, linters, gateways, and, more recently, MCP servers for AI agents.

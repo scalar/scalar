@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 Spectral rules are small, declarative checks that the open source Spectral linter runs against JSON or YAML documents such as OpenAPI descriptions. Each rule selects part of the document with a JSONPath expression (`given`), applies a function to it (`then`), and reports a problem at a chosen severity when the check fails. A collection of rules is a ruleset, usually stored in a file called `.spectral.yaml`.
 
 Rulesets are how teams turn an API style guide ("paths are kebab-case", "every operation has an `operationId`", "no API keys in query strings") into something a machine enforces on every pull request. This guide covers the anatomy of a rule, the built-in OpenAPI ruleset, eight custom rules you can copy, and how to run them locally, in CI, and in the Scalar Registry.

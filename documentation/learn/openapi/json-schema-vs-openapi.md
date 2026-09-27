@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 JSON Schema describes the shape of a single piece of JSON data, such as "an object with a required string `email` and an optional integer `age`", and lets you validate data against that description. OpenAPI describes an entire HTTP API (its paths, operations, parameters, responses, servers and authentication) and uses JSON Schema inside it to describe the data those operations send and receive.
 
 So the two are not competitors. JSON Schema is a building block; OpenAPI is the building. The interesting question is how well the block fits, and the answer depends on the OpenAPI version: in OpenAPI 3.0 the fit was awkward, and since OpenAPI 3.1 it is exact.

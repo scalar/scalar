@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 Testing an MCP server means checking three things: that it speaks the protocol correctly, so any client can list and call its tools; that each tool does the right thing with valid and invalid input; and that a real model, given a realistic task, picks the right tool with the right arguments. The first two are ordinary software testing with a new tool or two. The third is new, and it is the one that decides whether users find your server useful.
 
 This guide works through all three with commands and code we ran on 26 September 2026: the MCP Inspector in its web and CLI modes, unit tests with the official TypeScript SDK's in-memory transport, a CI job that catches schema and definition changes, and a lightweight approach to evals. It ends with a debugging section for the failures you are most likely to hit.

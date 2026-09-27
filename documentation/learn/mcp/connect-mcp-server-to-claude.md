@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 To use an MCP server with Claude, you give the Claude product you use either the server's URL (for a remote server) or the command that starts it (for a local server): `claude mcp add` in Claude Code, **Customize > Connectors** in claude.ai and the Claude apps, or the `claude_desktop_config.json` file for local servers in Claude Desktop. Once connected, Claude sees the server's tools and can call them during a conversation, asking your permission as it goes.
 
 This guide covers each of those routes step by step, with commands and settings checked against Anthropic's documentation in September 2026. It uses two servers as worked examples: Scalar's public documentation server at `https://scalar.com/mcp`, which you can connect right now, and a placeholder for a Scalar-hosted API server, which is what you would connect for your own API.

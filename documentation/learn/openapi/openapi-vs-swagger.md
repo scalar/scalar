@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 OpenAPI is the name of the specification for describing HTTP APIs; Swagger is the specification's original name and, today, the brand of a family of tools made by SmartBear that work with it. Up to version 2.0 the specification itself was called Swagger. Since the OpenAPI Initiative took it over in 2015, every new version (3.0, 3.1, 3.2) has been called OpenAPI, while names like Swagger UI, Swagger Editor, and Swagger Codegen still refer to specific tools.
 
 So when someone says "our Swagger file," they usually mean an OpenAPI document. When someone says "we use Swagger," they might mean the format, the tools, or both. This guide untangles the two, shows what changed between Swagger 2.0 and OpenAPI 3, and explains which name to use when.

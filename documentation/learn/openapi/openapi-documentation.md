@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 OpenAPI documentation is API documentation generated from an OpenAPI document, and writing it well means filling that document with more than structure: clear summaries and descriptions, realistic examples, meaningful tags, documented errors and authentication, and Markdown where a longer explanation helps. The renderer takes care of layout. The words, examples, and organization are up to you, and they decide whether the result is a useful reference or a list of endpoints.
 
 This is a practical guide to the documentation side of OpenAPI: which fields readers actually see, how to write them, and how to organize a large API. It applies whichever tool renders your docs. If you are looking for how Scalar turns an OpenAPI document into hosted documentation, see [OpenAPI documentation with Scalar](/solutions/openapi-documentation) instead.

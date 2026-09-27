@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An SDK (software development kit) is a packaged set of code, tools, and documentation that lets developers build on a platform or call a service from their own programming language without writing the low-level plumbing themselves. For web APIs, an SDK is usually a client library: install `@acme/api` from npm or `acme-api` from PyPI, and the API's endpoints become typed methods like `client.users.list()`.
 
 The term covers a wide range. The toolchain you install to build Android apps is an SDK. So is the small TypeScript package a startup publishes for its REST API. What they share is purpose: an SDK packages the knowledge of how to use a platform correctly, so every developer does not have to rediscover it.

@@ -4110,178 +4110,6 @@
                 "title": "Scalar API",
                 "icon": "phosphor/regular/database",
                 "mode": "nested"
-              },
-              "../../tools/openapi-validator": {
-                "type": "page",
-                "title": "OpenAPI Validator",
-                "filepath": "documentation/tools-pages/openapi-validator.md",
-                "description": "Free online OpenAPI validator and linter. Paste or upload JSON or YAML and see every error with its JSON pointer and line. Runs in your browser.",
-                "head": {
-                  "title": "OpenAPI Validator and Linter (Free, Online) — Scalar",
-                  "links": [
-                    {
-                      "rel": "canonical",
-                      "href": "https://scalar.com/tools/openapi-validator"
-                    }
-                  ],
-                  "meta": [
-                    {
-                      "name": "description",
-                      "content": "Free online OpenAPI validator and linter. Paste or upload JSON or YAML and see every error with its JSON pointer and line. Runs in your browser."
-                    },
-                    {
-                      "property": "og:title",
-                      "content": "OpenAPI Validator and Linter (Free, Online) — Scalar"
-                    },
-                    {
-                      "property": "og:description",
-                      "content": "Free online OpenAPI validator and linter. Paste or upload JSON or YAML and see every error with its JSON pointer and line. Runs in your browser."
-                    },
-                    {
-                      "name": "robots",
-                      "content": "index, follow"
-                    }
-                  ],
-                  "scripts": [
-                    {
-                      "path": "documentation/assets/free-tools/openapi-validator.js"
-                    }
-                  ],
-                  "styles": [
-                    {
-                      "path": "documentation/assets/free-tools/tools.css"
-                    }
-                  ]
-                }
-              },
-              "../../tools/openapi-converter": {
-                "type": "page",
-                "title": "OpenAPI Converter",
-                "filepath": "documentation/tools-pages/openapi-converter.md",
-                "description": "Convert Swagger 2.0 to OpenAPI 3.1 or 3.0 online and switch between JSON and YAML. Free, no account, and your document never leaves your browser.",
-                "head": {
-                  "title": "Swagger to OpenAPI 3 Converter (Free, Online) — Scalar",
-                  "links": [
-                    {
-                      "rel": "canonical",
-                      "href": "https://scalar.com/tools/openapi-converter"
-                    }
-                  ],
-                  "meta": [
-                    {
-                      "name": "description",
-                      "content": "Convert Swagger 2.0 to OpenAPI 3.1 or 3.0 online and switch between JSON and YAML. Free, no account, and your document never leaves your browser."
-                    },
-                    {
-                      "property": "og:title",
-                      "content": "Swagger to OpenAPI 3 Converter (Free, Online) — Scalar"
-                    },
-                    {
-                      "property": "og:description",
-                      "content": "Convert Swagger 2.0 to OpenAPI 3.1 or 3.0 online and switch between JSON and YAML. Free, no account, and your document never leaves your browser."
-                    },
-                    {
-                      "name": "robots",
-                      "content": "index, follow"
-                    }
-                  ],
-                  "scripts": [
-                    {
-                      "path": "documentation/assets/free-tools/openapi-converter.js"
-                    }
-                  ],
-                  "styles": [
-                    {
-                      "path": "documentation/assets/free-tools/tools.css"
-                    }
-                  ]
-                }
-              },
-              "../../tools/openapi-to-mcp": {
-                "type": "page",
-                "title": "OpenAPI to MCP",
-                "filepath": "documentation/tools-pages/openapi-to-mcp.md",
-                "description": "Paste an OpenAPI document to preview the MCP tools it maps to, with input schemas and install snippets for Claude, Cursor and VS Code. Runs in your browser.",
-                "head": {
-                  "title": "OpenAPI to MCP Converter: Preview Your Tools — Scalar",
-                  "links": [
-                    {
-                      "rel": "canonical",
-                      "href": "https://scalar.com/tools/openapi-to-mcp"
-                    }
-                  ],
-                  "meta": [
-                    {
-                      "name": "description",
-                      "content": "Paste an OpenAPI document to preview the MCP tools it maps to, with input schemas and install snippets for Claude, Cursor and VS Code. Runs in your browser."
-                    },
-                    {
-                      "property": "og:title",
-                      "content": "OpenAPI to MCP Converter: Preview Your Tools — Scalar"
-                    },
-                    {
-                      "property": "og:description",
-                      "content": "Paste an OpenAPI document to preview the MCP tools it maps to, with input schemas and install snippets for Claude, Cursor and VS Code. Runs in your browser."
-                    },
-                    {
-                      "name": "robots",
-                      "content": "index, follow"
-                    }
-                  ],
-                  "scripts": [
-                    {
-                      "path": "documentation/assets/free-tools/openapi-to-mcp.js"
-                    }
-                  ],
-                  "styles": [
-                    {
-                      "path": "documentation/assets/free-tools/tools.css"
-                    }
-                  ]
-                }
-              },
-              "../../tools/openapi-diff": {
-                "type": "page",
-                "title": "OpenAPI Diff",
-                "filepath": "documentation/tools-pages/openapi-diff.md",
-                "description": "Compare two OpenAPI documents and see added, removed and changed operations, parameters and schema fields, with breaking changes flagged. Free and in-browser.",
-                "head": {
-                  "title": "OpenAPI Diff: Find Breaking API Changes (Free) — Scalar",
-                  "links": [
-                    {
-                      "rel": "canonical",
-                      "href": "https://scalar.com/tools/openapi-diff"
-                    }
-                  ],
-                  "meta": [
-                    {
-                      "name": "description",
-                      "content": "Compare two OpenAPI documents and see added, removed and changed operations, parameters and schema fields, with breaking changes flagged. Free and in-browser."
-                    },
-                    {
-                      "property": "og:title",
-                      "content": "OpenAPI Diff: Find Breaking API Changes (Free) — Scalar"
-                    },
-                    {
-                      "property": "og:description",
-                      "content": "Compare two OpenAPI documents and see added, removed and changed operations, parameters and schema fields, with breaking changes flagged. Free and in-browser."
-                    },
-                    {
-                      "name": "robots",
-                      "content": "index, follow"
-                    }
-                  ],
-                  "scripts": [
-                    {
-                      "path": "documentation/assets/free-tools/openapi-diff.js"
-                    }
-                  ],
-                  "styles": [
-                    {
-                      "path": "documentation/assets/free-tools/tools.css"
-                    }
-                  ]
-                }
               }
             }
           },
@@ -4504,6 +4332,187 @@
                         {
                           "rel": "canonical",
                           "href": "https://scalar.com/resources/changelog/mock-server"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "../../tools": {
+                "title": "OpenAPI Tools",
+                "icon": "phosphor/regular/brackets-curly",
+                "description": "Free browser tools for OpenAPI documents: validate, convert Swagger 2.0 to OpenAPI 3, preview MCP tools, and diff two versions.",
+                "type": "group",
+                "mode": "nested",
+                "children": {
+                  "/openapi-validator": {
+                    "type": "page",
+                    "title": "OpenAPI Validator",
+                    "filepath": "documentation/tools-pages/openapi-validator.md",
+                    "description": "Free online OpenAPI validator and linter. Paste or upload JSON or YAML and see every error with its JSON pointer and line. Runs in your browser.",
+                    "head": {
+                      "title": "OpenAPI Validator and Linter (Free, Online) — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/openapi-validator"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Free online OpenAPI validator and linter. Paste or upload JSON or YAML and see every error with its JSON pointer and line. Runs in your browser."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "OpenAPI Validator and Linter (Free, Online) — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Free online OpenAPI validator and linter. Paste or upload JSON or YAML and see every error with its JSON pointer and line. Runs in your browser."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ],
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/free-tools/openapi-validator.js"
+                        }
+                      ],
+                      "styles": [
+                        {
+                          "path": "documentation/assets/free-tools/tools.css"
+                        }
+                      ]
+                    }
+                  },
+                  "/openapi-converter": {
+                    "type": "page",
+                    "title": "OpenAPI Converter",
+                    "filepath": "documentation/tools-pages/openapi-converter.md",
+                    "description": "Convert Swagger 2.0 to OpenAPI 3.1 or 3.0 online and switch between JSON and YAML. Free, no account, and your document never leaves your browser.",
+                    "head": {
+                      "title": "Swagger to OpenAPI 3 Converter (Free, Online) — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/openapi-converter"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Convert Swagger 2.0 to OpenAPI 3.1 or 3.0 online and switch between JSON and YAML. Free, no account, and your document never leaves your browser."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "Swagger to OpenAPI 3 Converter (Free, Online) — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Convert Swagger 2.0 to OpenAPI 3.1 or 3.0 online and switch between JSON and YAML. Free, no account, and your document never leaves your browser."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ],
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/free-tools/openapi-converter.js"
+                        }
+                      ],
+                      "styles": [
+                        {
+                          "path": "documentation/assets/free-tools/tools.css"
+                        }
+                      ]
+                    }
+                  },
+                  "/openapi-to-mcp": {
+                    "type": "page",
+                    "title": "OpenAPI to MCP",
+                    "filepath": "documentation/tools-pages/openapi-to-mcp.md",
+                    "description": "Paste an OpenAPI document to preview the MCP tools it maps to, with input schemas and install snippets for Claude, Cursor and VS Code. Runs in your browser.",
+                    "head": {
+                      "title": "OpenAPI to MCP Converter: Preview Your Tools — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/openapi-to-mcp"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Paste an OpenAPI document to preview the MCP tools it maps to, with input schemas and install snippets for Claude, Cursor and VS Code. Runs in your browser."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "OpenAPI to MCP Converter: Preview Your Tools — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Paste an OpenAPI document to preview the MCP tools it maps to, with input schemas and install snippets for Claude, Cursor and VS Code. Runs in your browser."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ],
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/free-tools/openapi-to-mcp.js"
+                        }
+                      ],
+                      "styles": [
+                        {
+                          "path": "documentation/assets/free-tools/tools.css"
+                        }
+                      ]
+                    }
+                  },
+                  "/openapi-diff": {
+                    "type": "page",
+                    "title": "OpenAPI Diff",
+                    "filepath": "documentation/tools-pages/openapi-diff.md",
+                    "description": "Compare two OpenAPI documents and see added, removed and changed operations, parameters and schema fields, with breaking changes flagged. Free and in-browser.",
+                    "head": {
+                      "title": "OpenAPI Diff: Find Breaking API Changes (Free) — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/tools/openapi-diff"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Compare two OpenAPI documents and see added, removed and changed operations, parameters and schema fields, with breaking changes flagged. Free and in-browser."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "OpenAPI Diff: Find Breaking API Changes (Free) — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Compare two OpenAPI documents and see added, removed and changed operations, parameters and schema fields, with breaking changes flagged. Free and in-browser."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ],
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/free-tools/openapi-diff.js"
+                        }
+                      ],
+                      "styles": [
+                        {
+                          "path": "documentation/assets/free-tools/tools.css"
                         }
                       ]
                     }

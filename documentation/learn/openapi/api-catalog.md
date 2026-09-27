@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An API catalog is a searchable inventory of an organization's APIs, where each entry records what the API does, who owns it, which version is current, and where its machine-readable description (usually an OpenAPI or AsyncAPI document) and its documentation live. It answers the question every growing engineering team eventually asks: "Do we already have an API for this, and where is it?"
 
 An API registry is closely related. The catalog is the index people browse; the registry is the versioned store that holds the actual API descriptions and serves them to tools. In practice most teams want both, and many products combine them. This guide explains the difference, what belongs in a catalog entry, the IETF standard for publishing a machine-readable catalog, and how to build one that stays accurate.

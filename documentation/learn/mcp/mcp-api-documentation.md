@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 MCP API documentation covers two related jobs: documenting an MCP server so that both people and models know what its tools do and how to connect to it, and publishing your ordinary API documentation in forms that AI agents can read directly, such as `llms.txt`, a Markdown version of every page, and a docs MCP server. The first job is about the server you ship. The second is about everything else an agent needs to use your API well.
 
 They belong together because the same agent often uses both. A developer asks Claude Code to add your API to their app. The agent reads your docs to understand the concepts, calls your MCP server to try things out, then writes code against your SDK. Each of those steps depends on documentation that was written with a model as one of the readers.

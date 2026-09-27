@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 MCP server configuration is the small block of JSON, or the equivalent CLI command, that tells an MCP client how to reach a server: a URL and optional headers for a remote server, or a command, arguments and environment variables for a local one, saved at either a user or a project scope. Every major client uses nearly the same shape, and nearly every client differs in one detail that breaks copied snippets.
 
 This guide collects the formats for Claude Code, Claude Desktop, claude.ai, Cursor, VS Code and Windsurf (now Devin Desktop), checked against each vendor's documentation in September 2026. It then covers the practices that keep configurations safe and maintainable: where to keep secrets, what to commit, how to handle many servers, and how server authors should design their own configuration. The last sections show how configuration works for a Scalar-hosted server, where most of it lives in the dashboard rather than in a file.

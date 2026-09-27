@@ -4,8 +4,6 @@ date: 2026-10-06
 
 # OpenAPI with ASP.NET Core in .NET 9 and 10
 
-*By Marc Laventure*
-
 ASP.NET Core generates OpenAPI documents on its own now. Since .NET 9, the `Microsoft.AspNetCore.OpenApi` package turns your minimal APIs and controllers into an OpenAPI document at runtime or at build time, and .NET 10 moved the default output to OpenAPI 3.1 and added XML comment support. You no longer need a third-party generator to describe your API.
 
 This is part one of a three-part series. It is deliberately vendor-neutral: everything here uses Microsoft's packages and works the same whichever documentation UI, SDK generator, or linter you point at the result. Part two covers what you can build from the document (reference docs, SDKs, an MCP server), and part three walks through one concrete setup end to end.

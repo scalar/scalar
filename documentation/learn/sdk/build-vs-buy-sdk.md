@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 Building an SDK means your engineers write and maintain a client library per language, by hand or around an open-source generator; buying means paying a vendor to generate, update, and help publish those libraries from your OpenAPI document. For most HTTP APIs, buying costs less once you count maintenance, but building is still the right call in specific situations, and the answer depends heavily on how many languages you need and how often your API changes.
 
 This page gives you a cost model you can run with your own numbers. We are an SDK vendor, so treat our conclusions with the appropriate suspicion. That is why every assumption is written down and every number is a range you can replace. Nothing here is an industry benchmark; it is a planning model.

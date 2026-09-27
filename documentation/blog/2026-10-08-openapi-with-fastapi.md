@@ -4,8 +4,6 @@ date: 2026-10-08
 
 # OpenAPI with FastAPI
 
-*By Marc Laventure*
-
 FastAPI generates an OpenAPI document for your API automatically, from the type hints, Pydantic models and decorators you already write. Start any FastAPI app and the document is at `/openapi.json`. The interesting work is not turning it on. It is making the document accurate enough that other tools can rely on it.
 
 This is part one of a three-part series and it is vendor-neutral. Everything below is plain FastAPI and Pydantic, and it applies whatever you later point at the document: a documentation UI, an SDK generator, a linter, or a contract test. Part two covers what you can build from the document, and part three walks through one concrete setup.

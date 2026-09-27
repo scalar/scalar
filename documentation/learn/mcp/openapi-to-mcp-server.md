@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 Turning OpenAPI into an MCP server means mapping each OpenAPI operation to an MCP tool: the `operationId` becomes the tool name, the `summary` and `description` become the tool description, the operation's path, query, and header parameters plus its request body become one JSON Schema `inputSchema`, and the security scheme becomes something the server handles on the model's behalf, never a tool argument. The idea fits in one sentence. The details (references, recursion, `oneOf`, `readOnly`, file uploads, and credentials) are where most OpenAPI-to-MCP conversions go wrong.
 
 This guide is about that mapping. It goes element by element through an OpenAPI 3.1 document, shows what each part becomes in an MCP tool definition under the 2026-07-28 MCP specification, and ends with a tested TypeScript converter you can read in one sitting. If you want to compare hand-written, generated, and hosted servers instead, read [how to generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi). If you would rather see the mapping applied to your own document, try the [OpenAPI to MCP tool](/tools/openapi-to-mcp).

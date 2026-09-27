@@ -4,8 +4,6 @@ date: 2026-10-13
 
 # OpenAPI with NestJS
 
-*By Marc Laventure*
-
 NestJS generates an OpenAPI document from your controllers and DTOs through the official `@nestjs/swagger` package. Add it, build a document in `main.ts`, and the JSON is served next to your API. Like most code-first generators, the setup takes five minutes and the accuracy takes longer, because TypeScript types disappear at runtime and Nest can only document what it can see.
 
 This is part one of a three-part series, and it is vendor-neutral. Everything here is standard NestJS and works the same whichever documentation UI, SDK generator or linter reads the result. Part two covers what you can build from the document, and part three walks through one concrete setup.

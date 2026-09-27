@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An API client is a tool that lets you build an HTTP request to an API, send it, and inspect the response, all without writing application code. You pick a method and a URL, add headers, authentication and a body, press send, and read the status code, headers and payload that come back.
 
 Developers use API clients to explore an API they have never touched before, to debug an endpoint that misbehaves, to check that a change works before it ships, and to share working requests with teammates. The best ones read an OpenAPI document and turn it into a ready-made collection of requests, so you start from the real contract instead of retyping endpoints by hand.

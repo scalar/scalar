@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 SDK pagination is the part of a client library that walks a paginated API endpoint for you, fetching the next page when the current one runs out, so the caller writes one loop over items instead of juggling cursors, offsets, and stop conditions by hand. The API still returns one page per request. What changes is who owns the paging logic: every caller, or the SDK.
 
 That sounds like a small convenience. In practice, pagination is where hand-written API integrations break most quietly. A loop that stops one page early loses records without an error. A loop that never stops burns through a rate limit. And a loop written against today's page size fails when somebody changes the default. Putting the logic in the SDK means it is written once, tested once, and fixed once.

@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 MCP, the Model Context Protocol, is an open standard that lets AI applications such as Claude, ChatGPT, Cursor, and VS Code discover and use external tools, data, and prompt templates through one common interface, instead of a custom integration for every pair of app and service. An MCP server describes what it can do, an MCP client inside the AI application reads that description, and the language model decides when to call it.
 
 If you have ever wired an API into an LLM by pasting endpoint descriptions into a prompt, MCP is the standard version of that idea. The server publishes a list of tools with names, descriptions, and JSON Schema inputs. The client passes that list to the model. When the model wants to act, the client sends a `tools/call` request to the server, the server does the work (usually by calling an HTTP API), and the result goes back to the model.

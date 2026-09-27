@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 llms.txt is a proposed convention for a Markdown file at the root of a website, `/llms.txt`, that gives large language models and AI agents a short, curated index of the site's most useful content, with links to clean Markdown versions of the pages. For API documentation, it is a map an agent can read in one request: what the API is, where the OpenAPI document lives, how authentication works, and which pages to fetch next.
 
 It is also one of the most over-promised files on the web right now. Google has said it does not use llms.txt, server logs show the major AI crawlers barely request it, and it will not improve your search rankings. It is still worth shipping for API documentation, for narrower and more honest reasons than most articles give. This guide covers the format, the evidence, what to put in the file for an API, and what actually matters more.

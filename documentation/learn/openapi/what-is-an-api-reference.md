@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An API reference is the part of an API's documentation that describes every endpoint exactly: its URL and HTTP method, the parameters and request body it accepts, the responses and errors it returns, and how to authenticate. It is the page a developer keeps open while writing code, the way you would keep a dictionary open while writing in a foreign language. Today most API references are generated from an OpenAPI document rather than written by hand.
 
 A good API reference is complete, precise, and boring in the best sense: every operation looks the same, every field is described, and nothing is left for the reader to guess. This guide explains what goes into one, how it differs from other kinds of documentation, how references are generated, and what separates a useful one from a frustrating one.

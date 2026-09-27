@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 Turning a REST API into an MCP server means deciding which of your endpoints an AI agent should be allowed to call, describing each one as an MCP tool the model can understand, and running a server in front of your API that handles authentication, pagination and errors on the agent's behalf. The protocol work is small. The design work is where the quality of the result is decided.
 
 This guide is for API providers making those decisions. It does not repeat the element-by-element mapping from OpenAPI to MCP tool definitions; [OpenAPI to MCP server](/learn/mcp/openapi-to-mcp-server) covers that, and [how to generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi) compares hand-written, generated and hosted servers. Here we look at the architecture: which endpoints become tools, how to name and describe them, what to do with credentials, how to page through large results, and how to stay inside a model's tool budget when your API has hundreds of operations.

@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An SDK is a code library a developer installs and calls from a program they write, while an MCP server is a running service that an AI application connects to at run time, which describes its tools to a model and executes whichever calls the model decides to make. Both let software use your API. The difference is who decides what to call and when: with an SDK a developer decides in advance, and with MCP a model decides in the moment.
 
 That one difference drives almost every other trade-off: typing, cost, reliability, authentication, and how you ship updates. This guide works through them, clears up the three different things people mean by "SDK" in this comparison, and ends with a checklist for API providers deciding which to offer. (Spoiler: most will want both, generated from the same OpenAPI document.)

@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 To generate an SDK from OpenAPI, you give an OpenAPI document to a code generator that turns every operation into a typed method and every schema into a typed model, and then you package the output and publish it to a registry such as npm, PyPI, or Go modules. The generator is the easy part. Most of the quality in a generated SDK comes from the document you feed it, and most of the ongoing cost comes from what happens after the first build: publishing, versioning, and regenerating every time the API changes.
 
 This guide walks through the whole path. It covers preparing the OpenAPI document, choosing between the main generators (open source and commercial), a worked example with Scalar's generator, publishing to the three most common registries, and keeping the SDK in sync from CI. It is written by Scalar, so we link to every other vendor's own documentation and say where their tool is the better fit.

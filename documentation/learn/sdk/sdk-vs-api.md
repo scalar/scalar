@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 An API is the contract a service exposes, the endpoints, requests, and responses you can send and receive, while an SDK is a library for one programming language that calls that API for you. The API is what the server offers. The SDK is a convenience layer on the client side that turns HTTP requests into ordinary function calls, with types, authentication, retries, and error handling already written.
 
 So the two are not alternatives in the way "Postgres vs MySQL" are alternatives. An SDK sits on top of an API. Every SDK call eventually becomes an API request, and you can always skip the SDK and call the API directly. The real question is when the SDK is worth it, for you as a consumer and for your team as an API provider.

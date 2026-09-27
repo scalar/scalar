@@ -2,8 +2,6 @@
 
 *Last updated: September 2026*
 
-*By Marc Laventure · Reviewed by: pending*
-
 MCP OAuth is the authorization flow defined by the Model Context Protocol specification, in which an MCP client gets an OAuth 2.1 access token for a remote MCP server by discovering the server's authorization server through protected resource metadata (RFC 9728) and then running an authorization code flow with PKCE. The user signs in through a browser, the client stores the token, and every request to the MCP server carries it as a bearer token.
 
 The point of the design is that a client and a server that have never heard of each other can still complete a secure sign-in with nothing but the server's URL. No API keys pasted into JSON files, no manual app registration, and access that the user can revoke.
