@@ -63,6 +63,22 @@ describe('createApiReference', () => {
     expect(element?.innerHTML).toContain('Powered by Scalar')
   })
 
+  it('adds the integration to the powered by link', () => {
+    const element = document.querySelector('#mount-point')
+
+    createApiReference(
+      element!,
+      coerce(apiReferenceConfigurationSchema, {
+        _integration: 'html',
+        content: { openapi: '3.1.0', info: { title: 'Test API', version: '1.0.0' }, paths: {} },
+      }),
+    )
+
+    expect(element?.querySelector('a[href*="utm_source=powered-by"]')?.getAttribute('href')).toBe(
+      'https://scalar.com/?utm_source=powered-by&utm_medium=api-reference&utm_campaign=html',
+    )
+  })
+
   it('handles string selectors for mounting', () => {
     const config = { _integration: 'html' }
     const apiReference = createApiReference('#mount-point', coerce(apiReferenceConfigurationSchema, config))

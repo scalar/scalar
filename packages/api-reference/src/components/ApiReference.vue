@@ -27,6 +27,7 @@ import {
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { makePoweredByUrl } from '@scalar/helpers/url/make-powered-by-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {
   createSidebarState,
@@ -347,6 +348,11 @@ const sidebarOptions = computed(() => ({
     openGroup: apiReferenceLocalization.translate('navigation.openGroup'),
   },
 }))
+
+/** Tags the "Powered by Scalar" link with the integration, so we know where visitors come from */
+const poweredByUrl = computed(() =>
+  makePoweredByUrl(mergedConfig.value._integration),
+)
 
 /**
  * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
@@ -1852,8 +1858,8 @@ const showMCPButton = computed(() => {
                   <template #description>
                     <a
                       class="no-underline hover:underline"
-                      href="https://www.scalar.com"
-                      rel="noopener noreferrer"
+                      :href="poweredByUrl"
+                      rel="noopener"
                       target="_blank">
                       {{
                         apiReferenceLocalization.translate(
