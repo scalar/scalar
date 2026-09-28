@@ -570,6 +570,36 @@ describe('Rendering', () => {
     expect(html).toContain('Test API')
   })
 
+  it.each([
+    ['express', 'https://scalar.com/?utm_source=powered-by&utm_medium=api-reference&utm_campaign=express'],
+    ['dotnet', 'https://scalar.com/?utm_source=powered-by&utm_medium=api-reference&utm_campaign=dotnet'],
+    [undefined, 'https://scalar.com/?utm_source=powered-by&utm_medium=api-reference'],
+  ] as const)('server-renders the powered by link for the %s integration', async (integration, expected) => {
+    const app = createSSRApp({
+      render: () =>
+        h(ApiReference, {
+          configuration: {
+            _integration: integration,
+            content: {
+              openapi: '3.1.0',
+              info: { title: 'Test API', version: '1.0.0' },
+              paths: {},
+            },
+          },
+        }),
+    })
+
+    const html = await renderToString(app)
+
+    // The link has to be in the server-rendered HTML, not only added on the client
+    const document = new DOMParser().parseFromString(html, 'text/html')
+    const link = document.querySelector('a[href*="utm_source=powered-by"]')
+    expect(link?.getAttribute('href')).toBe(expected)
+    expect(link?.getAttribute('rel')).toBe('noopener')
+    expect(link?.getAttribute('target')).toBe('_blank')
+    expect(link?.textContent?.trim()).toBe('Powered by Scalar')
+  })
+
   it('includes crawler navigation links for entries inside collapsed groups', async () => {
     const document = {
       openapi: '3.1.0',
