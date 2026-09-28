@@ -276,7 +276,7 @@ const { level: headingLevel } = useDocumentOutline('message')
   gap: 16px;
 }
 /* Keep examples beside the schema when the reference has room, including embedded layouts. */
-@container narrow-references-container (min-width: 900px) {
+@container references-container (min-width: 900px) {
   .message-layout:has(> .message-details):has(> .message-examples) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

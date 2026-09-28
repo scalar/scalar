@@ -119,6 +119,13 @@ defineExpose({
       <!--
         TabList may only contain Tab children (aria-required-children).
         The "More" combobox sits beside it in the same visual row.
+
+        Headless UI cannot express "no tab selected": while the active client
+        lives in "More", tabIndex is -1 and the library clamps it onto a real
+        tab, marking that one selected for assistive technology. Our own
+        aria-selected falls through after the library's props, so it wins and
+        reports the actual selection (WCAG 4.1.2). The clamped tab still keeps
+        tabindex="0" so the tablist stays reachable by keyboard.
       -->
       <div class="client-libraries-list">
         <TabList
@@ -126,8 +133,9 @@ defineExpose({
           class="client-libraries-tabs"
           :style="{ flexGrow: featuredClients.length }">
           <Tab
-            v-for="featuredClient in featuredClients"
+            v-for="(featuredClient, index) in featuredClients"
             :key="featuredClient.clientKey"
+            :aria-selected="index === tabIndex"
             class="client-libraries rendered-code-sdks"
             :class="{
               'client-libraries__active': featuredClient.id === activeClient,
@@ -162,6 +170,7 @@ defineExpose({
         <div
           v-else
           :id="morePanel"
+          :aria-labelledby="headingId"
           class="selected-client card-footer -outline-offset-2"
           role="tabpanel"
           tabindex="0">

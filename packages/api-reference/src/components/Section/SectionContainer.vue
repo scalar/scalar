@@ -26,7 +26,7 @@ defineProps<{
 .section-container:has(.introduction-section) {
   border-top: none;
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .section-container {
     padding: 0;
   }

@@ -40,7 +40,7 @@ useIntersection(section, () => emit('intersecting'))
   padding: 48px 0;
   gap: 24px;
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .references-classic .section,
   .section {
     padding: 48px 24px;

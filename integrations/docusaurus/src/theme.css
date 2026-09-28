@@ -167,7 +167,7 @@ html[data-theme="light"] body .api-client-drawer {
 .schema-properties-open > .schema-card-title {
   backdrop-filter: blur(50px);
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .section {
     padding-top: calc(var(--refs-header-height) + 48px) !important;
   }

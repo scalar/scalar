@@ -254,7 +254,7 @@ provideDocumentOutline('document')
 <template>
   <SectionFlare />
 
-  <div class="narrow-references-container">
+  <div class="references-container">
     <slot name="start" />
 
     <!-- Render plugins at content.start view -->
@@ -396,8 +396,8 @@ provideDocumentOutline('document')
 </template>
 
 <style>
-.narrow-references-container {
-  container-name: narrow-references-container;
+.references-container {
+  container-name: references-container;
   container-type: inline-size;
 }
 </style>

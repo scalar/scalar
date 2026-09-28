@@ -397,7 +397,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
  * example is lifted directly under the description, and the auth badge becomes
  * an eyebrow above the title.
  */
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .operation-layout {
     grid-template-columns: 1fr;
     grid-template-areas:

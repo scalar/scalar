@@ -31,12 +31,12 @@
  * The API reference is an embeddable widget, so responsive styles must adapt
  * to the rendered width of the reference, never to the viewport. This variant
  * is the utility-class counterpart of the raw
- * `@container narrow-references-container (max-width: 900px)` blocks used in
+ * `@container references-container (max-width: 900px)` blocks used in
  * scoped styles — the query is identical, so the two idioms can never
  * disagree. The container itself is declared in Content.vue.
  */
 @custom-variant narrow {
-  @container narrow-references-container (max-width: 900px) {
+  @container references-container (max-width: 900px) {
     @slot;
   }
 }
@@ -110,9 +110,9 @@
 }
 
 /*
- * Narrow container: tighten the indent and shrink the controls so a deep tree
+ * Narrow container: tighten the indent and shrink the glyphs so a deep tree
  * still fits, and so the outermost control clears the page edge instead of
- * being clipped by it.
+ * being clipped by it. The toggle's transparent hit box stays 24px (WCAG 2.5.8).
  *
  * The query matches `Section.vue`'s, which is what makes the numbers work: at
  * this width a section pads its content by 24px, and the outermost control
@@ -129,14 +129,17 @@
  * these cannot live in the `.scalar-app` block above: that element is an
  * ancestor of the container (declared in Content.vue), not inside it.
  */
-@container narrow-references-container (max-width: 900px) {
-  .narrow-references-container > * {
+@container references-container (max-width: 900px) {
+  .references-container > * {
     --schema-gutter: 10px;
     --schema-glyph-size: 16px;
     --schema-glyph-half: 8px;
     --schema-glyph-icon: 14px;
-    --schema-toggle-size: 20px;
-    --schema-toggle-half: 10px;
+    /* The toggle keeps the 24px hit box from the block above (WCAG 2.5.8):
+       it is transparent, so only the glyph needs to shrink. Hanging
+       gutter + half = 10 + 12 = 22px it still clears the 24px section padding
+       this query pairs with, and its centre stays on the rail. Its box now
+       ends 2px past the content edge, over text that toggles the same row. */
   }
 }
 
