@@ -59,6 +59,8 @@ export const en = {
     heading: 'Client Libraries',
     more: 'More',
     selectAll: 'Select from all clients',
+    searchLabel: 'Search clients',
+    changeClient: 'Change code sample language',
   },
   operation: {
     codeSampleUnavailable: 'No code sample available for this example.',
@@ -132,6 +134,7 @@ export const en = {
   download: {
     openapi: 'Download OpenAPI Document',
     asyncapi: 'Download AsyncAPI Document',
+    asFormat: '{label} as {format}',
   },
   models: {
     label: 'Models',

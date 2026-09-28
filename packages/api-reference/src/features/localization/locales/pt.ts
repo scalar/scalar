@@ -60,6 +60,8 @@ export const pt = {
     heading: 'Bibliotecas Cliente',
     more: 'Mais',
     selectAll: 'Selecionar de todos os clientes',
+    searchLabel: 'Pesquisar clientes',
+    changeClient: 'Alterar a linguagem do exemplo de código',
   },
   operation: {
     codeSampleUnavailable: 'Nenhuma amostra de código disponível para este exemplo.',
@@ -133,6 +135,7 @@ export const pt = {
   download: {
     openapi: 'Baixar Documento OpenAPI',
     asyncapi: 'Baixar Documento AsyncAPI',
+    asFormat: '{label} em {format}',
   },
   models: {
     label: 'Modelos',

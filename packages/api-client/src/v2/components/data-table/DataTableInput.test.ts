@@ -266,7 +266,7 @@ describe('DataTableInput', () => {
       expect(toggleButton?.exists()).toBe(true)
     })
 
-    it('shows eye-slash icon when password is unmasked', async () => {
+    it('reports the revealed state through aria-pressed', async () => {
       wrapper = mount(DataTableInput, {
         props: {
           modelValue: 'secret',
@@ -275,18 +275,16 @@ describe('DataTableInput', () => {
         },
       })
 
-      const toggleButton = wrapper
-        .findAllComponents({ name: 'ScalarIconButton' })
-        .find((btn) => btn.props('label') === 'Show Password')
+      const toggleButton = () =>
+        wrapper.findAllComponents({ name: 'ScalarIconButton' }).find((btn) => btn.props('label') === 'Show Password')
 
-      await toggleButton?.trigger('click')
+      expect(toggleButton()?.attributes('aria-pressed')).toBe('false')
+
+      await toggleButton()?.trigger('click')
       await wrapper.vm.$nextTick()
 
-      const updatedToggleButton = wrapper
-        .findAllComponents({ name: 'ScalarIconButton' })
-        .find((btn) => btn.props('label') === 'Hide Password')
-
-      expect(updatedToggleButton?.exists()).toBe(true)
+      // The name stays put so the button keeps one identity; only the state flips.
+      expect(toggleButton()?.attributes('aria-pressed')).toBe('true')
     })
 
     it('toggles between masked and unmasked input when clicked', async () => {
@@ -318,7 +316,7 @@ describe('DataTableInput', () => {
       // Click toggle again to mask
       const updatedToggleButton = wrapper
         .findAllComponents({ name: 'ScalarIconButton' })
-        .find((btn) => btn.props('label') === 'Hide Password')
+        .find((btn) => btn.props('label') === 'Show Password')
 
       await updatedToggleButton?.trigger('click')
       await wrapper.vm.$nextTick()

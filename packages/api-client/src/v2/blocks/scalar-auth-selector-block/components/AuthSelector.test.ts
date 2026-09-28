@@ -49,6 +49,7 @@ describe('AuthSelector', () => {
       eventBus: WorkspaceEventBus
       environment: any
       envVariables: any[]
+      heading: boolean
       isStatic: boolean
       canDeleteSchemes: boolean
       securityRequirements: any
@@ -104,6 +105,22 @@ describe('AuthSelector', () => {
 
       const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
       expect(dataTable.exists()).toBe(true)
+    })
+
+    it('renders the title as a heading by default', () => {
+      const wrapper = mountWithProps()
+
+      expect(wrapper.find('h2').text()).toContain('Authentication')
+    })
+
+    it('names the card as a group instead of a heading when the heading is turned off', () => {
+      const wrapper = mountWithProps({ heading: false })
+
+      expect(wrapper.find('h1, h2, h3, h4, h5, h6').exists()).toBe(false)
+
+      const section = wrapper.get('section')
+      expect(section.attributes('role')).toBe('group')
+      expect(wrapper.get(`[id="${section.attributes('aria-labelledby')}"]`).text()).toContain('Authentication')
     })
   })
 

@@ -428,6 +428,10 @@ export type ApiReferenceTranslations = {
     heading: string
     more: string
     selectAll: string
+    /** Accessible name for the search field inside the client picker */
+    searchLabel: string
+    /** Accessible name describing what the client picker does */
+    changeClient: string
   }
   operation: {
     codeSampleUnavailable: string
@@ -500,6 +504,8 @@ export type ApiReferenceTranslations = {
   download: {
     openapi: string
     asyncapi: string
+    /** Accessible name distinguishing the download buttons, e.g. "Download OpenAPI Document as JSON" */
+    asFormat: string
   }
   models: {
     label: string

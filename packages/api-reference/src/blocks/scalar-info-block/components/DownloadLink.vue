@@ -34,6 +34,14 @@ const label = computed(() =>
 )
 
 /**
+ * Both format buttons carry the same visible text and the format badge stays
+ * hidden until hover, so without an explicit name assistive technology reads
+ * out two identical buttons with no way to tell them apart.
+ */
+const formatLabel = (format: 'JSON' | 'YAML'): string =>
+  translate('download.asFormat', { label: label.value, format })
+
+/**
  * The document URL can be supplied by whoever controls the rendered document, so a protocol like
  * `javascript:` would execute script on click. Drop the direct link in that case.
  */
@@ -65,6 +73,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
     <!-- JSON  -->
     <button
       v-if="documentDownloadType === 'json' || documentDownloadType === 'both'"
+      :aria-label="formatLabel('JSON')"
       class="download-button"
       type="button"
       @click.prevent="() => handleDownloadClick('json')">
@@ -75,6 +84,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
     <!-- YAML -->
     <button
       v-if="documentDownloadType === 'yaml' || documentDownloadType === 'both'"
+      :aria-label="formatLabel('YAML')"
       class="download-button"
       type="button"
       @click.prevent="() => handleDownloadClick('yaml')">

@@ -221,6 +221,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       :aria-activedescendant="activeRef ? getOptionId(activeRef) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
+      :aria-expanded="Boolean(filtered.length || slots.add || noResults)"
       :aria-label="inputLabel"
       class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
       data-1p-ignore

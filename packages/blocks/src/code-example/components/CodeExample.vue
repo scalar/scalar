@@ -3,6 +3,13 @@ export type CodeExampleProps = {
   /** Localized status text shown when the selected example has no linked code sample. */
   codeSampleUnavailable?: string
   /**
+   * Localized purpose of the client picker. It opens the button's accessible name and the
+   * selected client's title is appended, so the name still contains the visible label.
+   */
+  clientPickerLabel?: string
+  /** Localized accessible name for the search field inside the client picker. */
+  clientSearchLabel?: string
+  /**
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
    */
@@ -179,6 +186,8 @@ import HttpMethod from './HttpMethod.vue'
 const {
   integration,
   codeSampleUnavailable = 'No code sample available for this example.',
+  clientPickerLabel = 'Change code sample language',
+  clientSearchLabel = 'Search clients',
   clientOptions,
   selectedClient,
   selectedServer = null,
@@ -318,6 +327,19 @@ watch([() => selectedClient, clients], ([newClient]) => {
     localSelectedClient.value = client
   }
 })
+
+/**
+ * Accessible name for the client picker.
+ *
+ * On its own the button reads as its current value ("C Libcurl"), which never
+ * says what activating it does. The visible title stays part of the name so it
+ * still matches what is on screen.
+ */
+const clientPickerAriaLabel = computed(() =>
+  [clientPickerLabel, localSelectedClient.value?.title]
+    .filter(Boolean)
+    .join(': '),
+)
 
 const elem = ref<ComponentPublicInstance | null>(null)
 const visible = useExampleVisibility(elem)
@@ -472,12 +494,14 @@ const id = useId()
           v-if="clientCount > 1"
           class="max-h-80"
           :filterFn="filterClientsByQuery"
+          :inputLabel="clientSearchLabel"
           :modelValue="localSelectedClient"
           :options="clients"
           placement="bottom-end"
           teleport
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
+            :aria-label="clientPickerAriaLabel"
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
             data-testid="client-picker"
             variant="ghost">

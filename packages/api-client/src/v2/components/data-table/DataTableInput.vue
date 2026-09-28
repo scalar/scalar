@@ -137,16 +137,17 @@ const handleLabelClick = () => {
       :label="translate('apiClient.dataTableInput.clearValue')"
       @click="emit('update:modelValue', '')" />
     <!-- Toggle Visibility -->
+    <!-- A toggle button keeps one name and reports its state, so the label
+         stays "Show Password" while `aria-pressed` says whether the value is
+         revealed. Flipping the name instead leaves screen readers silent,
+         because activating a button does not re-announce its name. -->
     <ScalarIconButton
       v-if="type === 'password'"
+      :aria-pressed="!mask"
       class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
       data-testid="data-table-password-toggle"
       :icon="mask ? ScalarIconEye : ScalarIconEyeSlash"
-      :label="
-        mask
-          ? translate('apiClient.dataTableInput.showPassword')
-          : translate('apiClient.dataTableInput.hidePassword')
-      "
+      :label="translate('apiClient.dataTableInput.showPassword')"
       @click="mask = !mask" />
   </DataTableCell>
 </template>

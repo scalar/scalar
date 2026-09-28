@@ -96,7 +96,7 @@ describe('RequestBlock', () => {
     })
   })
 
-  it('renders summary text instead of input in modal layout', () => {
+  it('renders summary as a heading instead of an input in modal layout', () => {
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, operation: { summary: 'My request' }, layout: 'modal' },
       global: {
@@ -106,7 +106,23 @@ describe('RequestBlock', () => {
       },
     })
 
-    expect(wrapper.find('span').text()).toBe('My request')
+    expect(wrapper.find('h2').text()).toBe('My request')
+  })
+
+  it('omits the summary heading when the operation has no summary', () => {
+    const wrapper = mount(RequestBlock, {
+      props: { ...defaultProps, operation: {}, layout: 'modal' },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    // An empty heading is worse than none, so nothing is announced. The
+    // collapsible sections below render their own headings, so look only for
+    // one holding the (absent) summary.
+    expect(wrapper.findAll('h2').map((heading) => heading.text())).not.toContain('')
   })
 
   it('applies aria-label with request summary on the container', () => {

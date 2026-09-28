@@ -30,6 +30,23 @@ describe('ExampleResponses', () => {
     expect(wrapper.find('[data-testid="response-variant-picker"]').exists()).toBe(false)
   })
 
+  it('announces what each status code means on its tab', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': { summary: 'A successful response', content: { 'application/json': {} } },
+          '400': { description: 'Bad Request', content: { 'application/json': {} } },
+        },
+      },
+    })
+
+    // The tabs show bare numbers, so the meaning has to reach screen readers
+    // some other way. `summary` wins over `description` when both exist.
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    expect(tabs[0]?.text()).toContain('A successful response')
+    expect(tabs[1]?.text()).toContain('Bad Request')
+  })
+
   it('renders a response summary without a description or examples', () => {
     const wrapper = mount(ExampleResponses, { props: { responses: { '204': { summary: 'Deletion completed' } } } })
     expect(wrapper.text()).toContain('Deletion completed')

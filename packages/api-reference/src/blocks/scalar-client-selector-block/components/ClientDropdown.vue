@@ -68,6 +68,7 @@ const selectedTargetKey = computed(
     class="client-libraries-more">
     <ScalarCombobox
       :filterFn="filterClientsByQuery"
+      :inputLabel="translate('clientLibraries.searchLabel')"
       :modelValue="findClient(clientOptions, selectedClient)"
       :options="clientOptions"
       placement="bottom-end"
