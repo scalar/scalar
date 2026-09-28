@@ -12,18 +12,22 @@ import { computed, nextTick, ref, watch } from 'vue'
 import type { CodeInputModelValue } from '@/v2/components/code-input/CodeInput.vue'
 import { useLocalization } from '@/v2/features/localization'
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: CodeInputModelValue
-    value?: string[]
-    default?: CodeInputModelValue | undefined
-    canAddCustomValue?: boolean
-    type?: string | undefined
-    /** Body arrays use JSON; parameter arrays use comma-separated text. */
-    arrayEncoding?: 'json' | 'comma-separated'
-  }>(),
-  { canAddCustomValue: true },
-)
+const {
+  modelValue,
+  value: enumValues,
+  default: defaultValue,
+  canAddCustomValue = true,
+  type,
+  arrayEncoding,
+} = defineProps<{
+  modelValue: CodeInputModelValue
+  value?: string[]
+  default?: CodeInputModelValue | undefined
+  canAddCustomValue?: boolean
+  type?: string | undefined
+  /** Body arrays use JSON; parameter arrays use comma-separated text. */
+  arrayEncoding?: 'json' | 'comma-separated'
+}>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
@@ -31,7 +35,7 @@ const emit = defineEmits<{
 
 const { translate } = useLocalization()
 
-const options = computed(() => props.value ?? [])
+const options = computed(() => enumValues ?? [])
 const addingCustomValue = ref(false)
 const customValue = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -59,7 +63,7 @@ const handleBlur = () => {
 }
 
 const isSelected = (value: string) => {
-  return props.modelValue.toString() === value
+  return modelValue.toString() === value
 }
 
 watch(addingCustomValue, (newValue) => {
@@ -71,7 +75,7 @@ watch(addingCustomValue, (newValue) => {
 })
 
 const initialValue = computed(() => {
-  return props.modelValue !== undefined ? props.modelValue : props.default
+  return modelValue !== undefined ? modelValue : defaultValue
 })
 
 /** Options for the array type */
@@ -84,9 +88,9 @@ const arrayOptions = computed(() =>
 
 /** Filter the options by what is selected */
 const selectedArrayOptions = computed(() => {
-  const value = props.modelValue.toString()
+  const value = modelValue.toString()
   let values: unknown = value.split(',')
-  if (props.arrayEncoding === 'json') {
+  if (arrayEncoding === 'json') {
     try {
       values = JSON.parse(value)
     } catch {
@@ -104,7 +108,7 @@ const updateSelectedOptions = (
   const selectedValues = selectedOptions.map((option) => option.value)
   emit(
     'update:modelValue',
-    props.arrayEncoding === 'json'
+    arrayEncoding === 'json'
       ? JSON.stringify(selectedValues)
       : selectedValues.join(','),
   )

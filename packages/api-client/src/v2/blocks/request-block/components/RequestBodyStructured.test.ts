@@ -1,7 +1,7 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 import { parse as parseYaml } from 'yaml'
 
@@ -68,7 +68,8 @@ describe('RequestBodyStructured', () => {
       { id: 'red,blue', label: 'red,blue', value: 'red,blue' },
     ])
     await nextTick()
-    const serialized = wrapper.emitted('update:value')?.[0]?.[0] as string
+    const serialized = wrapper.emitted('update:value')?.[0]?.[0]
+    assert(typeof serialized === 'string')
     const parsed: unknown = contentType === 'application/json' ? JSON.parse(serialized) : parseYaml(serialized)
     expect(parsed).toStrictEqual({ tags: ['blue', 'red,blue'] })
     await wrapper.setProps({ parsedValue: parsed })
@@ -79,7 +80,8 @@ describe('RequestBodyStructured', () => {
 
     select.vm.$emit('update:modelValue', [])
     await nextTick()
-    const cleared = wrapper.emitted('update:value')?.[1]?.[0] as string
+    const cleared = wrapper.emitted('update:value')?.[1]?.[0]
+    assert(typeof cleared === 'string')
     expect(contentType === 'application/json' ? JSON.parse(cleared) : parseYaml(cleared)).toStrictEqual({ tags: [] })
     wrapper.unmount()
   })
