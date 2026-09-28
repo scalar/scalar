@@ -33,6 +33,10 @@ useIntersection(section, () => emit('intersecting'))
   /* Offset by header height to line up scroll position */
   scroll-margin-top: var(--refs-viewport-offset);
 }
+/* Navigation moves focus here for accessibility, but the section is not a control. */
+.section[tabindex='-1']:focus {
+  outline: none;
+}
 .section:has(~ div.contents) {
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
