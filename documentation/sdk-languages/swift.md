@@ -57,7 +57,7 @@ dependencies: [
 ]
 ```
 
-Or through Xcode's **Add Package Dependencies** dialog with the same URL. The repository has to be reachable by your consumers, either public or accessible to their Swift Package Manager setup. See [Swift publishing](/products/sdk-generator/publishing/swift).
+Or through Xcode's **Add Package Dependencies** dialog with the same URL. The repository has to be reachable by your consumers, either public or accessible to their Swift Package Manager setup. See [Swift publishing](/products/sdk-generator/configuration/swift#publish).
 
 ## Scalar compared with OpenAPI Generator for Swift
 
@@ -117,7 +117,7 @@ Yes, as long as your consumers' Swift Package Manager can reach it, for example 
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [Swift configuration](/products/sdk-generator/configuration/swift) · [Publishing with Swift Package Manager](/products/sdk-generator/publishing/swift)
+- **Docs:** [Swift configuration](/products/sdk-generator/configuration/swift) · [Publishing with Swift Package Manager](/products/sdk-generator/configuration/swift#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — keep a Swift client in step with your other SDKs from one OpenAPI document
 
 ---

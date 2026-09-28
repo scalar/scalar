@@ -63,5 +63,5 @@ No. Terraform is not a supported target today.
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [SDK Generator getting started](/products/sdk-generator/getting-started) · [Publishing overview](/products/sdk-generator/publishing/overview)
+- **Docs:** [SDK Generator getting started](/products/sdk-generator/getting-started) · [Publishing overview](/products/sdk-generator/configuration/overview#targets)
 - **Product:** [SDK Generator](/products/sdk-generator) — idiomatic SDKs in every language your users write, from one OpenAPI document

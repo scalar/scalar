@@ -32,7 +32,7 @@ Add `rust` under `targets` to generate a Rust SDK package.
 }
 ```
 
-How releases are cut and published: [Publishing](../publishing/overview.md).
+How releases are cut and published: [`publish`](#publish).
 
 ## packageName
 

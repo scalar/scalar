@@ -108,7 +108,7 @@ Consumers install with:
 go get github.com/acme/acme-go@v1.2.3
 ```
 
-The repository must be public for the public proxy to serve it. For a private module, consumers set `GOPRIVATE` or use a private proxy. A generated `sdk-ci.yml` builds and vets the module on every pull request. See [Go publishing](/products/sdk-generator/publishing/go).
+The repository must be public for the public proxy to serve it. For a private module, consumers set `GOPRIVATE` or use a private proxy. A generated `sdk-ci.yml` builds and vets the module on every pull request. See [Go publishing](/products/sdk-generator/configuration/go#publish).
 
 ## Scalar compared with OpenAPI Generator for Go
 
@@ -180,7 +180,7 @@ Point the SDK at an exact version of your OpenAPI document or at a semver range 
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [Go configuration](/products/sdk-generator/configuration/go) · [Publishing Go modules](/products/sdk-generator/publishing/go)
+- **Docs:** [Go configuration](/products/sdk-generator/configuration/go) · [Publishing Go modules](/products/sdk-generator/configuration/go#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — Go, TypeScript, Python, and CLI clients kept in sync with your API
 
 ---

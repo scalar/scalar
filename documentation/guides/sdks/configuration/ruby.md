@@ -32,7 +32,7 @@ Add `ruby` under `targets` to generate a Ruby SDK gem.
 }
 ```
 
-How releases are cut and published: [Publishing](../publishing/overview.md).
+How releases are cut and published: [`publish`](#publish).
 
 ## gemName
 

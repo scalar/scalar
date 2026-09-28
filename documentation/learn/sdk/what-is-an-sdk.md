@@ -110,7 +110,7 @@ A usable SDK is easy to recognize once you know what to look for.
 
 **Errors are specific.** Typed errors carry the status code, headers, and parsed body.
 
-**It is versioned honestly.** Breaking changes bump the major version (or the minor, before 1.0), and the changelog says what changed. Automating this with Conventional Commits and release pull requests is covered in Scalar's [publishing guide](/products/sdk-generator/publishing/overview).
+**It is versioned honestly.** Breaking changes bump the major version (or the minor, before 1.0), and the changelog says what changed. Automating this with Conventional Commits and release pull requests is covered in Scalar's [publishing guide](/products/sdk-generator/configuration/overview#targets).
 
 **It stays in sync with the API.** An SDK that lags the API by months pushes users back to raw HTTP. Keeping the API description in a [registry](/products/registry) and regenerating on every change is the usual fix.
 

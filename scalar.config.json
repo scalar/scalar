@@ -238,7 +238,7 @@
         },
         {
           "from": "/scalar/scalar-sdks/publishing",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
@@ -290,131 +290,131 @@
         },
         {
           "from": "/products/sdks/publishing",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdks/publishing/overview",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdks/publishing/github",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdks/publishing/registries",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdks/publishing/typescript",
-          "to": "/products/sdk-generator/configuration/typescript"
+          "to": "/products/sdk-generator/configuration/typescript#publish"
         },
         {
           "from": "/products/sdks/publishing/python",
-          "to": "/products/sdk-generator/configuration/python"
+          "to": "/products/sdk-generator/configuration/python#publish"
         },
         {
           "from": "/products/sdks/publishing/go",
-          "to": "/products/sdk-generator/configuration/go"
+          "to": "/products/sdk-generator/configuration/go#publish"
         },
         {
           "from": "/products/sdks/publishing/rust",
-          "to": "/products/sdk-generator/configuration/rust"
+          "to": "/products/sdk-generator/configuration/rust#publish"
         },
         {
           "from": "/products/sdks/publishing/java",
-          "to": "/products/sdk-generator/configuration/java"
+          "to": "/products/sdk-generator/configuration/java#publish"
         },
         {
           "from": "/products/sdks/publishing/csharp",
-          "to": "/products/sdk-generator/configuration/csharp"
+          "to": "/products/sdk-generator/configuration/csharp#publish"
         },
         {
           "from": "/products/sdks/publishing/ruby",
-          "to": "/products/sdk-generator/configuration/ruby"
+          "to": "/products/sdk-generator/configuration/ruby#publish"
         },
         {
           "from": "/products/sdks/publishing/php",
-          "to": "/products/sdk-generator/configuration/php"
+          "to": "/products/sdk-generator/configuration/php#publish"
         },
         {
           "from": "/products/sdks/publishing/swift",
-          "to": "/products/sdk-generator/configuration/swift"
+          "to": "/products/sdk-generator/configuration/swift#publish"
         },
         {
           "from": "/products/sdks/publishing/dart",
-          "to": "/products/sdk-generator/configuration/dart"
+          "to": "/products/sdk-generator/configuration/dart#publish"
         },
         {
           "from": "/products/sdks/publishing/cli",
-          "to": "/products/sdk-generator/configuration/cli"
+          "to": "/products/sdk-generator/configuration/cli#publish"
         },
         {
           "from": "/products/sdk-generator/publishing",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdk-generator/publishing/overview",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdk-generator/publishing/github",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdk-generator/publishing/registries",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdk-generator/publishing/private-registries",
-          "to": "/products/sdk-generator/custom-code"
+          "to": "/products/sdk-generator/custom-code#tips"
         },
         {
           "from": "/products/sdk-generator/publishing/typescript",
-          "to": "/products/sdk-generator/configuration/typescript"
+          "to": "/products/sdk-generator/configuration/typescript#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/python",
-          "to": "/products/sdk-generator/configuration/python"
+          "to": "/products/sdk-generator/configuration/python#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/go",
-          "to": "/products/sdk-generator/configuration/go"
+          "to": "/products/sdk-generator/configuration/go#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/rust",
-          "to": "/products/sdk-generator/configuration/rust"
+          "to": "/products/sdk-generator/configuration/rust#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/java",
-          "to": "/products/sdk-generator/configuration/java"
+          "to": "/products/sdk-generator/configuration/java#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/csharp",
-          "to": "/products/sdk-generator/configuration/csharp"
+          "to": "/products/sdk-generator/configuration/csharp#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/ruby",
-          "to": "/products/sdk-generator/configuration/ruby"
+          "to": "/products/sdk-generator/configuration/ruby#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/php",
-          "to": "/products/sdk-generator/configuration/php"
+          "to": "/products/sdk-generator/configuration/php#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/swift",
-          "to": "/products/sdk-generator/configuration/swift"
+          "to": "/products/sdk-generator/configuration/swift#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/dart",
-          "to": "/products/sdk-generator/configuration/dart"
+          "to": "/products/sdk-generator/configuration/dart#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/cli",
-          "to": "/products/sdk-generator/configuration/cli"
+          "to": "/products/sdk-generator/configuration/cli#publish"
         },
         {
           "from": "/products/sdk-generator/publishing/:pathMatch(.*)*",
-          "to": "/products/sdk-generator/configuration/overview"
+          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdks/configuration",
@@ -2502,104 +2502,6 @@
                     "type": "page",
                     "title": "Managing Your SDK",
                     "description": "Build, version, download, and manage your SDK from the Scalar dashboard."
-                  },
-                  "publishing": {
-                    "title": "Publishing",
-                    "type": "group",
-                    "mode": "nested",
-                    "icon": "phosphor/regular/rocket-launch",
-                    "children": {
-                      "overview": {
-                        "filepath": "documentation/guides/sdks/publishing/overview.md",
-                        "type": "page",
-                        "title": "Overview",
-                        "description": "Publish generated SDKs to their package registries automatically with config-driven GitHub Actions workflows."
-                      },
-                      "github": {
-                        "filepath": "documentation/guides/sdks/publishing/github.md",
-                        "type": "page",
-                        "title": "GitHub Repositories",
-                        "description": "Link a GitHub repository to each target so every build syncs as a pull request."
-                      },
-                      "registries": {
-                        "filepath": "documentation/guides/sdks/publishing/registries.md",
-                        "type": "page",
-                        "title": "Package Registries",
-                        "description": "Set up trusted publishing or secrets for npm, PyPI, Maven Central, and every supported registry."
-                      },
-                      "private-registries": {
-                        "filepath": "documentation/guides/sdks/publishing/private-registries.md",
-                        "type": "page",
-                        "title": "Private Registries",
-                        "description": "Publish to Artifactory, AWS CodeArtifact, or any internal registry with a copy-paste workflow your repository owns."
-                      },
-                      "typescript": {
-                        "filepath": "documentation/guides/sdks/publishing/typescript.md",
-                        "type": "page",
-                        "title": "TypeScript",
-                        "description": "Publish the TypeScript SDK to npm with OIDC trusted publishing or an npm token."
-                      },
-                      "python": {
-                        "filepath": "documentation/guides/sdks/publishing/python.md",
-                        "type": "page",
-                        "title": "Python",
-                        "description": "Publish the Python SDK to PyPI with OIDC trusted publishing or a PyPI token."
-                      },
-                      "go": {
-                        "filepath": "documentation/guides/sdks/publishing/go.md",
-                        "type": "page",
-                        "title": "Go",
-                        "description": "Publish the Go module by tagging a version. No registry account or secrets needed."
-                      },
-                      "rust": {
-                        "filepath": "documentation/guides/sdks/publishing/rust.md",
-                        "type": "page",
-                        "title": "Rust",
-                        "description": "Publish the Rust crate to crates.io with OIDC trusted publishing or a crates.io token."
-                      },
-                      "java": {
-                        "filepath": "documentation/guides/sdks/publishing/java.md",
-                        "type": "page",
-                        "title": "Java and Kotlin",
-                        "description": "Publish the Java or Kotlin SDK to Maven Central with a Central Portal token and GPG signing."
-                      },
-                      "csharp": {
-                        "filepath": "documentation/guides/sdks/publishing/csharp.md",
-                        "type": "page",
-                        "title": "C#",
-                        "description": "Publish the C# SDK to NuGet with OIDC trusted publishing or a NuGet API key."
-                      },
-                      "ruby": {
-                        "filepath": "documentation/guides/sdks/publishing/ruby.md",
-                        "type": "page",
-                        "title": "Ruby",
-                        "description": "Publish the Ruby gem to RubyGems with an API key."
-                      },
-                      "php": {
-                        "filepath": "documentation/guides/sdks/publishing/php.md",
-                        "type": "page",
-                        "title": "PHP",
-                        "description": "Publish the PHP SDK to Packagist by tagging a version and connecting the repository."
-                      },
-                      "swift": {
-                        "filepath": "documentation/guides/sdks/publishing/swift.md",
-                        "type": "page",
-                        "title": "Swift",
-                        "description": "Publish the Swift package by tagging a version. No registry account or secrets needed."
-                      },
-                      "dart": {
-                        "filepath": "documentation/guides/sdks/publishing/dart.md",
-                        "type": "page",
-                        "title": "Dart",
-                        "description": "Publish the Dart package to pub.dev with OIDC automated publishing or a token."
-                      },
-                      "cli": {
-                        "filepath": "documentation/guides/sdks/publishing/cli.md",
-                        "type": "page",
-                        "title": "CLI",
-                        "description": "Publish the CLI to npm, and optionally through a GitHub Release and a Homebrew tap."
-                      }
-                    }
                   },
                   "configuration": {
                     "title": "Configuration",

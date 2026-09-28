@@ -669,7 +669,7 @@ Connect the repository where the SDK should live. Scalar authors commits through
 
   <scalar-step id="step-publish" title="Publish from your repository">
 
-release-please versions the release pull request from your commit history and maintains the changelog. When you merge it, the workflows in your repository cut the tag and GitHub Release and publish the package. Your package names, registries, and release history stay yours. See [publishing](publishing/overview.md).
+release-please versions the release pull request from your commit history and maintains the changelog. When you merge it, the workflows in your repository cut the tag and GitHub Release and publish the package. Your package names, registries, and release history stay yours. See [publishing](configuration.md#targets).
 
   </scalar-step>
 

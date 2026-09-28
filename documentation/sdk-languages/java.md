@@ -66,7 +66,7 @@ Maven Central is the most involved registry Scalar publishes to, because it asks
 3. Create a GPG key, publish the public half to a keyserver, and export the private half.
 4. Add four repository secrets: `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, and `MAVEN_GPG_PASSPHRASE`.
 
-Maven Central does not support OIDC trusted publishing, which is why this target uses secrets while npm, PyPI, NuGet, and crates.io do not have to. After that, merging the release pull request runs `./gradlew publishToMavenCentral`, which uploads and releases the deployment. Central coordinates are immutable, so the workflow checks whether the version's POM already exists and skips publishing if it does. Full steps are in [Java and Kotlin publishing](/products/sdk-generator/publishing/java).
+Maven Central does not support OIDC trusted publishing, which is why this target uses secrets while npm, PyPI, NuGet, and crates.io do not have to. After that, merging the release pull request runs `./gradlew publishToMavenCentral`, which uploads and releases the deployment. Central coordinates are immutable, so the workflow checks whether the version's POM already exists and skips publishing if it does. Full steps are in [Java and Kotlin publishing](/products/sdk-generator/configuration/java#publish).
 
 ## Scalar compared with OpenAPI Generator for Java
 
@@ -134,7 +134,7 @@ Yes. Every rebuild three-way merges the new output with your repository, so edit
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [Java configuration](/products/sdk-generator/configuration/java) · [Publishing to Maven Central](/products/sdk-generator/publishing/java)
+- **Docs:** [Java configuration](/products/sdk-generator/configuration/java) · [Publishing to Maven Central](/products/sdk-generator/configuration/java#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — preview the Java output from your own OpenAPI document before committing
 
 ---

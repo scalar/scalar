@@ -26,7 +26,7 @@ Add `go` under `targets` to generate a Go SDK package.
 }
 ```
 
-How releases are cut and published: [Publishing](../publishing/overview.md).
+How releases are cut and published: [`publish`](#publish).
 
 ## packageName
 

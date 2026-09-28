@@ -58,7 +58,7 @@ Kotlin publishes exactly as the Java target does, through the Sonatype Central P
 3. Create a GPG signing key, send the public key to a keyserver, and export the private key.
 4. Add `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, and `MAVEN_GPG_PASSPHRASE` as repository secrets.
 
-Maven Central does not support OIDC and requires signed artifacts, which is why secrets are unavoidable here. On merge, the release workflow runs `./gradlew publishToMavenCentral`. Because Central coordinates are immutable, the workflow checks for an existing POM first and skips versions that are already published. Read [Java and Kotlin publishing](/products/sdk-generator/publishing/java) for the details.
+Maven Central does not support OIDC and requires signed artifacts, which is why secrets are unavoidable here. On merge, the release workflow runs `./gradlew publishToMavenCentral`. Because Central coordinates are immutable, the workflow checks for an existing POM first and skips versions that are already published. Read [Java and Kotlin publishing](/products/sdk-generator/configuration/kotlin#publish) for the details.
 
 Consumers then add the dependency the usual way in `build.gradle.kts`:
 
@@ -124,7 +124,7 @@ Yes. Add both targets to the same SDK configuration. They share the namespace an
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [Kotlin configuration](/products/sdk-generator/configuration/kotlin) · [Publishing to Maven Central](/products/sdk-generator/publishing/java)
+- **Docs:** [Kotlin configuration](/products/sdk-generator/configuration/kotlin) · [Publishing to Maven Central](/products/sdk-generator/configuration/kotlin#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — generate Kotlin next to your Java, TypeScript, and Python SDKs from one document
 
 ---

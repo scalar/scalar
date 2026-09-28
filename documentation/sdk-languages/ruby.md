@@ -61,7 +61,7 @@ RubyGems publishing uses an API key rather than OIDC in Scalar's generated workf
 2. Add it to your repository as the secret `RUBYGEMS_API_KEY`.
 3. Merge the release pull request Scalar keeps open. The workflow runs `gem push`, reading the key as `GEM_HOST_API_KEY`.
 
-Before pushing, the workflow asks the RubyGems API whether the version already exists and skips `gem push` if it does, so re-merges are safe. Details are in [RubyGems publishing](/products/sdk-generator/publishing/ruby).
+Before pushing, the workflow asks the RubyGems API whether the version already exists and skips `gem push` if it does, so re-merges are safe. Details are in [RubyGems publishing](/products/sdk-generator/configuration/ruby#publish).
 
 ## For Rails teams
 
@@ -123,7 +123,7 @@ Yes. Every build three-way merges the new output with your repository and opens 
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [Ruby configuration](/products/sdk-generator/configuration/ruby) · [Publishing to RubyGems](/products/sdk-generator/publishing/ruby)
+- **Docs:** [Ruby configuration](/products/sdk-generator/configuration/ruby) · [Publishing to RubyGems](/products/sdk-generator/configuration/ruby#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — see the Ruby output from your own OpenAPI document before you commit
 
 ---

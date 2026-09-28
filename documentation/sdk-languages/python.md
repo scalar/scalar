@@ -94,7 +94,7 @@ Scalar never publishes on your behalf. It keeps a release pull request open in y
 
 The recommended authentication is **PyPI trusted publishing**. Add a GitHub publisher on pypi.org pointing at your repository and the workflow `release-please.yml`. For a project that does not exist yet, use a *pending publisher* from your account's Publishing page, so the very first release can go out without a token. If you prefer tokens, store a project-scoped token as `PYPI_API_TOKEN` and set `"authMethod": "access-token"`.
 
-`skip-existing` is on, so re-running a release for a version that is already on PyPI is a no-op instead of a failed job. Details are in [PyPI publishing](/products/sdk-generator/publishing/python).
+`skip-existing` is on, so re-running a release for a version that is already on PyPI is a no-op instead of a failed job. Details are in [PyPI publishing](/products/sdk-generator/configuration/python#publish).
 
 ## Scalar compared with OpenAPI Generator for Python
 
@@ -165,7 +165,7 @@ Add them as you would in any repository. Each build three-way merges the new out
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [Python configuration](/products/sdk-generator/configuration/python) · [Publishing to PyPI](/products/sdk-generator/publishing/python)
+- **Docs:** [Python configuration](/products/sdk-generator/configuration/python) · [Publishing to PyPI](/products/sdk-generator/configuration/python#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — one OpenAPI document, typed SDKs in every language your users write
 
 ---

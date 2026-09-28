@@ -27,7 +27,7 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 
 - [Build, version, and download](managing.md) your SDK
 - [Configure](configuration.md) each target
-- [Link a GitHub repository](publishing/github.md) and [publish to a registry](publishing/overview.md)
+- [Link a GitHub repository](configuration.md#targets) and [publish to a registry](configuration.md#targets)
 - [Customize the generated code](custom-code.md) without losing future updates
 
   </scalar-step>
@@ -46,6 +46,6 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 - [Build, version, and download](managing.md) your targets
 - [Configure](configuration.md) each SDK or CLI
 - [Add pagination helpers](pagination.md) to your list endpoints
-- [Publish to a package registry](publishing/overview.md)
+- [Publish to a package registry](configuration.md#targets)
 - [Add custom code](custom-code.md) that survives regeneration
 - [Read the diagnostics](diagnostics.md) each build reports about your API description
