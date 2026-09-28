@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { htmlFromMarkdown } from './markdown'
+import { htmlFromMarkdown, textFromMarkdown } from './markdown'
 
 describe('htmlFromMarkdown', () => {
   it('returns HTML', () => {
@@ -360,5 +360,17 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
     it('never lets an inline event handler through', () => {
       expect(htmlFromMarkdown('<img src=x onerror=alert(1)>')).not.toContain('onerror')
     })
+  })
+})
+
+describe('textFromMarkdown', () => {
+  it.each([
+    ['**Bad Request:** [fix the request](https://example.com)', 'Bad Request: fix the request'],
+    ['| State | Meaning |\n| --- | --- |\n| 200 | Success |', 'State Meaning 200 Success'],
+    ['<table><tr><td>State</td><td>Meaning</td></tr></table>', 'State Meaning'],
+    ['First paragraph\n\nSecond paragraph', 'First paragraph Second paragraph'],
+    ['<script>alert(1)</script>Safe description', 'Safe description'],
+  ])('converts %s to readable plain text', (markdown, expected) => {
+    expect(textFromMarkdown(markdown)).toBe(expected)
   })
 })

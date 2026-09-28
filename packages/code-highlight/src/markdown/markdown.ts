@@ -1,4 +1,5 @@
 import type { Element as HastElement, ElementContent as HastElementContent, Root as HastRoot } from 'hast'
+import { toText } from 'hast-util-to-text'
 import { createLowlight } from 'lowlight'
 import type { Heading, Root as MdastRoot, RootContent as MdastRootContent, Node, PhrasingContent } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
@@ -378,4 +379,10 @@ function createDocument(nodes: MdastRootContent[]) {
 
   // Remove the whitespace
   return markdown.trim()
+}
+
+/** Convert Markdown to a single line of plain text while preserving word boundaries. */
+export const textFromMarkdown = (markdown: string): string => {
+  const tree = unified().use(rehypeParse, { fragment: true }).parse(htmlFromMarkdown(markdown))
+  return toText(tree).replace(/\s+/g, ' ').trim()
 }

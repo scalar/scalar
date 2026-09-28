@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ExamplePicker } from '@scalar/blocks/code-example'
-import { htmlFromMarkdown } from '@scalar/code-highlight'
+import { textFromMarkdown } from '@scalar/code-highlight'
 import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarCard,
@@ -124,46 +124,8 @@ const responseLabels = computed(() =>
       const response = getResolvedRef(responses?.[statusCode])
       return [
         statusCode,
-        {
-          summary: response?.summary,
-          description: response?.summary
-            ? undefined
-            : htmlFromMarkdown(response?.description ?? '', {
-                removeTags: [
-                  'a',
-                  'img',
-                  'picture',
-                  'input',
-                  'p',
-                  'div',
-                  'h1',
-                  'h2',
-                  'h3',
-                  'h4',
-                  'h5',
-                  'h6',
-                  'blockquote',
-                  'pre',
-                  'ul',
-                  'ol',
-                  'li',
-                  'dl',
-                  'dt',
-                  'dd',
-                  'table',
-                  'thead',
-                  'tbody',
-                  'tfoot',
-                  'tr',
-                  'th',
-                  'td',
-                  'details',
-                  'summary',
-                  'hr',
-                  'section',
-                ],
-              }),
-        },
+        response?.summary?.trim() ||
+          textFromMarkdown(response?.description ?? ''),
       ]
     }),
   ),
@@ -331,15 +293,9 @@ const exampleContent = computed(() => exampleResult.value.content)
         <ScreenReader>{{ translate('response.status') }}:</ScreenReader>
         {{ statusCode }}
         <span
-          v-if="responseLabels[statusCode]?.summary"
+          v-if="responseLabels[statusCode]"
           class="font-normal normal-case">
-          – {{ responseLabels[statusCode].summary }}
-        </span>
-        <span
-          v-else-if="responseLabels[statusCode]?.description"
-          class="font-normal normal-case">
-          –
-          <span v-html="responseLabels[statusCode].description" />
+          – {{ responseLabels[statusCode] }}
         </span>
       </ExampleResponseTab>
 

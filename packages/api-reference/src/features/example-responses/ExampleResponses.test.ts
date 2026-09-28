@@ -44,7 +44,7 @@ describe('ExampleResponses', () => {
             description: '**Bad Request**: [fix the request](https://example.com/help)',
             content: { 'application/json': { example: { result: 'error' } } },
           },
-          default: { description: 'Unexpected response' },
+          default: { summary: '   ', description: 'Unexpected response' },
         },
       },
     })
