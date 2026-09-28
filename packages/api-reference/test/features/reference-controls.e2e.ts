@@ -66,13 +66,16 @@ test.describe('reference controls', () => {
     const example = await serveExample({ content })
     await page.goto(example)
 
-    const copyExample = page.getByRole('button', { name: 'Copy example value', exact: true })
+    const response = page.locator('.response-card')
+    const copyExample = response.getByRole('button')
+    await expect(copyExample).toHaveCount(1)
     await copyExample.scrollIntoViewIfNeeded()
     // Tab away and back to exercise the browser's keyboard focus-visible state.
     await copyExample.focus()
     await page.keyboard.press('Tab')
     await page.keyboard.press('Shift+Tab')
     await expect(copyExample).toBeFocused()
+    await expect(copyExample).toHaveCSS('opacity', '1')
     expect(await copyExample.evaluate((element) => element.matches(':focus-visible'))).toBe(true)
     const outline = await copyExample.evaluate((element) => {
       const style = getComputedStyle(element)
