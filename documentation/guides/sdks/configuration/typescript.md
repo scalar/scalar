@@ -32,7 +32,7 @@ Add `typescript` under `targets` to generate a TypeScript SDK package.
 }
 ```
 
-How releases are cut and published: [`publish`](#publish).
+How releases are cut and published: [Publishing](../publishing/overview.md).
 
 ## packageName
 

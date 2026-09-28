@@ -177,7 +177,7 @@ Fix it first, whichever route you choose. A hand-written SDK built against an in
 ## Related
 
 - **Learn:** [What is an SDK?](/learn/sdk/what-is-an-sdk) · [SDK vs API](/learn/sdk/sdk-vs-api) · [How to generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi)
-- **Docs:** [SDK Generator getting started](/products/sdk-generator/getting-started) · [Publishing](/products/sdk-generator/configuration/overview#targets)
+- **Docs:** [SDK Generator getting started](/products/sdk-generator/getting-started) · [Publishing](/products/sdk-generator/publishing/overview)
 - **Product:** [Scalar SDK Generator](/products/sdk-generator) — published per-target pricing, code in your own repositories, and custom code that survives regeneration.
 
 ---

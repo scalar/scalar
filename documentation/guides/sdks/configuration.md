@@ -161,7 +161,7 @@ Supported target keys are [`typescript`](configuration/typescript.md), [`python`
 
 Set `skip: true` on a target to keep its config in place without generating it.
 
-Set `promotion: "manual"` on a target to hold each build at staging until you promote it, instead of pushing to its production repository automatically. See `promotion` on each target page, for example [TypeScript](configuration/typescript.md#promotion).
+Set `promotion: "manual"` on a target to hold each build at staging until you promote it, instead of pushing to its production repository automatically. See [GitHub Repositories](publishing/github.md#promotion).
 
 ### environments
 

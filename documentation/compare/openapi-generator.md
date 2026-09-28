@@ -146,7 +146,7 @@ It is worth writing out the work explicitly, because the licence price hides it.
 | Keep templates current with upstream | You | Not applicable |
 | Retries, pagination, typed errors | You write them | Generated |
 | Versioning and changelog | You | Release pull requests managed by release-please |
-| Publish to npm, PyPI, Go modules | You script it | [Managed publishing](/products/sdk-generator/configuration/overview#targets) |
+| Publish to npm, PyPI, Go modules | You script it | [Managed publishing](/products/sdk-generator/publishing/overview) |
 | README and usage examples | README generated from templates | README with auth and option tables, plus `api.md` and `x-codeSamples` in your reference |
 | Keep docs and SDKs in sync | Separate tools | Same run, same compiled document |
 
@@ -197,7 +197,7 @@ List what your custom templates do. Anything expressed as a helper, wrapper, or 
 
   <scalar-step id="og-publish" title="Hand over publishing">
 
-Link the GitHub repository and configure [registry publishing](/products/sdk-generator/configuration/overview#targets). Keep OpenAPI Generator for any languages we do not cover yet.
+Link the GitHub repository and configure [registry publishing](/products/sdk-generator/publishing/overview). Keep OpenAPI Generator for any languages we do not cover yet.
 
   </scalar-step>
 </scalar-steps>

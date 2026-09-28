@@ -29,7 +29,7 @@ Add `swift` under `targets` to generate a Swift SDK package.
 }
 ```
 
-How releases are cut and published: [`publish`](#publish).
+How releases are cut and published: [Publishing](../publishing/overview.md).
 
 ## packageName
 

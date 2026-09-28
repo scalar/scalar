@@ -1,6 +1,6 @@
 # Managing Your SDK
 
-After you [create an SDK](getting-started.md), the dashboard is where you build it, track versions, download artifacts, and manage settings. This page walks through the day-to-day lifecycle. Configuration lives in the [Configuration](configuration.md) guide, and shipping to registries in [Publishing](configuration.md#targets).
+After you [create an SDK](getting-started.md), the dashboard is where you build it, track versions, download artifacts, and manage settings. This page walks through the day-to-day lifecycle. Configuration lives in the [Configuration](configuration.md) guide, and shipping to registries in [Publishing](publishing/overview.md).
 
 <scalar-image
   src="/sdks/sdk-overview.png"
@@ -43,9 +43,9 @@ Every build analyzes your OpenAPI document and configuration before it generates
 
   <scalar-step id="build-sync" title="Builds sync to GitHub">
 
-If a target is [linked to a repository](configuration.md#targets), the build pushes to `scalar-generated`, merges into `scalar-next`, and updates the release pull request against your default branch. If [publishing is enabled](configuration.md#targets), merging that release pull request tags and publishes the version.
+If a target is [linked to a repository](publishing/github.md), the build pushes to `scalar-generated`, merges into `scalar-next`, and updates the release pull request against your default branch. If [publishing is enabled](publishing/overview.md), merging that release pull request tags and publishes the version.
 
-A target set to [promote manually](configuration.md#targets) stops short of that: the build is generated and mirrored to staging, and reaches the production repository when you promote it.
+A target set to [promote manually](publishing/github.md#promotion) stops short of that: the build is generated and mirrored to staging, and reaches the production repository when you promote it.
 
   </scalar-step>
 </scalar-steps>
@@ -62,7 +62,7 @@ SDK versions are explicit, so you control exactly what is built and released.
 - **Active version**: set which version is live in the registry. Consumers and code samples resolve against the active version.
 - **Discard a draft**: delete an unbuilt draft without generating it.
 
-The SDK version here controls what the dashboard builds and serves from the registry. The version that ships to a *package* registry is computed separately, by release-please from the commit history of your SDK repository — or set exactly by editing the release pull request title. See [Publishing](configuration.md#targets).
+The SDK version here controls what the dashboard builds and serves from the registry. The version that ships to a *package* registry is computed separately, by release-please from the commit history of your SDK repository — or set exactly by editing the release pull request title. See [Publishing](publishing/overview.md#versioning-and-releases).
 
 ## Downloading an SDK
 

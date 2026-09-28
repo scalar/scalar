@@ -2,7 +2,7 @@
 
 Generated SDKs rarely cover every need. You might add a convenience method, tweak a type, write a helper, or adjust the README. Scalar lets you edit generated code directly and **carries your changes forward** on every regeneration, so you customize the SDK without forking it or losing future updates.
 
-This works on any target [linked to a GitHub repository](configuration.md#targets).
+This works on any target [linked to a GitHub repository](publishing/github.md).
 
 ## How it works
 
@@ -40,6 +40,6 @@ Once resolved, the merge lands on `scalar-next` and the release pull request ref
 ## Tips
 
 - **Keep custom code separate where you can.** New files in their own paths never conflict, so prefer adding a helper file over editing deep inside a generated one.
-- **Custom CI workflows count as custom code.** A workflow you add under `.github/workflows/` is carried forward like any other file, which is how you publish to an internal registry.
-- **Review the release pull request.** It is the single place where generated changes and your customizations come together, so it is the natural review point before anything releases or [publishes](configuration.md#targets).
+- **Custom CI workflows count as custom code.** A workflow you add under `.github/workflows/` is carried forward like any other file, which is how you publish to an internal registry. See [Private Registries](publishing/private-registries.md).
+- **Review the release pull request.** It is the single place where generated changes and your customizations come together, so it is the natural review point before anything releases or [publishes](publishing/overview.md).
 - **Custom code is per repository.** Each target keeps its own customizations in its own repository.

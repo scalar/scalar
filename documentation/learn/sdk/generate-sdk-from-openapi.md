@@ -398,7 +398,7 @@ With Scalar, publishing is opt-in per target. Turn it on in the dashboard or add
 }
 ```
 
-Scalar writes the release workflows into your repository. release-please computes the version from Conventional Commits and keeps a release pull request open; merging it tags the release and publishes, using OIDC trusted publishing where the registry supports it. Register `release-please.yml` as the trusted publisher's workflow. The [publishing overview](/products/sdk-generator/configuration/overview#targets) has per-registry setup, including Maven Central, RubyGems, NuGet, Packagist, crates.io, and Homebrew for CLIs.
+Scalar writes the release workflows into your repository. release-please computes the version from Conventional Commits and keeps a release pull request open; merging it tags the release and publishes, using OIDC trusted publishing where the registry supports it. Register `release-please.yml` as the trusted publisher's workflow. The [publishing overview](/products/sdk-generator/publishing/overview) has per-registry setup, including Maven Central, RubyGems, NuGet, Packagist, crates.io, and Homebrew for CLIs.
 
 ## Step 6: Regenerate from CI
 

@@ -238,7 +238,7 @@
         },
         {
           "from": "/scalar/scalar-sdks/publishing",
-          "to": "/products/sdk-generator/configuration/overview#targets"
+          "to": "/products/sdk-generator/publishing/overview"
         },
         {
           "from": "/scalar/scalar-sdks/configuration/typescript",
@@ -290,19 +290,19 @@
         },
         {
           "from": "/products/sdks/publishing",
-          "to": "/products/sdk-generator/configuration/overview#targets"
+          "to": "/products/sdk-generator/publishing/overview"
         },
         {
           "from": "/products/sdks/publishing/overview",
-          "to": "/products/sdk-generator/configuration/overview#targets"
+          "to": "/products/sdk-generator/publishing/overview"
         },
         {
           "from": "/products/sdks/publishing/github",
-          "to": "/products/sdk-generator/configuration/overview#targets"
+          "to": "/products/sdk-generator/publishing/github"
         },
         {
           "from": "/products/sdks/publishing/registries",
-          "to": "/products/sdk-generator/configuration/overview#targets"
+          "to": "/products/sdk-generator/publishing/registries"
         },
         {
           "from": "/products/sdks/publishing/typescript",
@@ -350,23 +350,7 @@
         },
         {
           "from": "/products/sdk-generator/publishing",
-          "to": "/products/sdk-generator/configuration/overview#targets"
-        },
-        {
-          "from": "/products/sdk-generator/publishing/overview",
-          "to": "/products/sdk-generator/configuration/overview#targets"
-        },
-        {
-          "from": "/products/sdk-generator/publishing/github",
-          "to": "/products/sdk-generator/configuration/overview#targets"
-        },
-        {
-          "from": "/products/sdk-generator/publishing/registries",
-          "to": "/products/sdk-generator/configuration/overview#targets"
-        },
-        {
-          "from": "/products/sdk-generator/publishing/private-registries",
-          "to": "/products/sdk-generator/custom-code#tips"
+          "to": "/products/sdk-generator/publishing/overview"
         },
         {
           "from": "/products/sdk-generator/publishing/typescript",
@@ -411,10 +395,6 @@
         {
           "from": "/products/sdk-generator/publishing/cli",
           "to": "/products/sdk-generator/configuration/cli#publish"
-        },
-        {
-          "from": "/products/sdk-generator/publishing/:pathMatch(.*)*",
-          "to": "/products/sdk-generator/configuration/overview#targets"
         },
         {
           "from": "/products/sdks/configuration",
@@ -2502,6 +2482,38 @@
                     "type": "page",
                     "title": "Managing Your SDK",
                     "description": "Build, version, download, and manage your SDK from the Scalar dashboard."
+                  },
+                  "publishing": {
+                    "title": "Publishing",
+                    "type": "group",
+                    "mode": "nested",
+                    "icon": "phosphor/regular/rocket-launch",
+                    "children": {
+                      "overview": {
+                        "filepath": "documentation/guides/sdks/publishing/overview.md",
+                        "type": "page",
+                        "title": "Overview",
+                        "description": "Publish generated SDKs to their package registries automatically with config-driven GitHub Actions workflows."
+                      },
+                      "github": {
+                        "filepath": "documentation/guides/sdks/publishing/github.md",
+                        "type": "page",
+                        "title": "GitHub Repositories",
+                        "description": "Link a GitHub repository to each target so every build syncs as a pull request."
+                      },
+                      "registries": {
+                        "filepath": "documentation/guides/sdks/publishing/registries.md",
+                        "type": "page",
+                        "title": "Package Registries",
+                        "description": "Set up trusted publishing or secrets for npm, PyPI, Maven Central, and every supported registry."
+                      },
+                      "private-registries": {
+                        "filepath": "documentation/guides/sdks/publishing/private-registries.md",
+                        "type": "page",
+                        "title": "Private Registries",
+                        "description": "Publish to Artifactory, AWS CodeArtifact, or any internal registry with a copy-paste workflow your repository owns."
+                      }
+                    }
                   },
                   "configuration": {
                     "title": "Configuration",

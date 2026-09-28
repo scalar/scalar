@@ -32,7 +32,7 @@ Add `dart` under `targets` to generate a Dart SDK package.
 }
 ```
 
-How releases are cut and published: [`publish`](#publish).
+How releases are cut and published: [Publishing](../publishing/overview.md).
 
 ## packageName
 

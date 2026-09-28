@@ -43,7 +43,7 @@ Add `cli` under `targets` to generate a command-line client.
 }
 ```
 
-How releases are cut and published: [`publish`](#publish).
+How releases are cut and published: [Publishing](../publishing/overview.md).
 
 ## binaryName
 

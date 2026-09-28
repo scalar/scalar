@@ -106,7 +106,7 @@ No. Packagist serves the package from the Git tag Scalar creates when you merge 
 
 <scalar-detail title="Can I publish the PHP SDK to a private Composer repository?">
 
-Set `composerRepositoryUrl` on the PHP target to point at your Composer repository. Private registries are covered in the [private registries](/products/sdk-generator/custom-code#tips) guide.
+Set `composerRepositoryUrl` on the PHP target to point at your Composer repository. Private registries are covered in the [private registries](/products/sdk-generator/publishing/private-registries) guide.
 
 </scalar-detail>
 
