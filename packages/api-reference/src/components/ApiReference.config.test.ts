@@ -941,7 +941,7 @@ describe('host-app hash routing', () => {
     ['', true, '# Overview\nDetails'],
     ['docs/api-spec/', true, '# Overview\nDetails'],
   ])(
-    'preserves introduction links through remounts with prefix %s and multi-document %s',
+    'preserves introduction links through remounts with prefix "%s" and multi-document %s',
     async (prefix, multi, description) => {
       const slug = multi ? 'second' : 'doc'
       const hash = `#${prefix}${multi ? `${slug}/` : ''}description/introduction`
