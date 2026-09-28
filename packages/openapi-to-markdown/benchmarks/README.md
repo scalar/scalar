@@ -54,3 +54,41 @@ registry during this run. Existing installed dependencies were reused in the
 isolated worktree; changed upstream production sources were rebuilt there. The
 baseline and replacement share those dependencies. Root package-manager settings
 were restored, and no dependency installation or build artifacts are committed.
+
+
+## Official API descriptions
+
+`official.mjs` measures one source/mode in a fresh process. Download each source
+once, then reuse those exact bytes for both modules:
+
+```sh
+node --expose-gc --max-old-space-size=768 benchmarks/official.mjs \
+  /path/to/baseline/dist/index.js /path/to/stripe.json default /path/to/stripe-before
+node --expose-gc --max-old-space-size=768 benchmarks/official.mjs \
+  ./dist/index.js /path/to/stripe.json linked /path/to/stripe-after
+```
+
+Repeat for Cloudflare. The source URLs are:
+
+- https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json
+- https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json
+
+Each run saves JSON metrics and the selected operation Markdown (`GET /v1/account`
+or `GET /zones`). Stripe also saves the individual `account` model page. Metrics
+include source SHA-256, runtime and CPU details, loading time, first-operation
+rendering time, total operation/model rendering time, byte counts, memory snapshots,
+and process peak RSS. Rendered pages are counted and discarded one at a time.
+
+Loading starts after importing the module and reading the local source file, and
+includes parsing, upgrading, and resolving through `createOpenApiMarkdownRenderer`.
+The harness retains the source string and a separate parsed copy for enumerating
+pages in both modes. All-page timing uses the same renderer after the first-operation
+and account-model samples, so its caches are partly warm. Introduction, tag and
+webhook pages are excluded from totals. Peak RSS includes module loading and document
+preparation; the 768 MiB limit applies to V8 old-space, not total process RSS.
+
+These are isolated renderer measurements. They exclude network download, site
+routing, Markdown-to-HTML conversion, writes of every page, indexing, asset processing,
+and deployment. They do not measure full publishing performance. Run modes
+sequentially to avoid competing benchmark processes, and treat single-run timing
+and memory figures as illustrative rather than statistical performance guarantees.

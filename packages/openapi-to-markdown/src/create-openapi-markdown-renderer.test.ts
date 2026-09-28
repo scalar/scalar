@@ -471,4 +471,77 @@ describe('create-openapi-markdown-renderer', () => {
     expect(output).not.toContain('javascript:')
     expect(output).not.toContain('Generated example omitted')
   })
+  it('retains annotated alias references and their sibling constraints', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.0',
+      info: { title: 'Aliases', version: '1' },
+      paths: {
+        '/alias': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Alias',
+                content: { 'application/json': { schema: reference('Alias') } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Alias: {
+            ...reference('Base'),
+            description: 'Alias details',
+            required: ['base'],
+            properties: { extra: { type: 'number' } },
+          },
+          Base: { type: 'object', properties: { base: { type: 'string' } } },
+        },
+      },
+    })
+    const output = await renderer.render({
+      operation: { path: '/alias', method: 'get' },
+      schemaReferences: linked.schemaReferences,
+    })
+    expect(output).toContain('[Base](/models/Base)')
+    expect(output).toContain('Alias details')
+    expect(output).toContain('**Required fields:** `base`')
+    expect(output).toContain('**`extra`**')
+  })
+  it('decodes URI fragments before pointer escapes and keeps literal percent sequences', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.0',
+      info: { title: 'Escapes', version: '1' },
+      components: {
+        schemas: {
+          Model: {
+            type: 'object',
+            properties: {
+              slash: reference('A%7E1B'),
+              percent: reference('Rate%2520'),
+            },
+          },
+          'A/B': { type: 'string' },
+          'Rate%20': { type: 'string' },
+        },
+      },
+    })
+    const names: Record<string, string> = {}
+    const output = await renderer.render({
+      model: 'Model',
+      schemaReferences: {
+        mode: 'linked',
+        resolveUrl: ({ name, ref }) => {
+          names[ref] = name
+          return `/models/${encodeURIComponent(name)}`
+        },
+      },
+    })
+    expect(names).toStrictEqual({
+      '#/components/schemas/A%7E1B': 'A/B',
+      '#/components/schemas/Rate%2520': 'Rate%20',
+    })
+    expect(output).toContain('[A/B](/models/A%2FB)')
+    expect(output).toContain('[Rate%20](/models/Rate%2520)')
+  })
 })

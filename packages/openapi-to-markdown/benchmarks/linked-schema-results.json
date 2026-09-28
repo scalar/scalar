@@ -1,0 +1,176 @@
+{
+  "stripe-before": {
+    "source": "/tmp/markdown-linked-benchmark/stripe.json",
+    "sha256": "8b5c2f03d4cd67f51b719b48963b9d47927296fc17eecb49005fc7228f1c077d",
+    "sourceBytes": 8316935,
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M4",
+    "heapLimitMiB": 768,
+    "mode": "default",
+    "modulePath": "/tmp/markdown-linked-benchmark/baseline/packages/openapi-to-markdown/dist/index.js",
+    "loadingMs": 721.281209,
+    "singleOperationMs": 432.65754200000015,
+    "renderingMs": 278044.349667,
+    "startMemory": {
+      "rss": 139591680,
+      "heapTotal": 115261440,
+      "heapUsed": 42134688,
+      "external": 2481713,
+      "arrayBuffers": 167769
+    },
+    "loadedMemory": {
+      "rss": 297172992,
+      "heapTotal": 200458240,
+      "heapUsed": 54821736,
+      "external": 2359077,
+      "arrayBuffers": 167769
+    },
+    "endMemory": {
+      "rss": 342605824,
+      "heapTotal": 291913728,
+      "heapUsed": 170658680,
+      "external": 2417495,
+      "arrayBuffers": 228737
+    },
+    "peakRssMiB": 449.859375,
+    "singleOperationBytes": 2597706,
+    "accountModelBytes": 2409577,
+    "operations": 612,
+    "models": 1538,
+    "operationBytes": 1616976752,
+    "modelBytes": 437406951,
+    "totalBytes": 2054383703
+  },
+  "stripe-after": {
+    "source": "/tmp/markdown-linked-benchmark/stripe.json",
+    "sha256": "8b5c2f03d4cd67f51b719b48963b9d47927296fc17eecb49005fc7228f1c077d",
+    "sourceBytes": 8316935,
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M4",
+    "heapLimitMiB": 768,
+    "mode": "linked",
+    "modulePath": "packages/openapi-to-markdown/dist/index.js",
+    "loadingMs": 742.022458,
+    "singleOperationMs": 79.72649999999999,
+    "renderingMs": 2160.918333,
+    "startMemory": {
+      "rss": 139460608,
+      "heapTotal": 116047872,
+      "heapUsed": 42139408,
+      "external": 2481713,
+      "arrayBuffers": 167769
+    },
+    "loadedMemory": {
+      "rss": 296697856,
+      "heapTotal": 200720384,
+      "heapUsed": 54832840,
+      "external": 2359077,
+      "arrayBuffers": 167769
+    },
+    "endMemory": {
+      "rss": 347062272,
+      "heapTotal": 251019264,
+      "heapUsed": 150809464,
+      "external": 2485581,
+      "arrayBuffers": 294273
+    },
+    "peakRssMiB": 331,
+    "singleOperationBytes": 8264,
+    "accountModelBytes": 6615,
+    "operations": 612,
+    "models": 1538,
+    "operationBytes": 5379422,
+    "modelBytes": 2342279,
+    "totalBytes": 7721701
+  },
+  "cloudflare-before": {
+    "source": "/tmp/markdown-linked-benchmark/cloudflare.json",
+    "sha256": "a7b894f05bf367e808ffb5243aa76c51b4950b72827f94578c85829d66f9d6e2",
+    "sourceBytes": 26195362,
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M4",
+    "heapLimitMiB": 768,
+    "mode": "default",
+    "modulePath": "/tmp/markdown-linked-benchmark/baseline/packages/openapi-to-markdown/dist/index.js",
+    "loadingMs": 2372.174625,
+    "singleOperationMs": 29.021875000000364,
+    "renderingMs": 26197.955541,
+    "startMemory": {
+      "rss": 203931648,
+      "heapTotal": 166887424,
+      "heapUsed": 96517720,
+      "external": 2285105,
+      "arrayBuffers": 167769
+    },
+    "loadedMemory": {
+      "rss": 599080960,
+      "heapTotal": 369147904,
+      "heapUsed": 146144824,
+      "external": 2359077,
+      "arrayBuffers": 167769
+    },
+    "endMemory": {
+      "rss": 602718208,
+      "heapTotal": 441892864,
+      "heapUsed": 238844112,
+      "external": 2417495,
+      "arrayBuffers": 228737
+    },
+    "peakRssMiB": 627.21875,
+    "singleOperationBytes": 16501,
+    "operations": 3594,
+    "models": 6925,
+    "operationBytes": 42404133,
+    "modelBytes": 30494074,
+    "totalBytes": 72898207
+  },
+  "cloudflare-after": {
+    "source": "/tmp/markdown-linked-benchmark/cloudflare.json",
+    "sha256": "a7b894f05bf367e808ffb5243aa76c51b4950b72827f94578c85829d66f9d6e2",
+    "sourceBytes": 26195362,
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpu": "Apple M4",
+    "heapLimitMiB": 768,
+    "mode": "linked",
+    "modulePath": "packages/openapi-to-markdown/dist/index.js",
+    "loadingMs": 2386.503541,
+    "singleOperationMs": 19.70316700000012,
+    "renderingMs": 16113.378334,
+    "startMemory": {
+      "rss": 203325440,
+      "heapTotal": 166887424,
+      "heapUsed": 96521288,
+      "external": 2285105,
+      "arrayBuffers": 167769
+    },
+    "loadedMemory": {
+      "rss": 563576832,
+      "heapTotal": 363380736,
+      "heapUsed": 146153504,
+      "external": 2359077,
+      "arrayBuffers": 167769
+    },
+    "endMemory": {
+      "rss": 631078912,
+      "heapTotal": 435126272,
+      "heapUsed": 322420824,
+      "external": 2420045,
+      "arrayBuffers": 228737
+    },
+    "peakRssMiB": 601.859375,
+    "singleOperationBytes": 6113,
+    "operations": 3594,
+    "models": 6925,
+    "operationBytes": 19400645,
+    "modelBytes": 17449840,
+    "totalBytes": 36850485
+  }
+}

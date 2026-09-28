@@ -1,4 +1,3 @@
-import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MaybeRefSchemaObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
@@ -114,10 +113,10 @@ const emphasis = (...children: PhrasingContent[]): Emphasis => ({ type: 'emphasi
 
 /** Prefer the component name, which is how model sections and other references identify the schema. */
 const getReferenceName = (ref: string): string => {
-  const match = /^#\/components\/schemas\/([^/]+)$/.exec(ref)
-  if (!match) return ref
   try {
-    return unescapeJsonPointer(match[1]!)
+    // URI fragments are decoded before JSON Pointer segments and escapes, exactly once.
+    const match = /^#\/components\/schemas\/([^/]+)$/.exec(decodeURIComponent(ref))
+    return match ? match[1]!.replaceAll('~1', '/').replaceAll('~0', '~') : ref
   } catch {
     return ref
   }
@@ -250,31 +249,27 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
     }
 
     const render: SchemaRenderer['render'] = (input, depth = 0, ancestors = [], options = {}) => {
-      if (
-        linked &&
-        isObject(input) &&
-        '$ref' in input &&
-        (depth > 0 || getResolvedRef(input) === undefined) &&
-        typeof input.$ref === 'string'
-      ) {
-        const name = getReferenceName(input.$ref)
-        const url = settings.schemaReferences?.resolveUrl?.({ ref: input.$ref, name })
-        const nodes: RootContent[] = [
-          paragraph(text('Schema: '), url && safeUrl(url) ? link(url, name) : inlineCode(name)),
-        ]
+      if (linked && isObject(input) && '$ref' in input && typeof input.$ref === 'string') {
+        const target = getResolvedRef(input)
         // Reference siblings are independent constraints, not replacements for target keywords.
         const siblings = Object.fromEntries(Object.entries(input).filter(([key]) => !referenceKeys.has(key)))
-        if (Object.keys(siblings).length) nodes.push(...render(siblings as MarkdownSchema, depth, ancestors))
-        return nodes
-      }
-      if (linked && depth === 0 && isObject(input) && '$ref' in input && typeof input.$ref === 'string') {
-        const target = getResolvedRef(input)
-        const siblings = Object.fromEntries(Object.entries(input).filter(([key]) => !referenceKeys.has(key)))
-        if (target !== undefined && Object.keys(siblings).length) {
+        const hasSiblings = Object.keys(siblings).length > 0
+        if (depth > 0 || target === undefined) {
+          const name = getReferenceName(input.$ref)
+          const url = settings.schemaReferences?.resolveUrl?.({ ref: input.$ref, name })
+          const nodes: RootContent[] = [
+            paragraph(text('Schema: '), url && safeUrl(url) ? link(url, name) : inlineCode(name)),
+          ]
+          if (hasSiblings) nodes.push(...render(siblings as MarkdownSchema, depth, ancestors))
+          return nodes
+        }
+        // An alias with siblings is another reference boundary. Keep its reference visible
+        // instead of overwriting it with the outer reference during normalization.
+        if (hasSiblings || (isObject(target) && '$ref' in target)) {
           return [
-            paragraph(strong(text('All of:'))),
+            ...(hasSiblings ? [paragraph(strong(text('All of:')))] : []),
             ...render(target as MarkdownSchema, depth + 1, ancestors),
-            ...render(siblings as MarkdownSchema, depth, ancestors),
+            ...(hasSiblings ? render(siblings as MarkdownSchema, depth, ancestors) : []),
           ]
         }
       }
