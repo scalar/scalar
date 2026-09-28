@@ -115,22 +115,27 @@ Options:
   -h, --help                     display help for command
 
 Commands:
-  bundle [options] [file|url]    Bundle an OpenAPI specification by resolving
-                                 all references and external dependencies
-  split [options] [file|url]     Split your OpenAPI documents on small chunks
-  join [options] <files...>      Merge multiple OpenAPI documents into a single
-                                 unified document
-  format [options] [file|url]    Format an OpenAPI file
+  bundle [options] [file|url]    Bundle an OpenAPI document by resolving all
+                                 references and external dependencies
+  split [options] [file|url]     Split OpenAPI or AsyncAPI documents into small
+                                 chunks
+  join [options] <files...>      Merge multiple OpenAPI or AsyncAPI documents
+                                 into a single unified document
+  format [options] [file|url]    Format an OpenAPI or AsyncAPI file
   convert [options] [file|url]   Convert a Postman collection to an OpenAPI
                                  document
   markdown [options] [file|url]  Generate Markdown from an OpenAPI file
-  mock [options] [file|url]      Mock an API from an OpenAPI file
-  serve [options] [file|url]     Serve an API Reference from an OpenAPI file
-  share [options] [file]         Share an OpenAPI file
-  validate [file|url]            Validate an OpenAPI file
+  mock [options] [file|url]      Mock an OpenAPI API or AsyncAPI WebSocket and
+                                 SSE channels
+  serve [options] [file|url]     Serve an API Reference from an OpenAPI or
+                                 AsyncAPI file
+  share [options] [file]         Share an OpenAPI or AsyncAPI file
+  validate [file|url]            Validate an OpenAPI or AsyncAPI file
   void [options]                 Boot a server to mirror HTTP requests
-  lint [options] [file|url]      Lint your OpenAPI file using spectral rules
-  upgrade [options] [file|url]   Upgrade OpenAPI document to version 3.1
+  lint [options] [file|url]      Lint your OpenAPI or AsyncAPI file using
+                                 spectral rules
+  upgrade [options] [file|url]   Upgrade an OpenAPI or AsyncAPI document to
+                                 version 3.1
   help [command]                 display help for command
 ```
 
@@ -138,8 +143,7 @@ Commands:
 ```
 Usage: scalar document bundle [options] [file|url]
 
-Bundle an OpenAPI specification by resolving all references and external
-dependencies
+Bundle an OpenAPI document by resolving all references and external dependencies
 
 Arguments:
   file|url              Path to OpenAPI file or URL to bundle
@@ -157,10 +161,10 @@ Options:
 ```
 Usage: scalar document split [options] [file|url]
 
-Split your OpenAPI documents on small chunks
+Split OpenAPI or AsyncAPI documents into small chunks
 
 Arguments:
-  file|url             Path to OpenAPI file or URL to split
+  file|url             Path to OpenAPI or AsyncAPI file or URL to split
 
 Options:
   -o, --output <path>  Path to save the chunks
@@ -171,10 +175,10 @@ Options:
 ```
 Usage: scalar document join [options] <files...>
 
-Merge multiple OpenAPI documents into a single unified document
+Merge multiple OpenAPI or AsyncAPI documents into a single unified document
 
 Arguments:
-  files                                          Paths to the OpenAPI files to merge
+  files                                          Paths to the OpenAPI or AsyncAPI files to merge
 
 Options:
   --output -o <file>                             Path to save the merged output file
@@ -186,7 +190,7 @@ Options:
 ```
 Usage: scalar document format [options] [file|url]
 
-Format an OpenAPI file
+Format an OpenAPI or AsyncAPI file
 
 Arguments:
   file|url             File or URL to format
@@ -229,10 +233,10 @@ Options:
 ```
 Usage: scalar document mock [options] [file|url]
 
-Mock an API from an OpenAPI file
+Mock an OpenAPI API or AsyncAPI WebSocket and SSE channels
 
 Arguments:
-  file|url           OpenAPI file or URL to mock the server for
+  file|url           OpenAPI or AsyncAPI file or URL to mock
 
 Options:
   -w, --watch        watch the file for changes
@@ -245,10 +249,10 @@ Options:
 ```
 Usage: scalar document serve [options] [file|url]
 
-Serve an API Reference from an OpenAPI file
+Serve an API Reference from an OpenAPI or AsyncAPI file
 
 Arguments:
-  file|url           OpenAPI file or URL to show the reference for
+  file|url           OpenAPI or AsyncAPI file or URL to show the reference for
 
 Options:
   -w, --watch        watch the file for changes
@@ -261,7 +265,7 @@ Options:
 ```
 Usage: scalar document share [options] [file]
 
-Share an OpenAPI file
+Share an OpenAPI or AsyncAPI file
 
 Arguments:
   file                 file to share
@@ -275,7 +279,7 @@ Options:
 ```
 Usage: scalar document validate [options] [file|url]
 
-Validate an OpenAPI file
+Validate an OpenAPI or AsyncAPI file
 
 Arguments:
   file|url    File or URL to validate
@@ -300,10 +304,10 @@ Options:
 ```
 Usage: scalar document lint [options] [file|url]
 
-Lint your OpenAPI file using spectral rules
+Lint your OpenAPI or AsyncAPI file using spectral rules
 
 Arguments:
-  file|url               OpenAPI file path or url
+  file|url               OpenAPI or AsyncAPI file path or url
 
 Options:
   -r, --rule <file|url>  Rule path or url
@@ -314,10 +318,10 @@ Options:
 ```
 Usage: scalar document upgrade [options] [file|url]
 
-Upgrade OpenAPI document to version 3.1
+Upgrade an OpenAPI or AsyncAPI document to version 3.1
 
 Arguments:
-  file|url             File or URL to validate
+  file|url             File or URL to upgrade
 
 Options:
   -o, --output <file>  Path to save the upgraded output file
@@ -432,11 +436,11 @@ Usage: scalar project rollback [options]
 Roll the live deployment back to a previously deployed build.
 
 Options:
-  -s, --slug [slug]       Project slug found in Scalar Dashboard
-  -t, --to <publishUid>   Roll back to a specific build id (defaults to the next
-                          older deployed build)
-  -y, --yes               Skip the confirmation prompt
-  -h, --help              display help for command
+  -s, --slug [slug]      Project slug found in Scalar Dashboard
+  -t, --to <publishUid>  Roll back to a specific build id (defaults to the next
+                         older deployed build)
+  -y, --yes              Skip the confirmation prompt
+  -h, --help             display help for command
 ```
 
 ### deployments
@@ -453,7 +457,7 @@ Commands:
   help [command]  display help for command
 ```
 
-#### deployments list
+#### list
 ```
 Usage: scalar project deployments list [options]
 
@@ -659,8 +663,8 @@ Options:
   -a, --api <api>              Registry API slug
   -n, --namespace <namespace>  Team namespace
   -l, --language <language>    Language of your SDK (choices: "typescript",
-                               "python", "csharp", "java", "ruby", "php", "go",
-                               "rust", "kotlin", "swift", "cpp", "dart")
+                               "python", "cli", "csharp", "java", "ruby", "php",
+                               "go", "rust", "kotlin", "swift", "cpp", "dart")
   -h, --help                   display help for command
 ```
 
@@ -710,14 +714,17 @@ Usage: scalar schema [options] [command]
 Manage your Scalar schemas
 
 Options:
-  -h, --help                display help for command
+  -h, --help                        display help for command
 
 Commands:
-  delete [options]          Delete a schema.
-  update [options]          Update schema metadata.
-  list [options]            List all schemas for a team namespace
-  publish [options] [file]  Publish a shared schema to the Scalar registry
-  help [command]            display help for command
+  delete [options]                  Delete a schema.
+  update [options]                  Update schema metadata.
+  list [options]                    List all schemas for a team namespace
+  get [options] [namespace] [slug]  Get a schema document version from the
+                                    Scalar registry
+  publish [options] [file]          Publish a shared schema to the Scalar
+                                    registry
+  help [command]                    display help for command
 ```
 
 ### delete
@@ -756,6 +763,23 @@ List all schemas for a team namespace
 Options:
   --namespace <namespace>  Team namespace
   -h, --help               display help for command
+```
+
+### get
+```
+Usage: scalar schema get [options] [namespace] [slug]
+
+Get a schema document version from the Scalar registry
+
+Arguments:
+  namespace            Team namespace
+  slug                 Schema slug
+
+Options:
+  --version <version>  Schema version (defaults to latest)
+  --format <format>    Output format (json or yaml) (default: "json")
+  -o, --output <file>  Output file (defaults to stdout)
+  -h, --help           display help for command
 ```
 
 ### publish
