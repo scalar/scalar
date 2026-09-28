@@ -1,19 +1,20 @@
 import { createDetectChangesProxy } from '@scalar/workspace-store/helpers/detect-changes-proxy'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { type VueWrapper, mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
 import ExampleResponses from './ExampleResponses.vue'
 
-const mockCopyToClipboard = vi.fn()
-
-vi.mock('@scalar/use-hooks/useClipboard', () => ({
-  useClipboard: vi.fn(() => ({
-    copyToClipboard: mockCopyToClipboard,
-  })),
-}))
+/**
+ * The example the card is currently displaying.
+ *
+ * The card no longer has a copy button of its own - the code block inside it owns that - so the
+ * rendered content is read straight off the component that receives it.
+ */
+const displayedExample = (wrapper: VueWrapper): string =>
+  wrapper.findComponent({ name: 'ExampleResponse' }).props('content') as string
 
 describe('ExampleResponses', () => {
   it('does not offer union alternatives when an empty enum excludes every value', () => {
@@ -78,7 +79,7 @@ describe('ExampleResponses', () => {
     expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('second')
   })
 
-  it('copies the first nested variant after selecting the second outer variant', async () => {
+  it('selects the first nested variant after selecting the second outer variant', async () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',
       oneOf: [{ const: 'outer' }, { oneOf: [{ const: 'nested first' }, { const: 'nested second' }] }],
@@ -87,8 +88,7 @@ describe('ExampleResponses', () => {
       props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
     })
     await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('nested first')
+    expect(displayedExample(wrapper)).toBe('nested first')
     expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('nested first')
   })
 
@@ -101,8 +101,7 @@ describe('ExampleResponses', () => {
       props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
     })
     await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual(['email'])
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual(['email'])
   })
 
   it.each([
@@ -124,12 +123,10 @@ describe('ExampleResponses', () => {
       })
       const picker = wrapper.findComponent({ name: 'ExamplePicker' })
       await picker.vm.$emit('update:modelValue', '1')
-      await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-      expect(mockCopyToClipboard).toHaveBeenLastCalledWith(expected)
+      expect(displayedExample(wrapper)).toBe(expected)
       expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe(expected)
       await picker.vm.$emit('update:modelValue', '0')
-      await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-      expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual({ shared: true })
+      expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ shared: true })
     },
   )
 
@@ -175,10 +172,7 @@ describe('ExampleResponses', () => {
       props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
     })
     await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith(
-      typeof expected === 'string' ? expected : JSON.stringify(expected, null, 2),
-    )
+    expect(displayedExample(wrapper)).toBe(typeof expected === 'string' ? expected : JSON.stringify(expected, null, 2))
   })
 
   it.each(['anyOf', 'oneOf'])('selects and copies a generated %s response variant', async (composition) => {
@@ -202,8 +196,7 @@ describe('ExampleResponses', () => {
     await picker.vm.$emit('update:modelValue', '1')
     expect(wrapper.text()).toContain(email)
     expect(wrapper.text()).not.toContain(phone)
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith(JSON.stringify({ message: email }, null, 2))
+    expect(displayedExample(wrapper)).toBe(JSON.stringify({ message: email }, null, 2))
     await wrapper.get('input[type="checkbox"]').setValue(true)
     expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(false)
     expect(wrapper.text()).toContain(phone)
@@ -268,8 +261,7 @@ describe('ExampleResponses', () => {
     await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'second')
     expect(wrapper.text()).toContain('explicit second')
     expect(wrapper.text()).not.toContain('generated')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('explicit second')
+    expect(displayedExample(wrapper)).toBe('explicit second')
   })
 
   it('selects referenced variants without dropping shared response properties', async () => {
@@ -302,11 +294,10 @@ describe('ExampleResponses', () => {
     expect(picker.text()).toContain('Phone')
     await picker.vm.$emit('update:modelValue', '1')
     expect(picker.text()).toContain('Email')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(JSON.parse(mockCopyToClipboard.mock.lastCall?.[0])).toStrictEqual({ shared: true, message: 'email' })
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ shared: true, message: 'email' })
   })
 
-  it('selects and copies a framed stream item variant', async () => {
+  it('selects a framed stream item variant', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -327,12 +318,11 @@ describe('ExampleResponses', () => {
       },
     })
     await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{"id":2}\n')
+    expect(displayedExample(wrapper)).toBe('{"id":2}\n')
     expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('{"id":2}\n')
   })
 
-  it('displays and copies the same framed streaming example', async () => {
+  it('displays the same framed streaming example', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -348,8 +338,7 @@ describe('ExampleResponses', () => {
       },
     })
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
-    await wrapper.get('.code-copy').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{"id":7}\n')
+    expect(displayedExample(wrapper)).toBe('{"id":7}\n')
     await wrapper.get('input[type="checkbox"]').setValue(true)
     expect(wrapper.text()).toContain('Stream item')
     expect(wrapper.getComponent({ name: 'ExampleSchema' }).props('schema')).toStrictEqual({
@@ -686,31 +675,7 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Access denied')
   })
 
-  it('copies example response when clicking copy button', async () => {
-    const wrapper = mount(ExampleResponses, {
-      props: {
-        responses: {
-          '200': {
-            description: 'OK',
-            content: {
-              'application/json': {
-                example: { foo: 'bar' },
-              },
-            },
-          },
-        },
-      },
-    })
-
-    const copyButton = wrapper.find('.code-copy')
-    expect(copyButton.exists()).toBe(true)
-
-    await copyButton.trigger('click')
-
-    expect(mockCopyToClipboard).toHaveBeenCalledWith('{\n  "foo": "bar"\n}')
-  })
-
-  it('copies the selected named example and follows response changes', async () => {
+  it('renders the selected named example and follows response changes', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -731,13 +696,11 @@ describe('ExampleResponses', () => {
     })
 
     await wrapper.getComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'second')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{\n  "id": 2\n}')
+    expect(displayedExample(wrapper)).toBe('{\n  "id": 2\n}')
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{\n  "id": 2\n}')
 
     await wrapper.getComponent({ name: 'ExampleResponseTabList' }).vm.$emit('change', 1)
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('Not found')
+    expect(displayedExample(wrapper)).toBe('Not found')
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('Not found')
   })
 
@@ -745,7 +708,7 @@ describe('ExampleResponses', () => {
     { value: 0, content: '0' },
     { value: false, content: 'false' },
     { value: '', content: '' },
-  ])('copies the falsy example $value', async ({ value, content }) => {
+  ])('renders the falsy example $value', ({ value, content }) => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -754,12 +717,11 @@ describe('ExampleResponses', () => {
       },
     })
 
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith(content)
+    expect(displayedExample(wrapper)).toBe(content)
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe(content)
   })
 
-  it('copies a resolved example reference', async () => {
+  it('renders a resolved example reference', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -777,11 +739,10 @@ describe('ExampleResponses', () => {
       },
     })
 
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{\n  "linked": true\n}')
+    expect(displayedExample(wrapper)).toBe('{\n  "linked": true\n}')
   })
 
-  it('copies the displayed generated example', async () => {
+  it('renders the displayed generated example', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -795,8 +756,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('Generated')
+    expect(displayedExample(wrapper)).toBe('Generated')
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('Generated')
   })
 
