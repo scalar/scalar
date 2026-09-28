@@ -121,6 +121,24 @@ const attrs = useAttrs()
 const ariaLabel = computed(() =>
   typeof attrs['aria-label'] === 'string' ? attrs['aria-label'] : undefined,
 )
+/** Lifted to the editable surface like aria-label, so a visible label can name it */
+const ariaLabelledby = computed(() =>
+  typeof attrs['aria-labelledby'] === 'string'
+    ? attrs['aria-labelledby']
+    : undefined,
+)
+/**
+ * The wrapper is a generic div, and ARIA prohibits naming a generic element,
+ * so the naming attributes only go on the editor and not on the wrapper.
+ */
+const wrapperAttrs = computed(() => {
+  const {
+    'aria-label': _ariaLabel,
+    'aria-labelledby': _ariaLabelledby,
+    ...rest
+  } = attrs
+  return rest
+})
 
 /**
  * The id only matters once the dropdown opens (`aria-controls` /
@@ -916,7 +934,7 @@ defineExpose({
   <div
     v-else
     :id="componentId"
-    v-bind="$attrs"
+    v-bind="wrapperAttrs"
     class="code-input-lite group/code-input-lite peer relative w-full leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
     :class="{
       'code-input-lite--error': error,
@@ -934,6 +952,7 @@ defineExpose({
       :aria-expanded="displayVariablesDropdown ? 'true' : undefined"
       :aria-invalid="error ? 'true' : undefined"
       :aria-label="ariaLabel"
+      :aria-labelledby="ariaLabelledby"
       :aria-readonly="readOnly ? 'true' : undefined"
       :aria-required="required ? 'true' : undefined"
       class="code-input-lite__editor"

@@ -22,6 +22,17 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
   useFocusTrap(client, {
     allowOutsideClick: true,
     fallbackFocus: () => client.value as HTMLElement,
+    /**
+     * Put initial focus on the close button so assistive technology users hear
+     * the way out of the dialog before anything else. Returning `undefined`
+     * (no marked element, e.g. a layout without a close button) keeps
+     * focus-trap's default of the first tabbable element. Never return `null`
+     * here: focus-trap throws on a non-node return value. The lookup is scoped
+     * to the dialog so a host page element can never be picked up.
+     */
+    initialFocus: () =>
+      client.value?.querySelector<HTMLElement>('[data-modal-initial-focus]') ??
+      undefined,
   })
 
 // ensure scalar classes exist on headless-ui root

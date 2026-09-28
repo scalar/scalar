@@ -240,6 +240,19 @@ describe('ResponseBlock', () => {
       const liveRegion = wrapper.find('[aria-live="polite"]')
       expect(liveRegion.exists()).toBe(true)
     })
+
+    it('renders the filter tabs without aria-controls', () => {
+      const wrapper = mount(ResponseBlock, {
+        props: {
+          ...defaultProps,
+          response: getDefaultResponse(),
+        },
+      })
+
+      const tabs = wrapper.findAll('[role="tab"]')
+      expect(tabs.length).toBeGreaterThan(0)
+      expect(tabs.every((tab) => tab.attributes('aria-controls') === undefined)).toBe(true)
+    })
   })
 
   describe('layout prop', () => {

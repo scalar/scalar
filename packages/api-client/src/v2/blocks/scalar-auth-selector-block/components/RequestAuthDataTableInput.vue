@@ -27,12 +27,19 @@ const emit = defineEmits<{
 
 const modelValue = defineModel<string>({ default: '', required: true })
 const id = useId()
+/**
+ * The unmasked editor is a contenteditable div, which a <label for> cannot
+ * name, so the field points back at the visible label via aria-labelledby.
+ * The masked native input keeps its <label for> and gets the same text.
+ */
+const labelId = `${id}-label`
 </script>
 <template>
   <DataTableInput
     :id="id"
     v-bind="$attrs"
     v-model="modelValue"
+    :aria-labelledby="labelId"
     :canAddCustomEnumValue="!readOnly"
     :containerClass="containerClass"
     :environment="environment"
@@ -43,7 +50,9 @@ const id = useId()
     @inputFocus="emit('inputFocus')"
     @selectVariable="emit('selectVariable', $event)">
     <template #default>
-      <label :for="id">
+      <label
+        :id="labelId"
+        :for="id">
         <slot />
       </label>
     </template>

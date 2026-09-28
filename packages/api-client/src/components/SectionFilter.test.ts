@@ -82,4 +82,28 @@ describe('SectionFilter', () => {
     expect(selected.value).toBe('Headers')
     wrapper.unmount()
   })
+
+  it('renders tabs without aria-controls so NVDA does not re-announce the selection', () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization({ locale: 'en' })
+          return () =>
+            h(SectionFilter, {
+              filters: ['All', 'Headers', 'Body'],
+              modelValue: 'Headers',
+            })
+        },
+      }),
+    )
+
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs).toHaveLength(3)
+    for (const tab of tabs) {
+      expect(tab.attributes('aria-controls')).toBeUndefined()
+    }
+    expect(wrapper.findAll('[role="tablist"]')).toHaveLength(1)
+    expect(tabs.filter((tab) => tab.attributes('aria-selected') === 'true')).toHaveLength(1)
+    wrapper.unmount()
+  })
 })

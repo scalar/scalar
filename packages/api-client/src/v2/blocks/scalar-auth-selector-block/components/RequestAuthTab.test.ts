@@ -70,7 +70,7 @@ describe('RequestAuthTab', () => {
   }
 
   describe('HTTP Bearer Authentication', () => {
-    it('renders Bearer token input when scheme type is http and scheme is bearer', () => {
+    it('renders Bearer token input when scheme type is http and scheme is bearer', async () => {
       const wrapper = mountWithProps({
         securitySchemes: {
           'BearerAuth': {
@@ -86,6 +86,16 @@ describe('RequestAuthTab', () => {
       expect(input.exists()).toBe(true)
       expect(input.props('type')).toBe('password')
       expect(input.text()).toContain('Bearer Token')
+
+      // The visible label names the masked native input ...
+      const labelId = input.get('label').attributes('id')
+      expect(labelId).toBeTruthy()
+      expect(input.get('input').attributes('aria-labelledby')).toBe(labelId)
+
+      // ... and the unmasked contenteditable editor, which a <label for> cannot reach.
+      await input.get('[data-testid="data-table-password-toggle"]').trigger('click')
+      await nextTick()
+      expect(input.get('.code-input-lite__editor').attributes('aria-labelledby')).toBe(labelId)
     })
 
     it('emits auth:update:security-scheme-secrets when Bearer token is updated', () => {
@@ -154,6 +164,10 @@ describe('RequestAuthTab', () => {
       assert(inputs[0])
       expect(inputs[0].props('required')).toBe(true)
       expect(inputs[0].text()).toContain('Username')
+      // Non-password fields render the contenteditable editor, named by the visible label.
+      expect(inputs[0].get('.code-input-lite__editor').attributes('aria-labelledby')).toBe(
+        inputs[0].get('label').attributes('id'),
+      )
 
       // Password input
       assert(inputs[1])
