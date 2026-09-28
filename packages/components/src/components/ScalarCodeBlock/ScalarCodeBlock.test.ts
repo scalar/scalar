@@ -42,6 +42,36 @@ beforeEach(() => {
 })
 
 describe('ScalarCodeBlock', () => {
+  it('names the code region while keeping it keyboard-scrollable', async () => {
+    const wrapper = createWrapper()
+    const region = wrapper.get('[role="region"]')
+
+    expect(region.attributes('aria-label')).toBe('Code sample')
+    expect(region.attributes('tabindex')).toBe('0')
+    expect(region.text()).toBe('console.log()')
+
+    await wrapper.setProps({ label: 'Request example' })
+    expect(region.attributes('aria-label')).toBe('Request example')
+  })
+
+  it.each(['console.log()', 'console.log()\nconsole.log()'])(
+    'keeps a descriptive copy name for %j',
+    async (content) => {
+      const wrapper = mount(ScalarCodeBlock, { props: { content, lang: 'js' } })
+      const button = wrapper.get('button')
+
+      expect(button.attributes('aria-label')).toBe('Copy code sample')
+      await button.trigger('click')
+      expect(mockCopy).toHaveBeenCalledWith(content)
+
+      mockCopied.value = true
+      await flushPromises()
+
+      expect(button.attributes('aria-label')).toBe('Copy code sample')
+      expect(wrapper.get('[role="alert"]').text()).toBe('Copied')
+    },
+  )
+
   it('renders properly', async () => {
     wrapper = createWrapper()
 

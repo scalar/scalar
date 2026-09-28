@@ -46,10 +46,11 @@ const { cx } = useBindCx()
 
 <template>
   <ScalarCopy
-    :content="contentToCopy"
-    showLabel
     v-model:copied="copied"
+    aria-label="Copy code sample"
+    :content="contentToCopy"
     placement="left"
+    showLabel
     v-bind="{
       ...cx(
         copied
