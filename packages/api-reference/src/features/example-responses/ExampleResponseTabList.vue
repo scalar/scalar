@@ -11,21 +11,24 @@ const changeTab = (index: number) => {
 }
 </script>
 <template>
-  <ScalarCardHeader class="scalar-card-header scalar-card-header-tabs">
+  <ScalarCardHeader
+    class="scalar-card-header scalar-card-header-tabs flex-col items-stretch">
     <TabGroup @change="changeTab">
-      <TabList class="tab-list custom-scroll">
+      <TabList
+        class="tab-list custom-scroll flex-wrap items-start gap-x-4 gap-y-2">
         <slot />
       </TabList>
     </TabGroup>
     <template #actions>
-      <slot name="actions" />
+      <div class="ml-auto px-3 pb-2">
+        <slot name="actions" />
+      </div>
     </template>
   </ScalarCardHeader>
 </template>
 <style scoped>
 .tab-list {
   display: flex;
-  gap: 6px;
   position: relative;
   flex: 1;
   --tab-list-padding-y: 7px;

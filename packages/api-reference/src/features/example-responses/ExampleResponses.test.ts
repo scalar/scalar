@@ -31,21 +31,36 @@ describe('ExampleResponses', () => {
     expect(wrapper.find('[data-testid="response-variant-picker"]').exists()).toBe(false)
   })
 
-  it('announces what each status code means on its tab', () => {
+  it('labels response tabs and switches their selected content', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
-          '200': { summary: 'A successful response', content: { 'application/json': {} } },
-          '400': { description: 'Bad Request', content: { 'application/json': {} } },
+          '200': {
+            summary: 'A successful response',
+            description: 'Detailed success information',
+            content: { 'application/json': { example: { result: 'success' } } },
+          },
+          '400': {
+            description: '**Bad Request**: [fix the request](https://example.com/help)',
+            content: { 'application/json': { example: { result: 'error' } } },
+          },
+          default: { description: 'Unexpected response' },
         },
       },
     })
 
-    // The tabs show bare numbers, so the meaning has to reach screen readers
-    // some other way. `summary` wins over `description` when both exist.
-    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
-    expect(tabs[0]?.text()).toContain('A successful response')
-    expect(tabs[1]?.text()).toContain('Bad Request')
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs.map((tab) => tab.text().replace(/\s+/g, ' '))).toStrictEqual([
+      'Status: 200 – A successful response',
+      'Status: 400 – Bad Request: fix the request',
+      'Status: default – Unexpected response',
+    ])
+    // Markdown links must not introduce another interactive target inside a tab.
+    expect(tabs[1]?.find('a').exists()).toBe(false)
+    await tabs[1]?.trigger('click')
+    expect(tabs[1]?.attributes('aria-selected')).toBe('true')
+    expect(tabs[0]?.attributes('aria-selected')).toBe('false')
+    expect(displayedExample(wrapper)).toBe('{\n  "result": "error"\n}')
   })
 
   it('renders a response summary without a description or examples', () => {

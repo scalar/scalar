@@ -6,7 +6,7 @@ import { Tab } from '@headlessui/vue'
     v-slot="{ selected }"
     as="template">
     <button
-      class="tab"
+      class="tab max-w-full text-left wrap-anywhere whitespace-normal"
       :class="{ 'tab-selected': selected }"
       type="button">
       <span>
@@ -24,7 +24,6 @@ import { Tab } from '@headlessui/vue'
   font-weight: var(--scalar-font-normal);
   color: var(--scalar-color-2);
   line-height: calc(var(--scalar-small) + 2px);
-  white-space: nowrap;
   cursor: pointer;
   padding: 0;
   margin-right: 3px;
@@ -66,6 +65,6 @@ import { Tab } from '@headlessui/vue'
   width: 100%;
   left: 0;
   height: 1px;
-  bottom: calc(var(--tab-list-padding-y) * -1);
+  bottom: -2px;
 }
 </style>

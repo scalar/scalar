@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ExamplePicker } from '@scalar/blocks/code-example'
+import { htmlFromMarkdown } from '@scalar/code-highlight'
 import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarCard,
@@ -113,17 +114,60 @@ const currentResponse = computed(() => {
 })
 
 /**
- * What a status code means, for screen reader users.
+ * Keep response meanings visible without nesting links or block content in tab buttons.
  *
- * The tabs show bare numbers, so their meaning is only available to someone
- * who already knows the code. The 3.2 `summary` is preferred because it is
- * meant to be short; `description` is the fallback older documents carry.
+ * The 3.2 summary is plain text; descriptions can contain Markdown.
  */
-const getResponseMeaning = (statusCode: string): string | undefined => {
-  const response = getResolvedRef(responses?.[statusCode])
-
-  return response?.summary || response?.description || undefined
-}
+const responseLabels = computed(() =>
+  Object.fromEntries(
+    statusCodesWithContent.value.map((statusCode) => {
+      const response = getResolvedRef(responses?.[statusCode])
+      return [
+        statusCode,
+        {
+          summary: response?.summary,
+          description: response?.summary
+            ? undefined
+            : htmlFromMarkdown(response?.description ?? '', {
+                removeTags: [
+                  'a',
+                  'img',
+                  'picture',
+                  'input',
+                  'p',
+                  'div',
+                  'h1',
+                  'h2',
+                  'h3',
+                  'h4',
+                  'h5',
+                  'h6',
+                  'blockquote',
+                  'pre',
+                  'ul',
+                  'ol',
+                  'li',
+                  'dl',
+                  'dt',
+                  'dd',
+                  'table',
+                  'thead',
+                  'tbody',
+                  'tfoot',
+                  'tr',
+                  'th',
+                  'td',
+                  'details',
+                  'summary',
+                  'hr',
+                  'section',
+                ],
+              }),
+        },
+      ]
+    }),
+  ),
+)
 
 const normalizedResponseContent = computed(() =>
   normalizeMimeTypeObject(currentResponse.value?.content),
@@ -286,9 +330,17 @@ const exampleContent = computed(() => exampleResult.value.content)
         :aria-controls="id">
         <ScreenReader>{{ translate('response.status') }}:</ScreenReader>
         {{ statusCode }}
-        <ScreenReader v-if="getResponseMeaning(statusCode)">
-          {{ getResponseMeaning(statusCode) }}
-        </ScreenReader>
+        <span
+          v-if="responseLabels[statusCode]?.summary"
+          class="font-normal normal-case">
+          – {{ responseLabels[statusCode].summary }}
+        </span>
+        <span
+          v-else-if="responseLabels[statusCode]?.description"
+          class="font-normal normal-case">
+          –
+          <span v-html="responseLabels[statusCode].description" />
+        </span>
       </ExampleResponseTab>
 
       <template #actions>
