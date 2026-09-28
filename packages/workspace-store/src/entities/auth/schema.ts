@@ -47,11 +47,14 @@ const SecretsOAuthFlowCommonSchema = compose(
   XScalarSecretRefreshTokenSchema,
 )
 
+/** An absent stored redirect must fall back to configuration; an empty string means the user cleared it. */
+const StoredRedirectUriSchema = Type.Partial(XScalarSecretRedirectUriSchema)
+
 const SecretsOAuthFlowsSchema = Type.Object({
   deviceAuthorization: Type.Optional(
     compose(SecretsOAuthFlowCommonSchema, XScalarSecretClientSecretSchema, XScalarCredentialsLocationSchema),
   ),
-  implicit: Type.Optional(compose(SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema)),
+  implicit: Type.Optional(compose(SecretsOAuthFlowCommonSchema, StoredRedirectUriSchema)),
   password: Type.Optional(
     compose(
       SecretsOAuthFlowCommonSchema,
@@ -67,7 +70,7 @@ const SecretsOAuthFlowsSchema = Type.Object({
     compose(
       SecretsOAuthFlowCommonSchema,
       XScalarSecretClientSecretSchema,
-      XScalarSecretRedirectUriSchema,
+      StoredRedirectUriSchema,
       XScalarCredentialsLocationSchema,
     ),
   ),
@@ -95,9 +98,7 @@ export const OpenIDConnectSchema = Type.Object({
     ),
   ),
   type: Type.Literal('openIdConnect'),
-  implicit: Type.Optional(
-    compose(OAuthFlowImplicitSchema, SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema),
-  ),
+  implicit: Type.Optional(compose(OAuthFlowImplicitSchema, SecretsOAuthFlowCommonSchema, StoredRedirectUriSchema)),
   password: Type.Optional(
     compose(
       OAuthFlowPasswordSchema,
@@ -120,7 +121,7 @@ export const OpenIDConnectSchema = Type.Object({
       OAuthFlowAuthorizationCodeSchema,
       SecretsOAuthFlowCommonSchema,
       XScalarSecretClientSecretSchema,
-      XScalarSecretRedirectUriSchema,
+      StoredRedirectUriSchema,
       XScalarCredentialsLocationSchema,
     ),
   ),
