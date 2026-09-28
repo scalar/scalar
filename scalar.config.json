@@ -5825,6 +5825,39 @@
                     }
                   ]
                 }
+              },
+              "/how-to-create-a-user-manual": {
+                "type": "page",
+                "title": "How to create a user manual",
+                "filepath": "documentation/library/how-to-create-a-user-manual.md",
+                "description": "How to create a user manual in 8 steps: plan by task, write to a page template, test with real users, and keep it current, with a checklist and FAQs.",
+                "head": {
+                  "title": "How to Create a User Manual: 8 Steps and a Checklist",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/library/how-to-create-a-user-manual"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "How to create a user manual in 8 steps: plan by task, write to a page template, test with real users, and keep it current, with a checklist and FAQs."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "How to Create a User Manual: 8 Steps and a Checklist"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "How to create a user manual in 8 steps: plan by task, write to a page template, test with real users, and keep it current, with a checklist and FAQs."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
               }
             },
             "icon": "phosphor/regular/books",
