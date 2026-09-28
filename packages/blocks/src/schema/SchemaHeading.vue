@@ -4,8 +4,8 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed } from 'vue'
 
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import { useLocalization } from '@/features/localization'
+import { isTypeObject } from './helpers/is-type-object'
+import { useLocalization } from './localization'
 
 const { value } = defineProps<{
   value: SchemaObject

@@ -5,13 +5,18 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
 
-import { WithBreadcrumb } from '@/components/Anchor'
-import { SpecificationExtension } from '@/features/specification-extension'
-
+import WithBreadcrumb from './components/WithBreadcrumb.vue'
+import { SCHEMA_RENDERING_CONTEXT } from './context'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
+
+const SpecificationExtension = defineComponent({
+  props: { value: Object },
+  setup: (props) => () => h('span', String(props.value?.['x-foo'])),
+})
 
 describe('SchemaProperty', () => {
   it('keeps nameless noncollapsible array containers flat', () => {
@@ -1422,9 +1427,12 @@ describe('SchemaProperty', () => {
           schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-foo': 'bar' }),
           options: {},
         },
+        global: {
+          provide: { [SCHEMA_RENDERING_CONTEXT as symbol]: { specificationExtension: SpecificationExtension } },
+        },
       })
 
-      expect(wrapper.findComponent(SpecificationExtension).exists()).toBe(true)
+      expect(wrapper.findComponent(SpecificationExtension).text()).toBe('bar')
     })
 
     it('does not mount the extension renderer for a schema without x- keys', () => {

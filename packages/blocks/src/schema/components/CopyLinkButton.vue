@@ -3,7 +3,7 @@ import { ScalarIconHash } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
-import { useLocalization } from '@/features/localization'
+import { useLocalization } from '../localization'
 
 /**
  * A property row's deep-link affordance: the same hash the section headings

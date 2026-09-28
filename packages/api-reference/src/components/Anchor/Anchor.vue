@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import { ScreenReader } from '@scalar/blocks/schema'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconHash } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'
-
-import ScreenReader from '../ScreenReader.vue'
 
 const emit = defineEmits<{
   (e: 'copyAnchorUrl'): void

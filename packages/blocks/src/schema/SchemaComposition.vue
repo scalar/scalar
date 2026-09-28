@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { SchemaGlyphPuck, SchemaRailPanel } from '@scalar/blocks/schema'
 import {
   ScalarListbox,
   type ScalarListboxOption,
@@ -14,20 +13,21 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, inject, ref, watch } from 'vue'
 
-import type { SchemaOptions } from '@/components/Content/Schema/types'
-import { useLocalization } from '@/features/localization'
-import {
-  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
-  type RequestBodyCompositionSelection,
-} from '@/features/Operation/request-body-composition-index'
-
 import { getDiscriminatorValues } from './helpers/get-discriminator-values'
 import { getSchemaType } from './helpers/get-schema-type'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
 import { getModelNameWithArray } from './helpers/schema-name'
+import { useLocalization } from './localization'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from './request-body-composition-index'
 import Schema from './Schema.vue'
+import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
+import SchemaRailPanel from './SchemaRailPanel.vue'
+import type { SchemaOptions } from './types'
 
 const props = withDefaults(
   defineProps<{

@@ -1,3 +1,4 @@
+import { Schema } from '@scalar/blocks/schema'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
@@ -9,7 +10,6 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
-import { Schema } from '@/components/Content/Schema'
 import { provideLocalization } from '@/features/localization'
 
 import RequestBody from './RequestBody.vue'

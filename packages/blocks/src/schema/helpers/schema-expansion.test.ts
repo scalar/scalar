@@ -1,12 +1,29 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
-import { defineComponent, h, nextTick } from 'vue'
-
-import { scrollTargetId } from '@/helpers/lazy-bus'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { createSchemaExpansionStore, provideSchemaExpansion, toNodeKey } from './schema-expansion'
 
+const scrollTargetId = ref('')
+
 describe('schema-expansion', () => {
+  it('keeps navigation targets independent between hosts', () => {
+    const firstTarget = ref('user.address.city')
+    const secondTarget = ref('')
+    const first = createSchemaExpansionStore(firstTarget)
+    const second = createSchemaExpansionStore(secondTarget)
+
+    expect(first.isExpanded('user.address')).toBe(true)
+    expect(second.isExpanded('user.address')).toBe(false)
+    expect(first.isExpanded('user.addresses')).toBe(false)
+
+    firstTarget.value = ''
+    secondTarget.value = 'order.items.name'
+
+    expect(first.isExpanded('order.items')).toBe(false)
+    expect(second.isExpanded('order.items')).toBe(true)
+  })
+
   afterEach(() => {
     scrollTargetId.value = ''
   })
@@ -23,7 +40,7 @@ describe('schema-expansion', () => {
 
   describe('resolution order', () => {
     it('prefers an explicit override over everything else', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.setExpanded('user', false)
 
@@ -31,14 +48,14 @@ describe('schema-expansion', () => {
     })
 
     it('falls back to defaultOpen when nothing else applies', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       expect(store.isExpanded('user', { defaultOpen: true })).toBe(true)
       expect(store.isExpanded('user', { defaultOpen: false })).toBe(false)
     })
 
     it('opens every node on the path to the scroll target', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       scrollTargetId.value = 'user.address.city'
 
@@ -49,7 +66,7 @@ describe('schema-expansion', () => {
     })
 
     it('applies a bulk root to the nodes beneath it', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.expandAll('user.address')
 
@@ -58,7 +75,7 @@ describe('schema-expansion', () => {
     })
 
     it('ignores bulk expansion and the baseline for cyclic nodes', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.expandAll()
 
@@ -68,7 +85,7 @@ describe('schema-expansion', () => {
     })
 
     it('still opens a cyclic node the reader asked for by hand', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.setExpanded('user.friend', true)
 
@@ -78,7 +95,7 @@ describe('schema-expansion', () => {
     })
 
     it('still opens a cyclic node a deep link points into', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       scrollTargetId.value = 'user.friend.name'
 
@@ -88,7 +105,7 @@ describe('schema-expansion', () => {
     })
 
     it('lets an explicit collapse win over a live deep link', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       scrollTargetId.value = 'user.address.city'
       store.setExpanded('user.address', false)
@@ -99,7 +116,7 @@ describe('schema-expansion', () => {
     })
 
     it('lets a collapsed baseline win over defaultOpen', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.collapseAll()
 
@@ -109,7 +126,7 @@ describe('schema-expansion', () => {
     })
 
     it('opens a marked key for a deep link written against its anchor path', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       scrollTargetId.value = 'op.responses.200.headers.X-Rate-Limit'
 
@@ -122,7 +139,7 @@ describe('schema-expansion', () => {
 
   describe('expandAll', () => {
     it('reopens a node the user previously collapsed', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.setExpanded('user.address', false)
       expect(store.isExpanded('user.address')).toBe(false)
@@ -135,7 +152,7 @@ describe('schema-expansion', () => {
     })
 
     it('only clears the overrides beneath its own root', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.setExpanded('user.address', false)
       store.setExpanded('order.items', false)
@@ -147,7 +164,7 @@ describe('schema-expansion', () => {
     })
 
     it('treats the root as a whole path segment, not a string prefix', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.setExpanded('username', true)
 
@@ -159,7 +176,7 @@ describe('schema-expansion', () => {
     })
 
     it('replaces a narrower bulk root when a broader one lands on top', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.collapseAll('user.address')
       expect(store.isExpanded('user.address.city')).toBe(false)
@@ -174,7 +191,7 @@ describe('schema-expansion', () => {
 
   describe('collapseAll', () => {
     it('closes a node the user previously opened', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.setExpanded('user.address', true)
       store.collapseAll()
@@ -183,7 +200,7 @@ describe('schema-expansion', () => {
     })
 
     it('supersedes every narrower bulk action when it covers the document', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.expandAll('user.address')
 
@@ -207,7 +224,7 @@ describe('schema-expansion', () => {
     }
 
     it('caps how many closed panels one store keeps mounted', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       const granted = drain(store)
 
@@ -219,7 +236,7 @@ describe('schema-expansion', () => {
     })
 
     it('hands a slot back when a retained panel reopens', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       drain(store)
       expect(store.untilFound.acquire()).toBe(false)
@@ -232,7 +249,7 @@ describe('schema-expansion', () => {
     })
 
     it('refuses slots for the flush a bulk transition closes rows in', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.pauseRetentionFor(() => {
         expect(store.untilFound.acquire()).toBe(false)
@@ -246,7 +263,7 @@ describe('schema-expansion', () => {
     })
 
     it('pauses retention while collapsing everything', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.collapseAll()
 
@@ -260,7 +277,7 @@ describe('schema-expansion', () => {
     })
 
     it('leaves an expansion free to retain', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.expandAll()
 
@@ -271,7 +288,7 @@ describe('schema-expansion', () => {
 
   describe('commitPath', () => {
     it('opens the target and every ancestor as explicit overrides', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.commitPath('user.address.city')
 
@@ -285,7 +302,7 @@ describe('schema-expansion', () => {
     })
 
     it('leaves the committed expansion collapsible by the reader', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.commitPath('user.address')
       store.setExpanded('user.address', false)
@@ -296,7 +313,7 @@ describe('schema-expansion', () => {
 
   describe('toggle', () => {
     it('flips a node that was open only by default', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.toggle('user', { defaultOpen: true })
 
@@ -305,7 +322,7 @@ describe('schema-expansion', () => {
   })
   describe('structural marker keys', () => {
     it('commits the marked form of every segment on the path', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       store.commitPath('op.responses.200.headers.X-Rate-Limit')
 
@@ -317,7 +334,7 @@ describe('schema-expansion', () => {
     })
 
     it('derives the commit without needing the node to be mounted first', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       // Operations mount lazily, so nothing that renders the target exists yet
       // when the deep link is committed. The marked form is derived from the
@@ -328,7 +345,7 @@ describe('schema-expansion', () => {
     })
 
     it('leaves a marked key alone when the reader expands a same-named node', () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
 
       // A body property literally named `headers` writes the plain key. That
       // must not open the unrelated response-headers group.
@@ -346,7 +363,7 @@ describe('schema-expansion', () => {
       const wrapper = mount(
         defineComponent({
           setup() {
-            store = provideSchemaExpansion()
+            store = provideSchemaExpansion(scrollTargetId)
             return () => h('div')
           },
         }),

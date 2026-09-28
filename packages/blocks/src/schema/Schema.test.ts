@@ -3,13 +3,15 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { type DOMWrapper, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
-import { isReactive, nextTick } from 'vue'
+import { config, type DOMWrapper, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { isReactive, nextTick, ref } from 'vue'
 
-import { scrollTargetId } from '../../../helpers/lazy-bus'
+import { SCHEMA_RENDERING_CONTEXT } from './context'
 import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/schema-expansion'
 import Schema from './Schema.vue'
+
+const scrollTargetId = ref('')
 
 describe('Schema', () => {
   it('renders structural labels for nested references from the workspace store', async () => {
@@ -43,6 +45,12 @@ describe('Schema', () => {
     expect(wrapper.text()).toContain('Type: string')
   })
 
+  beforeEach(() => {
+    config.global.provide = { ...config.global.provide, [SCHEMA_RENDERING_CONTEXT as symbol]: { scrollTargetId } }
+  })
+  afterEach(() => {
+    Reflect.deleteProperty(config.global.provide, SCHEMA_RENDERING_CONTEXT)
+  })
   it('does not render internal markers from ingested boolean schemas', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
@@ -1864,7 +1872,7 @@ describe('Schema', () => {
     })
 
     it('keeps expansion across the remount a composition variant switch causes', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
       const withStore = {
         global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
       }
@@ -1919,7 +1927,7 @@ describe('Schema', () => {
     })
 
     it('follows a bulk collapse and expand from the store', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
       const wrapper = mountReveal({
         global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
       })

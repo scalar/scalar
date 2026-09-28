@@ -11,7 +11,7 @@ import {
   watch,
 } from 'vue'
 
-import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
+import { isOnSchemaTargetPath, useSchemaRenderingContext } from '../context'
 
 /**
  * What a node does when nobody has expressed an opinion about it: its own
@@ -101,7 +101,7 @@ const UNTIL_FOUND_CAP = 300
  * (clicks would do nothing) and replacing the Map wholesale would invalidate
  * every mounted row on every toggle.
  */
-export const createSchemaExpansionStore = (): SchemaExpansionStore => {
+export const createSchemaExpansionStore = (scrollTargetId: Ref<string> = shallowRef('')): SchemaExpansionStore => {
   /** Only what the user explicitly opened or closed. */
   const overrides = shallowReactive(new Map<string, boolean>())
   /** Per-subtree expand-all / collapse-all roots. */
@@ -207,7 +207,7 @@ export const createSchemaExpansionStore = (): SchemaExpansionStore => {
 
     // 4. A live deep link, read here rather than at mount so a second deep link
     //    into an already-rendered operation still works.
-    if (isOnScrollTargetPath(ctx.anchorPath ?? key)) {
+    if (isOnSchemaTargetPath(ctx.anchorPath ?? key, scrollTargetId.value)) {
       return true
     }
 
@@ -296,8 +296,8 @@ export const SCHEMA_TREE_ROOT_SYMBOL: InjectionKey<boolean> = Symbol('schema-tre
  * server never sees, so committing it during SSR would make every ancestor
  * panel on a deep-linked path a hydration mismatch.
  */
-export const provideSchemaExpansion = (): SchemaExpansionStore => {
-  const store = createSchemaExpansionStore()
+export const provideSchemaExpansion = (scrollTargetId: Ref<string> = shallowRef('')): SchemaExpansionStore => {
+  const store = createSchemaExpansionStore(scrollTargetId)
   provide(SCHEMA_EXPANSION_SYMBOL, store)
 
   onMounted(() => {
@@ -356,7 +356,7 @@ export const useSchemaExpansion = (): SchemaExpansionStore => {
     return provided
   }
 
-  const fallback = createSchemaExpansionStore()
+  const fallback = createSchemaExpansionStore(useSchemaRenderingContext().scrollTargetId)
   provide(SCHEMA_EXPANSION_SYMBOL, fallback)
 
   return fallback

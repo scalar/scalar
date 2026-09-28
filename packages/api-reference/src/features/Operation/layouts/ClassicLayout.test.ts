@@ -1,3 +1,4 @@
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@scalar/blocks/schema'
 import { ScalarListbox } from '@scalar/components/listbox'
 import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -10,7 +11,6 @@ import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { provideLocalization } from '@/features/localization'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
-import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
 
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'

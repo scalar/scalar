@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScreenReader } from '@scalar/blocks/schema'
 import {
   ScalarCard,
   ScalarCardHeader,
@@ -11,7 +12,6 @@ import type {
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
-import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 const { tag } = defineProps<{

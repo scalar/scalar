@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SchemaProperty } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -6,8 +7,6 @@ import type {
   OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
-
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
 const {
   name,

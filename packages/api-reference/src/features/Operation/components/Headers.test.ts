@@ -1,13 +1,10 @@
+import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
-import {
-  SCHEMA_EXPANSION_SYMBOL,
-  createSchemaExpansionStore,
-} from '@/components/Content/Schema/helpers/schema-expansion'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import Headers from './Headers.vue'
@@ -34,7 +31,7 @@ const baseProps = {
   schemaKeyboardNav: false,
 }
 
-const mountHeaders = (props: Partial<typeof baseProps> = {}, store = createSchemaExpansionStore()) =>
+const mountHeaders = (props: Partial<typeof baseProps> = {}, store = createSchemaExpansionStore(scrollTargetId)) =>
   mount(Headers, {
     props: { ...baseProps, ...props },
     global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
@@ -104,7 +101,7 @@ describe('Headers', () => {
     })
 
     it('stays closed when a body property of the same name opens', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
       const wrapper = mountHeaders({}, store)
 
       // A response body property literally named `headers` writes the plain key.
@@ -115,7 +112,7 @@ describe('Headers', () => {
     })
 
     it('uses the same marked key a committed deep link writes', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
       const wrapper = mountHeaders({}, store)
 
       // `commitPath` derives `~headers` from the anchor path; the two spellings

@@ -1815,6 +1815,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/localization':
+        specifier: workspace:*
+        version: link:../localization
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz
@@ -1824,12 +1827,18 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/use-hooks':
+        specifier: workspace:*
+        version: link:../use-hooks
       '@scalar/workspace-store':
         specifier: workspace:*
         version: link:../workspace-store
       '@types/har-format':
         specifier: ^1.2.16
         version: 1.2.16
+      '@vueuse/core':
+        specifier: catalog:*
+        version: 13.9.0(vue@3.5.40(typescript@5.9.3))
       js-base64:
         specifier: catalog:*
         version: 3.9.2
@@ -1849,9 +1858,6 @@ importers:
       '@vue/test-utils':
         specifier: catalog:*
         version: 2.4.11(@vue/compiler-dom@3.5.40)(@vue/server-renderer@3.5.40)(vue@3.5.40(typescript@5.9.3))
-      '@vueuse/core':
-        specifier: catalog:*
-        version: 13.9.0(vue@3.5.40(typescript@5.9.3))
       jsdom:
         specifier: catalog:*
         version: 27.4.0(@noble/hashes@1.8.0)

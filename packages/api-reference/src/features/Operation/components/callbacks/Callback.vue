@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { SchemaGlyphPuck } from '@scalar/blocks/schema'
+import {
+  SchemaGlyphPuck,
+  toNodeKey,
+  useSchemaExpansion,
+} from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -8,10 +12,6 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
-import {
-  toNodeKey,
-  useSchemaExpansion,
-} from '@/components/Content/Schema/helpers/schema-expansion'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'

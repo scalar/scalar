@@ -1,8 +1,7 @@
+import { SchemaProperty } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-
-import SchemaProperty from './SchemaProperty.vue'
 
 /**
  * A single property row: the heading, an optional Markdown description, and any nested object or

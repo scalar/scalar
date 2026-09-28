@@ -4,8 +4,8 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { onClickOutside, onKeyStroke } from '@vueuse/core'
 import { ref } from 'vue'
 
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import { useLocalization } from '@/features/localization'
+import LinkButton from './LinkButton.vue'
+import { useLocalization } from './localization'
 
 const { pattern } = defineProps<{ pattern: string }>()
 
@@ -63,7 +63,7 @@ onKeyStroke('Escape', () => {
   </div>
 </template>
 <style scoped>
-@reference "../../../style.css";
+@reference "../style.css";
 
 .property-pattern {
   display: flex;

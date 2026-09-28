@@ -4,9 +4,8 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { onClickOutside, onKeyStroke } from '@vueuse/core'
 import { ref, useId } from 'vue'
 
-import { useLocalization } from '@/features/localization'
-
 import { formatValue } from './helpers/format-value'
+import { useLocalization } from './localization'
 
 defineProps<{
   value?: unknown

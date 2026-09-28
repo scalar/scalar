@@ -1,8 +1,7 @@
+import { Schema } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-
-import Schema from './Schema.vue'
 
 /**
  * The schema tree: a continuous rail per depth with a disclosure control in
