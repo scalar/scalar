@@ -4,8 +4,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, ref } from 'vue'
 
-import { useLocalization } from '@/features/localization'
-
+import { useLocalization } from './localization'
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 

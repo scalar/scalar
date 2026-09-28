@@ -5,10 +5,9 @@ import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { onClickOutside, onKeyStroke } from '@vueuse/core'
 import { computed, ref, useId } from 'vue'
 
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
-import { useLocalization } from '@/features/localization'
-
 import { formatExample } from './helpers/format-example'
+import LinkButton from './LinkButton.vue'
+import { useLocalization } from './localization'
 
 const { examples, example } = defineProps<{
   examples?: unknown
@@ -251,7 +250,7 @@ onKeyStroke('Escape', () => {
 </template>
 
 <style scoped>
-@reference "../../../style.css";
+@reference "../style.css";
 
 .property-example {
   display: flex;

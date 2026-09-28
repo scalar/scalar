@@ -37,6 +37,11 @@
       "import": "./dist/code-example/index.js",
       "types": "./dist/code-example/index.d.ts",
       "default": "./dist/code-example/index.js"
+    },
+    "./schema": {
+      "import": "./dist/schema/index.js",
+      "types": "./dist/schema/index.d.ts",
+      "default": "./dist/schema/index.js"
     }
   },
   "files": [
@@ -47,11 +52,14 @@
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
+    "@scalar/localization": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.16",
+    "@vueuse/core": "catalog:*",
     "js-base64": "catalog:*",
     "vue": "catalog:*"
   },
@@ -60,7 +68,6 @@
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "@vueuse/core": "catalog:*",
     "jsdom": "catalog:*",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",

@@ -44,3 +44,29 @@ createCodeExample('#block', {
   },
 })
 ```
+
+## Schema tree
+
+Render an OpenAPI schema in a Vue application using the same tree as API Reference:
+
+```vue
+<script setup lang="ts">
+import { Schema } from '@scalar/blocks/schema'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import '@scalar/blocks/style.css'
+
+const { schema } = defineProps<{ schema: SchemaObject }>()
+</script>
+
+<template>
+  <div class="scalar-app">
+    <Schema :schema="schema" :eventBus="null" :options="{ hideModels: true }" />
+  </div>
+</template>
+```
+
+The tree supports nested properties, composition selectors, constraints, examples, and keyboard navigation. Pass schemas from the workspace store to retain resolved references. Display options are typed by `SchemaOptions`.
+
+Translations inherit the host's `@scalar/localization` provider, including locale and custom overrides. Without a provider, labels use English.
+
+Hosts can provide `SCHEMA_RENDERING_CONTEXT` to connect a reactive `scrollTargetId` or a `specificationExtension` component that receives the schema through its `value` prop. Call `provideSchemaExpansion(scrollTargetId)` in the same host to share expansion state and preserve deep links after navigation completes. Request-body composition selectors share their selections with code samples through `REQUEST_BODY_COMPOSITION_INDEX_SYMBOL`.

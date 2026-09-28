@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
+  getRefName,
+  getSchemaType,
+  hasComplexArrayItems,
+  optimizeValueForDisplay,
+  SchemaGlyphPuck,
+  SchemaProperty,
+  SchemaRailPanel,
+} from '@scalar/blocks/schema'
+import {
   ScalarMarkdown,
   ScalarMarkdownSummary,
 } from '@scalar/components/markdown'
@@ -15,13 +24,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
-import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
-import { getSchemaType } from '@/components/Content/Schema/helpers/get-schema-type'
-import { hasComplexArrayItems } from '@/components/Content/Schema/helpers/has-complex-array-items'
-import { optimizeValueForDisplay } from '@/components/Content/Schema/helpers/optimize-value-for-display'
-import SchemaGlyphPuck from '@/components/Content/Schema/SchemaGlyphPuck.vue'
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
-import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { isOnScrollTargetPath } from '@/helpers/lazy-bus'

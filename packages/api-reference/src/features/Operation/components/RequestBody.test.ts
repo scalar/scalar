@@ -1,10 +1,9 @@
+import { Schema } from '@scalar/blocks/schema'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-
-import { Schema } from '@/components/Content/Schema'
 
 import RequestBody from './RequestBody.vue'
 

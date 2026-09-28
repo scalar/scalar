@@ -34,24 +34,10 @@ import {
   type Component,
 } from 'vue'
 
-import { CopyLinkButton, WithBreadcrumb } from '@/components/Anchor'
-import {
-  resolveDynamicSchema,
-  useDynamicScope,
-} from '@/components/Content/Schema/helpers/dynamic-scope'
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import {
-  getCycleKey,
-  SCHEMA_ANCESTORS_SYMBOL,
-} from '@/components/Content/Schema/helpers/schema-cycle'
-import {
-  toNodeKey,
-  useSchemaExpansion,
-} from '@/components/Content/Schema/helpers/schema-expansion'
-import type { SchemaOptions } from '@/components/Content/Schema/types'
-import { useLocalization } from '@/features/localization'
-import { SpecificationExtension } from '@/features/specification-extension'
-
+import CopyLinkButton from './components/CopyLinkButton.vue'
+import WithBreadcrumb from './components/WithBreadcrumb.vue'
+import { useSchemaRenderingContext } from './context'
+import { resolveDynamicSchema, useDynamicScope } from './helpers/dynamic-scope'
 import {
   getCompositionsToRender,
   inferDiscriminatorMappingComposition,
@@ -61,13 +47,17 @@ import { getPropertyDescription } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
 import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
+import { isTypeObject } from './helpers/is-type-object'
 import { normalizeObjectComposition } from './helpers/normalize-object-composition'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
 import type { CompositionKeyword } from './helpers/schema-composition'
+import { getCycleKey, SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
+import { toNodeKey, useSchemaExpansion } from './helpers/schema-expansion'
 import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
 import { sortPropertyNames } from './helpers/sort-property-names'
 import { unwrapForRead } from './helpers/unwrap-for-read'
+import { useLocalization } from './localization'
 import Schema from './Schema.vue'
 import SchemaCollapsedPreview from './SchemaCollapsedPreview.vue'
 import SchemaComposition from './SchemaComposition.vue'
@@ -75,6 +65,7 @@ import SchemaEnums from './SchemaEnums.vue'
 import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 import SchemaRailPanel from './SchemaRailPanel.vue'
+import type { SchemaOptions } from './types'
 
 /**
  * Note: We're taking in a prop called `value` which should be a JSON Schema.
@@ -534,6 +525,7 @@ const isDiscriminatorProperty = computed(() =>
  */
 
 const { translate } = useLocalization()
+const { specificationExtension } = useSchemaRenderingContext()
 
 /** Whether this property has children to put behind a toggle. */
 const isExpandable = computed(
@@ -1169,8 +1161,9 @@ const onBeforeMatch = (): void => {
       :options="options"
       :schema="compositionData.value"
       :schemaContext="schemaContext" />
-    <SpecificationExtension
-      v-if="hasSpecificationExtensions"
+    <component
+      :is="specificationExtension"
+      v-if="hasSpecificationExtensions && specificationExtension"
       :value="optimizedValue" />
   </component>
 </template>

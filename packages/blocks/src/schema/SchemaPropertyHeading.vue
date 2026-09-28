@@ -10,9 +10,7 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, toRef } from 'vue'
 
-import { Badge } from '@/components/Badge'
-import { useLocalization } from '@/features/localization'
-
+import Badge from './components/Badge.vue'
 import { getSchemaType } from './helpers/get-schema-type'
 import { getDisplayTypeSignatureTokens } from './helpers/get-type-signature-tokens'
 import {
@@ -20,6 +18,7 @@ import {
   type ModelLinkOptions,
 } from './helpers/is-model-linkable'
 import { getModelNameWithArray } from './helpers/schema-name'
+import { useLocalization } from './localization'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'

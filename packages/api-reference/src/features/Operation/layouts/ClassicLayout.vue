@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { CodeExample } from '@scalar/blocks/code-example'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+} from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarMarkdown } from '@scalar/components/markdown'
@@ -44,10 +48,6 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import {
-  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
-  type RequestBodyCompositionSelection,
-} from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'

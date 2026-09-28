@@ -1,9 +1,7 @@
+import { getModelNameWithArray, getSchemaType } from '@scalar/blocks/schema'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-
-import { getSchemaType } from '@/components/Content/Schema/helpers/get-schema-type'
-import { getModelNameWithArray } from '@/components/Content/Schema/helpers/schema-name'
 
 /** A root response union and the labels used to select its generated examples. */
 type ResponseVariants = {

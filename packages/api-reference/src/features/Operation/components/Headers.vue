@@ -1,4 +1,11 @@
 <script lang="ts" setup>
+import {
+  handleTreeKeydown,
+  SchemaGutterToggle,
+  SchemaRailPanel,
+  toNodeKey,
+  useSchemaExpansion,
+} from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -7,13 +14,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
-import {
-  toNodeKey,
-  useSchemaExpansion,
-} from '@/components/Content/Schema/helpers/schema-expansion'
-import { handleTreeKeydown } from '@/components/Content/Schema/helpers/schema-keyboard-nav'
-import SchemaGutterToggle from '@/components/Content/Schema/SchemaGutterToggle.vue'
-import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { useLocalization } from '@/features/localization'
 
 import Header from './Header.vue'

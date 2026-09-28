@@ -9,11 +9,8 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, inject, provide, useId } from 'vue'
 
-import type { SchemaOptions } from '@/components/Content/Schema/types'
-import ScreenReader from '@/components/ScreenReader.vue'
-import { useLocalization } from '@/features/localization'
-import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
-
+import ScreenReader from './components/ScreenReader.vue'
+import { isOnSchemaTargetPath, useSchemaRenderingContext } from './context'
 import {
   resolveDynamicSchema,
   SCHEMA_DYNAMIC_SCOPE_SYMBOL,
@@ -31,10 +28,12 @@ import {
 } from './helpers/schema-expansion'
 import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
 import { unwrapForRead } from './helpers/unwrap-for-read'
+import { useLocalization } from './localization'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
+import type { SchemaOptions } from './types'
 
 const {
   schema: schemaProp,
@@ -96,6 +95,7 @@ const {
   cycleKey?: unknown
 }>()
 const { translate } = useLocalization()
+const { scrollTargetId } = useSchemaRenderingContext()
 
 /**
  * The dynamic scope inherited from ancestor schema resources.
@@ -192,7 +192,7 @@ const shouldForceExpand = computed(
  * without forcing every schema open via `expandAllSchemaProperties`.
  */
 const isOnTargetPath = computed((): boolean =>
-  isOnScrollTargetPath(toNodeKey(breadcrumb)),
+  isOnSchemaTargetPath(toNodeKey(breadcrumb), scrollTargetId.value),
 )
 
 /**

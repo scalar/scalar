@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+  getModelNameFromSchema,
+  inferDiscriminatorMappingComposition,
+  isModelLinkable,
+  isTypeObject,
+  LinkButton,
+  reduceNamesToObject,
+  Schema,
+  sortPropertyNames,
+} from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -8,16 +18,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
-import { Schema } from '@/components/Content/Schema'
-import { inferDiscriminatorMappingComposition } from '@/components/Content/Schema/helpers/get-compositions-to-render'
-import { isModelLinkable } from '@/components/Content/Schema/helpers/is-model-linkable'
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
-import {
-  reduceNamesToObject,
-  sortPropertyNames,
-} from '@/components/Content/Schema/helpers/sort-property-names'
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
