@@ -665,7 +665,22 @@ const supportsUntilFound = (): boolean =>
   typeof document !== 'undefined' && 'onbeforematch' in document.body
 
 const isTreePanelRendered = computed(
-  (): boolean => isTreeOpen.value || keepClosedPanelMounted.value,
+  (): boolean =>
+    isStaticTreeRow.value ||
+    (isTreeRow.value && (isTreeOpen.value || keepClosedPanelMounted.value)),
+)
+
+const treePanelHidden = computed(() =>
+  isStaticTreeRow.value || isTreeOpen.value ? undefined : 'until-found',
+)
+
+/** Nameless containers add no nesting level of their own. */
+const rendersFlatChildren = computed(
+  (): boolean =>
+    isExpandable.value &&
+    !isCyclicProperty.value &&
+    !isTreeRow.value &&
+    !isStaticTreeRow.value,
 )
 
 const treePanelId = useId()
@@ -1101,13 +1116,13 @@ const onBeforeMatch = (): void => {
     <!-- Nothing inside a panel may add trailing height below the last row,
          so the descendant resets reach into the child Schema cards. -->
     <SchemaRailPanel
-      v-if="(isTreeRow && isTreePanelRendered) || isStaticTreeRow"
+      v-if="isTreePanelRendered"
       :id="treePanelId"
       ref="treePanel"
       class="property-children mt-1.5 mb-0.5 [&_.schema-card]:mb-0! [&_.schema-card]:pb-0! [&_.schema-properties]:mb-0! [&_.schema-properties]:pb-0! [&_ul]:my-0! [&_ul]:py-0! [&[hidden=until-found]]:my-0 [&[hidden=until-found]]:border-s-0 [&[hidden]:not([hidden=until-found])]:hidden"
       :closeOnRail="isTreeRow"
       :depth="depth + 1"
-      :hidden="isStaticTreeRow || isTreeOpen ? undefined : 'until-found'"
+      :hidden="treePanelHidden"
       @beforematch="onBeforeMatch"
       @close="toggleTree">
       <!-- The panel is one level deeper than the row it belongs to -->
@@ -1122,7 +1137,7 @@ const onBeforeMatch = (): void => {
          v-else of the panel: a collapsed tree row must not fall through here.
          6px under a description keeps the 12px rhythm. -->
     <div
-      v-if="isExpandable && !isCyclicProperty && !isTreeRow && !isStaticTreeRow"
+      v-if="rendersFlatChildren"
       class="children [.property-description+&]:mt-1.5!">
       <!-- A container adds no rail, so its children keep this row's depth -->
       <Schema
