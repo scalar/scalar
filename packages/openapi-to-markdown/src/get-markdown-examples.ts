@@ -92,6 +92,7 @@ export const getMarkdownExamples = (
   openapiVersion = '3.2.0',
   // Schema metadata can be upgraded while example fields still follow the original version.
   schemaOpenapiVersion = openapiVersion,
+  linked = false,
 ): MarkdownExample[] => {
   if (source.example !== undefined) return [{ value: source.example }]
   if (source.examples && Object.keys(source.examples).length) {
@@ -112,8 +113,15 @@ export const getMarkdownExamples = (
       return []
     })
   }
-  const schema = getResolvedRef<unknown>(source.schema)
+  const schema = linked
+    ? getResolvedRef(source.schema as SchemaObject, mergeSiblingReferences)
+    : getResolvedRef<unknown>(source.schema)
   if (!isObject(schema)) return []
+  if (linked) {
+    if (schema.example !== undefined) return [{ value: schema.example }]
+    if (Array.isArray(schema.examples) && schema.examples.length) return schema.examples.map((value) => ({ value }))
+    return [{ omitted: true }]
+  }
   if (countGeneratedExampleValues(source.schema) > MAX_GENERATED_EXAMPLE_VALUES) return [{ omitted: true }]
   if (isXmlMediaType(mediaType)) {
     const result = getXmlBodyExample(source.schema as SchemaObject, undefined, {

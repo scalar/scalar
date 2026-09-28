@@ -19,7 +19,7 @@ export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise
 
   const renderDocument = createDocumentRenderer()
   const render = async (options?: OpenApiRenderOptions): Promise<string> =>
-    await renderDocument(selectDocument(content, options))
+    await renderDocument(selectDocument(content, options), options)
   return { render }
 }
 

@@ -16,12 +16,19 @@ export const renderExamples = async (
   openapiVersion = '3.2.0',
   // Schema metadata can be upgraded while example fields still follow the original version.
   schemaOpenapiVersion = openapiVersion,
+  linked = false,
 ): Promise<RootContent[]> => {
   const nodes: RootContent[] = []
-  for (const example of getMarkdownExamples(source, mediaType, mode, openapiVersion, schemaOpenapiVersion)) {
+  for (const example of getMarkdownExamples(source, mediaType, mode, openapiVersion, schemaOpenapiVersion, linked)) {
     nodes.push(paragraph(strong(text(example.name ? `Example: ${example.name}` : 'Example:'))))
     if ('omitted' in example) {
-      nodes.push(paragraph(text('[Generated example omitted because it is too large]')))
+      nodes.push(
+        paragraph(
+          text(
+            `${linked ? '[Generated example omitted in linked schema mode; see the schema documentation]' : '[Generated example omitted because it is too large]'}`,
+          ),
+        ),
+      )
       continue
     }
     if (example.summary) nodes.push(paragraph(text(example.summary)))

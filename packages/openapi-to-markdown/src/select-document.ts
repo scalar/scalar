@@ -23,11 +23,24 @@ export type OperationSelector =
       pointer: string
     }
 /** Select one reference page, or omit selectors for the whole document. */
-export type OpenApiRenderOptions =
-  | {
-      [Key in keyof PageSelectors]: Partial<Record<Exclude<keyof PageSelectors, Key>, never>> & Pick<PageSelectors, Key>
-    }[keyof PageSelectors]
-  | Partial<Record<keyof PageSelectors, never>>
+export type OpenApiRenderOptions = SchemaReferenceOptions &
+  (
+    | {
+        [Key in keyof PageSelectors]: Partial<Record<Exclude<keyof PageSelectors, Key>, never>> &
+          Pick<PageSelectors, Key>
+      }[keyof PageSelectors]
+    | Partial<Record<keyof PageSelectors, never>>
+  )
+
+/** Control shared-schema expansion without assuming a documentation URL layout. */
+export type SchemaReferenceOptions = {
+  /** Expand root schemas, link nested references, and omit generated examples and the transitive appendix. */
+  schemaReferences?: {
+    mode: 'linked'
+    /** Return a published URL, or undefined to retain the schema name as plain text. */
+    resolveUrl?: (reference: { ref: string; name: string }) => string | undefined
+  }
+}
 
 type PageSelectors = {
   operation: OperationSelector
@@ -209,7 +222,9 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
   if (!isObject(options)) {
     throw new Error('Render options must be an object')
   }
-  const keys = Object.keys(options).filter((key) => options[key as keyof OpenApiRenderOptions] !== undefined)
+  const keys = Object.keys(options).filter(
+    (key) => key !== 'schemaReferences' && options[key as keyof OpenApiRenderOptions] !== undefined,
+  )
   if (!keys.length) {
     return document
   }
@@ -408,9 +423,11 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
       }
     }
   }
-  visit({ paths: selected.paths, webhooks: selected.webhooks })
-  for (const root of modelRoots) {
-    visit(root)
+  if (options.schemaReferences?.mode !== 'linked') {
+    visit({ paths: selected.paths, webhooks: selected.webhooks })
+    for (const root of modelRoots) {
+      visit(root)
+    }
   }
   selected.components = {
     ...document.components,

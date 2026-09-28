@@ -194,3 +194,54 @@ const markdown = await createMarkdownFromOpenApi(document, {
 
 Use the default entry point for raw JSON, YAML, URLs, or file paths that still need
 loading, migration, and reference resolution.
+
+### Link shared schemas on individual pages
+
+The default renderer expands shared schemas and includes the schemas needed by a
+selected page. For large API descriptions, opt into `schemaReferences.mode:
+'linked'` to expand the root schema of each parameter, request, response, or model
+and replace nested `$ref` occurrences with links. Inline schemas continue to
+render, including composition branches and reference siblings. Operation and
+webhook pages do not collect or append transitive models; a model page includes
+only the selected model.
+
+The documentation generator supplies published URLs. The renderer does not assume
+any routing convention:
+
+```ts
+import { createOpenApiMarkdownRenderer } from '@scalar/openapi-to-markdown'
+
+const renderer = await createOpenApiMarkdownRenderer(apiDescription)
+// Build this map from the pages your generator actually publishes.
+const modelUrls = new Map([
+  ['account', '/reference/models/account'],
+  ['customer', '/reference/models/customer'],
+])
+const markdown = await renderer.render({
+  operation: { path: '/v1/account', method: 'get' },
+  schemaReferences: {
+    mode: 'linked',
+    resolveUrl: ({ name }) => modelUrls.get(name),
+  },
+})
+```
+
+The callback receives the original reference string (`ref`) and its decoded
+component name (`name`). For references outside `#/components/schemas/{name}`,
+`name` is the reference string. Returning `undefined`, an empty URL, or an unsafe
+URL retains the schema name as text. Omitting the callback has the same fallback.
+References remain visible even when no destination page exists.
+
+Use the same option with `{ model: 'account' }`, `{ webhook: { name: 'event',
+method: 'post' } }`, the one-shot `createMarkdownFromOpenApi`, or the browser entry
+point. The browser entry point still requires a workspace-resolved document.
+Options and URL callbacks are isolated per render, including concurrent renders.
+
+Linked mode omits schema-generated examples with an explicit note, avoiding
+expansion through the example generator. Authored media-type and schema examples
+remain available. Their size is not capped. Inline schema content and authored
+text also remain proportional to the source; this mode bounds traversal across
+shared references, not the byte size of arbitrary authored content. Root
+composition branches that contain references link to those schemas rather than
+flattening their constraints. Full-document exports still include every model
+section; use a page selector for individual exports.
