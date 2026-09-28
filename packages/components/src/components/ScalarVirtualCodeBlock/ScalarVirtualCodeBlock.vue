@@ -21,12 +21,15 @@ import ScalarVirtualText from '../ScalarVirtualText/ScalarVirtualText.vue'
 
 const {
   content,
+  label = 'Code sample',
   lang = 'plaintext',
   copy = 'hover',
   lineHeight = 20,
 } = defineProps<{
   /** Text content to display */
   content: string
+  /** Accessible name of the keyboard-scrollable code region. */
+  label?: string
   /** Language label for the copy button */
   lang?: StandardLanguageKey | string
   /** Copy button visibility: 'always', 'hover', or false */
@@ -47,17 +50,19 @@ const { cx } = useBindCx()
       )
     ">
     <ScalarVirtualText
+      :aria-label="label"
       containerClass="custom-scroll overflow-auto flex flex-1 max-h-screen"
       contentClass="language-plaintext whitespace-pre font-code text-base p-2"
       :lineHeight="lineHeight"
+      role="region"
       :text="content" />
     <ScalarCodeBlockCopy
       v-if="copy"
       class="scalar-code-copy absolute top-2.5 right-2.5"
       :class="[{ 'opacity-100': copy === 'always' }]"
       :content="content"
-      :showLang="true"
-      :lang="lang">
+      :lang="lang"
+      :showLang="true">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop -right-1.5 -top-1" />
