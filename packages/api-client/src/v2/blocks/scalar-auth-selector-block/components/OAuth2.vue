@@ -357,6 +357,7 @@ const refreshUrlPlaceholder = computed(() => {
  * via grant_type=refresh_token.
  */
 const handleRefresh = async (): Promise<void> => {
+  // The explicit flow check narrows the type for refreshOauth2Token; the computed boolean cannot.
   if (loader.isLoading || type === 'implicit' || !canRefreshToken.value) {
     return
   }
