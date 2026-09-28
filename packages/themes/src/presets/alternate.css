@@ -28,7 +28,7 @@
   --scalar-background-card: #fff;
 
   --scalar-color-1: #1b1b1b;
-  --scalar-color-2: #757575;
+  --scalar-color-2: #6d6d6d;
   --scalar-color-3: #8e8e8e;
 
   --scalar-color-accent: var(--scalar-color-1);
@@ -71,7 +71,7 @@
   --scalar-color-green: #069061;
   --scalar-color-red: #ef0006;
   --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #0082d0;
+  --scalar-color-blue: #0071bb;
   --scalar-color-orange: #fb892c;
   --scalar-color-purple: #5203d1;
   --scalar-color-query: #007b80;

@@ -25,7 +25,7 @@ const PALETTE = {
     orange: '#ff5800',
     purple: '#5203d1',
     accent: '#0099ff',
-    '2': '#757575',
+    '2': '#707070',
     '3': '#8e8e8e',
   },
   dark: {

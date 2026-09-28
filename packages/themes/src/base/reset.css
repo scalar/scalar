@@ -23,11 +23,13 @@
    * Colour of the keyboard focus ring.
    *
    * The bare accent is only 2.78:1 against a hovered or selected surface, short
-   * of the 3:1 WCAG 1.4.11 asks of a focus indicator, so it is pulled one step
-   * toward the text colour. Anything drawing its own ring should use this token
-   * rather than the accent so every focus ring stays in step.
+   * of the 3:1 WCAG 1.4.11 asks of a focus indicator, so it is pulled toward the
+   * text colour. A fifth of the way clears 3:1 on every default surface, down to
+   * --scalar-background-3 (3.39:1), which is the tightest one a ring lands on.
+   * Anything drawing its own ring should use this token rather than the accent so
+   * every focus ring stays in step.
    */
-  --scalar-focus-color: color-mix(in srgb, var(--scalar-color-accent), var(--scalar-color-1) 10%);
+  --scalar-focus-color: color-mix(in srgb, var(--scalar-color-accent), var(--scalar-color-1) 20%);
 
   -webkit-text-size-adjust: 100%;
   -moz-tab-size: 4;
@@ -147,9 +149,9 @@
   /**
    * Focus rings need 3:1 against the surface they sit on (WCAG 1.4.11), and the
    * default light accent is only 2.78:1 on a hovered or selected sidebar item.
-   * Links and buttons show this ring for keyboard focus only, so pulling it one
-   * step toward the text colour is invisible to mouse users. Text inputs keep the
-   * plain accent ring because they are focused by click as well.
+   * Links and buttons show this ring for keyboard focus only, so the blend above
+   * is invisible to mouse users. Text inputs keep the plain accent ring because
+   * they are focused by click as well.
    */
   a:focus-visible,
   button:focus-visible,
