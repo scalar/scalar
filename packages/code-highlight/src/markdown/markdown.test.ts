@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { htmlFromMarkdown, textFromMarkdown } from './markdown'
 
-describe('htmlFromMarkdown', () => {
+describe('markdown', () => {
   it('returns HTML', () => {
     const html = htmlFromMarkdown('# Example Heading')
 
@@ -361,9 +361,7 @@ curl "https://api.tailscale.com/api/v2/tailnet/-/devices"
       expect(htmlFromMarkdown('<img src=x onerror=alert(1)>')).not.toContain('onerror')
     })
   })
-})
 
-describe('textFromMarkdown', () => {
   it.each([
     ['**Bad Request:** [fix the request](https://example.com)', 'Bad Request: fix the request'],
     ['| State | Meaning |\n| --- | --- |\n| 200 | Success |', 'State Meaning 200 Success'],
