@@ -21,11 +21,11 @@ const PALETTE = {
     green: '#069061',
     red: '#ef0006',
     yellow: '#edbe20',
-    blue: '#0082d0',
+    blue: '#0072bd',
     orange: '#ff5800',
     purple: '#5203d1',
     accent: '#0099ff',
-    '2': '#757575',
+    '2': '#707070',
     '3': '#8e8e8e',
   },
   dark: {

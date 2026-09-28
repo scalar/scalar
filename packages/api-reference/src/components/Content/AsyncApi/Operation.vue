@@ -159,12 +159,29 @@ const { level: headingLevel } = useDocumentOutline('operation')
   display: inline-flex;
   align-items: center;
 }
+/*
+ * The label is the theme colour on a 12% tint of itself, which in the default light
+ * theme leaves send at 4.28:1 and receive at 3.50:1 against their own fill, below the
+ * 4.5:1 WCAG 1.4.3 asks of 13px text. Blending the label a fifth of the way toward the
+ * body text colour clears it (5.54:1 and 4.68:1) while keeping the hue, and because it
+ * blends rather than hard-codes a value, a custom theme's own colours flow through. The
+ * blend runs toward --scalar-color-1, so it darkens the label in light mode and lightens
+ * it in dark mode, moving away from the tint in both.
+ */
 .operation-action--send {
-  color: var(--scalar-color-blue);
+  color: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    var(--scalar-color-1) 28%
+  );
   background: color-mix(in srgb, var(--scalar-color-blue), transparent 88%);
 }
 .operation-action--receive {
-  color: var(--scalar-color-green);
+  color: color-mix(
+    in srgb,
+    var(--scalar-color-green),
+    var(--scalar-color-1) 28%
+  );
   background: color-mix(in srgb, var(--scalar-color-green), transparent 88%);
 }
 

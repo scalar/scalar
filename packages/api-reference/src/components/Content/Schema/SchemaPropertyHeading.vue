@@ -425,7 +425,7 @@ const patternValue = computed(() => {
         <span class="screenreader-only"> {{ translate('schema.type') }}: </span>
         <button
           v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
-          class="text-c-3 hover:text-c-1 underline"
+          class="text-c-2 hover:text-c-1 underline"
           type="button"
           @click="
             props.eventBus.emit('scroll-to:model-by-name', {
@@ -447,7 +447,7 @@ const patternValue = computed(() => {
                   token.kind === 'ident' || token.kind === 'literal'
                     ? 'font-code'
                     : '',
-                  token.kind === 'punctuation' ? 'text-c-3' : '',
+                  token.kind === 'punctuation' ? 'text-c-2' : '',
                 ]"
                 >{{ token.text }}</span
               >
@@ -469,7 +469,7 @@ const patternValue = computed(() => {
                 token.kind === 'ident' || token.kind === 'literal'
                   ? 'font-code'
                   : '',
-                token.kind === 'punctuation' ? 'text-c-3' : '',
+                token.kind === 'punctuation' ? 'text-c-2' : '',
               ]"
               >{{ token.text }}</span
             >
@@ -632,6 +632,19 @@ const patternValue = computed(() => {
 .property-required {
   font-size: var(--scalar-mini);
   color: var(--scalar-color-orange);
+}
+/*
+ * Light-mode oranges are too bright on a light page for 13px text (the default
+ * #ff5800 is 3.16:1), so blend the theme orange toward the text colour to reach
+ * WCAG 1.4.3 (4.5:1) while keeping the hue and letting custom themes flow
+ * through. Dark mode already passes (8.37:1) and keeps the plain token.
+ */
+.light-mode .property-required {
+  color: color-mix(
+    in srgb,
+    var(--scalar-color-orange),
+    var(--scalar-color-1) 32%
+  );
 }
 
 .property-read-only {

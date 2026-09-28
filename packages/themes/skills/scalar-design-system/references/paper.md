@@ -28,7 +28,7 @@ Default theme, light mode. Map the nearest Scalar token; if a Paper value has no
 | `#f6f6f6` background | `--scalar-background-2` | `bg-b-2` |
 | `#e7e7e7` background | `--scalar-background-3` | `bg-b-3` |
 | `#1b1b1b` text | `--scalar-color-1` | `text-c-1` |
-| `#757575` text | `--scalar-color-2` | `text-c-2` |
+| `#707070` text | `--scalar-color-2` | `text-c-2` |
 | `#8e8e8e` text | `--scalar-color-3` | `text-c-3` |
 | `#0099ff` (accent) | `--scalar-color-accent` | `text-c-accent` / `bg-b-accent` |
 | `#dfdfdf` border | `--scalar-border-color` | `border` |
@@ -95,7 +95,7 @@ To confirm a component's exact props and variants, read the bundled type declara
 
 When building a Scalar design in Paper, use these concrete defaults (light mode):
 
-- Ground `#fff`; text `#1b1b1b` (secondary `#757575`, muted `#8e8e8e`); accent `#0099ff`.
+- Ground `#fff`; text `#1b1b1b` (secondary `#707070`, muted `#8e8e8e`); accent `#0099ff`.
 - Hairline borders `0.5px` `#dfdfdf`; radii 3 / 6 / 8 px; subtle shadows only.
 - `Inter` 16px body / 14px small / 13px labels; headings 20–24px; `JetBrains Mono` for code.
 - 4px spacing grid; surfaces over boxes; one accent moment, lots of neutral.

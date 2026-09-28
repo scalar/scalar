@@ -14,7 +14,7 @@ export const getThemeColors = (themeId: Themes | 'none'): { light: string; dark:
     'blue-planet': { light: '#f0f2f5', dark: '#000e23', accent: '#e0e2e6' },
     saturn: { light: '#e4e4df', dark: '#2c2c30', accent: '#1763a6' },
     'kepler-11e': { light: '#f6f6f6', dark: '#0d0f1e', accent: '#7070ff' },
-    mars: { light: '#f2efe8', dark: '#321116', accent: '#c75549' },
+    mars: { light: '#f2efe8', dark: '#321116', accent: '#b94f44' },
     'deep-space': { light: '#f4f4f5', dark: '#09090b', accent: '#8ab4f8' },
     laserwave: { light: '#f4f2f7', dark: '#27212e', accent: '#ed78c2' },
   }
