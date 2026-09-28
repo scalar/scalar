@@ -1355,7 +1355,11 @@ onBeforeMount(async () => {
 
     const prefix = resolveHashPrefix(
       hash,
-      sidebarState.index.value.keys(),
+      [
+        ...sidebarState.index.value.keys(),
+        // Heading-first descriptions still render a document-start section outside the sidebar.
+        ...candidates.map((slug) => `${slug}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
+      ],
       isMultiDocument.value,
     )
     inferredHashBasePath.value = prefix ? `#${prefix}` : undefined
