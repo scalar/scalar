@@ -41,8 +41,6 @@
   }
 }
 
-
-
 /**
  * Honour a request for reduced motion. Motion is collapsed to a near-zero
  * duration rather than removed, because `transitionend` must still fire for
