@@ -206,7 +206,7 @@ describe('ClientLibraries', () => {
     }
 
     /** aria-selected of every featured tab, in DOM order */
-    const selectedStates = (wrapper: ReturnType<typeof mount>) =>
+    const selectedStates = (wrapper: ReturnType<typeof mount>): (string | undefined)[] =>
       wrapper.findAll('[role="tab"]').map((tab) => tab.attributes('aria-selected'))
 
     it('marks no tab selected while a More client is active', async () => {
@@ -264,7 +264,7 @@ describe('ClientLibraries', () => {
       const panel = wrapper.get('[role="tabpanel"]')
       const heading = wrapper.get(`#${panel.attributes('aria-labelledby')}`)
 
-      expect(heading.classes()).toContain('client-libraries-heading')
+      expect(heading.text()).toBe('Client Libraries')
     })
   })
 })

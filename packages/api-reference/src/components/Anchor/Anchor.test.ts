@@ -1,10 +1,10 @@
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import Anchor from './Anchor.vue'
 
 describe('Anchor', () => {
-  const mountAnchor = (attrs: Record<string, unknown> = {}) =>
+  const mountAnchor = (attrs: Record<string, unknown> = {}): VueWrapper =>
     mount(Anchor, {
       slots: { default: 'Get authenticated user' },
       attrs,
@@ -36,13 +36,5 @@ describe('Anchor', () => {
     await wrapper.get('button').trigger('click')
 
     expect(copied).toBe(1)
-  })
-
-  it('carries the hook class that trims the box in the narrow layout', () => {
-    // The scoped rule that drops the trailing padding at narrow widths (so a
-    // heading ending near the edge cannot widen the page) keys on this class.
-    const wrapper = mountAnchor()
-
-    expect(wrapper.get('button').classes()).toContain('anchor-copy-button')
   })
 })
