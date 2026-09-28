@@ -45,7 +45,7 @@ const { translate } = useLocalization()
   box-shadow: 0 0 0 1px var(--scalar-border-color);
 }
 
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .show-more {
     top: -24px;
   }

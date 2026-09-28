@@ -194,13 +194,13 @@ export const TreeNarrowReflow: Story = {
       },
     }),
   },
-  // The container declares `narrow-references-container` and is narrower than
+  // The container declares `references-container` and is narrower than
   // the 900px query in styles/tailwind.config.css, so this story renders with
   // the tightened gutter and the smaller controls that query switches on.
   render: (args) => ({
     components: { Schema },
     setup: () => ({ args }),
     template:
-      '<div class="narrow-references-container" style="width: 360px; padding: 16px; background: var(--scalar-background-1); container: narrow-references-container / inline-size"><Schema v-bind="args" /></div>',
+      '<div class="references-container" style="width: 360px; padding: 16px; background: var(--scalar-background-1); container: references-container / inline-size"><Schema v-bind="args" /></div>',
   }),
 }

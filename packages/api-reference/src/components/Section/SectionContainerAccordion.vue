@@ -84,7 +84,7 @@ const emit = defineEmits<{
 .section-accordion-title :deep(.section-header) {
   margin-bottom: 0;
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .section-accordion-chevron {
     width: 16px;
     left: -16px;

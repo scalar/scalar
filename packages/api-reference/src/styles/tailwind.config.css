@@ -31,12 +31,12 @@
  * The API reference is an embeddable widget, so responsive styles must adapt
  * to the rendered width of the reference, never to the viewport. This variant
  * is the utility-class counterpart of the raw
- * `@container narrow-references-container (max-width: 900px)` blocks used in
+ * `@container references-container (max-width: 900px)` blocks used in
  * scoped styles — the query is identical, so the two idioms can never
  * disagree. The container itself is declared in Content.vue.
  */
 @custom-variant narrow {
-  @container narrow-references-container (max-width: 900px) {
+  @container references-container (max-width: 900px) {
     @slot;
   }
 }
@@ -129,8 +129,8 @@
  * these cannot live in the `.scalar-app` block above: that element is an
  * ancestor of the container (declared in Content.vue), not inside it.
  */
-@container narrow-references-container (max-width: 900px) {
-  .narrow-references-container > * {
+@container references-container (max-width: 900px) {
+  .references-container > * {
     --schema-gutter: 10px;
     --schema-glyph-size: 16px;
     --schema-glyph-half: 8px;

@@ -1,5 +1,6 @@
 ---
 '@scalar/api-reference': patch
+'@scalar/docusaurus': patch
 ---
 
 fix(api-reference): correct selected state, focus ring, target size and reflow of reference controls
@@ -9,3 +10,5 @@ fix(api-reference): correct selected state, focus ring, target size and reflow o
 - The schema tree toggle keeps its 24px hit box in narrow layouts
 - The schema property copy-link button gets a 24px hit box without changing its layout
 - Heading copy-link buttons no longer widen the page in narrow layouts
+
+Rename the always-present layout container class and CSS container name from `narrow-references-container` to `references-container`.

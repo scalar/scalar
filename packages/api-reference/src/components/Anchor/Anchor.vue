@@ -49,7 +49,7 @@ const { cx } = useBindCx()
  * the desktop focus ring and hit area untouched; the target stays 24x26px
  * (WCAG 2.5.8). The query matches Section.vue's so both flip at the same width.
  */
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .anchor-copy-button {
     padding-right: 0;
   }

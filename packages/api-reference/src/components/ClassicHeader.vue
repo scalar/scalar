@@ -29,7 +29,7 @@
   position: relative;
   padding: 0 60px;
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .references-classic-header {
     padding: 12px 24px;
   }
