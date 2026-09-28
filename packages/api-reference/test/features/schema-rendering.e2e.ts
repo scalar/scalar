@@ -6,6 +6,57 @@ import { sources } from '../utils/sources'
 const modelNames = sources.find((source) => source.slug === 'model-names')?.content
 
 test.describe('schema rendering', () => {
+  for (const layout of ['modern', 'classic'] as const) {
+    test(`indents array-of-object query parameters in ${layout} (#10380)`, async ({ page }) => {
+      const example = await serveExample({
+        layout,
+        hideModels: true,
+        content: {
+          openapi: '3.2.1',
+          info: { title: 'Nested query parameters', version: '1.0.0' },
+          paths: {
+            '/search': {
+              get: {
+                summary: 'Search records',
+                parameters: [
+                  {
+                    name: 'filters',
+                    in: 'query',
+                    description: 'Filters applied to the search.',
+                    schema: { type: 'array', items: { $ref: '#/components/schemas/Filter' } },
+                  },
+                  { name: 'limit', in: 'query', schema: { type: 'integer' } },
+                ],
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+          components: {
+            schemas: {
+              Filter: {
+                type: 'object',
+                properties: { field: { type: 'string' }, value: { type: 'string' } },
+              },
+            },
+          },
+        },
+      })
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(example)
+
+      const operation = page.getByRole('region', { name: 'Search records', exact: true })
+      if (layout === 'classic') {
+        await operation.getByRole('button', { name: 'GET /search Search records Copy link', exact: true }).click()
+      }
+
+      const parameters = operation.getByRole('list', { name: 'Query Parameters', exact: true })
+      await expect(parameters.getByText('field', { exact: true })).toBeVisible()
+      await expect(parameters.getByText('value', { exact: true })).toBeVisible()
+      await expect(parameters.getByText('limit', { exact: true })).toBeVisible()
+      await expect(parameters).toHaveScreenshot(`nested-query-parameters-${layout}.png`)
+    })
+  }
+
   test('renders model properties with correct names and types', async ({ page }) => {
     const example = await serveExample({ content: modelNames })
 
