@@ -36,6 +36,7 @@ export const renderHeaders = async (
           undefined,
           openapiVersion,
           schemaOpenapiVersion,
+          schemas.linked,
         )) as ListItem['children']),
       )
     }
@@ -50,6 +51,7 @@ export const renderHeaders = async (
           undefined,
           openapiVersion,
           schemaOpenapiVersion,
+          schemas.linked,
         )) as ListItem['children']),
       )
     }

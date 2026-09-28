@@ -5,4 +5,4 @@ export {
   createMarkdownFromOpenApi,
   createOpenApiMarkdownRenderer,
 } from './create-markdown-from-openapi'
-export type { OpenApiRenderOptions, OperationSelector } from './select-document'
+export type { OpenApiRenderOptions, OperationSelector, SchemaReferenceOptions } from './select-document'

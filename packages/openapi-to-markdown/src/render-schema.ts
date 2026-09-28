@@ -4,7 +4,8 @@ import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/
 import type { MaybeRefSchemaObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
 import type { Emphasis, ListItem, PhrasingContent, RootContent } from 'mdast'
 
-import { inlineCode, item, list, paragraph, strong, text } from './markdown-nodes'
+import { inlineCode, item, link, list, paragraph, safeUrl, strong, text } from './markdown-nodes'
+import type { SchemaReferenceOptions } from './select-document'
 
 /** Boolean schemas must survive rendering without being coerced into empty objects. */
 type MarkdownSchema = MaybeRefSchemaObject | boolean
@@ -62,6 +63,7 @@ type RenderOptions = {
  * run concurrently, and each needs its own record.
  */
 export type SchemaRenderer = {
+  linked: boolean
   view: (schema: MarkdownSchema) => SchemaView
   render: (
     schema: MarkdownSchema,
@@ -72,7 +74,7 @@ export type SchemaRenderer = {
   /** Restore the node budget, for example for each operation or model section. */
   beginSection: () => void
   /** Start a document that shares normalized views, given the models it renders in its own sections. */
-  forDocument: (models?: Record<string, MarkdownSchema>) => SchemaRenderer
+  forDocument: (models?: Record<string, MarkdownSchema>, options?: SchemaReferenceOptions) => SchemaRenderer
 }
 
 type SchemaRendererOptions = {
@@ -218,7 +220,11 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
     if (!hideDescription && value.description) nodes.push(text(`${nodes.length ? ' — ' : ''}${value.description}`))
     return nodes
   }
-  const forDocument = (models: Record<string, MarkdownSchema> = {}): SchemaRenderer => {
+  const forDocument = (
+    models: Record<string, MarkdownSchema> = {},
+    settings: SchemaReferenceOptions = {},
+  ): SchemaRenderer => {
+    const linked = settings.schemaReferences?.mode === 'linked'
     /** Shared schemas this document already expanded, with the name later references use. */
     const shown = new Map<object, string>()
     /** Models that the document renders in their own sections after the operations. */
@@ -244,6 +250,34 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
     }
 
     const render: SchemaRenderer['render'] = (input, depth = 0, ancestors = [], options = {}) => {
+      if (
+        linked &&
+        isObject(input) &&
+        '$ref' in input &&
+        (depth > 0 || getResolvedRef(input) === undefined) &&
+        typeof input.$ref === 'string'
+      ) {
+        const name = getReferenceName(input.$ref)
+        const url = settings.schemaReferences?.resolveUrl?.({ ref: input.$ref, name })
+        const nodes: RootContent[] = [
+          paragraph(text('Schema: '), url && safeUrl(url) ? link(url, name) : inlineCode(name)),
+        ]
+        // Reference siblings are independent constraints, not replacements for target keywords.
+        const siblings = Object.fromEntries(Object.entries(input).filter(([key]) => !referenceKeys.has(key)))
+        if (Object.keys(siblings).length) nodes.push(...render(siblings as MarkdownSchema, depth, ancestors))
+        return nodes
+      }
+      if (linked && depth === 0 && isObject(input) && '$ref' in input && typeof input.$ref === 'string') {
+        const target = getResolvedRef(input)
+        const siblings = Object.fromEntries(Object.entries(input).filter(([key]) => !referenceKeys.has(key)))
+        if (target !== undefined && Object.keys(siblings).length) {
+          return [
+            paragraph(strong(text('All of:'))),
+            ...render(target as MarkdownSchema, depth + 1, ancestors),
+            ...render(siblings as MarkdownSchema, depth, ancestors),
+          ]
+        }
+      }
       // Follow the original target: merging reference siblings creates fresh objects.
       const identity = getResolvedRef(input) ?? input
       if (typeof identity === 'object' && ancestors.includes(identity)) {
@@ -298,6 +332,13 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         const annotations = details(value, false, options.hideDescription, !impliedType)
         if (annotations.length) nodes.push(paragraph(...annotations))
       }
+      if (linked) {
+        // A reference sibling may require a field declared only in the target schema.
+        const declared = new Set(value.properties.map(([name]) => name))
+        const required = [...value.required].filter((name) => !declared.has(name))
+        if (required.length)
+          nodes.push(paragraph(strong(text('Required fields:')), text(' '), inlineCode(required.join(', '))))
+      }
       if (value.properties.length) {
         const properties = value.properties.map(([name, schema]): ListItem => {
           const child = view(schema)
@@ -344,6 +385,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       return nodes
     }
     return {
+      linked,
       view,
       render,
       beginSection: () => {

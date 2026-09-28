@@ -11,4 +11,4 @@ import { type OpenApiRenderOptions, selectDocument } from './select-document'
 export const createMarkdownFromOpenApi = async (
   document: OpenApiDocument,
   options?: OpenApiRenderOptions,
-): Promise<string> => await createDocumentRenderer()(selectDocument(document, options))
+): Promise<string> => await createDocumentRenderer()(selectDocument(document, options), options)

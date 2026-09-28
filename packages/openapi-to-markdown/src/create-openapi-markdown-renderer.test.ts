@@ -4,7 +4,69 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { createMarkdownFromOpenApi as browserRender } from './browser'
 import { type OpenApiRenderOptions, createMarkdownFromOpenApi, createOpenApiMarkdownRenderer } from './index'
+import { loadDocument } from './load-document'
+
+const reference = (name: string): { $ref: string } => ({ $ref: `#/components/schemas/${name}` })
+const fixture = (depth = 2): Record<string, unknown> => {
+  const operation = {
+    description: 'Read the account',
+    responses: {
+      '200': { description: 'Success', content: { 'application/json': { schema: reference('Account') } } },
+      '400': { $ref: '#/components/responses/Error' },
+    },
+  }
+  return {
+    openapi: '3.1.0',
+    info: { title: 'Linked API', version: '1' },
+    servers: [{ url: 'https://example.com' }],
+    security: [{ token: [] }],
+    paths: {
+      '/account': {
+        parameters: [{ name: 'id', in: 'query', required: true, schema: { type: 'string' } }],
+        get: operation,
+      },
+      '/other': { get: operation },
+    },
+    webhooks: { changed: { post: operation } },
+    components: {
+      securitySchemes: { token: { type: 'apiKey', in: 'header', name: 'X-Token' } },
+      responses: { Error: { description: 'Failure', content: { 'application/json': { schema: reference('Error') } } } },
+      schemas: {
+        Account: {
+          type: 'object',
+          required: ['customer'],
+          properties: {
+            customer: { ...reference('Customer~1Name~0'), description: 'The owner' },
+            inline: { type: ['string', 'null'], minLength: 2 },
+            allowed: true,
+            denied: false,
+            union: { oneOf: [reference('Node0'), { type: 'null' }] },
+          },
+        },
+        'Customer/Name~': { type: 'object', properties: { cycle: reference('Account'), hidden: reference('Node0') } },
+        Error: { type: 'object', properties: { cause: reference('Node0') } },
+        ...Object.fromEntries(
+          Array.from({ length: depth }, (_, index) => [
+            `Node${index}`,
+            {
+              type: 'object',
+              properties: {
+                deepSecret: { type: 'string' },
+                next: reference(index + 1 < depth ? `Node${index + 1}` : 'Account'),
+              },
+            },
+          ]),
+        ),
+      },
+    },
+  }
+}
+const linked: OpenApiRenderOptions = {
+  operation: { path: '/account', method: 'get' },
+  schemaReferences: { mode: 'linked', resolveUrl: ({ name }) => `/models/${encodeURIComponent(name)}` },
+}
 
 const document = {
   openapi: '3.1.0',
@@ -300,5 +362,113 @@ describe('create-openapi-markdown-renderer', () => {
     expect(first).toBe(second)
     expect(first).toContain('Schema `L2` is shown above.')
     expect(await renderer.render(page)).toBe(first)
+  })
+
+  it('retains immediate fields and operation context while linking the graph', async () => {
+    const input = fixture()
+    const before = JSON.stringify(input)
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const output = await renderer.render(linked)
+    for (const value of [
+      'GET',
+      '/account',
+      'Read the account',
+      'https://example.com',
+      'X-Token',
+      '`id`',
+      '(required)',
+      'The owner',
+      'string | null',
+      'minLength',
+      'true schema',
+      'false schema',
+      'One of:',
+      '[Customer/Name\\~](/models/Customer%2FName~)',
+      '[Node0](/models/Node0)',
+      'Status: 400',
+      'Generated example omitted',
+    ])
+      expect(output).toContain(value)
+    expect(output).not.toContain('deepSecret')
+    expect(output).not.toContain('## Schemas')
+    expect(JSON.stringify(input)).toBe(before)
+    expect(await renderer.render(linked)).toBe(output)
+    const normal = await renderer.render({ operation: { path: '/account', method: 'get' } })
+    expect(normal).toContain('deepSecret')
+    expect(normal).toContain('## Schemas')
+    expect(await renderer.render(linked)).toBe(output)
+  })
+
+  it('does not grow with graph depth and isolates concurrent URL callbacks', async () => {
+    const small = await createOpenApiMarkdownRenderer(fixture(2))
+    const large = await createOpenApiMarkdownRenderer(fixture(100))
+    expect(await large.render(linked)).toBe(await small.render(linked))
+    const [withUrls, withoutUrls] = await Promise.all([
+      large.render(linked),
+      large.render({ ...linked, schemaReferences: { mode: 'linked' } }),
+    ])
+    expect(withUrls).toContain('/models/Node0')
+    expect(withoutUrls).toContain('Schema: `Node0`')
+    expect(withoutUrls).not.toContain('/models/')
+  })
+
+  it('supports model and webhook pages and the browser entry point', async () => {
+    const input = fixture()
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    for (const selection of [{ model: 'Account' }, { webhook: { name: 'changed', method: 'post' } }] as const) {
+      const options = { ...selection, schemaReferences: linked.schemaReferences }
+      const output = await renderer.render(options)
+      expect(output).toContain('/models/Node0')
+      expect(output).not.toContain('deepSecret')
+      expect(await browserRender(await loadDocument(input), options)).toBe(output)
+    }
+  })
+
+  it('preserves reference siblings as independent constraints', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.0',
+      info: { title: 'Siblings', version: '1' },
+      components: {
+        schemas: {
+          Base: { type: 'object', required: ['base'], properties: { base: { type: 'string' } } },
+          Model: {
+            ...reference('Base'),
+            required: ['extra'],
+            properties: { extra: { allOf: [{ anyOf: [false, { type: 'number', minimum: 3 }] }] } },
+          },
+        },
+      },
+    })
+    const output = await renderer.render({ model: 'Model', schemaReferences: { mode: 'linked' } })
+    for (const value of [
+      'All of:',
+      'Any of:',
+      '`base` (required)',
+      '`extra` (required)',
+      'minimum: `3`',
+      'false schema',
+    ])
+      expect(output).toContain(value)
+  })
+  it('keeps supplied examples and uses text for unsafe or missing URLs', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.0',
+      info: { title: 'Examples', version: '1' },
+      components: {
+        schemas: {
+          Base: { type: 'object', properties: { next: reference('Base') } },
+          Model: { ...reference('Base'), required: ['next'], example: { next: 'authored value' } },
+        },
+      },
+    })
+    const output = await renderer.render({
+      model: 'Model',
+      schemaReferences: { mode: 'linked', resolveUrl: () => 'javascript:alert(1)' },
+    })
+    expect(output).toContain('authored value')
+    expect(output).toContain('**Required fields:** `next`')
+    expect(output).toContain('Schema: `Base`')
+    expect(output).not.toContain('javascript:')
+    expect(output).not.toContain('Generated example omitted')
   })
 })

@@ -105,7 +105,17 @@ export const renderOperation = async (
     for (const [mediaType, content] of Object.entries('content' in parameter ? (parameter.content ?? {}) : {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi)))
+      nodes.push(
+        ...(await renderExamples(
+          content,
+          description,
+          mediaType,
+          'write',
+          openapiVersion,
+          document.openapi,
+          schemas.linked,
+        )),
+      )
     }
   }
   const body: RequestBodyObject | undefined = getResolvedRef(operation.requestBody, mergeSiblingReferences)
@@ -116,7 +126,17 @@ export const renderOperation = async (
     for (const [mediaType, content] of Object.entries(body.content ?? {})) {
       nodes.push(heading(5, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi)))
+      nodes.push(
+        ...(await renderExamples(
+          content,
+          description,
+          mediaType,
+          'write',
+          openapiVersion,
+          document.openapi,
+          schemas.linked,
+        )),
+      )
       nodes.push(
         ...(await renderEncoding(content.encoding, mediaType, description, schemas, openapiVersion, document.openapi)),
       )
@@ -136,7 +156,17 @@ export const renderOperation = async (
     for (const [mediaType, content] of Object.entries(response.content ?? {})) {
       nodes.push(heading(6, text(`Content-Type: ${mediaType}`)))
       if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
-      nodes.push(...(await renderExamples(content, description, mediaType, 'read', openapiVersion, document.openapi)))
+      nodes.push(
+        ...(await renderExamples(
+          content,
+          description,
+          mediaType,
+          'read',
+          openapiVersion,
+          document.openapi,
+          schemas.linked,
+        )),
+      )
     }
   }
   return nodes

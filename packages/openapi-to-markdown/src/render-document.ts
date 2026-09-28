@@ -15,17 +15,21 @@ import { renderExamples } from './render-examples'
 import { renderOperation } from './render-operation'
 import { createSchemaRenderer } from './render-schema'
 import { renderSecurity } from './render-security'
+import type { SchemaReferenceOptions } from './select-document'
 
 const serializer = unified().use(remarkGfm).use(remarkStringify, { bullet: '-' }).freeze()
 
 /** Build Markdown directly, retaining caches only for this immutable document snapshot. */
-export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promise<string>) => {
+export const createDocumentRenderer = (): ((
+  document: OpenApiDocument,
+  options?: SchemaReferenceOptions,
+) => Promise<string>) => {
   const descriptions = createDescriptionParser()
   const schemaRenderer = createSchemaRenderer()
-  return async (document) => {
+  return async (document, options) => {
     const description = descriptions()
     // Each page expands a shared schema once, then refers back to it.
-    const schemas = schemaRenderer.forDocument(document.components?.schemas)
+    const schemas = schemaRenderer.forDocument(document.components?.schemas, options)
     const { info } = document
     const metadata = [
       field('OpenAPI Version', inlineCode(document.openapi)),
@@ -153,6 +157,8 @@ export const createDocumentRenderer = (): ((document: OpenApiDocument) => Promis
             'application/json',
             undefined,
             document['x-original-oas-version'] ?? document.openapi,
+            document.openapi,
+            schemas.linked,
           )),
         )
       flush()
