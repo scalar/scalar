@@ -2003,4 +2003,76 @@ describe('Schema', () => {
       wrapper.unmount()
     })
   })
+  describe('list semantics', () => {
+    const mountSchema = (schema: Record<string, unknown>) =>
+      mount(Schema, {
+        props: {
+          schema: coerceValue(SchemaObjectSchema, schema),
+          eventBus: null,
+          options: { expandAllSchemaProperties: true },
+        },
+      })
+
+    /** An object schema with one string property per name. */
+    const objectWith = (...names: string[]) => ({
+      type: 'object',
+      properties: Object.fromEntries(names.map((name) => [name, { type: 'string' }])),
+    })
+
+    it('announces the property rows of an object as a list', () => {
+      const wrapper = mountSchema(objectWith('alpha', 'beta'))
+
+      const lists = wrapper.findAll('ul[role="list"]')
+      expect(lists).toHaveLength(1)
+      expect(lists[0]?.element.children).toHaveLength(2)
+      expect(wrapper.find('ul[role="presentation"]').exists()).toBe(false)
+    })
+
+    it.each(['allOf', 'oneOf', 'anyOf'] as const)(
+      'hides the single passthrough row of a %s root from the list count',
+      (composition) => {
+        const wrapper = mountSchema({
+          [composition]: [objectWith('alpha', 'beta'), objectWith('gamma', 'delta', 'epsilon')],
+        })
+
+        // The outer wrapper holds one nameless row that carries the real list,
+        // so only the list the reader wanted is announced.
+        expect(wrapper.find('ul').attributes('role')).toBe('presentation')
+        expect(wrapper.findAll('ul[role="list"]').length).toBeGreaterThan(0)
+      },
+    )
+
+    it('announces only the real property list inside a composed array item', () => {
+      const wrapper = mountSchema({
+        type: 'object',
+        properties: {
+          documents: {
+            type: 'array',
+            items: { allOf: [objectWith('alpha', 'beta'), objectWith('gamma', 'delta', 'epsilon')] },
+          },
+        },
+      })
+
+      const documents = wrapper.findAll('li').find((row) => row.text().includes('documents'))
+      expect(documents).toBeDefined()
+
+      // The nested wrapper is presentational, and the row it holds is the
+      // nameless passthrough that carries the composition.
+      const wrappers = documents!.findAll('ul[role="presentation"]')
+      expect(wrappers.length).toBeGreaterThan(0)
+      expect(wrappers[0]?.find('li').classes()).toContain('property--tree-container')
+    })
+
+    it('keeps the property list of a plain array item as the only list', () => {
+      const wrapper = mountSchema({
+        type: 'object',
+        properties: {
+          documents: { type: 'array', items: objectWith('alpha', 'beta') },
+        },
+      })
+
+      expect(wrapper.find('ul').attributes('role')).toBe('list')
+      expect(wrapper.find('ul[role="presentation"]').exists()).toBe(false)
+    })
+  })
 })
