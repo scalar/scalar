@@ -470,13 +470,12 @@ defineExpose({
   <!--
     Address bar.
 
-    The wide-container layout matches the original single-row bar:
+    The wide-container layout is a single row:
     `[Method | URL | Copy | History | Send]`. When the surrounding
-    `@container` drops below `@3xl` the bar collapses to
-    `[URL | History]` and a second row appears beneath it with a
-    duplicate `Method`, `Copy`, and `Send` so the URL gets the full
-    container width while every action stays on the same line as the
-    send button.
+    `@container` drops below `@3xl` only the send button moves to a
+    second row, where it spans the full width. The method and copy
+    controls stay inside the bar at every width so they keep belonging
+    to the URL they act on rather than floating beside it.
   -->
   <div
     class="order-last flex h-auto w-full max-w-3xl grow-3 flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl:order-0 @3xl:flex-nowrap">
@@ -498,12 +497,8 @@ defineExpose({
           :style />
       </div>
 
-      <!--
-        Method, Copy, and Send are hidden in mobile mode (container
-        narrower than `@3xl`) and the duplicate buttons in the trailing
-        mobile actions row take over at that point.
-      -->
-      <div class="hidden @3xl:flex">
+      <!-- Only Send leaves the bar below `@3xl`; see the trailing row. -->
+      <div class="flex">
         <HttpMethod
           :isEditable="layout !== 'modal' && !isWebhook"
           isSquare
@@ -554,7 +549,7 @@ defineExpose({
 
       <!-- Copy url button -->
       <ScalarButton
-        class="hover:bg-b-3 mx-1 hidden @3xl:flex"
+        class="hover:bg-b-3 mx-1 flex"
         size="xs"
         variant="ghost"
         @click="requestCopyUrl">
@@ -616,55 +611,36 @@ defineExpose({
     </div>
 
     <!--
-      Mobile actions row. Visible by default and hidden once the
-      container reaches `@3xl`, where the duplicate Method / Copy /
-      Send buttons move back into the bar itself.
+      Below `@3xl` the send button moves out of the bar onto its own row
+      and spans the full width, so the primary action stays easy to hit
+      once the container is too narrow to hold it beside the URL.
     -->
-    <div
-      class="mt-2 flex h-(--scalar-address-bar-height) w-full items-stretch gap-1 @3xl:hidden">
-      <HttpMethod
-        :isEditable="layout !== 'modal' && !isWebhook"
-        isSquare
-        :method="methodConflict ?? method"
-        teleport
-        @change="handleMethodChange" />
-      <ScalarButton
-        class="hover:bg-b-3 ml-auto"
-        size="xs"
-        variant="ghost"
-        @click="requestCopyUrl">
-        <ScalarIconCopy />
-        <span class="sr-only">{{
-          translate('apiClient.addressBar.copyUrl')
+    <ScalarButton
+      ref="mobileSendButtonRef"
+      class="relative mt-2 h-(--scalar-address-bar-height) w-full shrink-0 justify-center overflow-hidden py-1 font-bold @3xl:hidden"
+      data-addressbar-action="send"
+      :disabled="isLoading || executionDisabled"
+      @click="emit('execute')">
+      <span
+        aria-hidden="true"
+        class="inline-flex items-center gap-1">
+        <ScalarIcon
+          class="relative shrink-0 fill-current"
+          icon="Play"
+          size="xs" />
+        <span class="text-xxs">{{
+          translate('apiClient.addressBar.send')
         }}</span>
-      </ScalarButton>
-      <ScalarButton
-        ref="mobileSendButtonRef"
-        class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
-        data-addressbar-action="send"
-        :disabled="isLoading || executionDisabled"
-        @click="emit('execute')">
-        <span
-          aria-hidden="true"
-          class="inline-flex items-center gap-1">
-          <ScalarIcon
-            class="relative shrink-0 fill-current"
-            icon="Play"
-            size="xs" />
-          <span class="text-xxs">{{
-            translate('apiClient.addressBar.send')
-          }}</span>
-        </span>
-        <span class="sr-only"
-          >{{
-            translate('apiClient.addressBar.sendRequest', {
-              method,
-              url: `${server?.url ?? ''}${path}`,
-            })
-          }}
-        </span>
-      </ScalarButton>
-    </div>
+      </span>
+      <span class="sr-only"
+        >{{
+          translate('apiClient.addressBar.sendRequest', {
+            method,
+            url: `${server?.url ?? ''}${path}`,
+          })
+        }}
+      </span>
+    </ScalarButton>
   </div>
 </template>
 <style scoped>
