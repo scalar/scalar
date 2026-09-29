@@ -14,21 +14,8 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         script: |
-          const { readFile, writeFile } = require('node:fs/promises')
-          const [collaborators, contributors] = await Promise.all([
-            github.paginate(github.rest.repos.listCollaborators, {
-              ...context.repo,
-              affiliation: 'direct',
-              per_page: 100,
-            }),
-            github.paginate(github.rest.repos.listContributors, {
-              ...context.repo,
-              per_page: 100,
-            }),
-          ])
-          // Node 24 runs this dependency-free TypeScript helper directly.
-          const { generateContributors } = await import(
-            `${process.env.CONTRIBUTORS_ACTION_PATH}/generate-contributors.ts`
+          // Node 24 runs the TypeScript entry point without a build step.
+          const { updateContributors } = await import(
+            `${process.env.CONTRIBUTORS_ACTION_PATH}/update-contributors.ts`
           )
-          const readme = await readFile('README.md', 'utf8')
-          await writeFile('README.md', generateContributors(readme, collaborators, contributors))
+          await updateContributors(github, context.repo)

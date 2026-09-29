@@ -33,7 +33,9 @@ jobs:
         run: pnpm lint:check:dist-dts-aliases
       - name: Check contributor README generation
         if: matrix.shard-index == 1
-        run: pnpm vitest .github/actions/update-contributors/generate-contributors.test.ts --run
+        run: |
+          pnpm exec tsc --project .github/actions/update-contributors/tsconfig.json
+          pnpm vitest .github/actions/update-contributors --run
       - name: Run tests
         run: |
           dirs=()

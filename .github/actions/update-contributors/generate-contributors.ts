@@ -1,5 +1,5 @@
 /** GitHub fields needed to render the README contributor table. */
-type Contributor = {
+export type Contributor = {
   login: string
   avatar_url: string
   type: string
