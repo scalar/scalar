@@ -1849,6 +1849,12 @@
                           ]
                         }
                       },
+                      "personalization": {
+                        "title": "Personalization",
+                        "type": "page",
+                        "description": "Personalize navigation, content, and API playground inputs with a signed user-info hook.",
+                        "filepath": "documentation/guides/docs/configuration/personalization.md"
+                      },
                       "private-docs": {
                         "title": "Private Docs",
                         "filepath": "documentation/guides/docs/configuration/private-docs.md",
