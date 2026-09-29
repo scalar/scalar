@@ -54,41 +54,12 @@ jobs:
                 per_page: 100,
               }),
             ])
-            const seen = new Set()
-            const users = [...collaborators, ...contributors].filter(({ login, type }) => {
-              if (type === 'Bot' || login.includes('actions-user') || seen.has(login)) {
-                return false
-              }
-              seen.add(login)
-              return true
-            })
-            const rows = []
-            for (let index = 0; index < users.length; index += 6) {
-              const cells = users.slice(index, index + 6).map(({ login, avatar_url }) => {
-                const avatar = new URL(avatar_url)
-                // Request twice the display width for sharp images on high-density screens.
-                avatar.searchParams.set('s', '200')
-                return `
-                        <td align="center">
-                            <a href="https://github.com/${login}">
-                                <img src="${avatar.href.replaceAll('&', '&amp;')}" width="100;" alt="${login}"/>
-                                <br />
-                                <sub><b>${login}</b></sub>
-                            </a>
-                        </td>`
-              })
-              rows.push('\t\t<tr>' + cells.join('') + '\n\t\t</tr>\n')
-            }
-            const start = '<!-- readme: collaborators,contributors -start -->'
-            const end = '<!-- readme: collaborators,contributors -end -->'
+            // Node 24 runs this dependency-free TypeScript helper directly.
+            const { generateContributors } = await import(
+              `${process.env.GITHUB_WORKSPACE}/tooling/scripts/src/helpers/generate-contributors.ts`
+            )
             const readme = await readFile('README.md', 'utf8')
-            const startIndex = readme.indexOf(start)
-            const endIndex = readme.indexOf(end)
-            if (startIndex === -1 || endIndex < startIndex || users.length === 0) {
-              throw new Error('Missing contributor markers or an empty contributor list')
-            }
-            const table = start + '\n<table>\n\t<tbody>\n' + rows.join('') + '\t</tbody>\n</table>\n' + end
-            await writeFile('README.md', readme.slice(0, startIndex) + table + readme.slice(endIndex + end.length))
+            await writeFile('README.md', generateContributors(readme, collaborators, contributors))
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
