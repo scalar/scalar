@@ -129,6 +129,7 @@ import {
 } from '@/helpers/normalize-configurations'
 import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { updateDocumentTitle } from '@/helpers/update-document-title'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
@@ -1295,6 +1296,13 @@ watch(
 
       // If the was not a URL change then we require a document to continue
       if (!updated.source.content) {
+        return
+      }
+
+      if (updateDocumentTitle(updated, previous, workspaceStore, clientStore)) {
+        if (updated.slug === activeSlug.value) {
+          updatePageTitle(sidebarState.selectedItem.value ?? updated.slug)
+        }
         return
       }
 
