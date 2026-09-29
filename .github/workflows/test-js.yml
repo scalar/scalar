@@ -31,6 +31,11 @@ jobs:
       - name: Check built declaration alias imports
         if: matrix.shard-index == 1
         run: pnpm lint:check:dist-dts-aliases
+      - name: Check contributor README generation
+        if: matrix.shard-index == 1
+        run: |
+          pnpm exec tsc --project .github/actions/update-contributors/tsconfig.json
+          pnpm vitest .github/actions/update-contributors --run
       - name: Run tests
         run: |
           dirs=()

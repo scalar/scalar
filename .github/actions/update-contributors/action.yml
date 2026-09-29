@@ -1,0 +1,21 @@
+name: Update README contributors
+description: Generate the README contributor table with appropriately sized avatars.
+inputs:
+  github-token:
+    description: GitHub token used to read repository collaborators and contributors.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Generate contributor table
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+      env:
+        CONTRIBUTORS_ACTION_PATH: ${{ github.action_path }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          // Node 24 runs the TypeScript entry point without a build step.
+          const { updateContributors } = await import(
+            `${process.env.CONTRIBUTORS_ACTION_PATH}/update-contributors.ts`
+          )
+          await updateContributors(github, context.repo)

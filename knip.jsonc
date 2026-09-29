@@ -72,6 +72,8 @@
   },
   "workspaces": {
     ".": {
+      // Loaded dynamically from the composite action's github-script step.
+      "entry": [".github/actions/update-contributors/update-contributors.ts"],
       "ignoreDependencies": [
         // Executed from the repo root by tooling/changelog-generator/src/version.ts.
         "@changesets/cli"
