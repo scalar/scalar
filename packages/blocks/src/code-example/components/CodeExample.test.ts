@@ -17,9 +17,7 @@ enableAutoUnmount(afterEach)
 // Mock the useClipboard hook from VueUse
 const mockCopy = vi.fn()
 const mockCopied = ref(false)
-// Keep the real module (the code block's tab stop relies on useResizeObserver) and only replace the clipboard
-vi.mock('@vueuse/core', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@vueuse/core')>()),
+vi.mock('@vueuse/core', () => ({
   useClipboard: () => ({
     copy: mockCopy,
     copied: mockCopied,

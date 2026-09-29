@@ -138,6 +138,6 @@ When using the standalone `CodeExample` component or `createCodeExample`, pass `
 
 ### Code sample region name
 
-A code sample that overflows its box is a keyboard tab stop so it can be scrolled, and it is exposed as a named group so screen readers announce it when it receives focus. Override `operation.codeSample` for the API Reference in `localization.translations` to change the name (the selected client's title is appended, e.g. "Code sample: Shell cURL"). The API Client reuses `apiClient.requestCodeSnippet.codeSnippet`.
+A code sample is a keyboard tab stop so it can be scrolled, and it is exposed as a named group so screen readers announce it when it receives focus. Override `operation.codeSample` for the API Reference in `localization.translations` to change the name (the selected client's title is appended, e.g. "Code sample: Shell cURL"). The API Client reuses `apiClient.requestCodeSnippet.codeSnippet`.
 
 When using the standalone `CodeExample` component or `createCodeExample`, pass `codeSampleLabel` to supply a localized name. It defaults to English.
