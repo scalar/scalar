@@ -1,4 +1,4 @@
-import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiComponentsObject, AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { createNavigation, traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -54,13 +54,16 @@ describe('createSearchIndex', () => {
   })
 
   it('reindexes AsyncAPI model fields after in-place edits', () => {
-    const schema = { type: 'object', properties: { planet: { type: 'string', description: 'Before' } } }
-    const document = {
+    const schema = {
+      type: 'object',
+      properties: { planet: { type: 'string', description: 'Before' } },
+    } satisfies NonNullable<AsyncApiComponentsObject['schemas']>[string]
+    const document: AsyncApiDocument = {
       asyncapi: '3.0.0',
       info: { title: 'Streaming API', version: '1.0.0' },
       'x-scalar-original-document-hash': '',
       components: { schemas: { Event: schema } },
-    } as unknown as AsyncApiDocument
+    }
     document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
     const fields = (): unknown[] =>
       createSearchIndex(document)
