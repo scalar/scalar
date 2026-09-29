@@ -2,6 +2,7 @@ import type { OperationObject, SchemaObject } from '@scalar/workspace-store/sche
 import { describe, expect, it } from 'vitest'
 
 import {
+  createSearchFieldExtractor,
   deepMerge,
   extractBodyDescriptions,
   extractBodyFieldNames,
@@ -12,6 +13,75 @@ import {
 } from './openapi'
 
 describe('openapi', () => {
+  it('collects both search fields with the same composition, reference, cycle and depth ordering', () => {
+    const shared: SchemaObject = {
+      type: 'object',
+      properties: { shared: { type: 'string', description: 'Shared field' } },
+    }
+    const schema: SchemaObject = {
+      type: 'object',
+      oneOf: [shared],
+      anyOf: [{ type: 'object', properties: { alternate: { type: 'string', description: 'Alternate field' } } }],
+      allOf: [{ $ref: '#/components/schemas/Shared', '$ref-value': shared }],
+      properties: {
+        nested: {
+          type: 'object',
+          description: 'Nested object',
+          properties: {
+            child: { type: 'object', properties: { tooDeep: { type: 'string' } }, description: 'Child field' },
+          },
+        },
+        duplicate: { type: 'string', description: 'Shared field' },
+        unresolved: { $ref: '#/components/schemas/Missing' },
+        '': { type: 'string', description: '' },
+      },
+    }
+    schema.allOf?.push(schema)
+
+    const fields = createSearchFieldExtractor().schema(schema)
+    expect(fields).toStrictEqual({
+      names: ['shared', 'alternate', 'nested', 'child', 'duplicate', 'unresolved'],
+      descriptions: ['Shared field', 'Alternate field', 'Nested object', 'Child field'],
+    })
+    expect(fields).toStrictEqual({
+      names: extractSchemaFieldNames(schema),
+      descriptions: extractSchemaDescriptions(schema),
+    })
+  })
+
+  it('preserves the shared visited set across request body media types', () => {
+    const shared: SchemaObject = {
+      type: 'object',
+      properties: {
+        child: { type: 'object', properties: { deeper: { type: 'string' } }, description: 'Child field' },
+      },
+    }
+    const operation: OperationObject = {
+      requestBody: {
+        content: {
+          'application/json': { schema: { type: 'object', properties: { nested: shared } } },
+          'application/xml': { schema: shared },
+        },
+      },
+    }
+    const extract = createSearchFieldExtractor()
+    // Priming a root cache must not change the depth at which the second media type is visited.
+    expect(extract.schema(shared).names).toStrictEqual(['child', 'deeper'])
+    expect(extract.body(operation)).toStrictEqual({ names: ['nested', 'child'], descriptions: ['Child field'] })
+    expect(extract.body(operation)).toStrictEqual({
+      names: extractBodyFieldNames(operation),
+      descriptions: extractBodyDescriptions(operation),
+    })
+  })
+
+  it('reads schema edits in a subsequent extraction build', () => {
+    const schema: SchemaObject = { type: 'object', properties: { before: { type: 'string', description: 'Old' } } }
+    const operation: OperationObject = { requestBody: { content: { 'application/json': { schema } } } }
+    expect(createSearchFieldExtractor().body(operation)).toStrictEqual({ names: ['before'], descriptions: ['Old'] })
+    schema.properties = { after: { type: 'string', description: 'New' } }
+    expect(createSearchFieldExtractor().body(operation)).toStrictEqual({ names: ['after'], descriptions: ['New'] })
+  })
+
   describe('deepMerge', () => {
     it('merges objects', () => {
       expect(

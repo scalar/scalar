@@ -35,6 +35,42 @@ function createMockDocument(document: Partial<OpenApiDocument>) {
 }
 
 describe('createSearchIndex', () => {
+  it('reindexes shared models and request bodies after in-place schema edits', () => {
+    const schema = { type: 'object' as const, properties: { name: { type: 'string' as const, description: 'Before' } } }
+    const document = createMockDocument({
+      components: { schemas: { First: schema, Second: schema } },
+      paths: {
+        '/first': { post: { requestBody: { content: { 'application/json': { schema } } } } },
+        '/second': { post: { requestBody: { content: { 'application/json': { schema } } } } },
+      },
+    })
+    const fields = (): unknown[] =>
+      createSearchIndex(document)
+        .filter((entry) => entry.type === 'model' || entry.type === 'operation')
+        .map((entry) => ({ names: entry.body, descriptions: entry.bodyDescriptions }))
+    expect(fields()).toStrictEqual(Array.from({ length: 4 }, () => ({ names: ['name'], descriptions: ['Before'] })))
+    schema.properties.name.description = 'After'
+    expect(fields()).toStrictEqual(Array.from({ length: 4 }, () => ({ names: ['name'], descriptions: ['After'] })))
+  })
+
+  it('reindexes AsyncAPI model fields after in-place edits', () => {
+    const schema = { type: 'object', properties: { planet: { type: 'string', description: 'Before' } } }
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Streaming API', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      components: { schemas: { Event: schema } },
+    } as unknown as AsyncApiDocument
+    document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+    const fields = (): unknown[] =>
+      createSearchIndex(document)
+        .filter((entry) => entry.type === 'model')
+        .map((entry) => ({ names: entry.body, descriptions: entry.bodyDescriptions }))
+    expect(fields()).toStrictEqual([{ names: ['planet'], descriptions: ['Before'] }])
+    schema.properties.planet.description = 'After'
+    expect(fields()).toStrictEqual([{ names: ['planet'], descriptions: ['After'] }])
+  })
+
   describe('operations', () => {
     it('adds a single operation', () => {
       const document = {
