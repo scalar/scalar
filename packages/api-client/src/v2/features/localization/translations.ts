@@ -25,6 +25,9 @@ export const en = {
     label: 'Request: {name}',
   },
   responseBlock: {
+    requestFailed: 'Request failed',
+    networkErrorHelp:
+      'Possible causes include CORS restrictions or a network connection problem. Check the browser console for details. If CORS is blocking the request, configure the API server to allow this origin or use a trusted proxy.',
     response: 'Response',
     requestHeaders: 'Request Headers',
     responseHeaders: 'Response Headers',

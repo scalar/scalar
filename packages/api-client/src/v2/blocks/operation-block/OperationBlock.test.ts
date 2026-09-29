@@ -73,7 +73,16 @@ vi.mock('@/v2/blocks/request-block', () => ({
 vi.mock('@/v2/blocks/response-block', () => ({
   ResponseBlock: {
     name: 'ResponseBlock',
-    props: ['appVersion', 'eventBus', 'layout', 'plugins', 'requestPayload', 'response', 'totalPerformedRequests'],
+    props: [
+      'appVersion',
+      'eventBus',
+      'layout',
+      'plugins',
+      'requestPayload',
+      'requestError',
+      'response',
+      'totalPerformedRequests',
+    ],
     template: '<div data-test="response-block"></div>',
   },
 }))
@@ -711,6 +720,36 @@ describe('OperationBlock', () => {
     await triggerExecute(wrapper)
 
     expect(mockToast).toHaveBeenCalledWith(ERRORS.REQUEST_FAILED, 'error')
+    const responseBlock = wrapper.findComponent({ name: 'ResponseBlock' })
+    expect(responseBlock.props('requestError')).toBe(mockError)
+
+    await wrapper.setProps({ path: '/other' })
+    expect(responseBlock.props('requestError')).toBe(null)
+  })
+
+  it('clears failure feedback when retrying and does not retain cancellation as a failure', async () => {
+    const controller = new AbortController()
+    vi.mocked(buildRequest).mockReturnValue(
+      ok({
+        controller,
+        requestPayload: ['https://api.example.com/api/users', { method: 'GET', headers: new Headers() }],
+        isUsingProxy: false,
+      }),
+    )
+    vi.mocked(sendRequest).mockResolvedValueOnce([new TypeError('Failed to fetch'), null])
+    const wrapper = mount(OperationBlock, { props: createDefaultProps() })
+    await triggerExecute(wrapper)
+    const responseBlock = wrapper.findComponent({ name: 'ResponseBlock' })
+    expect(responseBlock.props('requestError').message).toBe('Failed to fetch')
+
+    vi.mocked(sendRequest).mockImplementationOnce(() => {
+      expect(responseBlock.props('requestError')).toBe(null)
+      controller.abort(ERRORS.REQUEST_ABORTED)
+      return Promise.resolve([new Error(ERRORS.REQUEST_ABORTED), null])
+    })
+    await triggerExecute(wrapper)
+    expect(responseBlock.props('requestError')).toBe(null)
+    wrapper.unmount()
   })
 
   it('persists a pre-request script variable even when the request fails', async () => {

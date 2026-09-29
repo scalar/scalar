@@ -25,6 +25,9 @@ export const zhCn = {
     'label': '请求：{name}',
   },
   'responseBlock': {
+    'requestFailed': '请求失败',
+    'networkErrorHelp':
+      '可能的原因包括 CORS 限制或网络连接问题。请查看浏览器控制台了解详情。如果 CORS 阻止了请求，请配置 API 服务器以允许此来源，或使用可信的代理。',
     'response': '响应',
     'requestHeaders': '请求头',
     'responseHeaders': '响应头',

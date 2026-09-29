@@ -25,6 +25,9 @@ export const pt = {
     'label': 'Requisição: {name}',
   },
   'responseBlock': {
+    'requestFailed': 'Falha na requisição',
+    'networkErrorHelp':
+      'As possíveis causas incluem restrições de CORS ou um problema de conexão de rede. Consulte o console do navegador para obter detalhes. Se o CORS estiver bloqueando a requisição, configure o servidor da API para permitir esta origem ou use um proxy confiável.',
     'response': 'Resposta',
     'requestHeaders': 'Cabeçalhos da requisição',
     'responseHeaders': 'Cabeçalhos da resposta',

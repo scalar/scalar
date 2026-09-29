@@ -226,6 +226,7 @@ const { copyToClipboard } = useClipboard()
 // Refs
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
+const requestError = ref<Error | null>(null)
 const requestPayload = ref<RequestPayload | null>(null)
 
 /**
@@ -316,6 +317,7 @@ const copyAddressBarUrl = async (): Promise<void> => {
 /** Execute the current operation example */
 const handleExecute = async () => {
   if (externalExamplesPending) return
+  requestError.value = null
   eventBus.flushDebouncedEmits?.()
   // Source edits must reach the overlaid operation prop before building the request.
   await nextTick()
@@ -542,6 +544,14 @@ const handleExecute = async () => {
   })
 
   if (sendError) {
+    // Cancellation also happens when navigating away; keep the new operation intact.
+    if (built.data.controller.signal.aborted) {
+      if (abortController.value === built.data.controller) {
+        abortController.value = null
+      }
+      return
+    }
+    requestError.value = sendError
     // clean up the response and request
     response.value = null
     requestPayload.value = null
@@ -669,6 +679,7 @@ const handleNavigateSettings = () => {
 watch(
   [() => path, () => method, () => exampleKey],
   ([newPath, newMethod, newExampleKey]) => {
+    requestError.value = null
     const cached = responseCache.get(
       getOperationExampleKey(newMethod, newPath, newExampleKey),
     )
@@ -809,6 +820,7 @@ onBeforeUnmount(() => {
           :executionDisabled="externalExamplesPending"
           :layout
           :plugins
+          :requestError
           :requestPayload
           :response
           :totalPerformedRequests="operationHistory.length" />
