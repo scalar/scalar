@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ParameterListItem from './ParameterListItem.vue'
@@ -17,6 +18,74 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it.each(['inline array', 'referenced array', 'object'] as const)(
+    'indents the children of an expanded %s parameter (#10380)',
+    async (variant) => {
+      const item = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { field: { type: 'string' } },
+      })
+      const schema = coerceValue(
+        SchemaObjectSchema,
+        variant === 'object'
+          ? item
+          : {
+              type: 'array',
+              items:
+                variant === 'referenced array' ? { $ref: '#/components/schemas/Filter', '$ref-value': item } : item,
+            },
+      )
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          name: 'filters',
+          parameter: { name: 'filters', in: 'query', schema, description: 'Search filters.' },
+          options: baseOptions,
+          eventBus: null,
+        },
+      })
+
+      // Nesting is visual behavior here: the panel supplies the indentation.
+      const panel = wrapper.getComponent(SchemaRailPanel)
+      expect(panel.props('depth')).toBe(1)
+      expect(panel.props('closeOnRail')).toBe(false)
+      expect(panel.text()).toContain('field')
+      expect(panel.getComponent(SchemaProperty).props('depth')).toBe(1)
+      expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Search filters.')
+      await wrapper.get('.property-heading').trigger('click')
+      expect(panel.isVisible()).toBe(true)
+      wrapper.unmount()
+    },
+  )
+
+  it('indents compact parameter children only once when opened', async () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'filters',
+        parameter: {
+          name: 'filters',
+          in: 'query',
+          schema: {
+            type: 'array',
+            items: { type: 'object', properties: { field: { type: 'string' } } },
+          },
+        },
+        collapsableItems: true,
+        options: baseOptions,
+        eventBus: null,
+      },
+    })
+
+    const toggle = wrapper.get('button[aria-expanded]')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    await toggle.trigger('click')
+    expect(wrapper.text()).toContain('field')
+    expect(wrapper.findAllComponents(SchemaRailPanel).length).toBe(1)
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    wrapper.unmount()
+  })
+
   it('displays both the complete body and stream item schemas', () => {
     const wrapper = mount(ParameterListItem, {
       props: {

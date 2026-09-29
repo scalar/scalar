@@ -11,8 +11,25 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
+import SchemaRailPanel from './SchemaRailPanel.vue'
 
 describe('SchemaProperty', () => {
+  it('keeps nameless noncollapsible array containers flat', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        schema: { type: 'array', items: { type: 'object', properties: { field: { type: 'string' } } } },
+        noncollapsible: true,
+        options: {},
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('field')
+    expect(wrapper.findAllComponents(SchemaRailPanel).length).toBe(0)
+    expect(wrapper.getComponent(SchemaProperty).props('depth')).toBe(0)
+    wrapper.unmount()
+  })
+
   it.each(['inline', 'typed', 'referenced', 'nested'] as const)(
     'keeps a named object with %s allOf members behind its own disclosure (#10324)',
     async (variant) => {
