@@ -129,6 +129,7 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
     expandAllParameters: true,
     expandAllResponses: false,
     expandAllSchemaProperties: false,
+    maxVisibleRequestBodyProperties: 12,
     schemaKeyboardNav: false,
     hideModels: false,
     hideTestRequestButton: true,

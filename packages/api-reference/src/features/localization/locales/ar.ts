@@ -93,6 +93,8 @@ export const ar = {
     schema: 'المخطط',
     emptyObject: 'كائن فارغ',
     showAdditionalProperties: 'إظهار الخصائص الإضافية',
+    showOneMoreProperty: 'إظهار خاصية إضافية واحدة',
+    showMoreProperties: 'إظهار المزيد من الخصائص ({count})',
     forName: 'لـ {name}',
     showSchemaDetails: 'إظهار تفاصيل المخطط',
     oneOf: 'واحد من',

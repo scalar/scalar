@@ -31,6 +31,7 @@ const { parameters = [], requestBody } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'showExtensions'
   >

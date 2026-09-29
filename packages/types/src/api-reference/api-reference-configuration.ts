@@ -450,6 +450,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   expandAllSchemaProperties: z.boolean().optional().default(false).catch(false),
   /**
+   * Maximum initially visible top-level request body properties.
+   * Set to 0 to show all without expanding nested properties.
+   * @default 12
+   */
+  maxVisibleRequestBodyProperties: z.number().int().nonnegative().optional().default(12).catch(12),
+  /**
    * Function to sort tags
    * @default 'alpha' for alphabetical sorting
    */

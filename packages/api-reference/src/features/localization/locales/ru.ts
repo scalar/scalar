@@ -95,6 +95,8 @@ export const ru = {
     schema: 'Схема',
     emptyObject: 'Пустой объект',
     showAdditionalProperties: 'Показать дополнительные свойства',
+    showOneMoreProperty: 'Показать ещё 1 свойство',
+    showMoreProperties: 'Показать ещё свойства: {count}',
     forName: 'для {name}',
     showSchemaDetails: 'Показать детали схемы',
     oneOf: 'Один из',

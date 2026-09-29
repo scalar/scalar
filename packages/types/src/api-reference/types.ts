@@ -464,6 +464,8 @@ export type ApiReferenceTranslations = {
     noAllowedValues: string
     emptyObject: string
     showAdditionalProperties: string
+    showOneMoreProperty: string
+    showMoreProperties: string
     forName: string
     showSchemaDetails: string
     oneOf: string
@@ -806,6 +808,8 @@ type ExtendedConfiguration = {
   expandAllResponses: boolean
   /** Whether to expand all nested schema properties. Warning: this can cause performance issues on big documents */
   expandAllSchemaProperties: boolean
+  /** Maximum initially visible top-level request body properties. Defaults to 12; 0 shows all without expanding nested properties. */
+  maxVisibleRequestBodyProperties: number
   /** Function to sort tags */
   tagsSorter?: 'alpha' | ((a: any, b: any) => number)
   /** Function to sort operations */

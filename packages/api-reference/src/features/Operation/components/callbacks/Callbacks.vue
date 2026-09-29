@@ -32,6 +32,7 @@ const { path, callbacks, breadcrumb } = defineProps<{
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'showExtensions'
   >

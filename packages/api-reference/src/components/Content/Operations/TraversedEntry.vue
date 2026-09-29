@@ -65,6 +65,7 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'showOperationId'
     | 'showExtensions'
