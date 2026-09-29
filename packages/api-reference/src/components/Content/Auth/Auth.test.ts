@@ -53,6 +53,33 @@ const mountAuth = (securitySchemes: MergedSecuritySchemes, document = asyncApiDo
   })
 
 describe('Auth', () => {
+  it('renders a required bearer credential without a selector or delete control', () => {
+    const document = {
+      openapi: '3.1.0',
+      'x-scalar-original-document-hash': '',
+      info: { title: 'Bearer API', version: '1.0' },
+      security: [{ bearerAuth: [] }],
+    } satisfies WorkspaceDocument
+    const wrapper = mountAuth(
+      {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-username': '',
+          'x-scalar-secret-password': '',
+        },
+      },
+      document,
+    )
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain('Bearer Token')
+    expect(wrapper.text()).toContain('Required')
+    expect(wrapper.findAll('button').some((button) => button.text().includes('Delete'))).toBe(false)
+    wrapper.unmount()
+  })
+
   it('fetches OAuth2 metadata with the configured custom fetch', async () => {
     const customFetch = vi
       .fn()

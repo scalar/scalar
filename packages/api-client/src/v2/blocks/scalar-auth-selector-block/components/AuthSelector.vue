@@ -48,6 +48,7 @@ const {
   canDeleteSchemes = true,
   defaultOpen = true,
   heading = true,
+  hideSingleRequiredScheme = false,
   isStatic = false,
   meta,
   proxyUrl,
@@ -77,6 +78,8 @@ const {
    * turns it off and the card is named as a group instead.
    */
   heading?: boolean
+  /** Hides a sole active required choice in the reference while preserving client controls. */
+  hideSingleRequiredScheme?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -173,11 +176,37 @@ const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
   })
 })
 
+/** Keep selection available whenever it can change auth or recover an empty saved selection. */
+const showSchemeSelector = computed<boolean>(() => {
+  if (
+    !hideSingleRequiredScheme ||
+    createAnySecurityScheme ||
+    securityRequirements?.length !== 1 ||
+    Object.keys(securityRequirements[0] ?? {}).length === 0
+  ) {
+    return true
+  }
+
+  const schemeOptions = availableSchemeOptions.value.flatMap((option) =>
+    'options' in option ? option.options : [option],
+  )
+
+  return (
+    schemeOptions.length !== 1 ||
+    activeSchemeOptions.value.length !== 1 ||
+    activeSchemeOptions.value[0]?.id !== schemeOptions[0]?.id
+  )
+})
+
 /**
  * Opens the combobox dropdown when clicking the auth indicator badge.
  * Prevents the disclosure from toggling if it is already open.
  */
 const handleAuthIndicatorClick = (event: Event): void => {
+  if (!showSchemeSelector.value) {
+    return
+  }
+
   if (isDisclosureOpen.value) {
     event.stopPropagation()
   }
@@ -252,8 +281,11 @@ defineExpose({
 
         <span
           v-if="authIndicator"
-          class="text-c-3 hover:bg-b-3 hover:text-c-1 -my-0.5 -mr-1 cursor-pointer rounded px-1 py-0.5 leading-[normal] font-normal"
-          :class="{ 'text-c-1': authIndicator.icon === 'Lock' }"
+          class="text-c-3 -my-0.5 -mr-1 rounded px-1 py-0.5 leading-[normal] font-normal"
+          :class="{
+            'text-c-1': authIndicator.icon === 'Lock',
+            'hover:bg-b-3 hover:text-c-1 cursor-pointer': showSchemeSelector,
+          }"
           data-testid="auth-indicator"
           @click="handleAuthIndicatorClick">
           {{ authIndicator.text }}
@@ -261,8 +293,10 @@ defineExpose({
       </div>
     </template>
 
-    <!-- Auth Dropdown (hidden when only one scheme is available) -->
-    <template #actions>
+    <!-- The client keeps its selection and deletion controls. -->
+    <template
+      v-if="showSchemeSelector"
+      #actions>
       <ScalarComboboxMultiselect
         class="w-72 text-xs"
         :modelValue="activeSchemeOptions"
