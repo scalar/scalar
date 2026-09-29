@@ -76,7 +76,7 @@ catalogs:
     github-slugger: 2.0.0
     highlight.js: ^11.11.1
     js-base64: ^3.9.2
-    jsdom: 30.1.1
+    jsdom: 27.4.0
     jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
     microdiff: ^1.5.0
@@ -141,6 +141,8 @@ overrides:
   lodash: 4.18.1
   property-information: 7.1.0
   undici: catalog:*
+  # jsdom 28 imports private Undici 7 handlers removed in Undici 8.
+  vite-ssg>jsdom: 30.1.1
 
 # Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
 minimumReleaseAge: 7200 # 5 days

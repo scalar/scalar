@@ -291,8 +291,8 @@ catalogs:
       specifier: ^3.9.2
       version: 3.9.2
     jsdom:
-      specifier: 30.1.1
-      version: 30.1.1
+      specifier: 27.4.0
+      version: 27.4.0
     jsonc-parser:
       specifier: 3.3.1
       version: 3.3.1
@@ -408,6 +408,7 @@ overrides:
   lodash: 4.18.1
   property-information: 7.1.0
   undici: 8.11.2
+  vite-ssg>jsdom: 30.1.1
 
 importers:
 
@@ -496,7 +497,7 @@ importers:
         version: 5.1.3
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0))
       vue-eslint-parser:
         specifier: ^9.4.3
         version: 9.4.3(eslint@9.39.2(jiti@2.7.0))
@@ -886,7 +887,7 @@ importers:
     devDependencies:
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   integrations/docusaurus:
     dependencies:
@@ -1022,7 +1023,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   integrations/fastapi: {}
 
@@ -1076,7 +1077,7 @@ importers:
         version: 4.3.0(@types/node@24.10.13)(rollup@4.59.0)(typescript@5.9.3)(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       yaml:
         specifier: catalog:*
         version: 2.9.0
@@ -1104,7 +1105,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   integrations/java:
     dependencies:
@@ -1157,7 +1158,7 @@ importers:
         version: 8.5.1(@microsoft/api-extractor@7.48.1(@types/node@24.10.13))(@swc/core@1.5.29(@swc/helpers@0.5.15))(jiti@2.7.0)(postcss@8.5.25)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   integrations/nextjs:
     dependencies:
@@ -1194,7 +1195,7 @@ importers:
         version: 4.3.0(@types/node@24.10.13)(rollup@4.59.0)(typescript@5.9.3)(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   integrations/nuxt:
     dependencies:
@@ -1231,7 +1232,7 @@ importers:
         version: 4.1.2(@biomejs/biome@2.2.4)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.6)(@types/node@24.10.13)(@vue/compiler-sfc@3.5.40)(cac@6.7.14)(commander@13.1.0)(db0@0.3.4)(encoding@0.1.13)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.10.0)(lightningcss@1.32.0)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rolldown@1.1.5)(rollup@4.59.0)(terser@5.31.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))(vue-tsc@2.2.12(typescript@5.9.3))(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   integrations/rust:
     dependencies:
@@ -1369,7 +1370,7 @@ importers:
         version: 4.13.8
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       tailwindcss:
         specifier: catalog:*
         version: 4.3.3
@@ -1378,7 +1379,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/api-client:
     dependencies:
@@ -1493,7 +1494,7 @@ importers:
         version: 6.2.5
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       posthog-js:
         specifier: catalog:*
         version: 1.407.5
@@ -1508,7 +1509,7 @@ importers:
         version: 5.1.1(vue@3.5.40(typescript@5.9.3))
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/api-client-react:
     dependencies:
@@ -1545,7 +1546,7 @@ importers:
         version: 6.0.1(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       react:
         specifier: catalog:*
         version: 19.2.3
@@ -1560,7 +1561,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: ^4.1.2
-        version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/api-reference:
     dependencies:
@@ -1687,7 +1688,7 @@ importers:
         version: 4.13.8
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       posthog-js:
         specifier: catalog:*
         version: 1.407.5
@@ -1708,7 +1709,7 @@ importers:
         version: 5.0.2(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/api-reference-react:
     dependencies:
@@ -1853,7 +1854,7 @@ importers:
         version: 13.9.0(vue@3.5.40(typescript@5.9.3))
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       tailwindcss:
         specifier: catalog:*
         version: 4.3.3
@@ -1862,7 +1863,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       vue-router:
         specifier: catalog:*
         version: 5.0.4(@vue/compiler-sfc@3.5.40)(vue@3.5.40(typescript@5.9.3))
@@ -2033,7 +2034,7 @@ importers:
         version: 9.1.2
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       storybook:
         specifier: 10.5.10
         version: 10.5.10(@types/react@19.2.7)(prettier@3.8.0)(react@19.2.3)
@@ -2051,7 +2052,7 @@ importers:
         version: 5.1.1(vue@3.5.40(typescript@5.9.3))
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/core:
     dependencies:
@@ -2110,10 +2111,10 @@ importers:
         version: link:../themes
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/highlight:
     dependencies:
@@ -2132,7 +2133,7 @@ importers:
         version: 1.1.5
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/icons:
     dependencies:
@@ -2157,7 +2158,7 @@ importers:
         version: 2.4.11(@vue/compiler-dom@3.5.40)(@vue/server-renderer@3.5.40)(vue@3.5.40(typescript@5.9.3))
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       svglint:
         specifier: ^4.2.1
         version: 4.2.1
@@ -2169,7 +2170,7 @@ importers:
         version: 5.1.1(vue@3.5.40(typescript@5.9.3))
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/import:
     dependencies:
@@ -2247,10 +2248,10 @@ importers:
         version: 2.4.11(@vue/compiler-dom@3.5.40)(@vue/server-renderer@3.5.40)(vue@3.5.40(typescript@5.9.3))
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/mock-server:
     dependencies:
@@ -2395,7 +2396,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/object-utils:
     dependencies:
@@ -2502,7 +2503,7 @@ importers:
         version: 4.13.8
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openapi-types:
     devDependencies:
@@ -2514,7 +2515,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openapi-upgrader:
     dependencies:
@@ -2691,7 +2692,7 @@ importers:
         version: 4.19.4
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0))
 
   packages/schemas:
     dependencies:
@@ -2707,7 +2708,7 @@ importers:
         version: link:../types
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/server-side-rendering:
     dependencies:
@@ -2784,7 +2785,7 @@ importers:
         version: 2.4.11(@vue/compiler-dom@3.5.40)(@vue/server-renderer@3.5.40)(vue@3.5.40(typescript@5.9.3))
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
       tailwindcss:
         specifier: catalog:*
         version: 4.3.3
@@ -2793,7 +2794,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/snippetz:
     dependencies:
@@ -2838,7 +2839,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/types:
     dependencies:
@@ -2921,7 +2922,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       vue-tsc:
         specifier: catalog:*
         version: 3.3.9(typescript@5.9.3)
@@ -2955,7 +2956,7 @@ importers:
         version: 2.4.11(@vue/compiler-dom@3.5.40)(@vue/server-renderer@3.5.40)(vue@3.5.40(typescript@5.9.3))
       jsdom:
         specifier: catalog:*
-        version: 30.1.1(@noble/hashes@1.8.0)
+        version: 27.4.0(@noble/hashes@1.8.0)
 
   packages/use-toasts:
     dependencies:
@@ -2983,7 +2984,7 @@ importers:
         version: 5.0.2(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/validation:
     devDependencies:
@@ -2992,7 +2993,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/void-server:
     dependencies:
@@ -3075,7 +3076,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
   projects/galaxy-scalar-com:
     devDependencies:
@@ -3311,7 +3312,7 @@ importers:
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
 
 packages:
 
@@ -14558,6 +14559,15 @@ packages:
   js-yaml@4.3.2:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
+
+  jsdom@27.4.0:
+    resolution: {integrity: sha512-mjzqwWRD9Y1J1KUi7W97Gja1bwOOM5Ug0EZ6UDK3xS7j7mndrkwozHtSblfomlzyB4NepioNt+B2sOSzczVgtQ==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
+    peerDependencies:
+      canvas: ^3.0.0
+    peerDependenciesMeta:
+      canvas:
+        optional: true
 
   jsdom@30.1.1:
     resolution: {integrity: sha512-FahmoPK5vbPc+jxV1iErMHmAZypCZ942NHF4+qqaWAuvaKKTBZxawnmAtrbGWLU7MtlxfqIP0qw6aSI+aWGtLg==}
@@ -34207,6 +34217,34 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
+  jsdom@27.4.0(@noble/hashes@1.8.0):
+    dependencies:
+      '@acemir/cssom': 0.9.31
+      '@asamuzakjp/dom-selector': 6.8.1
+      '@exodus/bytes': 1.15.0(@noble/hashes@1.8.0)
+      cssstyle: 5.3.7
+      data-urls: 6.0.1
+      decimal.js: 10.6.0
+      html-encoding-sniffer: 6.0.0(@noble/hashes@1.8.0)
+      http-proxy-agent: 7.0.2
+      https-proxy-agent: 7.0.6
+      is-potential-custom-element-name: 1.0.1
+      parse5: 8.0.0
+      saxes: 6.0.0
+      symbol-tree: 3.2.4
+      tough-cookie: 6.0.1
+      w3c-xmlserializer: 5.0.0
+      webidl-conversions: 8.0.1
+      whatwg-mimetype: 4.0.0
+      whatwg-url: 15.1.0
+      ws: 8.19.0
+      xml-name-validator: 5.0.0
+    transitivePeerDependencies:
+      - '@noble/hashes'
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
   jsdom@30.1.1(@noble/hashes@1.8.0):
     dependencies:
       '@asamuzakjp/css-color': 7.0.1
@@ -40872,7 +40910,7 @@ snapshots:
     optionalDependencies:
       vite: 8.1.5(@types/node@24.10.13)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0)
 
-  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)):
+  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
@@ -40897,11 +40935,11 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 24.10.13
-      jsdom: 30.1.1(@noble/hashes@1.8.0)
+      jsdom: 27.4.0(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0)):
+  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.19.4)(yaml@2.9.0))
@@ -40926,11 +40964,11 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 24.10.13
-      jsdom: 30.1.1(@noble/hashes@1.8.0)
+      jsdom: 27.4.0(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)):
+  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
@@ -40955,11 +40993,11 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 24.10.13
-      jsdom: 30.1.1(@noble/hashes@1.8.0)
+      jsdom: 27.4.0(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.2(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@30.1.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)):
+  vitest@4.1.2(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@27.4.0(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.2
       '@vitest/mocker': 4.1.2(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
@@ -40984,7 +41022,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/node': 24.10.13
-      jsdom: 30.1.1(@noble/hashes@1.8.0)
+      jsdom: 27.4.0(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - msw
 
