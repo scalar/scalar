@@ -9,7 +9,7 @@ import type { SchemaReferenceOptions } from './select-document'
 /** Boolean schemas must survive rendering without being coerced into empty objects. */
 type MarkdownSchema = MaybeRefSchemaObject | boolean
 
-type SchemaView = {
+export type SchemaView = {
   schema: SchemaObject | boolean
   title?: string
   description?: string
@@ -72,8 +72,18 @@ export type SchemaRenderer = {
   ) => RootContent[]
   /** Restore the node budget, for example for each operation or model section. */
   beginSection: () => void
+  /** Report whether this document already expanded a schema, and how it labelled that expansion. */
+  shownAs: (schema: MarkdownSchema) => ShownSchema | undefined
   /** Start a document that shares normalized views, given the models it renders in its own sections. */
   forDocument: (models?: Record<string, MarkdownSchema>, options?: SchemaReferenceOptions) => SchemaRenderer
+}
+
+/** The first expansion of a shared schema, which later occurrences refer back to. */
+export type ShownSchema = {
+  /** The name later references use, usually the component name. */
+  name: string
+  /** The description printed with the expansion, which reference siblings can replace. */
+  description?: string
 }
 
 type SchemaRendererOptions = {
@@ -134,6 +144,19 @@ const getSharedName = (input: MarkdownSchema, view: Omit<SchemaView, 'name'>): s
     view.additionalProperties !== undefined
   // Leaf schemas are as short as a reference to them, so they stay in place.
   return structured ? getReferenceName(ref) : undefined
+}
+
+/**
+ * A named model with structural reference siblings is its own schema, not another
+ * occurrence of its target. Otherwise either rendering order can hide properties.
+ * Follow the original target otherwise: merging reference siblings creates fresh objects.
+ */
+const getSharedIdentity = (input: MarkdownSchema): object | undefined => {
+  const identity =
+    isObject(input) && '$ref' in input && Object.keys(input).some((key) => structuralKeywords.has(key))
+      ? input
+      : (getResolvedRef(input) ?? input)
+  return typeof identity === 'object' && identity !== null ? identity : undefined
 }
 
 /** Boolean targets still combine with adjacent schema keywords. */
@@ -225,7 +248,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
   ): SchemaRenderer => {
     const linked = settings.schemaReferences?.mode === 'linked'
     /** Shared schemas this document already expanded, with the name later references use. */
-    const shown = new Map<object, string>()
+    const shown = new Map<object, ShownSchema>()
     /** Models that the document renders in their own sections after the operations. */
     const sections = new Set<unknown>(Object.values(models).map((model) => getResolvedRef(model) ?? model))
     let nodeCount = 0
@@ -279,13 +302,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         return [paragraph(emphasis(text('[Circular Reference]')))]
       }
       const value = view(input)
-      // A named model with structural reference siblings is its own schema, not another
-      // occurrence of its target. Otherwise either rendering order can hide properties.
-      const sharedIdentity =
-        isObject(input) && '$ref' in input && Object.keys(input).some((key) => structuralKeywords.has(key))
-          ? input
-          : identity
-      const shared = typeof sharedIdentity === 'object' && sharedIdentity !== null ? sharedIdentity : undefined
+      const shared = getSharedIdentity(input)
       const name = options.name ?? value.name
       if (shared && name !== undefined) {
         // Expanding every path through a shared schema grows exponentially, so expand it once.
@@ -293,7 +310,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         if (previous !== undefined) {
           // A model section already prints its own annotations above the schema.
           const referenceOptions = options.name === undefined ? options : { ...options, hideDetails: true }
-          return reference(input, value, referenceOptions, previous, 'above')
+          return reference(input, value, referenceOptions, previous.name, 'above')
         }
         if (value.name !== undefined && options.name === undefined && depth >= MAX_DEPTH && sections.has(shared))
           return reference(input, value, options, value.name, 'below under Schemas')
@@ -301,7 +318,8 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       if (depth >= MAX_DEPTH) return [paragraph(text('[Maximum schema depth reached]'))]
       if (nodeCount >= maxNodes) return [paragraph(emphasis(text('[Schema output truncated]')))]
       nodeCount++
-      if (shared && name !== undefined && !shown.has(shared)) shown.set(shared, name)
+      if (shared && name !== undefined && !shown.has(shared))
+        shown.set(shared, { name, description: value.description })
       if (typeof value.schema === 'boolean') return options.hideDetails ? [] : [paragraph(...details(value))]
       const childAncestors = [...ancestors, identity]
       const nodes: RootContent[] = []
@@ -385,6 +403,10 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       render,
       beginSection: () => {
         nodeCount = 0
+      },
+      shownAs: (schema) => {
+        const shared = getSharedIdentity(schema)
+        return shared ? shown.get(shared) : undefined
       },
       forDocument,
     }

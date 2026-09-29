@@ -175,7 +175,7 @@ Omitting options, or passing `{}`, renders the whole document. OpenAPI 2.0 input
 
 Invalid, combined, or missing selectors reject the returned promise with an error. Duplicate operation IDs are ambiguous and list matching paths and methods; use a path/method selector instead. Duplicate tag declarations are also rejected. Names are case sensitive. Operation JSON pointers must target `/paths/{path}/{method}`, with an optional leading `#` and standard `~0`/`~1` escaping.
 
-Selection does not add support for every OpenAPI or JSON Schema keyword. Callbacks are not selectable pages. External references follow the existing workspace loader behavior. Recursive schema expansion stops on a repeated ancestor, with a depth limit of ten as a fallback. Shared dependencies have one component section, but may also appear inline where used. Authentication lists alternatives separately; schemes within one requirement must be used together.
+Selection does not add support for every OpenAPI or JSON Schema keyword. Callbacks are not selectable pages. External references follow the existing workspace loader behavior. Recursive schema expansion stops on a repeated ancestor, with a depth limit of ten as a fallback. Shared dependencies are expanded once per page, where they are first used. The `## Schemas` section lists a component the page already expanded on one line, with its title and any description that a reference sibling replaced, and keeps a full section for the selected model, for leaf schemas, for models the page has not expanded yet, and for object models with authored examples. Authentication lists alternatives separately; schemes within one requirement must be used together.
 
 ### Copying Markdown in the browser
 

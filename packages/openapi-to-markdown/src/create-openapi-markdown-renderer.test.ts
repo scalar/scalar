@@ -330,12 +330,13 @@ describe('create-openapi-markdown-renderer', () => {
     const start = performance.now()
     const markdown = await renderer.render({ operation: { path: '/a', method: 'get' } })
     expect(performance.now() - start).toBeLessThan(1000)
-    // Inline in the response; the model sections refer back to it.
+    // Inline in the response; the model list refers back to it in one line each.
     expect(markdown.match(/LEAF/g)?.length).toBe(5)
-    expect(markdown.match(/Schema `L10` is shown above\./g)?.length).toBe(5)
+    expect(markdown.match(/Schema `L10` is shown above\./g)?.length).toBe(4)
     expect(markdown.length).toBeLessThan(250_000)
     for (let level = 0; level <= 10; level++) {
-      expect(markdown).toContain(`### L${level}`)
+      expect(markdown).toContain(`- \`L${level}\` — shown above.`)
+      expect(markdown).not.toContain(`### L${level}`)
     }
   })
 
@@ -507,6 +508,47 @@ describe('create-openapi-markdown-renderer', () => {
     expect(output).toContain('Alias details')
     expect(output).toContain('**Required fields:** `base`')
     expect(output).toContain('**`extra`**')
+  })
+  it('links cycles through shared schemas instead of marking them circular', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.0',
+      info: { title: 'Cycles', version: '1' },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': { description: 'OK', content: { 'application/json': { schema: reference('A') } } },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          A: { type: 'object', properties: { aField: { type: 'string' }, b: reference('B') } },
+          B: { type: 'object', properties: { bField: { type: 'string' }, a: reference('A'), node: reference('Node') } },
+          Node: { type: 'object', properties: { nodeField: { type: 'string' }, next: reference('Node') } },
+        },
+      },
+    })
+    const pages = await Promise.all(
+      [{ operation: { path: '/a', method: 'get' } } as const, { model: 'A' }, { model: 'B' }, { model: 'Node' }].map(
+        (selection) => renderer.render({ ...selection, schemaReferences: linked.schemaReferences }),
+      ),
+    )
+    const [operation, a, b, node] = pages
+    for (const page of pages) expect(page).not.toContain('[Circular Reference]')
+    expect(operation).not.toContain('## Schemas')
+    expect(operation).toContain('aField')
+    expect(operation).toContain('[B](/models/B)')
+    expect(operation).not.toContain('bField')
+    expect(a).toContain('[B](/models/B)')
+    expect(b).toContain('[A](/models/A)')
+    expect(b).toContain('[Node](/models/Node)')
+    expect(node).toContain('[Node](/models/Node)')
+    // Each schema's own fields appear in full exactly once across its model pages.
+    for (const field of ['aField', 'bField', 'nodeField']) {
+      expect(pages.slice(1).join('\n').match(new RegExp(field, 'g'))?.length).toBe(1)
+    }
   })
   it('decodes URI fragments before pointer escapes and keeps literal percent sequences', async () => {
     const renderer = await createOpenApiMarkdownRenderer({

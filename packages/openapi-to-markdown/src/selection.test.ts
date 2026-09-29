@@ -220,7 +220,7 @@ const selectionFixtures: SelectionCase[] = [
       check('payload required', /Required:.*true/, '#### Request Body'),
       check('responses', /202 Event accepted[\s\S]*400 Selected response[\s\S]*petName/, '#### Responses'),
       check('inheritance', /https:\/\/root.example[\s\S]*Token/, '### Selected webhook'),
-      check('dependencies', /### Pet[\s\S]*### Status/, '## Schemas'),
+      check('dependencies', /`Pet` — shown above\.[\s\S]*### Status/, '## Schemas'),
     ],
   },
   {
@@ -356,7 +356,7 @@ selectionFixtures.push(
     options: { model: 'Combined' },
     checks: [
       check('composition rendered', /All of:[\s\S]*baseName[\s\S]*extra/, '### Combined'),
-      check('dependency included', /### Base/, '## Schemas'),
+      check('dependency listed', /`Base` — shown above\./, '## Schemas'),
       check('unrelated excluded', /### Unused/, undefined, true),
     ],
   },
@@ -408,7 +408,7 @@ selectionFixtures.push({
     check('resolved path server', /https:\/\/shared.example/, '### GET /shared'),
     check('parameter override', /Effective limit/, '#### Parameters'),
     check('response dependency resolved', /usedField/, '#### Responses'),
-    check('dependency section', /### Used/, '## Schemas'),
+    check('dependency listed', /`Used` — shown above\./, '## Schemas'),
     check('overridden content excluded', /Superseded|### Unused|Excluded shared method/, undefined, true),
   ],
 })

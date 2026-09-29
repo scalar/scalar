@@ -1,28 +1,52 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import {
   forEachPathItemOperation,
   getResolvedPathItem,
 } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import type { ListItem, Root, RootContent } from 'mdast'
+import type { ListItem, PhrasingContent, Root, RootContent } from 'mdast'
 import remarkGfm from 'remark-gfm'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 
 import { field, heading, inlineCode, item, link, list, paragraph, strong, text } from './markdown-nodes'
-import { createDescriptionParser } from './parse-description'
+import { type DescriptionParser, createDescriptionParser } from './parse-description'
 import { renderExamples } from './render-examples'
 import { renderOperation } from './render-operation'
-import { createSchemaRenderer } from './render-schema'
+import { type SchemaView, type ShownSchema, createSchemaRenderer } from './render-schema'
 import { renderSecurity } from './render-security'
 import type { SchemaReferenceOptions } from './select-document'
 
 const serializer = unified().use(remarkGfm).use(remarkStringify, { bullet: '-' }).freeze()
 
+/**
+ * Refer to a model that an operation or an earlier model on the same page already expanded.
+ * Keep what that expansion did not print: a title, and a description that a reference sibling replaced.
+ */
+const renderShownModel = async (
+  name: string,
+  view: SchemaView,
+  previous: ShownSchema,
+  description: DescriptionParser,
+): Promise<ListItem> => {
+  const label: PhrasingContent[] =
+    view.title && view.title !== name
+      ? [strong(text(view.title)), text(' ('), inlineCode(name), text(')')]
+      : [inlineCode(name)]
+  label.push(text(' — shown above'))
+  if (previous.name !== name) label.push(text(' as '), inlineCode(previous.name))
+  label.push(text('.'))
+  const blocks: ListItem['children'] = [paragraph(...label)]
+  if (view.description && view.description !== previous.description)
+    blocks.push(...((await description(view.description)) as ListItem['children']))
+  return item(...blocks)
+}
+
 /** Build Markdown directly, retaining caches only for this immutable document snapshot. */
 export const createDocumentRenderer = (): ((
   document: OpenApiDocument,
-  options?: SchemaReferenceOptions,
+  options?: SchemaReferenceOptions & { model?: string },
 ) => Promise<string>) => {
   const descriptions = createDescriptionParser()
   const schemaRenderer = createSchemaRenderer()
@@ -136,9 +160,25 @@ export const createDocumentRenderer = (): ((
     }
     const models = Object.entries(document.components?.schemas ?? {})
     if (models.length) nodes.push(heading(2, text('Schemas')))
+    // Models the page already expanded cost one line each, grouped into a single list.
+    const shownAbove: ListItem[] = []
+    const flushShownAbove = (): void => {
+      if (shownAbove.length) nodes.push(list(shownAbove.splice(0)))
+    }
     for (const [name, schema] of models) {
       schemas.beginSection()
       const view = schemas.view(schema)
+      const previous = schemas.shownAs(schema)
+      // A generated example only restates the schema, but an authored one is not printed above.
+      const authored =
+        isObject(view.schema) &&
+        (view.schema.example !== undefined || (Array.isArray(view.schema.examples) && view.schema.examples.length > 0))
+      // A model page always gives the selected model its own section, even if a dependency expanded it first.
+      if (previous && name !== options?.model && !(view.type === 'object' && authored)) {
+        shownAbove.push(await renderShownModel(name, view, previous, description))
+        continue
+      }
+      flushShownAbove()
       nodes.push(
         heading(3, text(view.title ?? name)),
         list([
@@ -163,6 +203,7 @@ export const createDocumentRenderer = (): ((
         )
       flush()
     }
+    flushShownAbove()
     flush()
     return `${sections.join('\n\n')}\n`
   }

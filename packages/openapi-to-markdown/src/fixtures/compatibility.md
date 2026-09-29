@@ -259,46 +259,5 @@ A shared object used by this API.
 
 ## Schemas
 
-### Resource
-
-- **Type:**`object`
-
-A shared object used by this API.
-
-*Schema `Resource` is shown above.*
-
-**Example:**
-
-```json
-{
-  "field0": "value0",
-  "field1": "value1",
-  "field2": "value2",
-  "owner": {
-    "id": 1,
-    "name": ""
-  },
-  "parent": {
-    "field0": "value0",
-    "field1": "value1",
-    "field2": "value2",
-    "owner": null,
-    "parent": null
-  }
-}
-```
-
-### Owner
-
-- **Type:**`object`
-
-*Schema `Owner` is shown above.*
-
-**Example:**
-
-```json
-{
-  "id": 1,
-  "name": ""
-}
-```
+- `Resource` — shown above.
+- `Owner` — shown above.
