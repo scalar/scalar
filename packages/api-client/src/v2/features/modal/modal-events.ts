@@ -1,4 +1,5 @@
 import type { ModalState } from '@scalar/components/modal'
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
@@ -19,6 +20,7 @@ export function initializeModalEvents({
   sidebarState,
   modalState,
   store,
+  getConfiguredSecuritySchemes,
 }: {
   eventBus: WorkspaceEventBus
   isSidebarOpen: Ref<boolean>
@@ -26,9 +28,11 @@ export function initializeModalEvents({
   sidebarState: UseModalSidebarReturn
   modalState: ModalState
   store: WorkspaceStore
+  getConfiguredSecuritySchemes?: () => AuthenticationConfiguration['securitySchemes']
 }) {
   /** Initialize workspace event handlers */
   initializeWorkspaceEventHandlers({
+    getConfiguredSecuritySchemes,
     eventBus,
     store: ref(store),
     hooks: {

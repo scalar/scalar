@@ -59,13 +59,15 @@ describe('mergeSecurity', () => {
       store.auth.setAuthSecrets(documentSlug, 'key', { type: 'apiKey', 'x-scalar-secret-token': 'secret' })
 
       for (const name of ['edited-name', '']) {
-        mutators.updateSecuritySchemeSecrets({ name: 'key', payload: { type: 'apiKey', name } })
+        mutators.updateSecurityScheme({ name: 'key', payload: { type: 'apiKey', name } }, configuredSchemes)
         const merged = mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug)
         expect(merged.key).toStrictEqual({ ...scheme, name, 'x-scalar-secret-token': 'secret' })
         expect(buildRequestSecurity(Object.values(merged))).toStrictEqual([{ in: 'header', name, value: 'secret' }])
       }
       expect(configuredSchemes).toStrictEqual(source === 'document' ? {} : { key: { ...scheme, name: 'apikey-aa' } })
-      expect(document.components?.securitySchemes).toStrictEqual(source === 'configuration-only' ? {} : { key: scheme })
+      expect(document.components?.securitySchemes).toStrictEqual(
+        source === 'configuration-only' ? {} : { key: { ...scheme, name: source === 'document' ? '' : scheme.name } },
+      )
 
       // Removing the credential override restores the configured or document name.
       store.auth.clearAuthSecrets(documentSlug, 'key')
@@ -73,11 +75,67 @@ describe('mergeSecurity', () => {
         mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
       ).toStrictEqual({
         ...scheme,
-        name: source === 'document' ? 'apikey' : 'apikey-aa',
+        name: source === 'document' ? '' : 'apikey-aa',
         'x-scalar-secret-token': '',
       })
     },
   )
+
+  it.each(['configured', 'configuration-only', 'configured-without-name'] as const)(
+    'restoring the %s default releases the name override and retains the token',
+    async (source) => {
+      const store = createWorkspaceStore()
+      const scheme = { type: 'apiKey', in: 'header', name: 'X-Key' } as const
+      await store.addDocument({
+        name: documentSlug,
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'API key', version: '1.0.0' },
+          components: { securitySchemes: source === 'configuration-only' ? {} : { key: scheme } },
+        },
+      })
+      const document = store.workspace.documents[documentSlug]
+      assert(isOpenApiDocument(document))
+      const mutators = authMutatorsFactory({ store, document })
+      const configuredSchemes: AuthenticationConfiguration['securitySchemes'] = {
+        key: source === 'configured-without-name' ? { type: 'apiKey', in: 'header' } : { ...scheme },
+      }
+      store.auth.setAuthSecrets(documentSlug, 'key', { type: 'apiKey', 'x-scalar-secret-token': 'secret' })
+      for (const name of ['', 'X-Key']) {
+        mutators.updateSecurityScheme({ name: 'key', payload: { type: 'apiKey', name } }, configuredSchemes)
+        expect(
+          mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
+        ).toStrictEqual({ ...scheme, name, 'x-scalar-secret-token': 'secret' })
+      }
+      configuredSchemes.key = { ...scheme, name: 'X-Api-Key' }
+      expect(
+        mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
+      ).toStrictEqual({
+        ...scheme,
+        name: 'X-Api-Key',
+        'x-scalar-secret-token': 'secret',
+      })
+      expect(document.components?.securitySchemes).toStrictEqual(source === 'configuration-only' ? {} : { key: scheme })
+    },
+  )
+
+  it('persists a document scheme whose name matches an inherited configuration property', () => {
+    const document = {
+      'x-scalar-original-document-hash': '',
+      openapi: '3.1.0',
+      info: { title: 'API key', version: '1.0.0' },
+      components: { securitySchemes: { toString: { type: 'apiKey' as const, in: 'header' as const, name: 'X-Key' } } },
+    }
+    authMutatorsFactory({ store: null, document }).updateSecurityScheme({
+      name: 'toString',
+      payload: { type: 'apiKey', name: 'X-Edited' },
+    })
+    expect(document.components.securitySchemes.toString).toStrictEqual({
+      type: 'apiKey',
+      in: 'header',
+      name: 'X-Edited',
+    })
+  })
 
   it('returns empty object when both parameters are undefined', () => {
     const result = mergeSecurity(undefined, undefined, authStore, documentSlug)
