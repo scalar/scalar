@@ -1,4 +1,4 @@
-import { test } from '@test/helpers'
+import { expect, test } from '@test/helpers'
 
 import { samples } from './samples'
 
@@ -24,6 +24,24 @@ test.describe('ScalarMarkdownSummary', () => {
     await page.getByRole('button', { name: 'Less' }).click()
     // Should be the same as the second snapshot
     await snapshot('2-closed-narrow')
+  })
+
+  test('Inline code in authentication descriptions', async ({ page, mount }) => {
+    await page.setViewportSize({ width: 320, height: 200 })
+    const summary = await mount('ScalarMarkdown/Summary', {
+      value: 'Your act API key, sent as `Authorization: Bearer <key>`.\n\n```http\nAuthorization: Bearer example\n```',
+    })
+    const inlineCode = summary.getByText('Authorization: Bearer <key>', { exact: true })
+    const codeBlock = summary.getByText('Authorization: Bearer example', { exact: true })
+
+    await expect(inlineCode).toHaveCSS('display', 'inline')
+    await expect(codeBlock).toBeHidden()
+    await summary.getByRole('button', { name: 'More', exact: true }).click()
+    await expect(inlineCode).toHaveCSS('display', 'inline')
+    await expect(codeBlock).toBeVisible()
+    await summary.getByRole('button', { name: 'Show Less', exact: true }).click()
+    await expect(inlineCode).toHaveCSS('display', 'inline')
+    await expect(codeBlock).toBeHidden()
   })
 
   samples.forEach(({ label, key }) => {
