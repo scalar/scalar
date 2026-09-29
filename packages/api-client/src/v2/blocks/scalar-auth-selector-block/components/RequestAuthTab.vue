@@ -24,6 +24,7 @@ import {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { getDocumentTypeLabel } from '@scalar/workspace-store/schemas/type-guards'
 import type {
+  ApiKeyObject,
   SecurityRequirementObject,
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -228,6 +229,16 @@ const handleApiKeySecretsUpdate = (
   name: string,
 ): void =>
   eventBus.emit('auth:update:security-scheme-secrets', {
+    payload: { type: 'apiKey', ...payload },
+    name,
+  })
+
+/** Name edits may update the document or a configured override; tokens remain secrets. */
+const handleApiKeySecuritySchemeUpdate = (
+  payload: Omit<Partial<ApiKeyObject>, 'type'>,
+  name: string,
+): void =>
+  eventBus.emit('auth:update:security-scheme', {
     payload: { type: 'apiKey', ...payload },
     name,
   })
@@ -516,7 +527,7 @@ const handleConfigAuthorize = (): void => {
           :modelValue="scheme.name ?? ''"
           placeholder="api-key"
           @update:modelValue="
-            (v) => handleApiKeySecretsUpdate({ name: v }, name)
+            (v) => handleApiKeySecuritySchemeUpdate({ name: v }, name)
           ">
           {{ translate('apiClient.requestAuthTab.name') }}
         </RequestAuthDataTableInput>

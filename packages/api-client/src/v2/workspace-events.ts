@@ -1,3 +1,4 @@
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { ApiReferenceEvents, CollectionType, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
@@ -53,10 +54,13 @@ export function initializeWorkspaceEventHandlers({
   eventBus: bus,
   store,
   hooks,
+  getConfiguredSecuritySchemes,
 }: {
   eventBus: WorkspaceEventBus
   store: Ref<WorkspaceStore | null>
   hooks: Hooks
+  /** Read current defaults when a name is edited, including after a configuration change. */
+  getConfiguredSecuritySchemes?: () => AuthenticationConfiguration['securitySchemes']
 }): () => void {
   const subscriptions: (() => void)[] = []
   const eventBus: Pick<WorkspaceEventBus, 'on'> = {
@@ -181,7 +185,11 @@ export function initializeWorkspaceEventHandlers({
     withHook('auth:update:active-index', mutators.value.active().auth.updateSelectedAuthTab, hooks)(payload),
   )
   eventBus.on('auth:update:security-scheme', (payload) =>
-    withHook('auth:update:security-scheme', mutators.value.active().auth.updateSecurityScheme, hooks)(payload),
+    withHook(
+      'auth:update:security-scheme',
+      (data) => mutators.value.active().auth.updateSecurityScheme(data, getConfiguredSecuritySchemes?.()),
+      hooks,
+    )(payload),
   )
   eventBus.on('auth:update:selected-scopes', (payload) =>
     withHook('auth:update:selected-scopes', mutators.value.active().auth.updateSelectedScopes, hooks)(payload),
