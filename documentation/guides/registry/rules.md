@@ -72,7 +72,7 @@ For more information about Spectral rules and how to write custom rules, see the
 
 ## Integration with CI/CD
 
-You can integrate rule-based linting into your CI/CD pipelines to automatically validate OpenAPI documents before they're merged or deployed.
+You can lint API descriptions in CI before merging or deploying them. Use `--format github-actions` to show findings as annotations in GitHub Actions:
 
 ```yaml
 # .github/workflows/lint-openapi.yml
@@ -99,8 +99,33 @@ jobs:
           node-version: 24
 
       - name: Lint OpenAPI Document
-        run: npx @scalar/cli document lint openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
+        run: npx @scalar/cli document lint openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule --format github-actions
 ```
 
-This ensures that all OpenAPI documents meet your organization's standards before they're published or used to generate documentation.
+Errors fail the step; warnings, information, and hints do not. If your API description already has findings, generate a baseline locally with the same ruleset, review it, and commit it:
+
+```bash
+scalar document lint openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule --generate-ignore-file
+```
+
+The workflow automatically reads `.scalar.lint-ignore.yaml` from its working directory. Matching findings are omitted, and only errors outside the baseline fail the lint step. Generate the baseline when adopting linting or intentionally updating accepted findings; keep generation out of the CI check so new errors still fail it.
+
+For CI systems that consume test reports, save JUnit XML:
+
+```bash
+scalar document lint openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule --format junit --output lint-results.xml
+```
+
+Configure report collection to run even if lint fails. For example, in GitHub Actions, place this step after a lint step that writes `lint-results.xml`:
+
+```yaml
+- name: Upload lint report
+  if: always()
+  uses: actions/upload-artifact@v4
+  with:
+    name: lint-results
+    path: lint-results.xml
+```
+
+This uploads the XML as an artifact. To display it as test results, configure a JUnit-compatible viewer in your CI system. JSON reports are also available with `--format json`. See the [CLI lint reference](../cli/commands.md#lint) for all report formats, baseline paths, and exit behavior.
 

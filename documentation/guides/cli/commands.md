@@ -301,18 +301,70 @@ Options:
 ```
 
 ### lint
-```
+
+```text
 Usage: scalar document lint [options] [file|url]
 
 Lint your OpenAPI or AsyncAPI file using spectral rules
 
 Arguments:
-  file|url               OpenAPI or AsyncAPI file path or url
+  file|url                OpenAPI or AsyncAPI file path or url
 
 Options:
-  -r, --rule <file|url>  Rule path or url
-  -h, --help             display help for command
+  -r, --rule <file|url>    Rule path or url
+  --format <format>       Report format (choices: "text", "json", "github-actions", "junit", default: "text")
+  -o, --output <file>      Write the report to a file instead of stdout
+  --generate-ignore-file  Record current findings in the ignore baseline
+  --ignore-file <file>    Ignore baseline path (defaults to .scalar.lint-ignore.yaml in the current directory)
+  -h, --help              display help for command
 ```
+
+#### Report formats
+
+The default `text` report is intended for reading in a terminal. Choose a structured format to use lint results in CI:
+
+```bash
+scalar document lint openapi.yaml --format github-actions
+scalar document lint openapi.yaml --format json --output lint-results.json
+scalar document lint openapi.yaml --format junit --output lint-results.xml
+```
+
+Reports go to stdout unless you provide `--output`. Status and upgrade notices go to stderr, so you can also redirect stdout to a report file. Reports are written even when lint findings cause the command to fail.
+
+| Format | Output |
+| --- | --- |
+| `text` | Human-readable findings with engine-native locations. |
+| `json` | An object with `version: 1`, a `diagnostics` array, and a `summary` with `errors`, `warnings`, and `ignored` counts. Each diagnostic contains `rule`, `severity`, `message`, `source`, a `path` segment array, and a `range` with 1-based `line` and `column` values. |
+| `github-actions` | Error, warning, and notice annotations. Local file paths are relative to `GITHUB_WORKSPACE`, or the current directory outside Actions. Remote sources appear in the message without a repository file attachment. |
+| `junit` | JUnit XML with one test case per active finding. Errors become failures; warnings, information, and hints appear in `system-out`. A clean run produces a valid report with zero tests. |
+
+GitHub Actions annotations must reach the runner's stdout to appear. If you save them with `--output`, print that file in a subsequent step that also runs when lint fails. For JUnit or JSON, configure your CI to upload the report even when lint fails. See the [Registry CI example](../registry/rules.md#integration-with-cicd).
+
+#### Ignore existing findings
+
+An ignore baseline lets you adopt linting without fixing every existing finding first:
+
+```bash
+scalar document lint openapi.yaml --generate-ignore-file
+scalar document lint openapi.yaml --format github-actions
+```
+
+Commit the generated `.scalar.lint-ignore.yaml`. Future runs automatically load it from the current working directory and omit matching findings from reports. The CLI does not search parent directories.
+
+Use `--ignore-file` to choose a different path for both generation and subsequent runs. Relative paths are resolved from the current working directory:
+
+```bash
+scalar document lint openapi.yaml --generate-ignore-file --ignore-file config/lint-ignore.yaml
+scalar document lint openapi.yaml --ignore-file config/lint-ignore.yaml
+```
+
+Generation records all current findings and exits successfully after writing the baseline. Regenerating replaces the selected input document's entries while preserving other inputs' entries, including findings in shared referenced files. To baseline several documents, run generation once for each input with the same ignore file.
+
+Entries match by source document, rule, and document path, independently of line numbers, severity, or message text. Local source paths are relative to the baseline directory. Several findings with the same identity share one entry. Renaming documents, reordering arrays, or changing rules may create new identities. Resolved entries can suppress a later recurrence at the same identity until you regenerate the baseline, so review baseline changes before committing them.
+
+#### Exit status
+
+Only errors that are not in the baseline cause exit code `1`. Warnings, information, and hints do not fail linting. Operational failures, malformed baselines, and missing explicitly selected ignore files also exit nonzero. A missing default `.scalar.lint-ignore.yaml` is allowed.
 
 ### upgrade
 ```
