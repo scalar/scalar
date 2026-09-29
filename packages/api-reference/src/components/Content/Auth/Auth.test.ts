@@ -76,7 +76,7 @@ describe('Auth', () => {
     expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
     expect(wrapper.text()).toContain('Bearer Token')
     expect(wrapper.text()).toContain('Required')
-    expect(wrapper.findComponent({ name: 'AuthSelector' }).props('canDeleteSchemes')).toBe(false)
+    expect(wrapper.findAll('button').some((button) => button.text().includes('Delete'))).toBe(false)
     wrapper.unmount()
   })
 
