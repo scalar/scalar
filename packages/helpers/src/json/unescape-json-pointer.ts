@@ -1,7 +1,10 @@
+import { unescapeJsonPointerSegment } from './unescape-json-pointer-segment'
+
 /**
- * Unescape JSON pointer
+ * Unescapes a JSON pointer and decodes URI-encoded values.
+ * Use `unescapeJsonPointerSegment` for segments containing literal percent sequences.
  *
  * Examples:
  * /foo~1bar~0baz -> /foo/bar~baz
  */
-export const unescapeJsonPointer = (uri: string): string => decodeURI(uri.replace(/~1/g, '/').replace(/~0/g, '~'))
+export const unescapeJsonPointer = (uri: string): string => decodeURI(unescapeJsonPointerSegment(uri))
