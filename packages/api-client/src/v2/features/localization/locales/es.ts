@@ -25,6 +25,9 @@ export const es = {
     'label': 'Solicitud: {name}',
   },
   'responseBlock': {
+    'requestFailed': 'La solicitud ha fallado',
+    'networkErrorHelp':
+      'Las posibles causas incluyen restricciones de CORS o un problema de conexión de red. Consulte la consola del navegador para obtener más detalles. Si CORS bloquea la solicitud, configure el servidor de la API para permitir este origen o utilice un proxy de confianza.',
     'response': 'Respuesta',
     'requestHeaders': 'Encabezados de la solicitud',
     'responseHeaders': 'Encabezados de la respuesta',

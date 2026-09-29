@@ -25,6 +25,9 @@ export const de = {
     'label': 'Anfrage: {name}',
   },
   'responseBlock': {
+    'requestFailed': 'Anfrage fehlgeschlagen',
+    'networkErrorHelp':
+      'Mögliche Ursachen sind CORS-Einschränkungen oder ein Netzwerkproblem. Weitere Informationen finden Sie in der Browserkonsole. Wenn CORS die Anfrage blockiert, konfigurieren Sie den API-Server so, dass er diesen Ursprung erlaubt, oder verwenden Sie einen vertrauenswürdigen Proxy.',
     'response': 'Antwort',
     'requestHeaders': 'Anfrage-Header',
     'responseHeaders': 'Antwort-Header',

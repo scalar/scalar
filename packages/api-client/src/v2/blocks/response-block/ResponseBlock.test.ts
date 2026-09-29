@@ -55,6 +55,37 @@ describe('ResponseBlock', () => {
     wrapper.unmount()
   })
 
+  it.each(['Failed to fetch', 'Load failed', 'NetworkError when attempting to fetch resource.'])(
+    'keeps browser failure feedback visible for %s',
+    async (message) => {
+      vi.useFakeTimers()
+      const wrapper = mount(ResponseBlock, {
+        props: { ...defaultProps, requestError: new TypeError(message) },
+      })
+      try {
+        await vi.advanceTimersByTimeAsync(4000)
+        expect(wrapper.get('[role="alert"]').text()).toContain(message)
+        expect(wrapper.text()).toContain('Possible causes include CORS restrictions or a network connection problem.')
+        expect(wrapper.findComponent(ResponseEmpty).exists()).toBe(false)
+        await wrapper.setProps({ requestError: null })
+        expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+        expect(wrapper.findComponent(ResponseEmpty).exists()).toBe(true)
+      } finally {
+        wrapper.unmount()
+        vi.useRealTimers()
+      }
+    },
+  )
+
+  it('preserves other errors without suggesting CORS', () => {
+    const wrapper = mount(ResponseBlock, {
+      props: { ...defaultProps, requestError: new TypeError('Cannot decode response') },
+    })
+    expect(wrapper.get('[role="alert"]').text()).toContain('Cannot decode response')
+    expect(wrapper.text()).not.toContain('CORS')
+    wrapper.unmount()
+  })
+
   describe('empty state', () => {
     it('renders ResponseEmpty when no response provided', () => {
       const wrapper = mount(ResponseBlock, {

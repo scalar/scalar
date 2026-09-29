@@ -25,6 +25,9 @@ export const fr = {
     'label': 'Requête : {name}',
   },
   'responseBlock': {
+    'requestFailed': 'Échec de la requête',
+    'networkErrorHelp':
+      'Les causes possibles incluent des restrictions CORS ou un problème de connexion réseau. Consultez la console du navigateur pour en savoir plus. Si CORS bloque la requête, configurez le serveur API pour autoriser cette origine ou utilisez un proxy de confiance.',
     'response': 'Réponse',
     'requestHeaders': 'En-têtes de la requête',
     'responseHeaders': 'En-têtes de la réponse',

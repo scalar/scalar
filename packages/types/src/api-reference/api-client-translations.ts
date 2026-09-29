@@ -22,6 +22,8 @@ export type ApiClientTranslations = {
     label: string
   }
   responseBlock: {
+    requestFailed: string
+    networkErrorHelp: string
     response: string
     requestHeaders: string
     responseHeaders: string
