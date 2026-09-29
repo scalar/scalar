@@ -665,6 +665,43 @@ describe('Rendering', () => {
 
     expect(wrapper.find('[data-scalar-crawler-nav]').exists()).toBe(false)
   })
+
+  it('refreshes the rendered and page titles while retaining the loaded document and supports structural updates afterward', async () => {
+    const content = {
+      openapi: '3.1.0',
+      info: { title: 'Original title', version: '1.0' },
+      paths: { '/hello': { get: { summary: 'Hello', responses: { '200': { description: 'OK' } } } } },
+    }
+    const configuration = {
+      slug: 'example',
+      content,
+      setPageTitle: ({ document }: { document: { title: string } }): string => document.title,
+    }
+    const wrapper = mount(ApiReference, { props: { configuration } })
+    await flushPromises()
+    const loaded = wrapper.vm.workspaceStore.workspace.documents.example
+    const updated = { ...content, info: { ...content.info, title: 'Renamed API' } }
+    await wrapper.setProps({ configuration: { ...configuration, content: updated } })
+    await flushPromises()
+    expect(wrapper.vm.workspaceStore.workspace.documents.example).toBe(loaded)
+    expect(wrapper.text()).toContain('Renamed API')
+    expect(document.title).toBe('Renamed API')
+    expect(wrapper.vm.workspaceStore.getOriginalDocument('example')?.info).toStrictEqual(updated.info)
+
+    await wrapper.setProps({
+      configuration: {
+        ...configuration,
+        content: {
+          ...updated,
+          paths: { '/other': { get: { summary: 'Other operation', responses: { '200': { description: 'OK' } } } } },
+        },
+      },
+    })
+    await flushPromises()
+    expect(wrapper.vm.workspaceStore.workspace.documents.example).not.toBe(loaded)
+    expect(wrapper.text()).toContain('Other operation')
+    expect(wrapper.vm.workspaceStore.workspace.documents.example?.info.title).toBe('Renamed API')
+  })
 })
 
 describe('proxy configuration', () => {
@@ -910,44 +947,5 @@ describe('plugin auth accessor', () => {
       type: 'apiKey',
       'x-scalar-secret-token': token,
     })
-  })
-})
-
-describe('incremental title updates', () => {
-  it('refreshes the rendered and page titles while retaining the loaded document and supports structural updates afterward', async () => {
-    const content = {
-      openapi: '3.1.0',
-      info: { title: 'Original title', version: '1.0' },
-      paths: { '/hello': { get: { summary: 'Hello', responses: { '200': { description: 'OK' } } } } },
-    }
-    const configuration = {
-      slug: 'example',
-      content,
-      setPageTitle: ({ document }: { document: { title: string } }): string => document.title,
-    }
-    const wrapper = mount(ApiReference, { props: { configuration } })
-    await flushPromises()
-    const loaded = wrapper.vm.workspaceStore.workspace.documents.example
-    const updated = { ...content, info: { ...content.info, title: 'Renamed API' } }
-    await wrapper.setProps({ configuration: { ...configuration, content: updated } })
-    await flushPromises()
-    expect(wrapper.vm.workspaceStore.workspace.documents.example).toBe(loaded)
-    expect(wrapper.text()).toContain('Renamed API')
-    expect(document.title).toBe('Renamed API')
-    expect(wrapper.vm.workspaceStore.getOriginalDocument('example')?.info).toStrictEqual(updated.info)
-
-    await wrapper.setProps({
-      configuration: {
-        ...configuration,
-        content: {
-          ...updated,
-          paths: { '/other': { get: { summary: 'Other operation', responses: { '200': { description: 'OK' } } } } },
-        },
-      },
-    })
-    await flushPromises()
-    expect(wrapper.vm.workspaceStore.workspace.documents.example).not.toBe(loaded)
-    expect(wrapper.text()).toContain('Other operation')
-    expect(wrapper.vm.workspaceStore.workspace.documents.example?.info.title).toBe('Renamed API')
   })
 })
