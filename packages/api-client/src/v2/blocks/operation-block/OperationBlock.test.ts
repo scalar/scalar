@@ -5,7 +5,7 @@ import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import { err, ok } from '@scalar/helpers/types/result'
 import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
-import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type AuthMeta, type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
@@ -1566,7 +1566,7 @@ describe('OperationBlock', () => {
     expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"from":"default"}')
   })
 
-  it('falls back to the last history entry when the in-memory cache is empty', async () => {
+  it('restores history after a failed request on the same draft example', async () => {
     // Simulates landing on an operation that has been called before in a
     // previous session: `responseCache` is empty but the workspace store
     // still holds the operation's history. The response panel should show
@@ -1599,14 +1599,19 @@ describe('OperationBlock', () => {
         headersSize: -1,
         bodySize: 19,
       },
-      meta: { example: 'default' },
+      meta: { example: 'draft' },
       requestMetadata: { variables: {} },
     }
 
+    const eventBus = createWorkspaceEventBus()
+    eventBus.on('operation:reload:history', ({ callback }) => callback('success'))
+    eventBus.on('ui:navigate', ({ callback }) => callback?.('success'))
     const wrapper = mount(OperationBlock, {
       props: {
         ...createDefaultProps(),
         history: [historyEntry],
+        exampleKey: 'draft',
+        eventBus,
       },
     })
 
@@ -1616,6 +1621,17 @@ describe('OperationBlock', () => {
     expect(restored).not.toBeNull()
     expect(restored?.status).toBe(201)
     expect(restored && 'data' in restored ? restored.data : undefined).toBe('{"from":"history"}')
+
+    vi.mocked(sendRequest).mockResolvedValueOnce([new TypeError('Failed to fetch'), null])
+    await triggerExecute(wrapper)
+    const responseBlock = wrapper.findComponent({ name: 'ResponseBlock' })
+    expect(responseBlock.props('requestError').message).toBe('Failed to fetch')
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('select:history:item', { index: 0 })
+    await flushPromises()
+    expect(responseBlock.props('requestError')).toBe(null)
+    expect(responseBlock.props('response').data).toBe('{"from":"history"}')
+    wrapper.unmount()
   })
 
   it('prefers the in-memory cache over history when both are available', async () => {

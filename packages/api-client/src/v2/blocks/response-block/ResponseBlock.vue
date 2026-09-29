@@ -53,7 +53,7 @@ const {
 const { translate } = useLocalization()
 
 /** Browsers hide CORS details, so these messages warrant guidance, not a diagnosis. */
-const showNetworkErrorHelp = computed(
+const showNetworkErrorHelp = computed<boolean>(
   () =>
     !isElectron() &&
     requestError?.name === 'TypeError' &&

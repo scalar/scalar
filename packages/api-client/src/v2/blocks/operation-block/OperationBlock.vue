@@ -637,6 +637,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
         })
 
         // Update the response and request
+        requestError.value = null
         response.value = fetchResponse
         requestPayload.value = fetchRequest
       },
