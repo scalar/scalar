@@ -1,3 +1,5 @@
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+
 import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
 import { resetSecretField, updateClearedSecretFields } from '@/helpers/auth-secret-fields'
@@ -797,8 +799,38 @@ export const authMutatorsFactory = ({
       updateSelectedSecuritySchemes(store, document, payload),
     clearSelectedSecuritySchemes: (payload: AuthEvents['auth:clear:selected-security-schemes']) =>
       clearSelectedSecuritySchemes(store, document, payload),
-    updateSecurityScheme: (payload: AuthEvents['auth:update:security-scheme']) =>
-      updateSecurityScheme(document, payload),
+    updateSecurityScheme: (
+      data: AuthEvents['auth:update:security-scheme'],
+      configuredSchemes: AuthenticationConfiguration['securitySchemes'] = {},
+    ): SecuritySchemeObject | undefined => {
+      const { payload, name } = data
+      if (payload.type !== 'apiKey' || payload.name === undefined) {
+        return updateSecurityScheme(document, data)
+      }
+
+      const configured = Object.hasOwn(configuredSchemes, name) ? configuredSchemes[name] : undefined
+      if (!configured) {
+        // Document-backed names must remain available to export and synchronization.
+        const updated = updateSecurityScheme(document, data)
+        if (updated) {
+          updateSecuritySchemeSecrets(store, document, { name, payload: { type: 'apiKey', name: undefined } })
+        }
+        return updated
+      }
+
+      const documentScheme = getResolvedRef(getDocumentSecuritySchemes(document)[name])
+      const defaultName =
+        ('name' in configured ? configured.name : undefined) ??
+        (documentScheme && typeof documentScheme === 'object' && 'name' in documentScheme
+          ? documentScheme.name
+          : undefined)
+      // Restoring the default releases the override without clearing the API key token.
+      updateSecuritySchemeSecrets(store, document, {
+        name,
+        payload: { type: 'apiKey', name: payload.name === defaultName ? undefined : payload.name },
+      })
+      return undefined
+    },
     updateSecuritySchemeSecrets: (payload: AuthEvents['auth:update:security-scheme-secrets']) =>
       updateSecuritySchemeSecrets(store, document, payload),
     resetSecuritySchemeSecret: (payload: AuthEvents['auth:reset:security-scheme-secret']) =>
