@@ -166,6 +166,20 @@ describe('RequestExample', () => {
     eventBus: mockEventBus,
   }
 
+  it('names the focusable region for a virtualized request example', () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        selectedClient: 'custom/python',
+        operation: { 'x-codeSamples': [{ lang: 'python', source: 'print("example")\n'.repeat(2000) }] },
+      },
+    })
+
+    const region = wrapper.get('[role="region"][aria-label="Request code sample"]')
+    expect(region.attributes('tabindex')).toBe('0')
+    expect(region.text()).toContain('print("example")')
+  })
+
   it('keeps the SDK language selected while switching linked request examples', async () => {
     const wrapper = mount(RequestExample, {
       props: {

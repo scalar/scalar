@@ -21,6 +21,8 @@ import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 import type { StandardLanguageKey } from './types'
 
 type BaseProps = {
+  /** Accessible name of the keyboard-scrollable code region. */
+  label?: string
   content?: string | object
   prettyPrintedContent?: string
   lang?: StandardLanguageKey | string
@@ -35,6 +37,7 @@ type BaseProps = {
  * Requires at least one of content or prettyPrintedContent
  */
 const {
+  label = 'Code sample',
   lang = 'plaintext',
   lineNumbers = false,
   copy = 'hover',
@@ -113,8 +116,10 @@ const { cx } = useBindCx()
     ">
     <!-- Inherits the corners so the inset focus ring follows a rounded code block -->
     <div
-      tabindex="0"
-      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1">
+      :aria-label="label"
+      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1"
+      role="region"
+      tabindex="0">
       <pre
         :id="id"
         class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
@@ -123,6 +128,7 @@ const { cx } = useBindCx()
     </div>
     <ScalarCodeBlockCopy
       v-if="showCopy"
+      :aria-controls="id"
       class="scalar-code-copy absolute"
       :class="[
         isOneLine
@@ -131,9 +137,8 @@ const { cx } = useBindCx()
         { 'opacity-100': copy === 'always' },
       ]"
       :content="prettyContent"
-      :showLang="!isOneLine"
       :lang="lang"
-      :aria-controls="id">
+      :showLang="!isOneLine">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop"
