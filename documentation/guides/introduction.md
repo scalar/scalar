@@ -482,7 +482,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
 </div>
 
 <div class="logowall">
-  <div class="logowall-item">
+  <div class="logowall-item logowall-item-tr">
     <scalar-icon class="logowall-logo" src="../assets/remote/logo-tr.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
