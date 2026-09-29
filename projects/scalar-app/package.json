@@ -80,7 +80,7 @@
     "monaco-yaml": "catalog:*",
     "posthog-js": "catalog:*",
     "shell-quote": "^1.10.0",
-    "undici": "8.10.0",
+    "undici": "catalog:*",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "yaml": "catalog:*"
