@@ -4,6 +4,25 @@ import { describe, expect, it } from 'vitest'
 import { createParameterRows } from './create-parameter-rows'
 
 describe('createParameterRows', () => {
+  it.each(['deepObject', 'form'] as const)('populates %s rows from property examples', (style) => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style,
+      explode: true,
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: { active: { type: 'string', pattern: '^eq\\.(true|false)$', example: 'eq.true' } },
+      },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ name, value, isDisabled }) => ({ name, value, isDisabled })),
+    ).toStrictEqual([
+      { name: style === 'deepObject' ? 'filter[active]' : 'active', value: 'eq.true', isDisabled: false },
+    ])
+  })
+
   it.each([
     { example: { dataValue: 'hello' }, value: 'hello' },
     { example: { dataValue: false }, value: 'false' },

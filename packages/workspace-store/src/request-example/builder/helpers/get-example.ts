@@ -3,9 +3,12 @@ import type {
   MediaTypeObject,
   ParameterObject,
   RequestBodyObject,
+  SchemaObject,
+  SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { resolve } from '@/resolve'
 
 /** Helper to get example from examples object with fallback to example field */
 const getExampleFromExamples = (
@@ -33,6 +36,46 @@ const getExampleFromExamples = (
   }
 
   return undefined
+}
+
+/**
+ * Keep parameter fallback precedence while collecting only values declared by the schema.
+ * The general schema generator also invents values for properties without examples, which would
+ * unexpectedly populate and enable optional request parameters.
+ */
+const getSchemaExample = (
+  input: SchemaReferenceType<SchemaObject>,
+  ancestors: Set<unknown> = new Set(),
+): ExampleObject | undefined => {
+  const schema = resolve.schema(input)
+
+  if ('default' in schema && schema.default !== undefined) {
+    return { value: schema.default }
+  }
+  if ('enum' in schema && schema.enum?.[0] !== undefined) {
+    return { value: schema.enum[0] }
+  }
+  if ('examples' in schema && schema.examples?.[0] !== undefined) {
+    return { value: schema.examples[0] }
+  }
+  if ('example' in schema && schema.example !== undefined) {
+    return { value: schema.example }
+  }
+
+  // Reference siblings create a fresh merged object, so track the underlying schema for cycles.
+  const target = getResolvedRef(input) ?? input
+  if (!('properties' in schema) || !schema.properties || ancestors.has(target)) {
+    return undefined
+  }
+
+  ancestors.add(target)
+  const properties = Object.entries(schema.properties).flatMap(([name, property]) => {
+    const example = getSchemaExample(property, ancestors)
+    return example === undefined ? [] : [[name, example.value]]
+  })
+  ancestors.delete(target)
+
+  return properties.length > 0 ? { value: Object.fromEntries(properties) } : undefined
 }
 
 /**
@@ -69,30 +112,7 @@ export const getExample = (
   // Derive value from the schema
   const resolvedParam = getResolvedRef(param)
   if (resolvedParam && 'schema' in resolvedParam && resolvedParam.schema) {
-    const schema = getResolvedRef(resolvedParam.schema, mergeSiblingReferences)
-    if (!schema) {
-      return undefined
-    }
-
-    // Default value
-    if ('default' in schema && schema.default !== undefined) {
-      return { value: schema.default }
-    }
-
-    // Enum value
-    if ('enum' in schema && schema.enum?.[0] !== undefined) {
-      return { value: schema.enum[0] }
-    }
-
-    // Examples value
-    if ('examples' in schema && schema.examples?.[0] !== undefined) {
-      return { value: schema.examples[0] }
-    }
-
-    // Example value
-    if ('example' in schema && schema.example !== undefined) {
-      return { value: schema.example }
-    }
+    return getSchemaExample(resolvedParam.schema)
   }
 
   return undefined
