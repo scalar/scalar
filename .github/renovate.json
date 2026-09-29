@@ -1,12 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":dependencyDashboardApproval", "helpers:pinGitHubActionDigests"],
+  "extends": ["security:only-security-updates", "helpers:pinGitHubActionDigests"],
+  "dependencyDashboard": false,
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
   "labels": ["dependencies"],
   "semanticCommits": "enabled",
   "rangeStrategy": "bump",
   "vulnerabilityAlerts": {
+    "prConcurrentLimit": 5,
     "rangeStrategy": "bump",
     "assignees": ["@hanspagel"]
   },
@@ -363,7 +365,7 @@
     },
 
     {
-      "description": "Third-party GitHub Actions that receive secrets at runtime. Updates must be reviewed individually — never auto-merge, never group, never auto-approve via dependency dashboard.",
+      "description": "Third-party GitHub Actions that receive secrets at runtime. Updates must be reviewed individually — never auto-merge, never group.",
       "matchDepTypes": ["action"],
       "matchPackageNames": [
         "relative-ci/agent-action",
@@ -381,7 +383,6 @@
       ],
       "groupName": null,
       "automerge": false,
-      "dependencyDashboardApproval": true,
       "labels": ["dependencies", "security-sensitive"],
       "prBodyNotes": [
         ":lock: **Security-sensitive update.** This action receives secrets at runtime. Review the diff between the current and target commit SHAs before merging. Check the action's changelog and any third-party dependencies it pulls in."
