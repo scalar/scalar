@@ -64,9 +64,7 @@ describe('useDocumentWatcher', () => {
     useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
 
     await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.advanceTimersToNextTimerAsync()
-
-    expect(store.workspace.documents['default']?.info?.title).toBe('New updated API')
+    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'))
   })
 
   it('watches documents imported from a local file path through the file loader', async () => {
@@ -233,10 +231,9 @@ describe('useDocumentWatcher', () => {
     await nextTick()
 
     await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.advanceTimersToNextTimerAsync()
+    await vi.waitFor(() => expect(store.workspace.documents['b']?.info?.title).toBe('Document B2'))
 
     expect(store.workspace.documents['a']?.info?.title).toBe('Document A1')
-    expect(store.workspace.documents['b']?.info?.title).toBe('Document B2')
   })
 
   it('does exponential backoff on failure', async () => {
@@ -281,6 +278,6 @@ describe('useDocumentWatcher', () => {
     await vi.advanceTimersByTimeAsync(initialTimeout * 2)
     await vi.advanceTimersToNextTimerAsync()
 
-    expect(fn).toHaveBeenCalledTimes(3)
+    await vi.waitFor(() => expect(fn).toHaveBeenCalledTimes(3))
   })
 })
