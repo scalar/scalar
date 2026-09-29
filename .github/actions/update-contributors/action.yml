@@ -1,0 +1,34 @@
+name: Update README contributors
+description: Generate the README contributor table with appropriately sized avatars.
+inputs:
+  github-token:
+    description: GitHub token used to read repository collaborators and contributors.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Generate contributor table
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+      env:
+        CONTRIBUTORS_ACTION_PATH: ${{ github.action_path }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const { readFile, writeFile } = require('node:fs/promises')
+          const [collaborators, contributors] = await Promise.all([
+            github.paginate(github.rest.repos.listCollaborators, {
+              ...context.repo,
+              affiliation: 'direct',
+              per_page: 100,
+            }),
+            github.paginate(github.rest.repos.listContributors, {
+              ...context.repo,
+              per_page: 100,
+            }),
+          ])
+          // Node 24 runs this dependency-free TypeScript helper directly.
+          const { generateContributors } = await import(
+            `${process.env.CONTRIBUTORS_ACTION_PATH}/generate-contributors.ts`
+          )
+          const readme = await readFile('README.md', 'utf8')
+          await writeFile('README.md', generateContributors(readme, collaborators, contributors))

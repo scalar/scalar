@@ -38,28 +38,9 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Update the list of contributors
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        uses: ./.github/actions/update-contributors
         with:
           github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const { readFile, writeFile } = require('node:fs/promises')
-            const [collaborators, contributors] = await Promise.all([
-              github.paginate(github.rest.repos.listCollaborators, {
-                ...context.repo,
-                affiliation: 'direct',
-                per_page: 100,
-              }),
-              github.paginate(github.rest.repos.listContributors, {
-                ...context.repo,
-                per_page: 100,
-              }),
-            ])
-            // Node 24 runs this dependency-free TypeScript helper directly.
-            const { generateContributors } = await import(
-              `${process.env.GITHUB_WORKSPACE}/tooling/scripts/src/helpers/generate-contributors.ts`
-            )
-            const readme = await readFile('README.md', 'utf8')
-            await writeFile('README.md', generateContributors(readme, collaborators, contributors))
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
