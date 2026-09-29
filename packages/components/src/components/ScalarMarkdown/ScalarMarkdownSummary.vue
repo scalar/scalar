@@ -91,7 +91,7 @@ defineOptions({ inheritAttrs: false })
       content: none;
     }
 
-    *:not(strong, em, a) {
+    *:not(strong, em, a, code) {
       /* Disable formatting for non-inline elements */
       display: contents;
       font-size: inherit;
