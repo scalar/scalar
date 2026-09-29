@@ -2,9 +2,9 @@
 
 - **OpenAPI Version:** `3.2.0`
 - **API Version:** `1.0`
-- **Terms of service:**<https://example.com/terms>
-- **Contact:** API Team <https://example.com/contact><team@example.com>
-- **License:**[MIT](https://example.com/license)
+- **Terms of service:** <https://example.com/terms>
+- **Contact:** API Team <https://example.com/contact> <team@example.com>
+- **License:** [MIT](https://example.com/license)
 
 A shared object used by this API.
 
@@ -12,15 +12,9 @@ A shared object used by this API.
 
 - **URL:** `https://example.com/api`
 
-#### Authentication
+## Authentication
 
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
+- **bearer**: HTTP bearer
 
 ## Tags
 
@@ -45,55 +39,35 @@ A shared object used by this API.
 
 #### Authentication
 
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
+- **bearer**: HTTP bearer
 
-#### Parameters
+#### Query parameters
 
-##### `limit`
+- **`limit`**: `integer`, default: `10`
 
-- **In:** `query`
+#### Request body
 
-`integer`, default: `10`
+**Content type:** `application/json`
 
-#### Request Body
+schema: `Resource`
 
-##### Content-Type: application/json
+A shared object used by this API.
 
-schema: `Resource` — A shared object used by this API.
+- **`field0` (required)**: `string`
 
-- **`field0` (required)**
+  Field 0
+- **`field1`**: `string`
 
-  `string` — Field 0
+  Field 1
+- **`field2`**: `string`
 
-- **`field1`**
+  Field 2
+- **`owner`**: `object`, schema: `Owner`
+  - **`id`**: `integer`
+  - **`name`**: `string`
+- **`parent`**: `object`, schema: `Resource`
 
-  `string` — Field 1
-
-- **`field2`**
-
-  `string` — Field 2
-
-- **`owner`**
-
-  `object`, schema: `Owner`
-
-  - **`id`**
-
-    `integer`
-
-  - **`name`**
-
-    `string`
-
-- **`parent`**
-
-  `object`, schema: `Resource` — A shared object used by this API.
+  A shared object used by this API.
 
   *\[Circular Reference]*
 
@@ -111,9 +85,9 @@ schema: `Resource` — A shared object used by this API.
 
 #### Responses
 
-##### Status: 200 Success
+##### 200 Success
 
-###### Content-Type: application/json
+**Content type:** `application/json`
 
 *Schema `Resource` is shown above.*
 
@@ -129,13 +103,11 @@ schema: `Resource` — A shared object used by this API.
 }
 ```
 
-##### Status: 201 XML result
+##### 201 XML result
 
-###### Content-Type: application/xml
+**Content type:** `application/xml`
 
-- **`name`**
-
-  `string`
+- **`name`**: `string`
 
 **Example:**
 
@@ -161,25 +133,15 @@ A shared object used by this API.
 
 #### Authentication
 
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
+- **bearer**: HTTP bearer
 
-#### Parameters
+#### Query parameters
 
-##### `limit`
+- **`limit`**: `integer`, default: `10`
 
-- **In:** `query`
+#### Request body
 
-`integer`, default: `10`
-
-#### Request Body
-
-##### Content-Type: application/json
+**Content type:** `application/json`
 
 *Schema `Resource` is shown above.*
 
@@ -197,9 +159,9 @@ A shared object used by this API.
 
 #### Responses
 
-##### Status: 200 Success
+##### 200 Success
 
-###### Content-Type: application/json
+**Content type:** `application/json`
 
 *Schema `Resource` is shown above.*
 
@@ -228,19 +190,13 @@ A shared object used by this API.
 
 #### Authentication
 
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
+- **bearer**: HTTP bearer
 
-#### Request Body
+#### Request body
 
 **Required:** `true`
 
-##### Content-Type: application/json
+**Content type:** `application/json`
 
 *Schema `Owner` is shown above.*
 
@@ -255,7 +211,7 @@ A shared object used by this API.
 
 #### Responses
 
-##### Status: 204 Received
+##### 204 Received
 
 ## Schemas
 

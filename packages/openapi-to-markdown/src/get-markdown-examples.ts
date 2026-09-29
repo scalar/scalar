@@ -120,7 +120,7 @@ export const getMarkdownExamples = (
   if (linked) {
     if (schema.example !== undefined) return [{ value: schema.example }]
     if (Array.isArray(schema.examples) && schema.examples.length) return schema.examples.map((value) => ({ value }))
-    return [{ omitted: true }]
+    return []
   }
   if (countGeneratedExampleValues(source.schema) > MAX_GENERATED_EXAMPLE_VALUES) return [{ omitted: true }]
   if (isXmlMediaType(mediaType)) {

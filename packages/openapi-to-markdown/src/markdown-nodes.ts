@@ -1,4 +1,31 @@
-import type { Heading, InlineCode, Link, List, ListItem, Paragraph, PhrasingContent, Strong, Text } from 'mdast'
+import type {
+  Emphasis,
+  Heading,
+  InlineCode,
+  Link,
+  List,
+  ListItem,
+  Node,
+  Paragraph,
+  PhrasingContent,
+  Strong,
+  Text,
+} from 'mdast'
+
+/**
+ * A description that still has to be parsed as Markdown. Schema rendering is synchronous and
+ * description parsing is not, so the page renderer replaces these before it serializes a page.
+ */
+type DescriptionPlaceholder = Node & { type: 'descriptionPlaceholder'; value: string }
+
+declare module 'mdast' {
+  interface BlockContentMap {
+    descriptionPlaceholder: DescriptionPlaceholder
+  }
+  interface RootContentMap {
+    descriptionPlaceholder: DescriptionPlaceholder
+  }
+}
 
 /** Collapse HTML-style inline whitespace; the serializer escapes generated text as Markdown. */
 export const text = (value: unknown): Text => ({
@@ -11,6 +38,8 @@ export const inlineCode = (value: unknown): InlineCode => ({ type: 'inlineCode',
 export const paragraph = (...children: PhrasingContent[]): Paragraph => ({ type: 'paragraph', children })
 /** Construct an emphasized label. */
 export const strong = (...children: PhrasingContent[]): Strong => ({ type: 'strong', children })
+/** Construct emphasized text, for notes about the output itself. */
+export const emphasis = (...children: PhrasingContent[]): Emphasis => ({ type: 'emphasis', children })
 /** Construct a section heading. */
 export const heading = (depth: Heading['depth'], ...children: PhrasingContent[]): Heading => ({
   type: 'heading',
@@ -35,3 +64,6 @@ export const link = (url: string, label: string): Link => ({ type: 'link', url: 
 /** Render a metadata label and value with the established nonbreaking separator. */
 export const field = (label: string, value: PhrasingContent): ListItem =>
   item(paragraph(strong(text(`${label}:`)), text('\u00a0'), value))
+/** Defer a description, so it keeps its paragraphs, links and code blocks once parsed. */
+export const describe = (value: unknown): DescriptionPlaceholder[] =>
+  typeof value === 'string' && value.trim() ? [{ type: 'descriptionPlaceholder', value }] : []

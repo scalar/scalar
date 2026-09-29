@@ -4,7 +4,7 @@ import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 import type { RootContent } from 'mdast'
 
 import { type ExampleSource, getMarkdownExamples } from './get-markdown-examples'
-import { link, paragraph, strong, text } from './markdown-nodes'
+import { emphasis, link, paragraph, strong, text } from './markdown-nodes'
 import type { DescriptionParser } from './parse-description'
 
 /** Render supplied examples before considering a schema-generated fallback. */
@@ -16,19 +16,22 @@ export const renderExamples = async (
   openapiVersion = '3.2.0',
   // Schema metadata can be upgraded while example fields still follow the original version.
   schemaOpenapiVersion = openapiVersion,
-  linked = false,
+  {
+    linked = false,
+    quiet = linked,
+  }: {
+    /** Use only authored examples, since generating one would expand every linked schema. */
+    linked?: boolean
+    /** Leave out an example that is too large to generate, instead of noting it. */
+    quiet?: boolean
+  } = {},
 ): Promise<RootContent[]> => {
   const nodes: RootContent[] = []
   for (const example of getMarkdownExamples(source, mediaType, mode, openapiVersion, schemaOpenapiVersion, linked)) {
+    if ('omitted' in example && quiet) continue
     nodes.push(paragraph(strong(text(example.name ? `Example: ${example.name}` : 'Example:'))))
     if ('omitted' in example) {
-      nodes.push(
-        paragraph(
-          text(
-            `${linked ? '[Generated example omitted in linked schema mode; see the schema documentation]' : '[Generated example omitted because it is too large]'}`,
-          ),
-        ),
-      )
+      nodes.push(paragraph(emphasis(text('Generated example omitted because it is too large.'))))
       continue
     }
     if (example.summary) nodes.push(paragraph(text(example.summary)))

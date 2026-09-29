@@ -14,7 +14,7 @@ describe('render-document', () => {
       'x-operation': { summary: 'Shared operation', responses: { '200': { description: 'Success' } } },
     })
     expect(output.slice(output.indexOf('## Operations'))).toBe(
-      '## Operations\n\n### Shared operation\n\n- **Method:** `GET`\n- **Path:** `/a`\n\n#### Responses\n\n##### Status: 200 Success\n\n## Webhooks\n\n### Webhook override\n\n- **Method:** `POST`\n- **Webhook:** `event`\n\n#### Responses\n\n##### Status: 200 Success\n',
+      '## Operations\n\n### Shared operation\n\n- **Method:** `GET`\n- **Path:** `/a`\n\n#### Responses\n\n##### 200 Success\n\n## Webhooks\n\n### Webhook override\n\n- **Method:** `POST`\n- **Webhook:** `event`\n\n#### Responses\n\n##### 200 Success\n',
     )
   })
 
@@ -124,12 +124,11 @@ describe('render-document', () => {
     expect(output.replaceAll('`', '')).toContain('users')
     expect(output.replaceAll('`', '')).toContain('stable')
     expect(output.replaceAll('`', '')).toContain('Get all users')
-    expect(output.replaceAll('`', '')).toContain('Request Body')
+    expect(output.replaceAll('`', '')).toContain('Request body')
     expect(output.replaceAll('`', '')).toContain('filter')
     expect(output.replaceAll('`', '')).toContain('Responses')
     expect(output.replaceAll('`', '')).toContain('200')
-    expect(output.replaceAll('`', '')).toContain('Array of:')
-    expect(output.replaceAll('`', '')).toContain('string')
+    expect(output.replaceAll('`', '')).toContain('array of string')
   })
 
   it('renders path and operation parameters', async () => {
@@ -191,15 +190,11 @@ describe('render-document', () => {
     const output = await createDocumentRenderer()(content)
     const text = output.replaceAll('`', '')
 
-    expect(text).toContain('Parameters')
-    expect(text).toContain('reportId required')
-    expect(text).toContain('path')
+    expect(text).toContain('## Path parameters\n\n- **reportId (required)**: string')
     expect(text).toContain('Report identifier')
-    expect(text).toContain('month required')
-    expect(text).toContain('query')
+    expect(text).toContain('## Query parameters\n\n- **month (required)**: string')
     expect(text).toContain('Calendar month')
-    expect(text).toContain('traceId')
-    expect(text).toContain('header')
+    expect(text).toContain('## Header parameters\n\n- **traceId**: string')
     expect(text).toContain('Operation trace identifier')
     expect(text).not.toContain('Path trace identifier')
   })
@@ -371,9 +366,39 @@ describe('render-document', () => {
 
     it('gives a selected model its own section even when a dependency expanded it first', async () => {
       const output = await createMarkdownFromOpenApi(page, { model: 'Alias' })
-      expect(output).toContain('### Alias')
-      expect(output).toContain('Schema `Owner` is shown above.')
+      // The model page starts with its own model, which expands the schema it aliases.
+      expect(output.startsWith('# Alias\n')).toBe(true)
+      expect(output).toContain('`id`')
       expect(output).not.toContain('`Alias` — shown above')
     })
+  })
+
+  it('separates content after a nested list so it does not continue the list', async () => {
+    const output = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.1.1',
+        info: { title: 'Lists', version: '1' },
+        components: {
+          schemas: {
+            Pet: {
+              type: 'object',
+              properties: {
+                kind: {
+                  oneOf: [
+                    { type: 'object', properties: { bark: { type: 'string' } } },
+                    { type: 'object', properties: { meow: { type: 'string' } } },
+                  ],
+                  discriminator: { propertyName: 'type', mapping: { dog: '#/components/schemas/Dog' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      { model: 'Pet' },
+    )
+    expect(output).toContain(
+      '  **One of:** discriminated by `type`\n  - `object`\n    - **`bark`**: `string`\n  - `object`\n    - **`meow`**: `string`\n\n  **Discriminator:** `type`\n',
+    )
   })
 })

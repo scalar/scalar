@@ -106,14 +106,14 @@ const scoped = [
 ]
 const operationChecks = [
   ...scoped,
-  check('operation selected', /Selected operation/, '## Operations'),
+  check('operation selected', /Selected operation/, '# Selected operation'),
   check('sibling excluded', /Override operation/, undefined, true),
   check('webhooks excluded', /## Webhooks/, undefined, true),
-  check('inherited parameter', /Inherited parameter/, '### Selected operation'),
-  check('effective server', /https:\/\/path.example/, '### Selected operation'),
+  check('inherited parameter', /Inherited parameter/, '# Selected operation'),
+  check('effective server', /https:\/\/path.example/, '# Selected operation'),
   check('root server overridden', /https:\/\/root.example/, undefined, true),
-  check('inherited security and scopes', /Token[\s\S]*read[\s\S]*bearer/, '### Selected operation'),
-  check('response schema resolved', /petName/, '#### Responses'),
+  check('inherited security and scopes', /\*\*Token\*\*: HTTP bearer, scopes: `read`/, '# Selected operation'),
+  check('response schema resolved', /petName/, '## Responses'),
   check('schema dependency included', /### Status/, '## Schemas'),
   check('unused model excluded', /### Names|### Choice|### Node/, undefined, true),
 ]
@@ -139,8 +139,8 @@ const selectionFixtures: SelectionCase[] = [
     options: { operation: { path: '/pets', method: 'post' } },
     checks: [
       ...scoped,
-      check('override server', /https:\/\/override.example/, '### Override operation'),
-      check('anonymous override', /No authentication required/, '### Override operation'),
+      check('override server', /https:\/\/override.example/, '# Override operation'),
+      check('anonymous override', /No authentication required/, '# Override operation'),
       check('inherited auth excluded', /Token|bearer/, undefined, true),
       check('inherited servers excluded', /https:\/\/(root|path).example/, undefined, true),
       check('models excluded', /## Schemas/, undefined, true),
@@ -194,7 +194,7 @@ const selectionFixtures: SelectionCase[] = [
       options: { model },
       checks: [
         ...scoped,
-        check('model content', pattern, `### ${model}`),
+        check('model content', pattern, `# ${model}`),
         check('operations excluded', /## Operations/, undefined, true),
         check('webhooks excluded', /## Webhooks/, undefined, true),
         check('tags excluded', /## Tags/, undefined, true),
@@ -210,16 +210,16 @@ const selectionFixtures: SelectionCase[] = [
     options: { webhook: { name: 'petEvent', method: 'POST' } },
     checks: [
       ...scoped,
-      check('name and method', /Method:.*`POST`[\s\S]*Webhook:.*`petEvent`/, '## Webhooks'),
+      check('name and method', /Method:.*`POST`[\s\S]*Webhook:.*`petEvent`/, '# Selected webhook'),
       check('no invented URL', /\/webhooks\/petEvent/, undefined, true),
       check('operations excluded', /## Operations/, undefined, true),
       check('other method excluded', /Other webhook method/, undefined, true),
-      check('parameters', /`delivery`/, '#### Parameters'),
-      check('payload', /petName/, '#### Request Body'),
-      check('payload description', /Event payload description/, '#### Request Body'),
-      check('payload required', /Required:.*true/, '#### Request Body'),
-      check('responses', /202 Event accepted[\s\S]*400 Selected response[\s\S]*petName/, '#### Responses'),
-      check('inheritance', /https:\/\/root.example[\s\S]*Token/, '### Selected webhook'),
+      check('parameters', /`delivery`/, '## Header parameters'),
+      check('payload', /petName/, '## Request body'),
+      check('payload description', /Event payload description/, '## Request body'),
+      check('payload required', /Required:.*true/, '## Request body'),
+      check('responses', /202 Event accepted[\s\S]*400 Selected response[\s\S]*petName/, '## Responses'),
+      check('inheritance', /https:\/\/root.example[\s\S]*Token/, '# Selected webhook'),
       check('dependencies', /`Pet` — shown above\.[\s\S]*### Status/, '## Schemas'),
     ],
   },
@@ -231,7 +231,7 @@ const selectionFixtures: SelectionCase[] = [
       ...scoped,
       check('metadata', /# Selection API[\s\S]*Introduction prose/),
       check('servers', /https:\/\/root.example/, '## Servers'),
-      check('authentication', /Token[\s\S]*bearer/, '#### Authentication'),
+      check('authentication', /Token[\s\S]*bearer/, '## Authentication'),
       check('no reference sections', /## (Operations|Schemas|Webhooks|Tags)/, undefined, true),
     ],
   },
@@ -286,9 +286,9 @@ const swagger = {
 selectionFixtures.push(
   ...(
     [
-      [{ operation: { operationId: 'legacyPets' } }, /legacyName/, '#### Responses'],
+      [{ operation: { operationId: 'legacyPets' } }, /legacyName/, '## Responses'],
       [{ tag: 'legacy' }, /Legacy tag/, '## Tags'],
-      [{ model: 'Pet' }, /legacyName/, '### Pet'],
+      [{ model: 'Pet' }, /legacyName/, '# Pet'],
       [{ introduction: true }, /Legacy introduction/, undefined],
     ] satisfies [OpenApiRenderOptions, RegExp, string | undefined][]
   ).map(([options, pattern, section], index) => ({
@@ -301,8 +301,8 @@ selectionFixtures.push(
       check('unrelated legacy schema excluded', /Legacy unused/, undefined, true),
       ...('operation' in options
         ? [
-            check('legacy server', /https:\/\/legacy.example\/v1/, '### GET /pets'),
-            check('legacy authentication', /Key[\s\S]*X-Key/, '### GET /pets'),
+            check('legacy server', /https:\/\/legacy.example\/v1/, '# GET /pets'),
+            check('legacy authentication', /Key[\s\S]*X-Key/, '# GET /pets'),
           ]
         : []),
     ],
@@ -318,9 +318,9 @@ selectionFixtures.push(
     },
     options: { operation: { path: '/override', method: 'get' } },
     checks: [
-      check('override scheme', /OtherAuth[\s\S]*basic/, '### Secure override'),
+      check('override scheme', /OtherAuth[\s\S]*basic/, '# Secure override'),
       check('inherited scheme excluded', /Token|bearer/, undefined, true),
-      check('root server inherited', /https:\/\/root.example/, '### Secure override'),
+      check('root server inherited', /https:\/\/root.example/, '# Secure override'),
       check('models excluded', /## Schemas/, undefined, true),
     ],
   },
@@ -355,7 +355,7 @@ selectionFixtures.push(
     },
     options: { model: 'Combined' },
     checks: [
-      check('composition rendered', /All of:[\s\S]*baseName[\s\S]*extra/, '### Combined'),
+      check('composition rendered', /All of:[\s\S]*baseName[\s\S]*extra/, '# Combined'),
       check('dependency listed', /`Base` — shown above\./, '## Schemas'),
       check('unrelated excluded', /### Unused/, undefined, true),
     ],
@@ -405,9 +405,9 @@ selectionFixtures.push({
   },
   options: { operation: { operationId: 'shared' } },
   checks: [
-    check('resolved path server', /https:\/\/shared.example/, '### GET /shared'),
-    check('parameter override', /Effective limit/, '#### Parameters'),
-    check('response dependency resolved', /usedField/, '#### Responses'),
+    check('resolved path server', /https:\/\/shared.example/, '# GET /shared'),
+    check('parameter override', /Effective limit/, '## Query parameters'),
+    check('response dependency resolved', /usedField/, '## Responses'),
     check('dependency listed', /`Used` — shown above\./, '## Schemas'),
     check('overridden content excluded', /Superseded|### Unused|Excluded shared method/, undefined, true),
   ],

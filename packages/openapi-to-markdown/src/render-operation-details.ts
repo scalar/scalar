@@ -36,7 +36,7 @@ export const renderHeaders = async (
           undefined,
           openapiVersion,
           schemaOpenapiVersion,
-          schemas.linked,
+          { linked: schemas.linked },
         )) as ListItem['children']),
       )
     }
@@ -44,15 +44,9 @@ export const renderHeaders = async (
       blocks.push(paragraph(strong(text('Content-Type:')), text(` ${mediaType}`)))
       if (content.schema !== undefined) blocks.push(...(schemas.render(content.schema) as ListItem['children']))
       blocks.push(
-        ...((await renderExamples(
-          content,
-          description,
-          mediaType,
-          undefined,
-          openapiVersion,
-          schemaOpenapiVersion,
-          schemas.linked,
-        )) as ListItem['children']),
+        ...((await renderExamples(content, description, mediaType, undefined, openapiVersion, schemaOpenapiVersion, {
+          linked: schemas.linked,
+        })) as ListItem['children']),
       )
     }
     entries.push(item(...blocks))

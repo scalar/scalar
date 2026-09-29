@@ -1,4 +1,4 @@
-import type { Nodes, Root, RootContent } from 'mdast'
+import type { Nodes, Parent, Root, RootContent } from 'mdast'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
@@ -73,6 +73,13 @@ const pruneDefinitions = (tree: Root): void => {
   })
 }
 
+/**
+ * A single line without Markdown punctuation, entities, autolinks or block markers parses to one
+ * paragraph containing the same text, so it does not need the parser.
+ */
+const isPlainText = (value: string): boolean =>
+  !/[\n\r\t\\`*_[\]<>#|~!&=]|:\/\/|www\.|^\s*(?:[-+]|\d+[.)])|^ {4}/.test(value) && value.trim().length > 0
+
 /** Parse one description into blocks suitable for insertion into the current document. */
 export type DescriptionParser = (value?: string) => Promise<RootContent[]>
 
@@ -80,6 +87,8 @@ export type DescriptionParser = (value?: string) => Promise<RootContent[]>
 export const createDescriptionParser = (): (() => DescriptionParser) => {
   const cache = new Map<string, Promise<RootContent[]>>()
   const parse = async (value: string): Promise<RootContent[]> => {
+    // Most schema descriptions are one plain sentence. Parsing them costs more than the page's other text.
+    if (isPlainText(value)) return [{ type: 'paragraph', children: [{ type: 'text', value: value.trim() }] }]
     const parsed = parser.parse(value)
     // Raw HTML and GitHub alerts retain Scalar's existing conversion behavior.
     const tree =
@@ -110,7 +119,7 @@ export const createDescriptionParser = (): (() => DescriptionParser) => {
       const prefix = `description-${state.nextId++}-`
       const cached = cache.get(value) ?? parse(value)
       if (!cache.has(value)) {
-        if (cache.size >= 256) cache.clear()
+        if (cache.size >= 8192) cache.clear()
         cache.set(value, cached)
       }
       const nodes = await cached
@@ -118,5 +127,23 @@ export const createDescriptionParser = (): (() => DescriptionParser) => {
       // so repeated descriptions and concurrent page renders cannot affect one another.
       return nodes.map((node) => (hasReference(node) ? namespace(node, prefix) : node))
     }
+  }
+}
+
+/** Replace every deferred description in the given nodes with its parsed Markdown blocks. */
+export const expandDescriptions = async (nodes: RootContent[], description: DescriptionParser): Promise<void> => {
+  const found: { siblings: Nodes[]; node: Nodes }[] = []
+  const collect = (siblings: Nodes[]): void => {
+    for (const node of siblings) {
+      if (node.type === 'descriptionPlaceholder') found.push({ siblings, node })
+      else if ('children' in node) collect((node as Parent).children)
+    }
+  }
+  collect(nodes)
+  const parsed = await Promise.all(found.map(({ node }) => description((node as { value: string }).value)))
+  // Replace from the end, so earlier positions in a shared sibling list stay valid.
+  for (let index = found.length - 1; index >= 0; index--) {
+    const { siblings, node } = found[index]!
+    siblings.splice(siblings.indexOf(node), 1, ...(parsed[index] as Nodes[]))
   }
 }

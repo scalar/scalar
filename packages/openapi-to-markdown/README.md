@@ -130,6 +130,15 @@ It preserves Markdown descriptions, GFM tables and code blocks without rendering
 or converting the generated document through HTML. Descriptions containing raw HTML or
 Scalar alerts use a separate sanitization and conversion path. Images remain excluded.
 
+Each schema property is one line with its name, type and annotations, for example
+`` **`archived_at` (required)**: `string | null`, format: `date-time` ``, followed by
+its description with its paragraphs, links and code blocks intact. Nullable unions,
+single-branch `allOf` wrappers and unions of plain types are labelled as one type.
+Parameters are listed by location. Responses that return the same schema and media
+type share one entry, such as a list of error statuses. Security schemes are
+summarized on one line, and an Authentication section appears only when the API
+description declares requirements.
+
 Schema normalization and description parsing are cached within each renderer. Recursive
 schema expansion still tracks ancestors and stops at a depth of ten. Output may use tighter
 list spacing and normalized Markdown escaping compared with earlier versions.
@@ -167,7 +176,7 @@ await createMarkdownFromOpenApi(content, {
 - **Webhook:** One operation selected by its exact OpenAPI webhook name and method, including parameters, payload and responses. The name is a label, not a delivery URL.
 - **Introduction:** API title, versions, description, contact, license, terms of service, servers and global authentication requirements. No operations, tags, models or webhooks.
 
-Selected pages retain API title, versions and description. They exclude unrelated reference content. Operation servers override path servers, which override document servers. Operation security overrides document security, including `security: []` for anonymous access. Parameter overrides use the parameter name and location. Required schemas are collected after reference resolution, so dependencies remain available even when their original section is omitted.
+An operation, webhook or model page starts with that item as its `#` title, with its sections (parameters, request body, responses) as `##` headings. It leaves out the API title, versions and description, which belong on the introduction page. Tag and whole-document exports keep the document header. Selected pages exclude unrelated reference content. Operation servers override path servers, which override document servers. Operation security overrides document security, including `security: []` for anonymous access. Parameter overrides use the parameter name and location. Required schemas are collected after reference resolution, so dependencies remain available even when their original section is omitted.
 
 Omitting options, or passing `{}`, renders the whole document. OpenAPI 2.0 inputs are migrated before selection: use definition names with `model`. Webhooks require OpenAPI 3.1 or later.
 
@@ -237,9 +246,15 @@ method: 'post' } }`, the one-shot `createMarkdownFromOpenApi`, or the browser en
 point. The browser entry point still requires a workspace-resolved document.
 Options and URL callbacks are isolated per render, including concurrent renders.
 
-Linked mode omits schema-generated examples with an explicit note, avoiding
-expansion through the example generator. Authored media-type and schema examples
-remain available. Their size is not capped. Inline schema content and authored
+References to primitive, enum and `const` schemas, and to aliases of them, are
+written in place, because their whole definition fits on one line. Pass
+`inlinePrimitives: false` to link them too. Object, array and composition schemas
+are always linked.
+
+Linked mode uses authored media-type and schema examples and does not generate
+examples on operation pages, which would expand every linked schema. A model page
+generates an example for its own schema, with linked schemas left as empty
+stubs. Authored examples are not capped in size. Inline schema content and authored
 text also remain proportional to the source; this mode bounds traversal across
 shared references, not the byte size of arbitrary authored content. Root
 composition branches that contain references link to those schemas rather than
