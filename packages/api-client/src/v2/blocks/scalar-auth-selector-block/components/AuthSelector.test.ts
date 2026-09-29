@@ -50,6 +50,8 @@ describe('AuthSelector', () => {
       environment: any
       envVariables: any[]
       heading: boolean
+      hideSingleRequiredScheme: boolean
+      createAnySecurityScheme: boolean
       isStatic: boolean
       canDeleteSchemes: boolean
       securityRequirements: any
@@ -85,6 +87,84 @@ describe('AuthSelector', () => {
       },
     })
   }
+
+  it('hides a sole required reference choice while retaining its credential input', async () => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      canDeleteSchemes: false,
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth },
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    expect(wrapper.find('input').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="auth-indicator"]').text()).toBe('Required')
+    await wrapper.get('[data-testid="auth-indicator"]').trigger('click')
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('keeps the sole required client choice selectable by default', () => {
+    const wrapper = mountWithProps({ securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth } })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it.each([
+    { name: 'optional authentication', securityRequirements: [{ BearerAuth: [] }, {}] },
+    { name: 'no security requirements', securityRequirements: [] },
+    { name: 'additional available schemes', securitySchemes: baseSecuritySchemes },
+    { name: 'new authentication actions', createAnySecurityScheme: true },
+    { name: 'an empty saved selection', selectedSecurity: { selectedIndex: -1, selectedSchemes: [] } },
+    {
+      name: 'multiple required alternatives',
+      securityRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+      securitySchemes: baseSecuritySchemes,
+    },
+    {
+      name: 'an optional combined requirement',
+      securityRequirements: [{ BearerAuth: [], ApiKeyAuth: [] }, {}],
+      securitySchemes: baseSecuritySchemes,
+      selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [], ApiKeyAuth: [] }] },
+    },
+  ])('keeps the reference selector for $name', ({ name: _name, ...props }) => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      canDeleteSchemes: false,
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth },
+      ...props,
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('hides a sole combined requirement without hiding either credential input', () => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      canDeleteSchemes: false,
+      securityRequirements: [{ BearerAuth: [], ApiKeyAuth: [] }],
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth, ApiKeyAuth: baseSecuritySchemes.ApiKeyAuth },
+      selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [], ApiKeyAuth: [] }] },
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain('Bearer Token')
+    expect(wrapper.text()).toContain('X-API-Key')
+    wrapper.unmount()
+  })
+
+  it('shows the selector again when the saved selection is cleared', async () => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth },
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    await wrapper.setProps({ selectedSecurity: { selectedIndex: -1, selectedSchemes: [] } })
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(true)
+    wrapper.unmount()
+  })
 
   describe('rendering', () => {
     it('renders with custom title', () => {

@@ -99,6 +99,7 @@ const selectedSecurity = computed(() =>
     :environment
     :eventBus
     :heading="false"
+    hideSingleRequiredScheme
     isStatic
     layout="reference"
     :meta="{ type: 'document' }"
