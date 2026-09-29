@@ -86,6 +86,38 @@
 
 ### Quickstart
 
+#### Set up with your coding agent
+
+Copy this prompt into your coding agent from your project:
+
+```text
+Set up Scalar API Reference in this project.
+
+Inspect the project’s framework, package manager, routing, and existing
+OpenAPI setup. Choose the appropriate framework integration from
+https://scalar.com/products/api-references and install it using this
+project’s conventions.
+
+If no framework integration exists, render a route using the HTML/JS guide:
+https://scalar.com/products/api-references/integrations/html-js
+Also ask whether I want to request a framework integration here:
+https://github.com/scalar/scalar/discussions/new?category=ideas
+
+Serve the API reference at /scalar, or use an existing documentation route,
+and connect it to the project’s OpenAPI document or generated endpoint.
+If no OpenAPI document exists, ask me which source to use or whether
+we need to add OpenAPI generation.
+
+Use these guides for configuration and theming:
+https://scalar.com/products/api-references/configuration
+https://scalar.com/products/api-references/themes
+
+Implement the setup, verify that the page loads and displays the API
+documentation, and tell me how to run it locally and where to find it.
+```
+
+#### Set up with HTML
+
 All you need is a single HTML file. Load the ESM build from our CDN, with no build step required:
 
 ```html
