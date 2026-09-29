@@ -1,3 +1,4 @@
+import { renderApiReference } from '@scalar/client-side-rendering'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resolve } from './resolve'
@@ -511,5 +512,23 @@ info:
     const result = await resolve('https://example.com/foo')
 
     expect(result).toBe('https://raw.githubusercontent.com/Foo/Bar/main/api/foobar.json')
+  })
+  it.each([true, false])('finds the document URL in rendered references (ESM: %s)', async (bundle) => {
+    const html = renderApiReference({
+      config: { url: '/openapi.json' },
+      bundle,
+    })
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
+
+    expect(await resolve('http://localhost:3000/reference')).toBe('http://localhost:3000/openapi.json')
+  })
+
+  it('decodes serialized URLs and resolves relative paths', async () => {
+    const html = renderApiReference({ config: { url: './openapi.json?tag=<example>&version=1' } })
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
+
+    expect(await resolve('http://localhost:3000/docs/reference')).toBe(
+      'http://localhost:3000/docs/openapi.json?tag=%3Cexample%3E&version=1',
+    )
   })
 })

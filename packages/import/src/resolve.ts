@@ -188,10 +188,11 @@ function parseHtml(html?: string) {
   }
 
   // Check for configuration in script tag
-  const scriptConfigMatch = html.match(/url:\s*["']([^"']+)["']/i)
+  const scriptConfigMatch = html.match(/(?:["']url["']|\burl)\s*:\s*("(?:\\.|[^"\\])*"|'[^']*')/i)
 
   if (scriptConfigMatch?.[1]) {
-    return scriptConfigMatch?.[1]
+    // JSON serialization escapes characters in quoted URLs, including inline-script escapes.
+    return scriptConfigMatch[1].startsWith('"') ? JSON.parse(scriptConfigMatch[1]) : scriptConfigMatch[1].slice(1, -1)
   }
 
   // Check for OpenAPI URLs in the HTML

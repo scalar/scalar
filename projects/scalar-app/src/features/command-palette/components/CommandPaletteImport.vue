@@ -184,6 +184,7 @@ const handleImport = async (
     { source, type: eventType },
     TEMP_DOCUMENT_NAME,
     watchMode.value,
+    fetch,
   )
 
   if (!isSuccessfullyLoaded) {

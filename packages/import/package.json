@@ -44,5 +44,7 @@
     "@scalar/helpers": "workspace:*",
     "yaml": "catalog:*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@scalar/client-side-rendering": "workspace:*"
+  }
 }
