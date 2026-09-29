@@ -354,6 +354,7 @@ Commit the generated `.scalar.lint-ignore.yaml`. Future runs automatically load 
 Use `--ignore-file` to choose a different path for both generation and subsequent runs. Relative paths are resolved from the current working directory:
 
 ```bash
+mkdir -p config
 scalar document lint openapi.yaml --generate-ignore-file --ignore-file config/lint-ignore.yaml
 scalar document lint openapi.yaml --ignore-file config/lint-ignore.yaml
 ```
