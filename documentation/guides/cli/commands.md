@@ -12,6 +12,8 @@ Options:
 Commands:
   readme          Open documentation for the CLI
   upgrade         Upgrade current version of your cli
+  context         Print every command, argument, and option as JSON for AI
+                  agents
   auth            Manage authorization on scalar platform
   document        Manage local openapi file
   project         Manage scalar project
@@ -51,6 +53,16 @@ Options:
 Usage: scalar upgrade [options]
 
 Upgrade current version of your cli
+
+Options:
+  -h, --help  display help for command
+```
+
+## context
+```
+Usage: scalar context [options]
+
+Print every command, argument, and option as JSON for AI agents
 
 Options:
   -h, --help  display help for command
@@ -252,13 +264,14 @@ Usage: scalar document serve [options] [file|url]
 Serve an API Reference from an OpenAPI or AsyncAPI file
 
 Arguments:
-  file|url           OpenAPI or AsyncAPI file or URL to show the reference for
+  file|url             OpenAPI or AsyncAPI file or URL to show the reference for
 
 Options:
-  -w, --watch        watch the file for changes
-  -o, --once         run the server only once and exit after that
-  -p, --port <port>  set the HTTP port for the API reference server
-  -h, --help         display help for command
+  -c, --config <file>  JSON file with API Reference configuration
+  -w, --watch          watch the file for changes
+  -o, --once           run the server only once and exit after that
+  -p, --port <port>    set the HTTP port for the API reference server
+  -h, --help           display help for command
 ```
 
 ### share
@@ -384,8 +397,8 @@ Usage: scalar project create [options]
 Create a new project that is not linked to a github project.
 
 Options:
-  -n, --name [name]  name of your project
-  -s, --slug [slug]  project slug
+  -n, --name <name>  name of your project
+  -s, --slug <slug>  project slug
   -h, --help         display help for command
 ```
 
@@ -396,23 +409,19 @@ Usage: scalar project preview [options] [config]
 Preview scalar guides
 
 Arguments:
-  config                             Path to the Scalar configuration file
-                                     (usually `scalar.config.json5` or
-                                     `scalar.config.json`)
+  config                   Path to the Scalar configuration file (usually
+                           `scalar.config.json5` or `scalar.config.json`)
 
 Options:
-  -p, --port [port]                  port to run the server on. If the port is
-                                     not available, it will select another one.
-                                     (default: "7970")
-  -h, --host [host]                  Specify which IP addresses the server
-                                     should listen on.
-  -L, --log-level <level>            Set the log level (debug, info, warn,
-                                     error, trace) (default: "info")
-  -F, --log-formatting <formatting>  Set the log formatting (pretty|none).
-                                     Defaults to pretty formatting outside of
-                                     CI. (default: "pretty")
-  -N, --no-open                      Do not open the browser automatically
-  --help                             display help for command
+  -p, --port [port]        port to run the server on. If the port is not
+                           available, it will select another one. (default:
+                           "7970")
+  -H, --host [host]        Specify which IP addresses the server should listen
+                           on.
+  -L, --log-level <level>  Set the log level (choices: "debug", "info", default:
+                           "info")
+  -N, --no-open            Do not open the browser automatically
+  -h, --help               display help for command
 ```
 
 ### publish
@@ -635,10 +644,11 @@ Options:
 
 Commands:
   list [options]    List all SDKs for a team namespace
-  create [options]  Create a new SDK.
+  create [options]  Create a new SDK. The SDK is created in the namespace of the
+                    API it is built from.
   update [options]  Update SDK metadata.
   delete [options]  Delete an SDK.
-  build [options]   Create an SDK build.
+  build [options]   Build an SDK.
   help [command]    display help for command
 ```
 
@@ -657,11 +667,12 @@ Options:
 ```
 Usage: scalar sdk create [options]
 
-Create a new SDK.
+Create a new SDK. The SDK is created in the namespace of the API it is built
+from.
 
 Options:
   -a, --api <api>              Registry API slug
-  -n, --namespace <namespace>  Team namespace
+  -n, --namespace <namespace>  Team namespace to look the API up in
   -l, --language <language>    Language of your SDK (choices: "typescript",
                                "python", "cli", "csharp", "java", "ruby", "php",
                                "go", "rust", "kotlin", "swift", "cpp", "dart")
@@ -678,7 +689,7 @@ Options:
   -s, --slug <slug>            SDK slug
   -n, --namespace <namespace>  Team namespace
   --title <title>              Title
-  --isPrivate <isPrivate>      Privacy (public/private)
+  --isPrivate <isPrivate>      Privacy (true/false or public/private)
   -h, --help                   display help for command
 ```
 
@@ -698,12 +709,11 @@ Options:
 ```
 Usage: scalar sdk build [options]
 
-Create an SDK build.
+Build an SDK.
 
 Options:
   -s, --slug <slug>            SDK slug
   -n, --namespace <namespace>  Team namespace
-  -v, --version <version>      SDK Version
   -h, --help                   display help for command
 ```
 
@@ -750,7 +760,7 @@ Options:
   -n, --namespace <namespace>  Team namespace
   --title <title>              Title
   --description <description>  Description
-  --isPrivate <isPrivate>      Privacy (public/private)
+  --isPrivate <isPrivate>      Privacy (true/false or public/private)
   -h, --help                   display help for command
 ```
 
