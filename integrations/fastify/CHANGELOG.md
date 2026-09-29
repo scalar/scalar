@@ -1,5 +1,7 @@
 # @scalar/fastify-api-reference
 
+## 1.72.2
+
 ## 1.72.1
 
 ## 1.72.0

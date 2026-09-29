@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 1.4.0
+
+### Minor Changes
+
+- [#10394](https://github.com/scalar/scalar/pull/10394): Add opt-in linked schema rendering with caller-supplied model URLs for bounded operation, model, and webhook pages. Keep default expansion unchanged, retain reference siblings and inline schemas, and omit generated examples in linked mode.
+
 ## 1.3.0
 
 ### Minor Changes

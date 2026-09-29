@@ -1,5 +1,51 @@
 # @scalar/api-client
 
+## 3.21.2
+
+### Patch Changes
+
+- [#10369](https://github.com/scalar/scalar/pull/10369): fix: correct the semantics of the authentication card and of nested schema lists
+
+  Two findings from an accessibility audit, both programmatic only with no change
+  to how anything renders:
+  - The reference's Authentication card announced its title as a level two
+    heading, which put a card of controls in the document outline next to the
+    real tag and operation headings. The title is now plain text and the card is
+    exposed as a named group instead, so it stays findable without claiming to
+    open a passage of the page. Collapsible sections in the API client are
+    unaffected and keep their headings.
+  - A schema panel whose root is a composition, a primitive or an array wraps a
+    single nameless row that carries the real property list, so assistive tech
+    announced "list with 1 item" before the list the reader wanted. That wrapper
+    is now presentational and only the real property list is announced.
+
+- [#10371](https://github.com/scalar/scalar/pull/10371): fix: tidy the client modal header at narrow widths
+
+  The method label and copy button now stay inside the address bar at every width instead of moving to a floating row of their own, and the send button spans the full width once it wraps. Below the `lg` breakpoint, where the address bar fills the header row and its method chip reaches the panel edge, the sidebar toggle moves onto the backdrop as a circle that mirrors the close button in the opposite corner. At wider widths it keeps its original place inside the panel.
+
+- [#10374](https://github.com/scalar/scalar/pull/10374): fix: resolve accessibility audit findings in the client modal
+  - Auth fields (Bearer Token, Username, API key and OAuth inputs) now expose their visible label as the accessible name in both the masked and unmasked state
+  - Request and response filter tabs no longer carry `aria-controls`, so screen readers announce each tab once when arrowing through them
+  - Opening the modal from a "Test Request" button now moves focus to the close button first
+
+- [#10369](https://github.com/scalar/scalar/pull/10369): fix: address a batch of screen reader and keyboard accessibility findings
+
+  Corrects programmatic semantics only, with no change to how anything renders:
+  the current sidebar item now reports `aria-current`, the single content type
+  readout leaves the tab order, collapsible sections no longer announce their
+  title twice, the password toggle reports its state through `aria-pressed`, the
+  two document download buttons get distinct accessible names, response status
+  tabs announce what each code means, and the client picker and its search field
+  get accessible names.
+
+- [#10361](https://github.com/scalar/scalar/pull/10361): Preserve configured OAuth redirect URLs when changing credentials or clearing tokens, and hide refresh controls when no refresh token is available.
+
+  Previously saved redirect overrides, including empty strings and prefilled page origins, remain unchanged because they cannot be distinguished from intentional user choices. Users affected by the earlier bug must enter the intended redirect URL again.
+
+  The public `@scalar/workspace-store` OAuth secrets types now expose `x-scalar-secret-redirect-uri` as optional (`string | undefined`). Consumers must handle an absent override separately from an explicit empty string.
+
+- [#10363](https://github.com/scalar/scalar/pull/10363): Avoid duplicate available OAuth2 entries when scopes are selected, and apply configured default scopes when selecting an available scheme.
+
 ## 3.21.1
 
 ### Patch Changes

@@ -1,5 +1,67 @@
 # @scalar/api-reference
 
+## 1.72.2
+
+### Patch Changes
+
+- [#10369](https://github.com/scalar/scalar/pull/10369): fix: correct the semantics of the authentication card and of nested schema lists
+
+  Two findings from an accessibility audit, both programmatic only with no change
+  to how anything renders:
+  - The reference's Authentication card announced its title as a level two
+    heading, which put a card of controls in the document outline next to the
+    real tag and operation headings. The title is now plain text and the card is
+    exposed as a named group instead, so it stays findable without claiming to
+    open a passage of the page. Collapsible sections in the API client are
+    unaffected and keep their headings.
+  - A schema panel whose root is a composition, a primitive or an array wraps a
+    single nameless row that carries the real property list, so assistive tech
+    announced "list with 1 item" before the list the reader wanted. That wrapper
+    is now presentational and only the real property list is announced.
+
+- [#10364](https://github.com/scalar/scalar/pull/10364): Prevent repeated introduction fragments when reopening API descriptions that start with a Markdown heading.
+- [#10375](https://github.com/scalar/scalar/pull/10375): Raise muted text, code-string blue and the deprecated schema row to the 4.5:1 text contrast minimum across the shipped themes
+
+  An accessibility audit turned up text that is legible in the default theme but not in several of the presets, which pair the default greys and blues with an off-white page background. Nine presets and four integration themes get a hue-preserving nudge:
+  - Light `--scalar-color-2` now clears 4.5:1 on both the page background and the grey card background in every preset. That covers `alternate`, `bluePlanet`, `mars` and `saturn`, which paired the default grey with an off-white page, and `custom-theme-starter`, `deepSpace`, `elysiajs`, `fastify`, `kepler` and `purple`, which copied the default grey and were left behind when the default moved.
+  - Light `--scalar-color-blue`, which colours code strings, now clears 4.5:1 on the grey example background in `alternate`, `bluePlanet`, `deepSpace`, `elysiajs`, `fastify`, `kepler` and `moon`, and in the Docusaurus, NestJS, Next.js and SvelteKit themes.
+  - Dark `--scalar-color-blue` now clears 4.5:1 in `purple` and `saturn`, and in the Hono and Docusaurus dark themes.
+  - Deprecated schema rows no longer fade their contents to 75% opacity, which had dropped their muted text to 3.0:1. The diagonal stripes, the strikethrough on the property name and the Deprecated badge still mark the row.
+  - The AsyncAPI send and receive pills blend their label further toward the body text colour, so they read against the tinted fill in every preset but `laserwave`.
+  - `--scalar-focus-color` sits further from the accent so a keyboard focus ring clears 3:1 on `--scalar-background-3` as well, which some presets use for the selected sidebar item.
+
+  `laserwave` still misses in light mode, where it reuses its dark accents unchanged; bringing it up is a redesign of the preset rather than a nudge.
+
+- [#10385](https://github.com/scalar/scalar/pull/10385): feat: add UTM parameters identifying the integration to the "Powered by Scalar" link
+- [#10375](https://github.com/scalar/scalar/pull/10375): fix: raise text and focus ring contrast flagged by an accessibility audit
+
+  The default light blue is a touch deeper so code strings and read-only labels meet 4.5:1, the required label darkens in light mode, keyboard focus rings now draw from a new `--scalar-focus-color` token that meets 3:1 against hovered and selected surfaces, and the schema union pipe, Default, Example and Pattern labels use the regular muted text colour.
+
+- [#10373](https://github.com/scalar/scalar/pull/10373): fix(api-reference): correct selected state, focus ring, target size and reflow of reference controls
+  - Client library tabs no longer announce a featured tab as selected while a client picked from "More" is active
+  - The response card "Copy example value" button shows a keyboard focus ring again
+  - The schema tree toggle keeps its 24px hit box in narrow layouts
+  - The schema property copy-link button gets a 24px hit box without changing its layout
+  - Heading copy-link buttons no longer widen the page in narrow layouts
+
+  Rename the always-present layout container class and CSS container name from `narrow-references-container` to `references-container`.
+
+- [#10369](https://github.com/scalar/scalar/pull/10369): fix: address a batch of screen reader and keyboard accessibility findings
+
+  Corrects programmatic semantics only, with no change to how anything renders:
+  the current sidebar item now reports `aria-current`, the single content type
+  readout leaves the tab order, collapsible sections no longer announce their
+  title twice, the password toggle reports its state through `aria-pressed`, the
+  two document download buttons get distinct accessible names, response status
+  tabs announce what each code means, and the client picker and its search field
+  get accessible names.
+
+- [#10379](https://github.com/scalar/scalar/pull/10379): fix: remove the duplicate copy button from the example response header
+
+  The response card carried its own copy button in the tab strip, added in 2023 when the card had no other copy affordance. The code block inside it later gained a built-in copy button of its own, which left every response card showing two buttons that copy the same content. Only the code block's button remains.
+
+- [#10388](https://github.com/scalar/scalar/pull/10388): Prevent Safari from outlining an entire operation section after sidebar navigation while preserving focus on the navigation target.
+
 ## 1.72.1
 
 ### Patch Changes

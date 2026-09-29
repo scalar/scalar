@@ -1,5 +1,15 @@
 # @scalar/helpers
 
+## 0.16.0
+
+### Minor Changes
+
+- [#10390](https://github.com/scalar/scalar/pull/10390): Add `unescapeJsonPointerSegment` to unescape JSON Pointer segments without decoding literal percent sequences. Preserve the existing URI-decoding behavior of `unescapeJsonPointer`.
+
+### Patch Changes
+
+- [#10385](https://github.com/scalar/scalar/pull/10385): feat: add UTM parameters identifying the integration to the "Powered by Scalar" link
+
 ## 0.15.0
 
 ### Minor Changes
