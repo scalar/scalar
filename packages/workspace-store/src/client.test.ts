@@ -107,6 +107,66 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it.each(['3.0.0', '3.1.0', '3.2.1'])('isolates ingestion and saved baselines for OpenAPI %s', async (version) => {
+    const input = getDocument(version)
+    const original = structuredClone(input)
+    const store = createWorkspaceStore()
+    const clientStore = createWorkspaceStore()
+
+    await store.addDocument({ name: 'reference', document: input })
+    await store.addDocument({ name: 'second', document: input })
+    await clientStore.addDocument({ name: 'client', document: input })
+
+    const document = getOpenApiDocument(store, 'reference')
+    assert(document)
+    expect(document['x-original-oas-version']).toBe(version)
+    document.info.title = 'Edited title'
+    const user = getResolvedRef(document.components?.schemas?.User)
+    assert(user)
+    user.description = 'Edited schema'
+
+    expect(input).toStrictEqual(original)
+    expect(store.getOriginalDocument('reference')).toStrictEqual(original)
+    expect(store.getIntermediateDocument('reference')).toStrictEqual(original)
+    expect(getOpenApiDocument(store, 'second')?.info.title).toBe('My API')
+    expect(getOpenApiDocument(clientStore, 'client')?.info.title).toBe('My API')
+    expect(
+      getResolvedRef(getOpenApiDocument(clientStore, 'client')?.components?.schemas?.User)?.description,
+    ).toBeUndefined()
+
+    await store.revertDocumentChanges('reference')
+    expect(getOpenApiDocument(store, 'reference')?.info.title).toBe('My API')
+    expect(
+      getResolvedRef(getOpenApiDocument(store, 'reference')?.components?.schemas?.User)?.description,
+    ).toBeUndefined()
+    expect(store.getOriginalDocument('reference')).toStrictEqual(original)
+    expect(store.getIntermediateDocument('reference')).toStrictEqual(original)
+    expect(input).toStrictEqual(original)
+  })
+
+  it('keeps AsyncAPI upgrade mutations separate from its input and saved baselines', async () => {
+    const input = {
+      asyncapi: '2.6.0',
+      info: { title: 'Events', version: '1.0.0' },
+      channels: { events: { publish: { message: { payload: { type: 'string' } } } } },
+    }
+    const original = structuredClone(input)
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'events', document: input })
+
+    const document = store.workspace.documents.events
+    assert(document && isAsyncApiDocument(document))
+    expect(document.asyncapi).toBe('3.1.0')
+    expect(document['x-original-aas-version']).toBe('2.6.0')
+    document.info.title = 'Edited events'
+    expect(input).toStrictEqual(original)
+    expect(store.getOriginalDocument('events')).toStrictEqual(original)
+    expect(store.getIntermediateDocument('events')).toStrictEqual(original)
+    await store.revertDocumentChanges('events')
+    expect(store.workspace.documents.events?.info.title).toBe('Events')
+    expect(input).toStrictEqual(original)
+  })
+
   it('preserves and resolves streaming item schemas when importing OpenAPI 3.2', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

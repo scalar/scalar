@@ -1099,7 +1099,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // 3.x AsyncAPI document, so cast it back so the spread below still satisfies `AsyncApiDocument`.
       const upgradedAsyncApiDocument = withMeasurementSync(
         'upgrade',
-        () => upgradeAsyncApi(deepClone(clonedRawInputDocument)) as AsyncApiDocument,
+        () => upgradeAsyncApi(clonedRawInputDocument) as AsyncApiDocument,
       )
 
       const asyncApiDocument = createMagicProxy({
@@ -1139,13 +1139,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       return
     }
 
-    const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
+    // The working document is already isolated from the caller and both saved baselines.
+    // Upgraders may mutate it, so capture the source version before handing it over.
+    const originalOasVersion = clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger
+    const inputDocument = withMeasurementSync('upgrade', () => upgrade(clonedRawInputDocument, '3.1'))
 
     const strictDocument: UnknownObject = createMagicProxy(
       {
         ...inputDocument,
         ...meta,
-        'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
+        'x-original-oas-version': originalOasVersion,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },
