@@ -11,21 +11,20 @@ const origin = 'http://localhost:3000'
 const html = '<script>Scalar.createApiReference("#app", {"url": "/openapi.json"})</script>'
 
 describe('load-document-from-url', () => {
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => vi.restoreAllMocks())
 
   it.each([commandImport, listenerImport])('imports a reference through the configured transport', async (load) => {
     const fetch = vi.fn<typeof globalThis.fetch>((input) =>
       Promise.resolve(input.toString() === `${origin}/reference` ? new Response(html) : Response.json(document)),
     )
-    const globalFetch = vi.fn<typeof globalThis.fetch>()
-    vi.stubGlobal('fetch', globalFetch)
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected renderer fetch'))
     const store = createWorkspaceStore({ fetch })
 
     expect(await load(store, { type: 'url', source: `${origin}/reference` }, 'hono', true, fetch)).toBe(true)
     expect(store.workspace.documents.hono?.info.title).toBe('Local Hono API')
     expect(store.workspace.documents.hono?.['x-scalar-original-source-url']).toBe(`${origin}/openapi.json`)
     expect(store.workspace.documents.hono?.['x-scalar-watch-mode']).toBe(true)
-    expect(fetch.mock.calls.map(([url]) => url)).toEqual([`${origin}/reference`, `${origin}/openapi.json`])
+    expect(fetch.mock.calls.map(([url]) => url)).toStrictEqual([`${origin}/reference`, `${origin}/openapi.json`])
     expect(globalFetch).not.toHaveBeenCalled()
   })
 
@@ -33,11 +32,11 @@ describe('load-document-from-url', () => {
     const fetch = vi.fn<typeof globalThis.fetch>(async (input) =>
       input.toString().includes('reference') ? new Response(html) : Response.json(document),
     )
-    vi.stubGlobal('fetch', fetch)
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetch)
     const store = createWorkspaceStore({ meta: { 'x-scalar-active-proxy': 'https://proxy.example.com' } })
 
     expect(await loadDocumentFromUrl(store, 'https://api.example.com/reference', 'api', false)).toBe(true)
-    expect(fetch.mock.calls.map(([url]) => url)).toEqual([
+    expect(fetch.mock.calls.map(([url]) => url)).toStrictEqual([
       'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Freference',
       'https://proxy.example.com/?scalar_url=https%3A%2F%2Fapi.example.com%2Fopenapi.json',
     ])
@@ -87,8 +86,7 @@ describe('load-document-from-url', () => {
 
   it('keeps failed requests on the custom transport', async () => {
     const fetch = vi.fn<typeof globalThis.fetch>(async () => new Response(null, { status: 404 }))
-    const globalFetch = vi.fn<typeof globalThis.fetch>()
-    vi.stubGlobal('fetch', globalFetch)
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected renderer fetch'))
     const store = createWorkspaceStore({ fetch })
 
     expect(await loadDocumentFromUrl(store, `${origin}/reference`, 'api', false, fetch)).toBe(false)
