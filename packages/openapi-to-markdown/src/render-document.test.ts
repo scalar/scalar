@@ -371,6 +371,27 @@ describe('render-document', () => {
     expect(output).not.toContain('`Alias` — shown above')
   })
 
+  it.each(['inline', 'linked'] as const)('retains authored examples for non-object models in %s mode', async (mode) => {
+    const input = {
+      openapi: '3.1.2',
+      info: { title: 'Examples', version: '1' },
+      components: {
+        schemas: {
+          Name: { type: 'string', example: 'authored name' },
+          Names: { type: 'array', items: { type: 'string' }, examples: [['authored item']] },
+        },
+      },
+    }
+    const schemaReferences = mode === 'linked' ? { mode } : undefined
+    const name = await createMarkdownFromOpenApi(input, { model: 'Name', schemaReferences })
+    expect(name).toContain('**Example:**\n\n```json\n"authored name"\n```')
+    const names = await createMarkdownFromOpenApi(input, { model: 'Names', schemaReferences })
+    expect(names).toContain('**Example:**\n\n```json\n[\n  "authored item"\n]\n```')
+    const whole = await createMarkdownFromOpenApi(input, { schemaReferences })
+    expect(whole).toContain('"authored name"')
+    expect(whole).toContain('"authored item"')
+  })
+
   it('separates content after a nested list so it does not continue the list', async () => {
     const output = await createMarkdownFromOpenApi(
       {

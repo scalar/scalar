@@ -3,30 +3,30 @@ import { ScalarButton } from '@scalar/components/button'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
 
 import { documents } from '../documents'
-import type { ExportResult, Manifest } from '../types'
+import type { ExportResult, Manifest, Page } from '../types'
 
 const initial = new URLSearchParams(window.location.search)
-const documentId = ref(
+const documentId = ref<string>(
   documents.find((entry) => entry.id === initial.get('document'))?.id ??
     'galaxy',
 )
 const manifest = shallowRef<Manifest>()
 const result = shallowRef<ExportResult>()
-const page = ref(0)
+const page = ref<number>(0)
 const mode = ref<'page' | 'linked' | 'full'>(
   initial.get('linked') === 'true' ? 'linked' : 'page',
 )
-const linked = ref(initial.get('linked') === 'true')
+const linked = ref<boolean>(initial.get('linked') === 'true')
 const view = ref<'preview' | 'source'>('preview')
-const search = ref('')
-const busy = ref(false)
-const error = ref('')
-const copied = ref(false)
+const search = ref<string>('')
+const busy = ref<boolean>(false)
+const error = ref<string>('')
+const copied = ref<boolean>(false)
 let pending: AbortController | undefined
-const example = computed(
+const example = computed<(typeof documents)[number]>(
   () => documents.find((entry) => entry.id === documentId.value)!,
 )
-const pages = computed(
+const pages = computed<(Page & { index: number })[]>(
   () =>
     manifest.value?.pages
       .map((entry, index) => ({ ...entry, index }))
@@ -34,12 +34,12 @@ const pages = computed(
         entry.label.toLowerCase().includes(search.value.toLowerCase()),
       ) ?? [],
 )
-const statistics = computed(() =>
+const statistics = computed<string>(() =>
   result.value
     ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(result.value.bytes / 1024)} KB · ${Math.round(result.value.milliseconds)} ms to export`
     : 'Choose an example to begin',
 )
-const filename = computed(
+const filename = computed<string>(
   () =>
     `${documentId.value}-${mode.value === 'full' ? 'full' : `page-${page.value}`}${linked.value ? '-linked' : ''}.md`,
 )

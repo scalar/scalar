@@ -41,6 +41,11 @@ const serializer = unified()
   })
   .freeze()
 
+/** Authored values must survive even when the model does not generate an object example. */
+const hasAuthoredExamples = (view: SchemaView): boolean =>
+  isObject(view.schema) &&
+  (view.schema.example !== undefined || (Array.isArray(view.schema.examples) && view.schema.examples.length > 0))
+
 /**
  * Refer to a model that an operation or an earlier model on the same page already expanded.
  * Keep what that expansion did not print: a title, and a description that a reference sibling replaced.
@@ -265,7 +270,7 @@ export const createDocumentRenderer = (): ((
         ...(await description(view.description)),
         ...schemas.render(schema, 0, [], { hideDetails: true, name }),
       )
-      if (view.type === 'object') {
+      if (view.type === 'object' || hasAuthoredExamples(view)) {
         // A model page's own schema is bounded, so it gets a generated example even in linked mode.
         const own = name === options.model
         nodes.push(
@@ -303,10 +308,7 @@ export const createDocumentRenderer = (): ((
       const view = schemas.view(schema)
       const previous = schemas.shownAs(schema)
       // A generated example only restates the schema, but an authored one is not printed above.
-      const authored =
-        isObject(view.schema) &&
-        (view.schema.example !== undefined || (Array.isArray(view.schema.examples) && view.schema.examples.length > 0))
-      if (!whole && previous && !(view.type === 'object' && authored)) {
+      if (!whole && previous && !hasAuthoredExamples(view)) {
         shownAbove.push(await renderShownModel(name, view, previous, description))
         continue
       }

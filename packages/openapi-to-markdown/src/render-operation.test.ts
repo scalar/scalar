@@ -49,6 +49,43 @@ const page = async (options: OpenApiRenderOptions = { operation: { path: '/tunne
   await createMarkdownFromOpenApi(document, options)
 
 describe('render-operation', () => {
+  it.each(['3.0.4', '3.1.2', '3.2.1'])('retains empty server overrides on selected pages in %s', async (openapi) => {
+    const input = {
+      openapi,
+      info: { title: 'Servers', version: '1' },
+      servers: [{ url: 'https://global.example.com' }],
+      paths: { '/items': { get: { servers: [], responses: {} } } },
+      webhooks: { changed: { post: { servers: [], responses: {} } } },
+    }
+    const operation = await createMarkdownFromOpenApi(input, { operation: { path: '/items', method: 'get' } })
+    expect(operation).toContain('## Effective servers\n\n- `/`\n')
+    expect(operation).not.toContain('https://global.example.com')
+    if (openapi !== '3.0.4') {
+      const webhook = await createMarkdownFromOpenApi(input, { webhook: { name: 'changed', method: 'post' } })
+      expect(webhook).toContain('## Effective servers\n\n- `/`\n')
+      expect(webhook).not.toContain('https://global.example.com')
+    }
+  })
+
+  it('retains server variable choices and descriptions on a selected page', async () => {
+    const markdown = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.1.2',
+        info: { title: 'Servers', version: '1' },
+        servers: [
+          {
+            url: 'https://{region}.example.com',
+            variables: { region: { default: 'us', enum: ['us', 'eu'], description: 'Choose a **region**.' } },
+          },
+        ],
+        paths: { '/items': { get: { responses: {} } } },
+      },
+      { operation: { path: '/items', method: 'get' } },
+    )
+    expect(markdown).toContain('region: `us`, possible values: `us, eu`')
+    expect(markdown).toContain('Choose a **region**.')
+  })
+
   it('starts a single operation page with the operation and uses second-level sections', async () => {
     const markdown = await page()
     expect(markdown.startsWith('# List tunnels\n')).toBe(true)

@@ -121,7 +121,7 @@ export const renderOperation = async (
   }
   if (inheritedServers) {
     nodes.push(paragraph(strong(text('Servers:')), text(' '), link(`#${inheritedServers}`, 'Inherited servers')))
-  } else if (servers?.length || (documentContext && servers !== undefined)) {
+  } else if (servers !== undefined) {
     if (serverAnchor) nodes.push(anchor(serverAnchor))
     nodes.push(heading(h(1), text('Effective servers')))
     const serverItems: ListItem[] = []
@@ -142,11 +142,11 @@ export const renderOperation = async (
                   paragraph(
                     text(`${name}: `),
                     inlineCode(variable.default),
-                    ...(documentContext && variable.enum?.length
+                    ...(variable.enum?.length
                       ? [text(', possible values: '), inlineCode(variable.enum.join(', '))]
                       : []),
                   ),
-                  ...((documentContext ? await description(variable.description) : []) as ListItem['children']),
+                  ...((await description(variable.description)) as ListItem['children']),
                 ),
               ),
             ),
