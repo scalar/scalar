@@ -17,6 +17,29 @@ const displayedExample = (wrapper: VueWrapper): string =>
   wrapper.findComponent({ name: 'ExampleResponse' }).props('content') as string
 
 describe('ExampleResponses', () => {
+  it('keeps distinct examples selectable when media types normalize to the same key', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': { example: { message: 'plain' } },
+              'application/json; charset=utf-8': { example: { message: 'charset' } },
+              'application/problem+json': { example: { message: 'problem' } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ message: 'plain' })
+    await wrapper.setProps({ selectedContentTypes: { '200': 'application/json; charset=utf-8' } })
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ message: 'charset' })
+    await wrapper.setProps({ selectedContentTypes: { '200': 'application/problem+json' } })
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ message: 'problem' })
+  })
+
   it('does not offer union alternatives when an empty enum excludes every value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       enum: [],
