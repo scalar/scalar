@@ -42,7 +42,8 @@ type ExpansionContext = {
   anchorPath?: string
 }
 
-type SchemaExpansionStore = {
+/** Shared expansion controls for a host and its schema trees. */
+export type SchemaExpansionStore = {
   /** Resolve whether a node is open. See the resolution order below. */
   isExpanded: (key: string, ctx?: ExpansionContext) => boolean
   /** Record an explicit user decision about one node. */

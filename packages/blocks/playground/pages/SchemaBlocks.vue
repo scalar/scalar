@@ -4,7 +4,8 @@ import { ScalarTeleportRoot } from '@scalar/components/teleport'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { provideSchemaExpansion, Schema } from '../../src/schema'
+import { Schema } from '../../src/schema'
+import { provideSchemaExpansion } from '../../src/schema/expansion'
 
 const expansion = provideSchemaExpansion()
 

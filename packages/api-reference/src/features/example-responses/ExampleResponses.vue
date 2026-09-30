@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ExamplePicker } from '@scalar/blocks/code-example'
-import { ScreenReader } from '@scalar/blocks/schema'
+import { ScreenReader } from '@scalar/blocks/shared'
 import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarCard,

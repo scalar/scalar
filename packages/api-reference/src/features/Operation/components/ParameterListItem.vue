@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
-  getRefName,
-  getSchemaType,
-  hasComplexArrayItems,
-  optimizeValueForDisplay,
   SchemaGlyphPuck,
   SchemaProperty,
   SchemaRailPanel,
 } from '@scalar/blocks/schema'
+import {
+  getRefName,
+  getSchemaType,
+  hasComplexArrayItems,
+  optimizeValueForDisplay,
+} from '@scalar/blocks/schema/helpers'
 import {
   ScalarMarkdown,
   ScalarMarkdownSummary,

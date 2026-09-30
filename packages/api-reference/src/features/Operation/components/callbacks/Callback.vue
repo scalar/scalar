@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import {
-  SchemaGlyphPuck,
-  toNodeKey,
-  useSchemaExpansion,
-} from '@scalar/blocks/schema'
+import { SchemaGlyphPuck } from '@scalar/blocks/schema'
+import { toNodeKey, useSchemaExpansion } from '@scalar/blocks/schema/expansion'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {

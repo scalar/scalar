@@ -9,7 +9,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, inject, provide, useId } from 'vue'
 
-import ScreenReader from './components/ScreenReader.vue'
+import ScreenReader from '../shared/ScreenReader.vue'
 import { isOnSchemaTargetPath, useSchemaRenderingContext } from './context'
 import {
   resolveDynamicSchema,

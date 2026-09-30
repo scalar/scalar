@@ -133,7 +133,13 @@
       ]
     },
     "packages/blocks": {
-      "entry": ["src/code-example/index.ts", "src/schema/index.ts"]
+      "entry": [
+        "src/code-example/index.ts",
+        "src/shared/index.ts",
+        "src/schema/index.ts",
+        "src/schema/helpers/index.ts",
+        "src/schema/expansion/index.ts"
+      ]
     },
     "packages/agent-chat": {
       "ignore": ["playground/**", "src/entities/**"],

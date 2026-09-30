@@ -10,7 +10,7 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 import { computed, toRef } from 'vue'
 
-import Badge from './components/Badge.vue'
+import Badge from '../shared/Badge.vue'
 import { getSchemaType } from './helpers/get-schema-type'
 import { getDisplayTypeSignatureTokens } from './helpers/get-type-signature-tokens'
 import {

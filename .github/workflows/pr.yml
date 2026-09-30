@@ -314,6 +314,54 @@ jobs:
           grep -q "User account created successfully" /tmp/response.html
         timeout-minutes: 2
 
+  test-block-snapshots:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.head_ref == 'main'
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    environment: production-netlify
+    container:
+      image: scalarapi/playwright-runner:1.62.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build Storybook (@scalar/blocks)
+        run: pnpm --filter blocks build:storybook
+      - name: Run e2e tests (@scalar/blocks)
+        run: pnpm --filter blocks test:e2e:storybook:ci
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Deploy Playwright Report to Netlify
+        run: |
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/blocks/playwright-report-storybook" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS_SNAPSHOTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/blocks \
+            --alias=${{env.DEPLOY_ID}}
+        # Only when the PR is from the same repository
+      - if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]') }}
+        name: Add Netlify Playwright Report URL to the PR
+        uses: daun/playwright-report-summary@8bb85779022480a59ed8d33d9a4b8bda1c67666b # v4.0.0
+        with:
+          comment-title: 'Scalar Blocks Snapshot Test Results'
+          report-url: https://${{env.DEPLOY_ID}}--scalar-snapshots.netlify.app
+          report-file: packages/blocks/playwright-results-storybook.json
+          report-tag: test-blocks-snapshots
+
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204

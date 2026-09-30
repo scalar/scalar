@@ -15,7 +15,7 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
-import { provideSchemaContext } from '@scalar/blocks/schema'
+import { provideSchemaContext } from '@scalar/blocks/schema/expansion'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,

@@ -1,7 +1,8 @@
-import { SchemaPropertyHeading } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+
+import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**
  * The property heading line: the type/format, the dotted list of constraints, the deprecated badge,

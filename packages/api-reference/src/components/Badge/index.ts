@@ -1,1 +1,1 @@
-export { Badge } from '@scalar/blocks/schema'
+export { Badge } from '@scalar/blocks/shared'

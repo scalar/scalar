@@ -26,7 +26,7 @@ export const scalarGlobalTypes = {
     description: 'Scalar theme',
     toolbar: {
       title: 'Theme',
-      icon: 'paintbrush',
+      icon: 'paintbrush' as const,
       items: Object.entries(themeVariants).map(([value, { label }]) => ({ value, title: label })),
       dynamicTitle: true,
     },
@@ -35,10 +35,10 @@ export const scalarGlobalTypes = {
     description: 'Color mode',
     toolbar: {
       title: 'Color mode',
-      icon: 'contrast',
+      icon: 'contrast' as const,
       items: [
-        { value: 'light', title: 'Light', icon: 'sun' },
-        { value: 'dark', title: 'Dark', icon: 'moon' },
+        { value: 'light', title: 'Light', icon: 'sun' as const },
+        { value: 'dark', title: 'Dark', icon: 'moon' as const },
       ],
       dynamicTitle: true,
     },
