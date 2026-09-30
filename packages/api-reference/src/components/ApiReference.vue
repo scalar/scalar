@@ -15,10 +15,7 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
-import {
-  provideSchemaExpansion,
-  SCHEMA_RENDERING_CONTEXT,
-} from '@scalar/blocks/schema'
+import { provideSchemaContext } from '@scalar/blocks/schema'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -196,11 +193,10 @@ provideUseId(() => useId())
  * Deliberately per-instance rather than module-global: `createApiReference` can
  * be called twice on one page, and two references must not share expansion.
  */
-provide(SCHEMA_RENDERING_CONTEXT, {
+provideSchemaContext({
   scrollTargetId,
   specificationExtension: SpecificationExtension,
 })
-provideSchemaExpansion(scrollTargetId)
 
 // ---------------------------------------------------------------------------
 /**

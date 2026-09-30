@@ -11,7 +11,12 @@ import {
   watch,
 } from 'vue'
 
-import { isOnSchemaTargetPath, useSchemaRenderingContext } from '../context'
+import {
+  SCHEMA_RENDERING_CONTEXT,
+  type SchemaRenderingContext,
+  isOnSchemaTargetPath,
+  useSchemaRenderingContext,
+} from '../context'
 
 /**
  * What a node does when nobody has expressed an opinion about it: its own
@@ -296,7 +301,9 @@ export const SCHEMA_TREE_ROOT_SYMBOL: InjectionKey<boolean> = Symbol('schema-tre
  * server never sees, so committing it during SSR would make every ancestor
  * panel on a deep-linked path a hydration mismatch.
  */
-export const provideSchemaExpansion = (scrollTargetId: Ref<string> = shallowRef('')): SchemaExpansionStore => {
+export const provideSchemaExpansion = (
+  scrollTargetId: Ref<string> = useSchemaRenderingContext().scrollTargetId,
+): SchemaExpansionStore => {
   const store = createSchemaExpansionStore(scrollTargetId)
   provide(SCHEMA_EXPANSION_SYMBOL, store)
 
@@ -360,4 +367,11 @@ export const useSchemaExpansion = (): SchemaExpansionStore => {
   provide(SCHEMA_EXPANSION_SYMBOL, fallback)
 
   return fallback
+}
+
+/** Connect the host renderer and navigation to the same tree expansion store. */
+export const provideSchemaContext = (context: SchemaRenderingContext): SchemaExpansionStore => {
+  const scrollTargetId = context.scrollTargetId ?? shallowRef('')
+  provide(SCHEMA_RENDERING_CONTEXT, { ...context, scrollTargetId })
+  return provideSchemaExpansion(scrollTargetId)
 }
