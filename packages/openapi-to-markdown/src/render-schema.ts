@@ -431,7 +431,13 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       let current: unknown = input
       while (isObject(current)) {
         for (const [key, entry] of Object.entries(current)) {
-          if (!referenceKeys.has(key) && !structuralKeywords.has(key) && key !== 'type' && !(key in own))
+          if (
+            !referenceKeys.has(key) &&
+            (!structuralKeywords.has(key) ||
+              numericAnnotations.some((annotation) => annotation === key) ||
+              (key === 'additionalProperties' && entry === false)) &&
+            !(key in own)
+          )
             own[key] = entry
         }
         if (getRef(current) !== undefined) break
@@ -535,6 +541,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         if (linked && ref !== undefined) nodes.push(text(`${nodes.length ? ', ' : ''}schema: `), referenceNode(ref))
         else add('schema', value.name)
       }
+      if (linkedLabel && value.type !== undefined) add('type', [value.type].flat().join(' | '))
       add('format', value.format)
       if (value.enum) add('possible values', value.enum.map((entry) => JSON.stringify(entry)).join(', '))
       if (value.const !== undefined) add('const', JSON.stringify(value.const))

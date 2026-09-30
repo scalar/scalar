@@ -110,7 +110,11 @@ export const renderOperation = async (
     else {
       inheritedServers = documentContext.pathServers.get(pathItem)
       if (inheritedServers === undefined) {
-        serverAnchor = documentContext.anchors.get('context', `servers-${path}`)
+        serverAnchor = documentContext.anchors.get(
+          'context',
+          JSON.stringify([webhook ? 'webhook' : 'path', path]),
+          `servers-${webhook ? 'webhook-' : ''}${path}`,
+        )
         documentContext.pathServers.set(pathItem, serverAnchor)
       }
     }

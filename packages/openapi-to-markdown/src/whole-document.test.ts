@@ -38,6 +38,63 @@ const input = {
 }
 
 describe('whole-document', () => {
+  it('retains array bounds and closed-object constraints beside linked references', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Constraints', version: '1' },
+      components: {
+        schemas: {
+          Items: { type: 'array', items: { type: 'string' } },
+          Bounded: { $ref: '#/components/schemas/Items', minItems: 1, maxItems: 3, uniqueItems: true },
+          Base: { type: 'object', properties: { id: { type: 'string' } } },
+          Closed: { $ref: '#/components/schemas/Base', additionalProperties: false },
+          NonNull: { $ref: '#/components/schemas/Base', type: 'object' },
+          Container: {
+            type: 'object',
+            properties: {
+              closed: { $ref: '#/components/schemas/Base', additionalProperties: false },
+              bounded: { $ref: '#/components/schemas/Items', minItems: 2 },
+            },
+          },
+        },
+      },
+    })
+    const output = await renderer.render()
+    expect(output).toContain('[Items](#scalar-schema-items), minItems: `1`, maxItems: `3`, uniqueItems: `true`')
+    expect(output).toContain('[Items](#scalar-schema-items), minItems: `2`')
+    expect(output.match(/no additional properties/g)?.length).toBe(2)
+    expect(output).toContain('[Base](#scalar-schema-base), type: `object`')
+  })
+
+  it('separates path and webhook server destinations when their names match', async () => {
+    const response = { '200': { description: 'OK' } }
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Servers', version: '1' },
+      paths: {
+        '/same': {
+          servers: [{ url: 'https://path.example' }],
+          get: { responses: response },
+          post: { responses: response },
+        },
+      },
+      webhooks: {
+        '/same': {
+          servers: [{ url: 'https://webhook.example' }],
+          get: { responses: response },
+          post: { responses: response },
+        },
+      },
+    })
+    const output = await renderer.render()
+    expect(output).toContain('<a id="scalar-context-servers-same"></a>')
+    expect(output).toContain('<a id="scalar-context-servers-webhook-same"></a>')
+    expect(output).toContain('[Inherited servers](#scalar-context-servers-same)')
+    expect(output).toContain('[Inherited servers](#scalar-context-servers-webhook-same)')
+    expect(output.match(/https:\/\/path.example/g)?.length).toBe(1)
+    expect(output.match(/https:\/\/webhook.example/g)?.length).toBe(1)
+  })
+
   it('indexes only rendered operations, webhooks and component names with unique destinations', async () => {
     const response = { '200': { description: 'OK' } }
     const renderer = await createOpenApiMarkdownRenderer({
