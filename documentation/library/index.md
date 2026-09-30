@@ -30,6 +30,12 @@ Scalar, Bruno, Hoppscotch, Insomnia, Yaak, HTTPie, and RESTer, with the licence 
 Mintlify's plans and AI credit costs, checked against its pricing page every month, with verified review sources and alternatives.
 </scalar-card>
 
+## Guides
+
+<scalar-card title="How to create a user manual" href="/library/how-to-create-a-user-manual">
+An eight-step process for planning, writing, publishing, and maintaining a user manual people actually read, with a page template, a checklist, and the common mistakes.
+</scalar-card>
+
 ## How we keep these pages current
 
 - **Dated checks.** Each page carries a "Last updated" line and an "as of" date in its footer. Competitor facts are re-checked when we refresh a page.
