@@ -80,7 +80,7 @@
  * their own ABOVE any tree root — scoped to the root they kept the wide gutter
  * and their glyphs landed on a different line from the schema rows below them.
  * And a container query never matches the element declaring the container, so
- * these cannot live in the `.scalar-app` block above: that element is an
+ * these cannot live in the `.scalar-app` token block in Blocks: that element is an
  * ancestor of the container (declared in Content.vue), not inside it.
  */
 @container references-container (max-width: 900px) {
@@ -89,7 +89,7 @@
     --schema-glyph-size: 16px;
     --schema-glyph-half: 8px;
     --schema-glyph-icon: 14px;
-    /* The toggle keeps the 24px hit box from the block above (WCAG 2.5.8):
+    /* The toggle keeps the 24px hit box from the Blocks token block (WCAG 2.5.8):
        it is transparent, so only the glyph needs to shrink. Hanging
        gutter + half = 10 + 12 = 22px it still clears the 24px section padding
        this query pairs with, and its centre stays on the rail. Its box now

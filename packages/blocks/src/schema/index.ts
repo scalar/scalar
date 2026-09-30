@@ -13,6 +13,7 @@ export { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
 export {
   SCHEMA_EXPANSION_SYMBOL,
   createSchemaExpansionStore,
+  provideSchemaContext,
   provideSchemaExpansion,
   toNodeKey,
   useSchemaExpansion,
