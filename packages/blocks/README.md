@@ -69,4 +69,19 @@ The tree supports nested properties, composition selectors, constraints, example
 
 Translations inherit the host's `@scalar/localization` provider, including locale and custom overrides. Without a provider, labels use English.
 
-Hosts can provide `SCHEMA_RENDERING_CONTEXT` to connect a reactive `scrollTargetId` or a `specificationExtension` component that receives the schema through its `value` prop. Call `provideSchemaExpansion(scrollTargetId)` in the same host to share expansion state and preserve deep links after navigation completes. Request-body composition selectors share their selections with code samples through `REQUEST_BODY_COMPOSITION_INDEX_SYMBOL`.
+Hosts call `provideSchemaContext({ scrollTargetId, specificationExtension })` from `@scalar/blocks/schema/expansion` to connect navigation, extension rendering, and expansion to one store. The extension component receives the schema through its `value` prop. Request-body composition selectors share selections with code samples through `REQUEST_BODY_COMPOSITION_INDEX_SYMBOL`.
+
+### Entry points
+
+- `@scalar/blocks/schema` exposes the schema renderers, rail controls, `SchemaOptions`, translations, and host context and composition-selection keys.
+- `@scalar/blocks/schema/expansion` exposes `provideSchemaContext`, the expansion store and its controls, and breadcrumb node keys for hosts that render their own schema rows.
+- `@scalar/blocks/schema/helpers` exposes the schema classification, composition, naming, ordering, and keyboard helpers shared with those host rows.
+- `@scalar/blocks/shared` exposes the general-purpose `Badge` and `ScreenReader` components.
+
+These entry points are supported package APIs. Implementation components such as composition selectors, enum lists, breadcrumbs, and copy-link buttons stay private to the schema renderer.
+
+### Schema workbench and snapshots
+
+From the repository root, build the dependencies with `pnpm turbo --filter @scalar/blocks build`, then run `pnpm --filter @scalar/blocks dev:storybook` to browse the schema stories.
+
+The stories, interactive snapshot tests, and checked-in baselines live together in `src/schema`. Run `pnpm --filter @scalar/blocks build:storybook` followed by `pnpm --filter @scalar/blocks test:e2e:storybook` with Docker running. The browser runs in the same Linux image as CI so snapshots compare consistently across host platforms. Use `test:e2e:storybook:update-snapshots` only for intentional visual changes.

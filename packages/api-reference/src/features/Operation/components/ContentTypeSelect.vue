@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScreenReader } from '@scalar/blocks/schema'
+import { ScreenReader } from '@scalar/blocks/shared'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'

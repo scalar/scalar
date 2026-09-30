@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import { LinkButton, Schema } from '@scalar/blocks/schema'
 import {
   getModelNameFromSchema,
   inferDiscriminatorMappingComposition,
   isModelLinkable,
   isTypeObject,
-  LinkButton,
   reduceNamesToObject,
-  Schema,
   sortPropertyNames,
-} from '@scalar/blocks/schema'
+} from '@scalar/blocks/schema/helpers'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

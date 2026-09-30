@@ -1,11 +1,7 @@
 <script lang="ts" setup>
-import {
-  handleTreeKeydown,
-  SchemaGutterToggle,
-  SchemaRailPanel,
-  toNodeKey,
-  useSchemaExpansion,
-} from '@scalar/blocks/schema'
+import { SchemaGutterToggle, SchemaRailPanel } from '@scalar/blocks/schema'
+import { toNodeKey, useSchemaExpansion } from '@scalar/blocks/schema/expansion'
+import { handleTreeKeydown } from '@scalar/blocks/schema/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {

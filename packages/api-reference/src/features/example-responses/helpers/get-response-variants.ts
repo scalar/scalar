@@ -1,4 +1,4 @@
-import { getModelNameWithArray, getSchemaType } from '@scalar/blocks/schema'
+import { getModelNameWithArray, getSchemaType } from '@scalar/blocks/schema/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'

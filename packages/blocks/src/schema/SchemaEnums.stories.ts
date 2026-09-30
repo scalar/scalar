@@ -1,7 +1,8 @@
-import { SchemaEnums } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+
+import SchemaEnums from './SchemaEnums.vue'
 
 /**
  * The enum renderer. Stories cover the plain value list, the labelled/described variant

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScreenReader } from '@scalar/blocks/schema'
+import { ScreenReader } from '@scalar/blocks/shared'
 import { ScalarIconPlay } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 

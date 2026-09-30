@@ -1,4 +1,4 @@
-import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from '@scalar/blocks/schema'
+import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from '@scalar/blocks/schema/expansion'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'

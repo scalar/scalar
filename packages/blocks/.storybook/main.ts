@@ -16,7 +16,8 @@ function getAbsolutePath(value: string): string {
 }
 
 const config: StorybookConfig = {
-  // Reference integration stories stay here; reusable schema stories live in Blocks.
+  // Only schema stories for now. The glob is left broad so future component stories are picked up
+  // without touching this config.
   stories: ['../src/**/*.stories.ts'],
 
   addons: [getAbsolutePath('@storybook/addon-links'), getAbsolutePath('@storybook/addon-docs')],

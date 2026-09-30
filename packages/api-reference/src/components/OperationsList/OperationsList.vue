@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScreenReader } from '@scalar/blocks/schema'
+import { ScreenReader } from '@scalar/blocks/shared'
 import {
   ScalarCard,
   ScalarCardHeader,
