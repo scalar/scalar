@@ -24,6 +24,25 @@ const json = (body: unknown, status = 200): Response => Response.json(body, { st
 describe('oauth-device-authorization', () => {
   afterEach(() => vi.useRealTimers())
 
+  it('rejects an explicitly cleared token URL before sending credentials', async () => {
+    const fetcher = vi.fn<typeof fetch>()
+    const [error, tokens] = await authorizeDevice(
+      { ...flow, 'x-scalar-secret-token-url': '' },
+      [],
+      null,
+      '',
+      {},
+      fetcher,
+      {
+        onPrompt: vi.fn(),
+        signal: new AbortController().signal,
+      },
+    )
+    expect(error?.message).toBe('Token URL is required')
+    expect(tokens).toBeNull()
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+
   it('displays the code, waits between polls, backs off, and returns tokens', async () => {
     vi.useFakeTimers()
     const fetcher = vi

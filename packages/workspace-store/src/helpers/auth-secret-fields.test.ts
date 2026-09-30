@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest'
 import { createWorkspaceStore } from '@/client'
 import { createAuthStore } from '@/entities/auth'
 import { authMutatorsFactory } from '@/mutators/auth'
+import type {
+  OAuthFlowsObjectSecret,
+  SecuritySchemeObjectSecret,
+} from '@/request-example/builder/security/secret-types'
 import { mergeSecurity } from '@/request-example/context/security/merge-security'
 
 import { isSecretFieldCleared, resetSecretField, updateClearedSecretFields } from './auth-secret-fields'
@@ -30,14 +34,18 @@ describe('auth-secret-fields', () => {
     },
   } as const
 
-  const setup = async () => {
+  const setup = async (): Promise<{
+    store: ReturnType<typeof createWorkspaceStore>
+    mutators: ReturnType<typeof authMutatorsFactory>
+    read: () => OAuthFlowsObjectSecret
+  }> => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'document',
       document: { openapi: '3.1.0', info: { title: 'Auth fields', version: '1' }, paths: {} },
     })
     const mutators = authMutatorsFactory({ store, document: store.workspace.activeDocument ?? null })
-    const read = () => {
+    const read = (): OAuthFlowsObjectSecret => {
       const scheme = mergeSecurity({}, { OAuth: defaults }, store.auth, 'document').OAuth
       if (scheme?.type !== 'oauth2') throw new Error('Expected OAuth2 scheme')
       return scheme.flows
@@ -67,7 +75,10 @@ describe('auth-secret-fields', () => {
       name: 'OAuth',
       payload: { type: 'oauth2', authorizationCode: { [field]: '' } },
     })
-    const expected = { ...initial, authorizationCode: { ...initial.authorizationCode, [field]: '' } }
+    const expected = {
+      ...initial,
+      authorizationCode: { ...initial.authorizationCode, [field]: '', 'x-scalar-secret-cleared-fields': [field] },
+    }
     expect(read()).toStrictEqual(expected)
     const restored = createAuthStore()
     restored.load(store.auth.export())
@@ -99,6 +110,7 @@ describe('auth-secret-fields', () => {
       authorizationCode: {
         ...before.authorizationCode,
         'x-scalar-secret-auth-url': defaults.flows.authorizationCode.authorizationUrl,
+        'x-scalar-secret-cleared-fields': ['x-scalar-secret-token-url'],
       },
     })
   })
@@ -141,7 +153,8 @@ describe('auth-secret-fields', () => {
             password: 'configured-password',
           } as const)
     const field = type === 'basic' ? 'x-scalar-secret-username' : 'x-scalar-secret-token'
-    const read = () => mergeSecurity({}, { Auth: scheme }, store.auth, 'document').Auth
+    const read = (): SecuritySchemeObjectSecret | undefined =>
+      mergeSecurity({}, { Auth: scheme }, store.auth, 'document').Auth
     const initial = read()
     mutators.updateSecuritySchemeSecrets({ name: 'Auth', payload: { type: scheme.type, [field]: '' } })
     expect(read()).toStrictEqual({ ...initial, [field]: '' })
@@ -160,7 +173,7 @@ describe('auth-secret-fields', () => {
       },
     })
     const schemes = { OIDC: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } } as const
-    const read = () => mergeSecurity({}, schemes, store.auth, 'document').OIDC
+    const read = (): SecuritySchemeObjectSecret | undefined => mergeSecurity({}, schemes, store.auth, 'document').OIDC
     const initial = read()
     mutators.updateSecuritySchemeSecrets({
       name: 'OIDC',

@@ -22,7 +22,10 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
-import type { AuthSecretField } from '@scalar/workspace-store/helpers/auth-secret-fields'
+import {
+  isSecretFieldCleared,
+  type AuthSecretField,
+} from '@scalar/workspace-store/helpers/auth-secret-fields'
 import {
   getEnvironmentVariables,
   type OAuthFlowAuthorizationCodeSecret,
@@ -288,6 +291,7 @@ watch(
     // ephemeral 127.0.0.1 port), so persisting a default into the document would
     // only bake in a stale, unused value. Leave it empty and show a hint instead.
     if (
+      isSecretFieldCleared(currentFlow, 'x-scalar-secret-redirect-uri') ||
       newRedirectUri ||
       !defaultRedirectUri ||
       options.captureOAuth2Callback
@@ -429,7 +433,11 @@ const handleSecretLocationUpdate = (value: string): void => {
 
 <template>
   <!-- Access Token Display: Shows when user is already authorized -->
-  <template v-if="Boolean(flow['x-scalar-secret-token'])">
+  <template
+    v-if="
+      Boolean(flow['x-scalar-secret-token']) ||
+      isSecretFieldCleared(flow, 'x-scalar-secret-token')
+    ">
     <DataTableRow>
       <RequestAuthDataTableInput
         canReset

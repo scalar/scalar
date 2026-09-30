@@ -66,8 +66,9 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
   configSecrets: Record<string, unknown>,
   authStoreSecrets: Record<string, unknown> = {},
   oauth2RedirectUri?: string,
-): Record<T[number], string> =>
-  Object.fromEntries(
+): Record<T[number], string> & { 'x-scalar-secret-cleared-fields'?: string[] } => {
+  const clearedFields = properties.filter((property) => isSecretFieldCleared(authStoreSecrets, property))
+  const values = Object.fromEntries(
     properties.map((property) => {
       // Preserve explicit clears, while legacy schema-filled empties still inherit defaults.
       const authStoreValue = typeof authStoreSecrets[property] === 'string' ? authStoreSecrets[property] : undefined
@@ -89,6 +90,8 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
       return [property, value]
     }),
   ) as Record<T[number], string>
+  return { ...values, ...(clearedFields.length ? { 'x-scalar-secret-cleared-fields': clearedFields } : {}) }
+}
 
 const storedSecret = (secrets: object | undefined, field: AuthSecretField): string | undefined => {
   const value: unknown = secrets && Reflect.get(secrets, field)

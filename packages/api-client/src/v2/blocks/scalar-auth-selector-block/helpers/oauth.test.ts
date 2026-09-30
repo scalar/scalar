@@ -1992,6 +1992,27 @@ describe('oauth', () => {
       },
     } satisfies OAuthFlowsObjectSecret
 
+    it('rejects a cleared token URL when no separate refresh URL is configured', async () => {
+      global.fetch = vi.fn()
+      const flows = {
+        authorizationCode: { ...refreshScheme.authorizationCode, refreshUrl: '', 'x-scalar-secret-token-url': '' },
+      }
+      const [error, tokens] = await refreshOauth2Token(flows, 'authorizationCode', '', mockServer)
+      expect(error?.message).toBe('Token URL is required')
+      expect(tokens).toBeNull()
+      expect(global.fetch).not.toHaveBeenCalled()
+    })
+
+    it('uses a separate refresh URL even when the token URL is cleared', async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce({ json: () => Promise.resolve({ access_token: 'new_access_token' }) })
+      const flows = { authorizationCode: { ...refreshScheme.authorizationCode, 'x-scalar-secret-token-url': '' } }
+      const [error] = await refreshOauth2Token(flows, 'authorizationCode', '', mockServer)
+      expect(error).toBeNull()
+      expect(global.fetch).toHaveBeenCalledWith(refreshScheme.authorizationCode.refreshUrl, expect.any(Object))
+    })
+
     it('exchanges a refresh token for a new access token', async () => {
       global.fetch = vi.fn().mockResolvedValueOnce({
         json: () =>

@@ -94,6 +94,73 @@ describe('OAuth2', () => {
     wrapper.unmount()
   })
 
+  it('keeps a persisted redirect clear on remount and allows reset to prefill', async () => {
+    const update = vi.fn()
+    const stop = eventBus.on('auth:update:security-scheme-secrets', update)
+    const authorizationCode = {
+      authorizationUrl: 'https://example.com/auth',
+      tokenUrl: 'https://example.com/token',
+      refreshUrl: '',
+      scopes: {},
+      'x-scalar-secret-redirect-uri': '',
+      'x-scalar-secret-cleared-fields': ['x-scalar-secret-redirect-uri'],
+      'x-usePkce': 'no' as const,
+      'x-scalar-secret-client-id': '',
+      'x-scalar-secret-client-secret': '',
+      'x-scalar-secret-token': '',
+    }
+    const wrapper = mountWithProps({ flows: { authorizationCode } })
+    await nextTick()
+    expect(update).not.toHaveBeenCalled()
+    const redirect = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((input) => input.text().includes('Redirect URL'))!
+    redirect.vm.$emit('reset')
+    await wrapper.setProps({
+      flows: { authorizationCode: { ...authorizationCode, 'x-scalar-secret-cleared-fields': undefined } },
+    })
+    expect(update).toHaveBeenCalledExactlyOnceWith({
+      name: 'OAuth2',
+      payload: {
+        type: 'oauth2',
+        authorizationCode: { 'x-scalar-secret-redirect-uri': window.location.origin + window.location.pathname },
+      },
+    })
+    stop()
+    wrapper.unmount()
+  })
+
+  it('keeps a field-local reset action after the access token is cleared', async () => {
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          scopes: {},
+          'x-scalar-secret-token': '',
+          'x-scalar-secret-cleared-fields': ['x-scalar-secret-token'],
+        },
+      },
+    })
+    const reset = vi.fn()
+    const stop = eventBus.on('auth:reset:security-scheme-secret', reset)
+    const token = wrapper
+      .findAllComponents(RequestAuthDataTableInput)
+      .find((input) => input.text().includes('Access Token'))!
+    await token
+      .findAllComponents({ name: 'ScalarIconButton' })
+      .find((button) => button.props('label') === 'Reset to default')!
+      .trigger('click')
+    expect(reset).toHaveBeenCalledExactlyOnceWith({
+      name: 'OAuth2',
+      flow: 'authorizationCode',
+      field: 'x-scalar-secret-token',
+    })
+    stop()
+    wrapper.unmount()
+  })
+
   it('has no clear action for PKCE or credentials location and ignores invalid PKCE updates', async () => {
     const wrapper = mountWithProps()
     const update = vi.fn()

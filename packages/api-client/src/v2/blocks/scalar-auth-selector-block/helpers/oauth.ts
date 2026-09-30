@@ -609,7 +609,10 @@ export const refreshOauth2Token = async (
       headers.Authorization = oauthClientAuthorization(clientId, clientSecret)
     }
 
-    const refreshUrl = flow.refreshUrl || flow['x-scalar-secret-token-url'] || flow.tokenUrl
+    const refreshUrl = flow.refreshUrl || (flow['x-scalar-secret-token-url'] ?? flow.tokenUrl)
+    if (!refreshUrl.trim()) {
+      return [new Error('Token URL is required'), null]
+    }
     const absoluteRefreshUrl = makeUrlAbsolute(refreshUrl, getActiveServerBase(activeServer, environmentVariables))
     const url = shouldUseProxy(proxyUrl, absoluteRefreshUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`
