@@ -41,7 +41,6 @@ import ExampleResponseTabList from './ExampleResponseTabList.vue'
 import { getExampleContent } from './helpers/get-example-content'
 import { getResponseVariants } from './helpers/get-response-variants'
 import { hasResponseContent } from './helpers/has-response-content'
-import { normalizeMimeTypeObject } from './helpers/normalize-mime-type-object'
 
 const {
   responses,
@@ -125,12 +124,9 @@ const getResponseMeaning = (statusCode: string): string | undefined => {
   return response?.summary || response?.description || undefined
 }
 
-const normalizedResponseContent = computed(() =>
-  normalizeMimeTypeObject(currentResponse.value?.content),
-)
-
 const currentContentType = computed(() => {
-  const content = normalizedResponseContent.value
+  // Keep the original keys so distinct media types retain their own examples.
+  const content = currentResponse.value?.content
   const statusCode =
     toValue(statusCodesWithContent)[toValue(selectedResponseIndex)] ?? ''
   const selected = selectedContentTypes?.[statusCode]
@@ -139,7 +135,7 @@ const currentContentType = computed(() => {
 })
 
 const currentResponseContent = computed<MediaTypeObject | undefined>(
-  () => normalizedResponseContent.value?.[currentContentType.value],
+  () => currentResponse.value?.content?.[currentContentType.value],
 )
 
 const hasMultipleExamples = computed<boolean>(

@@ -3,7 +3,8 @@ import type { ResponseObject } from '@scalar/workspace-store/schemas/v3.2/strict
 import { normalizeMimeType } from './normalize-mime-type'
 
 /**
- * Remove charset from content types
+ * Normalize content type keys without mutating the source.
+ * When keys normalize to the same value, the last entry wins.
  *
  * Example: `application/json; charset=utf-8` -> `application/json`
  */
@@ -12,16 +13,5 @@ export function normalizeMimeTypeObject(content?: ResponseObject['content']): Re
     return content
   }
 
-  const newContent: ResponseObject['content'] = {
-    ...content,
-  }
-
-  Object.entries(newContent).forEach(([key, value]) => {
-    const normalizedKey = normalizeMimeType(key)
-    if (normalizedKey) {
-      newContent[normalizedKey] = value
-    }
-  })
-
-  return newContent
+  return Object.fromEntries(Object.entries(content).map(([key, value]) => [normalizeMimeType(key) || key, value]))
 }
