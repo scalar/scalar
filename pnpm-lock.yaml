@@ -819,7 +819,7 @@ importers:
         version: link:../../packages/api-reference
       '@scalar/components':
         specifier: workspace:*
-        version: link:../../packages/components
+        version: link:../components
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../../packages/galaxy
@@ -831,7 +831,7 @@ importers:
         version: link:../../packages/schemas
       '@scalar/themes':
         specifier: workspace:*
-        version: link:../../packages/themes
+        version: link:../themes
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -2489,21 +2489,48 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
     devDependencies:
-      '@hono/node-server':
-        specifier: catalog:*
-        version: 2.1.1(hono@4.13.8)
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
+      '@tailwindcss/vite':
+        specifier: catalog:*
+        version: 4.3.3(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
-      hono:
+      '@vitejs/plugin-vue':
         specifier: catalog:*
-        version: 4.13.8
+        version: 6.0.8(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))(vue@3.5.40(typescript@5.9.3))
+      marked:
+        specifier: ^14.0.0
+        version: 14.0.0
+      rehype-stringify:
+        specifier: ^10.0.1
+        version: 10.0.1
+      tailwindcss:
+        specifier: catalog:*
+        version: 4.3.3
+      tsx:
+        specifier: catalog:*
+        version: 4.19.4
+      vite:
+        specifier: catalog:*
+        version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
         specifier: catalog:*
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
+      vue:
+        specifier: catalog:*
+        version: 3.5.40(typescript@5.9.3)
+      vue-tsc:
+        specifier: catalog:*
+        version: 3.3.9(typescript@5.9.3)
 
   packages/openapi-types:
     devDependencies:
@@ -2712,12 +2739,12 @@ importers:
 
   packages/server-side-rendering:
     dependencies:
-      '@scalar/helpers':
-        specifier: workspace:*
-        version: link:../helpers
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
@@ -3123,7 +3150,7 @@ importers:
         version: link:../../packages/blocks
       '@scalar/components':
         specifier: workspace:*
-        version: link:../../packages/components
+        version: link:../components
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -3156,7 +3183,7 @@ importers:
         version: link:../../packages/sidebar
       '@scalar/themes':
         specifier: workspace:*
-        version: link:../../packages/themes
+        version: link:../themes
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
