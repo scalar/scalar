@@ -2,25 +2,39 @@
 
 - **OpenAPI Version:** `3.2.0`
 - **API Version:** `1.0`
-- **Terms of service:**<https://example.com/terms>
-- **Contact:** API Team <https://example.com/contact><team@example.com>
-- **License:**[MIT](https://example.com/license)
+- **Terms of service:** <https://example.com/terms>
+- **Contact:** API Team <https://example.com/contact> <team@example.com>
+- **License:** [MIT](https://example.com/license)
 
 A shared object used by this API.
+
+## Contents
+
+**Operations**
+
+- [POST /resources/0](#scalar-operation-post-resources0)
+- [POST /resources/1](#scalar-operation-post-resources1)
+
+**Webhooks**
+
+- [POST event](#scalar-webhook-post-event)
+
+**Schemas**
+
+- [Resource](#scalar-schema-resource)
+- [Owner](#scalar-schema-owner)
+
+<a id="scalar-context-global-servers"></a>
 
 ## Servers
 
 - **URL:** `https://example.com/api`
 
-#### Authentication
+<a id="scalar-context-global-authentication"></a>
 
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
+## Authentication
+
+- **bearer**: HTTP bearer
 
 ## Tags
 
@@ -29,6 +43,8 @@ A shared object used by this API.
 Resource operations
 
 ## Operations
+
+<a id="scalar-operation-post-resources0"></a>
 
 ### Resource 0
 
@@ -39,235 +55,25 @@ Resource operations
 
 A shared object used by this API.
 
-#### Effective servers
+**Servers:** [Inherited servers](#scalar-context-global-servers)
 
-- `https://example.com/api`
+**Authentication:** [Global authentication](#scalar-context-global-authentication)
 
-#### Authentication
+#### Query parameters
 
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
+- **`limit`**: `integer`, default: `10`
 
-#### Parameters
+#### Request body
 
-##### `limit`
+**Content type:** `application/json`
 
-- **In:** `query`
-
-`integer`, default: `10`
-
-#### Request Body
-
-##### Content-Type: application/json
-
-schema: `Resource` — A shared object used by this API.
-
-- **`field0` (required)**
-
-  `string` — Field 0
-
-- **`field1`**
-
-  `string` — Field 1
-
-- **`field2`**
-
-  `string` — Field 2
-
-- **`owner`**
-
-  `object`, schema: `Owner`
-
-  - **`id`**
-
-    `integer`
-
-  - **`name`**
-
-    `string`
-
-- **`parent`**
-
-  `object`, schema: `Resource` — A shared object used by this API.
-
-  *\[Circular Reference]*
-
-**Example:**
-
-```json
-{
-  "field0": "value0",
-  "field1": "value1",
-  "field2": "value2",
-  "owner": null,
-  "parent": null
-}
-```
-
-#### Responses
-
-##### Status: 200 Success
-
-###### Content-Type: application/json
-
-*Schema `Resource` is shown above.*
-
-**Example:**
-
-```json
-{
-  "field0": "value0",
-  "field1": "value1",
-  "field2": "value2",
-  "owner": null,
-  "parent": null
-}
-```
-
-##### Status: 201 XML result
-
-###### Content-Type: application/xml
-
-- **`name`**
-
-  `string`
-
-**Example:**
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<result>
-  <name>value</name>
-</result>
-```
-
-### Resource 1
-
-- **Method:** `POST`
-- **Path:** `/resources/1`
-- **Operation ID:** `resource1`
-- **Tags:** Resources
+[Resource](#scalar-schema-resource)
 
 A shared object used by this API.
 
-#### Effective servers
+<a id="scalar-example-1"></a>
 
-- `https://example.com/api`
-
-#### Authentication
-
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
-
-#### Parameters
-
-##### `limit`
-
-- **In:** `query`
-
-`integer`, default: `10`
-
-#### Request Body
-
-##### Content-Type: application/json
-
-*Schema `Resource` is shown above.*
-
-**Example:**
-
-```json
-{
-  "field0": "value0",
-  "field1": "value1",
-  "field2": "value2",
-  "owner": null,
-  "parent": null
-}
-```
-
-#### Responses
-
-##### Status: 200 Success
-
-###### Content-Type: application/json
-
-*Schema `Resource` is shown above.*
-
-**Example:**
-
-```json
-{
-  "field0": "value0",
-  "field1": "value1",
-  "field2": "value2",
-  "owner": null,
-  "parent": null
-}
-```
-
-## Webhooks
-
-### Event notification
-
-- **Method:** `POST`
-- **Webhook:** `event`
-
-#### Effective servers
-
-- `https://example.com/api`
-
-#### Authentication
-
-- **bearer**
-  ```
-  {
-    "type": "http",
-    "scheme": "bearer"
-  }
-  ```
-
-#### Request Body
-
-**Required:** `true`
-
-##### Content-Type: application/json
-
-*Schema `Owner` is shown above.*
-
-**Example:**
-
-```json
-{
-  "id": 1,
-  "name": ""
-}
-```
-
-#### Responses
-
-##### Status: 204 Received
-
-## Schemas
-
-### Resource
-
-- **Type:**`object`
-
-A shared object used by this API.
-
-*Schema `Resource` is shown above.*
-
-**Example:**
+**Generated example:**
 
 ```json
 {
@@ -282,19 +88,441 @@ A shared object used by this API.
     "field0": "value0",
     "field1": "value1",
     "field2": "value2",
-    "owner": null,
-    "parent": null
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 ```
 
+#### Responses
+
+##### 200 Success
+
+**Content type:** `application/json`
+
+[Resource](#scalar-schema-resource)
+
+A shared object used by this API.
+
+<a id="scalar-example-2"></a>
+
+**Generated example:**
+
+```json
+{
+  "field0": "value0",
+  "field1": "value1",
+  "field2": "value2",
+  "owner": {
+    "id": 1,
+    "name": ""
+  },
+  "parent": {
+    "field0": "value0",
+    "field1": "value1",
+    "field2": "value2",
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### 201 XML result
+
+**Content type:** `application/xml`
+
+- **`name`**: `string`
+
+<a id="scalar-example-3"></a>
+
+**Generated example:**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<result>
+  <name>value</name>
+</result>
+```
+
+<a id="scalar-operation-post-resources1"></a>
+
+### Resource 1
+
+- **Method:** `POST`
+- **Path:** `/resources/1`
+- **Operation ID:** `resource1`
+- **Tags:** Resources
+
+A shared object used by this API.
+
+**Servers:** [Inherited servers](#scalar-context-global-servers)
+
+**Authentication:** [Global authentication](#scalar-context-global-authentication)
+
+#### Query parameters
+
+- **`limit`**: `integer`, default: `10`
+
+#### Request body
+
+**Content type:** `application/json`
+
+[Resource](#scalar-schema-resource)
+
+A shared object used by this API.
+
+[Generated example](#scalar-example-1)
+
+#### Responses
+
+##### 200 Success
+
+**Content type:** `application/json`
+
+[Resource](#scalar-schema-resource)
+
+A shared object used by this API.
+
+[Generated example](#scalar-example-2)
+
+## Webhooks
+
+<a id="scalar-webhook-post-event"></a>
+
+### Event notification
+
+- **Method:** `POST`
+- **Webhook:** `event`
+
+**Servers:** [Inherited servers](#scalar-context-global-servers)
+
+**Authentication:** [Global authentication](#scalar-context-global-authentication)
+
+#### Request body
+
+**Required:** `true`
+
+**Content type:** `application/json`
+
+[Owner](#scalar-schema-owner)
+
+<a id="scalar-example-4"></a>
+
+**Generated example:**
+
+```json
+{
+  "id": 1,
+  "name": ""
+}
+```
+
+#### Responses
+
+##### 204 Received
+
+## Schemas
+
+<a id="scalar-schema-resource"></a>
+
+### Resource
+
+**Type:** `object`
+
+A shared object used by this API.
+
+- **`field0` (required)**: `string`
+
+  Field 0
+- **`field1`**: `string`
+
+  Field 1
+- **`field2`**: `string`
+
+  Field 2
+- **`owner`**: [Owner](#scalar-schema-owner)
+- **`parent`**: [Resource](#scalar-schema-resource)
+
+  A shared object used by this API.
+
+<a id="scalar-example-5"></a>
+
+**Generated example:**
+
+```json
+{
+  "field0": "value0",
+  "field1": "value1",
+  "field2": "value2",
+  "owner": {
+    "id": 1,
+    "name": ""
+  },
+  "parent": {
+    "field0": "value0",
+    "field1": "value1",
+    "field2": "value2",
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+<a id="scalar-schema-owner"></a>
+
 ### Owner
 
-- **Type:**`object`
+**Type:** `object`
 
-*Schema `Owner` is shown above.*
+- **`id`**: `integer`
+- **`name`**: `string`
 
-**Example:**
+<a id="scalar-example-6"></a>
+
+**Generated example:**
 
 ```json
 {

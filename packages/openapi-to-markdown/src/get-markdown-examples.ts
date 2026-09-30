@@ -16,6 +16,8 @@ type MarkdownExample = {
   name?: string
   summary?: string
   description?: string
+  /** Authored examples stay local; only synthesized fallbacks can be deduplicated. */
+  generated?: boolean
 } & (
   | { value: unknown }
   | { externalValue: string }
@@ -113,15 +115,11 @@ export const getMarkdownExamples = (
       return []
     })
   }
-  const schema = linked
-    ? getResolvedRef(source.schema as SchemaObject, mergeSiblingReferences)
-    : getResolvedRef<unknown>(source.schema)
+  const schema = getResolvedRef(source.schema as SchemaObject, mergeSiblingReferences)
   if (!isObject(schema)) return []
-  if (linked) {
-    if (schema.example !== undefined) return [{ value: schema.example }]
-    if (Array.isArray(schema.examples) && schema.examples.length) return schema.examples.map((value) => ({ value }))
-    return [{ omitted: true }]
-  }
+  if (schema.example !== undefined) return [{ value: schema.example }]
+  if (Array.isArray(schema.examples) && schema.examples.length) return schema.examples.map((value) => ({ value }))
+  if (linked) return []
   if (countGeneratedExampleValues(source.schema) > MAX_GENERATED_EXAMPLE_VALUES) return [{ omitted: true }]
   if (isXmlMediaType(mediaType)) {
     const result = getXmlBodyExample(source.schema as SchemaObject, undefined, {
@@ -129,11 +127,13 @@ export const getMarkdownExamples = (
       openapiVersion: schemaOpenapiVersion,
     })
     return [
-      result.xml === undefined ? { error: 'Unable to generate an XML example.' } : { serializedValue: result.xml },
+      result.xml === undefined
+        ? { error: 'Unable to generate an XML example.', generated: true }
+        : { serializedValue: result.xml, generated: true },
     ]
   }
   const value = getExampleFromSchema(getResolvedRef(source.schema as SchemaObject, mergeSiblingReferences), {
     mode,
   })
-  return value === undefined ? [] : [{ value }]
+  return value === undefined ? [] : [{ value, generated: true }]
 }

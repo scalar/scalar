@@ -1,5 +1,6 @@
 import type { Nodes } from 'mdast'
 import remarkGfm from 'remark-gfm'
+import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
@@ -16,6 +17,28 @@ const identifiers = (node: Nodes): string[] => [
 ]
 
 describe('parse-description', () => {
+  it('reads plain one-line descriptions exactly as the Markdown parser does', async () => {
+    const parse = createDescriptionParser()()
+    const parser = unified().use(remarkParse).use(remarkGfm)
+    const withoutPositions = (value: unknown): unknown =>
+      JSON.parse(JSON.stringify(value, (key, entry) => (key === 'position' ? undefined : entry)))
+    // Plain sentences skip the parser; anything that could be Markdown still goes through it.
+    for (const value of [
+      'The number of items to return.',
+      '  Leading and trailing spaces are trimmed.  ',
+      'Numbers like 3.5 and percentages like 20% stay text.',
+      'Parentheses (like these), quotes "like these" and a colon: stay text.',
+      '- item',
+      '1. item',
+      '---',
+      'See https://example.com',
+      'A **bold** word',
+      'A &amp; B',
+      '    indented code',
+    ])
+      expect(withoutPositions(await parse(value))).toStrictEqual(withoutPositions(parser.parse(value).children))
+  })
+
   it('preserves Markdown blocks, inline syntax, and code without HTML conversion', async () => {
     const value =
       '# Heading\n\n**Bold** and *italic* with `a<b>`.\n\n- first\n  - nested\n\n```unknown-language\n<div>literal & content</div>\n```\n\n| A | B |\n| - | - |\n| one | two |\n'

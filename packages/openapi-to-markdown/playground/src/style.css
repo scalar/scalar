@@ -1,0 +1,14 @@
+@import "@scalar/themes/tailwind.css";
+
+@source './App.vue';
+
+.scalar-app {
+  @import "tailwindcss/utilities.css";
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+  margin: 0;
+}

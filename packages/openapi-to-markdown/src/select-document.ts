@@ -39,6 +39,11 @@ export type SchemaReferenceOptions = {
     mode: 'linked'
     /** Return a published URL, or undefined to retain the schema name as plain text. */
     resolveUrl?: (reference: { ref: string; name: string }) => string | undefined
+    /**
+     * Render references to primitive, enum and `const` schemas, and to aliases of them, in place
+     * instead of linking them. Their whole definition fits on one line. Defaults to `true`.
+     */
+    inlinePrimitives?: boolean
   }
 }
 
@@ -335,8 +340,9 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
             parameters.set(`${parameter.in}:${parameter.name}`, ref)
           }
         }
-        const security = operation.security ?? document.security ?? []
-        for (const requirement of security) {
+        // Undeclared security stays undeclared: an empty list would claim that no authentication is required.
+        const security = operation.security ?? document.security
+        for (const requirement of security ?? []) {
           for (const name of Object.keys(requirement)) {
             securityNames.add(name)
           }

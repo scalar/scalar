@@ -2,6 +2,7 @@ import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/
 import type { EncodingObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { ListItem, RootContent } from 'mdast'
 
+import type { DocumentExamples } from './document-examples'
 import { inlineCode, item, list, paragraph, strong, text } from './markdown-nodes'
 import type { DescriptionParser } from './parse-description'
 import { renderExamples } from './render-examples'
@@ -14,6 +15,7 @@ export const renderHeaders = async (
   schemas: SchemaRenderer,
   openapiVersion: string,
   schemaOpenapiVersion = openapiVersion,
+  examples?: DocumentExamples,
 ): Promise<RootContent[]> => {
   const entries: ListItem[] = []
   for (const [name, reference] of Object.entries(headers ?? {})) {
@@ -36,7 +38,7 @@ export const renderHeaders = async (
           undefined,
           openapiVersion,
           schemaOpenapiVersion,
-          schemas.linked,
+          { linked: schemas.linked, examples },
         )) as ListItem['children']),
       )
     }
@@ -44,15 +46,10 @@ export const renderHeaders = async (
       blocks.push(paragraph(strong(text('Content-Type:')), text(` ${mediaType}`)))
       if (content.schema !== undefined) blocks.push(...(schemas.render(content.schema) as ListItem['children']))
       blocks.push(
-        ...((await renderExamples(
-          content,
-          description,
-          mediaType,
-          undefined,
-          openapiVersion,
-          schemaOpenapiVersion,
-          schemas.linked,
-        )) as ListItem['children']),
+        ...((await renderExamples(content, description, mediaType, undefined, openapiVersion, schemaOpenapiVersion, {
+          linked: schemas.linked,
+          examples,
+        })) as ListItem['children']),
       )
     }
     entries.push(item(...blocks))
@@ -68,6 +65,7 @@ export const renderEncoding = async (
   schemas: SchemaRenderer,
   openapiVersion: string,
   schemaOpenapiVersion = openapiVersion,
+  examples?: DocumentExamples,
 ): Promise<RootContent[]> => {
   const multipart = mediaType.startsWith('multipart/')
   if (!multipart && mediaType !== 'application/x-www-form-urlencoded') return []
@@ -92,6 +90,7 @@ export const renderEncoding = async (
           schemas,
           openapiVersion,
           schemaOpenapiVersion,
+          examples,
         )) as ListItem['children']),
       )
     entries.push(item(...blocks))

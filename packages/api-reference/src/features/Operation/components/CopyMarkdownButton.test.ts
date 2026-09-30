@@ -34,7 +34,7 @@ describe('CopyMarkdownButton', () => {
     await wrapper.get('button').trigger('click')
     await vi.waitFor(() => expect(writeText.mock.calls.length).toBe(1))
     await flushPromises()
-    expect(writeText.mock.calls[0]?.[0]).toContain('### List pets')
+    expect(writeText.mock.calls[0]?.[0]).toContain('# List pets')
     expect(writeText.mock.calls[0]?.[0]).not.toContain('Create pet')
     expect(wrapper.text()).toBe('Copied')
     await vi.waitFor(() => expect(wrapper.text()).toBe('Copy as Markdown'), { timeout: 2000 })

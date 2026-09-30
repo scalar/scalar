@@ -14,7 +14,7 @@ describe('render-document', () => {
       'x-operation': { summary: 'Shared operation', responses: { '200': { description: 'Success' } } },
     })
     expect(output.slice(output.indexOf('## Operations'))).toBe(
-      '## Operations\n\n### Shared operation\n\n- **Method:** `GET`\n- **Path:** `/a`\n\n#### Responses\n\n##### Status: 200 Success\n\n## Webhooks\n\n### Webhook override\n\n- **Method:** `POST`\n- **Webhook:** `event`\n\n#### Responses\n\n##### Status: 200 Success\n',
+      '## Operations\n\n<a id="scalar-operation-get-a"></a>\n\n### Shared operation\n\n- **Method:** `GET`\n- **Path:** `/a`\n\n#### Responses\n\n##### 200 Success\n\n## Webhooks\n\n<a id="scalar-webhook-post-event"></a>\n\n### Webhook override\n\n- **Method:** `POST`\n- **Webhook:** `event`\n\n#### Responses\n\n##### 200 Success\n',
     )
   })
 
@@ -124,12 +124,11 @@ describe('render-document', () => {
     expect(output.replaceAll('`', '')).toContain('users')
     expect(output.replaceAll('`', '')).toContain('stable')
     expect(output.replaceAll('`', '')).toContain('Get all users')
-    expect(output.replaceAll('`', '')).toContain('Request Body')
+    expect(output.replaceAll('`', '')).toContain('Request body')
     expect(output.replaceAll('`', '')).toContain('filter')
     expect(output.replaceAll('`', '')).toContain('Responses')
     expect(output.replaceAll('`', '')).toContain('200')
-    expect(output.replaceAll('`', '')).toContain('Array of:')
-    expect(output.replaceAll('`', '')).toContain('string')
+    expect(output.replaceAll('`', '')).toContain('array of string')
   })
 
   it('renders path and operation parameters', async () => {
@@ -191,15 +190,11 @@ describe('render-document', () => {
     const output = await createDocumentRenderer()(content)
     const text = output.replaceAll('`', '')
 
-    expect(text).toContain('Parameters')
-    expect(text).toContain('reportId required')
-    expect(text).toContain('path')
+    expect(text).toContain('## Path parameters\n\n- **reportId (required)**: string')
     expect(text).toContain('Report identifier')
-    expect(text).toContain('month required')
-    expect(text).toContain('query')
+    expect(text).toContain('## Query parameters\n\n- **month (required)**: string')
     expect(text).toContain('Calendar month')
-    expect(text).toContain('traceId')
-    expect(text).toContain('header')
+    expect(text).toContain('## Header parameters\n\n- **traceId**: string')
     expect(text).toContain('Operation trace identifier')
     expect(text).not.toContain('Path trace identifier')
   })
@@ -295,5 +290,134 @@ describe('render-document', () => {
     expect(output.replaceAll('`', '')).toContain('A user object')
     expect(output.replaceAll('`', '')).toContain('id')
     expect(output.replaceAll('`', '')).toContain('name')
+  })
+
+  const ref = (name: string): { $ref: string } => ({ $ref: `#/components/schemas/${name}` })
+  const page = {
+    openapi: '3.1.1',
+    info: { title: 'Appendix', version: '1' },
+    paths: {
+      '/owner': {
+        get: {
+          responses: {
+            '200': { description: 'OK', content: { 'application/json': { schema: ref('Resource') } } },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        Resource: {
+          type: 'object',
+          title: 'Resource record',
+          description: 'A resource.',
+          properties: { owner: { ...ref('Owner'), description: 'Who owns it' }, secondary: ref('Alias') },
+        },
+        Owner: { type: 'object', description: 'An account.', properties: { id: { type: 'integer' } } },
+        Alias: ref('Owner'),
+        Sample: {
+          type: 'object',
+          example: { id: 7 },
+          properties: { nested: ref('Owner') },
+        },
+        Status: { type: 'string', enum: ['open', 'closed'] },
+        Unused: { type: 'object', properties: { unusedField: { type: 'string' } } },
+      },
+    },
+  }
+
+  it('lists models the page already expanded on one line each', async () => {
+    const output = await createMarkdownFromOpenApi(page, { operation: { path: '/owner', method: 'get' } })
+    const appendix = output.slice(output.indexOf('## Schemas'))
+    expect(appendix).toBe(
+      [
+        '## Schemas',
+        '',
+        '- **Resource record** (`Resource`) — shown above.',
+        '- `Owner` — shown above.',
+        '',
+        // A reference sibling replaced this description where the schema was expanded.
+        '  An account.',
+        '- `Alias` — shown above as `Owner`.',
+        '',
+        '  An account.',
+        '',
+      ].join('\n'),
+    )
+    // The body expands each shared schema once, so nothing is lost from the page.
+    expect(output.match(/`id`/g)?.length).toBe(1)
+    expect(output).toContain('Who owns it')
+    expect(output).not.toContain('unusedField')
+  })
+
+  it('keeps canonical model sections and authored examples in a whole document', async () => {
+    const output = await createMarkdownFromOpenApi(page)
+    const appendix = output.slice(output.indexOf('## Schemas'))
+    expect(appendix).toContain('### Resource record')
+    expect(appendix).toContain('### Sample')
+    expect(appendix).toContain('"id": 7')
+    // Leaf schemas are never replaced by a reference, so they keep their section.
+    expect(appendix).toContain('### Status')
+    expect(appendix).toContain('### Unused')
+    expect(appendix).toContain('unusedField')
+    expect(appendix).toContain('### Owner')
+  })
+
+  it('gives a selected model its own section even when a dependency expanded it first', async () => {
+    const output = await createMarkdownFromOpenApi(page, { model: 'Alias' })
+    // The model page starts with its own model, which expands the schema it aliases.
+    expect(output.startsWith('# Alias\n')).toBe(true)
+    expect(output).toContain('`id`')
+    expect(output).not.toContain('`Alias` — shown above')
+  })
+
+  it.each(['inline', 'linked'] as const)('retains authored examples for non-object models in %s mode', async (mode) => {
+    const input = {
+      openapi: '3.1.2',
+      info: { title: 'Examples', version: '1' },
+      components: {
+        schemas: {
+          Name: { type: 'string', example: 'authored name' },
+          Names: { type: 'array', items: { type: 'string' }, examples: [['authored item']] },
+        },
+      },
+    }
+    const schemaReferences = mode === 'linked' ? { mode } : undefined
+    const name = await createMarkdownFromOpenApi(input, { model: 'Name', schemaReferences })
+    expect(name).toContain('**Example:**\n\n```json\n"authored name"\n```')
+    const names = await createMarkdownFromOpenApi(input, { model: 'Names', schemaReferences })
+    expect(names).toContain('**Example:**\n\n```json\n[\n  "authored item"\n]\n```')
+    const whole = await createMarkdownFromOpenApi(input, { schemaReferences })
+    expect(whole).toContain('"authored name"')
+    expect(whole).toContain('"authored item"')
+  })
+
+  it('separates content after a nested list so it does not continue the list', async () => {
+    const output = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.1.1',
+        info: { title: 'Lists', version: '1' },
+        components: {
+          schemas: {
+            Pet: {
+              type: 'object',
+              properties: {
+                kind: {
+                  oneOf: [
+                    { type: 'object', properties: { bark: { type: 'string' } } },
+                    { type: 'object', properties: { meow: { type: 'string' } } },
+                  ],
+                  discriminator: { propertyName: 'type', mapping: { dog: '#/components/schemas/Dog' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      { model: 'Pet' },
+    )
+    expect(output).toContain(
+      '  **One of:** discriminated by `type`\n  - `object`\n    - **`bark`**: `string`\n  - `object`\n    - **`meow`**: `string`\n\n  **Discriminator:** `type`\n',
+    )
   })
 })

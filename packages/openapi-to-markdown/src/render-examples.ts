@@ -1,10 +1,12 @@
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import type { RootContent } from 'mdast'
+import type { Code, RootContent } from 'mdast'
 
+import { anchor } from './document-anchors'
+import type { DocumentExamples } from './document-examples'
 import { type ExampleSource, getMarkdownExamples } from './get-markdown-examples'
-import { link, paragraph, strong, text } from './markdown-nodes'
+import { emphasis, link, paragraph, strong, text } from './markdown-nodes'
 import type { DescriptionParser } from './parse-description'
 
 /** Render supplied examples before considering a schema-generated fallback. */
@@ -16,19 +18,51 @@ export const renderExamples = async (
   openapiVersion = '3.2.0',
   // Schema metadata can be upgraded while example fields still follow the original version.
   schemaOpenapiVersion = openapiVersion,
-  linked = false,
+  {
+    linked = false,
+    quiet = linked,
+    examples,
+  }: {
+    /** Use only authored examples, since generating one would expand every linked schema. */
+    linked?: boolean
+    /** Leave out an example that is too large to generate, instead of noting it. */
+    quiet?: boolean
+    /** A whole document shares generation and links to identical generated examples. */
+    examples?: DocumentExamples
+  } = {},
 ): Promise<RootContent[]> => {
   const nodes: RootContent[] = []
-  for (const example of getMarkdownExamples(source, mediaType, mode, openapiVersion, schemaOpenapiVersion, linked)) {
-    nodes.push(paragraph(strong(text(example.name ? `Example: ${example.name}` : 'Example:'))))
+  const values = (examples?.get ?? getMarkdownExamples)(
+    source,
+    mediaType,
+    mode,
+    openapiVersion,
+    schemaOpenapiVersion,
+    linked,
+  )
+  for (const example of values) {
+    if ('omitted' in example && quiet) continue
+    const start = nodes.length
+    const generated = examples && example.generated
+    nodes.push(
+      paragraph(
+        strong(text(generated ? 'Generated example:' : example.name ? `Example: ${example.name}` : 'Example:')),
+      ),
+    )
+    const addCode = (code: Code): void => {
+      if (generated) {
+        const scope = JSON.stringify([mediaType, mode, openapiVersion, schemaOpenapiVersion, code.lang])
+        const destination = examples.show(source, scope, code)
+        if (destination.previous) {
+          nodes.splice(start, nodes.length - start, paragraph(link(`#${destination.id}`, 'Generated example')))
+          return
+        }
+        nodes.splice(start, 0, anchor(destination.id))
+      }
+      nodes.push(code)
+    }
     if ('omitted' in example) {
-      nodes.push(
-        paragraph(
-          text(
-            `${linked ? '[Generated example omitted in linked schema mode; see the schema documentation]' : '[Generated example omitted because it is too large]'}`,
-          ),
-        ),
-      )
+      nodes.push(paragraph(emphasis(text('Generated example omitted because it is too large.'))))
       continue
     }
     if (example.summary) nodes.push(paragraph(text(example.summary)))
@@ -44,7 +78,7 @@ export const renderExamples = async (
       continue
     }
     if ('serializedValue' in example) {
-      nodes.push({
+      addCode({
         type: 'code',
         lang: isXmlMediaType(mediaType) ? 'xml' : mediaType.includes('json') ? 'json' : 'text',
         value: example.serializedValue,
@@ -54,7 +88,7 @@ export const renderExamples = async (
     const xml = isXmlMediaType(mediaType)
     const value = 'dataValue' in example ? example.dataValue : example.value
     if (xml && !source.schema && 'value' in example && (value === null || typeof value !== 'object')) {
-      nodes.push({ type: 'code', lang: 'xml', value: String(value) })
+      addCode({ type: 'code', lang: 'xml', value: String(value) })
       continue
     }
     const result = xml
@@ -67,7 +101,7 @@ export const renderExamples = async (
       nodes.push(paragraph(text('Unable to generate an XML example.')))
       continue
     }
-    nodes.push({
+    addCode({
       type: 'code',
       lang: xml ? 'xml' : 'json',
       value: result?.xml ?? JSON.stringify(value, null, 2) ?? '',

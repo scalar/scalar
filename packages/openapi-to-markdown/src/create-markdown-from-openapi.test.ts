@@ -180,7 +180,8 @@ Test description`
     })
 
     expect(markdown).toContain('# Coerced API')
-    expect(markdown).toContain('**API Version:** ``')
+    // A version that coercion dropped is left out instead of printed empty.
+    expect(markdown).not.toContain('**API Version:**')
   })
 
   it('resolves an embedded schema resource without loading it as an external reference', async () => {
@@ -249,6 +250,8 @@ Test description`
 - **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
+<a id="scalar-context-global-servers"></a>
+
 ## Servers
 
 - **URL:** \`https://test.com\`
@@ -286,7 +289,15 @@ Test description`
 - **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
+## Contents
+
+**Operations**
+
+- [GET /test](#scalar-operation-get-test)
+
 ## Operations
+
+<a id="scalar-operation-get-test"></a>
 
 ### Test operation
 
@@ -350,7 +361,7 @@ Test description`
 
     const result = await createMarkdownFromOpenApi(content)
 
-    expect(result).toContain('Request Body')
+    expect(result).toContain('Request body')
     expect(result).toContain('name')
     expect(result).toContain('email')
     expect(result).toContain('Responses')
@@ -715,7 +726,15 @@ Test description`
       - **OpenAPI Version:** \`3.2.0\`
       - **API Version:** \`1.0.0\`
 
+      ## Contents
+
+      **Operations**
+
+      - [GET /items](#scalar-operation-get-items)
+
       ## Operations
+
+      <a id="scalar-operation-get-items"></a>
 
       ### Get items
 
@@ -724,20 +743,18 @@ Test description`
 
       #### Responses
 
-      ##### Status: 200 Successful response
+      ##### 200 Successful response
 
-      ###### Content-Type: application/json
+      **Content type:** \`application/json\`
 
       **Array of:**
 
-      - **\`id\`**
+      - **\`id\`**: \`string\`
+      - **\`name\`**: \`string\`
 
-        \`string\`
-      - **\`name\`**
+      <a id="scalar-example-1"></a>
 
-        \`string\`
-
-      **Example:**
+      **Generated example:**
 
       \`\`\`json
       [
@@ -755,7 +772,15 @@ Test description`
       - **OpenAPI Version:** \`3.1.1\`
       - **API Version:** \`1.0.0\`
 
+      ## Contents
+
+      **Operations**
+
+      - [GET /items](#scalar-operation-get-items)
+
       ## Operations
+
+      <a id="scalar-operation-get-items"></a>
 
       ### Get items
 
@@ -764,20 +789,18 @@ Test description`
 
       #### Responses
 
-      ##### Status: 200 Successful response
+      ##### 200 Successful response
 
-      ###### Content-Type: application/xml
+      **Content type:** \`application/xml\`
 
       **Array of:**
 
-      - **\`id\`**
+      - **\`id\`**: \`string\`
+      - **\`name\`**: \`string\`
 
-        \`string\`
-      - **\`name\`**
+      <a id="scalar-example-1"></a>
 
-        \`string\`
-
-      **Example:**
+      **Generated example:**
 
       \`\`\`xml
       <?xml version="1.0" encoding="UTF-8"?>
@@ -979,7 +1002,7 @@ paths:
       const result = await createMarkdownFromOpenApi(content)
 
       expect(result).toContain('Create node')
-      expect(result).toContain('Request Body')
+      expect(result).toContain('Request body')
       expect(result).toContain('value')
     }, 10_000)
 
@@ -1145,7 +1168,7 @@ paths:
       components: { schemas: { Value: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
     })
     expect(output).toBe(
-      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Schemas\n\n### Value\n\n- **Type:**\n\n**One of:**\n\n`string`\n\n`number`\n',
+      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Contents\n\n**Schemas**\n\n- [Value](#scalar-schema-value)\n\n## Schemas\n\n<a id="scalar-schema-value"></a>\n\n### Value\n\n**Type:** `string | number`\n',
     )
   })
   it('preserves an optional request body description without inventing an operation ID', async () => {
@@ -1200,7 +1223,7 @@ paths:
         },
       },
     })
-    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
       0,
       false,
     ])
@@ -1252,7 +1275,7 @@ paths:
         },
       },
     })
-    const request = markdown.split('#### Request Body')[1]!.split('#### Responses')[0]!
+    const request = markdown.split('#### Request body')[1]!.split('#### Responses')[0]!
     for (const expected of ['text/plain', 'Explode: `false`', 'Allow reserved: `false`', 'X-Part', 'part-value'])
       expect(request).toContain(expected)
     expect(request).not.toContain('X-Rate')
@@ -1307,7 +1330,7 @@ paths:
         },
       },
     })
-    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
       { secret: 'secret', name: 'Ada' },
       { id: 42, name: 'Ada' },
     ])
@@ -1330,8 +1353,8 @@ paths:
         },
       },
     })
-    expect(markdown).toContain('**Type:** `any`')
-    expect(markdown).toContain('**Type:** `never`')
+    expect(markdown).toContain('**Type:** any (true schema)')
+    expect(markdown).toContain('**Type:** never (false schema)')
     expect(markdown.match(/any \(true schema\)/g)?.length).toBe(3)
     expect(markdown.match(/never \(false schema\)/g)?.length).toBe(4)
   })
@@ -1359,7 +1382,7 @@ paths:
         },
       },
     })
-    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
       '',
       false,
     ])

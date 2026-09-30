@@ -55,7 +55,7 @@ describe('browser', () => {
     const before = JSON.stringify(document)
     const markdown = await createMarkdownFromOpenApi(document, { operation: { path: '/pets', method: 'get' } })
 
-    expect(markdown).toContain('### List pets')
+    expect(markdown).toContain('# List pets')
     expect(markdown).toContain('limit')
     expect(markdown).toContain('petName')
     expect(markdown).toContain('https://api.example.com')
@@ -92,7 +92,7 @@ describe('browser', () => {
     }
     const query = await createMarkdownFromOpenApi(document, { operation: { path: '/pets', method: 'query' } })
     const get = await createMarkdownFromOpenApi(document, { operation: { path: '/pets', method: 'get' } })
-    expect(query).toContain('### Search pets')
+    expect(query).toContain('# Search pets')
     expect(query).toContain('`QUERY`')
     expect(query).not.toContain('List pets')
     expect(get).not.toContain('Search pets')

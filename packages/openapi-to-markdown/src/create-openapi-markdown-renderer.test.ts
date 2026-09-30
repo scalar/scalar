@@ -177,7 +177,7 @@ describe('create-openapi-markdown-renderer', () => {
     expect(markdown).toContain('### Create pet')
     expect(markdown).not.toContain('Original get')
     const selected = await renderer.render({ operation: { path: '/pets', method: 'post' } })
-    expect(selected).toContain('### Create pet')
+    expect(selected).toContain('# Create pet')
     expect(selected).toContain('outer')
     expect(selected).not.toContain('Alias get')
   })
@@ -198,7 +198,7 @@ describe('create-openapi-markdown-renderer', () => {
       )
       const renderer = await createOpenApiMarkdownRenderer(input)
       expect(await renderer.render()).toContain('### External pets')
-      expect(await renderer.render({ operation: { path: '/pets', method: 'get' } })).toContain('### External pets')
+      expect(await renderer.render({ operation: { path: '/pets', method: 'get' } })).toContain('# External pets')
     } finally {
       await rm(dir, { recursive: true, force: true })
     }
@@ -330,12 +330,13 @@ describe('create-openapi-markdown-renderer', () => {
     const start = performance.now()
     const markdown = await renderer.render({ operation: { path: '/a', method: 'get' } })
     expect(performance.now() - start).toBeLessThan(1000)
-    // Inline in the response; the model sections refer back to it.
+    // Inline in the response; the model list refers back to it in one line each.
     expect(markdown.match(/LEAF/g)?.length).toBe(5)
-    expect(markdown.match(/Schema `L10` is shown above\./g)?.length).toBe(5)
+    expect(markdown.match(/Schema `L10` is shown above\./g)?.length).toBe(4)
     expect(markdown.length).toBeLessThan(250_000)
     for (let level = 0; level <= 10; level++) {
-      expect(markdown).toContain(`### L${level}`)
+      expect(markdown).toContain(`- \`L${level}\` — shown above.`)
+      expect(markdown).not.toContain(`### L${level}`)
     }
   })
 
@@ -349,7 +350,7 @@ describe('create-openapi-markdown-renderer', () => {
 
   it('expands a model in its own section when the page has not shown it yet', async () => {
     const markdown = await createMarkdownFromOpenApi(fanOut(2, 2), { model: 'L1' })
-    expect(markdown).toContain('### L1')
+    expect(markdown).toContain('# L1')
     expect(markdown.match(/LEAF/g)?.length).toBe(2)
     expect(markdown).not.toContain('Schema `L1` is shown')
   })
@@ -382,11 +383,10 @@ describe('create-openapi-markdown-renderer', () => {
       'minLength',
       'true schema',
       'false schema',
-      'One of:',
+      '[Node0](/models/Node0) | `null`',
       '[Customer/Name\\~](/models/Customer%2FName~)',
       '[Node0](/models/Node0)',
-      'Status: 400',
-      'Generated example omitted',
+      '400 Failure',
     ])
       expect(output).toContain(value)
     expect(output).not.toContain('deepSecret')
@@ -408,7 +408,7 @@ describe('create-openapi-markdown-renderer', () => {
       large.render({ ...linked, schemaReferences: { mode: 'linked' } }),
     ])
     expect(withUrls).toContain('/models/Node0')
-    expect(withoutUrls).toContain('Schema: `Node0`')
+    expect(withoutUrls).toContain('`Node0 | null`')
     expect(withoutUrls).not.toContain('/models/')
   })
 
@@ -467,7 +467,7 @@ describe('create-openapi-markdown-renderer', () => {
     })
     expect(output).toContain('authored value')
     expect(output).toContain('**Required fields:** `next`')
-    expect(output).toContain('Schema: `Base`')
+    expect(output).toContain('`Base`')
     expect(output).not.toContain('javascript:')
     expect(output).not.toContain('Generated example omitted')
   })
@@ -508,6 +508,48 @@ describe('create-openapi-markdown-renderer', () => {
     expect(output).toContain('**Required fields:** `base`')
     expect(output).toContain('**`extra`**')
   })
+  it('links cycles through shared schemas instead of marking them circular', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.0',
+      info: { title: 'Cycles', version: '1' },
+      paths: {
+        '/a': {
+          get: {
+            responses: {
+              '200': { description: 'OK', content: { 'application/json': { schema: reference('A') } } },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          A: { type: 'object', properties: { aField: { type: 'string' }, b: reference('B') } },
+          B: { type: 'object', properties: { bField: { type: 'string' }, a: reference('A'), node: reference('Node') } },
+          Node: { type: 'object', properties: { nodeField: { type: 'string' }, next: reference('Node') } },
+        },
+      },
+    })
+    const pages = await Promise.all(
+      [{ operation: { path: '/a', method: 'get' } } as const, { model: 'A' }, { model: 'B' }, { model: 'Node' }].map(
+        (selection) => renderer.render({ ...selection, schemaReferences: linked.schemaReferences }),
+      ),
+    )
+    const [operation, a, b, node] = pages
+    for (const page of pages) expect(page).not.toContain('[Circular Reference]')
+    expect(operation).not.toContain('## Schemas')
+    expect(operation).toContain('aField')
+    expect(operation).toContain('[B](/models/B)')
+    expect(operation).not.toContain('bField')
+    expect(a).toContain('[B](/models/B)')
+    expect(b).toContain('[A](/models/A)')
+    expect(b).toContain('[Node](/models/Node)')
+    expect(node).toContain('[Node](/models/Node)')
+    // Each schema's own fields appear in full exactly once across its model pages.
+    for (const field of ['aField', 'bField', 'nodeField']) {
+      const schemas = pages.slice(1).map((page) => page.split('**Example:**')[0])
+      expect(schemas.join('\n').match(new RegExp(field, 'g'))?.length).toBe(1)
+    }
+  })
   it('decodes URI fragments before pointer escapes and keeps literal percent sequences', async () => {
     const renderer = await createOpenApiMarkdownRenderer({
       openapi: '3.1.0',
@@ -531,6 +573,8 @@ describe('create-openapi-markdown-renderer', () => {
       model: 'Model',
       schemaReferences: {
         mode: 'linked',
+        // Both targets are strings, which would otherwise be written in place instead of linked.
+        inlinePrimitives: false,
         resolveUrl: ({ name, ref }) => {
           names[ref] = name
           return `/models/${encodeURIComponent(name)}`
@@ -543,5 +587,169 @@ describe('create-openapi-markdown-renderer', () => {
     })
     expect(output).toContain('[A/B](/models/A%2FB)')
     expect(output).toContain('[Rate%20](/models/Rate%2520)')
+  })
+
+  const messages = [
+    'Input messages.',
+    '',
+    'Each message has a `role` and `content`. See [input examples](https://docs.example.com/messages).',
+    '',
+    'Example with a single `user` message:',
+    '',
+    '```json',
+    '[{"role": "user", "content": "Hello"}]',
+    '```',
+  ].join('\n')
+  const input = {
+    openapi: '3.1.0',
+    info: { title: 'Pages' },
+    paths: {
+      '/messages': {
+        post: {
+          summary: 'Create a message',
+          requestBody: {
+            required: true,
+            content: { 'application/json': { schema: reference('CreateMessage') } },
+          },
+          responses: {
+            '200': { description: 'Created', content: { 'application/json': { schema: reference('Message') } } },
+            '400': { description: 'Invalid', content: { 'application/json': { schema: reference('Error') } } },
+            '500': { description: 'Failed', content: { 'application/json': { schema: reference('Error') } } },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        CreateMessage: {
+          type: 'object',
+          required: ['messages'],
+          properties: {
+            messages: { type: 'array', description: messages, items: reference('InputMessage') },
+            metadata: { ...reference('Metadata'), description: 'Request metadata.' },
+            last: reference('InputMessage'),
+          },
+        },
+        InputMessage: {
+          type: 'object',
+          description: 'One turn of the conversation.',
+          properties: { role: { type: 'string' } },
+        },
+        Metadata: { type: 'object', properties: { user_id: { type: 'string' } } },
+        Message: {
+          type: 'object',
+          required: ['archived_at', 'created_at', 'kind', 'next'],
+          properties: {
+            archived_at: { anyOf: [reference('Timestamp'), { type: 'null' }], description: 'When it was archived.' },
+            created_at: { allOf: [reference('Timestamp')], description: 'When it was created.' },
+            kind: { const: 'message' },
+            next: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+            parent: { anyOf: [reference('Message'), { type: 'null' }] },
+            level: { enum: [1, 2, 3] },
+          },
+        },
+        Timestamp: { type: 'string', format: 'date-time', description: 'An RFC 3339 timestamp.' },
+        Error: { type: 'object', properties: { message: { type: 'string' } } },
+      },
+    },
+  }
+  const schemaReferences = {
+    mode: 'linked',
+    resolveUrl: ({ name }: { name: string }) => `/models/${name}.md`,
+  } as const
+
+  it('keeps a property description as written, including its links and code blocks', async () => {
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const markdown = await renderer.render({ operation: { path: '/messages', method: 'post' }, schemaReferences })
+    expect(markdown).toContain(
+      [
+        '- **`messages` (required)**: array of [InputMessage](/models/InputMessage.md)',
+        '',
+        '  Input messages.',
+        '',
+        '  Each message has a `role` and `content`. See [input examples](https://docs.example.com/messages).',
+        '',
+        '  Example with a single `user` message:',
+        '',
+        '  ```json',
+        '  [{"role": "user", "content": "Hello"}]',
+        '  ```',
+      ].join('\n'),
+    )
+    expect(markdown).not.toContain('\\[')
+    expect(markdown).not.toContain('\\`')
+    // The same holds without linking.
+    const inline = await renderer.render({ operation: { path: '/messages', method: 'post' } })
+    expect(inline).toContain('  ```json\n  [{"role": "user", "content": "Hello"}]\n  ```')
+    expect(inline).toContain('[input examples](https://docs.example.com/messages)')
+  })
+
+  it('prints linked references as their type and keeps annotations beside the reference', async () => {
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const markdown = await renderer.render({ operation: { path: '/messages', method: 'post' }, schemaReferences })
+    expect(markdown).toContain('- **`metadata`**: [Metadata](/models/Metadata.md)\n\n  Request metadata.\n')
+    expect(markdown.match(/Request metadata\./g)).toHaveLength(1)
+    // Without a description of its own, a reference borrows the description of the schema it links to.
+    expect(markdown).toContain(
+      '- **`last`**: [InputMessage](/models/InputMessage.md)\n\n  One turn of the conversation.\n',
+    )
+    expect(markdown).toContain('- **`messages` (required)**: array of [InputMessage](/models/InputMessage.md)\n')
+    expect(markdown).not.toContain('Schema: ')
+  })
+
+  it('labels nullable, const and enum schemas and writes primitive aliases in place', async () => {
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const markdown = await renderer.render({ model: 'Message', schemaReferences })
+    for (const line of [
+      '- **`archived_at` (required)**: `string | null`, format: `date-time`\n\n  When it was archived.',
+      '- **`created_at` (required)**: `string`, format: `date-time`\n\n  When it was created.',
+      '- **`kind` (required)**: `string`, const: `"message"`',
+      '- **`next` (required)**: `string | null`',
+      '- **`level`**: `integer`, possible values: `1, 2, 3`',
+      '- **`parent`**: [Message](/models/Message.md) | `null`',
+    ])
+      expect(markdown).toContain(line)
+    expect(markdown).not.toContain('/models/Timestamp.md')
+    expect(markdown).not.toContain('Any of:')
+    expect(markdown).not.toContain('All of:')
+  })
+
+  it('links primitive aliases when inlining is turned off', async () => {
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const markdown = await renderer.render({
+      model: 'Message',
+      schemaReferences: { ...schemaReferences, inlinePrimitives: false },
+    })
+    expect(markdown).toContain('- **`archived_at` (required)**: [Timestamp](/models/Timestamp.md) | `null`')
+    expect(markdown).toContain('- **`created_at` (required)**: [Timestamp](/models/Timestamp.md)')
+  })
+
+  it('omits generated examples without a placeholder, but generates one on a model page', async () => {
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const operation = await renderer.render({ operation: { path: '/messages', method: 'post' }, schemaReferences })
+    expect(operation).not.toContain('**Example')
+    expect(operation).not.toContain('omitted')
+    const model = await renderer.render({ model: 'Message', schemaReferences })
+    expect(model).toContain('**Example:**')
+    // Linked schemas are stubs in the model's own example, so it stays bounded on a recursive model.
+    expect(model).toContain('"parent": {}')
+    expect(model.length).toBeLessThan(2_000)
+  })
+
+  it('starts every single-item page with its item and never prints an empty version', async () => {
+    const renderer = await createOpenApiMarkdownRenderer(input)
+    const operation = await renderer.render({ operation: { path: '/messages', method: 'post' }, schemaReferences })
+    expect(operation.startsWith('# Create a message\n')).toBe(true)
+    expect(operation).toContain('\n## Request body\n')
+    expect(operation).toContain('\n## Responses\n')
+    expect(operation).toContain('\n### 400, 500\n')
+    const model = await renderer.render({ model: 'Message', schemaReferences })
+    expect(model.startsWith('# Message\n')).toBe(true)
+    for (const page of [operation, model]) {
+      expect(page).not.toContain('# Pages')
+      expect(page).not.toContain('Version:')
+      expect(page).not.toContain('Authentication')
+    }
+    expect(await renderer.render({ introduction: true })).not.toContain('**API Version:**')
   })
 })

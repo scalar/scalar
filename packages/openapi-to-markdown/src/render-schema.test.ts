@@ -1,14 +1,27 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { Nodes, RootContent } from 'mdast'
+import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 
 import { type SchemaRenderer, createSchemaRenderer } from './render-schema'
 
-const render = (value: SchemaObject | boolean, depth = 0): string =>
-  unified()
+/** Serialize rendered nodes, parsing deferred descriptions the way the page renderer does. */
+const stringify = (children: RootContent[]): string => {
+  const expand = (nodes: Nodes[]): Nodes[] =>
+    nodes.flatMap((node): Nodes[] => {
+      if (node.type === 'descriptionPlaceholder') return unified().use(remarkParse).parse(node.value).children
+      if ('children' in node) (node as { children: Nodes[] }).children = expand(node.children)
+      return [node]
+    })
+  return unified()
     .use(remarkStringify, { bullet: '-' })
-    .stringify({ type: 'root', children: createSchemaRenderer().render(value, depth) })
+    .stringify({ type: 'root', children: expand(children) as RootContent[] })
+}
+
+const render = (value: SchemaObject | boolean, depth = 0): string =>
+  stringify(createSchemaRenderer().render(value, depth))
 
 const renderText = (value: SchemaObject | boolean, depth = 0): string =>
   render(value, depth).replaceAll('`', '').replaceAll('**', '').replaceAll('\\[', '[').trim()
@@ -16,6 +29,18 @@ const renderText = (value: SchemaObject | boolean, depth = 0): string =>
 const schema = (value: Record<string, unknown>) => value as SchemaObject
 
 describe('render-schema', () => {
+  it('preserves constraints beside a single-branch composition', () => {
+    expect(render(schema({ allOf: [{ type: 'string', pattern: '^a' }], pattern: 'z$', minLength: 5 }))).toBe(
+      '**All of:**\n\n- `string`, pattern: `^a`\n\nminLength: `5`, pattern: `z$`\n',
+    )
+  })
+
+  it('preserves constraints beside a nullable union', () => {
+    expect(render(schema({ anyOf: [{ type: 'string' }, { type: 'null' }], maxLength: 10 }))).toBe(
+      '`string | null`, maxLength: `10`\n',
+    )
+  })
+
   it('renders composition keywords (allOf)', () => {
     const schemaValue = schema({
       allOf: [
@@ -36,11 +61,9 @@ describe('render-schema', () => {
       anyOf: [{ type: 'string' }, { type: 'number' }],
     })
 
-    const output = render(schemaValue)
-
-    expect(output.replaceAll('`', '')).toContain('Any of:')
-    expect(output.replaceAll('`', '')).toContain('string')
-    expect(output.replaceAll('`', '')).toContain('number')
+    // A union of plain types reads as one type instead of a list of branches.
+    expect(render(schemaValue)).toBe('`string | number`\n')
+    expect(render(schema({ anyOf: [{ type: 'string', format: 'uuid' }, { type: 'number' }] }))).toContain('Any of:')
   })
 
   it('renders composition keywords (oneOf)', () => {
@@ -48,11 +71,10 @@ describe('render-schema', () => {
       oneOf: [{ type: 'boolean' }, { type: 'integer' }],
     })
 
-    const output = render(schemaValue)
-
-    expect(output.replaceAll('`', '')).toContain('One of:')
-    expect(output.replaceAll('`', '')).toContain('boolean')
-    expect(output.replaceAll('`', '')).toContain('integer')
+    expect(render(schemaValue)).toBe('`boolean | integer`\n')
+    expect(render(schema({ oneOf: [{ type: 'boolean', description: 'Flag' }, { type: 'integer' }] }))).toContain(
+      'One of:',
+    )
   })
 
   it('renders composition keywords (not)', () => {
@@ -96,11 +118,7 @@ describe('render-schema', () => {
 
     const output = render(schemaValue)
 
-    expect(output.replaceAll('`', '')).toContain('Array of:')
-    expect(output.replaceAll('`', '')).toContain('string')
-    expect(output.replaceAll('`', '')).toContain('Min items: 1')
-    expect(output.replaceAll('`', '')).toContain('Max items: 10')
-    expect(output.replaceAll('`', '')).toContain('Unique items: true')
+    expect(output).toBe('`array of string`, minItems: `1`, maxItems: `10`, uniqueItems: `true`\n')
   })
 
   it('renders primitive type schema with format and enum', () => {
@@ -155,14 +173,15 @@ describe('render-schema', () => {
   })
 
   it('preserves nullable array types alongside their items', () => {
-    expect(render(schema({ type: ['array', 'null'], items: { type: 'string' } }))).toBe(
-      '`array | null`\n\n**Array of:**\n\n`string`\n',
+    expect(render(schema({ type: ['array', 'null'], items: { type: 'string' } }))).toBe('`(array of string) | null`\n')
+    expect(render(schema({ type: ['array', 'null'], items: { type: 'string', format: 'uuid' } }))).toBe(
+      '`array | null`\n\n**Array of:**\n\n`string`, format: `uuid`\n',
     )
   })
 
   it('preserves nullable object types alongside their properties', () => {
     expect(render(schema({ type: ['object', 'null'], properties: { name: { type: 'string' } } }))).toBe(
-      '`object | null`\n\n- **`name`**\n\n  `string`\n',
+      '`object | null`\n\n- **`name`**: `string`\n',
     )
   })
 
@@ -198,12 +217,9 @@ describe('render-schema', () => {
   it('does not reuse ancestry-dependent expansions across separate roots', () => {
     const renderer = createSchemaRenderer()
     const value = schema({ type: 'object', properties: { value: { type: 'string' } } })
-    const serialize = (ancestors: readonly unknown[]): string =>
-      unified()
-        .use(remarkStringify, { bullet: '-' })
-        .stringify({ type: 'root', children: renderer.render(value, 0, ancestors) })
+    const serialize = (ancestors: readonly unknown[]): string => stringify(renderer.render(value, 0, ancestors))
     expect(serialize([value])).toBe('*\\[Circular Reference]*\n')
-    expect(serialize([])).toBe('- **`value`**\n\n  `string`\n')
+    expect(serialize([])).toBe('- **`value`**: `string`\n')
   })
   it.each(['allOf', 'anyOf', 'oneOf'] as const)('renders %s inside an object property', (keyword) => {
     const output = renderText(
@@ -427,9 +443,7 @@ describe('render-schema', () => {
     const properties = Object.fromEntries(
       Array.from({ length: 5 }, (_, index) => [`field${index}`, { type: 'object', properties: { value: {} } }]),
     )
-    const output = unified()
-      .use(remarkStringify, { bullet: '-' })
-      .stringify({ type: 'root', children: renderer.render(schema({ type: 'object', properties })) })
+    const output = stringify(renderer.render(schema({ type: 'object', properties })))
     expect(output).toContain('[Schema output truncated]')
     expect(output).toContain('field4')
   })
@@ -438,11 +452,12 @@ describe('render-schema', () => {
     const renderer = createSchemaRenderer({ maxNodes: 2 })
     const shared = { type: 'object', properties: { name: { type: 'string' } } }
     const value = schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared })
-    const other = schema({ type: 'object', properties: { other: { type: 'string' } } })
-    const serialize = (target: SchemaRenderer, input: SchemaObject): string =>
-      unified()
-        .use(remarkStringify, { bullet: '-' })
-        .stringify({ type: 'root', children: target.render(input) })
+    // One-line properties need no expansion, so only the nested object spends the budget.
+    const other = schema({
+      type: 'object',
+      properties: { other: { type: 'object', properties: { value: { type: 'string' } } } },
+    })
+    const serialize = (target: SchemaRenderer, input: SchemaObject): string => stringify(target.render(input))
     const first = renderer.forDocument()
     expect(serialize(first, value)).toContain('name')
     expect(serialize(first, value)).toContain('is shown above')
@@ -458,7 +473,7 @@ describe('render-schema', () => {
     const shared = { type: 'object', properties: { name: { type: 'string', description: 'Shared name' } } }
     const renderer = createSchemaRenderer().forDocument({ Shared: schema(shared) })
     const serialize = (children: ReturnType<SchemaRenderer['render']>): string =>
-      unified().use(remarkStringify, { bullet: '-' }).stringify({ type: 'root', children }).replaceAll('`', '')
+      stringify(children).replaceAll('`', '')
     expect(serialize(renderer.render(schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared })))).toContain(
       'Shared name',
     )
@@ -470,13 +485,9 @@ describe('render-schema', () => {
   it('points a deep reference to its schema section instead of truncating it', () => {
     const shared = { type: 'object', properties: { name: { type: 'string', description: 'Deep name' } } }
     const renderer = createSchemaRenderer().forDocument({ Shared: schema(shared) })
-    const output = unified()
-      .use(remarkStringify, { bullet: '-' })
-      .stringify({
-        type: 'root',
-        children: renderer.render(schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared }), 64),
-      })
-      .replaceAll('`', '')
+    const output = stringify(
+      renderer.render(schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared }), 64),
+    ).replaceAll('`', '')
     expect(output).toContain('Schema Shared is shown below under Schemas.')
     expect(output).not.toContain('Maximum schema depth')
   })
@@ -509,12 +520,7 @@ describe('render-schema', () => {
           ['Extended', extended],
         ] as const)
     const outputs = Object.fromEntries(
-      models.map(([name, model]) => [
-        name,
-        unified()
-          .use(remarkStringify)
-          .stringify({ type: 'root', children: renderer.render(model, 0, [], { name }) }),
-      ]),
+      models.map(([name, model]) => [name, stringify(renderer.render(model, 0, [], { name }))]),
     )
     expect(outputs.Base).toContain('original')
     expect(outputs.Extended).toContain('extra')
