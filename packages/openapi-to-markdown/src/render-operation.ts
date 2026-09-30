@@ -72,6 +72,10 @@ const getResponseKey = (response: ResponseObject, ids: Map<object, number>): str
   return JSON.stringify(parts)
 }
 
+/** Format standard HTTP methods while preserving custom method names. */
+export const formatOperationMethod = (method: string): string =>
+  method === method.toLowerCase() && isHttpMethod(method) ? method.toUpperCase() : method
+
 /** Render effective operation context without mutating the prepared document. */
 export const renderOperation = async (
   document: OpenApiDocument,
@@ -83,7 +87,7 @@ export const renderOperation = async (
   { description, schemas, examples, documentContext, level = 3 }: RenderContext,
 ): Promise<RootContent[]> => {
   const h = (offset: number): Heading['depth'] => Math.min(6, level + offset) as Heading['depth']
-  const displayMethod = method === method.toLowerCase() && isHttpMethod(method) ? method.toUpperCase() : method
+  const displayMethod = formatOperationMethod(method)
   const openapiVersion = document['x-original-oas-version'] ?? document.openapi
   const stability = operation['x-scalar-stability']
   const title =

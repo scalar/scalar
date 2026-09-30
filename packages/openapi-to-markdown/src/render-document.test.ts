@@ -14,7 +14,7 @@ describe('render-document', () => {
       'x-operation': { summary: 'Shared operation', responses: { '200': { description: 'Success' } } },
     })
     expect(output.slice(output.indexOf('## Operations'))).toBe(
-      '## Operations\n\n### Shared operation\n\n- **Method:** `GET`\n- **Path:** `/a`\n\n#### Responses\n\n##### 200 Success\n\n## Webhooks\n\n### Webhook override\n\n- **Method:** `POST`\n- **Webhook:** `event`\n\n#### Responses\n\n##### 200 Success\n',
+      '## Operations\n\n<a id="scalar-operation-get-a"></a>\n\n### Shared operation\n\n- **Method:** `GET`\n- **Path:** `/a`\n\n#### Responses\n\n##### 200 Success\n\n## Webhooks\n\n<a id="scalar-webhook-post-event"></a>\n\n### Webhook override\n\n- **Method:** `POST`\n- **Webhook:** `event`\n\n#### Responses\n\n##### 200 Success\n',
     )
   })
 

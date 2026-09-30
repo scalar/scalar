@@ -4,7 +4,11 @@ import {
   getResolvedPathItem,
 } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { OpenApiDocument, OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type {
+  OpenApiDocument,
+  OperationObject,
+  PathItemObject,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { ListItem, PhrasingContent, Root, RootContent } from 'mdast'
 import remarkGfm from 'remark-gfm'
 import remarkStringify from 'remark-stringify'
@@ -15,7 +19,7 @@ import { createDocumentExamples } from './document-examples'
 import { field, heading, inlineCode, item, link, list, paragraph, strong, text } from './markdown-nodes'
 import { type DescriptionParser, createDescriptionParser, expandDescriptions } from './parse-description'
 import { renderExamples } from './render-examples'
-import { type DocumentContext, renderOperation } from './render-operation'
+import { type DocumentContext, formatOperationMethod, renderOperation } from './render-operation'
 import { type SchemaView, type ShownSchema, createSchemaRenderer } from './render-schema'
 import { renderSecurity } from './render-security'
 import type { OpenApiRenderOptions } from './select-document'
@@ -90,6 +94,37 @@ export const createDocumentRenderer = (): ((
           ]),
         )
       : undefined
+    const groups = [
+      { title: 'Operations', paths: document.paths, webhook: false },
+      { title: 'Webhooks', paths: document.webhooks, webhook: true },
+    ].map((group) => {
+      const entries: {
+        path: string
+        method: string
+        pathItem: PathItemObject
+        operation: OperationObject
+        label: string
+        id?: string
+      }[] = []
+      for (const [path, reference] of Object.entries(group.paths ?? {})) {
+        const pathItem = getResolvedPathItem(reference)
+        if (!pathItem) continue
+        forEachPathItemOperation(reference, (method, operation) => {
+          const label = `${formatOperationMethod(method)} ${path}`
+          entries.push({
+            path,
+            method,
+            pathItem,
+            operation: getResolvedRef(operation, mergeSiblingReferences),
+            label,
+            id: whole
+              ? anchors.get(group.webhook ? 'webhook' : 'operation', JSON.stringify([path, method]), label)
+              : undefined,
+          })
+        })
+      }
+      return { ...group, entries }
+    })
     // Each page expands a shared schema once, then refers back to it.
     const schemas = schemaRenderer.forDocument(document.components?.schemas, options, destinations)
     const openapiVersion = document['x-original-oas-version'] ?? document.openapi
@@ -130,6 +165,23 @@ export const createDocumentRenderer = (): ((
           ),
         )
       nodes.push(heading(1, text(info.title)), list(metadata), ...(await description(info.description)))
+      if (whole) {
+        const contents: RootContent[] = []
+        for (const group of groups) {
+          if (!group.entries.length) continue
+          contents.push(
+            paragraph(strong(text(group.title))),
+            list(group.entries.map(({ id, label }) => item(paragraph(link(`#${encodeURIComponent(id!)}`, label))))),
+          )
+        }
+        if (destinations?.size) {
+          contents.push(
+            paragraph(strong(text('Schemas'))),
+            list([...destinations].map(([name, url]) => item(paragraph(link(url, name))))),
+          )
+        }
+        if (contents.length) nodes.push(heading(2, text('Contents')), ...contents)
+      }
       if (document.servers?.length || (whole && document.servers !== undefined)) {
         if (documentContext?.servers) nodes.push(anchor(documentContext.servers))
         nodes.push(heading(2, text('Servers')))
@@ -180,36 +232,23 @@ export const createDocumentRenderer = (): ((
       }
       await flush()
     }
-    for (const group of [
-      { title: 'Operations', paths: document.paths, webhook: false },
-      { title: 'Webhooks', paths: document.webhooks, webhook: true },
-    ]) {
+    for (const group of groups) {
       let hasOperations = false
-      for (const [path, reference] of Object.entries(group.paths ?? {})) {
-        const pathItem = getResolvedPathItem(reference)
-        if (!pathItem) continue
-        const entries: { method: string; operation: OperationObject }[] = []
-        forEachPathItemOperation(reference, (method, operation) => {
-          entries.push({
-            method,
-            operation: getResolvedRef(operation, mergeSiblingReferences),
-          })
-        })
-        for (const { method, operation } of entries) {
-          if (!hasOperations && !single) nodes.push(heading(2, text(group.title)))
-          hasOperations = true
-          schemas.beginSection()
-          nodes.push(
-            ...(await renderOperation(document, path, method, pathItem, operation, group.webhook, {
-              description,
-              schemas,
-              examples,
-              documentContext,
-              level: single ? 1 : 3,
-            })),
-          )
-          await flush()
-        }
+      for (const { path, pathItem, method, operation, id } of group.entries) {
+        if (!hasOperations && !single) nodes.push(heading(2, text(group.title)))
+        hasOperations = true
+        schemas.beginSection()
+        if (id) nodes.push(anchor(id))
+        nodes.push(
+          ...(await renderOperation(document, path, method, pathItem, operation, group.webhook, {
+            description,
+            schemas,
+            examples,
+            documentContext,
+            level: single ? 1 : 3,
+          })),
+        )
+        await flush()
       }
     }
     // A model page renders its own model first, as the page title.

@@ -8,6 +8,22 @@
 
 A shared object used by this API.
 
+## Contents
+
+**Operations**
+
+- [POST /resources/0](#scalar-operation-post-resources0)
+- [POST /resources/1](#scalar-operation-post-resources1)
+
+**Webhooks**
+
+- [POST event](#scalar-webhook-post-event)
+
+**Schemas**
+
+- [Resource](#scalar-schema-resource)
+- [Owner](#scalar-schema-owner)
+
 <a id="scalar-context-global-servers"></a>
 
 ## Servers
@@ -27,6 +43,8 @@ A shared object used by this API.
 Resource operations
 
 ## Operations
+
+<a id="scalar-operation-post-resources0"></a>
 
 ### Resource 0
 
@@ -288,6 +306,8 @@ A shared object used by this API.
 </result>
 ```
 
+<a id="scalar-operation-post-resources1"></a>
+
 ### Resource 1
 
 - **Method:** `POST`
@@ -328,6 +348,8 @@ A shared object used by this API.
 [Generated example](#scalar-example-2)
 
 ## Webhooks
+
+<a id="scalar-webhook-post-event"></a>
 
 ### Event notification
 

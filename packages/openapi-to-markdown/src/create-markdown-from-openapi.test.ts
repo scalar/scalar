@@ -289,7 +289,15 @@ Test description`
 - **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
+## Contents
+
+**Operations**
+
+- [GET /test](#scalar-operation-get-test)
+
 ## Operations
+
+<a id="scalar-operation-get-test"></a>
 
 ### Test operation
 
@@ -718,7 +726,15 @@ Test description`
       - **OpenAPI Version:** \`3.2.0\`
       - **API Version:** \`1.0.0\`
 
+      ## Contents
+
+      **Operations**
+
+      - [GET /items](#scalar-operation-get-items)
+
       ## Operations
+
+      <a id="scalar-operation-get-items"></a>
 
       ### Get items
 
@@ -756,7 +772,15 @@ Test description`
       - **OpenAPI Version:** \`3.1.1\`
       - **API Version:** \`1.0.0\`
 
+      ## Contents
+
+      **Operations**
+
+      - [GET /items](#scalar-operation-get-items)
+
       ## Operations
+
+      <a id="scalar-operation-get-items"></a>
 
       ### Get items
 
@@ -1144,7 +1168,7 @@ paths:
       components: { schemas: { Value: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
     })
     expect(output).toBe(
-      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Schemas\n\n<a id="scalar-schema-value"></a>\n\n### Value\n\n**Type:** `string | number`\n',
+      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Contents\n\n**Schemas**\n\n- [Value](#scalar-schema-value)\n\n## Schemas\n\n<a id="scalar-schema-value"></a>\n\n### Value\n\n**Type:** `string | number`\n',
     )
   })
   it('preserves an optional request body description without inventing an operation ID', async () => {

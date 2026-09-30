@@ -62,7 +62,7 @@ describe('render-operation', () => {
   it('keeps document-level headings when rendering the whole document', async () => {
     const markdown = await page({})
     expect(markdown).toContain('# Tunnels\n')
-    expect(markdown).toContain('## Operations\n\n### List tunnels\n')
+    expect(markdown).toContain('## Operations\n\n<a id="scalar-operation-get-tunnels"></a>\n\n### List tunnels\n')
     expect(markdown).toContain('\n#### Responses\n')
   })
 

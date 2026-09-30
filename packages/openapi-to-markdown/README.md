@@ -180,6 +180,9 @@ An operation, webhook or model page starts with that item as its `#` title, with
 
 Omitting options, or passing `{}`, renders the whole document. OpenAPI 2.0 inputs are migrated before selection: use definition names with `model`. Webhooks require OpenAPI 3.1 or later.
 
+Whole-document exports include a compact contents index after the introduction, linking
+to operations by method and path, webhooks, and component schemas. Empty groups are omitted.
+
 Whole-document exports render each named structured schema once under `## Schemas`.
 Operations and nested properties link to that section, while simple primitive references
 remain inline. Generated explicit anchors keep links stable even when schema titles repeat.

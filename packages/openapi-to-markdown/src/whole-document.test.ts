@@ -38,6 +38,47 @@ const input = {
 }
 
 describe('whole-document', () => {
+  it('indexes only rendered operations, webhooks and component names with unique destinations', async () => {
+    const response = { '200': { description: 'OK' } }
+    const renderer = await createOpenApiMarkdownRenderer({
+      ...input,
+      info: { title: 'Navigation', version: '1', description: 'Read this introduction.' },
+      paths: {
+        '/a+b': { get: { summary: 'Repeated title', operationId: 'duplicate', tags: ['Orders'], responses: response } },
+        '/ab': { get: { summary: 'Repeated title', operationId: 'duplicate', tags: ['Orders'], responses: response } },
+        '/café': { post: { responses: response } },
+      },
+      webhooks: { 'order.created': { post: { responses: response } } },
+    })
+    const output = await renderer.render()
+    const contents = output.slice(output.indexOf('## Contents'), output.indexOf('## Operations'))
+    expect(output.indexOf('Read this introduction.')).toBeLessThan(output.indexOf('## Contents'))
+    expect(contents).toContain('[GET /a+b]')
+    expect(contents).toContain('[GET /ab]')
+    expect(contents).toContain('[POST /café]')
+    expect(contents).toContain('[POST order.created]')
+    expect(contents).toContain('[Order](#scalar-schema-order)')
+    expect(contents).not.toContain('Repeated title')
+    expect(contents).not.toContain('Order record')
+    const anchors = [...output.matchAll(/<a id="([^"]+)"><\/a>/g)].map((match) => match[1])
+    expect(new Set(anchors).size).toBe(anchors.length)
+    const links = [...output.matchAll(/\]\(#(scalar-[^)]+)\)/g)].map((match) => decodeURIComponent(match[1]!))
+    expect(links.length).toBeGreaterThan(5)
+    for (const destination of links) expect(anchors).toContain(destination)
+    expect(await renderer.render({ tag: 'Orders' })).not.toContain('## Contents')
+    expect(await renderer.render({ model: 'Order' })).not.toContain('## Contents')
+  })
+
+  it('omits empty navigation groups and the index for an empty document', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({ openapi: '3.1.1', info: { title: 'Empty', version: '1' } })
+    expect(await renderer.render()).not.toContain('## Contents')
+    const models = await createOpenApiMarkdownRenderer({ ...input, paths: {} })
+    const output = await models.render()
+    expect(output).toContain('## Contents')
+    expect(output).not.toContain('**Operations**')
+    expect(output).not.toContain('**Webhooks**')
+  })
+
   it('explains global and path servers once while keeping operation overrides and variables', async () => {
     const response = { '200': { description: 'OK' } }
     const renderer = await createOpenApiMarkdownRenderer({
@@ -295,7 +336,7 @@ describe('whole-document', () => {
     })
     expect(external).toContain('[猫/Pet](https://example.com/model)')
     const unlinked = await renderer.render({ schemaReferences: { mode: 'linked', resolveUrl: () => undefined } })
-    expect(unlinked).not.toContain('[猫/Pet](')
+    expect(unlinked.slice(unlinked.indexOf('## Operations'))).not.toContain('[猫/Pet](')
   })
 
   it('keeps single-item and tag page expansion unchanged', async () => {
