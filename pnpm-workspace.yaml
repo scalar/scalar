@@ -100,7 +100,7 @@ catalogs:
     type-fest: ^5.8.0
     truncate-json: 3.0.1
     tsx: 4.19.4
-    undici: 8.11.2
+    undici: 7.29.1
     vite-plugin-monaco-editor-esm: 2.0.2
     vite-ssg: 28.3.0
     vite-svg-loader: 5.1.1
@@ -141,8 +141,7 @@ overrides:
   lodash: 4.18.1
   property-information: 7.1.0
   undici: catalog:*
-  # jsdom 28 imports private Undici 7 handlers removed in Undici 8.
-  vite-ssg>jsdom: 30.1.1
+  scalar-app>undici: 8.11.2
 
 # Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
 minimumReleaseAge: 7200 # 5 days
