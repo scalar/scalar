@@ -734,7 +734,9 @@ Test description`
       - **\`id\`**: \`string\`
       - **\`name\`**: \`string\`
 
-      **Example:**
+      <a id="scalar-example-1"></a>
+
+      **Generated example:**
 
       \`\`\`json
       [
@@ -770,7 +772,9 @@ Test description`
       - **\`id\`**: \`string\`
       - **\`name\`**: \`string\`
 
-      **Example:**
+      <a id="scalar-example-1"></a>
+
+      **Generated example:**
 
       \`\`\`xml
       <?xml version="1.0" encoding="UTF-8"?>

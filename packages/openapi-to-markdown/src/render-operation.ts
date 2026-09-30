@@ -11,6 +11,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Heading, ListItem, PhrasingContent, RootContent } from 'mdast'
 
+import type { DocumentExamples } from './document-examples'
 import { describe, field, heading, inlineCode, item, list, paragraph, strong, text } from './markdown-nodes'
 import type { DescriptionParser } from './parse-description'
 import { renderExamples } from './render-examples'
@@ -22,6 +23,7 @@ import { renderSecurity } from './render-security'
 type RenderContext = {
   description: DescriptionParser
   schemas: SchemaRenderer
+  examples?: DocumentExamples
   /** The heading level of the operation title: 1 on its own page, 3 inside a document. */
   level?: number
 }
@@ -68,7 +70,7 @@ export const renderOperation = async (
   pathItem: PathItemObject,
   operation: OperationObject,
   webhook: boolean,
-  { description, schemas, level = 3 }: RenderContext,
+  { description, schemas, examples, level = 3 }: RenderContext,
 ): Promise<RootContent[]> => {
   const h = (offset: number): Heading['depth'] => Math.min(6, level + offset) as Heading['depth']
   const displayMethod = method === method.toLowerCase() && isHttpMethod(method) ? method.toUpperCase() : method
@@ -127,7 +129,7 @@ export const renderOperation = async (
     const entries: ListItem[] = []
     for (const parameter of parameters.values()) {
       if (parameter.in !== location) continue
-      entries.push(await renderParameter(parameter, { description, schemas, openapiVersion, document }))
+      entries.push(await renderParameter(parameter, { description, schemas, examples, openapiVersion, document }))
     }
     if (entries.length) nodes.push(heading(h(1), text(sectionTitle)), list(entries))
   }
@@ -142,10 +144,19 @@ export const renderOperation = async (
       nodes.push(
         ...(await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi, {
           linked: schemas.linked,
+          examples,
         })),
       )
       nodes.push(
-        ...(await renderEncoding(content.encoding, mediaType, description, schemas, openapiVersion, document.openapi)),
+        ...(await renderEncoding(
+          content.encoding,
+          mediaType,
+          description,
+          schemas,
+          openapiVersion,
+          document.openapi,
+          examples,
+        )),
       )
     }
   }
@@ -177,7 +188,7 @@ export const renderOperation = async (
       nodes.push(heading(h(2), text(`${status}${response.description ? ` ${response.description}` : ''}`)))
     }
     nodes.push(
-      ...(await renderHeaders(response.headers, description, schemas, openapiVersion, document.openapi)),
+      ...(await renderHeaders(response.headers, description, schemas, openapiVersion, document.openapi, examples)),
       ...(await renderResponseLinks(response.links, description)),
     )
     for (const [mediaType, content] of Object.entries(response.content ?? {})) {
@@ -186,6 +197,7 @@ export const renderOperation = async (
       nodes.push(
         ...(await renderExamples(content, description, mediaType, 'read', openapiVersion, document.openapi, {
           linked: schemas.linked,
+          examples,
         })),
       )
     }
@@ -199,9 +211,16 @@ const renderParameter = async (
   {
     description,
     schemas,
+    examples,
     openapiVersion,
     document,
-  }: { description: DescriptionParser; schemas: SchemaRenderer; openapiVersion: string; document: OpenApiDocument },
+  }: {
+    description: DescriptionParser
+    schemas: SchemaRenderer
+    examples?: DocumentExamples
+    openapiVersion: string
+    document: OpenApiDocument
+  },
 ): Promise<ListItem> => {
   const flags = [parameter.required ? 'required' : '', parameter.deprecated ? 'deprecated' : ''].filter(Boolean)
   const title: PhrasingContent[] = [
@@ -236,6 +255,7 @@ const renderParameter = async (
         'write',
         openapiVersion,
         document.openapi,
+        { examples },
       )) as ListItem['children']),
     )
   for (const [mediaType, content] of Object.entries('content' in parameter ? (parameter.content ?? {}) : {})) {
@@ -244,6 +264,7 @@ const renderParameter = async (
     blocks.push(
       ...((await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi, {
         linked: schemas.linked,
+        examples,
       })) as ListItem['children']),
     )
   }

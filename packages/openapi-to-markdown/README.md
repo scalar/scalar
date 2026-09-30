@@ -186,6 +186,11 @@ remain inline. Generated explicit anchors keep links stable even when schema tit
 The export is self-contained; a supplied `schemaReferences.resolveUrl` callback still controls
 reference URLs when linked mode is explicitly requested.
 
+Within a whole-document export, repeated generated examples link to their first
+occurrence. Request, response, and media-type contexts remain distinct. Synthesized
+values are labeled **Generated example**, and authored examples remain at every
+usage, including all values in a schema's `examples` array.
+
 ### Errors and limitations
 
 Invalid, combined, or missing selectors reject the returned promise with an error. Duplicate operation IDs are ambiguous and list matching paths and methods; use a path/method selector instead. Duplicate tag declarations are also rejected. Names are case sensitive. Operation JSON pointers must target `/paths/{path}/{method}`, with an optional leading `#` and standard `~0`/`~1` escaping.

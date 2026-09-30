@@ -50,9 +50,11 @@ describe('get-markdown-examples', () => {
       },
     }
     expect(getMarkdownExamples(source, 'application/json', 'write')).toStrictEqual([
-      { value: { secret: 'secret', name: 'Ada' } },
+      { value: { secret: 'secret', name: 'Ada' }, generated: true },
     ])
-    expect(getMarkdownExamples(source, 'application/json', 'read')).toStrictEqual([{ value: { id: 42, name: 'Ada' } }])
+    expect(getMarkdownExamples(source, 'application/json', 'read')).toStrictEqual([
+      { value: { id: 42, name: 'Ada' }, generated: true },
+    ])
   })
 
   it('preserves supplied XML as a string', () => {
@@ -111,7 +113,7 @@ describe('get-markdown-examples', () => {
     expect(countGeneratedExampleValues(levels[0])).toBeGreaterThan(10_000)
     expect(getMarkdownExamples({ schema: levels[0] }, 'application/json')).toStrictEqual([{ omitted: true }])
     expect(getMarkdownExamples({ schema: levels[11] }, 'application/json')).toStrictEqual([
-      { value: { p0: '', p1: '', p2: '', p3: '', p4: '' } },
+      { value: { p0: '', p1: '', p2: '', p3: '', p4: '' }, generated: true },
     ])
   })
 

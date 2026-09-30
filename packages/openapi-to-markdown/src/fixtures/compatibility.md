@@ -53,7 +53,9 @@ A shared object used by this API.
 
 A shared object used by this API.
 
-**Example:**
+<a id="scalar-example-1"></a>
+
+**Generated example:**
 
 ```json
 {
@@ -165,7 +167,9 @@ A shared object used by this API.
 
 A shared object used by this API.
 
-**Example:**
+<a id="scalar-example-2"></a>
+
+**Generated example:**
 
 ```json
 {
@@ -273,7 +277,9 @@ A shared object used by this API.
 
 - **`name`**: `string`
 
-**Example:**
+<a id="scalar-example-3"></a>
+
+**Generated example:**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -311,107 +317,7 @@ A shared object used by this API.
 
 A shared object used by this API.
 
-**Example:**
-
-```json
-{
-  "field0": "value0",
-  "field1": "value1",
-  "field2": "value2",
-  "owner": {
-    "id": 1,
-    "name": ""
-  },
-  "parent": {
-    "field0": "value0",
-    "field1": "value1",
-    "field2": "value2",
-    "owner": {
-      "id": 1,
-      "name": ""
-    },
-    "parent": {
-      "field0": "value0",
-      "field1": "value1",
-      "field2": "value2",
-      "owner": {
-        "id": 1,
-        "name": ""
-      },
-      "parent": {
-        "field0": "value0",
-        "field1": "value1",
-        "field2": "value2",
-        "owner": {
-          "id": 1,
-          "name": ""
-        },
-        "parent": {
-          "field0": "value0",
-          "field1": "value1",
-          "field2": "value2",
-          "owner": {
-            "id": 1,
-            "name": ""
-          },
-          "parent": {
-            "field0": "value0",
-            "field1": "value1",
-            "field2": "value2",
-            "owner": {
-              "id": 1,
-              "name": ""
-            },
-            "parent": {
-              "field0": "value0",
-              "field1": "value1",
-              "field2": "value2",
-              "owner": {
-                "id": 1,
-                "name": ""
-              },
-              "parent": {
-                "field0": "value0",
-                "field1": "value1",
-                "field2": "value2",
-                "owner": {
-                  "id": 1,
-                  "name": ""
-                },
-                "parent": {
-                  "field0": "value0",
-                  "field1": "value1",
-                  "field2": "value2",
-                  "owner": {
-                    "id": 1,
-                    "name": ""
-                  },
-                  "parent": {
-                    "field0": "value0",
-                    "field1": "value1",
-                    "field2": "value2",
-                    "owner": {
-                      "id": 1,
-                      "name": ""
-                    },
-                    "parent": {
-                      "field0": "value0",
-                      "field1": "value1",
-                      "field2": "value2",
-                      "owner": {},
-                      "parent": {}
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
+[Generated example](#scalar-example-1)
 
 #### Responses
 
@@ -423,107 +329,7 @@ A shared object used by this API.
 
 A shared object used by this API.
 
-**Example:**
-
-```json
-{
-  "field0": "value0",
-  "field1": "value1",
-  "field2": "value2",
-  "owner": {
-    "id": 1,
-    "name": ""
-  },
-  "parent": {
-    "field0": "value0",
-    "field1": "value1",
-    "field2": "value2",
-    "owner": {
-      "id": 1,
-      "name": ""
-    },
-    "parent": {
-      "field0": "value0",
-      "field1": "value1",
-      "field2": "value2",
-      "owner": {
-        "id": 1,
-        "name": ""
-      },
-      "parent": {
-        "field0": "value0",
-        "field1": "value1",
-        "field2": "value2",
-        "owner": {
-          "id": 1,
-          "name": ""
-        },
-        "parent": {
-          "field0": "value0",
-          "field1": "value1",
-          "field2": "value2",
-          "owner": {
-            "id": 1,
-            "name": ""
-          },
-          "parent": {
-            "field0": "value0",
-            "field1": "value1",
-            "field2": "value2",
-            "owner": {
-              "id": 1,
-              "name": ""
-            },
-            "parent": {
-              "field0": "value0",
-              "field1": "value1",
-              "field2": "value2",
-              "owner": {
-                "id": 1,
-                "name": ""
-              },
-              "parent": {
-                "field0": "value0",
-                "field1": "value1",
-                "field2": "value2",
-                "owner": {
-                  "id": 1,
-                  "name": ""
-                },
-                "parent": {
-                  "field0": "value0",
-                  "field1": "value1",
-                  "field2": "value2",
-                  "owner": {
-                    "id": 1,
-                    "name": ""
-                  },
-                  "parent": {
-                    "field0": "value0",
-                    "field1": "value1",
-                    "field2": "value2",
-                    "owner": {
-                      "id": 1,
-                      "name": ""
-                    },
-                    "parent": {
-                      "field0": "value0",
-                      "field1": "value1",
-                      "field2": "value2",
-                      "owner": {},
-                      "parent": {}
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
+[Generated example](#scalar-example-2)
 
 ## Webhooks
 
@@ -548,7 +354,9 @@ A shared object used by this API.
 
 [Owner](#scalar-schema-owner)
 
-**Example:**
+<a id="scalar-example-4"></a>
+
+**Generated example:**
 
 ```json
 {
@@ -585,7 +393,9 @@ A shared object used by this API.
 
   A shared object used by this API.
 
-**Example:**
+<a id="scalar-example-5"></a>
+
+**Generated example:**
 
 ```json
 {
@@ -696,7 +506,9 @@ A shared object used by this API.
 - **`id`**: `integer`
 - **`name`**: `string`
 
-**Example:**
+<a id="scalar-example-6"></a>
+
+**Generated example:**
 
 ```json
 {

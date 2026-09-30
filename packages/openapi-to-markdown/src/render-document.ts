@@ -11,6 +11,7 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 
 import { anchor, createDocumentAnchors } from './document-anchors'
+import { createDocumentExamples } from './document-examples'
 import { field, heading, inlineCode, item, link, list, paragraph, strong, text } from './markdown-nodes'
 import { type DescriptionParser, createDescriptionParser, expandDescriptions } from './parse-description'
 import { renderExamples } from './render-examples'
@@ -72,6 +73,7 @@ export const createDocumentRenderer = (): ((
       (selector) => selector === undefined,
     )
     const anchors = createDocumentAnchors()
+    const examples = whole ? createDocumentExamples(anchors) : undefined
     const destinations = whole
       ? new Map(
           Object.keys(document.components?.schemas ?? {}).map((name) => [
@@ -184,6 +186,7 @@ export const createDocumentRenderer = (): ((
             ...(await renderOperation(document, path, method, pathItem, operation, group.webhook, {
               description,
               schemas,
+              examples,
               level: single ? 1 : 3,
             })),
           )
@@ -219,6 +222,7 @@ export const createDocumentRenderer = (): ((
             {
               linked: schemas.linked && !own,
               quiet: schemas.linked,
+              examples,
             },
           )),
         )

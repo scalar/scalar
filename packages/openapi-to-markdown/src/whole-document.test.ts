@@ -38,6 +38,99 @@ const input = {
 }
 
 describe('whole-document', () => {
+  it('deduplicates generated examples without merging request, response, or media type contexts', async () => {
+    const schema = { $ref: '#/components/schemas/Record' }
+    const operation = {
+      requestBody: { content: { 'application/json': { schema } } },
+      responses: {
+        '200': { description: 'OK', content: { 'application/json': { schema }, 'application/xml': { schema } } },
+      },
+    }
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Examples', version: '1' },
+      paths: { '/first': { post: operation }, '/second': { post: operation } },
+      components: {
+        schemas: {
+          Record: {
+            type: 'object',
+            properties: { id: { type: 'integer', readOnly: true }, secret: { type: 'string', writeOnly: true } },
+          },
+        },
+      },
+    })
+    const output = await renderer.render()
+    expect(output.match(/\*\*Generated example:\*\*/g)?.length).toBe(4)
+    expect(output.match(/\[Generated example\]\(#scalar-example-/g)?.length).toBe(3)
+    expect(output.match(/```json\n/g)?.length).toBe(3)
+    expect(output.match(/```xml\n/g)?.length).toBe(1)
+    expect(output).toContain('```json\n{\n  "secret": ""\n}\n```')
+    expect(output).toContain('```json\n{\n  "id": 1\n}\n```')
+    expect(await renderer.render()).toBe(output)
+    expect(await Promise.all([renderer.render(), renderer.render()])).toStrictEqual([output, output])
+  })
+
+  it('keeps every authored schema example at its original usage', async () => {
+    const schema = { $ref: '#/components/schemas/Record' }
+    const response = { description: 'OK', content: { 'application/json': { schema } } }
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Authored', version: '1' },
+      paths: {
+        '/first': { get: { responses: { '200': response } } },
+        '/second': { get: { responses: { '200': response } } },
+      },
+      components: { schemas: { Record: { type: 'object', examples: [{ id: 42 }, { id: 43 }] } } },
+    })
+    const output = await renderer.render()
+    expect(output.match(/\*\*Example:\*\*/g)?.length).toBe(6)
+    expect(output.match(/"id": 42/g)?.length).toBe(3)
+    expect(output.match(/"id": 43/g)?.length).toBe(3)
+    expect(output).not.toContain('Generated example')
+  })
+
+  it('keeps constraints beside references in their own generated examples', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Defaults', version: '1' },
+      paths: {
+        '/first': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Count', default: 42 },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/second': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Count', default: 43 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: { schemas: { Count: { type: 'integer' } } },
+    })
+    const output = await renderer.render()
+    expect(output).toContain('```json\n42\n```')
+    expect(output).toContain('```json\n43\n```')
+    expect(output).not.toContain('[Generated example](')
+  })
+
   it('gives shared schemas one canonical definition including aliases and recursion', async () => {
     const renderer = await createOpenApiMarkdownRenderer(input)
     const output = await renderer.render()
