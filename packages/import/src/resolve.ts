@@ -188,9 +188,10 @@ function parseHtml(html?: string) {
   }
 
   // SEO metadata describes the website rather than its API description.
+  // Preserve a separator so excluding metadata cannot join surrounding text into a new match.
   const htmlWithoutMetadata = html.replace(
     /<script\b[^>]*\btype\s*=\s*(?:"application\/ld\+json"|'application\/ld\+json'|application\/ld\+json(?=[\s>]))[^>]*>[\s\S]*?<\/script\s*>/gi,
-    '',
+    ' ',
   )
 
   // Check for configuration in script tag

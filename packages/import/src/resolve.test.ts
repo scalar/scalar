@@ -558,6 +558,16 @@ info:
     expect(await resolve('https://example.com/reference')).toBe('https://example.com/openapi.yaml')
   })
 
+  it('does not join surrounding text when excluding JSON-LD metadata', async () => {
+    const html = `<html>
+      <script>const config = { u<script type="application/ld+json">{"url":"https://example.com/"}</script>rl: '/wrong.json' }</script>
+      <a href="/openapi.json">Download API description</a>
+    </html>`
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
+
+    expect(await resolve('https://example.com/reference')).toBe('https://example.com/openapi.json')
+  })
+
   it.each([
     '<a href="/openapi.json">Download API description</a>',
     String.raw`<script>\"spec\":{\"url\":\"/openapi.json\"}</script>`,
