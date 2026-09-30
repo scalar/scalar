@@ -16,14 +16,7 @@ import type {
 import type { FuseData } from '@/features/Search/types'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
 import { isIntroductionEntry } from '@/helpers/is-introduction-entry'
-import {
-  extractBodyDescriptions,
-  extractBodyFieldNames,
-  extractParameterDescriptions,
-  extractParameterNames,
-  extractSchemaDescriptions,
-  extractSchemaFieldNames,
-} from '@/helpers/openapi'
+import { createSearchFieldExtractor, extractParameterDescriptions, extractParameterNames } from '@/helpers/openapi'
 
 /** Documents the search index can ingest. AsyncAPI is supported for headings, tags, and models; channels/operations/messages are not indexed yet. */
 type SearchableDocument = OpenApiDocument | AsyncApiDocument
@@ -131,6 +124,7 @@ export function createSearchIndex(
   options?: CreateSearchIndexOptions,
 ): FuseData[] {
   const index: FuseData[] = []
+  const extractFields = createSearchFieldExtractor()
   const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
   const labels = options?.labels ?? DEFAULT_SEARCH_INDEX_LABELS
 
@@ -139,7 +133,7 @@ export function createSearchIndex(
    */
   function processEntries(entriesToProcess: TraversedEntry[]): void {
     entriesToProcess.forEach((entry) => {
-      addEntryToIndex(entry, index, document, modelsSectionTitle, labels)
+      addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields)
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
@@ -165,6 +159,7 @@ function addEntryToIndex(
   document: SearchableDocument | undefined,
   modelsSectionTitle: string,
   labels: SearchIndexLabels,
+  extractFields: ReturnType<typeof createSearchFieldExtractor>,
 ): void {
   // OpenAPI-only branches read fields that do not exist on AsyncAPI documents (paths, webhooks,
   // components.schemas). Narrow once here so each branch can dereference safely.
@@ -182,8 +177,7 @@ function addEntryToIndex(
 
     const parameters = extractParameterNames(operationWithPathParams.parameters ?? [])
     const parameterDescriptions = extractParameterDescriptions(operationWithPathParams.parameters ?? [])
-    const body = extractBodyFieldNames(operationWithPathParams)
-    const bodyDescriptions = extractBodyDescriptions(operationWithPathParams)
+    const { names: body, descriptions: bodyDescriptions } = extractFields.body(operationWithPathParams)
     const responseExamples = extractResponseExamples(operationWithPathParams.responses)
 
     index.push({
@@ -229,8 +223,7 @@ function addEntryToIndex(
   if (entry.type === 'model') {
     const schema = getModelSchema(document, entry.name)
     const schemaDescription = schema?.description ?? ''
-    const propertyNames = extractSchemaFieldNames(schema)
-    const propertyDescriptions = extractSchemaDescriptions(schema)
+    const { names: propertyNames, descriptions: propertyDescriptions } = extractFields.schema(schema)
 
     index.push({
       type: 'model',
