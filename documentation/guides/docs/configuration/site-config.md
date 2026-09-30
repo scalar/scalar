@@ -175,6 +175,31 @@ Respect the user's system preference while allowing them to override it:
 }
 ```
 
+## Social Cards
+
+The `og` property points at your own template for the social card shown when a page is shared. Without it, Scalar draws a card from your theme, logo and page title.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "og": {
+      "imageTemplate": "./og/card.tsx"
+    }
+  }
+}
+```
+
+### Properties
+
+| Property        | Type     | Required | Description                                                                       |
+| --------------- | -------- | -------- | --------------------------------------------------------------------------------- |
+| `imageTemplate` | `string` | No       | Path to a TSX or JSX template, relative to `scalar.config.json` and inside the project |
+
+See [Social Cards](social-cards.md) for how to write one.
+
 ## Ask AI
 
 The `agent` property controls the appearance of [Ask AI](ask-ai.md) on your documentation site: the Ask AI button, its placement in the sidebar, the position of the floating chat widget, and the suggested questions shown in the chat.
@@ -284,6 +309,8 @@ The `search` object within `layout` controls the global search behavior.
 ## Head
 
 The `head` property allows you to inject custom elements into the HTML `<head>` of your documentation pages. This is useful for adding custom styles, scripts, meta tags, and favicon links.
+
+An `og:image` set here applies to every page and replaces the [social card](social-cards.md) Scalar generates, including one from your own template.
 
 ### Example
 
