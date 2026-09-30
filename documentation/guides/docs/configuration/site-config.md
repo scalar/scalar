@@ -244,6 +244,8 @@ The `layout` property controls global layout options that apply to all pages unl
       "header": true,
       "pageTitle": true,
       "pageActions": true,
+      "pageNav": true,
+      "lastUpdated": false,
       "search": {
         "enabled": true,
         "position": "header"
@@ -261,7 +263,15 @@ The `layout` property controls global layout options that apply to all pages unl
 | `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
 | `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
+| `pageNav`     | `boolean` | `true`   | Whether to show previous and next page links at the bottom of each page |
+| `lastUpdated` | `boolean` | `false`  | Whether to show the date each page last changed, above the previous and next links. See [Last updated date](#last-updated-date) |
 | `search`      | `object`  | —        | Search bar configuration                       |
+
+### Last updated date
+
+Scalar records the date for you, so there is no field to set it by hand. Each time you publish, Scalar compares every page's content with the previous publish, and the date moves forward only for pages whose content changed. Your first publish dates every page to that day.
+
+Previews do not have a publish history, so they show the current date.
 
 ### Search Configuration
 

@@ -342,6 +342,8 @@ Pages support layout configuration to customize how they are displayed. These op
 | `header`      | `boolean` | —       | Whether to show the header. Falls back to the site-level [`layout.header`](site-config.md#layout) option |
 | `pageTitle`   | `boolean` | `true`  | Whether to show the page title           |
 | `pageActions` | `boolean` | `true`  | Whether to show page actions             |
+| `pageNav`     | `boolean` | `true`  | Whether to show previous and next page links at the bottom of the page |
+| `lastUpdated` | `boolean` | `false` | Whether to show the date the page last changed, above the previous and next links. See [Last updated date](site-config.md#last-updated-date) |
 | `search`      | `object`  | —       | Search configuration for this page       |
 
 ### Search Options
