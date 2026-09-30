@@ -292,85 +292,83 @@ describe('render-document', () => {
     expect(output.replaceAll('`', '')).toContain('name')
   })
 
-  describe('schemas appendix', () => {
-    const ref = (name: string): { $ref: string } => ({ $ref: `#/components/schemas/${name}` })
-    const page = {
-      openapi: '3.1.1',
-      info: { title: 'Appendix', version: '1' },
-      paths: {
-        '/owner': {
-          get: {
-            responses: {
-              '200': { description: 'OK', content: { 'application/json': { schema: ref('Resource') } } },
-            },
+  const ref = (name: string): { $ref: string } => ({ $ref: `#/components/schemas/${name}` })
+  const page = {
+    openapi: '3.1.1',
+    info: { title: 'Appendix', version: '1' },
+    paths: {
+      '/owner': {
+        get: {
+          responses: {
+            '200': { description: 'OK', content: { 'application/json': { schema: ref('Resource') } } },
           },
         },
       },
-      components: {
-        schemas: {
-          Resource: {
-            type: 'object',
-            title: 'Resource record',
-            description: 'A resource.',
-            properties: { owner: { ...ref('Owner'), description: 'Who owns it' }, secondary: ref('Alias') },
-          },
-          Owner: { type: 'object', description: 'An account.', properties: { id: { type: 'integer' } } },
-          Alias: ref('Owner'),
-          Sample: {
-            type: 'object',
-            example: { id: 7 },
-            properties: { nested: ref('Owner') },
-          },
-          Status: { type: 'string', enum: ['open', 'closed'] },
-          Unused: { type: 'object', properties: { unusedField: { type: 'string' } } },
+    },
+    components: {
+      schemas: {
+        Resource: {
+          type: 'object',
+          title: 'Resource record',
+          description: 'A resource.',
+          properties: { owner: { ...ref('Owner'), description: 'Who owns it' }, secondary: ref('Alias') },
         },
+        Owner: { type: 'object', description: 'An account.', properties: { id: { type: 'integer' } } },
+        Alias: ref('Owner'),
+        Sample: {
+          type: 'object',
+          example: { id: 7 },
+          properties: { nested: ref('Owner') },
+        },
+        Status: { type: 'string', enum: ['open', 'closed'] },
+        Unused: { type: 'object', properties: { unusedField: { type: 'string' } } },
       },
-    }
+    },
+  }
 
-    it('lists models the page already expanded on one line each', async () => {
-      const output = await createMarkdownFromOpenApi(page, { operation: { path: '/owner', method: 'get' } })
-      const appendix = output.slice(output.indexOf('## Schemas'))
-      expect(appendix).toBe(
-        [
-          '## Schemas',
-          '',
-          '- **Resource record** (`Resource`) — shown above.',
-          '- `Owner` — shown above.',
-          '',
-          // A reference sibling replaced this description where the schema was expanded.
-          '  An account.',
-          '- `Alias` — shown above as `Owner`.',
-          '',
-          '  An account.',
-          '',
-        ].join('\n'),
-      )
-      // The body expands each shared schema once, so nothing is lost from the page.
-      expect(output.match(/`id`/g)?.length).toBe(1)
-      expect(output).toContain('Who owns it')
-      expect(output).not.toContain('unusedField')
-    })
+  it('lists models the page already expanded on one line each', async () => {
+    const output = await createMarkdownFromOpenApi(page, { operation: { path: '/owner', method: 'get' } })
+    const appendix = output.slice(output.indexOf('## Schemas'))
+    expect(appendix).toBe(
+      [
+        '## Schemas',
+        '',
+        '- **Resource record** (`Resource`) — shown above.',
+        '- `Owner` — shown above.',
+        '',
+        // A reference sibling replaced this description where the schema was expanded.
+        '  An account.',
+        '- `Alias` — shown above as `Owner`.',
+        '',
+        '  An account.',
+        '',
+      ].join('\n'),
+    )
+    // The body expands each shared schema once, so nothing is lost from the page.
+    expect(output.match(/`id`/g)?.length).toBe(1)
+    expect(output).toContain('Who owns it')
+    expect(output).not.toContain('unusedField')
+  })
 
-    it('keeps full sections for models the page has not expanded, and for authored examples', async () => {
-      const output = await createMarkdownFromOpenApi(page)
-      const appendix = output.slice(output.indexOf('## Schemas'))
-      expect(appendix).toContain('- **Resource record** (`Resource`) — shown above.')
-      expect(appendix).toContain('### Sample')
-      expect(appendix).toContain('"id": 7')
-      // Leaf schemas are never replaced by a reference, so they keep their section.
-      expect(appendix).toContain('### Status')
-      expect(appendix).toContain('### Unused')
-      expect(appendix).toContain('unusedField')
-      expect(appendix).not.toContain('### Owner')
-    })
+  it('keeps full sections for models the page has not expanded, and for authored examples', async () => {
+    const output = await createMarkdownFromOpenApi(page)
+    const appendix = output.slice(output.indexOf('## Schemas'))
+    expect(appendix).toContain('- **Resource record** (`Resource`) — shown above.')
+    expect(appendix).toContain('### Sample')
+    expect(appendix).toContain('"id": 7')
+    // Leaf schemas are never replaced by a reference, so they keep their section.
+    expect(appendix).toContain('### Status')
+    expect(appendix).toContain('### Unused')
+    expect(appendix).toContain('unusedField')
+    expect(appendix).not.toContain('### Owner')
+  })
 
-    it('gives a selected model its own section even when a dependency expanded it first', async () => {
-      const output = await createMarkdownFromOpenApi(page, { model: 'Alias' })
-      // The model page starts with its own model, which expands the schema it aliases.
-      expect(output.startsWith('# Alias\n')).toBe(true)
-      expect(output).toContain('`id`')
-      expect(output).not.toContain('`Alias` — shown above')
-    })
+  it('gives a selected model its own section even when a dependency expanded it first', async () => {
+    const output = await createMarkdownFromOpenApi(page, { model: 'Alias' })
+    // The model page starts with its own model, which expands the schema it aliases.
+    expect(output.startsWith('# Alias\n')).toBe(true)
+    expect(output).toContain('`id`')
+    expect(output).not.toContain('`Alias` — shown above')
   })
 
   it('separates content after a nested list so it does not continue the list', async () => {

@@ -9,6 +9,7 @@ import type { SchemaReferenceOptions } from './select-document'
 /** Boolean schemas must survive rendering without being coerced into empty objects. */
 type MarkdownSchema = MaybeRefSchemaObject | boolean
 
+/** A normalized schema with sorted properties and annotations used throughout Markdown rendering. */
 export type SchemaView = {
   schema: SchemaObject | boolean
   title?: string
@@ -196,6 +197,9 @@ const resolveMarkdownSchema = (input: MarkdownSchema): unknown => {
 /** Annotations that a wrapper schema contributes on top of the schema it wraps. */
 const annotationKeys = ['title', 'description', 'default', 'readOnly', 'writeOnly', 'deprecated'] as const
 
+/** Only annotation-only wrappers can be replaced without losing independent constraints. */
+const wrapperKeys = new Set<string>([...annotationKeys, ...referenceKeys, '__scalar_', 'allOf', 'anyOf', 'oneOf'])
+
 /** Types that never need their own page: their whole definition fits on one line. */
 const primitiveTypes = new Set(['string', 'number', 'integer', 'boolean', 'null'])
 
@@ -224,6 +228,7 @@ const isNullSchema = (input: unknown): boolean => {
 const getWrapped = (value: SchemaView): { core: MarkdownSchema; nullable: boolean } | undefined => {
   if (
     typeof value.schema !== 'object' ||
+    Object.keys(value.schema).some((key) => !wrapperKeys.has(key)) ||
     value.type !== undefined ||
     value.properties.length ||
     value.required.size ||

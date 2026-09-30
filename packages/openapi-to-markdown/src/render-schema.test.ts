@@ -29,6 +29,18 @@ const renderText = (value: SchemaObject | boolean, depth = 0): string =>
 const schema = (value: Record<string, unknown>) => value as SchemaObject
 
 describe('render-schema', () => {
+  it('preserves constraints beside a single-branch composition', () => {
+    expect(render(schema({ allOf: [{ type: 'string', pattern: '^a' }], pattern: 'z$', minLength: 5 }))).toBe(
+      '**All of:**\n\n- `string`, pattern: `^a`\n\nminLength: `5`, pattern: `z$`\n',
+    )
+  })
+
+  it('preserves constraints beside a nullable union', () => {
+    expect(render(schema({ anyOf: [{ type: 'string' }, { type: 'null' }], maxLength: 10 }))).toBe(
+      '`string | null`, maxLength: `10`\n',
+    )
+  })
+
   it('renders composition keywords (allOf)', () => {
     const schemaValue = schema({
       allOf: [
