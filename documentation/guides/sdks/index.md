@@ -2004,15 +2004,17 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
 
   .sdk-demo-tabs {
     display: flex;
-    gap: 2px;
-    padding: 6px 8px 0;
+    /* The inset lives on the strip rather than the tabs so the first label
+       starts on the same 14px gutter as the file name and the code below it. */
+    gap: 20px;
+    padding: 6px 14px 0;
     border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
     overflow-x: auto;
   }
 
   .sdk-demo-tab {
-    padding: 6px 10px;
-    border-bottom: 2px solid transparent;
+    padding: 6px 0;
+    border-bottom: var(--scalar-border-width) solid transparent;
     background: transparent;
     color: var(--scalar-color-3);
     font-size: var(--scalar-micro);
