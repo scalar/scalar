@@ -350,17 +350,17 @@ describe('render-document', () => {
     expect(output).not.toContain('unusedField')
   })
 
-  it('keeps full sections for models the page has not expanded, and for authored examples', async () => {
+  it('keeps canonical model sections and authored examples in a whole document', async () => {
     const output = await createMarkdownFromOpenApi(page)
     const appendix = output.slice(output.indexOf('## Schemas'))
-    expect(appendix).toContain('- **Resource record** (`Resource`) — shown above.')
+    expect(appendix).toContain('### Resource record')
     expect(appendix).toContain('### Sample')
     expect(appendix).toContain('"id": 7')
     // Leaf schemas are never replaced by a reference, so they keep their section.
     expect(appendix).toContain('### Status')
     expect(appendix).toContain('### Unused')
     expect(appendix).toContain('unusedField')
-    expect(appendix).not.toContain('### Owner')
+    expect(appendix).toContain('### Owner')
   })
 
   it('gives a selected model its own section even when a dependency expanded it first', async () => {

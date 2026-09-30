@@ -10,6 +10,7 @@ import remarkGfm from 'remark-gfm'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 
+import { anchor, createDocumentAnchors } from './document-anchors'
 import { field, heading, inlineCode, item, link, list, paragraph, strong, text } from './markdown-nodes'
 import { type DescriptionParser, createDescriptionParser, expandDescriptions } from './parse-description'
 import { renderExamples } from './render-examples'
@@ -67,8 +68,20 @@ export const createDocumentRenderer = (): ((
   const schemaRenderer = createSchemaRenderer()
   return async (document, options = {}) => {
     const description = descriptions()
+    const whole = [options.operation, options.webhook, options.model, options.tag, options.introduction].every(
+      (selector) => selector === undefined,
+    )
+    const anchors = createDocumentAnchors()
+    const destinations = whole
+      ? new Map(
+          Object.keys(document.components?.schemas ?? {}).map((name) => [
+            name,
+            `#${encodeURIComponent(anchors.get('schema', name))}`,
+          ]),
+        )
+      : undefined
     // Each page expands a shared schema once, then refers back to it.
-    const schemas = schemaRenderer.forDocument(document.components?.schemas, options)
+    const schemas = schemaRenderer.forDocument(document.components?.schemas, options, destinations)
     const openapiVersion = document['x-original-oas-version'] ?? document.openapi
     // A page for one operation, webhook or model starts with that item, not with the API.
     const single = options.operation !== undefined || options.webhook !== undefined || options.model !== undefined
@@ -185,6 +198,7 @@ export const createDocumentRenderer = (): ((
     const renderModel = async (name: string, schema: (typeof models)[number][1], level: 1 | 3): Promise<void> => {
       const view = schemas.view(schema)
       const summary = schemas.summarize(schema)
+      if (whole) nodes.push(anchor(anchors.get('schema', name)))
       nodes.push(heading(level, text(view.title ?? name)))
       if (summary.length) nodes.push(paragraph(strong(text('Type:')), text('\u00a0'), ...summary))
       nodes.push(
@@ -231,7 +245,7 @@ export const createDocumentRenderer = (): ((
       const authored =
         isObject(view.schema) &&
         (view.schema.example !== undefined || (Array.isArray(view.schema.examples) && view.schema.examples.length > 0))
-      if (previous && !(view.type === 'object' && authored)) {
+      if (!whole && previous && !(view.type === 'object' && authored)) {
         shownAbove.push(await renderShownModel(name, view, previous, description))
         continue
       }

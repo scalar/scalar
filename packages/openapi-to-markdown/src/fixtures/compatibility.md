@@ -49,27 +49,9 @@ A shared object used by this API.
 
 **Content type:** `application/json`
 
-schema: `Resource`
+[Resource](#scalar-schema-resource)
 
 A shared object used by this API.
-
-- **`field0` (required)**: `string`
-
-  Field 0
-- **`field1`**: `string`
-
-  Field 1
-- **`field2`**: `string`
-
-  Field 2
-- **`owner`**: `object`, schema: `Owner`
-  - **`id`**: `integer`
-  - **`name`**: `string`
-- **`parent`**: `object`, schema: `Resource`
-
-  A shared object used by this API.
-
-  *\[Circular Reference]*
 
 **Example:**
 
@@ -78,8 +60,98 @@ A shared object used by this API.
   "field0": "value0",
   "field1": "value1",
   "field2": "value2",
-  "owner": null,
-  "parent": null
+  "owner": {
+    "id": 1,
+    "name": ""
+  },
+  "parent": {
+    "field0": "value0",
+    "field1": "value1",
+    "field2": "value2",
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -89,7 +161,9 @@ A shared object used by this API.
 
 **Content type:** `application/json`
 
-*Schema `Resource` is shown above.*
+[Resource](#scalar-schema-resource)
+
+A shared object used by this API.
 
 **Example:**
 
@@ -98,8 +172,98 @@ A shared object used by this API.
   "field0": "value0",
   "field1": "value1",
   "field2": "value2",
-  "owner": null,
-  "parent": null
+  "owner": {
+    "id": 1,
+    "name": ""
+  },
+  "parent": {
+    "field0": "value0",
+    "field1": "value1",
+    "field2": "value2",
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -143,7 +307,9 @@ A shared object used by this API.
 
 **Content type:** `application/json`
 
-*Schema `Resource` is shown above.*
+[Resource](#scalar-schema-resource)
+
+A shared object used by this API.
 
 **Example:**
 
@@ -152,8 +318,98 @@ A shared object used by this API.
   "field0": "value0",
   "field1": "value1",
   "field2": "value2",
-  "owner": null,
-  "parent": null
+  "owner": {
+    "id": 1,
+    "name": ""
+  },
+  "parent": {
+    "field0": "value0",
+    "field1": "value1",
+    "field2": "value2",
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -163,7 +419,9 @@ A shared object used by this API.
 
 **Content type:** `application/json`
 
-*Schema `Resource` is shown above.*
+[Resource](#scalar-schema-resource)
+
+A shared object used by this API.
 
 **Example:**
 
@@ -172,8 +430,98 @@ A shared object used by this API.
   "field0": "value0",
   "field1": "value1",
   "field2": "value2",
-  "owner": null,
-  "parent": null
+  "owner": {
+    "id": 1,
+    "name": ""
+  },
+  "parent": {
+    "field0": "value0",
+    "field1": "value1",
+    "field2": "value2",
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -198,7 +546,7 @@ A shared object used by this API.
 
 **Content type:** `application/json`
 
-*Schema `Owner` is shown above.*
+[Owner](#scalar-schema-owner)
 
 **Example:**
 
@@ -215,5 +563,144 @@ A shared object used by this API.
 
 ## Schemas
 
-- `Resource` — shown above.
-- `Owner` — shown above.
+<a id="scalar-schema-resource"></a>
+
+### Resource
+
+**Type:** `object`
+
+A shared object used by this API.
+
+- **`field0` (required)**: `string`
+
+  Field 0
+- **`field1`**: `string`
+
+  Field 1
+- **`field2`**: `string`
+
+  Field 2
+- **`owner`**: [Owner](#scalar-schema-owner)
+- **`parent`**: [Resource](#scalar-schema-resource)
+
+  A shared object used by this API.
+
+**Example:**
+
+```json
+{
+  "field0": "value0",
+  "field1": "value1",
+  "field2": "value2",
+  "owner": {
+    "id": 1,
+    "name": ""
+  },
+  "parent": {
+    "field0": "value0",
+    "field1": "value1",
+    "field2": "value2",
+    "owner": {
+      "id": 1,
+      "name": ""
+    },
+    "parent": {
+      "field0": "value0",
+      "field1": "value1",
+      "field2": "value2",
+      "owner": {
+        "id": 1,
+        "name": ""
+      },
+      "parent": {
+        "field0": "value0",
+        "field1": "value1",
+        "field2": "value2",
+        "owner": {
+          "id": 1,
+          "name": ""
+        },
+        "parent": {
+          "field0": "value0",
+          "field1": "value1",
+          "field2": "value2",
+          "owner": {
+            "id": 1,
+            "name": ""
+          },
+          "parent": {
+            "field0": "value0",
+            "field1": "value1",
+            "field2": "value2",
+            "owner": {
+              "id": 1,
+              "name": ""
+            },
+            "parent": {
+              "field0": "value0",
+              "field1": "value1",
+              "field2": "value2",
+              "owner": {
+                "id": 1,
+                "name": ""
+              },
+              "parent": {
+                "field0": "value0",
+                "field1": "value1",
+                "field2": "value2",
+                "owner": {
+                  "id": 1,
+                  "name": ""
+                },
+                "parent": {
+                  "field0": "value0",
+                  "field1": "value1",
+                  "field2": "value2",
+                  "owner": {
+                    "id": 1,
+                    "name": ""
+                  },
+                  "parent": {
+                    "field0": "value0",
+                    "field1": "value1",
+                    "field2": "value2",
+                    "owner": {
+                      "id": 1,
+                      "name": ""
+                    },
+                    "parent": {
+                      "field0": "value0",
+                      "field1": "value1",
+                      "field2": "value2",
+                      "owner": {},
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+<a id="scalar-schema-owner"></a>
+
+### Owner
+
+**Type:** `object`
+
+- **`id`**: `integer`
+- **`name`**: `string`
+
+**Example:**
+
+```json
+{
+  "id": 1,
+  "name": ""
+}
+```

@@ -180,6 +180,12 @@ An operation, webhook or model page starts with that item as its `#` title, with
 
 Omitting options, or passing `{}`, renders the whole document. OpenAPI 2.0 inputs are migrated before selection: use definition names with `model`. Webhooks require OpenAPI 3.1 or later.
 
+Whole-document exports render each named structured schema once under `## Schemas`.
+Operations and nested properties link to that section, while simple primitive references
+remain inline. Generated explicit anchors keep links stable even when schema titles repeat.
+The export is self-contained; a supplied `schemaReferences.resolveUrl` callback still controls
+reference URLs when linked mode is explicitly requested.
+
 ### Errors and limitations
 
 Invalid, combined, or missing selectors reject the returned promise with an error. Duplicate operation IDs are ambiguous and list matching paths and methods; use a path/method selector instead. Duplicate tag declarations are also rejected. Names are case sensitive. Operation JSON pointers must target `/paths/{path}/{method}`, with an optional leading `#` and standard `~0`/`~1` escaping.

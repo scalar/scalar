@@ -1138,7 +1138,7 @@ paths:
       components: { schemas: { Value: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
     })
     expect(output).toBe(
-      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Schemas\n\n### Value\n\n**Type:** `string | number`\n',
+      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Schemas\n\n<a id="scalar-schema-value"></a>\n\n### Value\n\n**Type:** `string | number`\n',
     )
   })
   it('preserves an optional request body description without inventing an operation ID', async () => {

@@ -93,7 +93,11 @@ export type SchemaRenderer = {
   /** Report whether this document already expanded a schema, and how it labelled that expansion. */
   shownAs: (schema: MarkdownSchema) => ShownSchema | undefined
   /** Start a document that shares normalized views, given the models it renders in its own sections. */
-  forDocument: (models?: Record<string, MarkdownSchema>, options?: SchemaReferenceOptions) => SchemaRenderer
+  forDocument: (
+    models?: Record<string, MarkdownSchema>,
+    options?: SchemaReferenceOptions,
+    destinations?: ReadonlyMap<string, string>,
+  ) => SchemaRenderer
 }
 
 /** The first expansion of a shared schema, which later occurrences refer back to. */
@@ -391,6 +395,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
   const forDocument = (
     models: Record<string, MarkdownSchema> = {},
     settings: SchemaReferenceOptions = {},
+    destinations?: ReadonlyMap<string, string>,
   ): SchemaRenderer => {
     const linked = settings.schemaReferences?.mode === 'linked'
     const inlinePrimitives = settings.schemaReferences?.inlinePrimitives !== false
@@ -402,11 +407,12 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
 
     /** The reference a nested schema links to in linked mode, instead of expanding its target. */
     const getLink = (input: MarkdownSchema): string | undefined => {
-      if (!linked || !isObject(input)) return undefined
+      if ((!linked && !destinations) || !isObject(input)) return undefined
       const ref = getRef(input)
       if (ref !== undefined) {
         // A primitive alias is shorter than a link to it, and saves the reader a page.
         const resolved = getResolvedRef(input) !== undefined
+        if (!linked && !destinations?.has(getReferenceName(ref))) return undefined
         return resolved && inlinePrimitives && isPrimitive(input) ? undefined : ref
       }
       const core = view(input).core
@@ -414,7 +420,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
     }
     const referenceNode = (ref: string): PhrasingContent => {
       const name = getReferenceName(ref)
-      const url = settings.schemaReferences?.resolveUrl?.({ ref, name })
+      const url = settings.schemaReferences?.resolveUrl
+        ? settings.schemaReferences.resolveUrl({ ref, name })
+        : destinations?.get(name)
       return url && safeUrl(url) ? link(url, name) : inlineCode(name)
     }
     /** Annotations written next to a linked reference; the linked page documents its target. */
@@ -438,7 +446,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
 
     const getLabel = (input: MarkdownSchema, nested: boolean, depth = 0): TypeLabel => {
       const value = view(input)
-      const ref = nested ? getLink(input) : undefined
+      const ref = nested || destinations ? getLink(input) : undefined
       if (ref !== undefined) {
         // A reference to a nullable model is already nullable; a nullable wrapper around one is not.
         const nullable = getRef(input) === undefined && value.nullable
@@ -509,7 +517,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         showType = true,
       }: { nested: boolean; label?: TypeLabel; showType?: boolean },
     ): { line: PhrasingContent[]; description?: string } => {
-      const linkedLabel = nested && getLink(input) !== undefined
+      const linkedLabel = (nested || destinations !== undefined) && getLink(input) !== undefined
       const value = linkedLabel ? getLinkAnnotations(input) : view(input)
       if (typeof value.schema === 'boolean')
         return { line: [text(value.schema ? 'any (true schema)' : 'never (false schema)')] }
@@ -566,12 +574,12 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
     }
 
     const render: SchemaRenderer['render'] = (input, depth = 0, ancestors = [], options = {}) => {
-      if (linked && isObject(input) && '$ref' in input && typeof input.$ref === 'string') {
+      if ((linked || destinations) && isObject(input) && '$ref' in input && typeof input.$ref === 'string') {
         const target = getResolvedRef(input)
         // Reference siblings are independent constraints, not replacements for target keywords.
         const siblings = Object.fromEntries(Object.entries(input).filter(([key]) => !referenceKeys.has(key)))
         const hasSiblings = Object.keys(siblings).length > 0
-        if ((depth > 0 && getLink(input) !== undefined) || target === undefined) {
+        if (((depth > 0 || destinations) && getLink(input) !== undefined) || target === undefined) {
           // The summary links to the model page; only structural siblings still need rendering.
           const structural = Object.fromEntries(Object.entries(siblings).filter(([key]) => structuralKeywords.has(key)))
           return [
@@ -583,7 +591,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         }
         // An alias with siblings is another reference boundary. Keep its reference visible
         // instead of overwriting it with the outer reference during normalization.
-        if (depth === 0 && (hasSiblings || (isObject(target) && '$ref' in target))) {
+        if (!destinations && depth === 0 && (hasSiblings || (isObject(target) && '$ref' in target))) {
           return [
             ...(hasSiblings ? [paragraph(strong(text('All of:')))] : []),
             ...render(target as MarkdownSchema, depth + 1, ancestors),
@@ -613,7 +621,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       }
       const shared = getSharedIdentity(input)
       const name = options.name ?? value.name
-      if (shared && name !== undefined) {
+      if (!destinations && shared && name !== undefined) {
         // Expanding every path through a shared schema grows exponentially, so expand it once.
         const previous = shown.get(shared)
         if (previous !== undefined) {
@@ -678,7 +686,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         ((value.type === 'object' && value.properties.length > 0) ||
           (value.type === 'array' && value.items !== undefined))
       nodes.push(...header(input, depth, options, !impliedType))
-      if (linked) {
+      if (linked || destinations) {
         // A reference sibling may require a field declared only in the target schema.
         const declared = new Set(value.properties.map(([name]) => name))
         const required = [...value.required].filter((name) => !declared.has(name))
@@ -728,7 +736,13 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
           nodes.push(
             list(
               unmapped.map(([name, target]) =>
-                item(paragraph(inlineCode(name), text(': '), linked ? referenceNode(target) : inlineCode(target))),
+                item(
+                  paragraph(
+                    inlineCode(name),
+                    text(': '),
+                    linked || destinations ? referenceNode(target) : inlineCode(target),
+                  ),
+                ),
               ),
             ),
           )
