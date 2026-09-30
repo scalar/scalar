@@ -63,7 +63,6 @@ import {
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
 import { useScrollLock } from '@vueuse/core'
-import diff from 'microdiff'
 import {
   computed,
   defineAsyncComponent,
@@ -98,6 +97,7 @@ import SearchButton from '@/features/Search/components/SearchButton.vue'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
+import { hasDocumentChanges } from '@/helpers/has-document-changes'
 import {
   getIdFromUrl,
   makeHrefFromId,
@@ -1303,12 +1303,12 @@ watch(
        * if we detect deep changes in the two sources
        */
       if (
-        diff(
+        hasDocumentChanges(
           updated.source.content,
           previous && 'content' in previous.source
             ? (previous.source.content ?? {})
             : {},
-        ).length
+        )
       ) {
         await addDocument(
           {
