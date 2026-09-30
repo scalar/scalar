@@ -73,6 +73,8 @@ export type TableRow = {
   schema?: SchemaObject
   /** Preserve array values even while their JSON text is temporarily invalid. */
   isArray?: boolean
+  /** Text representation used by array enum controls. */
+  arrayEncoding?: 'json' | 'comma-separated'
   /** Whether the parameter is required */
   isRequired?: boolean
   /**
@@ -147,7 +149,7 @@ const displayValue = computed(
 const defaultValue = computed(() => data.schema?.default as string)
 
 /** See if we can extract enum values from the schema */
-const enumValue = computed<string[]>(() => {
+const enumValue = computed<unknown[]>(() => {
   if (!data.schema) {
     return []
   }
@@ -161,7 +163,9 @@ const enumValue = computed<string[]>(() => {
   if ('items' in data.schema) {
     const resolved = resolve.schema(data.schema.items)
     if (resolved?.enum) {
-      return resolved.enum.map((item) => String(item))
+      return data.arrayEncoding === 'json'
+        ? resolved.enum
+        : resolved.enum.map((item) => String(item))
     }
   }
 
@@ -308,6 +312,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
             name: label ?? '',
           })
         "
+        :arrayEncoding="data.arrayEncoding"
         class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
         :disabled="data.isReadonly"

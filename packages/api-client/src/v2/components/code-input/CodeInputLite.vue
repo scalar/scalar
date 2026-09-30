@@ -65,6 +65,7 @@ const {
   linethrough = false,
   type,
   enum: enumProp,
+  arrayEncoding,
   examples,
   default: defaultProp,
   nullable = false,
@@ -108,7 +109,9 @@ type Props = {
   /** Schema type — drives boolean select mode when `boolean` is included */
   type?: string | string[]
   /** Predefined enum values; when set the input is replaced by a select */
-  enum?: string[]
+  enum?: unknown[]
+  /** Text representation of array selections. */
+  arrayEncoding?: 'json' | 'comma-separated'
   /** Example values; when set (and no enum/boolean) the input is replaced by a select */
   examples?: string[]
   /** Default value to suggest in select modes */
@@ -908,6 +911,7 @@ defineExpose({
   <!-- Enum mode: select dropdown with predefined values -->
   <DataTableInputSelect
     v-else-if="enumProp?.length"
+    :arrayEncoding="arrayEncoding"
     :default="defaultProp"
     :modelValue="modelValue"
     :type="defaultType"

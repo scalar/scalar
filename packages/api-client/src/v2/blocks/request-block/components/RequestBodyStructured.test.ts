@@ -1,8 +1,9 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
+import { parse as parseYaml } from 'yaml'
 
 import { CodeInputLite } from '@/v2/components/code-input'
 
@@ -42,6 +43,97 @@ const mountStructured = ({
   })
 
 describe('RequestBodyStructured', () => {
+  it.each(['application/json', 'application/yaml'])('preserves enum arrays in %s bodies', async (contentType) => {
+    const wrapper = mount(RequestBodyStructured, {
+      props: {
+        parsedValue: { tags: ['red', 'green'] },
+        bodySchema: {
+          type: 'object',
+          properties: {
+            tags: { type: 'array', items: { type: 'string', enum: ['red', 'green', 'blue', 'red,blue'] } },
+          },
+        },
+        contentType,
+        environment: defaultEnvironment,
+      },
+    })
+    const select = wrapper.getComponent({ name: 'ScalarComboboxMultiselect' })
+    expect(select.props('modelValue')).toStrictEqual([
+      { id: '"red"', label: 'red', value: 'red' },
+      { id: '"green"', label: 'green', value: 'green' },
+    ])
+
+    select.vm.$emit('update:modelValue', [
+      { id: '"blue"', label: 'blue', value: 'blue' },
+      { id: '"red,blue"', label: 'red,blue', value: 'red,blue' },
+    ])
+    await nextTick()
+    const serialized = wrapper.emitted('update:value')?.[0]?.[0]
+    assert(typeof serialized === 'string')
+    const parsed: unknown = contentType === 'application/json' ? JSON.parse(serialized) : parseYaml(serialized)
+    expect(parsed).toStrictEqual({ tags: ['blue', 'red,blue'] })
+    await wrapper.setProps({ parsedValue: parsed })
+    expect(select.props('modelValue')).toStrictEqual([
+      { id: '"blue"', label: 'blue', value: 'blue' },
+      { id: '"red,blue"', label: 'red,blue', value: 'red,blue' },
+    ])
+
+    select.vm.$emit('update:modelValue', [])
+    await nextTick()
+    const cleared = wrapper.emitted('update:value')?.[1]?.[0]
+    assert(typeof cleared === 'string')
+    expect(contentType === 'application/json' ? JSON.parse(cleared) : parseYaml(cleared)).toStrictEqual({ tags: [] })
+    wrapper.unmount()
+  })
+
+  it.each(
+    ['application/json', 'application/yaml'].flatMap((contentType) => [
+      { contentType, items: { type: 'integer' as const, enum: [0, 1, 2, 3] }, initial: [1, 2], edited: [0, 3] },
+      { contentType, items: { type: 'number' as const, enum: [0, 1.5, 2.5] }, initial: [1.5], edited: [0, 2.5] },
+      { contentType, items: { type: 'boolean' as const, enum: [true, false] }, initial: [true], edited: [false] },
+      {
+        contentType,
+        items: {
+          type: ['number', 'string', 'boolean', 'null'] as ('number' | 'string' | 'boolean' | 'null')[],
+          enum: [1, '1', false, 'false', null, 'null'],
+        },
+        initial: [1, false, null],
+        edited: ['1', 'false', 'null'],
+      },
+    ]),
+  )('preserves typed enum arrays in $contentType with $items', async ({ contentType, items, initial, edited }) => {
+    const toOptions = (values: unknown[]): { id: string; label: string; value: unknown }[] =>
+      values.map((value) => ({ id: JSON.stringify(value), label: String(value), value }))
+    const wrapper = mount(RequestBodyStructured, {
+      props: {
+        parsedValue: { tags: initial },
+        bodySchema: { type: 'object', properties: { tags: { type: 'array', items } } },
+        contentType,
+        environment: defaultEnvironment,
+      },
+    })
+    const select = wrapper.getComponent({ name: 'ScalarComboboxMultiselect' })
+    expect(select.props('modelValue')).toStrictEqual(toOptions(initial))
+    const selectedOptions = select
+      .props('options')
+      .filter((option: { id: string }) => edited.some((value) => JSON.stringify(value) === option.id))
+    expect(selectedOptions).toStrictEqual(toOptions(edited))
+    select.vm.$emit('update:modelValue', selectedOptions)
+    await nextTick()
+    const serialized = wrapper.emitted('update:value')?.[0]?.[0]
+    assert(typeof serialized === 'string')
+    const parsed: unknown = contentType === 'application/json' ? JSON.parse(serialized) : parseYaml(serialized)
+    expect(parsed).toStrictEqual({ tags: edited })
+    await wrapper.setProps({ parsedValue: parsed })
+    expect(select.props('modelValue')).toStrictEqual(toOptions(edited))
+    select.vm.$emit('update:modelValue', [])
+    await nextTick()
+    const cleared = wrapper.emitted('update:value')?.[1]?.[0]
+    assert(typeof cleared === 'string')
+    expect(contentType === 'application/json' ? JSON.parse(cleared) : parseYaml(cleared)).toStrictEqual({ tags: [] })
+    wrapper.unmount()
+  })
+
   it('builds rows from the parsed value and schema', async () => {
     const wrapper = mountStructured({ parsedValue: { name: 'Ada', age: 36 } })
     await nextTick()
