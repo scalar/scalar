@@ -1871,20 +1871,31 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
 
   .sdk-demo-targets {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    /* The four installed targets stay on one row; minmax(0, …) lets them
+       shrink past their content instead of overflowing the frame. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
   }
 
   .sdk-demo-target {
+    /* Anchors the status dot in the top corner. */
+    position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
+    gap: 8px;
+    padding: 16px 10px 14px;
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: var(--scalar-radius-lg);
     background: var(--scalar-background-1);
     cursor: pointer;
-    text-align: left;
+    text-align: center;
+  }
+
+  .sdk-demo-target .sdk-demo-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
 
   .sdk-demo-target:hover {
@@ -1914,15 +1925,20 @@ Follow the [Getting Started guide](getting-started.md) to generate a target from
   .sdk-demo-target-body {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1px;
-    flex: 1;
+    width: 100%;
     min-width: 0;
   }
 
   .sdk-demo-target-head {
     display: flex;
+    /* The Experimental badge sits on its own line under the name, so a long
+       target name keeps the full width of the card. */
+    flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    max-width: 100%;
     min-width: 0;
   }
 
