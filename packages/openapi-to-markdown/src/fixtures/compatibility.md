@@ -8,9 +8,13 @@
 
 A shared object used by this API.
 
+<a id="scalar-context-global-servers"></a>
+
 ## Servers
 
 - **URL:** `https://example.com/api`
+
+<a id="scalar-context-global-authentication"></a>
 
 ## Authentication
 
@@ -33,13 +37,9 @@ Resource operations
 
 A shared object used by this API.
 
-#### Effective servers
+**Servers:** [Inherited servers](#scalar-context-global-servers)
 
-- `https://example.com/api`
-
-#### Authentication
-
-- **bearer**: HTTP bearer
+**Authentication:** [Global authentication](#scalar-context-global-authentication)
 
 #### Query parameters
 
@@ -297,13 +297,9 @@ A shared object used by this API.
 
 A shared object used by this API.
 
-#### Effective servers
+**Servers:** [Inherited servers](#scalar-context-global-servers)
 
-- `https://example.com/api`
-
-#### Authentication
-
-- **bearer**: HTTP bearer
+**Authentication:** [Global authentication](#scalar-context-global-authentication)
 
 #### Query parameters
 
@@ -338,13 +334,9 @@ A shared object used by this API.
 - **Method:** `POST`
 - **Webhook:** `event`
 
-#### Effective servers
+**Servers:** [Inherited servers](#scalar-context-global-servers)
 
-- `https://example.com/api`
-
-#### Authentication
-
-- **bearer**: HTTP bearer
+**Authentication:** [Global authentication](#scalar-context-global-authentication)
 
 #### Request body
 

@@ -15,7 +15,7 @@ import { createDocumentExamples } from './document-examples'
 import { field, heading, inlineCode, item, link, list, paragraph, strong, text } from './markdown-nodes'
 import { type DescriptionParser, createDescriptionParser, expandDescriptions } from './parse-description'
 import { renderExamples } from './render-examples'
-import { renderOperation } from './render-operation'
+import { type DocumentContext, renderOperation } from './render-operation'
 import { type SchemaView, type ShownSchema, createSchemaRenderer } from './render-schema'
 import { renderSecurity } from './render-security'
 import type { OpenApiRenderOptions } from './select-document'
@@ -74,6 +74,14 @@ export const createDocumentRenderer = (): ((
     )
     const anchors = createDocumentAnchors()
     const examples = whole ? createDocumentExamples(anchors) : undefined
+    const documentContext: DocumentContext | undefined = whole
+      ? {
+          anchors,
+          servers: document.servers !== undefined ? anchors.get('context', 'global-servers') : undefined,
+          authentication: document.security !== undefined ? anchors.get('context', 'global-authentication') : undefined,
+          pathServers: new WeakMap(),
+        }
+      : undefined
     const destinations = whole
       ? new Map(
           Object.keys(document.components?.schemas ?? {}).map((name) => [
@@ -122,9 +130,13 @@ export const createDocumentRenderer = (): ((
           ),
         )
       nodes.push(heading(1, text(info.title)), list(metadata), ...(await description(info.description)))
-      if (document.servers?.length) {
+      if (document.servers?.length || (whole && document.servers !== undefined)) {
+        if (documentContext?.servers) nodes.push(anchor(documentContext.servers))
         nodes.push(heading(2, text('Servers')))
-        const servers = document.servers.map((server) => {
+        const effectiveServers: NonNullable<OpenApiDocument['servers']> = document.servers?.length
+          ? document.servers
+          : [{ url: '/' }]
+        const servers = effectiveServers.map((server) => {
           const nested: ListItem[] = []
           if (server.description) nested.push(field('Description', text(server.description)))
           const variables = Object.entries(server.variables ?? {})
@@ -139,7 +151,11 @@ export const createDocumentRenderer = (): ((
                         inlineCode(name),
                         text(' (default: '),
                         inlineCode(variable.default),
-                        text(`)${variable.description ? `: ${variable.description}` : ''}`),
+                        text(')'),
+                        ...(whole && variable.enum?.length
+                          ? [text(', possible values: '), inlineCode(variable.enum.join(', '))]
+                          : []),
+                        text(variable.description ? `: ${variable.description}` : ''),
                       ),
                     ),
                   ),
@@ -152,6 +168,7 @@ export const createDocumentRenderer = (): ((
         })
         nodes.push(list(servers))
       }
+      if (documentContext?.authentication) nodes.push(anchor(documentContext.authentication))
       nodes.push(...(await renderSecurity(document.security, document.components?.securitySchemes, description, 2)))
       if (document.tags?.length) {
         nodes.push(heading(2, text('Tags')))
@@ -187,6 +204,7 @@ export const createDocumentRenderer = (): ((
               description,
               schemas,
               examples,
+              documentContext,
               level: single ? 1 : 3,
             })),
           )

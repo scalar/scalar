@@ -250,6 +250,8 @@ Test description`
 - **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
+<a id="scalar-context-global-servers"></a>
+
 ## Servers
 
 - **URL:** \`https://test.com\`

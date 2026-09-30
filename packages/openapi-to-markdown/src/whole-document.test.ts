@@ -38,6 +38,106 @@ const input = {
 }
 
 describe('whole-document', () => {
+  it('explains global and path servers once while keeping operation overrides and variables', async () => {
+    const response = { '200': { description: 'OK' } }
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Servers', version: '1' },
+      servers: [{ url: 'https://global.example', description: 'Global server.' }],
+      paths: {
+        '/global': { get: { responses: response } },
+        '/path': {
+          servers: [
+            {
+              url: 'https://{region}.example',
+              variables: {
+                region: { default: 'eu', enum: ['eu', 'us'], description: 'Choose your **region**.' },
+              },
+            },
+          ],
+          get: { responses: response },
+          post: { responses: response },
+          put: { servers: [{ url: 'https://override.example' }], responses: response },
+          delete: { servers: [], responses: response },
+        },
+      },
+    })
+    const output = await renderer.render()
+    expect(output.match(/https:\/\/global\.example/g)?.length).toBe(1)
+    expect(output.match(/https:\/\/\{region\}\.example/g)?.length).toBe(1)
+    expect(output).toContain('[Inherited servers](#scalar-context-global-servers)')
+    expect(output).toContain('[Inherited servers](#scalar-context-servers-path)')
+    expect(output).toContain('region: `eu`, possible values: `eu, us`')
+    expect(output).toContain('Choose your **region**.')
+    expect(output).toContain('https://override.example')
+    const deletion = output.slice(output.indexOf('### DELETE /path'))
+    expect(deletion).toContain('#### Effective servers\n\n- `/`')
+    const selected = await renderer.render({ operation: { path: '/global', method: 'get' } })
+    expect(selected).toContain('## Effective servers')
+    expect(selected).toContain('https://global.example')
+    expect(selected).not.toContain('[Inherited servers]')
+  })
+
+  it('links global authentication and preserves anonymous and alternative operation requirements', async () => {
+    const response = { '200': { description: 'OK' } }
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Authentication', version: '1' },
+      security: [{ key: [], oauth: ['read'] }, { oauth: ['admin'] }],
+      paths: {
+        '/global': { get: { responses: response } },
+        '/anonymous': { get: { security: [], responses: response } },
+        '/override': { get: { security: [{ oauth: ['write'] }, {}], responses: response } },
+      },
+      components: {
+        securitySchemes: {
+          key: { type: 'apiKey', in: 'header', name: 'X-Key', description: 'Global key description.' },
+          oauth: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://auth.example/token',
+                scopes: { read: 'Read', write: 'Write', admin: 'Admin' },
+              },
+            },
+          },
+        },
+      },
+    })
+    const output = await renderer.render()
+    expect(output.match(/Global key description\./g)?.length).toBe(1)
+    expect(output).toContain('[Global authentication](#scalar-context-global-authentication)')
+    expect(output).toContain('scopes: `read`')
+    expect(output).toContain('scopes: `admin`')
+    expect(output).toContain('scopes: `write`')
+    expect(output.match(/No authentication required\./g)?.length).toBe(2)
+    expect(output.match(/\nOr:\n/g)?.length).toBe(2)
+    expect(output.slice(output.indexOf('### GET /anonymous'), output.indexOf('### GET /override'))).toContain(
+      'No authentication required.',
+    )
+  })
+
+  it('retains an explicit empty global server list without inventing authentication', async () => {
+    const renderer = await createOpenApiMarkdownRenderer({
+      openapi: '3.1.1',
+      info: { title: 'Defaults', version: '1' },
+      servers: [],
+      paths: {
+        '/': {
+          get: {
+            parameters: [{ in: 'header', name: 'X-Key', schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+    const output = await renderer.render()
+    expect(output).toContain('**URL:** `/`')
+    expect(output).toContain('[Inherited servers](#scalar-context-global-servers)')
+    expect(output).not.toContain('Authentication')
+    expect(output).not.toContain('No authentication required')
+  })
+
   it('deduplicates generated examples without merging request, response, or media type contexts', async () => {
     const schema = { $ref: '#/components/schemas/Record' }
     const operation = {

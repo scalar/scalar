@@ -191,6 +191,12 @@ occurrence. Request, response, and media-type contexts remain distinct. Synthesi
 values are labeled **Generated example**, and authored examples remain at every
 usage, including all values in a schema's `examples` array.
 
+Global servers and authentication are documented once. Operations link to inherited
+defaults and show their own overrides in full. Path-level servers are explained at
+their first use and linked thereafter, including variable defaults, choices, and
+descriptions. Explicit empty server overrides use `/`; explicit `security: []` remains
+anonymous. Absent security requirements do not imply anonymous access.
+
 ### Errors and limitations
 
 Invalid, combined, or missing selectors reject the returned promise with an error. Duplicate operation IDs are ambiguous and list matching paths and methods; use a path/method selector instead. Duplicate tag declarations are also rejected. Names are case sensitive. Operation JSON pointers must target `/paths/{path}/{method}`, with an optional leading `#` and standard `~0`/`~1` escaping.

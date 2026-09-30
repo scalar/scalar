@@ -11,8 +11,9 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Heading, ListItem, PhrasingContent, RootContent } from 'mdast'
 
+import { anchor, type createDocumentAnchors } from './document-anchors'
 import type { DocumentExamples } from './document-examples'
-import { describe, field, heading, inlineCode, item, list, paragraph, strong, text } from './markdown-nodes'
+import { describe, field, heading, inlineCode, item, link, list, paragraph, strong, text } from './markdown-nodes'
 import type { DescriptionParser } from './parse-description'
 import { renderExamples } from './render-examples'
 import { renderEncoding, renderHeaders, renderResponseLinks } from './render-operation-details'
@@ -24,8 +25,17 @@ type RenderContext = {
   description: DescriptionParser
   schemas: SchemaRenderer
   examples?: DocumentExamples
+  documentContext?: DocumentContext
   /** The heading level of the operation title: 1 on its own page, 3 inside a document. */
   level?: number
+}
+
+/** Destinations for defaults that a whole document explains once. */
+export type DocumentContext = {
+  anchors: ReturnType<typeof createDocumentAnchors>
+  servers?: string
+  authentication?: string
+  pathServers: WeakMap<object, string>
 }
 
 /** Parameter locations in reading order, with the section title for each. */
@@ -70,7 +80,7 @@ export const renderOperation = async (
   pathItem: PathItemObject,
   operation: OperationObject,
   webhook: boolean,
-  { description, schemas, examples, level = 3 }: RenderContext,
+  { description, schemas, examples, documentContext, level = 3 }: RenderContext,
 ): Promise<RootContent[]> => {
   const h = (offset: number): Heading['depth'] => Math.min(6, level + offset) as Heading['depth']
   const displayMethod = method === method.toLowerCase() && isHttpMethod(method) ? method.toUpperCase() : method
@@ -89,10 +99,27 @@ export const renderOperation = async (
     ...(await description(operation.description)),
   ]
   const servers = operation.servers ?? pathItem.servers ?? document.servers
-  if (servers?.length) {
+  let inheritedServers: string | undefined
+  let serverAnchor: string | undefined
+  if (documentContext && operation.servers === undefined) {
+    if (pathItem.servers === undefined) inheritedServers = documentContext.servers
+    else {
+      inheritedServers = documentContext.pathServers.get(pathItem)
+      if (inheritedServers === undefined) {
+        serverAnchor = documentContext.anchors.get('context', `servers-${path}`)
+        documentContext.pathServers.set(pathItem, serverAnchor)
+      }
+    }
+  }
+  if (inheritedServers) {
+    nodes.push(paragraph(strong(text('Servers:')), text(' '), link(`#${inheritedServers}`, 'Inherited servers')))
+  } else if (servers?.length || (documentContext && servers !== undefined)) {
+    if (serverAnchor) nodes.push(anchor(serverAnchor))
     nodes.push(heading(h(1), text('Effective servers')))
     const serverItems: ListItem[] = []
-    for (const server of servers) {
+    // An explicit empty server array overrides inherited servers with the OAS default `/`.
+    const effectiveServers: NonNullable<OperationObject['servers']> = servers?.length ? servers : [{ url: '/' }]
+    for (const server of effectiveServers) {
       const blocks: ListItem['children'] = [
         paragraph(inlineCode(server.url)),
         ...((await description(server.description)) as ListItem['children']),
@@ -100,20 +127,44 @@ export const renderOperation = async (
       const variables = Object.entries(server.variables ?? {})
       if (variables.length)
         blocks.push(
-          list(variables.map(([name, variable]) => item(paragraph(text(`${name}: `), inlineCode(variable.default))))),
+          list(
+            await Promise.all(
+              variables.map(async ([name, variable]) =>
+                item(
+                  paragraph(
+                    text(`${name}: `),
+                    inlineCode(variable.default),
+                    ...(documentContext && variable.enum?.length
+                      ? [text(', possible values: '), inlineCode(variable.enum.join(', '))]
+                      : []),
+                  ),
+                  ...((documentContext ? await description(variable.description) : []) as ListItem['children']),
+                ),
+              ),
+            ),
+          ),
         )
       serverItems.push(item(...blocks))
     }
     nodes.push(list(serverItems))
   }
-  nodes.push(
-    ...(await renderSecurity(
-      operation.security ?? document.security,
-      document.components?.securitySchemes,
-      description,
-      h(1),
-    )),
-  )
+  if (documentContext?.authentication && operation.security === undefined)
+    nodes.push(
+      paragraph(
+        strong(text('Authentication:')),
+        text(' '),
+        link(`#${documentContext.authentication}`, 'Global authentication'),
+      ),
+    )
+  else
+    nodes.push(
+      ...(await renderSecurity(
+        operation.security ?? document.security,
+        document.components?.securitySchemes,
+        description,
+        h(1),
+      )),
+    )
   const parameters = new Map<string, ParameterObject>()
   for (const reference of [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]) {
     const parameter = getResolvedRef(reference, mergeSiblingReferences)
