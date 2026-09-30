@@ -15,6 +15,7 @@ export const loadDocumentFromUrl = async (
     fetch: customFetch,
     proxyUrl: workspaceStore.workspace['x-scalar-active-proxy'] ?? undefined,
   })
+  // TODO: Reuse the discovery response for extensionless document URLs to avoid downloading large descriptions twice.
   const resolved = await resolve(url, {
     fetch: async (input) => {
       const response = await fetch(input)

@@ -531,4 +531,49 @@ info:
       'http://localhost:3000/docs/openapi.json?tag=%3Cexample%3E&version=1',
     )
   })
+
+  it.each([
+    { type: '"application/ld+json"', configuration: "{ url: '/openapi.json' }" },
+    { type: "'application/ld+json'", configuration: '{ "url": "/openapi.json" }' },
+    { type: 'application/ld+json', configuration: "{ 'url': '/openapi.json' }" },
+  ])('ignores JSON-LD metadata before reference configuration ($type)', async ({ type, configuration }) => {
+    const html = `<html>
+      <head>
+        <script type=${type}>{"@type":"WebSite","url":"https://example.com/"}</script>
+      </head>
+      <body><script>Scalar.createApiReference('#app', ${configuration})</script></body>
+    </html>`
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
+
+    expect(await resolve('https://example.com/reference')).toBe('https://example.com/openapi.json')
+  })
+
+  it('ignores JSON-LD metadata before an API description link', async () => {
+    const html = `<html>
+      <script TYPE = "application/ld+json">{"url":"https://example.com/"}</script>
+      <a href="/openapi.yaml">Download API description</a>
+    </html>`
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
+
+    expect(await resolve('https://example.com/reference')).toBe('https://example.com/openapi.yaml')
+  })
+
+  it.each([
+    '<a href="/openapi.json">Download API description</a>',
+    String.raw`<script>\"spec\":{\"url\":\"/openapi.json\"}</script>`,
+  ])('continues discovery after a URL with JS-only escapes (%s)', async (fallback) => {
+    const html = String.raw`<html><script>const config = { url: "\x2Fopenapi.json" }</script>${fallback}</html>`
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
+
+    expect(await resolve('https://example.com/reference')).toBe('https://example.com/openapi.json')
+  })
+
+  it('ignores configuration keys ending in url', async () => {
+    const html = `<html><script>
+      const config = { baseUrl: '/base', serverUrl: '/server', url: '/openapi.json' }
+    </script></html>`
+    globalFetchSpy.mockResolvedValueOnce(createFetchResponse(html))
+
+    expect(await resolve('https://example.com/reference')).toBe('https://example.com/openapi.json')
+  })
 })

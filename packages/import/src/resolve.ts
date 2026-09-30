@@ -187,12 +187,22 @@ function parseHtml(html?: string) {
     return scriptContent
   }
 
+  // SEO metadata describes the website rather than its API description.
+  const htmlWithoutMetadata = html.replace(
+    /<script\b[^>]*\btype\s*=\s*(?:"application\/ld\+json"|'application\/ld\+json'|application\/ld\+json(?=[\s>]))[^>]*>[\s\S]*?<\/script\s*>/gi,
+    '',
+  )
+
   // Check for configuration in script tag
-  const scriptConfigMatch = html.match(/(?:["']url["']|\burl)\s*:\s*("(?:\\.|[^"\\])*"|'[^']*')/i)
+  const scriptConfigMatch = htmlWithoutMetadata.match(/(?:["']url["']|\burl)\s*:\s*("(?:\\.|[^"\\])*"|'[^']*')/i)
 
   if (scriptConfigMatch?.[1]) {
-    // JSON serialization escapes characters in quoted URLs, including inline-script escapes.
-    return scriptConfigMatch[1].startsWith('"') ? JSON.parse(scriptConfigMatch[1]) : scriptConfigMatch[1].slice(1, -1)
+    try {
+      // JSON serialization escapes characters in quoted URLs, including inline-script escapes.
+      return scriptConfigMatch[1].startsWith('"') ? JSON.parse(scriptConfigMatch[1]) : scriptConfigMatch[1].slice(1, -1)
+    } catch {
+      // JS-only escapes are not JSON; keep trying the remaining discovery methods.
+    }
   }
 
   // Check for OpenAPI URLs in the HTML
