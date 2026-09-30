@@ -819,7 +819,7 @@ importers:
         version: link:../../packages/api-reference
       '@scalar/components':
         specifier: workspace:*
-        version: link:../components
+        version: link:../../packages/components
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../../packages/galaxy
@@ -831,7 +831,7 @@ importers:
         version: link:../../packages/schemas
       '@scalar/themes':
         specifier: workspace:*
-        version: link:../themes
+        version: link:../../packages/themes
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -2739,12 +2739,12 @@ importers:
 
   packages/server-side-rendering:
     dependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
@@ -3150,7 +3150,7 @@ importers:
         version: link:../../packages/blocks
       '@scalar/components':
         specifier: workspace:*
-        version: link:../components
+        version: link:../../packages/components
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../../packages/helpers
@@ -3183,7 +3183,7 @@ importers:
         version: link:../../packages/sidebar
       '@scalar/themes':
         specifier: workspace:*
-        version: link:../themes
+        version: link:../../packages/themes
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
