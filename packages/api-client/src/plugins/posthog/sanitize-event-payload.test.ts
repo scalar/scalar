@@ -150,6 +150,7 @@ describe('TRACKED_EVENTS', () => {
     'auth:clear:selected-security-schemes',
     'auth:update:selected-scopes',
     'auth:delete:security-scheme',
+    'auth:reset:security-scheme-secret',
     'auth:clear:security-scheme-secrets',
     'auth:upsert:scopes',
     'auth:delete:scopes',

@@ -131,7 +131,7 @@ const handleLabelClick = () => {
     <slot name="icon" />
     <!-- Clear -->
     <ScalarIconButton
-      v-if="modelValue"
+      v-if="modelValue && !readOnly"
       class="-ml-.25 h-6 w-6 self-center p-1.25"
       :icon="ScalarIconX"
       :label="translate('apiClient.dataTableInput.clearValue')"

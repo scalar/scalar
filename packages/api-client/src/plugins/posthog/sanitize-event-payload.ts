@@ -46,6 +46,7 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'auth:clear:selected-security-schemes': stringAtPath(['meta', 'type']),
   'auth:update:selected-scopes': stringAtPath(['meta', 'type']),
   'auth:delete:security-scheme': empty,
+  'auth:reset:security-scheme-secret': empty,
   'auth:clear:security-scheme-secrets': empty,
   'auth:upsert:scopes': empty,
   'auth:delete:scopes': empty,

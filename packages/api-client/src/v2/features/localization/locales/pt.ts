@@ -42,6 +42,7 @@ export const pt = {
   },
   'dataTableInput': {
     'clearValue': 'Limpar valor',
+    'resetValue': 'Restaurar padrão',
     'showPassword': 'Mostrar senha',
     'hidePassword': 'Ocultar senha',
   },
@@ -234,6 +235,8 @@ export const pt = {
     'failedToauthorize': 'Falha na autorização',
     'failedToRefreshToken': 'Falha ao renovar o token',
     'optionalRedirectUrl': 'URL de redirecionamento opcional',
+    'clearTokens': 'Limpar tokens',
+    'resetDiscovery': 'Redefinir descoberta',
   },
   'oauthScopesAddModal': {
     'name': 'Nome:',

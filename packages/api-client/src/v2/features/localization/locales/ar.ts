@@ -42,6 +42,7 @@ export const ar = {
   },
   'dataTableInput': {
     'clearValue': 'مسح القيمة',
+    'resetValue': 'إعادة التعيين إلى القيمة الافتراضية',
     'showPassword': 'إظهار كلمة المرور',
     'hidePassword': 'إخفاء كلمة المرور',
   },
@@ -231,6 +232,8 @@ export const ar = {
     'failedToauthorize': 'فشل التخويل',
     'failedToRefreshToken': 'فشل تجديد الرمز',
     'optionalRedirectUrl': 'رابط إعادة توجيه اختياري',
+    'clearTokens': 'مسح الرموز',
+    'resetDiscovery': 'إعادة تعيين الاكتشاف',
   },
   'oauthScopesAddModal': {
     'name': 'الاسم:',

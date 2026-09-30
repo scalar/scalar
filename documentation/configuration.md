@@ -367,6 +367,8 @@ To make authentication easier you can prefill the credentials for your users:
 
 For OAuth2 `authorizationCode` flows, when `x-usePkce` is set to `'SHA-256'` or `'plain'`, Scalar treats the flow as a public PKCE client. In that mode, the Client Secret input is hidden in the authentication form, and `client_secret` is not included in token exchange or refresh requests.
 
+In credential fields, **X / Clear Value** empties only that field. **Reset to default** releases that field's override and restores its current document or configured value. Clearing Auth URL or Token URL keeps the source URL available for reset; authorization reports a missing URL until you restore or enter one. PKCE and Credentials Location use fixed choices and have no clear button. **Clear tokens** removes the current flow's access and refresh tokens, while **Reset discovery** removes the stored OpenID Connect discovery form.
+
 The `authentication` configuration accepts:
 
 - `preferredSecurityScheme`: Specifies which security scheme(s) to use by default. Can be:

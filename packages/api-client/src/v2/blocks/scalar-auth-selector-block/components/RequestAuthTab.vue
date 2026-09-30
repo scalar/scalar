@@ -429,11 +429,18 @@ const handleConfigAuthorize = (): void => {
       <!-- Bearer Token -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
+          canReset
           :containerClass="getStaticBorderClass()"
           :environment
           :modelValue="scheme['x-scalar-secret-token']"
           :placeholder="translate('apiClient.requestAuthTab.token')"
           type="password"
+          @reset="
+            eventBus.emit('auth:reset:security-scheme-secret', {
+              name,
+              field: 'x-scalar-secret-token',
+            })
+          "
           @update:modelValue="
             (v) => handleHttpSecretsUpdate({ 'x-scalar-secret-token': v }, name)
           ">
@@ -489,11 +496,18 @@ const handleConfigAuthorize = (): void => {
       <template v-else-if="scheme?.scheme === 'basic'">
         <DataTableRow>
           <RequestAuthDataTableInput
+            canReset
             class="text-c-2"
             :environment
             :modelValue="scheme['x-scalar-secret-username']"
             placeholder="janedoe"
             required
+            @reset="
+              eventBus.emit('auth:reset:security-scheme-secret', {
+                name,
+                field: 'x-scalar-secret-username',
+              })
+            "
             @update:modelValue="
               (v) =>
                 handleHttpSecretsUpdate({ 'x-scalar-secret-username': v }, name)
@@ -503,10 +517,17 @@ const handleConfigAuthorize = (): void => {
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
+            canReset
             :environment
             :modelValue="scheme['x-scalar-secret-password']"
             placeholder="********"
             type="password"
+            @reset="
+              eventBus.emit('auth:reset:security-scheme-secret', {
+                name,
+                field: 'x-scalar-secret-password',
+              })
+            "
             @update:modelValue="
               (v) =>
                 handleHttpSecretsUpdate({ 'x-scalar-secret-password': v }, name)
@@ -533,6 +554,7 @@ const handleConfigAuthorize = (): void => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
+          canReset
           :containerClass="
             apiKeyHasName(scheme) ? undefined : getStaticBorderClass()
           "
@@ -540,6 +562,12 @@ const handleConfigAuthorize = (): void => {
           :modelValue="scheme['x-scalar-secret-token']"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           type="password"
+          @reset="
+            eventBus.emit('auth:reset:security-scheme-secret', {
+              name,
+              field: 'x-scalar-secret-token',
+            })
+          "
           @update:modelValue="
             (v) =>
               handleApiKeySecretsUpdate({ 'x-scalar-secret-token': v }, name)

@@ -42,6 +42,7 @@ export const zhCn = {
   },
   'dataTableInput': {
     'clearValue': '清除值',
+    'resetValue': '恢复默认值',
     'showPassword': '显示密码',
     'hidePassword': '隐藏密码',
   },
@@ -231,6 +232,8 @@ export const zhCn = {
     'failedToauthorize': '授权失败',
     'failedToRefreshToken': '刷新令牌失败',
     'optionalRedirectUrl': '可选的重定向 URL',
+    'clearTokens': '清除令牌',
+    'resetDiscovery': '重置发现',
   },
   'oauthScopesAddModal': {
     'name': '名称：',

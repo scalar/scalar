@@ -38,6 +38,7 @@ export type ApiClientTranslations = {
   }
   dataTableInput: {
     clearValue: string
+    resetValue: string
     showPassword: string
     hidePassword: string
   }
@@ -205,6 +206,8 @@ export type ApiClientTranslations = {
     confirmation: string
   }
   oauth2: {
+    clearTokens: string
+    resetDiscovery: string
     deviceAuthorizationUrl: string
     deviceVerificationPrompt: string
     waitingForAuthorization: string

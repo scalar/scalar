@@ -42,6 +42,7 @@ export const de = {
   },
   'dataTableInput': {
     'clearValue': 'Wert löschen',
+    'resetValue': 'Auf Standard zurücksetzen',
     'showPassword': 'Passwort anzeigen',
     'hidePassword': 'Passwort ausblenden',
   },
@@ -235,6 +236,8 @@ export const de = {
     'failedToauthorize': 'Autorisierung fehlgeschlagen',
     'failedToRefreshToken': 'Token-Aktualisierung fehlgeschlagen',
     'optionalRedirectUrl': 'Optionale Weiterleitungs-URL',
+    'clearTokens': 'Tokens löschen',
+    'resetDiscovery': 'Erkennung zurücksetzen',
   },
   'oauthScopesAddModal': {
     'name': 'Name:',

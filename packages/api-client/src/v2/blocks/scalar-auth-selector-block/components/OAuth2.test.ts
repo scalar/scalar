@@ -63,6 +63,63 @@ describe('OAuth2', () => {
     })
   }
 
+  it('clears a URL without erasing its document default and resets only that field', async () => {
+    const wrapper = mountWithProps()
+    const update = vi.fn()
+    const reset = vi.fn()
+    const documentUpdate = vi.fn()
+    const stopUpdate = eventBus.on('auth:update:security-scheme-secrets', update)
+    const stopReset = eventBus.on('auth:reset:security-scheme-secret', reset)
+    const stopDocument = eventBus.on('auth:update:security-scheme', documentUpdate)
+    const input = wrapper.findAllComponents(RequestAuthDataTableInput)[0]!
+    input.vm.$emit('update:modelValue', '')
+    await nextTick()
+    expect(update).toHaveBeenCalledExactlyOnceWith({
+      name: 'OAuth2',
+      payload: { type: 'oauth2', authorizationCode: { 'x-scalar-secret-auth-url': '' } },
+    })
+    expect(documentUpdate).not.toHaveBeenCalled()
+    await input
+      .findAllComponents({ name: 'ScalarIconButton' })
+      .find((button) => button.props('label') === 'Reset to default')!
+      .trigger('click')
+    expect(reset).toHaveBeenCalledExactlyOnceWith({
+      name: 'OAuth2',
+      flow: 'authorizationCode',
+      field: 'x-scalar-secret-auth-url',
+    })
+    stopUpdate()
+    stopReset()
+    stopDocument()
+    wrapper.unmount()
+  })
+
+  it('has no clear action for PKCE or credentials location and ignores invalid PKCE updates', async () => {
+    const wrapper = mountWithProps()
+    const update = vi.fn()
+    const stop = eventBus.on('auth:update:security-scheme', update)
+    const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+    const pkce = inputs.find((input) => input.text().includes('Use PKCE'))!
+    const location = inputs.find((input) => input.text().includes('Credentials Location'))!
+    expect(pkce.findAllComponents({ name: 'ScalarIconButton' }).map((button) => button.props('label'))).toStrictEqual(
+      [],
+    )
+    expect(
+      location.findAllComponents({ name: 'ScalarIconButton' }).map((button) => button.props('label')),
+    ).toStrictEqual([])
+    pkce.vm.$emit('update:modelValue', '')
+    await nextTick()
+    expect(update).not.toHaveBeenCalled()
+    pkce.vm.$emit('update:modelValue', 'plain')
+    await nextTick()
+    expect(update).toHaveBeenCalledExactlyOnceWith({
+      name: 'OAuth2',
+      payload: { type: 'oauth2', flows: { authorizationCode: { 'x-usePkce': 'plain' } } },
+    })
+    stop()
+    wrapper.unmount()
+  })
+
   it('hides the Authorize / Refresh / Clear actions when hideActions is set', () => {
     const wrapper = mount(OAuth2, {
       attachTo: document.body,
@@ -110,7 +167,7 @@ describe('OAuth2', () => {
     const emitted = vi.fn()
     eventBus.on('auth:update:security-scheme-secrets', emitted)
 
-    const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Clear')
+    const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Clear tokens')
     expect(clearBtn, 'Clear button should exist').toBeTruthy()
     await clearBtn!.trigger('click')
 
@@ -677,7 +734,7 @@ describe('OAuth2', () => {
     const emitted = vi.fn()
     eventBus.on('auth:clear:security-scheme-secrets', emitted)
 
-    const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Clear')
+    const clearBtn = wrapper.findAll('button').find((b) => b.text() === 'Reset discovery')
     expect(clearBtn, 'Clear button should exist').toBeTruthy()
     await clearBtn!.trigger('click')
 

@@ -59,6 +59,42 @@ describe('oauth', () => {
     url: 'https://api.example.com',
   } as ServerObject
 
+  it('rejects a cleared authorization URL without opening a window', async () => {
+    const flows = {
+      authorizationCode: {
+        ...baseFlow,
+        authorizationUrl,
+        tokenUrl,
+        'x-usePkce': 'no',
+        'x-scalar-secret-auth-url': '',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-client-secret': clientSecret,
+        'x-scalar-secret-redirect-uri': redirectUri,
+      },
+    } satisfies OAuthFlowsObjectSecret
+    const [error, tokens] = await authorizeOauth2(flows, 'authorizationCode', [], mockServer, '')
+    expect(error?.message).toBe('Authorization URL is required')
+    expect(tokens).toBe(null)
+    expect(window.open).not.toHaveBeenCalled()
+  })
+
+  it('rejects a cleared token URL without making a request', async () => {
+    const customFetch = vi.fn<typeof fetch>()
+    const flows = {
+      clientCredentials: {
+        ...baseFlow,
+        tokenUrl,
+        'x-scalar-secret-token-url': '',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-client-secret': clientSecret,
+      },
+    } satisfies OAuthFlowsObjectSecret
+    const [error, tokens] = await authorizeOauth2(flows, 'clientCredentials', [], mockServer, '', {}, customFetch)
+    expect(error?.message).toBe('Token URL is required')
+    expect(tokens).toBe(null)
+    expect(customFetch).not.toHaveBeenCalled()
+  })
+
   it.each(['body', 'header'] as const)(
     'trims OAuth client credentials in %s requests and refresh without changing stored secrets',
     async (location) => {
