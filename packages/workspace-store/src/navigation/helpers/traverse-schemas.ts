@@ -93,6 +93,7 @@ export const traverseSchemas = ({
             name,
             generateId,
             parentTag: { tag, id: tagId },
+            _schema: getResolvedRef(schemas[name]),
             parentId: documentId,
           }),
         )

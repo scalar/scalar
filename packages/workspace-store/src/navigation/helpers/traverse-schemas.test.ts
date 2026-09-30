@@ -651,6 +651,51 @@ describe('traverseSchemas', () => {
       })
     })
 
+    it('uses the title attribute of schemas with x-tags', () => {
+      const content = coerceValue(OpenAPIDocumentSchema, {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            TextBlock: {
+              title: 'Text',
+              type: 'object',
+              properties: {
+                content: { type: 'string' },
+              },
+              'x-tags': ['users'],
+            },
+          },
+        },
+      })
+
+      traverseSchemas({
+        document: content,
+        tagsMap: mockTagsMap,
+        documentId: 'doc-1',
+        generateId: (props) => {
+          if (props.type === 'model') {
+            if (props.name) {
+              return `model-${props.name}`
+            }
+            return 'model'
+          }
+
+          return 'unknown-id'
+        },
+      })
+
+      expect(mockTagsMap.get('users')?.entries[0]).toMatchObject({
+        id: 'model-TextBlock',
+        title: 'Text',
+        name: 'TextBlock',
+        ref: '#/components/schemas/TextBlock',
+      })
+    })
+
     it('should handle schemas with non-existent x-tags', () => {
       const content = coerceValue(OpenAPIDocumentSchema, {
         openapi: '3.1.0',
