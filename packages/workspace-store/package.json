@@ -26,7 +26,8 @@
     "generate-openapi-types": "tsx ./scripts/generate-openapi-types.ts",
     "test": "vitest --run",
     "test:watch": "vitest",
-    "types:check": "tsgo --noEmit"
+    "types:check": "tsgo --noEmit",
+    "bench:asyncapi-chunks": "node --expose-gc scripts/benchmark-asyncapi-chunks.mjs"
   },
   "type": "module",
   "exports": {

@@ -1061,17 +1061,19 @@ describe('create-server-store', () => {
     }
 
     it('keeps the channels and operations of an asyncapi document', async () => {
-      const { document } = await addAsyncApiDocument()
+      const { store } = await addAsyncApiDocument()
+      const resolved = store.getResolvedDocument('events')
+      assert(isAsyncApiDocument(resolved))
 
-      const channel = document.channels?.['planetEvents']
+      const channel = resolved.channels?.['planetEvents']
       assert(channel && !('$ref' in channel))
       expect(channel.address).toBe('planet/events')
       expect(Object.keys(channel.messages ?? {})).toEqual(['planetCreated'])
 
-      const operation = document.operations?.['onPlanetCreated']
+      const operation = resolved.operations?.['onPlanetCreated']
       assert(operation && !('$ref' in operation))
       expect(operation.action).toBe('receive')
-      expect(operation.channel).toEqual({ '$ref': '#/channels/planetEvents' })
+      expect(operation.channel).toMatchObject({ '$ref': '#/channels/planetEvents' })
     })
 
     it('does not run the openapi ingestion pipeline on an asyncapi document', async () => {
@@ -1159,17 +1161,16 @@ describe('create-server-store', () => {
       expect(input).toEqual(exampleAsyncApiDocument())
     })
 
-    it('registers an empty asset entry rather than externalizing asyncapi content', async () => {
-      const { store } = await addAsyncApiDocument()
-
-      // The entry itself exists — that is what keeps `get()` and chunk generation defined for the
-      // document — but it holds nothing to externalize.
-      expect(store.get('#/events')).toEqual({})
-      expect(store.get('#/events/operations')).toBeUndefined()
-      expect(store.get('#/events/components')).toBeUndefined()
+    it('registers AsyncAPI channel and component chunks', async () => {
+      const { store, document } = await addAsyncApiDocument()
+      expect(document.channels?.planetEvents).toMatchObject({ $global: true })
+      expect(store.get('#/events/asyncapi/channels/planetEvents')).toMatchObject({ address: 'planet/events' })
+      expect(store.get('#/events/asyncapi/components-messages/group-0')).toMatchObject({
+        PlanetCreated: { title: 'Planet Created' },
+      })
     })
 
-    it('writes no chunk files for an asyncapi document in static mode', async () => {
+    it('writes chunks for an asyncapi document in static mode', async () => {
       const directory = randomUUID()
       const store = await createServerWorkspaceStore({
         mode: 'static',
@@ -1180,7 +1181,7 @@ describe('create-server-store', () => {
       await store.generateWorkspaceChunks()
 
       const written = await fs.readdir(`${cwd()}/${directory}`)
-      expect(written).toEqual([WORKSPACE_FILE_NAME])
+      expect(written).toEqual(['chunks', WORKSPACE_FILE_NAME])
 
       await fs.rm(`${cwd()}/${directory}`, { recursive: true, force: true })
     })
