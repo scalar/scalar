@@ -130,6 +130,8 @@ export function extractParameterDescriptions(parameters: ReferenceType<Parameter
  *
  * Walks every media type and includes both top-level and one level of nested property names so
  * common fields like `email` or `username` surface in search regardless of how the body is shaped.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractBodyFieldNames(operation: OperationObject): string[] {
   const names: string[] = []
@@ -143,6 +145,8 @@ export function extractBodyFieldNames(operation: OperationObject): string[] {
 
 /**
  * Extracts the descriptions of properties from the request body schema(s) of an operation.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractBodyDescriptions(operation: OperationObject): string[] {
   const descriptions: string[] = []
@@ -161,6 +165,8 @@ export function extractBodyDescriptions(operation: OperationObject): string[] {
  *
  * Same depth and composition behavior as `extractBodyFieldNames` — descends transparently through
  * `oneOf`/`anyOf`/`allOf`, walks one level into nested object properties, dedupes.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractSchemaFieldNames(schema: SchemaObject | undefined): string[] {
   const names: string[] = []
@@ -174,6 +180,8 @@ export function extractSchemaFieldNames(schema: SchemaObject | undefined): strin
 
 /**
  * Extracts the property descriptions of a schema for the search index.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractSchemaDescriptions(schema: SchemaObject | undefined): string[] {
   const descriptions: string[] = []
@@ -223,16 +231,18 @@ export const createSearchFieldExtractor = (): {
   }
 
   const schema = (value: SchemaObject | undefined): SchemaSearchFields => {
-    const cached = value && schemas.get(value)
+    // Callers outside the workspace store can pass schemas that have not been normalized.
+    if (!isSchemaObject(value)) {
+      return { names: [], descriptions: [] }
+    }
+    const cached = schemas.get(value)
     if (cached) {
       return cached
     }
     const fields = collect((visit) =>
       collectSchemaProperties(value, { visit, visited: new Set<SchemaObject>(), maxPropertyDepth: 2 }),
     )
-    if (value) {
-      schemas.set(value, fields)
-    }
+    schemas.set(value, fields)
     return fields
   }
 

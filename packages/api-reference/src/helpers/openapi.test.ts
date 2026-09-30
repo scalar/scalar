@@ -13,6 +13,17 @@ import {
 } from './openapi'
 
 describe('openapi', () => {
+  it.each([true, false, null, undefined, 0, 1, '', 'string'])('tolerates a non-object schema: %j', (value) => {
+    // Exercise unnormalized runtime input outside the workspace store's strict schema type.
+    const schema = value as unknown as SchemaObject
+    const extract = createSearchFieldExtractor()
+    expect(extract.schema(schema)).toStrictEqual({ names: [], descriptions: [] })
+    expect(extract.body({ requestBody: { content: { 'application/json': { schema } } } })).toStrictEqual({
+      names: [],
+      descriptions: [],
+    })
+  })
+
   it('collects both search fields with the same composition, reference, cycle and depth ordering', () => {
     const shared: SchemaObject = {
       type: 'object',
