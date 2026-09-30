@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 3.21.3
+
+### Patch Changes
+
+- [#10422](https://github.com/scalar/scalar/pull/10422): Avoid allocating unused character match ranges during document search.
+- [#10402](https://github.com/scalar/scalar/pull/10402): Keep failed requests visible in the response panel and explain possible CORS or network causes for browser fetch failures.
+- [#10400](https://github.com/scalar/scalar/pull/10400): Hide the authentication dropdown in the API Reference when only one required option is active, while retaining authentication and deletion controls in the API Client.
+- [#10382](https://github.com/scalar/scalar/pull/10382): Preserve enum array selections with their original enum value types as JSON arrays in the structured request body form editor and contain long selection labels.
+
 ## 3.21.2
 
 ### Patch Changes
