@@ -1,6 +1,14 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src", "./test", "./vitest.config.ts", "./vite.config.ts", "./vite.standalone.config.ts"],
+  "include": [
+    "./src",
+    "./test",
+    "./playwright",
+    "./playwright.ssr.config.ts",
+    "./vitest.config.ts",
+    "./vite.config.ts",
+    "./vite.standalone.config.ts"
+  ],
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],

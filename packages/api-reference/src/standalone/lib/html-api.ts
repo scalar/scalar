@@ -10,6 +10,7 @@ import { createHead } from '@unhead/vue/client'
 import { createApp, createSSRApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
+import { type PreparedApiReference, prepareApiReference } from '@/helpers/prepare-api-reference'
 import { hasPluginUrls, loadPluginsFromUrls } from '@/standalone/lib/load-plugins-from-urls'
 
 const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
@@ -265,10 +266,12 @@ export const createApiReference: CreateApiReference = (
   // Create an id prefix for useId so we don't have collisions with other Vue apps
   const idPrefix = 'scalar-refs'
 
-  const props = reactive<{ configuration: AnyApiReferenceConfiguration }>({
+  const props = reactive<{ configuration: AnyApiReferenceConfiguration; prepared?: PreparedApiReference }>({
     // Either the configuration will be the second argument or it MUST be the first (configuration only)
     configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as AnyApiReferenceConfiguration) ?? {},
   })
+
+  const initialConfiguration = props.configuration
 
   const createReferenceApp = (isSsr = false) => {
     const referenceApp = isSsr ? createSSRApp(() => h(ApiReference, props)) : createApp(() => h(ApiReference, props))
@@ -294,6 +297,7 @@ export const createApiReference: CreateApiReference = (
   // Track whether this instance mounted so `destroy` only releases the shared
   // standalone styles for instances that actually retained them.
   let hasMounted = false
+  let retryPreparation: (() => void) | undefined
 
   if (optionalConfiguration) {
     if (mountElement) {
@@ -303,16 +307,64 @@ export const createApiReference: CreateApiReference = (
         retainStandaloneStyles(document)
       }
 
-      if (hasPluginUrls(props.configuration)) {
-        // Plugins referenced by URL must be resolved before the app mounts — plugin registration
-        // happens once at first render and is not reactive, so a plugin that arrives later would
-        // never be picked up.
-        loadPluginsFromUrls(props.configuration).then(() => {
-          // Skip mounting when the instance was destroyed while the plugins were loading.
-          if (!abortController.signal.aborted) {
+      if (hasPluginUrls(props.configuration) || shouldHydrate) {
+        const prepareAndMount = async (): Promise<void> => {
+          // Configuration can change while a source or plugin is loading. Only mount
+          // state prepared for the latest configuration, and never mount after destroy.
+          while (!abortController.signal.aborted) {
+            const configuration = props.configuration
+            let prepared: PreparedApiReference | undefined
+            try {
+              if (hasPluginUrls(configuration)) {
+                await loadPluginsFromUrls(configuration)
+              }
+              if (abortController.signal.aborted) {
+                return
+              }
+              prepared = shouldHydrate ? await prepareApiReference(configuration) : undefined
+            } catch (error) {
+              // A replacement configuration can recover even when the old source fails.
+              if (configuration !== props.configuration) {
+                continue
+              }
+              throw error
+            }
+            if (abortController.signal.aborted) {
+              return
+            }
+            if (configuration !== props.configuration) {
+              continue
+            }
+            props.prepared = prepared
+            // An explicit configuration replacement no longer describes the server HTML.
+            // Keep that HTML until ready, then mount the requested reference afresh.
+            if (shouldHydrate && configuration !== initialConfiguration) {
+              app = createReferenceApp()
+            }
             mount()
+            return
           }
-        })
+        }
+        let preparing = false
+        retryPreparation = (): void => {
+          if (preparing || hasMounted || abortController.signal.aborted) {
+            return
+          }
+          preparing = true
+          // Defer preparation so instance initialization completes before loading starts.
+          void Promise.resolve()
+            .then(prepareAndMount)
+            .catch((error: unknown) => {
+              if (!abortController.signal.aborted) {
+                console.error('Could not prepare API References:', error)
+              }
+            })
+            .finally(() => {
+              preparing = false
+            })
+        }
+        // Cancellation is initialized below before this microtask runs.
+        void Promise.resolve().then(retryPreparation)
       } else {
         mount()
       }
@@ -362,6 +414,7 @@ export const createApiReference: CreateApiReference = (
 
       // Create a new Vue app instance
       app.unmount()
+      props.prepared = undefined
       app = createReferenceApp()
       app.mount(currentElement)
     },
@@ -372,6 +425,7 @@ export const createApiReference: CreateApiReference = (
   const destroy = () => {
     abortController.abort()
     props.configuration = {}
+    props.prepared = undefined
 
     // Only unmount an app that actually mounted. With `pluginUrls`, mounting is deferred until the
     // plugin modules resolve, so `destroy` can run first — unmounting then would just warn.
@@ -407,16 +461,20 @@ export const createApiReference: CreateApiReference = (
       )
       if ('detail' in ev) {
         Object.assign(props, ev.detail)
+        retryPreparation?.()
       }
     },
     listenerOptions,
   )
 
   const instance = {
-    app,
+    get app() {
+      return app
+    },
     getConfiguration: () => props.configuration ?? {},
     updateConfiguration: (newConfig: AnyApiReferenceConfiguration) => {
       props.configuration = newConfig
+      retryPreparation?.()
     },
     destroy,
   }

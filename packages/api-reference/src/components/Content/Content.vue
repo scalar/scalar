@@ -27,7 +27,7 @@ import type {
   Workspace,
   WorkspaceDocument,
 } from '@scalar/workspace-store/schemas/workspace'
-import { computed, onMounted } from 'vue'
+import { computed, inject, onMounted } from 'vue'
 
 import { AsyncApiServerSelector } from '@/blocks/scalar-asyncapi-server-selector-block'
 import { ClientSelector } from '@/blocks/scalar-client-selector-block'
@@ -50,6 +50,7 @@ import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { provideDocumentOutline } from '@/features/document-outline'
 import { getXKeysFromObject } from '@/features/specification-extension'
+import { HYDRATING_REFERENCE } from '@/helpers/hydrating-reference'
 import {
   firstLazyLoadComplete,
   scheduleInitialLoadComplete,
@@ -109,6 +110,8 @@ const {
   /** Heading id generator for Markdown headings */
   headingSlugGenerator: (heading: Heading) => string
 }>()
+
+const hydrating = inject(HYDRATING_REFERENCE, undefined)
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
@@ -390,7 +393,7 @@ provideDocumentOutline('document')
     <slot name="end" />
     <!-- Placeholder content to allow the active item to be scrolled to the top while the rest of the content is lazy loaded -->
     <div
-      v-if="!firstLazyLoadComplete"
+      v-if="hydrating || !firstLazyLoadComplete"
       class="h-dvh"></div>
   </div>
 </template>

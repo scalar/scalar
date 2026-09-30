@@ -4,6 +4,7 @@
     "dist",
     "vite.*.ts",
     "vitest.*.ts",
+    "playwright.*.ts",
     "**/*.spec.ts",
     "**/*.test.tsx",
     "**/*.test.ts",
