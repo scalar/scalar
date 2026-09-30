@@ -1,3 +1,4 @@
+import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import tailwindcss from '@tailwindcss/vite'
@@ -7,6 +8,7 @@ import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 import { name, version } from './package.json'
+import { createEsmEntry } from './src/standalone/lib/create-esm-entry'
 
 // Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
 // when `output.comments.legal` is enabled. See the `banner`/`comments` output options.
@@ -56,6 +58,15 @@ export default defineConfig({
     // Content Security Policy. See the `nonce` option in @scalar/client-side-rendering.
     cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' }, useStrictCSP: true }),
     webpackStats({ fileName: 'webpack-stats.esm.json' }),
+    // `esm.js`, the short CDN entry point at the package root, loads the bundle pinned to the
+    // version it was published with (see `createEsmEntry`). Generating it here keeps that version
+    // in step with the bundle it points at.
+    {
+      name: 'scalar:esm-entry',
+      writeBundle(): void {
+        writeFileSync(resolve(import.meta.dirname, 'esm.js'), createEsmEntry(version))
+      },
+    },
   ],
   build: {
     emptyOutDir: false,
