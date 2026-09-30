@@ -775,6 +775,78 @@ describe('Schema', () => {
       expect(wrapper.text()).toContain('fieldB')
       expect(wrapper.text()).not.toContain('fieldA')
     })
+
+    // https://github.com/scalar/scalar/issues/10435
+    it('does not nest a discriminator oneOf variant that composes its base with allOf', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'composed',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Composed', version: '1.0' },
+          paths: {},
+          components: {
+            schemas: {
+              Search: {
+                type: 'object',
+                properties: { composed: { $ref: '#/components/schemas/ComposedUnion' } },
+              },
+              ComposedUnion: {
+                discriminator: {
+                  propertyName: 'kind',
+                  mapping: {
+                    basic: '#/components/schemas/ComposedBasic',
+                    pro: '#/components/schemas/ComposedPro',
+                  },
+                },
+                oneOf: [{ $ref: '#/components/schemas/ComposedBasic' }, { $ref: '#/components/schemas/ComposedPro' }],
+              },
+              ComposedBase: {
+                type: 'object',
+                required: ['kind'],
+                properties: { kind: { type: 'string' }, colour: { type: 'string' } },
+              },
+              ComposedBasic: {
+                title: 'ComposedBasic',
+                allOf: [
+                  { $ref: '#/components/schemas/ComposedBase' },
+                  { type: 'object', properties: { kind: { type: 'string', enum: ['basic'] } } },
+                ],
+              },
+              ComposedPro: {
+                title: 'ComposedPro',
+                allOf: [
+                  { $ref: '#/components/schemas/ComposedBase' },
+                  { type: 'object', properties: { kind: { type: 'string', enum: ['pro'] }, size: { type: 'string' } } },
+                ],
+              },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.composed as { components: { schemas: Record<string, SchemaObject> } }
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: document.components.schemas.Search,
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      const colourRows = () => wrapper.findAll('.property-name').filter((node) => node.text().trim() === 'colour')
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(colourRows()).toHaveLength(1)
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '1', label: 'pro · ComposedPro' })
+      await nextTick()
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(colourRows()).toHaveLength(1)
+      expect(wrapper.text()).toContain('size')
+    })
   })
 
   describe('additionalProperties Vue prop', () => {
