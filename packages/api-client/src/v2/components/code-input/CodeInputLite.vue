@@ -109,7 +109,7 @@ type Props = {
   /** Schema type — drives boolean select mode when `boolean` is included */
   type?: string | string[]
   /** Predefined enum values; when set the input is replaced by a select */
-  enum?: string[]
+  enum?: unknown[]
   /** Text representation of array selections. */
   arrayEncoding?: 'json' | 'comma-separated'
   /** Example values; when set (and no enum/boolean) the input is replaced by a select */

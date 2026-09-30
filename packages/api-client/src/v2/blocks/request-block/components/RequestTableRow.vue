@@ -149,7 +149,7 @@ const displayValue = computed(
 const defaultValue = computed(() => data.schema?.default as string)
 
 /** See if we can extract enum values from the schema */
-const enumValue = computed<string[]>(() => {
+const enumValue = computed<unknown[]>(() => {
   if (!data.schema) {
     return []
   }
@@ -163,7 +163,9 @@ const enumValue = computed<string[]>(() => {
   if ('items' in data.schema) {
     const resolved = resolve.schema(data.schema.items)
     if (resolved?.enum) {
-      return resolved.enum.map((item) => String(item))
+      return data.arrayEncoding === 'json'
+        ? resolved.enum
+        : resolved.enum.map((item) => String(item))
     }
   }
 

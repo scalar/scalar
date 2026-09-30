@@ -21,7 +21,7 @@ const {
   arrayEncoding,
 } = defineProps<{
   modelValue: CodeInputModelValue
-  value?: string[]
+  value?: unknown[]
   default?: CodeInputModelValue | undefined
   canAddCustomValue?: boolean
   type?: string | undefined
@@ -35,7 +35,7 @@ const emit = defineEmits<{
 
 const { translate } = useLocalization()
 
-const options = computed(() => enumValues ?? [])
+const options = computed(() => (enumValues ?? []).map(String))
 const addingCustomValue = ref(false)
 const customValue = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -80,9 +80,11 @@ const initialValue = computed(() => {
 
 /** Options for the array type */
 const arrayOptions = computed(() =>
-  options.value.map((option) => {
-    const id = option.toString()
-    return { id: id, label: id, value: id }
+  (enumValues ?? []).map((option) => {
+    const label = String(option)
+    // JSON identities keep values such as 1 and '1' distinct.
+    const id = arrayEncoding === 'json' ? JSON.stringify(option) : label
+    return { id, label, value: arrayEncoding === 'json' ? option : label }
   }),
 )
 
@@ -97,13 +99,19 @@ const selectedArrayOptions = computed(() => {
       values = []
     }
   }
-  const selectedValues = new Set(Array.isArray(values) ? values : [])
+  const selectedValues = new Set(
+    Array.isArray(values)
+      ? values.map((item) =>
+          arrayEncoding === 'json' ? JSON.stringify(item) : String(item),
+        )
+      : [],
+  )
   return arrayOptions.value.filter((option) => selectedValues.has(option.id))
 })
 
 /** Update the model value when the selected options change */
 const updateSelectedOptions = (
-  selectedOptions: { id: string; label: string; value: string }[],
+  selectedOptions: { id: string; label: string; value: unknown }[],
 ): void => {
   const selectedValues = selectedOptions.map((option) => option.value)
   emit(
