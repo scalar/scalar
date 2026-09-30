@@ -1028,13 +1028,11 @@
     "sidebar": [
       {
         "title": "Email",
-        "to": "mailto:support@scalar.com",
-        "icon": "phosphor/regular/envelope-simple-open"
+        "to": "mailto:support@scalar.com"
       },
       {
         "title": "Demo",
         "to": "https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a",
-        "icon": "phosphor/regular/user-rectangle",
         "newTab": true
       }
     ],
@@ -1047,7 +1045,6 @@
             "type": "page",
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
-            "icon": "phosphor/regular/house",
             "description": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.",
             "layout": {
               "toc": false,
@@ -1146,54 +1143,8 @@
               ]
             }
           },
-          "products": {
-            "type": "group",
-            "title": "Products",
-            "icon": "phosphor/regular/compass",
-            "mode": "folder",
-            "open": true,
-            "children": {
-              "docs": {
-                "type": "link",
-                "title": "Docs",
-                "icon": "phosphor/regular/book",
-                "url": "/products/docs"
-              },
-              "agent": {
-                "type": "link",
-                "title": "MCP & Agent",
-                "icon": "phosphor/regular/sparkle",
-                "url": "/products/agent"
-              },
-              "sdk-generator": {
-                "type": "link",
-                "title": "SDK Generator",
-                "icon": "phosphor/regular/package",
-                "url": "/products/sdk-generator"
-              },
-              "registry": {
-                "type": "link",
-                "title": "Registry",
-                "icon": "phosphor/regular/brackets-curly",
-                "url": "/products/registry"
-              },
-              "api-references": {
-                "type": "link",
-                "title": "API References",
-                "icon": "phosphor/regular/notebook",
-                "url": "/products/api-references"
-              },
-              "api-client": {
-                "type": "link",
-                "title": "API Client",
-                "icon": "phosphor/regular/paper-plane-tilt",
-                "url": "/products/api-client"
-              }
-            }
-          },
           "/customers": {
             "title": "Customers",
-            "icon": "phosphor/regular/user-focus",
             "description": "Trusted by the world's best API teams.",
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
@@ -1236,7 +1187,6 @@
           },
           "/enterprise": {
             "title": "Enterprise",
-            "icon": "phosphor/regular/briefcase",
             "type": "page",
             "filepath": "documentation/guides/enterprise/enterprise.md",
             "showInSidebar": true,
@@ -1279,7 +1229,6 @@
           },
           "/company": {
             "title": "Company",
-            "icon": "phosphor/regular/buildings",
             "description": "Learn about Scalar, the API platform built for developers and agents.",
             "filepath": "documentation/guides/company.md",
             "type": "page",
@@ -1317,6 +1266,49 @@
                   "content": "index, follow"
                 }
               ]
+            }
+          },
+          "products": {
+            "type": "group",
+            "title": "Products",
+            "mode": "flat",
+            "children": {
+              "docs": {
+                "type": "link",
+                "title": "Docs",
+                "icon": "phosphor/regular/book",
+                "url": "/products/docs"
+              },
+              "agent": {
+                "type": "link",
+                "title": "MCP & Agent",
+                "icon": "phosphor/regular/sparkle",
+                "url": "/products/agent"
+              },
+              "sdk-generator": {
+                "type": "link",
+                "title": "SDK Generator",
+                "icon": "phosphor/regular/package",
+                "url": "/products/sdk-generator"
+              },
+              "registry": {
+                "type": "link",
+                "title": "Registry",
+                "icon": "phosphor/regular/brackets-curly",
+                "url": "/products/registry"
+              },
+              "api-references": {
+                "type": "link",
+                "title": "API References",
+                "icon": "phosphor/regular/notebook",
+                "url": "/products/api-references"
+              },
+              "api-client": {
+                "type": "link",
+                "title": "API Client",
+                "icon": "phosphor/regular/paper-plane-tilt",
+                "url": "/products/api-client"
+              }
             }
           },
           "/security": {
@@ -1595,7 +1587,7 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": false,
+              "toc": true,
               "pageActions": false,
               "pageTitle": false
             }

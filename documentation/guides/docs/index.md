@@ -19,8 +19,8 @@ Write in Markdown or MDX, pull content from GitHub, preview every pull request, 
 
 
 <div class="logowall">
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
+  <div class="logowall-item logowall-item-tr">
+    <scalar-icon src="../../assets/remote/logo-tr.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>

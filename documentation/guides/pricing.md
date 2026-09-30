@@ -64,8 +64,8 @@
 <h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
 
 <div class="logowall">
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-tr.svg"></scalar-icon>
+  <div class="logowall-item logowall-item-tr">
+    <scalar-icon src="../assets/remote/logo-tr.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>

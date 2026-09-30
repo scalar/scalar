@@ -320,3 +320,21 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Thomson Reuters ships a stacked lockup (mark beside two lines of type), so it
+   is roughly 3:1 where every other logo on the wall is 4.5:1 or wider. Capped at
+   the shared 24px it carries under half the optical weight of its neighbours and
+   reads as an afterthought, so it gets its own cap chosen to match: at 34px its
+   rendered ink matches the median of the other logos as closely as the previous
+   single-line Thomson Reuters logo did. The extra class specificity is here to
+   win against the per-page `.logowall-item svg` rules. */
+.logowall .logowall-item-tr svg {
+  max-height: 34px;
+}
+
+@media screen and (max-width: 1000px) {
+  /* Same ratio against the 20px the wall drops to on narrow viewports. */
+  .logowall .logowall-item-tr svg {
+    max-height: 28px;
+  }
+}
