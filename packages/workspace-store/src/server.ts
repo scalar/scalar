@@ -903,7 +903,13 @@ export async function createServerWorkspaceStore(
       })()
 
       // Keep the path segments escaped cuz we store them on the filesystem as escaped sequences
-      const path = parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
+      const segments = pointerPath.split('/').slice(1)
+      const path =
+        segments[1] === 'asyncapi'
+          ? segments.map((segment) =>
+              escapeJsonPointer(decodeURIComponent(segment).replaceAll('~1', '/').replaceAll('~0', '~')),
+            )
+          : parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
       return getValueAtPath(assets, path)
     },
     addDocument,

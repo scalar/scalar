@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { asyncApiChunkGroups } from './asyncapi-chunk-groups'
 
-describe('asyncApiChunkGroups', () => {
+describe('asyncapi-chunk-groups', () => {
   it('groups schemas consumed together without including unrelated schemas', () => {
     const groups = asyncApiChunkGroups({
       components: {

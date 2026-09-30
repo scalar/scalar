@@ -34,6 +34,44 @@ const fixture = () => ({
 })
 
 describe('asyncapi-chunks', () => {
+  it.each(['user:created', 'a/b~c', 'literal%2F?#'])(
+    'resolves SSR chunks with reserved characters in %s',
+    async (name) => {
+      const server = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        documents: [
+          {
+            name: 'events',
+            document: {
+              asyncapi: '3.0.0',
+              info: { title: 'Events', version: '1' },
+              channels: { [name]: { address: 'selected' } },
+              components: { schemas: { [name]: { type: 'object' } } },
+            },
+          },
+        ],
+      })
+      const sparse = server.getWorkspace().documents.events
+      const channelRef = getValueAtPath(sparse, ['channels', name, '$ref'])
+      assert(typeof channelRef === 'string')
+      expect(server.get(channelRef)).toMatchObject({ address: 'selected' })
+      const client = createWorkspaceStore({
+        fetch: (url) =>
+          Promise.resolve(
+            new Response(JSON.stringify(server.get(String(url))), { headers: { 'Content-Type': 'application/json' } }),
+          ),
+      })
+      await client.addDocument({ name: 'events', document: sparse! })
+      client.update('x-scalar-active-document', 'events')
+      await client.resolve(['channels', name])
+      await client.resolve(['components', 'schemas', name])
+      const document = client.workspace.activeDocument
+      assert(isAsyncApiDocument(document))
+      expect(getResolvedRef(document.channels?.[name])?.address).toBe('selected')
+      expect(getResolvedRef(getResolvedRef(document.components)?.schemas?.[name])).toMatchObject({ type: 'object' })
+    },
+  )
   it('loads only selected channel dependencies and retains recursive references', async ({ onTestFinished }) => {
     const directory = await fs.mkdtemp(join(tmpdir(), 'asyncapi-chunks-'))
     onTestFinished(() => fs.rm(directory, { recursive: true, force: true }))
