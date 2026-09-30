@@ -280,3 +280,29 @@ shared references, not the byte size of arbitrary authored content. Root
 composition branches that contain references link to those schemas rather than
 flattening their constraints. Full-document exports still include every model
 section; use a page selector for individual exports.
+
+## Browser playground
+
+From the repository root, run:
+
+```sh
+pnpm --filter @scalar/openapi-to-markdown dev
+```
+
+Open `http://localhost:3000` (or the address printed by Vite). Choose Galaxy,
+Stripe, GitHub, or Cloudflare, then preview a **Per-page**, **Linked page**, or
+**Full export**. Page selection includes operations by method/path, models,
+webhooks, tags, and the introduction. Search the page list to find an item.
+
+The **Preview** and **Markdown** views show the rendered document and its exact
+source. Copy or download the Markdown, follow internal links in whole exports,
+or follow linked schema URLs to open that model in the playground. The additional
+**Link shared schemas** control also allows a linked full export.
+
+Galaxy is included locally through `@scalar/galaxy`; the other examples fetch
+current documents from their official GitHub repositories and require internet
+access on first load. Loading and exporting happen on the development server.
+It retains one resolved document at a time; switching examples releases the previous
+renderer. Large exports can take longer. The reported duration measures Markdown
+export, excluding document loading and HTML preview conversion. `/llms.txt` still
+serves the complete Galaxy Markdown export.
