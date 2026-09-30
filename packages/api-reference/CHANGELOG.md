@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.72.3
+
+### Patch Changes
+
+- [#10421](https://github.com/scalar/scalar/pull/10421): Collect schema search fields in one traversal and reuse extraction within each search index build.
+- [#10422](https://github.com/scalar/scalar/pull/10422): Avoid computing unused character match ranges when searching API references.
+- [#10381](https://github.com/scalar/scalar/pull/10381): Restore indentation for nested properties of expanded object and array query parameters.
+- [#10400](https://github.com/scalar/scalar/pull/10400): Hide the authentication dropdown in the API Reference when only one required option is active, while retaining authentication and deletion controls in the API Client.
+- [#10416](https://github.com/scalar/scalar/pull/10416): Skip unchanged document subtrees when checking configuration updates for content changes.
+- [#10403](https://github.com/scalar/scalar/pull/10403): Correct MIME type normalization return types and accept optional content types without unsafe casts. Remove original keys after normalization and preserve distinct response examples when selecting media types.
+
 ## 1.72.2
 
 ### Patch Changes

@@ -1,5 +1,31 @@
 # @scalar/openapi-to-markdown
 
+## 1.5.0
+
+### Minor Changes
+
+- [#10425](https://github.com/scalar/scalar/pull/10425): Make single-page Markdown easier to read, especially for AI agents reading `llms.txt` exports.
+  - An operation, webhook or model page now starts with that item as its `#` title and uses `##` sections, without the API's document header. An empty API version is never printed.
+  - Schema property descriptions keep their Markdown: paragraphs, links, inline code and fenced code blocks are no longer flattened into one escaped line. A parameter description is no longer repeated by its schema.
+  - Each property is one line with its name, type and annotations. Nullable unions read as `string | null`, single-branch `allOf` wrappers as the wrapped type, unions of plain types as one type, `const` and `enum` schemas without a `type` as their inferred JSON type, and arrays of simple items as `array of …`. Composition branches are listed one per item, with discriminator values beside their branch.
+  - Parameters are grouped by location. Responses that return the same schema and media type are grouped into one entry, such as a list of error statuses.
+  - In linked mode, references are shown as a link in the property's type. Primitive, enum and `const` schemas and aliases of them are written in place instead of linked; set `schemaReferences.inlinePrimitives: false` to link them. Generated examples are left out without a placeholder, while a model page generates an example of its own schema with linked schemas as empty stubs.
+  - The Authentication section is left out when the API description declares no security requirements, and only an explicit `security: []` says that no authentication is required. Security schemes are summarized on one line, for example "API key in header `X-Api-Key`", instead of printed as JSON.
+  - Selected pages retain empty server overrides as `/` and include server variable choices and descriptions. Model pages retain authored examples for primitive and array schemas as well as objects.
+
+- [#10425](https://github.com/scalar/scalar/pull/10425): Give shared schemas canonical definitions and internal links in whole-document Markdown exports, retaining primitive types inline and constraints beside references.
+
+  Deduplicate generated examples within each schema and request/response/media-type context, label them as generated, and retain authored examples at their original locations.
+
+  Explain inherited servers and authentication once, with links from operations, while retaining path and operation overrides, server variables, and explicit anonymous access.
+
+  Add a compact contents index linking to operations, webhooks, and schemas through unique explicit anchors.
+
+### Patch Changes
+
+- [#10425](https://github.com/scalar/scalar/pull/10425): Add a browser playground for previewing and downloading per-page, linked, and whole-document Markdown exports from Galaxy, Stripe, GitHub, and Cloudflare examples.
+- [#10425](https://github.com/scalar/scalar/pull/10425): Shorten the `## Schemas` section for schemas a page already expanded. Such a model is now a single line, for example `` `Customer` — shown above. ``, instead of a heading, type, "shown above" note and generated example. The line keeps the model's title and any description that a reference sibling replaced where the schema was expanded. A selected model, leaf schemas, models the page has not expanded, and object models with authored examples keep their full sections. A Stripe operation page such as `GET /v1/customers/{customer}` drops from about 2.5 MB to about 1.3 MB, with 819 of its 918 model sections reduced to one line. Everything above `## Schemas` is unchanged.
+
 ## 1.4.0
 
 ### Minor Changes

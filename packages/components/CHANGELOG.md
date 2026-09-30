@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.30.5
+
+### Patch Changes
+
+- [#10401](https://github.com/scalar/scalar/pull/10401): Preserve inline code styling in collapsed Markdown summaries, including authentication descriptions.
+
 ## 0.30.4
 
 ### Patch Changes

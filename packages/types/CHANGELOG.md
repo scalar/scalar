@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.22.3
+
+### Patch Changes
+
+- [#10402](https://github.com/scalar/scalar/pull/10402): Keep failed requests visible in the response panel and explain possible CORS or network causes for browser fetch failures.
+
 ## 0.22.2
 
 ### Patch Changes

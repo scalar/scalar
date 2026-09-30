@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.67.2
+
+### Patch Changes
+
+- [#10429](https://github.com/scalar/scalar/pull/10429): Use the schema title for sidebar entries of models grouped with `x-tags`, matching untagged models.
+
 ## 0.67.1
 
 ### Patch Changes
