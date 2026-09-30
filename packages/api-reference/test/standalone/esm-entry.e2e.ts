@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { type Page, expect, test } from '@playwright/test'
@@ -6,6 +6,14 @@ import { serveHTMLExample } from '@test/utils/serve-example'
 
 const packageRoot = join(import.meta.dirname, '../..')
 const { version } = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8')) as { version: string }
+
+test.beforeAll(() => {
+  const entry = join(packageRoot, 'esm.js')
+
+  if (!existsSync(entry)) {
+    throw new Error(`${entry} not found. The ESM standalone build of @scalar/api-reference generates it.`)
+  }
+})
 
 /**
  * Serve the package files built in this checkout in place of a remote origin, and record the
@@ -68,7 +76,9 @@ test.describe('esm.js entry point', () => {
     )
     const cdnRequests: string[] = []
     page.on('request', (request) => {
-      if (request.url().includes('jsdelivr.net')) {
+      const { hostname } = new URL(request.url())
+
+      if (hostname === 'jsdelivr.net' || hostname.endsWith('.jsdelivr.net')) {
         cdnRequests.push(request.url())
       }
     })
