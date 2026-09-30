@@ -15,6 +15,8 @@ Commands:
   context         Print every command, argument, and option as JSON for AI
                   agents
   auth            Manage authorization on scalar platform
+  access-group    Manage access groups and allowed email domains for the current
+                  team
   document        Manage local openapi file
   project         Manage scalar project
   registry        Manage your scalar registry
@@ -114,6 +116,132 @@ Usage: scalar auth logout [options]
 Logout from scalar
 
 Options:
+  -h, --help  display help for command
+```
+
+## access-group
+```
+Usage: scalar access-group [options] [command]
+
+Manage access groups and allowed email domains for the current team
+
+Options:
+  -h, --help               display help for command
+
+Commands:
+  create [options] <slug>  Create an access group (Pro or above)
+  get [options] <slug>     Get an access group and its allowlists
+  update [options] <slug>  Update access group metadata
+  delete [options] <slug>  Delete an access group and remove its project
+                           assignments
+  domain                   Manage allowed email domains
+  help [command]           display help for command
+```
+
+### create
+```
+Usage: scalar access-group create [options] <slug>
+
+Create an access group (Pro or above)
+
+Arguments:
+  slug                   New access group slug
+
+Options:
+  --name <name>          Display name
+  --domain <domains...>  Allowed email domains
+  --json                 Print the result as JSON
+  -h, --help             display help for command
+```
+
+### get
+```
+Usage: scalar access-group get [options] <slug>
+
+Get an access group and its allowlists
+
+Arguments:
+  slug        Access group slug
+
+Options:
+  --json      Print the result as JSON
+  -h, --help  display help for command
+```
+
+### update
+```
+Usage: scalar access-group update [options] <slug>
+
+Update access group metadata
+
+Arguments:
+  slug               Current access group slug
+
+Options:
+  --name <name>      New display name
+  --new-slug <slug>  New access group slug
+  --json             Print the result as JSON
+  -h, --help         display help for command
+```
+
+### delete
+```
+Usage: scalar access-group delete [options] <slug>
+
+Delete an access group and remove its project assignments
+
+Arguments:
+  slug        Access group slug
+
+Options:
+  -y, --yes   Confirm deletion without prompting
+  --json      Print the result as JSON (requires --yes)
+  -h, --help  display help for command
+```
+
+### domain
+```
+Usage: scalar access-group domain [options] [command]
+
+Manage allowed email domains
+
+Options:
+  -h, --help                        display help for command
+
+Commands:
+  add [options] <slug> <domain>     Add an exact email domain to an access group
+  remove [options] <slug> <domain>  Remove an exact email domain from an access
+                                    group
+  help [command]                    display help for command
+```
+
+#### add
+```
+Usage: scalar access-group domain add [options] <slug> <domain>
+
+Add an exact email domain to an access group
+
+Arguments:
+  slug        Access group slug
+  domain      Email domain, such as example.com
+
+Options:
+  --json      Print the result as JSON
+  -h, --help  display help for command
+```
+
+#### remove
+```
+Usage: scalar access-group domain remove [options] <slug> <domain>
+
+Remove an exact email domain from an access group
+
+Arguments:
+  slug        Access group slug
+  domain      Email domain, such as example.com
+
+Options:
+  --json      Print the result as JSON
   -h, --help  display help for command
 ```
 
