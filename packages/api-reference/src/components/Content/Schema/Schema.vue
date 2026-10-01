@@ -23,6 +23,7 @@ import { inferDiscriminatorMappingComposition } from './helpers/get-compositions
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
+import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import {
   SCHEMA_TREE_ROOT_SYMBOL,
@@ -251,6 +252,23 @@ const schemaDescription = computed(() => {
     !('patternProperties' in value) &&
     !('additionalProperties' in value) &&
     !('allOf' in value)
+  ) {
+    return null
+  }
+
+  // An allOf object segment already displays the merged description. Keep a
+  // distinct outer description, but do not repeat text carried by that segment.
+  if (
+    rawSchema?.allOf &&
+    partitionAllOfCompositions(rawSchema).segments.some(
+      (segment) =>
+        segment.kind === 'object' &&
+        segment.schema.description === value.description &&
+        ('properties' in segment.schema ||
+          'patternProperties' in segment.schema ||
+          'additionalProperties' in segment.schema) &&
+        !segment.schema.enum,
+    )
   ) {
     return null
   }
