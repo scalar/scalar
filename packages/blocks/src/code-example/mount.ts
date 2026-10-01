@@ -17,6 +17,8 @@ import { generateClientOptions } from './helpers/generate-client-options'
 export type CreateCodeExampleOptions = {
   /** Localized status text shown when the selected example has no linked code sample. */
   codeSampleUnavailable?: string
+  /** Localized accessible name for the focusable code sample scroller. */
+  codeSampleLabel?: string
   /** Workspace store that holds the OpenAPI document(s) to render from. */
   store: WorkspaceStore
   /** Path of the operation to render, e.g. '/users/{id}'. */
@@ -147,6 +149,9 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
   const props = reactive<CodeExampleProps>({
     get codeSampleUnavailable() {
       return options.codeSampleUnavailable
+    },
+    get codeSampleLabel() {
+      return options.codeSampleLabel
     },
     get operation(): OperationObject {
       return currentContext().operation

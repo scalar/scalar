@@ -193,10 +193,12 @@ describe('ClassicLayout', () => {
 
     localization.value = {
       locale: 'fr',
-      translations: { operation: { codeSampleUnavailable: 'Exemple indisponible.' } },
+      translations: { operation: { codeSampleUnavailable: 'Exemple indisponible.', codeSample: 'Extrait' } },
     }
     await nextTick()
     expect(wrapper.get('[role="status"]').text()).toBe('Exemple indisponible.')
+    // The accessible name of the focusable code sample follows the same dictionary
+    expect(wrapper.findComponent({ name: 'CodeExample' }).props('codeSampleLabel')).toBe('Extrait')
     wrapper.unmount()
   })
 

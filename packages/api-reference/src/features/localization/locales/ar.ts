@@ -64,6 +64,7 @@ export const ar = {
   },
   operation: {
     codeSampleUnavailable: 'لا يوجد نموذج تعليمات برمجية متاح لهذا المثال.',
+    codeSample: 'مثال على الكود',
     body: 'الجسم',
     cookies: 'ملفات تعريف الارتباط',
     headers: 'الرؤوس',

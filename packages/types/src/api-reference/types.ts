@@ -435,6 +435,7 @@ export type ApiReferenceTranslations = {
   }
   operation: {
     codeSampleUnavailable: string
+    codeSample: string
     body: string
     cookies: string
     headers: string

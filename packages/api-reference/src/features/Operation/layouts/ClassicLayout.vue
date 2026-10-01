@@ -317,6 +317,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :clientOptions
             :clientPickerLabel="translate('clientLibraries.changeClient')"
             :clientSearchLabel="translate('clientLibraries.searchLabel')"
+            :codeSampleLabel="translate('operation.codeSample')"
             :codeSampleUnavailable="
               translate('operation.codeSampleUnavailable')
             "

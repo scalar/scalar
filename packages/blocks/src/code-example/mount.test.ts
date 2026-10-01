@@ -58,6 +58,24 @@ describe('mount', () => {
     expect(element.querySelector('[role="status"]')?.textContent?.trim()).toBe('Exemple indisponible.')
   })
 
+  it('accepts a localized name for the focusable code sample', async () => {
+    const store = await createStore()
+    const element = document.createElement('div')
+    mounted.push(
+      createCodeExample(element, {
+        store,
+        path: '/hello',
+        method: 'post',
+        codeSampleLabel: 'Exemple de code',
+      }),
+    )
+    await nextTick()
+
+    // jsdom has no ResizeObserver, so the scroller stays a labelled tab stop here
+    const scroller = element.querySelector('.scalar-code-block .custom-scroll')
+    expect(scroller?.getAttribute('aria-label')).toMatch(/^Exemple de code: /)
+  })
+
   const mounted: Array<{ destroy: () => void }> = []
 
   afterEach(() => {
