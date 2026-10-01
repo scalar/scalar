@@ -230,7 +230,7 @@ const securitySchemes = computed(() => {
 })
 
 /**
- * Whether to show the document-level auth selector.
+ * Wait for the active client document so initial auth updates can be persisted.
  *
  * For OpenAPI it stays tied to `hideTestRequestButton`, since the auth feeds the interactive
  * test client. AsyncAPI has no document-level test request, so its auth display is decoupled
@@ -239,6 +239,7 @@ const securitySchemes = computed(() => {
 const showAuthSelector = computed(
   () =>
     Boolean(document) &&
+    Boolean(clientDocument) &&
     (Boolean(asyncApiDocument.value) || !options.hideTestRequestButton),
 )
 
