@@ -1,4 +1,4 @@
-import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from '@scalar/blocks/schema/expansion'
+import { createSchemaExpansionStore } from '@scalar/blocks/schema/expansion'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -33,8 +33,7 @@ const baseProps = {
 
 const mountHeaders = (props: Partial<typeof baseProps> = {}, store = createSchemaExpansionStore(scrollTargetId)) =>
   mount(Headers, {
-    props: { ...baseProps, ...props },
-    global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
+    props: { ...baseProps, ...props, expansion: store },
   })
 
 describe('Headers', () => {

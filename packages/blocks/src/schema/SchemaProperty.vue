@@ -28,6 +28,7 @@ import {
   onBeforeUnmount,
   onScopeDispose,
   ref,
+  toRef,
   useId,
   useTemplateRef,
   watch,
@@ -36,7 +37,6 @@ import {
 
 import CopyLinkButton from './components/CopyLinkButton.vue'
 import WithBreadcrumb from './components/WithBreadcrumb.vue'
-import { useSchemaRenderingContext } from './context'
 import { resolveDynamicSchema, useDynamicScope } from './helpers/dynamic-scope'
 import {
   getCompositionsToRender,
@@ -65,7 +65,55 @@ import SchemaEnums from './SchemaEnums.vue'
 import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 import SchemaRailPanel from './SchemaRailPanel.vue'
-import type { SchemaOptions } from './types'
+import type { SchemaOptions, SchemaRenderingProps } from './types'
+
+const props = withDefaults(
+  defineProps<
+    {
+      is?: string | Component
+      schema: SchemaObject | undefined
+      noncollapsible?: boolean
+      level?: number
+      /**
+       * Real nesting depth. Its own counter because `level` advances by a
+       * different stride per edge (object +2, composition +1).
+       */
+      depth?: number
+      name?: string
+      required?: boolean
+      compact?: boolean
+      discriminator?: DiscriminatorObject
+      description?: string
+      hideModelNames?: boolean
+      hideHeading?: boolean
+      /** When the root schema was resolved from a $ref, pass the ref name for display (e.g. "Data"). */
+      modelName?: string | null
+      variant?: 'additionalProperties' | 'patternProperties'
+      breadcrumb?: string[]
+      eventBus: WorkspaceEventBus | null
+      options: SchemaOptions
+      /** Enum values for property names (from JSON Schema propertyNames keyword). */
+      propertyNamesEnum?: string[]
+      /** Resolved propertyNames schema, used to show key constraints like `format`. */
+      propertyNamesSchema?: SchemaObject
+      /** When "requestBody", composition selection is synced with the example snippet */
+      schemaContext?: string
+      /** Internal path used to sync nested request body compositions with the code sample */
+      compositionPath?: string[]
+      /** Internal path segment for this property when building nested composition keys */
+      compositionPathSegment?: string
+      /** Stable identity of this property's schema, used for cycle detection. */
+      cycleKey?: unknown
+    } & SchemaRenderingProps
+  >(),
+  {
+    level: 0,
+    depth: 0,
+    required: false,
+    compact: false,
+    hideModelNames: false,
+  },
+)
 
 /**
  * Note: We're taking in a prop called `value` which should be a JSON Schema.
@@ -76,52 +124,6 @@ import type { SchemaOptions } from './types'
 
 /** Composition keywords that hold a list of schemas and can be flattened when they contain a single member. */
 const SINGLE_ITEM_COMPOSITIONS = ['oneOf', 'anyOf', 'allOf'] as const
-
-const props = withDefaults(
-  defineProps<{
-    is?: string | Component
-    schema: SchemaObject | undefined
-    noncollapsible?: boolean
-    level?: number
-    /**
-     * Real nesting depth. Its own counter because `level` advances by a
-     * different stride per edge (object +2, composition +1).
-     */
-    depth?: number
-    name?: string
-    required?: boolean
-    compact?: boolean
-    discriminator?: DiscriminatorObject
-    description?: string
-    hideModelNames?: boolean
-    hideHeading?: boolean
-    /** When the root schema was resolved from a $ref, pass the ref name for display (e.g. "Data"). */
-    modelName?: string | null
-    variant?: 'additionalProperties' | 'patternProperties'
-    breadcrumb?: string[]
-    eventBus: WorkspaceEventBus | null
-    options: SchemaOptions
-    /** Enum values for property names (from JSON Schema propertyNames keyword). */
-    propertyNamesEnum?: string[]
-    /** Resolved propertyNames schema, used to show key constraints like `format`. */
-    propertyNamesSchema?: SchemaObject
-    /** When "requestBody", composition selection is synced with the example snippet */
-    schemaContext?: string
-    /** Internal path used to sync nested request body compositions with the code sample */
-    compositionPath?: string[]
-    /** Internal path segment for this property when building nested composition keys */
-    compositionPathSegment?: string
-    /** Stable identity of this property's schema, used for cycle detection. */
-    cycleKey?: unknown
-  }>(),
-  {
-    level: 0,
-    depth: 0,
-    required: false,
-    compact: false,
-    hideModelNames: false,
-  },
-)
 
 /** The dynamic scope inherited from the enclosing schema resources, used to bind `$dynamicRef`s. */
 const dynamicScope = useDynamicScope()
@@ -525,7 +527,6 @@ const isDiscriminatorProperty = computed(() =>
  */
 
 const { translate } = useLocalization()
-const { specificationExtension } = useSchemaRenderingContext()
 
 /** Whether this property has children to put behind a toggle. */
 const isExpandable = computed(
@@ -567,7 +568,8 @@ const cycleTargetName = computed((): string => {
   return props.modelName || props.name || translate('schema.schema')
 })
 
-const expansion = useSchemaExpansion()
+const expansion =
+  props.expansion ?? useSchemaExpansion(toRef(() => props.scrollTargetId ?? ''))
 
 /** See Schema.vue — surfaces without breadcrumbs keep per-instance state. */
 const anonymousTreeKey = useId()
@@ -947,12 +949,17 @@ const onBeforeMatch = (): void => {
         { 'cursor-pointer': isTreeRow },
         'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!',
       ]"
-      v-on="isTreeRow ? treeHeadingHoverListeners : NO_LISTENERS"
-      @click="onHeadingClick"
       :enum="hasEnum"
       :eventBus="eventBus"
       :hideModelNames
       :isDiscriminator="isDiscriminatorProperty"
+      :keyKind="
+        variant === 'additionalProperties'
+          ? 'additional'
+          : variant === 'patternProperties'
+            ? 'pattern'
+            : undefined
+      "
       :modelLinkOptions="{
         hideModels: options.hideModels,
         document: options.document,
@@ -961,14 +968,9 @@ const onBeforeMatch = (): void => {
       :propertyNames="propertyNamesSchema"
       :recursiveTo="isCyclicProperty ? cycleTargetName : undefined"
       :required
-      :keyKind="
-        variant === 'additionalProperties'
-          ? 'additional'
-          : variant === 'patternProperties'
-            ? 'pattern'
-            : undefined
-      "
-      :value="optimizedValue">
+      :value="optimizedValue"
+      v-on="isTreeRow ? treeHeadingHoverListeners : NO_LISTENERS"
+      @click="onHeadingClick">
       <template
         v-if="name"
         #name>
@@ -1122,7 +1124,10 @@ const onBeforeMatch = (): void => {
         v-if="treeChildProps"
         v-bind="treeChildProps"
         :depth="depth + 1"
-        noncollapsible />
+        :expansion="expansion"
+        noncollapsible
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </SchemaRailPanel>
 
     <!-- A container renders its children directly with no depth step. Not a
@@ -1136,7 +1141,10 @@ const onBeforeMatch = (): void => {
         v-if="treeChildProps"
         v-bind="treeChildProps"
         :depth="depth"
-        noncollapsible />
+        :expansion="expansion"
+        noncollapsible
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </div>
 
     <!-- Compositions -->
@@ -1153,6 +1161,7 @@ const onBeforeMatch = (): void => {
       :depth="depth"
       :discriminator="getCompositionDiscriminator(compositionData.composition)"
       :eventBus="eventBus"
+      :expansion="expansion"
       :hideHeading="hideHeading"
       :hideModelNames
       :level="level"
@@ -1160,7 +1169,9 @@ const onBeforeMatch = (): void => {
       :noncollapsible="noncollapsible"
       :options="options"
       :schema="compositionData.value"
-      :schemaContext="schemaContext" />
+      :schemaContext="schemaContext"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
     <component
       :is="specificationExtension"
       v-if="hasSpecificationExtensions && specificationExtension"

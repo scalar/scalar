@@ -52,15 +52,19 @@ Render an OpenAPI schema in a Vue application using the same tree as API Referen
 ```vue
 <script setup lang="ts">
 import { Schema } from '@scalar/blocks/schema'
+import { useSchemaExpansion } from '@scalar/blocks/schema/expansion'
+import { ref } from 'vue'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import '@scalar/blocks/style.css'
 
 const { schema } = defineProps<{ schema: SchemaObject }>()
+const scrollTargetId = ref('')
+const expansion = useSchemaExpansion(scrollTargetId)
 </script>
 
 <template>
   <div class="scalar-app">
-    <Schema :schema="schema" :eventBus="null" :options="{ hideModels: true }" />
+    <Schema :schema="schema" :eventBus="null" :options="{ hideModels: true }" :scrollTargetId="scrollTargetId" :expansion="expansion" />
   </div>
 </template>
 ```
@@ -69,12 +73,12 @@ The tree supports nested properties, composition selectors, constraints, example
 
 Translations inherit the host's `@scalar/localization` provider, including locale and custom overrides. Without a provider, labels use English.
 
-Hosts call `provideSchemaContext({ scrollTargetId, specificationExtension })` from `@scalar/blocks/schema/expansion` to connect navigation, extension rendering, and expansion to one store. The extension component receives the schema through its `value` prop. Request-body composition selectors share selections with code samples through `REQUEST_BODY_COMPOSITION_INDEX_SYMBOL`.
+Hosts pass `scrollTargetId`, `specificationExtension`, and `expansion` as props. Create a shared store with `useSchemaExpansion(scrollTargetId)` from `@scalar/blocks/schema/expansion` inside the host’s setup and pass it to each tree. Without an expansion prop, a standalone tree owns its own store. The extension component receives the schema through its `value` prop. Request-body composition selectors share selections with code samples through `REQUEST_BODY_COMPOSITION_INDEX_SYMBOL`.
 
 ### Entry points
 
-- `@scalar/blocks/schema` exposes the schema renderers, rail controls, `SchemaOptions`, translations, and host context and composition-selection keys.
-- `@scalar/blocks/schema/expansion` exposes `provideSchemaContext`, the expansion store and its controls, and breadcrumb node keys for hosts that render their own schema rows.
+- `@scalar/blocks/schema` exposes the schema renderers, rail controls, `SchemaOptions`, translations, `SchemaRenderingProps`, and the composition-selection key.
+- `@scalar/blocks/schema/expansion` exposes `useSchemaExpansion`, the expansion store and its controls, and breadcrumb node keys for hosts that render their own schema rows.
 - `@scalar/blocks/schema/helpers` exposes the schema classification, composition, naming, ordering, and keyboard helpers shared with those host rows.
 - `@scalar/blocks/shared` exposes the general-purpose `Badge` and `ScreenReader` components.
 

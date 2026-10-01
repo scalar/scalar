@@ -1,22 +1,15 @@
 import {
   type InjectionKey,
   type Ref,
-  inject,
   nextTick,
   onBeforeUnmount,
   onMounted,
-  provide,
   shallowReactive,
   shallowRef,
   watch,
 } from 'vue'
 
-import {
-  SCHEMA_RENDERING_CONTEXT,
-  type SchemaRenderingContext,
-  isOnSchemaTargetPath,
-  useSchemaRenderingContext,
-} from '../context'
+import { isOnSchemaTargetPath } from './is-on-schema-target-path'
 
 /**
  * What a node does when nobody has expressed an opinion about it: its own
@@ -281,14 +274,6 @@ export const createSchemaExpansionStore = (scrollTargetId: Ref<string> = shallow
 }
 
 /**
- * Carries the expansion store down to every row of one schema tree. The store
- * is provided rather than kept in module scope so two `<ApiReference>` roots on
- * the same page each get their own expansion state, and so a Schema mounted on
- * its own (a test or a story) can fall back to providing one for its subtree.
- */
-export const SCHEMA_EXPANSION_SYMBOL: InjectionKey<SchemaExpansionStore> = Symbol('schema-expansion')
-
-/**
  * Marks that an enclosing Schema already owns the tree root. Nesting depth
  * cannot identify the outermost tree, because a nested Schema may mount at depth
  * 0 (an `allOf` member, or a caller that omits `depth`), and the root-only
@@ -302,11 +287,8 @@ export const SCHEMA_TREE_ROOT_SYMBOL: InjectionKey<boolean> = Symbol('schema-tre
  * server never sees, so committing it during SSR would make every ancestor
  * panel on a deep-linked path a hydration mismatch.
  */
-export const provideSchemaExpansion = (
-  scrollTargetId: Ref<string> = useSchemaRenderingContext().scrollTargetId,
-): SchemaExpansionStore => {
+export const useSchemaExpansion = (scrollTargetId: Ref<string> = shallowRef('')): SchemaExpansionStore => {
   const store = createSchemaExpansionStore(scrollTargetId)
-  provide(SCHEMA_EXPANSION_SYMBOL, store)
 
   onMounted(() => {
     watch(
@@ -348,31 +330,4 @@ export const provideSchemaExpansion = (
   })
 
   return store
-}
-
-/**
- * Get the expansion store for this schema tree. One store per `<ApiReference>`,
- * never module-global: `createApiReference` can run twice on one page and the
- * two must not share expansion. When nothing above has provided one (a Schema
- * mounted alone in a test or story), the first node to ask creates and provides
- * it, so its descendants still share one.
- */
-export const useSchemaExpansion = (): SchemaExpansionStore => {
-  const provided = inject(SCHEMA_EXPANSION_SYMBOL, null)
-
-  if (provided) {
-    return provided
-  }
-
-  const fallback = createSchemaExpansionStore(useSchemaRenderingContext().scrollTargetId)
-  provide(SCHEMA_EXPANSION_SYMBOL, fallback)
-
-  return fallback
-}
-
-/** Connect the host renderer and navigation to the same tree expansion store. */
-export const provideSchemaContext = (context: SchemaRenderingContext): SchemaExpansionStore => {
-  const scrollTargetId = context.scrollTargetId ?? shallowRef('')
-  provide(SCHEMA_RENDERING_CONTEXT, { ...context, scrollTargetId })
-  return provideSchemaExpansion(scrollTargetId)
 }

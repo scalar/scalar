@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { Schema, type SchemaOptions } from '@scalar/blocks/schema'
+import {
+  Schema,
+  type SchemaOptions,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -39,14 +43,16 @@ const {
   eventBus,
   options,
   expandedItems = {},
-} = defineProps<{
-  message: TraversedAsyncApiMessage
-  document: AsyncApiDocument
-  eventBus: WorkspaceEventBus | null
-  options?: Partial<SchemaRenderOptions>
-  /** Map of navigation item id to expanded state, shared with the sidebar. */
-  expandedItems?: Record<string, boolean>
-}>()
+} = defineProps<
+  {
+    message: TraversedAsyncApiMessage
+    document: AsyncApiDocument
+    eventBus: WorkspaceEventBus | null
+    options?: Partial<SchemaRenderOptions>
+    /** Map of navigation item id to expanded state, shared with the sidebar. */
+    expandedItems?: Record<string, boolean>
+  } & SchemaRenderingProps
+>()
 
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
@@ -199,10 +205,13 @@ const { level: headingLevel } = useDocumentOutline('message')
               :breadcrumb="[message.id, 'headers']"
               compact
               :eventBus="eventBus"
+              :expansion="expansion"
               name="Headers"
               noncollapsible
               :options="schemaOptions"
-              :schema="headersSchema" />
+              :schema="headersSchema"
+              :scrollTargetId="scrollTargetId"
+              :specificationExtension="specificationExtension" />
           </div>
 
           <div
@@ -213,10 +222,13 @@ const { level: headingLevel } = useDocumentOutline('message')
               :breadcrumb="[message.id, 'payload']"
               compact
               :eventBus="eventBus"
+              :expansion="expansion"
               name="Payload"
               noncollapsible
               :options="schemaOptions"
-              :schema="payloadSchema" />
+              :schema="payloadSchema"
+              :scrollTargetId="scrollTargetId"
+              :specificationExtension="specificationExtension" />
           </div>
         </div>
         <MessageExamples

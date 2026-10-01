@@ -1,4 +1,4 @@
-import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from '@scalar/blocks/schema/expansion'
+import { createSchemaExpansionStore } from '@scalar/blocks/schema/expansion'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -163,6 +163,7 @@ describe('Callbacks', () => {
           path: '/subscribe',
           breadcrumb: ['op'],
           callbacks: oneNameManyRows,
+          expansion: createSchemaExpansionStore(),
           eventBus: null,
           options: {
             expandAllParameters: true,
@@ -172,12 +173,6 @@ describe('Callbacks', () => {
             expandAllSchemaProperties: false,
             schemaKeyboardNav: false,
           },
-        },
-        global: {
-          // `<ApiReference>` owns one store for the whole page, so two rows that
-          // key alike really do share state. Left to their own fallbacks they
-          // never would, and the collision below would be invisible.
-          provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: createSchemaExpansionStore() },
         },
       })
 

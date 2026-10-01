@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
@@ -17,23 +18,25 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
-const { parameters = [], requestBody } = defineProps<{
-  breadcrumb?: string[]
-  parameters?: ReferenceType<ParameterObject>[]
-  requestBody?: RequestBodyObject | undefined
-  eventBus: WorkspaceEventBus | null
-  /** The document the operation belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  options: Pick<
-    OperationProps['options'],
-    | 'expandAllParameters'
-    | 'hideModels'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-  >
-}>()
+const { parameters = [], requestBody } = defineProps<
+  {
+    breadcrumb?: string[]
+    parameters?: ReferenceType<ParameterObject>[]
+    requestBody?: RequestBodyObject | undefined
+    eventBus: WorkspaceEventBus | null
+    /** The document the operation belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    options: Pick<
+      OperationProps['options'],
+      | 'expandAllParameters'
+      | 'hideModels'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+    >
+  } & SchemaRenderingProps
+>()
 const { translate } = useLocalization()
 
 /** Thread the selected request body content type up to the layout */
@@ -70,8 +73,11 @@ const splitParameters = computed(() =>
     :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['path']">
+    :parameters="splitParameters['path']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.pathParameters') }}</template>
   </ParameterList>
 
@@ -81,8 +87,11 @@ const splitParameters = computed(() =>
     :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['query']">
+    :parameters="splitParameters['query']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.queryParameters') }}</template>
   </ParameterList>
 
@@ -92,8 +101,11 @@ const splitParameters = computed(() =>
     :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['header']">
+    :parameters="splitParameters['header']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.headers') }}</template>
   </ParameterList>
 
@@ -103,8 +115,11 @@ const splitParameters = computed(() =>
     :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['cookie']">
+    :parameters="splitParameters['cookie']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.cookies') }}</template>
   </ParameterList>
 
@@ -115,8 +130,11 @@ const splitParameters = computed(() =>
     :breadcrumb="breadcrumb ? [...breadcrumb, 'body'] : undefined"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :requestBody="requestBody">
+    :requestBody="requestBody"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.body') }}</template>
   </RequestBody>
 </template>

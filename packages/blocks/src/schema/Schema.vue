@@ -7,10 +7,9 @@ import type {
   DiscriminatorObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, inject, provide, useId } from 'vue'
+import { computed, inject, provide, toRef, useId } from 'vue'
 
 import ScreenReader from '../shared/ScreenReader.vue'
-import { isOnSchemaTargetPath, useSchemaRenderingContext } from './context'
 import {
   resolveDynamicSchema,
   SCHEMA_DYNAMIC_SCOPE_SYMBOL,
@@ -18,6 +17,7 @@ import {
 } from './helpers/dynamic-scope'
 import { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
+import { isOnSchemaTargetPath } from './helpers/is-on-schema-target-path'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
@@ -33,9 +33,11 @@ import SchemaComposition from './SchemaComposition.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
-import type { SchemaOptions } from './types'
+import type { SchemaOptions, SchemaRenderingProps } from './types'
 
 const {
+  scrollTargetId,
+  expansion: expansionProp,
   schema: schemaProp,
   level = 0,
   depth = 0,
@@ -52,50 +54,51 @@ const {
   schemaContext,
   compositionPath,
   cycleKey,
-} = defineProps<{
-  schema?: SchemaObject
-  /** Track how deep we've gone */
-  level?: number
-  /**
-   * Real nesting depth. Not derived from `level`, whose stride differs per
-   * edge (object +2, composition +1, non-object root +0).
-   */
-  depth?: number
-  /* Show as a heading */
-  name?: string
-  /** A tighter layout with less borders and without a heading */
-  compact?: boolean
-  /** Shows a toggle to hide/show children */
-  noncollapsible?: boolean
-  /** Hide the heading */
-  hideHeading?: boolean
-  /** Hide the schema description */
-  hideDescription?: boolean
-  /** Show a special one way toggle for additional properties, also has a top border when open */
-  additionalProperties?: boolean
-  /** Hide model names in type display */
-  hideModelNames?: boolean
-  /** Discriminator object */
-  discriminator?: DiscriminatorObject
-  /** Breadcrumb for the schema */
-  breadcrumb?: string[]
-  /** Event bus emitting actions */
-  eventBus: WorkspaceEventBus | null
-  /** Move the options into a single prop so they are easy to pass around */
-  options: SchemaOptions
-  /** When "requestBody", composition dropdown selection is synced with the example snippet */
-  schemaContext?: string
-  /** Internal path used to sync nested request body compositions with the code sample */
-  compositionPath?: string[]
-  /**
-   * Stable identity of this schema node, derived from its raw (unresolved)
-   * value by the parent. Used to detect self-referential cycles. See
-   * {@link getCycleKey}.
-   */
-  cycleKey?: unknown
-}>()
+} = defineProps<
+  {
+    schema?: SchemaObject
+    /** Track how deep we've gone */
+    level?: number
+    /**
+     * Real nesting depth. Not derived from `level`, whose stride differs per
+     * edge (object +2, composition +1, non-object root +0).
+     */
+    depth?: number
+    /* Show as a heading */
+    name?: string
+    /** A tighter layout with less borders and without a heading */
+    compact?: boolean
+    /** Shows a toggle to hide/show children */
+    noncollapsible?: boolean
+    /** Hide the heading */
+    hideHeading?: boolean
+    /** Hide the schema description */
+    hideDescription?: boolean
+    /** Show a special one way toggle for additional properties, also has a top border when open */
+    additionalProperties?: boolean
+    /** Hide model names in type display */
+    hideModelNames?: boolean
+    /** Discriminator object */
+    discriminator?: DiscriminatorObject
+    /** Breadcrumb for the schema */
+    breadcrumb?: string[]
+    /** Event bus emitting actions */
+    eventBus: WorkspaceEventBus | null
+    /** Move the options into a single prop so they are easy to pass around */
+    options: SchemaOptions
+    /** When "requestBody", composition dropdown selection is synced with the example snippet */
+    schemaContext?: string
+    /** Internal path used to sync nested request body compositions with the code sample */
+    compositionPath?: string[]
+    /**
+     * Stable identity of this schema node, derived from its raw (unresolved)
+     * value by the parent. Used to detect self-referential cycles. See
+     * {@link getCycleKey}.
+     */
+    cycleKey?: unknown
+  } & SchemaRenderingProps
+>()
 const { translate } = useLocalization()
-const { scrollTargetId } = useSchemaRenderingContext()
 
 /**
  * The dynamic scope inherited from ancestor schema resources.
@@ -192,7 +195,7 @@ const shouldForceExpand = computed(
  * without forcing every schema open via `expandAllSchemaProperties`.
  */
 const isOnTargetPath = computed((): boolean =>
-  isOnSchemaTargetPath(toNodeKey(breadcrumb), scrollTargetId.value),
+  isOnSchemaTargetPath(toNodeKey(breadcrumb), scrollTargetId ?? ''),
 )
 
 /**
@@ -304,7 +307,8 @@ const onTreeKeydown = (event: KeyboardEvent): void => {
   }
 }
 
-const expansion = useSchemaExpansion()
+const expansion =
+  expansionProp ?? useSchemaExpansion(toRef(() => scrollTargetId ?? ''))
 
 /**
  * Fallback identity for nodes mounted without a breadcrumb (models, AsyncAPI
@@ -452,31 +456,37 @@ const toggle = (): void => {
           :compact
           composition="oneOf"
           :compositionPath="compositionPath"
+          :depth="depth"
           :discriminator="schema?.discriminator"
           :eventBus="eventBus"
+          :expansion="expansion"
           :hideHeading
-          :depth="depth"
           :hideModelNames
           :level="level"
           :name="name"
           :options
           :schema="inferredDiscriminatorComposition"
-          :schemaContext="schemaContext" />
+          :schemaContext="schemaContext"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
         <!-- Object properties -->
         <SchemaObjectProperties
           v-else-if="isTypeObject(resolvedSchema)"
           :breadcrumb
           :compact
           :compositionPath="compositionPath"
+          :depth="depth"
           :discriminator
           :eventBus="eventBus"
+          :expansion="expansion"
           :hideHeading
-          :depth="depth"
           :hideModelNames
           :level="level + 1"
           :options
           :schema="resolvedSchema"
-          :schemaContext="schemaContext" />
+          :schemaContext="schemaContext"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
         <!-- Not an object -->
         <template v-else>
           <SchemaProperty
@@ -484,15 +494,18 @@ const toggle = (): void => {
             :breadcrumb
             :compact
             :compositionPath="compositionPath"
+            :depth="depth"
             :discriminator
             :eventBus="eventBus"
+            :expansion="expansion"
             :hideHeading
-            :depth="depth"
             :hideModelNames
             :level
             :options
             :schema="resolvedSchema"
-            :schemaContext="schemaContext" />
+            :schemaContext="schemaContext"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </template>
       </ul>
     </div>

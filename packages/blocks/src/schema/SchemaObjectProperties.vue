@@ -12,24 +12,26 @@ import { isTypeObject } from './helpers/is-type-object'
 import { getCycleKey } from './helpers/schema-cycle'
 import { sortPropertyNames } from './helpers/sort-property-names'
 import SchemaProperty from './SchemaProperty.vue'
-import type { SchemaOptions } from './types'
+import type { SchemaOptions, SchemaRenderingProps } from './types'
 
 const { schema, discriminator, options, schemaContext, compositionPath } =
-  defineProps<{
-    schema: SchemaObject
-    discriminator?: DiscriminatorObject
-    compact?: boolean
-    hideHeading?: boolean
-    level?: number
-    /** Real nesting depth (see SchemaProperty) */
-    depth?: number
-    hideModelNames?: boolean
-    breadcrumb?: string[]
-    eventBus: WorkspaceEventBus | null
-    options: SchemaOptions
-    schemaContext?: string
-    compositionPath?: string[]
-  }>()
+  defineProps<
+    {
+      schema: SchemaObject
+      discriminator?: DiscriminatorObject
+      compact?: boolean
+      hideHeading?: boolean
+      level?: number
+      /** Real nesting depth (see SchemaProperty) */
+      depth?: number
+      hideModelNames?: boolean
+      breadcrumb?: string[]
+      eventBus: WorkspaceEventBus | null
+      options: SchemaOptions
+      schemaContext?: string
+      compositionPath?: string[]
+    } & SchemaRenderingProps
+  >()
 
 /**
  * Sorts properties by required status first, then alphabetically.
@@ -237,18 +239,21 @@ const getAdditionalPropertiesValue = (
       :compositionPath="compositionPath"
       :compositionPathSegment="row.name"
       :cycleKey="row.cycleKey"
+      :depth
       :description="row.description"
       :discriminator
       :eventBus="eventBus"
+      :expansion="expansion"
       :hideHeading
       :hideModelNames
-      :depth
       :level
       :name="row.name"
       :options="options"
       :required="row.required"
       :schema="row.schema"
-      :schemaContext="schemaContext" />
+      :schemaContext="schemaContext"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
   </template>
 
   <!-- patternProperties -->
@@ -261,17 +266,20 @@ const getAdditionalPropertiesValue = (
       :compositionPath="compositionPath"
       :compositionPathSegment="key"
       :cycleKey="getCycleKey(property)"
+      :depth
       :description="getPropertyDescription(property)"
       :discriminator
       :eventBus="eventBus"
+      :expansion="expansion"
       :hideHeading
       :hideModelNames="hideModelNames"
-      :depth
       :level
       :name="key"
       :options="options"
       :schema="getPropertySchema(property)"
-      :schemaContext="schemaContext" />
+      :schemaContext="schemaContext"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
   </template>
 
   <!-- additionalProperties -->
@@ -287,11 +295,12 @@ const getAdditionalPropertiesValue = (
         )
       "
       :cycleKey="getCycleKey(schema.additionalProperties)"
+      :depth
       :discriminator
       :eventBus="eventBus"
+      :expansion="expansion"
       :hideHeading
       :hideModelNames
-      :depth
       :level
       :name="
         getAdditionalPropertiesName(
@@ -305,6 +314,8 @@ const getAdditionalPropertiesValue = (
       :propertyNamesSchema="additionalPropertiesKeySchema"
       :schema="getAdditionalPropertiesValue(schema.additionalProperties)"
       :schemaContext="schemaContext"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension"
       variant="additionalProperties" />
   </template>
 </template>

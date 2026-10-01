@@ -27,39 +27,41 @@ import {
 import Schema from './Schema.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaRailPanel from './SchemaRailPanel.vue'
-import type { SchemaOptions } from './types'
+import type { SchemaOptions, SchemaRenderingProps } from './types'
 
 const props = withDefaults(
-  defineProps<{
-    /** The composition keyword (oneOf, anyOf, allOf) */
-    composition: CompositionKeyword
-    /** Optional discriminator object for polymorphic schemas */
-    discriminator?: DiscriminatorObject
-    /** Optional name for the schema */
-    name?: string
-    /** The schema value containing the composition */
-    schema: SchemaObject
-    /** Nesting level for proper indentation */
-    level: number
-    /** Real nesting depth (see SchemaProperty) */
-    depth?: number
-    /** Whether to use compact layout */
-    compact?: boolean
-    /** Whether to hide the heading */
-    hideHeading?: boolean
-    /** Hide model names in type display */
-    hideModelNames?: boolean
-    /** Breadcrumb for navigation */
-    breadcrumb?: string[]
-    /** Event bus emitting actions */
-    eventBus: WorkspaceEventBus | null
-    /** Move the options into  single prop so they are easy to pass around */
-    options: SchemaOptions
-    /** When "requestBody", sync selected index with the example snippet */
-    schemaContext?: string
-    /** Internal path used to sync nested request body compositions with the code sample */
-    compositionPath?: string[]
-  }>(),
+  defineProps<
+    {
+      /** The composition keyword (oneOf, anyOf, allOf) */
+      composition: CompositionKeyword
+      /** Optional discriminator object for polymorphic schemas */
+      discriminator?: DiscriminatorObject
+      /** Optional name for the schema */
+      name?: string
+      /** The schema value containing the composition */
+      schema: SchemaObject
+      /** Nesting level for proper indentation */
+      level: number
+      /** Real nesting depth (see SchemaProperty) */
+      depth?: number
+      /** Whether to use compact layout */
+      compact?: boolean
+      /** Whether to hide the heading */
+      hideHeading?: boolean
+      /** Hide model names in type display */
+      hideModelNames?: boolean
+      /** Breadcrumb for navigation */
+      breadcrumb?: string[]
+      /** Event bus emitting actions */
+      eventBus: WorkspaceEventBus | null
+      /** Move the options into  single prop so they are easy to pass around */
+      options: SchemaOptions
+      /** When "requestBody", sync selected index with the example snippet */
+      schemaContext?: string
+      /** Internal path used to sync nested request body compositions with the code sample */
+      compositionPath?: string[]
+    } & SchemaRenderingProps
+  >(),
   {
     depth: 0,
     compact: false,
@@ -243,18 +245,21 @@ if (
           :breadcrumb="breadcrumb"
           :compact="compact"
           :compositionPath="compositionPath"
+          :depth="depth"
           :discriminator="discriminator"
           :eventBus="eventBus"
+          :expansion="expansion"
           :hideDescription="isRequestBodyRootComposition"
           :hideHeading="hideHeading"
           :hideModelNames
-          :depth="depth"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
           :options="options"
           :schema="segment.schema"
-          :schemaContext="schemaContext" />
+          :schemaContext="schemaContext"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
         <SchemaComposition
           v-else
           :breadcrumb="breadcrumb"
@@ -264,14 +269,17 @@ if (
             ...(compositionPath ?? []),
             String(segment.choiceIndex),
           ]"
+          :depth="depth"
           :eventBus="eventBus"
+          :expansion="expansion"
           :hideHeading="hideHeading"
           :hideModelNames
-          :depth="depth"
           :level="level"
           :options="options"
           :schema="segment.value"
-          :schemaContext="schemaContext" />
+          :schemaContext="schemaContext"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
       </template>
     </template>
 
@@ -342,17 +350,20 @@ if (
         :compact="compact"
         :compositionPath="compositionPath"
         :cycleKey="selectedCompositionCycleKey"
+        :depth="depth + 1"
         :discriminator="discriminator"
         :eventBus="eventBus"
+        :expansion="expansion"
         :hideHeading="hideHeading"
         :hideModelNames
-        :depth="depth + 1"
         :level="level + 1"
         :name="name"
         :noncollapsible="true"
         :options="options"
         :schema="selectedComposition"
-        :schemaContext="schemaContext" />
+        :schemaContext="schemaContext"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </SchemaRailPanel>
   </div>
 </template>

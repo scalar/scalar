@@ -11,3 +11,5 @@ Keep the public API Reference Schema and SchemaProperty exports connected to ext
 Expose shared presentation components through @scalar/blocks/shared, group host integration APIs under schema/helpers and schema/expansion, and keep schema stories and visual regression coverage with Blocks.
 
 Preserve literal toolbar icon types so Storybook previews can be type checked.
+
+Pass schema navigation, extension rendering, and shared expansion state explicitly through props instead of providing or injecting host context.
