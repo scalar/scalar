@@ -1,5 +1,8 @@
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { Component } from 'vue'
+
+import type { SchemaExpansionStore } from './helpers/schema-expansion'
 
 /**
  * Options for the schema component tree
@@ -37,4 +40,14 @@ export type SchemaOptions = {
    * their component schemas when inferring composition variants.
    */
   document?: OpenApiDocument
+}
+
+/** Host integrations passed explicitly through schema rows and their parents. */
+export type SchemaRenderingProps = {
+  /** Active deep-link target; only disclosures on its path open automatically. */
+  scrollTargetId?: string
+  /** Renderer for the host's registered specification extensions. */
+  specificationExtension?: Component
+  /** One expansion store shared by the host's schema trees, headers, and callbacks. */
+  expansion?: SchemaExpansionStore
 }

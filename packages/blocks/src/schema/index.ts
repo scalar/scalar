@@ -1,4 +1,3 @@
-export { SCHEMA_RENDERING_CONTEXT, type SchemaRenderingContext } from './context'
 export { default as LinkButton } from './LinkButton.vue'
 export { schemaTranslations } from './localization/translations'
 export {
@@ -12,4 +11,4 @@ export { default as SchemaHeading } from './SchemaHeading.vue'
 export { default as SchemaObjectExampleCodeBlock } from './SchemaObjectExampleCodeBlock.vue'
 export { default as SchemaProperty } from './SchemaProperty.vue'
 export { default as SchemaRailPanel } from './SchemaRailPanel.vue'
-export type { SchemaOptions } from './types'
+export type { SchemaOptions, SchemaRenderingProps } from './types'

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { SchemaProperty } from '@scalar/blocks/schema'
+import {
+  SchemaProperty,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -39,7 +42,7 @@ const {
   hideModels: boolean | undefined
   /** Show structural types in schema labels */
   hideModelNames?: boolean
-}>()
+} & SchemaRenderingProps>()
 /** Headers may describe their value with either schema or a single media type. */
 const schema = computed(() => {
   if ('schema' in header && header.schema) {
@@ -57,6 +60,7 @@ const schema = computed(() => {
     :description="header.description"
     :eventBus="eventBus"
     :extensionSource="header"
+    :expansion="expansion"
     :name="name"
     :options="{
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,
@@ -68,5 +72,7 @@ const schema = computed(() => {
       hideModelNames,
       document,
     }"
-    :schema="schema" />
+    :schema="schema"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension" />
 </template>

@@ -3,12 +3,11 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { config, type DOMWrapper, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { isReactive, nextTick, ref } from 'vue'
+import { type DOMWrapper, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
+import { defineComponent, h, isReactive, nextTick, ref } from 'vue'
 
-import { SCHEMA_RENDERING_CONTEXT } from './context'
-import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/schema-expansion'
+import { type SchemaExpansionStore, createSchemaExpansionStore } from './helpers/schema-expansion'
 import Schema from './Schema.vue'
 
 const scrollTargetId = ref('')
@@ -45,12 +44,6 @@ describe('Schema', () => {
     expect(wrapper.text()).toContain('Type: string')
   })
 
-  beforeEach(() => {
-    config.global.provide = { ...config.global.provide, [SCHEMA_RENDERING_CONTEXT as symbol]: { scrollTargetId } }
-  })
-  afterEach(() => {
-    Reflect.deleteProperty(config.global.provide, SCHEMA_RENDERING_CONTEXT)
-  })
   it('does not render internal markers from ingested boolean schemas', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
@@ -67,6 +60,7 @@ describe('Schema', () => {
     }
     const wrapper = mount(Schema, {
       props: {
+        scrollTargetId: scrollTargetId.value,
         schema: getResolvedRef(document.components?.schemas?.Object),
         eventBus: null,
         name: 'Object',
@@ -118,6 +112,7 @@ describe('Schema', () => {
       const document = store.workspace.documents.alerts as { components: { schemas: Record<string, SchemaObject> } }
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           noncollapsible: true,
           options: { expandAllSchemaProperties },
@@ -152,6 +147,7 @@ describe('Schema', () => {
     it('shows the base description of the first allOf schema', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           options: {},
           name: 'Request Body',
           eventBus: null,
@@ -180,6 +176,7 @@ describe('Schema', () => {
     it('shows the overriding description with allOf composition', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           name: 'Request Body',
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
@@ -209,6 +206,7 @@ describe('Schema', () => {
     it('renders the request body allOf description only once', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           name: 'Request Body',
           eventBus: null,
           compact: true,
@@ -243,6 +241,7 @@ describe('Schema', () => {
     it('keeps the description of a nested request body allOf property', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           name: 'Request Body',
           eventBus: null,
           compact: true,
@@ -278,6 +277,7 @@ describe('Schema', () => {
     it('does show the allOf description', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: {
             type: 'object',
@@ -305,6 +305,7 @@ describe('Schema', () => {
     it('shows the own description of a standalone allOf schema', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           level: 1,
           noncollapsible: true,
@@ -340,6 +341,7 @@ describe('Schema', () => {
     it('shows the parent description for discriminator-based oneOf schemas', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             description: 'Parent schema description',
@@ -418,6 +420,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, document.components.schemas.BaseClass),
@@ -452,6 +455,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
@@ -507,6 +511,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
@@ -560,6 +565,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Response',
           schema: coerceValue(SchemaObjectSchema, document.components.schemas.Config),
@@ -612,6 +618,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Request Body',
           discriminator: {
@@ -679,6 +686,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Response',
           schema: coerceValue(SchemaObjectSchema, baseSchema),
@@ -709,6 +717,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
@@ -775,6 +784,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
@@ -899,6 +909,7 @@ describe('Schema', () => {
     it('shows special toggle button when additionalProperties is true', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -919,6 +930,7 @@ describe('Schema', () => {
     it('does not show special toggle button when additionalProperties is false', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -938,6 +950,7 @@ describe('Schema', () => {
     it('shows special toggle button with screen reader text when name is provided', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -959,6 +972,7 @@ describe('Schema', () => {
     it('marks the card as a reveal row when additionalProperties is true', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -983,6 +997,7 @@ describe('Schema', () => {
     it('renders additional properties schema when disclosure is opened', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1011,6 +1026,7 @@ describe('Schema', () => {
     it('prevents click propagation when noncollapsible is true', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1038,6 +1054,7 @@ describe('Schema', () => {
     it('does not prevent click propagation when noncollapsible is false', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1065,6 +1082,7 @@ describe('Schema', () => {
     it('draws the reveal puck in the toggle button', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1085,6 +1103,7 @@ describe('Schema', () => {
     it('renders additional properties with noncollapsible prop set to true', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1112,6 +1131,7 @@ describe('Schema', () => {
     it('handles additionalProperties as boolean true correctly', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1141,6 +1161,7 @@ describe('Schema', () => {
     it('handles additionalProperties as empty object correctly', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: {
             type: 'object',
@@ -1172,6 +1193,7 @@ describe('Schema', () => {
     it('should render properties by required alphabetical order', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: {
             type: 'object',
@@ -1217,6 +1239,7 @@ describe('Schema', () => {
     it('does not render readOnly properties when hideReadOnly is true', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1241,6 +1264,7 @@ describe('Schema', () => {
     it('applies to nested object properties as well', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1281,6 +1305,7 @@ describe('Schema', () => {
     it('does not render writeOnly properties when hideWriteOnly is true', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1305,6 +1330,7 @@ describe('Schema', () => {
     it('applies to nested object properties as well', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1345,6 +1371,7 @@ describe('Schema', () => {
     it('displays properties for nested array items', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'array',
@@ -1387,6 +1414,7 @@ describe('Schema', () => {
     it('displays properties for array of arrays in object property', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1447,6 +1475,7 @@ describe('Schema', () => {
     it('renders properties with oneOf composition containing date and date-time formats', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1491,6 +1520,7 @@ describe('Schema', () => {
     it('renders the toggle and shows nested properties by default when expandAllSchemaProperties is true', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           schema: {
             type: 'object',
             properties: {
@@ -1515,6 +1545,7 @@ describe('Schema', () => {
     it('renders the toggle when expandAllSchemaProperties is false', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           schema: {
             type: 'object',
             properties: {
@@ -1547,6 +1578,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           schema: circularSchema,
           level: 1,
           eventBus: null,
@@ -1574,6 +1606,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           schema: node,
           level: 1,
           eventBus: null,
@@ -1633,6 +1666,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           schema,
           level: 0,
           eventBus: null,
@@ -1655,6 +1689,7 @@ describe('Schema', () => {
     it('stays collapsed when no anchor target points at a child property', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           // This reveal wraps the overflow children of `foo` (breadcrumb root.foo).
           schema: {
             type: 'object',
@@ -1679,6 +1714,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           // This reveal wraps the overflow children of `foo` (breadcrumb root.foo).
           schema: {
             type: 'object',
@@ -1704,6 +1740,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           schema: {
             type: 'object',
             properties: {
@@ -1726,6 +1763,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           // This reveal wraps the overflow children of `foo` (breadcrumb root.foo).
           schema: {
             type: 'object',
@@ -1749,6 +1787,7 @@ describe('Schema', () => {
     const renderText = (schema: unknown) =>
       mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           options: { expandAllSchemaProperties: true },
           eventBus: null,
           schema: coerceValue(SchemaObjectSchema, schema),
@@ -1847,16 +1886,17 @@ describe('Schema', () => {
       })
 
     /** The additional-properties reveal is the one disclosure Schema.vue owns itself. */
-    const mountReveal = (options: Record<string, unknown> = {}) =>
+    const mountReveal = (expansion?: SchemaExpansionStore) =>
       mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           additionalProperties: true,
           breadcrumb: ['user'],
+          expansion,
           schema: nestedSchema(),
           options: {},
         },
-        ...options,
       })
 
     it('opens when a deep link arrives after the operation is already rendered', async () => {
@@ -1865,7 +1905,7 @@ describe('Schema', () => {
       expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('false')
 
       // The mount-only `defaultOpen` read is why this silently did nothing before.
-      scrollTargetId.value = 'user.address'
+      await wrapper.setProps({ scrollTargetId: 'user.address' })
       await nextTick()
 
       expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
@@ -1873,9 +1913,7 @@ describe('Schema', () => {
 
     it('keeps expansion across the remount a composition variant switch causes', async () => {
       const store = createSchemaExpansionStore(scrollTargetId)
-      const withStore = {
-        global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
-      }
+      const withStore = store
 
       const first = mountReveal(withStore)
       await first.find('.schema-card-title').trigger('click')
@@ -1891,6 +1929,7 @@ describe('Schema', () => {
     it('moves focus to the row toggle when collapsing a subtree that holds it', async () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           noncollapsible: true,
           schema: coerceValue(SchemaObjectSchema, {
@@ -1928,9 +1967,7 @@ describe('Schema', () => {
 
     it('follows a bulk collapse and expand from the store', async () => {
       const store = createSchemaExpansionStore(scrollTargetId)
-      const wrapper = mountReveal({
-        global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
-      })
+      const wrapper = mountReveal(store)
 
       await wrapper.find('.schema-card-title').trigger('click')
       expect(wrapper.find('.schema-card-title').attributes('aria-expanded')).toBe('true')
@@ -1950,6 +1987,7 @@ describe('Schema', () => {
     it('establishes exactly one root over a nested card that also mounts at depth 0', () => {
       const wrapper = mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           level: 0,
           noncollapsible: true,
@@ -2074,6 +2112,7 @@ describe('Schema', () => {
     const mountGalaxy = (schema: SchemaObject | undefined) =>
       mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           eventBus: null,
           noncollapsible: true,
           options: { expandAllSchemaProperties: true },
@@ -2125,6 +2164,7 @@ describe('Schema', () => {
     const mountSchema = (schema: Record<string, unknown>) =>
       mount(Schema, {
         props: {
+          scrollTargetId: scrollTargetId.value,
           schema: coerceValue(SchemaObjectSchema, schema),
           eventBus: null,
           options: { expandAllSchemaProperties: true },
@@ -2192,5 +2232,81 @@ describe('Schema', () => {
       expect(wrapper.find('ul').attributes('role')).toBe('list')
       expect(wrapper.find('ul[role="presentation"]').exists()).toBe(false)
     })
+  })
+  it('passes a changing navigation target through nested schema rows', async () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: { address: { type: 'object', properties: { city: { type: 'string' } } } },
+        }),
+        breadcrumb: ['user'],
+        noncollapsible: true,
+        eventBus: null,
+        options: {},
+        scrollTargetId: '',
+      },
+    })
+
+    expect(wrapper.find('[aria-expanded]').attributes('aria-expanded')).toBe('false')
+    await wrapper.setProps({ scrollTargetId: 'user.address.city' })
+    expect(wrapper.find('[aria-expanded]').attributes('aria-expanded')).toBe('true')
+    await wrapper.setProps({ scrollTargetId: '' })
+    expect(wrapper.find('[aria-expanded]').attributes('aria-expanded')).toBe('true')
+    wrapper.unmount()
+  })
+
+  it('passes the extension renderer through nested composition and object rows', () => {
+    const extension = defineComponent({
+      props: ['value'],
+      setup: () => () => h('p', 'Nested extension'),
+    })
+    const wrapper = mount(Schema, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          oneOf: [
+            {
+              type: 'object',
+              properties: { address: { type: 'object', properties: { city: { type: 'string', 'x-example': true } } } },
+            },
+          ],
+        }),
+        noncollapsible: true,
+        eventBus: null,
+        options: { expandAllSchemaProperties: true },
+        specificationExtension: extension,
+      },
+    })
+
+    expect(wrapper.getComponent(extension).props('value')).toHaveProperty('x-example', true)
+    expect(wrapper.text()).toContain('Nested extension')
+    wrapper.unmount()
+  })
+
+  it('keeps explicit expansion stores independent for trees with the same breadcrumbs', async () => {
+    const props = {
+      schema: coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { address: { type: 'object', properties: { city: { type: 'string' } } } },
+      }),
+      breadcrumb: ['user'],
+      noncollapsible: true,
+      eventBus: null,
+      options: {},
+    }
+    const firstStore = createSchemaExpansionStore()
+    const secondStore = createSchemaExpansionStore()
+    const first = mount(Schema, { props: { ...props, expansion: firstStore } })
+    const second = mount(Schema, { props: { ...props, expansion: secondStore } })
+
+    firstStore.expandAll()
+    await nextTick()
+    expect(first.find('[aria-expanded]').attributes('aria-expanded')).toBe('true')
+    expect(second.find('[aria-expanded]').attributes('aria-expanded')).toBe('false')
+    firstStore.collapseAll()
+    await nextTick()
+    expect(first.find('[aria-expanded]').attributes('aria-expanded')).toBe('false')
+    first.unmount()
+    second.unmount()
   })
 })

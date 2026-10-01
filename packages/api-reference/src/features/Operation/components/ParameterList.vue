@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   OpenApiDocument,
@@ -12,24 +13,26 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
 
-const { parameters } = defineProps<{
-  parameters: ParameterObject[]
-  breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
-  collapsableItems?: boolean
-  /** The document the operation belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  options: Pick<
-    OperationProps['options'],
-    | 'hideModels'
-    | 'hideModelNames'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-    | 'showExtensions'
-  >
-}>()
+const { parameters } = defineProps<
+  {
+    parameters: ParameterObject[]
+    breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
+    collapsableItems?: boolean
+    /** The document the operation belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    options: Pick<
+      OperationProps['options'],
+      | 'hideModels'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+       | 'showExtensions'
+       | 'hideModelNames'
+    >
+  } & SchemaRenderingProps
+>()
 
 /** Accessible id for the heading */
 const id = useId()
@@ -61,9 +64,12 @@ const { level: headingLevel } = useDocumentOutline('operationSection')
         :collapsableItems
         :document="document"
         :eventBus="eventBus"
+        :expansion="expansion"
         :name="item.name"
         :options="options"
-        :parameter="item" />
+        :parameter="item"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </ul>
   </div>
 </template>

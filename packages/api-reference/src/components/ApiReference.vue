@@ -15,7 +15,7 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
-import { provideSchemaContext } from '@scalar/blocks/schema/expansion'
+import { useSchemaExpansion } from '@scalar/blocks/schema/expansion'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -193,10 +193,7 @@ provideUseId(() => useId())
  * Deliberately per-instance rather than module-global: `createApiReference` can
  * be called twice on one page, and two references must not share expansion.
  */
-provideSchemaContext({
-  scrollTargetId,
-  specificationExtension: SpecificationExtension,
-})
+const expansion = useSchemaExpansion(scrollTargetId)
 
 // ---------------------------------------------------------------------------
 /**
@@ -1920,6 +1917,7 @@ const showMCPButton = computed(() => {
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
+          :expansion="expansion"
           :headingSlugGenerator="
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
@@ -1927,6 +1925,8 @@ const showMCPButton = computed(() => {
           :infoSectionId
           :items="sidebarItems"
           :options="runtimeConfig"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="SpecificationExtension"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
           "

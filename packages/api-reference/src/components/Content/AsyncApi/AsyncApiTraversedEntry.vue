@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -30,23 +31,25 @@ const {
   options,
   eventBus,
   level = 0,
-} = defineProps<{
-  entries: TraversedEntry[]
-  document: AsyncApiDocument
-  expandedItems: Record<string, boolean>
-  options: Pick<
-    ApiReferenceConfigurationRaw,
-    | 'layout'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'hideModels'
-    | 'modelsSectionLabel'
-  >
-  eventBus: WorkspaceEventBus
-  level?: number
-}>()
+} = defineProps<
+  {
+    entries: TraversedEntry[]
+    document: AsyncApiDocument
+    expandedItems: Record<string, boolean>
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'layout'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'hideModels'
+      | 'modelsSectionLabel'
+    >
+    eventBus: WorkspaceEventBus
+    level?: number
+  } & SchemaRenderingProps
+>()
 
 const isTagGroup = (
   entry: TraversedEntry,
@@ -99,10 +102,13 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
+      :expansion="expansion"
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
       :level="level"
-      :options="options" />
+      :options="options"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
 
     <Tag
       v-else-if="
@@ -119,8 +125,11 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
           :entries="entry.children"
           :eventBus="eventBus"
           :expandedItems="expandedItems"
+          :expansion="expansion"
           :level="level + 1"
-          :options="options" />
+          :options="options"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
       </template>
     </Tag>
 
@@ -130,8 +139,11 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
       :entries="entry.children ?? []"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
+      :expansion="expansion"
       :level="level + 1"
-      :options="options" />
+      :options="options"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
 
     <!-- Models -->
     <ModelTag
@@ -146,17 +158,23 @@ const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
         :entries="entry.children ?? []"
         :eventBus="eventBus"
         :expandedItems="expandedItems"
+        :expansion="expansion"
         :level="level + 1"
-        :options="options" />
+        :options="options"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </ModelTag>
 
     <Model
       v-else-if="isModel(entry) && getModelSchema(entry.name)"
       :id="entry.id"
       :eventBus="eventBus"
+      :expansion="expansion"
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
       :options="options"
-      :schema="getModelSchema(entry.name)" />
+      :schema="getModelSchema(entry.name)"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
   </Lazy>
 </template>

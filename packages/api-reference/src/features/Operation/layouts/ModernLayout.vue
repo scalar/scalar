@@ -3,6 +3,7 @@ import { CodeExample } from '@scalar/blocks/code-example'
 import {
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
   type RequestBodyCompositionSelection,
+  type SchemaRenderingProps,
 } from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarMarkdown } from '@scalar/components/markdown'
@@ -78,7 +79,7 @@ const {
     requiredSecurity: RequiredSecurity
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
-  }
+  } & SchemaRenderingProps
 >()
 defineSlots<{
   actions?: () => unknown
@@ -225,17 +226,23 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :breadcrumb="[id]"
             :document
             :eventBus
+            :expansion="expansion"
             :options
             :parameters="operation.parameters"
-            :requestBody="getResolvedRef(operation.requestBody)" />
+            :requestBody="getResolvedRef(operation.requestBody)"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
           <OperationResponses
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
             :document
             :eventBus
+            :expansion="expansion"
             :options
-            :responses="operation.responses" />
+            :responses="operation.responses"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
 
           <!-- Callbacks -->
           <ScalarErrorBoundary>
@@ -246,8 +253,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
               class="mt-6"
               :document
               :eventBus
+              :expansion="expansion"
               :options
-              :path />
+              :path
+              :scrollTargetId="scrollTargetId"
+              :specificationExtension="specificationExtension" />
           </ScalarErrorBoundary>
         </div>
 

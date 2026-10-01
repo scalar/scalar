@@ -3,6 +3,7 @@ import { CodeExample } from '@scalar/blocks/code-example'
 import {
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
   type RequestBodyCompositionSelection,
+  type SchemaRenderingProps,
 } from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconButton } from '@scalar/components/icon-button'
@@ -82,7 +83,7 @@ const {
     requiredSecurity: RequiredSecurity
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
-  }
+  } & SchemaRenderingProps
 >()
 defineSlots<{
   actions?: () => unknown
@@ -273,9 +274,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :breadcrumb="[id]"
             :document
             :eventBus
+            :expansion="expansion"
             :options
             :parameters="operation.parameters"
-            :requestBody="getResolvedRef(operation.requestBody)" />
+            :requestBody="getResolvedRef(operation.requestBody)"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </div>
         <div class="operation-details-card-item">
           <!-- Responses are disclosures unless the configuration expands every
@@ -286,8 +290,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :collapsableItems="!options.expandAllResponses"
             :document
             :eventBus
+            :expansion="expansion"
             :options
-            :responses="operation.responses" />
+            :responses="operation.responses"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </div>
 
         <!-- Callbacks -->
@@ -299,8 +306,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :callbacks="operation.callbacks"
             :document
             :eventBus
+            :expansion="expansion"
             :options
-            :path />
+            :path
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </div>
       </div>
 

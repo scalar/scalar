@@ -1,9 +1,8 @@
-import { SCHEMA_RENDERING_CONTEXT } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 
 import { scrollTargetId } from '@/helpers/lazy-bus'
 import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
@@ -65,15 +64,20 @@ describe('schema', () => {
   })
 
   it('preserves an explicitly supplied host navigation target', async () => {
-    const target = ref('')
     const wrapper = mount(Schema, {
-      props: { schema, eventBus: null, options: {}, breadcrumb: ['user'], additionalProperties: true },
-      global: { provide: { [SCHEMA_RENDERING_CONTEXT as symbol]: { scrollTargetId: target } } },
+      props: {
+        scrollTargetId: '',
+        schema,
+        eventBus: null,
+        options: {},
+        breadcrumb: ['user'],
+        additionalProperties: true,
+      },
     })
     scrollTargetId.value = 'user.address.city'
     await nextTick()
     expect(wrapper.find('[aria-expanded]').attributes('aria-expanded')).toBe('false')
-    target.value = 'user.address.city'
+    await wrapper.setProps({ scrollTargetId: 'user.address.city' })
     await nextTick()
     expect(wrapper.find('[aria-expanded]').attributes('aria-expanded')).toBe('true')
     wrapper.unmount()

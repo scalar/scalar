@@ -8,7 +8,6 @@ import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
 import WithBreadcrumb from './components/WithBreadcrumb.vue'
-import { SCHEMA_RENDERING_CONTEXT } from './context'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -1423,12 +1422,10 @@ describe('SchemaProperty', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
           eventBus: null,
+          specificationExtension: SpecificationExtension,
           name: 'status',
           schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-foo': 'bar' }),
           options: {},
-        },
-        global: {
-          provide: { [SCHEMA_RENDERING_CONTEXT as symbol]: { specificationExtension: SpecificationExtension } },
         },
       })
 

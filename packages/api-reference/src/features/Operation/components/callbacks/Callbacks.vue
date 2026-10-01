@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -17,27 +18,29 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import Callback from './Callback.vue'
 
-const { path, callbacks, breadcrumb } = defineProps<{
-  path: string
-  callbacks: NonNullable<OperationObject['callbacks']>
-  eventBus: WorkspaceEventBus | null
-  /** Breadcrumb of the owning operation; extended per callback below */
-  breadcrumb?: string[]
-  /** The document the callbacks belong to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  options: Pick<
-    OperationProps['options'],
-    | 'expandAllParameters'
-    | 'hideModels'
-    | 'hideModelNames'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'maxVisibleRequestBodyProperties'
-    | 'schemaKeyboardNav'
-    | 'showExtensions'
-  >
-}>()
+const { path, callbacks, breadcrumb } = defineProps<
+  {
+    path: string
+    callbacks: NonNullable<OperationObject['callbacks']>
+    eventBus: WorkspaceEventBus | null
+    /** Breadcrumb of the owning operation; extended per callback below */
+    breadcrumb?: string[]
+    /** The document the callbacks belong to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    options: Pick<
+      OperationProps['options'],
+      | 'expandAllParameters'
+      | 'hideModels'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+       | 'showExtensions'
+       | 'maxVisibleRequestBodyProperties'
+       | 'hideModelNames'
+    >
+  } & SchemaRenderingProps
+>()
 const { translate } = useLocalization()
 
 const { level: headingLevel } = useDocumentOutline('operationSection')
@@ -114,10 +117,13 @@ const flattenedCallbacks = computed<CallbackType[]>(() => {
       :callback
       :document
       :eventBus
+      :expansion="expansion"
       :method
       :name
       :options
       :path
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension"
       :url />
   </div>
 </template>

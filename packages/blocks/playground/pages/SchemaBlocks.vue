@@ -5,9 +5,9 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { Schema } from '../../src/schema'
-import { provideSchemaExpansion } from '../../src/schema/expansion'
+import { useSchemaExpansion } from '../../src/schema/expansion'
 
-const expansion = provideSchemaExpansion()
+const expansion = useSchemaExpansion()
 
 const examples = [
   {
@@ -124,6 +124,7 @@ const examples = [
         <p class="text-c-2 mt-1 mb-4 text-sm">{{ example.description }}</p>
         <Schema
           :eventBus="null"
+          :expansion="expansion"
           :name="example.name"
           :options="{ hideModels: true, schemaKeyboardNav: true }"
           :schema="example.schema" />

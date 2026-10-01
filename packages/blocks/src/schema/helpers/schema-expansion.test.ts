@@ -2,45 +2,11 @@ import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
-import { useSchemaRenderingContext } from '../context'
-import {
-  createSchemaExpansionStore,
-  provideSchemaContext,
-  provideSchemaExpansion,
-  toNodeKey,
-  useSchemaExpansion,
-} from './schema-expansion'
+import { createSchemaExpansionStore, toNodeKey, useSchemaExpansion } from './schema-expansion'
 
 const scrollTargetId = ref('')
 
 describe('schema-expansion', () => {
-  it('shares navigation between the rendering context and expansion store', async () => {
-    const target = ref('')
-    const Child = defineComponent({
-      setup() {
-        const context = useSchemaRenderingContext()
-        const store = useSchemaExpansion()
-        return () => h('p', `${context.scrollTargetId.value}:${store.isExpanded('user')}`)
-      },
-    })
-    const wrapper = mount(
-      defineComponent({
-        setup() {
-          provideSchemaContext({ scrollTargetId: target })
-          return () => h(Child)
-        },
-      }),
-    )
-    expect(wrapper.text()).toBe(':false')
-    target.value = 'user.address'
-    await nextTick()
-    expect(wrapper.text()).toBe('user.address:true')
-    target.value = ''
-    await nextTick()
-    expect(wrapper.text()).toBe(':true')
-    wrapper.unmount()
-  })
-
   it('keeps navigation targets independent between hosts', () => {
     const firstTarget = ref('user.address.city')
     const secondTarget = ref('')
@@ -389,15 +355,15 @@ describe('schema-expansion', () => {
     })
   })
 
-  describe('provideSchemaExpansion', () => {
+  describe('useSchemaExpansion', () => {
     /** Own a store the way `<ApiReference>` does, hooks and all. */
     const mountOwner = () => {
-      let store!: ReturnType<typeof provideSchemaExpansion>
+      let store!: ReturnType<typeof useSchemaExpansion>
 
       const wrapper = mount(
         defineComponent({
           setup() {
-            store = provideSchemaExpansion(scrollTargetId)
+            store = useSchemaExpansion(scrollTargetId)
             return () => h('div')
           },
         }),

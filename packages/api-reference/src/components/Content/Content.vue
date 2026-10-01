@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clients-config'
 import { generateClientOptions } from '@scalar/blocks/code-example'
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
@@ -65,53 +66,55 @@ const {
   authStore,
   documentSlug,
   contextChain = [],
-} = defineProps<{
-  infoSectionId: string
-  /**
-   * Ancestor tags (root → section in view) for the sticky context bar. Empty
-   * unless the section currently in view is nested under a parent tag.
-   */
-  contextChain?: { id: string; title: string }[]
-  /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
-  documentSlug: string
-  /** The subset of the configuration object required for the content component */
-  options: Pick<
-    ApiReferenceConfigurationRaw,
-    | 'expandAllParameters'
-    | 'authentication'
-    | 'baseServerURL'
-    | 'documentDownloadType'
-    | 'expandAllResponses'
-    | 'hiddenClients'
-    | 'hideTestRequestButton'
-    | 'layout'
-    | 'oauth2RedirectUri'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'maxVisibleRequestBodyProperties'
-    | 'schemaKeyboardNav'
-    | 'persistAuth'
-    | 'proxyUrl'
-    | 'servers'
-    | 'showOperationId'
-    | 'showExtensions'
-    | 'hideModels'
-    | 'hideModelNames'
-    | 'modelsSectionLabel'
-  >
-  document: WorkspaceDocument | undefined
-  clientDocument: WorkspaceDocument | undefined
-  authStore: AuthStore
-  xScalarDefaultClient: Workspace['x-scalar-default-client']
-  xScalarDefaultExample: Workspace['x-scalar-default-example']
-  items: TraversedEntryType[]
-  expandedItems: Record<string, boolean>
-  eventBus: WorkspaceEventBus
-  environment: XScalarEnvironment
-  /** Heading id generator for Markdown headings */
-  headingSlugGenerator: (heading: Heading) => string
-}>()
+} = defineProps<
+  {
+    infoSectionId: string
+    /**
+     * Ancestor tags (root → section in view) for the sticky context bar. Empty
+     * unless the section currently in view is nested under a parent tag.
+     */
+    contextChain?: { id: string; title: string }[]
+    /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
+    documentSlug: string
+    /** The subset of the configuration object required for the content component */
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'expandAllParameters'
+      | 'authentication'
+      | 'baseServerURL'
+      | 'documentDownloadType'
+      | 'expandAllResponses'
+      | 'hiddenClients'
+      | 'hideTestRequestButton'
+      | 'layout'
+      | 'oauth2RedirectUri'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+       | 'hideModelNames'
+       | 'showExtensions'
+       | 'maxVisibleRequestBodyProperties'
+      | 'persistAuth'
+      | 'proxyUrl'
+      | 'servers'
+      | 'showOperationId'
+      | 'hideModels'
+      | 'modelsSectionLabel'
+    >
+    document: WorkspaceDocument | undefined
+    clientDocument: WorkspaceDocument | undefined
+    authStore: AuthStore
+    xScalarDefaultClient: Workspace['x-scalar-default-client']
+    xScalarDefaultExample: Workspace['x-scalar-default-example']
+    items: TraversedEntryType[]
+    expandedItems: Record<string, boolean>
+    eventBus: WorkspaceEventBus
+    environment: XScalarEnvironment
+    /** Heading id generator for Markdown headings */
+    headingSlugGenerator: (heading: Heading) => string
+  } & SchemaRenderingProps
+>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
@@ -368,11 +371,14 @@ provideDocumentOutline('document')
       :entries="items"
       :eventBus
       :expandedItems
+      :expansion="expansion"
       :options
+      :scrollTargetId="scrollTargetId"
       :securitySchemes
       :selectedClient="xScalarDefaultClient"
       :selectedExample="xScalarDefaultExample"
-      :selectedServer>
+      :selectedServer
+      :specificationExtension="specificationExtension">
     </TraversedEntry>
 
     <!-- AsyncAPI: render channels grouped by tag, mirroring the sidebar order. -->
@@ -382,7 +388,10 @@ provideDocumentOutline('document')
       :entries="items"
       :eventBus
       :expandedItems
-      :options />
+      :expansion="expansion"
+      :options
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins

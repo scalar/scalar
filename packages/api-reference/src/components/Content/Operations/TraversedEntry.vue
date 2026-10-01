@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -36,56 +37,58 @@ const {
   authStore,
   entries,
   insideTagContainer = false,
-} = defineProps<{
-  /** The auth store */
-  authStore: AuthStore
-  /** The level of depth */
-  level?: number
-  /**
-   * Whether these entries render inside a parent tag's section container.
-   *
-   * Nested tags can be arbitrarily deep, and each tag renders its own padded
-   * section container. Nesting them would accumulate horizontal padding, so a
-   * child tag drops its own padding to keep every section flush left.
-   */
-  insideTagContainer?: boolean
-  /** Traversed entries to render */
-  entries: TraversedEntry[]
-  /** The document object */
-  document: OpenApiDocument
-  /** The http client options for the dropdown */
-  clientOptions: ClientOptionGroup[]
-  /** The subset of the configuration object required for the operation component */
-  options: Pick<
-    ApiReferenceConfigurationRaw,
-    | 'expandAllParameters'
-    | 'expandAllResponses'
-    | 'hideTestRequestButton'
-    | 'layout'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'maxVisibleRequestBodyProperties'
-    | 'schemaKeyboardNav'
-    | 'showOperationId'
-    | 'showExtensions'
-    | 'hideModels'
-    | 'hideModelNames'
-    | 'modelsSectionLabel'
-  >
-  /** Currently selected server for the document */
-  selectedServer: ServerObject | null
-  /** The merged security schemes for the document and the authentication configuration */
-  securitySchemes: MergedSecuritySchemes
-  /** Currently selected http client for the document */
-  selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
-  /** Currently selected example key, shared across operations for in-sync example pickers */
-  selectedExample: WorkspaceStore['workspace']['x-scalar-default-example']
-  /** Used to determine if an entry is collapsed */
-  expandedItems: Record<string, boolean>
-  /** The event bus for the handling all events. */
-  eventBus: WorkspaceEventBus
-}>()
+} = defineProps<
+  {
+    /** The auth store */
+    authStore: AuthStore
+    /** The level of depth */
+    level?: number
+    /**
+     * Whether these entries render inside a parent tag's section container.
+     *
+     * Nested tags can be arbitrarily deep, and each tag renders its own padded
+     * section container. Nesting them would accumulate horizontal padding, so a
+     * child tag drops its own padding to keep every section flush left.
+     */
+    insideTagContainer?: boolean
+    /** Traversed entries to render */
+    entries: TraversedEntry[]
+    /** The document object */
+    document: OpenApiDocument
+    /** The http client options for the dropdown */
+    clientOptions: ClientOptionGroup[]
+    /** The subset of the configuration object required for the operation component */
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'expandAllParameters'
+      | 'expandAllResponses'
+      | 'hideTestRequestButton'
+      | 'layout'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+       | 'hideModelNames'
+       | 'showExtensions'
+       | 'maxVisibleRequestBodyProperties'
+      | 'showOperationId'
+      | 'hideModels'
+      | 'modelsSectionLabel'
+    >
+    /** Currently selected server for the document */
+    selectedServer: ServerObject | null
+    /** The merged security schemes for the document and the authentication configuration */
+    securitySchemes: MergedSecuritySchemes
+    /** Currently selected http client for the document */
+    selectedClient: WorkspaceStore['workspace']['x-scalar-default-client']
+    /** Currently selected example key, shared across operations for in-sync example pickers */
+    selectedExample: WorkspaceStore['workspace']['x-scalar-default-example']
+    /** Used to determine if an entry is collapsed */
+    expandedItems: Record<string, boolean>
+    /** The event bus for the handling all events. */
+    eventBus: WorkspaceEventBus
+  } & SchemaRenderingProps
+>()
 
 /**
  * Type guards for different entry types
@@ -167,16 +170,19 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :clientOptions
         :document
         :eventBus
+        :expansion="expansion"
         :isCollapsed="!expandedItems[entry.id]"
         :isWebhook="isWebhook(entry)"
         :method="entry.method"
         :options="options"
         :path="isWebhook(entry) ? entry.name : entry.path"
         :pathValue="getPathValue(entry)"
+        :scrollTargetId="scrollTargetId"
         :securitySchemes="securitySchemes"
         :selectedClient="selectedClient"
         :selectedExample="selectedExample"
-        :server="selectedServer" />
+        :server="selectedServer"
+        :specificationExtension="specificationExtension" />
     </SectionContainer>
 
     <!-- Webhook Group, Tag or Tag Group (only in classic layout) -->
@@ -198,13 +204,16 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
           :entries="entry.children"
           :eventBus
           :expandedItems
+          :expansion="expansion"
           :insideTagContainer="true"
           :level="level + 1"
           :options
+          :scrollTargetId="scrollTargetId"
           :securitySchemes
           :selectedClient
           :selectedExample
-          :selectedServer>
+          :selectedServer
+          :specificationExtension="specificationExtension">
         </TraversedEntry>
       </template>
     </Tag>
@@ -226,13 +235,16 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :entries="entry.children || []"
         :eventBus
         :expandedItems
+        :expansion="expansion"
         :insideTagContainer="insideTagContainer"
         :level="level + 1"
         :options
+        :scrollTargetId="scrollTargetId"
         :securitySchemes
         :selectedClient
         :selectedExample
-        :selectedServer>
+        :selectedServer
+        :specificationExtension="specificationExtension">
       </TraversedEntry>
     </div>
 
@@ -251,12 +263,15 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
         :entries="entry.children || []"
         :eventBus
         :expandedItems="expandedItems"
+        :expansion="expansion"
         :level="level + 1"
         :options
+        :scrollTargetId="scrollTargetId"
         :securitySchemes
         :selectedClient
         :selectedExample
-        :selectedServer>
+        :selectedServer
+        :specificationExtension="specificationExtension">
       </TraversedEntry>
     </ModelTag>
 
@@ -265,10 +280,13 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
       :id="entry.id"
       :document
       :eventBus
+      :expansion="expansion"
       :isCollapsed="!expandedItems[entry.id]"
       :name="entry.name"
       :options
-      :schema="modelSchemas[entry.name]">
+      :schema="modelSchemas[entry.name]"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension">
     </Model>
   </Lazy>
 </template>
