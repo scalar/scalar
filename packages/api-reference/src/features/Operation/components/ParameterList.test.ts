@@ -1,4 +1,5 @@
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -29,7 +30,7 @@ describe('ParameterList', () => {
 
     const wrapper = mount(ParameterList, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         parameters,
         options: defaultOptions,
       },
@@ -47,7 +48,7 @@ describe('ParameterList', () => {
       props: {
         parameters: [],
         options: defaultOptions,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -61,7 +62,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
       slots: {
         title: 'Query Parameters',
@@ -80,7 +81,7 @@ describe('ParameterList', () => {
         parameters,
         breadcrumb,
         options: defaultOptions,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -104,7 +105,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: customOptions,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -125,7 +126,7 @@ describe('ParameterList', () => {
       props: {
         parameters,
         options: defaultOptions,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 

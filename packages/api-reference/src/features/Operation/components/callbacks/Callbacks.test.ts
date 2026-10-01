@@ -1,4 +1,5 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -22,7 +23,7 @@ describe('Callbacks', () => {
             },
           },
         },
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: {
           hideModels: false,
           orderRequiredPropertiesFirst: false,
@@ -106,7 +107,7 @@ describe('Callbacks', () => {
       props: {
         path: '/subscribe',
         callbacks: mockCallbacks,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: {
           expandAllParameters: true,
           hideModels: false,
@@ -167,7 +168,7 @@ describe('Callbacks', () => {
           path: '/subscribe',
           breadcrumb: ['op'],
           callbacks: oneNameManyRows,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: {
             expandAllParameters: true,
             hideModels: false,

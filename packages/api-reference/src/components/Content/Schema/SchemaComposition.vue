@@ -5,7 +5,7 @@ import {
 } from '@scalar/components/listbox'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { ScalarIconCaretUpDown } from '@scalar/icons'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -53,7 +53,7 @@ const props = withDefaults(
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
     /** Event bus emitting actions */
-    eventBus: WorkspaceEventBus | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     /** Move the options into  single prop so they are easy to pass around */
     options: SchemaOptions
     /** When "requestBody", sync selected index with the example snippet */
@@ -244,12 +244,12 @@ if (
           :breadcrumb="breadcrumb"
           :compact="compact"
           :compositionPath="compositionPath"
+          :depth="depth"
           :discriminator="discriminator"
           :eventBus="eventBus"
           :hideDescription="isRequestBodyRootComposition"
           :hideHeading="hideHeading"
           :hideModelNames
-          :depth="depth"
           :level="level + 1"
           :name="name"
           :noncollapsible="true"
@@ -265,10 +265,10 @@ if (
             ...(compositionPath ?? []),
             String(segment.choiceIndex),
           ]"
+          :depth="depth"
           :eventBus="eventBus"
           :hideHeading="hideHeading"
           :hideModelNames
-          :depth="depth"
           :level="level"
           :options="options"
           :schema="segment.value"
@@ -343,11 +343,11 @@ if (
         :compact="compact"
         :compositionPath="compositionPath"
         :cycleKey="selectedCompositionCycleKey"
+        :depth="depth + 1"
         :discriminator="discriminator"
         :eventBus="eventBus"
         :hideHeading="hideHeading"
         :hideModelNames
-        :depth="depth + 1"
         :level="level + 1"
         :name="name"
         :noncollapsible="true"

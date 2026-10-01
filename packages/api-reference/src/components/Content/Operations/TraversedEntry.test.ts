@@ -1,7 +1,6 @@
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedOperation,
@@ -11,6 +10,7 @@ import type {
 } from '@scalar/workspace-store/schemas/navigation'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type OpenApiDocument, ServerObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import type { ComponentProps } from '@test/utils/types'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -126,7 +126,7 @@ await mockStore.addDocument({
   document: mockDocument,
 })
 
-const eventBus = createWorkspaceEventBus()
+const eventBus = createNavigationEventBus()
 
 const makeMockProps = (entries: TraversedEntry[]): ComponentProps<typeof TraversedEntryComponent> => ({
   entries,

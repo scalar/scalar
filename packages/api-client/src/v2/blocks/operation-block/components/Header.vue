@@ -36,7 +36,7 @@ export type HeaderProps = {
   /** List of request history */
   history: History[]
   /** Event bus */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** Environment list */
   environments?: string[]
   /** Currently selected environment */
@@ -52,9 +52,10 @@ export type HeaderProps = {
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconGearSix } from '@scalar/icons'
-import type {
-  ServerMeta,
-  WorkspaceEventBus,
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+  type ServerMeta,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -93,7 +94,10 @@ const handleSelectEnvironment = (environmentName: string) => {
 }
 
 const handleAddEnvironment = () => {
-  eventBus.emit('ui:navigate', { page: 'document', path: 'environment' })
+  navigateCommand(eventBus.navigation, 'ui:navigate', {
+    page: 'document',
+    path: 'environment',
+  })
 }
 </script>
 

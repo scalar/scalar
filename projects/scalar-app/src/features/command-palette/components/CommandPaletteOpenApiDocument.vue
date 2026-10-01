@@ -25,7 +25,10 @@ import {
 import { ScalarButton } from '@scalar/components/button'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { computed, ref, type ComputedRef } from 'vue'
 
 import IconSelector from '@/features/collection/components/IconSelector.vue'
@@ -34,7 +37,7 @@ const { workspaceStore, eventBus } = defineProps<{
   /** The workspace store for accessing existing documents */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting document creation events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
 }>()
 
 const emit = defineEmits<{
@@ -96,7 +99,7 @@ const handleSubmit = (): void => {
       }
 
       // Navigate via the event bus rather than the router
-      eventBus.emit('ui:navigate', {
+      navigateCommand(eventBus.navigation, 'ui:navigate', {
         page: 'document',
         path: 'overview',
         documentSlug: documentNameTrimmed.value,

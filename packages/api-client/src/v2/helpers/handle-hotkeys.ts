@@ -1,30 +1,50 @@
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import type { ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type ApiReferenceEvents,
+  type NavigationEventBus,
+  type NavigationEvents,
+  isNavigationEvent,
+  navigate,
+} from '@scalar/workspace-store/events'
 
 import type { ClientLayout } from '@/v2/types/layout'
+
+/** Navigation destinations used by keyboard shortcuts in each client layout. */
+export type HotkeyNavigation<L extends ClientLayout> = L extends 'modal'
+  ? never
+  : L extends 'web'
+    ? 'ui:open:settings'
+    : 'ui:open:settings' | 'tabs:navigate:previous' | 'tabs:navigate:next' | 'tabs:focus:tab' | 'tabs:focus:tab-last'
 
 type HotKeyModifiers = ('altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey' | 'default')[]
 
 /** Hotkey configuration */
-type HotKeyConfig = Record<string | number, { event: keyof ApiReferenceEvents; modifiers: HotKeyModifiers }>
+type HotKeyConfig<L extends ClientLayout> = Record<
+  string | number,
+  { event: Exclude<keyof ApiReferenceEvents, keyof NavigationEvents> | HotkeyNavigation<L>; modifiers: HotKeyModifiers }
+>
 
 /** Default hotkeys available in most contexts */
-const DEFAULT_HOTKEYS: HotKeyConfig = {
+const COMMON_HOTKEYS: HotKeyConfig<'modal'> = {
   Enter: { event: 'operation:send:request:hotkey', modifiers: ['default'] },
   b: { event: 'ui:toggle:sidebar', modifiers: ['default'] },
   k: { event: 'ui:open:command-palette', modifiers: ['default'] },
   l: { event: 'ui:focus:address-bar', modifiers: ['default'] },
   j: { event: 'ui:focus:search', modifiers: ['default'] },
-  i: { event: 'ui:open:settings', modifiers: ['default'] },
   s: { event: 'ui:save:local-document', modifiers: ['default'] },
 }
 
+const DEFAULT_HOTKEYS: HotKeyConfig<'web'> = {
+  ...COMMON_HOTKEYS,
+  i: { event: 'ui:open:settings', modifiers: ['default'] },
+}
+
 /** Hotkey map by layout, we can allow the user to override this later */
-const HOTKEYS: Record<ClientLayout, HotKeyConfig> = {
+const HOTKEYS: { [L in ClientLayout]: HotKeyConfig<L> } = {
   web: DEFAULT_HOTKEYS,
 
   modal: {
-    ...DEFAULT_HOTKEYS,
+    ...COMMON_HOTKEYS,
     Escape: { event: 'ui:close:client-modal', modifiers: [] },
     l: { event: 'ui:focus:send-button', modifiers: ['default'] },
   },
@@ -89,11 +109,15 @@ const isEditableElement = (event: KeyboardEvent, key: string): boolean => {
  * @param eventBus - event bus for emitting hotkey actions
  * @param layout - client layout
  */
-export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus, layout: ClientLayout): void => {
+export const handleHotkeys = <L extends ClientLayout>(
+  event: KeyboardEvent,
+  eventBus: NavigationEventBus<HotkeyNavigation<NoInfer<L>>>,
+  layout: L,
+): void => {
   /** Special case for space */
   const key = event.key === ' ' ? 'Space' : event.key
   /** Get the discriminated hotkey event with payload  */
-  const hotkeyEvent = HOTKEYS[layout][key]
+  const hotkeyEvent = (HOTKEYS[layout] as HotKeyConfig<'desktop'>)[key]
 
   if (!hotkeyEvent) {
     return
@@ -102,15 +126,27 @@ export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus,
   // Default to sending the keyboard event as the payload
   const payload = { event }
 
+  const dispatch = (): void => {
+    if (isNavigationEvent(hotkeyEvent.event)) {
+      navigate(
+        eventBus.navigation as NavigationEventBus<HotkeyNavigation<'desktop'>>['navigation'],
+        hotkeyEvent.event,
+        payload,
+      )
+    } else {
+      eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    }
+  }
+
   // Escape always fires, regardless of context
   if (key === 'Escape') {
-    eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    dispatch()
     return
   }
 
   // If modifiers are pressed, fire the hotkey (even in input fields)
   if (areModifiersPressed(event, hotkeyEvent.modifiers)) {
-    eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    dispatch()
     return
   }
 
@@ -121,6 +157,6 @@ export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus,
 
   // Without modifiers, only fire if not in an editable element
   if (!isEditableElement(event, key)) {
-    eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    dispatch()
   }
 }

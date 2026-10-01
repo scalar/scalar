@@ -1,4 +1,4 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { renderToString } from '@vue/server-renderer'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, expect, it } from 'vitest'
@@ -24,7 +24,7 @@ const originalUserAgent = window.navigator.userAgent
 
 afterEach(() => setUserAgent(originalUserAgent))
 
-const props = { eventBus: createWorkspaceEventBus(), document: undefined }
+const props = { eventBus: createNavigationEventBus(), document: undefined }
 
 /**
  * The server has no `navigator`, so it always renders the non-macOS shortcut.

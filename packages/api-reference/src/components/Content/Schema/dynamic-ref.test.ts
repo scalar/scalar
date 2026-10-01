@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -36,7 +37,7 @@ const mountSchema = (schema: unknown) =>
     props: {
       // Expanding everything lets us assert on nested item properties without driving disclosures.
       options: { expandAllSchemaProperties: true },
-      eventBus: null,
+      eventBus: createNavigationEventBus(),
       schema: schema as never,
       level: 1,
       noncollapsible: true,

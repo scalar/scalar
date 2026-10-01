@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type {
   OpenApiDocument,
   SchemaObject,
@@ -16,7 +16,7 @@ const { schema, options, document } = defineProps<{
   name: string
   schema: SchemaObject
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the model belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   options: {

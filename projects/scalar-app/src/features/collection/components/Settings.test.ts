@@ -1,6 +1,12 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
+
+const createNavigationEventBus = () => {
+  const bus = createWorkspaceEventBus()
+  return withNavigation(bus, createNavigation(bus, { 'ui:navigate': () => undefined }).navigation)
+}
+
 import { xScalarEnvironmentSchema } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -252,7 +258,7 @@ describe('Settings', () => {
   describe('delete document', () => {
     it('calls workspaceStore.deleteDocument and navigates when DocumentSettings emits delete:document', async () => {
       const workspaceStore = createWorkspaceStoreInstance()
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const fn = vi.fn()
       eventBus.on('document:delete:document', fn)
 
@@ -271,7 +277,7 @@ describe('Settings', () => {
 
     it('uses correct workspace ID when navigating after delete', async () => {
       const workspaceStore = createWorkspaceStoreInstance()
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const fn = vi.fn()
       eventBus.on('document:delete:document', fn)
 
@@ -403,7 +409,7 @@ describe('Settings', () => {
     })
 
     it('calls the registry adapter and deletes the local document on success', async () => {
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const deleteListener = vi.fn()
       eventBus.on('document:delete:document', deleteListener)
       const deleteVersion = vi.fn().mockResolvedValue({
@@ -439,7 +445,7 @@ describe('Settings', () => {
     })
 
     it('surfaces an error message and skips the local delete when the adapter rejects', async () => {
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const deleteListener = vi.fn()
       eventBus.on('document:delete:document', deleteListener)
       const deleteVersion = vi.fn().mockResolvedValue({
@@ -478,7 +484,7 @@ describe('Settings', () => {
         }),
       }
 
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const deletedNames: string[] = []
       eventBus.on('document:delete:document', ({ name }) => {
         deletedNames.push(name)
@@ -513,7 +519,7 @@ describe('Settings', () => {
     })
 
     it('surfaces an error message and skips the local delete when the adapter rejects', async () => {
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const deleteListener = vi.fn()
       eventBus.on('document:delete:document', deleteListener)
       const deleteDocument = vi.fn().mockResolvedValue({

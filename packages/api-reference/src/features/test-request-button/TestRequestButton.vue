@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconPlay } from '@scalar/icons'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 
 import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
@@ -16,7 +19,7 @@ const {
   id: string
   method: string
   path: string
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:open:client-modal'>
   exampleName?: string
   requestBodyCompositionSelection?: Record<string, number>
 }>()
@@ -33,7 +36,7 @@ const handleClick = () => {
         requestBodyCompositionSelection,
       }),
   }
-  eventBus.emit('ui:open:client-modal', payload)
+  navigateCommand(eventBus.navigation, 'ui:open:client-modal', payload)
 }
 </script>
 <template>

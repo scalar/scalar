@@ -1,5 +1,6 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -21,7 +22,7 @@ describe('OperationParameters', () => {
     async (location) => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: { ...defaultSchemaOptions, expandAllParameters: false },
           parameters: [
             {
@@ -51,7 +52,7 @@ describe('OperationParameters', () => {
   it('keeps details visible when parameter expansion is enabled', () => {
     const wrapper = mount(OperationParameters, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultSchemaOptions,
         parameters: [{ in: 'query', name: 'limit', schema: { type: 'integer', enum: [10, 20] } }],
       },
@@ -63,7 +64,7 @@ describe('OperationParameters', () => {
   it('renders a querystring parameter content schema without crashing', () => {
     const wrapper = mount(OperationParameters, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultSchemaOptions,
         parameters: [
           {
@@ -93,7 +94,7 @@ describe('OperationParameters', () => {
     it('renders path parameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -119,7 +120,7 @@ describe('OperationParameters', () => {
     it.each(['query', 'querystring'] as const)('renders %s parameters', (location) => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -142,7 +143,7 @@ describe('OperationParameters', () => {
     it('renders deepObject query parameters as flattened bracket names', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -186,7 +187,7 @@ describe('OperationParameters', () => {
     it('renders nested deepObject query properties with recursive bracket names', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -220,7 +221,7 @@ describe('OperationParameters', () => {
     it('does not re-add the top-level deepObject parameter when a nested object has empty properties', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -259,7 +260,7 @@ describe('OperationParameters', () => {
     it('renders header parameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -285,7 +286,7 @@ describe('OperationParameters', () => {
     it('renders a required cookie parameter', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -311,7 +312,7 @@ describe('OperationParameters', () => {
     it('renders an optional cookie parameter', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -339,7 +340,7 @@ describe('OperationParameters', () => {
       const wrapper = mount(OperationParameters, {
         props: {
           options: defaultSchemaOptions,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           requestBody: {
             content: {
               'application/json': {
@@ -364,7 +365,7 @@ describe('OperationParameters', () => {
     it('renders request body without readOnly properties', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           requestBody: {
             content: {
@@ -402,7 +403,7 @@ describe('OperationParameters', () => {
     it('renders form data parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           requestBody: {
             content: {
@@ -432,7 +433,7 @@ describe('OperationParameters', () => {
     it('filters out parameters with x-internal flag set to true', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -475,7 +476,7 @@ describe('OperationParameters', () => {
     it('filters out parameters with x-scalar-ignore flag set to true', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {
@@ -518,7 +519,7 @@ describe('OperationParameters', () => {
     it('filters out parameters with both ignore flags', () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: defaultSchemaOptions,
           parameters: [
             {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
@@ -33,7 +33,7 @@ const {
 } = defineProps<{
   operation: TraversedAsyncApiOperation
   document: AsyncApiDocument
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   options?: Partial<OperationOptions>
   /** Map of navigation item id to expanded state, shared with the sidebar. */
   expandedItems?: Record<string, boolean>

@@ -1,7 +1,13 @@
 import { AuthSelector } from '@scalar/api-client/blocks/scalar-auth-selector-block'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
+
+const createNavigationEventBus = () => {
+  const bus = createWorkspaceEventBus()
+  return withNavigation(bus, createNavigation(bus, { 'ui:navigate': () => undefined }).navigation)
+}
+
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -62,7 +68,7 @@ const baseEnvironment = {
 const defaultProps = {
   document: baseDocument,
   environment: baseEnvironment,
-  eventBus: createWorkspaceEventBus(),
+  eventBus: createNavigationEventBus(),
   workspaceStore: createWorkspaceStore(),
   layout: 'web' as const,
   securitySchemes: (baseDocument.components?.securitySchemes ?? {}) as unknown as MergedSecuritySchemes,
@@ -86,7 +92,7 @@ const mountWithProps = (
 ) => {
   const document = custom.document ?? baseDocument
   const environment = custom.environment ?? baseEnvironment
-  const eventBus = createWorkspaceEventBus()
+  const eventBus = createNavigationEventBus()
   const workspaceStore = createWorkspaceStore()
 
   workspaceStore.auth.setAuthSelectedSchemas(
@@ -358,7 +364,7 @@ describe('operation collection', () => {
         ...defaultProps,
         document: baseDocument,
         environment: baseEnvironment,
-        eventBus: createWorkspaceEventBus(),
+        eventBus: createNavigationEventBus(),
         workspaceStore,
         securitySchemes: (baseDocument.components?.securitySchemes ?? {}) as unknown as MergedSecuritySchemes,
         collectionType: 'operation',

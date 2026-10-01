@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed, useId } from 'vue'
 
@@ -19,7 +19,7 @@ const {
   tag: TraversedTag
   moreThanOneTag: boolean
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
   /** Whether this tag sits inside a parent tag's container (drops its own padding). */
   nested?: boolean
 }>()
@@ -61,9 +61,9 @@ const { level: headingLevel } = useDocumentOutline('tag')
     role="region">
     <TagSection
       v-if="moreThanOneDefaultTag"
-      :headingLevel
       :eventBus="eventBus"
       :headerId="headerId"
+      :headingLevel
       :isCollapsed="isCollapsed"
       :tag="tag" />
     <ShowMoreButton

@@ -1,4 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -58,7 +59,7 @@ describe('Schema discriminator inheritance (issue 9674)', () => {
 
     const wrapper = mount(Schema, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         schema: (document as any).components.schemas.Pet,
         options: { expandAllSchemaProperties: true, document },
       },
@@ -75,7 +76,7 @@ describe('Schema discriminator inheritance (issue 9674)', () => {
 
     const wrapper = mount(Schema, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         schema: { type: 'array', items: (document as any).components.schemas.Pet } as never,
         options: { expandAllSchemaProperties: true, document },
       },
@@ -126,7 +127,7 @@ describe('Schema discriminator inheritance (issue 9674)', () => {
 
     const wrapper = mount(Schema, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         schema: (document as any).components.schemas.WorkingDog,
         options: { expandAllSchemaProperties: true, document },
       },

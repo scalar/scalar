@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import {
   getResolvedRef,
   mergeSiblingReferences,
@@ -44,7 +44,9 @@ const {
     | 'hideModels'
     | 'modelsSectionLabel'
   >
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<
+    'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
+  >
   level?: number
 }>()
 

@@ -29,7 +29,7 @@ export type AddressBarProps = {
   /** Client layout */
   layout: ClientLayout
   /** Event bus */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** Environment */
   environment: XScalarEnvironment
   /** Meta information for the server */
@@ -44,10 +44,11 @@ import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { EditorView } from '@scalar/use-codemirror'
-import type {
-  ApiReferenceEvents,
-  ServerMeta,
-  WorkspaceEventBus,
+import {
+  navigate as navigateCommand,
+  type ApiReferenceEvents,
+  type NavigationEventBus,
+  type ServerMeta,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -425,7 +426,7 @@ const requestCopyUrl = (): void => {
 
 const navigateToServersPage = (): void => {
   if (serverMeta.type === 'operation') {
-    eventBus.emit('ui:navigate', {
+    navigateCommand(eventBus.navigation, 'ui:navigate', {
       page: 'operation',
       path: 'servers',
       operationPath: serverMeta.path,
@@ -434,7 +435,10 @@ const navigateToServersPage = (): void => {
     return
   }
 
-  eventBus.emit('ui:navigate', { page: 'document', path: 'servers' })
+  navigateCommand(eventBus.navigation, 'ui:navigate', {
+    page: 'document',
+    path: 'servers',
+  })
 }
 
 // ───────────────────────────────────────────────────────────────────

@@ -1,7 +1,8 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { handleHotkeys } from '@/v2/helpers/handle-hotkeys'
+import { createMockEventBus } from '@/v2/helpers/test-utils'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import { useGlobalHotKeys } from './use-global-hot-keys'
@@ -22,14 +23,12 @@ vi.mock('@/v2/helpers/handle-hotkeys', () => ({
 }))
 
 describe('use-hot-keys', () => {
-  let mockEventBus: WorkspaceEventBus
+  let mockEventBus: NavigationEventBus
   let addEventListenerSpy: ReturnType<typeof vi.spyOn>
   let removeEventListenerSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
-    mockEventBus = {
-      emit: vi.fn(),
-    } as unknown as WorkspaceEventBus
+    mockEventBus = createMockEventBus()
 
     // Spy on window event listener methods
     addEventListenerSpy = vi.spyOn(window, 'addEventListener')

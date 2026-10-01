@@ -2,7 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedAsyncApiChannel,
   TraversedAsyncApiOperation,
@@ -51,7 +51,9 @@ const {
   document: AsyncApiDocument
   layout: 'classic' | 'modern'
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<
+    'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
+  >
   options?: Partial<ParameterListOptions>
   /** Map of navigation item id to expanded state, shared with the sidebar. */
   expandedItems?: Record<string, boolean>

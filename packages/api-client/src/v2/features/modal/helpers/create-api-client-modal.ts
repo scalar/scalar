@@ -1,7 +1,7 @@
 import { type ModalState, useModal } from '@scalar/components/modal'
 import { type ClientPlugin, subscribePluginEvents } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type Navigation, type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type App, type MaybeRefOrGetter, computed, createApp, isRef, reactive, ref, toValue, watch } from 'vue'
 
@@ -33,6 +33,8 @@ type CreateApiClientOptions = {
 }
 
 export type ApiClientModal = {
+  /** Commands owned by the mounted modal. */
+  readonly navigation: Navigation<'ui:open:client-modal'>
   app: App
   open: (payload?: RoutePayload) => void
   mount: (mountingEl: HTMLElement | null) => void
@@ -115,7 +117,11 @@ export const createApiClientModal = ({
 
   const modalState = useModal()
 
+  let navigation: Navigation<'ui:open:client-modal'> | undefined
   const app = createApp(Modal, {
+    onNavigationReady: (capability) => {
+      navigation = capability
+    },
     document,
     eventBus,
     exampleName,
@@ -177,6 +183,12 @@ export const createApiClientModal = ({
   }
 
   return {
+    get navigation() {
+      if (!navigation) {
+        throw new Error('[Navigation] The API client modal must be mounted before navigating.')
+      }
+      return navigation
+    },
     /** The Vue app instance for the modal. Use with caution. */
     app,
     /** Open the modal and optionally navigate to a specific route. */

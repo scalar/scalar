@@ -1,9 +1,9 @@
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import { coerce } from '@scalar/validation'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
@@ -12,7 +12,7 @@ import Operation from '@/features/Operation/Operation.vue'
 
 import { provideDocumentOutline } from './use-document-outline'
 
-const eventBus = createWorkspaceEventBus()
+const eventBus = createNavigationEventBus()
 const workspaceStore = createWorkspaceStore()
 
 const document = coerceValue(OpenAPIDocumentSchema, {

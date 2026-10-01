@@ -1,5 +1,5 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
@@ -27,7 +27,7 @@ const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => (
 
 const mockProps = {
   isCollapsed: false,
-  eventBus: null,
+  eventBus: createNavigationEventBus(),
 }
 
 beforeEach(() => {
@@ -261,7 +261,7 @@ describe('component props and behavior', () => {
   })
 
   it('calls setCollapsedSidebarItem when ShowMoreButton is clicked', async () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const toggleHandler = vi.fn()
     eventBus.on('toggle:nav-item', toggleHandler)
 

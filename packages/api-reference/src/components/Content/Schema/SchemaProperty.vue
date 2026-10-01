@@ -11,7 +11,7 @@ const NO_LISTENERS = Object.freeze({})
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import {
   isDynamicRef,
   resolveDynamicRef,
@@ -76,16 +76,6 @@ import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 import SchemaRailPanel from './SchemaRailPanel.vue'
 
-/**
- * Note: We're taking in a prop called `value` which should be a JSON Schema.
- *
- * We're using `optimizeValueForDisplay` to merge null types in compositions (anyOf, allOf, oneOf, not).
- * So you should basically use the optimizedValue everywhere in the component.
- */
-
-/** Composition keywords that hold a list of schemas and can be flattened when they contain a single member. */
-const SINGLE_ITEM_COMPOSITIONS = ['oneOf', 'anyOf', 'allOf'] as const
-
 const props = withDefaults(
   defineProps<{
     is?: string | Component
@@ -108,7 +98,7 @@ const props = withDefaults(
     modelName?: string | null
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
-    eventBus: WorkspaceEventBus | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     options: SchemaOptions
     /** Enum values for property names (from JSON Schema propertyNames keyword). */
     propertyNamesEnum?: string[]
@@ -131,6 +121,16 @@ const props = withDefaults(
     hideModelNames: false,
   },
 )
+
+/**
+ * Note: We're taking in a prop called `value` which should be a JSON Schema.
+ *
+ * We're using `optimizeValueForDisplay` to merge null types in compositions (anyOf, allOf, oneOf, not).
+ * So you should basically use the optimizedValue everywhere in the component.
+ */
+
+/** Composition keywords that hold a list of schemas and can be flattened when they contain a single member. */
+const SINGLE_ITEM_COMPOSITIONS = ['oneOf', 'anyOf', 'allOf'] as const
 
 /** The dynamic scope inherited from the enclosing schema resources, used to bind `$dynamicRef`s. */
 const dynamicScope = useDynamicScope()
@@ -955,12 +955,17 @@ const onBeforeMatch = (): void => {
         { 'cursor-pointer': isTreeRow },
         'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!',
       ]"
-      v-on="isTreeRow ? treeHeadingHoverListeners : NO_LISTENERS"
-      @click="onHeadingClick"
       :enum="hasEnum"
       :eventBus="eventBus"
       :hideModelNames
       :isDiscriminator="isDiscriminatorProperty"
+      :keyKind="
+        variant === 'additionalProperties'
+          ? 'additional'
+          : variant === 'patternProperties'
+            ? 'pattern'
+            : undefined
+      "
       :modelLinkOptions="{
         hideModels: options.hideModels,
         document: options.document,
@@ -969,14 +974,9 @@ const onBeforeMatch = (): void => {
       :propertyNames="propertyNamesSchema"
       :recursiveTo="isCyclicProperty ? cycleTargetName : undefined"
       :required
-      :keyKind="
-        variant === 'additionalProperties'
-          ? 'additional'
-          : variant === 'patternProperties'
-            ? 'pattern'
-            : undefined
-      "
-      :value="optimizedValue">
+      :value="optimizedValue"
+      v-on="isTreeRow ? treeHeadingHoverListeners : NO_LISTENERS"
+      @click="onHeadingClick">
       <template
         v-if="name"
         #name>

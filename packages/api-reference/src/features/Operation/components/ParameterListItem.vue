@@ -5,7 +5,7 @@ import {
   ScalarMarkdownSummary,
 } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OpenApiDocument,
@@ -42,7 +42,7 @@ const {
   parameter: ParameterObject | ResponseObject
   name: string
   breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   collapsableItems?: boolean
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument

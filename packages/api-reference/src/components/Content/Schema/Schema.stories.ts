@@ -1,8 +1,14 @@
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { fn } from 'storybook/test'
 
 import Schema from './Schema.vue'
+
+const events = createWorkspaceEventBus()
+const primary = createNavigation(events, { 'scroll-to:model-by-name': fn() })
+const eventBus = withNavigation(events, primary.navigation)
 
 /**
  * The top-level schema renderer. One story exercises the whole tree (heading, object properties,
@@ -28,7 +34,7 @@ type Story = StoryObj<typeof Schema>
 export const Base: Story = {
   args: {
     name: 'User',
-    eventBus: null,
+    eventBus: eventBus,
     options: {},
     schema: coerceValue(SchemaObjectSchema, {
       type: 'object',
@@ -46,7 +52,7 @@ export const Base: Story = {
 export const WithRequired: Story = {
   args: {
     name: 'Account',
-    eventBus: null,
+    eventBus: eventBus,
     options: {},
     schema: coerceValue(SchemaObjectSchema, {
       type: 'object',
@@ -64,7 +70,7 @@ export const WithRequired: Story = {
 export const Composition: Story = {
   args: {
     name: 'Pet',
-    eventBus: null,
+    eventBus: eventBus,
     options: {},
     schema: coerceValue(SchemaObjectSchema, {
       oneOf: [
@@ -81,7 +87,7 @@ export const NestedAllOfObject: Story = {
   decorators: [() => ({ template: '<div style="padding-left: 16px"><story /></div>' })],
   args: {
     name: 'Response',
-    eventBus: null,
+    eventBus: eventBus,
     options: {},
     schema: coerceValue(SchemaObjectSchema, {
       type: 'object',

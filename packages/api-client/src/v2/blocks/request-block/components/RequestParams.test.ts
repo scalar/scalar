@@ -1,5 +1,5 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isParamDisabled } from '@scalar/workspace-store/request-example'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -11,7 +11,7 @@ const environment = {
   color: 'c',
 }
 
-const eventBus = createWorkspaceEventBus()
+const eventBus = createNavigationEventBus()
 
 describe('RequestParams', () => {
   it('renders with empty parameters and passes data to table', () => {

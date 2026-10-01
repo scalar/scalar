@@ -23,6 +23,7 @@ import {
 } from '@scalar/icons'
 import type { DraggingItem, HoveredItem } from '@scalar/sidebar'
 import { useToasts } from '@scalar/use-toasts'
+import { navigate } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -175,7 +176,7 @@ const handleDocumentClick = async (item: SidebarDocumentItem) => {
   // After loading, route to the document overview. `syncSidebar` will then
   // mark the document as selected and the template's `:open="isDocActive"`
   // binding drills the sidebar in automatically — no local state needed.
-  app.eventBus.emit('ui:navigate', {
+  navigate(app.eventBus.navigation, 'ui:navigate', {
     page: 'document',
     path: 'overview',
     documentSlug: result.documentName,
@@ -294,7 +295,7 @@ const handleCreateOperation = (item: SidebarDocumentItem) => {
  * Navigates back to the workspace "Get started" page.
  */
 const handleBack = () => {
-  app.eventBus.emit('ui:navigate', {
+  navigate(app.eventBus.navigation, 'ui:navigate', {
     page: 'workspace',
     path: 'get-started',
   })
@@ -338,7 +339,7 @@ const showFilterNoMatches = computed((): boolean => {
 
 const handleOpenSettings = () => {
   if (isOnDocumentPage.value) {
-    app.eventBus.emit('ui:navigate', {
+    navigate(app.eventBus.navigation, 'ui:navigate', {
       page: 'document',
       path: 'settings',
       documentSlug: app.activeEntities.documentSlug.value,
@@ -346,7 +347,7 @@ const handleOpenSettings = () => {
     return
   }
 
-  app.eventBus.emit('ui:navigate', {
+  navigate(app.eventBus.navigation, 'ui:navigate', {
     page: 'workspace',
     path: 'settings',
   })
@@ -396,27 +397,11 @@ const handleSearchHotkey = (payload: { event: KeyboardEvent } | undefined) => {
   handleFilterOrSearch()
 }
 
-/**
- * Handle the `ui:open:settings` event (Cmd/Ctrl+I). Same delegation model as
- * `handleSearchHotkey`: preventDefault on the originating keyboard event (if
- * any) and hand off to `handleOpenSettings`, which routes to the document-
- * level settings page when a document is active and the workspace-level
- * settings page otherwise.
- */
-const handleSettingsHotkey = (
-  payload: { event: KeyboardEvent } | undefined,
-) => {
-  payload?.event.preventDefault()
-  handleOpenSettings()
-}
-
 onBeforeMount(() => {
   app.eventBus.on('ui:focus:search', handleSearchHotkey)
-  app.eventBus.on('ui:open:settings', handleSettingsHotkey)
 })
 onBeforeUnmount(() => {
   app.eventBus.off('ui:focus:search', handleSearchHotkey)
-  app.eventBus.off('ui:open:settings', handleSettingsHotkey)
 })
 
 /**
@@ -425,7 +410,7 @@ onBeforeUnmount(() => {
  * the behaviour used elsewhere in the app.
  */
 const handleSearchSelect = (id: string) => {
-  app.eventBus.emit('scroll-to:nav-item', { id })
+  navigate(app.eventBus.navigation, 'scroll-to:nav-item', { id })
 }
 
 /** Controls the width of the sidebar */

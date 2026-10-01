@@ -1,8 +1,14 @@
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { fn } from 'storybook/test'
 
 import SchemaComposition from './SchemaComposition.vue'
+
+const events = createWorkspaceEventBus()
+const primary = createNavigation(events, { 'scroll-to:model-by-name': fn() })
+const eventBus = withNavigation(events, primary.navigation)
 
 /**
  * The composition renderer. `oneOf`/`anyOf` show a selector that switches between mutually exclusive
@@ -15,7 +21,7 @@ const meta: Meta<typeof SchemaComposition> = {
   args: {
     // The composition renders nested Schema components, which only need the defaults here.
     level: 0,
-    eventBus: null,
+    eventBus: eventBus,
     options: {},
   },
   // Wrap in a fixed-width, padded card painted with the Scalar page background (white in light mode)

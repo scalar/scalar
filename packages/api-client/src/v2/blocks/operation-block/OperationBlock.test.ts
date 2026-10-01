@@ -5,12 +5,13 @@ import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import { err, ok } from '@scalar/helpers/types/result'
 import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
-import { type AuthMeta, type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { AuthMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -1603,7 +1604,7 @@ describe('OperationBlock', () => {
       requestMetadata: { variables: {} },
     }
 
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     eventBus.on('operation:reload:history', ({ callback }) => callback('success'))
     eventBus.on('ui:navigate', ({ callback }) => callback?.('success'))
     const wrapper = mount(OperationBlock, {

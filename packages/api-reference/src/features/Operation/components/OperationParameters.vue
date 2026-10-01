@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
 import type {
@@ -21,7 +21,7 @@ const { parameters = [], requestBody } = defineProps<{
   breadcrumb?: string[]
   parameters?: ReferenceType<ParameterObject>[]
   requestBody?: RequestBodyObject | undefined
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   options: Pick<

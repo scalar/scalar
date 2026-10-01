@@ -1,6 +1,12 @@
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type Navigation,
+  type NavigationEvents,
+  type OperationExampleMeta,
+  type WorkspaceEventBus,
+  createNavigation,
+} from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
@@ -19,6 +25,7 @@ export function initializeAppEventHandlers({
   onToggleSidebar,
   closeSidebar,
   renameWorkspace,
+  onOpenSettings,
 }: {
   eventBus: WorkspaceEventBus
   store: ShallowRef<WorkspaceStore | null>
@@ -31,7 +38,10 @@ export function initializeAppEventHandlers({
   onToggleSidebar: () => void
   closeSidebar: () => void
   renameWorkspace: (name: string) => Promise<void>
-}) {
+  onOpenSettings: (payload?: { event: KeyboardEvent }) => void
+}): Navigation<
+  Exclude<keyof NavigationEvents, 'select:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'>
+> {
   const currentRoute = computed(() => router.currentRoute?.value)
 
   /**
@@ -66,7 +76,7 @@ export function initializeAppEventHandlers({
     return true
   }
 
-  initializeWorkspaceEventHandlers({
+  const workspaceEvents = initializeWorkspaceEventHandlers({
     eventBus,
     store,
     hooks: {
@@ -292,7 +302,6 @@ export function initializeAppEventHandlers({
   //------------------------------------------------------------------------------------
   // Navigation Event Handlers
   //------------------------------------------------------------------------------------
-  eventBus.on('scroll-to:nav-item', ({ id }) => onSelectSidebarItem(id))
 
   //------------------------------------------------------------------------------------
   // UI Related Event Handlers
@@ -304,108 +313,116 @@ export function initializeAppEventHandlers({
   /**
    * Bind the inernal navigation to a public api
    */
-  eventBus.on('ui:navigate', async (payload) => {
-    const { replace = false } = payload
-    const fn = replace ? router.replace : router.push
+  const appNavigation = createNavigation(eventBus, {
+    'scroll-to:nav-item': ({ id }) => onSelectSidebarItem(id),
+    'ui:open:settings': onOpenSettings,
+    'ui:navigate': async (payload) => {
+      const { replace = false } = payload
+      const fn = replace ? router.replace : router.push
 
-    const execCallback = (result: NavigationFailure | void | undefined) => {
-      if (!result) {
-        // Close the sidebar if it is open
-        closeSidebar()
+      const execCallback = (result: NavigationFailure | void | undefined) => {
+        if (!result) {
+          // Close the sidebar if it is open
+          closeSidebar()
+          return payload.callback?.('success')
+        }
+
+        const navigationFailure: 16 = NavigationFailureType.duplicated
+
+        if (result.type !== navigationFailure) {
+          return payload.callback?.('error')
+        }
+
         return payload.callback?.('success')
       }
 
-      const navigationFailure: 16 = NavigationFailureType.duplicated
+      type ValidParams = Partial<Record<ScalarClientAppRouteParams, string>>
 
-      if (result.type !== navigationFailure) {
-        return payload.callback?.('error')
+      if (payload.page === 'document') {
+        const params = {
+          documentSlug: payload.documentSlug,
+          workspaceSlug: payload.workspaceSlug,
+          teamSlug: payload.teamSlug,
+        } satisfies ValidParams
+
+        if (payload.path === 'overview') {
+          return execCallback(await fn({ name: 'document.overview', params }))
+        }
+        if (payload.path === 'servers') {
+          return execCallback(await fn({ name: 'document.servers', params }))
+        }
+        if (payload.path === 'environment') {
+          return execCallback(await fn({ name: 'document.environment', params }))
+        }
+        if (payload.path === 'authentication') {
+          return execCallback(await fn({ name: 'document.authentication', params }))
+        }
+        if (payload.path === 'cookies') {
+          return execCallback(await fn({ name: 'document.cookies', params }))
+        }
+        if (payload.path === 'settings') {
+          return execCallback(await fn({ name: 'document.settings', params }))
+        }
       }
 
-      return payload.callback?.('success')
-    }
+      if (payload.page === 'workspace') {
+        const params = { workspaceSlug: payload.workspaceSlug, teamSlug: payload.teamSlug } satisfies ValidParams
+        if (payload.path === 'get-started') {
+          return execCallback(await fn({ name: 'workspace.get-started', params }))
+        }
+        if (payload.path === 'environment') {
+          return execCallback(await fn({ name: 'workspace.environment', params }))
+        }
+        if (payload.path === 'cookies') {
+          return execCallback(await fn({ name: 'workspace.cookies', params }))
+        }
+        if (payload.path === 'settings') {
+          return execCallback(await fn({ name: 'workspace.settings', params }))
+        }
+      }
 
-    type ValidParams = Partial<Record<ScalarClientAppRouteParams, string>>
+      if (payload.page === 'example') {
+        const params = {
+          teamSlug: payload.teamSlug,
+          workspaceSlug: payload.workspaceSlug,
+          documentSlug: payload.documentSlug,
+          pathEncoded: encodeURIComponent(payload.path),
+          method: payload.method,
+          exampleName: payload.exampleName,
+        } satisfies ValidParams
+        return execCallback(await fn({ name: 'example', params }))
+      }
 
-    if (payload.page === 'document') {
-      const params = {
-        documentSlug: payload.documentSlug,
-        workspaceSlug: payload.workspaceSlug,
-        teamSlug: payload.teamSlug,
-      } satisfies ValidParams
-
-      if (payload.path === 'overview') {
-        return execCallback(await fn({ name: 'document.overview', params }))
+      if (payload.page === 'operation') {
+        const params = {
+          teamSlug: payload.teamSlug,
+          workspaceSlug: payload.workspaceSlug,
+          documentSlug: payload.documentSlug,
+          pathEncoded: encodeURIComponent(payload.operationPath),
+          method: payload.method,
+        } satisfies ValidParams
+        if (payload.path === 'overview') {
+          return execCallback(await fn({ name: 'operation.overview', params }))
+        }
+        if (payload.path === 'servers') {
+          return execCallback(await fn({ name: 'operation.servers', params }))
+        }
+        if (payload.path === 'authentication') {
+          return execCallback(await fn({ name: 'operation.authentication', params }))
+        }
+        if (payload.path === 'editor') {
+          return execCallback(await fn({ name: 'operation.editor', params }))
+        }
       }
-      if (payload.path === 'servers') {
-        return execCallback(await fn({ name: 'document.servers', params }))
-      }
-      if (payload.path === 'environment') {
-        return execCallback(await fn({ name: 'document.environment', params }))
-      }
-      if (payload.path === 'authentication') {
-        return execCallback(await fn({ name: 'document.authentication', params }))
-      }
-      if (payload.path === 'cookies') {
-        return execCallback(await fn({ name: 'document.cookies', params }))
-      }
-      if (payload.path === 'settings') {
-        return execCallback(await fn({ name: 'document.settings', params }))
-      }
-    }
-
-    if (payload.page === 'workspace') {
-      const params = { workspaceSlug: payload.workspaceSlug, teamSlug: payload.teamSlug } satisfies ValidParams
-      if (payload.path === 'get-started') {
-        return execCallback(await fn({ name: 'workspace.get-started', params }))
-      }
-      if (payload.path === 'environment') {
-        return execCallback(await fn({ name: 'workspace.environment', params }))
-      }
-      if (payload.path === 'cookies') {
-        return execCallback(await fn({ name: 'workspace.cookies', params }))
-      }
-      if (payload.path === 'settings') {
-        return execCallback(await fn({ name: 'workspace.settings', params }))
-      }
-    }
-
-    if (payload.page === 'example') {
-      const params = {
-        teamSlug: payload.teamSlug,
-        workspaceSlug: payload.workspaceSlug,
-        documentSlug: payload.documentSlug,
-        pathEncoded: encodeURIComponent(payload.path),
-        method: payload.method,
-        exampleName: payload.exampleName,
-      } satisfies ValidParams
-      return execCallback(await fn({ name: 'example', params }))
-    }
-
-    if (payload.page === 'operation') {
-      const params = {
-        teamSlug: payload.teamSlug,
-        workspaceSlug: payload.workspaceSlug,
-        documentSlug: payload.documentSlug,
-        pathEncoded: encodeURIComponent(payload.operationPath),
-        method: payload.method,
-      } satisfies ValidParams
-      if (payload.path === 'overview') {
-        return execCallback(await fn({ name: 'operation.overview', params }))
-      }
-      if (payload.path === 'servers') {
-        return execCallback(await fn({ name: 'operation.servers', params }))
-      }
-      if (payload.path === 'authentication') {
-        return execCallback(await fn({ name: 'operation.authentication', params }))
-      }
-      if (payload.path === 'editor') {
-        return execCallback(await fn({ name: 'operation.editor', params }))
-      }
-    }
+    },
   })
 
   //------------------------------------------------------------------------------------
   // Tabs Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('tabs:copy:url', (payload) => onCopyTabUrl(payload.index))
+  return {
+    ...workspaceEvents.navigation,
+    ...appNavigation.navigation,
+  }
 }

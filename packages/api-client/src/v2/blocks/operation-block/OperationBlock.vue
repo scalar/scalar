@@ -21,7 +21,7 @@ export type OperationBlockProps = {
   externalExamplesPending?: boolean
   externalExamplesFailed?: boolean
   /** Event bus */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** Application version */
   appVersion: string
   /** Openapi document */
@@ -115,10 +115,11 @@ import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
 import type { HistoryEntry } from '@scalar/workspace-store/entities/history/schema'
-import type {
-  AuthMeta,
-  ServerMeta,
-  WorkspaceEventBus,
+import {
+  navigate as navigateCommand,
+  type AuthMeta,
+  type NavigationEventBus,
+  type ServerMeta,
 } from '@scalar/workspace-store/events'
 import {
   buildRequest,
@@ -612,7 +613,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
   }
 
   const navigate = () =>
-    eventBus.emit('ui:navigate', {
+    navigateCommand(eventBus.navigation, 'ui:navigate', {
       page: 'example',
       method,
       path,
@@ -654,7 +655,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
 }
 
 const handleNavigateSettings = () => {
-  eventBus.emit('ui:navigate', {
+  navigateCommand(eventBus.navigation, 'ui:navigate', {
     page: 'operation',
     path: 'overview',
     operationPath: path,

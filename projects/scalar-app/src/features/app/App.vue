@@ -1,4 +1,6 @@
 <script lang="ts">
+import { navigate } from '@scalar/workspace-store/events'
+
 /**
  * Main entry point for the API client for electron and web.
  *
@@ -324,7 +326,7 @@ const routerViewProps = computed<RouteProps>(() => {
         <AppHeader
           @changed:team="emit('changed:team')"
           @navigate:to:settings="
-            app.eventBus.emit('ui:navigate', {
+            navigate(app.eventBus.navigation, 'ui:navigate', {
               page: 'workspace',
               path: 'settings',
             })

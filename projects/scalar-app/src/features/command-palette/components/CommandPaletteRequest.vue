@@ -36,7 +36,10 @@ import {
   type HttpMethod,
 } from '@scalar/helpers/http/http-methods'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch, type ComputedRef } from 'vue'
@@ -56,7 +59,7 @@ const {
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** Preselected document id to create the request in */
   documentName?: string
   /** Preselected tag id to add the request to (optional) */
@@ -271,7 +274,7 @@ const handleSubmit = (): void => {
       workspaceStore.buildSidebar(documentName)
 
       /** Navigate to the example via the event bus rather than the router */
-      eventBus.emit('ui:navigate', {
+      navigateCommand(eventBus.navigation, 'ui:navigate', {
         page: 'example',
         documentSlug: documentName,
         path: normalizedRequestPath.value,

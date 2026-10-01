@@ -9,6 +9,7 @@ import { useModal } from '@scalar/components/modal'
 import { safeRun } from '@scalar/helpers/types/safe-run'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
+import { navigate } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { type AppState } from '@/features/app/app-state'
@@ -211,7 +212,7 @@ useVersionConflictCheck({
 })
 
 const navigateToDocument = (documentSlug: string) => {
-  app.eventBus.emit('ui:navigate', {
+  navigate(app.eventBus.navigation, 'ui:navigate', {
     page: 'document',
     path: 'overview',
     documentSlug,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import ClassicLayout from './components/ClassicLayout.vue'
@@ -10,7 +10,9 @@ const { tag, layout, moreThanOneTag } = defineProps<{
   layout: 'classic' | 'modern'
   moreThanOneTag: boolean
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<
+    'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
+  >
   /** Whether this tag sits inside a parent tag's container (drops its own padding). */
   nested?: boolean
 }>()

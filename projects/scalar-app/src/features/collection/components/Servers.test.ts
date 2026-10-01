@@ -1,5 +1,11 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
+
+const createNavigationEventBus = () => {
+  const bus = createWorkspaceEventBus()
+  return withNavigation(bus, createNavigation(bus, { 'ui:navigate': () => undefined }).navigation)
+}
+
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -54,7 +60,7 @@ describe('Servers', () => {
   ) => {
     const document = custom.document ?? baseDocument
     const environment = custom.environment ?? baseEnvironment
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     return {
       wrapper: mount(Servers, {

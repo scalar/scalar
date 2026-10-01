@@ -1,4 +1,5 @@
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -22,7 +23,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })
@@ -39,7 +40,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })
@@ -55,7 +56,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })
@@ -73,7 +74,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })
@@ -91,7 +92,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
           isCollapsed: true,
         },
@@ -105,7 +106,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
           isCollapsed: false,
         },
@@ -119,7 +120,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
           isCollapsed: true,
         },
@@ -134,7 +135,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
           isCollapsed: false,
         },
@@ -151,7 +152,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })
@@ -168,7 +169,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })
@@ -180,7 +181,7 @@ describe('TagSection', () => {
     it('does not render when tag is null', () => {
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: null as any,
         },
       })
@@ -208,7 +209,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })
@@ -226,7 +227,7 @@ describe('TagSection', () => {
 
       const wrapper = mount(TagSection, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           tag: mockTag,
         },
       })

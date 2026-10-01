@@ -42,7 +42,9 @@ export type OperationProps = {
   /** The currently selected example key, shared across operations for in-sync example pickers */
   selectedExample: WorkspaceStore['workspace']['x-scalar-default-example']
   /** The event bus */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<
+    'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
+  >
   /** The auth store */
   authStore: AuthStore
 }
@@ -53,7 +55,7 @@ import type { ClientOptionGroup } from '@scalar/blocks/code-example'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'

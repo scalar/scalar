@@ -1,5 +1,6 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
@@ -25,7 +26,7 @@ const headers = {
 
 const baseProps = {
   headers,
-  eventBus: null,
+  eventBus: createNavigationEventBus(),
   breadcrumb: ['op', 'responses', '200'],
   orderRequiredPropertiesFirst: false,
   orderSchemaPropertiesBy: 'alpha' as const,

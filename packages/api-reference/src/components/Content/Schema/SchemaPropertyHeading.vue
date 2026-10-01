@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
@@ -44,7 +47,7 @@ const props = withDefaults(
     modelName?: string | null
     /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
     propertyNames?: SchemaObject
-    eventBus?: WorkspaceEventBus | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     /**
      * The row's name is a stand-in for keys the caller chooses
      * (`additionalProperties`) or keys matching a regex (`patternProperties`),
@@ -64,7 +67,6 @@ const props = withDefaults(
     required: false,
     withExamples: true,
     hideModelNames: false,
-    eventBus: null,
   },
 )
 const { translate } = useLocalization()
@@ -424,13 +426,17 @@ const patternValue = computed(() => {
              `Type:string`. -->
         <span class="screenreader-only"> {{ translate('schema.type') }}: </span>
         <button
-          v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
+          v-if="modelLink?.schemaKey && modelLinkable"
           class="text-c-2 hover:text-c-1 underline"
           type="button"
           @click="
-            props.eventBus.emit('scroll-to:model-by-name', {
-              name: modelLink.schemaKey,
-            })
+            navigateCommand(
+              props.eventBus.navigation,
+              'scroll-to:model-by-name',
+              {
+                name: modelLink.schemaKey,
+              },
+            )
           ">
           <span
             v-if="signatureTokens.length"

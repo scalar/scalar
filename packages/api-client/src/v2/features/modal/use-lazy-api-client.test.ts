@@ -1,4 +1,4 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigation, createWorkspaceEventBus, navigate } from '@scalar/workspace-store/events'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { effectScope, shallowRef } from 'vue'
@@ -18,7 +18,9 @@ const setup = () => {
   const unmount = vi.fn()
   const client = { app: { unmount } } as unknown as ApiClientModal
   const createClient = vi.fn(() => {
-    eventBus.on('ui:open:client-modal', opened)
+    const modalNavigation = createNavigation(eventBus, { 'ui:open:client-modal': opened })
+    Object.assign(client, { navigation: modalNavigation.navigation })
+    unmount.mockImplementation(modalNavigation.dispose)
     return client
   })
   let resolve!: (factory: () => ApiClientModal | null) => void
@@ -72,6 +74,19 @@ describe('use-lazy-api-client', () => {
     expect(opened).toHaveBeenLastCalledWith({ id: 'third' })
     expect(opened).toHaveBeenCalledTimes(2)
     expect(load).toHaveBeenCalledOnce()
+  })
+
+  it('hands capability calls to the mounted modal without loading it again', async () => {
+    const { result, opened, deferred, createClient, load, scope } = setup()
+    navigate(result.navigation, 'ui:open:client-modal', { id: 'first' })
+    deferred.resolve(createClient)
+    await flushPromises()
+    navigate(result.navigation, 'ui:open:client-modal', { id: 'second' })
+    expect(opened).toHaveBeenCalledTimes(2)
+    expect(opened).toHaveBeenLastCalledWith({ id: 'second' })
+    expect(load).toHaveBeenCalledOnce()
+    scope.stop()
+    expect(() => navigate(result.navigation, 'ui:open:client-modal')).toThrow('disposed')
   })
 
   it('loads independently for reference and agent event buses', async () => {
@@ -174,7 +189,9 @@ describe('use-lazy-api-client', () => {
       eventBus,
       load: () =>
         Promise.resolve(() => {
-          eventBus.on('ui:open:client-modal', opened)
+          Object.assign(client, {
+            navigation: createNavigation(eventBus, { 'ui:open:client-modal': opened }).navigation,
+          })
           return client
         }),
     })

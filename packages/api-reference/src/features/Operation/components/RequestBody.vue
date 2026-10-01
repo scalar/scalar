@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OpenApiDocument,
@@ -27,7 +30,7 @@ import ContentTypeSelect from './ContentTypeSelect.vue'
 const { requestBody, options, document } = defineProps<{
   breadcrumb?: string[]
   requestBody?: RequestBodyObject
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the request body belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   options: {
@@ -178,9 +181,9 @@ const shouldRenderRequestBody = computed(
           data-testid="request-body-schema-name">
           <span class="text-c-3 mx-1.5">·</span>
           <LinkButton
-            v-if="eventBus && modelLink.schemaKey && modelLinkable"
+            v-if="modelLink.schemaKey && modelLinkable"
             @click="
-              eventBus.emit('scroll-to:model-by-name', {
+              navigateCommand(eventBus.navigation, 'scroll-to:model-by-name', {
                 name: modelLink.schemaKey,
               })
             ">

@@ -6,10 +6,20 @@ export type {
   CommandPaletteAction,
   CommandPalettePayload,
   KeyboardEventPayload,
+  NavigationEvents,
   OperationEvents,
   OperationExampleMeta,
   OperationMeta,
   ServerMeta,
 } from './definitions'
 export { onCustomEvent } from './listeners'
+export {
+  type Navigation,
+  type NavigationEventBus,
+  type NavigationHandlers,
+  createNavigation,
+  isNavigationEvent,
+  navigate,
+  withNavigation,
+} from './navigation'
 export { emitCustomEvent } from './old-definitions'

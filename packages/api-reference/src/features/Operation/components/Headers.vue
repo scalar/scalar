@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   HeaderObject,
@@ -22,7 +22,7 @@ const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
   defineProps<{
     headers: Record<string, HeaderObject>
     breadcrumb?: string[]
-    eventBus: WorkspaceEventBus | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     /** The document the headers belong to, used to resolve schema references for display */
     document?: OpenApiDocument
     orderRequiredPropertiesFirst: boolean | undefined

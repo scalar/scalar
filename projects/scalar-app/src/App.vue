@@ -1,4 +1,6 @@
 <script lang="ts">
+import { navigate } from '@scalar/workspace-store/events'
+
 export type AppProps = {
   /** The app state.
    */
@@ -154,7 +156,7 @@ app.router.afterEach(async (to) => {
 
 // Emits a navigation event to open the workspace settings page
 const openSettings = () => {
-  app.eventBus.emit('ui:navigate', {
+  navigate(app.eventBus.navigation, 'ui:navigate', {
     page: 'workspace',
     path: 'settings',
   })
@@ -177,7 +179,7 @@ const navigateToDocument = ({
   operationMethod,
 }: NavigateToDocumentPayload) => {
   if (operationPath && operationMethod) {
-    app.eventBus.emit('ui:navigate', {
+    navigate(app.eventBus.navigation, 'ui:navigate', {
       page: 'example',
       documentSlug: slug,
       path: operationPath,
@@ -187,7 +189,7 @@ const navigateToDocument = ({
     return
   }
 
-  app.eventBus.emit('ui:navigate', {
+  navigate(app.eventBus.navigation, 'ui:navigate', {
     page: 'document',
     path: 'overview',
     documentSlug: slug,

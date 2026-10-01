@@ -4,7 +4,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
@@ -81,7 +81,9 @@ const {
   /** Used to determine if an entry is collapsed */
   expandedItems: Record<string, boolean>
   /** The event bus for the handling all events. */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<
+    'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
+  >
 }>()
 
 /**

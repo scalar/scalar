@@ -1,6 +1,7 @@
 import { getSelector } from '@scalar/helpers/dom/get-selector'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { enableConsoleError, enableConsoleWarn } from '@test/vitest.setup'
 import { mount } from '@vue/test-utils'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -35,7 +36,7 @@ describe('AddressBar', () => {
   }
 
   const mountWithProps = (custom: Partial<AddressBarProps> = {}) => {
-    const eventBus = custom.eventBus ?? createWorkspaceEventBus()
+    const eventBus = custom.eventBus ?? createNavigationEventBus()
 
     const wrapper = mount(AddressBar, {
       props: {

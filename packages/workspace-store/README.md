@@ -609,3 +609,26 @@ const resolved = createMagicProxy(document, {
 The plugin interprets `$self` only on complete OpenAPI documents. Example payloads and API server URLs are unchanged.
 
 Authored reference spellings (including `./` and fragments) are retained across partial bundles and restored by `getEditableDocument`. Loader permissions still apply to the resolved location: `$self` does not enable a loader or widen its file or network access.
+
+### Navigation capabilities
+
+Components that initiate navigation require a `NavigationEventBus` for the commands they use. A plain event bus cannot satisfy that component boundary. Register primary destinations separately from event observers, then attach the resulting capability:
+
+```ts
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
+
+const events = createWorkspaceEventBus()
+const modelNavigation = createNavigation(events, {
+  'scroll-to:model-by-name': ({ name }) => router.push(`/models/${name}`),
+})
+const eventBus = withNavigation(events, modelNavigation.navigation)
+// Pass eventBus to a schema component that requires model navigation.
+```
+
+Each feature declares only the commands it owns. Every command in a consumer's required scope must have a primary handler. Missing handlers, `false`, and removed event names fail compilation. Product settings such as `hideModels` control visibility independently of handler registration. Components use `navigate` to invoke destinations with typed payloads.
+
+Ordinary `on`, `once`, and `onAny` subscriptions remain available for observers. An observer does not provide a primary destination. Capabilities sharing a notification bus retain independent ownership, so a modal cannot take over the reference's navigation. Legacy event emissions still reach registered primary handlers; new interactive components invoke their required capability directly.
+
+Call `modelNavigation.dispose()` when its feature is destroyed. Invoking that disposed capability fails explicitly even if observers are still registered. A lazy feature hands off to its mounted feature's capability explicitly.
+
+Keep interaction tests that assert the destination, alongside type checks. Types enforce declared commands and payloads; they cannot prove that a callback navigates to the correct page.

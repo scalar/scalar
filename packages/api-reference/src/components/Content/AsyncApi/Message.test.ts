@@ -1,6 +1,7 @@
 import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
@@ -44,7 +45,7 @@ describe('Message', () => {
     const wrapper = mount(Message, {
       props: {
         message: createMessage(),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems: expanded,
         document: createDocument({ payload }),
       },
@@ -65,7 +66,7 @@ describe('Message', () => {
       props: {
         message: createMessage(),
         document: createDocument({ payload: { type: 'string', const: 'first' } }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
     expect(wrapper.findComponent(MessageExamples).exists()).toBe(false)
@@ -80,7 +81,7 @@ describe('Message', () => {
     const wrapper = mount(Message, {
       props: {
         message: createMessage(),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems: expanded,
         document: createDocument({
           payload: { type: 'string', const: 'generated' },
@@ -112,7 +113,7 @@ describe('Message', () => {
           headers: { type: 'object', properties: { tenantId: { type: 'string' } } },
         }),
         expandedItems: expanded,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -128,7 +129,7 @@ describe('Message', () => {
       props: {
         message: createMessage(),
         document: createDocument({ examples: [{ payload: { id: 'event-123' } }] }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems: expanded,
       },
     })
@@ -141,7 +142,7 @@ describe('Message', () => {
       props: {
         message: createMessage(),
         document: createDocument({ title: 'User signed up', payload: { type: 'object' } }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -152,7 +153,7 @@ describe('Message', () => {
     const props = {
       message: createMessage(),
       document: createDocument({ description: 'Emitted on signup.', payload: { type: 'object' } }),
-      eventBus: null,
+      eventBus: createNavigationEventBus(),
     }
 
     const collapsed = mount(Message, { props })
@@ -167,7 +168,7 @@ describe('Message', () => {
       props: {
         message: createMessage(),
         document: createDocument({ description: 'Emitted on signup.', payload: { type: 'object' } }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -182,7 +183,7 @@ describe('Message', () => {
       props: {
         message: createMessage(),
         document: createDocument({ description: 'Emitted on signup.', payload: { type: 'object' } }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems,
       },
     })
@@ -218,7 +219,7 @@ describe('Message', () => {
         document: createDocument({
           payload: { type: 'object', properties: { id: { type: 'string' } } },
         }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems: expanded,
       },
     })
@@ -237,7 +238,7 @@ describe('Message', () => {
             schema: { type: 'object', properties: { email: { type: 'string' } } },
           },
         }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems: expanded,
       },
     })
@@ -253,7 +254,7 @@ describe('Message', () => {
         document: createDocument({
           headers: { type: 'object', properties: { 'x-token': { type: 'string' } } },
         }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems: expanded,
       },
     })
@@ -267,7 +268,7 @@ describe('Message', () => {
       props: {
         message: createMessage(),
         document: createDocument({ title: 'User signed up' }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems: expanded,
       },
     })
@@ -297,7 +298,7 @@ describe('Message', () => {
       props: {
         message: createMessage(),
         document: documentWithServers({ title: 'User signed up' }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -315,7 +316,7 @@ describe('Message', () => {
           // Declares a kafka binding that no server speaks; it should still surface.
           bindings: { kafka: { groupId: 'g1' } },
         }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -333,7 +334,7 @@ describe('Message', () => {
           title: 'User signed up',
           bindings: { ws: { method: 'GET' }, mqtt: {} },
         }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 

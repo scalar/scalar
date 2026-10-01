@@ -17,7 +17,7 @@ export type OperationProps = {
   /** The currently active document — OpenAPI-only, the operation page has no AsyncAPI path */
   document: OpenApiDocument | null
   /** The workspace event bus */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** The layout of the client */
   layout: ClientLayout
   /** The API path currently selected (e.g. "/users/{id}") */
@@ -43,7 +43,7 @@ export type OperationProps = {
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getOperationExamples,

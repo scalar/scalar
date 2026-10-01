@@ -8,7 +8,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarIconPencil } from '@scalar/icons'
 import type { SidebarState } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -20,7 +20,7 @@ const { item, eventBus, sidebarState, target, workspaceStore } = defineProps<{
   /** The item to display the decorator for */
   item: TraversedEntry
   /** The event bus to emit events to */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** The sidebar state to get the parent entry from */
   sidebarState: SidebarState<TraversedEntry>
   /** The target to position the dropdown relative to */

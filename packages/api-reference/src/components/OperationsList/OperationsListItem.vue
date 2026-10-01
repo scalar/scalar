@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import type {
   TraversedEntry,
   TraversedOperation,
@@ -16,7 +19,7 @@ import { useDocumentOutline } from '@/features/document-outline'
 const { operation } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
   isCollapsed?: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
 }>()
 
 const pathOrTitle = computed(() => {
@@ -48,7 +51,10 @@ const { level: headingLevel } = useDocumentOutline('operation')
     <a
       class="endpoint"
       @click.prevent="
-        () => eventBus?.emit('scroll-to:nav-item', { id: operation.id })
+        () =>
+          navigateCommand(eventBus.navigation, 'scroll-to:nav-item', {
+            id: operation.id,
+          })
       ">
       <HttpMethod
         class="endpoint-method items-center justify-end gap-2"

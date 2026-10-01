@@ -1,6 +1,12 @@
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
+
+const createNavigationEventBus = () => {
+  const bus = createWorkspaceEventBus()
+  return withNavigation(bus, createNavigation(bus, { 'ui:navigate': () => undefined }).navigation)
+}
+
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -18,7 +24,7 @@ describe('CommandPaletteImport', () => {
 
   it('renders with required props', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -32,7 +38,7 @@ describe('CommandPaletteImport', () => {
 
   it('initializes with empty input', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -47,7 +53,7 @@ describe('CommandPaletteImport', () => {
 
   it('initializes with watch mode disabled', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -63,7 +69,7 @@ describe('CommandPaletteImport', () => {
 
   it('renders input placeholder text', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -78,7 +84,7 @@ describe('CommandPaletteImport', () => {
 
   it('disables form when input is empty', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -93,7 +99,7 @@ describe('CommandPaletteImport', () => {
 
   it('disables form when input is only whitespace', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -112,7 +118,7 @@ describe('CommandPaletteImport', () => {
 
   it('enables form when input has content', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -131,7 +137,7 @@ describe('CommandPaletteImport', () => {
 
   it('updates input when text is entered', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -158,7 +164,7 @@ describe('CommandPaletteImport', () => {
 
   it('opens Postman import when pasted content is a Postman collection', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -183,7 +189,7 @@ describe('CommandPaletteImport', () => {
 
   it('emits open-command event when cURL is detected', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -208,7 +214,7 @@ describe('CommandPaletteImport', () => {
 
   it('detects cURL with uppercase', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -228,7 +234,7 @@ describe('CommandPaletteImport', () => {
 
   it('detects cURL with leading whitespace', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -248,7 +254,7 @@ describe('CommandPaletteImport', () => {
 
   it('emits back event when delete is triggered on input', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -268,7 +274,7 @@ describe('CommandPaletteImport', () => {
 
   it('disables watch mode toggle for non-URL input', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -287,7 +293,7 @@ describe('CommandPaletteImport', () => {
 
   it('enables watch mode toggle for URL input', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -306,7 +312,7 @@ describe('CommandPaletteImport', () => {
 
   it('enables watch mode toggle for URL input with a trailing newline', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -325,7 +331,7 @@ describe('CommandPaletteImport', () => {
 
   it('automatically disables watch mode when switching from URL to content', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -361,7 +367,7 @@ describe('CommandPaletteImport', () => {
 
   it('shows preview mode for pasted OpenAPI content', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -386,7 +392,7 @@ describe('CommandPaletteImport', () => {
 
   it('shows clear button in preview mode', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -409,7 +415,7 @@ describe('CommandPaletteImport', () => {
 
   it('clears content when clear button is clicked', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -437,7 +443,7 @@ describe('CommandPaletteImport', () => {
 
   it('does not show preview mode for URL input', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -456,7 +462,7 @@ describe('CommandPaletteImport', () => {
 
   it('renders file upload button', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -470,7 +476,7 @@ describe('CommandPaletteImport', () => {
 
   it('renders watch mode toggle', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -485,7 +491,7 @@ describe('CommandPaletteImport', () => {
 
   it('renders tooltip for watch mode', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -500,7 +506,7 @@ describe('CommandPaletteImport', () => {
 
   it('shows different tooltip content for URL vs non-URL input', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -527,7 +533,7 @@ describe('CommandPaletteImport', () => {
 
   it('has submit slot for URL import', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -548,7 +554,7 @@ describe('CommandPaletteImport', () => {
 
   it('has submit slot for pasted content', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -574,7 +580,7 @@ describe('CommandPaletteImport', () => {
 
   it('renders Upload icon', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -590,7 +596,7 @@ describe('CommandPaletteImport', () => {
 
   it('passes loading state to form', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -605,7 +611,7 @@ describe('CommandPaletteImport', () => {
 
   it('renders submit button with "Import" text', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -625,7 +631,7 @@ describe('CommandPaletteImport', () => {
 
   it('handles watch mode toggle changes', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -656,7 +662,7 @@ describe('CommandPaletteImport', () => {
 
   it('initializes with correct file dialog accept types', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     mount(CommandPaletteImport, {
       props: {
@@ -671,7 +677,7 @@ describe('CommandPaletteImport', () => {
 
   it('does not show input when in preview mode', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -696,7 +702,7 @@ describe('CommandPaletteImport', () => {
 
   it('shows input for URL even though it is valid content', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {
@@ -754,7 +760,7 @@ describe('CommandPaletteImport', () => {
 
   it('exposes the import function on the fileUpload slot', () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const { slotImport } = mountWithSlotCapture({ workspaceStore, eventBus })
 
@@ -763,7 +769,7 @@ describe('CommandPaletteImport', () => {
 
   it('routes path-based Postman imports from the fileUpload slot to the Postman modal', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -783,7 +789,7 @@ describe('CommandPaletteImport', () => {
 
   it('routes raw Postman content from the fileUpload slot to the Postman modal', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -801,7 +807,7 @@ describe('CommandPaletteImport', () => {
 
   it('does not route non-Postman content from the fileUpload slot to the Postman modal', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -823,7 +829,7 @@ describe('CommandPaletteImport', () => {
 
   it('does not crash when the fileUpload slot is used without a file loader', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const emitSpy = vi.fn()
     eventBus.emit = emitSpy
 
@@ -839,7 +845,7 @@ describe('CommandPaletteImport', () => {
 
   it('uses the provided fetch when importing from a URL', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     // On desktop this stands in for the IPC-backed fetch. The temporary draft
     // store has to use it, otherwise the renderer's global fetch is blocked by
@@ -870,7 +876,7 @@ describe('CommandPaletteImport', () => {
 
   it('handles empty input after having content', async () => {
     const workspaceStore = createWorkspaceStore()
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
 
     const wrapper = mount(CommandPaletteImport, {
       props: {

@@ -10,6 +10,7 @@ import type { CookieEvents } from './cookie'
 import type { DocumentEvents } from './document'
 import type { LogEvents } from './log'
 import type { MetaEvents } from './meta'
+import type { NavigationEvents } from './navigation'
 import type { OperationEvents } from './operation'
 import type { ServerEvents } from './server'
 import type { UIEvents } from './ui'
@@ -21,6 +22,7 @@ export type ApiReferenceEvents = AuthEvents &
   DocumentEvents &
   EnvironmentEvents &
   MetaEvents &
+  NavigationEvents &
   LogEvents &
   OperationEvents &
   ServerEvents &
@@ -31,6 +33,7 @@ export type ApiReferenceEvents = AuthEvents &
 
 export type { AuthMeta } from './auth'
 export type { CollectionType } from './common'
+export type { NavigationEvents } from './navigation'
 export type { OperationEvents, OperationExampleMeta, OperationMeta } from './operation'
 export type { ServerMeta } from './server'
 export type { CommandPaletteAction, CommandPalettePayload, KeyboardEventPayload } from './ui'
