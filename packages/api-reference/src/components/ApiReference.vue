@@ -919,15 +919,6 @@ defineExpose({
  */
 const modelsIndex = computed(() => buildModelsIndex(sidebarItems.value))
 
-eventBus.on('scroll-to:model-by-name', ({ name }) => {
-  /** Find the model in the models index */
-  const model = modelsIndex.value[name]
-
-  if (model) {
-    scrollToLazyElement(model)
-  }
-})
-
 const addDocument: typeof workspaceStore.addDocument = async (
   input,
   navigationOptions,
@@ -1569,11 +1560,23 @@ const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   }
 }
 
-/** Handle a navigation item selection event */
-eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
-
-/** Handle a scroll to navigation item event */
-eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
+eventBus.onNavigation({
+  'ui:open:settings': false,
+  'ui:open:client-modal': false,
+  'tabs:navigate:previous': false,
+  'tabs:navigate:next': false,
+  'tabs:focus:tab': false,
+  'tabs:focus:tab-last': false,
+  'select:nav-item': ({ id }) => handleSelectSidebarEntry(id),
+  'scroll-to:nav-item': ({ id }) => handleSelectSidebarEntry(id),
+  'scroll-to:model-by-name': ({ name }) => {
+    const model = modelsIndex.value[name]
+    if (model) {
+      scrollToLazyElement(model)
+    }
+  },
+  'ui:navigate': false,
+})
 
 /**
  * Sentinel rendered at the very start of the document. Its position resolves which entry an

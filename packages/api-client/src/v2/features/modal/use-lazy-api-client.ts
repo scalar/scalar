@@ -22,40 +22,51 @@ export const useLazyApiClient = ({
   let loading = false
   let pending: { payload: OpenPayload } | null = null
 
-  const unsubscribeOpen = eventBus.on('ui:open:client-modal', (payload) => {
-    pending = { payload }
-    status.value = 'loading'
-    if (loading) {
-      return
-    }
-    loading = true
-    void load()
-      .then((createClient) => {
-        if (disposed || !pending) {
-          return
-        }
-        client.value = (scope ? scope.run(createClient) : createClient()) ?? null
-        if (!client.value) {
-          return
-        }
-        unsubscribeOpen()
-        unsubscribeClose()
-        // Replay the full event after the modal subscribes, including example and composition selection.
-        eventBus.emit('ui:open:client-modal', pending.payload)
-      })
-      .catch((error: unknown) => {
-        if (!disposed && pending) {
-          status.value = 'error'
-        }
-        console.error('[@scalar/api-client] Could not load the API client modal.', error)
-      })
-      .finally(() => {
-        pending = null
-        loading = false
-        if (status.value === 'loading') {
-          status.value = 'idle'
-        }
-      })
+  const unsubscribeOpen = eventBus.onNavigation({
+    'select:nav-item': false,
+    'scroll-to:nav-item': false,
+    'scroll-to:model-by-name': false,
+    'ui:navigate': false,
+    'ui:open:settings': false,
+    'tabs:navigate:previous': false,
+    'tabs:navigate:next': false,
+    'tabs:focus:tab': false,
+    'tabs:focus:tab-last': false,
+    'ui:open:client-modal': (payload) => {
+      pending = { payload }
+      status.value = 'loading'
+      if (loading) {
+        return
+      }
+      loading = true
+      void load()
+        .then((createClient) => {
+          if (disposed || !pending) {
+            return
+          }
+          client.value = (scope ? scope.run(createClient) : createClient()) ?? null
+          if (!client.value) {
+            return
+          }
+          unsubscribeOpen()
+          unsubscribeClose()
+          // Replay the full event after the modal subscribes, including example and composition selection.
+          eventBus.emit('ui:open:client-modal', pending.payload)
+        })
+        .catch((error: unknown) => {
+          if (!disposed && pending) {
+            status.value = 'error'
+          }
+          console.error('[@scalar/api-client] Could not load the API client modal.', error)
+        })
+        .finally(() => {
+          pending = null
+          loading = false
+          if (status.value === 'loading') {
+            status.value = 'idle'
+          }
+        })
+    },
   })
   const unsubscribeClose = eventBus.on('ui:close:client-modal', () => {
     pending = null

@@ -18,7 +18,18 @@ const setup = () => {
   const unmount = vi.fn()
   const client = { app: { unmount } } as unknown as ApiClientModal
   const createClient = vi.fn(() => {
-    eventBus.on('ui:open:client-modal', opened)
+    eventBus.onNavigation({
+      'select:nav-item': false,
+      'scroll-to:nav-item': false,
+      'scroll-to:model-by-name': false,
+      'ui:navigate': false,
+      'ui:open:settings': false,
+      'tabs:navigate:previous': false,
+      'tabs:navigate:next': false,
+      'tabs:focus:tab': false,
+      'tabs:focus:tab-last': false,
+      'ui:open:client-modal': opened,
+    })
     return client
   })
   let resolve!: (factory: () => ApiClientModal | null) => void
@@ -109,7 +120,7 @@ describe('use-lazy-api-client', () => {
     scope.stop()
     deferred.resolve(createClient)
     await flushPromises()
-    eventBus.emit('ui:open:client-modal')
+    expect(() => eventBus.emit('ui:open:client-modal')).toThrow('Unhandled navigation command')
     expect(createClient).not.toHaveBeenCalled()
     expect(load).toHaveBeenCalledOnce()
   })
@@ -174,7 +185,18 @@ describe('use-lazy-api-client', () => {
       eventBus,
       load: () =>
         Promise.resolve(() => {
-          eventBus.on('ui:open:client-modal', opened)
+          eventBus.onNavigation({
+            'select:nav-item': false,
+            'scroll-to:nav-item': false,
+            'scroll-to:model-by-name': false,
+            'ui:navigate': false,
+            'ui:open:settings': false,
+            'tabs:navigate:previous': false,
+            'tabs:navigate:next': false,
+            'tabs:focus:tab': false,
+            'tabs:focus:tab-last': false,
+            'ui:open:client-modal': opened,
+          })
           return client
         }),
     })

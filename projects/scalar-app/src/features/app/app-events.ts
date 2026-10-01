@@ -290,11 +290,6 @@ export function initializeAppEventHandlers({
   eventBus.on('workspace:update:name', (payload) => renameWorkspace(payload))
 
   //------------------------------------------------------------------------------------
-  // Navigation Event Handlers
-  //------------------------------------------------------------------------------------
-  eventBus.on('scroll-to:nav-item', ({ id }) => onSelectSidebarItem(id))
-
-  //------------------------------------------------------------------------------------
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   // Note: Command palette handler is colocated with the command palette component
@@ -302,106 +297,117 @@ export function initializeAppEventHandlers({
   eventBus.on('ui:toggle:sidebar', onToggleSidebar)
 
   /**
-   * Bind the inernal navigation to a public api
+   * Bind internal navigation to the public API
    */
-  eventBus.on('ui:navigate', async (payload) => {
-    const { replace = false } = payload
-    const fn = replace ? router.replace : router.push
+  eventBus.onNavigation({
+    'ui:open:settings': false,
+    'ui:open:client-modal': false,
+    'tabs:navigate:previous': false,
+    'tabs:navigate:next': false,
+    'tabs:focus:tab': false,
+    'tabs:focus:tab-last': false,
+    'select:nav-item': false,
+    'scroll-to:nav-item': ({ id }) => onSelectSidebarItem(id),
+    'scroll-to:model-by-name': false,
+    'ui:navigate': async (payload) => {
+      const { replace = false } = payload
+      const fn = replace ? router.replace : router.push
 
-    const execCallback = (result: NavigationFailure | void | undefined) => {
-      if (!result) {
-        // Close the sidebar if it is open
-        closeSidebar()
+      const execCallback = (result: NavigationFailure | void | undefined) => {
+        if (!result) {
+          // Close the sidebar if it is open
+          closeSidebar()
+          return payload.callback?.('success')
+        }
+
+        const navigationFailure: 16 = NavigationFailureType.duplicated
+
+        if (result.type !== navigationFailure) {
+          return payload.callback?.('error')
+        }
+
         return payload.callback?.('success')
       }
 
-      const navigationFailure: 16 = NavigationFailureType.duplicated
+      type ValidParams = Partial<Record<ScalarClientAppRouteParams, string>>
 
-      if (result.type !== navigationFailure) {
-        return payload.callback?.('error')
+      if (payload.page === 'document') {
+        const params = {
+          documentSlug: payload.documentSlug,
+          workspaceSlug: payload.workspaceSlug,
+          teamSlug: payload.teamSlug,
+        } satisfies ValidParams
+
+        if (payload.path === 'overview') {
+          return execCallback(await fn({ name: 'document.overview', params }))
+        }
+        if (payload.path === 'servers') {
+          return execCallback(await fn({ name: 'document.servers', params }))
+        }
+        if (payload.path === 'environment') {
+          return execCallback(await fn({ name: 'document.environment', params }))
+        }
+        if (payload.path === 'authentication') {
+          return execCallback(await fn({ name: 'document.authentication', params }))
+        }
+        if (payload.path === 'cookies') {
+          return execCallback(await fn({ name: 'document.cookies', params }))
+        }
+        if (payload.path === 'settings') {
+          return execCallback(await fn({ name: 'document.settings', params }))
+        }
       }
 
-      return payload.callback?.('success')
-    }
+      if (payload.page === 'workspace') {
+        const params = { workspaceSlug: payload.workspaceSlug, teamSlug: payload.teamSlug } satisfies ValidParams
+        if (payload.path === 'get-started') {
+          return execCallback(await fn({ name: 'workspace.get-started', params }))
+        }
+        if (payload.path === 'environment') {
+          return execCallback(await fn({ name: 'workspace.environment', params }))
+        }
+        if (payload.path === 'cookies') {
+          return execCallback(await fn({ name: 'workspace.cookies', params }))
+        }
+        if (payload.path === 'settings') {
+          return execCallback(await fn({ name: 'workspace.settings', params }))
+        }
+      }
 
-    type ValidParams = Partial<Record<ScalarClientAppRouteParams, string>>
+      if (payload.page === 'example') {
+        const params = {
+          teamSlug: payload.teamSlug,
+          workspaceSlug: payload.workspaceSlug,
+          documentSlug: payload.documentSlug,
+          pathEncoded: encodeURIComponent(payload.path),
+          method: payload.method,
+          exampleName: payload.exampleName,
+        } satisfies ValidParams
+        return execCallback(await fn({ name: 'example', params }))
+      }
 
-    if (payload.page === 'document') {
-      const params = {
-        documentSlug: payload.documentSlug,
-        workspaceSlug: payload.workspaceSlug,
-        teamSlug: payload.teamSlug,
-      } satisfies ValidParams
-
-      if (payload.path === 'overview') {
-        return execCallback(await fn({ name: 'document.overview', params }))
+      if (payload.page === 'operation') {
+        const params = {
+          teamSlug: payload.teamSlug,
+          workspaceSlug: payload.workspaceSlug,
+          documentSlug: payload.documentSlug,
+          pathEncoded: encodeURIComponent(payload.operationPath),
+          method: payload.method,
+        } satisfies ValidParams
+        if (payload.path === 'overview') {
+          return execCallback(await fn({ name: 'operation.overview', params }))
+        }
+        if (payload.path === 'servers') {
+          return execCallback(await fn({ name: 'operation.servers', params }))
+        }
+        if (payload.path === 'authentication') {
+          return execCallback(await fn({ name: 'operation.authentication', params }))
+        }
+        if (payload.path === 'editor') {
+          return execCallback(await fn({ name: 'operation.editor', params }))
+        }
       }
-      if (payload.path === 'servers') {
-        return execCallback(await fn({ name: 'document.servers', params }))
-      }
-      if (payload.path === 'environment') {
-        return execCallback(await fn({ name: 'document.environment', params }))
-      }
-      if (payload.path === 'authentication') {
-        return execCallback(await fn({ name: 'document.authentication', params }))
-      }
-      if (payload.path === 'cookies') {
-        return execCallback(await fn({ name: 'document.cookies', params }))
-      }
-      if (payload.path === 'settings') {
-        return execCallback(await fn({ name: 'document.settings', params }))
-      }
-    }
-
-    if (payload.page === 'workspace') {
-      const params = { workspaceSlug: payload.workspaceSlug, teamSlug: payload.teamSlug } satisfies ValidParams
-      if (payload.path === 'get-started') {
-        return execCallback(await fn({ name: 'workspace.get-started', params }))
-      }
-      if (payload.path === 'environment') {
-        return execCallback(await fn({ name: 'workspace.environment', params }))
-      }
-      if (payload.path === 'cookies') {
-        return execCallback(await fn({ name: 'workspace.cookies', params }))
-      }
-      if (payload.path === 'settings') {
-        return execCallback(await fn({ name: 'workspace.settings', params }))
-      }
-    }
-
-    if (payload.page === 'example') {
-      const params = {
-        teamSlug: payload.teamSlug,
-        workspaceSlug: payload.workspaceSlug,
-        documentSlug: payload.documentSlug,
-        pathEncoded: encodeURIComponent(payload.path),
-        method: payload.method,
-        exampleName: payload.exampleName,
-      } satisfies ValidParams
-      return execCallback(await fn({ name: 'example', params }))
-    }
-
-    if (payload.page === 'operation') {
-      const params = {
-        teamSlug: payload.teamSlug,
-        workspaceSlug: payload.workspaceSlug,
-        documentSlug: payload.documentSlug,
-        pathEncoded: encodeURIComponent(payload.operationPath),
-        method: payload.method,
-      } satisfies ValidParams
-      if (payload.path === 'overview') {
-        return execCallback(await fn({ name: 'operation.overview', params }))
-      }
-      if (payload.path === 'servers') {
-        return execCallback(await fn({ name: 'operation.servers', params }))
-      }
-      if (payload.path === 'authentication') {
-        return execCallback(await fn({ name: 'operation.authentication', params }))
-      }
-      if (payload.path === 'editor') {
-        return execCallback(await fn({ name: 'operation.editor', params }))
-      }
-    }
+    },
   })
 
   //------------------------------------------------------------------------------------

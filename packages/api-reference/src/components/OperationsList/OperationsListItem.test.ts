@@ -166,7 +166,18 @@ describe('OperationsListItem', () => {
       const operation = createMockOperation()
       const eventBus = createWorkspaceEventBus()
       const testHandler = vi.fn()
-      eventBus.on('scroll-to:nav-item', testHandler)
+      eventBus.onNavigation({
+        'ui:open:settings': false,
+        'ui:open:client-modal': false,
+        'tabs:navigate:previous': false,
+        'tabs:navigate:next': false,
+        'tabs:focus:tab': false,
+        'tabs:focus:tab-last': false,
+        'select:nav-item': false,
+        'scroll-to:nav-item': testHandler,
+        'scroll-to:model-by-name': false,
+        'ui:navigate': false,
+      })
 
       const wrapper = mount(OperationsListItem, {
         props: {
@@ -189,7 +200,18 @@ describe('OperationsListItem', () => {
 
       const eventBus = createWorkspaceEventBus()
       const testHandler = vi.fn()
-      eventBus.on('scroll-to:nav-item', testHandler)
+      eventBus.onNavigation({
+        'ui:open:settings': false,
+        'ui:open:client-modal': false,
+        'tabs:navigate:previous': false,
+        'tabs:navigate:next': false,
+        'tabs:focus:tab': false,
+        'tabs:focus:tab-last': false,
+        'select:nav-item': false,
+        'scroll-to:nav-item': testHandler,
+        'scroll-to:model-by-name': false,
+        'ui:navigate': false,
+      })
       const wrapper = mount(OperationsListItem, {
         props: {
           operation,

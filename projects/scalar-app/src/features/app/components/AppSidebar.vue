@@ -410,13 +410,26 @@ const handleSettingsHotkey = (
   handleOpenSettings()
 }
 
+let stopNavigation: (() => void) | undefined
+
 onBeforeMount(() => {
   app.eventBus.on('ui:focus:search', handleSearchHotkey)
-  app.eventBus.on('ui:open:settings', handleSettingsHotkey)
+  stopNavigation = app.eventBus.onNavigation({
+    'select:nav-item': false,
+    'scroll-to:nav-item': false,
+    'scroll-to:model-by-name': false,
+    'ui:navigate': false,
+    'ui:open:client-modal': false,
+    'tabs:navigate:previous': false,
+    'tabs:navigate:next': false,
+    'tabs:focus:tab': false,
+    'tabs:focus:tab-last': false,
+    'ui:open:settings': handleSettingsHotkey,
+  })
 })
 onBeforeUnmount(() => {
   app.eventBus.off('ui:focus:search', handleSearchHotkey)
-  app.eventBus.off('ui:open:settings', handleSettingsHotkey)
+  stopNavigation?.()
 })
 
 /**

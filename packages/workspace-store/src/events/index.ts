@@ -1,4 +1,10 @@
-export { type AnyEvent, type AnyEventListener, type WorkspaceEventBus, createWorkspaceEventBus } from './bus'
+export {
+  type AnyEvent,
+  type AnyEventListener,
+  type NavigationHandlers,
+  type WorkspaceEventBus,
+  createWorkspaceEventBus,
+} from './bus'
 export type {
   ApiReferenceEvents,
   AuthMeta,
@@ -6,6 +12,7 @@ export type {
   CommandPaletteAction,
   CommandPalettePayload,
   KeyboardEventPayload,
+  NavigationEvents,
   OperationEvents,
   OperationExampleMeta,
   OperationMeta,

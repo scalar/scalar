@@ -37,4 +37,36 @@ describe('workspace-events', () => {
     expect(changed).toHaveBeenCalledTimes(2)
     stopModal()
   })
+  it.each([
+    { event: 'tabs:navigate:previous', payload: undefined, expectedIndex: 0 },
+    { event: 'tabs:navigate:next', payload: undefined, expectedIndex: 2 },
+    { event: 'tabs:focus:tab', payload: { index: 0 }, expectedIndex: 0 },
+    { event: 'tabs:focus:tab-last', payload: undefined, expectedIndex: 2 },
+  ] as const)('hands over $event without duplicate mutations or hooks', async ({ event, payload, expectedIndex }) => {
+    const store = createWorkspaceStore()
+    store.workspace['x-scalar-tabs'] = [
+      { path: '/one', title: 'One' },
+      { path: '/two', title: 'Two' },
+      { path: '/three', title: 'Three' },
+    ]
+    store.workspace['x-scalar-active-tab'] = 1
+    const eventBus = createWorkspaceEventBus()
+    const navigated = vi.fn()
+    const options = { eventBus, store: ref(store), hooks: { [event]: { onAfterExecute: navigated } } }
+    const stop = initializeWorkspaceEventHandlers(options)
+    eventBus.emit(event, payload)
+    await flushPromises()
+    expect(store.workspace['x-scalar-active-tab']).toBe(expectedIndex)
+    expect(navigated).toHaveBeenCalledTimes(1)
+
+    stop()
+    expect(() => eventBus.emit(event, payload)).toThrow('Unhandled navigation command')
+    store.workspace['x-scalar-active-tab'] = 1
+    const stopNext = initializeWorkspaceEventHandlers(options)
+    eventBus.emit(event, payload)
+    await flushPromises()
+    expect(store.workspace['x-scalar-active-tab']).toBe(expectedIndex)
+    expect(navigated).toHaveBeenCalledTimes(2)
+    stopNext()
+  })
 })

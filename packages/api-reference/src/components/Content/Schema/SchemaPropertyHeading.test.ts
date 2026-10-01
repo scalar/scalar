@@ -1118,7 +1118,18 @@ describe('SchemaPropertyHeading', () => {
     it('links the type to the model and scrolls to it on click', async () => {
       const eventBus = createWorkspaceEventBus()
       const handler = vi.fn()
-      eventBus.on('scroll-to:model-by-name', handler)
+      eventBus.onNavigation({
+        'ui:open:settings': false,
+        'ui:open:client-modal': false,
+        'tabs:navigate:previous': false,
+        'tabs:navigate:next': false,
+        'tabs:focus:tab': false,
+        'tabs:focus:tab-last': false,
+        'select:nav-item': false,
+        'scroll-to:nav-item': false,
+        'scroll-to:model-by-name': handler,
+        'ui:navigate': false,
+      })
 
       const wrapper = mount(SchemaPropertyHeading, {
         props: {

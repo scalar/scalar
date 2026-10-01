@@ -84,6 +84,15 @@ const createTestSetup = async () => {
     return vi.fn()
   })
 
+  vi.mocked(eventBus.onNavigation).mockImplementation((navigation) => {
+    for (const [event, handler] of Object.entries(navigation)) {
+      if (handler !== false) {
+        handlers[event] = handler as (payload?: unknown) => void
+      }
+    }
+    return vi.fn()
+  })
+
   const requestBodyCompositionSelection = ref<Record<string, number>>({})
   const modalState = useModal()
 

@@ -1605,7 +1605,18 @@ describe('OperationBlock', () => {
 
     const eventBus = createWorkspaceEventBus()
     eventBus.on('operation:reload:history', ({ callback }) => callback('success'))
-    eventBus.on('ui:navigate', ({ callback }) => callback?.('success'))
+    eventBus.onNavigation({
+      'ui:open:settings': false,
+      'ui:open:client-modal': false,
+      'tabs:navigate:previous': false,
+      'tabs:navigate:next': false,
+      'tabs:focus:tab': false,
+      'tabs:focus:tab-last': false,
+      'select:nav-item': false,
+      'scroll-to:nav-item': false,
+      'scroll-to:model-by-name': false,
+      'ui:navigate': ({ callback }) => callback?.('success'),
+    })
     const wrapper = mount(OperationBlock, {
       props: {
         ...createDefaultProps(),

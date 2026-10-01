@@ -609,3 +609,41 @@ const resolved = createMagicProxy(document, {
 The plugin interprets `$self` only on complete OpenAPI documents. Example payloads and API server URLs are unchanged.
 
 Authored reference spellings (including `./` and fragments) are retained across partial bundles and restored by `getEditableDocument`. Loader permissions still apply to the resolved location: `$self` does not enable a loader or widen its file or network access.
+
+## Navigation events
+
+Navigation commands use one exhaustive registration instead of individual `on` or
+`once` subscriptions. Each host must supply a callback or explicitly disable each
+command with `false`. TypeScript reports omitted commands and incorrect payloads.
+
+```ts
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+
+const eventBus = createWorkspaceEventBus()
+const stopNavigation = eventBus.onNavigation({
+  'select:nav-item': ({ id }) => selectItem(id),
+  'scroll-to:nav-item': ({ id }) => scrollToItem(id),
+  'scroll-to:model-by-name': ({ name }) => navigateToModel(name),
+  'ui:navigate': false,
+  'ui:open:settings': false,
+  'ui:open:client-modal': false,
+  'tabs:navigate:previous': false,
+  'tabs:navigate:next': false,
+  'tabs:focus:tab': false,
+  'tabs:focus:tab-last': false,
+})
+
+// Remove the registration when the host is disposed.
+stopNavigation()
+```
+
+Migrate existing navigation `on` subscriptions into this map and use its returned
+function for cleanup. Unhandled and explicitly disabled commands throw when emitted, including when
+the bus has `onAny` observers. A disabled declaration from another host sharing
+the bus cannot suppress an installed handler or hide its removal.
+Non-navigation events keep using `on` and `once`. Adding a navigation command to
+`NavigationEvents` requires updating every host's map and the runtime registry.
+
+The registration checks coverage, not whether a destination exists or a callback
+successfully navigates. Keep interaction tests for those behaviors. A disabled
+command should not be offered as an enabled control in the host UI.

@@ -743,7 +743,18 @@ describe('RequestBlock', () => {
     eventBus.on('operation:create:draft-example', createDraft)
     eventBus.on('operation:update:requestBody:contentType', updateContentType)
     eventBus.on('operation:update:requestBody:value', updateValue)
-    eventBus.on('ui:navigate', navigate)
+    eventBus.onNavigation({
+      'ui:open:settings': false,
+      'ui:open:client-modal': false,
+      'tabs:navigate:previous': false,
+      'tabs:navigate:next': false,
+      'tabs:focus:tab': false,
+      'tabs:focus:tab-last': false,
+      'select:nav-item': false,
+      'scroll-to:nav-item': false,
+      'scroll-to:model-by-name': false,
+      'ui:navigate': navigate,
+    })
 
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, method: 'post' as const, eventBus, exampleKey: 'custom', operation },
@@ -781,6 +792,19 @@ describe('RequestBlock', () => {
     const eventBus = createWorkspaceEventBus()
     const createDraft = vi.fn()
     eventBus.on('operation:create:draft-example', createDraft)
+    const navigate = vi.fn()
+    eventBus.onNavigation({
+      'ui:open:settings': false,
+      'ui:open:client-modal': false,
+      'tabs:navigate:previous': false,
+      'tabs:navigate:next': false,
+      'tabs:focus:tab': false,
+      'tabs:focus:tab-last': false,
+      'select:nav-item': false,
+      'scroll-to:nav-item': false,
+      'scroll-to:model-by-name': false,
+      'ui:navigate': navigate,
+    })
 
     const wrapper = mount(RequestBlock, {
       props: {
@@ -798,6 +822,13 @@ describe('RequestBlock', () => {
     expect(createDraft).toHaveBeenCalledExactlyOnceWith({
       documentName: 'test-document',
       meta: { path: defaultProps.path, method: 'post' },
+      exampleName: 'Generated from schema (2)',
+    })
+    expect(navigate).toHaveBeenCalledExactlyOnceWith({
+      page: 'example',
+      documentSlug: 'test-document',
+      path: defaultProps.path,
+      method: 'post',
       exampleName: 'Generated from schema (2)',
     })
   })

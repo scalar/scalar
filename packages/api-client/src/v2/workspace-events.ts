@@ -59,7 +59,12 @@ export function initializeWorkspaceEventHandlers({
   hooks: Hooks
 }): () => void {
   const subscriptions: (() => void)[] = []
-  const eventBus: Pick<WorkspaceEventBus, 'on'> = {
+  const eventBus: Pick<WorkspaceEventBus, 'on' | 'onNavigation'> = {
+    onNavigation: (handlers) => {
+      const unsubscribe = bus.onNavigation(handlers)
+      subscriptions.push(unsubscribe)
+      return unsubscribe
+    },
     on: (event, listener) => {
       const unsubscribe = bus.on(event, listener)
       subscriptions.push(unsubscribe)
@@ -369,18 +374,21 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('tabs:close:other-tabs', (payload) =>
     withHook('tabs:close:other-tabs', mutators.value.workspace().tabs.closeOtherTabs, hooks)(payload),
   )
-  eventBus.on('tabs:focus:tab', (payload) =>
-    withHook('tabs:focus:tab', mutators.value.workspace().tabs.focusTab, hooks)(payload),
-  )
-  eventBus.on('tabs:focus:tab-last', (payload) =>
-    withHook('tabs:focus:tab-last', mutators.value.workspace().tabs.focusLastTab, hooks)(payload),
-  )
-  eventBus.on('tabs:navigate:previous', (payload) =>
-    withHook('tabs:navigate:previous', mutators.value.workspace().tabs.navigatePreviousTab, hooks)(payload),
-  )
-  eventBus.on('tabs:navigate:next', (payload) =>
-    withHook('tabs:navigate:next', mutators.value.workspace().tabs.navigateNextTab, hooks)(payload),
-  )
+  eventBus.onNavigation({
+    'select:nav-item': false,
+    'scroll-to:nav-item': false,
+    'scroll-to:model-by-name': false,
+    'ui:navigate': false,
+    'ui:open:settings': false,
+    'ui:open:client-modal': false,
+    'tabs:focus:tab': (payload) => withHook('tabs:focus:tab', mutators.value.workspace().tabs.focusTab, hooks)(payload),
+    'tabs:focus:tab-last': (payload) =>
+      withHook('tabs:focus:tab-last', mutators.value.workspace().tabs.focusLastTab, hooks)(payload),
+    'tabs:navigate:previous': (payload) =>
+      withHook('tabs:navigate:previous', mutators.value.workspace().tabs.navigatePreviousTab, hooks)(payload),
+    'tabs:navigate:next': (payload) =>
+      withHook('tabs:navigate:next', mutators.value.workspace().tabs.navigateNextTab, hooks)(payload),
+  })
   eventBus.on('tabs:update:tabs', (payload) =>
     withHook('tabs:update:tabs', mutators.value.workspace().tabs.updateTabs, hooks)(payload),
   )

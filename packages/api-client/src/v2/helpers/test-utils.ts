@@ -5,6 +5,7 @@ import { vi } from 'vitest'
 export const createMockEventBus = (): WorkspaceEventBus =>
   ({
     on: vi.fn(() => vi.fn()),
+    onNavigation: vi.fn(() => vi.fn()),
     once: vi.fn(() => vi.fn()),
     off: vi.fn(),
     onAny: vi.fn(() => vi.fn()),
