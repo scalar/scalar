@@ -86,8 +86,10 @@ test.describe('standalone chunk preloading', () => {
       await expect(page.locator('body')).toHaveAttribute('data-ready', 'true')
       const expected = [...files.keys()].map((file) => `/scalar/${file}`).sort()
       expect(expected.length).toBe(3)
-      await expect.poll(() => [...finished].filter((file) => file.startsWith('/scalar/')).sort()).toEqual(expected)
-      expect([...requested].sort()).toEqual(expected)
+      await expect
+        .poll(() => [...finished].filter((file) => file.startsWith('/scalar/')).sort())
+        .toStrictEqual(expected)
+      expect([...requested].sort()).toStrictEqual(expected)
       expect(await page.locator('body').getAttribute('data-feature-executed')).toBeNull()
       expect(await page.locator('body').getAttribute('data-nested-executed')).toBeNull()
 
@@ -96,8 +98,8 @@ test.describe('standalone chunk preloading', () => {
       await expect(page.locator('output')).toHaveText('Feature ready')
       await expect(page.locator('body')).toHaveAttribute('data-feature-executed', 'true')
       await expect(page.locator('body')).toHaveAttribute('data-nested-executed', 'true')
-      expect([...requested].sort()).toEqual(expected)
-      expect(errors).toEqual([])
+      expect([...requested].sort()).toStrictEqual(expected)
+      expect(errors).toStrictEqual([])
     })
   }
 })
