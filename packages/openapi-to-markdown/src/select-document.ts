@@ -165,18 +165,68 @@ const findOperationByPathAndMethod = (
   }
 }
 
-const findOperationsByOperationId = (document: OpenApiDocument, operationId: string): OperationMatch[] =>
-  getPathEntries(document).flatMap(([path, pathItem]) => {
-    const matches: OperationMatch[] = []
-    forEachPathItemOperation(pathItem, (method, operation) => {
-      if (getResolvedRef(operation)?.operationId === operationId) {
+type TaggedPathItem = { path: string; pathItem: PathItemObject; methods: string[] }
+
+/**
+ * Lookups that every selection from one document shares, built on first use.
+ * The document must not change while its lookup is in use.
+ */
+type DocumentLookup = {
+  /** Operations by operation ID, in document order. */
+  operationsById: () => ReadonlyMap<string, OperationMatch[]>
+  /** Path items with the methods that carry each tag, in document order. */
+  operationsByTag: () => ReadonlyMap<string, TaggedPathItem[]>
+  /** The position of each schema in `components.schemas`. */
+  schemaPositions: () => ReadonlyMap<string, number>
+}
+
+const indexOperations = (
+  document: OpenApiDocument,
+): { byId: Map<string, OperationMatch[]>; byTag: Map<string, TaggedPathItem[]> } => {
+  const byId = new Map<string, OperationMatch[]>()
+  const byTag = new Map<string, TaggedPathItem[]>()
+  for (const [path, pathItem] of getPathEntries(document)) {
+    forEachPathItemOperation(pathItem, (method, operationRef) => {
+      const operation = getResolvedRef(operationRef)
+      if (typeof operation?.operationId === 'string') {
+        const matches = byId.get(operation.operationId) ?? []
         matches.push({ path, method })
+        byId.set(operation.operationId, matches)
+      }
+      for (const tag of new Set(operation?.tags)) {
+        const entries = byTag.get(tag) ?? []
+        const last = entries.at(-1)
+        if (last?.path === path) {
+          last.methods.push(method)
+        } else {
+          entries.push({ path, pathItem, methods: [method] })
+        }
+        byTag.set(tag, entries)
       }
     })
-    return matches
-  })
+  }
+  return { byId, byTag }
+}
 
-const resolveOperationMatch = (document: OpenApiDocument, selector: OperationSelector): OperationMatch => {
+/** Index a document once so that each selection costs time in proportion to what it selects. */
+export const createDocumentLookup = (document: OpenApiDocument): DocumentLookup => {
+  let operations: ReturnType<typeof indexOperations> | undefined
+  let schemaPositions: Map<string, number> | undefined
+  return {
+    operationsById: () => (operations ??= indexOperations(document)).byId,
+    operationsByTag: () => (operations ??= indexOperations(document)).byTag,
+    schemaPositions: () =>
+      (schemaPositions ??= new Map(
+        Object.keys(document.components?.schemas ?? {}).map((name, position) => [name, position]),
+      )),
+  }
+}
+
+const resolveOperationMatch = (
+  document: OpenApiDocument,
+  selector: OperationSelector,
+  lookup: DocumentLookup,
+): OperationMatch => {
   if ('pointer' in selector) {
     const match = getOperationSelectorFromPointer(selector.pointer)
     if (!getPathItemOperation(document.paths?.[match.path], match.method)) {
@@ -186,7 +236,7 @@ const resolveOperationMatch = (document: OpenApiDocument, selector: OperationSel
   }
 
   if ('operationId' in selector) {
-    const matches = findOperationsByOperationId(document, selector.operationId)
+    const matches = lookup.operationsById().get(selector.operationId) ?? []
 
     if (!matches.length) {
       throw new Error(`Operation with operationId "${selector.operationId}" was not found`)
@@ -206,9 +256,13 @@ const resolveOperationMatch = (document: OpenApiDocument, selector: OperationSel
   return findOperationByPathAndMethod(document, selector)
 }
 
-const filterDocumentByOperation = (document: OpenApiDocument, selector: OperationSelector): OpenApiDocument => {
-  const match = resolveOperationMatch(document, selector)
-  const pathItem = getPathEntries(document).find(([path]) => path === match.path)?.[1]
+const filterDocumentByOperation = (
+  document: OpenApiDocument,
+  selector: OperationSelector,
+  lookup: DocumentLookup,
+): OpenApiDocument => {
+  const match = resolveOperationMatch(document, selector, lookup)
+  const pathItem = getResolvedPathItem(document.paths?.[match.path])
 
   if (!pathItem) {
     throw new Error(`Operation not found for path "${match.path}" and method "${match.method.toUpperCase()}"`)
@@ -222,8 +276,15 @@ const filterDocumentByOperation = (document: OpenApiDocument, selector: Operatio
   }
 }
 
-/** Scope after resolving references and migrating older documents. */
-export const selectDocument = (document: OpenApiDocument, options: OpenApiRenderOptions = {}): OpenApiDocument => {
+/**
+ * Scope after resolving references and migrating older documents.
+ * Pass the same lookup to every selection from one document to reuse its indexes.
+ */
+export const selectDocument = (
+  document: OpenApiDocument,
+  options: OpenApiRenderOptions = {},
+  lookup: DocumentLookup = createDocumentLookup(document),
+): OpenApiDocument => {
   if (!isObject(options)) {
     throw new Error('Render options must be an object')
   }
@@ -266,7 +327,7 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
   const selected: OpenApiDocument = { ...document, paths: {}, webhooks: {}, tags: [] }
   const modelRoots: unknown[] = []
   if (options.operation) {
-    selected.paths = filterDocumentByOperation(document, options.operation).paths
+    selected.paths = filterDocumentByOperation(document, options.operation, lookup).paths
   }
   if (options.tag !== undefined) {
     const metadata = document.tags?.filter((tag) => tag.name === options.tag) ?? []
@@ -274,16 +335,8 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
       throw new Error(`Multiple tags found for "${options.tag}"`)
     }
     selected.tags = metadata.length ? metadata : [{ name: options.tag }]
-    for (const [path, item] of getPathEntries(document)) {
-      const methods: string[] = []
-      forEachPathItemOperation(item, (method, operation) => {
-        if (getResolvedRef(operation)?.tags?.includes(options.tag!)) {
-          methods.push(method)
-        }
-      })
-      if (methods.length) {
-        selected.paths![path] = filterPathItemOperations(item, methods)
-      }
+    for (const { path, pathItem, methods } of lookup.operationsByTag().get(options.tag) ?? []) {
+      selected.paths![path] = filterPathItemOperations(pathItem, methods)
     }
     if (!metadata.length && !Object.keys(selected.paths ?? {}).length) {
       throw new Error(`Tag "${options.tag}" was not found`)
@@ -435,9 +488,16 @@ export const selectDocument = (document: OpenApiDocument, options: OpenApiRender
       visit(root)
     }
   }
+  const positions = lookup.schemaPositions()
   selected.components = {
     ...document.components,
-    schemas: Object.fromEntries(Object.entries(schemas).filter(([name]) => needed.has(name))),
+    // Keep the document's schema order, which decides the order of the page's model sections.
+    schemas: Object.fromEntries(
+      [...needed]
+        .filter((name) => positions.has(name))
+        .sort((a, b) => positions.get(a)! - positions.get(b)!)
+        .map((name) => [name, schemas[name]!]),
+    ),
     securitySchemes: Object.fromEntries(
       Object.entries(document.components?.securitySchemes ?? {}).filter(([name]) => securityNames.has(name)),
     ),

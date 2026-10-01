@@ -2,7 +2,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/stric
 
 import { loadDocument } from './load-document'
 import { createDocumentRenderer } from './render-document'
-import { type OpenApiRenderOptions, selectDocument } from './select-document'
+import { type OpenApiRenderOptions, createDocumentLookup, selectDocument } from './select-document'
 
 type AnyDocument = OpenApiDocument | Record<string, unknown> | string
 /** A resolved API description that can render multiple pages without loading it again. */
@@ -18,8 +18,9 @@ export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise
   const content = await loadDocument(input)
 
   const renderDocument = createDocumentRenderer()
+  const lookup = createDocumentLookup(content)
   const render = async (options?: OpenApiRenderOptions): Promise<string> =>
-    await renderDocument(selectDocument(content, options), options)
+    await renderDocument(selectDocument(content, options, lookup), options)
   return { render }
 }
 
