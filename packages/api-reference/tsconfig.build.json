@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "exclude": [
     "dist",
+    "plugins",
     "vite.*.ts",
     "vitest.*.ts",
     "**/*.spec.ts",

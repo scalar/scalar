@@ -1,6 +1,14 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src", "./test", "./vitest.config.ts", "./vite.config.ts", "./vite.standalone.config.ts"],
+  "include": [
+    "./src",
+    "./plugins",
+    "./vite.standalone.esm.config.ts",
+    "./test",
+    "./vitest.config.ts",
+    "./vite.config.ts",
+    "./vite.standalone.config.ts"
+  ],
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],

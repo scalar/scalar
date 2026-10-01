@@ -7,6 +7,7 @@ import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 import { name, version } from './package.json'
+import { preloadChunks } from './plugins/preload-chunks'
 
 // Opens with `/*!` (a legal comment) rather than `/**` so the oxc minifier keeps it
 // when `output.comments.legal` is enabled. See the `banner`/`comments` output options.
@@ -56,6 +57,7 @@ export default defineConfig({
     // Content Security Policy. See the `nonce` option in @scalar/client-side-rendering.
     cssInjectedByJsPlugin({ attributes: { id: 'scalar-style' }, useStrictCSP: true }),
     webpackStats({ fileName: 'webpack-stats.esm.json' }),
+    preloadChunks(),
   ],
   build: {
     emptyOutDir: false,
@@ -100,14 +102,8 @@ export default defineConfig({
           chunk.moduleIds?.some((id) => id.includes('map-hidden-clients-config'))
             ? 'chunks/vendor-[hash].js'
             : 'chunks/[name]-[hash].js',
-        // Enable code splitting so genuinely-async boundaries become real lazy
-        // chunks: the API client modal (heaviest by far — pulls in CodeMirror),
-        // the AgentScalar drawer, the YAML parser used for downloads, and the
-        // ~84 per-SVG dynamic imports from `@scalar/icons/library`. Each icon
-        // becomes its own ~1 KB chunk that only fetches if the sidebar actually
-        // renders that icon — the typical API only references a handful of them
-        // out of the catalog, so this nets a smaller real-world page weight than
-        // bundling them all into a single ~125 KB chunk.
+        // Keep async execution boundaries, but preload every chunk after the entry runs so
+        // features remain available in an open page if a later deployment removes old files.
         codeSplitting: true,
         // Vite forces `minifyWhitespace: false` for ES library builds, so we bypass
         // it by enabling Rolldown's native minifier on the output. This produces a
