@@ -44,28 +44,39 @@ const interceptOrigin = async (
 }
 
 test.describe('esm.js entry point', () => {
-  test('loads the bundle and its chunks pinned to its own version from the unversioned jsDelivr URL', async ({
-    page,
-  }) => {
-    const { url, shutdown } = await serveHTMLExample(join(import.meta.dirname, 'html', 'esm-cdn.html'))
-    const requested = await interceptOrigin(
-      page,
-      'https://cdn.jsdelivr.net',
-      (pathname) => /^\/npm\/@scalar\/api-reference(?:@[^/]*)?\/(.+)$/.exec(pathname)?.[1],
-    )
+  for (const { entry, packagePrefix } of [
+    { entry: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js', packagePrefix: '/npm/@scalar/' },
+    { entry: 'https://unpkg.com/@scalar/api-reference/esm.js', packagePrefix: '/@scalar/' },
+    { entry: 'https://cdn.example.test/assets/@scalar/api-reference@latest/esm.js', packagePrefix: '/assets/@scalar/' },
+    { entry: 'https://cdn.example.test/assets/@scalar/api-reference@^1/esm.min.js', packagePrefix: '/assets/@scalar/' },
+    { entry: `https://cdn.example.test/@scalar/api-reference@${version}/esm.js`, packagePrefix: '/@scalar/' },
+  ]) {
+    test(`loads matching release assets from ${entry}`, async ({ page }) => {
+      const { url, shutdown } = await serveHTMLExample(join(import.meta.dirname, 'html', 'esm-cdn.html'))
+      const entryUrl = new URL(entry)
+      const pinned = `${packagePrefix}api-reference@${version}/`
+      const requested = await interceptOrigin(page, entryUrl.origin, (pathname) => {
+        if (pathname === entryUrl.pathname) {
+          return 'esm.js'
+        }
 
-    await page.goto(url)
-    await expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()
+        // Only the matching release exists. Requests through latest must fail.
+        return pathname.startsWith(pinned) ? pathname.slice(pinned.length) : undefined
+      })
 
-    const pinned = `/npm/@scalar/api-reference@${version}/`
-    expect(requested[0]).toBe('/npm/@scalar/api-reference/esm.js')
-    expect(requested).toContain(`${pinned}dist/browser/standalone.esm.js`)
-    expect(requested.some((pathname) => pathname.includes('/dist/browser/chunks/'))).toBe(true)
-    // Nothing but the entry point itself may resolve against whatever release jsDelivr serves right now.
-    expect(requested.slice(1).filter((pathname) => !pathname.startsWith(pinned))).toEqual([])
+      try {
+        await page.goto(`${url}?entry=${encodeURIComponent(entry)}`)
+        await expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()
 
-    shutdown()
-  })
+        expect(requested[0]).toBe(entryUrl.pathname)
+        expect(requested).toContain(`${pinned}dist/browser/standalone.esm.js`)
+        expect(requested.some((pathname) => pathname.includes('/dist/browser/chunks/'))).toBe(true)
+        expect(requested.slice(1).filter((pathname) => !pathname.startsWith(pinned))).toEqual([])
+      } finally {
+        shutdown()
+      }
+    })
+  }
 
   test('loads the bundle next to a self-hosted entry point', async ({ page }) => {
     const { url, shutdown } = await serveHTMLExample(join(import.meta.dirname, 'html', 'esm-self-hosted.html'))

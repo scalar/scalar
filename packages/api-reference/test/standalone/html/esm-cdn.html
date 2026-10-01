@@ -11,7 +11,9 @@
     <div id="app"></div>
     <!-- The test intercepts this CDN URL and serves the files built in this checkout instead. -->
     <script type="module">
-      import { createApiReference } from 'https://cdn.jsdelivr.net/npm/@scalar/api-reference/esm.js'
+      const { createApiReference } = await import(
+        new URLSearchParams(location.search).get('entry')
+      )
 
       createApiReference('#app', {
         content: {
