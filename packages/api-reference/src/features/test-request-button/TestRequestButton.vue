@@ -84,7 +84,11 @@ const handleClick = () => {
   color: var(--scalar-button-1-color);
   z-index: 1;
 }
-.show-api-client-button:hover {
+.show-api-client-button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.show-api-client-button:hover:not(:disabled) {
   background: var(--scalar-button-1-hover);
 }
 .show-api-client-button svg {

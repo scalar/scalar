@@ -43,6 +43,7 @@ test('navigation capabilities expose destinations or explicit disabled controls'
     await expect(page.getByTestId('request-body-schema-name').getByRole('button')).toHaveCount(0)
     await expect(page.getByTestId('property-heading').getByRole('button')).toHaveCount(0)
     await expect(page.getByRole('button', { name: /Test Request/ })).toBeDisabled()
+    await expect(page.getByRole('button', { name: /Test Request/ })).toHaveCSS('opacity', '0.5')
     await testInfo.attach('navigation-disabled', { body: await surface.screenshot(), contentType: 'image/png' })
   } finally {
     stories.close()
