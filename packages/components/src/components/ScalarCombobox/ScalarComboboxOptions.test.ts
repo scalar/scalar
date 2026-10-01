@@ -132,17 +132,33 @@ describe('ScalarComboboxOptions', () => {
       expect(event.defaultPrevented).toBe(false)
     })
 
-    it('ignores repeated and composing Space presses', async () => {
+    it('prevents repeated Space presses from filtering the list without toggling again', async () => {
       const onUpdate = vi.fn()
       const wrapper = mount(ScalarComboboxOptions, {
         props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
       })
 
       const input = wrapper.find('input[type="text"]')
-      await input.trigger('keydown', { key: ' ', repeat: true })
-      await input.trigger('keydown', { key: ' ', isComposing: true })
+      await input.trigger('keydown', { key: ' ' })
+      const event = new KeyboardEvent('keydown', { key: ' ', repeat: true, cancelable: true })
+      input.element.dispatchEvent(event)
+
+      expect(onUpdate.mock.calls).toStrictEqual([[[singleOptions[0]]]])
+      expect(event.defaultPrevented).toBe(true)
+      expect((input.element as HTMLInputElement).value).toBe('')
+    })
+
+    it('leaves composing Space presses alone', () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const event = new KeyboardEvent('keydown', { key: ' ', isComposing: true, cancelable: true })
+      wrapper.find('input[type="text"]').element.dispatchEvent(event)
 
       expect(onUpdate).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
     })
 
     it('leaves Space alone in single select mode', () => {

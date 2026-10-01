@@ -215,12 +215,15 @@ function addNew() {
  * searchable. Key auto-repeat is ignored so holding Space after opening the popover with it does
  * not toggle the option repeatedly, and IME composition is left alone.
  */
-function handleSpace(event: KeyboardEvent) {
-  if (!multiselect || query.value !== '' || event.repeat || event.isComposing) {
+const handleSpace = (event: KeyboardEvent): void => {
+  if (!multiselect || query.value !== '' || event.isComposing) {
     return
   }
+  // Suppress repeated spaces too, so holding the key does not start filtering.
   event.preventDefault()
-  toggleSelected(activeRef.value)
+  if (!event.repeat) {
+    toggleSelected(activeRef.value)
+  }
 }
 
 // Manual autofocus for the input
