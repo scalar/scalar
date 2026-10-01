@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/turbo/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      // The ESM standalone build also generates `esm.js`, the short CDN entry point at the
+      // package root, so it has to be restored from the cache alongside `dist`.
+      "outputs": ["dist/**", "esm.js"]
+    }
+  }
+}

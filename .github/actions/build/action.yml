@@ -2,8 +2,10 @@ name: 'Build'
 description: |
   Install workspace deps and run a turbo build with the branch-scoped
   caches from setup-node. When `archive-output: true`, also tar up every
-  workspace `dist/` directory into `./build-output.tar.gz` so downstream
-  jobs can fan out via the `restore-build` composite instead of rebuilding.
+  workspace `dist/` directory (plus the generated root `esm.js` CDN entry
+  point of `@scalar/api-reference`) into `./build-output.tar.gz` so
+  downstream jobs can fan out via the `restore-build` composite instead of
+  rebuilding.
 
   gzip rather than zstd because the `scalarapi/playwright-runner` container
   (used by integration and e2e tests) does not ship the zstd binary.
@@ -37,17 +39,20 @@ runs:
 
     # NUL-delimited find + tar so paths with spaces/newlines survive.
     # Atomic rename so a partial tar never reaches the upload step.
+    # `@scalar/api-reference` generates its short CDN entry point (`esm.js`) at
+    # the package root, outside `dist/`, and the e2e tests downstream serve that
+    # file, so it travels with the build output too.
     - if: inputs.archive-output == 'true'
-      name: Archive workspace dist directories
+      name: Archive workspace build output
       shell: bash
       run: |
         set -euo pipefail
         find packages integrations projects \
-          -mindepth 2 -maxdepth 2 -type d -name dist -print0 2>/dev/null \
+          -mindepth 2 -maxdepth 2 \( -type d -name dist -o -type f -name esm.js \) -print0 2>/dev/null \
           | sort -zu > .build-output.list
 
         if [ ! -s .build-output.list ]; then
-          echo "No dist directories found to archive" >&2
+          echo "No build output found to archive" >&2
           exit 1
         fi
 
