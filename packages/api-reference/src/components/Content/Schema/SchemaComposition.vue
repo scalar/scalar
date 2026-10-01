@@ -293,25 +293,28 @@ if (
         class="w-fit min-w-40"
         :options="listboxOptions">
         <button
-          class="composition-selector composition-selector--tree group/tree-control font-code relative flex w-fit cursor-pointer items-center gap-1.5 py-1 text-sm"
+          class="composition-selector composition-selector--tree group/tree-control font-code relative flex w-fit cursor-pointer items-start gap-1.5 py-1 text-sm"
           type="button">
-          <SchemaGlyphPuck class="composition-selector-icon">
+          <SchemaGlyphPuck
+            anchor="line"
+            class="composition-selector-icon mt-1">
             <!-- No size of its own: the puck sizes the icons it holds, so this
                  one shrinks with the others in a narrow container -->
             <ScalarIconCaretUpDown />
           </SchemaGlyphPuck>
           <!-- Keyword and choice read as one bold name, split by the same `·`
                the tree uses between details -->
-          <span class="text-c-1 [font-weight:var(--scalar-bold)]">{{
-            compositionLabel(props.composition)
-          }}</span>
+          <span
+            class="text-c-1 shrink-0 [font-weight:var(--scalar-bold)] whitespace-nowrap"
+            >{{ compositionLabel(props.composition) }}</span
+          >
           <span
             aria-hidden="true"
-            class="text-c-3"
+            class="text-c-3 shrink-0"
             >·</span
           >
           <span
-            class="composition-selector-label text-c-1 [font-weight:var(--scalar-bold)]"
+            class="composition-selector-label text-c-1 min-w-0 [font-weight:var(--scalar-bold)] wrap-anywhere"
             :class="{
               'line-through': selectedComposition?.deprecated,
             }">

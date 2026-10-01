@@ -112,3 +112,39 @@ export const AllOf: Story = {
     }),
   },
 }
+
+/** Long discriminator values wrap without splitting the composition keyword or moving its caret. */
+export const OneOfLongDiscriminator: Story = {
+  args: {
+    composition: 'oneOf',
+    schema: coerceValue(SchemaObjectSchema, {
+      discriminator: {
+        propertyName: 'type',
+        mapping: {
+          terrestrial: '#/components/schemas/Planet',
+          gas_giant: '#/components/schemas/Planet',
+          ice_giant: '#/components/schemas/Planet',
+          dwarf: '#/components/schemas/Planet',
+          super_earth: '#/components/schemas/Planet',
+          moon: '#/components/schemas/Satellite',
+        },
+      },
+      oneOf: [
+        {
+          '$ref': '#/components/schemas/Planet',
+          '$ref-value': { type: 'object', title: 'Planet', properties: { type: { type: 'string' } } },
+        },
+        {
+          '$ref': '#/components/schemas/Satellite',
+          '$ref-value': { type: 'object', title: 'Satellite', properties: { type: { type: 'string' } } },
+        },
+      ],
+    }),
+  },
+  render: (args) => ({
+    components: { SchemaComposition },
+    setup: () => ({ args }),
+    template:
+      '<div style="width: 320px; padding: 16px; background: var(--scalar-background-1)"><SchemaComposition v-bind="args" /></div>',
+  }),
+}

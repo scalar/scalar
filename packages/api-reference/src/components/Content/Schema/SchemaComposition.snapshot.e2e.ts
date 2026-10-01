@@ -1,4 +1,4 @@
-import { takeSnapshot, test } from '@test/helpers'
+import { expect, takeSnapshot, test } from '@test/helpers'
 
 /**
  * Visual snapshots for the composition renderer.
@@ -18,4 +18,25 @@ test.describe('SchemaComposition', () => {
   test.use({ crop: 'component' })
 
   ;['One Of', 'One Of All Of Variant', 'Any Of', 'All Of'].forEach((story) => test(story, takeSnapshot))
+
+  test('One Of Long Discriminator', async ({ page }) => {
+    const picker = page.getByRole('button', { name: /^One of terrestrial/ })
+    const keyword = picker.getByText('One of', { exact: true })
+    const label = picker.getByText('terrestrial, gas_giant, ice_giant, dwarf, super_earth · Planet', { exact: true })
+
+    const keywordBox = await keyword.boundingBox()
+    const labelBox = await label.boundingBox()
+    const caretBox = await picker.locator('[aria-hidden="true"]').first().boundingBox()
+    const lineHeight = await keyword.evaluate((element) => Number.parseFloat(getComputedStyle(element).lineHeight))
+
+    expect(keywordBox!.height).toBeCloseTo(lineHeight, 1)
+    expect(labelBox!.height).toBeGreaterThan(keywordBox!.height)
+    expect(labelBox!.y).toBeCloseTo(keywordBox!.y, 1)
+    expect(caretBox!.y + caretBox!.height / 2).toBeCloseTo(keywordBox!.y + keywordBox!.height / 2, 1)
+
+    await picker.click()
+    await page.getByRole('listbox').press('ArrowDown')
+    await page.getByRole('listbox').press('Enter')
+    await expect(page.getByRole('button', { name: 'One of moon · Satellite', exact: true })).toBeVisible()
+  })
 })
