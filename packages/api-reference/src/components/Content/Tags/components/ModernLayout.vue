@@ -19,7 +19,7 @@ const {
   tag: TraversedTag
   moreThanOneTag: boolean
   isCollapsed: boolean
-  eventBus: NavigationEventBus<'scroll-to:nav-item'> | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
   /** Whether this tag sits inside a parent tag's container (drops its own padding). */
   nested?: boolean
 }>()

@@ -10,7 +10,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders falsy default values', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'boolean',
           default: false,
@@ -26,7 +26,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders required property', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       // @ts-expect-error - not really sure what this is testing
-      props: { eventBus: null, required: true },
+      props: { eventBus: createNavigationEventBus(), required: true },
     })
 
     const requiredElement = wrapper.find('.property-required')
@@ -37,7 +37,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders property type and format', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'string',
           format: 'date-time',
@@ -53,7 +53,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders the format of primitive array items', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'array',
           items: {
@@ -72,7 +72,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders string constraints of primitive array items', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'array',
           items: {
@@ -99,7 +99,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders numeric constraints of primitive array items', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'array',
           items: {
@@ -122,7 +122,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders const value', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             const: 'example',
           }),
@@ -137,7 +137,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders const value: false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             const: false,
           }),
@@ -151,7 +151,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders const value: 0', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             const: 0,
           }),
@@ -165,7 +165,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders const value: empty string', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             const: '',
           }),
@@ -179,7 +179,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders const value: null', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             const: null,
           }),
@@ -193,7 +193,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders const value in array items', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             items: {
@@ -215,7 +215,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders default value: null', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           default: null,
         }),
@@ -229,7 +229,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders default value: empty', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           default: '',
         }),
@@ -242,7 +242,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders default value without type being present', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           enum: ['bar', 'foo'],
           default: 'foo',
@@ -257,7 +257,7 @@ describe('SchemaPropertyHeading', () => {
   it('formats array type with model reference', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'array',
           items: {
@@ -276,7 +276,7 @@ describe('SchemaPropertyHeading', () => {
   it('formats object type with direct model reference', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'object',
           title: 'BarModel',
@@ -291,7 +291,7 @@ describe('SchemaPropertyHeading', () => {
   it('displays plain type when no model name is present', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'string',
         }),
@@ -305,7 +305,7 @@ describe('SchemaPropertyHeading', () => {
   it('displays model name for schema references a component schema', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'object',
           properties: {
@@ -325,7 +325,7 @@ describe('SchemaPropertyHeading', () => {
   it("doesn't show model name when hideModelNames is true", () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           title: 'Planet',
           type: 'object',
@@ -341,7 +341,7 @@ describe('SchemaPropertyHeading', () => {
   it('shows model name when hideModelNames is false', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           title: 'Planet',
           type: 'object',
@@ -395,7 +395,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders multipleOf property', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         value: coerceValue(SchemaObjectSchema, {
           type: 'number',
           multipleOf: 0.001,
@@ -411,7 +411,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders exclusiveMinimum property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'number',
             exclusiveMinimum: 5,
@@ -426,7 +426,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders exclusiveMaximum property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'number',
             exclusiveMaximum: 10,
@@ -441,7 +441,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders both exclusiveMinimum and exclusiveMaximum properties', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'number',
             exclusiveMinimum: 1,
@@ -459,7 +459,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders minimum and maximum properties when exclusive values are not present', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'number',
             minimum: 0,
@@ -477,7 +477,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders exclusiveMinimum and maximum properties together', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'number',
             exclusiveMinimum: 1,
@@ -495,7 +495,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders minimum and exclusiveMaximum properties together', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'number',
             minimum: 0,
@@ -515,7 +515,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders SchemaPropertyPattern component for a pattern', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             pattern: '^[a-zA-Z0-9]+$',
@@ -531,7 +531,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders the full pattern value in the hover popup', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             pattern: '^\\d{4}-\\d{2}-\\d{2}$',
@@ -544,7 +544,7 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render SchemaPropertyPattern when pattern is absent', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string' }) },
+        props: { eventBus: createNavigationEventBus(), value: coerceValue(SchemaObjectSchema, { type: 'string' }) },
       })
 
       const patternComponent = wrapper.findComponent({ name: 'SchemaPropertyPattern' })
@@ -555,7 +555,7 @@ describe('SchemaPropertyHeading', () => {
   describe('name slot', () => {
     it('renders name slot content', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string' }) },
+        props: { eventBus: createNavigationEventBus(), value: coerceValue(SchemaObjectSchema, { type: 'string' }) },
         slots: {
           name: 'propertyName',
         },
@@ -568,7 +568,10 @@ describe('SchemaPropertyHeading', () => {
 
     it('applies deprecated class when value is deprecated', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string', deprecated: true }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', deprecated: true }),
+        },
         slots: {
           name: 'deprecatedProperty',
         },
@@ -580,7 +583,7 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render name slot when not provided', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string' }) },
+        props: { eventBus: createNavigationEventBus(), value: coerceValue(SchemaObjectSchema, { type: 'string' }) },
       })
 
       const nameElement = wrapper.find('.property-name')
@@ -591,7 +594,11 @@ describe('SchemaPropertyHeading', () => {
   describe('discriminator', () => {
     it('renders discriminator property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'object' }), isDiscriminator: true },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          isDiscriminator: true,
+        },
       })
 
       const discriminatorElement = wrapper.find('.property-discriminator')
@@ -601,7 +608,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render discriminator when isDiscriminator is false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'object' }), isDiscriminator: false },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          isDiscriminator: false,
+        },
       })
 
       const discriminatorElement = wrapper.find('.property-discriminator')
@@ -613,7 +624,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders minItems and maxItems', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             minItems: 1,
@@ -629,7 +640,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders only minItems', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             minItems: 1,
@@ -644,7 +655,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders only maxItems', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             maxItems: 10,
@@ -659,7 +670,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders uniqueItems property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             uniqueItems: true,
@@ -676,7 +687,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders minLength property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             minLength: 5,
@@ -692,7 +703,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders maxLength property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             maxLength: 100,
@@ -708,7 +719,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders both minLength and maxLength', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             minLength: 5,
@@ -729,7 +740,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders additional properties with custom name', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             'x-additionalPropertiesName': 'custom properties',
           }),
@@ -744,7 +755,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('renders default additional properties text', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'object' }), additional: true },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          additional: true,
+        },
       })
 
       const additionalElement = wrapper.find('.property-additional')
@@ -754,7 +769,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render additional properties when additional is false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'object' }), additional: false },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          additional: false,
+        },
       })
 
       const additionalElement = wrapper.find('.property-additional')
@@ -765,7 +784,10 @@ describe('SchemaPropertyHeading', () => {
   describe('deprecated property', () => {
     it('renders deprecated badge', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string', deprecated: true }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', deprecated: true }),
+        },
       })
 
       const deprecatedElement = wrapper.find('.property-deprecated')
@@ -775,7 +797,10 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render deprecated badge when not deprecated', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string', deprecated: false }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', deprecated: false }),
+        },
       })
 
       const deprecatedElement = wrapper.find('.property-deprecated')
@@ -786,7 +811,7 @@ describe('SchemaPropertyHeading', () => {
   describe('nullable property', () => {
     it('renders nullable when type is undefined and nullable is true', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: { nullable: true } as any },
+        props: { eventBus: createNavigationEventBus(), value: { nullable: true } as any },
       })
 
       const detailsElement = wrapper.find('.property-heading')
@@ -795,7 +820,10 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render nullable when type is defined', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string', nullable: true }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', nullable: true }),
+        },
       })
 
       const detailsElement = wrapper.find('.property-heading')
@@ -804,7 +832,7 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render nullable when nullable is false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { nullable: false }) },
+        props: { eventBus: createNavigationEventBus(), value: coerceValue(SchemaObjectSchema, { nullable: false }) },
       })
 
       const detailsElement = wrapper.find('.property-heading')
@@ -815,7 +843,10 @@ describe('SchemaPropertyHeading', () => {
   describe('read-only and write-only properties', () => {
     it('renders read-only property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string', readOnly: true }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', readOnly: true }),
+        },
       })
 
       const readOnlyElement = wrapper.find('.property-read-only')
@@ -825,7 +856,10 @@ describe('SchemaPropertyHeading', () => {
 
     it('renders write-only property', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string', writeOnly: true }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', writeOnly: true }),
+        },
       })
 
       const writeOnlyElement = wrapper.find('.property-write-only')
@@ -836,7 +870,7 @@ describe('SchemaPropertyHeading', () => {
     it('prefers write-only over read-only', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, { type: 'string', readOnly: true, writeOnly: true }),
         },
       })
@@ -851,7 +885,7 @@ describe('SchemaPropertyHeading', () => {
     it('does not render read-only or write-only when both are false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, { type: 'string', readOnly: false, writeOnly: false }),
         },
       })
@@ -867,7 +901,11 @@ describe('SchemaPropertyHeading', () => {
   describe('enum prop', () => {
     it('renders enum when enum prop is true', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string' }), enum: true },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          enum: true,
+        },
       })
 
       const detailsElement = wrapper.find('.property-heading')
@@ -876,7 +914,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render enum when enum prop is false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string' }), enum: false },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          enum: false,
+        },
       })
 
       const detailsElement = wrapper.find('.property-heading')
@@ -888,7 +930,7 @@ describe('SchemaPropertyHeading', () => {
     it('renders SchemaPropertyExamples when withExamples is true', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hi' }),
           withExamples: true,
         },
@@ -900,7 +942,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('mounts no SchemaPropertyExamples for a schema with no example', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string' }), withExamples: true },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          withExamples: true,
+        },
       })
 
       // The component renders nothing here anyway, but mounting it installs the
@@ -911,7 +957,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('does not render SchemaPropertyExamples when withExamples is false', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string' }), withExamples: false },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          withExamples: false,
+        },
       })
 
       const examplesElement = wrapper.findComponent({ name: 'SchemaPropertyExamples' })
@@ -921,7 +971,7 @@ describe('SchemaPropertyHeading', () => {
     it('passes examples and example props to SchemaPropertyExamples', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             examples: [{ value: 'test' }],
@@ -939,7 +989,7 @@ describe('SchemaPropertyHeading', () => {
     it('passes falsy example props to SchemaPropertyExamples', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'boolean',
             example: false,
@@ -955,7 +1005,7 @@ describe('SchemaPropertyHeading', () => {
     it('uses items.example when value.example is not available', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             items: { type: 'string', example: 'item example' },
@@ -971,7 +1021,7 @@ describe('SchemaPropertyHeading', () => {
     it('uses falsy items.example when value.example is not available', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             items: { type: 'boolean', example: false },
@@ -987,7 +1037,7 @@ describe('SchemaPropertyHeading', () => {
     it('passes null from items.example when value.example is not available', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             items: { type: 'string', example: null },
@@ -1004,7 +1054,7 @@ describe('SchemaPropertyHeading', () => {
   describe('edge cases', () => {
     it('handles undefined value gracefully', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: undefined },
+        props: { eventBus: createNavigationEventBus(), value: undefined },
       })
 
       expect(wrapper.exists()).toBe(true)
@@ -1013,7 +1063,7 @@ describe('SchemaPropertyHeading', () => {
 
     it('handles empty value object', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, {}) },
+        props: { eventBus: createNavigationEventBus(), value: coerceValue(SchemaObjectSchema, {}) },
       })
 
       expect(wrapper.exists()).toBe(true)
@@ -1022,7 +1072,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('handles undefined schemas', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'object' }), schemas: undefined },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          schemas: undefined,
+        },
       })
 
       expect(wrapper.exists()).toBe(true)
@@ -1030,7 +1084,11 @@ describe('SchemaPropertyHeading', () => {
 
     it('handles empty schemas object', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'object' }), schemas: {} },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          schemas: {},
+        },
       })
 
       expect(wrapper.exists()).toBe(true)
@@ -1041,7 +1099,7 @@ describe('SchemaPropertyHeading', () => {
     it('handles array with single item', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             default: ['single item'],
@@ -1057,7 +1115,7 @@ describe('SchemaPropertyHeading', () => {
     it('handles array with multiple items', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'array',
             default: ['item1', 'item2'],
@@ -1073,7 +1131,7 @@ describe('SchemaPropertyHeading', () => {
     it('handles non-string default values', () => {
       const wrapper = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'number',
             default: 42,
@@ -1090,7 +1148,10 @@ describe('SchemaPropertyHeading', () => {
   describe('type signature', () => {
     it('renders the type as a token run behind a screen-reader label', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: ['string', 'null'] }),
+        },
       })
 
       const signature = wrapper.find('.property-type-signature')
@@ -1141,7 +1202,10 @@ describe('SchemaPropertyHeading', () => {
 
     it('labels the format for a screen reader', () => {
       const wrapper = mount(SchemaPropertyHeading, {
-        props: { eventBus: null, value: coerceValue(SchemaObjectSchema, { type: 'string', format: 'uuid' }) },
+        props: {
+          eventBus: createNavigationEventBus(),
+          value: coerceValue(SchemaObjectSchema, { type: 'string', format: 'uuid' }),
+        },
       })
 
       const labels = wrapper.findAll('.screenreader-only').map((label) => label.element.textContent)
@@ -1157,7 +1221,7 @@ describe('SchemaPropertyHeading', () => {
     it('drops the right margin only from a detail followed by another detail', () => {
       const classes = mount(SchemaPropertyHeading, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           value: coerceValue(SchemaObjectSchema, {
             type: 'string',
             format: 'uuid',

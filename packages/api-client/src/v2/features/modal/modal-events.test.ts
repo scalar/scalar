@@ -133,6 +133,14 @@ describe('modal-events', () => {
       exampleName: 'first',
     })
     await waitForUpdates()
+    handlers['ui:navigate']?.({
+      page: 'operation',
+      path: 'overview',
+      operationPath: '/users',
+      method: 'post',
+      documentSlug: 'test-doc',
+    })
+    await waitForUpdates()
     route.mockClear()
     handlers['ui:navigate']?.({
       page: 'example',

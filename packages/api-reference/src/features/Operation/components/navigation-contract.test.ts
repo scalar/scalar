@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import type RequestBody from './RequestBody.vue'
 
-type RequestBodyBus = NonNullable<InstanceType<typeof RequestBody>['$props']['eventBus']>
+type RequestBodyBus = InstanceType<typeof RequestBody>['$props']['eventBus']
 
 /** Compile the actual component boundary rather than a duplicated props definition. */
 const acceptRequestBodyHost = (bus: RequestBodyBus): RequestBodyBus => bus
@@ -12,6 +12,8 @@ const verifyTypes = (): void => {
   // @ts-expect-error Model navigation is a required dependency.
   const omitted: Pick<InstanceType<typeof RequestBody>['$props'], 'eventBus'> = {}
   void omitted
+  // @ts-expect-error Null cannot replace the required model handler.
+  acceptRequestBodyHost(null)
   const plain = createWorkspaceEventBus()
   // @ts-expect-error A notification bus alone does not support model navigation.
   acceptRequestBodyHost(plain)
@@ -31,7 +33,7 @@ const verifyTypes = (): void => {
 }
 void verifyTypes
 
-describe('navigation component contract', () => {
+describe('navigation-contract', () => {
   it('accepts a host with a required model destination', () => {
     const bus = createWorkspaceEventBus()
     const model = createNavigation(bus, { 'scroll-to:model-by-name': () => undefined })

@@ -23,7 +23,7 @@ const {
   name: string
   /** The anchor path of the headers group; `Headers.vue` has already appended the `headers` segment */
   breadcrumb?: string[]
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the header belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined

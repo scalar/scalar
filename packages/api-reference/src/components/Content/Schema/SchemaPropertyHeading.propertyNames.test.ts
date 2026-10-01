@@ -1,5 +1,6 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -17,7 +18,7 @@ describe('propertyNames key constraints', () => {
     }) as SchemaObject
 
     const wrapper = mount(Schema, {
-      props: { schema, options: {}, eventBus: null, name: 'resource_timelines' },
+      props: { schema, options: {}, eventBus: createNavigationEventBus(), name: 'resource_timelines' },
     })
 
     const text = wrapper.text()
@@ -34,7 +35,7 @@ describe('propertyNames key constraints', () => {
     }) as SchemaObject
 
     const wrapper = mount(Schema, {
-      props: { schema, options: {}, eventBus: null, name: 'map' },
+      props: { schema, options: {}, eventBus: createNavigationEventBus(), name: 'map' },
     })
 
     expect(wrapper.text()).not.toContain('keys:')

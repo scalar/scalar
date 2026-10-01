@@ -81,7 +81,7 @@ const {
   /** Breadcrumb for the schema */
   breadcrumb?: string[]
   /** Event bus emitting actions */
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** Move the options into a single prop so they are easy to pass around */
   options: SchemaOptions
   /** When "requestBody", composition dropdown selection is synced with the example snippet */

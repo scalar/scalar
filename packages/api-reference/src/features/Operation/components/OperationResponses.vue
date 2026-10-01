@@ -19,7 +19,7 @@ const { responses, selectedContentTypes = {} } = defineProps<{
   responses: OperationObject['responses']
   breadcrumb?: string[]
   collapsableItems?: boolean
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   /**

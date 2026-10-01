@@ -15,7 +15,7 @@ import OperationsListItem from './OperationsListItem.vue'
 
 const { tag } = defineProps<{
   tag: TraversedTag
-  eventBus: NavigationEventBus<'scroll-to:nav-item'> | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
 }>()
 const { translate } = useLocalization()
 

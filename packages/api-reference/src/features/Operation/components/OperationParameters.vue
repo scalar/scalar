@@ -21,7 +21,7 @@ const { parameters = [], requestBody } = defineProps<{
   breadcrumb?: string[]
   parameters?: ReferenceType<ParameterObject>[]
   requestBody?: RequestBodyObject | undefined
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   options: Pick<

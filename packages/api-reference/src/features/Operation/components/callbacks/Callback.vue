@@ -22,7 +22,7 @@ const { method, name, url, options, document, breadcrumb } = defineProps<{
   method: string
   name: string
   url: string
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the callback belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   /** Breadcrumb of this callback, making its body and responses addressable */

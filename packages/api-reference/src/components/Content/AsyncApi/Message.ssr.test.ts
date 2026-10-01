@@ -1,5 +1,6 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it } from 'vitest'
 import { createSSRApp, h } from 'vue'
@@ -49,7 +50,9 @@ const maxButtonDepth = (html: string): number => {
  */
 describe('Message.ssr', () => {
   it('renders the message header without nesting buttons', async () => {
-    const html = await renderToString(createSSRApp({ render: () => h(Message, { message, document, eventBus: null }) }))
+    const html = await renderToString(
+      createSSRApp({ render: () => h(Message, { message, document, eventBus: createNavigationEventBus() }) }),
+    )
 
     expect(html).toContain('<button')
     expect(maxButtonDepth(html)).toBe(1)

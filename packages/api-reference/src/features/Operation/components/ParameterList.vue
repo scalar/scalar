@@ -15,7 +15,7 @@ import ParameterListItem from './ParameterListItem.vue'
 const { parameters } = defineProps<{
   parameters: ParameterObject[]
   breadcrumb?: string[]
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   collapsableItems?: boolean
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument

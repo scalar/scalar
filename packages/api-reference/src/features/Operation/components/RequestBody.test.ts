@@ -50,7 +50,7 @@ describe('RequestBody', () => {
   it('renders request body with schema properties', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           content: {
@@ -79,7 +79,7 @@ describe('RequestBody', () => {
   it('displays schema model name from title', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           content: {
@@ -106,7 +106,7 @@ describe('RequestBody', () => {
   it('displays schema model name from $ref', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           content: {
@@ -133,7 +133,7 @@ describe('RequestBody', () => {
   it('does not display schema model name when not available', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           content: {
@@ -159,7 +159,7 @@ describe('RequestBody', () => {
   it('renders required badge when request body is required', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           required: true,
@@ -186,7 +186,7 @@ describe('RequestBody', () => {
   it('does not render when request body content is empty', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           content: {},
@@ -203,7 +203,7 @@ describe('RequestBody', () => {
   it('renders description when provided', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           description: 'The user data to create',
@@ -234,7 +234,7 @@ describe('RequestBody', () => {
 
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           content: {
@@ -260,7 +260,7 @@ describe('RequestBody', () => {
   it('keeps operation model names visible when hideModels is enabled', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: {
           ...defaultRequestOptions,
           hideModels: true,
@@ -357,7 +357,7 @@ describe('RequestBody', () => {
   it('updates selectedContentType via v-model when changing the content type', async () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         requestBody: {
           content: {
@@ -424,7 +424,7 @@ describe('RequestBody', () => {
 
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         // Expand everything so a duplicate selector in the collapsed block would
         // also be rendered (and therefore caught) rather than hidden.
         options: { ...defaultRequestOptions, expandAllSchemaProperties: true },

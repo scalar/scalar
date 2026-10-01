@@ -53,7 +53,7 @@ const {
   isCollapsed: boolean
   eventBus: NavigationEventBus<
     'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
-  > | null
+  >
   options?: Partial<ParameterListOptions>
   /** Map of navigation item id to expanded state, shared with the sidebar. */
   expandedItems?: Record<string, boolean>

@@ -98,7 +98,7 @@ const props = withDefaults(
     modelName?: string | null
     variant?: 'additionalProperties' | 'patternProperties'
     breadcrumb?: string[]
-    eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     options: SchemaOptions
     /** Enum values for property names (from JSON Schema propertyNames keyword). */
     propertyNamesEnum?: string[]

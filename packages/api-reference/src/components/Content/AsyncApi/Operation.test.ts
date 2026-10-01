@@ -1,5 +1,6 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiOperation } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -41,7 +42,7 @@ describe('Operation', () => {
           action: 'receive',
           channel: { $ref: '#/channels/userSignedUp' },
         }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -54,7 +55,7 @@ describe('Operation', () => {
       props: {
         operation: createOperation({ action: 'send' }),
         document: createDocument({ action: 'send', channel: { $ref: '#/channels/userSignedUp' } }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -70,7 +71,7 @@ describe('Operation', () => {
           channel: { $ref: '#/channels/userSignedUp' },
           description: 'Fired whenever a user signs up.',
         }),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -95,7 +96,7 @@ describe('Operation', () => {
             },
           },
         } as unknown as AsyncApiDocument,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -133,7 +134,7 @@ describe('Operation', () => {
             onUserSignedUp: { action: 'receive', channel: { $ref: '#/channels/userSignedUp' } },
           },
         } as unknown as AsyncApiDocument,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 

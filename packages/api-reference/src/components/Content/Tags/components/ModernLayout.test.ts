@@ -27,7 +27,7 @@ const createMockTag = (overrides: Partial<TraversedTag> = {}): TraversedTag => (
 
 const mockProps = {
   isCollapsed: false,
-  eventBus: null,
+  eventBus: createNavigationEventBus(),
 }
 
 beforeEach(() => {

@@ -3,6 +3,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { isReactive, nextTick } from 'vue'
@@ -29,7 +30,7 @@ describe('Schema', () => {
     const wrapper = mount(Schema, {
       props: {
         schema: getResolvedRef(document.components?.schemas?.Object),
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         name: 'Object',
         options: { expandAllSchemaProperties: true },
       },
@@ -79,7 +80,7 @@ describe('Schema', () => {
       const document = store.workspace.documents.alerts as { components: { schemas: Record<string, SchemaObject> } }
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           noncollapsible: true,
           options: { expandAllSchemaProperties },
           schema: document.components.schemas.AlertRule,
@@ -115,7 +116,7 @@ describe('Schema', () => {
         props: {
           options: {},
           name: 'Request Body',
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             description: 'This description should be shown',
             allOf: [
@@ -142,7 +143,7 @@ describe('Schema', () => {
       const wrapper = mount(Schema, {
         props: {
           name: 'Request Body',
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             allOf: [
               {
@@ -171,7 +172,7 @@ describe('Schema', () => {
       const wrapper = mount(Schema, {
         props: {
           name: 'Request Body',
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           compact: true,
           noncollapsible: true,
           // The request body passes this context down to the composition
@@ -205,7 +206,7 @@ describe('Schema', () => {
       const wrapper = mount(Schema, {
         props: {
           name: 'Request Body',
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           compact: true,
           noncollapsible: true,
           // The request body passes this context down to the composition
@@ -239,7 +240,7 @@ describe('Schema', () => {
     it('does show the allOf description', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: {
             type: 'object',
 
@@ -266,7 +267,7 @@ describe('Schema', () => {
     it('shows the own description of a standalone allOf schema', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           level: 1,
           noncollapsible: true,
           hideHeading: true,
@@ -301,7 +302,7 @@ describe('Schema', () => {
     it('shows the parent description for discriminator-based oneOf schemas', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             description: 'Parent schema description',
             discriminator: {
@@ -379,7 +380,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, document.components.schemas.BaseClass),
           options: { expandAllSchemaProperties: true, document: document as never },
@@ -413,7 +414,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
             discriminator: {
@@ -468,7 +469,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -521,7 +522,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Response',
           schema: coerceValue(SchemaObjectSchema, document.components.schemas.Config),
           options: { expandAllSchemaProperties: true, document: document as never },
@@ -573,7 +574,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Request Body',
           discriminator: {
             propertyName: 'formatVersion',
@@ -640,7 +641,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Response',
           schema: coerceValue(SchemaObjectSchema, baseSchema),
           options: { expandAllSchemaProperties: true, document: document as never },
@@ -670,7 +671,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
             // The `allOf` member carries a property that only appears when the
@@ -736,7 +737,7 @@ describe('Schema', () => {
 
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'Request Body',
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -781,7 +782,7 @@ describe('Schema', () => {
     it('shows special toggle button when additionalProperties is true', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -801,7 +802,7 @@ describe('Schema', () => {
     it('does not show special toggle button when additionalProperties is false', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -820,7 +821,7 @@ describe('Schema', () => {
     it('shows special toggle button with screen reader text when name is provided', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -841,7 +842,7 @@ describe('Schema', () => {
     it('marks the card as a reveal row when additionalProperties is true', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -865,7 +866,7 @@ describe('Schema', () => {
     it('renders additional properties schema when disclosure is opened', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -893,7 +894,7 @@ describe('Schema', () => {
     it('prevents click propagation when noncollapsible is true', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -920,7 +921,7 @@ describe('Schema', () => {
     it('does not prevent click propagation when noncollapsible is false', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -947,7 +948,7 @@ describe('Schema', () => {
     it('draws the reveal puck in the toggle button', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -967,7 +968,7 @@ describe('Schema', () => {
     it('renders additional properties with noncollapsible prop set to true', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -994,7 +995,7 @@ describe('Schema', () => {
     it('handles additionalProperties as boolean true correctly', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -1023,7 +1024,7 @@ describe('Schema', () => {
     it('handles additionalProperties as empty object correctly', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: {
             type: 'object',
             properties: {
@@ -1054,7 +1055,7 @@ describe('Schema', () => {
     it('should render properties by required alphabetical order', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: {
             type: 'object',
             properties: {
@@ -1099,7 +1100,7 @@ describe('Schema', () => {
     it('does not render readOnly properties when hideReadOnly is true', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -1123,7 +1124,7 @@ describe('Schema', () => {
     it('applies to nested object properties as well', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -1163,7 +1164,7 @@ describe('Schema', () => {
     it('does not render writeOnly properties when hideWriteOnly is true', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -1187,7 +1188,7 @@ describe('Schema', () => {
     it('applies to nested object properties as well', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -1227,7 +1228,7 @@ describe('Schema', () => {
     it('displays properties for nested array items', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'array',
             items: {
@@ -1269,7 +1270,7 @@ describe('Schema', () => {
     it('displays properties for array of arrays in object property', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -1329,7 +1330,7 @@ describe('Schema', () => {
     it('renders properties with oneOf composition containing date and date-time formats', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
             properties: {
@@ -1385,7 +1386,7 @@ describe('Schema', () => {
             },
           },
           level: 1,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: { expandAllSchemaProperties: true },
         },
       })
@@ -1409,7 +1410,7 @@ describe('Schema', () => {
             },
           },
           level: 1,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: {},
         },
       })
@@ -1431,7 +1432,7 @@ describe('Schema', () => {
         props: {
           schema: circularSchema,
           level: 1,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: { expandAllSchemaProperties: true },
         },
       })
@@ -1458,7 +1459,7 @@ describe('Schema', () => {
         props: {
           schema: node,
           level: 1,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: { expandAllSchemaProperties: true },
         },
       })
@@ -1517,7 +1518,7 @@ describe('Schema', () => {
         props: {
           schema,
           level: 0,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: { expandAllSchemaProperties: true },
         },
       })
@@ -1546,7 +1547,7 @@ describe('Schema', () => {
           },
           breadcrumb: ['root', 'foo'],
           additionalProperties: true,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: {},
         },
       })
@@ -1570,7 +1571,7 @@ describe('Schema', () => {
           },
           breadcrumb: ['root', 'foo'],
           additionalProperties: true,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: {},
         },
       })
@@ -1594,7 +1595,7 @@ describe('Schema', () => {
           },
           breadcrumb: ['root'],
           additionalProperties: true,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: {},
         },
       })
@@ -1617,7 +1618,7 @@ describe('Schema', () => {
           },
           breadcrumb: ['root', 'foo'],
           additionalProperties: true,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: {},
         },
       })
@@ -1632,7 +1633,7 @@ describe('Schema', () => {
       mount(Schema, {
         props: {
           options: { expandAllSchemaProperties: true },
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           schema: coerceValue(SchemaObjectSchema, schema),
         },
       }).text()
@@ -1732,7 +1733,7 @@ describe('Schema', () => {
     const mountReveal = (options: Record<string, unknown> = {}) =>
       mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           additionalProperties: true,
           breadcrumb: ['user'],
           schema: nestedSchema(),
@@ -1773,7 +1774,7 @@ describe('Schema', () => {
     it('moves focus to the row toggle when collapsing a subtree that holds it', async () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           noncollapsible: true,
           schema: coerceValue(SchemaObjectSchema, {
             type: 'object',
@@ -1832,7 +1833,7 @@ describe('Schema', () => {
     it('establishes exactly one root over a nested card that also mounts at depth 0', () => {
       const wrapper = mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           level: 0,
           noncollapsible: true,
           options: {},
@@ -1865,7 +1866,7 @@ describe('Schema', () => {
         attachTo: document.body,
         props: {
           breadcrumb: ['user'],
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           level: 0,
           noncollapsible: true,
           options: { schemaKeyboardNav },
@@ -1956,7 +1957,7 @@ describe('Schema', () => {
     const mountGalaxy = (schema: SchemaObject | undefined) =>
       mount(Schema, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           noncollapsible: true,
           options: { expandAllSchemaProperties: true },
           schema,
@@ -2008,7 +2009,7 @@ describe('Schema', () => {
       mount(Schema, {
         props: {
           schema: coerceValue(SchemaObjectSchema, schema),
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           options: { expandAllSchemaProperties: true },
         },
       })

@@ -12,7 +12,7 @@ const { tag, layout, moreThanOneTag } = defineProps<{
   isCollapsed: boolean
   eventBus: NavigationEventBus<
     'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
-  > | null
+  >
   /** Whether this tag sits inside a parent tag's container (drops its own padding). */
   nested?: boolean
 }>()

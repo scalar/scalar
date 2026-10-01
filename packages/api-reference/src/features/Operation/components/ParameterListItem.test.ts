@@ -1,5 +1,6 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { ResponseObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -40,7 +41,7 @@ describe('ParameterListItem', () => {
           name: 'filters',
           parameter: { name: 'filters', in: 'query', schema, description: 'Search filters.' },
           options: baseOptions,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
         },
       })
 
@@ -72,7 +73,7 @@ describe('ParameterListItem', () => {
         },
         collapsableItems: true,
         options: baseOptions,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -90,7 +91,7 @@ describe('ParameterListItem', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
         collapsableItems: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         name: '200',
         options: baseOptions,
         parameter: coerceValue(ResponseObjectSchema, {
@@ -116,7 +117,7 @@ describe('ParameterListItem', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
         collapsableItems: true,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         name: 'limit',
         options: baseOptions,
         parameter: { in: 'query', name: 'limit', required: true },
@@ -132,7 +133,7 @@ describe('ParameterListItem', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
         collapsableItems: true,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         name: 'limit',
         options: baseOptions,
         parameter: { in: 'query', name: 'limit', description: 'Maximum results.' },
@@ -153,7 +154,7 @@ describe('ParameterListItem', () => {
         props: {
           collapsableItems: true,
           breadcrumb: ['operation', 'query'],
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: 'limit',
           options: baseOptions,
           parameter: { in: 'query', name: 'limit', schema: { type: 'integer', enum: [10, 20] } },
@@ -173,7 +174,7 @@ describe('ParameterListItem', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
         collapsableItems: true,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         name: '204',
         options: baseOptions,
         parameter: { description: 'No content' },
@@ -187,7 +188,7 @@ describe('ParameterListItem', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
         collapsableItems: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         name: 'pet',
         options: {
           hideModels: true,
@@ -220,7 +221,7 @@ describe('ParameterListItem', () => {
     const wrapper = mount(ParameterListItem, {
       props: {
         collapsableItems: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         name: '200',
         options: baseOptions,
         parameter: coerceValue(ResponseObjectSchema, {
@@ -258,7 +259,7 @@ describe('ParameterListItem', () => {
         props: {
           breadcrumb: ['tag/pets/GET/pets', 'responses'],
           collapsableItems: false,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           name: '200',
           options: { ...baseOptions, expandAllSchemaProperties: true },
           parameter: responseWithHeader,

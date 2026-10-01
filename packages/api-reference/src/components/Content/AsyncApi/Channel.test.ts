@@ -1,5 +1,6 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiChannel } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -50,7 +51,7 @@ describe('Channel', () => {
         document: createDocument('Fired whenever a user signs up.'),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -66,7 +67,7 @@ describe('Channel', () => {
         document: createDocument(),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -84,7 +85,7 @@ describe('Channel', () => {
         }),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -100,7 +101,7 @@ describe('Channel', () => {
         document: createDocumentWithChannel({}),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -114,7 +115,7 @@ describe('Channel', () => {
         document: createDocument('Classic layout description.'),
         layout: 'classic',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -135,7 +136,7 @@ describe('Channel', () => {
         }),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -151,7 +152,7 @@ describe('Channel', () => {
         document: createDocument(),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -191,7 +192,7 @@ describe('Channel', () => {
         document: documentWithOperation(),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -206,7 +207,7 @@ describe('Channel', () => {
         document: documentWithOperation(),
         layout: 'classic',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -235,7 +236,7 @@ describe('Channel', () => {
           document: documentWithServers(),
           layout,
           isCollapsed: false,
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
         },
       })
 
@@ -257,7 +258,7 @@ describe('Channel', () => {
         }),
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -283,7 +284,7 @@ describe('Channel', () => {
         } as unknown as AsyncApiDocument,
         layout: 'modern',
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -301,7 +302,7 @@ describe('Channel', () => {
         document: documentWithOperation(),
         layout,
         isCollapsed: false,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         expandedItems,
       },
     })

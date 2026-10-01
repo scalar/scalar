@@ -1,5 +1,6 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -54,7 +55,7 @@ describe('AsyncApiTraversedEntry', () => {
           orderSchemaPropertiesBy: 'preserve',
           orderRequiredPropertiesFirst: true,
         },
-        eventBus: null as never,
+        eventBus: createNavigationEventBus() as never,
       },
     })
 

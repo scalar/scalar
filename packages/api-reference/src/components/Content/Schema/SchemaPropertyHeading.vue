@@ -47,7 +47,7 @@ const props = withDefaults(
     modelName?: string | null
     /** Resolved propertyNames schema, used to surface key constraints like `format` for additional properties. */
     propertyNames?: SchemaObject
-    eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     /**
      * The row's name is a stand-in for keys the caller chooses
      * (`additionalProperties`) or keys matching a regex (`patternProperties`),
@@ -426,7 +426,7 @@ const patternValue = computed(() => {
              `Type:string`. -->
         <span class="screenreader-only"> {{ translate('schema.type') }}: </span>
         <button
-          v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
+          v-if="modelLink?.schemaKey && modelLinkable"
           class="text-c-2 hover:text-c-1 underline"
           type="button"
           @click="

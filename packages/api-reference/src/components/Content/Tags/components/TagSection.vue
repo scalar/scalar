@@ -34,7 +34,7 @@ const {
   headingLevel?: HeadingLevel
   headerId?: string
   isCollapsed?: boolean
-  eventBus: NavigationEventBus<'scroll-to:nav-item'> | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
 }>()
 const { translate } = useLocalization()
 

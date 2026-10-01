@@ -1,5 +1,6 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -10,7 +11,7 @@ describe('SchemaComposition', () => {
     it('displays schema title when name is not present', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'anyOf',
           schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
@@ -32,7 +33,7 @@ describe('SchemaComposition', () => {
     it('displays type when neither name nor title are present', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -53,7 +54,7 @@ describe('SchemaComposition', () => {
     it('humanizes array types with item type', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'anyOf',
           schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
@@ -84,7 +85,7 @@ describe('SchemaComposition', () => {
       }
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -120,7 +121,7 @@ describe('SchemaComposition', () => {
       }
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -148,7 +149,7 @@ describe('SchemaComposition', () => {
     it('humanizes composition', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [{ type: 'object' }],
@@ -164,7 +165,7 @@ describe('SchemaComposition', () => {
     it('renders primitive type in composition panel', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [{ type: 'boolean' }, { type: 'object', properties: { foo: { type: 'string' } } }],
@@ -180,7 +181,7 @@ describe('SchemaComposition', () => {
     it('renders nullable schema in composition panel', async () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'anyOf',
           schema: {
             anyOf: [
@@ -208,7 +209,7 @@ describe('SchemaComposition', () => {
     it('renders const schema in composition panel', async () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'anyOf',
           schema: coerceValue(SchemaObjectSchema, {
             anyOf: [
@@ -241,7 +242,7 @@ describe('SchemaComposition', () => {
     it('renders enum schema in composition panel', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -270,7 +271,7 @@ describe('SchemaComposition', () => {
     it('handles nested compositions with titles', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -291,7 +292,7 @@ describe('SchemaComposition', () => {
   it('passes required array to Schema component for schema composition', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         composition: 'anyOf',
         schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
@@ -329,7 +330,7 @@ describe('SchemaComposition', () => {
   it('passes merged schema to Schema component for schema composition with allOf', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         composition: 'allOf',
         schema: coerceValue(SchemaObjectSchema, {
           allOf: [
@@ -369,7 +370,7 @@ describe('SchemaComposition', () => {
   it('does not merge allOf schemas within anyOf composition', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         composition: 'anyOf',
         schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
@@ -421,7 +422,7 @@ describe('SchemaComposition', () => {
   it('does not merge allOf object schemas within anyOf composition', async () => {
     const wrapper = mount(SchemaComposition, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         composition: 'anyOf',
         schema: coerceValue(SchemaObjectSchema, {
           anyOf: [
@@ -488,7 +489,7 @@ describe('SchemaComposition', () => {
   it('keeps a oneOf composition nested inside allOf (issue #5577)', () => {
     const wrapper = mount(SchemaComposition, {
       props: {
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         composition: 'allOf',
         schema: coerceValue(SchemaObjectSchema, {
           title: 'ConversionCreationRequest',
@@ -536,7 +537,7 @@ describe('SchemaComposition', () => {
 
       const wrapper = mount(SchemaComposition, {
         props: {
-          eventBus: null,
+          eventBus: createNavigationEventBus(),
           composition: 'oneOf',
           schema: coerceValue(SchemaObjectSchema, {
             oneOf: [
@@ -589,7 +590,9 @@ describe('SchemaComposition', () => {
         { title: 'Other account', type: 'object' },
       ],
     })
-    const wrapper = mount(SchemaComposition, { props: { schema, composition, level: 0, eventBus: null, options: {} } })
+    const wrapper = mount(SchemaComposition, {
+      props: { schema, composition, level: 0, eventBus: createNavigationEventBus(), options: {} },
+    })
     const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
     expect(listbox.props('options')).toStrictEqual([
       { id: '0', label: 'CN, HK · China account' },
@@ -609,7 +612,7 @@ describe('SchemaComposition', () => {
         discriminator: { propertyName: 'country', mapping: { CN: 'Account' } },
         composition: 'oneOf',
         level: 0,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: {},
       },
     })
@@ -645,7 +648,7 @@ describe('SchemaComposition', () => {
         discriminator: { propertyName: 'ignored', mapping: { wrong: 'Account' } },
         composition: 'oneOf',
         level: 0,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: { expandAllSchemaProperties: true },
       },
     })

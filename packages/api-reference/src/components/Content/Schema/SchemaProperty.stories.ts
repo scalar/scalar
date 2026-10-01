@@ -1,8 +1,14 @@
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { fn } from 'storybook/test'
 
 import SchemaProperty from './SchemaProperty.vue'
+
+const events = createWorkspaceEventBus()
+const primary = createNavigation(events, { 'scroll-to:model-by-name': fn() })
+const eventBus = withNavigation(events, primary.navigation)
 
 /**
  * A single property row: the heading, an optional Markdown description, and any nested object or
@@ -14,7 +20,7 @@ const meta: Meta<typeof SchemaProperty> = {
   component: SchemaProperty,
   args: {
     level: 0,
-    eventBus: null,
+    eventBus: eventBus,
     options: {},
   },
   // Wrap in a fixed-width, padded card painted with the Scalar page background (white in light mode)

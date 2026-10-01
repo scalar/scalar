@@ -20,7 +20,7 @@ import Callback from './Callback.vue'
 const { path, callbacks, breadcrumb } = defineProps<{
   path: string
   callbacks: NonNullable<OperationObject['callbacks']>
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** Breadcrumb of the owning operation; extended per callback below */
   breadcrumb?: string[]
   /** The document the callbacks belong to, used to resolve schema references for display */

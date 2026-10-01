@@ -1,8 +1,14 @@
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { fn } from 'storybook/test'
 
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
+
+const events = createWorkspaceEventBus()
+const primary = createNavigation(events, { 'scroll-to:model-by-name': fn() })
+const eventBus = withNavigation(events, primary.navigation)
 
 /**
  * The property heading line: the type/format, the dotted list of constraints, the deprecated badge,
@@ -19,7 +25,7 @@ type HeadingArgs = InstanceType<typeof SchemaPropertyHeading>['$props'] & {
 const meta: Meta<HeadingArgs> = {
   title: 'Schema/SchemaPropertyHeading',
   component: SchemaPropertyHeading,
-  args: { eventBus: null },
+  args: { eventBus, modelLinkOptions: { hideModels: true } },
   // Wrap in a fixed-width, padded card painted with the Scalar page background (white in light mode)
   // so the snapshot has a stable size and an opaque background instead of a transparent one.
   render: ({ label, ...args }) => ({

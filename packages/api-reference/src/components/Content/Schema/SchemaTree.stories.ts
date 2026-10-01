@@ -1,8 +1,14 @@
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { fn } from 'storybook/test'
 
 import Schema from './Schema.vue'
+
+const events = createWorkspaceEventBus()
+const primary = createNavigation(events, { 'scroll-to:model-by-name': fn() })
+const eventBus = withNavigation(events, primary.navigation)
 
 /**
  * The schema tree: a continuous rail per depth with a disclosure control in
@@ -29,7 +35,7 @@ type Story = StoryObj<typeof Schema>
 export const TreeDeepNesting: Story = {
   args: {
     name: 'Account',
-    eventBus: null,
+    eventBus: eventBus,
     breadcrumb: ['account'],
     options: { expandAllSchemaProperties: true },
     schema: coerceValue(SchemaObjectSchema, {
@@ -64,7 +70,7 @@ export const TreeDeepNesting: Story = {
 export const TreeCollapsedPreviews: Story = {
   args: {
     name: 'Response',
-    eventBus: null,
+    eventBus: eventBus,
     breadcrumb: ['response'],
     options: {},
     schema: coerceValue(SchemaObjectSchema, {
@@ -103,7 +109,7 @@ export const TreeCollapsedPreviews: Story = {
 export const TreeEnumChips: Story = {
   args: {
     name: 'Filters',
-    eventBus: null,
+    eventBus: eventBus,
     breadcrumb: ['filters'],
     options: {},
     schema: coerceValue(SchemaObjectSchema, {
@@ -142,7 +148,7 @@ export const TreeEnumChips: Story = {
 export const TreeRecursive: Story = {
   args: {
     name: 'TreeNode',
-    eventBus: null,
+    eventBus: eventBus,
     breadcrumb: ['treeNode'],
     options: { expandAllSchemaProperties: true },
     schema: coerceValue(SchemaObjectSchema, {
@@ -173,7 +179,7 @@ export const TreeRecursive: Story = {
 export const TreeNarrowReflow: Story = {
   args: {
     name: 'Account',
-    eventBus: null,
+    eventBus: eventBus,
     breadcrumb: ['account'],
     options: { expandAllSchemaProperties: true },
     schema: coerceValue(SchemaObjectSchema, {

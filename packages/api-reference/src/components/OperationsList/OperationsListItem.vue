@@ -19,7 +19,7 @@ import { useDocumentOutline } from '@/features/document-outline'
 const { operation } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
   isCollapsed?: boolean
-  eventBus: NavigationEventBus<'scroll-to:nav-item'> | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
 }>()
 
 const pathOrTitle = computed(() => {
@@ -49,11 +49,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
       {{ operation.title }} (Hidden)
     </SectionHeaderTag>
     <a
-      :aria-disabled="!eventBus"
       class="endpoint"
       @click.prevent="
         () =>
-          eventBus &&
           navigateCommand(eventBus.navigation, 'scroll-to:nav-item', {
             id: operation.id,
           })

@@ -26,7 +26,7 @@ const { schema, discriminator, options, schemaContext, compositionPath } =
     depth?: number
     hideModelNames?: boolean
     breadcrumb?: string[]
-    eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     options: SchemaOptions
     schemaContext?: string
     compositionPath?: string[]

@@ -33,7 +33,7 @@ const {
 } = defineProps<{
   operation: TraversedAsyncApiOperation
   document: AsyncApiDocument
-  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   options?: Partial<OperationOptions>
   /** Map of navigation item id to expanded state, shared with the sidebar. */
   expandedItems?: Record<string, boolean>

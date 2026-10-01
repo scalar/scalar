@@ -1,5 +1,6 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -42,7 +43,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
     const props = wrapper.findAll('.schema-property')
     expect(props[0]?.attributes('data-name')).toBe('foo')
@@ -60,7 +61,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
     // The required prop is passed to SchemaProperty, but since we mock it, we cannot check directly.
     // Instead, check that both properties are rendered.
@@ -77,7 +78,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -93,7 +94,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -111,7 +112,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -126,7 +127,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -141,7 +142,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const prop = wrapper.find('.schema-property')
@@ -159,7 +160,7 @@ describe('SchemaObjectProperties', () => {
     } as SchemaObject
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const prop = wrapper.findComponent({ name: 'SchemaProperty' })
@@ -177,7 +178,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     expect(wrapper.findAll('.schema-property')).toHaveLength(0)
@@ -193,7 +194,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -214,7 +215,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -237,7 +238,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -268,7 +269,7 @@ describe('SchemaObjectProperties', () => {
         options: {
           orderRequiredPropertiesFirst: false,
         },
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
       },
     })
 
@@ -293,7 +294,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -324,7 +325,7 @@ describe('SchemaObjectProperties', () => {
     } as SchemaObject
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -349,7 +350,7 @@ describe('SchemaObjectProperties', () => {
     })
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const props = wrapper.findAll('.schema-property')
@@ -376,7 +377,7 @@ describe('SchemaObjectProperties', () => {
     const wrapper = mount(SchemaObjectProperties, {
       props: {
         schema,
-        eventBus: null,
+        eventBus: createNavigationEventBus(),
         options: {
           orderSchemaPropertiesBy: 'preserve',
           orderRequiredPropertiesFirst: false,
@@ -419,7 +420,7 @@ describe('SchemaObjectProperties', () => {
     } as SchemaObject
 
     const wrapper = mount(SchemaObjectProperties, {
-      props: { schema, options: {}, eventBus: null },
+      props: { schema, options: {}, eventBus: createNavigationEventBus() },
     })
 
     const property = wrapper.findComponent({ name: 'SchemaProperty' })

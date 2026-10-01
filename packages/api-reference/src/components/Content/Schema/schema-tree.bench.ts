@@ -1,9 +1,13 @@
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { bench, describe } from 'vitest'
 
 import Schema from './Schema.vue'
+
+const events = createWorkspaceEventBus()
+const { navigation } = createNavigation(events, { 'scroll-to:model-by-name': () => undefined })
 
 /**
  * Mount measurements for the schema tree, so a change to the renderer has a
@@ -88,7 +92,7 @@ const mountSchema = (schema: SchemaObject, options: Record<string, unknown> = {}
   mount(Schema, {
     props: {
       name: 'Root',
-      eventBus: null,
+      eventBus: withNavigation(events, navigation),
       options,
       schema,
     },

@@ -53,7 +53,7 @@ const props = withDefaults(
     /** Breadcrumb for navigation */
     breadcrumb?: string[]
     /** Event bus emitting actions */
-    eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     /** Move the options into  single prop so they are easy to pass around */
     options: SchemaOptions
     /** When "requestBody", sync selected index with the example snippet */

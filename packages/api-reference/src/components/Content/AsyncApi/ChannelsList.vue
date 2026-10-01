@@ -19,7 +19,7 @@ import { useLocalization } from '@/features/localization'
 
 const { tag } = defineProps<{
   tag: TraversedTag
-  eventBus: NavigationEventBus<'scroll-to:nav-item'> | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
 }>()
 const { translate } = useLocalization()
 
@@ -54,11 +54,9 @@ const channels = computed(
           :key="channel.id"
           class="contents">
           <a
-            :aria-disabled="!eventBus"
             class="channel"
             @click.prevent="
               () =>
-                eventBus &&
                 navigateCommand(eventBus.navigation, 'scroll-to:nav-item', {
                   id: channel.id,
                 })

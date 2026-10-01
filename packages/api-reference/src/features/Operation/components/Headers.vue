@@ -22,7 +22,7 @@ const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
   defineProps<{
     headers: Record<string, HeaderObject>
     breadcrumb?: string[]
-    eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'>
     /** The document the headers belong to, used to resolve schema references for display */
     document?: OpenApiDocument
     orderRequiredPropertiesFirst: boolean | undefined
