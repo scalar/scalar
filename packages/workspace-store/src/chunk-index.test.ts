@@ -464,6 +464,49 @@ describe('chunk-index', () => {
     expect(requests.slice(3)).toStrictEqual(['/chunks/default/operations/~1users/post.json'])
   })
 
+  it.for(['__proto__', 'constructor', 'inherited'])(
+    'does not load navigation for an inherited document named %s',
+    async (name, { onTestFinished }) => {
+      const { store, requests } = await addCompactDocument(onTestFinished)
+      const document = store.workspace.documents.default
+      assert(document)
+      const navigation = navigationOf(store)
+      assert(navigation)
+      const prototype = Object.defineProperty({}, name, { value: document })
+      Object.setPrototypeOf(store.workspace.documents, prototype)
+      onTestFinished(() => {
+        Object.setPrototypeOf(store.workspace.documents, Object.prototype)
+      })
+      store.update('x-scalar-active-document', name)
+
+      await store.resolve(['x-scalar-navigation'])
+
+      expect(requests).toStrictEqual(['/default.json'])
+      expect(navigation.children).toStrictEqual([])
+      expect(onTheWire(document)['x-scalar-navigation-chunk']).toBe('./chunks/default/navigation.json#')
+    },
+  )
+
+  it('does not write loaded children onto inherited navigation', async ({ onTestFinished }) => {
+    const { store, requests } = await addCompactDocument(onTestFinished)
+    const document = store.workspace.documents.default
+    assert(document)
+    const navigation = navigationOf(store)
+    assert(navigation)
+    const originalPrototype = Object.getPrototypeOf(document)
+    Object.setPrototypeOf(document, { 'x-scalar-navigation': navigation })
+    delete document['x-scalar-navigation']
+    onTestFinished(() => {
+      Object.setPrototypeOf(document, originalPrototype)
+    })
+
+    await store.resolve(['x-scalar-navigation'])
+
+    expect(requests).toStrictEqual(['/default.json'])
+    expect(navigation.children).toStrictEqual([])
+    expect(onTheWire(document)['x-scalar-navigation-chunk']).toBe('./chunks/default/navigation.json#')
+  })
+
   it('loads the navigation children on request, and only once', async ({ onTestFinished }) => {
     const { store, requests } = await addCompactDocument(onTestFinished)
     const { sparse } = await buildDocuments('static', 'default', 'assets')

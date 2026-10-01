@@ -20,6 +20,7 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
+import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { deepClone } from '@/helpers/deep-clone'
 import { createDetectChangesProxy } from '@/helpers/detect-changes-proxy'
@@ -1110,22 +1111,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'x-scalar-original-source-url': input.documentSource,
       }) satisfies AsyncApiDocument
 
-      await withMeasurementAsync(
-        'bundle',
-        async () =>
-          await bundle(getRaw(asyncApiDocument), {
-            treeShake: false,
-            plugins: loaders,
-            urlMap: true,
-            origin: input.documentSource, // use the document origin (if provided) as the base URL for resolution
-          }),
-      )
-
-      // We coerce the values only when the document is not preprocessed by the server-side-store
-      const coerced = withMeasurementSync('coerceValue', () =>
-        coerce<Schema>(asyncApiObjectSchema, deepClone(getRaw(asyncApiDocument))),
-      )
-      withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
+      if (asyncApiDocument[extensions.document.navigation] === undefined) {
+        await withMeasurementAsync(
+          'bundle',
+          async () =>
+            await bundle(getRaw(asyncApiDocument), {
+              treeShake: false,
+              plugins: loaders,
+              urlMap: true,
+              origin: input.documentSource,
+            }),
+        )
+        const coerced = withMeasurementSync('coerceValue', () =>
+          coerce<Schema>(asyncApiObjectSchema, deepClone(getRaw(asyncApiDocument))),
+        )
+        withMeasurementSync('mergeObjects', () => mergeObjects(asyncApiDocument, coerced))
+      }
 
       if (asyncApiDocument[extensions.document.navigation] === undefined) {
         const navigation = traverseAsyncApiDocument(name, asyncApiDocument, navigationOptions)
@@ -1425,7 +1426,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   }
 
   /** Share concurrent requests only within the same document instance, including after a workspace reload. */
-  const navigationChildrenLoads = new WeakMap<OpenApiDocument, Promise<void>>()
+  const navigationChildrenLoads = new WeakMap<OpenApiDocument | AsyncApiDocument, Promise<void>>()
 
   /**
    * Loads a compact document's navigation children and assigns them onto its navigation in place.
@@ -1437,16 +1438,22 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * key in place, so asking again retries.
    */
   const loadNavigationChildren = async (documentName: string): Promise<void> => {
-    const document = workspace.documents[documentName]
-
-    if (!isOpenApiDocument(document)) {
+    // An inherited entry can point at a prototype, which must never receive chunk writes.
+    if (!Object.hasOwn(workspace.documents, documentName)) {
       return
     }
 
-    const ref = document[extensions.document.navigationChunk]
+    const document = workspace.documents[documentName]
+
+    if (!isOpenApiDocument(document) && !isAsyncApiDocument(document)) {
+      return
+    }
+
+    const chunkDocument = document as typeof document & { 'x-scalar-navigation-chunk'?: string }
+    const ref = chunkDocument[extensions.document.navigationChunk]
     const navigation = document[extensions.document.navigation]
 
-    if (ref === undefined || navigation === undefined) {
+    if (ref === undefined || navigation === undefined || !Object.hasOwn(document, extensions.document.navigation)) {
       return
     }
 
@@ -1467,7 +1474,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Assigned through the store's document, so the write is observed: a Vue effect reading the
       // children re-runs, and the workspace plugins see the document change.
       navigation.children = chunk.children ?? []
-      delete document[extensions.document.navigationChunk]
+      delete chunkDocument[extensions.document.navigationChunk]
     })()
 
     navigationChildrenLoads.set(document, load)
@@ -1481,7 +1488,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
-  const visitedNodesCache = new Set()
+  const visitedNodesCaches = new WeakMap<object, Set<unknown>>()
 
   return {
     externalExamples: (documentName) => {
@@ -1577,6 +1584,19 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return Promise.resolve()
       }
 
+      if (
+        isAsyncApiDocument(activeDocument) &&
+        path.length === 3 &&
+        path[0] === 'components' &&
+        path[1] === 'schemas'
+      ) {
+        const node = getRaw(target)
+        const name = path[2]
+        if (name && typeof node.$ref === 'string' && node.$global === true) {
+          node.$ref = asyncApiModelChunkReference(node.$ref, name)
+        }
+      }
+
       // Bundle the target document with the active document as root, resolving any external references
       // and tracking resolution status through hooks.
       //
@@ -1584,6 +1604,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // references relative to the document (`./chunks/…`), and without the origin the loader has
       // nothing to resolve them against, so every chunk fails before a request is made. SSR
       // workspaces write absolute URLs and never needed it.
+      const visitedNodes = activeDocument
+        ? (visitedNodesCaches.get(activeDocument) ?? new Set<unknown>())
+        : new Set<unknown>()
+      if (activeDocument) visitedNodesCaches.set(activeDocument, visitedNodes)
+
       return bundle(target, {
         root: activeDocument,
         origin: activeDocument?.['x-scalar-original-source-url'],
@@ -1599,7 +1624,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           externalValueResolver({ lazy: true }),
         ],
         urlMap: true,
-        visitedNodes: visitedNodesCache,
+        visitedNodes,
       })
     },
     addDocument,
