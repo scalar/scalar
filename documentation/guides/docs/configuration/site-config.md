@@ -666,6 +666,22 @@ Set `isPrivate` to require visitors to sign in before they can view your documen
 
 Access groups and login portals are created in the [Scalar Dashboard](https://dashboard.scalar.com), and the config refers to them by slug. You can also manage these settings in your documentation project's **Settings → Privacy**, which reads and writes the same properties.
 
+## Personalization
+
+Set `userInfoHook` to your HTTPS endpoint to personalize published documentation for signed-in visitors:
+
+```json
+{
+  "siteConfig": {
+    "userInfoHook": "https://api.example.com/docs/user-info"
+  }
+}
+```
+
+Publish the configuration, then generate the project's signing secret in **Settings → Privacy → Personalization**. Your endpoint verifies Scalar's signed request and returns visitor groups, content values, and optional API playground inputs. See [Personalization](personalization.md) for the complete hook contract and a working example.
+
+Personalization changes visibility. Use [Access Control](#access-control) to restrict access to the site.
+
 ## Content Signals
 
 The `contentSignals` property declares how search and AI crawlers may use your published documentation. Scalar writes these preferences as a `Content-Signal` line in the generated `robots.txt`.
