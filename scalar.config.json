@@ -2109,6 +2109,12 @@
                         "type": "page",
                         "title": "Steps"
                       },
+                      "timeline": {
+                        "description": "Show changelogs and release notes as a timeline, written by hand or loaded from a changelog file.",
+                        "filepath": "documentation/guides/docs/components/timeline.mdx",
+                        "type": "page",
+                        "title": "Timeline"
+                      },
                       "cards": {
                         "description": "Link related pages and highlight content with card components in Scalar Docs.",
                         "filepath": "documentation/guides/docs/components/cards.mdx",
