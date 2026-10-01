@@ -186,7 +186,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
         <!-- Description -->
         <div class="operation-description">
-          <SpecificationExtension :value="operationExtensions" />
+          <SpecificationExtension
+            :showExtensions="options.showExtensions"
+            :value="operationExtensions" />
           <ScalarMarkdown
             :anchorPrefix="id"
             :aria-label="translate('common.description')"

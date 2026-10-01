@@ -67,6 +67,7 @@ const {
     | 'expandAllSchemaProperties'
     | 'schemaKeyboardNav'
     | 'showOperationId'
+    | 'showExtensions'
     | 'hideModels'
     | 'modelsSectionLabel'
   >

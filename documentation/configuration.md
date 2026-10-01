@@ -651,6 +651,25 @@ Whether to show the dark mode toggle.
 }
 ```
 
+### showExtensions
+
+Display selected operation-level OpenAPI extensions without writing a plugin. Disabled by default.
+Works in both layouts and the standalone browser build:
+
+```js
+Scalar.createApiReference('#app', {
+  url: '/openapi.json',
+  showExtensions: ['x-scopes'],
+})
+```
+
+Keys must start with `x-`. Selected keys appear in configuration order, using the exact key as the label.
+Primitive values appear as text, non-empty arrays of primitives as lists, and objects or nested arrays as formatted JSON.
+Missing keys are omitted; `false`, `0`, `null`, and empty arrays or objects remain visible. Values are displayed as text, not HTML or Markdown.
+
+This option applies only to operations, not extensions on schemas, parameters, or the API description root.
+It does not change authentication behavior. Existing plugin components take precedence for keys they render.
+
 ### showOperationId
 
 **Type:** `boolean`

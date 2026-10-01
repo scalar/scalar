@@ -4,7 +4,11 @@ import { computed } from 'vue'
 
 import { usePluginManager } from '@/plugins'
 
-const { value } = defineProps<{
+import ExtensionValue from './ExtensionValue.vue'
+
+const { value, showExtensions = [] } = defineProps<{
+  /** Explicitly selected keys that may use the default renderer. */
+  showExtensions?: string[]
   /**
    * Any value that can contain OpenAPI specification extensions.
    */
@@ -17,9 +21,9 @@ const { getSpecificationExtensions } = usePluginManager()
  * Extract registered OpenAPI extension names
  */
 function getCustomExtensionNames(
-  value: Record<string, any> | undefined,
+  source: Record<string, unknown> | undefined,
 ): `x-${string}`[] {
-  return Object.keys(value ?? {}).filter((item): item is `x-${string}` =>
+  return Object.keys(source ?? {}).filter((item): item is `x-${string}` =>
     item.startsWith('x-'),
   )
 }
@@ -44,12 +48,36 @@ const customExtensionNames = computed(() => getCustomExtensionNames(value))
 const customExtensions = computed(() =>
   getCustomOpenApiExtensionComponents(customExtensionNames.value),
 )
+/** Custom plugin components retain ownership of their extension keys. */
+const defaultExtensions = computed(() =>
+  [...new Set(showExtensions)].filter(
+    (name) =>
+      name.startsWith('x-') &&
+      Object.hasOwn(value ?? {}, name) &&
+      !customExtensions.value.some((extension) => extension.name === name),
+  ),
+)
 </script>
 
 <template>
+  <dl
+    v-if="defaultExtensions.length"
+    class="my-3 grid gap-3 text-base">
+    <div
+      v-for="name in defaultExtensions"
+      :key="name"
+      class="min-w-0">
+      <dt class="font-code font-medium break-words">{{ name }}</dt>
+      <dd class="text-c-2 mt-1">
+        <ExtensionValue :value="value?.[name]" />
+      </dd>
+    </div>
+  </dl>
   <template v-if="typeof value === 'object' && customExtensions.length">
     <div class="text-base">
-      <template v-for="extension in customExtensions">
+      <template
+        v-for="(extension, index) in customExtensions"
+        :key="index">
         <ScalarErrorBoundary>
           <template v-if="extension.renderer">
             <!-- Custom rendering -->

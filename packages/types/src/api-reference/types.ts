@@ -700,6 +700,8 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
+  /** Operation-level extension keys to display. Custom plugin components take precedence. */
+  showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
   /** forceDarkModeState makes it always this state no matter what */
