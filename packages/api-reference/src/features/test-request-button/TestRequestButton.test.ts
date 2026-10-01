@@ -1,4 +1,5 @@
 import { mockEventBus } from '@scalar/api-client/v2/helpers/test-utils'
+import { createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -11,6 +12,20 @@ describe('TestRequestButton', () => {
 
   afterAll(() => {
     vi.resetAllMocks()
+  })
+
+  it.each([false, { 'ui:open:client-modal': false }] as const)('hides unsupported client opening: %j', (navigation) => {
+    const wrapper = mount(TestRequestButton, {
+      props: {
+        id: 'test-operation',
+        method: 'post',
+        path: '/pets',
+        eventBus: withNavigation<'ui:open:client-modal'>(createWorkspaceEventBus(), navigation),
+      },
+    })
+    expect(wrapper.find('button').exists()).toBe(false)
+    expect(wrapper.text()).toBe('')
+    wrapper.unmount()
   })
 
   it('renders button with correct text and icon when operation is provided', () => {

@@ -43,8 +43,8 @@ const handleClick = () => {
 <template>
   <!-- Render the Test Request Button -->
   <button
+    v-if="canNavigate(eventBus.navigation, 'ui:open:client-modal')"
     class="show-api-client-button"
-    :disabled="!canNavigate(eventBus.navigation, 'ui:open:client-modal')"
     :method="method"
     type="button"
     @click.stop="handleClick">
@@ -84,11 +84,7 @@ const handleClick = () => {
   color: var(--scalar-button-1-color);
   z-index: 1;
 }
-.show-api-client-button:disabled {
-  cursor: default;
-  opacity: 0.5;
-}
-.show-api-client-button:hover:not(:disabled) {
+.show-api-client-button:hover {
   background: var(--scalar-button-1-hover);
 }
 .show-api-client-button svg {

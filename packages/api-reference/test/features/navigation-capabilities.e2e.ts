@@ -19,7 +19,7 @@ const serveStories = (): Promise<{ url: string; close: () => void }> => {
   })
 }
 
-test('navigation capabilities expose destinations or explicit disabled controls', async ({ page }, testInfo) => {
+test('navigation capabilities expose destinations or hide unsupported controls', async ({ page }, testInfo) => {
   const stories = await serveStories()
   try {
     await page.goto(`${stories.url}/iframe.html?id=navigation-capabilities--supported&viewMode=story`)
@@ -42,8 +42,7 @@ test('navigation capabilities expose destinations or explicit disabled controls'
     await expect(page.getByTestId('request-body-schema-name')).toContainText('Pet')
     await expect(page.getByTestId('request-body-schema-name').getByRole('button')).toHaveCount(0)
     await expect(page.getByTestId('property-heading').getByRole('button')).toHaveCount(0)
-    await expect(page.getByRole('button', { name: /Test Request/ })).toBeDisabled()
-    await expect(page.getByRole('button', { name: /Test Request/ })).toHaveCSS('opacity', '0.5')
+    await expect(page.getByRole('button', { name: /Test Request/ })).toHaveCount(0)
     await testInfo.attach('navigation-disabled', { body: await surface.screenshot(), contentType: 'image/png' })
   } finally {
     stories.close()
