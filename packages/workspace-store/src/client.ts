@@ -1438,6 +1438,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * key in place, so asking again retries.
    */
   const loadNavigationChildren = async (documentName: string): Promise<void> => {
+    // An inherited entry can point at a prototype, which must never receive chunk writes.
+    if (!Object.hasOwn(workspace.documents, documentName)) {
+      return
+    }
+
     const document = workspace.documents[documentName]
 
     if (!isOpenApiDocument(document) && !isAsyncApiDocument(document)) {
@@ -1448,7 +1453,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const ref = chunkDocument[extensions.document.navigationChunk]
     const navigation = document[extensions.document.navigation]
 
-    if (ref === undefined || navigation === undefined) {
+    if (ref === undefined || navigation === undefined || !Object.hasOwn(document, extensions.document.navigation)) {
       return
     }
 
