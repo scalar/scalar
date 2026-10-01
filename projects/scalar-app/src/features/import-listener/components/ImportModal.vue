@@ -145,6 +145,7 @@ const handleModalStateChange = async (isOpen: boolean): Promise<void> => {
     importEventData,
     DRAFT_DOCUMENT_NAME,
     watchMode.value,
+    fetch,
   )
 
   // If the document failed to load, set the state to error

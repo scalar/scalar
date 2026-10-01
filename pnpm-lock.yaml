@@ -2180,6 +2180,10 @@ importers:
       yaml:
         specifier: catalog:*
         version: 2.9.0
+    devDependencies:
+      '@scalar/client-side-rendering':
+        specifier: workspace:*
+        version: link:../client-side-rendering
 
   packages/json-magic:
     dependencies:
@@ -3157,6 +3161,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../../packages/icons
+      '@scalar/import':
+        specifier: workspace:*
+        version: link:../../packages/import
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../../packages/json-magic

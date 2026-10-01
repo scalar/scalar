@@ -129,6 +129,7 @@ const directImport = async (
     importEventData,
     'drafts',
     false,
+    fetch,
   )
 
   if (!success) {
