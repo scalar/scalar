@@ -10,8 +10,8 @@ describe('SpecificationExtensions', () => {
     })
     expect(wrapper.findAll('dt').map((row) => row.text())).toStrictEqual([
       'x-scopes',
-      '[0]',
-      '[1]',
+      'Array item [0]',
+      'Array item [1]',
       'x-policy',
       'enabled:',
     ])
@@ -29,6 +29,17 @@ describe('SpecificationExtensions', () => {
     const wrapper = mount(SpecificationExtensions, { props: { extensions: { 'x-value': value } } })
     expect(wrapper.get('code').text()).toBe(expected)
     expect(wrapper.find('button').exists()).toBe(false)
+  })
+
+  it('gives sibling collection controls distinct accessible names', () => {
+    const wrapper = mount(SpecificationExtensions, {
+      props: { extensions: { 'x-rules': [{ role: 'admin' }, { role: 'reader' }] } },
+    })
+    const controls = wrapper.findAll('button').slice(1)
+    expect(controls.map((button) => wrapper.get(`#${button.attributes('aria-labelledby')}`).text())).toStrictEqual([
+      'Array item [0]',
+      'Array item [1]',
+    ])
   })
 
   it('expands nested objects and arrays lazily with accessible disclosure controls', async () => {

@@ -5,6 +5,7 @@ import type {
   HeaderObject,
   OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { computed } from 'vue'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
@@ -37,10 +38,19 @@ const {
   /** Whether the models section is hidden, so model names render as plain text instead of links */
   hideModels: boolean | undefined
 }>()
+/** Headers may describe their value with either schema or a single media type. */
+const schema = computed(() => {
+  if ('schema' in header && header.schema) {
+    return getResolvedRef(header.schema)
+  }
+  if ('content' in header && header.content) {
+    return getResolvedRef(Object.values(header.content)[0]?.schema)
+  }
+  return undefined
+})
 </script>
 <template>
   <SchemaProperty
-    v-if="'schema' in header && header.schema"
     :breadcrumb="breadcrumb"
     :description="header.description"
     :eventBus="eventBus"
@@ -55,5 +65,5 @@ const {
       hideModels: hideModels,
       document,
     }"
-    :schema="getResolvedRef(header.schema)" />
+    :schema="schema" />
 </template>

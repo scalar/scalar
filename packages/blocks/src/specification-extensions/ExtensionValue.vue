@@ -75,10 +75,17 @@ const text = computed<string>(() => {
         :panelRendered="open"
         @toggle="open = !open" />
       <span
-        :id="nameId"
-        :class="{ 'sr-only': arrayItem && !expandable }"
+        v-if="!arrayItem || expandable"
+        :id="arrayItem ? undefined : nameId"
+        :aria-hidden="arrayItem || undefined"
         class="font-code min-w-0 font-medium break-words"
         >{{ label }}</span
+      >
+      <span
+        v-if="arrayItem"
+        :id="nameId"
+        class="sr-only"
+        >Array item {{ name }}</span
       >
     </dt>
     <SchemaRailPanel

@@ -21,7 +21,12 @@ describe('SpecificationExtension', () => {
         showExtensions: ['x-owner', 'x-missing', 'x-scopes', 'x-owner', 'summary'],
       },
     })
-    expect(wrapper.findAll('dt').map((node) => node.text())).toStrictEqual(['x-owner:', 'x-scopes', '[0]', '[1]'])
+    expect(wrapper.findAll('dt').map((node) => node.text())).toStrictEqual([
+      'x-owner:',
+      'x-scopes',
+      'Array item [0]',
+      'Array item [1]',
+    ])
     expect(wrapper.findAll('code').map((node) => node.text())).toStrictEqual([
       '"team"',
       '"directories"',
