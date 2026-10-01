@@ -266,8 +266,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
 
 <!-- monthly-contributors:start -->
 <p>
-	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-light.svg?v=2026-07#gh-light-mode-only" alt="Top contributors in July 2026">
-	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-dark.svg?v=2026-07#gh-dark-mode-only" alt="Top contributors in July 2026">
+	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-light.svg?v=2026-09#gh-light-mode-only" alt="Top contributors in September 2026">
+	<img width="830" height="280" src="./.github/assets/contributors/top-contributors-dark.svg?v=2026-09#gh-dark-mode-only" alt="Top contributors in September 2026">
 </p>
 <!-- monthly-contributors:end -->
 
