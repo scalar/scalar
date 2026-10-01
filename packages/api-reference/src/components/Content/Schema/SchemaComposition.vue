@@ -290,10 +290,10 @@ if (
            plus on a row, so no trailing caret. -->
       <ScalarListbox
         v-model="selectedOption"
-        class="w-fit min-w-40"
+        class="w-fit max-w-full min-w-40"
         :options="listboxOptions">
         <button
-          class="composition-selector composition-selector--tree group/tree-control font-code relative flex w-fit cursor-pointer items-start gap-1.5 py-1 text-sm"
+          class="composition-selector composition-selector--tree group/tree-control font-code relative flex w-fit max-w-full cursor-pointer items-start gap-1.5 py-1 text-sm"
           type="button">
           <SchemaGlyphPuck
             anchor="line"
@@ -314,10 +314,11 @@ if (
             >·</span
           >
           <span
-            class="composition-selector-label text-c-1 min-w-0 [font-weight:var(--scalar-bold)] wrap-anywhere"
+            class="composition-selector-label text-c-1 min-w-0 truncate [font-weight:var(--scalar-bold)]"
             :class="{
               'line-through': selectedComposition?.deprecated,
-            }">
+            }"
+            :title="selectedOption?.label || translate('schema.schema')">
             {{ selectedOption?.label || translate('schema.schema') }}
           </span>
           <div

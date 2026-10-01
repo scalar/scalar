@@ -113,7 +113,7 @@ export const AllOf: Story = {
   },
 }
 
-/** Long discriminator values wrap without splitting the composition keyword or moving its caret. */
+/** Long discriminator values truncate without splitting the composition keyword or moving its caret. */
 export const OneOfLongDiscriminator: Story = {
   args: {
     composition: 'oneOf',

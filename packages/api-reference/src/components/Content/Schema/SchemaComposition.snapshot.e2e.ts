@@ -30,11 +30,16 @@ test.describe('SchemaComposition', () => {
     const lineHeight = await keyword.evaluate((element) => Number.parseFloat(getComputedStyle(element).lineHeight))
 
     expect(keywordBox!.height).toBeCloseTo(lineHeight, 1)
-    expect(labelBox!.height).toBeGreaterThan(keywordBox!.height)
+    expect(labelBox!.height).toBeCloseTo(lineHeight, 1)
+    expect(await label.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true)
+    await expect(label).toHaveAttribute('title', 'terrestrial, gas_giant, ice_giant, dwarf, super_earth · Planet')
     expect(labelBox!.y).toBeCloseTo(keywordBox!.y, 1)
     expect(caretBox!.y + caretBox!.height / 2).toBeCloseTo(keywordBox!.y + keywordBox!.height / 2, 1)
 
     await picker.click()
+    await expect(
+      page.getByRole('option', { name: 'terrestrial, gas_giant, ice_giant, dwarf, super_earth · Planet', exact: true }),
+    ).toBeVisible()
     await page.getByRole('listbox').press('ArrowDown')
     await page.getByRole('listbox').press('Enter')
     await expect(page.getByRole('button', { name: 'One of moon · Satellite', exact: true })).toBeVisible()

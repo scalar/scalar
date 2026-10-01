@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-Keep composition picker keywords on one line and align their carets when long schema labels wrap.
+Truncate long composition picker labels while keeping the full text available on hover and in the dropdown.
