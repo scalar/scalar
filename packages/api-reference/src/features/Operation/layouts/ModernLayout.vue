@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { CodeExample } from '@scalar/blocks/code-example'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
@@ -35,10 +40,6 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import {
-  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
-  type RequestBodyCompositionSelection,
-} from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -78,7 +79,7 @@ const {
     requiredSecurity: RequiredSecurity
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
-  }
+  } & SchemaRenderingProps
 >()
 const { translate } = useLocalization()
 
@@ -216,17 +217,23 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :breadcrumb="[id]"
             :document
             :eventBus
+            :expansion="expansion"
             :options
             :parameters="operation.parameters"
-            :requestBody="getResolvedRef(operation.requestBody)" />
+            :requestBody="getResolvedRef(operation.requestBody)"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
           <OperationResponses
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
             :document
             :eventBus
+            :expansion="expansion"
             :options
-            :responses="operation.responses" />
+            :responses="operation.responses"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
 
           <!-- Callbacks -->
           <ScalarErrorBoundary>
@@ -237,8 +244,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
               class="mt-6"
               :document
               :eventBus
+              :expansion="expansion"
               :options
-              :path />
+              :path
+              :scrollTargetId="scrollTargetId"
+              :specificationExtension="specificationExtension" />
           </ScalarErrorBoundary>
         </div>
 

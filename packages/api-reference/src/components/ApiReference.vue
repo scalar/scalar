@@ -15,6 +15,7 @@ import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
 import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
+import { useSchemaExpansion } from '@scalar/blocks/schema/expansion'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -84,7 +85,6 @@ import {
 import { AgentScalarButton, OpenMCPButton } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
-import { provideSchemaExpansion } from '@/components/Content/Schema/helpers/schema-expansion'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
@@ -94,6 +94,7 @@ import {
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
@@ -116,6 +117,7 @@ import {
   addToPriorityQueue,
   blockIntersection,
   intersectionEnabled,
+  scrollTargetId,
 } from '@/helpers/lazy-bus'
 import {
   loadAuthFromStorage,
@@ -191,7 +193,7 @@ provideUseId(() => useId())
  * Deliberately per-instance rather than module-global: `createApiReference` can
  * be called twice on one page, and two references must not share expansion.
  */
-provideSchemaExpansion()
+const expansion = useSchemaExpansion(scrollTargetId)
 
 // ---------------------------------------------------------------------------
 /**
@@ -1915,6 +1917,7 @@ const showMCPButton = computed(() => {
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
+          :expansion="expansion"
           :headingSlugGenerator="
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
@@ -1922,6 +1925,8 @@ const showMCPButton = computed(() => {
           :infoSectionId
           :items="sidebarItems"
           :options="runtimeConfig"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="SpecificationExtension"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
           "

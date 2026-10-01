@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { ScreenReader } from '@scalar/blocks/shared'
 import { ScalarIconPlay } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
-import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 const {

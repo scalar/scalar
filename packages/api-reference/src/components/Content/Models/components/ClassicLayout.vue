@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  SchemaHeading,
+  SchemaProperty,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -11,25 +16,25 @@ import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 
-import { SchemaHeading, SchemaProperty } from '../../Schema'
-
-const { eventBus, id, options, document } = defineProps<{
-  id: string
-  name: string
-  schema: SchemaObject
-  isCollapsed: boolean
-  eventBus: WorkspaceEventBus
-  /** The document the model belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  options: Pick<
-    ApiReferenceConfigurationRaw,
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-    | 'hideModels'
-  >
-}>()
+const { eventBus, id, options, document } = defineProps<
+  {
+    id: string
+    name: string
+    schema: SchemaObject
+    isCollapsed: boolean
+    eventBus: WorkspaceEventBus
+    /** The document the model belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+      | 'hideModels'
+    >
+  } & SchemaRenderingProps
+>()
 
 const { level: headingLevel } = useDocumentOutline('model')
 </script>
@@ -62,19 +67,25 @@ const { level: headingLevel } = useDocumentOutline('model')
         :key="property"
         :breadcrumb="[id]"
         :eventBus="eventBus"
+        :expansion="expansion"
         :hideModelNames="options.hideModels"
         :name="property"
         :options="{ ...options, document }"
         :required="schema.required?.includes(property)"
-        :schema="resolve.schema(value)" />
+        :schema="resolve.schema(value)"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </div>
     <div v-else>
       <SchemaProperty
         :breadcrumb="[id]"
         :eventBus="eventBus"
+        :expansion="expansion"
         :hideModelNames="options.hideModels"
         :options="{ ...options, document }"
-        :schema="schema" />
+        :schema="schema"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </div>
   </SectionAccordion>
 </template>

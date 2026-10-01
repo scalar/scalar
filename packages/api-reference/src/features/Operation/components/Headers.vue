@@ -1,25 +1,32 @@
 <script lang="ts" setup>
+import {
+  SchemaGutterToggle,
+  SchemaRailPanel,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
+import { toNodeKey, useSchemaExpansion } from '@scalar/blocks/schema/expansion'
+import { handleTreeKeydown } from '@scalar/blocks/schema/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   HeaderObject,
   OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { computed, toRef, useId } from 'vue'
 
-import {
-  toNodeKey,
-  useSchemaExpansion,
-} from '@/components/Content/Schema/helpers/schema-expansion'
-import { handleTreeKeydown } from '@/components/Content/Schema/helpers/schema-keyboard-nav'
-import SchemaGutterToggle from '@/components/Content/Schema/SchemaGutterToggle.vue'
-import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { useLocalization } from '@/features/localization'
 
 import Header from './Header.vue'
 
-const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
-  defineProps<{
+const {
+  scrollTargetId = '',
+  expansion: expansionProp,
+  headers,
+  breadcrumb,
+  schemaKeyboardNav,
+  expandAllSchemaProperties,
+} = defineProps<
+  {
     headers: Record<string, HeaderObject>
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
@@ -32,7 +39,8 @@ const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
     schemaKeyboardNav?: boolean | undefined
     /** Whether the models section is hidden, so model names render as plain text instead of links */
     hideModels: boolean | undefined
-  }>()
+  } & SchemaRenderingProps
+>()
 const { translate } = useLocalization()
 
 const resolvedHeaders = computed(() =>
@@ -60,7 +68,8 @@ const onGroupKeydown = (event: KeyboardEvent): void => {
  * Headers are a child group keyed into the expansion store like any other
  * node, so expand-all and deep links reach them.
  */
-const expansion = useSchemaExpansion()
+const expansion =
+  expansionProp ?? useSchemaExpansion(toRef(() => scrollTargetId))
 const anonymousKey = useId()
 /** The public anchor path of the headers, unchanged so shared links resolve. */
 const headersBreadcrumb = computed(() =>
@@ -149,12 +158,15 @@ const countLabel = computed(() =>
             :document="document"
             :eventBus="eventBus"
             :expandAllSchemaProperties="expandAllSchemaProperties"
+            :expansion="expansion"
             :header="header"
             :hideModels="hideModels"
             :name="key"
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
             :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-            :schemaKeyboardNav="schemaKeyboardNav" />
+            :schemaKeyboardNav="schemaKeyboardNav"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </template>
       </ul>
     </SchemaRailPanel>

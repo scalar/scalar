@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ExamplePicker } from '@scalar/blocks/code-example'
+import { ScreenReader } from '@scalar/blocks/shared'
 import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarCard,
@@ -31,7 +32,6 @@ import {
   type ComponentPublicInstance,
 } from 'vue'
 
-import ScreenReader from '@/components/ScreenReader.vue'
 import ExampleSchema from '@/features/example-responses/ExampleSchema.vue'
 import { useLocalization } from '@/features/localization'
 
