@@ -55,7 +55,8 @@ test.describe('pattern hover dropdown', () => {
     await page.goto(`${example}#tag/users/post-users`)
     const requestBody = page.getByRole('group', { name: 'Request Body' })
     await expect(requestBody).toBeVisible()
-    // Screenshot capture must not scroll the trigger away from the hover pointer.
+
+    // Scroll before hovering so screenshot capture does not move the trigger away from the pointer.
     await requestBody.scrollIntoViewIfNeeded()
   })
 
