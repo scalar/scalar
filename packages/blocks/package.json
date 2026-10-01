@@ -37,6 +37,16 @@
       "import": "./dist/code-example/index.js",
       "types": "./dist/code-example/index.d.ts",
       "default": "./dist/code-example/index.js"
+    },
+    "./schema": {
+      "import": "./dist/schema/index.js",
+      "types": "./dist/schema/index.d.ts",
+      "default": "./dist/schema/index.js"
+    },
+    "./specification-extensions": {
+      "import": "./dist/specification-extensions/index.js",
+      "types": "./dist/specification-extensions/index.d.ts",
+      "default": "./dist/specification-extensions/index.js"
     }
   },
   "files": [

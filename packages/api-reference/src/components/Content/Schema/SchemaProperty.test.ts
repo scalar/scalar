@@ -1,3 +1,4 @@
+import { SchemaRailPanel } from '@scalar/blocks/schema'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -11,7 +12,6 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
-import SchemaRailPanel from './SchemaRailPanel.vue'
 
 describe('SchemaProperty', () => {
   it('keeps nameless noncollapsible array containers flat', () => {

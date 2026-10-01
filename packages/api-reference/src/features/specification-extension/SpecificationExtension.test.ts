@@ -21,8 +21,17 @@ describe('SpecificationExtension', () => {
         showExtensions: ['x-owner', 'x-missing', 'x-scopes', 'x-owner', 'summary'],
       },
     })
-    expect(wrapper.findAll('dt').map((node) => node.text())).toStrictEqual(['x-owner', 'x-scopes'])
-    expect(wrapper.findAll('li').map((node) => node.text())).toStrictEqual(['directories', 'directories.readonly'])
+    expect(wrapper.findAll('dt').map((node) => node.text())).toStrictEqual([
+      'x-ownerstring',
+      'x-scopesarray[2]',
+      '[0]string',
+      '[1]string',
+    ])
+    expect(wrapper.findAll('code').map((node) => node.text())).toStrictEqual([
+      '"team"',
+      '"directories"',
+      '"directories.readonly"',
+    ])
     expect(wrapper.text()).not.toContain('secret')
   })
 
@@ -32,7 +41,7 @@ describe('SpecificationExtension', () => {
     await wrapper.setProps({ showExtensions: ['x-scopes'] })
     expect(wrapper.text()).toContain('first')
     await wrapper.setProps({ value: { 'x-scopes': ['second'] } })
-    expect(wrapper.findAll('li').map((node) => node.text())).toStrictEqual(['second'])
+    expect(wrapper.findAll('code').map((node) => node.text())).toStrictEqual(['"second"'])
     await wrapper.setProps({ value: {} })
     expect(wrapper.text()).toBe('')
     await wrapper.setProps({ value: { 'x-scopes': ['second'] }, showExtensions: [] })

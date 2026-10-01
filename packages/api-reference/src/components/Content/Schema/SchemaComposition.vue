@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { SchemaGlyphPuck, SchemaRailPanel } from '@scalar/blocks/schema'
 import {
   ScalarListbox,
   type ScalarListboxOption,
@@ -27,8 +28,6 @@ import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
 import { getModelNameWithArray } from './helpers/schema-name'
 import Schema from './Schema.vue'
-import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
-import SchemaRailPanel from './SchemaRailPanel.vue'
 
 const props = withDefaults(
   defineProps<{

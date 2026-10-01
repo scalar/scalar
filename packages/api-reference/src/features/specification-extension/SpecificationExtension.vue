@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { SpecificationExtensions } from '@scalar/blocks/specification-extensions'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { computed } from 'vue'
 
 import { usePluginManager } from '@/plugins'
-
-import ExtensionValue from './ExtensionValue.vue'
 
 const { value, showExtensions = [] } = defineProps<{
   /** Explicitly selected keys that may use the default renderer. */
@@ -49,30 +48,22 @@ const customExtensions = computed(() =>
   getCustomOpenApiExtensionComponents(customExtensionNames.value),
 )
 /** Custom plugin components retain ownership of their extension keys. */
-const defaultExtensions = computed(() =>
-  [...new Set(showExtensions)].filter(
-    (name) =>
-      name.startsWith('x-') &&
-      Object.hasOwn(value ?? {}, name) &&
-      !customExtensions.value.some((extension) => extension.name === name),
+const defaultExtensions = computed<Record<string, unknown>>(() =>
+  Object.fromEntries(
+    [...new Set(showExtensions)]
+      .filter(
+        (name) =>
+          name.startsWith('x-') &&
+          Object.hasOwn(value ?? {}, name) &&
+          !customExtensions.value.some((extension) => extension.name === name),
+      )
+      .map((name) => [name, value?.[name]]),
   ),
 )
 </script>
 
 <template>
-  <dl
-    v-if="defaultExtensions.length"
-    class="my-3 grid gap-3 text-base">
-    <div
-      v-for="name in defaultExtensions"
-      :key="name"
-      class="min-w-0">
-      <dt class="font-code font-medium break-words">{{ name }}</dt>
-      <dd class="text-c-2 mt-1">
-        <ExtensionValue :value="value?.[name]" />
-      </dd>
-    </div>
-  </dl>
+  <SpecificationExtensions :extensions="defaultExtensions" />
   <template v-if="typeof value === 'object' && customExtensions.length">
     <div class="text-base">
       <template

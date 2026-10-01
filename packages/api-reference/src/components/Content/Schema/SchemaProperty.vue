@@ -9,6 +9,7 @@ const NO_LISTENERS = Object.freeze({})
 </script>
 
 <script lang="ts" setup>
+import { SchemaGutterToggle, SchemaRailPanel } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -72,9 +73,7 @@ import Schema from './Schema.vue'
 import SchemaCollapsedPreview from './SchemaCollapsedPreview.vue'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaEnums from './SchemaEnums.vue'
-import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
-import SchemaRailPanel from './SchemaRailPanel.vue'
 
 /**
  * Note: We're taking in a prop called `value` which should be a JSON Schema.

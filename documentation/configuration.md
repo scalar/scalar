@@ -664,7 +664,7 @@ Scalar.createApiReference('#app', {
 ```
 
 Keys must start with `x-`. Selected keys appear in configuration order, using the exact key as the label.
-Primitive values appear as text, non-empty arrays of primitives as lists, and objects or nested arrays as formatted JSON.
+Values appear as schema-style property rows with type labels. Arrays and objects expand into nested rows, with array indices identifying individual items. Top-level values start expanded; nested collections can be expanded with the disclosure button.
 Missing keys are omitted; `false`, `0`, `null`, and empty arrays or objects remain visible. Values are displayed as text, not HTML or Markdown.
 
 This option applies only to operations, not extensions on schemas, parameters, or the API description root.

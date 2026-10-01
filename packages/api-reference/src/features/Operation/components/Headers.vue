@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { SchemaGutterToggle, SchemaRailPanel } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -12,8 +13,6 @@ import {
   useSchemaExpansion,
 } from '@/components/Content/Schema/helpers/schema-expansion'
 import { handleTreeKeydown } from '@/components/Content/Schema/helpers/schema-keyboard-nav'
-import SchemaGutterToggle from '@/components/Content/Schema/SchemaGutterToggle.vue'
-import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { useLocalization } from '@/features/localization'
 
 import Header from './Header.vue'
