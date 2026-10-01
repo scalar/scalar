@@ -24,6 +24,7 @@ const workspaceStore = createWorkspaceStore()
  */
 const mountOperationWithConfig = (
   overrides: {
+    slots?: { actions?: string }
     path?: string
     method?: string
     pathValue?: any
@@ -84,6 +85,7 @@ const mountOperationWithConfig = (
 
   return mount(Operation, {
     props: props,
+    slots: overrides.slots,
     global: {
       stubs: {
         RouterLink: {
@@ -99,6 +101,32 @@ describe('Operation', () => {
   beforeEach(() => {
     enableConsoleWarn()
     enableConsoleError()
+  })
+
+  it.each(['modern', 'classic'] as const)('keeps the default copy action in the %s layout', (layout) => {
+    const wrapper = mountOperationWithConfig({ options: { layout } })
+
+    expect(wrapper.text()).toContain('Copy as Markdown')
+  })
+
+  it.each(['modern', 'classic'] as const)('replaces the copy action in the %s layout', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout },
+      slots: { actions: '<button>Copy Page</button>' },
+    })
+
+    expect(wrapper.text()).toContain('Copy Page')
+    expect(wrapper.text()).not.toContain('Copy as Markdown')
+  })
+
+  it.each(['modern', 'classic'] as const)('allows hiding actions in the %s layout', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout },
+      slots: { actions: '<span v-if="false">Hidden action</span>' },
+    })
+
+    expect(wrapper.text()).not.toContain('Copy as Markdown')
+    expect(wrapper.text()).not.toContain('Hidden action')
   })
 
   const createMockDocument = (): OpenApiDocument =>

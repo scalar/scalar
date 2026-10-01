@@ -66,3 +66,18 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
+
+### Embedded operation actions
+
+The `Operation` component exported from `@scalar/api-reference/features` accepts an
+`actions` slot in both modern and classic layouts. It replaces the default
+“Copy as Markdown” control while retaining the layout's authentication indicator.
+Omit the slot to keep the default control.
+
+```vue
+<Operation v-bind="operationProps">
+  <template #actions>
+    <PageActions />
+  </template>
+</Operation>
+```

@@ -92,6 +92,11 @@ const {
   server,
 } = defineProps<OperationProps>()
 
+defineSlots<{
+  /** Replaces the default copy control without replacing the security badge. */
+  actions?: () => unknown
+}>()
+
 /**
  * Operation from the new workspace store, ensure we are de-reference
  *
@@ -165,7 +170,13 @@ const selectedSecuritySchemes = computed(() =>
       :selectedClient
       :selectedExample
       :selectedSecuritySchemes
-      :selectedServer />
+      :selectedServer>
+      <template
+        v-if="$slots.actions"
+        #actions>
+        <slot name="actions" />
+      </template>
+    </ClassicLayout>
     <ModernLayout
       v-else
       :id
@@ -181,6 +192,12 @@ const selectedSecuritySchemes = computed(() =>
       :selectedClient
       :selectedExample
       :selectedSecuritySchemes
-      :selectedServer />
+      :selectedServer>
+      <template
+        v-if="$slots.actions"
+        #actions>
+        <slot name="actions" />
+      </template>
+    </ModernLayout>
   </template>
 </template>

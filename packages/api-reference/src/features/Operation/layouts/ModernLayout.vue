@@ -80,6 +80,10 @@ const {
     document?: OpenApiDocument
   }
 >()
+defineSlots<{
+  actions?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
@@ -176,8 +180,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <!-- Operation actions -->
         <div class="operation-auth mb-1.5 flex min-h-8 items-center gap-3">
           <SecurityRequirementBadge :requiredSecurity />
+          <slot
+            v-if="$slots.actions"
+            name="actions" />
           <CopyMarkdownButton
-            v-if="document"
+            v-else-if="document"
             :document
             :isWebhook
             :method
