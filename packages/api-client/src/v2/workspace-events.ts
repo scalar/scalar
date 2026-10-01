@@ -396,7 +396,7 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('hooks:on:request:complete', (payload) =>
     withHook('hooks:on:request:complete', mutators.value.active().operation.addResponseToHistory, hooks)(payload),
   )
-  const dispose = () => {
+  const dispose = (): void => {
     subscriptions.splice(0).forEach((unsubscribe) => unsubscribe())
     tabNavigation.dispose()
   }

@@ -19,6 +19,7 @@ type HeadingArgs = InstanceType<typeof SchemaPropertyHeading>['$props'] & {
 const meta: Meta<HeadingArgs> = {
   title: 'Schema/SchemaPropertyHeading',
   component: SchemaPropertyHeading,
+  args: { eventBus: null },
   // Wrap in a fixed-width, padded card painted with the Scalar page background (white in light mode)
   // so the snapshot has a stable size and an opaque background instead of a transparent one.
   render: ({ label, ...args }) => ({
