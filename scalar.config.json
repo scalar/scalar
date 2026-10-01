@@ -1853,7 +1853,25 @@
                         "title": "Personalization",
                         "type": "page",
                         "description": "Personalize navigation, content, and API playground inputs with a signed user-info hook.",
-                        "filepath": "documentation/guides/docs/configuration/personalization.md"
+                        "filepath": "documentation/guides/docs/configuration/personalization.md",
+                        "head": {
+                          "links": [
+                            {
+                              "rel": "canonical",
+                              "href": "https://scalar.com/products/docs/configuration/personalization"
+                            }
+                          ],
+                          "meta": [
+                            {
+                              "name": "description",
+                              "content": "Personalize navigation, content, and API playground inputs with a signed user-info hook."
+                            },
+                            {
+                              "name": "robots",
+                              "content": "index, follow"
+                            }
+                          ]
+                        }
                       },
                       "private-docs": {
                         "title": "Private Docs",

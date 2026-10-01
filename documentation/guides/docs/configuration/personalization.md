@@ -37,6 +37,8 @@ This complete configuration serves a welcome page and an enterprise page. Create
 }
 ```
 
+The `navigation.header` spacer makes the header render without adding a visible link. On a public site with a hook configured, this exposes the sign-in action. Keep the header visible in your site and page layout options.
+
 Replace the endpoint URL with your own. [Publish your project](../deployment/automatic-deployment.md), then open the project in the [Scalar Dashboard](https://dashboard.scalar.com) and go to **Settings → Privacy → Personalization**.
 
 1. Check that your published endpoint appears. It is read-only here; change it in the configuration and publish again.
@@ -182,7 +184,7 @@ Return a `200` response containing the user-info object directly, without a `use
 | `expiresAt`           | Positive integer      | Unix seconds, not milliseconds. Hosting caches until this time, capped at 15 minutes. If omitted, the cache lasts 15 minutes. An already expired response supplies no context.                                  |
 | `groups`              | Array of strings      | Up to 100 case-sensitive group names, each 1–64 characters, starting with a letter or digit and containing only letters, digits, `_`, `.`, `:`, or `-`. Merged with the access-group slugs the visitor matches. |
 | `content`             | Object                | Up to 100 top-level keys, each 1–64 characters. `UserValue` renders string and number values; other values use its fallback.                                                                                    |
-| `apiPlaygroundInputs` | Object of string maps | Optional `header`, `query`, `cookie`, `path`, and `server` maps. Keys are 1–200 characters; values are strings of at most 4,096 characters. See the supported prefills below.                                   |
+| `apiPlaygroundInputs` | Object of string maps | Optional `header`, `query`, `cookie`, and `server` maps. Keys are 1–200 characters; values are strings of at most 4,096 characters. See the supported prefills below.                                           |
 
 Return `204` or `404` for an unknown visitor. Scalar treats these as no context without logging an error. Other non-2xx responses, invalid payloads, responses over 64 KB, and requests taking more than five seconds also supply no hook context. They do not prevent sign-in or grant access to a private site.
 
@@ -238,21 +240,28 @@ Hello, <UserValue name="firstName" fallback="visitor" />.
 
 ## Filter navigation
 
-Add `groups` to a page, group, link, or OpenAPI navigation entry, or a header link. An entry is visible if the visitor has at least one matching group. Entries without groups (or with an empty list) remain visible to everyone. Group names are case-sensitive: `Enterprise` and `enterprise` differ.
+Add `groups` to a page, link, or OpenAPI navigation entry at the top level or inside a group, to a nested group inside `children`, or to a header link. Top-level route sections (`type: "group"` directly under `navigation.routes`) do not support `groups`; put a filtered group inside their `children` instead. An entry is visible if the visitor has at least one matching group. Entries without groups (or with an empty list) remain visible to everyone. Group names are case-sensitive: `Enterprise` and `enterprise` differ.
 
-For example, add this entry under `navigation.routes` to show a section to enterprise visitors or administrators:
+For example, add this entry under `navigation.routes` to show a nested Customer resources group to enterprise visitors or administrators:
 
 ```json
 {
   "/resources": {
     "type": "group",
-    "title": "Customer resources",
-    "groups": ["enterprise", "admin"],
+    "title": "Resources",
     "children": {
-      "/support": {
-        "type": "link",
-        "title": "Contact support",
-        "url": "https://example.com/support"
+      "/customer": {
+        "type": "group",
+        "title": "Customer resources",
+        "mode": "folder",
+        "groups": ["enterprise", "admin"],
+        "children": {
+          "/support": {
+            "type": "link",
+            "title": "Contact support",
+            "url": "https://example.com/support"
+          }
+        }
       }
     }
   }
@@ -291,7 +300,7 @@ Return `apiPlaygroundInputs` to supply defaults for declared API security scheme
 
 For an `apiKey` security scheme, Scalar matches the key's location (`header`, `query`, or `cookie`) and declared name, such as `X-API-Key`. HTTP bearer schemes use the token from the `Authorization: Bearer …` header. Server values match declared server variable names, such as `subdomain`. These defaults sit underneath the visitor's manual edits.
 
-The current implementation does not prefill arbitrary operation parameters, request bodies, HTTP Basic credentials, or OAuth flows. Although the response contract accepts a `path` map, it does not currently populate path parameters. Undeclared inputs do not create new security schemes or server variables.
+The current implementation does not prefill arbitrary operation parameters, request bodies, HTTP Basic credentials, or OAuth flows. Undeclared inputs do not create new security schemes or server variables.
 
 Playground credentials reach the visitor's browser. Return only short-lived, narrowly scoped credentials belonging to that visitor. Do not return a privileged application session or place credentials in `content`.
 
@@ -314,7 +323,6 @@ If you revoke the previous secret during rotation, it stops being accepted immed
 ## Current limitations
 
 - Local preview does not load visitor identity. Test sign-in and hook calls on a published site.
-
 - Visibility filters run in the browser. Hidden navigation entries remain reachable by URL, and `Visible` content remains in HTML source. `Visible` blocks are omitted from plain Markdown exports, but this is not a confidentiality guarantee.
 - Page groups are not enforced server-side, including on private sites. Keep content with different access requirements in separately protected sites.
 - Search and sitemaps are not group-aware. Do not rely on groups to hide content from discovery.
