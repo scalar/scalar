@@ -3,7 +3,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { type DOMWrapper, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { isReactive, nextTick } from 'vue'
 
@@ -774,6 +774,85 @@ describe('Schema', () => {
       expect(formatVersionRows()[0]!.element.closest('.composition-panel')).not.toBeNull()
       expect(wrapper.text()).toContain('fieldB')
       expect(wrapper.text()).not.toContain('fieldA')
+    })
+
+    // https://github.com/scalar/scalar/issues/10435
+    it('does not nest a discriminator oneOf variant that composes its base with allOf', async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'composed',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Composed', version: '1.0' },
+          paths: {},
+          components: {
+            schemas: {
+              Search: {
+                type: 'object',
+                properties: { composed: { $ref: '#/components/schemas/ComposedUnion' } },
+              },
+              ComposedUnion: {
+                discriminator: {
+                  propertyName: 'kind',
+                  mapping: {
+                    basic: '#/components/schemas/ComposedBasic',
+                    pro: '#/components/schemas/ComposedPro',
+                  },
+                },
+                oneOf: [{ $ref: '#/components/schemas/ComposedBasic' }, { $ref: '#/components/schemas/ComposedPro' }],
+              },
+              ComposedBase: {
+                type: 'object',
+                required: ['kind'],
+                properties: { kind: { type: 'string' }, colour: { type: 'string' } },
+              },
+              ComposedBasic: {
+                title: 'ComposedBasic',
+                description: 'A basic variant.',
+                allOf: [
+                  { $ref: '#/components/schemas/ComposedBase' },
+                  { type: 'object', properties: { kind: { type: 'string', enum: ['basic'] } } },
+                ],
+              },
+              ComposedPro: {
+                title: 'ComposedPro',
+                description: 'A pro variant.',
+                allOf: [
+                  { $ref: '#/components/schemas/ComposedBase' },
+                  { type: 'object', properties: { kind: { type: 'string', enum: ['pro'] }, size: { type: 'string' } } },
+                ],
+              },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.composed as { components: { schemas: Record<string, SchemaObject> } }
+      const wrapper = mount(Schema, {
+        props: {
+          eventBus: null,
+          name: 'Request Body',
+          schema: document.components.schemas.Search,
+          options: { expandAllSchemaProperties: true, document: document as never },
+        },
+      })
+
+      const colourRows = (): DOMWrapper<Element>[] =>
+        wrapper.findAll('.property-name').filter((node) => node.text().trim() === 'colour')
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(colourRows()).toHaveLength(1)
+      expect(wrapper.text().split('A basic variant.').length - 1).toBe(1)
+      expect(wrapper.text()).toContain('Discriminator')
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '1', label: 'pro · ComposedPro' })
+      await nextTick()
+
+      expect(wrapper.findAll('.composition-selector')).toHaveLength(1)
+      expect(colourRows()).toHaveLength(1)
+      expect(wrapper.text().split('A pro variant.').length - 1).toBe(1)
+      expect(wrapper.text()).not.toContain('A basic variant.')
+      expect(wrapper.text()).toContain('size')
     })
   })
 

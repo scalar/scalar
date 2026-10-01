@@ -123,6 +123,11 @@ export function optimizeValueForDisplay(value: DisplaySchema | undefined): Displ
     (hasRootProperties || filteredSchemas.some((schema) => schema.allOf))
 
   if (shouldMergeRootProperties) {
+    // The discriminator belongs to the union, not to its variants. Copied into a variant, it
+    // makes the variant look like a bare `discriminator.mapping` base, which then infers a
+    // second selector inside the variant.
+    const { discriminator: _discriminator, ...variantRootProperties } = rootProperties
+
     const mergedSchemas = filteredSchemas.map((_schema) => {
       const schema = resolve.schema(_schema)
 
@@ -142,11 +147,11 @@ export function optimizeValueForDisplay(value: DisplaySchema | undefined): Displ
         const variantHasOwnIdentity = 'properties' in otherProps || 'required' in otherProps || '$ref' in otherProps
         if (variantHasOwnIdentity) {
           const { $ref: _ref, title: _title, name: _name, ...allOfMemberWithoutIdentity } = allOfMember
-          return mergeSchemaProperties(rootProperties, otherProps, allOfMemberWithoutIdentity)
+          return mergeSchemaProperties(variantRootProperties, otherProps, allOfMemberWithoutIdentity)
         }
-        return mergeSchemaProperties(rootProperties, otherProps, allOfMember)
+        return mergeSchemaProperties(variantRootProperties, otherProps, allOfMember)
       }
-      return mergeSchemaProperties(rootProperties, schema)
+      return mergeSchemaProperties(variantRootProperties, schema)
     })
 
     // @ts-expect-error - We avoid using coerceValue here as it may be dangerous, so we type cast
