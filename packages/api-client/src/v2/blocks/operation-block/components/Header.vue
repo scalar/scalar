@@ -53,7 +53,6 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconGearSix } from '@scalar/icons'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type NavigationEventBus,
   type ServerMeta,
@@ -141,20 +140,14 @@ const handleAddEnvironment = () => {
         Hidden for `modal` layout
       -->
       <EnvironmentSelector
-        v-if="
-          layout !== 'modal' && canNavigate(eventBus.navigation, 'ui:navigate')
-        "
+        v-if="layout !== 'modal'"
         :activeEnvironment="activeEnvironment"
         :environments="environments"
         @add:environment="handleAddEnvironment"
         @select:environment="handleSelectEnvironment" />
       <!-- Operation settings -->
       <ScalarIconButton
-        v-if="
-          layout !== 'modal' &&
-          !isWebhook &&
-          canNavigate(eventBus.navigation, 'ui:navigate')
-        "
+        v-if="layout !== 'modal' && !isWebhook"
         :icon="ScalarIconGearSix"
         :label="translate('apiClient.header.operationSettings')"
         size="sm"

@@ -9,6 +9,7 @@ import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type NavigationEventBus,
+  type NavigationEvents,
   type OperationExampleMeta,
   createWorkspaceEventBus,
   navigate,
@@ -166,7 +167,9 @@ export type AppState = {
     isTeamWorkspace: ComputedRef<boolean>
   }
   /** The workspace event bus for handling workspace-level events */
-  eventBus: NavigationEventBus
+  eventBus: NavigationEventBus<
+    Exclude<keyof NavigationEvents, 'select:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'>
+  >
   /** The router instance */
   router: Router
   /**
@@ -253,7 +256,9 @@ export const createAppState = async ({
   layout: Exclude<ClientLayout, 'modal'>
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
-  const eventBus: NavigationEventBus = withNavigation(
+  const eventBus: NavigationEventBus<
+    Exclude<keyof NavigationEvents, 'select:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'>
+  > = withNavigation(
     createWorkspaceEventBus({
       debug: import.meta.env.DEV,
     }),

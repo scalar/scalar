@@ -15,10 +15,8 @@ export type {
 export { onCustomEvent } from './listeners'
 export {
   type Navigation,
-  type NavigationCapability,
   type NavigationEventBus,
   type NavigationHandlers,
-  canNavigate,
   createNavigation,
   isNavigationEvent,
   navigate,

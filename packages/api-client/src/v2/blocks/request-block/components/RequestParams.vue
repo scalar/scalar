@@ -2,7 +2,6 @@
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarTooltip } from '@scalar/components/tooltip'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type ApiReferenceEvents,
   type NavigationEventBus,
@@ -106,11 +105,7 @@ const handleUpserRow = (index: number, payload: TableRowUpsertPayload) => {
       :data="rows"
       :environment="environment"
       :exampleKey="exampleKey"
-      :globalRoute="
-        canNavigate(eventBus.navigation, 'ui:navigate')
-          ? globalRoute
-          : undefined
-      "
+      :globalRoute="globalRoute"
       :invalidParams="invalidParams"
       :label="label"
       :showAddRowPlaceholder="showAddRowPlaceholder"

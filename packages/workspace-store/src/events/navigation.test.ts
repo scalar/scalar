@@ -2,14 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceEventBus } from './bus'
 import type { NavigationEvents } from './definitions'
-import {
-  type NavigationHandlers,
-  canNavigate,
-  createNavigation,
-  isNavigationEvent,
-  navigate,
-  withNavigation,
-} from './navigation'
+import { type NavigationHandlers, createNavigation, isNavigationEvent, navigate, withNavigation } from './navigation'
 
 const payloads = {
   'select:nav-item': { id: 'operation' },
@@ -85,14 +78,15 @@ describe('navigation', () => {
     expect(observer).toHaveBeenCalledExactlyOnceWith({ name: 'Pet' })
   })
 
-  it('rejects undeclared capabilities while allowing explicitly disabled commands', () => {
-    expect(canNavigate(false, 'ui:navigate')).toBe(false)
-    expect(canNavigate({ 'ui:navigate': false }, 'ui:navigate')).toBe(false)
-    expect(() => navigate(false, 'ui:navigate', payloads['ui:navigate'])).toThrow('Unsupported or missing command')
+  it('rejects missing and disabled handlers from untyped consumers', () => {
     // @ts-expect-error Untyped hosts must fail visibly at runtime as well.
-    expect(() => canNavigate(undefined, 'ui:navigate')).toThrow('capability is required')
-    // @ts-expect-error A scope must explicitly declare the requested command.
-    expect(() => canNavigate({}, 'ui:navigate')).toThrow('Missing capability')
+    expect(() => navigate(false, 'ui:navigate', payloads['ui:navigate'])).toThrow('Unsupported or missing command')
+    // @ts-expect-error A disabled command is not a primary handler.
+    expect(() => createNavigation(createWorkspaceEventBus(), { 'ui:navigate': false })).toThrow(
+      'Missing primary handler',
+    )
+    // @ts-expect-error A scope must implement the requested command.
+    expect(() => navigate({}, 'ui:navigate', payloads['ui:navigate'])).toThrow('Unsupported or missing command')
   })
 
   it('validates a registration before installing any handlers', () => {

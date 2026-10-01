@@ -1,6 +1,11 @@
 import type { ModalState } from '@scalar/components/modal'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { type Navigation, type WorkspaceEventBus, createNavigation } from '@scalar/workspace-store/events'
+import {
+  type Navigation,
+  type NavigationEvents,
+  type WorkspaceEventBus,
+  createNavigation,
+} from '@scalar/workspace-store/events'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type Ref, ref } from 'vue'
@@ -26,7 +31,12 @@ export function initializeModalEvents({
   sidebarState: UseModalSidebarReturn
   modalState: ModalState
   store: WorkspaceStore
-}): { navigation: Navigation; dispose: () => void } {
+}): {
+  navigation: Navigation<
+    Exclude<keyof NavigationEvents, 'select:nav-item' | 'scroll-to:model-by-name' | 'ui:open:settings'>
+  >
+  dispose: () => void
+} {
   /** Initialize workspace event handlers */
   const workspaceEvents = initializeWorkspaceEventHandlers({
     eventBus,
@@ -60,6 +70,23 @@ export function initializeModalEvents({
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
   const modalNavigation = createNavigation(eventBus, {
+    'ui:navigate': (payload) => {
+      if (payload.page !== 'operation' && payload.page !== 'example') {
+        throw new Error(`[Navigation] The client modal cannot open ${payload.page} pages.`)
+      }
+      const entry = sidebarState.getEntryByLocation({
+        document: payload.documentSlug ?? store.workspace.activeDocument?.['x-scalar-navigation']?.id ?? '',
+        path: payload.page === 'operation' ? payload.operationPath : payload.path,
+        method: payload.method,
+        example: payload.page === 'example' ? payload.exampleName : undefined,
+      })
+      if (!entry) {
+        payload.callback?.('error')
+        throw new Error('[Navigation] The requested operation is not available in the client modal.')
+      }
+      sidebarState.handleSelectItem(entry.id)
+      payload.callback?.('success')
+    },
     'scroll-to:nav-item': ({ id }) => sidebarState.handleSelectItem(id),
     'ui:open:client-modal': (payload) => {
       // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
@@ -129,10 +156,6 @@ export function initializeModalEvents({
     navigation: {
       ...workspaceEvents.navigation,
       ...modalNavigation.navigation,
-      'select:nav-item': false as const,
-      'scroll-to:model-by-name': false as const,
-      'ui:navigate': false as const,
-      'ui:open:settings': false as const,
     },
     dispose: () => {
       workspaceEvents()

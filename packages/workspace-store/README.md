@@ -625,7 +625,7 @@ const eventBus = withNavigation(events, modelNavigation.navigation)
 // Pass eventBus to a schema component that requires model navigation.
 ```
 
-Each feature declares only the commands it owns. A host that exposes all navigation commands must handle or explicitly disable every command in `NavigationEvents`. Unsupported commands use `false`; `withNavigation(events, false)` explicitly disables the host's entire navigation capability. Components use `canNavigate` to hide or disable unsupported affordances and `navigate` to invoke destinations with typed payloads.
+Each feature declares only the commands it owns. Every command in a consumer's required scope must have a primary handler. Missing handlers, `false`, and removed event names fail compilation. Product settings such as `hideModels` control visibility independently of handler registration. Components use `navigate` to invoke destinations with typed payloads.
 
 Ordinary `on`, `once`, and `onAny` subscriptions remain available for observers. An observer does not provide a primary destination. Capabilities sharing a notification bus retain independent ownership, so a modal cannot take over the reference's navigation. Legacy event emissions still reach registered primary handlers; new interactive components invoke their required capability directly.
 

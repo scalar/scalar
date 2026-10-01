@@ -5,4 +5,4 @@
 "scalar-app": patch
 ---
 
-Require scoped navigation capabilities at component boundaries with typed primary handlers or explicit disabled commands. Preserve ordinary event observers, isolate destinations sharing a bus, and report missing capabilities instead of silently dropping navigation.
+Require scoped navigation capabilities at component boundaries with required typed primary handlers. Preserve ordinary event observers, isolate destinations sharing a bus, and keep product visibility independent of handler registration.

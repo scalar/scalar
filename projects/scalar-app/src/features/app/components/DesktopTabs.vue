@@ -15,7 +15,7 @@ const { tabs, eventBus } = defineProps<{
   /** Current active tab index */
   activeTabIndex: number
   /** Workspace event bus for emitting tab-related events */
-  eventBus: NavigationEventBus
+  eventBus: NavigationEventBus<'tabs:focus:tab'>
 }>()
 
 /** Whether there is only a single tab open */

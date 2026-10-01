@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type NavigationEventBus,
 } from '@scalar/workspace-store/events'
@@ -182,12 +181,7 @@ const shouldRenderRequestBody = computed(
           data-testid="request-body-schema-name">
           <span class="text-c-3 mx-1.5">·</span>
           <LinkButton
-            v-if="
-              eventBus &&
-              canNavigate(eventBus.navigation, 'scroll-to:model-by-name') &&
-              modelLink.schemaKey &&
-              modelLinkable
-            "
+            v-if="eventBus && modelLink.schemaKey && modelLinkable"
             @click="
               navigateCommand(eventBus.navigation, 'scroll-to:model-by-name', {
                 name: modelLink.schemaKey,

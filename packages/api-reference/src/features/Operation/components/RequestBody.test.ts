@@ -18,14 +18,14 @@ describe('RequestBody', () => {
     schemaKeyboardNav: false,
   }
 
-  it.each([true, false])('invokes the model destination only when supported: %s', async (supported) => {
+  it.each([true, false])('respects hideModels while retaining the model handler: %s', async (hideModels) => {
     const destination = vi.fn<(payload: { name: string }) => void>()
     const bus = createWorkspaceEventBus()
-    const host = createNavigation(bus, { 'scroll-to:model-by-name': supported ? destination : false })
+    const host = createNavigation(bus, { 'scroll-to:model-by-name': destination })
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: withNavigation(bus, host.navigation),
-        options: defaultRequestOptions,
+        options: { ...defaultRequestOptions, hideModels },
         document: coerceValue(OpenAPIDocumentSchema, {
           openapi: '3.1.0',
           info: { title: 'Test', version: '1.0.0' },
@@ -36,7 +36,7 @@ describe('RequestBody', () => {
     })
     const modelName = wrapper.find('[data-testid="request-body-schema-name"]')
     expect(modelName.text()).toContain('Pet')
-    if (supported) {
+    if (!hideModels) {
       await modelName.get('button').trigger('click')
       expect(destination).toHaveBeenCalledExactlyOnceWith({ name: 'Pet' })
     } else {

@@ -9,7 +9,7 @@ export type NavigationItemPayload = {
   id: string
 }
 
-/** Navigation commands that every host must handle or explicitly disable. */
+/** Navigation commands that consumers require their hosts to implement. */
 export type NavigationEvents = {
   /**
    * Select a navigation item.

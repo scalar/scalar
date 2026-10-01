@@ -9,7 +9,7 @@ type RequestBodyBus = NonNullable<InstanceType<typeof RequestBody>['$props']['ev
 const acceptRequestBodyHost = (bus: RequestBodyBus): RequestBodyBus => bus
 
 const verifyTypes = (): void => {
-  // @ts-expect-error Omitting the required dependency is not an explicit disabled host.
+  // @ts-expect-error Model navigation is a required dependency.
   const omitted: Pick<InstanceType<typeof RequestBody>['$props'], 'eventBus'> = {}
   void omitted
   const plain = createWorkspaceEventBus()
@@ -18,14 +18,23 @@ const verifyTypes = (): void => {
   const item = createNavigation(plain, { 'scroll-to:nav-item': () => undefined })
   // @ts-expect-error Item scrolling is not a substitute for model navigation.
   acceptRequestBodyHost(withNavigation(plain, item.navigation))
+  // @ts-expect-error Disabling navigation cannot satisfy the component dependency.
   acceptRequestBodyHost(withNavigation(plain, false))
+  // @ts-expect-error A disabled command cannot replace a required handler.
+  createNavigation(plain, { 'scroll-to:model-by-name': false })
+  // @ts-expect-error Removed event names cannot be registered.
+  createNavigation(plain, { 'scroll-to:old-model-event': () => undefined })
+  // @ts-expect-error The replacement command is required by its declared scope.
+  createNavigation<'scroll-to:model-by-name'>(plain, {})
   const model = createNavigation(plain, { 'scroll-to:model-by-name': () => undefined })
   acceptRequestBodyHost(withNavigation(plain, model.navigation))
 }
 void verifyTypes
 
 describe('navigation component contract', () => {
-  it('accepts an explicit disabled host', () => {
-    expect(acceptRequestBodyHost(withNavigation(createWorkspaceEventBus(), false)).navigation).toBe(false)
+  it('accepts a host with a required model destination', () => {
+    const bus = createWorkspaceEventBus()
+    const model = createNavigation(bus, { 'scroll-to:model-by-name': () => undefined })
+    expect(acceptRequestBodyHost(withNavigation(bus, model.navigation)).navigation).toBe(model.navigation)
   })
 })

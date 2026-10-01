@@ -2,6 +2,7 @@ import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspac
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type Navigation,
+  type NavigationEvents,
   type OperationExampleMeta,
   type WorkspaceEventBus,
   createNavigation,
@@ -38,7 +39,9 @@ export function initializeAppEventHandlers({
   closeSidebar: () => void
   renameWorkspace: (name: string) => Promise<void>
   onOpenSettings: (payload?: { event: KeyboardEvent }) => void
-}): Navigation {
+}): Navigation<
+  Exclude<keyof NavigationEvents, 'select:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'>
+> {
   const currentRoute = computed(() => router.currentRoute?.value)
 
   /**
@@ -421,8 +424,5 @@ export function initializeAppEventHandlers({
   return {
     ...workspaceEvents.navigation,
     ...appNavigation.navigation,
-    'select:nav-item': false as const,
-    'scroll-to:model-by-name': false as const,
-    'ui:open:client-modal': false as const,
   }
 }

@@ -108,6 +108,66 @@ const createTestSetup = async () => {
 }
 
 describe('modal-events', () => {
+  it('routes operation and example commands to their modal destinations', async () => {
+    const { handlers, route } = await createTestSetup()
+    const callback = vi.fn()
+    handlers['ui:navigate']?.({
+      page: 'operation',
+      path: 'overview',
+      operationPath: '/pets',
+      method: 'post',
+      documentSlug: 'test-doc',
+      callback,
+    })
+    await waitForUpdates()
+    expect(route).toHaveBeenLastCalledWith({
+      documentSlug: 'test-doc',
+      path: '/pets',
+      method: 'post',
+      example: 'default',
+    })
+    expect(callback).toHaveBeenCalledWith('success')
+    handlers['operation:create:draft-example']?.({
+      documentName: 'test-doc',
+      meta: { path: '/pets', method: 'post' },
+      exampleName: 'first',
+    })
+    await waitForUpdates()
+    route.mockClear()
+    handlers['ui:navigate']?.({
+      page: 'example',
+      path: '/pets',
+      method: 'post',
+      exampleName: 'first',
+      documentSlug: 'test-doc',
+    })
+    await waitForUpdates()
+    expect(route).toHaveBeenLastCalledWith({
+      documentSlug: 'test-doc',
+      path: '/pets',
+      method: 'post',
+      example: 'first',
+    })
+  })
+
+  it('reports destinations unavailable in the modal', async () => {
+    const { handlers } = await createTestSetup()
+    const callback = vi.fn()
+    expect(() => handlers['ui:navigate']?.({ page: 'workspace', path: 'settings' })).toThrow(
+      'cannot open workspace pages',
+    )
+    expect(() =>
+      handlers['ui:navigate']?.({
+        page: 'operation',
+        path: 'overview',
+        operationPath: '/missing',
+        method: 'get',
+        callback,
+      }),
+    ).toThrow('not available')
+    expect(callback).toHaveBeenCalledWith('error')
+  })
+
   it('selects a newly created example after rebuilding the sidebar', async () => {
     const { getEntryId, handlers, openClientModal, requestBodyCompositionSelection, route } = await createTestSetup()
     await openClientModal({

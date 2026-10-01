@@ -5,7 +5,6 @@ import { ScalarSearchResultList } from '@scalar/components/search-results'
 import type { ModelsSectionLabel } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type NavigationEventBus,
 } from '@scalar/workspace-store/events'
@@ -78,9 +77,6 @@ function handleSelect(idx: number | undefined) {
   }
 
   const result = results.value[idx]
-  if (!canNavigate(props.eventBus.navigation, 'scroll-to:nav-item')) {
-    return
-  }
   props.modalState.hide()
   navigateCommand(props.eventBus.navigation, 'scroll-to:nav-item', {
     id: result.item.id,

@@ -5,7 +5,6 @@ import {
   ScalarCardSection,
 } from '@scalar/components/card'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type NavigationEventBus,
 } from '@scalar/workspace-store/events'
@@ -55,15 +54,11 @@ const channels = computed(
           :key="channel.id"
           class="contents">
           <a
-            :aria-disabled="
-              !eventBus ||
-              !canNavigate(eventBus.navigation, 'scroll-to:nav-item')
-            "
+            :aria-disabled="!eventBus"
             class="channel"
             @click.prevent="
               () =>
                 eventBus &&
-                canNavigate(eventBus.navigation, 'scroll-to:nav-item') &&
                 navigateCommand(eventBus.navigation, 'scroll-to:nav-item', {
                   id: channel.id,
                 })

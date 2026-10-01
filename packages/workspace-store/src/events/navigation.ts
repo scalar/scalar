@@ -9,20 +9,17 @@ type NavigationHandler<E extends NavigationEvent> = undefined extends Navigation
 
 /** Primary handlers for the navigation commands owned by a feature. */
 export type NavigationHandlers<E extends NavigationEvent = NavigationEvent> = {
-  [K in E]: NavigationHandler<K> | false
+  [K in E]: NavigationHandler<K>
 }
 
-/** Navigation commands a component can invoke, or an explicit disabled capability. */
+/** Required navigation commands a component can invoke. */
 export type Navigation<E extends NavigationEvent = NavigationEvent> = {
-  [K in E]: NavigationHandler<K> | false
+  [K in E]: NavigationHandler<K>
 }
-
-/** A supported command scope or an explicitly disabled host. */
-export type NavigationCapability<E extends NavigationEvent = NavigationEvent> = Navigation<E> | false
 
 /** A notification bus with the navigation capability required by its consumers. */
 export type NavigationEventBus<E extends NavigationEvent = NavigationEvent> = WorkspaceEventBus & {
-  readonly navigation: NavigationCapability<E>
+  readonly navigation: Navigation<E>
 }
 
 const navigationEvents = {
@@ -66,10 +63,6 @@ export const createNavigation = <E extends NavigationEvent>(
 
   const register = <K extends E>(event: K): void => {
     const handler = handlers[event]
-    if (handler === false) {
-      navigation[event] = false
-      return
-    }
     if (typeof handler !== 'function') {
       throw new Error(`[Navigation] Missing primary handler for "${event}".`)
     }
@@ -119,7 +112,7 @@ export const createNavigation = <E extends NavigationEvent>(
     if (!isNavigationEvent(event)) {
       throw new Error(`[Navigation] Unknown command "${event}".`)
     }
-    if (handlers[event] !== false && typeof handlers[event] !== 'function') {
+    if (typeof handlers[event] !== 'function') {
       throw new Error(`[Navigation] Missing primary handler for "${event}".`)
     }
   }
@@ -139,7 +132,7 @@ export const createNavigation = <E extends NavigationEvent>(
 /** Attach an explicitly supplied capability without changing ordinary event subscriptions. */
 export const withNavigation = <E extends NavigationEvent = NavigationEvent>(
   eventBus: WorkspaceEventBus,
-  navigation: NavigationCapability<E> | (() => NavigationCapability<E>),
+  navigation: Navigation<E> | (() => Navigation<E>),
 ): NavigationEventBus<E> => {
   const result = Object.create(eventBus) as NavigationEventBus<E>
   Object.defineProperty(result, 'navigation', {
@@ -151,26 +144,15 @@ export const withNavigation = <E extends NavigationEvent = NavigationEvent>(
 
 /** Invoke a required navigation capability, failing explicitly for unsupported commands. */
 export const navigate = <Scope extends NavigationEvent, E extends Scope>(
-  navigation: NavigationCapability<Scope>,
+  navigation: Navigation<Scope>,
   ...args: undefined extends NavigationEvents[E]
     ? [event: E, payload?: NavigationEvents[E]]
     : [event: E, payload: NavigationEvents[E]]
 ): void => {
   const [event, payload] = args
-  const handler = navigation && navigation[event]
+  const handler = navigation?.[event]
   if (typeof handler !== 'function') {
     throw new Error(`[Navigation] Unsupported or missing command "${event}".`)
   }
   ;(handler as (payload: NavigationEvents[E] | undefined) => void)(payload)
-}
-
-/** Whether the host explicitly supports a navigation command. */
-export const canNavigate = <E extends NavigationEvent>(navigation: NavigationCapability<E>, event: E): boolean => {
-  if (navigation === undefined) {
-    throw new Error('[Navigation] A navigation capability is required.')
-  }
-  if (navigation !== false && navigation[event] === undefined) {
-    throw new Error(`[Navigation] Missing capability for "${event}".`)
-  }
-  return navigation !== false && typeof navigation[event] === 'function'
 }

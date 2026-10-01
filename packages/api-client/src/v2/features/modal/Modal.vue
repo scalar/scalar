@@ -25,7 +25,9 @@ export type ModalProps = {
   /** Subset of the configuration options for the modal */
   options: MaybeRefOrGetter<ApiClientOptions>
   /** Publish the modal command scope to its owner. */
-  onNavigationReady?: (navigation: Navigation) => void
+  onNavigationReady?: (
+    navigation: ReturnType<typeof initializeModalEvents>['navigation'],
+  ) => void
 }
 
 /**
@@ -44,7 +46,6 @@ import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import {
   withNavigation,
-  type Navigation,
   type NavigationEventBus,
   type WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
@@ -96,10 +97,9 @@ const activeWorkspace: ScalarListboxOption = {
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(false)
 
-const eventBus: NavigationEventBus = withNavigation(
-  events,
-  () => modalEvents.navigation,
-)
+const eventBus: NavigationEventBus<
+  keyof ReturnType<typeof initializeModalEvents>['navigation']
+> = withNavigation(events, () => modalEvents.navigation)
 
 /** Initialize modal events */
 const modalEvents = initializeModalEvents({

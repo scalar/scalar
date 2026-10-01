@@ -53,6 +53,7 @@ import {
   createWorkspaceEventBus,
   withNavigation,
   type NavigationEventBus,
+  type NavigationEvents,
 } from '@scalar/workspace-store/events'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
@@ -179,7 +180,9 @@ onMounted(() => {
   obtrusiveScrollbars.value = hasObtrusiveScrollbars()
 })
 
-const eventBus: NavigationEventBus = withNavigation(
+const eventBus: NavigationEventBus<
+  Exclude<keyof NavigationEvents, 'ui:navigate' | 'ui:open:settings'>
+> = withNavigation(
   createWorkspaceEventBus({ debug: isDevelopment }),
   () => navigation,
 )
@@ -1582,8 +1585,6 @@ const navigation = {
   ...referenceNavigation.navigation,
   ...stopReferenceClientEvents.navigation,
   ...apiClient.navigation,
-  'ui:navigate': false as const,
-  'ui:open:settings': false as const,
 }
 onBeforeUnmount(referenceNavigation.dispose)
 

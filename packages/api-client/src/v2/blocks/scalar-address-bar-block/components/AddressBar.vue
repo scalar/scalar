@@ -45,7 +45,6 @@ import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-p
 import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
 import { EditorView } from '@scalar/use-codemirror'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type ApiReferenceEvents,
   type NavigationEventBus,
@@ -518,11 +517,7 @@ defineExpose({
         <!-- Servers -->
         <ServerDropdown
           v-if="servers.length"
-          :layout="
-            isWebhook || !canNavigate(eventBus.navigation, 'ui:navigate')
-              ? 'modal'
-              : layout
-          "
+          :layout="isWebhook ? 'modal' : layout"
           :meta="serverMeta"
           :server="server"
           :servers="servers"
@@ -569,7 +564,6 @@ defineExpose({
       </ScalarButton>
 
       <AddressBarHistory
-        v-if="canNavigate(eventBus.navigation, 'ui:navigate')"
         :history="history"
         :target="id"
         @select:history:item="(payload) => emit('select:history:item', payload)"

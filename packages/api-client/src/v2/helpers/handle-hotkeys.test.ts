@@ -324,6 +324,12 @@ describe('handle-hotkey-down', () => {
     expect(mockEventBus.emit).not.toHaveBeenCalled()
   })
 
+  it('does not expose a settings shortcut in the modal layout', () => {
+    vi.mocked(isMacOS).mockReturnValue(true)
+    handleHotkeys(createKeyboardEvent('i', { metaKey: true }), mockEventBus, 'modal')
+    expect(mockEventBus.emit).not.toHaveBeenCalled()
+  })
+
   it('fires ui:open:settings on Cmd+I in web layout', () => {
     vi.mocked(isMacOS).mockReturnValue(true)
 

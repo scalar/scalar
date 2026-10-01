@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type NavigationEventBus,
 } from '@scalar/workspace-store/events'
@@ -427,12 +426,7 @@ const patternValue = computed(() => {
              `Type:string`. -->
         <span class="screenreader-only"> {{ translate('schema.type') }}: </span>
         <button
-          v-if="
-            props.eventBus &&
-            canNavigate(props.eventBus.navigation, 'scroll-to:model-by-name') &&
-            modelLink?.schemaKey &&
-            modelLinkable
-          "
+          v-if="props.eventBus && modelLink?.schemaKey && modelLinkable"
           class="text-c-2 hover:text-c-1 underline"
           type="button"
           @click="

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ScalarIconPlay } from '@scalar/icons'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type NavigationEventBus,
 } from '@scalar/workspace-store/events'
@@ -43,7 +42,6 @@ const handleClick = () => {
 <template>
   <!-- Render the Test Request Button -->
   <button
-    v-if="canNavigate(eventBus.navigation, 'ui:open:client-modal')"
     class="show-api-client-button"
     :method="method"
     type="button"

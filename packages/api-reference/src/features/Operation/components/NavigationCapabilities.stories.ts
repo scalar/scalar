@@ -9,7 +9,7 @@ import TestRequestButton from '@/features/test-request-button/TestRequestButton.
 
 import RequestBody from './RequestBody.vue'
 
-const meta: Meta<{ supported: boolean }> = {
+const meta: Meta<{ hideModels: boolean }> = {
   title: 'Navigation/Capabilities',
   render: (args) => ({
     components: { RequestBody, SchemaPropertyHeading, TestRequestButton },
@@ -17,16 +17,12 @@ const meta: Meta<{ supported: boolean }> = {
       const destination = ref('No destination yet')
       const events = createWorkspaceEventBus()
       const primary = createNavigation(events, {
-        'scroll-to:model-by-name': args.supported
-          ? ({ name }) => {
-              destination.value = `Model: ${name}`
-            }
-          : false,
-        'ui:open:client-modal': args.supported
-          ? () => {
-              destination.value = 'Client: create-pet'
-            }
-          : false,
+        'scroll-to:model-by-name': ({ name }) => {
+          destination.value = `Model: ${name}`
+        },
+        'ui:open:client-modal': () => {
+          destination.value = 'Client: create-pet'
+        },
       })
       onBeforeUnmount(primary.dispose)
       return {
@@ -42,7 +38,7 @@ const meta: Meta<{ supported: boolean }> = {
         options: {
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
-          hideModels: false,
+          hideModels: args.hideModels,
           expandAllSchemaProperties: false,
           schemaKeyboardNav: false,
         },
@@ -51,7 +47,7 @@ const meta: Meta<{ supported: boolean }> = {
     template: `<main data-testid="navigation-capabilities" style="width: 520px; padding: 24px; background: var(--scalar-background-1); color: var(--scalar-color-1)">
       <h2>POST /pets</h2>
       <RequestBody :requestBody :document :options :eventBus><template #title>Body</template></RequestBody>
-      <div data-testid="property-heading" style="margin: 24px 0"><SchemaPropertyHeading :value="schema" modelName="Pet" :eventBus><template #name>pet</template></SchemaPropertyHeading></div>
+      <div data-testid="property-heading" style="margin: 24px 0"><SchemaPropertyHeading :value="schema" modelName="Pet" :modelLinkOptions="{ hideModels: options.hideModels }" :eventBus><template #name>pet</template></SchemaPropertyHeading></div>
       <TestRequestButton id="create-pet" method="post" path="/pets" :eventBus />
       <p role="status" style="margin-top: 16px">{{ destination }}</p>
     </main>`,
@@ -60,5 +56,5 @@ const meta: Meta<{ supported: boolean }> = {
 export default meta
 
 type Story = StoryObj<typeof meta>
-export const Supported: Story = { args: { supported: true } }
-export const Disabled: Story = { args: { supported: false } }
+export const Supported: Story = { args: { hideModels: false } }
+export const HiddenModels: Story = { args: { hideModels: true } }

@@ -1,7 +1,7 @@
 import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { type MaybeRefOrGetter, onBeforeUnmount, onMounted, toValue } from 'vue'
 
-import { handleHotkeys } from '@/v2/helpers/handle-hotkeys'
+import { type HotkeyNavigation, handleHotkeys } from '@/v2/helpers/handle-hotkeys'
 import type { ClientLayout } from '@/v2/types/layout'
 
 /**
@@ -11,9 +11,9 @@ import type { ClientLayout } from '@/v2/types/layout'
  * @param layout - client layout
  * @param disableListeners - whether to disable the listeners
  */
-export const useGlobalHotKeys = (
-  eventBus: NavigationEventBus,
-  layout: ClientLayout,
+export const useGlobalHotKeys = <L extends ClientLayout>(
+  eventBus: NavigationEventBus<HotkeyNavigation<NoInfer<L>>>,
+  layout: L,
   disableListeners?: MaybeRefOrGetter<boolean>,
 ): void => {
   const handleKeyDown = (ev: KeyboardEvent) => {

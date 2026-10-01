@@ -2,7 +2,6 @@
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import {
-  canNavigate,
   navigate as navigateCommand,
   type NavigationEventBus,
 } from '@scalar/workspace-store/events'
@@ -50,14 +49,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
       {{ operation.title }} (Hidden)
     </SectionHeaderTag>
     <a
-      :aria-disabled="
-        !eventBus || !canNavigate(eventBus.navigation, 'scroll-to:nav-item')
-      "
+      :aria-disabled="!eventBus"
       class="endpoint"
       @click.prevent="
         () =>
           eventBus &&
-          canNavigate(eventBus.navigation, 'scroll-to:nav-item') &&
           navigateCommand(eventBus.navigation, 'scroll-to:nav-item', {
             id: operation.id,
           })
