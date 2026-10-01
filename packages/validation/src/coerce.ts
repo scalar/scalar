@@ -124,14 +124,32 @@ const scoreUnion = (
   valueDepth = 0,
   lazyDepth = 0,
 ): number => {
-  // Short-circuit on cycles: this exact (value, schema) pair is already being
-  // scored higher up the call stack. The enclosing call's score subsumes any
-  // contribution we could compute here, so return a neutral positive score.
-  if (isObject(value) && scoringCache.get(value)?.has(schema)) {
+  // These scores do not descend into the value, so they cannot encounter a cycle.
+  // In particular, literals are common in discriminator and enum unions and do
+  // not need a separate validation traversal or its cache allocation.
+  if (schema.type === 'literal') {
+    // Keep strict equality in sync with the literal branch of validateInner in validate.ts.
+    return value === schema.value ? 1 : 0
+  }
+  if (schema.type === 'array') {
+    return Array.isArray(value) ? 1 : 0
+  }
+  if (schema.type === 'record') {
+    // TODO: implement smarter scoring for records
+    return isObject(value) ? 1 : 0
+  }
+  if (schema.type === 'optional' && value === undefined) {
     return 1
   }
 
   const trackable = isObject(value)
+  // Short-circuit on cycles: this exact (value, schema) pair is already being
+  // scored higher up the call stack. The enclosing call's score subsumes any
+  // contribution we could compute here, so return a neutral positive score.
+  if (trackable && scoringCache.get(value)?.has(schema)) {
+    return 1
+  }
+
   if (trackable) {
     const schemas = scoringCache.get(value) ?? new Set<Schema>()
     schemas.add(schema)
@@ -140,7 +158,7 @@ const scoreUnion = (
 
   try {
     if (schema.type === 'object') {
-      if (!isObject(value)) {
+      if (!trackable) {
         return 0
       }
 
@@ -180,16 +198,8 @@ const scoreUnion = (
         return acc + (base > 0 ? base : 1)
       }, 0)
     }
-    if (schema.type === 'array') {
-      // Score 1 if value is an array, otherwise 0
-      return Array.isArray(value) ? 1 : 0
-    }
-    if (schema.type === 'record') {
-      // TODO: implement smarter scoring for records (just a placeholder for now)
-      return isObject(value) ? 1 : 0
-    }
     if (schema.type === 'optional') {
-      return value === undefined ? 1 : scoreUnion(schema.schema, value, lazyCache, scoringCache, valueDepth, lazyDepth)
+      return scoreUnion(schema.schema, value, lazyCache, scoringCache, valueDepth, lazyDepth)
     }
     if (schema.type === 'union') {
       // For a union, use the highest score among all sub-schemas

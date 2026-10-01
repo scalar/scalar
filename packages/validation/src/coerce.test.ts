@@ -1567,6 +1567,46 @@ describe('cyclic structures', () => {
 })
 
 describe('coerce', () => {
+  it('keeps the first branch when literal and optional scores tie', () => {
+    const schema = union([
+      object({ tag: optional(literal('first')), selected: string({ default: 'first' }) }),
+      object({ tag: optional(literal('second')), selected: string({ default: 'second' }) }),
+    ])
+
+    expect(coerce(schema, { tag: undefined })).toStrictEqual({ selected: 'first' })
+    expect(coerce(schema, { tag: null })).toStrictEqual({ tag: 'first', selected: 'first' })
+    expect(coerce(schema, { tag: 'second' })).toStrictEqual({ tag: 'second', selected: 'second' })
+  })
+
+  it('scores arrays by their container even when their items need coercion', () => {
+    const schema = union([literal('fallback'), array(number({ default: 42 }))])
+
+    expect(coerce(schema, ['invalid'])).toStrictEqual([42])
+    expect(coerce(schema, null)).toBe('fallback')
+  })
+
+  it('scores records by their container even when their entries need coercion', () => {
+    const schema = union([literal('fallback'), record(string(), number({ default: 42 }))])
+
+    expect(coerce(schema, { entry: 'invalid' })).toStrictEqual({ entry: 42 })
+    expect(coerce(schema, Object.assign(Object.create(null), { entry: 'invalid' }))).toStrictEqual({ entry: 42 })
+    expect(coerce(schema, new Date(0))).toBe('fallback')
+    expect(coerce(schema, [])).toBe('fallback')
+  })
+
+  it('scores literal matches strictly without coercing the discriminator', () => {
+    const schema = union([
+      object({ tag: literal(false), value: string({ default: 'boolean' }) }),
+      object({ tag: literal(0), value: string({ default: 'number' }) }),
+      object({ tag: literal('0'), value: string({ default: 'string' }) }),
+    ])
+
+    expect(coerce(schema, { tag: 0 })).toStrictEqual({ tag: 0, value: 'number' })
+    expect(coerce(schema, { tag: '0' })).toStrictEqual({ tag: '0', value: 'string' })
+    expect(coerce(schema, { tag: null })).toStrictEqual({ tag: false, value: 'boolean' })
+    expect(coerce(schema, { tag: false })).toStrictEqual({ tag: false, value: 'boolean' })
+  })
+
   it('lets a discriminator below the scoring depth budget pick the branch', () => {
     // `kind` sits four object levels below the union node, past the point where scoring stops
     // descending. Discriminators are still scored there, so `b` wins. Without that, both
