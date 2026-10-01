@@ -128,12 +128,14 @@ const scoreUnion = (
   // In particular, literals are common in discriminator and enum unions and do
   // not need a separate validation traversal or its cache allocation.
   if (schema.type === 'literal') {
+    // Keep strict equality in sync with the literal branch of validateInner in validate.ts.
     return value === schema.value ? 1 : 0
   }
   if (schema.type === 'array') {
     return Array.isArray(value) ? 1 : 0
   }
   if (schema.type === 'record') {
+    // TODO: implement smarter scoring for records
     return isObject(value) ? 1 : 0
   }
   if (schema.type === 'optional' && value === undefined) {
