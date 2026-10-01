@@ -1,186 +1,139 @@
-import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import { type NavigationHandlers, createWorkspaceEventBus } from './bus'
+import { createWorkspaceEventBus } from './bus'
 import type { NavigationEvents } from './definitions'
+import {
+  type NavigationHandlers,
+  canNavigate,
+  createNavigation,
+  isNavigationEvent,
+  navigate,
+  withNavigation,
+} from './navigation'
 
-const disabled: NavigationHandlers = {
-  'select:nav-item': false,
-  'scroll-to:nav-item': false,
-  'scroll-to:model-by-name': false,
-  'ui:navigate': false,
-  'ui:open:settings': false,
-  'ui:open:client-modal': false,
-  'tabs:navigate:previous': false,
-  'tabs:navigate:next': false,
-  'tabs:focus:tab': false,
-  'tabs:focus:tab-last': false,
-}
+const payloads = {
+  'select:nav-item': { id: 'operation' },
+  'scroll-to:nav-item': { id: 'operation' },
+  'scroll-to:model-by-name': { name: 'Pet' },
+  'ui:navigate': { page: 'workspace', path: 'settings' },
+  'ui:open:settings': undefined,
+  'ui:open:client-modal': { id: 'operation' },
+  'tabs:navigate:previous': undefined,
+  'tabs:navigate:next': undefined,
+  'tabs:focus:tab': { index: 1 },
+  'tabs:focus:tab-last': undefined,
+} satisfies NavigationEvents
 
-const commands = [
-  { event: 'select:nav-item', payload: { id: 'operation' } },
-  { event: 'scroll-to:nav-item', payload: { id: 'operation' } },
-  { event: 'scroll-to:model-by-name', payload: { name: 'Pet' } },
-  { event: 'ui:navigate', payload: { page: 'workspace', path: 'settings' } },
-  { event: 'ui:open:settings', payload: undefined },
-  { event: 'ui:open:client-modal', payload: { id: 'operation' } },
-  { event: 'tabs:navigate:previous', payload: undefined },
-  { event: 'tabs:navigate:next', payload: undefined },
-  { event: 'tabs:focus:tab', payload: { index: 2 } },
-  { event: 'tabs:focus:tab-last', payload: undefined },
-] as const
+const commands = Object.keys(payloads) as (keyof NavigationEvents)[]
 
 describe('navigation', () => {
-  it.each(commands)('dispatches $event with its payload', ({ event, payload }) => {
+  it.each(commands)('dispatches %s to its primary handler and observers exactly once', (event) => {
     const bus = createWorkspaceEventBus()
-    const handler = vi.fn()
-    const observe = vi.fn()
-    bus.onNavigation({ ...disabled, [event]: handler })
-    bus.onAny(observe)
+    const primary = vi.fn()
+    const observer = vi.fn()
+    const once = vi.fn()
+    const host = createNavigation(bus, { [event]: primary } as unknown as NavigationHandlers<typeof event>)
+    bus.on(event, observer)
+    bus.once(event, once)
 
-    bus.emit(event, payload)
-
-    expect(handler).toHaveBeenCalledExactlyOnceWith(payload)
-    expect(observe).toHaveBeenCalledExactlyOnceWith({ event, payload })
+    navigate(host.navigation, event, payloads[event])
+    expect(primary).toHaveBeenCalledExactlyOnceWith(payloads[event])
+    expect(observer).toHaveBeenCalledExactlyOnceWith(payloads[event])
+    expect(once).toHaveBeenCalledExactlyOnceWith(payloads[event])
+    navigate(host.navigation, event, payloads[event])
+    expect(primary).toHaveBeenCalledTimes(2)
+    expect(once).toHaveBeenCalledTimes(1)
   })
 
-  it.each(commands)('rejects unhandled $event even with a wildcard observer', ({ event, payload }) => {
-    const bus = createWorkspaceEventBus()
-    bus.onAny(vi.fn())
-
-    expect(() => bus.emit(event, payload)).toThrow(`Unhandled navigation command "${event}"`)
-  })
-
-  it.each(commands)('rejects an explicitly disabled $event', ({ event, payload }) => {
+  it('does not let observers satisfy a disposed primary handler', () => {
     const bus = createWorkspaceEventBus()
     const observer = vi.fn()
-    bus.onNavigation(disabled)
-    bus.onAny(observer)
-
-    expect(() => bus.emit(event, payload)).toThrow(`Unsupported navigation command "${event}"`)
+    bus.on('scroll-to:model-by-name', observer)
+    const host = createNavigation(bus, { 'scroll-to:model-by-name': () => undefined })
+    host.dispose()
+    expect(() => navigate(host.navigation, 'scroll-to:model-by-name', { name: 'Pet' })).toThrow(
+      'Missing primary handler',
+    )
     expect(observer).not.toHaveBeenCalled()
   })
 
-  it.each(commands)('removes handlers and disabled declarations for $event', ({ event, payload }) => {
+  it('keeps independent feature capabilities isolated on a shared bus', () => {
     const bus = createWorkspaceEventBus()
-    const handler = vi.fn()
-    const removeHandler = bus.onNavigation({ ...disabled, [event]: handler })
-    const removeDisabled = bus.onNavigation(disabled)
-
-    removeHandler()
-    expect(() => bus.emit(event, payload)).toThrow('Unsupported navigation command')
-    expect(handler).not.toHaveBeenCalled()
-    removeDisabled()
-    removeDisabled()
-    expect(() => bus.emit(event, payload)).toThrow('Unhandled navigation command')
+    const referenceHandler = vi.fn()
+    const modalHandler = vi.fn()
+    const reference = createNavigation(bus, { 'scroll-to:nav-item': referenceHandler })
+    const modal = createNavigation(withNavigation(bus, reference.navigation), { 'scroll-to:nav-item': modalHandler })
+    navigate(reference.navigation, 'scroll-to:nav-item', { id: 'reference' })
+    expect(referenceHandler).toHaveBeenCalledExactlyOnceWith({ id: 'reference' })
+    expect(modalHandler).not.toHaveBeenCalled()
+    navigate(modal.navigation, 'scroll-to:nav-item', { id: 'modal' })
+    expect(modalHandler).toHaveBeenCalledExactlyOnceWith({ id: 'modal' })
+    modal.dispose()
+    expect(() => navigate(modal.navigation, 'scroll-to:nav-item', { id: 'modal' })).toThrow('Missing primary handler')
+    navigate(reference.navigation, 'scroll-to:nav-item', { id: 'reference-again' })
+    expect(referenceHandler).toHaveBeenCalledTimes(2)
   })
 
-  it('keeps a handler active when another host disables the same command', () => {
+  it('keeps legacy dispatch working with primary handlers and ordinary observers', () => {
     const bus = createWorkspaceEventBus()
-    const handler = vi.fn()
-    const removeDisabled = bus.onNavigation(disabled)
-    bus.onNavigation({ ...disabled, 'scroll-to:model-by-name': handler })
-    removeDisabled()
+    const primary = vi.fn()
+    const observer = vi.fn()
+    createNavigation(bus, { 'scroll-to:model-by-name': primary })
+    bus.on('scroll-to:model-by-name', observer)
     bus.emit('scroll-to:model-by-name', { name: 'Pet' })
-    expect(handler).toHaveBeenCalledExactlyOnceWith({ name: 'Pet' })
+    expect(primary).toHaveBeenCalledExactlyOnceWith({ name: 'Pet' })
+    expect(observer).toHaveBeenCalledExactlyOnceWith({ name: 'Pet' })
   })
 
-  it('checks JavaScript registrations before installing any handlers', () => {
-    const bus = createWorkspaceEventBus()
-    const handler = vi.fn()
-    const incomplete = { 'select:nav-item': handler }
-    // @ts-expect-error Exercise an incomplete JavaScript registration.
-    expect(() => bus.onNavigation(incomplete)).toThrow('Missing navigation handler for "scroll-to:nav-item"')
-    expect(() => bus.emit('select:nav-item', { id: 'operation' })).toThrow('Unhandled navigation command')
-    expect(handler).not.toHaveBeenCalled()
+  it('rejects undeclared capabilities while allowing explicitly disabled commands', () => {
+    expect(canNavigate(false, 'ui:navigate')).toBe(false)
+    expect(canNavigate({ 'ui:navigate': false }, 'ui:navigate')).toBe(false)
+    expect(() => navigate(false, 'ui:navigate', payloads['ui:navigate'])).toThrow('Unsupported or missing command')
+    // @ts-expect-error Untyped hosts must fail visibly at runtime as well.
+    expect(() => canNavigate(undefined, 'ui:navigate')).toThrow('capability is required')
+    // @ts-expect-error A scope must explicitly declare the requested command.
+    expect(() => canNavigate({}, 'ui:navigate')).toThrow('Missing capability')
   })
 
-  it('rejects unhandled navigation before queuing it', () => {
+  it('validates a registration before installing any handlers', () => {
     const bus = createWorkspaceEventBus()
-    expect(() => bus.emit('scroll-to:model-by-name', { name: 'Pet' }, { debounceKey: 'model' })).toThrow(
-      'Unhandled navigation command',
-    )
-  })
-
-  it('reports a queued command whose handler was removed before dispatch', () => {
-    const bus = createWorkspaceEventBus()
-    const handler = vi.fn()
-    const stop = bus.onNavigation({ ...disabled, 'scroll-to:model-by-name': handler })
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-    try {
-      bus.emit('scroll-to:model-by-name', { name: 'Pet' }, { debounceKey: 'model' })
-      stop()
-      bus.flushDebouncedEmits?.()
-      expect(error).toHaveBeenCalledExactlyOnceWith(
-        '[EventBus] Error in debounced event "scroll-to:model-by-name":',
-        expect.objectContaining({ message: expect.stringContaining('Unhandled navigation command') }),
-      )
-    } finally {
-      error.mockRestore()
+    const host = createNavigation(bus, { 'select:nav-item': vi.fn<(payload: { id: string }) => void>() })
+    const invalid = {
+      'select:nav-item': vi.fn<(payload: { id: string }) => void>(),
+      'scroll-to:model-by-name': undefined,
     }
+    // @ts-expect-error Missing primary handlers cannot form a capability.
+    expect(() => createNavigation(bus, invalid)).toThrow('Missing primary handler')
+    navigate(host.navigation, 'select:nav-item', { id: 'operation' })
+    expect(invalid['select:nav-item']).not.toHaveBeenCalled()
   })
 
-  it('requires all commands with their own payload types', () => {
-    expectTypeOf<(typeof commands)[number]['event']>().toEqualTypeOf<keyof NavigationEvents>()
-    const bus = createWorkspaceEventBus()
-    bus.onNavigation({
-      ...disabled,
-      'select:nav-item': (payload) => expectTypeOf(payload).toEqualTypeOf<NavigationEvents['select:nav-item']>(),
-      'scroll-to:nav-item': (payload) => expectTypeOf(payload).toEqualTypeOf<NavigationEvents['scroll-to:nav-item']>(),
-      'scroll-to:model-by-name': (payload) =>
-        expectTypeOf(payload).toEqualTypeOf<NavigationEvents['scroll-to:model-by-name']>(),
-      'ui:navigate': (payload) => expectTypeOf(payload).toEqualTypeOf<NavigationEvents['ui:navigate']>(),
-      'ui:open:settings': (payload) => expectTypeOf(payload).toEqualTypeOf<NavigationEvents['ui:open:settings']>(),
-      'ui:open:client-modal': (payload) =>
-        expectTypeOf(payload).toEqualTypeOf<NavigationEvents['ui:open:client-modal']>(),
-      'tabs:navigate:previous': (payload) =>
-        expectTypeOf(payload).toEqualTypeOf<NavigationEvents['tabs:navigate:previous']>(),
-      'tabs:navigate:next': (payload) => expectTypeOf(payload).toEqualTypeOf<NavigationEvents['tabs:navigate:next']>(),
-      'tabs:focus:tab': (payload) => expectTypeOf(payload).toEqualTypeOf<NavigationEvents['tabs:focus:tab']>(),
-      'tabs:focus:tab-last': (payload) =>
-        expectTypeOf(payload).toEqualTypeOf<NavigationEvents['tabs:focus:tab-last']>(),
-    })
+  it('reports rejected asynchronous handlers', async () => {
+    const error = new Error('route failed')
+    const log = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const host = createNavigation(createWorkspaceEventBus(), { 'ui:navigate': () => Promise.reject(error) })
+    navigate(host.navigation, 'ui:navigate', payloads['ui:navigate'])
+    await Promise.resolve()
+    expect(log).toHaveBeenCalledWith('[Navigation] Handler failed for "ui:navigate":', error)
+    log.mockRestore()
+  })
 
-    const invalidRegistrations = (): void => {
-      const { 'select:nav-item': _omitted0, ...withoutCommand0 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand0)
-      const { 'scroll-to:nav-item': _omitted1, ...withoutCommand1 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand1)
-      const { 'scroll-to:model-by-name': _omitted2, ...withoutCommand2 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand2)
-      const { 'ui:navigate': _omitted3, ...withoutCommand3 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand3)
-      const { 'ui:open:settings': _omitted4, ...withoutCommand4 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand4)
-      const { 'ui:open:client-modal': _omitted5, ...withoutCommand5 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand5)
-      const { 'tabs:navigate:previous': _omitted6, ...withoutCommand6 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand6)
-      const { 'tabs:navigate:next': _omitted7, ...withoutCommand7 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand7)
-      const { 'tabs:focus:tab': _omitted8, ...withoutCommand8 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand8)
-      const { 'tabs:focus:tab-last': _omitted9, ...withoutCommand9 } = disabled
-      // @ts-expect-error Every navigation command is required.
-      bus.onNavigation(withoutCommand9)
-      // @ts-expect-error Navigation commands require the complete registration.
-      bus.on('scroll-to:model-by-name', vi.fn())
-      // @ts-expect-error One-shot subscriptions do not provide complete navigation handling.
-      bus.once('ui:navigate', vi.fn())
-      bus.onNavigation({
-        ...disabled,
-        // @ts-expect-error Model navigation receives a name, not an item ID.
-        'scroll-to:model-by-name': (_payload: { id: string }) => {},
-      })
-    }
-    expectTypeOf(invalidRegistrations).toBeFunction()
+  it('recognizes every navigation command and excludes notification events', () => {
+    expect(commands.every(isNavigationEvent)).toBe(true)
+    expect(isNavigationEvent('ui:focus:search')).toBe(false)
+    expect(isNavigationEvent('toString')).toBe(false)
   })
 })
+
+/** Payloads remain tied to the selected command even on a full host capability. */
+const verifyCommandTypes = (full: NavigationHandlers): void => {
+  // @ts-expect-error Model commands require their payload even on a full capability.
+  navigate(full, 'scroll-to:model-by-name')
+  // @ts-expect-error A tab index is not a model payload.
+  navigate(full, 'scroll-to:model-by-name', { index: 1 })
+  // @ts-expect-error A model name is not an item payload.
+  navigate(full, 'scroll-to:nav-item', { name: 'Pet' })
+  navigate(full, 'ui:open:settings')
+  navigate(full, 'scroll-to:model-by-name', { name: 'Pet' })
+}
+void verifyCommandTypes

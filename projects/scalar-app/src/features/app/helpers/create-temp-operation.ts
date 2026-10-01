@@ -1,4 +1,4 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type NavigationEventBus, navigate } from '@scalar/workspace-store/events'
 
 /**
  * Generates a unique temporary operation path for a new operation.
@@ -40,7 +40,7 @@ export const createTempOperation = (
   documentName: string,
   options: {
     existingPaths: Set<string>
-    eventBus: WorkspaceEventBus
+    eventBus: NavigationEventBus<'ui:navigate'>
     tags?: string[]
   },
 ) => {
@@ -58,7 +58,7 @@ export const createTempOperation = (
       if (!success) {
         return
       }
-      options.eventBus.emit('ui:navigate', {
+      navigate(options.eventBus.navigation, 'ui:navigate', {
         page: 'example',
         documentSlug: documentName,
         path: uniquePath,

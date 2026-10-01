@@ -9,7 +9,10 @@ import {
   getSelectedAsyncApiServer,
 } from '@scalar/workspace-store/channel-example'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getSelectedServer,
@@ -104,7 +107,9 @@ const {
   xScalarDefaultExample: Workspace['x-scalar-default-example']
   items: TraversedEntryType[]
   expandedItems: Record<string, boolean>
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<
+    'scroll-to:nav-item' | 'scroll-to:model-by-name' | 'ui:open:client-modal'
+  >
   environment: XScalarEnvironment
   /** Heading id generator for Markdown headings */
   headingSlugGenerator: (heading: Heading) => string
@@ -352,7 +357,10 @@ provideDocumentOutline('document')
     <ContextBar
       v-if="showContextBar"
       :chain="contextBarChain"
-      @navigate="(id) => eventBus.emit('scroll-to:nav-item', { id })" />
+      @navigate="
+        (id) =>
+          navigateCommand(eventBus.navigation, 'scroll-to:nav-item', { id })
+      " />
 
     <!-- Render traversed operations and webhooks -->
     <!-- Use recursive component for cleaner rendering -->

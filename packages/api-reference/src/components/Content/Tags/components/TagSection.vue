@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
@@ -34,7 +34,7 @@ const {
   headingLevel?: HeadingLevel
   headerId?: string
   isCollapsed?: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'> | null
 }>()
 const { translate } = useLocalization()
 

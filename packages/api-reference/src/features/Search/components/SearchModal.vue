@@ -4,7 +4,11 @@ import { ScalarSearchInput } from '@scalar/components/search-input'
 import { ScalarSearchResultList } from '@scalar/components/search-results'
 import type { ModelsSectionLabel } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  canNavigate,
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, useId, watch } from 'vue'
 
@@ -16,7 +20,7 @@ import SearchResult from './SearchResult.vue'
 const props = defineProps<{
   modalState: ModalState
   document: OpenApiDocument | AsyncApiDocument | undefined
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
   modelsSectionLabel?: ModelsSectionLabel
 }>()
 const { translate } = useLocalization()
@@ -74,8 +78,13 @@ function handleSelect(idx: number | undefined) {
   }
 
   const result = results.value[idx]
+  if (!canNavigate(props.eventBus.navigation, 'scroll-to:nav-item')) {
+    return
+  }
   props.modalState.hide()
-  props.eventBus.emit('scroll-to:nav-item', { id: result.item.id })
+  navigateCommand(props.eventBus.navigation, 'scroll-to:nav-item', {
+    id: result.item.id,
+  })
 }
 
 /**

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   OpenApiDocument,
@@ -19,7 +19,7 @@ const { responses, selectedContentTypes = {} } = defineProps<{
   responses: OperationObject['responses']
   breadcrumb?: string[]
   collapsableItems?: boolean
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
   /** The document the operation belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   /**

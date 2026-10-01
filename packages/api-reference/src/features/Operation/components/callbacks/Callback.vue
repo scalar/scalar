@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type OpenApiDocument,
@@ -22,7 +22,7 @@ const { method, name, url, options, document, breadcrumb } = defineProps<{
   method: string
   name: string
   url: string
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
   /** The document the callback belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   /** Breadcrumb of this callback, making its body and responses addressable */

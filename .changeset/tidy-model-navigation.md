@@ -5,4 +5,4 @@
 "scalar-app": patch
 ---
 
-Require exhaustive navigation event registrations with typed handlers or explicit disabled commands. Report unhandled navigation commands at runtime instead of silently dropping them.
+Require scoped navigation capabilities at component boundaries with typed primary handlers or explicit disabled commands. Preserve ordinary event observers, isolate destinations sharing a bus, and report missing capabilities instead of silently dropping navigation.

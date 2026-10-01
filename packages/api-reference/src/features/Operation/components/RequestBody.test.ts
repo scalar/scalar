@@ -1,8 +1,9 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { Schema } from '@/components/Content/Schema'
 
@@ -16,6 +17,35 @@ describe('RequestBody', () => {
     expandAllSchemaProperties: false,
     schemaKeyboardNav: false,
   }
+
+  it.each([true, false])('invokes the model destination only when supported: %s', async (supported) => {
+    const destination = vi.fn<(payload: { name: string }) => void>()
+    const bus = createWorkspaceEventBus()
+    const host = createNavigation(bus, { 'scroll-to:model-by-name': supported ? destination : false })
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: withNavigation(bus, host.navigation),
+        options: defaultRequestOptions,
+        document: coerceValue(OpenAPIDocumentSchema, {
+          openapi: '3.1.0',
+          info: { title: 'Test', version: '1.0.0' },
+          components: { schemas: { Pet: { type: 'object' } } },
+        }),
+        requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } } },
+      },
+    })
+    const modelName = wrapper.find('[data-testid="request-body-schema-name"]')
+    expect(modelName.text()).toContain('Pet')
+    if (supported) {
+      await modelName.get('button').trigger('click')
+      expect(destination).toHaveBeenCalledExactlyOnceWith({ name: 'Pet' })
+    } else {
+      expect(modelName.find('button').exists()).toBe(false)
+      expect(destination).not.toHaveBeenCalled()
+    }
+    wrapper.unmount()
+    host.dispose()
+  })
 
   it('renders request body with schema properties', () => {
     const wrapper = mount(RequestBody, {
@@ -260,7 +290,7 @@ describe('RequestBody', () => {
   it('renders the model name as plain text when hideModels is enabled', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: createWorkspaceEventBus(),
+        eventBus: createNavigationEventBus(),
         options: {
           ...defaultRequestOptions,
           hideModels: true,
@@ -292,7 +322,7 @@ describe('RequestBody', () => {
   it('renders the model name as plain text when the referenced model is hidden', () => {
     const wrapper = mount(RequestBody, {
       props: {
-        eventBus: createWorkspaceEventBus(),
+        eventBus: createNavigationEventBus(),
         options: defaultRequestOptions,
         document: coerceValue(OpenAPIDocumentSchema, {
           openapi: '3.1.0',

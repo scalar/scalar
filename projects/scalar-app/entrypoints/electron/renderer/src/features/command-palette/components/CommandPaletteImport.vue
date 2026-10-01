@@ -6,7 +6,7 @@
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconUpload } from '@scalar/icons'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
-import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type NavigationEventBus } from '@scalar/workspace-store/events'
 import { ref } from 'vue'
 
 import { CommandPaletteImport as BaseCommandPaletteImport } from '@/features/command-palette'
@@ -16,7 +16,7 @@ const { workspaceStore, eventBus } = defineProps<{
   /** The workspace store for adding documents */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
 }>()
 
 const emit = defineEmits<{

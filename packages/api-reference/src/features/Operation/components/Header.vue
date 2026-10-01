@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   HeaderObject,
@@ -23,7 +23,7 @@ const {
   name: string
   /** The anchor path of the headers group; `Headers.vue` has already appended the `headers` segment */
   breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
   /** The document the header belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined

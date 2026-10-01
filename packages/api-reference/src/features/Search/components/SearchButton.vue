@@ -9,7 +9,7 @@ import {
   type ModelsSectionLabel,
 } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -26,7 +26,7 @@ const {
   hideModels?: boolean
   modelsSectionLabel?: ModelsSectionLabel
   document?: OpenApiDocument | AsyncApiDocument
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'scroll-to:nav-item'>
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()

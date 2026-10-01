@@ -1,4 +1,10 @@
-import type { AnyEvent, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type AnyEvent,
+  type Navigation,
+  type WorkspaceEventBus,
+  createNavigation,
+  navigate,
+} from '@scalar/workspace-store/events'
 import { type ShallowRef, getCurrentScope, onScopeDispose, shallowRef } from 'vue'
 
 import type { ApiClientModal } from './helpers/create-api-client-modal'
@@ -15,23 +21,14 @@ export const useLazyApiClient = ({
   load: () => Promise<() => ApiClientModal | null>
   /** Optional visitor-facing state for the initial download. */
   status?: ShallowRef<'idle' | 'loading' | 'error'>
-}): ShallowRef<ApiClientModal | null> => {
+}): ShallowRef<ApiClientModal | null> & { navigation: Navigation<'ui:open:client-modal'> } => {
   const scope = getCurrentScope()
   const client = shallowRef<ApiClientModal | null>(null)
   let disposed = false
   let loading = false
   let pending: { payload: OpenPayload } | null = null
 
-  const unsubscribeOpen = eventBus.onNavigation({
-    'select:nav-item': false,
-    'scroll-to:nav-item': false,
-    'scroll-to:model-by-name': false,
-    'ui:navigate': false,
-    'ui:open:settings': false,
-    'tabs:navigate:previous': false,
-    'tabs:navigate:next': false,
-    'tabs:focus:tab': false,
-    'tabs:focus:tab-last': false,
+  const openNavigation = createNavigation(eventBus, {
     'ui:open:client-modal': (payload) => {
       pending = { payload }
       status.value = 'loading'
@@ -48,10 +45,10 @@ export const useLazyApiClient = ({
           if (!client.value) {
             return
           }
-          unsubscribeOpen()
+          openNavigation.dispose()
           unsubscribeClose()
           // Replay the full event after the modal subscribes, including example and composition selection.
-          eventBus.emit('ui:open:client-modal', pending.payload)
+          navigate(client.value.navigation, 'ui:open:client-modal', pending.payload)
         })
         .catch((error: unknown) => {
           if (!disposed && pending) {
@@ -77,9 +74,18 @@ export const useLazyApiClient = ({
     disposed = true
     status.value = 'idle'
     pending = null
-    unsubscribeOpen()
+    openNavigation.dispose()
     unsubscribeClose()
     client.value?.app.unmount()
   }, true)
-  return client
+  return Object.assign(client, {
+    navigation: {
+      'ui:open:client-modal': (payload: OpenPayload) => {
+        if (disposed) {
+          throw new Error('[Navigation] The API client owner has been disposed.')
+        }
+        navigate(client.value?.navigation ?? openNavigation.navigation, 'ui:open:client-modal', payload)
+      },
+    },
+  })
 }

@@ -1,6 +1,8 @@
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { createMockEventBus } from '@/v2/helpers/test-utils'
 
 import { handleHotkeys } from './handle-hotkeys'
 
@@ -10,7 +12,7 @@ vi.mock('@scalar/helpers/general/is-mac-os', () => ({
 }))
 
 describe('handle-hotkey-down', () => {
-  let mockEventBus: WorkspaceEventBus
+  let mockEventBus: NavigationEventBus
 
   /**
    * Creates a keyboard event with the specified properties.
@@ -59,9 +61,7 @@ describe('handle-hotkey-down', () => {
   }
 
   beforeEach(() => {
-    mockEventBus = {
-      emit: vi.fn(),
-    } as unknown as WorkspaceEventBus
+    mockEventBus = createMockEventBus()
     vi.clearAllMocks()
   })
 

@@ -1,9 +1,9 @@
 import { ScalarListbox } from '@scalar/components/listbox'
 import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
@@ -19,7 +19,7 @@ const requiredSecurity: RequiredSecurity = { state: 'none', requirements: [] }
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer Props } ? Props : never
 
-const eventBus = createWorkspaceEventBus()
+const eventBus = createNavigationEventBus()
 
 const selectedServer: ServerObject = {
   url: 'https://api.example.com',

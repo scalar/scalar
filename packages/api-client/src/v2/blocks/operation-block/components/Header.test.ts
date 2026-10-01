@@ -1,5 +1,5 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -9,7 +9,7 @@ import Header, { type HeaderProps } from './Header.vue'
 import OpenApiClientButton from './OpenApiClientButton.vue'
 
 describe('Header', () => {
-  const eventBus = createWorkspaceEventBus()
+  const eventBus = createNavigationEventBus()
 
   const defaultProps = {
     path: '/pets',

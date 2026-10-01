@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { forEachPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -20,7 +20,7 @@ import Callback from './Callback.vue'
 const { path, callbacks, breadcrumb } = defineProps<{
   path: string
   callbacks: NonNullable<OperationObject['callbacks']>
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
   /** Breadcrumb of the owning operation; extended per callback below */
   breadcrumb?: string[]
   /** The document the callbacks belong to, used to resolve schema references for display */

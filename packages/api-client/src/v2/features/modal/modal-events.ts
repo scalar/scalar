@@ -1,6 +1,6 @@
 import type { ModalState } from '@scalar/components/modal'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { type Navigation, type WorkspaceEventBus, createNavigation } from '@scalar/workspace-store/events'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type Ref, ref } from 'vue'
@@ -26,9 +26,9 @@ export function initializeModalEvents({
   sidebarState: UseModalSidebarReturn
   modalState: ModalState
   store: WorkspaceStore
-}) {
+}): { navigation: Navigation; dispose: () => void } {
   /** Initialize workspace event handlers */
-  initializeWorkspaceEventHandlers({
+  const workspaceEvents = initializeWorkspaceEventHandlers({
     eventBus,
     store: ref(store),
     hooks: {
@@ -51,19 +51,15 @@ export function initializeModalEvents({
   })
 
   //------------------------------------------------------------------------------------
+  // Navigation Event Handlers
+  //------------------------------------------------------------------------------------
+
+  //------------------------------------------------------------------------------------
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('ui:toggle:sidebar', () => (isSidebarOpen.value = !isSidebarOpen.value))
   eventBus.on('ui:close:client-modal', () => modalState.hide())
-  eventBus.onNavigation({
-    'select:nav-item': false,
-    'scroll-to:model-by-name': false,
-    'ui:navigate': false,
-    'ui:open:settings': false,
-    'tabs:navigate:previous': false,
-    'tabs:navigate:next': false,
-    'tabs:focus:tab': false,
-    'tabs:focus:tab-last': false,
+  const modalNavigation = createNavigation(eventBus, {
     'scroll-to:nav-item': ({ id }) => sidebarState.handleSelectItem(id),
     'ui:open:client-modal': (payload) => {
       // Every open re-establishes the selection (falling back to empty), so the modal no longer needs
@@ -129,4 +125,18 @@ export function initializeModalEvents({
       modalState.show()
     },
   })
+  return {
+    navigation: {
+      ...workspaceEvents.navigation,
+      ...modalNavigation.navigation,
+      'select:nav-item': false as const,
+      'scroll-to:model-by-name': false as const,
+      'ui:navigate': false as const,
+      'ui:open:settings': false as const,
+    },
+    dispose: () => {
+      workspaceEvents()
+      modalNavigation.dispose()
+    },
+  }
 }

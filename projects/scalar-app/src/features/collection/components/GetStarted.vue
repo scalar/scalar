@@ -1,4 +1,9 @@
 <script lang="ts">
+import {
+  navigate,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
+
 /**
  * Workspace get started page.
  *
@@ -34,8 +39,11 @@ import Computer from '@/assets/computer.ascii?raw'
 import type { RouteProps } from '@/features/app/helpers/routes'
 import { useWhatsNew, WhatsNewModal } from '@/features/whats-new'
 
-const { eventBus, isTeamWorkspace, layout, workspaceStore } =
-  defineProps<RouteProps>()
+const { eventBus, isTeamWorkspace, layout, workspaceStore } = defineProps<
+  Omit<RouteProps, 'eventBus'> & {
+    eventBus: NavigationEventBus<'ui:open:settings'>
+  }
+>()
 
 const openCommandPalette = () => {
   eventBus.emit('ui:open:command-palette')
@@ -49,7 +57,7 @@ const openCommandPalette = () => {
  * because the trigger is a click.
  */
 const openSettings = () => {
-  eventBus.emit('ui:open:settings')
+  navigate(eventBus.navigation, 'ui:open:settings')
 }
 
 /**

@@ -4,7 +4,11 @@ import {
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components/card'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  canNavigate,
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import type {
   TraversedAsyncApiChannel,
   TraversedTag,
@@ -16,7 +20,7 @@ import { useLocalization } from '@/features/localization'
 
 const { tag } = defineProps<{
   tag: TraversedTag
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:nav-item'> | null
 }>()
 const { translate } = useLocalization()
 
@@ -51,9 +55,18 @@ const channels = computed(
           :key="channel.id"
           class="contents">
           <a
+            :aria-disabled="
+              !eventBus ||
+              !canNavigate(eventBus.navigation, 'scroll-to:nav-item')
+            "
             class="channel"
             @click.prevent="
-              () => eventBus?.emit('scroll-to:nav-item', { id: channel.id })
+              () =>
+                eventBus &&
+                canNavigate(eventBus.navigation, 'scroll-to:nav-item') &&
+                navigateCommand(eventBus.navigation, 'scroll-to:nav-item', {
+                  id: channel.id,
+                })
             ">
             {{ channel.title || channel.channelAddress }}
           </a>

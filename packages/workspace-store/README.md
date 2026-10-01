@@ -610,40 +610,25 @@ The plugin interprets `$self` only on complete OpenAPI documents. Example payloa
 
 Authored reference spellings (including `./` and fragments) are retained across partial bundles and restored by `getEditableDocument`. Loader permissions still apply to the resolved location: `$self` does not enable a loader or widen its file or network access.
 
-## Navigation events
+### Navigation capabilities
 
-Navigation commands use one exhaustive registration instead of individual `on` or
-`once` subscriptions. Each host must supply a callback or explicitly disable each
-command with `false`. TypeScript reports omitted commands and incorrect payloads.
+Components that initiate navigation require a `NavigationEventBus` for the commands they use. A plain event bus cannot satisfy that component boundary. Register primary destinations separately from event observers, then attach the resulting capability:
 
 ```ts
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { createNavigation, createWorkspaceEventBus, withNavigation } from '@scalar/workspace-store/events'
 
-const eventBus = createWorkspaceEventBus()
-const stopNavigation = eventBus.onNavigation({
-  'select:nav-item': ({ id }) => selectItem(id),
-  'scroll-to:nav-item': ({ id }) => scrollToItem(id),
-  'scroll-to:model-by-name': ({ name }) => navigateToModel(name),
-  'ui:navigate': false,
-  'ui:open:settings': false,
-  'ui:open:client-modal': false,
-  'tabs:navigate:previous': false,
-  'tabs:navigate:next': false,
-  'tabs:focus:tab': false,
-  'tabs:focus:tab-last': false,
+const events = createWorkspaceEventBus()
+const modelNavigation = createNavigation(events, {
+  'scroll-to:model-by-name': ({ name }) => router.push(`/models/${name}`),
 })
-
-// Remove the registration when the host is disposed.
-stopNavigation()
+const eventBus = withNavigation(events, modelNavigation.navigation)
+// Pass eventBus to a schema component that requires model navigation.
 ```
 
-Migrate existing navigation `on` subscriptions into this map and use its returned
-function for cleanup. Unhandled and explicitly disabled commands throw when emitted, including when
-the bus has `onAny` observers. A disabled declaration from another host sharing
-the bus cannot suppress an installed handler or hide its removal.
-Non-navigation events keep using `on` and `once`. Adding a navigation command to
-`NavigationEvents` requires updating every host's map and the runtime registry.
+Each feature declares only the commands it owns. A host that exposes all navigation commands must handle or explicitly disable every command in `NavigationEvents`. Unsupported commands use `false`; `withNavigation(events, false)` explicitly disables the host's entire navigation capability. Components use `canNavigate` to hide or disable unsupported affordances and `navigate` to invoke destinations with typed payloads.
 
-The registration checks coverage, not whether a destination exists or a callback
-successfully navigates. Keep interaction tests for those behaviors. A disabled
-command should not be offered as an enabled control in the host UI.
+Ordinary `on`, `once`, and `onAny` subscriptions remain available for observers. An observer does not provide a primary destination. Capabilities sharing a notification bus retain independent ownership, so a modal cannot take over the reference's navigation. Legacy event emissions still reach registered primary handlers; new interactive components invoke their required capability directly.
+
+Call `modelNavigation.dispose()` when its feature is destroyed. Invoking that disposed capability fails explicitly even if observers are still registered. A lazy feature hands off to its mounted feature's capability explicitly.
+
+Keep interaction tests that assert the destination, alongside type checks. Types enforce declared commands and payloads; they cannot prove that a callback navigates to the correct page.

@@ -24,6 +24,8 @@ export type ModalProps = {
   plugins: ClientPlugin[]
   /** Subset of the configuration options for the modal */
   options: MaybeRefOrGetter<ApiClientOptions>
+  /** Publish the modal command scope to its owner. */
+  onNavigationReady?: (navigation: Navigation) => void
 }
 
 /**
@@ -40,7 +42,12 @@ import type { ModalState } from '@scalar/components/modal'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  withNavigation,
+  type Navigation,
+  type NavigationEventBus,
+  type WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import {
@@ -65,13 +72,14 @@ import type { ApiClientOptions, ApiClientOptionsRef } from '@/v2/types/options'
 
 const {
   document,
-  eventBus,
+  eventBus: events,
   modalState,
   options,
   plugins,
   requestBodyCompositionSelection,
   sidebarState,
   workspaceStore,
+  onNavigationReady,
 } = defineProps<
   Omit<ModalProps, 'options'> & { options: ApiClientOptionsRef }
 >()
@@ -88,8 +96,13 @@ const activeWorkspace: ScalarListboxOption = {
 /** Controls the visibility of the sidebar. */
 const isSidebarOpen = ref(false)
 
+const eventBus: NavigationEventBus = withNavigation(
+  events,
+  () => modalEvents.navigation,
+)
+
 /** Initialize modal events */
-initializeModalEvents({
+const modalEvents = initializeModalEvents({
   eventBus,
   isSidebarOpen,
   requestBodyCompositionSelection,
@@ -97,6 +110,9 @@ initializeModalEvents({
   modalState,
   store: workspaceStore,
 })
+
+onNavigationReady?.(modalEvents.navigation)
+onBeforeUnmount(modalEvents.dispose)
 
 /** Register global hotkeys for the app, passing the workspace event bus and layout state */
 useGlobalHotKeys(eventBus, 'modal', () => !modalState.open)

@@ -1,4 +1,4 @@
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { type MaybeRefOrGetter, onBeforeUnmount, onMounted, toValue } from 'vue'
 
 import { handleHotkeys } from '@/v2/helpers/handle-hotkeys'
@@ -12,7 +12,7 @@ import type { ClientLayout } from '@/v2/types/layout'
  * @param disableListeners - whether to disable the listeners
  */
 export const useGlobalHotKeys = (
-  eventBus: WorkspaceEventBus,
+  eventBus: NavigationEventBus,
   layout: ClientLayout,
   disableListeners?: MaybeRefOrGetter<boolean>,
 ): void => {

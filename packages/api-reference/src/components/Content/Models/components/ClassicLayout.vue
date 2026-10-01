@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   OpenApiDocument,
@@ -18,7 +18,7 @@ const { eventBus, id, options, document } = defineProps<{
   name: string
   schema: SchemaObject
   isCollapsed: boolean
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'>
   /** The document the model belongs to, used to resolve schema references for display */
   document?: OpenApiDocument
   options: Pick<

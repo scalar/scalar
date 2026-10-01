@@ -1,5 +1,5 @@
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedOperation, TraversedWebhook } from '@scalar/workspace-store/schemas/navigation'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -164,20 +164,9 @@ describe('OperationsListItem', () => {
   describe('interactions', () => {
     it('emits scrollToId event when link is clicked', async () => {
       const operation = createMockOperation()
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const testHandler = vi.fn()
-      eventBus.onNavigation({
-        'ui:open:settings': false,
-        'ui:open:client-modal': false,
-        'tabs:navigate:previous': false,
-        'tabs:navigate:next': false,
-        'tabs:focus:tab': false,
-        'tabs:focus:tab-last': false,
-        'select:nav-item': false,
-        'scroll-to:nav-item': testHandler,
-        'scroll-to:model-by-name': false,
-        'ui:navigate': false,
-      })
+      eventBus.on('scroll-to:nav-item', testHandler)
 
       const wrapper = mount(OperationsListItem, {
         props: {
@@ -198,20 +187,9 @@ describe('OperationsListItem', () => {
     it('prevents default link behavior', async () => {
       const operation = createMockOperation()
 
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const testHandler = vi.fn()
-      eventBus.onNavigation({
-        'ui:open:settings': false,
-        'ui:open:client-modal': false,
-        'tabs:navigate:previous': false,
-        'tabs:navigate:next': false,
-        'tabs:focus:tab': false,
-        'tabs:focus:tab-last': false,
-        'select:nav-item': false,
-        'scroll-to:nav-item': testHandler,
-        'scroll-to:model-by-name': false,
-        'ui:navigate': false,
-      })
+      eventBus.on('scroll-to:nav-item', testHandler)
       const wrapper = mount(OperationsListItem, {
         props: {
           operation,

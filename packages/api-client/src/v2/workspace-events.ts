@@ -1,5 +1,11 @@
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { ApiReferenceEvents, CollectionType, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type ApiReferenceEvents,
+  type CollectionType,
+  type Navigation,
+  type WorkspaceEventBus,
+  createNavigation,
+} from '@scalar/workspace-store/events'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import { type Ref, computed } from 'vue'
 
@@ -57,14 +63,11 @@ export function initializeWorkspaceEventHandlers({
   eventBus: WorkspaceEventBus
   store: Ref<WorkspaceStore | null>
   hooks: Hooks
-}): () => void {
+}): (() => void) & {
+  navigation: Navigation<'tabs:focus:tab' | 'tabs:focus:tab-last' | 'tabs:navigate:previous' | 'tabs:navigate:next'>
+} {
   const subscriptions: (() => void)[] = []
-  const eventBus: Pick<WorkspaceEventBus, 'on' | 'onNavigation'> = {
-    onNavigation: (handlers) => {
-      const unsubscribe = bus.onNavigation(handlers)
-      subscriptions.push(unsubscribe)
-      return unsubscribe
-    },
+  const eventBus: Pick<WorkspaceEventBus, 'on'> = {
     on: (event, listener) => {
       const unsubscribe = bus.on(event, listener)
       subscriptions.push(unsubscribe)
@@ -374,13 +377,7 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('tabs:close:other-tabs', (payload) =>
     withHook('tabs:close:other-tabs', mutators.value.workspace().tabs.closeOtherTabs, hooks)(payload),
   )
-  eventBus.onNavigation({
-    'select:nav-item': false,
-    'scroll-to:nav-item': false,
-    'scroll-to:model-by-name': false,
-    'ui:navigate': false,
-    'ui:open:settings': false,
-    'ui:open:client-modal': false,
+  const tabNavigation = createNavigation(bus, {
     'tabs:focus:tab': (payload) => withHook('tabs:focus:tab', mutators.value.workspace().tabs.focusTab, hooks)(payload),
     'tabs:focus:tab-last': (payload) =>
       withHook('tabs:focus:tab-last', mutators.value.workspace().tabs.focusLastTab, hooks)(payload),
@@ -399,5 +396,9 @@ export function initializeWorkspaceEventHandlers({
   eventBus.on('hooks:on:request:complete', (payload) =>
     withHook('hooks:on:request:complete', mutators.value.active().operation.addResponseToHistory, hooks)(payload),
   )
-  return () => subscriptions.splice(0).forEach((unsubscribe) => unsubscribe())
+  const dispose = () => {
+    subscriptions.splice(0).forEach((unsubscribe) => unsubscribe())
+    tabNavigation.dispose()
+  }
+  return Object.assign(dispose, { navigation: tabNavigation.navigation })
 }

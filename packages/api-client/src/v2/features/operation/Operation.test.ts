@@ -1,10 +1,10 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import { buildRequest, getExample, requestFactory } from '@scalar/workspace-store/request-example'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -16,7 +16,7 @@ import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vu
 import Operation, { type OperationProps } from './Operation.vue'
 
 describe('Operation', () => {
-  const eventBus = createWorkspaceEventBus()
+  const eventBus = createNavigationEventBus()
 
   const defaultNavigation = {
     type: 'document' as const,
@@ -139,7 +139,7 @@ describe('Operation', () => {
       const sourceParameter = getResolvedRef(document.components?.parameters?.Query)!
       const savedExample = () => getExample(sourceParameter, 'default', undefined)!
       await workspaceStore.externalExamples('test-document')(savedExample()).load()
-      const eventBus = createWorkspaceEventBus()
+      const eventBus = createNavigationEventBus()
       const mutators = generateClientMutators(workspaceStore).doc('test-document').operation
       eventBus.on('operation:upsert:parameter', mutators.upsertOperationParameter)
       eventBus.on('operation:delete:parameter', mutators.deleteOperationParameter)

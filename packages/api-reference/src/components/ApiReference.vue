@@ -48,7 +48,12 @@ import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  createNavigation,
+  createWorkspaceEventBus,
+  withNavigation,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
@@ -174,7 +179,10 @@ onMounted(() => {
   obtrusiveScrollbars.value = hasObtrusiveScrollbars()
 })
 
-const eventBus = createWorkspaceEventBus({ debug: isDevelopment })
+const eventBus: NavigationEventBus = withNavigation(
+  createWorkspaceEventBus({ debug: isDevelopment }),
+  () => navigation,
+)
 const isSidebarOpen = ref(false)
 
 /**
@@ -1560,13 +1568,7 @@ const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
   }
 }
 
-eventBus.onNavigation({
-  'ui:open:settings': false,
-  'ui:open:client-modal': false,
-  'tabs:navigate:previous': false,
-  'tabs:navigate:next': false,
-  'tabs:focus:tab': false,
-  'tabs:focus:tab-last': false,
+const referenceNavigation = createNavigation(eventBus, {
   'select:nav-item': ({ id }) => handleSelectSidebarEntry(id),
   'scroll-to:nav-item': ({ id }) => handleSelectSidebarEntry(id),
   'scroll-to:model-by-name': ({ name }) => {
@@ -1575,8 +1577,15 @@ eventBus.onNavigation({
       scrollToLazyElement(model)
     }
   },
-  'ui:navigate': false,
 })
+const navigation = {
+  ...referenceNavigation.navigation,
+  ...stopReferenceClientEvents.navigation,
+  ...apiClient.navigation,
+  'ui:navigate': false as const,
+  'ui:open:settings': false as const,
+}
+onBeforeUnmount(referenceNavigation.dispose)
 
 /**
  * Sentinel rendered at the very start of the document. Its position resolves which entry an

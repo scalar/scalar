@@ -7,10 +7,11 @@ import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { SelectedSecurity } from '@scalar/workspace-store/entities/auth'
-import type {
-  ApiReferenceEvents,
-  AuthMeta,
-  WorkspaceEventBus,
+import {
+  navigate as navigateCommand,
+  type ApiReferenceEvents,
+  type AuthMeta,
+  type NavigationEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
@@ -65,7 +66,7 @@ export type RequestBlockProps = {
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   exampleKey: string
   workspaceCookies: XScalarCookie[]
   documentCookies: XScalarCookie[]
@@ -621,7 +622,7 @@ const handleGenerateExample = ({
     return
   }
 
-  eventBus.emit('ui:navigate', {
+  navigateCommand(eventBus.navigation, 'ui:navigate', {
     page: 'example',
     documentSlug,
     path,

@@ -4,7 +4,7 @@ import { mergeSearchParams } from '@scalar/helpers/url/merge-urls'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { Theme } from '@scalar/themes'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { MaybeRefOrGetter } from 'vue'
@@ -32,7 +32,7 @@ export type RouteProps = {
   /** The currently active document */
   document: OpenApiDocument | null
   /** The workspace event bus */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** The layout of the client */
   layout: ClientLayout
   /** The API path currently selected (e.g. "/users/{id}") */

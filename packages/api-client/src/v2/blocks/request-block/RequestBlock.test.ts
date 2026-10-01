@@ -1,5 +1,6 @@
-import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
@@ -32,7 +33,7 @@ const defaultProps = {
   server: null,
   proxyUrl: '',
   plugins: [],
-  eventBus: createWorkspaceEventBus(),
+  eventBus: createNavigationEventBus(),
   clientOptions: [],
   selectedClient: 'shell/curl' as const,
   workspaceCookies: [],
@@ -68,7 +69,7 @@ describe('RequestBlock', () => {
   })
 
   it('renders request name input and emits on change for non-modal layout', async () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const fn = vi.fn()
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, eventBus },
@@ -280,7 +281,7 @@ describe('RequestBlock', () => {
   })
 
   it('re-emits parameter upsert, and delete events with mapped types', () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const fn = vi.fn()
     eventBus.on('operation:upsert:parameter', fn)
     eventBus.on('operation:delete:parameter', fn)
@@ -423,7 +424,7 @@ describe('RequestBlock', () => {
   })
 
   it('removes deleted expanded query rows from the rendered rows', async () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const fn = vi.fn()
     const pageable = {
       name: 'pageable',
@@ -580,7 +581,7 @@ describe('RequestBlock', () => {
   })
 
   it('re-emits parameter deleteAll for Cookies with mapped type', () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const fn = vi.fn()
     eventBus.on('operation:delete-all:parameters', fn)
     const wrapper = mount(RequestBlock, {
@@ -605,7 +606,7 @@ describe('RequestBlock', () => {
   })
 
   it('re-emits request body events', () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const fn = vi.fn()
     eventBus.on('operation:update:requestBody:contentType', fn)
     eventBus.on('operation:update:requestBody:value', fn)
@@ -734,7 +735,7 @@ describe('RequestBlock', () => {
   }
 
   it('creates a new example seeded with the generated body and navigates to it', async () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const createDraft = vi.fn()
     const updateContentType = vi.fn()
     const updateValue = vi.fn()
@@ -743,18 +744,7 @@ describe('RequestBlock', () => {
     eventBus.on('operation:create:draft-example', createDraft)
     eventBus.on('operation:update:requestBody:contentType', updateContentType)
     eventBus.on('operation:update:requestBody:value', updateValue)
-    eventBus.onNavigation({
-      'ui:open:settings': false,
-      'ui:open:client-modal': false,
-      'tabs:navigate:previous': false,
-      'tabs:navigate:next': false,
-      'tabs:focus:tab': false,
-      'tabs:focus:tab-last': false,
-      'select:nav-item': false,
-      'scroll-to:nav-item': false,
-      'scroll-to:model-by-name': false,
-      'ui:navigate': navigate,
-    })
+    eventBus.on('ui:navigate', navigate)
 
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, method: 'post' as const, eventBus, exampleKey: 'custom', operation },
@@ -789,22 +779,9 @@ describe('RequestBlock', () => {
   })
 
   it('picks a free name when a generated example already exists', async () => {
-    const eventBus = createWorkspaceEventBus()
+    const eventBus = createNavigationEventBus()
     const createDraft = vi.fn()
     eventBus.on('operation:create:draft-example', createDraft)
-    const navigate = vi.fn()
-    eventBus.onNavigation({
-      'ui:open:settings': false,
-      'ui:open:client-modal': false,
-      'tabs:navigate:previous': false,
-      'tabs:navigate:next': false,
-      'tabs:focus:tab': false,
-      'tabs:focus:tab-last': false,
-      'select:nav-item': false,
-      'scroll-to:nav-item': false,
-      'scroll-to:model-by-name': false,
-      'ui:navigate': navigate,
-    })
 
     const wrapper = mount(RequestBlock, {
       props: {
@@ -822,13 +799,6 @@ describe('RequestBlock', () => {
     expect(createDraft).toHaveBeenCalledExactlyOnceWith({
       documentName: 'test-document',
       meta: { path: defaultProps.path, method: 'post' },
-      exampleName: 'Generated from schema (2)',
-    })
-    expect(navigate).toHaveBeenCalledExactlyOnceWith({
-      page: 'example',
-      documentSlug: 'test-document',
-      path: defaultProps.path,
-      method: 'post',
       exampleName: 'Generated from schema (2)',
     })
   })

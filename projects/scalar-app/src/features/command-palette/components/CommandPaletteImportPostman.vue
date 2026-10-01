@@ -16,7 +16,10 @@ import { useLoadingState } from '@scalar/components/loading'
 import type { ConvertOptions } from '@scalar/postman-to-openapi'
 import { useToasts } from '@scalar/use-toasts'
 import { type WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
@@ -43,7 +46,7 @@ const {
 } = defineProps<{
   workspaceStore: WorkspaceStore
   /** Event bus for emitting import events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** Pre-filled collection JSON (e.g. from file pick or redirected paste) */
   inputValue: string
 }>()
@@ -124,7 +127,7 @@ const collisionsPathKeys = computed(() => {
 
 /** Navigate to a document in the workspace. */
 const navigateToDocument = (documentName: string): void => {
-  eventBus.emit('ui:navigate', {
+  navigateCommand(eventBus.navigation, 'ui:navigate', {
     page: 'document',
     path: 'overview',
     documentSlug: documentName,

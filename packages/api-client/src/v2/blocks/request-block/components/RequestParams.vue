@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarTooltip } from '@scalar/components/tooltip'
-import type {
-  ApiReferenceEvents,
-  WorkspaceEventBus,
+import {
+  canNavigate,
+  navigate as navigateCommand,
+  type ApiReferenceEvents,
+  type NavigationEventBus,
 } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { computed } from 'vue'
@@ -33,7 +35,7 @@ const {
   globalRoute?: string
   showAddRowPlaceholder?: boolean
   environment: XScalarEnvironment
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
 }>()
 
 const emit = defineEmits<{
@@ -104,12 +106,18 @@ const handleUpserRow = (index: number, payload: TableRowUpsertPayload) => {
       :data="rows"
       :environment="environment"
       :exampleKey="exampleKey"
-      :globalRoute="globalRoute"
+      :globalRoute="
+        canNavigate(eventBus.navigation, 'ui:navigate')
+          ? globalRoute
+          : undefined
+      "
       :invalidParams="invalidParams"
       :label="label"
       :showAddRowPlaceholder="showAddRowPlaceholder"
       @deleteRow="(index) => emit('delete', { index })"
-      @navigate="(route) => eventBus.emit('ui:navigate', route)"
+      @navigate="
+        (route) => navigateCommand(eventBus.navigation, 'ui:navigate', route)
+      "
       @selectPreset="(index, value) => emit('selectPreset', index, value)"
       @upsertRow="handleUpserRow" />
   </CollapsibleSection>

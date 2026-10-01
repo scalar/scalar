@@ -2,28 +2,9 @@ import { debounce } from '@scalar/helpers/general/debounce'
 
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 
-import type { ApiReferenceEvents, NavigationEvents } from './definitions'
+import type { ApiReferenceEvents } from './definitions'
 
 type Unsubscribe = () => void
-type NonNavigationEvent = Exclude<keyof ApiReferenceEvents, keyof NavigationEvents>
-
-/** A callback for every navigation command, or false for an unsupported command. */
-export type NavigationHandlers = {
-  [E in keyof NavigationEvents]: EventListener<E> | false
-}
-
-const navigationEvents = {
-  'select:nav-item': true,
-  'scroll-to:nav-item': true,
-  'scroll-to:model-by-name': true,
-  'ui:navigate': true,
-  'ui:open:settings': true,
-  'ui:open:client-modal': true,
-  'tabs:navigate:previous': true,
-  'tabs:navigate:next': true,
-  'tabs:focus:tab': true,
-  'tabs:focus:tab-last': true,
-} satisfies Record<keyof NavigationEvents, true>
 
 /**
  * Helper type for event listeners that makes the payload optional
@@ -83,14 +64,7 @@ type EmitParameters<E extends keyof ApiReferenceEvents> = undefined extends ApiR
  */
 export type WorkspaceEventBus = {
   /**
-   * Register every navigation command together. Missing commands fail type checking.
-   * Use false to explicitly disable commands this host does not support.
-   * Returns a function that removes the complete registration.
-   */
-  onNavigation(handlers: NavigationHandlers): Unsubscribe
-
-  /**
-   * Subscribe to a non-navigation event
+   * Subscribe to an event
    *
    * @param event - The event name to listen for
    * @param listener - Callback function that receives the event detail
@@ -104,7 +78,7 @@ export type WorkspaceEventBus = {
    * // Later, clean up
    * unsubscribe()
    */
-  on<E extends NonNavigationEvent>(event: E, listener: EventListener<E>): Unsubscribe
+  on<E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe
 
   /**
    * Remove a specific event listener
@@ -120,7 +94,7 @@ export type WorkspaceEventBus = {
   off<E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): void
 
   /**
-   * Subscribe to a non-navigation event, but only trigger the listener once.
+   * Subscribe to an event, but only trigger the listener once.
    * The listener is automatically removed after the first invocation.
    *
    * @param event - The event name to listen for
@@ -132,7 +106,7 @@ export type WorkspaceEventBus = {
    *   console.log('Fired once:', detail.value)
    * })
    */
-  once<E extends NonNavigationEvent>(event: E, listener: EventListener<E>): Unsubscribe
+  once<E extends keyof ApiReferenceEvents>(event: E, listener: EventListener<E>): Unsubscribe
 
   /**
    * Subscribe to every event emitted on the bus.
@@ -245,7 +219,6 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
    * Using a Set keeps add/remove O(1) and iteration order stable.
    */
   const anyListeners = new Set<AnyEventListener>()
-  const disabledNavigation = new Map<keyof NavigationEvents, number>()
 
   /**
    * Track pending log entries for batching
@@ -354,55 +327,9 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
     return () => offAny(listener)
   }
 
-  const onNavigation = (handlers: NavigationHandlers): Unsubscribe => {
-    for (const event of Object.keys(navigationEvents) as (keyof NavigationEvents)[]) {
-      if (handlers[event] !== false && typeof handlers[event] !== 'function') {
-        throw new Error(`[EventBus] Missing navigation handler for "${event}".`)
-      }
-    }
-    const unsubscribe: Unsubscribe[] = []
-    const register = <E extends keyof NavigationEvents>(event: E): void => {
-      const handler = handlers[event]
-      if (handler === false) {
-        disabledNavigation.set(event, (disabledNavigation.get(event) ?? 0) + 1)
-        unsubscribe.push(() => {
-          const remaining = (disabledNavigation.get(event) ?? 1) - 1
-          if (remaining === 0) {
-            disabledNavigation.delete(event)
-          } else {
-            disabledNavigation.set(event, remaining)
-          }
-        })
-      } else {
-        unsubscribe.push(on(event, handler as EventListener<E>))
-      }
-    }
-    for (const event of Object.keys(navigationEvents) as (keyof NavigationEvents)[]) {
-      register(event)
-    }
-    return () => {
-      for (const off of unsubscribe.splice(0)) {
-        off()
-      }
-    }
-  }
-
   const offAny = (listener: AnyEventListener): void => {
     anyListeners.delete(listener)
     log(`Removed wildcard listener (${anyListeners.size} remaining)`)
-  }
-
-  const assertNavigationHandled = (event: keyof ApiReferenceEvents): void => {
-    if (!Object.hasOwn(navigationEvents, event)) {
-      return
-    }
-    if (events.get(event)?.size) {
-      return
-    }
-    if (disabledNavigation.has(event as keyof NavigationEvents)) {
-      throw new Error(`[EventBus] Unsupported navigation command "${event}" for this host.`)
-    }
-    throw new Error(`[EventBus] Unhandled navigation command "${event}". Register onNavigation handlers for this host.`)
   }
 
   /**
@@ -420,8 +347,6 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
 
     const listeners = events.get(event)
     const hasExactListeners = listeners !== undefined && listeners.size > 0
-
-    assertNavigationHandled(event)
 
     if (!hasExactListeners && anyListeners.size === 0) {
       log(`🛑 No listeners for "${String(event)}"`)
@@ -475,20 +400,11 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
       return
     }
 
-    assertNavigationHandled(event)
-
     // Create a unique key for this event + debounce key combination
     const debounceMapKey = `${event}-${options.debounceKey}`
 
     // Pass the closure directly - debounce will store the latest version
-    debouncedEmitter(debounceMapKey, () => {
-      try {
-        performEmit(event, payload, options)
-      } catch (error) {
-        // The debounce executor catches errors, so report navigation failures here.
-        console.error(`[EventBus] Error in debounced event "${event}":`, error)
-      }
-    })
+    debouncedEmitter(debounceMapKey, () => performEmit(event, payload, options))
   }
 
   const flushDebouncedEmits = (): void => {
@@ -497,7 +413,6 @@ export const createWorkspaceEventBus = (options: EventBusOptions = {}): Workspac
 
   return {
     on,
-    onNavigation,
     once,
     off,
     onAny,

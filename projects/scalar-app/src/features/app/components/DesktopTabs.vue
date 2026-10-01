@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace/x-scalar-tabs'
 import { computed } from 'vue'
 
@@ -12,7 +15,7 @@ const { tabs, eventBus } = defineProps<{
   /** Current active tab index */
   activeTabIndex: number
   /** Workspace event bus for emitting tab-related events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus
 }>()
 
 /** Whether there is only a single tab open */
@@ -25,7 +28,7 @@ const handleAddTab = (): void => {
 
 /** Switches to the tab at the specified index */
 const switchTab = (index: number): void => {
-  eventBus.emit('tabs:focus:tab', { index })
+  navigateCommand(eventBus.navigation, 'tabs:focus:tab', { index })
 }
 
 /** Closes the tab at the specified index */

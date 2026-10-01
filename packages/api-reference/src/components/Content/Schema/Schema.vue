@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
@@ -81,7 +81,7 @@ const {
   /** Breadcrumb for the schema */
   breadcrumb?: string[]
   /** Event bus emitting actions */
-  eventBus: WorkspaceEventBus | null
+  eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
   /** Move the options into a single prop so they are easy to pass around */
   options: SchemaOptions
   /** When "requestBody", composition dropdown selection is synced with the example snippet */
@@ -452,10 +452,10 @@ const toggle = (): void => {
           :compact
           composition="oneOf"
           :compositionPath="compositionPath"
+          :depth="depth"
           :discriminator="schema?.discriminator"
           :eventBus="eventBus"
           :hideHeading
-          :depth="depth"
           :hideModelNames
           :level="level"
           :name="name"
@@ -468,10 +468,10 @@ const toggle = (): void => {
           :breadcrumb
           :compact
           :compositionPath="compositionPath"
+          :depth="depth"
           :discriminator
           :eventBus="eventBus"
           :hideHeading
-          :depth="depth"
           :hideModelNames
           :level="level + 1"
           :options
@@ -484,10 +484,10 @@ const toggle = (): void => {
             :breadcrumb
             :compact
             :compositionPath="compositionPath"
+            :depth="depth"
             :discriminator
             :eventBus="eventBus"
             :hideHeading
-            :depth="depth"
             :hideModelNames
             :level
             :options

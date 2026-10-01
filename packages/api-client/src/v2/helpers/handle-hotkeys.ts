@@ -1,5 +1,11 @@
 import { isMacOS } from '@scalar/helpers/general/is-mac-os'
-import type { ApiReferenceEvents, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type ApiReferenceEvents,
+  type NavigationEventBus,
+  canNavigate,
+  isNavigationEvent,
+  navigate,
+} from '@scalar/workspace-store/events'
 
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -89,7 +95,7 @@ const isEditableElement = (event: KeyboardEvent, key: string): boolean => {
  * @param eventBus - event bus for emitting hotkey actions
  * @param layout - client layout
  */
-export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus, layout: ClientLayout): void => {
+export const handleHotkeys = (event: KeyboardEvent, eventBus: NavigationEventBus, layout: ClientLayout): void => {
   /** Special case for space */
   const key = event.key === ' ' ? 'Space' : event.key
   /** Get the discriminated hotkey event with payload  */
@@ -102,15 +108,25 @@ export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus,
   // Default to sending the keyboard event as the payload
   const payload = { event }
 
+  const dispatch = (): void => {
+    if (isNavigationEvent(hotkeyEvent.event)) {
+      if (canNavigate(eventBus.navigation, hotkeyEvent.event)) {
+        navigate(eventBus.navigation, hotkeyEvent.event, payload)
+      }
+    } else {
+      eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    }
+  }
+
   // Escape always fires, regardless of context
   if (key === 'Escape') {
-    eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    dispatch()
     return
   }
 
   // If modifiers are pressed, fire the hotkey (even in input fields)
   if (areModifiersPressed(event, hotkeyEvent.modifiers)) {
-    eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    dispatch()
     return
   }
 
@@ -121,6 +137,6 @@ export const handleHotkeys = (event: KeyboardEvent, eventBus: WorkspaceEventBus,
 
   // Without modifiers, only fire if not in an editable element
   if (!isEditableElement(event, key)) {
-    eventBus.emit(hotkeyEvent.event, payload, { skipUnpackProxy: true })
+    dispatch()
   }
 }

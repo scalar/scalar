@@ -32,7 +32,10 @@ import {
   createWorkspaceStore,
   type WorkspaceStore,
 } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { computed, ref, watch } from 'vue'
 
 import { getOpenApiDocumentDetails } from '@/features/command-palette/helpers/get-openapi-document-details'
@@ -49,7 +52,7 @@ const { workspaceStore, eventBus, fileLoader, fetch } = defineProps<{
   /** The workspace store for adding documents */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** Loader plugin for file import */
   fileLoader?: LoaderPlugin
   /**
@@ -212,7 +215,7 @@ const handleImport = async (
 
 /** Navigate to the document overview page after successful import */
 const navigateToDocument = (documentName: string): void => {
-  eventBus.emit('ui:navigate', {
+  navigateCommand(eventBus.navigation, 'ui:navigate', {
     page: 'document',
     path: 'overview',
     documentSlug: documentName,

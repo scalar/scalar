@@ -8,9 +8,11 @@ import { migrateLocalStorageToIndexDb } from '@scalar/oas-utils/migrations'
 import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar/sidebar'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import {
+  type NavigationEventBus,
   type OperationExampleMeta,
-  type WorkspaceEventBus,
   createWorkspaceEventBus,
+  navigate,
+  withNavigation,
 } from '@scalar/workspace-store/events'
 import { generateUniqueValue } from '@scalar/workspace-store/helpers/generate-unique-value'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
@@ -164,7 +166,7 @@ export type AppState = {
     isTeamWorkspace: ComputedRef<boolean>
   }
   /** The workspace event bus for handling workspace-level events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus
   /** The router instance */
   router: Router
   /**
@@ -251,9 +253,12 @@ export const createAppState = async ({
   layout: Exclude<ClientLayout, 'modal'>
 }): Promise<AppState> => {
   /** Workspace event bus for handling workspace-level events. */
-  const eventBus = createWorkspaceEventBus({
-    debug: import.meta.env.DEV,
-  })
+  const eventBus: NavigationEventBus = withNavigation(
+    createWorkspaceEventBus({
+      debug: import.meta.env.DEV,
+    }),
+    () => navigation,
+  )
 
   const { workspace: persistence, meta: metaPersistence } = await createWorkspaceStorePersistence()
 
@@ -631,7 +636,7 @@ export const createAppState = async ({
    */
   const navigateToWorkspaceGetStarted = (workspaceId: string, activeTeamSlug: string): void => {
     const emitNavigation = (target: string, slug: string) => {
-      eventBus.emit('ui:navigate', {
+      navigate(eventBus.navigation, 'ui:navigate', {
         page: 'workspace',
         path: 'get-started',
         teamSlug: target,
@@ -1387,7 +1392,7 @@ export const createAppState = async ({
   // ---------------------------------------------------------------------------
   // Events handling
 
-  initializeAppEventHandlers({
+  const navigation = initializeAppEventHandlers({
     eventBus,
     router,
     store,
@@ -1399,6 +1404,17 @@ export const createAppState = async ({
     onToggleSidebar: () => (isSidebarOpen.value = !isSidebarOpen.value),
     closeSidebar: () => (isSidebarOpen.value = false),
     renameWorkspace,
+    onOpenSettings: (payload) => {
+      payload?.event.preventDefault()
+      const activeDocumentSlug = documentSlug.value
+      navigate(
+        eventBus.navigation,
+        'ui:navigate',
+        activeDocumentSlug
+          ? { page: 'document', path: 'settings', documentSlug: activeDocumentSlug }
+          : { page: 'workspace', path: 'settings' },
+      )
+    },
   })
 
   const isDarkMode = computed(() => {

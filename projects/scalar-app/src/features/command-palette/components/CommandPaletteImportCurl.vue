@@ -33,7 +33,10 @@ import { type ScalarComboboxOption } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarListbox } from '@scalar/components/listbox'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  navigate as navigateCommand,
+  type NavigationEventBus,
+} from '@scalar/workspace-store/events'
 import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, type ComputedRef } from 'vue'
@@ -44,7 +47,7 @@ const { workspaceStore, inputValue, eventBus } = defineProps<{
   /** The workspace store for accessing documents and operations */
   workspaceStore: WorkspaceStore
   /** Event bus for emitting operation creation events */
-  eventBus: WorkspaceEventBus
+  eventBus: NavigationEventBus<'ui:navigate'>
   /** The cURL command string to parse and import */
   inputValue: string
 }>()
@@ -161,7 +164,7 @@ const handleImportClick = (): void => {
         : `/${result.path}`
 
       // Navigate to the new example via the event bus rather than the router
-      eventBus.emit('ui:navigate', {
+      navigateCommand(eventBus.navigation, 'ui:navigate', {
         page: 'example',
         documentSlug: documentName.id,
         path: normalizedPath,

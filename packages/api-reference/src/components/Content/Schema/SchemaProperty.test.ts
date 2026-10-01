@@ -1,7 +1,7 @@
 import { ScalarListbox } from '@scalar/components/listbox'
-import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createNavigationEventBus } from '@test/create-navigation-event-bus'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -1416,7 +1416,7 @@ describe('SchemaProperty', () => {
     it('renders the model name as plain text when hideModels is enabled', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
-          eventBus: createWorkspaceEventBus(),
+          eventBus: createNavigationEventBus(),
           modelName: 'Planet',
           schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
           options: { hideModels: true },
@@ -1430,7 +1430,7 @@ describe('SchemaProperty', () => {
     it('renders the model name as plain text when the referenced model is hidden', () => {
       const wrapper = mount(SchemaProperty, {
         props: {
-          eventBus: createWorkspaceEventBus(),
+          eventBus: createNavigationEventBus(),
           modelName: 'Planet',
           schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
           options: {

@@ -1,6 +1,11 @@
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  type Navigation,
+  type OperationExampleMeta,
+  type WorkspaceEventBus,
+  createNavigation,
+} from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { type ShallowRef, computed } from 'vue'
 import { type NavigationFailure, NavigationFailureType, type Router } from 'vue-router'
@@ -19,6 +24,7 @@ export function initializeAppEventHandlers({
   onToggleSidebar,
   closeSidebar,
   renameWorkspace,
+  onOpenSettings,
 }: {
   eventBus: WorkspaceEventBus
   store: ShallowRef<WorkspaceStore | null>
@@ -31,7 +37,8 @@ export function initializeAppEventHandlers({
   onToggleSidebar: () => void
   closeSidebar: () => void
   renameWorkspace: (name: string) => Promise<void>
-}) {
+  onOpenSettings: (payload?: { event: KeyboardEvent }) => void
+}): Navigation {
   const currentRoute = computed(() => router.currentRoute?.value)
 
   /**
@@ -66,7 +73,7 @@ export function initializeAppEventHandlers({
     return true
   }
 
-  initializeWorkspaceEventHandlers({
+  const workspaceEvents = initializeWorkspaceEventHandlers({
     eventBus,
     store,
     hooks: {
@@ -290,6 +297,10 @@ export function initializeAppEventHandlers({
   eventBus.on('workspace:update:name', (payload) => renameWorkspace(payload))
 
   //------------------------------------------------------------------------------------
+  // Navigation Event Handlers
+  //------------------------------------------------------------------------------------
+
+  //------------------------------------------------------------------------------------
   // UI Related Event Handlers
   //------------------------------------------------------------------------------------
   // Note: Command palette handler is colocated with the command palette component
@@ -297,18 +308,11 @@ export function initializeAppEventHandlers({
   eventBus.on('ui:toggle:sidebar', onToggleSidebar)
 
   /**
-   * Bind internal navigation to the public API
+   * Bind the inernal navigation to a public api
    */
-  eventBus.onNavigation({
-    'ui:open:settings': false,
-    'ui:open:client-modal': false,
-    'tabs:navigate:previous': false,
-    'tabs:navigate:next': false,
-    'tabs:focus:tab': false,
-    'tabs:focus:tab-last': false,
-    'select:nav-item': false,
+  const appNavigation = createNavigation(eventBus, {
     'scroll-to:nav-item': ({ id }) => onSelectSidebarItem(id),
-    'scroll-to:model-by-name': false,
+    'ui:open:settings': onOpenSettings,
     'ui:navigate': async (payload) => {
       const { replace = false } = payload
       const fn = replace ? router.replace : router.push
@@ -414,4 +418,11 @@ export function initializeAppEventHandlers({
   // Tabs Related Event Handlers
   //------------------------------------------------------------------------------------
   eventBus.on('tabs:copy:url', (payload) => onCopyTabUrl(payload.index))
+  return {
+    ...workspaceEvents.navigation,
+    ...appNavigation.navigation,
+    'select:nav-item': false as const,
+    'scroll-to:model-by-name': false as const,
+    'ui:open:client-modal': false as const,
+  }
 }

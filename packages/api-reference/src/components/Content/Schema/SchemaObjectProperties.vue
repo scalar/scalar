@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { NavigationEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -26,7 +26,7 @@ const { schema, discriminator, options, schemaContext, compositionPath } =
     depth?: number
     hideModelNames?: boolean
     breadcrumb?: string[]
-    eventBus: WorkspaceEventBus | null
+    eventBus: NavigationEventBus<'scroll-to:model-by-name'> | null
     options: SchemaOptions
     schemaContext?: string
     compositionPath?: string[]
@@ -238,12 +238,12 @@ const getAdditionalPropertiesValue = (
       :compositionPath="compositionPath"
       :compositionPathSegment="row.name"
       :cycleKey="row.cycleKey"
+      :depth
       :description="row.description"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames
-      :depth
       :level
       :name="row.name"
       :options="options"
@@ -262,12 +262,12 @@ const getAdditionalPropertiesValue = (
       :compositionPath="compositionPath"
       :compositionPathSegment="key"
       :cycleKey="getCycleKey(property)"
+      :depth
       :description="getPropertyDescription(property)"
       :discriminator
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames="hideModelNames"
-      :depth
       :level
       :name="key"
       :options="options"
@@ -288,11 +288,11 @@ const getAdditionalPropertiesValue = (
         )
       "
       :cycleKey="getCycleKey(schema.additionalProperties)"
+      :depth
       :discriminator
       :eventBus="eventBus"
       :hideHeading
       :hideModelNames
-      :depth
       :level
       :name="
         getAdditionalPropertiesName(
