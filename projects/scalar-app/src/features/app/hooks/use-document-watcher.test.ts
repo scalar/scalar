@@ -64,9 +64,9 @@ describe('useDocumentWatcher', () => {
     useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
 
     await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.advanceTimersToNextTimerAsync()
-
-    expect(store.workspace.documents['default']?.info?.title).toBe('New updated API')
+    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'), {
+      interval: 0,
+    })
   })
 
   it('watches documents imported from a local file path through the file loader', async () => {
@@ -122,7 +122,9 @@ describe('useDocumentWatcher', () => {
     await vi.advanceTimersByTimeAsync(initialTimeout)
 
     // File reads resolve on the real event loop, so wait for the rebase to land
-    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'))
+    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'), {
+      interval: 0,
+    })
 
     await rm(directory, { recursive: true, force: true })
   })
@@ -233,10 +235,9 @@ describe('useDocumentWatcher', () => {
     await nextTick()
 
     await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.advanceTimersToNextTimerAsync()
+    await vi.waitFor(() => expect(store.workspace.documents['b']?.info?.title).toBe('Document B2'), { interval: 0 })
 
     expect(store.workspace.documents['a']?.info?.title).toBe('Document A1')
-    expect(store.workspace.documents['b']?.info?.title).toBe('Document B2')
   })
 
   it('does exponential backoff on failure', async () => {
@@ -268,19 +269,26 @@ describe('useDocumentWatcher', () => {
     assert(defaultDocument)
     defaultDocument['x-scalar-watch-mode'] = true
 
+    const rebase = vi.spyOn(store, 'rebaseDocument')
     const initialTimeout = 200
     useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
-    // Wait for the watcher to initialize
     await nextTick()
 
     await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.advanceTimersToNextTimerAsync()
+    // Let HTTP requests finish without advancing the polling clock.
+    await vi.waitFor(() => expect(rebase).toHaveBeenCalledTimes(1), { interval: 0 })
+    await rebase.mock.results[0]?.value
+    await nextTick()
+    expect(fn).toHaveBeenCalledTimes(2)
 
-    // Next attempt — triggers exponential backoff
-    await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.advanceTimersByTimeAsync(initialTimeout * 2)
-    await vi.advanceTimersToNextTimerAsync()
+    await vi.advanceTimersByTimeAsync(initialTimeout * 2 - 1)
+    expect(rebase).toHaveBeenCalledTimes(1)
+    expect(fn).toHaveBeenCalledTimes(2)
 
+    await vi.advanceTimersByTimeAsync(1)
+    await vi.waitFor(() => expect(rebase).toHaveBeenCalledTimes(2), { interval: 0 })
+    await rebase.mock.results[1]?.value
+    await nextTick()
     expect(fn).toHaveBeenCalledTimes(3)
   })
 })
