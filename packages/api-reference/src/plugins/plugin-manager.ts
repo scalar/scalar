@@ -1,3 +1,4 @@
+import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type {
   ApiReferencePlugin as OriginalApiReferencePlugin,
@@ -78,6 +79,9 @@ export const createPluginManager = ({ plugins = [], auth }: CreatePluginManagerP
   })
 
   return {
+    /** Markdown enhancements from explicitly registered plugins. */
+    getMarkdownRenderHooks: (): MarkdownRenderHook[] =>
+      Array.from(registeredPlugins.values()).flatMap((plugin) => (plugin.markdown ? [plugin.markdown] : [])),
     /**
      * Get all extensions with the given name from registered plugins
      */

@@ -61,7 +61,7 @@ export type { ScalarListboxOption } from './components/ScalarListbox'
 export { ScalarListbox, ScalarListboxCheckbox, ScalarListboxInput, ScalarListboxItem } from './components/ScalarListbox'
 export type { LoadingState } from './components/ScalarLoading'
 export { ScalarLoading, useLoadingState } from './components/ScalarLoading'
-export { ScalarMarkdown, ScalarMarkdownSummary } from './components/ScalarMarkdown'
+export { MARKDOWN_RENDER_HOOKS, ScalarMarkdown, ScalarMarkdownSummary } from './components/ScalarMarkdown'
 export type { ScalarMenuTeamOption, WorkspaceGroup } from './components/ScalarMenu'
 export {
   ScalarMenu,

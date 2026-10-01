@@ -1,3 +1,4 @@
+import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import type { PartialDeep } from 'type-fest'
 
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
@@ -233,6 +234,8 @@ export type ApiReferencePlugin = () => {
   }
   hooks?: LifecycleHooks
   apiClientPlugins?: any[]
+  /** Enhance sanitized Markdown after it renders in the browser. */
+  markdown?: MarkdownRenderHook
 }
 
 export type ExternalUrls = {

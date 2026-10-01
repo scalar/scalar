@@ -4,6 +4,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { createPluginManager } from './plugin-manager'
 
 describe('plugin-manager', () => {
+  it('exposes Markdown hooks only from registered plugins', () => {
+    const markdown = vi.fn()
+    expect(createPluginManager({}).getMarkdownRenderHooks()).toStrictEqual([])
+    expect(
+      createPluginManager({
+        plugins: [() => ({ name: 'diagrams', extensions: [], markdown })],
+      }).getMarkdownRenderHooks(),
+    ).toStrictEqual([markdown])
+  })
+
   describe('createPluginManager', () => {
     it('initializes with no plugins', () => {
       const manager = createPluginManager({})
