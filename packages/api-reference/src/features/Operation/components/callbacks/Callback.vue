@@ -35,6 +35,7 @@ const { method, name, url, options, document, breadcrumb } = defineProps<{
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
     | 'schemaKeyboardNav'
+    | 'showExtensions'
   >
 }>()
 

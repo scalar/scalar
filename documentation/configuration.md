@@ -653,7 +653,7 @@ Whether to show the dark mode toggle.
 
 ### showExtensions
 
-Display selected operation-level OpenAPI extensions without writing a plugin. Disabled by default.
+Display selected OpenAPI extensions on operations, parameters, response headers, and schema fields without writing a plugin. Disabled by default.
 Works in both layouts and the standalone browser build:
 
 ```js
@@ -664,10 +664,10 @@ Scalar.createApiReference('#app', {
 ```
 
 Keys must start with `x-`. Selected keys appear in configuration order, using the exact key as the label.
-Values appear as schema-style property rows with type labels. Arrays and objects expand into nested rows, with array indices identifying individual items. Top-level values start expanded; nested collections can be expanded with the disclosure button.
+Values appear as compact schema-style rows. Arrays show their values without type labels or visible indices, and objects show their property names. Top-level values start expanded; nested collections can be expanded with the disclosure button.
 Missing keys are omitted; `false`, `0`, `null`, and empty arrays or objects remain visible. Values are displayed as text, not HTML or Markdown.
 
-This option applies only to operations, not extensions on schemas, parameters, or the API description root.
+The same selection applies to fields in request and response bodies and the Models section, including nested fields. Extensions on the API description root, tags, and response objects are not displayed.
 It does not change authentication behavior. Existing plugin components take precedence for keys they render.
 
 ### showOperationId

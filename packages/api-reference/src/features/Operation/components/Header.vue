@@ -17,6 +17,7 @@ const {
   orderRequiredPropertiesFirst,
   expandAllSchemaProperties,
   schemaKeyboardNav,
+  showExtensions,
   hideModels,
 } = defineProps<{
   header: HeaderObject
@@ -31,6 +32,8 @@ const {
   expandAllSchemaProperties: boolean | undefined
   /** Whether arrow-key navigation is enabled */
   schemaKeyboardNav: boolean | undefined
+  /** Selected extensions to display on the header and its schema. */
+  showExtensions?: string[]
   /** Whether the models section is hidden, so model names render as plain text instead of links */
   hideModels: boolean | undefined
 }>()
@@ -41,12 +44,14 @@ const {
     :breadcrumb="breadcrumb"
     :description="header.description"
     :eventBus="eventBus"
+    :extensionSource="header"
     :name="name"
     :options="{
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,
       orderSchemaPropertiesBy: orderSchemaPropertiesBy,
       expandAllSchemaProperties: expandAllSchemaProperties,
       schemaKeyboardNav: schemaKeyboardNav,
+      showExtensions,
       hideModels: hideModels,
       document,
     }"

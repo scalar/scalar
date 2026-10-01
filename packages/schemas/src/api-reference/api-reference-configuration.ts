@@ -89,7 +89,7 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     showExtensions: optional(array(string()), {
       typeComment:
-        'Operation-level extension keys to display. Keys must start with x-. Custom plugin components take precedence.',
+        'Extension keys to display on operations, parameters, response headers, and schema fields. Keys must start with x-. Custom plugin components take precedence.',
     }),
     showOperationId: boolean({
       default: false,

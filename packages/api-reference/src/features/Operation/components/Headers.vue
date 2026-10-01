@@ -29,6 +29,8 @@ const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
     expandAllSchemaProperties: boolean | undefined
     /** Whether arrow-key navigation is enabled */
     schemaKeyboardNav?: boolean | undefined
+    /** Selected extensions to display on response headers. */
+    showExtensions?: string[]
     /** Whether the models section is hidden, so model names render as plain text instead of links */
     hideModels: boolean | undefined
   }>()
@@ -153,7 +155,8 @@ const countLabel = computed(() =>
             :name="key"
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
             :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-            :schemaKeyboardNav="schemaKeyboardNav" />
+            :schemaKeyboardNav="schemaKeyboardNav"
+            :showExtensions="showExtensions" />
         </template>
       </ul>
     </SchemaRailPanel>

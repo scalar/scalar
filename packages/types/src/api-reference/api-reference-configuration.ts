@@ -129,7 +129,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default false
    */
   showOperationId: z.boolean().optional().default(false).catch(false),
-  /** Operation-level extension keys to display. Custom plugin components take precedence. */
+  /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions: z.array(z.string().regex(/^x-/)).optional(),
   /** Whether dark mode is on or off initially (light mode) */
   darkMode: z.boolean().optional(),

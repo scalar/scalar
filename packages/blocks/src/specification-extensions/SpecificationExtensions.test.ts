@@ -4,16 +4,16 @@ import { describe, expect, it } from 'vitest'
 import SpecificationExtensions from './SpecificationExtensions.vue'
 
 describe('SpecificationExtensions', () => {
-  it('displays typed rows for strings, arrays, and objects', () => {
+  it('displays names and values without type annotations', () => {
     const wrapper = mount(SpecificationExtensions, {
       props: { extensions: { 'x-scopes': ['read', 'write'], 'x-policy': { enabled: false } } },
     })
     expect(wrapper.findAll('dt').map((row) => row.text())).toStrictEqual([
-      'x-scopesarray[2]',
-      '[0]string',
-      '[1]string',
-      'x-policyobject',
-      'enabledboolean',
+      'x-scopes',
+      '[0]',
+      '[1]',
+      'x-policy',
+      'enabled:',
     ])
     expect(wrapper.findAll('code').map((row) => row.text())).toStrictEqual(['"read"', '"write"', 'false'])
   })

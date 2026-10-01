@@ -52,6 +52,7 @@ const {
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
     | 'schemaKeyboardNav'
+    | 'showExtensions'
   >
 }>()
 
@@ -398,6 +399,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           is="div"
           :breadcrumb="schemaBreadcrumb"
           compact
+          :extensionSource="'in' in parameter ? parameter : undefined"
           :description="
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
           "
@@ -412,6 +414,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
             orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
             expandAllSchemaProperties: options.expandAllSchemaProperties,
             schemaKeyboardNav: options.schemaKeyboardNav,
+            showExtensions: options.showExtensions,
             hideModels: options.hideModels,
             document,
           }"
@@ -446,7 +449,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :hideModels="options.hideModels"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
-          :schemaKeyboardNav="options.schemaKeyboardNav" />
+          :schemaKeyboardNav="options.schemaKeyboardNav"
+          :showExtensions="options.showExtensions" />
       </component>
       <div
         v-if="shouldCollapse && content"

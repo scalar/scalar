@@ -11,7 +11,7 @@ const { extensions } = defineProps<{
 <template>
   <dl
     v-if="Object.keys(extensions).length"
-    class="my-3 min-w-0 text-base">
+    class="my-2 min-w-0 text-base">
     <ExtensionValue
       v-for="(value, name) in extensions"
       :key="name"

@@ -89,6 +89,8 @@ const props = withDefaults(
   defineProps<{
     is?: string | Component
     schema: SchemaObject | undefined
+    /** Extensions on the containing parameter or header; schema values take precedence. */
+    extensionSource?: Record<string, unknown>
     noncollapsible?: boolean
     level?: number
     /**
@@ -379,8 +381,14 @@ const compositionsToRender = computed(() =>
  * plugin registers still renders. `optimizedValue` is a plain shallow copy, so the loop
  * reads no reactive proxy.
  */
+const extensionValue = computed(() =>
+  props.extensionSource
+    ? { ...props.extensionSource, ...optimizedValue.value }
+    : optimizedValue.value,
+)
+
 const hasSpecificationExtensions = computed((): boolean => {
-  const value = optimizedValue.value
+  const value = extensionValue.value
 
   if (!value || typeof value !== 'object') {
     return false
@@ -1170,7 +1178,8 @@ const onBeforeMatch = (): void => {
       :schemaContext="schemaContext" />
     <SpecificationExtension
       v-if="hasSpecificationExtensions"
-      :value="optimizedValue" />
+      :showExtensions="options.showExtensions"
+      :value="extensionValue" />
   </component>
 </template>
 

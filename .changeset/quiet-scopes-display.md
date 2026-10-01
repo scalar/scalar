@@ -5,4 +5,4 @@
 '@scalar/schemas': minor
 ---
 
-Add a showExtensions allowlist to display operation-level OpenAPI extensions without a custom plugin, with a schema-style value tree from the blocks package.
+Add a showExtensions allowlist to display OpenAPI extensions on operations, parameters, response headers, and schema fields without a custom plugin, with a schema-style value tree from the blocks package.

@@ -36,6 +36,7 @@ const { requestBody, options, document } = defineProps<{
     hideModels: boolean | undefined
     expandAllSchemaProperties: boolean | undefined
     schemaKeyboardNav: boolean | undefined
+    showExtensions?: string[]
   }
 }>()
 const { translate } = useLocalization()
@@ -247,6 +248,7 @@ const shouldRenderRequestBody = computed(
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
           schemaKeyboardNav: options.schemaKeyboardNav,
+          showExtensions: options.showExtensions,
           hideModels: options.hideModels,
           document,
         }"
@@ -267,6 +269,7 @@ const shouldRenderRequestBody = computed(
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
           schemaKeyboardNav: options.schemaKeyboardNav,
+          showExtensions: options.showExtensions,
           hideModels: options.hideModels,
           document,
         }"
@@ -292,6 +295,7 @@ const shouldRenderRequestBody = computed(
           orderSchemaPropertiesBy: options.orderSchemaPropertiesBy,
           expandAllSchemaProperties: options.expandAllSchemaProperties,
           schemaKeyboardNav: options.schemaKeyboardNav,
+          showExtensions: options.showExtensions,
           hideModels: options.hideModels,
           document,
         }"

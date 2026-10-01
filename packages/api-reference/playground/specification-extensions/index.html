@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>Directory API · Specification Extensions</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script
+      src="../../src/standalone.ts"
+      type="module"></script>
+    <script type="module">
+      Scalar.createApiReference('#app', {
+        showExtensions: [
+          'x-scopes',
+          'x-metadata',
+          'x-rules',
+          'x-owner',
+          'x-sensitive',
+        ],
+        showDeveloperTools: 'never',
+        layout:
+          new URLSearchParams(location.search).get('layout') === 'classic'
+            ? 'classic'
+            : 'modern',
+        content: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Directory API',
+            version: '1.0.0',
+            description: 'Browse team directories and their access policies.',
+          },
+          paths: {
+            '/directories': {
+              post: {
+                summary: 'Create a directory',
+                requestBody: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          name: {
+                            'type': 'string',
+                            'x-owner': 'Directory team',
+                            'x-sensitive': false,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                responses: { 201: { description: 'Directory created.' } },
+              },
+              get: {
+                'summary': 'List directories',
+                'description':
+                  'Returns the directories available to the current user.',
+                'x-scopes': ['directories', 'directories.readonly'],
+                'x-metadata': {
+                  owner: 'Platform',
+                  policy: { enabled: false, retries: 0 },
+                },
+                'x-rules': [{ roles: ['admin', 'reader'], limit: 100 }],
+                'parameters': [
+                  {
+                    'x-owner': 'Pagination team',
+                    'name': 'limit',
+                    'in': 'query',
+                    'description': 'Maximum number of directories to return.',
+                    'schema': { type: 'integer', default: 20 },
+                  },
+                ],
+                'responses': {
+                  200: {
+                    description: 'A list of directories.',
+                    headers: {
+                      'X-Request-Id': {
+                        'x-owner': 'Gateway team',
+                        'schema': { 'type': 'string', 'x-sensitive': false },
+                      },
+                    },
+                    content: {
+                      'application/json': {
+                        schema: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'string', example: 'dir_123' },
+                              name: {
+                                'type': 'string',
+                                'example': 'Engineering',
+                                'x-sensitive': false,
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+    </script>
+  </body>
+</html>

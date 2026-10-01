@@ -700,7 +700,7 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
-  /** Operation-level extension keys to display. Custom plugin components take precedence. */
+  /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
