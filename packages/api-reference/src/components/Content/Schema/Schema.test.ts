@@ -2155,9 +2155,46 @@ describe('Schema', () => {
       expect(wrapper.find('ul[role="presentation"]').exists()).toBe(false)
     })
   })
-  it.each([false, true])(
-    'keeps nested allOf choices inside the data disclosure with expandAll=%s (#10454)',
-    async (expandAllSchemaProperties) => {
+  it.each(
+    (['oneOf', 'anyOf'] as const).flatMap((firstChoice) =>
+      (['oneOf', 'anyOf'] as const).flatMap((secondChoice) =>
+        [false, true].flatMap((referenced) =>
+          [false, true].map((expandAllSchemaProperties) => ({
+            firstChoice,
+            secondChoice,
+            referenced,
+            expandAllSchemaProperties,
+          })),
+        ),
+      ),
+    ),
+  )(
+    'keeps $firstChoice/$secondChoice inside data (referenced=$referenced, expanded=$expandAllSchemaProperties)',
+    async ({ firstChoice, secondChoice, referenced, expandAllSchemaProperties }) => {
+      const choices = {
+        allOf: [
+          {
+            [firstChoice]: [
+              {
+                type: 'object',
+                title: 'Use tags',
+                properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
+              },
+              { type: 'object', title: 'Empty', properties: {} },
+            ],
+          },
+          {
+            [secondChoice]: [
+              {
+                type: 'object',
+                title: 'Add tags',
+                properties: { userAddTags: { type: 'array', items: { type: 'string' } } },
+              },
+              { type: 'object', title: 'Empty', properties: {} },
+            ],
+          },
+        ],
+      }
       const store = createWorkspaceStore()
       await store.addDocument({
         name: 'nestedChoices',
@@ -2167,30 +2204,7 @@ describe('Schema', () => {
           paths: {},
           components: {
             schemas: {
-              TagsLastUpdated: {
-                allOf: [
-                  {
-                    anyOf: [
-                      {
-                        type: 'object',
-                        title: 'Use tags',
-                        properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
-                      },
-                      { type: 'object', title: 'Empty', properties: {} },
-                    ],
-                  },
-                  {
-                    anyOf: [
-                      {
-                        type: 'object',
-                        title: 'Add tags',
-                        properties: { userAddTags: { type: 'array', items: { type: 'string' } } },
-                      },
-                      { type: 'object', title: 'Empty', properties: {} },
-                    ],
-                  },
-                ],
-              },
+              TagsLastUpdated: choices,
               Response: {
                 type: 'object',
                 properties: {
@@ -2198,7 +2212,7 @@ describe('Schema', () => {
                   data: {
                     allOf: [
                       { type: 'object', properties: { userName: { type: 'string' } } },
-                      { $ref: '#/components/schemas/TagsLastUpdated' },
+                      referenced ? { $ref: '#/components/schemas/TagsLastUpdated' } : choices,
                     ],
                   },
                 },
@@ -2260,10 +2274,108 @@ describe('Schema', () => {
       expect(panel.text()).not.toContain('userUseTags')
       expect(panel.text()).toContain('userAddTags')
       expect(panel.text()).toContain('userName')
+      pickers[1]!.vm.$emit('update:modelValue', { id: '1', label: 'Empty' })
+      await nextTick()
+      expect(panel.text()).not.toContain('userAddTags')
+      expect(panel.text()).not.toContain('userUseTags')
+      expect(panel.text()).toContain('userName')
+      pickers[0]!.vm.$emit('update:modelValue', { id: '0', label: 'Use tags' })
+      await nextTick()
+      expect(panel.text()).toContain('userUseTags')
+      expect(panel.text()).not.toContain('userAddTags')
       await toggle.trigger('click')
       expect(toggle.attributes('aria-expanded')).toBe('false')
       expect(panel.element.hasAttribute('hidden')).toBe(true)
+      await toggle.trigger('click')
+      expect(panel.text()).toContain('userUseTags')
+      expect(panel.text()).not.toContain('userAddTags')
       wrapper.unmount()
     },
   )
+  it.each(
+    (['oneOf', 'anyOf'] as const).flatMap((choice) =>
+      (['nested property', 'array items', 'outer choice'] as const).flatMap((container) =>
+        [false, true].map((baseLast) => ({ choice, container, baseLast })),
+      ),
+    ),
+  )('keeps $choice fields under $container with baseLast=$baseLast', async ({ choice, container, baseLast }) => {
+    const base = { type: 'object', required: ['shared'], properties: { shared: { type: 'string' } } }
+    const variants = {
+      [choice]: [
+        { type: 'object', title: 'First', properties: { first: { type: 'string' } } },
+        { type: 'object', title: 'Second', properties: { second: { type: 'integer' } } },
+      ],
+    }
+    const composed = { allOf: baseLast ? [variants, base] : [base, variants] }
+    const data = {
+      'nested property': { type: 'object', properties: { payload: composed } },
+      'array items': { type: 'array', items: composed },
+      'outer choice': {
+        [choice]: [
+          { type: 'object', title: 'Composed', properties: { payload: composed } },
+          { type: 'object', title: 'Other', properties: { other: { type: 'boolean' } } },
+        ],
+      },
+    }[container]
+    const wrapper = mount(Schema, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: { data, sibling: { type: 'string' } },
+        }),
+        eventBus: null,
+        noncollapsible: true,
+        breadcrumb: ['response'],
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    const rows = (): { name: string | undefined; depth: number | undefined }[] =>
+      wrapper
+        .findAllComponents(SchemaProperty)
+        .filter((row) => ['shared', 'first', 'second', 'sibling', 'other'].includes(row.props('name') ?? ''))
+        .map((row) => ({ name: row.props('name'), depth: row.props('depth') }))
+    const shared = wrapper.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'shared')!
+    const depth = container === 'array items' ? 1 : 2
+    expect(shared.props('required')).toBe(true)
+    expect(shared.props('breadcrumb')).toStrictEqual(
+      container === 'array items' ? undefined : ['response', 'data', 'payload'],
+    )
+    expect(rows()).toStrictEqual([
+      ...(baseLast
+        ? [
+            { name: 'first', depth: depth + 1 },
+            { name: 'shared', depth },
+          ]
+        : [
+            { name: 'shared', depth },
+            { name: 'first', depth: depth + 1 },
+          ]),
+      { name: 'sibling', depth: 0 },
+    ])
+    const pickers = wrapper.findAllComponents({ name: 'ScalarListbox' })
+    const innerPicker = pickers[container === 'outer choice' ? 1 : 0]!
+    innerPicker.vm.$emit('update:modelValue', { id: '1', label: 'Second' })
+    await nextTick()
+    expect(rows()).toStrictEqual([
+      ...(baseLast
+        ? [
+            { name: 'second', depth: depth + 1 },
+            { name: 'shared', depth },
+          ]
+        : [
+            { name: 'shared', depth },
+            { name: 'second', depth: depth + 1 },
+          ]),
+      { name: 'sibling', depth: 0 },
+    ])
+    if (container === 'outer choice') {
+      pickers[0]!.vm.$emit('update:modelValue', { id: '1', label: 'Other' })
+      await nextTick()
+      expect(rows()).toStrictEqual([
+        { name: 'other', depth: 1 },
+        { name: 'sibling', depth: 0 },
+      ])
+    }
+    wrapper.unmount()
+  })
 })
