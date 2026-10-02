@@ -1026,6 +1026,7 @@ describe('operationToHar', () => {
         {
           name: 'file',
           value: '@filename',
+          fileName: 'filename',
         },
         {
           name: 'description',

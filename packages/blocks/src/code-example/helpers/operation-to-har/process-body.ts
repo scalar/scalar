@@ -35,6 +35,29 @@ type ProcessBodyProps = Pick<
 type MultipartEncodingMap = MediaTypeObject['encoding']
 
 /**
+ * Builds a HAR param for an uploaded file. `fileName` is what snippet generators read to emit real
+ * file handling (for example `files=` in Python or `new Blob` in fetch). `value` keeps the
+ * `@filename` placeholder for consumers that only read the text value.
+ */
+const buildFileParam = (name: string, fileName: string, contentType?: string): Param => ({
+  name,
+  value: `@${fileName}`,
+  fileName,
+  ...(contentType ? { contentType } : {}),
+})
+
+/** True when the schema describes a binary file (`type: string, format: binary`). */
+const isBinarySchema = (schema: SchemaObject | undefined): boolean =>
+  !!schema && 'type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary'
+
+/**
+ * Example generation turns a binary property into the `@filename` placeholder string.
+ * Use the schema to tell that apart from a normal text field that happens to start with `@`.
+ */
+const getBinaryPlaceholderFileName = (value: unknown, schema: SchemaObject | undefined): string | undefined =>
+  typeof value === 'string' && value.startsWith('@') && isBinarySchema(schema) ? value.slice(1) : undefined
+
+/**
  * Converts a form-data body into HAR `Param[]` entries for `multipart/form-data`
  * and `application/x-www-form-urlencoded` requests.
  *
@@ -80,9 +103,13 @@ const objectToFormParams = (
       const arrayParts = serializeMultipartArray(key, Array.isArray(restored) ? restored : value, partEncoding)
       if (arrayParts) {
         for (const part of arrayParts) {
+          if (part.value instanceof File) {
+            params.push(buildFileParam(part.key, part.value.name, part.contentType))
+            continue
+          }
           params.push({
             name: part.key,
-            value: part.value instanceof File ? `@${part.value.name}` : part.value,
+            value: part.value,
             ...(part.contentType ? { contentType: part.contentType } : {}),
           })
         }
@@ -114,6 +141,8 @@ const objectToFormParams = (
      * then fall through to the dedicated branches below. HAR represents multipart and urlencoded
      * the same way via `PostData.params`, so the resulting parts work for both.
      */
+    const binaryPlaceholderFileName =
+      isMultipart && !parentKey ? getBinaryPlaceholderFileName(value, resolveLeafSchema(schema, [key])) : undefined
     const styleParams = parentKey ? null : serializeFormPropertyWithEncoding(key, value, partEncoding)
     if (styleParams) {
       for (const param of styleParams) {
@@ -125,11 +154,10 @@ const objectToFormParams = (
        * attached file. Picked up by snippet renderers downstream (e.g. `--form 'x=@file.png'`).
        */
       const file = unpackProxyObject(value)
-      params.push({
-        name: key,
-        value: `@${file.name}`,
-        ...(explicitContentType ? { contentType: explicitContentType } : {}),
-      })
+      params.push(buildFileParam(key, file.name, explicitContentType))
+    } else if (binaryPlaceholderFileName !== undefined) {
+      /** A binary property filled in by example generation, so it is a file and not a text field. */
+      params.push(buildFileParam(key, binaryPlaceholderFileName, explicitContentType))
     } else if (explicitContentType && typeof value === 'object') {
       /**
        * Per OAS 3.1.x Encoding Object: an explicit `encoding[key].contentType` on a
@@ -157,7 +185,7 @@ const objectToFormParams = (
       for (const item of value) {
         if (item instanceof File) {
           const file = unpackProxyObject(item)
-          params.push({ name: key, value: `@${file.name}` })
+          params.push(buildFileParam(key, file.name))
         } else {
           params.push({ name: key, value: String(item) })
         }
@@ -306,7 +334,13 @@ export const processBody = ({
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
           mimeType: harMimeType,
-          params: objectToFormParams(extractedExample, encoding, undefined, _contentType === 'multipart/form-data'),
+          params: objectToFormParams(
+            extractedExample,
+            encoding,
+            undefined,
+            _contentType === 'multipart/form-data',
+            resolvedContentSchema,
+          ),
         }
       }
 

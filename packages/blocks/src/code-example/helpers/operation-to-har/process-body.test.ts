@@ -937,6 +937,7 @@ describe('processBody', () => {
           {
             name: 'file',
             value: '@filename',
+            fileName: 'filename',
           },
           {
             name: 'name',
@@ -980,7 +981,7 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'file', value: '@mars.jpg' },
+          { name: 'file', value: '@mars.jpg', fileName: 'mars.jpg' },
           { name: 'name', value: 'Mars Rover Photo' },
           { name: 'category', value: 'space' },
           {
@@ -1160,7 +1161,7 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'file', value: '@filename' },
+          { name: 'file', value: '@filename', fileName: 'filename' },
           {
             name: 'props',
             value: JSON.stringify({ name: '', description: '', created_at: null }),
@@ -1682,8 +1683,8 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'attachments', value: '@a.txt' },
-          { name: 'attachments', value: '@b.txt' },
+          { name: 'attachments', value: '@a.txt', fileName: 'a.txt' },
+          { name: 'attachments', value: '@b.txt', fileName: 'b.txt' },
         ],
       })
     })
@@ -1760,6 +1761,80 @@ describe('processBody', () => {
           { name: 'notes', value: 'Important document' },
         ],
       })
+    })
+
+    it('sets fileName on a binary property so snippet generators emit a real file upload (issue #10455)', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            required: ['upload'],
+            properties: {
+              upload: { type: 'string', format: 'binary' },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result?.params).toEqual([{ name: 'upload', value: '@filename', fileName: 'filename' }])
+
+      const python = snippetz().print('python', 'requests', {
+        method: 'POST',
+        url: 'https://api.example.invalid/upload/',
+        postData: result,
+      })
+      expect(python).toContain('files=')
+      expect(python).toContain('open("filename", "rb")')
+      expect(python).not.toContain('@filename')
+    })
+
+    it('keeps a text property that starts with @ as a text field', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              handle: { type: 'string', example: '@scalar' },
+              upload: { type: 'string', format: 'binary' },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result?.params).toEqual([
+        { name: 'handle', value: '@scalar' },
+        { name: 'upload', value: '@filename', fileName: 'filename' },
+      ])
+    })
+
+    it('does not treat an @ string as a file in urlencoded bodies', () => {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              upload: { type: 'string', format: 'binary' },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/x-www-form-urlencoded',
+      })
+
+      expect(result?.params?.[0]?.fileName).toBeUndefined()
     })
   })
 
@@ -2413,7 +2488,7 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'scalar.jpeg', value: '@scalar.jpeg' },
+          { name: 'scalar.jpeg', value: '@scalar.jpeg', fileName: 'scalar.jpeg' },
           { name: 'test', value: 'me' },
         ],
       })
