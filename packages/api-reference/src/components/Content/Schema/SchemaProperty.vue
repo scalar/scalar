@@ -378,7 +378,7 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  hasObjectComposition.value
+  isCyclicProperty.value || hasObjectComposition.value
     ? []
     : getCompositionsToRender(
         optimizedValue.value,

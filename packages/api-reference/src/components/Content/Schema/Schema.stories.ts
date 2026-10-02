@@ -1,3 +1,6 @@
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
@@ -148,4 +151,52 @@ export const NestedAllOfChoices: Story = {
       },
     }),
   },
+}
+
+/** A recursive composed child stays a leaf, including its choices. */
+export const RecursiveAllOfChoices: Story = {
+  args: {
+    name: 'Response',
+    eventBus: null,
+    options: { expandAllSchemaProperties: true },
+  },
+  loaders: [
+    async () => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'recursive',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Recursive choices', version: '1' },
+          paths: {},
+          components: {
+            schemas: {
+              Node: {
+                allOf: [
+                  { type: 'object', properties: { next: { $ref: '#/components/schemas/Node' } } },
+                  {
+                    anyOf: [
+                      { type: 'object', title: 'Value', properties: { value: { type: 'string' } } },
+                      { type: 'object', title: 'Empty', properties: {} },
+                    ],
+                  },
+                ],
+              },
+              Response: { type: 'object', properties: { data: { $ref: '#/components/schemas/Node' } } },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.recursive
+      if (!document || !isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+      return { schema: getResolvedRef(document.components?.schemas?.Response) }
+    },
+  ],
+  render: (args, { loaded }) => ({
+    components: { Schema },
+    setup: () => ({ args, schema: loaded.schema }),
+    template: '<div class="w-[600px] bg-b-1 p-8"><Schema v-bind="args" :schema="schema" /></div>',
+  }),
 }

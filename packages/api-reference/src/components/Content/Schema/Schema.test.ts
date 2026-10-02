@@ -5,8 +5,9 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type DOMWrapper, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
-import { isReactive, nextTick } from 'vue'
+import { isReactive, nextTick, ref } from 'vue'
 
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '../../../features/Operation/request-body-composition-index'
 import { scrollTargetId } from '../../../helpers/lazy-bus'
 import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/schema-expansion'
 import Schema from './Schema.vue'
@@ -2376,6 +2377,108 @@ describe('Schema', () => {
         { name: 'sibling', depth: 0 },
       ])
     }
+    wrapper.unmount()
+  })
+  it.each(['oneOf', 'anyOf'] as const)(
+    'syncs nested allOf %s request-body selections independently',
+    async (choice) => {
+      const selection = ref<Record<string, number>>({ [`requestBody.data.0.${choice}`]: 1 })
+      const wrapper = mount(Schema, {
+        props: {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              data: {
+                allOf: [
+                  { type: 'object', properties: { shared: { type: 'string' } } },
+                  ...['first', 'second'].map((name) => ({
+                    [choice]: [
+                      { type: 'object', title: name, properties: { [name]: { type: 'string' } } },
+                      { type: 'object', title: 'Empty', properties: {} },
+                    ],
+                  })),
+                ],
+              },
+            },
+          }),
+          eventBus: null,
+          noncollapsible: true,
+          schemaContext: 'requestBody',
+          compositionPath: ['requestBody'],
+          options: { expandAllSchemaProperties: true },
+        },
+        global: { provide: { [REQUEST_BODY_COMPOSITION_INDEX_SYMBOL as symbol]: selection } },
+      })
+      const names = (): (string | undefined)[] =>
+        wrapper
+          .findAllComponents(SchemaProperty)
+          .map((row) => row.props('name'))
+          .filter((name) => ['shared', 'first', 'second'].includes(name ?? ''))
+      expect(names()).toStrictEqual(['shared', 'second'])
+      const pickers = wrapper.findAllComponents({ name: 'ScalarListbox' })
+      pickers[1]!.vm.$emit('update:modelValue', { id: '1', label: 'Empty' })
+      await nextTick()
+      expect(names()).toStrictEqual(['shared'])
+      expect(selection.value).toStrictEqual({
+        'requestBody.data.allOf': 0,
+        [`requestBody.data.0.${choice}`]: 1,
+        [`requestBody.data.1.${choice}`]: 1,
+      })
+      pickers[0]!.vm.$emit('update:modelValue', { id: '0', label: 'first' })
+      await nextTick()
+      expect(names()).toStrictEqual(['shared', 'first'])
+      expect(selection.value).toStrictEqual({
+        'requestBody.data.allOf': 0,
+        [`requestBody.data.0.${choice}`]: 0,
+        [`requestBody.data.1.${choice}`]: 1,
+      })
+      wrapper.unmount()
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)('cuts recursive named allOf objects containing %s choices', async (choice) => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'recursiveChoices',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Recursive choices', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Node: {
+              allOf: [
+                { type: 'object', properties: { next: { $ref: '#/components/schemas/Node' } } },
+                {
+                  [choice]: [
+                    { type: 'object', title: 'Value', properties: { value: { type: 'string' } } },
+                    { type: 'object', title: 'Empty', properties: {} },
+                  ],
+                },
+              ],
+            },
+            Response: { type: 'object', properties: { data: { $ref: '#/components/schemas/Node' } } },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.recursiveChoices
+    if (!document || !isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
+    const wrapper = mount(Schema, {
+      props: {
+        schema: getResolvedRef(document.components?.schemas?.Response),
+        eventBus: null,
+        noncollapsible: true,
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    const next = wrapper.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'next')!
+    expect(next.get('.property-recursive').text()).toBe('recursive')
+    expect(next.findComponent({ name: 'SchemaGutterToggle' }).exists()).toBe(false)
+    expect(wrapper.findAllComponents(SchemaProperty).filter((row) => row.props('name') === 'value').length).toBe(1)
+    expect(wrapper.findAllComponents({ name: 'ScalarListbox' }).length).toBe(1)
     wrapper.unmount()
   })
 })
