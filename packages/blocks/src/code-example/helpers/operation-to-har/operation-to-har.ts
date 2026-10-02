@@ -242,6 +242,15 @@ export const operationToHar = ({
     harRequest.queryString = []
   }
 
+  // Multipart file parts are encoded by the HTTP client, which owns the boundary.
+  // Raw multipart text already has its boundary and must retain its Content-Type.
+  if (
+    harRequest.postData?.mimeType === 'multipart/form-data' &&
+    harRequest.postData.params?.some((param) => param.fileName !== undefined)
+  ) {
+    harRequest.headers = harRequest.headers.filter((header) => header.name.toLowerCase() !== 'content-type')
+  }
+
   // Calculate headers size without allocating a large joined string
   let headersSize = 0
   for (const h of harRequest.headers) {

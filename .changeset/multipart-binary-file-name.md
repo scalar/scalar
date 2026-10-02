@@ -1,5 +1,6 @@
 ---
 '@scalar/blocks': patch
+'@scalar/workspace-store': patch
 ---
 
-Set `fileName` on multipart file parts in generated code examples so binary properties produce a real file upload instead of a text field with an `@filename` value
+Preserve multipart file metadata in generated code examples, including arrays and composed schemas, and let HTTP clients set the multipart boundary.

@@ -1781,7 +1781,7 @@ describe('processBody', () => {
         contentType: 'multipart/form-data',
       })
 
-      expect(result?.params).toEqual([{ name: 'upload', value: '@filename', fileName: 'filename' }])
+      expect(result?.params).toStrictEqual([{ name: 'upload', value: '@filename', fileName: 'filename' }])
 
       const python = snippetz().print('python', 'requests', {
         method: 'POST',
@@ -1811,7 +1811,7 @@ describe('processBody', () => {
         contentType: 'multipart/form-data',
       })
 
-      expect(result?.params).toEqual([
+      expect(result?.params).toStrictEqual([
         { name: 'handle', value: '@scalar' },
         { name: 'upload', value: '@filename', fileName: 'filename' },
       ])

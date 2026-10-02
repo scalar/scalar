@@ -324,6 +324,7 @@ export const processBody = ({
       {
         compositionSelection: requestBodyCompositionSelection,
         mode: 'write',
+        binaryAsFile: _contentType === 'multipart/form-data',
       },
       {
         schemaPath: ['requestBody'],

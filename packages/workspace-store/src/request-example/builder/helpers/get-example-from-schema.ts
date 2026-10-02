@@ -74,14 +74,14 @@ const getPropertyNamesEnumValues = (schema: SchemaObject): unknown[] | undefined
 
 /**
  * Generate example values for string types based on their format.
- * Special handling for binary format which returns a File object.
+ * Binary examples use filename placeholders unless the caller requests File objects.
  */
 const guessFromFormat = (
   schema: SchemaObject,
   makeUpRandomData: boolean = false,
   fallback: string = '',
 ): string | File => {
-  // Handle binary format specially - return a File object
+  // Binary filename placeholders are converted to File objects only for multipart callers.
   if ('type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary') {
     return '@filename'
   }
@@ -243,6 +243,10 @@ const mergeExamples = (baseValue: unknown, newValue: unknown): unknown => {
   }
   if (Array.isArray(baseValue) && Array.isArray(newValue)) {
     return [...baseValue, ...newValue]
+  }
+  // Files are scalar payloads; spreading them would erase their filename and bytes.
+  if (baseValue instanceof File || newValue instanceof File) {
+    return newValue
   }
   if (baseValue && typeof baseValue === 'object' && newValue && typeof newValue === 'object') {
     return { ...baseValue, ...newValue }
@@ -847,6 +851,8 @@ const getUnionPrimitiveValue = (schema: SchemaObject, makeUpRandomData: boolean,
 export type GetExampleFromSchemaOptions = {
   /** Internal provenance capture, excluded from persistent result caches. */
   [EXAMPLE_EVALUATION]?: ExampleEvaluationState
+  /** Preserve binary filename examples as File objects for multipart serializers. */
+  binaryAsFile?: boolean
   /** Fallback string for empty string values. */
   emptyString?: string
   /** @deprecated Use getXmlExampleFromSchema for schema-aware XML serialization. */
@@ -872,6 +878,7 @@ export type GetExampleFromSchemaOptions = {
 /** Create stable cache key from the options object */
 const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined) =>
   JSON.stringify({
+    binaryAsFile: options?.binaryAsFile,
     emptyString: options?.emptyString,
     xml: options?.xml,
     mode: options?.mode,
@@ -1389,6 +1396,24 @@ const generateExampleFromSchema = (
   return cache(_schema, null, cacheKey, skipCache)
 }
 
+/** Keep binary provenance for multipart callers without resolving schemas on the default data path. */
+const asBinaryFile = (schema: SchemaObject, value: unknown, enabled = false): unknown => {
+  if (!enabled || typeof value !== 'string' || !value.startsWith('@')) {
+    return value
+  }
+  const resolved = resolve.schema(schema)
+  if (
+    resolved &&
+    'type' in resolved &&
+    resolved.type === 'string' &&
+    'format' in resolved &&
+    resolved.format === 'binary'
+  ) {
+    return new File([], value.slice(1), { lastModified: 0 })
+  }
+  return value
+}
+
 /** Generate data, optionally retaining the exact schema decisions for another output format. */
 export const getExampleFromSchema = (
   schema: SchemaObject,
@@ -1397,7 +1422,8 @@ export const getExampleFromSchema = (
 ): unknown => {
   const capture = options?.[EXAMPLE_EVALUATION]
   if (!capture) {
-    return generateExampleFromSchema(schema, options, context)
+    const value = generateExampleFromSchema(schema, options, context)
+    return asBinaryFile(schema, value, options?.binaryAsFile)
   }
   const node: ExampleEvaluation = {
     schema,
@@ -1415,7 +1441,7 @@ export const getExampleFromSchema = (
   }
   capture.stack.push(node)
   try {
-    node.value = generateExampleFromSchema(schema, options, context)
+    node.value = asBinaryFile(schema, generateExampleFromSchema(schema, options, context), options?.binaryAsFile)
     return node.value
   } finally {
     capture.stack.pop()
