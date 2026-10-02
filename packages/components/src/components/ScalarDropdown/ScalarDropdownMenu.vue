@@ -43,9 +43,9 @@ const { cx } = useBindCx()
   <!-- Background container -->
   <component
     :is="is ?? 'div'"
-    v-bind="cx('relative flex w-56')">
+    v-bind="cx('relative flex w-56 rounded-xl')">
     <!-- Scroll container -->
-    <div class="custom-scroll min-h-0 flex-1">
+    <div class="custom-scroll min-h-0 flex-1 rounded-[inherit]">
       <!-- Menu items -->
       <slot name="menu">
         <div class="flex flex-col p-0.75">
@@ -53,7 +53,7 @@ const { cx } = useBindCx()
         </div>
       </slot>
       <slot name="backdrop">
-        <ScalarFloatingBackdrop class="rounded-xl border shadow-md" />
+        <ScalarFloatingBackdrop />
       </slot>
     </div>
   </component>

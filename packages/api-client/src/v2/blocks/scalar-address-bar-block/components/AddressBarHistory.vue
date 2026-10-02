@@ -96,7 +96,7 @@ export type History = {
             </div>
           </MenuItem>
         </MenuItems>
-        <ScalarFloatingBackdrop class="inset-x-px rounded-none rounded-b-lg" />
+        <ScalarFloatingBackdrop class="rounded-none rounded-b-lg border-t-0" />
       </template>
     </ScalarFloating>
   </Menu>
