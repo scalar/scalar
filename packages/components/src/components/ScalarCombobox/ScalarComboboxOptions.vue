@@ -233,9 +233,10 @@ const input = ref<HTMLInputElement | null>(null)
 onMounted(() => setTimeout(() => input.value?.focus(), 0))
 </script>
 <template>
-  <div class="relative flex rounded-t-[inherit]">
+  <!-- Inset to line up with the options below -->
+  <div class="relative flex m-1 mb-0.75">
     <ScalarIconMagnifyingGlass
-      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
+      class="pointer-events-none absolute left-1.75 top-1/2 -translate-y-1/2 text-c-3 size-4" />
     <input
       ref="input"
       v-model="query"
@@ -244,7 +245,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       :aria-controls="id"
       :aria-expanded="Boolean(filtered.length || slots.add || noResults)"
       :aria-label="inputLabel"
-      class="min-w-0 flex-1 rounded-b rounded-t-[inherit] border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
+      class="min-w-0 flex-1 rounded-md border-0 py-1.5 pl-7.25 pr-1.75 leading-none text-c-1"
       data-1p-ignore
       :placeholder
       role="combobox"
