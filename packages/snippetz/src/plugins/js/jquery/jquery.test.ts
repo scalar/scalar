@@ -394,13 +394,23 @@ $.ajax({
       },
     })
 
-    expect(result).toBe(`const body = new FormData();
-body.append("user", new Blob(["{\\"name\\":\\"scalar\\"}"], { type: "application/json;charset=utf-8" }));
+    expect(
+      result,
+    ).toBe(`const bodyBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const body = new Blob([
+  "--" + bodyBoundary + "\\r\\nContent-Disposition: form-data; name=\\"user\\"\\r\\nContent-Type: application/json;charset=utf-8\\r\\n\\r\\n",
+  "{\\"name\\":\\"scalar\\"}",
+  "\\r\\n",
+  "--" + bodyBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + bodyBoundary });
 $.ajax({
   url: "https://example.com",
   method: "POST",
   processData: false,
   contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", body.type);
+  },
   data: body
 }).done((response) => console.log(response));`)
     expect(() => new Function(result)).not.toThrow()
@@ -432,16 +442,26 @@ $.ajax({
       },
     })
 
-    expect(result).toBe(`const body = new FormData();
-// Select upload files with an <input type="file" multiple> element first.
+    expect(result).toBe(`// Select upload files with an <input type="file" multiple> element first.
 const files = document.querySelector('input[type="file"]').files;
-body.append("file", new File([files[0]], "filename", { type: "application/octet-stream" }));
-body.append("props", new Blob(["{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}"], { type: "application/json" }));
+const bodyBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const body = new Blob([
+  "--" + bodyBoundary + "\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"filename\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n",
+  files[0],
+  "\\r\\n",
+  "--" + bodyBoundary + "\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/json\\r\\n\\r\\n",
+  "{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}",
+  "\\r\\n",
+  "--" + bodyBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + bodyBoundary });
 $.ajax({
   url: "https://example.com/widget/v1/widgets",
   method: "POST",
   processData: false,
   contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", body.type);
+  },
   data: body
 }).done((response) => console.log(response));`)
     expect(() => new Function(result)).not.toThrow()
@@ -463,13 +483,23 @@ $.ajax({
       },
     })
 
-    expect(result).toBe(`const body = new FormData();
-body.append("props", new Blob(["not json"], { type: "application/json" }));
+    expect(
+      result,
+    ).toBe(`const bodyBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const body = new Blob([
+  "--" + bodyBoundary + "\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/json\\r\\n\\r\\n",
+  "not json",
+  "\\r\\n",
+  "--" + bodyBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + bodyBoundary });
 $.ajax({
   url: "https://example.com",
   method: "POST",
   processData: false,
   contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", body.type);
+  },
   data: body
 }).done((response) => console.log(response));`)
     expect(() => new Function(result)).not.toThrow()
@@ -1034,13 +1064,23 @@ $.ajax({
       },
     })
 
-    expect(result).toBe(`const body = new FormData();
-body.append("props", new Blob(["{\\"a\\":1}"], { type: "application/vnd.custom+json" }));
+    expect(
+      result,
+    ).toBe(`const bodyBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const body = new Blob([
+  "--" + bodyBoundary + "\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/vnd.custom+json\\r\\n\\r\\n",
+  "{\\"a\\":1}",
+  "\\r\\n",
+  "--" + bodyBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + bodyBoundary });
 $.ajax({
   url: "https://example.com",
   method: "POST",
   processData: false,
   contentType: false,
+  beforeSend(xhr) {
+    xhr.setRequestHeader("Content-Type", body.type);
+  },
   data: body
 }).done((response) => console.log(response));`)
     expect(() => new Function(result)).not.toThrow()

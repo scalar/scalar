@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { prepareBrowserRequest } from './browser-request'
+import { Raw } from './javascript'
 
 describe('browser-request', () => {
   it('moves raw Cookie headers into the cookie store without decoding or encoding them', () => {
@@ -71,7 +72,7 @@ describe('browser-request', () => {
     expect(body).toBe('a%26b=x%2By+z&a%26b=&empty=')
   })
 
-  it('serializes multipart values and media types with native FormData', async () => {
+  it('serializes typed multipart text without a filename', async () => {
     const prepared = prepareBrowserRequest({
       headers: [{ name: 'CONTENT-TYPE', value: 'multipart/form-data' }],
       postData: {
@@ -84,19 +85,18 @@ describe('browser-request', () => {
         ],
       },
     })
-    const body: FormData = new Function(`${prepared.setup.join('\n')}\nreturn ${prepared.body};`)()
+    const body: Blob = new Function(`${prepared.setup.join('\n')}\nreturn ${prepared.body};`)()
     const parsed = await new Response(body).formData()
-    expect(prepared.headers).toStrictEqual([])
+    expect(prepared.headers).toStrictEqual([{ name: 'Content-Type', value: new Raw('body.type') }])
     expect(parsed.getAll('field')).toStrictEqual(['one', 'two'])
     const props = parsed.get('props')
     const file = parsed.get('file')
-    expect(props instanceof File).toBe(true)
+    expect(props).toBe('{"hello":"world"}')
     expect(file instanceof File).toBe(true)
-    if (!(props instanceof File) || !(file instanceof File)) {
+    if (!(file instanceof File)) {
       throw new Error('Expected typed multipart parts')
     }
-    expect(props.type).toBe('application/vnd.api+json')
-    expect(await props.text()).toBe('{"hello":"world"}')
+    expect(await body.text()).toContain('name="props"\r\nContent-Type: application/vnd.api+json\r\n\r\n')
     expect(file.name).toBe('test.txt')
     expect(file.type).toBe('text/plain')
     expect(await file.text()).toBe('file contents')

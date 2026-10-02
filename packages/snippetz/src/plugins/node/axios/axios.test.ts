@@ -504,12 +504,20 @@ try {
 
     expect(result).toBe(`import axios from 'axios'
 
-const formData = new FormData();
-formData.append("user", new Blob(["{\\"name\\":\\"scalar\\"}"], { type: "application/json;charset=utf-8" }));
+const formDataBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const formData = new Blob([
+  "--" + formDataBoundary + "\\r\\nContent-Disposition: form-data; name=\\"user\\"\\r\\nContent-Type: application/json;charset=utf-8\\r\\n\\r\\n",
+  "{\\"name\\":\\"scalar\\"}",
+  "\\r\\n",
+  "--" + formDataBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + formDataBoundary });
 
 const options = {
   method: 'POST',
   url: 'https://example.com',
+  headers: {
+    'Content-Type': formData.type
+  },
   data: formData
 }
 
@@ -826,12 +834,20 @@ try {
 
     expect(result).toBe(`import axios from 'axios'
 
-const formData = new FormData();
-formData.append("payload", new Blob(["value"], { type: "application/x.scalar'json" }));
+const formDataBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const formData = new Blob([
+  "--" + formDataBoundary + "\\r\\nContent-Disposition: form-data; name=\\"payload\\"\\r\\nContent-Type: application/x.scalar'json\\r\\n\\r\\n",
+  "value",
+  "\\r\\n",
+  "--" + formDataBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + formDataBoundary });
 
 const options = {
   method: 'POST',
   url: 'https://example.com',
+  headers: {
+    'Content-Type': formData.type
+  },
   data: formData
 }
 

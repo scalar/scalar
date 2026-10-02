@@ -1,6 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { prepareBrowserRequest } from '@/libs/browser-request'
+import { Raw } from '@/libs/javascript'
 
 /** Generates a jQuery Ajax request with explicit body serialization. */
 export const jsJquery: Plugin = {
@@ -21,7 +22,8 @@ export const jsJquery: Plugin = {
         ? [
             '  beforeSend(xhr) {',
             ...headers.map(
-              ({ name, value }) => `    xhr.setRequestHeader(${JSON.stringify(name)}, ${JSON.stringify(value)});`,
+              ({ name, value }) =>
+                `    xhr.setRequestHeader(${JSON.stringify(name)}, ${value instanceof Raw ? value.value : JSON.stringify(value)});`,
             ),
             '  },',
           ]

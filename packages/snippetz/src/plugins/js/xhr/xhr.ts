@@ -1,6 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { prepareBrowserRequest } from '@/libs/browser-request'
+import { Raw } from '@/libs/javascript'
 
 /** Generates a request using the browser XMLHttpRequest API. */
 export const jsXhr: Plugin = {
@@ -14,7 +15,10 @@ export const jsXhr: Plugin = {
       'const xhr = new XMLHttpRequest();',
       `xhr.open(${JSON.stringify(method)}, ${JSON.stringify(url)});`,
       'xhr.withCredentials = true;',
-      ...headers.map(({ name, value }) => `xhr.setRequestHeader(${JSON.stringify(name)}, ${JSON.stringify(value)});`),
+      ...headers.map(
+        ({ name, value }) =>
+          `xhr.setRequestHeader(${JSON.stringify(name)}, ${value instanceof Raw ? value.value : JSON.stringify(value)});`,
+      ),
       'xhr.addEventListener("load", () => console.log(xhr.responseText));',
       `xhr.send(${body});`,
     ].join('\n')

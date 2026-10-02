@@ -1,8 +1,9 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 import { Base64 } from 'js-base64'
 
-import { buildFormData } from './form-data'
+import { buildFormData, formDataHeaders } from './form-data'
 import { joinUrlAndQuery, normalizeMethod } from './http'
+import type { Raw } from './javascript'
 
 /** Builds browser request values without collapsing repeated headers or form fields. */
 export const prepareBrowserRequest = (
@@ -11,7 +12,7 @@ export const prepareBrowserRequest = (
 ): {
   url: string
   method: string
-  headers: { name: string; value: string }[]
+  headers: { name: string; value: string | Raw }[]
   setup: string[]
   body: string
   withCredentials: boolean
@@ -59,7 +60,7 @@ export const prepareBrowserRequest = (
     url: joinUrlAndQuery(request.url ?? '', request.queryString),
     method: normalizeMethod(request.method),
     // The browser must supply the boundary matching its FormData serialization.
-    headers: multipart ? headers.filter(({ name }) => name.toLowerCase() !== 'content-type') : headers,
+    headers: formDataHeaders({ ...request, headers }, 'body') ?? [],
     setup,
     // This intentionally includes explicit Cookie headers, even without cookie-style parameters.
     // Cross-origin use additionally requires credentialed CORS and eligible stored cookies.

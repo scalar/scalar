@@ -15,11 +15,18 @@ const addHeaderValue = (headers: AxiosHeaders, name: string, value: string): voi
   accumulateRepeatedValue(headers, name, value)
 }
 
-const buildHeaders = (request: Parameters<Plugin['generate']>[0]): AxiosHeaders | undefined => {
+const buildHeaders = (
+  request: Parameters<Plugin['generate']>[0],
+): Record<string, string | string[] | Raw> | undefined => {
   const headers: AxiosHeaders = {}
+  const rawHeaders: Record<string, Raw> = {}
 
-  request?.headers?.forEach((header) => {
-    addHeaderValue(headers, header.name, header.value)
+  formDataHeaders(request ?? {})?.forEach((header) => {
+    if (header.value instanceof Raw) {
+      rawHeaders[header.name] = header.value
+    } else {
+      addHeaderValue(headers, header.name, header.value)
+    }
   })
 
   if (request?.cookies?.length) {
@@ -27,7 +34,7 @@ const buildHeaders = (request: Parameters<Plugin['generate']>[0]): AxiosHeaders 
     addHeaderValue(headers, 'Cookie', cookieValue)
   }
 
-  return Object.keys(headers).length ? headers : undefined
+  return Object.keys(headers).length || Object.keys(rawHeaders).length ? { ...headers, ...rawHeaders } : undefined
 }
 
 const buildData = (
@@ -113,7 +120,7 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
       options.params = params
     }
 
-    const headers = buildHeaders({ ...normalizedRequest, headers: formDataHeaders(normalizedRequest) })
+    const headers = buildHeaders(normalizedRequest)
     if (headers) {
       options.headers = headers
     }

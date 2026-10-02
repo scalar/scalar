@@ -13,76 +13,101 @@ const javascriptPlugins = clients
   .flatMap(({ key, clients: plugins }) => plugins.map((plugin) => ({ target: key, client: plugin.client, plugin })))
 
 describe('form-data', () => {
-  it.each(javascriptPlugins)('serializes actual binary bytes in $target/$client output', async ({ client, plugin }) => {
-    const directory = await mkdtemp(join(tmpdir(), 'scalar-upload-'))
-    const first = join(directory, "first'file.bin")
-    const second = join(directory, 'second.bin')
-    const bytes = [new Uint8Array([0, 255, 128, 13, 10]), new Uint8Array([254, 1, 0])]
-    try {
-      await writeFile(first, bytes[0]!)
-      await writeFile(second, bytes[1]!)
-      const snippet = plugin.generate({
-        url: 'https://api.example.invalid/upload/',
-        method: 'POST',
-        headers: [{ name: 'CONTENT-TYPE', value: 'multipart/form-data' }],
-        postData: {
-          mimeType: 'multipart/form-data',
-          params: [
-            { name: 'upload', fileName: first, value: `@${first}`, contentType: 'application/octet-stream' },
-            { name: 'upload', fileName: second, value: `@${second}`, contentType: 'application/octet-stream' },
-            { name: 'note', value: '@scalar' },
-            { name: 'note', value: 'こんにちは\ntext' },
-            { name: 'empty', value: '' },
-          ],
-        },
-      })
-      expect(snippet.includes('CONTENT-TYPE')).toBe(false)
-      const bodyBinding: Record<string, string> = {
-        axios: 'data: formData',
-        fetch: 'body: formData',
-        ofetch: 'body: formData',
-        undici: 'body: formData',
-        jquery: 'data: body',
-        xhr: 'xhr.send(body);',
+  it.each(javascriptPlugins.flatMap((plugin) => [false, true].map((typed) => ({ ...plugin, typed }))))(
+    'serializes actual binary bytes in $target/$client output with typed=$typed',
+    async ({ client, plugin, typed }) => {
+      const directory = await mkdtemp(join(tmpdir(), 'scalar-upload-'))
+      const first = join(directory, "first'file.bin")
+      const second = join(directory, 'second.bin')
+      const bytes = [new Uint8Array([0, 255, 128, 13, 10]), new Uint8Array([254, 1, 0])]
+      try {
+        await writeFile(first, bytes[0]!)
+        await writeFile(second, bytes[1]!)
+        const snippet = plugin.generate({
+          url: 'https://api.example.invalid/upload/',
+          method: 'POST',
+          headers: [{ name: 'CONTENT-TYPE', value: 'multipart/form-data' }],
+          postData: {
+            mimeType: 'multipart/form-data',
+            params: [
+              { name: 'upload', fileName: first, value: `@${first}`, contentType: 'application/octet-stream' },
+              { name: 'upload', fileName: second, value: `@${second}`, contentType: 'application/octet-stream' },
+              { name: 'note', value: '@scalar', ...(typed ? { contentType: 'text/plain' } : {}) },
+              ...(typed
+                ? [
+                    { name: 'metadata', value: '{"title":"Photo"}', contentType: 'application/json' },
+                    { name: 'metadata', value: '', contentType: 'application/json' },
+                  ]
+                : []),
+              { name: 'note', value: 'こんにちは\ntext' },
+              { name: 'empty', value: '' },
+            ],
+          },
+        })
+        expect(snippet.includes('CONTENT-TYPE')).toBe(false)
+        const bodyBinding: Record<string, string> = {
+          axios: 'data: formData',
+          fetch: 'body: formData',
+          ofetch: 'body: formData',
+          undici: 'body: formData',
+          jquery: 'data: body',
+          xhr: 'xhr.send(body);',
+        }
+        expect(snippet).toContain(bodyBinding[client]!)
+        const end =
+          client === 'axios'
+            ? 'const options'
+            : client === 'xhr'
+              ? 'const xhr'
+              : client === 'jquery'
+                ? '$.ajax'
+                : client === 'undici'
+                  ? 'const { statusCode'
+                  : `${client}(`
+        // Execute the generated setup. File selection is the documented browser precondition;
+        // Node file reads use real files. Network execution is outside this serialization test.
+        const setup = snippet
+          .slice(0, snippet.indexOf(end))
+          .split('\n')
+          .filter((line) => !line.startsWith('import ') && !line.startsWith('const files ='))
+          .join('\n')
+        const variable = client === 'xhr' || client === 'jquery' ? 'body' : 'formData'
+        const selected = bytes.map((data, index) => new File([data], `selected-${index}.bin`))
+        const body: FormData | Blob = new Function('files', 'readFileSync', `${setup}\nreturn ${variable};`)(
+          selected,
+          readFileSync,
+        )
+        const parsed = await new Response(body).formData()
+        const uploads = parsed.getAll('upload')
+        expect(uploads.length).toBe(2)
+        for (const [index, upload] of uploads.entries()) {
+          if (!(upload instanceof File)) throw new Error('Expected a file upload')
+          expect(upload.name).toBe(index === 0 ? first : second)
+          expect(upload.type).toBe('application/octet-stream')
+          expect(new Uint8Array(await upload.arrayBuffer())).toStrictEqual(bytes[index])
+        }
+        expect(parsed.getAll('note')).toStrictEqual(['@scalar', 'こんにちは\r\ntext'])
+        expect(parsed.get('empty')).toBe('')
+        if (typed) {
+          expect(body).toBeInstanceOf(Blob)
+          expect(parsed.getAll('metadata')).toStrictEqual(['{"title":"Photo"}', ''])
+          const raw = await new Response(body).text()
+          expect(raw).toContain('name="metadata"\r\nContent-Type: application/json\r\n\r\n')
+          expect(raw).not.toContain('filename="blob"')
+          expect(snippet).toMatch(/Content-Type[\s\S]*?(?:formData|body)\.type/)
+        }
+      } finally {
+        await rm(directory, { recursive: true, force: true })
       }
-      expect(snippet).toContain(bodyBinding[client]!)
-      const end =
-        client === 'axios'
-          ? 'const options'
-          : client === 'xhr'
-            ? 'const xhr'
-            : client === 'jquery'
-              ? '$.ajax'
-              : client === 'undici'
-                ? 'const { statusCode'
-                : `${client}(`
-      // Execute the generated setup. File selection is the documented browser precondition;
-      // Node file reads use real files. Network execution is outside this serialization test.
-      const setup = snippet
-        .slice(0, snippet.indexOf(end))
-        .split('\n')
-        .filter((line) => !line.startsWith('import ') && !line.startsWith('const files ='))
-        .join('\n')
-      const variable = client === 'xhr' || client === 'jquery' ? 'body' : 'formData'
-      const selected = bytes.map((data, index) => new File([data], `selected-${index}.bin`))
-      const body: FormData = new Function('files', 'readFileSync', `${setup}\nreturn ${variable};`)(
-        selected,
-        readFileSync,
-      )
-      const parsed = await new Response(body).formData()
-      const uploads = parsed.getAll('upload')
-      expect(uploads.length).toBe(2)
-      for (const [index, upload] of uploads.entries()) {
-        if (!(upload instanceof File)) throw new Error('Expected a file upload')
-        expect(upload.name).toBe(index === 0 ? first : second)
-        expect(upload.type).toBe('application/octet-stream')
-        expect(new Uint8Array(await upload.arrayBuffer())).toStrictEqual(bytes[index])
-      }
-      expect(parsed.getAll('note')).toStrictEqual(['@scalar', 'こんにちは\r\ntext'])
-      expect(parsed.get('empty')).toBe('')
-    } finally {
-      await rm(directory, { recursive: true, force: true })
-    }
+    },
+  )
+
+  it('encodes typed text when randomUUID is unavailable on an HTTP page', async () => {
+    const setup = buildFormData([{ name: 'metadata', value: '{"id":1}', contentType: 'application/json' }], 'js')
+    const browser = { crypto: { getRandomValues: globalThis.crypto.getRandomValues.bind(globalThis.crypto) } }
+    const body: Blob = new Function('globalThis', `${setup.join('\n')}\nreturn formData;`)(browser)
+    expect(body.type).toMatch(/^multipart\/form-data; boundary=[0-9a-f]{32}$/)
+    expect((await new Response(body).formData()).get('metadata')).toBe('{"id":1}')
   })
 
   it('preserves authored inline file contents in browser examples', async () => {
