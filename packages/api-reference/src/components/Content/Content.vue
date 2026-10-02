@@ -89,6 +89,7 @@ const {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'persistAuth'
     | 'proxyUrl'

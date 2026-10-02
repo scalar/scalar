@@ -18,6 +18,7 @@ export type OperationProps = {
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'showOperationId'
     | 'showExtensions'

@@ -13,6 +13,7 @@ describe('OperationParameters', () => {
     orderRequiredPropertiesFirst: false,
     orderSchemaPropertiesBy: 'alpha' as const,
     expandAllSchemaProperties: false,
+    maxVisibleRequestBodyProperties: 12,
     schemaKeyboardNav: false,
   }
 

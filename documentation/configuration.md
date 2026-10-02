@@ -585,6 +585,22 @@ By default response sections are closed in the operations. This flag will open t
 ```
 
 
+### maxVisibleRequestBodyProperties
+
+**Type:** `number`
+
+The maximum number of top-level request body properties shown before the “Show N more properties” control. Accepts non-negative integers; `0` shows all top-level properties. Invalid values fall back to `12`.
+
+This option does not expand nested properties. Use `expandAllSchemaProperties` to control nested expansion separately. Increasing the limit can affect performance for very large request bodies.
+
+**Default:** `12`
+
+```javascript
+{
+  maxVisibleRequestBodyProperties: 0
+}
+```
+
 ### expandAllSchemaProperties
 
 **Type:** `boolean`

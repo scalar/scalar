@@ -93,6 +93,8 @@ export const zhCn = {
     schema: '架构',
     emptyObject: '空对象',
     showAdditionalProperties: '显示附加属性',
+    showOneMoreProperty: '再显示 1 个属性',
+    showMoreProperties: '再显示 {count} 个属性',
     forName: '对于 {name}',
     showSchemaDetails: '显示架构详情',
     oneOf: '其中一个',

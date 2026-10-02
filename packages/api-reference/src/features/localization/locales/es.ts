@@ -94,6 +94,8 @@ export const es = {
     schema: 'Esquema',
     emptyObject: 'Objeto vacío',
     showAdditionalProperties: 'Mostrar propiedades adicionales',
+    showOneMoreProperty: 'Mostrar 1 propiedad más',
+    showMoreProperties: 'Mostrar {count} propiedades más',
     forName: 'para {name}',
     showSchemaDetails: 'Mostrar detalles del esquema',
     oneOf: 'Uno de',

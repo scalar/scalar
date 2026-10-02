@@ -6,9 +6,11 @@ import {
   array,
   boolean,
   coerce,
+  evaluate,
   fn,
   intersection,
   literal,
+  number,
   object,
   optional,
   record,
@@ -273,6 +275,14 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Whether to expand all nested schema properties by default. Each row keeps its own disclosure control, so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
     }),
+    maxVisibleRequestBodyProperties: evaluate(
+      (value): number => (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 12),
+      number({
+        default: 12,
+        typeComment:
+          'Maximum initially visible top-level request body properties. Defaults to 12; 0 shows all without expanding nested properties.',
+      }),
+    ),
     tagsSorter: optional(union([literal('alpha'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort tags',
     }),

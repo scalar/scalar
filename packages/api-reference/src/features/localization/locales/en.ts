@@ -94,6 +94,8 @@ export const en = {
     schema: 'Schema',
     emptyObject: 'Empty object',
     showAdditionalProperties: 'Show additional properties',
+    showOneMoreProperty: 'Show 1 more property',
+    showMoreProperties: 'Show {count} more properties',
     forName: 'for {name}',
     showSchemaDetails: 'Show Schema Details',
     oneOf: 'One of',

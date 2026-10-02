@@ -1,10 +1,16 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  OpenAPIDocumentSchema,
+  type SchemaObject,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
+import { provideLocalization } from '@/features/localization'
 
 import RequestBody from './RequestBody.vue'
 
@@ -35,6 +41,157 @@ describe('RequestBody', () => {
       },
     })
     expect(wrapper.text()).toContain('"Directory team"')
+  })
+
+  it.each([
+    [undefined, 12, 'Show 38 more properties'],
+    [1, 1, 'Show 49 more properties'],
+    [49, 49, 'Show 1 more property'],
+    [50, 50, undefined],
+    [100, 50, undefined],
+    [0, 50, undefined],
+  ])('shows the configured number of request properties with limit %s', async (limit, visibleCount, label) => {
+    const properties = Object.fromEntries(
+      Array.from({ length: 50 }, (_, index) => [
+        `property${String(index + 1).padStart(2, '0')}`,
+        { type: 'object', properties: { child: { type: 'string' } } },
+      ]),
+    )
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: { ...defaultRequestOptions, maxVisibleRequestBodyProperties: limit },
+        requestBody: {
+          content: {
+            'application/json': { schema: coerceValue(SchemaObjectSchema, { type: 'object', properties }) },
+          },
+        },
+      },
+    })
+
+    // Child names can appear in collapsed previews, so assert actual property rows.
+    const propertyNames = (): string[] => wrapper.findAll('.property-name').map((row) => row.text())
+    expect(propertyNames()).toStrictEqual(Object.keys(properties).slice(0, visibleCount))
+    const reveal = wrapper.findAll('button').find((button) => button.text().startsWith('Show '))
+    expect(reveal?.text()).toBe(label ? `${label} for Request Body` : undefined)
+    if (reveal) {
+      await reveal.trigger('click')
+      expect(propertyNames()).toStrictEqual(Object.keys(properties))
+      expect(reveal.isVisible()).toBe(false)
+    }
+    wrapper.unmount()
+  })
+
+  it('counts only request properties and preserves required-first ordering', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: { ...defaultRequestOptions, maxVisibleRequestBodyProperties: 1, orderRequiredPropertiesFirst: true },
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                required: ['zebra', 'serverId'],
+                properties: {
+                  alpha: { type: 'string' },
+                  serverId: { type: 'string', readOnly: true },
+                  zebra: { type: 'string' },
+                },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findAll('.property-name').map((row) => row.text())).toStrictEqual(['zebra'])
+    const reveal = wrapper.findAll('button').find((button) => button.text().startsWith('Show 1 more property'))!
+    await reveal.trigger('click')
+    expect(wrapper.findAll('.property-name').map((row) => row.text())).toStrictEqual(['zebra', 'alpha'])
+    wrapper.unmount()
+  })
+
+  it('updates the overflow count when the selected content type changes', async () => {
+    const schema = (count: number): SchemaObject =>
+      coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: Object.fromEntries(
+          Array.from({ length: count }, (_, index) => [`field${index}`, { type: 'string' }]),
+        ),
+      })
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: { ...defaultRequestOptions, maxVisibleRequestBodyProperties: 1 },
+        requestBody: {
+          content: {
+            'application/json': { schema: schema(3) },
+            'application/xml': { schema: schema(2) },
+          },
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('Show 2 more properties')
+    await wrapper.setProps({ selectedContentType: 'application/xml' })
+    expect(wrapper.text()).toContain('Show 1 more property')
+    expect(wrapper.text()).not.toContain('Show 2 more properties')
+    wrapper.unmount()
+  })
+
+  it('still expands nested and overflow properties when expandAllSchemaProperties is enabled', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: { ...defaultRequestOptions, maxVisibleRequestBodyProperties: 1, expandAllSchemaProperties: true },
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: {
+                  first: { type: 'string' },
+                  second: { type: 'object', properties: { child: { type: 'string' } } },
+                },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findAll('.property-name').map((row) => row.text())).toStrictEqual(['first', 'second', 'child'])
+    wrapper.unmount()
+  })
+
+  it.each([
+    [1, '1 weitere Eigenschaft anzeigen'],
+    [2, '2 weitere Eigenschaften anzeigen'],
+  ])('localizes the overflow label for %s hidden properties', (count, label) => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization({ locale: 'de' })
+          return () =>
+            h(RequestBody, {
+              eventBus: null,
+              options: { ...defaultRequestOptions, maxVisibleRequestBodyProperties: 1 },
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: coerceValue(SchemaObjectSchema, {
+                      type: 'object',
+                      properties: Object.fromEntries(
+                        Array.from({ length: count + 1 }, (_, index) => [`field${index}`, { type: 'string' }]),
+                      ),
+                    }),
+                  },
+                },
+              },
+            })
+        },
+      }),
+    )
+    expect(wrapper.findAll('button').some((button) => button.text().startsWith(label))).toBe(true)
+    wrapper.unmount()
   })
 
   it('renders request body with schema properties', () => {
@@ -243,7 +400,7 @@ describe('RequestBody', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('Show additional properties')
+    expect(wrapper.text()).toContain('Show 1 more property')
     expect(wrapper.text().match(/The object schema description/g)).toHaveLength(1)
   })
 

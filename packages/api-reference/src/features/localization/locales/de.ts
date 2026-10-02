@@ -95,6 +95,8 @@ export const de = {
     schema: 'Schema',
     emptyObject: 'Leeres Objekt',
     showAdditionalProperties: 'Zusätzliche Eigenschaften anzeigen',
+    showOneMoreProperty: '1 weitere Eigenschaft anzeigen',
+    showMoreProperties: '{count} weitere Eigenschaften anzeigen',
     forName: 'für {name}',
     showSchemaDetails: 'Schema-Details anzeigen',
     oneOf: 'Eines von',
