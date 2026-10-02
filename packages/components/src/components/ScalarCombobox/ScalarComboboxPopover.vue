@@ -65,7 +65,7 @@ defineExpose({ popoverButtonRef })
           v-slot="{ close }"
           :style="{ width }"
           v-bind="
-            cx('relative flex flex-col max-h-[inherit] w-40 rounded text-sm')
+            cx('relative flex flex-col max-h-[inherit] w-40 rounded-xl text-sm')
           ">
           <slot
             :close
