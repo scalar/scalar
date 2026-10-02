@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.68.0
+
+### Minor Changes
+
+- [#10432](https://github.com/scalar/scalar/pull/10432): Generate lazy AsyncAPI channel, operation, message, and schema chunks. Group shared dependencies to reduce requests while preserving direct model loading, recursive references, navigation, servers, and authentication.
+
+### Patch Changes
+
+- [#10458](https://github.com/scalar/scalar/pull/10458): Stop walking every path through shared schemas when collecting a parameter's declared example values. A shared schema found to declare no values is now skipped on the other paths that reach it, so a request whose parameter points into a deep graph of shared schemas no longer takes seconds to minutes to render.
+
 ## 0.67.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 1.5.1
+
+### Patch Changes
+
+- [#10457](https://github.com/scalar/scalar/pull/10457): Render a selected operation, model, tag or webhook in time proportional to the selection instead of the whole document.
+
 ## 1.5.0
 
 ### Minor Changes

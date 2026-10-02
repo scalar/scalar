@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.6.6
+
+### Patch Changes
+
+- [#10417](https://github.com/scalar/scalar/pull/10417): Reduce union scoring overhead for literals, arrays, records, and missing optional values while preserving branch selection.
+
 ## 0.6.5
 
 ### Patch Changes

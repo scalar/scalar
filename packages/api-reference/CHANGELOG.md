@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.72.4
+
+### Patch Changes
+
+- [#10372](https://github.com/scalar/scalar/pull/10372): fix: improve keyboard and screen reader access to code blocks and multiselect comboboxes
+  - The code block scroller is exposed as a named group ("Code sample: Shell cURL" in the API Reference, localizable via `operation.codeSample`) so screen readers announce it when it receives focus
+  - The code block copy button now has a stable accessible name ("Copy Shell code") in every state, including while its visible label is hidden
+  - In multiselect comboboxes such as the auth scheme picker, Space toggles the active option while the search query is empty instead of hiding the whole list
+
+- [#10437](https://github.com/scalar/scalar/pull/10437): Stop a discriminator `oneOf` variant that composes its base with `allOf` from rendering a second selector, its fields twice, or a repeated variant description.
+- [#10439](https://github.com/scalar/scalar/pull/10439): Fix missing chunks after a release when a cached ESM entry point is loaded from an unversioned npm CDN URL. The generated loader selects its own exact release using a relative package URL, preserving the CDN hostname and path prefix. This supports jsDelivr, UNPKG, and other hosts with versioned npm package paths while keeping latest as the default. Custom self-hosted paths continue loading the bundle next to the entry point.
+
 ## 1.72.3
 
 ### Patch Changes
