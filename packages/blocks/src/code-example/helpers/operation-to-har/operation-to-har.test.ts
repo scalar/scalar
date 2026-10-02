@@ -9,6 +9,83 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it.each([
+    { name: 'a single file', schema: { type: 'object', properties: { upload: { type: 'string', format: 'binary' } } } },
+    {
+      name: 'an array of files',
+      schema: {
+        type: 'object',
+        properties: { upload: { type: 'array', items: { type: 'string', format: 'binary' } } },
+      },
+    },
+    {
+      name: 'a composed object',
+      schema: { allOf: [{ type: 'object', properties: { upload: { type: 'string', format: 'binary' } } }] },
+    },
+    {
+      name: 'a composed property',
+      schema: { type: 'object', properties: { upload: { oneOf: [{ type: 'string', format: 'binary' }] } } },
+    },
+  ])('generates a Python file upload with a client-owned boundary for $name', ({ schema }) => {
+    const request = operationToHar({
+      method: 'POST',
+      path: '/upload/',
+      server: { url: 'https://api.example.invalid' },
+      openapiVersion: '3.1.0',
+      operation: {
+        requestBody: { content: { 'multipart/form-data': { schema: coerceValue(SchemaObjectSchema, schema) } } },
+      },
+    })
+    expect(request.postData).toStrictEqual({
+      mimeType: 'multipart/form-data',
+      params: [{ name: 'upload', value: '@filename', fileName: 'filename' }],
+    })
+    expect(request.headers).toStrictEqual([])
+    expect(snippetz().print('python', 'requests', request)).toBe(`requests.post("https://api.example.invalid/upload/",
+    files=[
+      ("upload", open("filename", "rb"))
+    ]
+)`)
+  })
+
+  it('removes an authored boundary from structured multipart while retaining other headers', () => {
+    const request = operationToHar({
+      method: 'POST',
+      path: '/upload/',
+      operation: {
+        parameters: [
+          {
+            in: 'header',
+            name: 'cOnTeNt-TyPe',
+            schema: { type: 'string' },
+            example: 'multipart/form-data; boundary=authored',
+          },
+          { in: 'header', name: 'X-Trace', schema: { type: 'string' }, example: 'trace' },
+        ],
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: { type: 'object', properties: { upload: { type: 'string', format: 'binary' } } },
+            },
+          },
+        },
+      },
+    })
+    expect(request.headers).toStrictEqual([{ name: 'X-Trace', value: 'trace' }])
+  })
+
+  it('preserves the boundary of an authored raw multipart body', () => {
+    const mimeType = 'multipart/form-data; boundary=authored'
+    const text = '--authored\r\nContent-Disposition: form-data; name="text"\r\n\r\nhello\r\n--authored--\r\n'
+    const request = operationToHar({
+      method: 'POST',
+      path: '/upload/',
+      operation: { requestBody: { content: { [mimeType]: { example: text } } } },
+    })
+    expect(request.postData).toStrictEqual({ mimeType, text })
+    expect(request.headers).toStrictEqual([{ name: 'Content-Type', value: mimeType }])
+  })
+
   it.each(snippetz().plugins())(
     'preserves mixed serialized query examples in $target/$client',
     ({ target, client }) => {
@@ -1026,6 +1103,7 @@ describe('operationToHar', () => {
         {
           name: 'file',
           value: '@filename',
+          fileName: 'filename',
         },
         {
           name: 'description',
@@ -1346,7 +1424,7 @@ describe('operationToHar', () => {
       expect(result.headers).not.toContainEqual(expect.objectContaining({ name: 'Content-Type' }))
     })
 
-    it('should set Content-Type header for multipart/form-data', () => {
+    it('leaves the boundary header to the multipart encoder', () => {
       const operation: OperationObject = {
         requestBody: {
           content: {
@@ -1374,10 +1452,7 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData?.mimeType).toBe('multipart/form-data')
-      expect(result.headers).toContainEqual({
-        name: 'Content-Type',
-        value: 'multipart/form-data',
-      })
+      expect(result.headers).toStrictEqual([])
     })
 
     it('should set Content-Type header for text/plain', () => {

@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { prepareRequest } from '@/libs/prepare-request'
+import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 
 /** OCaml uses three-digit decimal escapes for control bytes. */
 const quote = (value: string): string =>
@@ -18,15 +18,28 @@ export const ocamlCohttp: Plugin = {
   client: 'cohttp',
   title: 'Cohttp',
   generate(request, configuration) {
-    const { url, method, headers, body } = prepareRequest(request, configuration)
+    const prepared = prepareRequest(request, configuration)
+    const { url, method, headers, body } = prepared
+    const boundary = multipartFileBoundary(prepared)
+    const literal = (value: string): string =>
+      boundary ? `(${value.split(boundary).map(quote).join(' ^ boundary ^ ')})` : quote(value)
     const lines = [
       'open Lwt.Infix',
       '',
       'let () =',
+      ...(boundary ? ['  Random.self_init ();'] : []),
       '  Lwt_main.run (',
+      ...(boundary
+        ? [
+            '    let boundary = Printf.sprintf "%08x%08x%08x%08x" (Random.bits ()) (Random.bits ()) (Random.bits ()) (Random.bits ()) in',
+          ]
+        : []),
       `    let uri = Uri.of_string ${quote(url)} in`,
       '    let headers = Cohttp.Header.of_list [',
-      ...headers.map(({ name, value }) => `      (${quote(name)}, ${quote(value)});`),
+      ...headers.map(
+        ({ name, value }) =>
+          `      (${quote(name)}, ${name.toLowerCase() === 'content-type' ? literal(value) : quote(value)});`,
+      ),
       '    ] in',
     ]
     if (body) {
@@ -34,7 +47,7 @@ export const ocamlCohttp: Plugin = {
         lines.push(
           'file' in segment
             ? `    Lwt_io.with_file ~mode:Lwt_io.Input ${quote(segment.file)} Lwt_io.read >>= fun part${index} ->`
-            : `    let part${index} = ${quote(segment.text)} in`,
+            : `    let part${index} = ${literal(segment.text)} in`,
         )
       }
       lines.push(

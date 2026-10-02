@@ -302,8 +302,8 @@ resp_body_string(response)`)
 response <- request("https://example.com") |>
   req_method("POST") |>
   req_body_multipart(
-    file = curl::form_file("test.txt"),
-    field = "value"
+    "file" = curl::form_file("test.txt"),
+    "field" = "value"
   ) |>
   req_perform()
 

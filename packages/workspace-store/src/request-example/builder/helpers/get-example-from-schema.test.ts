@@ -6,6 +6,62 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it('retains file metadata when allOf combines binary contributions', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        { type: 'string', format: 'binary', example: '@first.bin' },
+        { type: 'string', format: 'binary', example: '@second.bin' },
+      ],
+    })
+    const file = getExampleFromSchema(schema, { binaryAsFile: true }) as File
+    expect(file).toBeInstanceOf(File)
+    expect(file.name).toBe('second.bin')
+    expect(getExampleFromSchema(schema)).toBe('@second.bin')
+  })
+
+  it('keeps file generation separate from cached JSON examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { upload: { type: 'array', items: { type: 'string', format: 'binary', example: '@payload.bin' } } },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ upload: ['@payload.bin'] })
+    const example = getExampleFromSchema(schema, { binaryAsFile: true })
+    expect(
+      (example as { upload: File[] }).upload.map((file) => ({
+        name: file.name,
+        size: file.size,
+        isFile: file instanceof File,
+      })),
+    ).toStrictEqual([{ name: 'payload.bin', size: 0, isFile: true }])
+    const file = (example as { upload: File[] }).upload[0]!
+    expect(file.name).toBe('payload.bin')
+    expect(file.size).toBe(0)
+    expect(getExampleFromSchema(schema)).toStrictEqual({ upload: ['@payload.bin'] })
+  })
+
+  it('retains the selected binary or text composition branch for file generation', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        upload: {
+          oneOf: [
+            { type: 'string', example: '@text' },
+            { type: 'string', format: 'binary', example: '@payload.bin' },
+          ],
+        },
+      },
+    })
+    expect(
+      getExampleFromSchema(schema, { binaryAsFile: true, compositionSelection: { 'upload.oneOf': 0 } }),
+    ).toStrictEqual({ upload: '@text' })
+    const example = getExampleFromSchema(schema, {
+      binaryAsFile: true,
+      compositionSelection: { 'upload.oneOf': 1 },
+    }) as { upload: File }
+    expect(example.upload).toBeInstanceOf(File)
+    expect(example.upload.name).toBe('payload.bin')
+  })
+
   it.each(['oneOf', 'anyOf'] as const)(
     'ignores type-inapplicable root keywords for selected %s branches without changing the source',
     (composition) => {

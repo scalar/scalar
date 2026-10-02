@@ -1,7 +1,9 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 import { Base64 } from 'js-base64'
 
+import { buildFormData, formDataHeaders } from './form-data'
 import { joinUrlAndQuery, normalizeMethod } from './http'
+import type { Raw } from './javascript'
 
 /** Builds browser request values without collapsing repeated headers or form fields. */
 export const prepareBrowserRequest = (
@@ -10,7 +12,7 @@ export const prepareBrowserRequest = (
 ): {
   url: string
   method: string
-  headers: { name: string; value: string }[]
+  headers: { name: string; value: string | Raw }[]
   setup: string[]
   body: string
   withCredentials: boolean
@@ -42,26 +44,7 @@ export const prepareBrowserRequest = (
   const multipart = postData?.mimeType === 'multipart/form-data' && postData.params
   const form = postData?.mimeType === 'application/x-www-form-urlencoded' && postData.params
   if (multipart) {
-    setup.push('const body = new FormData();')
-    const uploads = multipart.filter((param) => param.fileName !== undefined && param.value === undefined)
-    if (uploads.length) {
-      setup.push('// Select upload files with an <input type="file" multiple> element first.')
-      setup.push(`const files = document.querySelector('input[type="file"]').files;`)
-    }
-    for (const param of multipart) {
-      const name = JSON.stringify(param.name)
-      const value = JSON.stringify(param.value ?? '')
-      if (param.fileName !== undefined) {
-        const contents = param.value === undefined ? `files[${uploads.indexOf(param)}]` : value
-        setup.push(
-          `body.append(${name}, new File([${contents}], ${JSON.stringify(param.fileName)}, { type: ${JSON.stringify(param.contentType ?? 'application/octet-stream')} }));`,
-        )
-      } else if (param.contentType) {
-        setup.push(`body.append(${name}, new Blob([${value}], { type: ${JSON.stringify(param.contentType)} }));`)
-      } else {
-        setup.push(`body.append(${name}, ${value});`)
-      }
-    }
+    setup.push(...buildFormData(multipart, 'js', 'body'))
   } else if (form) {
     setup.push('const body = new URLSearchParams();')
     for (const param of form) {
@@ -77,7 +60,7 @@ export const prepareBrowserRequest = (
     url: joinUrlAndQuery(request.url ?? '', request.queryString),
     method: normalizeMethod(request.method),
     // The browser must supply the boundary matching its FormData serialization.
-    headers: multipart ? headers.filter(({ name }) => name.toLowerCase() !== 'content-type') : headers,
+    headers: formDataHeaders({ ...request, headers }, 'body') ?? [],
     setup,
     // This intentionally includes explicit Cookie headers, even without cookie-style parameters.
     // Cross-origin use additionally requires credentialed CORS and eligible stored cookies.

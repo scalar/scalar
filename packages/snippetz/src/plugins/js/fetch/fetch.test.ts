@@ -249,9 +249,11 @@ describe('jsFetch', () => {
       },
     })
 
-    expect(result).toBe(`const formData = new FormData()
-formData.append('foo', 'bar')
-formData.append('file', new Blob([]), 'baz.txt')
+    expect(result).toBe(`const formData = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+formData.append("foo", "bar");
+formData.append("file", new File([files[0]], "baz.txt", { type: "application/octet-stream" }));
 
 fetch('https://example.com', {
   method: 'POST',

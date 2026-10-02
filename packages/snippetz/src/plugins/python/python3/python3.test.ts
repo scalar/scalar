@@ -9,6 +9,23 @@ const expectCommonResponseHandling = (result: string): void => {
 }
 
 describe('pythonPython3', () => {
+  it('escapes multipart metadata and replaces lowercase content-type headers', () => {
+    const result = pythonPython3.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'content-type', value: 'multipart/form-data; boundary=old' }],
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'up"\r\nload', fileName: 'test".bin', value: '@test".bin' }],
+      },
+    })
+    expect(result).toContain('name=\\"up%22%0D%0Aload\\"; filename=\\"test%22.bin\\"')
+    expect(result).toContain('open("test\\".bin", "rb").read()')
+    expect(result).toContain('boundary = uuid.uuid4().hex')
+    expect(result).toContain('headers["Content-Type"] = "multipart/form-data; boundary=" + boundary')
+    expect(result).not.toContain('boundary=old')
+  })
+
   it('returns a basic request', () => {
     const result = pythonPython3.generate({
       url: 'https://example.com',
@@ -230,10 +247,40 @@ describe('pythonPython3', () => {
       },
     })
 
-    expect(result).toContain('boundary = "----ScalarSnippetzBoundary"')
-    expect(result).toContain('filename=\\"test.txt\\"')
-    expect(result).toContain('data_list.append(open("test.txt", "rb").read().decode("latin-1"))')
-    expect(result).toContain('data_list.append("value")')
+    expect(result).toBe(`import http.client
+import uuid
+
+conn = http.client.HTTPSConnection("example.com")
+
+boundary = uuid.uuid4().hex
+data_list = []
+data_list.append(("--" + boundary).encode("utf-8"))
+data_list.append("Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"".encode("utf-8"))
+data_list.append(b"")
+data_list.append(open("test.txt", "rb").read())
+data_list.append(("--" + boundary).encode("utf-8"))
+data_list.append("Content-Disposition: form-data; name=\\"field\\"".encode("utf-8"))
+data_list.append(b"")
+data_list.append("value".encode("utf-8"))
+data_list.append(("--" + boundary + "--").encode("utf-8"))
+data_list.append(b"")
+payload = b"\\r\\n".join(data_list)
+headers = {
+  "Content-Type": "multipart/form-data"
+}
+headers["Content-Type"] = "multipart/form-data; boundary=" + boundary
+
+conn.request(
+    "POST",
+    "/",
+    body=payload,
+    headers=headers,
+)
+
+response = conn.getresponse()
+print(response.read().decode())
+
+conn.close()`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -252,7 +299,37 @@ describe('pythonPython3', () => {
       },
     })
 
-    expect(result).toContain('data_list.append("Content-Type: application/json;charset=utf-8")')
+    expect(result).toBe(`import http.client
+import uuid
+
+conn = http.client.HTTPSConnection("example.com")
+
+boundary = uuid.uuid4().hex
+data_list = []
+data_list.append(("--" + boundary).encode("utf-8"))
+data_list.append("Content-Disposition: form-data; name=\\"user\\"".encode("utf-8"))
+data_list.append("Content-Type: application/json;charset=utf-8".encode("utf-8"))
+data_list.append(b"")
+data_list.append("{\\"name\\":\\"scalar\\"}".encode("utf-8"))
+data_list.append(("--" + boundary + "--").encode("utf-8"))
+data_list.append(b"")
+payload = b"\\r\\n".join(data_list)
+headers = {
+  "Content-Type": "multipart/form-data"
+}
+headers["Content-Type"] = "multipart/form-data; boundary=" + boundary
+
+conn.request(
+    "POST",
+    "/",
+    body=payload,
+    headers=headers,
+)
+
+response = conn.getresponse()
+print(response.read().decode())
+
+conn.close()`)
   })
 
   it('handles multipart form data content types on files', () => {
@@ -271,7 +348,37 @@ describe('pythonPython3', () => {
       },
     })
 
-    expect(result).toContain('data_list.append("Content-Type: text/plain")')
+    expect(result).toBe(`import http.client
+import uuid
+
+conn = http.client.HTTPSConnection("example.com")
+
+boundary = uuid.uuid4().hex
+data_list = []
+data_list.append(("--" + boundary).encode("utf-8"))
+data_list.append("Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"".encode("utf-8"))
+data_list.append("Content-Type: text/plain".encode("utf-8"))
+data_list.append(b"")
+data_list.append(open("test.txt", "rb").read())
+data_list.append(("--" + boundary + "--").encode("utf-8"))
+data_list.append(b"")
+payload = b"\\r\\n".join(data_list)
+headers = {
+  "Content-Type": "multipart/form-data"
+}
+headers["Content-Type"] = "multipart/form-data; boundary=" + boundary
+
+conn.request(
+    "POST",
+    "/",
+    body=payload,
+    headers=headers,
+)
+
+response = conn.getresponse()
+print(response.read().decode())
+
+conn.close()`)
   })
 
   it('handles multipart form data with single quotes in parameter name', () => {

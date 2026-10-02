@@ -67,7 +67,7 @@ export const phpGuzzle: Plugin = {
           options.multipart = request.postData.params.map((param) => {
             const part: Record<string, any> = {
               name: param.name,
-              contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'r')`) : param.value || '',
+              contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'rb')`) : param.value || '',
             }
 
             if (param.contentType) {

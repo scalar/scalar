@@ -57,9 +57,9 @@ const createMultipartPart = (param: {
   fileName?: string
   contentType?: string
 }): string => {
-  if (param.fileName) {
+  if (param.fileName !== undefined) {
     const part = [
-      indent(2, `let part = reqwest::multipart::Part::text(${wrapInDoubleQuotes(param.value || '')})`),
+      indent(2, `let part = reqwest::multipart::Part::bytes(std::fs::read(${wrapInDoubleQuotes(param.fileName)})?)`),
       indent(3, `.file_name(${wrapInDoubleQuotes(param.fileName)})`),
     ]
 

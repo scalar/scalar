@@ -19,8 +19,16 @@ export const dartHttp: Plugin = {
     // Normalize method to uppercase
     normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
+    const multipart =
+      normalizedRequest.postData?.mimeType === 'multipart/form-data' && normalizedRequest.postData.params
+    const dartString = (value: string): string => JSON.stringify(value).replaceAll('$', '\\$')
+
     // Start building the Dart code
     let code = `import 'package:http/http.dart' as http;\n\nvoid main() async {\n`
+
+    if (multipart && multipart.some((param) => param.contentType)) {
+      code = `import 'package:http_parser/http_parser.dart';\n${code}`
+    }
 
     // Handle cookies
     let cookieHeader = ''
@@ -35,7 +43,7 @@ export const dartHttp: Plugin = {
     // Handle headers
     const headers =
       normalizedRequest.headers?.reduce<Record<string, string>>((acc, header) => {
-        if (header.value && !/[; ]/.test(header.name)) {
+        if (header.value && !/[; ]/.test(header.name) && !(multipart && header.name.toLowerCase() === 'content-type')) {
           acc[header.name] = header.value
         }
         return acc
@@ -80,14 +88,6 @@ export const dartHttp: Plugin = {
         body = `  final body = r'${normalizedRequest.postData.text}';\n\n`
       } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
         body = `  final body = '${normalizedRequest.postData.params?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`).join('&') || ''}';\n\n`
-      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data') {
-        body = '  final body = <String,String>{\n'
-        for (const param of normalizedRequest.postData.params || []) {
-          const value = param.value || ''
-          const fileName = param.fileName || ''
-          body += `    '${param.name}': '${fileName || value}',\n`
-        }
-        body += '  };\n\n'
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         body = `  final body = '${normalizedRequest.postData.text}';\n\n`
       }
@@ -95,6 +95,23 @@ export const dartHttp: Plugin = {
 
     if (body) {
       code += body
+    }
+
+    if (multipart) {
+      code += `  final request = http.MultipartRequest(${dartString(normalizedRequest.method)}, Uri.parse(${dartString(url)}));\n`
+      if (Object.keys(headers).length) {
+        code += '  request.headers.addAll(headers);\n'
+      }
+      for (const param of multipart) {
+        const type = param.contentType ? `, contentType: MediaType.parse(${dartString(param.contentType)})` : ''
+        code +=
+          param.fileName !== undefined
+            ? `  request.files.add(await http.MultipartFile.fromPath(${dartString(param.name)}, ${dartString(param.fileName)}${type}));\n`
+            : `  request.files.add(http.MultipartFile.fromString(${dartString(param.name)}, ${dartString(param.value ?? '')}${type}));\n`
+      }
+      code += '  final response = await http.Response.fromStream(await request.send());\n'
+      code += '  print(response.body);\n}'
+      return code
     }
 
     // Handle method and request

@@ -1,5 +1,6 @@
 import type { Plugin, TargetId } from '@scalar/types/snippetz'
 
+import { buildFormData, formDataHeaders } from '@/libs/form-data'
 import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
 
@@ -14,11 +15,18 @@ const addHeaderValue = (headers: AxiosHeaders, name: string, value: string): voi
   accumulateRepeatedValue(headers, name, value)
 }
 
-const buildHeaders = (request: Parameters<Plugin['generate']>[0]): AxiosHeaders | undefined => {
+const buildHeaders = (
+  request: Parameters<Plugin['generate']>[0],
+): Record<string, string | string[] | Raw> | undefined => {
   const headers: AxiosHeaders = {}
+  const rawHeaders: Record<string, Raw> = {}
 
-  request?.headers?.forEach((header) => {
-    addHeaderValue(headers, header.name, header.value)
+  formDataHeaders(request ?? {})?.forEach((header) => {
+    if (header.value instanceof Raw) {
+      rawHeaders[header.name] = header.value
+    } else {
+      addHeaderValue(headers, header.name, header.value)
+    }
   })
 
   if (request?.cookies?.length) {
@@ -26,11 +34,12 @@ const buildHeaders = (request: Parameters<Plugin['generate']>[0]): AxiosHeaders 
     addHeaderValue(headers, 'Cookie', cookieValue)
   }
 
-  return Object.keys(headers).length ? headers : undefined
+  return Object.keys(headers).length || Object.keys(rawHeaders).length ? { ...headers, ...rawHeaders } : undefined
 }
 
 const buildData = (
   request: Parameters<Plugin['generate']>[0],
+  target: 'js' | 'node',
 ): { setup: string[]; data?: Raw | string | Record<string, unknown> } => {
   const setup: string[] = []
   const postData = request?.postData
@@ -72,29 +81,7 @@ const buildData = (
   }
 
   if (postData.mimeType === 'multipart/form-data' && postData.params?.length) {
-    setup.push('const formData = new FormData()')
-    postData.params.forEach((param) => {
-      const encodedName = escapeJsString(param.name)
-
-      if (param.fileName !== undefined) {
-        const encodedFileName = escapeJsString(param.fileName)
-        const blobWithType = param.contentType ? `, { type: '${escapeJsString(param.contentType)}' }` : ''
-        setup.push(`formData.append('${encodedName}', new Blob([]${blobWithType}), '${encodedFileName}')`)
-        return
-      }
-
-      if (param.contentType) {
-        const encodedContentType = escapeJsString(param.contentType)
-        const encodedValue = escapeJsString(param.value ?? '')
-        setup.push(
-          `formData.append('${encodedName}', new Blob(['${encodedValue}'], { type: '${encodedContentType}' }))`,
-        )
-        return
-      }
-
-      const encodedValue = escapeJsString(param.value ?? '')
-      setup.push(`formData.append('${encodedName}', '${encodedValue}')`)
-    })
+    setup.push(...buildFormData(postData.params, target))
 
     return {
       setup,
@@ -145,7 +132,7 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
       }
     }
 
-    const { setup, data } = buildData(normalizedRequest)
+    const { setup, data } = buildData(normalizedRequest, target)
     if (data !== undefined) {
       options.data = data
     }

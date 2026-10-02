@@ -318,12 +318,10 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final body = <String,String>{
-    'file': 'test.txt',
-    'field': 'value',
-  };
-
-  final response = await http.post(Uri.parse('https://example.com'), body: body);
+  final request = http.MultipartRequest("POST", Uri.parse("https://example.com"));
+  request.files.add(await http.MultipartFile.fromPath("file", "test.txt"));
+  request.files.add(http.MultipartFile.fromString("field", "value"));
+  final response = await http.Response.fromStream(await request.send());
   print(response.body);
 }`)
   })
@@ -511,11 +509,9 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final body = <String,String>{
-    'file': '',
-  };
-
-  final response = await http.post(Uri.parse('https://example.com'), body: body);
+  final request = http.MultipartRequest("POST", Uri.parse("https://example.com"));
+  request.files.add(await http.MultipartFile.fromPath("file", ""));
+  final response = await http.Response.fromStream(await request.send());
   print(response.body);
 }`)
   })

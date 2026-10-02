@@ -141,10 +141,10 @@ export const rubyNative: Plugin = {
             if (param.contentType) {
               const contentType = escapeRubySingleQuoted(param.contentType)
               lines.push(
-                `form_data << ['${name}', File.open('${fileName}'), { filename: '${fileName}', content_type: '${contentType}' }]`,
+                `form_data << ['${name}', File.open('${fileName}', 'rb'), { filename: '${fileName}', content_type: '${contentType}' }]`,
               )
             } else {
-              lines.push(`form_data << ['${name}', File.open('${fileName}')]`)
+              lines.push(`form_data << ['${name}', File.open('${fileName}', 'rb')]`)
             }
           } else if (param.contentType) {
             const value = escapeRubySingleQuoted(param.value ?? '')
