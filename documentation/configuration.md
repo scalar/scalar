@@ -302,8 +302,8 @@ To make authentication easier you can prefill the credentials for your users:
             tokenUrl: 'https://auth.example.com/oauth2/token',
             'x-scalar-redirect-uri': 'https://your-app.com/callback',
             // Use PKCE for additional security: 'SHA-256', 'plain', or 'no'
-            // With 'SHA-256' or 'plain', authorizationCode is treated as a public client.
-            // The Client Secret field is hidden and client_secret is not sent in token/refresh requests.
+            // PKCE can be used with or without a client secret.
+            // For public clients, leave clientSecret empty and clear any stored Client Secret.
             'x-usePkce': 'SHA-256',
             // Preselected scopes
             selectedScopes: ['profile', 'email'],
@@ -365,7 +365,9 @@ To make authentication easier you can prefill the credentials for your users:
 }
 ```
 
-For OAuth2 `authorizationCode` flows, when `x-usePkce` is set to `'SHA-256'` or `'plain'`, Scalar treats the flow as a public PKCE client. In that mode, the Client Secret input is hidden in the authentication form, and `client_secret` is not included in token exchange or refresh requests.
+For OAuth2 `authorizationCode` flows, setting `x-usePkce` to `'SHA-256'` or `'plain'` enables PKCE. The Client Secret input remains visible because confidential clients can use both PKCE and a client secret. When a secret is present, Scalar uses it to authenticate token exchange and refresh requests according to `x-scalar-credentials-location`: HTTP Basic authentication for `'header'`, or `client_secret` in the request body for `'body'`.
+
+For public clients, leave `clientSecret` empty or omit it, and clear any stored Client Secret in the authentication form. With an empty secret, Scalar omits both `client_secret` and HTTP Basic authentication and sends `client_id` in the request body. Stored credentials take precedence over configuration values, so removing `clientSecret` from the configuration does not clear a previously entered secret.
 
 The `authentication` configuration accepts:
 
