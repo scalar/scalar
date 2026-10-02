@@ -273,10 +273,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "test.txt")} {:name "field"
+                                                 :content (clojure.java.io/file "test.txt")
+                                                 :filename "test.txt"} {:name "field"
                                                  :content "value"}]})`)
   })
 
@@ -295,10 +296,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "")}]})`)
+                                                 :content (clojure.java.io/file "")
+                                                 :filename ""}]})`)
   })
 
   it('uses the inline value as content when a part has both a file name and a value', () => {
@@ -317,10 +319,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content "file contents"}]})`)
+                                                 :content "file contents"
+                                                 :filename "test.txt"}]})`)
   })
 
   it('references the file path when a part has a file name and a null value', () => {
@@ -340,10 +343,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "test.txt")}]})`)
+                                                 :content (clojure.java.io/file "test.txt")
+                                                 :filename "test.txt"}]})`)
   })
 
   it('treats a null file name as a value-less part instead of a file', () => {
@@ -404,10 +408,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "C:\\\\path\\\\to\\\\\\"file\\".txt")}]})`)
+                                                 :content (clojure.java.io/file "C:\\\\path\\\\to\\\\\\"file\\".txt")
+                                                 :filename "C:\\\\path\\\\to\\\\\\"file\\".txt"}]})`)
   })
 
   it('handles url-encoded form data with special characters', () => {

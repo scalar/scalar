@@ -272,8 +272,7 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toBe(
-      `require 'uri'
+    expect(result).toBe(`require 'uri'
 require 'net/http'
 
 url = URI("https://example.com")
@@ -283,13 +282,12 @@ http.use_ssl = true
 
 request = Net::HTTP::Post.new(url)
 form_data = []
-form_data << ['file', File.open('test.txt')]
+form_data << ['file', File.open('test.txt', 'rb')]
 form_data << ['field', 'value']
 request.set_form(form_data, 'multipart/form-data')
 
 response = http.request(request)
-puts response.read_body`,
-    )
+puts response.read_body`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -329,9 +327,21 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toContain(
-      `form_data << ['file', File.open('test.txt'), { filename: 'test.txt', content_type: 'text/plain' }]`,
-    )
+    expect(result).toBe(`require 'uri'
+require 'net/http'
+
+url = URI("https://example.com")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+form_data = []
+form_data << ['file', File.open('test.txt', 'rb'), { filename: 'test.txt', content_type: 'text/plain' }]
+request.set_form(form_data, 'multipart/form-data')
+
+response = http.request(request)
+puts response.read_body`)
   })
 
   it('handles multipart form data with single quotes in parameter name', () => {
@@ -353,8 +363,22 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toContain(`form_data << ['field\\'name', 'value']`)
-    expect(result).toContain(`form_data << ['file\\'name', File.open('test.txt')]`)
+    expect(result).toBe(`require 'uri'
+require 'net/http'
+
+url = URI("https://example.com")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+form_data = []
+form_data << ['field\\'name', 'value']
+form_data << ['file\\'name', File.open('test.txt', 'rb')]
+request.set_form(form_data, 'multipart/form-data')
+
+response = http.request(request)
+puts response.read_body`)
   })
 
   it('handles multipart form data with JSON payload', () => {
@@ -586,7 +610,21 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toContain(`form_data << ['file', File.open('')]`)
+    expect(result).toBe(`require 'uri'
+require 'net/http'
+
+url = URI("https://example.com")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+form_data = []
+form_data << ['file', File.open('', 'rb')]
+request.set_form(form_data, 'multipart/form-data')
+
+response = http.request(request)
+puts response.read_body`)
   })
 
   it('handles JSON body with special characters', () => {

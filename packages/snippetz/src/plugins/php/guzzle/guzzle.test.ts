@@ -305,7 +305,7 @@ $response = $client->request('POST', 'https://example.com', [
   'multipart' => [
     [
       'name' => 'file',
-      'contents' => fopen('test.txt', 'r')
+      'contents' => fopen('test.txt', 'rb')
     ],
     [
       'name' => 'field',
@@ -342,7 +342,7 @@ $response = $client->request('POST', 'https://example.com', [
   'multipart' => [
     [
       'name' => 'file',
-      'contents' => fopen('test.txt', 'r'),
+      'contents' => fopen('test.txt', 'rb'),
       'headers' => [
         'Content-Type' => 'text/plain'
       ]

@@ -1,6 +1,6 @@
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
-import { prepareRequest } from './prepare-request'
+import { multipartFileBoundary, prepareRequest } from './prepare-request'
 
 /** Double every PowerShell single-quote delimiter, including smart apostrophes, to keep values literal. */
 const quote = (value: string): string => `'${value.replace(/['\u2018-\u201b]/g, (quote) => quote + quote)}'`
@@ -11,8 +11,12 @@ export const generatePowershell = (
   request: Partial<HarRequest> = {},
   configuration?: PluginConfiguration,
 ): string => {
-  const { url, method, headers, body } = prepareRequest(request, configuration)
-  const lines: string[] = []
+  const prepared = prepareRequest(request, configuration)
+  const { url, method, headers, body } = prepared
+  const boundary = multipartFileBoundary(prepared)
+  const literal = (value: string): string =>
+    boundary ? `(${quote(value)}).Replace(${quote(boundary)}, $boundary)` : quote(value)
+  const lines: string[] = boundary ? ["$boundary = [guid]::NewGuid().ToString('N')"] : []
   const headerNames = [...new Set(headers.map(({ name }) => name.toLowerCase()))]
   if (headers.length) {
     lines.push('$headers = @{')
@@ -20,7 +24,7 @@ export const generatePowershell = (
       const matches = headers.filter((header) => header.name.toLowerCase() === name)
       // HTTP cmdlets stringify header values; arrays would be sent as System.Object[].
       const value = matches.map((header) => header.value).join(name === 'cookie' ? '; ' : ', ')
-      lines.push(`  ${quote(matches[0]?.name ?? name)} = ${quote(value)}`)
+      lines.push(`  ${quote(matches[0]?.name ?? name)} = ${name === 'content-type' ? literal(value) : quote(value)}`)
     }
     lines.push('}', '')
   }
@@ -30,7 +34,7 @@ export const generatePowershell = (
       lines.push(
         'file' in segment
           ? `$bytes = [System.IO.File]::ReadAllBytes(${quote(segment.file)})`
-          : `$bytes = [System.Text.Encoding]::UTF8.GetBytes(${quote(segment.text)})`,
+          : `$bytes = [System.Text.Encoding]::UTF8.GetBytes(${literal(segment.text)})`,
       )
       lines.push('$body.Write($bytes, 0, $bytes.Length)')
     }

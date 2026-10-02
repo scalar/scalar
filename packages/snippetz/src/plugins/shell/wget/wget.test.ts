@@ -288,15 +288,33 @@ describe('shellWget', () => {
       },
     })
 
-    expect(result).toBe(`wget --quiet \\
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+multipart_body=$(mktemp)
+trap 'rm -f "$multipart_body"' EXIT
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+  cat -- 'test.txt'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="field"\\0015\\0012\\0015\\0012'
+  printf '%b' 'value'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
+} > "$multipart_body"
+wget --quiet \\
   --method POST \\
-  --body-file='test.txt' \\
-  --body-data 'field=value' \\
+  --header 'Content-Type: multipart/form-data; boundary='"$boundary"'' \\
+  --body-file="$multipart_body" \\
   --output-document \\
   - https://example.com`)
   })
 
-  it('pretty-prints JSON multipart parts alongside file parts', () => {
+  it('preserves JSON multipart values alongside file parts', () => {
     const result = shellWget.generate({
       url: 'https://example.com/widget/v1/widgets',
       method: 'POST',
@@ -322,15 +340,28 @@ describe('shellWget', () => {
       },
     })
 
-    expect(result).toBe(`wget --quiet \\
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+multipart_body=$(mktemp)
+trap 'rm -f "$multipart_body"' EXIT
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename="filename"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+  cat -- 'filename'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="props"\\0015\\0012Content-Type: application/json\\0015\\0012\\0015\\0012'
+  printf '%b' '{"name":"","description":"","created_at":null}'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
+} > "$multipart_body"
+wget --quiet \\
   --method POST \\
-  --header 'Content-Type: multipart/form-data' \\
-  --body-file='filename' \\
-  --body-data 'props={
-  "name": "",
-  "description": "",
-  "created_at": null
-}' \\
+  --header 'Content-Type: multipart/form-data; boundary='"$boundary"'' \\
+  --body-file="$multipart_body" \\
   --output-document \\
   - https://example.com/widget/v1/widgets`)
   })
@@ -351,9 +382,18 @@ describe('shellWget', () => {
       },
     })
 
-    expect(result).toBe(`wget --quiet \\
+    expect(result).toBe(`multipart_body=$(mktemp)
+trap 'rm -f "$multipart_body"' EXIT
+{
+  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="props"\\0015\\0012Content-Type: application/json\\0015\\0012\\0015\\0012'
+  printf '%b' 'not json'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--scalar-boundary--\\0015\\0012'
+} > "$multipart_body"
+wget --quiet \\
   --method POST \\
-  --body-data 'props=not json' \\
+  --header 'Content-Type: multipart/form-data; boundary=scalar-boundary' \\
+  --body-file="$multipart_body" \\
   --output-document \\
   - https://example.com`)
   })
@@ -377,10 +417,28 @@ describe('shellWget', () => {
       },
     })
 
-    expect(result).toBe(`wget --quiet \\
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+multipart_body=$(mktemp)
+trap 'rm -f "$multipart_body"' EXIT
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="field'\\''name"\\0015\\0012\\0015\\0012'
+  printf '%b' 'value'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file'\\''name"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+  cat -- 'test.txt'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
+} > "$multipart_body"
+wget --quiet \\
   --method POST \\
-  --body-data 'field'\\''name=value' \\
-  --body-file='test.txt' \\
+  --header 'Content-Type: multipart/form-data; boundary='"$boundary"'' \\
+  --body-file="$multipart_body" \\
   --output-document \\
   - https://example.com`)
   })
@@ -413,7 +471,7 @@ describe('shellWget', () => {
   - https://example.com`)
   })
 
-  it('pretty-prints multipart parts whose contentType uses a +json suffix', () => {
+  it('preserves multipart values whose contentType uses a +json suffix', () => {
     const result = shellWget.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -429,11 +487,18 @@ describe('shellWget', () => {
       },
     })
 
-    expect(result).toBe(`wget --quiet \\
+    expect(result).toBe(`multipart_body=$(mktemp)
+trap 'rm -f "$multipart_body"' EXIT
+{
+  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="props"\\0015\\0012Content-Type: application/vnd.custom+json\\0015\\0012\\0015\\0012'
+  printf '%b' '{"a":1}'
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--scalar-boundary--\\0015\\0012'
+} > "$multipart_body"
+wget --quiet \\
   --method POST \\
-  --body-data 'props={
-  "a": 1
-}' \\
+  --header 'Content-Type: multipart/form-data; boundary=scalar-boundary' \\
+  --body-file="$multipart_body" \\
   --output-document \\
   - https://example.com`)
   })
@@ -453,9 +518,23 @@ describe('shellWget', () => {
       },
     })
 
-    expect(result).toBe(`wget --quiet \\
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+multipart_body=$(mktemp)
+trap 'rm -f "$multipart_body"' EXIT
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename=""\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+  cat -- ''
+  printf '%b' '\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
+} > "$multipart_body"
+wget --quiet \\
   --method POST \\
-  --body-file='' \\
+  --header 'Content-Type: multipart/form-data; boundary='"$boundary"'' \\
+  --body-file="$multipart_body" \\
   --output-document \\
   - https://example.com`)
   })

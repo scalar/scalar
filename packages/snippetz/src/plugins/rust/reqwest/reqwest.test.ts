@@ -296,7 +296,7 @@ let request = client
     .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
-        let part = reqwest::multipart::Part::text("")
+        let part = reqwest::multipart::Part::bytes(std::fs::read("test.txt")?)
             .file_name("test.txt");
         form = form.part("file", part);
         form = form.text("field", "value");
@@ -333,7 +333,7 @@ let request = client
     .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
-        let part = reqwest::multipart::Part::text("")
+        let part = reqwest::multipart::Part::bytes(std::fs::read("test.txt")?)
             .file_name("test.txt")
             .mime_str("text/plain")
             .unwrap();
@@ -521,7 +521,9 @@ let request = client
     .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
-        form = form.text("file", "");
+        let part = reqwest::multipart::Part::bytes(std::fs::read("")?)
+            .file_name("");
+        form = form.part("file", part);
             form
         });
 

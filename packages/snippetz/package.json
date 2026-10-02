@@ -252,6 +252,7 @@
     "js-base64": "catalog:*"
   },
   "devDependencies": {
+    "undici": "catalog:*",
     "vite": "catalog:*"
   }
 }

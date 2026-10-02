@@ -77,20 +77,23 @@ describe('httpHttp11', () => {
       },
     })
 
-    expect(result).toMatch(
-      'POST / HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        'Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="field"\r\n' +
-        '\r\n' +
-        'value\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n',
-    )
+    expect(result).toBe(`// Files and boundary variables use VS Code REST Client syntax.\r
+@boundary = {{$guid}}\r
+\r
+POST / HTTP/1.1\r
+Host: example.com\r
+Content-Type: multipart/form-data; boundary={{boundary}}\r
+\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="file"; filename="test.txt"\r
+\r
+< test.txt\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="field"\r
+\r
+value\r
+--{{boundary}}--\r
+`)
   })
 
   it('handles multipart form data with per-part content types', () => {
@@ -114,22 +117,25 @@ describe('httpHttp11', () => {
       },
     })
 
-    expect(result).toMatch(
-      'POST / HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        'Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n' +
-        'Content-Type: text/plain\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="metadata"\r\n' +
-        'Content-Type: application/json\r\n' +
-        '\r\n' +
-        '{"foo":"bar"}\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n',
-    )
+    expect(result).toBe(`// Files and boundary variables use VS Code REST Client syntax.\r
+@boundary = {{$guid}}\r
+\r
+POST / HTTP/1.1\r
+Host: example.com\r
+Content-Type: multipart/form-data; boundary={{boundary}}\r
+\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="file"; filename="test.txt"\r
+Content-Type: text/plain\r
+\r
+< test.txt\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="metadata"\r
+Content-Type: application/json\r
+\r
+{"foo":"bar"}\r
+--{{boundary}}--\r
+`)
   })
 
   it('handles url-encoded form data with special characters', () => {

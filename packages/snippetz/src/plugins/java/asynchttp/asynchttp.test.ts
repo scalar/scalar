@@ -324,18 +324,19 @@ try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
       },
     })
 
-    expect(result).toBe(`java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    expect(result).toBe(`String boundary = java.util.UUID.randomUUID().toString();
+java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("test.txt")));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"field\\"\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("value".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"field\\"\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("value".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary--\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
   Response response = client.prepare("POST", "https://example.com")
-    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary".replace("scalar-boundary", boundary))
     .setBody(body.toByteArray())
     .execute()
     .get();
@@ -401,18 +402,19 @@ try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
       },
     })
 
-    expect(result).toBe(`java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"filename\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    expect(result).toBe(`String boundary = java.util.UUID.randomUUID().toString();
+java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"filename\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("filename")));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/json\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"props\\"\\r\\nContent-Type: application/json\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary--\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
   Response response = client.prepare("POST", "https://example.com/widget/v1/widgets")
-    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary".replace("scalar-boundary", boundary))
     .setBody(body.toByteArray())
     .execute()
     .get();
@@ -468,15 +470,16 @@ try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
       },
     })
 
-    expect(result).toBe(`java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: text/plain\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    expect(result).toBe(`String boundary = java.util.UUID.randomUUID().toString();
+java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: text/plain\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("test.txt")));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary--\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
   Response response = client.prepare("POST", "https://example.com")
-    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary".replace("scalar-boundary", boundary))
     .setBody(body.toByteArray())
     .execute()
     .get();
@@ -503,18 +506,19 @@ try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
       },
     })
 
-    expect(result).toBe(`java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"field'name\\"\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("value".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file'name\\"; filename=\\"test.txt\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    expect(result).toBe(`String boundary = java.util.UUID.randomUUID().toString();
+java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"field'name\\"\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("value".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file'name\\"; filename=\\"test.txt\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("test.txt")));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary--\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
   Response response = client.prepare("POST", "https://example.com")
-    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary".replace("scalar-boundary", boundary))
     .setBody(body.toByteArray())
     .execute()
     .get();
@@ -763,15 +767,16 @@ try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
       },
     })
 
-    expect(result).toBe(`java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
-body.write("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    expect(result).toBe(`String boundary = java.util.UUID.randomUUID().toString();
+java.io.ByteArrayOutputStream body = new java.io.ByteArrayOutputStream();
+body.write(("--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 body.write(java.nio.file.Files.readAllBytes(java.nio.file.Path.of("")));
-body.write("\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
-body.write("--scalar-boundary--\\r\\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+body.write(("--scalar-boundary--\\r\\n".replace("scalar-boundary", boundary)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
 try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {
   Response response = client.prepare("POST", "https://example.com")
-    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary")
+    .addHeader("Content-Type", "multipart/form-data; boundary=scalar-boundary".replace("scalar-boundary", boundary))
     .setBody(body.toByteArray())
     .execute()
     .get();

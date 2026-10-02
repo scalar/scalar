@@ -145,9 +145,11 @@ export const rHttr2: Plugin = {
         const paramLines = params
           .map((p) => {
             if (p.fileName !== undefined) {
-              return `    ${p.name} = curl::form_file("${p.fileName}")`
+              return `    ${JSON.stringify(p.name)} = curl::form_file(${JSON.stringify(p.fileName)}${p.contentType ? `, type = ${JSON.stringify(p.contentType)}` : ''})`
             }
-            return `    ${p.name} = "${p.value ?? ''}"`
+            return p.contentType
+              ? `    ${JSON.stringify(p.name)} = curl::form_data(${JSON.stringify(p.value ?? '')}, type = ${JSON.stringify(p.contentType)})`
+              : `    ${JSON.stringify(p.name)} = ${JSON.stringify(p.value ?? '')}`
           })
           .join(',\n')
         steps.push(`  req_body_multipart(\n${paramLines}\n  )`)

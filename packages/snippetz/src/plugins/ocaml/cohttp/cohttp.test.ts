@@ -405,18 +405,20 @@ let () =
     expect(result).toBe(`open Lwt.Infix
 
 let () =
+  Random.self_init ();
   Lwt_main.run (
+    let boundary = Printf.sprintf "%08x%08x%08x%08x" (Random.bits ()) (Random.bits ()) (Random.bits ()) (Random.bits ()) in
     let uri = Uri.of_string "https://example.com" in
     let headers = Cohttp.Header.of_list [
-      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+      ("Content-Type", ("multipart/form-data; boundary=" ^ boundary ^ ""));
     ] in
-    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    let part0 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010") in
     Lwt_io.with_file ~mode:Lwt_io.Input "test.txt" Lwt_io.read >>= fun part1 ->
-    let part2 = "\\013\\010" in
-    let part3 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"field\\"\\013\\010\\013\\010" in
-    let part4 = "value" in
-    let part5 = "\\013\\010" in
-    let part6 = "--scalar-boundary--\\013\\010" in
+    let part2 = ("\\013\\010") in
+    let part3 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"field\\"\\013\\010\\013\\010") in
+    let part4 = ("value") in
+    let part5 = ("\\013\\010") in
+    let part6 = ("--" ^ boundary ^ "--\\013\\010") in
     let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3; part4; part5; part6]) in
     Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
     >>= fun (_response, body) ->
@@ -488,18 +490,20 @@ let () =
     expect(result).toBe(`open Lwt.Infix
 
 let () =
+  Random.self_init ();
   Lwt_main.run (
+    let boundary = Printf.sprintf "%08x%08x%08x%08x" (Random.bits ()) (Random.bits ()) (Random.bits ()) (Random.bits ()) in
     let uri = Uri.of_string "https://example.com/widget/v1/widgets" in
     let headers = Cohttp.Header.of_list [
-      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+      ("Content-Type", ("multipart/form-data; boundary=" ^ boundary ^ ""));
     ] in
-    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"filename\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    let part0 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"filename\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010") in
     Lwt_io.with_file ~mode:Lwt_io.Input "filename" Lwt_io.read >>= fun part1 ->
-    let part2 = "\\013\\010" in
-    let part3 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"props\\"\\013\\010Content-Type: application/json\\013\\010\\013\\010" in
-    let part4 = "{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}" in
-    let part5 = "\\013\\010" in
-    let part6 = "--scalar-boundary--\\013\\010" in
+    let part2 = ("\\013\\010") in
+    let part3 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"props\\"\\013\\010Content-Type: application/json\\013\\010\\013\\010") in
+    let part4 = ("{\\"name\\":\\"\\",\\"description\\":\\"\\",\\"created_at\\":null}") in
+    let part5 = ("\\013\\010") in
+    let part6 = ("--" ^ boundary ^ "--\\013\\010") in
     let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3; part4; part5; part6]) in
     Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
     >>= fun (_response, body) ->
@@ -561,15 +565,17 @@ let () =
     expect(result).toBe(`open Lwt.Infix
 
 let () =
+  Random.self_init ();
   Lwt_main.run (
+    let boundary = Printf.sprintf "%08x%08x%08x%08x" (Random.bits ()) (Random.bits ()) (Random.bits ()) (Random.bits ()) in
     let uri = Uri.of_string "https://example.com" in
     let headers = Cohttp.Header.of_list [
-      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+      ("Content-Type", ("multipart/form-data; boundary=" ^ boundary ^ ""));
     ] in
-    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\013\\010Content-Type: text/plain\\013\\010\\013\\010" in
+    let part0 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\013\\010Content-Type: text/plain\\013\\010\\013\\010") in
     Lwt_io.with_file ~mode:Lwt_io.Input "test.txt" Lwt_io.read >>= fun part1 ->
-    let part2 = "\\013\\010" in
-    let part3 = "--scalar-boundary--\\013\\010" in
+    let part2 = ("\\013\\010") in
+    let part3 = ("--" ^ boundary ^ "--\\013\\010") in
     let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3]) in
     Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
     >>= fun (_response, body) ->
@@ -599,18 +605,20 @@ let () =
     expect(result).toBe(`open Lwt.Infix
 
 let () =
+  Random.self_init ();
   Lwt_main.run (
+    let boundary = Printf.sprintf "%08x%08x%08x%08x" (Random.bits ()) (Random.bits ()) (Random.bits ()) (Random.bits ()) in
     let uri = Uri.of_string "https://example.com" in
     let headers = Cohttp.Header.of_list [
-      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+      ("Content-Type", ("multipart/form-data; boundary=" ^ boundary ^ ""));
     ] in
-    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"field'name\\"\\013\\010\\013\\010" in
-    let part1 = "value" in
-    let part2 = "\\013\\010" in
-    let part3 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file'name\\"; filename=\\"test.txt\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    let part0 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"field'name\\"\\013\\010\\013\\010") in
+    let part1 = ("value") in
+    let part2 = ("\\013\\010") in
+    let part3 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"file'name\\"; filename=\\"test.txt\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010") in
     Lwt_io.with_file ~mode:Lwt_io.Input "test.txt" Lwt_io.read >>= fun part4 ->
-    let part5 = "\\013\\010" in
-    let part6 = "--scalar-boundary--\\013\\010" in
+    let part5 = ("\\013\\010") in
+    let part6 = ("--" ^ boundary ^ "--\\013\\010") in
     let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3; part4; part5; part6]) in
     Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
     >>= fun (_response, body) ->
@@ -909,15 +917,17 @@ let () =
     expect(result).toBe(`open Lwt.Infix
 
 let () =
+  Random.self_init ();
   Lwt_main.run (
+    let boundary = Printf.sprintf "%08x%08x%08x%08x" (Random.bits ()) (Random.bits ()) (Random.bits ()) (Random.bits ()) in
     let uri = Uri.of_string "https://example.com" in
     let headers = Cohttp.Header.of_list [
-      ("Content-Type", "multipart/form-data; boundary=scalar-boundary");
+      ("Content-Type", ("multipart/form-data; boundary=" ^ boundary ^ ""));
     ] in
-    let part0 = "--scalar-boundary\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010" in
+    let part0 = ("--" ^ boundary ^ "\\013\\010Content-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\013\\010Content-Type: application/octet-stream\\013\\010\\013\\010") in
     Lwt_io.with_file ~mode:Lwt_io.Input "" Lwt_io.read >>= fun part1 ->
-    let part2 = "\\013\\010" in
-    let part3 = "--scalar-boundary--\\013\\010" in
+    let part2 = ("\\013\\010") in
+    let part3 = ("--" ^ boundary ^ "--\\013\\010") in
     let body = Cohttp_lwt.Body.of_string (String.concat "" [part0; part1; part2; part3]) in
     Cohttp_lwt_unix.Client.call ~headers ~body (Cohttp.Code.method_of_string "POST") uri
     >>= fun (_response, body) ->

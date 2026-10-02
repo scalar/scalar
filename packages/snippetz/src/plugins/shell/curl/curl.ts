@@ -3,7 +3,9 @@ import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-conten
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { normalizeMethod } from '@/libs/http'
+import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 import { escapeSingleQuotes } from '@/libs/shell'
+import { buildShellBody, quoteShellBoundary, shellBoundarySetup } from '@/libs/shell-body'
 
 /**
  * shell/curl
@@ -66,15 +68,35 @@ export const shellCurl: Plugin = {
       parts.push(`--user '${authValue}'`)
     }
 
+    // cURL has its own form grammar inside the shell argument. Serialize explicitly
+    // when quoted filenames or typed literal values could be interpreted as directives.
+    const multipart =
+      normalizedRequest.postData?.mimeType === 'multipart/form-data' &&
+      normalizedRequest.postData.params?.some(
+        (param) =>
+          /[;=",\r\n]/.test(param.name) ||
+          (param.fileName !== undefined
+            ? /[;,"\\\r\n]/.test(param.fileName)
+            : Boolean(param.contentType) && (/^[@<"]/.test(param.value ?? '') || /[;]/.test(param.value ?? ''))),
+      )
+        ? prepareRequest(normalizedRequest)
+        : undefined
+
+    const boundary = multipartFileBoundary(multipart)
+
     // Headers
-    if (normalizedRequest.headers?.length) {
-      normalizedRequest.headers.forEach((header) => {
-        const headerValue = escapeSingleQuotes(`${header.name}: ${header.value}`)
-        parts.push(`--header '${headerValue}'`)
+    const headers = multipart?.headers ?? normalizedRequest.headers
+    if (headers?.length) {
+      headers.forEach((header) => {
+        const headerValue = quoteShellBoundary(
+          `${header.name}: ${header.value}`,
+          header.name.toLowerCase() === 'content-type' ? boundary : undefined,
+        )
+        parts.push(`--header ${headerValue}`)
       })
 
       // Add compressed flag if Accept-Encoding header includes compression
-      const acceptEncoding = normalizedRequest.headers.find((header) => header.name.toLowerCase() === 'accept-encoding')
+      const acceptEncoding = headers.find((header) => header.name.toLowerCase() === 'accept-encoding')
       if (acceptEncoding && /gzip|deflate/.test(acceptEncoding.value)) {
         parts.push('--compressed')
       }
@@ -129,30 +151,41 @@ export const shellCurl: Plugin = {
           parts.push(`--data-urlencode '${escapedName}=${escapedValue}'`)
         })
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
-        // Handle multipart form data
-        normalizedRequest.postData.params.forEach((param) => {
-          const escapedName = escapeSingleQuotes(param.name)
-          const multipartValueSuffix = param.contentType ? `;type=${param.contentType}` : ''
-          if (param.fileName !== undefined) {
-            const escapedFileName = escapeSingleQuotes(`${param.fileName}${multipartValueSuffix}`)
-            parts.push(`--form '${escapedName}=@${escapedFileName}'`)
-          } else {
-            const rawValue = param.value ?? ''
-            // Pretty-print parts whose contentType is JSON so the snippet stays readable,
-            // mirroring what we already do for `--data` JSON bodies above.
-            const isJsonPart = isJsonMediaType(param.contentType)
-            let displayValue = rawValue
-            if (isJsonPart && rawValue) {
-              try {
-                displayValue = JSON.stringify(JSON.parse(rawValue), null, 2)
-              } catch {
-                // Fall back to the raw value if it is not valid JSON.
+        if (multipart) {
+          parts.push('--data-binary @-')
+        } else {
+          // Handle multipart form data
+          normalizedRequest.postData.params.forEach((param) => {
+            const escapedName = escapeSingleQuotes(param.name)
+            const multipartValueSuffix = param.contentType ? `;type=${param.contentType}` : ''
+            if (param.fileName !== undefined) {
+              const escapedFileName = escapeSingleQuotes(`${param.fileName}${multipartValueSuffix}`)
+              parts.push(`--form '${escapedName}=@${escapedFileName}'`)
+            } else {
+              const rawValue = param.value ?? ''
+              // Pretty-print parts whose contentType is JSON so the snippet stays readable,
+              // mirroring what we already do for `--data` JSON bodies above.
+              const isJsonPart = isJsonMediaType(param.contentType)
+              let displayValue = rawValue
+              if (isJsonPart && rawValue) {
+                try {
+                  displayValue = JSON.stringify(JSON.parse(rawValue), null, 2)
+                } catch {
+                  // Fall back to the raw value if it is not valid JSON.
+                }
+              }
+              const escapedValue = escapeSingleQuotes(`${displayValue}${multipartValueSuffix}`)
+              if (
+                !param.contentType &&
+                (displayValue.startsWith('@') || displayValue.startsWith('<') || displayValue.includes(';'))
+              ) {
+                parts.push(`--form-string '${escapedName}=${escapeSingleQuotes(displayValue)}'`)
+              } else {
+                parts.push(`--form '${escapedName}=${escapedValue}'`)
               }
             }
-            const escapedValue = escapeSingleQuotes(`${displayValue}${multipartValueSuffix}`)
-            parts.push(`--form '${escapedName}=${escapedValue}'`)
-          }
-        })
+          })
+        }
       } else {
         // Try to parse and pretty print if it's JSON, otherwise use raw text
         try {
@@ -167,6 +200,9 @@ export const shellCurl: Plugin = {
       }
     }
 
-    return parts.join(' \\\n  ')
+    const command = parts.join(' \\\n  ')
+    return multipart?.body
+      ? `${boundary ? shellBoundarySetup : ''}${buildShellBody(multipart.body, boundary)} | ${command}`
+      : command
   },
 }

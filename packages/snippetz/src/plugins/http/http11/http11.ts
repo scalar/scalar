@@ -1,6 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { normalizeMethod } from '@/libs/http'
+import { dispositionValue } from '@/libs/prepare-request'
 
 /**
  * http/http1.1
@@ -92,7 +93,8 @@ export const httpHttp11: Plugin = {
         headers.set('Content-Type', 'application/x-www-form-urlencoded')
         body = formData
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
-        const boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+        const boundary = '{{boundary}}'
+        requestString = `// Files and boundary variables use VS Code REST Client syntax.\r\n@boundary = {{$guid}}\r\n\r\n${requestString}`
         headers.set('Content-Type', `multipart/form-data; boundary=${boundary}`)
 
         body =
@@ -100,10 +102,10 @@ export const httpHttp11: Plugin = {
             .map((param) => {
               const contentTypeHeader = param.contentType ? `Content-Type: ${param.contentType}\r\n` : ''
 
-              if (param.fileName) {
-                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n${contentTypeHeader}\r\n`
+              if (param.fileName !== undefined) {
+                return `--${boundary}\r\nContent-Disposition: form-data; name="${dispositionValue(param.name)}"; filename="${dispositionValue(param.fileName)}"\r\n${contentTypeHeader}\r\n< ${param.fileName}\r\n`
               }
-              return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n${contentTypeHeader}\r\n${param.value ?? ''}\r\n`
+              return `--${boundary}\r\nContent-Disposition: form-data; name="${dispositionValue(param.name)}"\r\n${contentTypeHeader}\r\n${param.value ?? ''}\r\n`
             })
             .join('') + `--${boundary}--\r\n`
       }

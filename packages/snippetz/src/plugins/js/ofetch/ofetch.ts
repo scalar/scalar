@@ -1,7 +1,8 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { buildFormData, formDataHeaders } from '@/libs/form-data'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
-import { objectToString } from '@/libs/javascript'
+import { Raw, objectToString } from '@/libs/javascript'
 
 /**
  * js/ofetch
@@ -31,10 +32,10 @@ export const jsOfetch: Plugin = {
     }
 
     // Headers
-    if (normalizedRequest.headers?.length) {
+    const headers = formDataHeaders(normalizedRequest)
+    if (headers?.length) {
       options.headers = {}
-
-      normalizedRequest.headers.forEach((header) => {
+      headers.forEach((header) => {
         options.headers![header.name] = header.value
       })
     }
@@ -57,10 +58,16 @@ export const jsOfetch: Plugin = {
       }
     })
 
+    let prefix = ''
+
     // Add body
     if (normalizedRequest.postData) {
-      // Plain text
-      options.body = normalizedRequest.postData.text
+      if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
+        prefix = `${buildFormData(normalizedRequest.postData.params, 'js').join('\n')}\n\n`
+        options.body = new Raw('formData')
+      } else {
+        options.body = normalizedRequest.postData.text
+      }
 
       // JSON
       if (normalizedRequest.postData.mimeType === 'application/json') {
@@ -74,6 +81,6 @@ export const jsOfetch: Plugin = {
     // Code Template
     return `import { ofetch } from 'ofetch'
 
-ofetch('${normalizedRequest.url}'${jsonOptions})`
+${prefix}ofetch('${normalizedRequest.url}'${jsonOptions})`
   },
 }

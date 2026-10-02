@@ -15,7 +15,7 @@ type PreparedRequest = {
 }
 
 /** Prevent names and filenames from terminating a multipart disposition parameter. */
-const dispositionValue = (value: string): string =>
+export const dispositionValue = (value: string): string =>
   value.replaceAll('\r', '%0D').replaceAll('\n', '%0A').replaceAll('"', '%22')
 
 /** Preserve repeated fields, file uploads, and part media types in a multipart body. */
@@ -84,3 +84,9 @@ export const prepareRequest = (
     body,
   }
 }
+
+/** Locate the framing marker that file serializers replace with a runtime boundary. */
+export const multipartFileBoundary = (request: ReturnType<typeof prepareRequest> | undefined): string | undefined =>
+  request?.body?.some((segment) => 'file' in segment)
+    ? request.headers.find(({ name }) => name.toLowerCase() === 'content-type')?.value.split('boundary=')[1]
+    : undefined

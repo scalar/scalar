@@ -464,18 +464,26 @@ describe('nodeAxios', () => {
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+import { readFileSync } from 'node:fs';
+
+const formData = new FormData();
+formData.append("file", new File([readFileSync("test.txt")], "test.txt", { type: "application/octet-stream" }));
+formData.append("field", "value");
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([]), 'test.txt')
-formData.append('field', 'value')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -494,17 +502,23 @@ formData.append('field', 'value')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+formData.append("user", new Blob(["{\\"name\\":\\"scalar\\"}"], { type: "application/json;charset=utf-8" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('user', new Blob(['{"name":"scalar"}'], { type: 'application/json;charset=utf-8' }))`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles multipart form data content types on files', () => {
@@ -523,17 +537,25 @@ formData.append('user', new Blob(['{"name":"scalar"}'], { type: 'application/jso
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+import { readFileSync } from 'node:fs';
+
+const formData = new FormData();
+formData.append("file", new File([readFileSync("test.txt")], "test.txt", { type: "text/plain" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([], { type: 'text/plain' }), 'test.txt')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles multipart form data with empty file names', () => {
@@ -551,17 +573,25 @@ formData.append('file', new Blob([], { type: 'text/plain' }), 'test.txt')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+import { readFileSync } from 'node:fs';
+
+const formData = new FormData();
+formData.append("file", new File([readFileSync("")], "", { type: "application/octet-stream" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([]), '')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles url-encoded form data', () => {
@@ -759,17 +789,23 @@ encodedParams.append('field\\'name', 'value\\'one')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+formData.append("field'name", "value'one");
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('field\\'name', 'value\\'one')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('escapes single quotes in multipart content type', () => {
@@ -788,17 +824,23 @@ formData.append('field\\'name', 'value\\'one')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+formData.append("payload", new Blob(["value"], { type: "application/x.scalar'json" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('payload', new Blob(['value'], { type: 'application/x.scalar\\'json' }))`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('escapes single quotes in file names for multipart data', () => {
@@ -816,17 +858,25 @@ formData.append('payload', new Blob(['value'], { type: 'application/x.scalar\\'j
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+import { readFileSync } from 'node:fs';
+
+const formData = new FormData();
+formData.append("file", new File([readFileSync("te'st.txt")], "te'st.txt", { type: "application/octet-stream" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([]), 'te\\'st.txt')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('escapes single quotes in query values', () => {
