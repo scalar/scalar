@@ -59,6 +59,42 @@ describe('oauth', () => {
     url: 'https://api.example.com',
   } as ServerObject
 
+  it('rejects a cleared authorization URL without opening a window', async () => {
+    const flows = {
+      authorizationCode: {
+        ...baseFlow,
+        authorizationUrl,
+        tokenUrl,
+        'x-usePkce': 'no',
+        'x-scalar-secret-auth-url': '',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-client-secret': clientSecret,
+        'x-scalar-secret-redirect-uri': redirectUri,
+      },
+    } satisfies OAuthFlowsObjectSecret
+    const [error, tokens] = await authorizeOauth2(flows, 'authorizationCode', [], mockServer, '')
+    expect(error?.message).toBe('Authorization URL is required')
+    expect(tokens).toBe(null)
+    expect(window.open).not.toHaveBeenCalled()
+  })
+
+  it('rejects a cleared token URL without making a request', async () => {
+    const customFetch = vi.fn<typeof fetch>()
+    const flows = {
+      clientCredentials: {
+        ...baseFlow,
+        tokenUrl,
+        'x-scalar-secret-token-url': '',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-client-secret': clientSecret,
+      },
+    } satisfies OAuthFlowsObjectSecret
+    const [error, tokens] = await authorizeOauth2(flows, 'clientCredentials', [], mockServer, '', {}, customFetch)
+    expect(error?.message).toBe('Token URL is required')
+    expect(tokens).toBe(null)
+    expect(customFetch).not.toHaveBeenCalled()
+  })
+
   it.each(['body', 'header'] as const)(
     'trims OAuth client credentials in %s requests and refresh without changing stored secrets',
     async (location) => {
@@ -1955,6 +1991,27 @@ describe('oauth', () => {
         'x-scalar-secret-refresh-token': 'refresh_token_123',
       },
     } satisfies OAuthFlowsObjectSecret
+
+    it('rejects a cleared token URL when no separate refresh URL is configured', async () => {
+      global.fetch = vi.fn()
+      const flows = {
+        authorizationCode: { ...refreshScheme.authorizationCode, refreshUrl: '', 'x-scalar-secret-token-url': '' },
+      }
+      const [error, tokens] = await refreshOauth2Token(flows, 'authorizationCode', '', mockServer)
+      expect(error?.message).toBe('Token URL is required')
+      expect(tokens).toBeNull()
+      expect(global.fetch).not.toHaveBeenCalled()
+    })
+
+    it('uses a separate refresh URL even when the token URL is cleared', async () => {
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce({ json: () => Promise.resolve({ access_token: 'new_access_token' }) })
+      const flows = { authorizationCode: { ...refreshScheme.authorizationCode, 'x-scalar-secret-token-url': '' } }
+      const [error] = await refreshOauth2Token(flows, 'authorizationCode', '', mockServer)
+      expect(error).toBeNull()
+      expect(global.fetch).toHaveBeenCalledWith(refreshScheme.authorizationCode.refreshUrl, expect.any(Object))
+    })
 
     it('exchanges a refresh token for a new access token', async () => {
       global.fetch = vi.fn().mockResolvedValueOnce({

@@ -23,6 +23,10 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import {
+  isSecretFieldCleared,
+  type AuthSecretField,
+} from '@scalar/workspace-store/helpers/auth-secret-fields'
+import {
   getEnvironmentVariables,
   type OAuthFlowAuthorizationCodeSecret,
   type OAuthFlowClientCredentialsSecret,
@@ -32,7 +36,6 @@ import {
 } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
-import { type XusePkce } from '@scalar/workspace-store/schemas/extensions/security/x-use-pkce'
 import type {
   OAuthFlow,
   ServerObject,
@@ -200,6 +203,25 @@ const handleOauth2SecretsUpdate = (
   })
 }
 
+/** Reset only this field; redirect URI may need its browser default prefilled again. */
+const handleResetSecret = (field: AuthSecretField): void => {
+  if (field === 'x-scalar-secret-redirect-uri') {
+    hasHandledRedirectPrefill.value = false
+  }
+  eventBus.emit('auth:reset:security-scheme-secret', {
+    name,
+    flow: type,
+    field,
+  })
+}
+
+/** Fixed-choice fields must never write an empty string into the document. */
+const handlePkceUpdate = (value: string): void => {
+  if (value === 'SHA-256' || value === 'plain' || value === 'no') {
+    handleOauth2Update({ 'x-usePkce': value })
+  }
+}
+
 /** Clears the flow secrets */
 const clearOauth2Secrets = (): void => {
   if (loader.isLoading) {
@@ -269,6 +291,7 @@ watch(
     // ephemeral 127.0.0.1 port), so persisting a default into the document would
     // only bake in a stale, unused value. Leave it empty and show a hint instead.
     if (
+      isSecretFieldCleared(currentFlow, 'x-scalar-secret-redirect-uri') ||
       newRedirectUri ||
       !defaultRedirectUri ||
       options.captureOAuth2Callback
@@ -393,7 +416,8 @@ const handleRefresh = async (): Promise<void> => {
 
 /** Updates the secret location */
 const handleSecretLocationUpdate = (value: string): void => {
-  const credentialsLocation = value === 'body' ? 'body' : 'header'
+  if (value !== 'body' && value !== 'header') return
+  const credentialsLocation = value
 
   if (scheme.type !== 'openIdConnect') {
     handleOauth2Update({
@@ -409,14 +433,20 @@ const handleSecretLocationUpdate = (value: string): void => {
 
 <template>
   <!-- Access Token Display: Shows when user is already authorized -->
-  <template v-if="Boolean(flow['x-scalar-secret-token'])">
+  <template
+    v-if="
+      Boolean(flow['x-scalar-secret-token']) ||
+      isSecretFieldCleared(flow, 'x-scalar-secret-token')
+    ">
     <DataTableRow>
       <RequestAuthDataTableInput
+        canReset
         class="border-r-transparent"
         :environment
         :modelValue="flow['x-scalar-secret-token']"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
+        @reset="handleResetSecret('x-scalar-secret-token')"
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-token': v })
         ">
@@ -454,7 +484,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="handleClearAccessTokens">
-          {{ translate('apiClient.oauth2.clear') }}
+          {{ translate('apiClient.oauth2.clearTokens') }}
         </ScalarButton>
       </div>
     </DataTableRow>
@@ -511,14 +541,16 @@ const handleSecretLocationUpdate = (value: string): void => {
     <DataTableRow>
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
+        canReset
         containerClass="border-r-0"
         :environment
         :modelValue="flow['x-scalar-secret-auth-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/authorize"
+        @reset="handleResetSecret('x-scalar-secret-auth-url')"
         @update:modelValue="
           (v) => {
             handleOauth2SecretsUpdate({ 'x-scalar-secret-auth-url': v })
-            handleOauth2Update({ authorizationUrl: v })
+            if (v) handleOauth2Update({ authorizationUrl: v })
           }
         ">
         {{ translate('apiClient.oauth2.authUrl') }}
@@ -526,13 +558,15 @@ const handleSecretLocationUpdate = (value: string): void => {
 
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
+        canReset
         :environment
         :modelValue="flow['x-scalar-secret-token-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/token"
+        @reset="handleResetSecret('x-scalar-secret-token-url')"
         @update:modelValue="
           (v) => {
             handleOauth2SecretsUpdate({ 'x-scalar-secret-token-url': v })
-            handleOauth2Update({ tokenUrl: v })
+            if (v) handleOauth2Update({ tokenUrl: v })
           }
         ">
         {{ translate('apiClient.oauth2.tokenUrl') }}
@@ -541,6 +575,7 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow v-if="'x-scalar-secret-redirect-uri' in flow">
       <RequestAuthDataTableInput
+        canReset
         :environment
         :modelValue="flow['x-scalar-secret-redirect-uri']"
         :placeholder="
@@ -548,6 +583,7 @@ const handleSecretLocationUpdate = (value: string): void => {
             ? `${resolveDefaultOAuth2RedirectUri(options) || 'http://127.0.0.1'} (handled automatically)`
             : translate('apiClient.oauth2.optionalRedirectUrl')
         "
+        @reset="handleResetSecret('x-scalar-secret-redirect-uri')"
         @update:modelValue="
           (v) => {
             hasHandledRedirectPrefill = true
@@ -564,10 +600,12 @@ const handleSecretLocationUpdate = (value: string): void => {
       ">
       <DataTableRow>
         <RequestAuthDataTableInput
+          canReset
           class="text-c-2"
           :environment
           :modelValue="flow['x-scalar-secret-username']"
           placeholder="janedoe"
+          @reset="handleResetSecret('x-scalar-secret-username')"
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-username': v })
           ">
@@ -577,10 +615,12 @@ const handleSecretLocationUpdate = (value: string): void => {
 
       <DataTableRow>
         <RequestAuthDataTableInput
+          canReset
           :environment
           :modelValue="flow['x-scalar-secret-password']"
           placeholder="********"
           type="password"
+          @reset="handleResetSecret('x-scalar-secret-password')"
           @update:modelValue="
             (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-password': v })
           ">
@@ -591,9 +631,11 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow>
       <RequestAuthDataTableInput
+        canReset
         :environment
         :modelValue="flow['x-scalar-secret-client-id']"
         placeholder="12345"
+        @reset="handleResetSecret('x-scalar-secret-client-id')"
         @update:modelValue="
           (v) => handleOauth2SecretsUpdate({ 'x-scalar-secret-client-id': v })
         ">
@@ -603,10 +645,12 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow v-if="showClientSecret">
       <RequestAuthDataTableInput
+        canReset
         :environment
         :modelValue="clientSecretValue"
         placeholder="XYZ123"
         type="password"
+        @reset="handleResetSecret('x-scalar-secret-client-secret')"
         @update:modelValue="
           (v) =>
             handleOauth2SecretsUpdate({ 'x-scalar-secret-client-secret': v })
@@ -621,12 +665,7 @@ const handleSecretLocationUpdate = (value: string): void => {
         :environment
         :modelValue="flow['x-usePkce']"
         readOnly
-        @update:modelValue="
-          (v) =>
-            handleOauth2Update({
-              'x-usePkce': v as XusePkce['x-usePkce'],
-            })
-        ">
+        @update:modelValue="handlePkceUpdate">
         {{ translate('apiClient.oauth2.usePKCE') }}
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -669,7 +708,7 @@ const handleSecretLocationUpdate = (value: string): void => {
           size="sm"
           variant="outlined"
           @click="clearOauth2Secrets">
-          {{ translate('apiClient.oauth2.clear') }}
+          {{ translate('apiClient.oauth2.resetDiscovery') }}
         </ScalarButton>
 
         <ScalarButton

@@ -72,6 +72,10 @@ export const authorizeDevice = async (
     const resolveValue = (value: string): string => replaceEnvVariables(value, environment)
     const endpoint = (value: string): string =>
       redirectToProxy(proxyUrl, makeUrlAbsolute(resolveValue(value), getActiveServerBase(server, environment)))
+    const tokenUrl = flow['x-scalar-secret-token-url'] ?? flow.tokenUrl
+    if (!tokenUrl.trim()) {
+      throw new Error('Token URL is required')
+    }
     const clientId = resolveValue(flow['x-scalar-secret-client-id'])
     const clientSecret = resolveValue(flow['x-scalar-secret-client-secret'])
     const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' }
@@ -141,7 +145,7 @@ export const authorizeDevice = async (
           throw new Error('Device authorization expired')
         }
         // Connection timeouts require a lower polling frequency (RFC8628 section 3.5).
-        const tokenResponse = await customFetch(endpoint(flow['x-scalar-secret-token-url'] || flow.tokenUrl), {
+        const tokenResponse = await customFetch(endpoint(tokenUrl), {
           method: 'POST',
           headers,
           body,

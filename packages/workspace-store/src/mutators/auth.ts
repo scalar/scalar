@@ -1,5 +1,7 @@
 import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
+import { resetSecretField, updateClearedSecretFields } from '@/helpers/auth-secret-fields'
+import { deepClone } from '@/helpers/deep-clone'
 import { forEachPathItemOperation, getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -252,7 +254,37 @@ const updateSecuritySchemeSecrets = (
     ? unpackProxyObject(auth, { depth: 1 })
     : { ...payload }
   mergeObjects(result, payload)
+  updateClearedSecretFields(result, payload)
   store?.auth.setAuthSecrets(documentName, name, result)
+}
+
+const resetSecuritySchemeSecret = (
+  store: WorkspaceStore | null,
+  document: WorkspaceDocument | null,
+  { name, flow, field }: AuthEvents['auth:reset:security-scheme-secret'],
+): void => {
+  const documentName = getAuthDocumentName(document)
+  if (!documentName || !store) {
+    return
+  }
+  const auth = store.auth.getAuthSecrets(documentName, name)
+  if (!auth) {
+    return
+  }
+  const secrets = deepClone(auth)
+  if (flow) {
+    if (secrets.type !== 'oauth2' && secrets.type !== 'openIdConnect') {
+      return
+    }
+    const flowSecrets = secrets[flow]
+    if (!flowSecrets) {
+      return
+    }
+    resetSecretField(flowSecrets, field)
+  } else {
+    resetSecretField(secrets, field)
+  }
+  store.auth.setAuthSecrets(documentName, name, secrets)
 }
 
 const clearSecuritySchemeSecrets = (
@@ -769,6 +801,8 @@ export const authMutatorsFactory = ({
       updateSecurityScheme(document, payload),
     updateSecuritySchemeSecrets: (payload: AuthEvents['auth:update:security-scheme-secrets']) =>
       updateSecuritySchemeSecrets(store, document, payload),
+    resetSecuritySchemeSecret: (payload: AuthEvents['auth:reset:security-scheme-secret']) =>
+      resetSecuritySchemeSecret(store, document, payload),
     clearSecuritySchemeSecrets: (payload: AuthEvents['auth:clear:security-scheme-secrets']) =>
       clearSecuritySchemeSecrets(store, document, payload),
     updateSelectedAuthTab: (payload: AuthEvents['auth:update:active-index']) =>

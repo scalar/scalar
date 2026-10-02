@@ -2,6 +2,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
+import { type AuthSecretField, isSecretFieldCleared } from '@scalar/workspace-store/helpers/auth-secret-fields'
 import type { DeepPartial } from '@scalar/workspace-store/helpers/overrides-proxy'
 import type { XScalarCredentialsLocation } from '@scalar/workspace-store/schemas/extensions/security/x-scalar-credentials-location'
 import type {
@@ -65,12 +66,11 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
   configSecrets: Record<string, unknown>,
   authStoreSecrets: Record<string, unknown> = {},
   oauth2RedirectUri?: string,
-): Record<T[number], string> =>
-  Object.fromEntries(
+): Record<T[number], string> & { 'x-scalar-secret-cleared-fields'?: string[] } => {
+  const clearedFields = properties.filter((property) => isSecretFieldCleared(authStoreSecrets, property))
+  const values = Object.fromEntries(
     properties.map((property) => {
-      // Redirect URI is the only OAuth secret where an explicit empty value from
-      // store must be preserved. Other secrets use falsy fallback behavior for backwards-compatibility
-      // with config defaults when the casted auth store value is an empty string.
+      // Preserve explicit clears, while legacy schema-filled empties still inherit defaults.
       const authStoreValue = typeof authStoreSecrets[property] === 'string' ? authStoreSecrets[property] : undefined
       const configValue = typeof configSecrets[property] === 'string' ? configSecrets[property] : undefined
       const configInputValue =
@@ -83,13 +83,20 @@ const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT
       // the configured redirect URI persists when switching between documents with the same OAuth config,
       // because each document starts with no stored redirect URI (authStoreValue === undefined).
       const value =
-        property === 'x-scalar-secret-redirect-uri'
+        property === 'x-scalar-secret-redirect-uri' || isSecretFieldCleared(authStoreSecrets, property)
           ? (authStoreValue ?? configValue ?? configInputValue ?? oauth2RedirectUri ?? '')
           : authStoreValue || configValue || configInputValue || ''
 
       return [property, value]
     }),
   ) as Record<T[number], string>
+  return { ...values, ...(clearedFields.length ? { 'x-scalar-secret-cleared-fields': clearedFields } : {}) }
+}
+
+const storedSecret = (secrets: object | undefined, field: AuthSecretField): string | undefined => {
+  const value: unknown = secrets && Reflect.get(secrets, field)
+  return typeof value === 'string' && (value || isSecretFieldCleared(secrets ?? {}, field)) ? value : undefined
+}
 
 /** Secret extensions are not part of the strict scheme types, so they are read the same way the OAuth flows read theirs */
 const documentSecret = (scheme: object, property: keyof typeof SECRET_TO_INPUT_FIELD_MAP): string => {
@@ -271,10 +278,8 @@ export const extractSecuritySchemeSecrets = (
     return {
       ...scheme,
       'x-scalar-secret-token':
-        storeSecrets?.['x-scalar-secret-token'] ||
-        documentSecret(scheme, 'x-scalar-secret-token') ||
-        scheme.value ||
-        '',
+        storedSecret(storeSecrets, 'x-scalar-secret-token') ??
+        (documentSecret(scheme, 'x-scalar-secret-token') || scheme.value || ''),
     } satisfies ApiKeyObjectSecret
   }
 
@@ -284,20 +289,14 @@ export const extractSecuritySchemeSecrets = (
     return {
       ...scheme,
       'x-scalar-secret-token':
-        storeSecrets?.['x-scalar-secret-token'] ||
-        documentSecret(scheme, 'x-scalar-secret-token') ||
-        scheme.token ||
-        '',
+        storedSecret(storeSecrets, 'x-scalar-secret-token') ??
+        (documentSecret(scheme, 'x-scalar-secret-token') || scheme.token || ''),
       'x-scalar-secret-username':
-        storeSecrets?.['x-scalar-secret-username'] ||
-        documentSecret(scheme, 'x-scalar-secret-username') ||
-        scheme.username ||
-        '',
+        storedSecret(storeSecrets, 'x-scalar-secret-username') ??
+        (documentSecret(scheme, 'x-scalar-secret-username') || scheme.username || ''),
       'x-scalar-secret-password':
-        storeSecrets?.['x-scalar-secret-password'] ||
-        documentSecret(scheme, 'x-scalar-secret-password') ||
-        scheme.password ||
-        '',
+        storedSecret(storeSecrets, 'x-scalar-secret-password') ??
+        (documentSecret(scheme, 'x-scalar-secret-password') || scheme.password || ''),
     } satisfies HttpObjectSecret
   }
 

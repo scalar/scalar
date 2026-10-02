@@ -42,6 +42,7 @@ export const ru = {
   },
   'dataTableInput': {
     'clearValue': 'Очистить значение',
+    'resetValue': 'Восстановить значение по умолчанию',
     'showPassword': 'Показать пароль',
     'hidePassword': 'Скрыть пароль',
   },
@@ -233,6 +234,8 @@ export const ru = {
     'failedToauthorize': 'Ошибка авторизации',
     'failedToRefreshToken': 'Не удалось обновить токен',
     'optionalRedirectUrl': 'Необязательный URL перенаправления',
+    'clearTokens': 'Очистить токены',
+    'resetDiscovery': 'Сбросить обнаружение',
   },
   'oauthScopesAddModal': {
     'name': 'Имя:',

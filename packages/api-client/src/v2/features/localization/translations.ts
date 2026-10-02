@@ -42,6 +42,7 @@ export const en = {
   },
   dataTableInput: {
     clearValue: 'Clear Value',
+    resetValue: 'Reset to default',
     showPassword: 'Show Password',
     hidePassword: 'Hide Password',
   },
@@ -232,6 +233,8 @@ export const en = {
     failedToauthorize: 'Failed to authorize',
     failedToRefreshToken: 'Failed to refresh token',
     optionalRedirectUrl: 'Optional redirect URL',
+    clearTokens: 'Clear tokens',
+    resetDiscovery: 'Reset discovery',
   },
   oauthScopesAddModal: {
     name: 'Name:',

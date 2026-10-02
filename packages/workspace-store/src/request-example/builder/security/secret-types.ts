@@ -32,7 +32,10 @@ type OAuthFlowCommonSecret = XScalarSecretClientId &
   XScalarSecretToken &
   XScalarSecretRefreshToken &
   XScalarAuthUrl &
-  XScalarTokenUrl
+  XScalarTokenUrl & {
+    /** Explicit clears are carried to the auth UI to prevent default prefill after remount. */
+    'x-scalar-secret-cleared-fields'?: string[]
+  }
 
 export type OAuthFlowImplicitSecret = OAuthFlowImplicit & OAuthFlowCommonSecret & XScalarSecretRedirectUri
 

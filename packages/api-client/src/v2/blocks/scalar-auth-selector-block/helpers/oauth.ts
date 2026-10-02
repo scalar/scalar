@@ -194,10 +194,11 @@ export const authorizeOauth2 = async (
     // Generate a random state string with the length of 8 characters
     const state = (Math.random() + 1).toString(36).substring(2, 10)
 
-    const authorizationUrl = makeUrlAbsolute(
-      flows[type]!['x-scalar-secret-auth-url'] ?? flows[type]!.authorizationUrl,
-      getActiveServerBase(activeServer, environmentVariables),
-    )
+    const authUrl = flows[type]!['x-scalar-secret-auth-url'] ?? flows[type]!.authorizationUrl
+    if (!authUrl.trim()) {
+      return [new Error('Authorization URL is required'), null]
+    }
+    const authorizationUrl = makeUrlAbsolute(authUrl, getActiveServerBase(activeServer, environmentVariables))
 
     const url = new URL(authorizationUrl)
 
@@ -501,10 +502,11 @@ const authorizeServers = async (
     }
 
     // Check if we should use the proxy
-    const tokenUrl = makeUrlAbsolute(
-      flow['x-scalar-secret-token-url'] ?? flow.tokenUrl,
-      getActiveServerBase(activeServer, environmentVariables),
-    )
+    const tokenUrlValue = flow['x-scalar-secret-token-url'] ?? flow.tokenUrl
+    if (!tokenUrlValue.trim()) {
+      return [new Error('Token URL is required'), null]
+    }
+    const tokenUrl = makeUrlAbsolute(tokenUrlValue, getActiveServerBase(activeServer, environmentVariables))
     const url = shouldUseProxy(proxyUrl, tokenUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
       : tokenUrl
@@ -607,7 +609,10 @@ export const refreshOauth2Token = async (
       headers.Authorization = oauthClientAuthorization(clientId, clientSecret)
     }
 
-    const refreshUrl = flow.refreshUrl || flow['x-scalar-secret-token-url'] || flow.tokenUrl
+    const refreshUrl = flow.refreshUrl || (flow['x-scalar-secret-token-url'] ?? flow.tokenUrl)
+    if (!refreshUrl.trim()) {
+      return [new Error('Token URL is required'), null]
+    }
     const absoluteRefreshUrl = makeUrlAbsolute(refreshUrl, getActiveServerBase(activeServer, environmentVariables))
     const url = shouldUseProxy(proxyUrl, absoluteRefreshUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`

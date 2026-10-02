@@ -213,6 +213,13 @@ export function initializeWorkspaceEventHandlers({
       hooks,
     )(payload),
   )
+  eventBus.on('auth:reset:security-scheme-secret', (payload) =>
+    withHook(
+      'auth:reset:security-scheme-secret',
+      mutators.value.active().auth.resetSecuritySchemeSecret,
+      hooks,
+    )(payload),
+  )
   eventBus.on('auth:clear:security-scheme-secrets', (payload) =>
     withHook(
       'auth:clear:security-scheme-secrets',

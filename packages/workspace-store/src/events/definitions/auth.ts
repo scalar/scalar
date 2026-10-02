@@ -1,6 +1,7 @@
 import type { PartialDeep } from 'type-fest'
 
 import type { SecretsAuth } from '@/entities/auth/schema'
+import type { AuthSecretField } from '@/helpers/auth-secret-fields'
 import type {
   OAuthFlowsObject,
   SecurityRequirementObject,
@@ -121,6 +122,13 @@ export type AuthEvents = {
   'auth:clear:security-scheme-secrets': {
     /** The name of the security scheme to clear */
     name: string
+  }
+
+  /** Restore one credential's default without clearing the rest of the form. */
+  'auth:reset:security-scheme-secret': {
+    name: string
+    field: AuthSecretField
+    flow?: keyof OAuthFlowsObject
   }
 
   /**

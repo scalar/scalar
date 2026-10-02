@@ -42,6 +42,7 @@ export const fr = {
   },
   'dataTableInput': {
     'clearValue': 'Effacer la valeur',
+    'resetValue': 'Rétablir la valeur par défaut',
     'showPassword': 'Afficher le mot de passe',
     'hidePassword': 'Masquer le mot de passe',
   },
@@ -234,6 +235,8 @@ export const fr = {
     'failedToauthorize': 'Échec de l’autorisation',
     'failedToRefreshToken': 'Échec du renouvellement du jeton',
     'optionalRedirectUrl': 'URL de redirection facultative',
+    'clearTokens': 'Effacer les jetons',
+    'resetDiscovery': 'Réinitialiser la découverte',
   },
   'oauthScopesAddModal': {
     'name': 'Nom :',
