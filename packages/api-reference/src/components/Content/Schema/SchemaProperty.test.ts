@@ -73,7 +73,7 @@ describe('SchemaProperty', () => {
     },
   )
 
-  it('preserves every choice group in a named allOf property', () => {
+  it('preserves every choice group in a named allOf property', async () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         name: 'data',
@@ -98,6 +98,8 @@ describe('SchemaProperty', () => {
         options: {},
       },
     })
+
+    await wrapper.get('button[aria-expanded]').trigger('click')
 
     expect(wrapper.findAllComponents(ScalarListbox).map((selector) => selector.props('options'))).toStrictEqual([
       [
