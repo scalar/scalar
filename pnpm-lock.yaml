@@ -1659,6 +1659,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/json-magic':
+        specifier: workspace:*
+        version: link:../json-magic
       '@storybook/addon-docs':
         specifier: 10.5.10
         version: 10.5.10(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.27.3)(rollup@4.59.0)(storybook@10.5.10(@types/react@19.2.7)(prettier@3.8.0)(react@19.2.3))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))(webpack@5.103.0(esbuild@0.27.3))
