@@ -1,5 +1,13 @@
 # @scalar/schemas
 
+## 0.13.0
+
+### Minor Changes
+
+- [#10449](https://github.com/scalar/scalar/pull/10449): Add `hideModelNames` to show structural types instead of model names in schema type labels and operation headings.
+- [#10443](https://github.com/scalar/scalar/pull/10443): Add a showExtensions allowlist to display OpenAPI extensions on operations, parameters, response headers, and schema fields without a custom plugin, with a schema-style value tree from the blocks package.
+- [#10420](https://github.com/scalar/scalar/pull/10420): Add `maxVisibleRequestBodyProperties` to control the initial request body property limit (default 12, or 0 for unlimited) independently of nested schema expansion. Show the number of hidden properties in the overflow control.
+
 ## 0.12.3
 
 ## 0.12.2

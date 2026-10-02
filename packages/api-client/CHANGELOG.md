@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.21.5
+
+### Patch Changes
+
+- [#10431](https://github.com/scalar/scalar/pull/10431): Keep explicit authentication field clears separate from configured defaults, add field-local reset actions, and prevent clearing fixed-choice OAuth settings.
+
 ## 3.21.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.10.6
+
+### Patch Changes
+
+- [#10460](https://github.com/scalar/scalar/pull/10460): Preserve multipart file metadata in generated code examples, including arrays and composed schemas, read actual file bytes across code example targets, let HTTP clients set the multipart boundary, and preserve typed text fields without turning them into file attachments.
+
 ## 0.10.5
 
 ## 0.10.4
