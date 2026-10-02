@@ -104,3 +104,48 @@ export const NestedAllOfObject: Story = {
     }),
   },
 }
+
+/** Independent choice groups remain inside the composed response object (#10454). */
+export const NestedAllOfChoices: Story = {
+  decorators: [() => ({ template: '<div style="padding-left: 16px"><story /></div>' })],
+  args: {
+    name: 'Response',
+    eventBus: null,
+    options: {},
+    schema: coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        title: { const: 'Sign In User' },
+        data: {
+          allOf: [
+            { type: 'object', properties: { userName: { type: 'string' } } },
+            {
+              allOf: [
+                {
+                  anyOf: [
+                    {
+                      type: 'object',
+                      title: 'Use tags',
+                      properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
+                    },
+                    { type: 'object', title: 'Empty', properties: {} },
+                  ],
+                },
+                {
+                  anyOf: [
+                    {
+                      type: 'object',
+                      title: 'Add tags',
+                      properties: { userAddTags: { type: 'array', items: { type: 'string' } } },
+                    },
+                    { type: 'object', title: 'Empty', properties: {} },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    }),
+  },
+}
