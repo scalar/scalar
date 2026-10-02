@@ -7,6 +7,7 @@ import { visit } from 'unist-util-visit'
 
 import { lowlightLanguageMappings } from '@/constants'
 import { rehypeHighlight } from '@/rehype-highlight'
+import { getSharedLowlight } from '@/rehype-highlight/shared-lowlight'
 
 import { codeBlockLinesPlugin } from './line-numbers'
 
@@ -48,7 +49,7 @@ export function syntaxHighlight(
     .use(injectRawCodeStringPlugin(codeString))
     // Syntax highlighting
     .use(rehypeHighlight, {
-      languages: options.languages,
+      lowlight: options.languages ? getSharedLowlight(options.languages) : undefined,
     })
     .use(options?.lineNumbers ? codeBlockLinesPlugin : nullPlugin)
     // Converts the HTML AST to a string
