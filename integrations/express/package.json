@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/express"
   },
-  "version": "0.10.25",
+  "version": "0.10.26",
   "engines": {
     "node": ">=22"
   },

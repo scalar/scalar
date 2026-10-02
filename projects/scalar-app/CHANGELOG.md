@@ -1,5 +1,14 @@
 # scalar-app
 
+## 1.1.37
+
+### Patch Changes
+
+- [#10412](https://github.com/scalar/scalar/pull/10412): Update the shared Undici dependency to 7.29.1 to fix security advisories while preserving Node 22 compatibility, and update Scalar App’s separate Undici pin to 8.11.2.
+- [#10411](https://github.com/scalar/scalar/pull/10411): Import API descriptions from reference page URLs, including Hono pages, and retain discovered document URLs for watch mode.
+
+  Ignore JSON-LD website metadata during URL discovery and preserve link and escaped-JSON fallbacks for URLs with unsupported JavaScript escapes.
+
 ## 1.1.36
 
 ## 1.1.35
