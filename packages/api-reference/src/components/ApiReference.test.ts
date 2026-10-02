@@ -33,6 +33,71 @@ beforeEach(() => {
 })
 
 describe('multiple configurations', () => {
+  it.each([
+    { label: 'empty scopes', populatedScopes: false, redirectUri: undefined },
+    { label: 'populated scopes', populatedScopes: true, redirectUri: undefined },
+    { label: 'a configured redirect', populatedScopes: false, redirectUri: 'https://app.example.com/callback' },
+  ])('prefills the OAuth2 redirect on initial load with $label', async ({ populatedScopes, redirectUri }) => {
+    const scopes: Record<string, string> = populatedScopes ? { read: 'Read access' } : {}
+    const wrapper = mount(ApiReference, {
+      attachTo: document.body,
+      props: {
+        configuration: {
+          oauth2RedirectUri: redirectUri,
+          authentication: {
+            preferredSecurityScheme: 'OAuth2',
+            securitySchemes: {
+              OAuth2: {
+                flows: {
+                  authorizationCode: {
+                    authorizationUrl: 'https://auth.example.com/authorize',
+                    tokenUrl: 'https://auth.example.com/token',
+                    'x-scalar-client-id': 'scalar-demo-client',
+                  },
+                },
+              },
+            },
+          },
+          content: {
+            openapi: '3.1.1',
+            info: { title: 'OAuth API', version: '1.0.0' },
+            paths: {},
+            components: {
+              securitySchemes: {
+                OAuth2: {
+                  type: 'oauth2',
+                  flows: {
+                    authorizationCode: {
+                      authorizationUrl: 'https://auth.example.com/authorize',
+                      tokenUrl: 'https://auth.example.com/token',
+                      scopes,
+                    },
+                  },
+                },
+              },
+            },
+            security: [{ OAuth2: [] }],
+          },
+        },
+      },
+    })
+
+    await flushPromises()
+
+    const redirectInput = wrapper
+      .findAllComponents({ name: 'RequestAuthDataTableInput' })
+      .find((input) => input.text().includes('Redirect URL'))
+    if (!redirectInput) {
+      throw new Error('Expected the OAuth2 redirect input')
+    }
+    expect(redirectInput.props('modelValue')).toBe(redirectUri ?? 'http://localhost:3000/')
+
+    // A successful prefill must still let the user clear the redirect deliberately.
+    redirectInput.vm.$emit('update:modelValue', '')
+    await flushPromises()
+    expect(redirectInput.props('modelValue')).toBe('')
+  })
+
   it('renders a single API reference', async () => {
     const wrapper = mount(ApiReference, {
       props: {
