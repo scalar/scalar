@@ -158,9 +158,10 @@ const optimizedValue = computed(() =>
 
 /** Mixed object/choice compositions still belong inside their named property's panel. */
 const hasObjectComposition = computed((): boolean => {
+  const { name } = props
   const value = optimizedValue.value
   return (
-    !!props.name &&
+    !!name &&
     !!value?.allOf &&
     partitionAllOfCompositions(value).segments.some(
       (segment) => segment.kind === 'object' && isTypeObject(segment.schema),
@@ -511,17 +512,18 @@ const arrayChildProps = computed(() =>
  * separately above because a schema can satisfy both, and the row has to know
  * which one it draws — see `rendersArrayBranch`.
  */
-const treeChildProps = computed(() =>
-  hasObjectComposition.value
+const treeChildProps = computed(() => {
+  const { cycleKey } = props
+  return hasObjectComposition.value
     ? {
         ...sharedChildProps.value,
         breadcrumb: childBreadcrumb.value,
         compositionPath: currentCompositionPath.value,
-        cycleKey: props.cycleKey,
+        cycleKey,
         schema: optimizedValue.value,
       }
-    : (objectChildProps.value ?? arrayChildProps.value),
-)
+    : (objectChildProps.value ?? arrayChildProps.value)
+})
 
 /**
  * Whether a row draws its ARRAY branch, which is the object branch's
