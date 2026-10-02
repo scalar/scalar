@@ -596,7 +596,6 @@ defineExpose({
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);
-  max-height: 20px;
   padding: 8px 0;
 }
 /* Tooltip helper */
@@ -686,9 +685,8 @@ defineExpose({
 :deep(.cm-lineWrapping .cm-line) {
   word-break: break-all;
 }
-:deep(.cm-lineWrapping .cm-content) {
+:deep(.cm-content.cm-lineWrapping) {
   white-space: pre-wrap;
-  max-height: none;
 }
 .line-wrapping:focus-within :deep(.cm-content) {
   display: inline-table;
