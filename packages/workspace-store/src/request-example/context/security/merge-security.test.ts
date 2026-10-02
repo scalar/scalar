@@ -2,14 +2,16 @@ import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import type { AsyncApiComponentsObject } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type ComponentsObject,
   SecuritySchemeObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import { computed, reactive } from 'vue'
 
+import { authMutatorsFactory } from '@/mutators/auth'
 import { buildRequestSecurity } from '@/request-example/builder/security/build-request-security'
 
 import { mergeSecurity } from './merge-security'
@@ -34,6 +36,105 @@ describe('mergeSecurity', () => {
     expect(buildRequestSecurity(Object.values(result))).toStrictEqual([
       { in: 'header', name: 'Authorization', value: 'test-token', format: 'bearer' },
     ])
+  })
+
+  it.each(['document', 'configured', 'configuration-only'] as const)(
+    'retains API key name edits and clearing for a %s scheme',
+    async (source) => {
+      const store = createWorkspaceStore()
+      const scheme = { type: 'apiKey', in: 'header', name: 'apikey' } as const
+      await store.addDocument({
+        name: documentSlug,
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'API key', version: '1.0.0' },
+          components: { securitySchemes: source === 'configuration-only' ? {} : { key: scheme } },
+        },
+      })
+      const document = store.workspace.documents[documentSlug]
+      assert(isOpenApiDocument(document))
+      const mutators = authMutatorsFactory({ store, document })
+      const configuredSchemes: AuthenticationConfiguration['securitySchemes'] =
+        source === 'document' ? {} : { key: { ...scheme, name: 'apikey-aa' } }
+      store.auth.setAuthSecrets(documentSlug, 'key', { type: 'apiKey', 'x-scalar-secret-token': 'secret' })
+
+      for (const name of ['edited-name', '']) {
+        mutators.updateSecurityScheme({ name: 'key', payload: { type: 'apiKey', name } }, configuredSchemes)
+        const merged = mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug)
+        expect(merged.key).toStrictEqual({ ...scheme, name, 'x-scalar-secret-token': 'secret' })
+        expect(buildRequestSecurity(Object.values(merged))).toStrictEqual([{ in: 'header', name, value: 'secret' }])
+      }
+      expect(configuredSchemes).toStrictEqual(source === 'document' ? {} : { key: { ...scheme, name: 'apikey-aa' } })
+      expect(document.components?.securitySchemes).toStrictEqual(
+        source === 'configuration-only' ? {} : { key: { ...scheme, name: source === 'document' ? '' : scheme.name } },
+      )
+
+      // Removing the credential override restores the configured or document name.
+      store.auth.clearAuthSecrets(documentSlug, 'key')
+      expect(
+        mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
+      ).toStrictEqual({
+        ...scheme,
+        name: source === 'document' ? '' : 'apikey-aa',
+        'x-scalar-secret-token': '',
+      })
+    },
+  )
+
+  it.each(['configured', 'configuration-only', 'configured-without-name'] as const)(
+    'restoring the %s default releases the name override and retains the token',
+    async (source) => {
+      const store = createWorkspaceStore()
+      const scheme = { type: 'apiKey', in: 'header', name: 'X-Key' } as const
+      await store.addDocument({
+        name: documentSlug,
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'API key', version: '1.0.0' },
+          components: { securitySchemes: source === 'configuration-only' ? {} : { key: scheme } },
+        },
+      })
+      const document = store.workspace.documents[documentSlug]
+      assert(isOpenApiDocument(document))
+      const mutators = authMutatorsFactory({ store, document })
+      const configuredSchemes: AuthenticationConfiguration['securitySchemes'] = {
+        key: source === 'configured-without-name' ? { type: 'apiKey', in: 'header' } : { ...scheme },
+      }
+      store.auth.setAuthSecrets(documentSlug, 'key', { type: 'apiKey', 'x-scalar-secret-token': 'secret' })
+      for (const name of ['', 'X-Key']) {
+        mutators.updateSecurityScheme({ name: 'key', payload: { type: 'apiKey', name } }, configuredSchemes)
+        expect(
+          mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
+        ).toStrictEqual({ ...scheme, name, 'x-scalar-secret-token': 'secret' })
+      }
+      configuredSchemes.key = { ...scheme, name: 'X-Api-Key' }
+      expect(
+        mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
+      ).toStrictEqual({
+        ...scheme,
+        name: 'X-Api-Key',
+        'x-scalar-secret-token': 'secret',
+      })
+      expect(document.components?.securitySchemes).toStrictEqual(source === 'configuration-only' ? {} : { key: scheme })
+    },
+  )
+
+  it('persists a document scheme whose name matches an inherited configuration property', () => {
+    const document = {
+      'x-scalar-original-document-hash': '',
+      openapi: '3.1.0',
+      info: { title: 'API key', version: '1.0.0' },
+      components: { securitySchemes: { toString: { type: 'apiKey' as const, in: 'header' as const, name: 'X-Key' } } },
+    }
+    authMutatorsFactory({ store: null, document }).updateSecurityScheme({
+      name: 'toString',
+      payload: { type: 'apiKey', name: 'X-Edited' },
+    })
+    expect(document.components.securitySchemes.toString).toStrictEqual({
+      type: 'apiKey',
+      in: 'header',
+      name: 'X-Edited',
+    })
   })
 
   it('returns empty object when both parameters are undefined', () => {

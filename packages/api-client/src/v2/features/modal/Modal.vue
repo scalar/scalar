@@ -90,6 +90,8 @@ const isSidebarOpen = ref(false)
 
 /** Initialize modal events */
 initializeModalEvents({
+  getConfiguredSecuritySchemes: () =>
+    options.value.authentication?.securitySchemes,
   eventBus,
   isSidebarOpen,
   requestBodyCompositionSelection,
