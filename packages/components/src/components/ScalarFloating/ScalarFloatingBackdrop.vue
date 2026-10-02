@@ -32,7 +32,10 @@ const { cx } = useBindCx()
   <div
     v-bind="
       cx(
-        'absolute inset-0 -z-1 overflow-hidden rounded-[inherit] border bg-b-1 shadow-md',
+        'absolute inset-0 -z-1 overflow-hidden rounded-[inherit] bg-b-1 shadow-md',
+        // Browsers round sub-pixel borders up to a full pixel, so the hairline
+        // is an inset shadow painted above the lifted layer instead
+        'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-border',
       )
     ">
     <!--
