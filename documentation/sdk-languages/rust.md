@@ -65,7 +65,7 @@ crates.io supports trusted publishing, and it is the recommended path. The gener
 2. Keep `"publish": { "cargo": true }` (OIDC is the default).
 3. Merge the release pull request Scalar keeps open in your repository.
 
-If you cannot use OIDC, create a token with the `publish-update` scope, store it as `CARGO_REGISTRY_TOKEN`, and set `"authMethod": "access-token"`. Before running `cargo publish`, the workflow queries crates.io for the version and skips it if it already exists, so re-merges are safe. Details are in [crates.io publishing](/products/sdk-generator/publishing/rust).
+If you cannot use OIDC, create a token with the `publish-update` scope, store it as `CARGO_REGISTRY_TOKEN`, and set `"authMethod": "access-token"`. Before running `cargo publish`, the workflow queries crates.io for the version and skips it if it already exists, so re-merges are safe. Details are in [crates.io publishing](/products/sdk-generator/configuration/rust#publish).
 
 ## Scalar compared with OpenAPI Generator for Rust
 
@@ -129,7 +129,7 @@ Rust is currently the only target that follows a next-page URL. Other targets ex
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [Rust configuration](/products/sdk-generator/configuration/rust) · [Publishing to crates.io](/products/sdk-generator/publishing/rust)
+- **Docs:** [Rust configuration](/products/sdk-generator/configuration/rust) · [Publishing to crates.io](/products/sdk-generator/configuration/rust#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — preview a Rust crate from your own OpenAPI document
 
 ---

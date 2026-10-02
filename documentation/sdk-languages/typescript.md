@@ -76,7 +76,7 @@ The SDK lives in your GitHub repository under your package name. Scalar opens a 
 
 The recommended path is **npm trusted publishing (OIDC)**. On npmjs.com you add a trusted publisher for your repository with the workflow file `release-please.yml`, and npm mints a short-lived, provenance-signed credential at publish time. Nothing is stored in your repository. Trusted publishing needs npm 11.5.1 or later; the generated workflow upgrades npm before it publishes. If you cannot use OIDC, add an `NPM_TOKEN` secret and set `"authMethod": "access-token"`.
 
-Two details save a bad afternoon. Trusted publishing attaches to a package that already exists, so publish `1.0.0` once by hand or reserve the name first. And scoped packages such as `@acme/api` are published with `--access public`. The publish step skips versions already on npm, so re-running a release never fails. See [npm publishing](/products/sdk-generator/publishing/typescript).
+Two details save a bad afternoon. Trusted publishing attaches to a package that already exists, so publish `1.0.0` once by hand or reserve the name first. And scoped packages such as `@acme/api` are published with `--access public`. The publish step skips versions already on npm, so re-running a release never fails. See [npm publishing](/products/sdk-generator/configuration/typescript#publish).
 
 ## Scalar compared with OpenAPI Generator for TypeScript
 
@@ -147,7 +147,7 @@ The free plan includes one SDK target for APIs up to 25 endpoints. Additional ta
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [TypeScript configuration](/products/sdk-generator/configuration/typescript) · [Publishing to npm](/products/sdk-generator/publishing/typescript)
+- **Docs:** [TypeScript configuration](/products/sdk-generator/configuration/typescript) · [Publishing to npm](/products/sdk-generator/configuration/typescript#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — generate TypeScript, Python, Go, and CLI clients from one OpenAPI document
 
 ---

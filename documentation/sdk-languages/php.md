@@ -62,7 +62,7 @@ Your users then install with:
 composer require acme/api
 ```
 
-No release workflow is generated for PHP, because there is nothing to push. The generated `sdk-ci.yml` still validates and tests the package on every pull request. See [Packagist publishing](/products/sdk-generator/publishing/php).
+No release workflow is generated for PHP, because there is nothing to push. The generated `sdk-ci.yml` still validates and tests the package on every pull request. See [Packagist publishing](/products/sdk-generator/configuration/php#publish).
 
 ## For Laravel and Symfony teams
 
@@ -130,7 +130,7 @@ Yes. Adding the PHP target creates a preview repository with the generated code,
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [PHP configuration](/products/sdk-generator/configuration/php) · [Publishing to Packagist](/products/sdk-generator/publishing/php)
+- **Docs:** [PHP configuration](/products/sdk-generator/configuration/php) · [Publishing to Packagist](/products/sdk-generator/configuration/php#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — see PHP output from your own OpenAPI document next to your other SDKs
 
 ---

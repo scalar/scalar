@@ -70,7 +70,7 @@ NuGet supports trusted publishing, and that is the recommended path. The generat
 2. Add one repository secret, `NUGET_USER`, set to your nuget.org username. NuGet's OIDC login needs it; the key itself is minted on the fly.
 3. Merge the release pull request Scalar keeps open in your repository.
 
-If you would rather use a long-lived key, create one scoped to push your package, store it as `NUGET_API_KEY`, and set `"authMethod": "access-token"`. Either way the push uses `--skip-duplicate`, so re-running a release is harmless. See [NuGet publishing](/products/sdk-generator/publishing/csharp).
+If you would rather use a long-lived key, create one scoped to push your package, store it as `NUGET_API_KEY`, and set `"authMethod": "access-token"`. Either way the push uses `--skip-duplicate`, so re-running a release is harmless. See [NuGet publishing](/products/sdk-generator/configuration/csharp#publish).
 
 ## Scalar compared with OpenAPI Generator for C#
 
@@ -130,7 +130,7 @@ Add the C# target in the dashboard. It gets a preview repository with the genera
 ## Related
 
 - **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [OpenAPI Generator alternatives](/alternatives/openapi-generator)
-- **Docs:** [C# configuration](/products/sdk-generator/configuration/csharp) · [Publishing to NuGet](/products/sdk-generator/publishing/csharp)
+- **Docs:** [C# configuration](/products/sdk-generator/configuration/csharp) · [Publishing to NuGet](/products/sdk-generator/configuration/csharp#publish)
 - **Product:** [SDK Generator](/products/sdk-generator) — one OpenAPI document for your API reference and your .NET client
 
 ---

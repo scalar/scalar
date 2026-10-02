@@ -1,6 +1,5 @@
 <!--
-Generated from scalar-sdk.config.schema.json. Do not edit by hand — run:
-bun run --filter @scalar/sdk-config types:generate
+Generated from scalar-sdk.config.schema.json. Do not edit by hand.
 
 Published at https://scalar.com/docs/guides/sdks/configuration, which is where the links to
 pages outside this reference resolve.
@@ -21,20 +20,36 @@ Add `cli` under `targets` to generate a command-line client.
         }
       },
       "publish": {
-        "npm": true
+        "npm": {
+          "authMethod": "oidc",
+          "access": "public",
+          "tag": "latest",
+          "releaseEnvironment": "production"
+        },
+        "binaries": true,
+        "homebrew": {
+          "tapRepo": "acme/homebrew-tap",
+          "homepage": "https://acme.com",
+          "description": "Acme API command-line client",
+          "pullRequest": true,
+          "replaceCask": true
+        },
+        "signing": {
+          "macos": "sign-and-notarize"
+        }
       }
     }
   }
 }
 ```
 
-Registry accounts, secrets, and first-release setup: [CLI publishing](../publishing/cli.md).
+How releases are cut and published: [Publishing](../publishing/overview.md).
 
 ## binaryName
 
 **Type:** `string`
 
-Command name the generated CLI is installed and invoked as, e.g. `warp-hr`. Defaults to the SDK slug. This is not the package name: `targets.cli.packageName` names the published npm package (`@acme/widget`), while this names the command that package installs (`widget`). One spelling serves the `package.json` `bin` key, the man page file names, the binary Homebrew installs, and the literal command printed in `--help`, the README, and the shell completion scripts, so it is restricted to `A-Za-z0-9._-`, starting with an alphanumeric and not ending in `-` or `.`. Case is preserved — `MyWidget` installs and runs as `MyWidget` — because npm links a `bin` key verbatim; only the Homebrew formula *file* is lowercased, since `brew` resolves it case-sensitively on Linux. A scoped, spaced, or shell-metacharacter name is rejected rather than sanitized because each install channel would sanitize it differently — npm and Homebrew disagree, and neither can install a command containing `/` — leaving the CLI documenting and completing a command name that no install produces.
+Command name the generated CLI is installed and invoked as, e.g. `acme-hr`. Defaults to the SDK slug. This is not the package name: `targets.cli.packageName` names the published npm package (`@acme/widget`), while this names the command that package installs (`widget`). One spelling serves the `package.json` `bin` key, the man page file names, the binary Homebrew installs, and the literal command printed in `--help`, the README, and the shell completion scripts, so it is restricted to `A-Za-z0-9._-`, starting with an alphanumeric and not ending in `-` or `.`. Case is preserved — `MyWidget` installs and runs as `MyWidget` — because npm links a `bin` key verbatim; only the Homebrew formula *file* is lowercased, since `brew` resolves it case-sensitively on Linux. A scoped, spaced, or shell-metacharacter name is rejected rather than sanitized because each install channel would sanitize it differently — npm and Homebrew disagree, and neither can install a command containing `/` — leaving the CLI documenting and completing a command name that no install produces.
 
 **Constraints:** `pattern: ^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9_])?$`
 
@@ -56,16 +71,17 @@ Per-target GitHub destinations for pushing generated output.
 
 Primary published-output repository for this target. Configuring it is what gives the target generated GitHub Actions at all: it turns on the CI workflow, the release-please configuration, and the versioning policy. The release workflow that uploads at release time is added on top of those only when `publish` enables a registry that needs one — a tag-served ecosystem publishes from the platform-created tag alone. A target with no production destination is still generated, but emits no workflows, which is what local and preview generation wants.
 
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `repo` | `string` | ✅ | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | `string` |  | Default branch of the destination repository, and the base that release PRs are opened against. Generated output itself is always pushed to the fixed `scalar-generated` branch, which the platform merges with custom code on `scalar-next`; the release PR is raised from `scalar-next` against the branch named here, so merging it is the promotion. The branch is resolved by trying this value, then a `#branch` suffix on `repo`, then `main`, skipping any candidate that is not a safe git ref — the name is interpolated into generated workflow YAML, so an unsafe one is passed over rather than emitted, and an unsafe value here does not mask a usable suffix. |
+| Property | Description |
+| --- | --- |
+| `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
+| `branch` | Default branch of the destination repository, and the base that release PRs are opened against. Generated output itself is always pushed to the fixed `scalar-generated` branch, which the platform merges with custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release PR is raised from the integration branch against the branch named here, so merging it is the promotion. The branch is resolved by trying this value, then a `#branch` suffix on `repo`, then `main`, skipping any candidate that is not a safe git ref — the name is interpolated into generated workflow YAML, so an unsafe one is passed over rather than emitted, and an unsafe value here does not mask a usable suffix. |
+| `integrationBranch` | The branch where generated output is combined with custom code; defaults to `scalar-next`. Commit customizations here: the platform merges each regeneration from `scalar-generated` into it, raises release PRs from it, and the emitted release workflow syncs each released version back to it. An empty string means the default. Names are case-sensitive, like git. A value is rejected rather than replaced by the default when it is not a safe git ref (it must start with a letter or digit, use only letters, digits, `.`, `_`, `/` and `-`, and be a name git accepts: no `..`, no empty or `.`-leading path component, no `.lock` component suffix, no trailing `.`, and not `HEAD`), when it equals the default branch, `scalar-generated` or `scalar-merge-conflict`, when it and one of those or `scalar-next` are `/`-separated path prefixes of each other (`scalar-next/v2`), when it starts with `scalar-generated--`, `scalar-merge-conflict--`, `scalar-heal--` or `release-please--`, or when it contains `--components--`: the name is interpolated into generated workflow YAML, and those names are reserved for branches the platform and release-please manage. |
 
 ## publish
 
 **Type:** `object`
 
-CLI publishing configuration.
+CLI publishing configuration: three independent channels, in any combination. `npm` publishes the package for `npm install -g`, where it stays a normal Node CLI; `binaries` attaches standalone executables to the GitHub Release for direct download; and `homebrew` renders a formula into a tap that installs those same executables. Each is configured separately, below. `signing` sits beside them but is not a channel: it signs the macOS executables that `binaries` and `homebrew` ship.
 
 ### npm
 
@@ -76,6 +92,8 @@ npm publishing configuration for the generated CLI package, installed globally w
 Authentication matches the TypeScript target's npm publishing: [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) by default, registered on the package's **Settings → Trusted Publisher** tab (`https://www.npmjs.com/package/<package>/access`) against the destination repository and the workflow file the publish job runs from — `release-please.yml`, the workflow the automated release publishes from (register `sdk-release.yml` as a second publisher only if the manual re-publish workflow is used). npm cannot register a publisher for a package that does not exist yet, so the first version publishes with `authMethod` set to `access-token` and an `NPM_TOKEN` repository secret — a [granular access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) with **Read and write (publish and stage)** and **Bypass 2FA** on, since the *stage only* variant never publishes and 2FA otherwise answers the publish with an OTP prompt no workflow can satisfy. An unscoped package that does not exist yet cannot be picked in that token's package selector, so the first one needs **All packages**; see `targets.typescript.publish.npm`. npm is removing direct publishing with such a token in January 2027, so register the trusted publisher once the package exists and drop the override. Repository secrets live under **Settings → Secrets and variables → Actions** in the destination repository; an environment secret of the same name overrides one there when `releaseEnvironment` is set.
 
 `authMethod` and `releaseEnvironment` decide how the publish authenticates; `access` and `tag` decide what it publishes — the package's visibility and the dist-tag stable releases land on.
+
+Publishing skips a version npm already has instead of failing, so re-running a release — a re-merge, or the manual re-publish workflow — is safe.
 
 #### authMethod
 
@@ -131,6 +149,8 @@ Standalone executable publishing configuration for CLI packages. Attaches cross-
 
 There is no registry and no account to set up: the binaries are uploaded to the release in the destination repository itself with the workflow's ambient `GITHUB_TOKEN`, so this needs no secret and `authMethod` is unused.
 
+Each release builds `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, and `windows-x64`, attached as `<binary>-<platform>.tar.gz` (`.zip` on Windows). The asset names carry no version, so `https://github.com/<owner>/<repo>/releases/latest/download/<binary>-<platform>.tar.gz` always points at the newest release; re-running a release replaces the assets.
+
 #### authMethod
 
 **Type:** `"oidc" | "access-token"`
@@ -144,17 +164,17 @@ How the generated release workflow authenticates with the registry.
 | Registry | Trusted publisher (OIDC) | Secret for `access-token` |
 | --- | --- | --- |
 | `npm` | [npm trusted publishers](https://docs.npmjs.com/trusted-publishers) — the package's **Settings → Trusted Publisher** tab | `NPM_TOKEN` |
-| `pypi` | [PyPI publishing settings](https://pypi.org/manage/account/publishing/) | `PYPI_API_TOKEN` |
+| `pypi` | [PyPI publishing settings](https://pypi.org/manage/account/publishing/) | `PYPI_API_TOKEN`, or `PYPI_TOKEN` |
 | `cargo` | [crates.io trusted publishing](https://crates.io/docs/trusted-publishing) — the crate's **Settings** tab | `CARGO_REGISTRY_TOKEN` |
 | `nuget` | [nuget.org trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing) — also reads `NUGET_USER` under OIDC | `NUGET_API_KEY` |
 | `pub` | [pub.dev automated publishing](https://dart.dev/tools/pub/automated-publishing) — authorizes a tag pattern, not a workflow file, and the generated workflow cannot satisfy it; see `publish.pub` | `PUB_TOKEN` |
-| `rubygems` | [RubyGems trusted publishing](https://guides.rubygems.org/trusted-publishing/) | `RUBYGEMS_API_KEY` |
-| `maven` | not supported — always token | `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, `MAVEN_GPG_PASSPHRASE` |
-| `homebrew` | not supported — pushes to a tap repository | `HOMEBREW_TAP_TOKEN` |
+| `rubygems` | [RubyGems trusted publishing](https://guides.rubygems.org/trusted-publishing/) | `RUBYGEMS_API_KEY`, or `GEM_HOST_API_KEY` |
+| `maven` | not supported — always token | `MAVEN_CENTRAL_USERNAME`, or `SONATYPE_USERNAME`; `MAVEN_CENTRAL_PASSWORD`, or `SONATYPE_PASSWORD`; `MAVEN_GPG_PRIVATE_KEY`, or `GPG_SIGNING_KEY`; `MAVEN_GPG_PASSPHRASE`, or `GPG_SIGNING_PASSWORD` |
+| `homebrew` | not supported — pushes to a tap repository | `HOMEBREW_TAP_TOKEN`, or `HOMEBREW_TAP_GITHUB_TOKEN` |
 | `binaries` | not applicable — uploads to the GitHub Release | none (ambient `GITHUB_TOKEN`) |
 | `go`, `swiftpm`, `packagist` | not applicable — published by git tag | none |
 
-Repository secrets live under **Settings → Secrets and variables → Actions** in the destination repository; an environment secret of the same name overrides one there when `releaseEnvironment` is set. Registries without OIDC support default to `access-token` regardless, and ecosystems published by git tag alone (Go, SwiftPM, Packagist) ignore this.
+A name after `or` is a fallback: the workflow reads it only when the name before it is unset, so a repository that already stores the credential under the name other generators use keeps publishing without a new secret. Repository secrets live under **Settings → Secrets and variables → Actions** in the destination repository; an environment secret of the same name overrides one there when `releaseEnvironment` is set. Registries without OIDC support default to `access-token` regardless, and ecosystems published by git tag alone (Go, SwiftPM, Packagist) ignore this.
 
 #### releaseEnvironment
 
@@ -180,18 +200,22 @@ Registry or package description metadata.
 
 Homebrew formula publishing configuration for CLI packages. Unlike every other registry this is not a boolean toggle: enabling it requires an object naming the `tapRepo` to push the formula to. `false` (or omitting the key) disables Homebrew publishing.
 
-There is no registry account and no OIDC path here, so `authMethod` is unused. Each release clones the tap over HTTPS as `x-access-token` with the `HOMEBREW_TAP_TOKEN` repository secret, renders the formula into that clone, and commits it straight to the tap's default branch — no pull request, no review. The workflow's ambient `GITHUB_TOKEN` cannot stand in for that secret, because that token is scoped to the repository the workflow runs in and the tap is a different repository.
+There is no registry account and no OIDC path here, so `authMethod` is unused. Each release clones the tap over HTTPS as `x-access-token` with the `HOMEBREW_TAP_TOKEN` repository secret, renders the formula into that clone, and commits it straight to the tap's default branch — or, with `pullRequest`, opens a pull request for it instead. The workflow's ambient `GITHUB_TOKEN` cannot stand in for that secret, because that token is scoped to the repository the workflow runs in and the tap is a different repository.
 
 Setting Homebrew publishing up, once:
 
 1. **Create the tap repository** and name it `homebrew-<tap>` — see `tapRepo` for the naming and visibility it needs.
-2. **Mint the token.** A [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) needs **Resource owner** set to the tap's owner (the user or organization, not the SDK repository's owner if they differ), **Repository access** set to *Only select repositories* → the tap, and exactly one repository permission: **Contents: Read and write**. **Metadata: Read-only** is added automatically alongside it; nothing else is required — no Administration, no Workflows, no account permissions. A classic token works too, with the `repo` scope (`public_repo` is enough for a public tap), but it carries that access to every repository its account can reach, which is why the fine-grained token is worth the extra minute.
+2. **Mint the token.** A [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) needs **Resource owner** set to the tap's owner (the user or organization, not the SDK repository's owner if they differ), **Repository access** set to *Only select repositories* → the tap, and one repository permission: **Contents: Read and write** — plus **Pull requests: Read and write** when `pullRequest` is set. **Metadata: Read-only** is added automatically alongside it; nothing else is required — no Administration, no Workflows, no account permissions. A classic token works too, with the `repo` scope (`public_repo` is enough for a public tap), but it carries that access to every repository its account can reach, which is why the fine-grained token is worth the extra minute.
 3. **Check the token can actually push.** A token never exceeds what its own account has, so that account needs write access to the tap, and a fine-grained token owned by an organization member may sit unusable until an organization owner approves it under the organization's personal-access-token policy.
-4. **Store it as `HOMEBREW_TAP_TOKEN`** in the *destination* repository — the one holding the generated SDK and its release workflows, not the tap — under **Settings → Secrets and variables → Actions → New repository secret**. It is read by the release job in `release-please.yml`, and by `sdk-release.yml` if the manual re-publish workflow is used, so it has to be visible to both. When `releaseEnvironment` is set, an environment secret of the same name overrides the repository one.
-5. **Leave the push a way through.** Because the commit lands on the tap's default branch directly, a branch protection rule or ruleset there that requires a pull request, a review, or a status check blocks the release at its final step. Either leave the tap's default branch unprotected or add a bypass for the token's account.
+4. **Store it as `HOMEBREW_TAP_TOKEN`** in the *destination* repository — the one holding the generated SDK and its release workflows, not the tap — under **Settings → Secrets and variables → Actions → New repository secret**. A `HOMEBREW_TAP_GITHUB_TOKEN` secret is read when `HOMEBREW_TAP_TOKEN` is unset, so an existing one under that name works as it is. It is read by the release job in `release-please.yml`, and by `sdk-release.yml` if the manual re-publish workflow is used, so it has to be visible to both. When `releaseEnvironment` is set, an environment secret of the same name overrides the repository one.
+5. **Leave the push a way through.** By default the commit lands on the tap's default branch directly, so a branch protection rule or ruleset there that requires a pull request, a review, or a status check blocks the release at its final step. Either leave the tap's default branch unprotected, add a bypass for the token's account, or set `pullRequest` so the release opens a pull request instead — which also needs **Pull requests: Read and write** on the token.
 6. **Track the expiry.** A fine-grained token expires, and an expired one fails the release the moment it tries to reach the tap — on the clone, not the push, since that is where the credential is first used — after the version has already been published to every other registry, so the fix is a re-run rather than a clean retry. Renew it ahead of time, or choose a lifetime you will not be surprised by.
 
 One requirement no token covers: the **destination** repository's release assets have to be fetchable anonymously. The Homebrew step re-downloads with a plain `curl` the executables the asset step uploaded moments earlier — that upload is authenticated, this download is not — and pins those same URLs into the formula. A private destination repository therefore fails the release on that download, and would publish a formula no `brew install` could fetch even if it did not.
+
+With `binaries` off, the release builds and attaches only the four macOS and Linux archives the formula installs (`<binary>-<platform>.tar.gz`), with no Windows `.zip`: turn `binaries` on to publish that too.
+
+The executables embed their runtime, so the formula declares no `depends_on` and `brew install` pulls in no Node. The formula is rewritten in full each release, so the first release needs nothing in the tap beforehand, and a release that changes nothing skips the commit, so nothing is pushed and no pull request is opened.
 
 #### tapRepo
 
@@ -206,7 +230,7 @@ Create the repository yourself before the first release — nothing in the gener
 - **Name it `homebrew-<tap>`.** Homebrew expands the `brew install <owner>/<tap>/<formula>` shorthand back to `github.com/<owner>/homebrew-<tap>`, so a conventionally named tap installs in one command. Any other name is still a working tap, but users have to `brew tap <owner>/<repo> https://github.com/<owner>/<repo>` first, and that is what the generated README documents instead.
 - **Keep it public.** `brew install` fetches the formula anonymously; a private tap only installs for users who have configured their own GitHub credentials for Homebrew.
 
-The owner does not have to match the SDK repository's owner — a tap shared across several CLIs usually does not. Access to it comes from the `HOMEBREW_TAP_TOKEN` secret, not from the workflow's own repository permissions; see `publish.homebrew` for how to mint and store it.
+The owner does not have to match the SDK repository's owner — a tap shared across several CLIs usually does not. Access to it comes from the `HOMEBREW_TAP_TOKEN` secret (or `HOMEBREW_TAP_GITHUB_TOKEN` when that is unset), not from the workflow's own repository permissions; see `publish.homebrew` for how to mint and store it.
 
 **Constraints:** `pattern: ^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*$`
 
@@ -214,7 +238,7 @@ The owner does not have to match the SDK repository's owner — a tap shared acr
 
 **Type:** `"oidc" | "access-token"`
 
-Registry authentication mechanism. Unused for Homebrew: a formula is pushed to the `tapRepo` with the `HOMEBREW_TAP_TOKEN` repository secret, and there is no registry to trust a publisher with. See `publish.homebrew` for the setup.
+Registry authentication mechanism. Unused for Homebrew: a formula is pushed to the `tapRepo` with the `HOMEBREW_TAP_TOKEN` repository secret (or `HOMEBREW_TAP_GITHUB_TOKEN` when that is unset), and there is no registry to trust a publisher with. See `publish.homebrew` for the setup.
 
 #### releaseEnvironment
 
@@ -233,6 +257,49 @@ Homepage rendered into the generated Homebrew formula. Defaults to the target's 
 **Type:** `string`
 
 Description rendered into the generated Homebrew formula. Defaults to `<binary> command-line interface`.
+
+#### pullRequest
+
+**Type:** `boolean`
+
+Open a pull request against the tap instead of committing the formula straight to its default branch. Use it when the tap's default branch is protected by a branch protection rule or ruleset that requires a pull request, a review, or a status check — the direct push would otherwise fail the release at its final step.
+
+Each release pushes the formula update to a `<formula>-<version>` branch of the tap and opens a pull request from it into the tap's default branch; a re-run force-updates that branch and reuses the pull request already open for it, so it never opens a second one. Nothing merges the pull request for you: `brew install` and `brew upgrade` keep serving the previous version until someone merges it.
+
+The `HOMEBREW_TAP_TOKEN` (or `HOMEBREW_TAP_GITHUB_TOKEN` when that is unset) then needs **Pull requests: Read and write** on the tap as well as **Contents: Read and write** — the push goes to a new branch rather than the protected one, and the pull request is opened with the same token. Defaults to `false`.
+
+#### replaceCask
+
+**Type:** `boolean`
+
+Retire a Homebrew **cask** of the same name that the tap already ships, so users who installed the CLI as that cask move to this formula instead of being left on the cask's last version or ending up with both installed. Set it when this CLI takes over a tap whose previous release tooling published a cask — GoReleaser's `homebrew_casks`, for example, writes `Casks/<name>.rb` — and the formula this workflow writes has the same name.
+
+When the tap holds a `Casks/**/<formula>.rb` that installs this CLI's command — it declares `binary "<binaryName>"` and no `app` — the release deletes it and records `"<formula>": "<owner>/<tap>"` in the tap's `tap_migrations.json`, in the same commit as the formula. That pair is Homebrew's own cask-to-formula migration: the next `brew update` on a machine with the cask installed installs the formula in its place (or, where Homebrew requires the formula to be trusted first, prints the `brew trust` and `brew install` commands that finish the move), and a later `brew uninstall --cask <formula>` leaves the formula's links alone. A same-named cask for anything else, such as a desktop app, is left in place, and the release log says so. New installs resolve to the formula, since the tap no longer holds a cask by that name. Once the cask is gone later releases change nothing here, and the migration entry stays in place for machines that have not updated since. Defaults to `false`.
+
+### signing
+
+**Type:** `object`
+
+Code signing configuration for the compiled CLI executables. Unlike its siblings this is not a publishing channel: it signs the executables the `binaries` and `homebrew` channels already ship, so enabling it on its own publishes nothing, enables no registry, and has nothing to sign — set it alongside `binaries` or `homebrew`. Unlike the registry entries beside it, this block and everything under it reject an undeclared key at load time rather than reporting one as a diagnostic: `Config/UnknownPublishOption` grades registry entries against the target's registry list, which this key is deliberately absent from, so nothing else would catch a typo — a misspelled key would be ignored and the release would ship binaries that are never signed.
+
+#### macos
+
+**Type:** `"sign" | "sign-and-notarize"`
+
+macOS code signing for the compiled `darwin-*` executables. Omit it to ship them unsigned.
+
+- `sign` re-signs them with your Developer ID certificate. That is what makes them run on Apple Silicon, and it is enough for anything installed without a browser — `brew install`, a `curl … | tar` download — because Gatekeeper only checks files a browser marked as downloaded. The npm package is unaffected either way: it is a plain Node CLI with no compiled executable in it.
+- `sign-and-notarize` also submits them to Apple's notary service, so a release archive downloaded in a browser opens without a Gatekeeper warning. It needs the three `MACOS_NOTARY_*` secrets and adds Apple's review time to every release.
+
+The release workflow reads fixed repository secrets, the names goreleaser's notarize documentation uses, so a repository already set up for a goreleaser release needs nothing new:
+
+- `MACOS_SIGN_P12` — the `Developer ID Application` certificate and its private key as a base64-encoded `.p12` bundle. A Keychain Access export and one built with `openssl pkcs12 -export` both work.
+- `MACOS_SIGN_PASSWORD` — the password that opens it. May be empty for a passwordless bundle.
+- `MACOS_NOTARY_ISSUER_ID` — the App Store Connect API key's issuer ID (a UUID).
+- `MACOS_NOTARY_KEY_ID` — the API key's ID (the `<ID>` in `AuthKey_<ID>.p8`).
+- `MACOS_NOTARY_KEY` — the API key's `.p8` private key, as its PEM contents or base64-encoded.
+
+The three `MACOS_NOTARY_*` secrets are read only for `sign-and-notarize`. Every secret the release reads is checked at the start of the publish job, before the compile and any npm publish.
 
 ## defaultFormat
 
@@ -253,6 +320,14 @@ Default error output format for CLI target generation.
 Whether the generated CLI ships shell completion scripts and the `completion` subcommand that prints them. Defaults to true.
 
 **Default:** `true`
+
+## subresourceSeparator
+
+**Type:** `"colon" | "space"`
+
+How the generated CLI spells a command under a nested resource. `colon` joins the resource chain into one command group (`projects:tasks create`), the shape Heroku-style `oclif` CLIs use. `space` nests each subresource as a subcommand of its parent (`projects tasks create`), the shape `gh`, `kubectl`, and `gcloud` use; `--help`, shell completion, man pages, the README, and the smoke test all follow the nested tree. Under `space` a subresource and a method of its parent resource would be the same command if they shared a name, and so would a root method and a top-level resource that has only subresources. A subresource whose accessor clashes with a method is already renamed for every target (`policies-resource`); a clash that survives that, such as a method whose `publicIdentifier` differs from its name, fails generation naming both commands rather than silently renaming either. Top-level resources and root methods are spelled the same either way. Defaults to `colon`.
+
+**Default:** `"colon"`
 
 ## credentialStore
 
@@ -334,12 +409,6 @@ Omit it to release on the stable line. A release train promoting to a convention
 
 **Constraints:** `pattern: ^[A-Za-z][0-9A-Za-z-]*$`
 
-## generatorVersion
-
-**Type:** `string`
-
-Version of the Scalar SDK Generator used to generate this target's SDK, overriding the top-level generatorVersion.
-
 ## skip
 
 **Type:** `boolean`
@@ -387,8 +456,8 @@ Set `cli` on a method in `resources` to enable, disable, or tune the command gen
 }
 ```
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `enabled` | `boolean` | Enables or disables CLI command generation for this method. |
-| `filter` | `string` | CLI-specific parameter filter expression. |
-| `format` | `string` | Default CLI output format for this method. |
+| Property | Description |
+| --- | --- |
+| `enabled` | Enables or disables CLI command generation for this method. |
+| `filter` | CLI-specific parameter filter expression. |
+| `format` | Default CLI output format for this method. |
