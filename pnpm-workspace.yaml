@@ -161,3 +161,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Electron runtime update, released September 29, 2026
+  - electron@44.5.1
