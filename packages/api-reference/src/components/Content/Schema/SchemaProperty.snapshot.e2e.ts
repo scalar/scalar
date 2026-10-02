@@ -1,4 +1,4 @@
-import { takeSnapshot, test } from '@test/helpers'
+import { expect, takeSnapshot, test } from '@test/helpers'
 
 /**
  * Visual snapshots for a single property row.
@@ -18,4 +18,16 @@ test.describe('SchemaProperty', () => {
   test.use({ crop: 'component' })
 
   ;['Described', 'Nested Object', 'Array Of Objects'].forEach((story) => test(story, takeSnapshot))
+
+  test('Collapsed Preview With Copy Link', async ({ page, snapshot }) => {
+    const copyLink = page.getByRole('button', { name: 'Copy link to atmosphere', exact: true })
+
+    await snapshot()
+
+    // The focus ring shows the hit box overhanging the end of the line
+    await page.getByRole('button', { name: 'atmosphere', exact: true }).focus()
+    await page.keyboard.press('Tab')
+    await expect(copyLink).toBeFocused()
+    await snapshot('focused')
+  })
 })
