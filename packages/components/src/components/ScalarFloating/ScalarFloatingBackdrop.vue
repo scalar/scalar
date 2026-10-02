@@ -9,6 +9,9 @@
  * You can use this component directly if you need to customize the backdrop
  * for a floating component
  *
+ * The backdrop inherits its border radius from its parent, so set the radius
+ * on the floating element itself and the backdrop will follow it
+ *
  * @example
  * <ScalarDropdown>
  *   <!-- Menu stuff -->
@@ -28,8 +31,16 @@ const { cx } = useBindCx()
 <template>
   <div
     v-bind="
-      cx('absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted')
+      cx(
+        'absolute inset-0 -z-1 overflow-hidden rounded-[inherit] border bg-b-1 shadow-md',
+      )
     ">
-    <slot />
+    <!--
+      The lifted brightness lives on an inner layer so it does not also
+      brighten the border, which would stop it matching adjacent inputs
+    -->
+    <div class="absolute inset-0 bg-inherit brightness-lifted">
+      <slot />
+    </div>
   </div>
 </template>

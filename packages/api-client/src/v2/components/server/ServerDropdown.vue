@@ -140,7 +140,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         @change="(value) => emit('update:open', value)"
         @unmount="emit('update:open', false)" />
 
-      <ScalarFloatingBackdrop class="inset-x-px rounded-none rounded-b-lg" />
+      <ScalarFloatingBackdrop class="rounded-none rounded-b-lg border-t-0" />
     </template>
   </ScalarPopover>
 </template>

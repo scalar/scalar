@@ -49,7 +49,7 @@ const { cx } = useBindCx()
           v-slot="{ close }"
           :focus="focus"
           :style="{ width, height }"
-          v-bind="cx('relative flex flex-col p-0.75')">
+          v-bind="cx('relative flex flex-col rounded-xl p-0.75')">
           <slot
             :close="() => close()"
             name="popover"
