@@ -398,6 +398,18 @@ describe('ServerSelector', () => {
     expect(wrapper.text()).toContain('Production server with detailed description')
   })
 
+  it('renders the scalar-server-selector class on the label for CSS token scoping', () => {
+    const wrapper = mount(ServerSelector, {
+      props: {
+        servers: mockServers,
+        eventBus,
+        selectedServer: mockServers[0]!,
+      },
+    })
+
+    expect(wrapper.find('label.scalar-server-selector').exists()).toBe(true)
+  })
+
   it('handles prop updates correctly', async () => {
     const wrapper = mount(ServerSelector, {
       props: {

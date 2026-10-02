@@ -67,7 +67,7 @@ const updateServerVariable = (key: string, value: string) => {
 
 <template>
   <label
-    class="bg-b-2 flex h-8 items-center rounded-t-xl border-x border-t px-3 py-2.5 font-medium">
+    class="scalar-server-selector bg-b-2 flex h-8 items-center rounded-t-xl border-x border-t px-3 py-2.5 font-medium">
     {{ translate('server.label') }}
   </label>
   <div

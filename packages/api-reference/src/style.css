@@ -21,6 +21,9 @@
 /* Print overrides, flattening the fixed viewport shell into a document */
 @import "./styles/print.css";
 
+/* Per-surface typography tokens (badge, body pane, server, sidebar, tags) */
+@import "./styles/surface-typography.css";
+
 /* Generate the Tailwind Utilities (scoped) */
 .scalar-app {
   @import "tailwindcss/utilities.css";
