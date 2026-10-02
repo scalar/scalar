@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.73.0
+
+### Minor Changes
+
+- [#10449](https://github.com/scalar/scalar/pull/10449): Add `hideModelNames` to show structural types instead of model names in schema type labels and operation headings.
+- [#10443](https://github.com/scalar/scalar/pull/10443): Add a showExtensions allowlist to display OpenAPI extensions on operations, parameters, response headers, and schema fields without a custom plugin, with a schema-style value tree from the blocks package.
+- [#10420](https://github.com/scalar/scalar/pull/10420): Add `maxVisibleRequestBodyProperties` to control the initial request body property limit (default 12, or 0 for unlimited) independently of nested schema expansion. Show the number of hidden properties in the overflow control.
+
+### Patch Changes
+
+- [#10452](https://github.com/scalar/scalar/pull/10452): Autofill the OAuth2 redirect URL on initial load when configured authentication flows have no scopes.
+- [#10448](https://github.com/scalar/scalar/pull/10448): Expose an actions slot on the Operation component to replace its default copy control in embedded layouts.
+- [#10441](https://github.com/scalar/scalar/pull/10441): Truncate long composition picker labels while keeping the full text available on hover and in the dropdown.
+
 ## 1.72.4
 
 ### Patch Changes

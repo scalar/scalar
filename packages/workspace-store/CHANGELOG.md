@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.68.1
+
+### Patch Changes
+
+- [#10431](https://github.com/scalar/scalar/pull/10431): Keep explicit authentication field clears separate from configured defaults, add field-local reset actions, and prevent clearing fixed-choice OAuth settings.
+- [#10460](https://github.com/scalar/scalar/pull/10460): Preserve multipart file metadata in generated code examples, including arrays and composed schemas, read actual file bytes across code example targets, let HTTP clients set the multipart boundary, and preserve typed text fields without turning them into file attachments.
+
 ## 0.68.0
 
 ### Minor Changes
