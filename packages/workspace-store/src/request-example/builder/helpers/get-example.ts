@@ -38,14 +38,37 @@ const getExampleFromExamples = (
   return undefined
 }
 
+/** A schema whose walk found no declared value. */
+type WalkWithoutValue = {
+  /** The `properties` it was walked with. Reference siblings can replace them. */
+  properties: unknown
+  /** Schemas above it that its walk stopped at. The result holds while all of them are still ancestors. */
+  stops: unknown[]
+}
+
+/** State shared by one walk of `getSchemaExample`. */
+type SchemaExampleWalk = {
+  /** Schemas on the current path. */
+  ancestors: Set<unknown>
+  /** Schemas found to declare no value, so later paths can skip them. */
+  withoutValues: Map<unknown, WalkWithoutValue>
+  /** Ancestors the walk of the current schema has stopped at so far. */
+  stops: Set<unknown>
+}
+
 /**
  * Keep parameter fallback precedence while collecting only values declared by the schema.
  * The general schema generator also invents values for properties without examples, which would
  * unexpectedly populate and enable optional request parameters.
+ *
+ * The walk has no depth cap, so a schema reached along many paths is remembered once it is known to
+ * declare nothing; otherwise a deep graph of shared schemas costs one visit per path. Another path
+ * walks the same schemas, except that it stops at its own ancestors, and a stop can only drop values.
+ * So while every ancestor the first walk stopped at is still an ancestor, the walk finds nothing again.
  */
 const getSchemaExample = (
   input: SchemaReferenceType<SchemaObject>,
-  ancestors: Set<unknown> = new Set(),
+  walk: SchemaExampleWalk = { ancestors: new Set(), withoutValues: new Map(), stops: new Set() },
 ): ExampleObject | undefined => {
   const schema = resolve.schema(input)
 
@@ -64,18 +87,38 @@ const getSchemaExample = (
 
   // Reference siblings create a fresh merged object, so track the underlying schema for cycles.
   const target = getResolvedRef(input) ?? input
-  if (!('properties' in schema) || !schema.properties || ancestors.has(target)) {
+  if (!('properties' in schema) || !schema.properties) {
     return undefined
   }
 
-  ancestors.add(target)
+  if (walk.ancestors.has(target)) {
+    walk.stops.add(target)
+    return undefined
+  }
+  const known = walk.withoutValues.get(target)
+  if (known?.properties === schema.properties && known.stops.every((stop) => walk.ancestors.has(stop))) {
+    known.stops.forEach((stop) => walk.stops.add(stop))
+    return undefined
+  }
+
+  const outerStops = walk.stops
+  walk.stops = new Set()
+  walk.ancestors.add(target)
   const properties = Object.entries(schema.properties).flatMap(([name, property]) => {
-    const example = getSchemaExample(property, ancestors)
+    const example = getSchemaExample(property, walk)
     return example === undefined ? [] : [[name, example.value]]
   })
-  ancestors.delete(target)
+  walk.ancestors.delete(target)
+  // Stops at schemas inside this walk have left the path, so the rest point above it.
+  const stops = [...walk.stops].filter((stop) => walk.ancestors.has(stop))
+  walk.stops = outerStops
+  stops.forEach((stop) => outerStops.add(stop))
 
-  return properties.length > 0 ? { value: Object.fromEntries(properties) } : undefined
+  if (properties.length > 0) {
+    return { value: Object.fromEntries(properties) }
+  }
+  walk.withoutValues.set(target, { properties: schema.properties, stops })
+  return undefined
 }
 
 /**

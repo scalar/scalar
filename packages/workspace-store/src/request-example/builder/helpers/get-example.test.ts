@@ -3,10 +3,19 @@ import type {
   ParameterWithContentObject,
   ParameterWithSchemaObject,
   SchemaObject,
+  SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+import { resolve } from '@/resolve'
 
 import { getExample } from './get-example'
+
+/** A resolved component reference, the way the store hands one to a consumer. */
+const schemaRef = (name: string, value: SchemaObject): SchemaReferenceType<SchemaObject> => ({
+  '$ref': `#/components/schemas/${name}`,
+  '$ref-value': value,
+})
 
 describe('content-based parameters', () => {
   it.each([0, false, ''])('keeps an explicit falsy example %s ahead of a schema default', (value) => {
@@ -277,6 +286,132 @@ describe('schema-based parameters', () => {
     expect(getExample({ schema }, undefined, undefined)).toStrictEqual({
       value: { first: { id: 42 }, second: { id: 42 }, local: 'local' },
     })
+  })
+
+  it('visits a shared schema without declared values once, however many paths reach it', () => {
+    const node: SchemaObject = { type: 'object', properties: { id: { type: 'string' } } }
+    node.properties!.parent = schemaRef('Node', node)
+    node.properties!.children = { type: 'array', items: schemaRef('Node', node) }
+
+    // Ten levels, each pointing at the next three times: 3^10 paths reach the last level.
+    const depth = 10
+    let level: SchemaObject = { type: 'string' }
+    for (let index = depth - 1; index >= 0; index--) {
+      const next = schemaRef(`Level${index + 1}`, level)
+      level = { type: 'object', properties: { a: next, b: next, c: next, node: schemaRef('Node', node) } }
+    }
+
+    const resolveSchema = vi.spyOn(resolve, 'schema')
+    const result = getExample({ schema: level }, undefined, undefined)
+    const visits = resolveSchema.mock.calls.length
+    resolveSchema.mockRestore()
+
+    expect(result).toBeUndefined()
+    expect(visits).toBeLessThanOrEqual(depth * 6)
+  })
+
+  it('visits a shared schema once when it points back at a schema above it', () => {
+    // Ten levels, each pointing at the next three times and back at the one above it.
+    const depth = 10
+    const properties: Record<string, SchemaReferenceType<SchemaObject>>[] = Array.from(
+      { length: depth + 1 },
+      () => ({}),
+    )
+    const levels = properties.map((level): SchemaObject => ({ type: 'object', properties: level }))
+    properties.forEach((level, index) => {
+      if (index < depth) {
+        const next = schemaRef(`Level${index + 1}`, levels[index + 1]!)
+        Object.assign(level, { a: next, b: next, c: next })
+      }
+      if (index > 0) {
+        level.parent = schemaRef(`Level${index - 1}`, levels[index - 1]!)
+      }
+    })
+
+    const resolveSchema = vi.spyOn(resolve, 'schema')
+    const result = getExample({ schema: levels[0] }, undefined, undefined)
+    const visits = resolveSchema.mock.calls.length
+    resolveSchema.mockRestore()
+
+    expect(result).toBeUndefined()
+    expect(visits).toBeLessThanOrEqual(depth * 6)
+  })
+
+  it('collects a value reached back through a cycle from every path that reaches it', () => {
+    const item: SchemaObject = { type: 'object', properties: { label: { type: 'string', example: 'first' } } }
+    const owner: SchemaObject = { type: 'object', properties: {} }
+    item.properties!.owner = schemaRef('Owner', owner)
+    owner.properties!.item = schemaRef('Item', item)
+
+    // `owner` finds nothing below `item.owner`, where the cycle stops at `item`, but reached directly
+    // it walks into `item` and finds the label.
+    expect(
+      getExample(
+        { schema: { type: 'object', properties: { item: schemaRef('Item', item), owner: schemaRef('Owner', owner) } } },
+        undefined,
+        undefined,
+      ),
+    ).toStrictEqual({ value: { item: { label: 'first' }, owner: { item: { label: 'first' } } } })
+  })
+
+  it('carries a cycle stop up through a schema skipped as already known to declare nothing', () => {
+    const start: SchemaObject = { type: 'object', properties: {} }
+    const back: SchemaObject = { type: 'object', properties: { start: schemaRef('Start', start) } }
+    const via: SchemaObject = { type: 'object', properties: { back: schemaRef('Back', back) } }
+    Object.assign(start.properties!, {
+      back: schemaRef('Back', back),
+      via: schemaRef('Via', via),
+      value: { type: 'integer', example: 1 },
+    })
+
+    // Below `start`, `via` skips `back`, which only found nothing because the cycle stopped at `start`.
+    expect(
+      getExample(
+        { schema: { type: 'object', properties: { start: schemaRef('Start', start), via: schemaRef('Via', via) } } },
+        undefined,
+        undefined,
+      ),
+    ).toStrictEqual({ value: { start: { value: 1 }, via: { back: { start: { value: 1 } } } } })
+  })
+
+  it('carries a cycle stop up through every schema between the stop and the schema it points at', () => {
+    const start: SchemaObject = { type: 'object', properties: {} }
+    const back: SchemaObject = { type: 'object', properties: { start: schemaRef('Start', start) } }
+    const via: SchemaObject = { type: 'object', properties: { back: schemaRef('Back', back) } }
+    Object.assign(start.properties!, { via: schemaRef('Via', via), value: { type: 'integer', example: 1 } })
+
+    // Below `start`, `via` finds nothing only because the cycle two levels down stopped at `start`.
+    expect(
+      getExample(
+        { schema: { type: 'object', properties: { start: schemaRef('Start', start), via: schemaRef('Via', via) } } },
+        undefined,
+        undefined,
+      ),
+    ).toStrictEqual({ value: { start: { value: 1 }, via: { back: { start: { value: 1 } } } } })
+  })
+
+  it('walks properties declared beside a reference to a schema already found to declare nothing', () => {
+    const empty: SchemaObject = { type: 'object', properties: { id: { type: 'integer' } } }
+
+    expect(
+      getExample(
+        {
+          schema: {
+            type: 'object',
+            properties: {
+              plain: schemaRef('Empty', empty),
+              overridden: {
+                '$ref': '#/components/schemas/Empty',
+                '$ref-value': empty,
+                properties: { id: { type: 'integer', example: 7 } },
+              } as SchemaReferenceType<SchemaObject>,
+            },
+          },
+        },
+        undefined,
+        undefined,
+      ),
+    ).toStrictEqual({ value: { overridden: { id: 7 } } })
   })
 
   it.each<{ schema: SchemaObject; value: unknown }>([
