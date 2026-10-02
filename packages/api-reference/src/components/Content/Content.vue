@@ -97,6 +97,7 @@ const {
     | 'showOperationId'
     | 'showExtensions'
     | 'hideModels'
+    | 'hideModelNames'
     | 'modelsSectionLabel'
   >
   document: WorkspaceDocument | undefined

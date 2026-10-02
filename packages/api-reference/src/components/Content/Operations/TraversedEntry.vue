@@ -70,6 +70,7 @@ const {
     | 'showOperationId'
     | 'showExtensions'
     | 'hideModels'
+    | 'hideModelNames'
     | 'modelsSectionLabel'
   >
   /** Currently selected server for the document */

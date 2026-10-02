@@ -40,6 +40,48 @@ describe('ParameterListItem', () => {
     expect(wrapper.text()).toContain('"public"')
   })
 
+  it.each([false, true])('shows structural response types with hideModels=%s', (hideModels) => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        eventBus: null,
+        name: '200',
+        options: { ...baseOptions, hideModels, hideModelNames: true, expandAllSchemaProperties: true },
+        parameter: coerceValue(ResponseObjectSchema, {
+          description: 'Order created',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/OrderResponse',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    order: {
+                      $ref: '#/components/schemas/Order',
+                      '$ref-value': {
+                        type: 'object',
+                        properties: {
+                          customer: { type: 'object', title: 'Customer', properties: { name: { type: 'string' } } },
+                        },
+                      },
+                    },
+                    orders: { type: 'array', items: { type: 'object', title: 'Order' } },
+                  },
+                },
+              },
+            },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('object')
+    expect(wrapper.text()).toContain('array of object')
+    expect(wrapper.text()).toContain('customer')
+    expect(wrapper.text()).toContain('name')
+    expect(wrapper.text()).not.toContain('OrderResponse')
+    expect(wrapper.text()).not.toContain('Customer')
+    expect(wrapper.text()).not.toContain('Type: Order')
+  })
+
   it.each(['inline array', 'referenced array', 'object'] as const)(
     'indents the children of an expanded %s parameter (#10380)',
     async (variant) => {

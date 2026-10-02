@@ -36,6 +36,14 @@ describe('api-reference-configuration', () => {
   })
 
   it.each([
+    [{}, false],
+    [{ hideModelNames: true }, true],
+    [{ hideModelNames: false }, false],
+  ])('preserves model name visibility for %j', (config, expected) => {
+    expect(coerce(apiReferenceConfigurationSchema, config).hideModelNames).toBe(expected)
+  })
+
+  it.each([
     [{}, true],
     [{ expandAllParameters: true }, true],
     [{ expandAllParameters: false }, false],

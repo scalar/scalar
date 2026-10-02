@@ -24,6 +24,7 @@ const { schema, isCollapsed, id, options, eventBus, document } = defineProps<{
     | 'schemaKeyboardNav'
     | 'showExtensions'
     | 'hideModels'
+    | 'hideModelNames'
   >
   schema: SchemaObject | undefined
   isCollapsed: boolean

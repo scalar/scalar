@@ -23,6 +23,7 @@ const { schema, options, document } = defineProps<{
     orderRequiredPropertiesFirst: boolean | undefined
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     hideModels: boolean | undefined
+    hideModelNames?: boolean
     expandAllSchemaProperties: boolean | undefined
     showExtensions?: string[]
   }

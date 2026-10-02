@@ -55,6 +55,11 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show models in the sidebar, search, and content.',
     }),
+    hideModelNames: boolean({
+      default: false,
+      typeComment:
+        'Show structural types instead of model names in schema type labels and operation headings. Model section headings and composition selector labels keep their names.',
+    }),
     modelsSectionLabel: optional(union([literal('Models'), literal('Schemas'), string()]), {
       typeComment:
         'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',

@@ -41,6 +41,28 @@ const mountHeaders = (props: Partial<typeof baseProps> = {}, store = createSchem
   })
 
 describe('Headers', () => {
+  it('uses structural types for named response header schemas', () => {
+    const wrapper = mount(Headers, {
+      props: {
+        ...baseProps,
+        expandAllSchemaProperties: true,
+        hideModelNames: true,
+        headers: {
+          'X-Metadata': {
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              title: 'Metadata',
+              properties: { id: { type: 'string' } },
+            }),
+          },
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('X-Metadata')
+    expect(wrapper.text()).toContain('object')
+    expect(wrapper.text()).not.toContain('Type: Metadata')
+  })
+
   afterEach(() => {
     scrollTargetId.value = ''
   })

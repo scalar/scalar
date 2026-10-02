@@ -28,6 +28,7 @@ const { parameters = [], requestBody } = defineProps<{
     OperationProps['options'],
     | 'expandAllParameters'
     | 'hideModels'
+    | 'hideModelNames'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'

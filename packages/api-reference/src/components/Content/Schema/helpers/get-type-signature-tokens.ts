@@ -1,4 +1,5 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolve } from '@scalar/workspace-store/resolve'
 import type { ReferenceType, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { getRefName } from './get-ref-name'
@@ -70,7 +71,9 @@ export const typeSignatureInlinesEnum = (
     return false
   }
 
-  const value = getResolvedRef(valueOrRef)
+  // Display normalization can retain $ref alongside its resolved fields without
+  // $ref-value. The structural view keeps those fields when names are hidden.
+  const value = options.hideModelNames ? resolve.schema(valueOrRef) : getResolvedRef(valueOrRef)
 
   if (!value || typeof value !== 'object' || value.const !== undefined) {
     return false
@@ -139,7 +142,9 @@ export const getTypeSignatureTokens = (
     }
   }
 
-  const value = getResolvedRef(valueOrRef)
+  // Display normalization can retain $ref alongside its resolved fields without
+  // $ref-value. The structural view keeps those fields when names are hidden.
+  const value = options.hideModelNames ? resolve.schema(valueOrRef) : getResolvedRef(valueOrRef)
 
   if (!value || typeof value !== 'object') {
     return []
@@ -203,7 +208,7 @@ export const getDisplayTypeSignatureTokens = (
   const computedTokens = getTypeSignatureTokens(valueOrRef, { hideModelNames: options.hideModelNames })
   const modelName = options.modelName
 
-  if (!modelName) {
+  if (options.hideModelNames || !modelName) {
     return computedTokens
   }
 

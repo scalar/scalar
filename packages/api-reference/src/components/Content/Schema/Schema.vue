@@ -50,7 +50,7 @@ const {
   additionalPropertyCount,
   discriminator,
   breadcrumb,
-  hideModelNames = false,
+  hideModelNames: hideModelNamesProp = false,
   options,
   schemaContext,
   compositionPath,
@@ -112,6 +112,10 @@ const additionalPropertiesLabel = computed((): string => {
     { count: additionalPropertyCount },
   )
 })
+
+const hideModelNames = computed(
+  (): boolean => hideModelNamesProp || !!options.hideModelNames,
+)
 
 /**
  * The dynamic scope inherited from ancestor schema resources.

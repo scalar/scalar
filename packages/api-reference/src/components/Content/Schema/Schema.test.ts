@@ -12,6 +12,37 @@ import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/s
 import Schema from './Schema.vue'
 
 describe('Schema', () => {
+  it('renders structural labels for nested references from the workspace store', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'orders',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Orders', version: '1' },
+        components: {
+          schemas: {
+            OrderResponse: { type: 'object', properties: { order: { $ref: '#/components/schemas/Order' } } },
+            Order: { type: 'object', properties: { customer: { $ref: '#/components/schemas/Customer' } } },
+            Customer: { type: 'object', properties: { name: { type: 'string' } } },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.orders
+    if (!isOpenApiDocument(document)) throw new Error('Expected an OpenAPI document')
+    const wrapper = mount(Schema, {
+      props: {
+        schema: getResolvedRef(document.components?.schemas?.OrderResponse),
+        eventBus: null,
+        options: { hideModelNames: true, expandAllSchemaProperties: true },
+      },
+    })
+    expect(wrapper.text()).not.toContain('Customer')
+    expect(wrapper.text()).not.toContain('Order')
+    expect(wrapper.text().match(/Type: object/g)?.length).toBe(2)
+    expect(wrapper.text()).toContain('Type: string')
+  })
+
   it('does not render internal markers from ingested boolean schemas', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

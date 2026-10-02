@@ -86,6 +86,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   hideModels: z.boolean().optional().default(false).catch(false),
   /**
+   * Show structural types instead of model names in schema type labels and operation headings.
+   * Model section headings and composition selector labels keep their names.
+   * @default false
+   */
+  hideModelNames: z.boolean().optional().default(false).catch(false),
+  /**
    * Label for the components.schemas section in the sidebar, content, and search.
    * Use `Schemas` for OpenAPI terminology; `Models` is the historical default.
    * @default 'Models'
