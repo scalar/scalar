@@ -12,6 +12,17 @@ import {
 const text = (tokens: ReturnType<typeof getTypeSignatureTokens>): string => tokens.map((token) => token.text).join(' ')
 
 describe('get-type-signature-tokens', () => {
+  it('uses structural fields on normalized references when names are hidden', () => {
+    const schema = { $ref: '#/components/schemas/Order', type: 'object' } as never
+    expect(getTypeSignatureTokens(schema, { hideModelNames: true })).toStrictEqual([{ kind: 'ident', text: 'object' }])
+  })
+
+  it('keeps normalized referenced enum values visible when names are hidden', () => {
+    const schema = { $ref: '#/components/schemas/Status', type: 'string', enum: ['pending', 'complete'] } as never
+    expect(typeSignatureInlinesEnum(schema, { hideModelNames: true })).toBe(true)
+    expect(text(getTypeSignatureTokens(schema, { hideModelNames: true }))).toBe('"pending" or "complete"')
+  })
+
   it('renders a primitive as an identifier', () => {
     const tokens = getTypeSignatureTokens(coerceValue(SchemaObjectSchema, { type: 'string' }))
 
@@ -94,6 +105,17 @@ describe('get-type-signature-tokens', () => {
 })
 
 describe('getDisplayTypeSignatureTokens', () => {
+  it('ignores an explicit model name when model names are hidden', () => {
+    const tokens = getDisplayTypeSignatureTokens(
+      { $ref: '#/components/schemas/Order', '$ref-value': { type: 'object' } } as never,
+      {
+        hideModelNames: true,
+        modelName: 'Order',
+      },
+    )
+    expect(tokens).toStrictEqual([{ kind: 'ident', text: 'object' }])
+  })
+
   const planetRef = { $ref: '#/components/schemas/planet', '$ref-value': { type: 'object' } } as never
 
   it('passes the raw tokens through without a model name', () => {

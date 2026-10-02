@@ -30,6 +30,7 @@ const { responses, selectedContentTypes = {} } = defineProps<{
   options: Pick<
     OperationProps['options'],
     | 'hideModels'
+    | 'hideModelNames'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'

@@ -29,6 +29,7 @@ const { eventBus, id, options, document } = defineProps<{
     | 'schemaKeyboardNav'
     | 'showExtensions'
     | 'hideModels'
+    | 'hideModelNames'
   >
 }>()
 

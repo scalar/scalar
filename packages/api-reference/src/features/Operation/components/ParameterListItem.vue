@@ -48,6 +48,7 @@ const {
   options: Pick<
     OperationProps['options'],
     | 'hideModels'
+    | 'hideModelNames'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
@@ -416,6 +417,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
             schemaKeyboardNav: options.schemaKeyboardNav,
             showExtensions: options.showExtensions,
             hideModels: options.hideModels,
+            hideModelNames: options.hideModelNames,
             document,
           }"
           :required="'required' in parameter && parameter.required"
@@ -446,6 +448,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :eventBus="eventBus"
           :expandAllSchemaProperties="options.expandAllSchemaProperties"
           :headers="headers"
+          :hideModelNames="options.hideModelNames"
           :hideModels="options.hideModels"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"

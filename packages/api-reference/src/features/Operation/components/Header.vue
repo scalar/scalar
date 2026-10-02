@@ -20,6 +20,7 @@ const {
   schemaKeyboardNav,
   showExtensions,
   hideModels,
+  hideModelNames,
 } = defineProps<{
   header: HeaderObject
   name: string
@@ -37,6 +38,8 @@ const {
   showExtensions?: string[]
   /** Whether the models section is hidden, so model names render as plain text instead of links */
   hideModels: boolean | undefined
+  /** Show structural types in schema labels */
+  hideModelNames?: boolean
 }>()
 /** Headers may describe their value with either schema or a single media type. */
 const schema = computed(() => {
@@ -63,6 +66,7 @@ const schema = computed(() => {
       schemaKeyboardNav: schemaKeyboardNav,
       showExtensions,
       hideModels: hideModels,
+      hideModelNames,
       document,
     }"
     :schema="schema" />

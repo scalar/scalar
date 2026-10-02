@@ -720,6 +720,22 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 }
 ```
 
+### hideModelNames
+
+**Type:** `boolean`
+
+Show structural types such as `object` and `array of object` instead of model names in schema type labels and operation headings. This applies to request bodies, responses, parameters, and headers, including nested properties. Model section headings and composition selector labels keep their names so models and alternatives remain identifiable.
+
+This option does not hide the models section. Use `hideModels` separately to hide that section.
+
+**Default:** `false`
+
+```javascript
+{
+  hideModelNames: true
+}
+```
+
 ### modelsSectionLabel
 
 **Type:** `'Models' | 'Schemas' | string`

@@ -31,6 +31,7 @@ const { method, name, url, options, document, breadcrumb } = defineProps<{
     OperationProps['options'],
     | 'expandAllParameters'
     | 'hideModels'
+    | 'hideModelNames'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'

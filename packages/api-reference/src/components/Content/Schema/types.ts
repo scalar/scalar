@@ -28,6 +28,8 @@ export type SchemaOptions = {
    * render as plain text instead of links.
    */
   hideModels?: ApiReferenceConfiguration['hideModels']
+  /** Show structural types instead of model names in type labels */
+  hideModelNames?: ApiReferenceConfiguration['hideModelNames']
   /**
    * The document the schema belongs to.
    *

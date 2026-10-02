@@ -15,6 +15,43 @@ import { provideLocalization } from '@/features/localization'
 import RequestBody from './RequestBody.vue'
 
 describe('RequestBody', () => {
+  it.each([1, 13])('uses structural types in a request with %s properties', (count) => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: createWorkspaceEventBus(),
+        options: {
+          hideModels: false,
+          hideModelNames: true,
+          expandAllSchemaProperties: true,
+          orderRequiredPropertiesFirst: false,
+          orderSchemaPropertiesBy: 'alpha',
+          schemaKeyboardNav: false,
+        },
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                title: 'OrderRequest',
+                properties: Object.fromEntries(
+                  Array.from({ length: count }, (_, index) => [
+                    `customer${index}`,
+                    { type: 'object', title: 'Customer', properties: { name: { type: 'string' } } },
+                  ]),
+                ),
+              }),
+            },
+          },
+        },
+      },
+      slots: { title: 'Body' },
+    })
+    expect(wrapper.find('[data-testid="request-body-schema-name"]').text()).toBe('·object')
+    expect(wrapper.text()).toContain('customer0')
+    expect(wrapper.text()).not.toContain('OrderRequest')
+    expect(wrapper.text()).not.toContain('Customer')
+  })
+
   const defaultRequestOptions = {
     hideModels: false,
     orderRequiredPropertiesFirst: false,

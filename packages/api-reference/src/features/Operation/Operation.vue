@@ -13,6 +13,7 @@ export type OperationProps = {
     | 'expandAllParameters'
     | 'expandAllResponses'
     | 'hideModels'
+    | 'hideModelNames'
     | 'hideTestRequestButton'
     | 'layout'
     | 'orderRequiredPropertiesFirst'

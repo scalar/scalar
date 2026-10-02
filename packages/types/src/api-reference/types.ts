@@ -689,6 +689,8 @@ type ExtendedConfiguration = {
   isEditable: boolean
   /** Whether to show models in the sidebar, search, and content. */
   hideModels: boolean
+  /** Show structural types instead of model names in schema type labels and operation headings. */
+  hideModelNames?: boolean
   /** Label for the components.schemas section (`Models`, `Schemas`, or any custom string). */
   modelsSectionLabel?: ModelsSectionLabel
   /** API Reference UI localization configuration. */
