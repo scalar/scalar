@@ -10,6 +10,7 @@ import { isReactive, nextTick } from 'vue'
 import { scrollTargetId } from '../../../helpers/lazy-bus'
 import { SCHEMA_EXPANSION_SYMBOL, createSchemaExpansionStore } from './helpers/schema-expansion'
 import Schema from './Schema.vue'
+import SchemaProperty from './SchemaProperty.vue'
 
 describe('Schema', () => {
   it('does not render internal markers from ingested boolean schemas', async () => {
@@ -2154,4 +2155,115 @@ describe('Schema', () => {
       expect(wrapper.find('ul[role="presentation"]').exists()).toBe(false)
     })
   })
+  it.each([false, true])(
+    'keeps nested allOf choices inside the data disclosure with expandAll=%s (#10454)',
+    async (expandAllSchemaProperties) => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'nestedChoices',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Nested choices', version: '1.0.0' },
+          paths: {},
+          components: {
+            schemas: {
+              TagsLastUpdated: {
+                allOf: [
+                  {
+                    anyOf: [
+                      {
+                        type: 'object',
+                        title: 'Use tags',
+                        properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
+                      },
+                      { type: 'object', title: 'Empty', properties: {} },
+                    ],
+                  },
+                  {
+                    anyOf: [
+                      {
+                        type: 'object',
+                        title: 'Add tags',
+                        properties: { userAddTags: { type: 'array', items: { type: 'string' } } },
+                      },
+                      { type: 'object', title: 'Empty', properties: {} },
+                    ],
+                  },
+                ],
+              },
+              Response: {
+                type: 'object',
+                properties: {
+                  title: { const: 'Sign In User' },
+                  data: {
+                    allOf: [
+                      { type: 'object', properties: { userName: { type: 'string' } } },
+                      { $ref: '#/components/schemas/TagsLastUpdated' },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.nestedChoices
+      if (!document || !isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+      const wrapper = mount(Schema, {
+        props: {
+          schema: getResolvedRef(document.components?.schemas?.Response),
+          eventBus: null,
+          noncollapsible: true,
+          breadcrumb: ['response'],
+          options: { expandAllSchemaProperties },
+        },
+      })
+      const data = wrapper.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'data')!
+      const toggle = data.get('button[aria-expanded]')
+      expect(toggle.attributes('aria-expanded')).toBe(String(expandAllSchemaProperties))
+      if (!expandAllSchemaProperties) {
+        expect(wrapper.text()).not.toContain('userName')
+        await toggle.trigger('click')
+      }
+      const panel = data.get(`[id="${toggle.attributes('aria-controls')}"]`)
+      const userName = data.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'userName')!
+      expect(userName.props('breadcrumb')).toStrictEqual(['response', 'data'])
+      expect(
+        wrapper
+          .findAllComponents(SchemaProperty)
+          .filter((row) =>
+            ['title', 'data', 'userName', 'userUseTags', 'userAddTags'].includes(row.props('name') ?? ''),
+          )
+          .map((row) => ({ name: row.props('name'), depth: row.props('depth') })),
+      ).toStrictEqual([
+        { name: 'data', depth: 0 },
+        { name: 'userName', depth: 1 },
+        { name: 'userUseTags', depth: 2 },
+        { name: 'userAddTags', depth: 2 },
+        { name: 'title', depth: 0 },
+      ])
+      const pickers = data.findAllComponents({ name: 'ScalarListbox' })
+      expect(pickers.map((picker) => picker.props('options'))).toStrictEqual([
+        [
+          { id: '0', label: 'Use tags' },
+          { id: '1', label: 'Empty' },
+        ],
+        [
+          { id: '0', label: 'Add tags' },
+          { id: '1', label: 'Empty' },
+        ],
+      ])
+      pickers[0]!.vm.$emit('update:modelValue', { id: '1', label: 'Empty' })
+      await nextTick()
+      expect(panel.text()).not.toContain('userUseTags')
+      expect(panel.text()).toContain('userAddTags')
+      expect(panel.text()).toContain('userName')
+      await toggle.trigger('click')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      expect(panel.element.hasAttribute('hidden')).toBe(true)
+      wrapper.unmount()
+    },
+  )
 })

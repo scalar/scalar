@@ -64,6 +64,7 @@ import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
 import { normalizeObjectComposition } from './helpers/normalize-object-composition'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
+import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import type { CompositionKeyword } from './helpers/schema-composition'
 import { shouldDisplayDescription } from './helpers/should-display-description'
 import { shouldDisplayHeading } from './helpers/should-display-heading'
@@ -154,6 +155,18 @@ const optimizedValue = computed(() =>
     props.name,
   ),
 )
+
+/** Mixed object/choice compositions still belong inside their named property's panel. */
+const hasObjectComposition = computed((): boolean => {
+  const value = optimizedValue.value
+  return (
+    !!props.name &&
+    !!value?.allOf &&
+    partitionAllOfCompositions(value).segments.some(
+      (segment) => segment.kind === 'object' && isTypeObject(segment.schema),
+    )
+  )
+})
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
   props.breadcrumb
@@ -364,11 +377,13 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(
-    optimizedValue.value,
-    props.options.document,
-    inferredDiscriminatorComposition.value,
-  ),
+  hasObjectComposition.value
+    ? []
+    : getCompositionsToRender(
+        optimizedValue.value,
+        props.options.document,
+        inferredDiscriminatorComposition.value,
+      ),
 )
 
 /**
@@ -496,8 +511,16 @@ const arrayChildProps = computed(() =>
  * separately above because a schema can satisfy both, and the row has to know
  * which one it draws — see `rendersArrayBranch`.
  */
-const treeChildProps = computed(
-  () => objectChildProps.value ?? arrayChildProps.value,
+const treeChildProps = computed(() =>
+  hasObjectComposition.value
+    ? {
+        ...sharedChildProps.value,
+        breadcrumb: childBreadcrumb.value,
+        compositionPath: currentCompositionPath.value,
+        cycleKey: props.cycleKey,
+        schema: optimizedValue.value,
+      }
+    : (objectChildProps.value ?? arrayChildProps.value),
 )
 
 /**
@@ -545,7 +568,9 @@ const { translate } = useLocalization()
 /** Whether this property has children to put behind a toggle. */
 const isExpandable = computed(
   (): boolean =>
-    shouldRenderObjectProperties.value || shouldRenderArrayOfObjects.value,
+    hasObjectComposition.value ||
+    shouldRenderObjectProperties.value ||
+    shouldRenderArrayOfObjects.value,
 )
 
 /**
