@@ -544,7 +544,7 @@ const canGenerateExample = computed(() =>
           <!-- Editable raw body with a copy button revealed on hover/focus -->
           <div
             v-else
-            class="group/code-block relative border-t">
+            class="group/code-block relative min-w-0 border-t">
             <CodeInput
               class="px-3"
               content=""

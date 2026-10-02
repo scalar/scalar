@@ -731,7 +731,7 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div class="bg-b-1 flex h-full flex-col">
+  <div class="bg-b-1 flex h-full min-w-0 flex-col">
     <div
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-0">
       <!-- Address Bar -->

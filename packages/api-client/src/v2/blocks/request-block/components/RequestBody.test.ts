@@ -76,6 +76,28 @@ describe('RequestBody', () => {
     wrapper.unmount()
   })
 
+  it('lets the raw editor shrink so long unbroken lines scroll inside it', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              examples: { 'example-1': { value: { token: 'A'.repeat(5000) } } },
+            },
+          },
+        },
+      },
+    })
+
+    // The wrapper is a grid item, so without `min-w-0` it grows to the width
+    // of the longest line and pushes the whole client wider than the viewport
+    const codeBlock = wrapper.find('.group\\/code-block')
+    expect(codeBlock.exists()).toBe(true)
+    expect(codeBlock.classes()).toContain('min-w-0')
+    wrapper.unmount()
+  })
+
   it('fills the raw editor with a framed stream item example', () => {
     const wrapper = mount(RequestBody, {
       props: {
