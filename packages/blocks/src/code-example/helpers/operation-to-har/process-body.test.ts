@@ -8,6 +8,33 @@ import { processBody } from './process-body'
 
 describe('processBody', () => {
   it.each([
+    { array: false, encodingType: undefined, expectedType: 'image/png' },
+    { array: true, encodingType: undefined, expectedType: 'image/png' },
+    { array: false, encodingType: 'image/webp', expectedType: 'image/webp' },
+    { array: true, encodingType: 'image/webp', expectedType: 'image/webp' },
+  ])(
+    'retains file media types with array=$array and encoding=$encodingType',
+    ({ array, encodingType, expectedType }) => {
+      const file = new File(['image bytes'], 'picture.png', { type: 'image/png' })
+      const result = processBody({
+        contentType: 'multipart/form-data',
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              example: { upload: array ? [file] : file },
+              ...(encodingType ? { encoding: { upload: { contentType: encodingType } } } : {}),
+            },
+          },
+        },
+      })
+      expect(result).toStrictEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'upload', value: '@picture.png', fileName: 'picture.png', contentType: expectedType }],
+      })
+    },
+  )
+
+  it.each([
     {
       contentType: 'text/event-stream',
       value: { event: 'update', data: 'hello' },
@@ -1683,8 +1710,8 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'attachments', value: '@a.txt', fileName: 'a.txt' },
-          { name: 'attachments', value: '@b.txt', fileName: 'b.txt' },
+          { name: 'attachments', value: '@a.txt', fileName: 'a.txt', contentType: 'text/plain' },
+          { name: 'attachments', value: '@b.txt', fileName: 'b.txt', contentType: 'text/plain' },
         ],
       })
     })
@@ -2488,7 +2515,7 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'scalar.jpeg', value: '@scalar.jpeg', fileName: 'scalar.jpeg' },
+          { name: 'scalar.jpeg', value: '@scalar.jpeg', fileName: 'scalar.jpeg', contentType: 'text/plain' },
           { name: 'test', value: 'me' },
         ],
       })

@@ -104,7 +104,7 @@ const objectToFormParams = (
       if (arrayParts) {
         for (const part of arrayParts) {
           if (part.value instanceof File) {
-            params.push(buildFileParam(part.key, part.value.name, part.contentType))
+            params.push(buildFileParam(part.key, part.value.name, part.contentType ?? part.value.type))
             continue
           }
           params.push({
@@ -154,7 +154,7 @@ const objectToFormParams = (
        * attached file. Picked up by snippet renderers downstream (e.g. `--form 'x=@file.png'`).
        */
       const file = unpackProxyObject(value)
-      params.push(buildFileParam(key, file.name, explicitContentType))
+      params.push(buildFileParam(key, file.name, explicitContentType ?? (isMultipart ? file.type : undefined)))
     } else if (binaryPlaceholderFileName !== undefined) {
       /** A binary property filled in by example generation, so it is a file and not a text field. */
       params.push(buildFileParam(key, binaryPlaceholderFileName, explicitContentType))
@@ -185,7 +185,7 @@ const objectToFormParams = (
       for (const item of value) {
         if (item instanceof File) {
           const file = unpackProxyObject(item)
-          params.push(buildFileParam(key, file.name))
+          params.push(buildFileParam(key, file.name, isMultipart ? file.type : undefined))
         } else {
           params.push({ name: key, value: String(item) })
         }
