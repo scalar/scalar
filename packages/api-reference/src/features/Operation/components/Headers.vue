@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { SchemaGutterToggle, SchemaRailPanel } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -12,8 +13,6 @@ import {
   useSchemaExpansion,
 } from '@/components/Content/Schema/helpers/schema-expansion'
 import { handleTreeKeydown } from '@/components/Content/Schema/helpers/schema-keyboard-nav'
-import SchemaGutterToggle from '@/components/Content/Schema/SchemaGutterToggle.vue'
-import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { useLocalization } from '@/features/localization'
 
 import Header from './Header.vue'
@@ -30,6 +29,8 @@ const { headers, breadcrumb, schemaKeyboardNav, expandAllSchemaProperties } =
     expandAllSchemaProperties: boolean | undefined
     /** Whether arrow-key navigation is enabled */
     schemaKeyboardNav?: boolean | undefined
+    /** Selected extensions to display on response headers. */
+    showExtensions?: string[]
     /** Whether the models section is hidden, so model names render as plain text instead of links */
     hideModels: boolean | undefined
   }>()
@@ -154,7 +155,8 @@ const countLabel = computed(() =>
             :name="key"
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
             :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
-            :schemaKeyboardNav="schemaKeyboardNav" />
+            :schemaKeyboardNav="schemaKeyboardNav"
+            :showExtensions="showExtensions" />
         </template>
       </ul>
     </SchemaRailPanel>

@@ -10,3 +10,6 @@
 
 /* Search for Tailwind classes in Scalar Blocks */
 @source "../";
+
+/* Shared schema tree controls and rails */
+@import "./schema-tree.css";

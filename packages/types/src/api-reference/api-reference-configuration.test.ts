@@ -7,6 +7,16 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves an explicit extension allowlist and disables it by default', () => {
+    expect(apiReferenceConfigurationSchema.parse({}).showExtensions).toBeUndefined()
+    expect(apiReferenceConfigurationSchema.parse({ showExtensions: ['x-scopes'] }).showExtensions).toStrictEqual([
+      'x-scopes',
+    ])
+    expect(apiReferenceConfigurationSchema.parse({ showExtensions: [] }).showExtensions).toStrictEqual([])
+    expect(apiReferenceConfigurationSchema.safeParse({ showExtensions: ['summary'] }).success).toBe(false)
+    expect(apiReferenceConfigurationSchema.safeParse({ showExtensions: true }).success).toBe(false)
+  })
+
   it.each([
     [{}, true],
     [{ expandAllParameters: true }, true],

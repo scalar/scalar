@@ -94,6 +94,7 @@ const {
     | 'proxyUrl'
     | 'servers'
     | 'showOperationId'
+    | 'showExtensions'
     | 'hideModels'
     | 'modelsSectionLabel'
   >

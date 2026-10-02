@@ -87,6 +87,10 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show the sidebar search bar',
     }),
+    showExtensions: optional(array(string()), {
+      typeComment:
+        'Extension keys to display on operations, parameters, response headers, and schema fields. Keys must start with x-. Custom plugin components take precedence.',
+    }),
     showOperationId: boolean({
       default: false,
       typeComment: 'Whether to show the operationId',

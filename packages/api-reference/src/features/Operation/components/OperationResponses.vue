@@ -34,6 +34,7 @@ const { responses, selectedContentTypes = {} } = defineProps<{
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
     | 'schemaKeyboardNav'
+    | 'showExtensions'
   >
 }>()
 

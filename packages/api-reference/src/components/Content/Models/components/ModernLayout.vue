@@ -24,6 +24,7 @@ const { schema, options, document } = defineProps<{
     orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
     hideModels: boolean | undefined
     expandAllSchemaProperties: boolean | undefined
+    showExtensions?: string[]
   }
 }>()
 

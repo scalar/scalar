@@ -258,7 +258,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <div
           v-if="Object.keys(operationExtensions).length > 0"
           class="operation-details-card-item">
-          <SpecificationExtension :value="operationExtensions" />
+          <SpecificationExtension
+            :showExtensions="options.showExtensions"
+            :value="operationExtensions" />
         </div>
         <div
           v-if="hasRequiredScopes"

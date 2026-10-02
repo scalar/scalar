@@ -1,3 +1,4 @@
+import { SchemaRailPanel } from '@scalar/blocks/schema'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -11,7 +12,6 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
-import SchemaRailPanel from './SchemaRailPanel.vue'
 
 describe('SchemaProperty', () => {
   it('keeps nameless noncollapsible array containers flat', () => {
@@ -1385,6 +1385,35 @@ describe('SchemaProperty', () => {
   })
 
   describe('specification extensions', () => {
+    it('selects field extensions and prefers schema values over parameter values', async () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-owner': 'schema', 'x-hidden': 'secret' }),
+          extensionSource: { 'x-owner': 'parameter', 'x-policy': false },
+          options: { showExtensions: ['x-owner', 'x-policy'] },
+        },
+      })
+      const extension = wrapper.getComponent(SpecificationExtension)
+      expect(extension.findAll('code').map((node) => node.text())).toStrictEqual(['"schema"', 'false'])
+      expect(extension.text()).not.toContain('secret')
+      await wrapper.setProps({ options: {} })
+      expect(extension.findAll('code')).toHaveLength(0)
+    })
+
+    it('renders extensions from a parameter without a schema', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: undefined,
+          extensionSource: { 'x-owner': 'parameter' },
+          options: { showExtensions: ['x-owner'] },
+        },
+      })
+      expect(wrapper.getComponent(SpecificationExtension).get('code').text()).toBe('"parameter"')
+    })
+
     it('mounts the extension renderer for a schema with an x- key', () => {
       const wrapper = mount(SchemaProperty, {
         props: {

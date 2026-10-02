@@ -20,6 +20,7 @@ export type OperationProps = {
     | 'expandAllSchemaProperties'
     | 'schemaKeyboardNav'
     | 'showOperationId'
+    | 'showExtensions'
   >
   /** Document object */
   document: OpenApiDocument

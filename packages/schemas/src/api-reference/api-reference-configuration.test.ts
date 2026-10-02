@@ -8,6 +8,14 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves selected extensions through runtime configuration normalization', () => {
+    expect(coerce(apiReferenceConfigurationSchema, {}).showExtensions).toBeUndefined()
+    expect(
+      apiReferenceConfigurationWithSourceSchema({ showExtensions: ['x-scopes'], url: '/openapi.json' }).showExtensions,
+    ).toStrictEqual(['x-scopes'])
+    expect(coerce(apiReferenceConfigurationSchema, { showExtensions: [] }).showExtensions).toStrictEqual([])
+  })
+
   it.each([
     [{}, true],
     [{ expandAllParameters: true }, true],

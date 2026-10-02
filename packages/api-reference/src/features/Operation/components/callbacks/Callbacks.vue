@@ -33,6 +33,7 @@ const { path, callbacks, breadcrumb } = defineProps<{
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
     | 'schemaKeyboardNav'
+    | 'showExtensions'
   >
 }>()
 const { translate } = useLocalization()

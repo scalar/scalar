@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { SchemaGlyphPuck } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
@@ -33,7 +34,6 @@ import {
 import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
 import { unwrapForRead } from './helpers/unwrap-for-read'
 import SchemaComposition from './SchemaComposition.vue'
-import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
 

@@ -1,10 +1,14 @@
+import { SchemaRailPanel } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { ResponseObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  ParameterObjectSchema,
+  ResponseObjectSchema,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
-import SchemaRailPanel from '@/components/Content/Schema/SchemaRailPanel.vue'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ParameterListItem from './ParameterListItem.vue'
@@ -18,6 +22,24 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('renders selected extensions from both a parameter and its schema', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'limit',
+        eventBus: null,
+        options: { ...baseOptions, showExtensions: ['x-owner', 'x-policy'] },
+        parameter: coerceValue(ParameterObjectSchema, {
+          name: 'limit',
+          in: 'query',
+          'x-owner': 'Platform',
+          schema: coerceValue(SchemaObjectSchema, { type: 'integer', 'x-policy': 'public' }),
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('"Platform"')
+    expect(wrapper.text()).toContain('"public"')
+  })
+
   it.each(['inline array', 'referenced array', 'object'] as const)(
     'indents the children of an expanded %s parameter (#10380)',
     async (variant) => {

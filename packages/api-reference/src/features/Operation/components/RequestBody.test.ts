@@ -17,6 +17,26 @@ describe('RequestBody', () => {
     schemaKeyboardNav: false,
   }
 
+  it('renders selected extensions on request body fields', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        eventBus: null,
+        options: { ...defaultRequestOptions, showExtensions: ['x-owner'] },
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'object',
+                properties: { name: { type: 'string', 'x-owner': 'Directory team' } },
+              }),
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('"Directory team"')
+  })
+
   it('renders request body with schema properties', () => {
     const wrapper = mount(RequestBody, {
       props: {

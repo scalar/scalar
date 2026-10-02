@@ -26,6 +26,7 @@ const { parameters } = defineProps<{
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
     | 'schemaKeyboardNav'
+    | 'showExtensions'
   >
 }>()
 
