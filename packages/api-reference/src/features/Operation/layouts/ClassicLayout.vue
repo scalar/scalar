@@ -84,6 +84,10 @@ const {
     document?: OpenApiDocument
   }
 >()
+defineSlots<{
+  actions?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
@@ -229,7 +233,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
       <div
         v-if="document"
         class="mb-3 flex justify-end">
+        <slot
+          v-if="$slots.actions"
+          name="actions" />
         <CopyMarkdownButton
+          v-else
           :document
           :isWebhook
           :method
