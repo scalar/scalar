@@ -3,7 +3,7 @@ import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/stric
 import { describe, expect, it } from 'vitest'
 
 import { createMarkdownFromOpenApi } from './browser'
-import { type OpenApiRenderOptions, selectDocument } from './select-document'
+import { type OpenApiRenderOptions, createDocumentLookup, selectDocument } from './select-document'
 
 const custom = {
   operationId: 'purgeCache',
@@ -82,5 +82,75 @@ describe('select-document', () => {
     expect(markdown).not.toContain('Uppercase purge')
     expect(markdown).not.toContain('Fixed read')
     expect(markdown).not.toContain('Fixed webhook')
+  })
+
+  describe('lookup', () => {
+    const schema = (name: string): { $ref: string } => ({ $ref: `#/components/schemas/${name}` })
+    const json = (reference: { $ref: string }) => ({
+      '200': { description: 'OK', content: { 'application/json': { schema: reference } } },
+    })
+    const indexed = {
+      'x-scalar-original-document-hash': '',
+      openapi: '3.2.0',
+      info: { title: 'Indexed', version: '1' },
+      paths: {
+        '/b': {
+          get: { operationId: 'readB', tags: ['shared', 'shared'], responses: json(schema('Mango')) },
+          post: { operationId: 'twice', tags: ['shared'], responses: json(schema('Zebra')) },
+        },
+        '/a': {
+          get: { operationId: 'twice', tags: ['other'] },
+          delete: { tags: ['shared'] },
+        },
+      },
+      components: {
+        schemas: {
+          Zebra: { type: 'object', properties: { fruit: schema('Apple') } },
+          Unused: { type: 'string' },
+          Apple: { type: 'string' },
+          Mango: { type: 'object', properties: { stripes: schema('Zebra') } },
+        },
+      },
+    } satisfies OpenApiDocument
+
+    it('keeps the document order of the schemas a selection needs', () => {
+      // The walk reaches Mango, then Zebra, then Apple.
+      const operation = selectDocument(indexed, { operation: { path: '/b', method: 'get' } })
+      expect(Object.keys(operation.components?.schemas ?? {})).toStrictEqual(['Zebra', 'Apple', 'Mango'])
+
+      const model = selectDocument(indexed, { model: 'Mango' })
+      expect(Object.keys(model.components?.schemas ?? {})).toStrictEqual(['Zebra', 'Apple', 'Mango'])
+
+      const linked = selectDocument(indexed, { model: 'Mango', schemaReferences: { mode: 'linked' } })
+      expect(Object.keys(linked.components?.schemas ?? {})).toStrictEqual(['Mango'])
+    })
+
+    it('selects by operation ID through a shared lookup', () => {
+      const lookup = createDocumentLookup(indexed)
+      const selected = selectDocument(indexed, { operation: { operationId: 'readB' } }, lookup)
+      expect(Object.keys(selected.paths ?? {})).toStrictEqual(['/b'])
+      expect(getPathItemOperation(selected.paths?.['/b'], 'get')?.operationId).toBe('readB')
+      expect(getPathItemOperation(selected.paths?.['/b'], 'post')).toBeUndefined()
+
+      expect(() => selectDocument(indexed, { operation: { operationId: 'twice' } }, lookup)).toThrow(
+        'Multiple operations found for operationId "twice". Use { path, method } instead. Matches: "POST /b", "GET /a"',
+      )
+      expect(() => selectDocument(indexed, { operation: { operationId: 'missing' } }, lookup)).toThrow(
+        'Operation with operationId "missing" was not found',
+      )
+      expect(lookup.operationsById()).toBe(lookup.operationsById())
+    })
+
+    it('selects every operation that carries a tag, in document order', () => {
+      const lookup = createDocumentLookup(indexed)
+      const selected = selectDocument(indexed, { tag: 'shared' }, lookup)
+      expect(Object.keys(selected.paths ?? {})).toStrictEqual(['/b', '/a'])
+      expect(getPathItemOperation(selected.paths?.['/b'], 'get')?.operationId).toBe('readB')
+      expect(getPathItemOperation(selected.paths?.['/b'], 'post')?.operationId).toBe('twice')
+      expect(getPathItemOperation(selected.paths?.['/a'], 'get')).toBeUndefined()
+      expect(getPathItemOperation(selected.paths?.['/a'], 'delete')?.tags).toStrictEqual(['shared'])
+
+      expect(Object.keys(selectDocument(indexed, { tag: 'other' }, lookup).paths ?? {})).toStrictEqual(['/a'])
+    })
   })
 })
