@@ -132,6 +132,12 @@ describe('api-reference-configuration', () => {
       expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject({ hiddenClients: true })
     })
 
+    it('validates featuredClients', () => {
+      const config = { featuredClients: ['node/fetch', 'shell/curl'] }
+
+      expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject(config)
+    })
+
     it('validates theme enum values', () => {
       const config = { theme: 'invalid-theme' }
 

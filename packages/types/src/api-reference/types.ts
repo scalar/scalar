@@ -733,6 +733,10 @@ type ExtendedConfiguration = {
     clientKey: ClientId<TargetId>
   }
   /**
+   * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
+   */
+  featuredClients?: Array<AvailableClient>
+  /**
    * Initial view for the request body editor with structured (JSON/YAML) bodies.
    *
    * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.

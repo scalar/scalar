@@ -133,6 +133,10 @@ export const apiReferenceConfigurationSchema = intersection([
           'List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients',
       },
     ),
+    featuredClients: optional(array(string() as unknown as LiteralSchema<AvailableClient>), {
+      typeComment:
+        'Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu',
+    }),
     defaultHttpClient: optional(
       // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
       // untouched (a real union would rewrite it to the first client). The cast only tightens
