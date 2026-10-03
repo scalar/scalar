@@ -134,6 +134,24 @@ describe('DataTableInput', () => {
       expect(wrapper.emitted('inputBlur')).toBeTruthy()
     })
 
+    it('focuses the masked password input when the label is clicked', async () => {
+      wrapper = mount(DataTableInput, {
+        attachTo: document.body,
+        props: {
+          modelValue: 'secret123',
+          type: 'password',
+          environment: mockEnvironment,
+        },
+        slots: {
+          default: 'Password',
+        },
+      })
+
+      await wrapper.find('.text-c-1').trigger('click')
+
+      expect(document.activeElement).toBe(wrapper.find('input').element)
+    })
+
     it('renders DataTableInputSelect when enum is provided', () => {
       wrapper = mount(DataTableInput, {
         props: {

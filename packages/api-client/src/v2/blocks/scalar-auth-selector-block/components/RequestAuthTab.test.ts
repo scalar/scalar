@@ -261,6 +261,8 @@ describe('RequestAuthTab', () => {
       // Name input
       assert(inputs[0])
       expect(inputs[0].text()).toContain('Name')
+      // The contenteditable editor is not labelable, so the label must not point at it with `for`.
+      expect(inputs[0].get('label').attributes('for')).toBeUndefined()
 
       // Value input
       assert(inputs[1])

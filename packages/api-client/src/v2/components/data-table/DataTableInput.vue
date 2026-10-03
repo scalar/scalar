@@ -50,6 +50,7 @@ defineOptions({ inheritAttrs: false })
 const mask = ref(true)
 const interactingWithDropdown = ref(false)
 const codeInput = useTemplateRef('codeInput')
+const maskedInput = useTemplateRef('maskedInput')
 
 const handleBlur = () => !interactingWithDropdown.value && emit('inputBlur')
 
@@ -61,6 +62,7 @@ const inputType = computed(() =>
 const handleLabelClick = () => {
   if (!props.enum?.length && !props.readOnly) {
     codeInput.value?.focus()
+    maskedInput.value?.focus()
   }
 }
 </script>
@@ -87,6 +89,7 @@ const handleLabelClick = () => {
         <input
           v-if="mask && type === 'password'"
           v-bind="id ? { ...$attrs, id: id } : $attrs"
+          ref="maskedInput"
           autocomplete="off"
           class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none px-2 py-1.25 -outline-offset-1"
           :class="{ 'scalar-password-input': type === 'password' }"

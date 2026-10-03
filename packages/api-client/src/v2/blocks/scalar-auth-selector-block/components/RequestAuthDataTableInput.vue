@@ -38,7 +38,7 @@ const { translate } = useLocalization()
 /**
  * The unmasked editor is a contenteditable div, which a <label for> cannot
  * name, so the field points back at the visible label via aria-labelledby.
- * The masked native input keeps its <label for> and gets the same text.
+ * The masked native input is named the same way.
  */
 const labelId = `${id}-label`
 </script>
@@ -58,9 +58,7 @@ const labelId = `${id}-label`
     @inputFocus="emit('inputFocus')"
     @selectVariable="emit('selectVariable', $event)">
     <template #default>
-      <label
-        :id="labelId"
-        :for="id">
+      <label :id="labelId">
         <slot />
       </label>
     </template>
