@@ -58,7 +58,7 @@ const inputType = computed(() =>
   props.type === 'password' ? 'text' : (props.type ?? 'text'),
 )
 
-// If not an enum nor read only, focus the code input
+// If not an enum nor read only, focus the code input or masked input
 const handleLabelClick = () => {
   if (!props.enum?.length && !props.readOnly) {
     codeInput.value?.focus()
@@ -73,7 +73,6 @@ const handleLabelClick = () => {
     <div
       v-if="$slots.default"
       class="text-c-1 flex items-center pr-0 pl-3"
-      :for="id ?? ''"
       @click="handleLabelClick">
       <slot />:
     </div>

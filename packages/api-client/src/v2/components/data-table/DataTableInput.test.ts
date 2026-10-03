@@ -147,7 +147,8 @@ describe('DataTableInput', () => {
         },
       })
 
-      await wrapper.find('.text-c-1').trigger('click')
+      const label = wrapper.findAll('div').find((div) => div.text() === 'Password:')
+      await label?.trigger('click')
 
       expect(document.activeElement).toBe(wrapper.find('input').element)
     })
