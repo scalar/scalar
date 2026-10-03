@@ -782,20 +782,38 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
 <div class="expander-container">
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
-      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+      <img alt="Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
+      <img alt="Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
         <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></object>
       </div>
-      <div class="expander-hover-title">API Docs</div>
+      <div class="expander-hover-title">Docs</div>
       <div class="expander">
         <div class="expander-content">
           Write beautiful documentation with Markdown, MDX, OpenAPI, AsyncAPI, and two-way Git sync.
         </div>
       </div>
-      <a class="expander-hover-link" href="/products/docs" aria-label="Learn more about API Docs">Learn More</a>
+      <a class="expander-hover-link" href="/products/docs" aria-label="Learn more about Docs">Learn More</a>
+    </div>
+  </div>
+  <div class="expander-hover">
+    <div class="expander-hover-preview">
+      <img alt="MCP Servers Preview" class="light-image" src="/mcp-static.svg" />
+      <img alt="MCP Servers Preview" class="dark-image" src="/mcp-static-dark.svg" />
+    </div>
+    <div class="relative">
+      <div class="expander-hover-sticker">
+        <img class="sticker-clip-mcp" width="150" height="150" src="/sticker-mcp.svg" alt="" />
+      </div>
+      <div class="expander-hover-title">MCPs</div>
+      <div class="expander">
+        <div class="expander-content">
+          Turn your OpenAPI document into a hosted MCP server with OAuth, scoped access, and just-in-time tools.
+        </div>
+      </div>
+      <a class="expander-hover-link" href="/products/agent" aria-label="Learn more about MCPs">Learn More</a>
     </div>
   </div>
   <div class="expander-hover">
@@ -815,44 +833,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
         </div>
       </div>
       <a class="expander-hover-link" href="/products/sdk-generator" aria-label="Learn more about SDKs">Learn More</a>
-    </div>
-  </div>
-  <div class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
-      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-      <object class="sticker-clip-registry" width="136" height="186"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
-      </div>
-      <div class="expander-hover-title">API Registry</div>
-      <div class="expander">
-        <div class="expander-content">
-          Managing & versioning OpenAPI Documents with a deep Git integration.
-        </div>
-      </div>
-      <a class="expander-hover-link" href="/products/registry" aria-label="Learn more about API Registry">Learn More</a>
-    </div>
-  </div>
-  <div class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
-      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-client" width="156" height="110"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
-      </div>
-      <div class="expander-hover-title">API Client</div>
-      <div class="expander">
-        <div class="expander-content">
-          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
-        </div>
-      </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
     </div>
   </div>
 </div>
@@ -1733,12 +1713,13 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .sticker-clip-sdk {
     clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
   }
-  .sticker-clip-registry {
-    clip-path: path("M71.0986 1.13334C75.8537 -0.596969 81.1116 1.85514 82.8428 6.6099L90.3037 27.1079H98.5059C104.199 27.108 108.814 31.7235 108.814 37.4165V77.9663L121.32 112.329C119.703 112.128 118.003 112.298 116.351 112.899C110.96 114.861 108.12 120.659 110.009 125.848C111.898 131.038 117.8 133.654 123.191 131.692C124.844 131.091 126.254 130.127 127.364 128.933L134.608 148.835C136.339 153.591 133.887 158.849 129.132 160.58L73.3945 180.866C68.6393 182.596 63.3816 180.145 61.6504 175.39L58.958 167.994H2.29102C1.02582 167.994 0 166.968 0 165.703V29.398C0.000538247 28.1333 1.02616 27.1079 2.29102 27.1079H9.8125C10.6721 24.5603 12.6383 22.4116 15.3613 21.4204L71.0986 1.13334Z")
-  }
   .sticker-clip-docs {
     overflow: hidden;
     border-radius: 20px;
+  }
+  .sticker-clip-mcp {
+    width: 150px;
+    height: 150px;
   }
 
   @media screen and (max-width: 590px) {
