@@ -1281,33 +1281,15 @@
               },
               "agent": {
                 "type": "link",
-                "title": "MCP & Agent",
+                "title": "MCPs",
                 "icon": "phosphor/regular/sparkle",
                 "url": "/products/agent"
               },
               "sdk-generator": {
                 "type": "link",
-                "title": "SDK Generator",
+                "title": "SDKs",
                 "icon": "phosphor/regular/package",
                 "url": "/products/sdk-generator"
-              },
-              "registry": {
-                "type": "link",
-                "title": "Registry",
-                "icon": "phosphor/regular/brackets-curly",
-                "url": "/products/registry"
-              },
-              "api-references": {
-                "type": "link",
-                "title": "API References",
-                "icon": "phosphor/regular/notebook",
-                "url": "/products/api-references"
-              },
-              "api-client": {
-                "type": "link",
-                "title": "API Client",
-                "icon": "phosphor/regular/paper-plane-tilt",
-                "url": "/products/api-client"
               }
             }
           },
