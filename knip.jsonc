@@ -497,11 +497,7 @@
       ]
     },
     "integrations/sveltekit": {
-      "ignoreDependencies": [
-        // Automatically added to devDependencies by `pnpm script packages format`
-        // because it's a peer dependency but not used directly.
-        "@sveltejs/kit"
-      ]
+      "entry": ["src/index.ts", "playwright/fixture/vite.config.ts", "playwright/fixture/src/routes/+server.ts"]
     },
     "projects/galaxy-scalar-com": {
       // src/_worker.ts is the Cloudflare Pages worker entry, bundled by the

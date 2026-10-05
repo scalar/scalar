@@ -26,7 +26,8 @@
     "build": "svelte-package --input src",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
-    "prepack": "pnpm build && publint"
+    "prepack": "pnpm build && publint",
+    "test:compatibility": "playwright test"
   },
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -67,11 +68,13 @@
     "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:*",
     "@sveltejs/kit": "^2.57.1",
     "@sveltejs/package": "^2.5.7",
     "publint": "^0.3.18",
     "svelte": "^5.55.2",
-    "svelte-check": "^4.4.6"
+    "svelte-check": "^4.4.6",
+    "vite": "catalog:*"
   },
   "peerDependencies": {
     "@sveltejs/kit": "^2.57.1 || ^3.0.0",

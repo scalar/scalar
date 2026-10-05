@@ -1,0 +1,76 @@
+name: SvelteKit compatibility
+
+on:
+  pull_request:
+    paths:
+      - 'integrations/sveltekit/**'
+      - 'packages/client-side-rendering/**'
+      - '.github/workflows/sveltekit-compatibility.yml'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - kit: '2.57.1'
+            tsconfig: './.svelte-kit/tsconfig.json'
+          - kit: '3.0.0'
+            tsconfig: '$app/tsconfig'
+    env:
+      SVELTEKIT_FIXTURE: ${{ runner.temp }}/scalar-sveltekit
+      SVELTEKIT_VERSION: ${{ matrix.kit }}
+      SVELTEKIT_TSCONFIG: ${{ matrix.tsconfig }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo --filter @scalar/sveltekit... build --output-logs errors-only
+      - name: Pack the integration
+        run: pnpm --filter @scalar/sveltekit pack --out "$RUNNER_TEMP/scalar-sveltekit.tgz"
+      - name: Prepare an isolated consumer
+        run: |
+          cp -R integrations/sveltekit/playwright/fixture "$SVELTEKIT_FIXTURE"
+          node --input-type=module <<'JS'
+          import { writeFileSync } from 'node:fs'
+          import { join } from 'node:path'
+          const fixture = process.env.SVELTEKIT_FIXTURE
+          writeFileSync(join(fixture, 'package.json'), JSON.stringify({
+            private: true,
+            type: 'module',
+            scripts: { build: 'vite build', check: 'tsc --noEmit' },
+          }))
+          writeFileSync(join(fixture, 'tsconfig.json'), JSON.stringify({
+            extends: process.env.SVELTEKIT_TSCONFIG,
+            include: ['src', '*'],
+            compilerOptions: { strict: true, skipLibCheck: true },
+          }))
+          if (process.env.SVELTEKIT_VERSION.startsWith('2.')) {
+            writeFileSync(join(fixture, 'svelte.config.js'), 'export default {}\n')
+          }
+          JS
+      - name: Install without bypassing peer checks
+        working-directory: ${{ env.SVELTEKIT_FIXTURE }}
+        run: |
+          npm install --strict-peer-deps --ignore-scripts --no-audit --no-fund \
+            "$RUNNER_TEMP/scalar-sveltekit.tgz" "@sveltejs/kit@$SVELTEKIT_VERSION" \
+            svelte@5.57.1 @sveltejs/vite-plugin-svelte@7.0.0 vite@8.0.12 \
+            typescript@6.0.3 @types/node@24
+      - name: Build and check route types
+        working-directory: ${{ env.SVELTEKIT_FIXTURE }}
+        run: |
+          npm run build
+          npm run check
+      - name: Verify the HTTP response
+        run: pnpm --filter @scalar/sveltekit test:compatibility
