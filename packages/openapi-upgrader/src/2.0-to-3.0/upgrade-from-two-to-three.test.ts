@@ -1947,6 +1947,40 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('keeps every named x-example when one of the names contains a slash', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples with a slash in a name', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                schema: { type: 'object' },
+                'x-examples': {
+                  'Reward Redemption': { discount_type: 'reward' },
+                  'Coupons/Promos': { discount_type: 'redemption_code' },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      'Reward Redemption': { value: { discount_type: 'reward' } },
+      'Coupons/Promos': { value: { discount_type: 'redemption_code' } },
+    })
+  })
+
   it('prefers x-examples over x-example when both exist on same body parameter', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -2554,6 +2588,34 @@ describe('upgradeFromTwoToThree', () => {
       id: 0,
       error: 'Not Found',
     })
+  })
+
+  it('treats a token-style named example key with a slash as a named example', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Token-style slash key test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                examples: {
+                  'Coupons/Promos': { id: 1 },
+                  'application/vnd.api+json': { id: 2 },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(response200.content?.['Coupons/Promos']).toBeUndefined()
+    expect(response200.content?.['application/json']?.examples?.['Coupons/Promos']?.value).toStrictEqual({ id: 1 })
+    expect(response200.content?.['application/vnd.api+json']?.example).toStrictEqual({ id: 2 })
   })
 
   it('transforms global responses defined in #/responses with examples', () => {
