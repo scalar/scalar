@@ -93,7 +93,12 @@ const identity = (value: string): string => value
  */
 const SLOT_ENCODERS: Record<ChunkMode, Record<'type' | 'name' | 'path' | 'method', (value: string) => string>> = {
   static: { type: encodeChunkName, name: encodeChunkName, path: encodeChunkName, method: identity },
-  ssr: { type: identity, name: identity, path: escapeJsonPointer, method: identity },
+  ssr: {
+    type: identity,
+    name: (value) => encodeURIComponent(escapeJsonPointer(value)),
+    path: escapeJsonPointer,
+    method: identity,
+  },
 }
 
 /**

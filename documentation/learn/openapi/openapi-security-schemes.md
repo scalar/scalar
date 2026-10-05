@@ -296,6 +296,25 @@ components:
 
 OpenAPI 3.2 also lets a Security Requirement refer to a scheme by URI instead of by component name. Most documents will not need this, and the specification recommends against component names that look like URIs because of how the two are matched. For more on the version differences, read [OpenAPI 3.1 vs 3.0](/learn/openapi/openapi-3-1-vs-3-0).
 
+Scalar resolves these URI requirements in OpenAPI 3.2 documents. Relative references use the document's `$self` URI, or its retrieval URI when `$self` is absent. An exact match in `components.securitySchemes` takes precedence over interpreting the key as a URI; use `./auth` to refer to a relative resource when `auth` is also a component name.
+
+For example, this fragment URI selects the same bearer scheme as the name `bearerAuth`:
+
+```yaml
+openapi: 3.2.1
+info:
+  title: URI authentication
+  version: 1.0.0
+paths: {}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - '#/components/securitySchemes/bearerAuth': []
+```
+
 ## Coming from Swagger 2.0
 
 Swagger 2.0 called these `securityDefinitions`, at the top level of the document, and had only three types: `basic`, `apiKey` and `oauth2`. Each OAuth scheme had a single `flow` with different names:
