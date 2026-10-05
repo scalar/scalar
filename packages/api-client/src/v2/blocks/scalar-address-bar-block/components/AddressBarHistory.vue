@@ -66,7 +66,7 @@ export type History = {
         #floating="{ width }">
         <!-- History Item -->
         <MenuItems
-          class="custom-scroll bg-b-1 dark:bg-b-1.5 grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center rounded-b-lg p-0.75 shadow-md inset-shadow-[var(--scalar-border-width)_0_var(--scalar-border-color),calc(var(--scalar-border-width)*-1)_0_var(--scalar-border-color),0_calc(var(--scalar-border-width)*-1)_var(--scalar-border-color)]"
+          class="custom-scroll bg-b-1 dark:bg-b-1.5 grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center rounded-b-lg border border-t-0 p-0.75 shadow-md"
           static
           :style="{ width }">
           <MenuItem

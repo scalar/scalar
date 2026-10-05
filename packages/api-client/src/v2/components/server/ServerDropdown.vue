@@ -74,7 +74,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 </script>
 <template>
   <ScalarPopover
-    class="max-h-[inherit] rounded-none rounded-b-lg p-0 text-base inset-shadow-[var(--scalar-border-width)_0_var(--scalar-border-color),calc(var(--scalar-border-width)*-1)_0_var(--scalar-border-color),0_calc(var(--scalar-border-width)*-1)_var(--scalar-border-color)]"
+    class="max-h-[inherit] rounded-none rounded-b-lg border border-t-0 p-0 text-base inset-shadow-none"
     focus
     :offset="0"
     placement="bottom"
