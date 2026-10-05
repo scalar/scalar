@@ -111,7 +111,7 @@ export const phpCurl: Plugin = {
             const phpArray = objectToString(jsonData)
             parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
           } catch {
-            parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
+            parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text)});`)
           }
         }
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
@@ -139,7 +139,7 @@ export const phpCurl: Plugin = {
           .join('&')
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${formData}');`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text || ''}');`)
+        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text || '')});`)
       } else if (normalizedRequest.postData.text) {
         // Try to parse as JSON and convert to PHP array, otherwise use raw text
         try {
@@ -147,7 +147,7 @@ export const phpCurl: Plugin = {
           const phpArray = objectToString(jsonData)
           parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
         } catch {
-          parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
+          parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text)});`)
         }
       }
     }
