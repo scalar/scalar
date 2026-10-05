@@ -1,5 +1,25 @@
 # @scalar/blocks
 
+## 0.5.0
+
+### Minor Changes
+
+- [#10443](https://github.com/scalar/scalar/pull/10443): Add a showExtensions allowlist to display OpenAPI extensions on operations, parameters, response headers, and schema fields without a custom plugin, with a schema-style value tree from the blocks package.
+- [#10397](https://github.com/scalar/scalar/pull/10397): Extract the schema renderer into @scalar/blocks so other Scalar surfaces can reuse the schema tree while preserving API Reference behavior.
+
+  Keep the public API Reference Schema and SchemaProperty exports connected to extension plugins and deep-link navigation when mounted outside ApiReference.
+
+  Expose shared presentation components through @scalar/blocks/shared, group host integration APIs under schema/helpers and schema/expansion, and keep schema stories and visual regression coverage with Blocks.
+
+  Preserve literal toolbar icon types so Storybook previews can be type checked.
+
+  Pass schema navigation, extension rendering, and shared expansion state explicitly through props instead of providing or injecting host context.
+
+### Patch Changes
+
+- [#10460](https://github.com/scalar/scalar/pull/10460): Preserve multipart file metadata in generated code examples, including arrays and composed schemas, read actual file bytes across code example targets, let HTTP clients set the multipart boundary, and preserve typed text fields without turning them into file attachments.
+- [#10468](https://github.com/scalar/scalar/pull/10468): Stop the schema property copy-link button from taking width from a collapsed preview such as `{ compound, percentage }`. Its 24px hit box now overhangs the end of the line, so the row gives up only the icon and its gap, however the consuming app orders its stylesheets.
+
 ## 0.4.3
 
 ### Patch Changes

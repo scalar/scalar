@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.21.5
+
+### Patch Changes
+
+- [#10463](https://github.com/scalar/scalar/pull/10463): Fix large request bodies rendering blank gaps in the code editor.
+- [#10431](https://github.com/scalar/scalar/pull/10431): Keep explicit authentication field clears separate from configured defaults, add field-local reset actions, and prevent clearing fixed-choice OAuth settings.
+- [#10470](https://github.com/scalar/scalar/pull/10470): Polish the bearer token "Get a token" row: the label matches the font size and color of the rows around it, the settings icon lines up with the password toggle above it, and the authorize button uses the gradient style.
+- [#10472](https://github.com/scalar/scalar/pull/10472): Stop pointing auth field labels at the non-labelable editor wrapper, and keep focusing the masked password input when its label is clicked.
+- [#10466](https://github.com/scalar/scalar/pull/10466): Fix long unbroken lines in the raw request body (for example Base64 strings or tokens) stretching the client beyond the viewport. The line now scrolls inside the editor.
+- [#10467](https://github.com/scalar/scalar/pull/10467): Use the design system border, shadow, and extra-large radius for all floating surfaces. Backdrops now inherit their radius from the floating element, and the lifted brightness no longer brightens the border.
+
 ## 3.21.4
 
 ### Patch Changes

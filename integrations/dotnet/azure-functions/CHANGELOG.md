@@ -1,5 +1,7 @@
 # @scalar/azure-functions
 
+## 0.2.24
+
 ## 0.2.23
 
 ### Bundled API Reference

@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.30.7
+
+### Patch Changes
+
+- [#10467](https://github.com/scalar/scalar/pull/10467): Use the design system border, shadow, and extra-large radius for all floating surfaces. Backdrops now inherit their radius from the floating element, and the lifted brightness no longer brightens the border.
+
 ## 0.30.6
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @scalar/types
 
+## 0.23.0
+
+### Minor Changes
+
+- [#10473](https://github.com/scalar/scalar/pull/10473): Add `featuredClients` to choose which clients are shown as tabs in the "Client Libraries" block, and in which order.
+- [#10449](https://github.com/scalar/scalar/pull/10449): Add `hideModelNames` to show structural types instead of model names in schema type labels and operation headings.
+- [#10443](https://github.com/scalar/scalar/pull/10443): Add a showExtensions allowlist to display OpenAPI extensions on operations, parameters, response headers, and schema fields without a custom plugin, with a schema-style value tree from the blocks package.
+- [#10420](https://github.com/scalar/scalar/pull/10420): Add `maxVisibleRequestBodyProperties` to control the initial request body property limit (default 12, or 0 for unlimited) independently of nested schema expansion. Show the number of hidden properties in the overflow control.
+
+### Patch Changes
+
+- [#10431](https://github.com/scalar/scalar/pull/10431): Keep explicit authentication field clears separate from configured defaults, add field-local reset actions, and prevent clearing fixed-choice OAuth settings.
+
 ## 0.22.4
 
 ### Patch Changes

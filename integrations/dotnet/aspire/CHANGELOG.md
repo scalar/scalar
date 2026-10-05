@@ -1,5 +1,7 @@
 # @scalar/aspire
 
+## 0.11.30
+
 ## 0.11.29
 
 ### Bundled API Reference
