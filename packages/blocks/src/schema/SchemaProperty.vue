@@ -50,6 +50,7 @@ import { hasComplexArrayItems } from './helpers/has-complex-array-items'
 import { isTypeObject } from './helpers/is-type-object'
 import { normalizeObjectComposition } from './helpers/normalize-object-composition'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
+import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import type { CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey, SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import { toNodeKey, useSchemaExpansion } from './helpers/schema-expansion'
@@ -148,6 +149,19 @@ const optimizedValue = computed(() =>
     props.name,
   ),
 )
+
+/** Mixed object/choice compositions still belong inside their named property's panel. */
+const hasObjectComposition = computed((): boolean => {
+  const { name } = props
+  const value = optimizedValue.value
+  return (
+    !!name &&
+    !!value?.allOf &&
+    partitionAllOfCompositions(value).segments.some(
+      (segment) => segment.kind === 'object' && isTypeObject(segment.schema),
+    )
+  )
+})
 
 const childBreadcrumb = computed<string[] | undefined>(() =>
   props.breadcrumb
@@ -358,11 +372,13 @@ const shouldDisplayHeadingComputed = computed(() =>
 
 /** Computes which compositions should be rendered and with which values */
 const compositionsToRender = computed(() =>
-  getCompositionsToRender(
-    optimizedValue.value,
-    props.options.document,
-    inferredDiscriminatorComposition.value,
-  ),
+  isCyclicProperty.value || hasObjectComposition.value
+    ? []
+    : getCompositionsToRender(
+        optimizedValue.value,
+        props.options.document,
+        inferredDiscriminatorComposition.value,
+      ),
 )
 
 /**
@@ -490,9 +506,18 @@ const arrayChildProps = computed(() =>
  * separately above because a schema can satisfy both, and the row has to know
  * which one it draws — see `rendersArrayBranch`.
  */
-const treeChildProps = computed(
-  () => objectChildProps.value ?? arrayChildProps.value,
-)
+const treeChildProps = computed(() => {
+  const { cycleKey } = props
+  return hasObjectComposition.value
+    ? {
+        ...sharedChildProps.value,
+        breadcrumb: childBreadcrumb.value,
+        compositionPath: currentCompositionPath.value,
+        cycleKey,
+        schema: optimizedValue.value,
+      }
+    : (objectChildProps.value ?? arrayChildProps.value)
+})
 
 /**
  * Whether a row draws its ARRAY branch, which is the object branch's
@@ -543,7 +568,9 @@ const hideModelNames = computed(
 /** Whether this property has children to put behind a toggle. */
 const isExpandable = computed(
   (): boolean =>
-    shouldRenderObjectProperties.value || shouldRenderArrayOfObjects.value,
+    hasObjectComposition.value ||
+    shouldRenderObjectProperties.value ||
+    shouldRenderArrayOfObjects.value,
 )
 
 /**

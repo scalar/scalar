@@ -8,7 +8,9 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { defineComponent, h, isReactive, nextTick, ref } from 'vue'
 
 import { type SchemaExpansionStore, createSchemaExpansionStore } from './helpers/schema-expansion'
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from './request-body-composition-index'
 import Schema from './Schema.vue'
+import SchemaProperty from './SchemaProperty.vue'
 
 const scrollTargetId = ref('')
 
@@ -2308,5 +2310,330 @@ describe('Schema', () => {
     expect(first.find('[aria-expanded]').attributes('aria-expanded')).toBe('false')
     first.unmount()
     second.unmount()
+  })
+  it.each(
+    (['oneOf', 'anyOf'] as const).flatMap((firstChoice) =>
+      (['oneOf', 'anyOf'] as const).flatMap((secondChoice) =>
+        [false, true].flatMap((referenced) =>
+          [false, true].map((expandAllSchemaProperties) => ({
+            firstChoice,
+            secondChoice,
+            referenced,
+            expandAllSchemaProperties,
+          })),
+        ),
+      ),
+    ),
+  )(
+    'keeps $firstChoice/$secondChoice inside data (referenced=$referenced, expanded=$expandAllSchemaProperties)',
+    async ({ firstChoice, secondChoice, referenced, expandAllSchemaProperties }) => {
+      const choices = {
+        allOf: [
+          {
+            [firstChoice]: [
+              {
+                type: 'object',
+                title: 'Use tags',
+                properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
+              },
+              { type: 'object', title: 'Empty', properties: {} },
+            ],
+          },
+          {
+            [secondChoice]: [
+              {
+                type: 'object',
+                title: 'Add tags',
+                properties: { userAddTags: { type: 'array', items: { type: 'string' } } },
+              },
+              { type: 'object', title: 'Empty', properties: {} },
+            ],
+          },
+        ],
+      }
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'nestedChoices',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Nested choices', version: '1.0.0' },
+          paths: {},
+          components: {
+            schemas: {
+              TagsLastUpdated: choices,
+              Response: {
+                type: 'object',
+                properties: {
+                  title: { const: 'Sign In User' },
+                  data: {
+                    allOf: [
+                      { type: 'object', properties: { userName: { type: 'string' } } },
+                      referenced ? { $ref: '#/components/schemas/TagsLastUpdated' } : choices,
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const document = store.workspace.documents.nestedChoices
+      if (!document || !isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+      const wrapper = mount(Schema, {
+        props: {
+          schema: getResolvedRef(document.components?.schemas?.Response),
+          eventBus: null,
+          noncollapsible: true,
+          breadcrumb: ['response'],
+          options: { expandAllSchemaProperties },
+        },
+      })
+      const data = wrapper.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'data')!
+      const toggle = data.get('button[aria-expanded]')
+      expect(toggle.attributes('aria-expanded')).toBe(String(expandAllSchemaProperties))
+      if (!expandAllSchemaProperties) {
+        expect(wrapper.text()).not.toContain('userName')
+        await toggle.trigger('click')
+      }
+      const panel = data.get(`[id="${toggle.attributes('aria-controls')}"]`)
+      const userName = data.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'userName')!
+      expect(userName.props('breadcrumb')).toStrictEqual(['response', 'data'])
+      expect(
+        wrapper
+          .findAllComponents(SchemaProperty)
+          .filter((row) =>
+            ['title', 'data', 'userName', 'userUseTags', 'userAddTags'].includes(row.props('name') ?? ''),
+          )
+          .map((row) => ({ name: row.props('name'), depth: row.props('depth') })),
+      ).toStrictEqual([
+        { name: 'data', depth: 0 },
+        { name: 'userName', depth: 1 },
+        { name: 'userUseTags', depth: 2 },
+        { name: 'userAddTags', depth: 2 },
+        { name: 'title', depth: 0 },
+      ])
+      const pickers = data.findAllComponents({ name: 'ScalarListbox' })
+      expect(pickers.map((picker) => picker.props('options'))).toStrictEqual([
+        [
+          { id: '0', label: 'Use tags' },
+          { id: '1', label: 'Empty' },
+        ],
+        [
+          { id: '0', label: 'Add tags' },
+          { id: '1', label: 'Empty' },
+        ],
+      ])
+      pickers[0]!.vm.$emit('update:modelValue', { id: '1', label: 'Empty' })
+      await nextTick()
+      expect(panel.text()).not.toContain('userUseTags')
+      expect(panel.text()).toContain('userAddTags')
+      expect(panel.text()).toContain('userName')
+      pickers[1]!.vm.$emit('update:modelValue', { id: '1', label: 'Empty' })
+      await nextTick()
+      expect(panel.text()).not.toContain('userAddTags')
+      expect(panel.text()).not.toContain('userUseTags')
+      expect(panel.text()).toContain('userName')
+      pickers[0]!.vm.$emit('update:modelValue', { id: '0', label: 'Use tags' })
+      await nextTick()
+      expect(panel.text()).toContain('userUseTags')
+      expect(panel.text()).not.toContain('userAddTags')
+      await toggle.trigger('click')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      expect(panel.element.hasAttribute('hidden')).toBe(true)
+      await toggle.trigger('click')
+      expect(panel.text()).toContain('userUseTags')
+      expect(panel.text()).not.toContain('userAddTags')
+      wrapper.unmount()
+    },
+  )
+  it.each(
+    (['oneOf', 'anyOf'] as const).flatMap((choice) =>
+      (['nested property', 'array items', 'outer choice'] as const).flatMap((container) =>
+        [false, true].map((baseLast) => ({ choice, container, baseLast })),
+      ),
+    ),
+  )('keeps $choice fields under $container with baseLast=$baseLast', async ({ choice, container, baseLast }) => {
+    const base = { type: 'object', required: ['shared'], properties: { shared: { type: 'string' } } }
+    const variants = {
+      [choice]: [
+        { type: 'object', title: 'First', properties: { first: { type: 'string' } } },
+        { type: 'object', title: 'Second', properties: { second: { type: 'integer' } } },
+      ],
+    }
+    const composed = { allOf: baseLast ? [variants, base] : [base, variants] }
+    const data = {
+      'nested property': { type: 'object', properties: { payload: composed } },
+      'array items': { type: 'array', items: composed },
+      'outer choice': {
+        [choice]: [
+          { type: 'object', title: 'Composed', properties: { payload: composed } },
+          { type: 'object', title: 'Other', properties: { other: { type: 'boolean' } } },
+        ],
+      },
+    }[container]
+    const wrapper = mount(Schema, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          properties: { data, sibling: { type: 'string' } },
+        }),
+        eventBus: null,
+        noncollapsible: true,
+        breadcrumb: ['response'],
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    const rows = (): { name: string | undefined; depth: number | undefined }[] =>
+      wrapper
+        .findAllComponents(SchemaProperty)
+        .filter((row) => ['shared', 'first', 'second', 'sibling', 'other'].includes(row.props('name') ?? ''))
+        .map((row) => ({ name: row.props('name'), depth: row.props('depth') }))
+    const shared = wrapper.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'shared')!
+    const depth = container === 'array items' ? 1 : 2
+    expect(shared.props('required')).toBe(true)
+    expect(shared.props('breadcrumb')).toStrictEqual(
+      container === 'array items' ? undefined : ['response', 'data', 'payload'],
+    )
+    expect(rows()).toStrictEqual([
+      ...(baseLast
+        ? [
+            { name: 'first', depth: depth + 1 },
+            { name: 'shared', depth },
+          ]
+        : [
+            { name: 'shared', depth },
+            { name: 'first', depth: depth + 1 },
+          ]),
+      { name: 'sibling', depth: 0 },
+    ])
+    const pickers = wrapper.findAllComponents({ name: 'ScalarListbox' })
+    const innerPicker = pickers[container === 'outer choice' ? 1 : 0]!
+    innerPicker.vm.$emit('update:modelValue', { id: '1', label: 'Second' })
+    await nextTick()
+    expect(rows()).toStrictEqual([
+      ...(baseLast
+        ? [
+            { name: 'second', depth: depth + 1 },
+            { name: 'shared', depth },
+          ]
+        : [
+            { name: 'shared', depth },
+            { name: 'second', depth: depth + 1 },
+          ]),
+      { name: 'sibling', depth: 0 },
+    ])
+    if (container === 'outer choice') {
+      pickers[0]!.vm.$emit('update:modelValue', { id: '1', label: 'Other' })
+      await nextTick()
+      expect(rows()).toStrictEqual([
+        { name: 'other', depth: 1 },
+        { name: 'sibling', depth: 0 },
+      ])
+    }
+    wrapper.unmount()
+  })
+  it.each(['oneOf', 'anyOf'] as const)(
+    'syncs nested allOf %s request-body selections independently',
+    async (choice) => {
+      const selection = ref<Record<string, number>>({ [`requestBody.data.0.${choice}`]: 1 })
+      const wrapper = mount(Schema, {
+        props: {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              data: {
+                allOf: [
+                  { type: 'object', properties: { shared: { type: 'string' } } },
+                  ...['first', 'second'].map((name) => ({
+                    [choice]: [
+                      { type: 'object', title: name, properties: { [name]: { type: 'string' } } },
+                      { type: 'object', title: 'Empty', properties: {} },
+                    ],
+                  })),
+                ],
+              },
+            },
+          }),
+          eventBus: null,
+          noncollapsible: true,
+          schemaContext: 'requestBody',
+          compositionPath: ['requestBody'],
+          options: { expandAllSchemaProperties: true },
+        },
+        global: { provide: { [REQUEST_BODY_COMPOSITION_INDEX_SYMBOL as symbol]: selection } },
+      })
+      const names = (): (string | undefined)[] =>
+        wrapper
+          .findAllComponents(SchemaProperty)
+          .map((row) => row.props('name'))
+          .filter((name) => ['shared', 'first', 'second'].includes(name ?? ''))
+      expect(names()).toStrictEqual(['shared', 'second'])
+      const pickers = wrapper.findAllComponents({ name: 'ScalarListbox' })
+      pickers[1]!.vm.$emit('update:modelValue', { id: '1', label: 'Empty' })
+      await nextTick()
+      expect(names()).toStrictEqual(['shared'])
+      expect(selection.value).toStrictEqual({
+        'requestBody.data.allOf': 0,
+        [`requestBody.data.0.${choice}`]: 1,
+        [`requestBody.data.1.${choice}`]: 1,
+      })
+      pickers[0]!.vm.$emit('update:modelValue', { id: '0', label: 'first' })
+      await nextTick()
+      expect(names()).toStrictEqual(['shared', 'first'])
+      expect(selection.value).toStrictEqual({
+        'requestBody.data.allOf': 0,
+        [`requestBody.data.0.${choice}`]: 0,
+        [`requestBody.data.1.${choice}`]: 1,
+      })
+      wrapper.unmount()
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)('cuts recursive named allOf objects containing %s choices', async (choice) => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'recursiveChoices',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Recursive choices', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Node: {
+              allOf: [
+                { type: 'object', properties: { next: { $ref: '#/components/schemas/Node' } } },
+                {
+                  [choice]: [
+                    { type: 'object', title: 'Value', properties: { value: { type: 'string' } } },
+                    { type: 'object', title: 'Empty', properties: {} },
+                  ],
+                },
+              ],
+            },
+            Response: { type: 'object', properties: { data: { $ref: '#/components/schemas/Node' } } },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.recursiveChoices
+    if (!document || !isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
+    const wrapper = mount(Schema, {
+      props: {
+        schema: getResolvedRef(document.components?.schemas?.Response),
+        eventBus: null,
+        noncollapsible: true,
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    const next = wrapper.findAllComponents(SchemaProperty).find((row) => row.props('name') === 'next')!
+    expect(next.get('.property-recursive').text()).toBe('recursive')
+    expect(next.findComponent({ name: 'SchemaGutterToggle' }).exists()).toBe(false)
+    expect(wrapper.findAllComponents(SchemaProperty).filter((row) => row.props('name') === 'value').length).toBe(1)
+    expect(wrapper.findAllComponents({ name: 'ScalarListbox' }).length).toBe(1)
+    wrapper.unmount()
   })
 })
