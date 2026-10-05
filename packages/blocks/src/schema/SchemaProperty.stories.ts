@@ -72,3 +72,32 @@ export const ArrayOfObjects: Story = {
     }),
   },
 }
+
+/**
+ * A collapsed row with a deep link, in a card just wide enough for the whole preview beside the
+ * copy-link icon. The button's 24px hit box overhangs the end of the line, so the preview reads in
+ * full; a hit box that took layout width would cut it to `{ compound, percentag… }`.
+ */
+export const CollapsedPreviewWithCopyLink: Story = {
+  args: {
+    name: 'atmosphere',
+    breadcrumb: ['body'],
+    schema: coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          compound: { type: 'string' },
+          percentage: { type: 'number' },
+        },
+      },
+    }),
+  },
+  // The left padding leaves room for the disclosure control, which extends into the schema gutter.
+  render: (args) => ({
+    components: { SchemaProperty },
+    setup: () => ({ args }),
+    template:
+      '<div style="width: 468px; padding: 16px 16px 16px 32px; background: var(--scalar-background-1)"><SchemaProperty v-bind="args" /></div>',
+  }),
+}
