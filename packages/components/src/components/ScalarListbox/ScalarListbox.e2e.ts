@@ -42,4 +42,19 @@ test.describe('ScalarListbox', () => {
       await snapshot('3-scrolled')
     })
   })
+
+  test.describe(() => {
+    // Floating surfaces lift to `bg-b-1.5` in dark mode, so cover one story against the page background
+    test.use({ component: 'ScalarListbox', story: 'Base', colorModes: ['dark'], background: true })
+
+    test('Dark mode', async ({ page, snapshot }) => {
+      await page.getByRole('button', { expanded: false }).click()
+      await snapshot('1-open')
+
+      // The selected option has to stay visible against the lifted surface
+      await page.getByRole('option').nth(2).click()
+      await page.getByRole('button', { expanded: false }).click()
+      await snapshot('2-selected')
+    })
+  })
 })

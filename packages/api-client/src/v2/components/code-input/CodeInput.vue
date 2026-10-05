@@ -600,8 +600,7 @@ defineExpose({
 }
 /* Tooltip helper */
 :deep(.cm-tooltip) {
-  background: transparent !important;
-  filter: brightness(var(--scalar-lifted-brightness));
+  background: var(--scalar-background-1) !important;
   border-radius: var(--scalar-radius);
   box-shadow: var(--scalar-shadow-2);
   border: none !important;

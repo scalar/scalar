@@ -44,4 +44,14 @@ test.describe('ScalarCombobox', () => {
       await snapshot('4-reselected')
     }),
   )
+
+  test.describe(() => {
+    // Floating surfaces lift to `bg-b-1.5` in dark mode, so cover one story against the page background
+    test.use({ component: 'ScalarCombobox', story: 'Base', colorModes: ['dark'], background: true })
+
+    test('Dark mode', async ({ page, snapshot }) => {
+      await page.getByRole('button', { expanded: false }).click()
+      await snapshot('1-open')
+    })
+  })
 })

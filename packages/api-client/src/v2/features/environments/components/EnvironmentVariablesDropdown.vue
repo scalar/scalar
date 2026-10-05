@@ -245,7 +245,7 @@ onClickOutside(
     class="scalar-client">
     <div
       ref="dropdownRef"
-      class="custom-scroll z-context fixed top-0 left-0 flex max-h-[60svh] w-56 flex-col rounded border p-0.75"
+      class="custom-scroll z-context bg-b-1 dark:bg-b-1.5 fixed top-0 left-0 flex max-h-[60svh] w-56 flex-col rounded border p-0.75 shadow-lg"
       :style="dropdownStyle"
       @mousedown.prevent>
       <!--
@@ -301,9 +301,6 @@ onClickOutside(
           translate('apiClient.environmentVariablesDropdown.addVariable')
         }}
       </ScalarButton>
-      <!-- Backdrop for the dropdown -->
-      <div
-        class="bg-b-1 brightness-lifted absolute inset-0 -z-1 rounded shadow-lg" />
     </div>
   </ScalarTeleport>
 </template>

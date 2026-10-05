@@ -114,6 +114,12 @@ Since you can directly target the reference element with Tailwind classes any cl
 </ScalarPopover>
 ```
 
+The floating element also paints its own surface: `rounded-xl bg-b-1 dark:bg-b-1.5 shadow-md inset-shadow-border`. To change the background, override both modes, since `bg-*` alone does not replace the `dark:` variant:
+
+```html
+<ScalarPopover class="bg-b-2 dark:bg-b-2">...</ScalarPopover>
+```
+
 ## CSS Layers
 
 The components package uses the same [CSS Layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer) as the themes package to apply the theme styles. For more information see the [themes README](https://github.com/scalar/scalar/tree/main/packages/themes).

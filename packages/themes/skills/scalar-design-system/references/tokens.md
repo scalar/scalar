@@ -50,7 +50,7 @@ Mode-specific base values (defined on `.light-mode` / `.dark-mode`):
 | `--scalar-button-1-color` | `#fff` | `black` |
 | `--scalar-shadow-1` | `0 1px 3px 0 rgba(0,0,0,0.11)` | `0 1px 3px 0 rgba(0,0,0,0.1)` |
 | `--scalar-shadow-2` | lifted multi-shadow | lifted multi-shadow |
-| `--scalar-lifted-brightness` | `1` | `1.45` |
+| `--scalar-lifted-brightness` (deprecated, use `bg-b-1 dark:bg-b-1.5`) | `1` | `1.45` |
 | `--scalar-backdrop-brightness` | `1` | `0.5` |
 | `--scalar-scrollbar-color` / `-active` | `rgba(0,0,0,.18/.36)` | `rgba(255,255,255,.18/.36)` |
 
@@ -94,11 +94,11 @@ In component code, prefer these classes over raw variables.
 **Themed colors:** `green`, `red`, `yellow`, `blue`, `orange`, `purple` (e.g. `text-red`, `bg-green`); plus `white`/`black`.
 **Utility colors:** `border` (= `--scalar-border-color`), `backdrop`, `backdrop-dark`, `border-tooltip`, `brand`.
 **Radius:** `rounded` & `rounded-md` = 3px, `rounded-lg` = 6px, `rounded-xl` = 8px, `rounded-2xl` = 12px, `rounded-3xl` = 16px, `rounded-px` = 1px, `rounded-full` (pill). Every step except `rounded-px` derives from `--scalar-radius`, so a theme that sets it to `0` squares off the whole interface. There is no `rounded-sm` or `rounded-4xl`; those emit no CSS.
-**Shadows:** `shadow`/`shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`, `shadow-border` (inset hairline).
+**Shadows:** `shadow`/`shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`, `shadow-border` (inset hairline), `inset-shadow-border` (the same hairline, stackable with `shadow-*`).
 **Fonts:** `font-sans` (Inter), `font-code` (JetBrains Mono).
 **Text sizes:** `text-3xs` 10, `text-xxs` 12, `text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21.
 **Font weights:** `font-normal` 400, `font-medium` 500, `font-bold` 600 (plus `font-weight-sidebar` / `-active`).
-**Brightness:** `brightness-lifted`, `brightness-backdrop`.
+**Brightness:** `brightness-backdrop`. (`brightness-lifted` is deprecated; lift floating surfaces with `bg-b-1 dark:bg-b-1.5`.)
 **Spacing:** base unit `--spacing` = `4px` → `p-1` 4px, `p-2` 8px, `gap-3` 12px, `p-4` 16px, etc. Custom: `h-header` (`spacing-header`) = 48px, `spacing-border` = 0.5px.
 **Breakpoints:** `xs` 400, `sm` 600, `md` 800, `lg` 1000, `xl` 1200.
 **Containers:** `container-xs…7xl` (320…1280), `container-content` 720, `container-full`, `container-fit`.

@@ -24,7 +24,7 @@ const value = computed<string>({
 </script>
 <template>
   <ScalarPopover
-    class="bg-b-2 rounded"
+    class="bg-b-2 dark:bg-b-2 rounded"
     focus
     :placement="placement ?? 'bottom'">
     <slot />

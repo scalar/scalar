@@ -31,7 +31,7 @@ const model = defineModel<boolean>()
     type="button"
     v-bind="
       cx(
-        'group/toggle flex h-6 w-[38px] brightness-lifted -mx-px items-center py-1.5 -my-1.5 relative outline-none',
+        'group/toggle flex h-6 w-[38px] -mx-px items-center py-1.5 -my-1.5 relative outline-none',
       )
     "
     @click="model = !model">
@@ -40,7 +40,7 @@ const model = defineModel<boolean>()
       class="h-3 w-full bg-border mx-px rounded-xl group-focus-visible/toggle:outline -outline-offset-1" />
     <!-- Slider -->
     <div
-      class="size-[23px] left-border absolute border rounded-full flex items-center justify-center bg-b-1 group-focus-visible/toggle:outline -outline-offset-1 transition-transform duration-300 ease-in-out"
+      class="size-[23px] left-border absolute border rounded-full flex items-center justify-center bg-b-1 dark:bg-b-1.5 group-focus-visible/toggle:outline -outline-offset-1 transition-transform duration-300 ease-in-out"
       :class="{ 'translate-x-[14px]': model }">
       <!-- Icon -->
       <ScalarColorModeToggleIcon

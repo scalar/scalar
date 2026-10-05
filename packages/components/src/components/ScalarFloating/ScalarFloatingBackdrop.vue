@@ -2,23 +2,14 @@
 /**
  * Scalar floating backdrop component
  *
- * Provides an absolutely positioned backdrop for the floating element
- * This is used internally by a number of the Scalar floating components
- * (e.g. Dropdown, Popover, Listbox)
- *
- * You can use this component directly if you need to customize the backdrop
- * for a floating component
+ * Provides an absolutely positioned surface behind a floating element
  *
  * The backdrop inherits its border radius from its parent, so set the radius
  * on the floating element itself and the backdrop will follow it
  *
- * @example
- * <ScalarDropdown>
- *   <!-- Menu stuff -->
- *   <template #backdrop>
- *     <ScalarFloatingBackdrop />
- *   </template>
- * </ScalarDropdown>
+ * @deprecated The Scalar floating components now paint their own surface, so
+ * style the floating element directly instead, e.g.
+ * `rounded-xl bg-b-1 dark:bg-b-1.5 shadow-md inset-shadow-border`
  */
 export default {}
 </script>
@@ -32,18 +23,9 @@ const { cx } = useBindCx()
   <div
     v-bind="
       cx(
-        'absolute inset-0 -z-1 overflow-hidden rounded-[inherit] bg-b-1 shadow-md',
-        // Browsers round sub-pixel borders up to a full pixel, so the hairline
-        // is an inset shadow painted above the lifted layer instead
-        'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-border',
+        'absolute inset-0 -z-1 rounded-[inherit] bg-b-1 dark:bg-b-1.5 shadow-md inset-shadow-border',
       )
     ">
-    <!--
-      The lifted brightness lives on an inner layer so it does not also
-      brighten the border, which would stop it matching adjacent inputs
-    -->
-    <div class="absolute inset-0 bg-inherit brightness-lifted">
-      <slot />
-    </div>
+    <slot />
   </div>
 </template>

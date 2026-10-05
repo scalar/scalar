@@ -32,7 +32,6 @@ const customTheme = `
   --scalar-border-color: rgba(255, 255, 255, 0.1);
   --scalar-scrollbar-color: rgba(255, 255, 255, 0.24);
   --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
-  --scalar-lifted-brightness: 1.45;
   --scalar-backdrop-brightness: 0.5;
 
   --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);

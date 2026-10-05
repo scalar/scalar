@@ -22,11 +22,7 @@ import {
 } from '@headlessui/vue'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
-import {
-  ScalarFloating,
-  ScalarFloatingBackdrop,
-  type ScalarFloatingOptions,
-} from '../ScalarFloating'
+import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
 import ScalarListboxOption from './ScalarListboxItem.vue'
 import type { Option } from './types'
 
@@ -90,11 +86,11 @@ const { cx } = useBindCx()
           :style="{ width }"
           v-bind="
             cx(
-              'relative flex max-h-[inherit] w-40 max-w-[inherit] rounded-xl text-sm',
+              'relative flex max-h-[inherit] w-40 max-w-[inherit] rounded-xl bg-b-1 dark:bg-b-1.5 text-sm shadow-md inset-shadow-border',
             )
           ">
           <!-- Scroll container -->
-          <div class="custom-scroll min-h-0 flex-1">
+          <div class="custom-scroll min-h-0 flex-1 rounded-[inherit]">
             <!-- Options list -->
             <ListboxOptions
               class="flex flex-col gap-0.75 p-0.75 -outline-offset-1">
@@ -105,7 +101,6 @@ const { cx } = useBindCx()
                 :option="option" />
             </ListboxOptions>
           </div>
-          <ScalarFloatingBackdrop />
         </div>
       </template>
     </ScalarFloating>
