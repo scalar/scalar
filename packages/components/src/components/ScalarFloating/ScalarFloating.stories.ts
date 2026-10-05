@@ -36,7 +36,7 @@ const meta: Meta = {
   <ScalarFloating v-bind="args">
     <div class="rounded border bg-b-2 p-2">Target for #floating</div>
     <template #floating="{ width, height }">
-      <div class="grid relative max-w-[inherit] max-h-[inherit] size-60" :style="{ width, height }">
+      <div class="grid relative max-w-[inherit] max-h-[inherit] size-60 rounded-xl" :style="{ width, height }">
         <div class="placeholder">Floating</div>
         <ScalarFloatingBackdrop />
       </div>
