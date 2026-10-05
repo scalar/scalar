@@ -450,16 +450,16 @@ const handleConfigAuthorize = (): void => {
 
       <!-- OAuth2 token-acquisition shortcut (shown when an interactive oauth2 flow exists) -->
       <DataTableRow v-if="scheme.scheme === 'bearer' && oauth2Target">
-        <div class="flex h-8 items-center gap-2 border-t px-3">
-          <span class="text-c-3 mr-auto text-xs">{{
+        <div class="flex h-8 items-center gap-2 border-t pl-3 text-base">
+          <span class="text-c-1 mr-auto">{{
             translate('apiClient.requestAuthTab.getAToken')
           }}</span>
           <ScalarButton
-            class="p-0 px-2 py-0.5"
+            class="text-c-1 px-3 py-1"
             :loader="acquisitionLoader"
             size="sm"
             type="button"
-            variant="outlined"
+            variant="gradient"
             @click="handleAcquisitionAuthorize(name)">
             {{
               translate('apiClient.requestAuthTab.authorizeVia', {
@@ -472,7 +472,7 @@ const handleConfigAuthorize = (): void => {
               scheme['x-scalar-secret-token'] &&
               oauth2Target.flowType === 'authorizationCode'
             "
-            class="p-0 px-2 py-0.5"
+            class="px-3 py-1"
             :disabled="acquisitionLoader.isLoading"
             size="sm"
             type="button"
@@ -480,14 +480,15 @@ const handleConfigAuthorize = (): void => {
             @click="handleAcquisitionRefresh(name)">
             {{ translate('apiClient.requestAuthTab.refresh') }}
           </ScalarButton>
+          <!-- Sized and inset like the password toggle in the row above so the two icons line up -->
           <ScalarIconButton
+            class="mr-1.25 h-6 w-6 p-1.25"
             :icon="ScalarIconGear"
             :label="
               translate('apiClient.requestAuthTab.configure', {
                 name: oauth2Target.name,
               })
             "
-            size="xs"
             @click="openAcquisitionConfig(name)" />
         </div>
       </DataTableRow>
