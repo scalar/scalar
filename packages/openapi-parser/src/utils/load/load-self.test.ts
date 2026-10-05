@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { describe, expect, it, vi } from 'vitest'
+import { type Mock, describe, expect, it, vi } from 'vitest'
 import { stringify } from 'yaml'
 
 import { fetchUrls } from '@/plugins/fetch-urls/fetch-urls'
@@ -10,9 +10,17 @@ import { readFiles } from '@/plugins/read-files/read-files'
 import { dereference } from '@/utils/dereference'
 import { openapi } from '@/utils/openapi/openapi'
 
-import { load } from './load'
+import { type LoadPlugin, load } from './load'
 
-const makeDocument = (self: unknown, reference = './pet.json#/Pet', version = '3.2.1') => ({
+type DocumentFixture = {
+  openapi: string
+  $self: unknown
+  info: { title: string; version: string }
+  paths: Record<string, never>
+  components: { schemas: { Pet: { $ref: string } } }
+}
+
+const makeDocument = (self: unknown, reference = './pet.json#/Pet', version = '3.2.1'): DocumentFixture => ({
   openapi: version,
   $self: self,
   info: { title: 'Pets', version: '1' },
@@ -20,7 +28,9 @@ const makeDocument = (self: unknown, reference = './pet.json#/Pet', version = '3
   components: { schemas: { Pet: { $ref: reference } } },
 })
 
-const makeHttpLoader = (documents: Record<string, unknown>) => {
+const makeHttpLoader = (
+  documents: Record<string, unknown>,
+): { fetch: Mock<(url: string) => Promise<Response>>; plugin: LoadPlugin } => {
   const fetch = vi.fn((url: string) => {
     if (!(url in documents)) {
       throw new Error(`Unexpected request: ${url}`)

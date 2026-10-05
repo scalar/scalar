@@ -128,17 +128,21 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
   }
 
+  const reportInvalidReference = (reference: string): void => {
+    const message = ERRORS.INVALID_REFERENCE.replace('%s', reference)
+    if (options?.throwOnError) {
+      throw new Error(message)
+    }
+    errors.push({ code: 'INVALID_REFERENCE', message })
+  }
+
   let baseUri: string | undefined
 
   try {
     const retrievalUri = plugin && typeof value === 'string' ? value : (options?.filename ?? newEntry.filename)
     baseUri = getDocumentBaseUri(newEntry.specification, retrievalUri ?? undefined)
   } catch (_error) {
-    const message = ERRORS.INVALID_REFERENCE.replace('%s', String(newEntry.specification.$self))
-    if (options?.throwOnError) {
-      throw new Error(message)
-    }
-    errors.push({ code: 'INVALID_REFERENCE', message })
+    reportInvalidReference(String(newEntry.specification.$self))
     return { specification: getEntrypoint(filesystem)?.specification, filesystem, errors }
   }
 
@@ -149,11 +153,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
       try {
         resolvedReference = resolveReferencePath(baseUri, reference)
       } catch (_error) {
-        const message = ERRORS.INVALID_REFERENCE.replace('%s', reference)
-        if (options?.throwOnError) {
-          throw new Error(message)
-        }
-        errors.push({ code: 'INVALID_REFERENCE', message })
+        reportInvalidReference(reference)
         continue
       }
     }
