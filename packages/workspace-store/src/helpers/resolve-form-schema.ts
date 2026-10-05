@@ -1,0 +1,92 @@
+import { objectEntries } from '@scalar/helpers/object/object-entries'
+
+import { selectExampleComposition } from '@/request-example/builder/helpers/get-example-from-schema'
+import { resolve } from '@/resolve'
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
+import type { MaybeRefSchemaObject } from '@/schemas/v3.2/strict/schema'
+import { isObjectSchema } from '@/schemas/v3.2/strict/type-guards'
+
+import { resolveSchemaWithAnnotations } from './resolve-schema-with-annotations'
+import { unpackProxyShallow } from './unpack-proxy'
+
+/**
+ * Expose the selected request-body shape to form editors and serializers without changing the
+ * API description. Use the example generator's branch selection so field types match its values.
+ * Unselected alternatives remain on the view for validation, but do not contribute form fields.
+ */
+export const resolveFormSchema = (
+  schema: MaybeRefSchemaObject | undefined,
+  compositionSelection?: Record<string, number>,
+): SchemaObject | undefined => {
+  const ancestors = new Set<object>()
+  const visit = (
+    input: MaybeRefSchemaObject | undefined,
+    path: string[],
+    selection: Record<string, number> | undefined,
+  ): SchemaObject | undefined => {
+    const source = resolve.schema(input)
+    const resolved = resolveSchemaWithAnnotations(input)
+    if (!source || !resolved || !input) {
+      return resolved
+    }
+    const identity = unpackProxyShallow(input)
+    // Recursive properties remain opaque leaves instead of expanding an infinite form.
+    if (ancestors.has(identity)) {
+      return isObjectSchema(resolved) ? { ...resolved, properties: undefined } : resolved
+    }
+    ancestors.add(identity)
+    try {
+      if (source.allOf?.length && !resolved.allOf) {
+        let choiceIndex = 0
+        const allOf = source.allOf.map((member) => {
+          const memberSchema = resolve.schema(member)
+          const isChoice = Boolean(memberSchema?.oneOf || memberSchema?.anyOf)
+          const memberPath = isChoice ? [...path, String(choiceIndex++)] : path
+          return visit(member, memberPath, selection) ?? member
+        })
+        return resolveSchemaWithAnnotations({ ...source, allOf })
+      }
+
+      const properties =
+        isObjectSchema(resolved) && resolved.properties
+          ? Object.fromEntries(
+              objectEntries(resolved.properties).map(([key, child]) => [
+                key,
+                visit(child, [...path, key], selection) ?? child,
+              ]),
+            )
+          : undefined
+      const base = properties ? { ...resolved, properties } : resolved
+      const keyword = resolved.oneOf ? 'oneOf' : 'anyOf'
+      const candidate = selectExampleComposition(resolved, path, { compositionSelection: selection })
+      if (!candidate) {
+        return base
+      }
+      const selectionKey = [...path, keyword].join('.')
+      const { [selectionKey]: _selection, ...remainingSelection } = selection ?? {}
+      const selected = visit(candidate, path, remainingSelection)
+      if (!selected) {
+        return base
+      }
+      const result: SchemaObject = { ...base, ...selected, [keyword]: resolved[keyword] }
+      if ('type' in result) {
+        Reflect.deleteProperty(result, '__scalar_')
+      }
+      if (resolved.description !== undefined) {
+        result.description = resolved.description
+      }
+      if (isObjectSchema(result)) {
+        const baseProperties = 'properties' in base ? base.properties : undefined
+        const selectedProperties = 'properties' in selected ? selected.properties : undefined
+        const baseRequired = 'required' in base ? base.required : undefined
+        const selectedRequired = 'required' in selected ? selected.required : undefined
+        result.properties = { ...baseProperties, ...selectedProperties }
+        result.required = [...new Set([...(baseRequired ?? []), ...(selectedRequired ?? [])])]
+      }
+      return result
+    } finally {
+      ancestors.delete(identity)
+    }
+  }
+  return visit(schema, ['requestBody'], compositionSelection)
+}

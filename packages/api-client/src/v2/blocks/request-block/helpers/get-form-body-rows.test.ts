@@ -106,7 +106,7 @@ describe('getFormBodyRows', () => {
         isDisabled: false,
         schema: modeSchema,
         description: 'Processing mode',
-        isRequired: false,
+        isRequired: composition !== 'allOf',
       },
     ])
     expect(
@@ -114,6 +114,63 @@ describe('getFormBodyRows', () => {
         ({ name, value, isDisabled }) => ({ name, value, isDisabled }),
       ),
     ).toStrictEqual([{ name: 'mode', value: 'fast', isDisabled: true }])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('renders the selected %s object branch as typed nested fields', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          [keyword]: [
+            { type: 'object', properties: { name: { type: 'string' } } },
+            {
+              type: 'object',
+              description: 'Count payload',
+              required: ['count'],
+              properties: { count: { type: 'integer' } },
+            },
+          ],
+        },
+      },
+    })
+    expect(
+      getFormBodyRows({ value: { file: { count: 42 } } }, 'multipart/form-data', schema, {
+        [`requestBody.file.${keyword}`]: 1,
+      }),
+    ).toStrictEqual([
+      {
+        name: 'file.count',
+        value: '42',
+        isDisabled: false,
+        isRequired: true,
+        schema: { type: 'integer' },
+        description: 'Count payload',
+      },
+    ])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('exposes the selected %s primitive metadata in urlencoded forms', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['mode'],
+      properties: {
+        mode: {
+          [keyword]: [{ type: 'integer' }, { type: 'string', enum: ['fast', 'slow'], description: 'Processing mode' }],
+        },
+      },
+    })
+    const rows = getFormBodyRows({ value: { mode: 'fast' } }, 'application/x-www-form-urlencoded', schema, {
+      [`requestBody.mode.${keyword}`]: 1,
+    })
+    expect(
+      rows.map(({ name, schema, description }) => ({
+        name,
+        type: schema && 'type' in schema ? schema.type : undefined,
+        enum: schema?.enum,
+        description,
+      })),
+    ).toStrictEqual([{ name: 'mode', type: 'string', enum: ['fast', 'slow'], description: 'Processing mode' }])
   })
 
   it('returns empty array when example is null, undefined, or missing value', () => {

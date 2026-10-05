@@ -2,13 +2,13 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
-import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { RequestBodyObject } from '@scalar/workspace-store/schemas/v3.2/strict/request-body'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import { getExampleValue, getExplicitExampleText } from '@/helpers/get-example-value'
+import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 
 import {
   type MultipartPart,
@@ -173,9 +173,9 @@ export const buildRequestBody = (
   // object schema that declares it outside `required`, so undeclared and required keys are
   // always kept. This mirrors the unchecked-by-default checkbox in the Test Request panel.
   // The array (edited) form path is unaffected: it carries its own per-row `isDisabled`.
-  const resolvedBodySchema: SchemaObject | undefined = getResolvedRef(
+  const resolvedBodySchema: SchemaObject | undefined = resolveFormSchema(
     requestBody.content[bodyContentType]?.schema,
-    mergeSiblingReferences,
+    requestBodyCompositionSelection,
   )
   const objectBodySchema = resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema : undefined
   // Composition (allOf/oneOf/anyOf) can mark a property required inside a subschema we do not
@@ -281,10 +281,7 @@ export const buildRequestBody = (
     // lazily allocate the regrouped object for its top-level key and push it into
     // `entries` at the position of the *first* matching row, then keep folding leaves
     // into the same live object reference so interleaved flat rows keep their order.
-    const multipartSchema =
-      result.mode === 'formdata'
-        ? getResolvedRef(requestBody.content[bodyContentType]?.schema, mergeSiblingReferences)
-        : undefined
+    const multipartSchema = result.mode === 'formdata' ? resolvedBodySchema : undefined
     const entries = result.mode === 'formdata' ? regroupMultipartRows(exampleValue, multipartSchema) : exampleValue
 
     // Loop over all entries and add them to the form

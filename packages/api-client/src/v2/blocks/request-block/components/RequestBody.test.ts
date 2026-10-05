@@ -1,6 +1,8 @@
 import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
@@ -52,6 +54,93 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it.each(['oneOf', 'anyOf'] as const)(
+    'regenerates multipart rows when the selected %s branch changes',
+    async (keyword) => {
+      const requestBody = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object' as const,
+              required: ['file'],
+              properties: {
+                file: {
+                  [keyword]: [
+                    { type: 'object' as const, properties: { name: { type: 'string' as const } } },
+                    {
+                      type: 'object' as const,
+                      required: ['count'],
+                      properties: { count: { type: 'integer' as const } },
+                    },
+                  ],
+                },
+              },
+            },
+            examples: { 'example-1': { value: [{ name: 'file.name', value: 'Edited name' }] } },
+          },
+        },
+      })
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody,
+          requestBodyCompositionSelection: { [`requestBody.file.${keyword}`]: 0 },
+        },
+      })
+      await wrapper.setProps({ requestBodyCompositionSelection: { [`requestBody.file.${keyword}`]: 1 } })
+      expect(wrapper.emitted('update:formValue')).toStrictEqual([
+        [
+          {
+            contentType: 'multipart/form-data',
+            payload: [{ name: 'file.count', value: '1', isDisabled: false }],
+          },
+        ],
+      ])
+      wrapper.unmount()
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)(
+    'preserves urlencoded array text when switching %s variants',
+    async (keyword) => {
+      const requestBody = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'application/x-www-form-urlencoded': {
+            schema: {
+              type: 'object',
+              required: ['value'],
+              properties: {
+                value: {
+                  [keyword]: [
+                    { type: 'string', example: 'old' },
+                    { type: 'array', items: { type: 'integer' }, example: [1, 2] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      })
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody,
+          requestBodyCompositionSelection: { [`requestBody.value.${keyword}`]: 0 },
+        },
+      })
+      await wrapper.setProps({ requestBodyCompositionSelection: { [`requestBody.value.${keyword}`]: 1 } })
+      expect(wrapper.emitted('update:formValue')).toStrictEqual([
+        [
+          {
+            contentType: 'application/x-www-form-urlencoded',
+            payload: [{ name: 'value', value: '[1,2]', isDisabled: false }],
+          },
+        ],
+      ])
+      wrapper.unmount()
+    },
+  )
+
   it('fills the XML raw editor with serialized structured data', () => {
     const wrapper = mount(RequestBody, {
       props: {

@@ -61,6 +61,39 @@ describe('buildRequestBody', () => {
     })
   })
 
+  it.each(['oneOf', 'anyOf'] as const)('serializes selected %s nested rows using their declared types', (keyword) => {
+    const body = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            required: ['file'],
+            properties: {
+              file: {
+                [keyword]: [
+                  { type: 'object', properties: { count: { type: 'string' } } },
+                  { type: 'object', properties: { count: { type: 'integer' }, active: { type: 'boolean' } } },
+                ],
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'file.count', value: '42' },
+                { name: 'file.active', value: 'false' },
+              ],
+            },
+          },
+        },
+      },
+    })
+    expect(buildRequestBody(body, 'default', { [`requestBody.file.${keyword}`]: 1 })).toStrictEqual({
+      mode: 'formdata',
+      value: [{ type: 'text', key: 'file', value: '{"count":42,"active":false}' }],
+    })
+  })
+
   it('returns null when requestBody is undefined', () => {
     const result = buildRequestBody(undefined, 'default')
     expect(result).toBe(null)

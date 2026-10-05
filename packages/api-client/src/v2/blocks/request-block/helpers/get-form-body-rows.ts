@@ -1,5 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
 import { coerceLeafValueToSchemaType } from '@scalar/workspace-store/request-example'
 import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -131,6 +132,7 @@ export const getFormBodyRows = (
   example: ExampleObject | undefined | null,
   contentType: string,
   formBodySchema?: SchemaObject,
+  compositionSelection?: Record<string, number>,
 ): TableRow[] => {
   // Forms use structured data even when the raw example also supplies wire text.
   const value = example?.dataValue !== undefined ? example.dataValue : example?.value
@@ -140,7 +142,7 @@ export const getFormBodyRows = (
   }
 
   // Get all the schema properties if the schema is an object schema
-  const resolvedBodySchema = resolveSchemaWithAnnotations(formBodySchema)
+  const resolvedBodySchema = resolveFormSchema(formBodySchema, compositionSelection)
   const schemaWithProperties = resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema : undefined
   // The request builder preserves composed fields because members can make them required.
   // Keep those fields checked so the initial form matches the body that will be sent.
