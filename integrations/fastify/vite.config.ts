@@ -79,7 +79,7 @@ export default defineConfig({
     rolldownOptions: {
       // Keep dependencies and Node built-ins external; only the standalone
       // script is intentionally inlined.
-      external: [...Object.keys(pkg.dependencies), /^node:/],
+      external: [...Object.keys(pkg.dependencies), /^@scalar\/json-magic\//, /^node:/],
       output: {
         exports: 'named',
       },

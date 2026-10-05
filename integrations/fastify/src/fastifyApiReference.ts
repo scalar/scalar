@@ -1,10 +1,11 @@
 /// <reference types="@fastify/swagger" />
 import { renderApiReference } from '@scalar/client-side-rendering'
-import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
+import { normalize } from '@scalar/json-magic/helpers/normalize'
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { FastifyBaseLogger, FastifySchema, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
+import { stringify } from 'yaml'
 
 import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
 import { getJavaScriptFile } from './utils/getJavaScriptFile'
@@ -145,9 +146,9 @@ const fastifyApiReference = fp<
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
-          const spec = normalize(specSource.get())
+          const spec = normalize(specSource.get()) as OpenAPI.Document
           const filename = getSpecFilenameSlug(spec)
-          const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
+          const json = JSON.parse(JSON.stringify(spec)) // parsing minifies the JSON
 
           return reply
             .header('Content-Type', 'application/json')
@@ -166,9 +167,9 @@ const fastifyApiReference = fp<
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
-          const spec = normalize(specSource.get())
+          const spec = normalize(specSource.get()) as OpenAPI.Document
           const filename = getSpecFilenameSlug(spec)
-          const yaml = toYaml(spec)
+          const yaml = stringify(spec)
           return reply
             .header('Content-Type', 'application/yaml')
             .header('Content-Disposition', `filename=${filename}.yaml`)

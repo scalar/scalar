@@ -1032,9 +1032,9 @@ importers:
       '@scalar/client-side-rendering':
         specifier: workspace:*
         version: link:../../packages/client-side-rendering
-      '@scalar/openapi-parser':
+      '@scalar/json-magic':
         specifier: workspace:*
-        version: link:../../packages/openapi-parser
+        version: link:../../packages/json-magic
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../../packages/openapi-types
@@ -1044,6 +1044,9 @@ importers:
       github-slugger:
         specifier: catalog:*
         version: 2.0.0
+      yaml:
+        specifier: catalog:*
+        version: 2.9.0
     devDependencies:
       '@fastify/basic-auth':
         specifier: catalog:*
@@ -1078,9 +1081,6 @@ importers:
       vitest:
         specifier: catalog:*
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@24.10.13)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
-      yaml:
-        specifier: catalog:*
-        version: 2.9.0
 
   integrations/hono:
     dependencies:
