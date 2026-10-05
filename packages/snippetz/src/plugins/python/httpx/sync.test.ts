@@ -573,4 +573,38 @@ describe('pythonHttpxSync', () => {
     }
 )`)
   })
+  it('sends a JSON body when the media type has parameters', () => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json; charset=utf-8' }],
+      postData: { mimeType: 'application/json; charset=utf-8', text: '{"a":1}' },
+    })
+
+    expect(result).toContain('json={')
+    expect(result).toContain('"a": 1')
+  })
+
+  it('sends a JSON body for a +json media type', () => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/vnd.api+json' }],
+      postData: { mimeType: 'application/vnd.api+json', text: '{"a":1}' },
+    })
+
+    expect(result).toContain('json={')
+    expect(result).toContain('"a": 1')
+  })
+
+  it('sends a plain text body', () => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'text/plain' }],
+      postData: { mimeType: 'text/plain', text: "it's plain" },
+    })
+
+    expect(result).toContain('data="it\'s plain"')
+  })
 })

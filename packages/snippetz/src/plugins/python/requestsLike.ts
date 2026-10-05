@@ -1,3 +1,4 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
@@ -81,7 +82,7 @@ export function requestsLikeGenerate(
   if (normalizedRequest.postData) {
     const { mimeType, text, params } = normalizedRequest.postData
 
-    if (mimeType === 'application/json' && text) {
+    if (isJsonMediaType(mimeType) && text) {
       try {
         options.json = JSON.parse(text)
       } catch {
@@ -130,6 +131,9 @@ export function requestsLikeGenerate(
         accumulateRepeatedValue(formData, param.name, param.value ?? '')
       })
       options.data = formData
+    } else if (text) {
+      // Any other body (text/plain, application/xml, …) is sent as it is
+      options.data = text
     }
   }
 
