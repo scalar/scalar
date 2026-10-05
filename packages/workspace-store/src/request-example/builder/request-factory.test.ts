@@ -46,6 +46,92 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it.each([
+    { version: '3.2.0', allowReserved: true, expected: 'a:b%2Fc' },
+    { version: '3.2.1', allowReserved: false, expected: 'a%3Ab%2Fc' },
+    { version: '3.2.1', allowReserved: undefined, expected: 'a%3Ab%2Fc' },
+    { version: '3.1.2', allowReserved: true, expected: 'a%3Ab%2Fc' },
+    { version: '3.0.4', allowReserved: true, expected: 'a%3Ab%2Fc' },
+    { version: undefined, allowReserved: true, expected: 'a%3Ab%2Fc' },
+  ])('respects path allowReserved=$allowReserved for OpenAPI $version', ({ version, allowReserved, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/{id}',
+        server: { url: 'https://example.com' },
+        proxyUrl: '',
+        openapiVersion: version,
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              allowReserved,
+              schema: { type: 'string' },
+              examples: { default: { dataValue: '{{id}}' } },
+            },
+          ],
+        },
+      }),
+    )
+    const built = buildRequest(request, { envVariables: { id: 'a:b/c' } })
+    assert(built.ok)
+    expect(String(built.data.requestPayload[0])).toBe(`https://example.com/${expected}`)
+  })
+
+  it('keeps authored serialized path examples intact with reserved expansion enabled', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/{id}',
+        server: { url: 'https://example.com' },
+        proxyUrl: '',
+        openapiVersion: '3.2.1',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              allowReserved: true,
+              schema: { type: 'string' },
+              examples: { default: { serializedValue: 'a%2fb%3Fc' } },
+            },
+          ],
+        },
+      }),
+    )
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(String(built.data.requestPayload[0])).toBe('https://example.com/a%2fb%3Fc')
+  })
+
+  it('preserves reserved path encoding after a request hook overrides the preview value', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/{id}',
+        server: { url: 'https://example.com' },
+        proxyUrl: '',
+        openapiVersion: '3.2.1',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              allowReserved: true,
+              schema: { type: 'string' },
+              examples: { default: { dataValue: 'original' } },
+            },
+          ],
+        },
+      }),
+    )
+    request.path.variables.id = 'a:b/c'
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(String(built.data.requestPayload[0])).toBe('https://example.com/a:b%2Fc')
+  })
+
   it.each(['3.2.0', '3.2.1'])('stops invalid structured cookie requests for %s', (openapiVersion) => {
     const { request } = requestFactory(
       createBaseArgs({

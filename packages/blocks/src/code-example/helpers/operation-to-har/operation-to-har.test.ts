@@ -1,6 +1,6 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { snippetz } from '@scalar/snippetz'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import { type SecuritySchemeObjectSecret, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -60,6 +60,68 @@ describe('operationToHar', () => {
       'since=2026-09-30T02:00:00Z&q=a%26b%2F%252F',
     )
   })
+
+  it.each([
+    { style: 'simple', explode: false, value: 'a:b@c/z?#[]', expected: 'a:b@c%2Fz%3F%23%5B%5D' },
+    { style: 'simple', explode: false, value: ['a/b', 'c:d'], expected: 'a%2Fb,c:d' },
+    { style: 'simple', explode: true, value: { 'a/b': 'c?d' }, expected: 'a%2Fb=c%3Fd' },
+    { style: 'label', explode: true, value: ['a/b', 'c:d'], expected: '.a%2Fb.c:d' },
+    { style: 'label', explode: false, value: { 'a/b': 'c?d' }, expected: '.a%2Fb,c%3Fd' },
+    { style: 'matrix', explode: false, value: ['a/b', 'c:d'], expected: ';id=a%2Fb,c:d' },
+    { style: 'matrix', explode: true, value: ['a/b', 'c:d'], expected: ';id=a%2Fb;id=c:d' },
+    { style: 'matrix', explode: true, value: { 'a/b': 'c?d' }, expected: ';a%2Fb=c%3Fd' },
+    { style: 'simple', explode: false, value: '%2f %oops', expected: '%2f%20%25oops' },
+  ] as const)(
+    'aligns OpenAPI 3.2 reserved path expansion for $style (explode: $explode)',
+    ({ style, explode, value, expected }) => {
+      const operation: OperationObject = {
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            style,
+            explode,
+            allowReserved: true,
+            schema: coerceValue(SchemaObjectSchema, {}),
+            examples: { default: { dataValue: value } },
+          },
+        ],
+      }
+      const server = { url: 'https://example.com' }
+      const { request } = requestFactory({
+        exampleName: 'default',
+        method: 'get',
+        path: '/items/{id}',
+        environment: { color: '#FFFFFF', variables: [] },
+        globalCookies: [],
+        proxyUrl: '',
+        server,
+        defaultHeaders: {},
+        isElectron: false,
+        selectedSecuritySchemes: [],
+        operation,
+        openapiVersion: '3.2.1',
+      })
+      const built = buildRequest(request, { envVariables: {} })
+      if (!built.ok) {
+        throw new Error(built.message)
+      }
+      const har = operationToHar({
+        operation,
+        method: 'get',
+        path: '/items/{id}',
+        server,
+        example: 'default',
+        openapiVersion: '3.2.1',
+      })
+      const url = `https://example.com/items/${expected}`
+      expect(String(built.data.requestPayload[0])).toBe(url)
+      expect(har.url).toBe(url)
+      expect(snippetz().print('ruby', 'native', har)).toContain(`url = URI("${url}")`)
+      expect(snippetz().print('shell', 'curl', har)).toContain(url)
+    },
+  )
 
   it.each([
     { name: 'a single file', schema: { type: 'object', properties: { upload: { type: 'string', format: 'binary' } } } },
