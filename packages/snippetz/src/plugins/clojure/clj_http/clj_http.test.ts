@@ -430,7 +430,7 @@ describe('clojureCljhttp', () => {
 
     expect(result).toBe(`${REQUIRE}
 
-(client/post "https://example.com" {:form-params {:special chars!@# "value"}})`)
+(client/post "https://example.com" {:form-params {"special chars!@#" "value"}})`)
   })
 
   it('handles binary data as a raw body', () => {
@@ -594,5 +594,44 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(`${REQUIRE}
 
 (client/get "https://example.com/${'a'.repeat(2000)}")`)
+  })
+
+  it('writes line breaks in a body as escapes so no indentation ends up in the string', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'text/plain', text: 'line one\nline two\r\nline three' },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:body "line one\\nline two\\r\\nline three"})`)
+  })
+
+  it('writes line breaks in a nested JSON value as escapes', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/json', text: JSON.stringify({ note: 'a\nb', other: 1 }) },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:content-type :json
+                                    :form-params {:note "a\\nb"
+                                                  :other 1}})`)
+  })
+
+  it('writes header and query names that are not valid keywords as strings', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'X Custom', value: 'a' }],
+      queryString: [{ name: 'filter[name]', value: 'b' }],
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/get "https://example.com" {:headers {"X Custom" "a"}
+                                   :query-params {"filter[name]" "b"}})`)
   })
 })
