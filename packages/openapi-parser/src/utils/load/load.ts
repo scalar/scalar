@@ -1,3 +1,6 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+import { resolveReferencePath } from '@scalar/json-magic/bundle'
+
 import { ERRORS } from '@/configuration'
 import type { AnyApiDefinitionFormat, ErrorObject, Filesystem, LoadResult, ThrowOnErrorOption } from '@/types/index'
 import { getEntrypoint } from '@/utils/get-entrypoint'
@@ -18,6 +21,21 @@ export type LoadOptions = {
   filename?: string
   filesystem?: Filesystem
 } & ThrowOnErrorOption
+
+const getDocumentBaseUri = (document: unknown, retrievalUri?: string): string | undefined => {
+  if (
+    !isObject(document) ||
+    typeof document.openapi !== 'string' ||
+    !/^3\.2\.\d+$/.test(document.openapi) ||
+    typeof document.$self !== 'string'
+  ) {
+    return undefined
+  }
+
+  // An opaque fallback permits absolute identities but cannot resolve a relative $self.
+  const self = resolveReferencePath(retrievalUri ?? 'urn:scalar:openapi', document.$self)
+  return self.split('#', 1)[0]
+}
 
 /**
  * @deprecated This function is deprecated and will be removed in a future version.
@@ -110,10 +128,38 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
   }
 
+  let baseUri: string | undefined
+
+  try {
+    const retrievalUri = plugin && typeof value === 'string' ? value : (options?.filename ?? newEntry.filename)
+    baseUri = getDocumentBaseUri(newEntry.specification, retrievalUri ?? undefined)
+  } catch (_error) {
+    const message = ERRORS.INVALID_REFERENCE.replace('%s', String(newEntry.specification.$self))
+    if (options?.throwOnError) {
+      throw new Error(message)
+    }
+    errors.push({ code: 'INVALID_REFERENCE', message })
+    return { specification: getEntrypoint(filesystem)?.specification, filesystem, errors }
+  }
+
   // Load other external references
   for (const reference of listOfReferences) {
-    // Find a matching plugin
-    const otherPlugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(reference))
+    let resolvedReference = reference
+    if (baseUri !== undefined) {
+      try {
+        resolvedReference = resolveReferencePath(baseUri, reference)
+      } catch (_error) {
+        const message = ERRORS.INVALID_REFERENCE.replace('%s', reference)
+        if (options?.throwOnError) {
+          throw new Error(message)
+        }
+        errors.push({ code: 'INVALID_REFERENCE', message })
+        continue
+      }
+    }
+
+    // Select the loader using the resolved URI, which can have a different scheme than the input.
+    const otherPlugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(resolvedReference))
 
     // Skip if no plugin is found (internal references don't need a plugin for example)
     if (!otherPlugin) {
@@ -121,7 +167,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
 
     const target =
-      otherPlugin.check(reference) && otherPlugin.resolvePath ? otherPlugin.resolvePath(value, reference) : reference
+      baseUri === undefined && otherPlugin.resolvePath ? otherPlugin.resolvePath(value, reference) : resolvedReference
 
     // Don't load a reference twice, check the filesystem before fetching something
     if (filesystem.find((entry) => entry.filename === reference)) {

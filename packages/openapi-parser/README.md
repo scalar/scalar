@@ -258,6 +258,8 @@ const result = await bundle(
 
 #### Migration from the load method
 
+The deprecated `load()` method resolves relative external `$ref` values against the root `$self` URI in OpenAPI 3.2 documents. A relative `$self` uses the retrieval location as its base. For an in-memory document, pass `filename` to supply that location, or use an absolute `$self`. External references still require a matching configured loading plugin.
+
 If you were previously using the `load()` method and want to migrate to the latest bundle method, the following diff illustrates the changes to apply.
 
 ```diff
