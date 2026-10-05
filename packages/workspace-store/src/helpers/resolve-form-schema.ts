@@ -4,7 +4,7 @@ import { selectExampleComposition } from '@/request-example/builder/helpers/get-
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { MaybeRefSchemaObject } from '@/schemas/v3.2/strict/schema'
-import { isObjectSchema } from '@/schemas/v3.2/strict/type-guards'
+import { isNumberSchema, isObjectSchema } from '@/schemas/v3.2/strict/type-guards'
 
 import { resolveSchemaWithAnnotations } from './resolve-schema-with-annotations'
 import { unpackProxyShallow } from './unpack-proxy'
@@ -71,6 +71,25 @@ export const resolveFormSchema = (
       const result: SchemaObject = { ...base, ...selected, [keyword]: resolved[keyword] }
       if ('type' in result) {
         Reflect.deleteProperty(result, '__scalar_')
+      }
+      if (isNumberSchema(result)) {
+        // Parent and branch bounds both apply; selecting a variant must not weaken validation.
+        if (
+          'minimum' in base &&
+          'minimum' in selected &&
+          base.minimum !== undefined &&
+          selected.minimum !== undefined
+        ) {
+          result.minimum = Math.max(base.minimum, selected.minimum)
+        }
+        if (
+          'maximum' in base &&
+          'maximum' in selected &&
+          base.maximum !== undefined &&
+          selected.maximum !== undefined
+        ) {
+          result.maximum = Math.min(base.maximum, selected.maximum)
+        }
       }
       if (resolved.description !== undefined) {
         result.description = resolved.description

@@ -62,6 +62,29 @@ describe('resolve-form-schema', () => {
     expect(result && 'type' in result ? result.type : undefined).toBe('string')
   })
 
+  it.each(['oneOf', 'anyOf'] as const)('keeps parent and selected %s numeric bounds', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'integer',
+      minimum: 10,
+      maximum: 100,
+      [keyword]: [{ type: 'integer', minimum: 1, maximum: 50 }],
+    })
+    const result = resolveFormSchema(schema)
+    expect(result && 'minimum' in result ? result.minimum : undefined).toBe(10)
+    expect(result && 'maximum' in result ? result.maximum : undefined).toBe(50)
+  })
+
+  it('keeps numeric bounds when the chosen branch omits its type', () => {
+    const result = resolveFormSchema(
+      coerceValue(SchemaObjectSchema, {
+        type: 'integer',
+        minimum: 10,
+        oneOf: [{ minimum: 1 }],
+      }),
+    )
+    expect(result && 'minimum' in result ? result.minimum : undefined).toBe(10)
+  })
+
   it('does not expand circular object references indefinitely', () => {
     const document = createMagicProxy({
       components: {
