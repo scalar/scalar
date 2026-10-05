@@ -671,4 +671,29 @@ $response = $client->request('POST', 'https://example.com', [
   ]
 ]);`)
   })
+
+  it('keeps every value of a repeated url-encoded form field', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('POST', 'https://example.com', [
+  'form_params' => [
+    'tag' => [
+      'a',
+      'b'
+    ]
+  ]
+]);`)
+  })
 })
