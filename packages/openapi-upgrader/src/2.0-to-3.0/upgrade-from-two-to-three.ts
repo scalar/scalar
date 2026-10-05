@@ -155,10 +155,12 @@ function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
  * Used to distinguish media-type example keys from named example keys when migrating
  * Swagger 2.0 examples to OpenAPI 3.0 content. The type must be a registered top-level
  * type (or `*`) and the subtype a single token, so named keys that contain a slash
- * ("Error 404/Not Found", "Coupons/Promos") stay named examples.
+ * ("Error 404/Not Found", "Coupons/Promos") stay named examples. Matching is
+ * case-sensitive: producers write media types in lowercase, while names like
+ * "Image/Before" are capitalized.
  */
 const MEDIA_TYPE_KEY_PATTERN =
-  /^(\*|application|audio|example|font|haptics|image|message|model|multipart|text|video)\/[a-zA-Z0-9*+.-]+$/i
+  /^(\*|application|audio|example|font|haptics|image|message|model|multipart|text|video)\/[a-zA-Z0-9*+.-]+$/
 
 function isMediaTypeKey(key: string): boolean {
   return MEDIA_TYPE_KEY_PATTERN.test(key)
@@ -944,13 +946,19 @@ function migrateBodyParameter(
       }
       // Fallback: x-examples keyed by example name instead of media type
       // e.g. x-examples: { Request: { email: "test@example.com" } }
-      else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
-        requestBodyObject.content[type].examples = Object.entries(xExamples).reduce<
-          Record<string, OpenAPIV3.ExampleObject>
-        >((acc, [key, exampleValue]) => {
-          acc[key] = wrapAsExampleObject(exampleValue)
-          return acc
-        }, {})
+      // Decided per key, so a key that belongs to another media type never drops the named ones
+      else if (isNonEmptyObject(xExamples)) {
+        const namedExamples = Object.entries(xExamples).filter(([key]) => !isMediaTypeKey(key))
+
+        if (namedExamples.length) {
+          requestBodyObject.content[type].examples = namedExamples.reduce<Record<string, OpenAPIV3.ExampleObject>>(
+            (acc, [key, exampleValue]) => {
+              acc[key] = wrapAsExampleObject(exampleValue)
+              return acc
+            },
+            {},
+          )
+        }
       }
 
       // Handle x-example (singular) only when we did not set examples for this type
