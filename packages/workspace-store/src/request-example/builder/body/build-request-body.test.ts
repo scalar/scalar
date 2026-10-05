@@ -7,6 +7,44 @@ import type { ExampleObject, RequestBodyObject } from '@/schemas/v3.2/strict/ope
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
+  it.each([false, true])(
+    'regroups annotated allOf object fields without losing leaf types (reversed: %s)',
+    (reversed) => {
+      const reference = {
+        $ref: '#/components/schemas/MyData',
+        '$ref-value': {
+          type: 'object' as const,
+          properties: { name: { type: 'string' as const }, value: { type: 'integer' as const } },
+          required: ['name'],
+        },
+      }
+      const annotation = { description: 'JSON file containing the data.' }
+      const body = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: { file: { allOf: reversed ? [annotation, reference] : [reference, annotation] } },
+              required: ['file'],
+            },
+            examples: {
+              default: {
+                value: [
+                  { name: 'file.name', value: 'Alice' },
+                  { name: 'file.value', value: '42' },
+                ],
+              },
+            },
+          },
+        },
+      })
+      expect(buildRequestBody(body, 'default')).toStrictEqual({
+        mode: 'formdata',
+        value: [{ type: 'text', key: 'file', value: '{"name":"Alice","value":42}' }],
+      })
+    },
+  )
+
   it.each([
     [{ dataValue: 'hello' }, '"hello"'],
     [{ dataValue: false }, 'false'],

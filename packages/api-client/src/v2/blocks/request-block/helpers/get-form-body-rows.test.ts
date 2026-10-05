@@ -1,9 +1,76 @@
-import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import {
+  type ExampleObject,
+  type SchemaObject,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { assert, describe, expect, it } from 'vitest'
 
 import { getFormBodyRows, getFormBodyValue } from './get-form-body-rows'
 
 describe('getFormBodyRows', () => {
+  it.each([false, true])('renders annotated allOf object fields in either order (reversed: %s)', (reversed) => {
+    const reference = {
+      $ref: '#/components/schemas/MyData',
+      '$ref-value': {
+        type: 'object' as const,
+        properties: {
+          name: { type: 'string' as const },
+          value: { type: 'integer' as const, description: 'The numeric value.' },
+        },
+        required: ['name'],
+      },
+    }
+    const annotation = { description: 'JSON file containing the data.' }
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { file: { allOf: reversed ? [annotation, reference] : [reference, annotation] } },
+      required: ['file'],
+    })
+    expect(getFormBodyRows({ value: { file: { name: '', value: 1 } } }, 'multipart/form-data', schema)).toStrictEqual([
+      {
+        name: 'file.name',
+        value: '',
+        isDisabled: false,
+        isRequired: true,
+        schema: { type: 'string' },
+        description: annotation.description,
+      },
+      {
+        name: 'file.value',
+        value: '1',
+        isDisabled: false,
+        isRequired: false,
+        schema: { type: 'integer', description: 'The numeric value.' },
+        description: 'The numeric value.',
+      },
+    ])
+  })
+
+  it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
+    'retains annotated primitive metadata for %s fields',
+    (contentType) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          mode: { allOf: [{ type: 'string', enum: ['fast', 'slow'] }, { description: 'Processing mode' }] },
+        },
+        required: ['mode'],
+      })
+      expect(getFormBodyRows({ value: { mode: 'fast' } }, contentType, schema)).toStrictEqual([
+        {
+          name: 'mode',
+          value: 'fast',
+          isDisabled: false,
+          isDisabledByDefault: false,
+          isRequired: true,
+          schema: { type: 'string', enum: ['fast', 'slow'], description: 'Processing mode' },
+          description: 'Processing mode',
+        },
+      ])
+    },
+  )
+
   it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
     'uses structured data for %s rows when wire text exists',
     (contentType) => {
