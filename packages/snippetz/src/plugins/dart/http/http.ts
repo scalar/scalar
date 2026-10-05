@@ -22,6 +22,14 @@ export const dartHttp: Plugin = {
     const multipart =
       normalizedRequest.postData?.mimeType === 'multipart/form-data' && normalizedRequest.postData.params
     const dartString = (value: string): string => JSON.stringify(value).replaceAll('$', '\\$')
+    // Single quoted Dart string that is safe for quotes, backslashes, dollar signs and line breaks
+    const dartSingleQuoted = (value: string): string =>
+      `'${value
+        .replaceAll('\\', '\\\\')
+        .replaceAll("'", "\\'")
+        .replaceAll('$', '\\$')
+        .replaceAll('\n', '\\n')
+        .replaceAll('\r', '\\r')}'`
 
     // Start building the Dart code
     let code = `import 'package:http/http.dart' as http;\n\nvoid main() async {\n`
@@ -69,7 +77,7 @@ export const dartHttp: Plugin = {
         if (value.includes('utf8.encode')) {
           code += `    '${key}': ${value},\n`
         } else {
-          code += `    '${key}': '${value}',\n`
+          code += `    ${dartSingleQuoted(key)}: ${dartSingleQuoted(value)},\n`
         }
       }
       code += '  };\n\n'
@@ -82,11 +90,21 @@ export const dartHttp: Plugin = {
     let body = ''
     if (normalizedRequest.postData) {
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        body = `  final body = r'${normalizedRequest.postData.text}';\n\n`
+        const jsonText = normalizedRequest.postData.text ?? ''
+        // A raw string keeps the JSON readable, but it cannot hold a single quote or a line break
+        body = /['\r\n]/.test(jsonText)
+          ? `  final body = ${dartSingleQuoted(jsonText)};\n\n`
+          : `  final body = r'${jsonText}';\n\n`
       } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
-        body = `  final body = '${normalizedRequest.postData.params?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`).join('&') || ''}';\n\n`
+        const formBody =
+          normalizedRequest.postData.params
+            ?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`)
+            .join('&') || ''
+        body = `  final body = ${dartSingleQuoted(formBody)};\n\n`
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        body = `  final body = '${normalizedRequest.postData.text}';\n\n`
+        body = `  final body = ${dartSingleQuoted(normalizedRequest.postData.text ?? '')};\n\n`
+      } else if (normalizedRequest.postData.text) {
+        body = `  final body = ${dartSingleQuoted(normalizedRequest.postData.text)};\n\n`
       }
     }
 
