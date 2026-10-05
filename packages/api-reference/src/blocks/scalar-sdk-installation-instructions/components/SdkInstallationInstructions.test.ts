@@ -1,3 +1,4 @@
+import { getCustomClientIds } from '@scalar/blocks/code-example'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -172,6 +173,38 @@ describe('SdkInstallationInstructions', () => {
     // A selection change elsewhere moves the active tab to match
     await wrapper.setProps({ selectedClient: 'custom/typescript' })
     expect(tabs()[0]?.attributes('aria-selected')).toBe('true')
+  })
+
+  it.each([
+    ['Rust', 'rust'],
+    ['rust', 'Rust'],
+    ['Python', 'PYTHON'],
+    [' Rust ', 'rust'],
+    ['Rust', ' rust '],
+  ])('syncs installation language %j with sample language %j', async (installationLanguage, sampleLanguage) => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const [sampleClientId] = getCustomClientIds([{ lang: sampleLanguage, source: 'sdk_call()' }])
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        selectedClient: sampleClientId,
+        xScalarSdkInstallation: [
+          { lang: 'Go', description: 'Install Go SDK' },
+          { lang: installationLanguage, description: 'Install selected SDK' },
+        ],
+      },
+      global: { stubs },
+    })
+
+    const tab = wrapper.findAll('[role="tab"]')[1]
+    expect(tab?.attributes('aria-selected')).toBe('true')
+    expect(tab?.text()).toBe(installationLanguage.trim())
+    expect(wrapper.get('[role="tabpanel"]').html()).toContain('Install selected SDK')
+
+    await tab?.trigger('click')
+    expect(listener).toHaveBeenCalledWith(sampleClientId)
   })
 
   it('follows the selected language when the SDK list is reordered', async () => {

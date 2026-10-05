@@ -17,9 +17,9 @@ export type CustomCodeSampleId = `custom/${string}`
  * to `custom/<lang>/<n>` so they stay individually selectable within the operation.
  * Linked request examples with the same language and label share an id.
  *
- * The language is lower-cased so a selection still matches when operations (or
- * extensions) spell the same language with different casing (e.g. `Python` vs
- * `python`).
+ * The language is trimmed and lower-cased so a selection still matches when
+ * operations or extensions use different casing or surrounding whitespace
+ * (e.g. `Python` vs ` python `).
  *
  * @param samples - The custom code samples for a single operation
  * @returns A list of ids aligned by index with the input samples
@@ -29,7 +29,7 @@ export const getCustomClientIds = (samples: XCodeSample[]): CustomCodeSampleId[]
   const linkedGroups = new Map<string, CustomCodeSampleId>()
 
   return samples.map((sample): CustomCodeSampleId => {
-    const lang = (sample.lang || 'plaintext').toLowerCase()
+    const lang = (sample.lang?.trim() || 'plaintext').toLowerCase()
     const group = JSON.stringify([lang, sample.label ?? ''])
     const existing = sample.example !== undefined ? linkedGroups.get(group) : undefined
     if (existing) return existing

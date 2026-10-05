@@ -228,6 +228,18 @@ describe('generateClientOptions', () => {
 })
 
 describe('getCustomClientIds', () => {
+  it('trims language names while preserving separate samples and their display labels', () => {
+    const samples = [
+      { lang: ' Rust ', label: 'Rust SDK', source: '' },
+      { lang: 'rust', label: 'Async Rust SDK', source: '' },
+      { lang: ' PYTHON\n', source: '' },
+    ]
+
+    expect(getCustomClientIds(samples)).toEqual(['custom/rust', 'custom/rust/1', 'custom/python'])
+    expect(samples[0]).toEqual({ lang: ' Rust ', label: 'Rust SDK', source: '' })
+    expect(getCustomClientIds([{ lang: '   ', source: '' }])).toEqual(['custom/plaintext'])
+  })
+
   it('groups named examples without merging separate SDK variants or legacy samples', () => {
     expect(
       getCustomClientIds([

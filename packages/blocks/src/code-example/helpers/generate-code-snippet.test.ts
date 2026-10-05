@@ -57,6 +57,16 @@ describe('generateCodeSnippet', () => {
     ).toBeNull()
   })
 
+  it.each(['Rust', 'rust', ' RUST '])('resolves a custom sample with language %j', (lang) => {
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        clientId: 'custom/rust',
+        customCodeSamples: [{ lang, source: 'client.widgets().list();' }],
+      }),
+    ).toBe('client.widgets().list();')
+  })
+
   it('requires an exact media type match including parameters', () => {
     expect(
       generateCodeSnippet({
