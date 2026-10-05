@@ -1,3 +1,4 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
@@ -57,8 +58,9 @@ export const httpHttp11: Plugin = {
     let body = ''
     if (normalizedRequest.postData) {
       // Always set the Content-Type header based on postData.mimeType
-      if (normalizedRequest.postData.mimeType === 'application/json' && normalizedRequest.postData.text) {
-        headers.set('Content-Type', 'application/json')
+      if (isJsonMediaType(normalizedRequest.postData.mimeType) && normalizedRequest.postData.text) {
+        // Keep the media type as written, so `application/vnd.api+json` or a charset stays intact
+        headers.set('Content-Type', normalizedRequest.postData.mimeType)
         body = normalizedRequest.postData.text
       } else if (
         normalizedRequest.postData.mimeType === 'application/octet-stream' &&
@@ -92,6 +94,12 @@ export const httpHttp11: Plugin = {
               return `--${boundary}\r\nContent-Disposition: form-data; name="${dispositionValue(param.name)}"\r\n${contentTypeHeader}\r\n${param.value ?? ''}\r\n`
             })
             .join('') + `--${boundary}--\r\n`
+      } else if (normalizedRequest.postData.text) {
+        // Any other body (text/plain, application/xml, …) is sent as it is
+        if (normalizedRequest.postData.mimeType) {
+          headers.set('Content-Type', normalizedRequest.postData.mimeType)
+        }
+        body = normalizedRequest.postData.text
       }
     }
 

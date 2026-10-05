@@ -270,4 +270,36 @@ Content-Type: application/json\r
       'GET /?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*() HTTP/1.1\r\n' + 'Host: example.com\r\n\r\n',
     )
   })
+  it('sends a JSON body when the media type has parameters', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      postData: { mimeType: 'application/json; charset=utf-8', text: '{"a":1}' },
+    })
+
+    expect(result).toContain('Content-Type: application/json; charset=utf-8')
+    expect(result.endsWith('\r\n\r\n{"a":1}')).toBe(true)
+  })
+
+  it('sends a JSON body for a +json media type', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      postData: { mimeType: 'application/vnd.api+json', text: '{"a":1}' },
+    })
+
+    expect(result).toContain('Content-Type: application/vnd.api+json')
+    expect(result.endsWith('\r\n\r\n{"a":1}')).toBe(true)
+  })
+
+  it('sends a plain text body', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      postData: { mimeType: 'text/plain', text: 'hello there' },
+    })
+
+    expect(result).toContain('Content-Type: text/plain')
+    expect(result.endsWith('\r\n\r\nhello there')).toBe(true)
+  })
 })
