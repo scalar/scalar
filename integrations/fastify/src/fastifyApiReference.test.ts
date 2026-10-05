@@ -306,6 +306,29 @@ describe('fastifyApiReference', () => {
     })
   })
 
+  it.each([
+    { label: 'missing', title: undefined, filename: 'spec' },
+    { label: 'null', title: null, filename: 'spec' },
+    { label: 'numeric', title: 123, filename: 'spec' },
+    { label: 'string', title: 'Custom Filename', filename: 'custom-filename' },
+  ])('uses a safe download filename for a $label title', async ({ title, filename }) => {
+    fastify = Fastify({ logger: false })
+    await fastify.register(fastifyApiReference, {
+      configuration: {
+        content: {
+          ...exampleDocument(),
+          specification: { info: { title } },
+        },
+      },
+    })
+
+    for (const format of ['json', 'yaml']) {
+      const response = await fastify.inject(`/reference/openapi.${format}`)
+      expect(response.statusCode).toBe(200)
+      expect(response.headers['content-disposition']).toBe(`filename=${filename}.${format}`)
+    }
+  })
+
   it('has the JS url', async () => {
     fastify = Fastify({
       logger: false,

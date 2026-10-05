@@ -62,7 +62,6 @@
   "dependencies": {
     "@scalar/client-side-rendering": "workspace:*",
     "@scalar/json-magic": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
     "fastify-plugin": "catalog:*",
     "github-slugger": "catalog:*",
     "yaml": "catalog:*"
@@ -73,6 +72,7 @@
     "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/helpers": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
     "typescript": "^5.8.3",

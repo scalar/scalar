@@ -1,7 +1,7 @@
 /// <reference types="@fastify/swagger" />
 import { renderApiReference } from '@scalar/client-side-rendering'
+import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 import { normalize } from '@scalar/json-magic/helpers/normalize'
-import type { OpenAPI } from '@scalar/openapi-types'
 import type { FastifyBaseLogger, FastifySchema, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
@@ -128,9 +128,10 @@ const fastifyApiReference = fp<
       }
     }
 
-    const getSpecFilenameSlug = (spec: OpenAPI.Document) => {
+    const getSpecFilenameSlug = (spec: unknown): string => {
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
-      return slug(spec?.specification?.info?.title ?? 'spec')
+      const title: unknown = getValueByPath(spec, ['specification', 'info', 'title']).value
+      return slug(typeof title === 'string' ? title : 'spec')
     }
 
     // Only expose the document endpoints when we can serve the document ourselves.
@@ -146,7 +147,7 @@ const fastifyApiReference = fp<
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
-          const spec = normalize(specSource.get()) as OpenAPI.Document
+          const spec = normalize(specSource.get())
           const filename = getSpecFilenameSlug(spec)
           const json = JSON.parse(JSON.stringify(spec)) // parsing minifies the JSON
 
@@ -167,7 +168,7 @@ const fastifyApiReference = fp<
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
-          const spec = normalize(specSource.get()) as OpenAPI.Document
+          const spec = normalize(specSource.get())
           const filename = getSpecFilenameSlug(spec)
           const yaml = stringify(spec)
           return reply
