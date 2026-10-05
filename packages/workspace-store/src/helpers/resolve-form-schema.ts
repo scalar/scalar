@@ -6,7 +6,7 @@ import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { MaybeRefSchemaObject } from '@/schemas/v3.2/strict/schema'
 import { isNumberSchema, isObjectSchema } from '@/schemas/v3.2/strict/type-guards'
 
-import { resolveSchemaWithAnnotations } from './resolve-schema-with-annotations'
+import { getSchemaAnnotations, resolveSchemaWithAnnotations } from './resolve-schema-with-annotations'
 import { unpackProxyShallow } from './unpack-proxy'
 
 /**
@@ -36,25 +36,17 @@ export const resolveFormSchema = (
     }
     ancestors.add(identity)
     try {
-      if (source.allOf?.length && !resolved.allOf) {
-        let choiceIndex = 0
-        const allOf = source.allOf.map((member) => {
-          const memberSchema = resolve.schema(member)
-          const isChoice = Boolean(memberSchema?.oneOf || memberSchema?.anyOf)
-          const memberPath = isChoice ? [...path, String(choiceIndex++)] : path
-          return visit(member, memberPath, selection) ?? member
-        })
-        return resolveSchemaWithAnnotations({ ...source, allOf })
-      }
-
       if (source.allOf?.length) {
-        const { allOf: _allOf, ...siblings } = source
         let choiceIndex = 0
         const members = source.allOf.map((member) => {
           const memberSchema = resolve.schema(member)
           const isChoice = Boolean(memberSchema?.oneOf || memberSchema?.anyOf)
-          return visit(member, isChoice ? [...path, String(choiceIndex++)] : path, selection)
+          return visit(member, isChoice ? [...path, String(choiceIndex++)] : path, selection) ?? member
         })
+        if (!resolved.allOf) {
+          return resolveSchemaWithAnnotations({ ...source, allOf: members })
+        }
+        const { allOf: _allOf, ...siblings } = source
         const parts = [visit(siblings, path, selection), ...members].filter(
           (member): member is SchemaObject => member !== undefined,
         )
@@ -76,7 +68,8 @@ export const resolveFormSchema = (
         ) {
           return resolved
         }
-        const result: SchemaObject = { ...first, ...siblings, type, allOf: source.allOf }
+        const annotations = Object.assign({}, ...parts.map(getSchemaAnnotations))
+        const result: SchemaObject = { ...first, ...annotations, ...siblings, type, allOf: source.allOf }
         Reflect.deleteProperty(result, '__scalar_')
         if (isObjectSchema(result)) {
           const properties: Record<string, MaybeRefSchemaObject> = {}

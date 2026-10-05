@@ -177,4 +177,19 @@ describe('resolve-form-schema', () => {
       count: { type: 'integer' },
     })
   })
+  it.each([false, true])('keeps annotations on structural intersections in either order (reversed: %s)', (reversed) => {
+    const annotation = { description: 'Payload', title: 'Combined', deprecated: true }
+    const objects = [
+      { type: 'object', properties: { name: { type: 'string' } } },
+      { type: 'object', properties: { count: { type: 'integer' } } },
+    ]
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: reversed ? [annotation, ...objects] : [...objects, annotation],
+    })
+    const result = resolveFormSchema(schema)
+    expect(result?.description).toBe('Payload')
+    expect(result?.title).toBe('Combined')
+    expect(result?.deprecated).toBe(true)
+    expect(resolveFormSchema({ ...schema, description: 'Outer' })?.description).toBe('Outer')
+  })
 })

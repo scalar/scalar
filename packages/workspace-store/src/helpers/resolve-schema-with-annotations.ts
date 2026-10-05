@@ -19,6 +19,10 @@ const annotationKeys = new Set([
   '__scalar_',
 ])
 
+/** Extract annotation keywords without copying validation constraints into a form projection. */
+export const getSchemaAnnotations = (schema: SchemaObject): Record<string, unknown> =>
+  Object.fromEntries(Object.entries(schema).filter(([key]) => annotationKeys.has(key)))
+
 /**
  * Expose the value schema inside an annotation-only allOf wrapper for form editors and serializers.
  * Multiple value schemas retain their composition, since combining their constraints requires more
@@ -53,7 +57,10 @@ export const resolveSchemaWithAnnotations = (schema: MaybeRefSchemaObject | unde
     }
     const valueIndex = members.indexOf(valueMember)
     const valueSchema = visit(resolved.allOf[valueIndex])
-    const annotations = Object.assign({}, ...members.filter((member) => member !== valueMember))
+    const annotations = Object.assign(
+      {},
+      ...members.filter((member) => member !== valueMember && member !== undefined).map(getSchemaAnnotations),
+    )
     const { allOf: _allOf, ...siblings } = resolved
     const result = { ...valueSchema, ...annotations, ...siblings }
     Reflect.deleteProperty(result, '__scalar_')
