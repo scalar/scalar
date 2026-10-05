@@ -39,6 +39,18 @@ describe('resolve-schema-with-annotations', () => {
     expect(resolveSchemaWithAnnotations(schema)).toStrictEqual(schema)
   })
 
+  it.each(['oneOf', 'anyOf'] as const)('preserves %s alternatives when resolving annotation wrappers', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      [keyword]: [{ type: 'string' }, { type: 'integer' }],
+    })
+    expect(resolveSchemaWithAnnotations(schema)).toStrictEqual(schema)
+    expect(
+      resolveSchemaWithAnnotations(
+        coerceValue(SchemaObjectSchema, { allOf: [schema, { description: 'Choose a value.' }] }),
+      ),
+    ).toStrictEqual({ [keyword]: schema[keyword], description: 'Choose a value.' })
+  })
+
   it('keeps validation siblings on an outer schema intact', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
