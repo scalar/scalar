@@ -100,4 +100,81 @@ describe('resolve-form-schema', () => {
       properties: { next: { type: 'object', $ref: '#/components/schemas/Node', properties: undefined } },
     })
   })
+  it('combines structural allOf references, sibling fields, and required names without mutating them', () => {
+    const document = createMagicProxy({
+      components: {
+        schemas: {
+          Name: { type: 'object' as const, properties: { name: { type: 'string' as const } }, required: ['name'] },
+          Count: { type: 'object' as const, properties: { count: { type: 'integer' as const } }, required: ['count'] },
+        },
+      },
+    })
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { active: { type: 'boolean' } },
+      required: ['active'],
+      description: 'Payload',
+      allOf: [document.components.schemas.Name, document.components.schemas.Count],
+    })
+    const original = structuredClone(schema)
+    const result = resolveFormSchema(schema)
+    expect(result && 'properties' in result ? result.properties : undefined).toStrictEqual({
+      active: { type: 'boolean' },
+      name: { type: 'string' },
+      count: { type: 'integer' },
+    })
+    expect(result && 'required' in result ? result.required : undefined).toStrictEqual(['active', 'name', 'count'])
+    expect(result?.allOf).toStrictEqual(schema.allOf)
+    expect(result?.description).toBe('Payload')
+    expect(schema).toStrictEqual(original)
+  })
+
+  it('intersects repeated nested fields and keeps bounds from typeless members', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        {
+          type: 'object',
+          properties: { data: { type: 'object', properties: { count: { type: 'number', minimum: 10 } } } },
+        },
+        {
+          type: 'object',
+          properties: {
+            data: { type: 'object', properties: { count: { type: 'integer', maximum: 50 } }, required: ['count'] },
+          },
+        },
+        { properties: { data: { properties: { count: { minimum: 20 } } } } },
+      ],
+    })
+    const result = resolveFormSchema(schema)
+    const data = result && 'properties' in result ? resolveFormSchema(result.properties?.data) : undefined
+    const count = data && 'properties' in data ? resolveFormSchema(data.properties?.count) : undefined
+    expect(count && 'type' in count ? count.type : undefined).toBe('integer')
+    expect(count && 'minimum' in count ? count.minimum : undefined).toBe(20)
+    expect(count && 'maximum' in count ? count.maximum : undefined).toBe(50)
+    expect(data && 'required' in data ? data.required : undefined).toStrictEqual(['count'])
+  })
+
+  it('leaves incompatible property intersections opaque', () => {
+    const schema = coerceValue(SchemaObjectSchema, { allOf: [{ type: 'integer' }, { type: 'string' }] })
+    expect(resolveFormSchema(schema)).toStrictEqual(schema)
+  })
+
+  it('selects alternatives inside structural allOf with generator ordinals', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        { type: 'object', properties: { name: { type: 'string' } } },
+        {
+          oneOf: [
+            { type: 'object', properties: { active: { type: 'boolean' } } },
+            { type: 'object', properties: { count: { type: 'integer' } } },
+          ],
+        },
+      ],
+    })
+    const result = resolveFormSchema(schema, { 'requestBody.0.oneOf': 1 })
+    expect(result && 'properties' in result ? result.properties : undefined).toStrictEqual({
+      name: { type: 'string' },
+      count: { type: 'integer' },
+    })
+  })
 })

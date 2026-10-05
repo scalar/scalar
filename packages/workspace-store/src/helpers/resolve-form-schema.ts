@@ -47,6 +47,75 @@ export const resolveFormSchema = (
         return resolveSchemaWithAnnotations({ ...source, allOf })
       }
 
+      if (source.allOf?.length) {
+        const { allOf: _allOf, ...siblings } = source
+        let choiceIndex = 0
+        const members = source.allOf.map((member) => {
+          const memberSchema = resolve.schema(member)
+          const isChoice = Boolean(memberSchema?.oneOf || memberSchema?.anyOf)
+          return visit(member, isChoice ? [...path, String(choiceIndex++)] : path, selection)
+        })
+        const parts = [visit(siblings, path, selection), ...members].filter(
+          (member): member is SchemaObject => member !== undefined,
+        )
+        const typed = parts.filter((member) => 'type' in member && member.type !== undefined)
+        const first = typed[0]
+        if (!first || !('type' in first) || Array.isArray(first.type)) {
+          return resolved
+        }
+        const type =
+          typed.some((member) => 'type' in member && member.type === 'integer') &&
+          (first.type === 'integer' || first.type === 'number')
+            ? 'integer'
+            : first.type
+        // Incompatible intersections have no single input type. Keep them as opaque leaves.
+        if (
+          typed.some(
+            (member) => 'type' in member && member.type !== type && !(type === 'integer' && member.type === 'number'),
+          )
+        ) {
+          return resolved
+        }
+        const result: SchemaObject = { ...first, ...siblings, type, allOf: source.allOf }
+        Reflect.deleteProperty(result, '__scalar_')
+        if (isObjectSchema(result)) {
+          const properties: Record<string, MaybeRefSchemaObject> = {}
+          const required = new Set<string>()
+          for (const part of parts) {
+            if ('required' in part) {
+              for (const name of part.required ?? []) {
+                required.add(name)
+              }
+            }
+            if ('properties' in part) {
+              for (const [name, child] of objectEntries(part.properties ?? {})) {
+                const previous = properties[name]
+                properties[name] = previous
+                  ? (visit({ __scalar_: '', allOf: [previous, child] }, [...path, name], selection) ?? child)
+                  : child
+              }
+            }
+          }
+          result.properties = properties
+          result.required = [...required]
+        }
+        if (isNumberSchema(result)) {
+          const minima = parts.flatMap((part) =>
+            'minimum' in part && part.minimum !== undefined ? [part.minimum] : [],
+          )
+          const maxima = parts.flatMap((part) =>
+            'maximum' in part && part.maximum !== undefined ? [part.maximum] : [],
+          )
+          if (minima.length) {
+            result.minimum = Math.max(...minima)
+          }
+          if (maxima.length) {
+            result.maximum = Math.min(...maxima)
+          }
+        }
+        return result
+      }
+
       const properties =
         isObjectSchema(resolved) && resolved.properties
           ? Object.fromEntries(

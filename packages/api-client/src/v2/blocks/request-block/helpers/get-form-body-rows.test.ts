@@ -9,6 +9,56 @@ import { assert, describe, expect, it } from 'vitest'
 import { getFormBodyRows, getFormBodyValue } from './get-form-body-rows'
 
 describe('getFormBodyRows', () => {
+  it.each(['multipart/form-data'])('renders structural allOf reference fields for %s', (contentType) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          description: 'Combined payload',
+          allOf: [
+            {
+              $ref: '#/components/schemas/Name',
+              '$ref-value': { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+            },
+            {
+              type: 'object',
+              properties: { count: { type: 'integer', description: 'Count' }, active: { type: 'boolean' } },
+              required: ['count'],
+            },
+          ],
+        },
+      },
+    })
+    const rows = getFormBodyRows({ value: { file: { name: 'Alice', count: 42, active: false } } }, contentType, schema)
+    expect(rows).toStrictEqual([
+      {
+        name: 'file.name',
+        value: 'Alice',
+        isDisabled: false,
+        isRequired: true,
+        schema: { type: 'string' },
+        description: 'Combined payload',
+      },
+      {
+        name: 'file.count',
+        value: '42',
+        isDisabled: false,
+        isRequired: true,
+        schema: { type: 'integer', description: 'Count' },
+        description: 'Count',
+      },
+      {
+        name: 'file.active',
+        value: 'false',
+        isDisabled: false,
+        isRequired: false,
+        schema: { type: 'boolean' },
+        description: 'Combined payload',
+      },
+    ])
+  })
+
   it.each([false, true])('renders annotated allOf object fields in either order (reversed: %s)', (reversed) => {
     const reference = {
       $ref: '#/components/schemas/MyData',
@@ -106,7 +156,7 @@ describe('getFormBodyRows', () => {
         isDisabled: false,
         schema: modeSchema,
         description: 'Processing mode',
-        isRequired: composition !== 'allOf',
+        isRequired: true,
       },
     ])
     expect(

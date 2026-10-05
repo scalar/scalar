@@ -7,6 +7,39 @@ import type { ExampleObject, RequestBodyObject } from '@/schemas/v3.2/strict/ope
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
+  it('regroups structural allOf fields into a typed JSON part', () => {
+    const body = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              file: {
+                allOf: [
+                  { type: 'object', properties: { name: { type: 'string' } } },
+                  { type: 'object', properties: { count: { type: 'integer' }, active: { type: 'boolean' } } },
+                ],
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'file.name', value: 'Alice' },
+                { name: 'file.count', value: '42' },
+                { name: 'file.active', value: 'false' },
+              ],
+            },
+          },
+        },
+      },
+    })
+    expect(buildRequestBody(body, 'default')).toStrictEqual({
+      mode: 'formdata',
+      value: [{ type: 'text', key: 'file', value: '{"name":"Alice","count":42,"active":false}' }],
+    })
+  })
+
   it.each([false, true])(
     'regroups annotated allOf object fields without losing leaf types (reversed: %s)',
     (reversed) => {
