@@ -1330,6 +1330,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * @returns The editable document object, or null if not found.
    */
   const getEditableDocument = async (documentName: string) => {
+    if (!Object.hasOwn(workspace.documents, documentName)) return null
+    preventPollution(documentName, 'workspace document name')
+
     const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
 
     if (!rawDocument) {

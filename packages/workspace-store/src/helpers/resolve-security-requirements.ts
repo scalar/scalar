@@ -1,5 +1,4 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
-import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path'
@@ -9,6 +8,7 @@ import { Value } from '@scalar/typebox/value'
 
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { normalizeAuthSchemes } from '@/plugins/bundler'
 import { resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
 import { SecuritySchemeObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -82,21 +82,26 @@ export const resolveSecurityRequirements = async (
           const key = await generateUniqueValue({
             defaultValue: external ? uri : name,
             validation: (candidate) =>
-              !namedSchemes.has(candidate) && (!Object.hasOwn(aliases, candidate) || aliases[candidate] === uri),
+              !namedSchemes.has(candidate) &&
+              (!Object.hasOwn(aliases, candidate) || aliases[candidate] === uri) &&
+              (!external || candidate === name || !Object.hasOwn(requirement, candidate)),
             maxRetries: Object.keys(schemes).length + 1,
           })
           if (key === undefined) continue
           if (!Object.hasOwn(aliases, key)) {
             const reference = { $ref: uri }
-            await bundle(reference, {
-              root: document,
-              origin,
-              treeShake: false,
-              urlMap: true,
-              cache,
-              plugins: loaders,
-              hooks: { resolveDocument: resolveOpenApiDocument },
-            })
+            await bundle(
+              { components: { securitySchemes: { target: reference } } },
+              {
+                root: document,
+                origin,
+                treeShake: false,
+                urlMap: true,
+                cache,
+                plugins: [...loaders, normalizeAuthSchemes()],
+                hooks: { resolveDocument: resolveOpenApiDocument },
+              },
+            )
             // Validate the target before exposing an auth option; missing pointers and non-schemes
             // keep their original requirement and never acquire a misleading working alias.
             const proxy = createMagicProxy(
@@ -105,8 +110,21 @@ export const resolveSecurityRequirements = async (
                 documentUri: resolveOpenApiDocument(document, origin)?.baseUri,
               },
             )
-            const target = getResolvedRef(proxy['x-scalar-security-uri-target'])
-            if (!Value.Check(SecuritySchemeObjectSchema, target)) continue
+            const target: unknown = getResolvedRef(proxy['x-scalar-security-uri-target'])
+            // The strict runtime schema requires refreshUrl, while authored OAuth flows may omit it.
+            const validationTarget =
+              isObject(target) && target.type === 'oauth2' && isObject(target.flows)
+                ? {
+                    ...target,
+                    flows: Object.fromEntries(
+                      Object.entries(target.flows).map(([flow, value]) => [
+                        flow,
+                        isObject(value) ? { refreshUrl: '', ...value } : value,
+                      ]),
+                    ),
+                  }
+                : target
+            if (!Value.Check(SecuritySchemeObjectSchema, validationTarget)) continue
             Object.defineProperty(schemes, key, {
               value: reference,
               enumerable: true,
@@ -162,7 +180,7 @@ export const resolveSecurityRequirements = async (
 
 /** Remove runtime URI aliases while keeping edited scopes and authored requirement spellings. */
 export const restoreSecurityRequirements = (document: Record<string, unknown>): void => {
-  const originalKeys = document[ORIGINAL_KEYS]
+  const originalKeys = Object.hasOwn(document, ORIGINAL_KEYS) ? document[ORIGINAL_KEYS] : undefined
   if (isObject(originalKeys)) {
     for (const [location, mapping] of Object.entries(originalKeys)) {
       const path: unknown = (() => {
@@ -178,7 +196,10 @@ export const restoreSecurityRequirements = (document: Record<string, unknown>): 
         !isObject(mapping)
       )
         continue
-      const requirement = getValueAtPath(document, path)
+      const requirement = path.reduce<unknown>((parent, segment) => {
+        if (parent === null || typeof parent !== 'object' || !Object.hasOwn(parent, segment)) return undefined
+        return Reflect.get(parent, segment)
+      }, document)
       if (!isObject(requirement)) continue
       const entries = Object.entries(mapping).flatMap(([original, rewritten]) =>
         typeof rewritten === 'string' && Object.hasOwn(requirement, rewritten)
@@ -196,12 +217,13 @@ export const restoreSecurityRequirements = (document: Record<string, unknown>): 
       }
     }
   }
-  const metadata = document[ALIASES]
-  const components = document.components
+  const metadata = Object.hasOwn(document, ALIASES) ? document[ALIASES] : undefined
+  const components = Object.hasOwn(document, 'components') ? document.components : undefined
   if (
     isObject(metadata) &&
     isObject(metadata.schemes) &&
     isObject(components) &&
+    Object.hasOwn(components, 'securitySchemes') &&
     isObject(components.securitySchemes)
   ) {
     for (const key of Object.keys(metadata.schemes)) delete components.securitySchemes[key]

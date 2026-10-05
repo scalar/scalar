@@ -22,6 +22,7 @@ import {
   buildChunkIndex,
   chunkRefTemplates,
   chunkReference,
+  encodeSsrComponentName,
   fillChunkRef,
   navigationHeader,
 } from '@/helpers/chunk-index'
@@ -252,7 +253,7 @@ export function externalizeComponentReferences(
           Object.keys(component).map((name) => {
             const ref =
               meta.mode === 'ssr'
-                ? `${meta.baseUrl}/${meta.name}/components/${type}/${encodeURIComponent(escapeJsonPointer(name))}#`
+                ? `${meta.baseUrl}/${meta.name}/components/${type}/${encodeSsrComponentName(name)}#`
                 : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
 
             return [name, { '$ref': ref, $global: true }]

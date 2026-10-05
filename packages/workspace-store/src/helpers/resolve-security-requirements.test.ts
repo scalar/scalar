@@ -1,4 +1,10 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join, relative } from 'node:path'
+
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
+import { getHash } from '@scalar/json-magic/bundle/value-generator'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it } from 'vitest'
 
@@ -121,6 +127,106 @@ describe('resolve-security-requirements', () => {
     ).toStrictEqual([{ './auth.json': ['read'] }])
   })
 
+  it('preserves separate scopes for equivalent URI keys in a referenced operation', async () => {
+    const authored = { get: { security: [{ './auth': ['read'], auth: ['write'] }] } }
+    const document: Record<string, unknown> = {
+      openapi: '3.2.1',
+      paths: { '/test': { $ref: './path.json' } },
+    }
+    const loaders = [
+      documentLoader({
+        'https://example.com/api/path.json': authored,
+        'https://example.com/api/auth': bearer,
+      }),
+    ]
+    await bundle(document, { origin, plugins: [openApiDocument(), ...loaders], treeShake: false, urlMap: true })
+    await resolveSecurityRequirements(document, { origin, loaders })
+    const proxy = createMagicProxy(document) as OpenApiDocument
+    const security = getResolvedRef(getResolvedRef(proxy.paths?.['/test'])?.get)?.security
+    expect(Object.values(security?.[0] ?? {})).toStrictEqual([['read'], ['write']])
+    restoreSecurityRequirements(document)
+    expect(getResolvedRef((createMagicProxy(document) as OpenApiDocument).paths?.['/test'])).toStrictEqual(authored)
+  })
+
+  it.each(['client', 'static', 'ssr'] as const)(
+    'loads external OAuth without an optional refresh URL in %s',
+    async (mode) => {
+      const directory = await mkdtemp(join(tmpdir(), 'scalar-security-uri-'))
+      const auth = {
+        openapi: '3.2.1',
+        components: {
+          securitySchemes: {
+            OAuth: {
+              type: 'oauth2',
+              flows: { implicit: { authorizationUrl: 'https://example.com/oauth', scopes: { read: 'Read' } } },
+            },
+          },
+        },
+      }
+      try {
+        const authFile = join(directory, 'auth.json')
+        await writeFile(authFile, JSON.stringify(auth))
+        const key = `${mode === 'client' ? 'https://example.com/auth.json' : authFile}#/components/securitySchemes/OAuth`
+        const document = {
+          openapi: '3.2.1',
+          info: { title: 'OAuth URI', version: '1' },
+          paths: {},
+          security: [{ [key]: ['read'] }],
+        }
+        if (mode === 'client') {
+          const store = createWorkspaceStore({ fetch: () => Promise.resolve(new Response(JSON.stringify(auth))) })
+          await store.addDocument({ name: 'api', document })
+          const scheme = getResolvedRef(
+            (store.workspace.documents.api as OpenApiDocument).components?.securitySchemes?.[key],
+          )
+          expect(scheme).toStrictEqual({
+            type: 'oauth2',
+            flows: { implicit: { ...auth.components.securitySchemes.OAuth.flows.implicit, refreshUrl: '' } },
+          })
+        } else {
+          const server = await createServerWorkspaceStore({
+            mode,
+            baseUrl: 'https://scalar.example.com',
+            documents: [{ name: 'api', document }],
+          })
+          const alias = server.get(`#/api/components/securitySchemes/${escapeJsonPointer(key)}`)
+          expect(alias).toStrictEqual({
+            $ref: `#/x-ext/${getHash(relative('/', authFile))}/components/securitySchemes/OAuth`,
+          })
+          const proxy = createMagicProxy({
+            ...server.getWorkspace().documents.api,
+            components: { securitySchemes: { [key]: alias } },
+          }) as OpenApiDocument
+          expect(getResolvedRef(proxy.components?.securitySchemes?.[key])).toStrictEqual(
+            auth.components.securitySchemes.OAuth,
+          )
+        }
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    },
+  )
+
+  it('does not restore through inherited document paths', () => {
+    const inherited = { security: [{ runtime: ['read'] }], components: { securitySchemes: { runtime: bearer } } }
+    const document: Record<string, unknown> = Object.assign(Object.create(inherited), {
+      'x-scalar-original-security-keys': { '["security","0"]': { authored: 'runtime' } },
+      'x-scalar-security-uri-aliases': { schemes: { runtime: 'https://example.com/auth' } },
+    })
+    const original = structuredClone(inherited)
+    restoreSecurityRequirements(document)
+    expect(inherited).toStrictEqual(original)
+  })
+
+  it('normalizes HTTP scheme casing in a URI-only dependency', async () => {
+    const document = { openapi: '3.2.1', security: [{ './auth': [] }] }
+    await resolveSecurityRequirements(document, {
+      origin,
+      loaders: [documentLoader({ 'https://example.com/api/auth': { type: 'http', scheme: 'Bearer' } })],
+    })
+    expect(schemeAt(document, './auth')).toStrictEqual(bearer)
+  })
+
   it('applies stored credentials to a URI-selected scheme', async () => {
     const key = '#/components/securitySchemes/Bearer'
     const document = {
@@ -176,13 +282,15 @@ describe('resolve-security-requirements', () => {
         baseUrl: 'https://scalar.example.com',
         documents: [{ name: 'api', document }],
       })
-      expect(
-        server.get(`#/api/components/securitySchemes/${key.replaceAll('~', '~0').replaceAll('/', '~1')}`),
-      ).toStrictEqual({ $ref: '#/components/securitySchemes/Bearer' })
+      expect(server.get(`#/api/components/securitySchemes/${escapeJsonPointer(key)}`)).toStrictEqual({
+        $ref: '#/components/securitySchemes/Bearer',
+      })
       const sparse = server.getWorkspace().documents.api as OpenApiDocument
       const reference = sparse.components?.securitySchemes?.[key]
-      if (mode === 'ssr' && reference && '$ref' in reference) {
-        expect(server.get(reference.$ref)).toStrictEqual({ $ref: '#/components/securitySchemes/Bearer' })
+      if (mode === 'ssr') {
+        const uri = `https://scalar.example.com/api/components/securitySchemes/${encodeURIComponent(escapeJsonPointer(key))}#`
+        expect(reference).toStrictEqual({ $ref: uri, $global: true })
+        expect(server.get(uri)).toStrictEqual({ $ref: '#/components/securitySchemes/Bearer' })
       }
       expect(document).toStrictEqual(original)
     },
