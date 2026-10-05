@@ -25,7 +25,6 @@ jobs:
           - kit: '3.0.0'
             tsconfig: '$app/tsconfig'
     env:
-      SVELTEKIT_FIXTURE: ${{ runner.temp }}/scalar-sveltekit
       SVELTEKIT_VERSION: ${{ matrix.kit }}
       SVELTEKIT_TSCONFIG: ${{ matrix.tsconfig }}
     steps:
@@ -35,6 +34,8 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
+      - name: Set the consumer directory
+        run: printf 'SVELTEKIT_FIXTURE=%s/scalar-sveltekit\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo --filter @scalar/sveltekit... build --output-logs errors-only
       - name: Pack the integration
