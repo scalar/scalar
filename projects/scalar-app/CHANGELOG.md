@@ -1,5 +1,11 @@
 # scalar-app
 
+## 1.1.38
+
+### Patch Changes
+
+- [#10453](https://github.com/scalar/scalar/pull/10453): Update Electron to 44.5.1. The desktop app now requires macOS 13 or later.
+
 ## 1.1.37
 
 ### Patch Changes
