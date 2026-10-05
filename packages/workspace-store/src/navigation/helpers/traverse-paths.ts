@@ -9,6 +9,7 @@ import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import { getNavigationTagNames } from './get-navigation-tag-names'
 import { getTag } from './get-tag'
 
 export const isDeprecatedOperation = (operation: OperationObject) => {
@@ -135,8 +136,9 @@ export const traversePaths = ({
       const ref = `#/paths/${escapeJsonPointer(path)}/${getPathItemOperationKey(method)}`
 
       // Traverse tags
-      if (operation.tags?.length) {
-        operation.tags.forEach((tagName: string) => {
+      const navigationTags = getNavigationTagNames(document, operation.tags, tagsMap)
+      if (navigationTags.length) {
+        navigationTags.forEach((tagName: string) => {
           const { tag, id: tagId } = getTag({
             tagsMap,
             name: tagName,

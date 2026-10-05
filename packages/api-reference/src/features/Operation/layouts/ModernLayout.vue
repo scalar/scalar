@@ -32,6 +32,7 @@ import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButt
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
+import OperationTags from '@/features/Operation/components/OperationTags.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import {
@@ -131,7 +132,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
       <!-- Badges -->
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
-        <div class="flex gap-1">
+        <div class="flex flex-wrap gap-1">
           <!-- Operation ID -->
           <Badge v-if="options?.showOperationId && operation.operationId">
             {{ operation.operationId }}
@@ -150,6 +151,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
             <ScalarIconWebhooksLogo weight="bold" />
             {{ translate('operation.webhook') }}
           </Badge>
+          <OperationTags
+            :document
+            :tags="operation.tags" />
           <!-- x-badges before -->
           <XBadges
             :badges="operation['x-badges']"

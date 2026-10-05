@@ -38,6 +38,7 @@ import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButt
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
+import OperationTags from '@/features/Operation/components/OperationTags.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import {
   getRequiredScopeGroups,
@@ -159,7 +160,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
             <component
               :is="`h${headingLevel}`"
-              class="endpoint-label">
+              class="endpoint-label flex-wrap">
               <div class="endpoint-label-path">
                 <OperationPath
                   :deprecated="isOperationDeprecated(operation)"
@@ -184,6 +185,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
                 {{ translate('operation.webhook') }}
               </Badge>
 
+              <OperationTags
+                :document
+                :tags="operation.tags" />
               <!-- x-badges before -->
               <XBadges
                 :badges="operation['x-badges']"

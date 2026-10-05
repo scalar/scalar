@@ -445,6 +445,7 @@ export type ApiReferenceTranslations = {
     responses: string
     testRequest: string
     webhook: string
+    audience: string
     selectedContentType: string
     callbacks: string
   }

@@ -76,6 +76,7 @@ export const pt = {
     responses: 'Respostas',
     testRequest: 'Testar Requisição',
     webhook: 'Webhook',
+    audience: 'Público',
     selectedContentType: 'Tipo de Conteúdo Selecionado',
     callbacks: 'Callbacks',
   },

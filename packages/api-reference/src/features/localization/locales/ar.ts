@@ -75,6 +75,7 @@ export const ar = {
     responses: 'الاستجابات',
     testRequest: 'اختبار الطلب',
     webhook: 'خطاف ويب',
+    audience: 'الجمهور',
     selectedContentType: 'نوع المحتوى المحدد',
     callbacks: 'عمليات الاستدعاء',
   },

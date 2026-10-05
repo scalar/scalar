@@ -6,6 +6,7 @@ import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import { getNavigationTagNames } from './get-navigation-tag-names'
 import { getTag } from './get-tag'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
@@ -110,8 +111,9 @@ export const traverseWebhooks = ({
 
       const ref = `#/webhooks/${name}/${getPathItemOperationKey(method)}`
 
-      if (operation.tags?.length) {
-        operation.tags.forEach((tagName: string) => {
+      const navigationTags = getNavigationTagNames(document, operation.tags, tagsMap)
+      if (navigationTags.length) {
+        navigationTags.forEach((tagName: string) => {
           const { tag, id: tagId } = getTag({ tagsMap, name: tagName, documentId, generateId })
           tagsMap.get(tagName)?.entries.push(
             createWebhookEntry({

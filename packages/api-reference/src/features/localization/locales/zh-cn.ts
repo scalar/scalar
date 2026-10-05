@@ -75,6 +75,7 @@ export const zhCn = {
     responses: '响应',
     testRequest: '测试请求',
     webhook: 'Webhook',
+    audience: '受众',
     selectedContentType: '已选内容类型',
     callbacks: '回调',
   },
