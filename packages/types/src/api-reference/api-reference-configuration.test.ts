@@ -132,6 +132,12 @@ describe('api-reference-configuration', () => {
       expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ hiddenClients: true })
     })
 
+    it('validates featuredClients', () => {
+      const config = { featuredClients: ['node/fetch', 'shell/curl'] }
+
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject(config)
+    })
+
     it('validates localization configuration', () => {
       const config = {
         localization: {

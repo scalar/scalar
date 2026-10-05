@@ -5,14 +5,11 @@ import {
   type ClientOptionGroup,
 } from '@scalar/blocks/code-example'
 import { ScalarIcon } from '@scalar/components/icon'
-import type { TargetId } from '@scalar/types/snippetz'
+import type { AvailableClient, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
-import {
-  getFeaturedClients,
-  isFeaturedClient,
-} from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
+import { getFeaturedClients } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 import { useLocalization } from '@/features/localization'
 
 import ClientDropdown from './ClientDropdown.vue'
@@ -21,11 +18,14 @@ const {
   clientOptions,
   eventBus,
   selectedClient = DEFAULT_CLIENT,
+  featuredClients: featuredClientIds,
 } = defineProps<{
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client (a built-in client id or a custom sample id) */
   selectedClient?: string
+  /** Clients to show as tabs, in order. Omit to use the default featured list. */
+  featuredClients?: AvailableClient[]
   /** Event bus */
   eventBus: WorkspaceEventBus
 }>()
@@ -75,7 +75,9 @@ const selectedClientOption = computed(
 )
 
 /** List of featured clients */
-const featuredClients = computed(() => getFeaturedClients(clientOptions))
+const featuredClients = computed(() =>
+  getFeaturedClients(clientOptions, featuredClientIds),
+)
 
 /** Currently selected tab index */
 const tabIndex = computed(() =>
@@ -134,7 +136,7 @@ defineExpose({
           :style="{ flexGrow: featuredClients.length }">
           <Tab
             v-for="(featuredClient, index) in featuredClients"
-            :key="featuredClient.clientKey"
+            :key="featuredClient.id"
             :aria-selected="index === tabIndex"
             class="client-libraries rendered-code-sdks"
             :class="{
@@ -154,12 +156,13 @@ defineExpose({
         <ClientDropdown
           :clientOptions
           :eventBus
+          :featuredClients="featuredClientIds"
           :selectedClient="activeClient" />
       </div>
 
       <!-- Content -->
       <TabPanels>
-        <template v-if="isFeaturedClient(activeClient)">
+        <template v-if="tabIndex >= 0">
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"

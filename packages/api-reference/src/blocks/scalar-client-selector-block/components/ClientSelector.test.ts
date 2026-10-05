@@ -1,4 +1,5 @@
-import { type ClientOptionGroup, DEFAULT_CLIENT } from '@scalar/blocks/code-example'
+import { type ClientOption, type ClientOptionGroup, DEFAULT_CLIENT } from '@scalar/blocks/code-example'
+import type { AvailableClient } from '@scalar/types/snippetz'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -265,6 +266,128 @@ describe('ClientLibraries', () => {
       const heading = wrapper.get(`#${panel.attributes('aria-labelledby')}`)
 
       expect(heading.text()).toBe('Client Libraries')
+    })
+  })
+
+  describe('featuredClients', () => {
+    const stubs = {
+      'ScalarCodeBlock': true,
+      'ScalarMarkdown': true,
+      'ScalarIcon': true,
+      'ScalarCombobox': true,
+    }
+
+    const option = (id: AvailableClient, targetTitle: string): ClientOption => {
+      const [targetKey, clientKey] = id.split('/') as [ClientOption['targetKey'], ClientOption['clientKey']]
+      return {
+        id,
+        label: clientKey,
+        lang: targetKey,
+        title: `${targetTitle} ${clientKey}`,
+        targetKey,
+        targetTitle,
+        clientKey,
+      }
+    }
+
+    const clientOptions = [
+      { label: 'Shell', key: 'shell', options: [option('shell/curl', 'Shell')] },
+      {
+        label: 'Node.js',
+        key: 'node',
+        options: [option('node/fetch', 'Node.js'), option('node/undici', 'Node.js')],
+      },
+      { label: 'PHP', key: 'php', options: [option('php/guzzle', 'PHP')] },
+    ] satisfies ClientOptionGroup[]
+
+    const tabLabels = (wrapper: ReturnType<typeof mount>): string[] =>
+      wrapper.findAll('[role="tab"]').map((tab) => tab.text())
+
+    it('shows the configured clients as tabs in the configured order', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions, eventBus, featuredClients: ['node/fetch', 'shell/curl'] },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      expect(tabLabels(wrapper)).toEqual(['Node.js', 'Shell'])
+    })
+
+    it('skips configured clients that are not available', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions, eventBus, featuredClients: ['ruby/native', 'node/fetch'] },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      expect(tabLabels(wrapper)).toEqual(['Node.js'])
+    })
+
+    it('renders the selected configured client in its panel', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions, eventBus, featuredClients: ['node/fetch'], selectedClient: 'node/fetch' },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Node.js fetch')
+      expect(wrapper.findComponent({ name: 'ClientDropdown' }).props('featuredClients')).toEqual(['node/fetch'])
+    })
+
+    it('keeps the selected client in More when no clients are featured', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions, eventBus, featuredClients: [], selectedClient: 'shell/curl' },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      expect(tabLabels(wrapper)).toEqual([])
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell curl')
+    })
+
+    it('updates the tabs and panel when the configured list changes', async () => {
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions, eventBus, featuredClients: ['node/fetch'], selectedClient: 'node/fetch' },
+        global: { stubs },
+      })
+      await flushPromises()
+      await wrapper.setProps({ featuredClients: ['shell/curl'] })
+      await flushPromises()
+
+      expect(tabLabels(wrapper)).toEqual(['Shell'])
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Node.js fetch')
+    })
+
+    it('selects the configured tab and emits its client id', async () => {
+      const listener = vi.fn()
+      eventBus.on('workspace:update:selected-client', listener)
+
+      const wrapper = mount(ClientSelector, {
+        props: {
+          clientOptions,
+          eventBus,
+          featuredClients: ['shell/curl', 'node/fetch'],
+          selectedClient: 'shell/curl',
+        },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+
+      expect(listener).toHaveBeenCalledWith('node/fetch')
+    })
+
+    it('treats a client outside the configured list as a More client', async () => {
+      // node/undici is featured by default but not in this configuration
+      const wrapper = mount(ClientSelector, {
+        props: { clientOptions, eventBus, featuredClients: ['node/fetch'], selectedClient: 'node/undici' },
+        global: { stubs },
+      })
+      await flushPromises()
+
+      expect(wrapper.findAll('[role="tab"]').map((tab) => tab.attributes('aria-selected'))).toEqual(['false'])
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Node.js undici')
     })
   })
 })

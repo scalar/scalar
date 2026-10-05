@@ -176,6 +176,13 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional(),
   /**
+   * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
+   * Entries are full client ids such as `'node/fetch'`.
+   *
+   * Unknown or hidden clients are skipped.
+   */
+  featuredClients: z.array(z.custom<AvailableClient>()).optional(),
+  /**
    * Initial view for the request body editor with structured (JSON/YAML) bodies.
    *
    * Use `form` to open the schema-driven form view by default, or `raw` for the code editor.

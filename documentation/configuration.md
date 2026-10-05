@@ -473,6 +473,20 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
+### featuredClients
+
+**Type:** `AvailableClient[]`
+
+The "Client Libraries" block shows a row of featured clients as tabs, the other clients can be found under "More" menu. By default the featured clients are `shell/curl`, `ruby/native`, `node/undici`, `php/guzzle` and `python/python3`.
+
+Pass a list of client ids (`target/client`) to choose which clients are featured and in which order. IDs that do not exist, or that are hidden through `hiddenClients`, are skipped.
+
+```javascript
+{
+  featuredClients: ['shell/curl', 'node/fetch', 'python/requests', 'java/okhttp'],
+}
+```
+
 ### defaultOpenFirstTag
 
 **Type:** `boolean`

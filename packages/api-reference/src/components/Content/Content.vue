@@ -84,6 +84,7 @@ const {
       | 'baseServerURL'
       | 'documentDownloadType'
       | 'expandAllResponses'
+      | 'featuredClients'
       | 'hiddenClients'
       | 'hideTestRequestButton'
       | 'layout'
@@ -345,6 +346,7 @@ provideDocumentOutline('document')
               class="introduction-card-item scalar-reference-intro-clients"
               :clientOptions
               :eventBus
+              :featuredClients="options.featuredClients"
               :selectedClient="xScalarDefaultClient" />
           </IntroductionCardItem>
         </ScalarErrorBoundary>
