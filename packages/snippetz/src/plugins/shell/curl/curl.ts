@@ -2,7 +2,7 @@ import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 import { escapeSingleQuotes } from '@/libs/shell'
 import { buildShellBody, quoteShellBoundary, shellBoundarySetup } from '@/libs/shell-body'
@@ -27,20 +27,7 @@ export const shellCurl: Plugin = {
     // Build curl command parts
     const parts: string[] = ['curl']
 
-    // Build the URL, joining extra query parameters with `&` when the URL already carries a query string
-    const baseUrl = normalizedRequest.url ?? ''
-    const separator = baseUrl.includes('?') ? '&' : '?'
-    const queryString = normalizedRequest.queryString?.length
-      ? separator +
-        normalizedRequest.queryString
-          .map((param) => {
-            // Keep the name and value raw so the snippet still reads like the documented endpoint; curl's own
-            // glob parser is handled with `--globoff` below rather than by percent-encoding the URL
-            return `${param.name}=${param.value}`
-          })
-          .join('&')
-      : ''
-    const url = `${baseUrl}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
     // Quote the URL whenever it contains anything the shell could interpret (spaces, query separators, globs, …)
     const isShellSafe = /^[A-Za-z0-9._~:/%@+,=-]*$/.test(url)
     const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`

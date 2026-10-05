@@ -160,7 +160,7 @@ using var response = await client.SendAsync(request);`)
       url: 'https://example.com/api',
       queryString: [
         { name: 'param1', value: 'value1' },
-        { name: 'param2', value: 'special%20value' },
+        { name: 'param2', value: 'special value' },
         { name: 'param3', value: '123' },
       ],
     })

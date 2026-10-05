@@ -1,7 +1,7 @@
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 import { escapeSingleQuotes } from '@/libs/shell'
 import { buildShellBody, quoteShellBoundary, shellBoundarySetup } from '@/libs/shell-body'
@@ -33,13 +33,7 @@ export const shellWget: Plugin = {
       method: normalizeMethod(request?.method),
     }
 
-    // Build the URL, joining extra query parameters with `&` when the URL already carries a query string
-    const baseUrl = normalizedRequest.url ?? ''
-    const separator = baseUrl.includes('?') ? '&' : '?'
-    const queryString = normalizedRequest.queryString?.length
-      ? separator + normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
-      : ''
-    const url = `${baseUrl}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
     // Quote the URL whenever it contains anything the shell could interpret (spaces, query separators, globs, …)
     const isShellSafe = /^[A-Za-z0-9._~:/%@+,=-]*$/.test(url)
     const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`

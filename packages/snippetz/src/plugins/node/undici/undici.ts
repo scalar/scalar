@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
-import { buildQueryString, normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
 /**
@@ -27,7 +27,7 @@ export const nodeUndici: Plugin = {
     }
 
     // Query
-    const queryString = buildQueryString(normalizedRequest.queryString)
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers
     const headers = formDataHeaders(normalizedRequest)
@@ -82,6 +82,6 @@ export const nodeUndici: Plugin = {
     // Code Template
     return `import { ${imports} } from 'undici'
 
-${prefix}const { statusCode, body } = await request('${normalizedRequest.url}${queryString}'${jsonOptions})`
+${prefix}const { statusCode, body } = await request('${url}'${jsonOptions})`
   },
 }

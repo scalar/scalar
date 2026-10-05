@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString, normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 const escapeRubyDoubleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
@@ -76,8 +76,7 @@ export const rubyNative: Plugin = {
 
     normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
-    const queryString = buildQueryString(normalizedRequest.queryString)
-    const rawUrl = `${normalizedRequest.url ?? ''}${queryString}`
+    const rawUrl = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
     const encodedUrl = encodeUrlWithPathPreservedBrackets(rawUrl)
 
     const lines: string[] = ["require 'uri'", "require 'net/http'", '']

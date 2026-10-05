@@ -1,7 +1,7 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, buildQueryString, normalizeMethod } from '@/libs/http'
+import { accumulateRepeatedValue, joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { objectToString } from '@/libs/php'
 
 const escapePhpString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
@@ -52,8 +52,7 @@ export const phpLaravel: Plugin = {
 
     normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
-    const queryString = buildQueryString(normalizedRequest.queryString)
-    const url = `${normalizedRequest.url ?? ''}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     const chain: string[] = []
 

@@ -1,6 +1,6 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
-import { normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 const escapeCString = (value: string): string =>
   value
@@ -24,20 +24,6 @@ const normalizeUrl = (url: string): string => {
   } catch {
     return url
   }
-}
-
-const buildUrlWithQuery = (url: string, queryString?: Array<{ name: string; value: string }>): string => {
-  const query = queryString?.length ? queryString.map((param) => `${param.name}=${param.value}`).join('&') : ''
-
-  if (!query) {
-    return url
-  }
-
-  if (!url) {
-    return `?${query}`
-  }
-
-  return `${url}${url.includes('?') ? '&' : '?'}${query}`
 }
 
 const buildCookieString = (cookies?: Array<{ name: string; value: string }>): string | null => {
@@ -105,7 +91,7 @@ export const cLibcurl: Plugin = {
 
     const method = normalizeMethod(request.method)
     const normalizedUrl = normalizeUrl(request.url ?? '')
-    const fullUrl = buildUrlWithQuery(normalizedUrl, request.queryString)
+    const fullUrl = joinUrlAndQuery(normalizedUrl, request.queryString)
     const hasHeaders = Boolean(request.headers?.length)
     const hasCookies = Boolean(request.cookies?.length)
     const body = request.postData

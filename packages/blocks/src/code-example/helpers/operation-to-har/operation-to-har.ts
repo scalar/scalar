@@ -211,12 +211,7 @@ export const operationToHar = ({
   if (securitySchemes) {
     const { headers, queryString, cookies } = processSecuritySchemes(securitySchemes)
     harRequest.headers.push(...headers)
-    // Named parameter values are already serialized, but authentication values are still raw.
-    harRequest.queryString.push(
-      ...queryString.map((parameter) =>
-        hasUriReadyQuery ? { ...parameter, value: encodeURIComponent(parameter.value) } : parameter,
-      ),
-    )
+    harRequest.queryString.push(...queryString)
     harRequest.cookies.push(...cookies)
   }
 
@@ -237,7 +232,9 @@ export const operationToHar = ({
     const hashIndex = harRequest.url.indexOf('#')
     const hash = hashIndex === -1 ? '' : harRequest.url.slice(hashIndex)
     const url = hashIndex === -1 ? harRequest.url : harRequest.url.slice(0, hashIndex)
-    const query = harRequest.queryString.map(({ name, value }) => `${encodeURIComponent(name)}=${value}`).join('&')
+    const query = harRequest.queryString
+      .map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
+      .join('&')
     harRequest.url = `${url}${url.includes('?') ? '&' : '?'}${query}${hash}`
     harRequest.queryString = []
   }

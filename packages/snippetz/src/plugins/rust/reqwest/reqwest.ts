@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString, buildUrl, normalizeRequest, processHeaders } from '@/libs/http'
+import { joinUrlAndQuery, normalizeRequest, processHeaders } from '@/libs/http'
 import { createChain, formatJson, indent, wrapInDoubleQuotes } from '@/libs/rust'
 
 /**
@@ -19,8 +19,7 @@ export const rustReqwest: Plugin = {
     const normalizedRequest = normalizeRequest(request)
 
     // Query string
-    const queryString = buildQueryString(normalizedRequest.queryString)
-    const url = buildUrl(normalizedRequest.url || '', queryString)
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers and cookies
     const headers = processHeaders(normalizedRequest)

@@ -504,11 +504,11 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -681,11 +681,11 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'price',
-          value: '%24100',
+          value: '$100',
         },
         {
           name: 'currency',
-          value: 'USD%24',
+          value: 'USD$',
         },
       ],
     })
@@ -699,7 +699,7 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'amount',
-          value: '%2450.00',
+          value: '$50.00',
         },
       ],
     })
@@ -790,7 +790,7 @@ describe('shellCurl', () => {
     expect(result).toContain(`--data '"hell'\\''o"'`)
   })
 
-  it('turns off globbing for bracket notation in a query parameter name', () => {
+  it('encodes bracket notation in a query parameter name', () => {
     const result = shellCurl.generate({
       url: 'https://example.com/api/users',
       queryString: [
@@ -801,8 +801,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl 'https://example.com/api/users?filter[user_id]=me' \\
-  --globoff`)
+    expect(result).toBe(`curl 'https://example.com/api/users?filter%5Buser_id%5D=me'`)
   })
 
   it('leaves a path placeholder alone', () => {
@@ -813,7 +812,7 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://galaxy.scalar.com/planets/{planetId}'`)
   })
 
-  it('turns off globbing for a curly-brace set in a query value', () => {
+  it('encodes a curly-brace set in a query value', () => {
     const result = shellCurl.generate({
       url: 'https://example.com/api',
       queryString: [
@@ -824,8 +823,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl 'https://example.com/api?ids={1,2,3}' \\
-  --globoff`)
+    expect(result).toBe(`curl 'https://example.com/api?ids=%7B1%2C2%2C3%7D'`)
   })
 
   it('leaves a path placeholder alone even with a query string', () => {

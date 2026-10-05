@@ -1,7 +1,7 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 import { encode } from 'js-base64'
 
-import { buildQueryString, normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 /**
  * csharp/httpclient
@@ -21,10 +21,7 @@ export const csharpHttpclient: Plugin = {
     // Normalization
     normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
-    // Build URL with query string
-    const queryString = buildQueryString(normalizedRequest.queryString)
-
-    const url = `${normalizedRequest.url}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Start building the snippet
     const lines: string[] = []

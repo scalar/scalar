@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
-import { buildQueryString, normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
 /**
@@ -29,7 +29,7 @@ export const jsFetch: Plugin = {
     }
 
     // Query
-    const queryString = buildQueryString(normalizedRequest.queryString)
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers
     const headers = formDataHeaders(normalizedRequest)
@@ -83,6 +83,6 @@ export const jsFetch: Plugin = {
     const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''
 
     // Code Template
-    return `${prefix}fetch('${normalizedRequest.url}${queryString}'${jsonOptions})`
+    return `${prefix}fetch('${url}'${jsonOptions})`
   },
 }

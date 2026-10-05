@@ -9,6 +9,58 @@ import { describe, expect, it } from 'vitest'
 import { operationToHar } from './operation-to-har'
 
 describe('operationToHar', () => {
+  it.each(snippetz().plugins())('encodes query examples once in $target/$client', ({ target, client }) => {
+    const value = '2026-09-30T02:00:00Z/%2F'
+    const request = operationToHar({
+      method: 'GET',
+      path: '/events',
+      server: { url: 'https://example.com' },
+      operation: { parameters: [{ name: 'since', in: 'query', schema: { type: 'string' }, example: value }] },
+    })
+    expect(request.queryString).toStrictEqual([{ name: 'since', value }])
+    const mapClients = new Set([
+      'clojure/clj_http',
+      'js/axios',
+      'js/ofetch',
+      'julia/http',
+      'node/axios',
+      'node/ofetch',
+      'php/guzzle',
+      'python/requests',
+      'python/aiohttp',
+      'python/httpx_sync',
+      'python/httpx_async',
+      'r/httr2',
+    ])
+    const snippet = snippetz().findPlugin(target, client)?.generate(request)
+    expect(snippet).toContain(mapClients.has(`${target}/${client}`) ? value : encodeURIComponent(value))
+  })
+
+  it.each(snippetz().plugins())('preserves reserved expansion in $target/$client', ({ target, client }) => {
+    const request = operationToHar({
+      method: 'GET',
+      path: '/events',
+      server: { url: 'https://example.com' },
+      operation: {
+        parameters: [
+          {
+            name: 'since',
+            in: 'query',
+            schema: { type: 'string' },
+            example: '2026-09-30T02:00:00Z',
+            allowReserved: true,
+          },
+          { name: 'q', in: 'query', schema: { type: 'string' }, example: 'a&b/%2F' },
+        ],
+      },
+    })
+    expect(request.queryString).toStrictEqual([])
+    expect(request.url).toBe('https://example.com/events?since=2026-09-30T02:00:00Z&q=a%26b%2F%252F')
+    expect(snippetz().findPlugin(target, client)?.generate(request)).toContain(
+      'since=2026-09-30T02:00:00Z&q=a%26b%2F%252F',
+    )
+  })
+
   it.each([
     { name: 'a single file', schema: { type: 'object', properties: { upload: { type: 'string', format: 'binary' } } } },
     {
@@ -290,7 +342,7 @@ describe('operationToHar', () => {
       path: '/search',
       securitySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': 'a+b%20' }],
     })
-    expect(result.url).toBe('/search?%7B%22limit%22%3A2%7D&tag=a%2Bb&path=a/b&key=a%2Bb%2520')
+    expect(result.url).toBe('/search?%7B%22limit%22%3A2%7D&path=a/b&tag=a%2Bb&key=a%2Bb%2520')
     expect(result.queryString).toStrictEqual([])
   })
 

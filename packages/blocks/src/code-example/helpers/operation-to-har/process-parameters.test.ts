@@ -106,7 +106,9 @@ describe('parameter styles', () => {
         harRequest: createHarRequest(`https://example.com${path}`),
         parameters: [parameter],
       })
-      const query = snippet.queryString.map(({ name, value }) => `${name}=${value}`).join('&')
+      const query = snippet.queryString
+        .map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
+        .join('&')
       expect(String(url).replaceAll('+', '%20')).toBe(`${snippet.url}${query ? `?${query}` : ''}`)
       if (location === 'header') {
         expect(new Headers(init.headers).get('term')).toBe(snippet.headers[0]?.value)
@@ -668,7 +670,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'blue%2Cblack%2Cbrown' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'blue,black,brown' }])
     })
 
     it('should handle form style with explode=false and object values', () => {
@@ -695,7 +697,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'R%2C100%2CG%2C200%2CB%2C150' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'R,100,G,200,B,150' }])
     })
 
     it('should handle form style with explode=true and single value', () => {
@@ -800,7 +802,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'blue%20black%20brown' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'blue black brown' }])
     })
 
     it('should handle spaceDelimited style with explode=false and object values', () => {
@@ -827,7 +829,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'R%20100%20G%20200%20B%20150' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'R 100 G 200 B 150' }])
     })
   })
 
@@ -852,7 +854,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'blue%7Cblack%7Cbrown' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'blue|black|brown' }])
     })
 
     it('should handle pipeDelimited style with explode=false and object values', () => {
@@ -879,7 +881,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'R%7C100%7CG%7C200%7CB%7C150' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'R|100|G|200|B|150' }])
     })
   })
 
@@ -1784,8 +1786,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // With explicit explode: false, array values should be comma-separated and URL encoded
-      expect(result.queryString).toEqual([{ name: 'tags', value: 'javascript%2Ctypescript%2Cvue' }])
+      // With explicit explode: false, array values should be comma-separated and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'tags', value: 'javascript,typescript,vue' }])
     })
 
     it('handles query parameter with array value from named example', () => {
@@ -1874,8 +1876,8 @@ describe('parameter styles', () => {
       })
 
       // Form style query parameters default to explode: true
-      // Object values without schema should be serialized as JSON string and URL encoded
-      expect(result.queryString).toEqual([{ name: 'user', value: '%7B%22name%22%3A%22John%22%2C%22age%22%3A30%7D' }])
+      // Object values without schema should be serialized as JSON string and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'user', value: '{"name":"John","age":30}' }])
     })
   })
 
@@ -1935,8 +1937,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Object values should be serialized as JSON strings and URL encoded
-      expect(result.queryString).toEqual([{ name: 'offset', value: '%7B%22test%22%3A%22what%22%7D' }])
+      // Object values should be serialized as JSON strings and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'offset', value: '{"test":"what"}' }])
     })
 
     it('handles query parameter with text/plain content type', () => {
@@ -1965,8 +1967,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Plain text values should be URL encoded
-      expect(result.queryString).toEqual([{ name: 'description', value: 'This%20is%20plain%20text%20content' }])
+      // Plain text values remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'description', value: 'This is plain text content' }])
     })
 
     it('handles query parameter with text/xml content type', () => {
@@ -1995,10 +1997,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // XML values should be URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'xmlData', value: '%3Croot%3E%3Citem%3Evalue%3C%2Fitem%3E%3C%2Froot%3E' },
-      ])
+      // XML values remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'xmlData', value: '<root><item>value</item></root>' }])
     })
 
     it('handles query parameter with application/xml content type', () => {
@@ -2027,11 +2027,11 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Application XML values should be URL encoded
+      // Application XML values remain raw in HAR
       expect(result.queryString).toEqual([
         {
           name: 'payload',
-          value: '%3C%3Fxml%20version%3D%221.0%22%3F%3E%3Cdata%3E%3Cfield%3Etest%3C%2Ffield%3E%3C%2Fdata%3E',
+          value: '<?xml version="1.0"?><data><field>test</field></data>',
         },
       ])
     })
@@ -2062,10 +2062,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Form data should be URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'formData', value: 'username%3Djohn_doe%26email%3Djohn%40example.com' },
-      ])
+      // Form data remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'formData', value: 'username=john_doe&email=john@example.com' }])
     })
 
     it('handles query parameter with text/html content type', () => {
@@ -2094,10 +2092,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // HTML values should be URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'htmlContent', value: '%3Cdiv%3E%3Cp%3EHello%20World%3C%2Fp%3E%3C%2Fdiv%3E' },
-      ])
+      // HTML values remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'htmlContent', value: '<div><p>Hello World</p></div>' }])
     })
 
     it('handles query parameter with application/octet-stream content type', () => {
@@ -2127,8 +2123,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Binary data (base64 encoded) should be URL encoded
-      expect(result.queryString).toEqual([{ name: 'binaryData', value: 'SGVsbG8gV29ybGQ%3D' }])
+      // Binary data (base64 encoded) remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'binaryData', value: 'SGVsbG8gV29ybGQ=' }])
     })
 
     it('handles content-based parameter with array value', () => {
@@ -2160,10 +2156,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Array values in content should be serialized as JSON strings and URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'tags', value: '%5B%22javascript%22%2C%22typescript%22%2C%22vue%22%5D' },
-      ])
+      // Array values in content should be serialized as JSON strings and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'tags', value: '["javascript","typescript","vue"]' }])
     })
 
     it('handles content-based parameter with nested object value', () => {
@@ -2198,11 +2192,11 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Nested objects should be serialized as JSON strings and URL encoded
+      // Nested objects should be serialized as JSON strings and kept raw in HAR
       expect(result.queryString).toEqual([
         {
           name: 'filter',
-          value: '%7B%22user%22%3A%7B%22name%22%3A%22John%22%2C%22age%22%3A30%7D%2C%22active%22%3Atrue%7D',
+          value: '{"user":{"name":"John","age":30},"active":true}',
         },
       ])
     })
@@ -2237,8 +2231,8 @@ describe('parameter styles', () => {
       })
 
       // Should use parameter's content type (application/json), not request's (text/html)
-      // The value should be JSON stringified and URL encoded
-      expect(result.queryString).toEqual([{ name: 'data', value: '%7B%22id%22%3A123%2C%22name%22%3A%22Test%22%7D' }])
+      // The value should be JSON stringified and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'data', value: '{"id":123,"name":"Test"}' }])
     })
   })
 
@@ -2350,11 +2344,13 @@ describe('parameter styles', () => {
           ],
         })
 
-        // Should be JSON stringified and URL encoded
-        expect(result.queryString).toContainEqual({
-          name: 'filter',
-          value: '%7B%22status%22%3A%22active%22%2C%22limit%22%3A10%7D',
-        })
+        // Should be JSON stringified and kept raw in HAR
+        expect(result.queryString).toStrictEqual([
+          {
+            name: 'filter',
+            value: '{"status":"active","limit":10}',
+          },
+        ])
       })
 
       it('should serialize query parameter with application/json content for array', () => {
@@ -2378,8 +2374,8 @@ describe('parameter styles', () => {
           ],
         })
 
-        // Should be JSON stringified and URL encoded
-        expect(result.queryString).toContainEqual({ name: 'ids', value: '%5B1%2C2%2C3%5D' })
+        // Should be JSON stringified and kept raw in HAR
+        expect(result.queryString).toStrictEqual([{ name: 'ids', value: '[1,2,3]' }])
       })
 
       it('should serialize query parameter with text/plain content as string', () => {
@@ -2403,8 +2399,8 @@ describe('parameter styles', () => {
           ],
         })
 
-        // Object values are serialized as JSON strings and URL encoded
-        expect(result.queryString).toContainEqual({ name: 'data', value: '%7B%22key%22%3A%22value%22%7D' })
+        // Object values are serialized as JSON strings and kept raw in HAR
+        expect(result.queryString).toStrictEqual([{ name: 'data', value: '{"key":"value"}' }])
       })
     })
   })
@@ -2428,7 +2424,7 @@ describe('allowReserved query parameter encoding', () => {
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
 
-  it('URL encodes query parameter values by default', () => {
+  it('keeps query parameter values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2444,7 +2440,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'query', value: 'hello%20world%26foo%3Dbar' }])
+    expect(result.queryString).toEqual([{ name: 'query', value: 'hello world&foo=bar' }])
   })
 
   it('does not URL encode query parameter values when allowReserved is true', () => {
@@ -2464,10 +2460,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'query', value: 'hello world&foo=bar' }])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?query=hello world&foo=bar')
   })
 
-  it('URL encodes query parameter values when allowReserved is false', () => {
+  it('keeps query parameter values raw when allowReserved is false', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2484,10 +2481,10 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'query', value: 'test%2Fpath%3Fquery%3Dvalue' }])
+    expect(result.queryString).toEqual([{ name: 'query', value: 'test/path?query=value' }])
   })
 
-  it('URL encodes form style array values by default', () => {
+  it('keeps form style array values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2507,8 +2504,8 @@ describe('allowReserved query parameter encoding', () => {
     })
 
     expect(result.queryString).toEqual([
-      { name: 'tags', value: 'tag%20one' },
-      { name: 'tags', value: 'tag%26two' },
+      { name: 'tags', value: 'tag one' },
+      { name: 'tags', value: 'tag&two' },
     ])
   })
 
@@ -2532,13 +2529,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([
-      { name: 'tags', value: 'tag one' },
-      { name: 'tags', value: 'tag&two' },
-    ])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?tags=tag one&tags=tag&two')
   })
 
-  it('URL encodes deepObject style values by default', () => {
+  it('keeps deepObject style values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2559,7 +2554,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'filter[name]', value: 'John%20Doe%26Co' }])
+    expect(result.queryString).toEqual([{ name: 'filter[name]', value: 'John Doe&Co' }])
   })
 
   it('does not URL encode deepObject style values when allowReserved is true', () => {
@@ -2584,10 +2579,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'filter[name]', value: 'John Doe&Co' }])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?filter%5Bname%5D=John Doe&Co')
   })
 
-  it('URL encodes content-based parameter values by default', () => {
+  it('keeps content-based parameter values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2608,7 +2604,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'data', value: '%7B%22key%22%3A%22value%20with%20spaces%22%7D' }])
+    expect(result.queryString).toEqual([{ name: 'data', value: '{"key":"value with spaces"}' }])
   })
 
   it('does not URL encode content-based parameter values when allowReserved is true', () => {
@@ -2633,10 +2629,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'data', value: '{"key":"value with spaces"}' }])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?data={"key":"value with spaces"}')
   })
 
-  it('URL encodes spaceDelimited style values by default', () => {
+  it('keeps spaceDelimited style values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2655,10 +2652,10 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'colors', value: 'red%26blue%20green' }])
+    expect(result.queryString).toEqual([{ name: 'colors', value: 'red&blue green' }])
   })
 
-  it('URL encodes pipeDelimited style values by default', () => {
+  it('keeps pipeDelimited style values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2677,7 +2674,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'colors', value: 'red%26blue%7Cgreen' }])
+    expect(result.queryString).toEqual([{ name: 'colors', value: 'red&blue|green' }])
   })
 })
 
@@ -2739,7 +2736,7 @@ describe('processParameters defaultDisabled', () => {
       defaultDisabled: false,
     })
 
-    expect(result.queryString).toContainEqual({ name: 'filter', value: 'active' })
+    expect(result.queryString).toStrictEqual([{ name: 'filter', value: 'active' }])
   })
 
   it('omits parameters when the selected example sets x-disabled true even if defaultDisabled is false', () => {
