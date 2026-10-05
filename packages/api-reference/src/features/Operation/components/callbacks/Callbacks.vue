@@ -35,9 +35,9 @@ const { path, callbacks, breadcrumb } = defineProps<
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
-       | 'showExtensions'
-       | 'maxVisibleRequestBodyProperties'
-       | 'hideModelNames'
+      | 'showExtensions'
+      | 'maxVisibleRequestBodyProperties'
+      | 'hideModelNames'
     >
   } & SchemaRenderingProps
 >()

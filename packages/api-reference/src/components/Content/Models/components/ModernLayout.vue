@@ -27,8 +27,8 @@ const { schema, options, document } = defineProps<
       orderRequiredPropertiesFirst: boolean | undefined
       orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
       hideModelNames?: boolean
-       showExtensions?: string[]
-       hideModels: boolean | undefined
+      showExtensions?: string[]
+      hideModels: boolean | undefined
       expandAllSchemaProperties: boolean | undefined
     }
   } & SchemaRenderingProps

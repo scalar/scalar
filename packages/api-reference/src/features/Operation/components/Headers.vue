@@ -43,7 +43,6 @@ const {
     hideModels: boolean | undefined
     /** Show structural types in schema labels */
     hideModelNames?: boolean
-  }>()
   } & SchemaRenderingProps
 >()
 const { translate } = useLocalization()
@@ -171,7 +170,7 @@ const countLabel = computed(() =>
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
             :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
             :schemaKeyboardNav="schemaKeyboardNav"
-            :showExtensions="showExtensions" />
+            :showExtensions="showExtensions"
             :scrollTargetId="scrollTargetId"
             :specificationExtension="specificationExtension" />
         </template>

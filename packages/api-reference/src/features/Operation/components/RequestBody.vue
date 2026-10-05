@@ -6,6 +6,7 @@ import {
 } from '@scalar/blocks/schema'
 import {
   getModelNameFromSchema,
+  getTypeSignatureTokens,
   inferDiscriminatorMappingComposition,
   isModelLinkable,
   isTypeObject,
@@ -38,10 +39,12 @@ const { requestBody, options, document } = defineProps<
       orderRequiredPropertiesFirst: boolean | undefined
       orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
       hideModelNames?: boolean
-       showExtensions?: string[]
-       hideModels: boolean | undefined
+      showExtensions?: string[]
+      hideModels: boolean | undefined
       expandAllSchemaProperties: boolean | undefined
       schemaKeyboardNav: boolean | undefined
+      /** Maximum visible top-level properties; zero displays all properties. */
+      maxVisibleRequestBodyProperties?: number
     }
   } & SchemaRenderingProps
 >()

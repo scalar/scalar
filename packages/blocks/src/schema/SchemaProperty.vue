@@ -9,7 +9,6 @@ const NO_LISTENERS = Object.freeze({})
 </script>
 
 <script lang="ts" setup>
-import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -63,6 +62,7 @@ import Schema from './Schema.vue'
 import SchemaCollapsedPreview from './SchemaCollapsedPreview.vue'
 import SchemaComposition from './SchemaComposition.vue'
 import SchemaEnums from './SchemaEnums.vue'
+import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 import SchemaRailPanel from './SchemaRailPanel.vue'
 import type { SchemaOptions, SchemaRenderingProps } from './types'
@@ -72,8 +72,8 @@ const props = withDefaults(
     {
       is?: string | Component
       schema: SchemaObject | undefined
-       /** Extensions on the containing parameter or header; schema values take precedence. */
-       extensionSource?: Record<string, unknown>
+      /** Extensions on the containing parameter or header; schema values take precedence. */
+      extensionSource?: Record<string, unknown>
       noncollapsible?: boolean
       level?: number
       /**

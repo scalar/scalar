@@ -31,8 +31,8 @@ const { eventBus, id, options, document } = defineProps<
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
-       | 'hideModelNames'
-       | 'showExtensions'
+      | 'hideModelNames'
+      | 'showExtensions'
       | 'hideModels'
     >
   } & SchemaRenderingProps

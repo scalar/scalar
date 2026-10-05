@@ -45,9 +45,9 @@ const {
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
-       | 'showExtensions'
-       | 'maxVisibleRequestBodyProperties'
-       | 'hideModelNames'
+      | 'showExtensions'
+      | 'maxVisibleRequestBodyProperties'
+      | 'hideModelNames'
     >
   } & SchemaRenderingProps
 >()

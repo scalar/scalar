@@ -7,8 +7,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import ApiReferenceLight from './pages/ApiReferenceLight.vue'
 import CodeExampleBlocks from './pages/CodeExampleBlocks.vue'
-import SpecificationExtensionBlocks from './pages/SpecificationExtensionBlocks.vue'
 import SchemaBlocks from './pages/SchemaBlocks.vue'
+import SpecificationExtensionBlocks from './pages/SpecificationExtensionBlocks.vue'
 
 const router = createRouter({
   history: createWebHistory(),

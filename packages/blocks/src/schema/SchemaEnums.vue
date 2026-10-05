@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { SchemaGlyphPuck } from '@scalar/blocks/schema'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
@@ -7,6 +6,7 @@ import { computed, ref } from 'vue'
 
 import { useLocalization } from './localization'
 import SchemaEnumPropertyItem from './SchemaEnumPropertyItem.vue'
+import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 
 const { value, propertyNames = false } = defineProps<{
   /** The schema object containing enum values and metadata */

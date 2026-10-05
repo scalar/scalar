@@ -24,8 +24,8 @@ const { schema, isCollapsed, id, options, eventBus, document } = defineProps<
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
-       | 'hideModelNames'
-       | 'showExtensions'
+      | 'hideModelNames'
+      | 'showExtensions'
       | 'hideModels'
     >
     schema: SchemaObject | undefined

@@ -34,9 +34,9 @@ const { parameters = [], requestBody } = defineProps<
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
-       | 'showExtensions'
-       | 'maxVisibleRequestBodyProperties'
-       | 'hideModelNames'
+      | 'showExtensions'
+      | 'maxVisibleRequestBodyProperties'
+      | 'hideModelNames'
     >
   } & SchemaRenderingProps
 >()

@@ -59,8 +59,8 @@ const {
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
-       | 'showExtensions'
-       | 'hideModelNames'
+      | 'showExtensions'
+      | 'hideModelNames'
     >
   } & SchemaRenderingProps
 >()
@@ -468,7 +468,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
           :schemaKeyboardNav="options.schemaKeyboardNav"
-          :showExtensions="options.showExtensions" />
+          :showExtensions="options.showExtensions"
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
       </component>

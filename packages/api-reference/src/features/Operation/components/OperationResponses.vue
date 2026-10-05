@@ -36,8 +36,8 @@ const { responses, selectedContentTypes = {} } = defineProps<
       | 'orderSchemaPropertiesBy'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
-       | 'showExtensions'
-       | 'hideModelNames'
+      | 'showExtensions'
+      | 'hideModelNames'
     >
   } & SchemaRenderingProps
 >()

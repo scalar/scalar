@@ -1,4 +1,3 @@
-import { SchemaRailPanel } from '@scalar/blocks/schema'
 import { ScalarListbox } from '@scalar/components/listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -11,9 +10,10 @@ import WithBreadcrumb from './components/WithBreadcrumb.vue'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
+import SchemaRailPanel from './SchemaRailPanel.vue'
 
 const SpecificationExtension = defineComponent({
-  props: { value: Object },
+  props: { value: Object, showExtensions: Array },
   setup: (props) => () => h('span', String(props.value?.['x-foo'])),
 })
 
@@ -1397,13 +1397,19 @@ describe('SchemaProperty', () => {
           schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-owner': 'schema', 'x-hidden': 'secret' }),
           extensionSource: { 'x-owner': 'parameter', 'x-policy': false },
           options: { showExtensions: ['x-owner', 'x-policy'] },
+          specificationExtension: SpecificationExtension,
         },
       })
       const extension = wrapper.getComponent(SpecificationExtension)
-      expect(extension.findAll('code').map((node) => node.text())).toStrictEqual(['"schema"', 'false'])
-      expect(extension.text()).not.toContain('secret')
+      expect(extension.props('value')).toStrictEqual({
+        type: 'string',
+        'x-owner': 'schema',
+        'x-policy': false,
+        'x-hidden': 'secret',
+      })
+      expect(extension.props('showExtensions')).toStrictEqual(['x-owner', 'x-policy'])
       await wrapper.setProps({ options: {} })
-      expect(extension.findAll('code')).toHaveLength(0)
+      expect(extension.props('showExtensions')).toBeUndefined()
     })
 
     it('renders extensions from a parameter without a schema', () => {
@@ -1413,9 +1419,11 @@ describe('SchemaProperty', () => {
           schema: undefined,
           extensionSource: { 'x-owner': 'parameter' },
           options: { showExtensions: ['x-owner'] },
+          specificationExtension: SpecificationExtension,
         },
       })
-      expect(wrapper.getComponent(SpecificationExtension).get('code').text()).toBe('"parameter"')
+      expect(wrapper.getComponent(SpecificationExtension).props('value')).toStrictEqual({ 'x-owner': 'parameter' })
+      expect(wrapper.getComponent(SpecificationExtension).props('showExtensions')).toStrictEqual(['x-owner'])
     })
 
     it('mounts the extension renderer for a schema with an x- key', () => {

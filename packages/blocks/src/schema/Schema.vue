@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { SchemaGlyphPuck } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { pushDynamicScope } from '@scalar/workspace-store/helpers/dynamic-ref'
@@ -32,6 +31,7 @@ import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
 import { unwrapForRead } from './helpers/unwrap-for-read'
 import { useLocalization } from './localization'
 import SchemaComposition from './SchemaComposition.vue'
+import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
 import type { SchemaOptions, SchemaRenderingProps } from './types'
@@ -78,8 +78,8 @@ const {
     hideDescription?: boolean
     /** Show a special one way toggle for additional properties, also has a top border when open */
     additionalProperties?: boolean
-     /** Number of request body properties hidden behind the overflow control. */
-     additionalPropertyCount?: number
+    /** Number of request body properties hidden behind the overflow control. */
+    additionalPropertyCount?: number
     /** Hide model names in type display */
     hideModelNames?: boolean
     /** Discriminator object */

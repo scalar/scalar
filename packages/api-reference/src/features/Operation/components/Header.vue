@@ -23,26 +23,28 @@ const {
   showExtensions,
   hideModels,
   hideModelNames,
-} = defineProps<{
-  header: HeaderObject
-  name: string
-  /** The anchor path of the headers group; `Headers.vue` has already appended the `headers` segment */
-  breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
-  /** The document the header belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-  orderRequiredPropertiesFirst: boolean | undefined
-  expandAllSchemaProperties: boolean | undefined
-  /** Whether arrow-key navigation is enabled */
-  schemaKeyboardNav: boolean | undefined
-  /** Selected extensions to display on the header and its schema. */
-  showExtensions?: string[]
-  /** Whether the models section is hidden, so model names render as plain text instead of links */
-  hideModels: boolean | undefined
-  /** Show structural types in schema labels */
-  hideModelNames?: boolean
-} & SchemaRenderingProps>()
+} = defineProps<
+  {
+    header: HeaderObject
+    name: string
+    /** The anchor path of the headers group; `Headers.vue` has already appended the `headers` segment */
+    breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
+    /** The document the header belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+    orderRequiredPropertiesFirst: boolean | undefined
+    expandAllSchemaProperties: boolean | undefined
+    /** Whether arrow-key navigation is enabled */
+    schemaKeyboardNav: boolean | undefined
+    /** Selected extensions to display on the header and its schema. */
+    showExtensions?: string[]
+    /** Whether the models section is hidden, so model names render as plain text instead of links */
+    hideModels: boolean | undefined
+    /** Show structural types in schema labels */
+    hideModelNames?: boolean
+  } & SchemaRenderingProps
+>()
 /** Headers may describe their value with either schema or a single media type. */
 const schema = computed(() => {
   if ('schema' in header && header.schema) {
