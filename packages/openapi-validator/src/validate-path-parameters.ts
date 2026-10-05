@@ -1,3 +1,4 @@
+import { HTTP_METHODS } from '@scalar/helpers/http/http-methods'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { deduplicateErrors } from '@scalar/json-schema-validator'
 import type { AnyObject } from '@scalar/types/utils'
@@ -13,7 +14,7 @@ import type { ErrorObject } from '@/types'
  */
 const isRecord = (value: unknown): value is AnyObject => isObjectLike(value) && !Array.isArray(value)
 
-const OPERATION_KEYS = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
+const OPERATION_KEYS: ReadonlySet<string> = new Set(HTTP_METHODS)
 const PATH_PARAMETER_PATTERN = /{([^}]+)}/g
 
 type PathParameter = {
@@ -38,9 +39,19 @@ export function validatePathParameters(specification: AnyObject): ErrorObject[] 
       continue
     }
 
-    const operations = Object.entries(pathItem).filter(
-      ([key, value]) => OPERATION_KEYS.has(key) && isRecord(value),
-    ) as Array<[string, AnyObject]>
+    const operations = Object.entries(pathItem).flatMap(([key, value]) => {
+      if (OPERATION_KEYS.has(key) && isRecord(value)) {
+        return [{ operation: value, path: ['paths', pathName, key] }]
+      }
+
+      if (key === 'additionalOperations' && isRecord(value)) {
+        return Object.entries(value).flatMap(([method, operation]) =>
+          isRecord(operation) ? [{ operation, path: ['paths', pathName, 'additionalOperations', method] }] : [],
+        )
+      }
+
+      return []
+    })
 
     // Preserve the repo's current behaviour for empty path items.
     if (operations.length === 0) {
@@ -59,13 +70,8 @@ export function validatePathParameters(specification: AnyObject): ErrorObject[] 
       }
     }
 
-    for (const [operationKey, operation] of operations) {
-      const operationParameters = getPathParameters(operation.parameters, [
-        'paths',
-        pathName,
-        operationKey,
-        'parameters',
-      ])
+    for (const { operation, path } of operations) {
+      const operationParameters = getPathParameters(operation.parameters, [...path, 'parameters'])
 
       for (const parameter of operationParameters) {
         if (!templateParameters.has(parameter.name)) {
@@ -83,7 +89,7 @@ export function validatePathParameters(specification: AnyObject): ErrorObject[] 
       for (const templateParameter of templateParameters) {
         if (!effectiveParameters.has(templateParameter)) {
           errors.push({
-            path: ['paths', pathName, operationKey],
+            path,
             message: `Declared path parameter "${templateParameter}" needs to be defined as a path parameter at either the path or operation level`,
           })
         }
