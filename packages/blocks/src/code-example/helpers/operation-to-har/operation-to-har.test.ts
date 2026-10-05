@@ -61,6 +61,48 @@ describe('operationToHar', () => {
     )
   })
 
+  it.each(['%2e', '%2e%2E', '.%2e', '%2e.'])('rejects reserved dot segment %s in requests and examples', (value) => {
+    const operation: OperationObject = {
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          allowReserved: true,
+          schema: coerceValue(SchemaObjectSchema, {}),
+          examples: { default: { dataValue: value } },
+        },
+      ],
+    }
+    const server = { url: 'https://example.com' }
+    const { request } = requestFactory({
+      exampleName: 'default',
+      method: 'get',
+      path: '/items/{id}',
+      environment: { color: '#FFFFFF', variables: [] },
+      globalCookies: [],
+      proxyUrl: '',
+      server,
+      defaultHeaders: {},
+      isElectron: false,
+      selectedSecuritySchemes: [],
+      operation,
+      openapiVersion: '3.2.1',
+    })
+    const built = buildRequest(request, { envVariables: {} })
+    expect(built.ok).toBe(false)
+    expect(() =>
+      operationToHar({
+        operation,
+        method: 'get',
+        path: '/items/{id}',
+        server,
+        example: 'default',
+        openapiVersion: '3.2.1',
+      }),
+    ).toThrow(URIError)
+  })
+
   it.each([
     { style: 'simple', explode: false, value: 'a:b@c/z?#[]', expected: 'a:b@c%2Fz%3F%23%5B%5D' },
     { style: 'simple', explode: false, value: ['a/b', 'c:d'], expected: 'a%2Fb,c:d' },
@@ -71,6 +113,7 @@ describe('operationToHar', () => {
     { style: 'matrix', explode: true, value: ['a/b', 'c:d'], expected: ';id=a%2Fb;id=c:d' },
     { style: 'matrix', explode: true, value: { 'a/b': 'c?d' }, expected: ';a%2Fb=c%3Fd' },
     { style: 'simple', explode: false, value: '%2f %oops', expected: '%2f%20%25oops' },
+    { style: 'simple', explode: false, value: 'id-%2e%2e', expected: 'id-%2e%2e' },
   ] as const)(
     'aligns OpenAPI 3.2 reserved path expansion for $style (explode: $explode)',
     ({ style, explode, value, expected }) => {

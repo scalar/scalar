@@ -1,6 +1,9 @@
 import { getCookieSerializationError } from '@scalar/helpers/http/get-cookie-serialization-error'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
-import { serializeReservedPathParameter } from '@scalar/workspace-store/helpers/encode-path-parameter'
+import {
+  assertReservedPathUrl,
+  serializeReservedPathParameter,
+} from '@scalar/workspace-store/helpers/encode-path-parameter'
 import { getParameterExample } from '@scalar/workspace-store/helpers/get-parameter-example'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -144,6 +147,7 @@ export const processParameters = ({
   const newCookies = [...harRequest.cookies]
   const cookieStyleEntries: HarRequest['cookies'] = []
   let newUrl = harRequest.url
+  let hasReservedPathParameter = false
   const serializedQuery: string[] = []
   const serializedCookies: string[] = []
 
@@ -223,6 +227,7 @@ export const processParameters = ({
     switch (param.in) {
       case 'path': {
         const allowReserved = openapiVersion?.startsWith('3.2.') && 'schema' in param && param.allowReserved === true
+        hasReservedPathParameter ||= Boolean(allowReserved)
         const pathValue = allowReserved
           ? serializeReservedPathParameter(param.name, { value: paramValue, style, explode })
           : undefined
@@ -369,6 +374,10 @@ export const processParameters = ({
     const hash = hashIndex < 0 ? '' : newUrl.slice(hashIndex)
     const base = hashIndex < 0 ? newUrl : newUrl.slice(0, hashIndex)
     newUrl = `${base}${base.includes('?') ? '&' : '?'}${serializedQuery.join('&')}${hash}`
+  }
+
+  if (hasReservedPathParameter) {
+    assertReservedPathUrl(newUrl)
   }
 
   return {

@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { encodePathParameter, serializeReservedPathParameter } from './encode-path-parameter'
+import { assertReservedPathUrl, encodePathParameter, serializeReservedPathParameter } from './encode-path-parameter'
 
 describe('encode-path-parameter', () => {
+  it.each(['%2e', '%2e%2E', '.%2e', '%2e.', '.', '..'])('rejects the browser-normalized dot segment %s', (value) => {
+    expect(() => assertReservedPathUrl(`https://example.com/items/${value}/next`)).toThrow(URIError)
+  })
+
+  it('preserves encoded dots inside ordinary segments and query values', () => {
+    expect(() => assertReservedPathUrl('https://example.com/items/id-%2e%2e?value=/%2e%2e')).not.toThrow()
+  })
+
   it('preserves path-safe reserved characters and escapes forbidden delimiters', () => {
     expect(encodePathParameter(":@!$&'()*+,;=/;?#[]", true)).toBe(":@!$&'()*+,;=%2F;%3F%23%5B%5D")
   })

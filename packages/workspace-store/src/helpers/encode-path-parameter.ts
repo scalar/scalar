@@ -64,3 +64,11 @@ export const serializeReservedPathParameter = (
       : encode(value)
   return style === 'label' ? `.${data}` : data
 }
+
+/** Rejects dot segments that browser URL parsing would silently remove. */
+export const assertReservedPathUrl = (url: string): void => {
+  const path = url.split(/[?#]/, 1)[0] ?? ''
+  if (path.split('/').some((segment) => /^(?:\.|%2e){1,2}$/i.test(segment))) {
+    throw new URIError('Reserved path parameters cannot form dot segments because browsers normalize them.')
+  }
+}
