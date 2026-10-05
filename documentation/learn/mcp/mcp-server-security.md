@@ -91,7 +91,7 @@ Authentication for remote MCP servers is OAuth 2.1 with protected resource metad
 
 **Get consent per client if you proxy OAuth.** The confused deputy attack targets MCP servers that act as OAuth clients to a third-party API with one static client ID. If the third party remembers consent in a cookie, an attacker can register a new MCP client with their own redirect URI, send the user a link, and have the authorization code delivered to themselves without a consent screen ever appearing. The spec requires such proxies to show their own consent page per MCP client, validate redirect URIs by exact match, and bind the OAuth `state` to that consent.
 
-Scalar's hosted servers keep these layers apart by design: who may connect to an installation (public, team, or an access group signing in with OAuth) is configured separately from how the server authenticates to your API (a stored credential, or a caller-supplied key forwarded from a header you nominate as described in [passthrough auth](/products/agent/authentication/public-passthrough)). The [authentication overview](/products/agent/authentication) explains the model, and [private access for customers](/products/agent/authentication/customer-access) shows the OAuth sign-in for external users.
+Scalar's hosted servers keep these layers apart by design: who may connect to an installation (public, team, or an access group signing in with OAuth) is configured separately from how the server authenticates to your API (a stored credential, or a caller-supplied key forwarded from a header you nominate as described in [passthrough auth](/products/agent/authentication/public-passthrough)). One mode departs from the no-passthrough rule on purpose: [OAuth passthrough](/products/agent/authentication/oauth-passthrough) forwards the token a client got from your API's own authorization server, so your API, not the MCP server, has to validate it. The [authentication overview](/products/agent/authentication) explains the model, and [private access for customers](/products/agent/authentication/customer-access) shows the OAuth sign-in for external users.
 
 ## Least privilege: scopes, tools and confirmations
 
@@ -226,7 +226,7 @@ Not automatically. A local server runs with your user permissions and can read f
 </scalar-detail>
 
 <scalar-detail title="How does Scalar secure hosted MCP servers?">
-Installations are private by default. Team members connect with a personal access token or OAuth, and external users sign in through OAuth if their email or domain is on an access group. Upstream API credentials are stored on Scalar's execution layer and not sent to agents, or supplied per request through passthrough without being stored, and you choose which operations can be searched or executed.
+Installations are private by default. Team members connect with a personal access token or OAuth, and external users sign in through OAuth if their email or domain is on an access group. Upstream API credentials are stored on Scalar's execution layer and not sent to agents, or supplied per request through passthrough without being stored. With OAuth passthrough, users sign in with your API's own authorization server and that token is forwarded unvalidated, so your API checks it. You choose which operations can be searched or executed.
 </scalar-detail>
 
 ## Related

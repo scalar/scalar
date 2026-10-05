@@ -73,7 +73,7 @@ asyncio.run(main())
 
 ## Authentication and access
 
-Configure auth once in the Scalar dashboard—OAuth 2.0, API keys, bearer tokens, or patterns that match your OpenAPI `securitySchemes`. Every MCP connection still requires a Scalar personal access token or team-approved flow so shared URLs do not leak access by themselves.
+Configure auth once in the Scalar dashboard—OAuth 2.0, API keys, bearer tokens, or patterns that match your OpenAPI `securitySchemes`. A private installation, the default, requires a Scalar personal access token or OAuth sign-in, so a shared URL does not leak access by itself. Public installations rely on your API's own authentication instead; see [Authentication](./authentication/index.md).
 
 Read more: [API Authentication](./mcp.md#api-authentication) on the MCP page.
 

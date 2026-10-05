@@ -2246,7 +2246,7 @@
                     "title": "Authentication",
                     "type": "group",
                     "mode": "flat",
-                    "description": "How an MCP server authenticates: who is allowed to connect (public, team, access groups) and how the server calls your API (global or passthrough).",
+                    "description": "How an MCP server authenticates: who is allowed to connect (public, team, access groups) and how the server calls your API (global, passthrough, or OAuth passthrough).",
                     "children": {
                       "/": {
                         "type": "page",
@@ -2259,6 +2259,12 @@
                         "title": "Public MCP with Passthrough",
                         "description": "Make the MCP server public and let each user authenticate with their own API credentials via a passthrough header such as Authorization.",
                         "filepath": "documentation/guides/agent/authentication/public-passthrough.md"
+                      },
+                      "oauth-passthrough": {
+                        "type": "page",
+                        "title": "OAuth Passthrough",
+                        "description": "Let MCP clients sign in with your API's own OAuth authorization server; Scalar forwards the token they receive to your API on every request.",
+                        "filepath": "documentation/guides/agent/authentication/oauth-passthrough.md"
                       },
                       "customer-access": {
                         "type": "page",

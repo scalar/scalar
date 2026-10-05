@@ -38,15 +38,18 @@ The portal changes only the *appearance and copy* of the sign-in page—it does 
 
 If each of your customers has their own API key, pair access groups with [passthrough auth](./public-passthrough.md): one installation, one URL, shared with every customer, and each customer supplies their own key. Attach an access group so only your customers' emails can connect.
 
+If your API has its own OAuth authorization server, [OAuth passthrough](./oauth-passthrough.md) does the same without keys: each customer signs in with your authorization server from their MCP client. The installation is then public on the Scalar side and your authorization server decides who gets in, so access groups do not apply.
+
 If you would rather your customers never handle a key, use [global auth](./shared-key.md) with **one installation per customer**, each storing that customer's key, and attach a per-customer access group. Installations and access groups can be created programmatically through the Scalar API, so you can script this per customer rather than clicking through the dashboard.
 
 ## Current limitations
 
 - **Custom domains are not supported for MCP servers yet.** Installations are served from Scalar's MCP endpoint by installation ID; you cannot currently serve an MCP server from your own domain (e.g. `mcp.yourcompany.com`). Custom domains are supported for hosted docs, but not for the Installation MCP.
-- **A single shared URL cannot yet inject a different *stored* key per signed-in user.** To give each user their own key today, use passthrough (the user supplies the key) or one installation per user. Fully dynamic per-user installations are on the roadmap.
+- **A single shared URL cannot yet inject a different *stored* key per signed-in user.** To give each user their own credential today, use passthrough (the user supplies the key), OAuth passthrough (the user signs in with your authorization server), or one installation per user. Fully dynamic per-user installations are on the roadmap.
 
 ## Related
 
 - [Authentication](./index.md) — the two layers, and the other recipes
 - [Public MCP with passthrough auth](./public-passthrough.md) — let each user bring their own key
+- [OAuth passthrough](./oauth-passthrough.md) — let each user sign in with your API's own authorization server
 - [One shared key for everyone](./shared-key.md) — store a single credential per installation
