@@ -38,6 +38,33 @@ const content = {
   },
 }
 
+/** A collapsed row whose preview is too long for the line, so it truncates against the copy-link button. */
+const collapsedPreviewContent = {
+  openapi: '3.1.1',
+  info: { title: 'Collapsed preview', version: '1.0.0' },
+  paths: {},
+  components: {
+    schemas: {
+      Planet: {
+        type: 'object',
+        properties: {
+          atmosphere: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                primaryAtmosphericCompoundName: { type: 'string' },
+                percentageOfTotalAtmosphericVolume: { type: 'number' },
+                measurementInstrumentIdentifier: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
 test.describe('reference controls', () => {
   for (const width of [1440, 320]) {
     test(`keeps schema controls at least 24px at ${width}px`, async ({ page }) => {
@@ -100,5 +127,41 @@ test.describe('reference controls', () => {
       expect(box!.x + box!.width).toBeLessThanOrEqual(320)
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+  })
+
+  test('lets a collapsed preview run up to the copy-link icon', async ({ page }) => {
+    const example = await serveExample({ content: collapsedPreviewContent, expandAllModelSections: true })
+    await page.goto(`${example}#models`)
+
+    const copyLink = page.getByRole('button', { name: 'Copy link to atmosphere', exact: true })
+    await copyLink.scrollIntoViewIfNeeded()
+
+    const geometry = await copyLink.evaluate((button) => {
+      const heading = button.parentElement!
+      const preview = heading.querySelector('.property-collapsed-preview')!
+      const icon = button.querySelector('svg')!
+      const previewRight = preview.getBoundingClientRect().right
+      return {
+        truncated: preview.scrollWidth > preview.clientWidth,
+        gapToIcon: icon.getBoundingClientRect().left - previewRight,
+        trailingExtent: heading.getBoundingClientRect().right - previewRight,
+        iconWidth: icon.getBoundingClientRect().width,
+      }
+    })
+
+    // The preview fills the line, so whatever the button lays out is width the preview loses.
+    expect(geometry.truncated).toBe(true)
+    expect(geometry.gapToIcon).toBeCloseTo(10, 0)
+    // Only the gap and the icon take room; the 24px hit box overhangs the line end.
+    expect(geometry.trailingExtent).toBeCloseTo(geometry.gapToIcon + geometry.iconWidth, 0)
+
+    const box = await copyLink.boundingBox()
+    expect(box!.width).toBeGreaterThanOrEqual(24)
+    expect(box!.height).toBeGreaterThanOrEqual(24)
+
+    await page.getByRole('button', { name: 'atmosphere', exact: true }).focus()
+    await page.keyboard.press('Tab')
+    await expect(copyLink).toBeFocused()
+    await expect(copyLink).toHaveCSS('opacity', '1')
   })
 })

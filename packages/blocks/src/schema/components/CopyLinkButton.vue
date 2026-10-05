@@ -29,15 +29,18 @@ const copyLinkLabel = computed(() =>
 </script>
 
 <template>
-  <!-- A flex item of the heading, so it wraps with the text. The vertical
-       padding is cancelled by negative margins, so the 24px hit area WCAG
-       2.5.8 asks for never changes the line height. Horizontally the heading's
-       scoped `.property-heading > *` gives every child a 9px trailing margin
-       (it beats any -me-* utility on specificity), so `ms-1.25` and `me-2!`
-       keep the icon 10px after the text (5 + 5, as 6 + 4 was) and the line's
-       trailing extent at the 37px it had with the old 22px box
-       (5 + 24 + 8 = 6 + 22 + 9), so wrap points do not move. Only the box, and
-       with it the focus ring, grows by 1px a side.
+  <!-- A flex item of the heading, so it wraps with the text. Negative margins
+       cancel the padding of the 24px hit area WCAG 2.5.8 asks for, so the box
+       overhangs the line instead of taking room from it: vertically it never
+       changes the line height, and horizontally the row gives up only the 10px
+       gap and the 14px icon (5 + 24 - 5), which is what a collapsed preview
+       before it truncates against.
+
+       Both inline margins carry `!`: the heading's scoped `.property-heading > *`
+       sets a 9px right margin, which is the end margin in LTR and the start
+       margin in RTL, at the same specificity as the utility. Which one wins
+       depends on whether the consumer's stylesheet puts the utilities before or
+       after `vue-styles.css`.
 
        pointer-coarse drops it entirely rather than leaving it transparent: a
        touch pointer has no hover, so a still-laid-out button would be an
@@ -45,7 +48,7 @@ const copyLinkLabel = computed(() =>
        second line just to show a control nobody can see. A deep link stays
        reachable there through the address bar. -->
   <button
-    class="copy-link-trailing text-c-3 hover:text-c-1 -my-1.25 ms-1.25 me-2! flex shrink-0 cursor-pointer items-center justify-center self-center p-1.25 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:hidden"
+    class="copy-link-trailing text-c-3 hover:text-c-1 -my-1.25 ms-1.25! -me-1.25! flex shrink-0 cursor-pointer items-center justify-center self-center p-1.25 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:hidden"
     type="button"
     @click="() => eventBus?.emit('copy-url:nav-item', { id: anchorId })">
     <ScalarIconHash
