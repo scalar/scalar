@@ -14,7 +14,7 @@ const { document, tags } = defineProps<{
 
 const { translate } = useLocalization()
 
-const labels = computed(() => {
+const labels = computed<{ name: string; label: string }[]>(() => {
   if (!document) {
     return []
   }
