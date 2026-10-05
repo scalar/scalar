@@ -230,7 +230,8 @@ export const createDocumentRenderer = (): ((
       if (document.tags?.length) {
         nodes.push(heading(2, text('Tags')))
         for (const tag of document.tags) {
-          nodes.push(heading(3, text(tag.name)), ...(await description(tag.description)))
+          const title = /^3\.2\./.test(openapiVersion) ? (tag.summary ?? tag.name) : tag.name
+          nodes.push(heading(3, text(title)), ...(await description(tag.description)))
           if (tag.externalDocs)
             nodes.push(paragraph(link(tag.externalDocs.url, tag.externalDocs.description ?? tag.externalDocs.url)))
         }

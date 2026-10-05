@@ -1,7 +1,8 @@
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
-import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
+import { createMarkdownFromOpenApi as browserRender } from './browser'
+import { createMarkdownFromOpenApi, createOpenApiMarkdownRenderer } from './create-markdown-from-openapi'
 import { createDocumentRenderer } from './render-document'
 
 describe('render-document', () => {
@@ -21,6 +22,75 @@ describe('render-document', () => {
   const withMeta = (document: Omit<OpenApiDocument, 'x-scalar-original-document-hash'>): OpenApiDocument => ({
     ...document,
     'x-scalar-original-document-hash': 'test-hash',
+  })
+
+  it.each(['3.0.4', '3.1.2', '3.2.0', '3.2.1'])('renders tag summaries only for OpenAPI 3.2 in %s', async (openapi) => {
+    const document = withMeta({
+      openapi,
+      info: { title: 'Tags', version: '1' },
+      paths: {},
+      tags: [
+        {
+          name: 'account-updates',
+          summary: 'Account Updates',
+          'x-displayName': 'Legacy label',
+          description: 'Account update operations.',
+          externalDocs: { url: 'https://example.com/accounts', description: 'More information' },
+        },
+        { name: 'fallback' },
+        { name: 'other', summary: 'Account Updates' },
+      ],
+    })
+    const title = openapi.startsWith('3.2.') ? 'Account Updates' : 'account-updates'
+    const otherTitle = openapi.startsWith('3.2.') ? 'Account Updates' : 'other'
+    const expected = `## Tags\n\n### ${title}\n\nAccount update operations.\n\n[More information](https://example.com/accounts)\n\n### fallback\n\n### ${otherTitle}\n`
+    const renderer = await createOpenApiMarkdownRenderer(document)
+    const outputs = [
+      await createMarkdownFromOpenApi(document),
+      await renderer.render(),
+      await browserRender(document),
+      await browserRender({ ...document, openapi: '3.2.0', 'x-original-oas-version': openapi }),
+    ]
+    for (const output of outputs) {
+      expect(output.slice(output.indexOf('## Tags'))).toBe(expected)
+    }
+  })
+
+  it('selects tags by name while displaying their summaries', async () => {
+    const document = withMeta({
+      openapi: '3.2.1',
+      info: { title: 'Tags', version: '1' },
+      tags: [
+        { name: 'account-updates', summary: 'Account Updates', description: 'Selected metadata.' },
+        { name: 'other', summary: 'Account Updates', description: 'Unrelated metadata.' },
+      ],
+      paths: {
+        '/accounts': {
+          get: { tags: ['account-updates', 'implicit'], responses: { '200': { description: 'Success' } } },
+        },
+        '/other': { get: { tags: ['other'], responses: { '200': { description: 'Success' } } } },
+      },
+    })
+    const renderer = await createOpenApiMarkdownRenderer(document)
+    const options = { tag: 'account-updates' }
+    const outputs = [
+      await createMarkdownFromOpenApi(document, options),
+      await renderer.render(options),
+      await browserRender(document, options),
+    ]
+    for (const output of outputs) {
+      expect(output.slice(output.indexOf('## Tags'), output.indexOf('## Operations'))).toBe(
+        '## Tags\n\n### Account Updates\n\nSelected metadata.\n\n',
+      )
+      expect(output.match(/^- \*\*Tags:\*\*.*$/gm)).toStrictEqual(['- **Tags:** account-updates'])
+      expect(output.includes('Unrelated metadata.')).toBe(false)
+      expect(output.includes('`/other`')).toBe(false)
+    }
+    const implicit = await renderer.render({ tag: 'implicit' })
+    expect(implicit.slice(implicit.indexOf('## Tags'), implicit.indexOf('## Operations'))).toBe(
+      '## Tags\n\n### implicit\n\n',
+    )
+    await expect(renderer.render({ tag: 'Account Updates' })).rejects.toThrow('Tag "Account Updates" was not found')
   })
 
   it('renders basic API information', async () => {
