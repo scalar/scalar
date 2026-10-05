@@ -50,6 +50,7 @@ defineOptions({ inheritAttrs: false })
 const mask = ref(true)
 const interactingWithDropdown = ref(false)
 const codeInput = useTemplateRef('codeInput')
+const maskedInput = useTemplateRef('maskedInput')
 
 const handleBlur = () => !interactingWithDropdown.value && emit('inputBlur')
 
@@ -57,10 +58,11 @@ const inputType = computed(() =>
   props.type === 'password' ? 'text' : (props.type ?? 'text'),
 )
 
-// If not an enum nor read only, focus the code input
+// If not an enum nor read only, focus the code input or masked input
 const handleLabelClick = () => {
   if (!props.enum?.length && !props.readOnly) {
     codeInput.value?.focus()
+    maskedInput.value?.focus()
   }
 }
 </script>
@@ -71,7 +73,6 @@ const handleLabelClick = () => {
     <div
       v-if="$slots.default"
       class="text-c-1 flex items-center pr-0 pl-3"
-      :for="id ?? ''"
       @click="handleLabelClick">
       <slot />:
     </div>
@@ -87,6 +88,7 @@ const handleLabelClick = () => {
         <input
           v-if="mask && type === 'password'"
           v-bind="id ? { ...$attrs, id: id } : $attrs"
+          ref="maskedInput"
           autocomplete="off"
           class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none px-2 py-1.25 -outline-offset-1"
           :class="{ 'scalar-password-input': type === 'password' }"
