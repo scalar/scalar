@@ -32,7 +32,7 @@ export const csharpHttpclient: Plugin = {
 
     // HttpRequestMessage
     const httpMethod = getHttpMethod(normalizedRequest.method)
-    lines.push(`var request = new HttpRequestMessage(${httpMethod}, "${url}");`)
+    lines.push(`var request = new HttpRequestMessage(${httpMethod}, "${escapeCSharpString(url)}");`)
 
     // Headers and auth
     addHeadersAndAuth(lines, normalizedRequest, configuration)
@@ -85,7 +85,7 @@ function addHeadersAndAuth(lines: string[], request: any, configuration?: Plugin
   if (authHeader) {
     const [scheme, parameter] = authHeader.value.split(' ', 2)
     if (scheme && parameter) {
-      lines.push(`request.Headers.Authorization = new AuthenticationHeaderValue("${scheme}", "${parameter}");`)
+      lines.push(`request.Headers.Authorization = new AuthenticationHeaderValue("${escapeCSharpString(scheme)}", "${escapeCSharpString(parameter)}");`)
     }
   } else if (configuration?.auth?.username && configuration?.auth?.password) {
     // Use configuration auth if no explicit header
@@ -109,18 +109,18 @@ function addHeadersAndAuth(lines: string[], request: any, configuration?: Plugin
 
   for (const [name, value] of processedHeaders) {
     if (name.toLowerCase() === 'accept' && isMediaType(value)) {
-      lines.push(`request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("${value}"));`)
+      lines.push(`request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("${escapeCSharpString(value)}"));`)
     } else if (name.toLowerCase() === 'content-type' && request.postData) {
       // Content-Type will be set on content object
       continue
     } else {
-      lines.push(`request.Headers.TryAddWithoutValidation("${name}", "${value}");`)
+      lines.push(`request.Headers.TryAddWithoutValidation("${escapeCSharpString(name)}", "${escapeCSharpString(value)}");`)
     }
   }
 
   // Add cookies
   if (cookies.length > 0) {
-    const cookieString = cookies.map((cookie: any) => `${cookie.name}=${cookie.value}`).join('; ')
+    const cookieString = escapeCSharpString(cookies.map((cookie: any) => `${cookie.name}=${cookie.value}`).join('; '))
     lines.push(`request.Headers.TryAddWithoutValidation("Cookie", "${cookieString}");`)
   }
 }
@@ -159,7 +159,7 @@ function addBodyContent(lines: string[], request: any): void {
       lines.push('var formParams = new List<KeyValuePair<string, string>>')
       lines.push('{')
       for (const param of params) {
-        lines.push(`  new("${param.name}", "${param.value}"),`)
+        lines.push(`  new("${escapeCSharpString(param.name)}", "${escapeCSharpString(param.value ?? '')}"),`)
       }
       lines.push('};')
       lines.push('request.Content = new FormUrlEncodedContent(formParams);')
@@ -168,7 +168,7 @@ function addBodyContent(lines: string[], request: any): void {
       lines.push('var formParams = new Dictionary<string, string>')
       lines.push('{')
       for (const param of params) {
-        lines.push(`  ["${param.name}"] = "${param.value}",`)
+        lines.push(`  ["${escapeCSharpString(param.name)}"] = "${escapeCSharpString(param.value ?? '')}",`)
       }
       lines.push('};')
       lines.push('request.Content = new FormUrlEncodedContent(formParams);')
@@ -181,7 +181,7 @@ function addBodyContent(lines: string[], request: any): void {
         if (param.contentType) {
           const contentName = `fileContent${multipartContentIndex++}`
           lines.push(`var ${contentName} = new StreamContent(File.OpenRead("${escapeCSharpString(param.fileName)}"));`)
-          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${param.contentType}");`)
+          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${escapeCSharpString(param.contentType)}");`)
           lines.push(
             `content.Add(${contentName}, "${escapeCSharpString(param.name)}", "${escapeCSharpString(param.fileName)}");`,
           )
@@ -194,7 +194,7 @@ function addBodyContent(lines: string[], request: any): void {
         if (param.contentType) {
           const contentName = `stringContent${multipartContentIndex++}`
           lines.push(`var ${contentName} = new StringContent("${escapeCSharpString(param.value ?? '')}");`)
-          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${param.contentType}");`)
+          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${escapeCSharpString(param.contentType)}");`)
           lines.push(`content.Add(${contentName}, "${escapeCSharpString(param.name)}");`)
         } else {
           lines.push(
@@ -206,7 +206,7 @@ function addBodyContent(lines: string[], request: any): void {
     lines.push('request.Content = content;')
   } else if (mimeType === 'application/octet-stream' && text) {
     lines.push(
-      'var content = new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("' + text.replace(/"/g, '\\"') + '"));',
+      'var content = new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("' + escapeCSharpString(text) + '"));',
     )
     lines.push('content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");')
     lines.push('request.Content = content;')
@@ -215,7 +215,7 @@ function addBodyContent(lines: string[], request: any): void {
     const rawStringLiteral = createRawStringLiteral(text)
     lines.push('request.Content = new StringContent(')
     lines.push(`${rawStringLiteral},`)
-    lines.push(`System.Text.Encoding.UTF8, "${mimeType}");`)
+    lines.push(`System.Text.Encoding.UTF8, "${escapeCSharpString(mimeType)}");`)
   }
 }
 
@@ -234,7 +234,11 @@ function createRawStringLiteral(text: string): string {
 }
 
 function escapeCSharpString(text: string): string {
-  return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
 }
 
 /**
