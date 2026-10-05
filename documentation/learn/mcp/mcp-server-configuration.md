@@ -216,7 +216,7 @@ With `GALAXY_API_TOKEN` unset, this prints the missing field and exits with code
 With a Scalar-hosted server, the client-side configuration shrinks to a URL, because the server is not something you run. Everything that would otherwise be server configuration lives in the Scalar dashboard:
 
 - **Which API and which operations.** You pick the OpenAPI document and choose per operation whether the model can search it, execute it, or neither. See [MCP tools](/products/agent/mcp).
-- **Upstream authentication.** Store one credential on the installation (global auth), or have callers pass their own in a header you nominate (passthrough). See [authentication](/products/agent/authentication).
+- **Upstream authentication.** Store one credential on the installation (global auth), have callers pass their own in a header you nominate (passthrough), or have them sign in with your API's own OAuth authorization server (OAuth passthrough). See [authentication](/products/agent/authentication).
 - **Who can connect.** Private by default; open to your team, to an access group of external emails or domains through OAuth, or to the public.
 
 The client entry is then the installation URL, `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID`, in whichever format your client uses. The [getting started guide](/products/agent/getting-started) shows where to find it. For a private installation, add it without headers and sign in when the client prompts. In Claude Code:
@@ -235,7 +235,7 @@ In Cursor's `.cursor/mcp.json`:
 }
 ```
 
-For a public installation with [passthrough auth](/products/agent/authentication/public-passthrough), add the header your installation forwards, using the variable syntax from the table above. Team members can also use a personal access token; the [MCP guide](/products/agent/mcp) shows the header format for that.
+For a public installation with [passthrough auth](/products/agent/authentication/public-passthrough), add the header your installation forwards, using the variable syntax from the table above. With [OAuth passthrough](/products/agent/authentication/oauth-passthrough) no header is needed, because the client signs in with your API's authorization server. Team members can also use a personal access token; the [MCP guide](/products/agent/mcp) shows the header format for that.
 
 Scalar docs sites also expose a documentation MCP server at `/mcp` on the docs domain. It is a separate endpoint that searches your published docs rather than calling your API, and it is configured the same way, with just a URL. You can try one now: `https://scalar.com/mcp` serves Scalar's own documentation.
 
@@ -278,7 +278,7 @@ On the client side, only the installation URL, plus a header if the installation
 ## Related
 
 - **Learn:** [Connect an MCP server to Claude](/learn/mcp/connect-mcp-server-to-claude) · [MCP server security](/learn/mcp/mcp-server-security) · [Remote MCP servers](/learn/mcp/remote-mcp-servers) · [MCP server examples](/learn/mcp/mcp-server-examples)
-- **Docs:** [MCP servers](/products/agent/mcp) · [Public MCP with passthrough auth](/products/agent/authentication/public-passthrough)
+- **Docs:** [MCP servers](/products/agent/mcp) · [Public MCP with passthrough auth](/products/agent/authentication/public-passthrough) · [OAuth passthrough](/products/agent/authentication/oauth-passthrough)
 - **Product:** [Scalar MCP](/products/agent/mcp) — a hosted MCP server where configuration lives in the dashboard and clients need only a URL
 
 *Client formats were checked against Anthropic, Cursor, Microsoft and Cognition documentation on 26 September 2026. Client configuration changes often; when a snippet stops working, the vendor's documentation linked above is the source of truth.*

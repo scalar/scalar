@@ -2,14 +2,14 @@
 
 This is the simplest way to share an MCP server with everyone: make the **Scalar layer public** so anyone can connect, and use **passthrough auth** so each user authenticates with their own credentials for your API.
 
-This is the right setup when your API already requires authentication and every caller should use their *own* key. Scalar does not gate access—your API does.
+This is the right setup when your API already requires authentication and every caller should use their *own* key. Scalar does not gate access—your API does. If your API uses OAuth rather than keys, [OAuth passthrough](./oauth-passthrough.md) lets users sign in with your authorization server instead.
 
 ## How it works
 
 - **Public access** means Scalar does not require a sign-in to reach the MCP server. Anyone with the URL can connect.
 - **Passthrough auth** means the caller puts their API credential in a header you nominate, and Scalar forwards that header upstream on each request without storing it.
 
-Because the server is public, you can nominate the standard `Authorization` header for the credential. On a private installation the incoming `Authorization` header carries the Scalar OAuth token, so it is reserved—there you would nominate a different header such as `X-API-Key`. Using `Authorization` for passthrough only works on a **public** MCP server.
+Because the server is public, you can nominate the standard `Authorization` header for the credential. On a private installation the incoming `Authorization` header carries the Scalar OAuth token, so it is reserved—there you would nominate a different header such as `X-API-Key`. Using `Authorization` for passthrough only works on a **public** MCP server, and not next to an API in [OAuth passthrough](./oauth-passthrough.md) mode on the same installation, which takes that header for the OAuth token.
 
 ## Set it up
 
@@ -40,3 +40,4 @@ Scalar forwards only the specific header(s) you nominated. Structural and Scalar
 
 - [Authentication](./index.md) — the two layers, and the other recipes
 - [Private access for customers](./customer-access.md) — gate a passthrough server to specific emails with access groups
+- [OAuth passthrough](./oauth-passthrough.md) — let users sign in with your API's OAuth server instead of pasting a key

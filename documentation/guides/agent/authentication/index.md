@@ -23,12 +23,14 @@ Separately from who connects, each installation decides how it authenticates aga
 
 - **Global** — You store one credential on the installation and the server uses it for every call. Agents never see it.
 - **Passthrough** — The caller supplies the credential, and Scalar forwards it upstream per request without storing it.
+- **OAuth passthrough** — The caller signs in with your API's own OAuth authorization server, and Scalar forwards the token they receive upstream per request without storing it. Public installations only: your authorization server, not Scalar, decides who gets in.
 
 ## Pick a recipe
 
-Most setups are one of these three combinations:
+Most setups are one of these combinations:
 
 - [Public MCP with passthrough auth](./public-passthrough.md) — anyone can connect, and each user authenticates with their own API credentials. The simplest way to share one MCP with the world.
+- [OAuth passthrough](./oauth-passthrough.md) — your API has its own OAuth authorization server, and each user signs in with it from their MCP client to act as themselves.
 - [Private access for customers](./customer-access.md) — gate the server to specific emails or domains with access groups and OAuth login, and brand the sign-in page.
 - [One shared key for everyone](./shared-key.md) — store a single credential on the installation so callers never handle a key.
 

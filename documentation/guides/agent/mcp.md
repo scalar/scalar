@@ -31,7 +31,7 @@ Hosted MCP servers are included on the Pro, Business, and Enterprise plans. See 
 
 Scalar exposes two separate MCP surfaces, and they are easy to conflate because most clients just show both as "MCP". The **Docs MCP** lives at `https://your-docs-domain/mcp` and lets AI clients search and read your published documentation. It is proxied through your docs hosting, so it inherits the visibility of the docs project. If the docs are public, the Docs MCP is public too, otherwise the in-docs chat would not work.
 
-The **Installation MCP** lives at `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you have selected, using the authentication you have stored for the installation. It is a completely separate endpoint and is private by default: team members connect with a Personal Access Token, while people outside your team sign in through OAuth once you grant them access (see [Authentication](./authentication/index.md)). If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when no valid credentials are present.
+The **Installation MCP** lives at `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you have selected, using the upstream authentication you configured for the installation: a credential you stored, or one the caller brings. It is a completely separate endpoint and is private by default: team members connect with a Personal Access Token, while people outside your team sign in through OAuth once you grant them access (see [Authentication](./authentication/index.md)). If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when no valid credentials are present.
 
 ## Create an MCP Server
 
@@ -82,7 +82,7 @@ Tools are the individual capabilities your MCP exposes. Each tool maps to an ope
 
 ## API Authentication
 
-Authentication is configured per installation in the [Scalar Dashboard](https://dashboard.scalar.com). This lets your MCP Server make authenticated requests to your API without exposing credentials to the client.
+Authentication is configured per installation in the [Scalar Dashboard](https://dashboard.scalar.com). In global mode your MCP Server makes authenticated requests to your API without exposing credentials to the client. In the passthrough modes the caller brings the credential, and Scalar forwards it without storing it.
 
 <br>
 
@@ -90,10 +90,11 @@ Authentication is configured per installation in the [Scalar Dashboard](https://
 
 <br>
 
-There are two modes:
+There are three modes:
 
 - **Global** — store one credential (OAuth, API key, or bearer token) on the installation; the server uses it for every call. See [One shared key for everyone](./authentication/shared-key.md).
 - **Passthrough** — the caller supplies the credential in a header or query parameter you nominate, and Scalar forwards it upstream per request without storing it. Use this when each user must call your API with their own key. See [Public MCP with passthrough auth](./authentication/public-passthrough.md).
+- **OAuth passthrough** — the caller signs in with your API's own OAuth authorization server, and Scalar forwards the token they receive upstream per request. Use this when your API already uses OAuth and each user should act as themselves. See [OAuth passthrough](./authentication/oauth-passthrough.md).
 
 For who is allowed to connect—public, team, or specific customers via access groups and OAuth login—see [Authentication](./authentication/index.md).
 
@@ -124,7 +125,7 @@ Yes, that is exactly how it works. Import or select an API in the Scalar Dashboa
 
 <scalar-detail title="Does the MCP server support OAuth?">
 
-Yes. People outside your team can sign in through OAuth once you grant them access with an access group, and team members can use a Personal Access Token or OAuth. See [Authentication](./authentication/index.md).
+Yes. People outside your team can sign in through OAuth once you grant them access with an access group, and team members can use a Personal Access Token or OAuth. See [Authentication](./authentication/index.md). If your API has its own OAuth authorization server, [OAuth passthrough](./authentication/oauth-passthrough.md) lets clients sign in there instead and forwards the token they receive to your API.
 
 </scalar-detail>
 

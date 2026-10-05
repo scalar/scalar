@@ -206,7 +206,9 @@ claude mcp add --transport http my-api https://mcp.scalar.com/mcp/YOUR_INSTALL_I
 
 Replace the header name and value with whatever your API expects. See [public MCP with passthrough auth](/products/agent/authentication/public-passthrough) for the setup.
 
-A quick way to check which setup you are talking to: a private installation answers an unauthenticated request with `401` and a `WWW-Authenticate` header, and an installation ID that does not exist answers with `404`.
+**A public installation with OAuth passthrough.** Each user signs in with your API's own authorization server, and Scalar forwards the token they receive to your API. Add the URL with no header, exactly as for a private installation, and sign in with `/mcp`. The browser opens on your API's sign-in page instead of Scalar's. See [OAuth passthrough](/products/agent/authentication/oauth-passthrough) for the setup, including authorization servers without dynamic client registration.
+
+A quick way to check which setup you are talking to: a private installation and one using OAuth passthrough both answer an unauthenticated request with `401` and a `WWW-Authenticate` header. The metadata document that header points to names Scalar's authorization server for a private installation and your API's own for OAuth passthrough. An installation ID that does not exist answers with `404`.
 
 Once connected, try a question that needs your API: "list the five most recent orders" or "which endpoints can create a customer?". Scalar's server gives Claude a small set of tools to search your API description and execute requests, so the model looks up only the operations it needs.
 
@@ -275,7 +277,7 @@ Not as a custom connector. Custom connectors in claude.ai and the Claude apps ar
 </scalar-detail>
 
 <scalar-detail title="How do I connect a Scalar MCP server to Claude?">
-Copy the installation URL from the Scalar dashboard, which looks like https://mcp.scalar.com/mcp/ followed by your installation ID. In Claude Code, add it with claude mcp add --transport http and sign in with /mcp. In claude.ai, add it as a custom connector and click Connect. Public installations with passthrough auth take your API credential in a header instead.
+Copy the installation URL from the Scalar dashboard, which looks like https://mcp.scalar.com/mcp/ followed by your installation ID. In Claude Code, add it with claude mcp add --transport http and sign in with /mcp. In claude.ai, add it as a custom connector and click Connect. Public installations with passthrough auth take your API credential in a header instead, and with OAuth passthrough the sign-in happens on the API's own authorization server.
 </scalar-detail>
 
 ## Related

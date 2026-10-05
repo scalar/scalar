@@ -261,7 +261,7 @@ For each operation, decide whether it is exposed for **search** (lookup only, no
 </scalar-step>
 <scalar-step title="Configure authentication">
 
-Store one credential on the installation (global auth), or let each caller pass their own through a header you nominate (passthrough). Agents never receive a stored credential.
+Store one credential on the installation (global auth), let each caller pass their own through a header you nominate (passthrough), or have callers sign in with your API's own OAuth authorization server (OAuth passthrough). Agents never receive a stored credential.
 
 </scalar-step>
 <scalar-step title="Connect a client">
@@ -320,7 +320,7 @@ The rule is simple: credentials never go in tool arguments and never come back i
 
 **A server-held credential.** The server stores one API key or token and uses it for every call. On stdio, it comes from an environment variable, as in the example above. On a hosted server, it is stored against the installation. This is right for internal tools and for per-customer installations. Scalar calls this [global auth](/products/agent/authentication/shared-key).
 
-**Passthrough.** Each caller supplies their own API credential, and the server forwards it upstream per request without storing it. This is right when every user must act as themselves in your API. Scalar documents this as [public MCP with passthrough auth](/products/agent/authentication/public-passthrough).
+**Passthrough.** Each caller supplies their own API credential, and the server forwards it upstream per request without storing it. This is right when every user must act as themselves in your API. Scalar documents this as [public MCP with passthrough auth](/products/agent/authentication/public-passthrough). If your API uses OAuth, Scalar can instead have each caller sign in with your authorization server and forward that token; see [OAuth passthrough](/products/agent/authentication/oauth-passthrough).
 
 Separately, a remote server needs to decide who may connect at all. For HTTP servers the MCP specification defines an OAuth-based authorization framework; [MCP OAuth](/learn/mcp/mcp-oauth) explains the flow. Map your OpenAPI `securitySchemes` to these decisions: an `apiKey` scheme usually becomes a server-held or passthrough header, while an `oauth2` scheme usually means per-user tokens. [OpenAPI security schemes](/learn/openapi/openapi-security-schemes) covers the scheme types.
 
