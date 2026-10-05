@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { SchemaGlyphPuck, SchemaRailPanel } from '@scalar/blocks/schema'
+import {
+  SchemaGlyphPuck,
+  SchemaProperty,
+  SchemaRailPanel,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
+import {
+  getRefName,
+  getSchemaType,
+  hasComplexArrayItems,
+  optimizeValueForDisplay,
+} from '@scalar/blocks/schema/helpers'
 import {
   ScalarMarkdown,
   ScalarMarkdownSummary,
@@ -16,11 +27,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
 
-import { getRefName } from '@/components/Content/Schema/helpers/get-ref-name'
-import { getSchemaType } from '@/components/Content/Schema/helpers/get-schema-type'
-import { hasComplexArrayItems } from '@/components/Content/Schema/helpers/has-complex-array-items'
-import { optimizeValueForDisplay } from '@/components/Content/Schema/helpers/optimize-value-for-display'
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
@@ -37,25 +43,27 @@ const {
   breadcrumb,
   document,
   eventBus,
-} = defineProps<{
-  parameter: ParameterObject | ResponseObject
-  name: string
-  breadcrumb?: string[]
-  eventBus: WorkspaceEventBus | null
-  collapsableItems?: boolean
-  /** The document the operation belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  options: Pick<
-    OperationProps['options'],
-    | 'hideModels'
-    | 'hideModelNames'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-    | 'showExtensions'
-  >
-}>()
+} = defineProps<
+  {
+    parameter: ParameterObject | ResponseObject
+    name: string
+    breadcrumb?: string[]
+    eventBus: WorkspaceEventBus | null
+    collapsableItems?: boolean
+    /** The document the operation belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    options: Pick<
+      OperationProps['options'],
+      | 'hideModels'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+      | 'showExtensions'
+      | 'hideModelNames'
+    >
+  } & SchemaRenderingProps
+>()
 
 const emit = defineEmits<{
   (e: 'update:selectedContentType', value: string): void
@@ -405,6 +413,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
           "
           :eventBus="eventBus"
+          :expansion="expansion"
           :hideWriteOnly="true"
           :modelName="schemaModelName"
           :name="collapsableItems && !isStaticTreeItem ? '' : name"
@@ -421,7 +430,9 @@ const triggerAnchorId = computed<string | undefined>(() =>
             document,
           }"
           :required="'required' in parameter && parameter.required"
-          :schema="value" />
+          :schema="value"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
 
         <SchemaProperty
           is="div"
@@ -431,10 +442,13 @@ const triggerAnchorId = computed<string | undefined>(() =>
           "
           compact
           :eventBus="eventBus"
+          :expansion="expansion"
           :name="translate('common.streamItem')"
           :noncollapsible="true"
           :options="{ ...options, hideWriteOnly: true, document }"
-          :schema="getResolvedRef(content[selectedContentType]?.itemSchema)" />
+          :schema="getResolvedRef(content[selectedContentType]?.itemSchema)"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
 
         <!-- Headers: the body reads first, directly under the status row, and
              Headers follows — opening Headers then appends its list at the
@@ -447,13 +461,16 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :document="document"
           :eventBus="eventBus"
           :expandAllSchemaProperties="options.expandAllSchemaProperties"
+          :expansion="expansion"
           :headers="headers"
           :hideModelNames="options.hideModelNames"
           :hideModels="options.hideModels"
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
           :schemaKeyboardNav="options.schemaKeyboardNav"
-          :showExtensions="options.showExtensions" />
+          :showExtensions="options.showExtensions"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
       </component>
       <div
         v-if="shouldCollapse && content"

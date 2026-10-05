@@ -53,6 +53,7 @@ export type OperationProps = {
 
 <script lang="ts" setup>
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
@@ -93,7 +94,7 @@ const {
   pathValue,
   securitySchemes,
   server,
-} = defineProps<OperationProps>()
+} = defineProps<OperationProps & SchemaRenderingProps>()
 
 defineSlots<{
   /** Replaces the default copy control without replacing the security badge. */
@@ -163,6 +164,7 @@ const selectedSecuritySchemes = computed(() =>
       :clientOptions
       :document
       :eventBus
+      :expansion="expansion"
       :isCollapsed
       :isWebhook
       :method
@@ -170,10 +172,12 @@ const selectedSecuritySchemes = computed(() =>
       :options
       :path
       :requiredSecurity
+      :scrollTargetId="scrollTargetId"
       :selectedClient
       :selectedExample
       :selectedSecuritySchemes
-      :selectedServer>
+      :selectedServer
+      :specificationExtension="specificationExtension">
       <template
         v-if="$slots.actions"
         #actions>
@@ -186,16 +190,19 @@ const selectedSecuritySchemes = computed(() =>
       :clientOptions
       :document
       :eventBus
+      :expansion="expansion"
       :isWebhook
       :method
       :operation
       :options
       :path
       :requiredSecurity
+      :scrollTargetId="scrollTargetId"
       :selectedClient
       :selectedExample
       :selectedSecuritySchemes
-      :selectedServer>
+      :selectedServer
+      :specificationExtension="specificationExtension">
       <template
         v-if="$slots.actions"
         #actions>

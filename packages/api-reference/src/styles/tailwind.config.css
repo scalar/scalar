@@ -42,26 +42,6 @@
 }
 
 /**
- * Visually hides content while leaving it available to assistive technology.
- * A shared utility rather than a style scoped to ScreenReader.vue, so the
- * schema tree and the response headers can label a row's child count from
- * plain markup. `clip-path` replaces the deprecated `clip`; `white-space:
- * nowrap` matters because some engines announce a wrapped 1x1 box one word per
- * line, breaking the sentence apart.
- */
-@utility screenreader-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
-
-/**
  * Honour a request for reduced motion. Motion is collapsed to a near-zero
  * duration rather than removed, because `transitionend` must still fire for
  * components that sequence their own state on it. Scoped to the app root so an
@@ -100,7 +80,7 @@
  * their own ABOVE any tree root — scoped to the root they kept the wide gutter
  * and their glyphs landed on a different line from the schema rows below them.
  * And a container query never matches the element declaring the container, so
- * these cannot live in the `.scalar-app` block above: that element is an
+ * these cannot live in the `.scalar-app` token block in Blocks: that element is an
  * ancestor of the container (declared in Content.vue), not inside it.
  */
 @container references-container (max-width: 900px) {
@@ -109,7 +89,7 @@
     --schema-glyph-size: 16px;
     --schema-glyph-half: 8px;
     --schema-glyph-icon: 14px;
-    /* The toggle keeps the 24px hit box from the block above (WCAG 2.5.8):
+    /* The toggle keeps the 24px hit box from the Blocks token block (WCAG 2.5.8):
        it is transparent, so only the glyph needs to shrink. Hanging
        gutter + half = 10 + 12 = 22px it still clears the 24px section padding
        this query pairs with, and its centre stays on the rail. Its box now

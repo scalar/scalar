@@ -1,1 +1,1 @@
-export { default as Badge } from './Badge.vue'
+export { Badge } from '@scalar/blocks/shared'

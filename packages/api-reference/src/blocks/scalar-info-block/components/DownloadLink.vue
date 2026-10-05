@@ -1,10 +1,10 @@
 <script lang="ts" setup>
+import { Badge } from '@scalar/blocks/shared'
 import { sanitizeUrl } from '@scalar/helpers/url/is-safe-url'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
-import Badge from '@/components/Badge/Badge.vue'
 import { useLocalization } from '@/features/localization'
 
 const {

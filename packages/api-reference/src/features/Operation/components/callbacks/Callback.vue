@@ -1,51 +1,63 @@
 <script setup lang="ts">
-import { SchemaGlyphPuck } from '@scalar/blocks/schema'
+import {
+  SchemaGlyphPuck,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
+import { toNodeKey, useSchemaExpansion } from '@scalar/blocks/schema/expansion'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   type OpenApiDocument,
   type OperationObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, useId } from 'vue'
+import { computed, toRef, useId } from 'vue'
 
-import {
-  toNodeKey,
-  useSchemaExpansion,
-} from '@/components/Content/Schema/helpers/schema-expansion'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
 
-const { method, name, url, options, document, breadcrumb } = defineProps<{
-  callback: OperationObject
-  method: string
-  name: string
-  url: string
-  eventBus: WorkspaceEventBus | null
-  /** The document the callback belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  /** Breadcrumb of this callback, making its body and responses addressable */
-  breadcrumb?: string[]
-  options: Pick<
-    OperationProps['options'],
-    | 'expandAllParameters'
-    | 'hideModels'
-    | 'hideModelNames'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'maxVisibleRequestBodyProperties'
-    | 'schemaKeyboardNav'
-    | 'showExtensions'
-  >
-}>()
+const {
+  scrollTargetId = '',
+  expansion: expansionProp,
+  method,
+  name,
+  url,
+  options,
+  document,
+  breadcrumb,
+} = defineProps<
+  {
+    callback: OperationObject
+    method: string
+    name: string
+    url: string
+    eventBus: WorkspaceEventBus | null
+    /** The document the callback belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    /** Breadcrumb of this callback, making its body and responses addressable */
+    breadcrumb?: string[]
+    options: Pick<
+      OperationProps['options'],
+      | 'expandAllParameters'
+      | 'hideModels'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+      | 'showExtensions'
+      | 'maxVisibleRequestBodyProperties'
+      | 'hideModelNames'
+    >
+  } & SchemaRenderingProps
+>()
 
 /**
  * A controlled disclosure keyed to the breadcrumb, so deep links can open the
  * callback and its state survives remounts like any other node.
  */
-const expansion = useSchemaExpansion()
+const expansion =
+  expansionProp ?? useSchemaExpansion(toRef(() => scrollTargetId))
 const anonymousKey = useId()
 const nodeKey = computed(
   (): string => toNodeKey(breadcrumb) || `~anonymous-${anonymousKey}`,
@@ -112,17 +124,23 @@ const toggle = (): void => {
         :breadcrumb="breadcrumb"
         :document="document"
         :eventBus="eventBus"
+        :expansion="expansion"
         :options="options"
         :parameters="callback.parameters ?? []"
-        :requestBody="getResolvedRef(callback.requestBody)" />
+        :requestBody="getResolvedRef(callback.requestBody)"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
 
       <OperationResponses
         :breadcrumb="breadcrumb"
         :collapsableItems="false"
         :document
         :eventBus
+        :expansion="expansion"
         :options
-        :responses="callback.responses" />
+        :responses="callback.responses"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </div>
   </div>
 </template>

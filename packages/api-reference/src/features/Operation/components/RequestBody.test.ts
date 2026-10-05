@@ -1,3 +1,4 @@
+import { Schema } from '@scalar/blocks/schema'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
@@ -9,8 +10,8 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
-import { Schema } from '@/components/Content/Schema'
 import { provideLocalization } from '@/features/localization'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 
 import RequestBody from './RequestBody.vue'
 
@@ -64,6 +65,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
+        specificationExtension: SpecificationExtension,
         options: { ...defaultRequestOptions, showExtensions: ['x-owner'] },
         requestBody: {
           content: {
@@ -97,6 +99,7 @@ describe('RequestBody', () => {
     const wrapper = mount(RequestBody, {
       props: {
         eventBus: null,
+        specificationExtension: SpecificationExtension,
         options: { ...defaultRequestOptions, maxVisibleRequestBodyProperties: limit },
         requestBody: {
           content: {

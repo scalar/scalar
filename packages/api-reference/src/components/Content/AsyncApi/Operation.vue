@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -30,14 +31,16 @@ const {
   eventBus,
   options,
   expandedItems = {},
-} = defineProps<{
-  operation: TraversedAsyncApiOperation
-  document: AsyncApiDocument
-  eventBus: WorkspaceEventBus | null
-  options?: Partial<OperationOptions>
-  /** Map of navigation item id to expanded state, shared with the sidebar. */
-  expandedItems?: Record<string, boolean>
-}>()
+} = defineProps<
+  {
+    operation: TraversedAsyncApiOperation
+    document: AsyncApiDocument
+    eventBus: WorkspaceEventBus | null
+    options?: Partial<OperationOptions>
+    /** Map of navigation item id to expanded state, shared with the sidebar. */
+    expandedItems?: Record<string, boolean>
+  } & SchemaRenderingProps
+>()
 
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
@@ -126,8 +129,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
+      :expansion="expansion"
       :message="message"
-      :options="options" />
+      :options="options"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
   </div>
 </template>
 

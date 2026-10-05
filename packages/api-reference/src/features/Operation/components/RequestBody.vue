@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import {
+  LinkButton,
+  Schema,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
+import {
+  getModelNameFromSchema,
+  getTypeSignatureTokens,
+  inferDiscriminatorMappingComposition,
+  isModelLinkable,
+  isTypeObject,
+  reduceNamesToObject,
+  sortPropertyNames,
+} from '@scalar/blocks/schema/helpers'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -8,40 +22,32 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
-import { Schema } from '@/components/Content/Schema'
-import { inferDiscriminatorMappingComposition } from '@/components/Content/Schema/helpers/get-compositions-to-render'
-import { getTypeSignatureTokens } from '@/components/Content/Schema/helpers/get-type-signature-tokens'
-import { isModelLinkable } from '@/components/Content/Schema/helpers/is-model-linkable'
-import { isTypeObject } from '@/components/Content/Schema/helpers/is-type-object'
-import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
-import {
-  reduceNamesToObject,
-  sortPropertyNames,
-} from '@/components/Content/Schema/helpers/sort-property-names'
-import LinkButton from '@/components/Content/Schema/LinkButton.vue'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { useLocalization } from '@/features/localization'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
-const { requestBody, options, document } = defineProps<{
-  breadcrumb?: string[]
-  requestBody?: RequestBodyObject
-  eventBus: WorkspaceEventBus | null
-  /** The document the request body belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  options: {
-    orderRequiredPropertiesFirst: boolean | undefined
-    orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
-    hideModels: boolean | undefined
-    hideModelNames?: boolean
-    expandAllSchemaProperties: boolean | undefined
-    maxVisibleRequestBodyProperties?: number
-    schemaKeyboardNav: boolean | undefined
-    showExtensions?: string[]
-  }
-}>()
+const { requestBody, options, document } = defineProps<
+  {
+    breadcrumb?: string[]
+    requestBody?: RequestBodyObject
+    eventBus: WorkspaceEventBus | null
+    /** The document the request body belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    options: {
+      orderRequiredPropertiesFirst: boolean | undefined
+      orderSchemaPropertiesBy: 'alpha' | 'preserve' | undefined
+      hideModelNames?: boolean
+      showExtensions?: string[]
+      hideModels: boolean | undefined
+      expandAllSchemaProperties: boolean | undefined
+      schemaKeyboardNav: boolean | undefined
+      /** Maximum visible top-level properties; zero displays all properties. */
+      maxVisibleRequestBodyProperties?: number
+    }
+  } & SchemaRenderingProps
+>()
 const { translate } = useLocalization()
 
 const { level: headingLevel } = useDocumentOutline('operationSection')
@@ -242,13 +248,16 @@ const shouldRenderRequestBody = computed(
       "
       compact
       :eventBus="eventBus"
+      :expansion="expansion"
       :name="translate('common.streamItem')"
       noncollapsible
       :options="{ ...options, hideReadOnly: true, document }"
       :schema="
         getResolvedRef(requestBody.content[selectedContentType]?.itemSchema)
       "
-      schemaContext="requestBody" />
+      schemaContext="requestBody"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
 
     <!-- Keep the remaining properties behind a single reveal control. -->
     <div
@@ -259,6 +268,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
+        :expansion="expansion"
         :name="translate('operation.requestBody')"
         noncollapsible
         :options="{
@@ -273,7 +283,9 @@ const shouldRenderRequestBody = computed(
           document,
         }"
         :schema="partitionedSchema.visibleProperties"
-        schemaContext="requestBody" />
+        schemaContext="requestBody"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
 
       <Schema
         :additionalPropertyCount="partitionedSchema.collapsedPropertyCount"
@@ -282,6 +294,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
+        :expansion="expansion"
         hideDescription
         :name="translate('operation.requestBody')"
         :options="{
@@ -296,7 +309,9 @@ const shouldRenderRequestBody = computed(
           document,
         }"
         :schema="partitionedSchema.collapsedProperties"
-        schemaContext="requestBody" />
+        schemaContext="requestBody"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </div>
 
     <!-- Bodies within the limit, or with no limit, render as one schema. -->
@@ -308,6 +323,7 @@ const shouldRenderRequestBody = computed(
         compact
         :compositionPath="['requestBody']"
         :eventBus="eventBus"
+        :expansion="expansion"
         :hideReadOnly="true"
         :name="translate('operation.requestBody')"
         noncollapsible
@@ -323,7 +339,9 @@ const shouldRenderRequestBody = computed(
           document,
         }"
         :schema="schema"
-        schemaContext="requestBody" />
+        schemaContext="requestBody"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
     </div>
   </div>
 </template>

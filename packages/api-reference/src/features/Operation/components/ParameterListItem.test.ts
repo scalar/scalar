@@ -1,4 +1,4 @@
-import { SchemaRailPanel } from '@scalar/blocks/schema'
+import { SchemaProperty, SchemaRailPanel } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   ParameterObjectSchema,
@@ -8,7 +8,7 @@ import {
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ParameterListItem from './ParameterListItem.vue'
@@ -28,6 +28,7 @@ describe('ParameterListItem', () => {
         name: 'limit',
         eventBus: null,
         options: { ...baseOptions, showExtensions: ['x-owner', 'x-policy'] },
+        specificationExtension: SpecificationExtension,
         parameter: coerceValue(ParameterObjectSchema, {
           name: 'limit',
           in: 'query',

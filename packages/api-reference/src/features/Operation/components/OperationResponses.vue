@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
@@ -15,29 +16,31 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 
 import ParameterListItem from './ParameterListItem.vue'
 
-const { responses, selectedContentTypes = {} } = defineProps<{
-  responses: OperationObject['responses']
-  breadcrumb?: string[]
-  collapsableItems?: boolean
-  eventBus: WorkspaceEventBus | null
-  /** The document the operation belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  /**
-   * Selected response content type per status code, shared with the example response panel
-   * so the two stay in sync. Keyed by status code (e.g. "200"), valued by MIME type.
-   */
-  selectedContentTypes?: Record<string, string>
-  options: Pick<
-    OperationProps['options'],
-    | 'hideModels'
-    | 'hideModelNames'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-    | 'showExtensions'
-  >
-}>()
+const { responses, selectedContentTypes = {} } = defineProps<
+  {
+    responses: OperationObject['responses']
+    breadcrumb?: string[]
+    collapsableItems?: boolean
+    eventBus: WorkspaceEventBus | null
+    /** The document the operation belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    /**
+     * Selected response content type per status code, shared with the example response panel
+     * so the two stay in sync. Keyed by status code (e.g. "200"), valued by MIME type.
+     */
+    selectedContentTypes?: Record<string, string>
+    options: Pick<
+      OperationProps['options'],
+      | 'hideModels'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+      | 'showExtensions'
+      | 'hideModelNames'
+    >
+  } & SchemaRenderingProps
+>()
 
 const emit = defineEmits<{
   (e: 'update:selectedContentTypes', value: Record<string, string>): void
@@ -80,9 +83,12 @@ const { level: headingLevel } = useDocumentOutline('operationSection')
         :collapsableItems
         :document
         :eventBus
+        :expansion="expansion"
         :name="status"
         :options
         :parameter="response"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension"
         @update:selectedContentType="
           (type) =>
             emit('update:selectedContentTypes', {
