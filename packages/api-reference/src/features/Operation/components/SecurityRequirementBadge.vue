@@ -156,7 +156,7 @@ const isOrAlternatives = computed(
         v-if="isOpen"
         ref="panelRef"
         :aria-label="panelLabel"
-        class="relative flex flex-col p-0.75"
+        class="relative flex flex-col rounded-xl p-0.75"
         role="dialog"
         @click.stop
         @mouseenter="cancelClose"

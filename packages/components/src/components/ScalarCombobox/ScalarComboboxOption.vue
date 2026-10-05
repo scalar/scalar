@@ -26,7 +26,7 @@ const variants = cva({
     // Group
     'group/item',
     // Layout
-    'flex min-w-0 items-center gap-1.5 rounded px-2 py-1.5 text-left',
+    'flex min-w-0 items-center gap-1.5 rounded-md px-2 py-1.5 text-left',
     // Text / background style
     'truncate bg-transparent text-c-1',
     // Interaction

@@ -90,7 +90,7 @@ const { cx } = useBindCx()
           :style="{ width }"
           v-bind="
             cx(
-              'relative flex max-h-[inherit] w-40 max-w-[inherit] rounded text-sm',
+              'relative flex max-h-[inherit] w-40 max-w-[inherit] rounded-xl text-sm',
             )
           ">
           <!-- Scroll container -->
