@@ -15,6 +15,51 @@ describe('upgradeFromTwoToThree', () => {
     expect(upgradeFromTwoToThree(document)).toBe(document)
   })
 
+  it('carries root external documentation into info and preserves reference targets', () => {
+    const externalDocs = { url: 'https://example.com/guide', description: 'Integration guide' }
+    const document = upgradeFromTwoToThree({
+      asyncapi: '2.6.0',
+      info: { title: 'Events', version: '1.0.0' },
+      externalDocs,
+      channels: {},
+    })
+
+    expect(document).toStrictEqual({
+      asyncapi: '3.0.0',
+      info: { title: 'Events', version: '1.0.0', externalDocs },
+      externalDocs,
+      channels: {},
+      operations: {},
+    })
+    expect((document.info as { externalDocs: unknown }).externalDocs).toBe(document.externalDocs)
+  })
+
+  it('preserves existing info external documentation', () => {
+    const externalDocs = { url: 'https://example.com/root' }
+    const info = { title: 'Events', version: '1.0.0', externalDocs: { url: 'https://example.com/info' } }
+    const document = upgradeFromTwoToThree({ asyncapi: '2.6.0', info, externalDocs })
+
+    expect(document).toStrictEqual({ asyncapi: '3.0.0', info, externalDocs })
+    expect(info.externalDocs.url).toBe('https://example.com/info')
+  })
+
+  it.each([undefined, null, 'invalid', []])('ignores malformed root external documentation: %s', (externalDocs) => {
+    expect(upgradeFromTwoToThree({ asyncapi: '2.6.0', info: {}, externalDocs })).toStrictEqual({
+      asyncapi: '3.0.0',
+      info: {},
+      externalDocs,
+    })
+  })
+
+  it.each([undefined, null, 'invalid', []])('does not create or replace malformed info: %s', (info) => {
+    const externalDocs = { url: 'https://example.com/guide' }
+    expect(upgradeFromTwoToThree({ asyncapi: '2.6.0', info, externalDocs })).toStrictEqual({
+      asyncapi: '3.0.0',
+      info,
+      externalDocs,
+    })
+  })
+
   // Servers ------------------------------------------------------------------
 
   it('splits server url into host and pathname when a path is present', () => {
