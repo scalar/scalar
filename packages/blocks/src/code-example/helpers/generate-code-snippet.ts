@@ -8,6 +8,7 @@ import type { OperationObject, ServerObject } from '@scalar/workspace-store/sche
 import { type CustomCodeSampleId, getCustomClientIds } from './generate-client-options'
 import { getSnippet } from './get-snippet'
 import { operationToHar } from './operation-to-har/operation-to-har'
+import { CookieSerializationError } from './operation-to-har/process-parameters'
 
 type GenerateCodeSnippetProps = {
   /** The selected client/language for code generation (e.g., 'node/fetch') or a custom code sample ID. */
@@ -105,6 +106,6 @@ export const generateCodeSnippet = ({
     return payload
   } catch (error) {
     console.error('[generateCodeSnippet]', error)
-    return 'Error generating code snippet'
+    return error instanceof CookieSerializationError ? error.message : 'Error generating code snippet'
   }
 }

@@ -71,6 +71,33 @@ describe('generateCodeSnippet', () => {
     ).toBeNull()
   })
 
+  it.each([undefined, 'form', 'cookie'] as const)(
+    'returns an actionable error for invalid 3.2 cookie style %s',
+    (style) => {
+      expect(
+        generateCodeSnippet({
+          ...baseParams,
+          clientId: 'js/fetch',
+          openapiVersion: '3.2.1',
+          operation: {
+            parameters: [
+              {
+                name: 'color',
+                in: 'cookie',
+                style,
+                explode: false,
+                required: true,
+                examples: { default: { value: ['blue', 'black'] } },
+              },
+            ],
+          },
+        }),
+      ).toBe(
+        `Cookie parameter "color" cannot serialize an array or object with style: ${style ?? 'form'} and explode: false because comma-separated cookie values are invalid. Use style: cookie with explode: true.`,
+      )
+    },
+  )
+
   beforeEach(() => {
     vi.clearAllMocks()
   })

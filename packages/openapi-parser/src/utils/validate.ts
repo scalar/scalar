@@ -1,5 +1,9 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import { validate as validateDocument, validatePathParameters } from '@scalar/openapi-validator'
+import {
+  validateCookieParameters,
+  validate as validateDocument,
+  validatePathParameters,
+} from '@scalar/openapi-validator'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { ERRORS, type OpenApiVersion } from '@/configuration'
@@ -75,7 +79,7 @@ export function validate(
     // validator's default) and run below on the resolved document, so parameters
     // declared via `$ref` are seen (validating the unresolved document would
     // report them as missing).
-    const outcome = validateDocument(specification, options)
+    const outcome = validateDocument(specification, { ...options, checkCookieParameters: false })
 
     // Resolve references whenever the document passed schema validation.
     // `outcome.schema` is only set once schema and version validation succeeded.
@@ -84,10 +88,16 @@ export function validate(
     const referenceErrors: ErrorObject[] = resolved?.errors ?? []
     const schema = (resolved?.schema ?? outcome.schema) as StrictOpenApiDocument | undefined
 
-    // Path-template semantics run on the resolved document (schema validation
+    // Parameter semantics run on the resolved document (schema validation
     // stays on the unresolved one to avoid following circular references). This
     // matches the previous validator, which merged reference and semantic errors.
-    const semanticErrors = passedSchemaValidation ? validatePathParameters(schema ?? specification) : []
+    const cookieErrors = passedSchemaValidation ? validateCookieParameters(schema ?? specification) : []
+    if (cookieErrors.length && options?.throwOnError) {
+      throw new Error(cookieErrors[0]?.message)
+    }
+    const semanticErrors = passedSchemaValidation
+      ? [...validatePathParameters(schema ?? specification), ...cookieErrors]
+      : []
 
     const errors = [...(outcome.errors ?? []), ...referenceErrors, ...semanticErrors]
     const valid = outcome.valid && referenceErrors.length === 0 && semanticErrors.length === 0

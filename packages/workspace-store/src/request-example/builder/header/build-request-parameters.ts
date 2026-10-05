@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { getCookieSerializationError } from '@scalar/helpers/http/get-cookie-serialization-error'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -42,8 +43,12 @@ export const buildRequestParameters = (
   parameters: ReferenceType<ParameterObject>[] = [],
   /** The key of the current example */
   exampleName: string = 'default',
+  /** Originating version; older documents retain their historical serialization. */
+  openapiVersion?: string,
 ): {
   cookies: XScalarCookie[]
+  /** Invalid active cookie parameters that prevent sending this request. */
+  cookieErrors?: string[]
   headers: Record<string, string>
   pathVariables: Record<string, string>
   allowReservedQueryParameters: Set<string>
@@ -176,6 +181,15 @@ export const buildRequestParameters = (
       }
 
       case 'cookie': {
+        const [major, minor] = (openapiVersion ?? '').split('.')
+        const error =
+          major === '3' && minor === '2' && !('content' in param)
+            ? getCookieSerializationError(param, deSerializedValue)
+            : undefined
+        if (error) {
+          ;(result.cookieErrors ??= []).push(error)
+          break
+        }
         if ('style' in param && param.style === 'cookie') {
           result.cookies.push(
             ...serializeCookieStyle(paramName, deSerializedValue, getExplode(param, true)).map((cookie) =>

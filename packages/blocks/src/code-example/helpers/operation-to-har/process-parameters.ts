@@ -1,3 +1,4 @@
+import { getCookieSerializationError } from '@scalar/helpers/http/get-cookie-serialization-error'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { getParameterExample } from '@scalar/workspace-store/helpers/get-parameter-example'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -20,6 +21,9 @@ import {
 } from '@scalar/workspace-store/request-example'
 import type { OperationObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
+
+/** An invalid cookie declaration that authors can repair before generating a sample. */
+export class CookieSerializationError extends Error {}
 
 type ProcessedParameters = {
   /** Named serialized examples already embedded in the URL. */
@@ -130,6 +134,7 @@ export const processParameters = ({
   parameters,
   example,
   defaultDisabled,
+  openapiVersion,
 }: {
   harRequest: HarRequest
   parameters: OperationObject['parameters']
@@ -137,6 +142,8 @@ export const processParameters = ({
   example?: string | undefined
   /** Whether to disable parameters by default. */
   defaultDisabled: boolean
+  /** Originating version for cookie serialization restrictions. */
+  openapiVersion?: string
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
   const newHeaders = [...harRequest.headers]
@@ -297,6 +304,14 @@ export const processParameters = ({
 
       // Keep cookie style separate so snippet generators cannot percent-encode it.
       case 'cookie': {
+        const [major, minor] = (openapiVersion ?? '').split('.')
+        const error =
+          major === '3' && minor === '2' && !('content' in param)
+            ? getCookieSerializationError(param, paramValue)
+            : undefined
+        if (error) {
+          throw new CookieSerializationError(error)
+        }
         if (style === 'cookie') {
           cookieStyleEntries.push(...serializeCookieStyle(param.name, paramValue, explode))
           break

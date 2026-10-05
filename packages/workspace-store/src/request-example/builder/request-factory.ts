@@ -87,6 +87,8 @@ import { buildRequestParameters } from './header/build-request-parameters'
  * ```
  */
 export type RequestFactory = {
+  /** Invalid active cookie declarations, retained for previews and reported before sending. */
+  cookieErrors?: string[]
   /**
    * The base API server URL prior to environment or server variable substitution.
    * May still contain placeholders such as `{version}` or `{region}`.
@@ -247,7 +249,7 @@ export const requestFactory = ({
   const requestBody = getResolvedRef(operation.requestBody)
 
   /** Build out the request parameters */
-  const params = buildRequestParameters(operation.parameters ?? [], exampleName)
+  const params = buildRequestParameters(operation.parameters ?? [], exampleName, openapiVersion)
   const querystringParameter = operation.parameters
     ?.map((parameter) => getResolvedRef(parameter))
     .find((parameter) => parameter?.in === 'querystring')
@@ -293,6 +295,7 @@ export const requestFactory = ({
   }
 
   const request: RequestFactory = {
+    ...(params.cookieErrors ? { cookieErrors: params.cookieErrors } : {}),
     baseUrl,
     proxyUrl,
     path: {

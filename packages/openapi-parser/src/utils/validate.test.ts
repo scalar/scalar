@@ -4,6 +4,29 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it('reports referenced OpenAPI 3.2 cookie declarations after resolution', async () => {
+    const result = await validate({
+      openapi: '3.2.1',
+      info: { title: 'Cookies', version: '1' },
+      paths: {
+        '/': {
+          get: { parameters: [{ $ref: '#/components/parameters/Color' }], responses: { '200': { description: 'OK' } } },
+        },
+      },
+      components: {
+        parameters: {
+          Color: { name: 'color', in: 'cookie', explode: false, schema: { $ref: '#/components/schemas/Colors' } },
+        },
+        schemas: { Colors: { type: 'array', items: { type: 'string' } } },
+      },
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors?.map(({ path }) => path)).toStrictEqual([
+      ['paths', '/', 'get', 'parameters', '0', 'explode'],
+      ['components', 'parameters', 'Color', 'explode'],
+    ])
+  })
+
   it('fails on invalid schema', async () => {
     const result = await validate('')
 

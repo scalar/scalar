@@ -144,6 +144,7 @@ export const operationToHar = ({
     } = processParameters({
       harRequest,
       parameters: operation.parameters,
+      openapiVersion,
       example,
       defaultDisabled: defaultDisabledParameters,
     })

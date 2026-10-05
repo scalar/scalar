@@ -133,6 +133,9 @@ export const buildRequest = (
     allowMissingRequestServerBase?: boolean
   },
 ): BuildRequestResult => {
+  if (request.cookieErrors?.length) {
+    return err(BUILD_REQUEST_FAILED, request.cookieErrors[0])
+  }
   const guarded = safeRun(() => buildRequestInner(request, options))
   if (!guarded.ok) {
     return err(BUILD_REQUEST_FAILED, guarded.error)
