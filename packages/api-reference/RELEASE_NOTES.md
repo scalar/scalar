@@ -9,6 +9,315 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.73.0 (2026-10-05)
+
+### Featured client tabs, visible extensions, and better schema composition
+
+Choose which HTTP clients appear as tabs in your API documentation, show OpenAPI extensions without plugins, and control how many request body properties display by default. Plus improvements to nested schema composition and floating UI styling.
+
+- Add featuredClients to choose which HTTP clients are shown as tabs in the Client Libraries block, and in which order
+- Add showExtensions to display selected OpenAPI extensions on operations, parameters, response headers, and schema fields without a custom plugin
+- Add hideModelNames to show structural types instead of model names in schema labels and operation headings
+- Add maxVisibleRequestBodyProperties to control the initial request body property limit with a count of hidden properties
+- Keep nested allOf object fields and choice groups inside their named property, with recursive references rendering as leaves
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1730)
+
+## 1.72.4 (2026-10-02)
+
+### Better accessibility and fixes for discriminator schemas and CDN caching
+
+This release improves keyboard navigation and screen reader support for code blocks, fixes a visual bug where discriminator oneOf variants composed with allOf were rendering duplicated content, and resolves an issue where cached ESM entry points could fail to load chunks after a new release.
+
+- Code blocks now announce their language to screen readers (for example, "Code sample: Shell cURL") and copy buttons have stable accessible names in all states
+- Pressing Space in multiselect comboboxes like the auth scheme picker now toggles the active option instead of hiding the list when the search is empty
+- Discriminator oneOf variants that use allOf to compose their base schema no longer render duplicate selectors, fields, or descriptions
+- The ESM entry point now pins itself to its release version when loading chunks from CDN URLs, preventing 404 errors when a cached entry point tries to fetch chunks from a newer release
+- Custom self-hosted paths and popular CDN hosts like jsDelivr and UNPKG continue to work without changes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1724)
+
+## 1.72.3 (2026-09-30)
+
+### Search performance improvements and parameter display fixes
+
+This release brings substantial search performance improvements and fixes several display issues in the API Reference. Search operations are now faster through optimized schema traversal and reduced computation overhead.
+
+- Search is up to 28% faster when opening search and up to 30% faster during typing by optimizing schema field collection and skipping unused match range calculations
+- Nested properties of expanded query parameters now display with proper indentation under their parent objects and arrays
+- Authentication dropdowns are hidden when only one required option is available, streamlining the interface while keeping credential inputs visible
+- Response examples now display correctly when multiple media types normalize to the same MIME type, preserving distinct content for each variant
+- Configuration updates skip unchanged document fields during change detection, reducing unnecessary processing overhead
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1723)
+
+## 1.72.2 (2026-09-29)
+
+### Improved accessibility and contrast across themes
+
+This release addresses findings from an external accessibility audit, improving screen reader semantics, keyboard navigation, and color contrast across the reference and all shipped themes.
+
+- Text and focus rings now meet WCAG contrast minimums in the default light theme and nine presets
+- Screen readers announce correct selection states, response status meanings, and collapsible section structure
+- Keyboard focus rings are visible on all interactive controls including the response copy button
+- Schema tree toggles and property copy buttons meet the 24px minimum touch target size in narrow layouts
+- The powered by Scalar link now includes UTM parameters to identify which integration visitors came from
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1722)
+
+## 1.72.1 (2026-09-25)
+
+### XML generation improvements and navigation fixes
+
+This release introduces schema-aware XML example generation across the reference documentation, with proper support for attributes, namespaces, and OpenAPI 3.2 features. Navigation in themed layouts now scrolls correctly to selected operations.
+
+- XML examples now preserve attributes, namespaces, and element structure consistently across request bodies, response examples, code snippets, and mock responses
+- Authentication tooltips show clear headings with readable scheme types, API key locations and names, and formatted descriptions
+- Fixed sidebar navigation scrolling past operations in themes with decorative backgrounds like Kepler and Deep Space
+- Nested objects composed from multiple allOf schemas now display with proper indentation instead of merging fields into the parent level
+- Mock server XML responses include X-Scalar-XML-Error header when generation fails, with detailed diagnostics for troubleshooting
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1721)
+
+## 1.72.0 (2026-09-24)
+
+### OpenAPI 3.2 query string and custom HTTP method support
+
+This release adds OpenAPI 3.2 support for querystring parameters and custom HTTP methods (additionalOperations), plus fixes for discriminator labels, parameter examples, and server-side rendering hydration.
+
+- Querystring parameters are now editable, validated, and rendered in requests and code samples, with proper handling of percent encoding and mixed query parameter types.
+- Custom HTTP methods defined in additionalOperations appear in navigation and can be sent from the API client, preserving their case throughout requests and code examples.
+- Parameter examples using dataValue or serializedValue are now honored in the editor, outgoing requests, and generated snippets without double encoding.
+- Discriminator mapping values appear beside schema names in oneOf and anyOf selectors, making it clear which payload value selects each schema.
+- SDK code samples can now be linked to request examples using optional example and contentType fields, with unavailable samples showing localized status messages.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1720)
+
+## 1.71.0 (2026-09-22)
+
+### Streaming schemas, collapsible parameters, and copy operations as Markdown
+
+This release adds OpenAPI 3.2 streaming support with generated framed examples, a new option to collapse parameter lists, and a Copy as Markdown button for operations and webhooks. The API Client now loads on demand and supports eight languages.
+
+- Support OpenAPI 3.2 streaming item schemas with framed JSON Lines, JSON Sequence, and server-sent events examples across request bodies, responses, and code snippets.
+- Add Copy as Markdown buttons to operations and webhooks in both layouts, converting resolved OpenAPI documents to Markdown on demand.
+- Add expandAllParameters option (defaults to true) to start operation parameters collapsed and expand each one on click for cleaner long parameter lists.
+- Load the API Client modal and agent chat only when first opened instead of at startup, reducing initial bundle size by about 28 percent for read-only configurations.
+- Localize the embedded API Client in eight languages (English, Russian, Spanish, French, German, Simplified Chinese, Arabic, and Portuguese) with override support through configuration.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1710)
+
+## 1.70.0 (2026-09-21)
+
+### Search multi-document selectors, lazy-load external examples, and better deep linking
+
+This release adds filtering and keyboard navigation to the multi-document API selector, making large references easier to navigate. External examples now load on demand instead of at startup, and deep links scroll correctly even when your app has sticky headers.
+
+- Filter API documents by title with keyboard navigation in the multi-document selector
+- Load external examples only when visible or opened in Test Request, improving performance for large APIs
+- Deep-linked headings now appear below sticky or fixed headers instead of scrolling behind them
+- Show response example summaries and descriptions alongside their payloads
+- Generate AsyncAPI payload examples from JSON Schema when no explicit example is provided
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1700)
+
+## 1.69.1 (2026-09-18)
+
+### OAuth2 metadata discovery and environment defaults
+
+This release adds OAuth2 authorization server metadata discovery for OpenAPI 3.2, fixes environment variable resolution in API references, and renders new display fields from the OpenAPI 3.2 specification.
+
+- OAuth2 metadata URLs now fetch authorization server metadata to discover flows and endpoints while preserving explicit configuration
+- Environment variable defaults from OpenAPI documents now apply correctly in the reference and Test Request client
+- Response summaries, server names in server selectors, and deprecated security scheme strikethroughs now render for OpenAPI 3.2 documents
+- Fixed the API client modal getting stuck on a placeholder state when reopening a document's first operation after the document re-synced
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1691)
+
+## 1.69.0 (2026-09-16)
+
+### Tree layout, shared localization engine, and response hooks
+
+This release introduces a new tree layout for schema rendering with continuous depth rails and inline disclosure controls, ships a shared localization engine across packages, and adds response interception hooks for API references.
+
+- Schema renderer now uses a tree layout with depth rails, inline type tokens, and one disclosure grammar across parameters, headers, callbacks, and AsyncAPI messages.
+- Deep links and expand-all now work across every surface through a per-reference expansion store, with keyboard navigation available behind the schemaKeyboardNav flag.
+- Localization moves to a shared @scalar/localization package. Schema-related translation keys migrate from common.* to schema.* (e.g., common.nullable becomes schema.nullable).
+- Response hooks can now replace the response before the client processes it, and the onResponseReceived callback ships for API references.
+- Discriminator-based variant selectors render consistently for array items and object properties, with inherited fields shown once instead of twice.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1690)
+
+## 1.68.0 (2026-09-07)
+
+### Default request body view and composition label improvements
+
+You can now open the request body editor in Form view by default, and schema composition selectors show clearer labels for array types that reference models.
+
+- Set `defaultRequestBodyView: 'form'` in config or use the `x-scalar-default-request-body-view` extension to start in Form view instead of Raw.
+- Array branches in schema composition selectors now show the referenced model name (for example, `ResourceObject[]` instead of the generic `array object[]`).
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1680)
+
+## 1.67.0 (2026-08-28)
+
+### Better heading hierarchy and response example syncing
+
+This release fixes how heading levels work when rendering blocks on their own (like in docs sites), synchronizes response examples with the content type selector, and polishes several schema display issues.
+
+- Heading levels now resolve from the page outline instead of being hardcoded, so an operation rendered alone starts at h1
+- Response examples now reflect the content type selected in the response dropdown
+- oneOf selector labels now show each variant's own name instead of repeating the shared base name
+- OAuth scopes section only renders for oauth2 and openIdConnect schemes, not for http or apiKey schemes
+- Pattern hover chip moved next to Example chip so it no longer collides with constraints
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1670)
+
+## 1.66.1 (2026-08-20)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1661)
+
+## 1.66.0 (2026-08-20)
+
+### Crawlable navigation and OpenAPI 3.2 nested tags
+
+Navigation entries are now real anchor links that search engines can discover, and the API reference supports OpenAPI 3.2 tag nesting for multi-level hierarchies.
+
+- Sidebar navigation renders as anchor links instead of buttons, so entries can be opened in a new tab and are crawlable with path routing enabled
+- Server-rendered HTML includes a hidden flat list of all sidebar URLs so crawlers can discover every operation and model without executing JavaScript
+- OpenAPI 3.2 nested tags are now supported through the native parent field, building arbitrary-depth hierarchies with sticky breadcrumb navigation in the modern layout
+- Schema pattern constraints now appear as hover dropdowns instead of truncated inline text, making long regex patterns fully readable
+- Standalone browser build now ships with source maps for easier debugging, and a short CDN URL is available at /esm.js
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1660)
+
+## 1.65.0 (2026-08-13)
+
+### AsyncAPI component exports and model link fixes
+
+This release exports AsyncAPI content components so you can render individual channels, operations, and messages on their own pages. It also fixes several issues with model name links that appeared clickable but scrolled nowhere.
+
+- Export AsyncAPI content components (AsyncApiChannel, AsyncApiOperation, AsyncApiMessage) from @scalar/api-reference/components
+- Model names now render as plain text when the models section is hidden or the referenced model is hidden via x-internal
+- Fix model name links for schemas grouped under a tag via x-tags so clicking them scrolls to the correct model
+- Model names are no longer clickable when the reference points to parameters, responses, or external files instead of schemas
+- Webhooks now show a webhook icon in search results to distinguish them from regular operations
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1650)
+
+## 1.64.1 (2026-08-07)
+
+### Security hardening and accessibility improvements
+
+This release hardens the API reference against untrusted OpenAPI documents, resolves critical accessibility violations, and fixes several rendering issues including duplicate enum values and recursive discriminator schemas.
+
+- Dangerous URLs from OpenAPI documents (like javascript: links) are now sanitized to prevent script execution when clicked
+- Fixed ARIA violations in the sidebar and client tabs to improve screen reader accessibility
+- Array parameters with enum items no longer list their values twice
+- Discriminator schemas that reference their base type no longer render recursively
+- Selected server is now preserved when the configuration is updated
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1641)
+
+## 1.64.0 (2026-07-31)
+
+### Plugin loading from URLs, improved schema composition, and accessibility fixes
+
+This release introduces a new pluginUrls configuration option so integrations that pass JSON configuration can load plugins without custom bundles. Schema rendering now properly handles sibling properties in allOf compositions and multiple oneOf/anyOf groups, while accessibility improvements include proper ARIA attributes and print styles.
+
+- New pluginUrls configuration option allows loading API Reference plugins from URLs, enabling JSON-based integrations like Docker and server-side frameworks to use plugins without replacing the entire bundle
+- OAuth scopes required for an operation now appear as a dedicated section below the description instead of only inside the Auth Required badge popover
+- Schemas with multiple oneOf or anyOf groups under allOf now render every group with its own selector in position, rather than silently dropping all but the first
+- Sibling properties next to a single-member allOf are now preserved and merged with the base schema, fixing cases where fields and titles were lost
+- Print styles flatten the reference into document flow so saving to PDF no longer renders expanded content over following text or truncates long examples
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1640)
+
+## 1.63.0 (2026-07-20)
+
+### SDK installation instructions now available for custom layouts
+
+Consumers building custom reference layouts from blocks can now render SDK installation instructions again. The SdkInstallationInstructions component and getRenderableSdks helper are now exported from @scalar/api-reference/blocks.
+
+- Exported SdkInstallationInstructions component from blocks entry point
+- Exported getRenderableSdks helper for custom layouts that render x-scalar-sdk-installation
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1630)
+
+## 1.62.9 (2026-07-16)
+
+### Updated package README with refreshed platform overview
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1629)
+
+## 1.62.8 (2026-07-16)
+
+### Border radius scale now derives from a single variable
+
+Setting --scalar-radius to zero now produces a fully square interface. Previously, larger radius tokens were independent, so rounded corners persisted on components using --scalar-radius-lg, --scalar-radius-xl, or rounded-full even when the base radius was set to zero.
+
+- All border radius tokens now derive from --scalar-radius, so overriding one variable rescales the entire interface
+- Setting --scalar-radius: 0 now removes all rounded corners across the UI
+- Added --scalar-radius-2xl (12px) and --scalar-radius-3xl (16px) tokens to fill out the scale
+- Added --scalar-radius-full token for pill shapes and circles
+- All default values remain unchanged, so existing themes render identically unless you were relying on independent radius tokens
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1628)
+
+## 1.62.6 (2026-07-15)
+
+### AsyncAPI authentication and plugin auth fixes
+
+AsyncAPI documents now render document-wide authentication with the same interactive selector used for OpenAPI. The plugin auth accessor now correctly reads credentials from the client store.
+
+- AsyncAPI documents now render document-wide authentication in the introduction with full input UI for shared scheme types (HTTP, OAuth2, OpenID Connect, API Key)
+- Security requirements are derived from the union of each server's security settings, with an optional no-auth choice when some servers allow unauthenticated connections
+- AsyncAPI OAuth2 availableScopes are mapped to OpenAPI scopes so the scope list renders correctly
+- Security scheme warnings now name the actual document type (AsyncAPI or OpenAPI) instead of always saying OpenAPI
+- Plugin auth accessor now reads from the correct store so plugins see the credentials and security schemes users actually entered
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1626)
+
+## 1.62.5 (2026-07-08)
+
+### Deep-link fixes and read-only auth for plugins
+
+Response property deep links now scroll correctly on fresh loads, and plugins can read authentication state without being able to mutate it.
+
+- Response property deep links now work when expandAllResponses is off and scroll to the correct operation on page load
+- Plugins can read the global authentication state through a new read-only accessor in lifecycle hooks and view components
+- Security scheme delete buttons are now hidden in API reference (schemes come from the document and cannot be removed)
+- Schemas with allOf base properties next to oneOf or anyOf now keep shared fields visible in each branch
+- Protocol and server filters no longer appear in the classic layout header for AsyncAPI documents
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1625)
+
+## 1.62.2 (2026-07-02)
+
+### AsyncAPI tag layout improvements and SSR hydration fix
+
+This release fixes how AsyncAPI tags render in the reference documentation and resolves a hydration warning when server-side rendering.
+
+- AsyncAPI channels nested under tags now align with the rest of the document instead of being indented too far
+- AsyncAPI tag headers now display a Channels card that lists the channels in the tag, replacing the empty Operations card
+- Fixed an SSR hydration mismatch caused by scrollbar detection running too early on the client
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1622)
+
+## 1.62.1 (2026-06-30)
+
+### Advanced schema rendering and stability fixes
+
+This release improves support for OpenAPI 3.1 schemas with JSON Schema 2020-12 features, polymorphic types from code generators like NSwag, and fixes a crash affecting deeply nested or recursive schemas.
+
+- Generic schemas using `$dynamicRef` now render their concrete bound types instead of empty shapes (for example, `PaginatedResponse<User>` shows the User fields)
+- Polymorphic types with only a `discriminator.mapping` (common in NSwag output) now show the variant dropdown again
+- Fixed a stack overflow crash when rendering schemas with self-references inside `allOf` branches
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1621)
+
 ## 1.62.0 (2026-06-26)
 
 ### API Reference UI localization, AsyncAPI protocol filters, and custom legal links

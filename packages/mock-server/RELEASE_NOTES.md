@@ -9,6 +9,125 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.17.0 (2026-09-25)
+
+### Schema-aware XML generation and AsyncAPI security hardening
+
+Mock server XML responses now preserve attributes, namespaces, and proper element structure from OpenAPI schemas. AsyncAPI reference resolution is now restricted to safe locations.
+
+- XML mock responses now serialize using schema metadata instead of json2xml, preserving attributes, namespaces, and root element names from your OpenAPI document.
+- Mock server returns X-Scalar-XML-Error header when XML generation fails, helping you debug schema issues.
+- AsyncAPI external references are now restricted to the source directory and public network addresses for improved security.
+- Existing XML response snapshots may need updating to match the new schema-aware output format.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0170)
+
+## 0.16.0 (2026-09-24)
+
+### OpenAPI 3.2 querystring parameters and custom HTTP methods
+
+This release adds support for OpenAPI 3.2 features including whole-query parameters and document-defined HTTP methods like PURGE or NOTIFY.
+
+- Querystring parameters can now be validated and handled in custom request handlers, with full support for JSON, text, and form content from the entire query string.
+- Custom HTTP methods defined in additionalOperations are now supported with case-sensitive routing and CORS preflight responses.
+- The mock server preserves custom method capitalization when routing requests to your handlers.
+- Boolean false schemas are now correctly preserved in validation, rejecting every value as specified in your OpenAPI document.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0160)
+
+## 0.15.0 (2026-09-22)
+
+### OpenAPI 3.2 streaming, OAuth device authorization, and WebSocket v2
+
+This release adds OpenAPI 3.2 support across the mock server, including streaming responses with itemSchema, OAuth device authorization flows, and schema variant pickers. WebSocket handling has been upgraded to Hono Node server v2.
+
+- Generate finite SSE, JSON Lines, NDJSON, and JSON Sequence mock responses from OpenAPI 3.2 itemSchema definitions.
+- Support OAuth device authorization flows with verification codes, token polling, and mock approval endpoints.
+- Add response variant pickers for anyOf and oneOf schemas, with proper primitive and array generation.
+- Upgrade to Hono Node server v2 for WebSocket support. AsyncAPI callers must pass websocket to serve() instead of calling injectWebSocket().
+- Preserve semantics when upgrading to OpenAPI 3.2, with compatibility diagnostics for descriptions requiring author decisions.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0150)
+
+## 0.14.4 (2026-09-21)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0144)
+
+## 0.14.2 (2026-09-18)
+
+### OAuth2 metadata discovery for local development
+
+The mock server now serves OAuth2 authorization server metadata at the configured URL, advertising local mock endpoints and the grants and scopes you have defined.
+
+- Serve OAuth2 metadata at the declared oauth2MetadataUrl with local mock endpoints and configured grants and scopes.
+- Normalize absolute OAuth token URLs to route paths when registering mock authentication routes.
+- Warn when OAuth2 metadata routes collide with declared API paths to help catch configuration issues early.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0142)
+
+## 0.14.1 (2026-09-16)
+
+### Mock server now serves deprecated response schemas and supports HTTP QUERY
+
+The mock server no longer returns empty bodies for deprecated response schemas. It now correctly generates values for deprecated fields and message payloads, matching real API behavior. HTTP QUERY requests are now allowed in CORS preflight responses.
+
+- Deprecated response schemas are now served with generated content instead of empty bodies.
+- AsyncAPI deprecated message payloads generate realistic data instead of sending null.
+- Response headers that generate no value are skipped rather than being deleted.
+- HTTP QUERY method is now supported in default CORS preflight responses.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0141)
+
+## 0.14.0 (2026-09-07)
+
+### Custom handler and seed code now runs in a secure sandbox
+
+This release hardens the mock server against security risks. Custom handler and seed code is now isolated in a WebAssembly sandbox, and OpenAPI references are protected from server-side request forgery and unauthorized file access.
+
+- Custom x-handler and x-seed code now runs in a QuickJS WebAssembly sandbox with memory and time limits, preventing access to the Node.js host.
+- OpenAPI $ref resolution is now hardened to block private networks, loopback addresses, and metadata endpoints.
+- Local file references are confined to the document's own directory, preventing unauthorized file reads.
+- The store, faker, req, res, schema, and seed APIs continue to work as before in the sandbox.
+- Faker methods that take callbacks (like faker.helpers.multiple) are no longer supported due to sandbox boundaries.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0140)
+
+## 0.13.0 (2026-08-28)
+
+### Server-Sent Events support and improved error diagnostics
+
+The mock server now streams text/event-stream responses as real Server-Sent Events, returns structured JSON errors that name the failed operation, and validates recursive schemas correctly.
+
+- Server-Sent Events responses are now streamed with proper data: line framing instead of buffered as a single JSON body.
+- Named examples in SSE responses are sent as a sequence of events in declaration order.
+- Unhandled errors return structured JSON with the operation method, path, and operationId instead of plain-text 500 responses.
+- Request validation now works for recursive schemas instead of silently falling open.
+- Path keys with query strings or special routing characters are properly escaped and matched against incoming requests.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0130)
+
+## 0.12.13 (2026-08-20)
+
+### Package republished with npm trusted publishing
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#01213)
+
+## 0.12.7 (2026-07-16)
+
+### Updated README with refreshed Scalar platform overview
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0127)
+
+## 0.12.6 (2026-07-15)
+
+### Fixed npm package README display
+
+This release fixes a metadata collision that caused the package README to display incorrectly on the npm registry. The mock server now publishes with the updated README that includes the Scalar platform overview.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0126)
+
 ## 0.12.0 (2026-06-22)
 
 ### Mock AsyncAPI documents and validate all parameter styles
