@@ -1,6 +1,7 @@
 import { Command } from 'commander'
 
 import { cat } from '@/commands/cat'
+import { generateAgentSkills } from '@/commands/generate-agent-skills'
 import { generateBlog } from '@/commands/generate-blog'
 import { generateMonthlyContributors } from '@/commands/generate-monthly-contributors'
 import { generateReadme } from '@/commands/generate-readme'
@@ -25,6 +26,7 @@ program.addCommand(updateTestSnapshots)
 program.addCommand(cat)
 program.addCommand(run)
 program.addCommand(updatePlaywrightDocker)
+program.addCommand(generateAgentSkills)
 program.addCommand(generateReadme)
 program.addCommand(generateBlog)
 program.addCommand(generateMonthlyContributors)

@@ -20,11 +20,27 @@ pnpm script <command>
 
 ## Commands
 
+### `generate-agent-skills`
+
+Copy the selected product skills (`scalar-mock-server` and `scalar-docs`) from
+`.agents/skills` into the scalar.com assets directory and regenerate their
+discovery index with SHA-256 digests. The published mock-server name is
+`scalar-mock-server`; its source stays unchanged.
+
+```bash
+pnpm script generate-agent-skills
+# Verify committed artifacts without changing files (also runs in CI):
+pnpm script generate-agent-skills --check
+```
+
+Run the generator after editing either source skill and commit its outputs.
+
 ### `packages format`
 
 Format and validate all `package.json` files in the workspace.
 
 This command:
+
 - Formats `package.json` files in `packages/`, `integrations/`, `projects/`, and `examples/` directories
 - Sorts keys according to a predefined order
 - Validates required fields (license, author, repository, etc.)
@@ -33,6 +49,7 @@ This command:
 - Ensures peer dependencies are installed as dev dependencies
 
 **Usage:**
+
 ```bash
 pnpm --filter @scalar-internal/build-scripts start packages format
 ```
@@ -44,6 +61,7 @@ Check for outdated packages in the workspace catalog.
 This command checks all packages in the `pnpm-workspace.yaml` catalogs and reports which ones have newer versions available. You can optionally filter by package name patterns using glob patterns.
 
 **Usage:**
+
 ```bash
 # Check all packages
 pnpm --filter @scalar-internal/build-scripts start packages outdated
@@ -53,6 +71,7 @@ pnpm --filter @scalar-internal/build-scripts start packages outdated "commander"
 ```
 
 The output shows:
+
 - Package name
 - Current version
 - Latest available version
@@ -65,6 +84,7 @@ Update packages in the workspace catalog to their latest versions.
 This command updates the specified packages in `pnpm-workspace.yaml` to their latest available versions. Use glob patterns to match multiple packages.
 
 **Usage:**
+
 ```bash
 # Update specific packages
 pnpm --filter @scalar-internal/build-scripts start packages update "commander" "prettier"
@@ -82,6 +102,7 @@ Wait for services to start on specified ports.
 This command polls HTTP endpoints on the given ports until they respond successfully, or times out after 30 seconds. Useful for waiting for test servers or other services to be ready.
 
 **Usage:**
+
 ```bash
 # Wait for a single port
 pnpm --filter @scalar-internal/build-scripts start wait -p 3000
@@ -91,6 +112,7 @@ pnpm --filter @scalar-internal/build-scripts start wait -p 3000 3001 8080
 ```
 
 The command will:
+
 - Ping each port every second
 - Exit with code 0 when all ports are ready
 - Exit with code 1 if any port doesn't respond within 30 seconds
@@ -102,11 +124,13 @@ Update Playwright test snapshot files.
 This command processes Playwright test results and updates snapshot files for the CDN API Reference tests. It's intended to be run in the `test-cdn-jsdelvr.yml` GitHub Actions workflow.
 
 **Usage:**
+
 ```bash
 pnpm --filter @scalar-internal/build-scripts start update-snapshots
 ```
 
 The command:
+
 - Reads test results from `playwright/test-results/`
 - Filters out retry reports
 - Copies actual snapshots to the snapshot folder
@@ -119,6 +143,7 @@ Test terminal color output (debugging utility).
 This command displays a colorful ASCII art cat and demonstrates all available terminal color outputs. Useful for testing terminal color support and debugging color-related issues.
 
 **Usage:**
+
 ```bash
 pnpm --filter @scalar-internal/build-scripts start cat
 ```
@@ -130,11 +155,13 @@ Run test servers concurrently.
 This command starts both the void-server and proxy-server test servers in parallel using `concurrently`. Useful for local development and testing.
 
 **Usage:**
+
 ```bash
 pnpm --filter @scalar-internal/build-scripts start run test-servers
 ```
 
 The command runs:
+
 - `@scalar/void-server` on its default port
 - `proxy-scalar-com` on its default port
 
@@ -145,6 +172,7 @@ Both servers run with `CI=1` environment variable set.
 Update the Playwright Docker images to the latest version.
 
 This command builds and pushes Docker images for Playwright testing. It creates two images:
+
 - `scalarapi/playwright:${version}` - Base Playwright image
 - `scalarapi/playwright-runner:${version}` - Runner image
 
@@ -154,6 +182,7 @@ Silicon) machines. The command creates a reusable `scalar-multiarch` buildx buil
 first run.
 
 **Usage:**
+
 ```bash
 pnpm --filter @scalar-internal/build-scripts start update-playwright-docker
 ```
@@ -166,10 +195,12 @@ you must have push access to the `scalarapi` Docker Hub organization.
 Generate blog index post rows and update `scalar.config.json` from post files.
 
 Scans `documentation/blog/` for markdown files matching `YYYY-MM-DD-slug.md`, then:
+
 - Rewrites the auto-generated post list section (between `<!-- generated -->` / `<!-- /generated -->` markers) in `documentation/blog/index.md`. Existing summaries are preserved and normalized for concise list rows.
 - Updates `/blog` navigation in `scalar.config.json`, converting `/blog` to a single page entry with a books icon, generating hidden `/blog/posts/*` routes, and preserving custom titles plus page-level head scripts.
 
 **Usage:**
+
 ```bash
 pnpm --filter @scalar-internal/build-scripts start generate-blog
 ```
@@ -183,11 +214,13 @@ This command scans all packages in `packages/` and `integrations/` directories, 
 > The metadata key is intentionally named `scalarReadme` and not `readme`: npm treats a `readme` field in `package.json` as the readme _text_ and publishes it to the registry, which clobbers the real README.md with `[object Object]` on npmjs.com.
 
 **Usage:**
+
 ```bash
 pnpm --filter @scalar-internal/build-scripts start generate-readme
 ```
 
 The generated README includes:
+
 - Title from metadata
 - Badges (npm, pypi, nuget, docker, crates.io) based on package type
 - Package description
@@ -199,6 +232,7 @@ The generated README includes:
 - License section
 
 **Package.json metadata format:**
+
 ```json
 {
   "scalarReadme": {

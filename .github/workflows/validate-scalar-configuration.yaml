@@ -7,10 +7,16 @@ on:
     paths:
       - 'scalar.config.json'
       - 'documentation/**'
+      - '.agents/skills/mock-server/**'
+      - '.agents/skills/scalar-docs/**'
+      - 'tooling/scripts/**'
   pull_request:
     paths:
       - 'scalar.config.json'
       - 'documentation/**'
+      - '.agents/skills/mock-server/**'
+      - '.agents/skills/scalar-docs/**'
+      - 'tooling/scripts/**'
 
 permissions:
   contents: read
@@ -32,6 +38,14 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           check-latest: true
+
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+
+      - name: Install skill generator dependencies
+        run: pnpm install --frozen-lockfile --filter @scalar-internal/build-scripts
+
+      - name: Check published agent skills
+        run: pnpm script generate-agent-skills --check
 
       - name: Validate
         run: npx @scalar/cli@latest project check-config
