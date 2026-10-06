@@ -33,7 +33,7 @@ This release brings support for importing API descriptions from Hono reference p
 - Screen readers now announce code blocks with their language and context, such as "Code sample: Shell cURL"
 - Copy buttons in code blocks have stable accessible names that remain clear even when the visible label is hidden
 - Press Space to toggle options in multiselect comboboxes like the auth scheme picker without hiding the list
-- Security update to Undici 7.29.1 to address advisories while maintaining Node 22 compatibility
+- Update the desktop app’s Undici dependency to 8.11.2 to address security advisories
 
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1137)
 
@@ -119,12 +119,6 @@ This release improves how the API client handles optional parameters with pre-fi
 
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1131)
 
-## 1.1.30 (2026-09-19)
-
-### Polish and bug fixes
-
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1130)
-
 ## 1.1.29 (2026-09-18)
 
 ### Line wrapping toggle and OAuth2 metadata discovery
@@ -143,7 +137,7 @@ This release adds interactive line wrapping for long request and response bodies
 
 ### Improved workspace settings, authentication, and request handling
 
-This release fixes workspace settings visibility issues, improves request body handling with schema generation and multipart arrays, and adds support for mutual TLS authentication and response interception.
+This release fixes workspace settings visibility issues, improves request body handling with schema generation and multipart arrays, and preserves mutual TLS security scheme types with read-only authentication guidance.
 
 - Fixed workspace settings options becoming unreadable while clicked, and made light theme color swatches visible
 - Added a button to generate request body examples from schema when custom examples hide schema fields
@@ -195,12 +189,6 @@ This release addresses several issues with parameter display and request body ha
 - Improved stability of parameter row rendering using consistent component keys
 
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1124)
-
-## 1.1.23 (2026-08-13)
-
-### Polish and bug fixes shipped
-
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1123)
 
 ## 1.1.22 (2026-08-13)
 
@@ -261,19 +249,12 @@ Setting a custom border radius in your theme is simpler and more predictable. Ov
 
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1118)
 
-## 1.1.17 (2026-07-15)
-
-### Polish and bug fixes
-
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1117)
-
 ## 1.1.16 (2026-07-15)
 
-### AsyncAPI authentication support and improved auth warnings
+### Clearer authentication warnings
 
-This release adds document-level authentication rendering for AsyncAPI specifications and improves authentication error messages to be more accurate based on the document type being used.
+Authentication warnings now name the document type and distinguish unsupported authentication types from security schemes with a missing type.
 
-- AsyncAPI documents now display their security schemes in the authentication selector, just like OpenAPI documents
 - Authentication warnings now correctly identify the document type (AsyncAPI or OpenAPI) instead of always saying OpenAPI
 - Unsupported AsyncAPI authentication types now show a clear message indicating the feature is not yet supported
 
@@ -290,18 +271,6 @@ This release fixes cookie handling so server-set tokens like Django CSRF survive
 
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1115)
 
-## 1.1.14 (2026-07-03)
-
-### Polish and bug fixes
-
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1114)
-
-## 1.1.13 (2026-07-02)
-
-### Polish and bug fixes
-
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1113)
-
 ## 1.1.12 (2026-06-30)
 
 ### OAuth2 flows and URL imports now work in the desktop app
@@ -310,7 +279,6 @@ Interactive OAuth2 (authorization code and implicit flows) never actually worked
 
 - OAuth2 authorization code and implicit flows now work via a local loopback server that captures the redirect from your system browser
 - Importing OpenAPI documents from a URL no longer fails with a Content Security Policy error
-- The auth dropdown now only shows security schemes that an operation actually declares, not every scheme in the document
 
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1112)
 
@@ -363,12 +331,6 @@ This release fixes OpenAPI specs that use path item references and improves code
 - Selecting a language in Client Libraries now switches all operation code examples to that language
 
 [Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#118)
-
-## 1.1.7 (2026-06-09)
-
-### Polish and bug fixes shipped
-
-[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#117)
 
 ## 1.1.6 (2026-06-09)
 

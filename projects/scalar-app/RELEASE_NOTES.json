@@ -42,7 +42,7 @@
           "Screen readers now announce code blocks with their language and context, such as \"Code sample: Shell cURL\"",
           "Copy buttons in code blocks have stable accessible names that remain clear even when the visible label is hidden",
           "Press Space to toggle options in multiselect comboboxes like the auth scheme picker without hiding the list",
-          "Security update to Undici 7.29.1 to address advisories while maintaining Node 22 compatibility"
+          "Update the desktop app’s Undici dependency to 8.11.2 to address security advisories"
         ],
         "ordered": false
       },
@@ -214,18 +214,6 @@
     ]
   },
   {
-    "version": "1.1.30",
-    "date": "2026-09-19",
-    "title": "Polish and bug fixes",
-    "content": [
-      {
-        "type": "href",
-        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1130",
-        "label": "Read full release notes"
-      }
-    ]
-  },
-  {
     "version": "1.1.29",
     "date": "2026-09-18",
     "title": "Line wrapping toggle and OAuth2 metadata discovery",
@@ -259,7 +247,7 @@
     "content": [
       {
         "type": "paragraph",
-        "text": "This release fixes workspace settings visibility issues, improves request body handling with schema generation and multipart arrays, and adds support for mutual TLS authentication and response interception."
+        "text": "This release fixes workspace settings visibility issues, improves request body handling with schema generation and multipart arrays, and preserves mutual TLS security scheme types with read-only authentication guidance."
       },
       {
         "type": "list",
@@ -363,18 +351,6 @@
       {
         "type": "href",
         "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1124",
-        "label": "Read full release notes"
-      }
-    ]
-  },
-  {
-    "version": "1.1.23",
-    "date": "2026-08-13",
-    "title": "Polish and bug fixes shipped",
-    "content": [
-      {
-        "type": "href",
-        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1123",
         "label": "Read full release notes"
       }
     ]
@@ -497,30 +473,17 @@
     ]
   },
   {
-    "version": "1.1.17",
-    "date": "2026-07-15",
-    "title": "Polish and bug fixes",
-    "content": [
-      {
-        "type": "href",
-        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1117",
-        "label": "Read full release notes"
-      }
-    ]
-  },
-  {
     "version": "1.1.16",
     "date": "2026-07-15",
-    "title": "AsyncAPI authentication support and improved auth warnings",
+    "title": "Clearer authentication warnings",
     "content": [
       {
         "type": "paragraph",
-        "text": "This release adds document-level authentication rendering for AsyncAPI specifications and improves authentication error messages to be more accurate based on the document type being used."
+        "text": "Authentication warnings now name the document type and distinguish unsupported authentication types from security schemes with a missing type."
       },
       {
         "type": "list",
         "items": [
-          "AsyncAPI documents now display their security schemes in the authentication selector, just like OpenAPI documents",
           "Authentication warnings now correctly identify the document type (AsyncAPI or OpenAPI) instead of always saying OpenAPI",
           "Unsupported AsyncAPI authentication types now show a clear message indicating the feature is not yet supported"
         ],
@@ -558,30 +521,6 @@
     ]
   },
   {
-    "version": "1.1.14",
-    "date": "2026-07-03",
-    "title": "Polish and bug fixes",
-    "content": [
-      {
-        "type": "href",
-        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1114",
-        "label": "Read full release notes"
-      }
-    ]
-  },
-  {
-    "version": "1.1.13",
-    "date": "2026-07-02",
-    "title": "Polish and bug fixes",
-    "content": [
-      {
-        "type": "href",
-        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1113",
-        "label": "Read full release notes"
-      }
-    ]
-  },
-  {
     "version": "1.1.12",
     "date": "2026-06-30",
     "title": "OAuth2 flows and URL imports now work in the desktop app",
@@ -594,8 +533,7 @@
         "type": "list",
         "items": [
           "OAuth2 authorization code and implicit flows now work via a local loopback server that captures the redirect from your system browser",
-          "Importing OpenAPI documents from a URL no longer fails with a Content Security Policy error",
-          "The auth dropdown now only shows security schemes that an operation actually declares, not every scheme in the document"
+          "Importing OpenAPI documents from a URL no longer fails with a Content Security Policy error"
         ],
         "ordered": false
       },
@@ -704,18 +642,6 @@
       {
         "type": "href",
         "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#118",
-        "label": "Read full release notes"
-      }
-    ]
-  },
-  {
-    "version": "1.1.7",
-    "date": "2026-06-09",
-    "title": "Polish and bug fixes shipped",
-    "content": [
-      {
-        "type": "href",
-        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#117",
         "label": "Read full release notes"
       }
     ]

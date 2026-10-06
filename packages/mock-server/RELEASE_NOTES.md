@@ -39,11 +39,11 @@ This release adds support for OpenAPI 3.2 features including whole-query paramet
 
 ### OpenAPI 3.2 streaming, OAuth device authorization, and WebSocket v2
 
-This release adds OpenAPI 3.2 support across the mock server, including streaming responses with itemSchema, OAuth device authorization flows, and schema variant pickers. WebSocket handling has been upgraded to Hono Node server v2.
+This release adds OpenAPI 3.2 support across the mock server, including streaming responses with itemSchema and OAuth device authorization flows. WebSocket handling has been upgraded to Hono Node server v2.
 
 - Generate finite SSE, JSON Lines, NDJSON, and JSON Sequence mock responses from OpenAPI 3.2 itemSchema definitions.
 - Support OAuth device authorization flows with verification codes, token polling, and mock approval endpoints.
-- Add response variant pickers for anyOf and oneOf schemas, with proper primitive and array generation.
+- Generate the correct primitive and array branches for anyOf and oneOf schemas, preserving the selected shape in mock HTTP responses.
 - Upgrade to Hono Node server v2 for WebSocket support. AsyncAPI callers must pass websocket to serve() instead of calling injectWebSocket().
 - Preserve semantics when upgrading to OpenAPI 3.2, with compatibility diagnostics for descriptions requiring author decisions.
 
