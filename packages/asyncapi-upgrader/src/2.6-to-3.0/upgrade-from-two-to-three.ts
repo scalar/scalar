@@ -20,6 +20,11 @@ export function upgradeFromTwoToThree(originalDocument: UnknownObject): UnknownO
 
   document.asyncapi = ASYNCAPI_VERSION
 
+  if (isObject(document.info) && isObject(document.externalDocs)) {
+    // Keep the root value so references authored against the 2.x path still resolve.
+    document.info.externalDocs ??= document.externalDocs
+  }
+
   // OAuth flows must be rewritten before security requirements consult them.
   upgradeComponentOAuthScopes(document)
   upgradeServers(document)
