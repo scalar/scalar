@@ -17,7 +17,6 @@ jobs:
   backfill:
     if: github.repository == 'scalar/scalar' && github.ref == 'refs/heads/codex/backfill-release-notes' && github.actor == 'hanspagel'
     runs-on: ubuntu-22.04
-    environment: release-bot
     timeout-minutes: 120
     permissions:
       contents: write
@@ -52,19 +51,10 @@ jobs:
             packages/agent-chat/RELEASE_NOTES.{json,md} \
             packages/mock-server/RELEASE_NOTES.{json,md}
 
-      - name: Generate GitHub App token
-        if: steps.generate.outputs.checkpoint-restored == 'true'
-        id: app-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-          permission-contents: write
-
       - name: Commit generated notes to this PR
         if: steps.generate.outputs.checkpoint-restored == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           BACKFILL_BRANCH: codex/backfill-release-notes
         run: |
           git config user.name 'github-actions[bot]'
