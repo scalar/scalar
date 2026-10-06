@@ -9,22 +9,36 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
+
+defineSlots<{
+  default?: () => unknown
+  title?: () => unknown
+  /** Keeps interactive header actions outside the disclosure button. */
+  actions?: () => unknown
+}>()
 </script>
 <template>
   <section class="section-accordion-wrapper">
     <Disclosure
       as="div"
       class="section-accordion">
-      <DisclosureButton
-        class="section-accordion-button"
-        @click="emit('update:modelValue', !modelValue)">
-        <ScalarIconCaretRight
-          class="section-accordion-chevron size-5 transition-transform"
-          :class="{ 'rotate-90': modelValue }" />
-        <div class="section-accordion-title">
-          <slot name="title" />
+      <div class="flex items-start gap-3">
+        <DisclosureButton
+          class="section-accordion-button min-w-0 flex-1"
+          @click="emit('update:modelValue', !modelValue)">
+          <ScalarIconCaretRight
+            class="section-accordion-chevron size-5 transition-transform"
+            :class="{ 'rotate-90': modelValue }" />
+          <div class="section-accordion-title">
+            <slot name="title" />
+          </div>
+        </DisclosureButton>
+        <div
+          v-if="$slots.actions"
+          class="flex shrink-0 items-center gap-3">
+          <slot name="actions" />
         </div>
-      </DisclosureButton>
+      </div>
       <DisclosurePanel
         v-if="modelValue"
         class="section-accordion-content"
