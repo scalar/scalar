@@ -85,7 +85,9 @@ function addHeadersAndAuth(lines: string[], request: any, configuration?: Plugin
   if (authHeader) {
     const [scheme, parameter] = authHeader.value.split(' ', 2)
     if (scheme && parameter) {
-      lines.push(`request.Headers.Authorization = new AuthenticationHeaderValue("${escapeCSharpString(scheme)}", "${escapeCSharpString(parameter)}");`)
+      lines.push(
+        `request.Headers.Authorization = new AuthenticationHeaderValue("${escapeCSharpString(scheme)}", "${escapeCSharpString(parameter)}");`,
+      )
     }
   } else if (configuration?.auth?.username && configuration?.auth?.password) {
     // Use configuration auth if no explicit header
@@ -114,7 +116,9 @@ function addHeadersAndAuth(lines: string[], request: any, configuration?: Plugin
       // Content-Type will be set on content object
       continue
     } else {
-      lines.push(`request.Headers.TryAddWithoutValidation("${escapeCSharpString(name)}", "${escapeCSharpString(value)}");`)
+      lines.push(
+        `request.Headers.TryAddWithoutValidation("${escapeCSharpString(name)}", "${escapeCSharpString(value)}");`,
+      )
     }
   }
 
@@ -181,7 +185,9 @@ function addBodyContent(lines: string[], request: any): void {
         if (param.contentType) {
           const contentName = `fileContent${multipartContentIndex++}`
           lines.push(`var ${contentName} = new StreamContent(File.OpenRead("${escapeCSharpString(param.fileName)}"));`)
-          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${escapeCSharpString(param.contentType)}");`)
+          lines.push(
+            `${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${escapeCSharpString(param.contentType)}");`,
+          )
           lines.push(
             `content.Add(${contentName}, "${escapeCSharpString(param.name)}", "${escapeCSharpString(param.fileName)}");`,
           )
@@ -194,7 +200,9 @@ function addBodyContent(lines: string[], request: any): void {
         if (param.contentType) {
           const contentName = `stringContent${multipartContentIndex++}`
           lines.push(`var ${contentName} = new StringContent("${escapeCSharpString(param.value ?? '')}");`)
-          lines.push(`${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${escapeCSharpString(param.contentType)}");`)
+          lines.push(
+            `${contentName}.Headers.ContentType = new MediaTypeHeaderValue("${escapeCSharpString(param.contentType)}");`,
+          )
           lines.push(`content.Add(${contentName}, "${escapeCSharpString(param.name)}");`)
         } else {
           lines.push(
@@ -234,11 +242,7 @@ function createRawStringLiteral(text: string): string {
 }
 
 function escapeCSharpString(text: string): string {
-  return text
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\r/g, '\\r')
-    .replace(/\n/g, '\\n')
+  return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r/g, '\\r').replace(/\n/g, '\\n')
 }
 
 /**
