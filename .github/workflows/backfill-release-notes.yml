@@ -1,0 +1,110 @@
+name: Backfill release notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'First release date to include (YYYY-MM-DD)'
+        default: '2026-06-01'
+        required: true
+        type: string
+      dry-run:
+        description: 'List missing releases without calling the AI provider or creating a PR'
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backfill-release-notes
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    if: github.repository == 'scalar/scalar' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    environment: release-bot
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-node
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @scalar/release-notes... build
+
+      - name: Fetch notes from an unfinished backfill
+        id: resume
+        run: |
+          branch=codex/backfill-generated-release-notes
+          existing=$(git ls-remote --heads origin "refs/heads/$branch")
+          if [ -n "$existing" ]; then
+            git fetch origin "$branch:refs/remotes/origin/$branch"
+            echo "ref=refs/remotes/origin/$branch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Backfill missing releases
+        id: generate
+        continue-on-error: true
+        run: pnpm exec tsx .github/actions/backfill-release-notes/run.ts
+        env:
+          BACKFILL_SINCE: ${{ inputs.since }}
+          BACKFILL_DRY_RUN: ${{ inputs.dry-run }}
+          BACKFILL_RESUME_REF: ${{ steps.resume.outputs.ref }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Format generated notes
+        if: ${{ !inputs.dry-run }}
+        run: |
+          pnpm exec prettier --write \
+            packages/api-reference/RELEASE_NOTES.{json,md} \
+            projects/scalar-app/RELEASE_NOTES.{json,md} \
+            packages/agent-chat/RELEASE_NOTES.{json,md} \
+            packages/mock-server/RELEASE_NOTES.{json,md}
+
+      - name: Generate GitHub App token
+        if: ${{ !inputs.dry-run }}
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Save generated notes in a draft PR
+        if: ${{ !inputs.dry-run }}
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          add-paths: |
+            packages/api-reference/RELEASE_NOTES.json
+            packages/api-reference/RELEASE_NOTES.md
+            projects/scalar-app/RELEASE_NOTES.json
+            projects/scalar-app/RELEASE_NOTES.md
+            packages/agent-chat/RELEASE_NOTES.json
+            packages/agent-chat/RELEASE_NOTES.md
+            packages/mock-server/RELEASE_NOTES.json
+            packages/mock-server/RELEASE_NOTES.md
+          base: main
+          branch: codex/backfill-generated-release-notes
+          delete-branch: true
+          draft: true
+          commit-message: 'docs: backfill product release notes'
+          title: 'docs: backfill product release notes'
+          body: |
+            Fill missing product release notes using historical changelogs and the date each release reached main. Existing notes are preserved.
+
+            Generation outcome: ${{ steps.generate.outcome }}. If generation failed, this PR preserves completed entries; rerun the backfill workflow to continue.
+
+      - name: Report generation failure
+        if: steps.generate.outcome == 'failure'
+        run: exit 1
