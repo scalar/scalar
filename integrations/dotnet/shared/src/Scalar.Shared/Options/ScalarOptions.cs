@@ -24,6 +24,11 @@ public partial class ScalarOptions
     public ScalarLocalizationOptions? Localization { get; set; }
 
     /// <summary>
+    /// Controls which x-prefixed extension keys are displayed, in order. Unset or empty lists display no extensions; custom plugin components take precedence.
+    /// </summary>
+    public string[]? ShowExtensions { get; set; }
+
+    /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>
     public string? Favicon { get; set; } = "favicon.svg";

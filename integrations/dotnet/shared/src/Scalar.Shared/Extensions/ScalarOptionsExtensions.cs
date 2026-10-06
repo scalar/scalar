@@ -25,6 +25,18 @@ public static partial class ScalarOptionsExtensions
         options.Localization = localization;
         return options;
     }
+
+    /// <summary>
+    /// Controls which x-prefixed extension keys are displayed, in order. Unset or empty lists display no extensions; custom plugin components take precedence.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="extensions">The value to set.</param>
+    public static TOptions WithShowExtensions<TOptions>(this TOptions options, params string[] extensions) where TOptions : ScalarOptions
+    {
+        options.ShowExtensions = extensions;
+        return options;
+    }
+
     /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>

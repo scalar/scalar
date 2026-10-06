@@ -25,6 +25,7 @@ internal static partial class ScalarOptionsMapper
         {
             ProxyUrl = options.ProxyUrl,
             Localization = options.Localization,
+            ShowExtensions = options.ShowExtensions,
             Theme = options.Theme,
             Layout = options.Layout,
             Favicon = options.Favicon,
