@@ -1,4 +1,5 @@
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { freezeElement } from './freeze-element'
 
 describe('freezeElement', () => {

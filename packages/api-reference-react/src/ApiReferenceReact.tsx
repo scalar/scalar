@@ -1,6 +1,7 @@
 'use client'
 
 import './vue-bundler-flags'
+
 import { createApiReference } from '@scalar/api-reference'
 import type { AnyApiReferenceConfiguration, ApiReferenceInstance } from '@scalar/types/api-reference'
 import { useEffect, useRef, useState } from 'react'

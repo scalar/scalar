@@ -1,4 +1,4 @@
-import { coerce, number, object, optional, string, validate, type Static } from '@scalar/validation'
+import { type Static, coerce, number, object, optional, string, validate } from '@scalar/validation'
 import { computed } from 'vue'
 
 import { safeParseJson } from '@/helpers'
