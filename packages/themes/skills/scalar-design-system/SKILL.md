@@ -78,7 +78,7 @@ Scalar maps `--scalar-*` variables onto a custom Tailwind theme. In components, 
 - **Background:** `bg-b-1`, `bg-b-1.5`, `bg-b-2`, `bg-b-3`, `bg-b-accent`, `bg-b-btn`, `bg-b-tooltip`, `bg-b-danger`, `bg-b-alert`.
 - **Text:** `text-c-1`, `text-c-2`, `text-c-3`, `text-c-accent`, `text-c-ghost`, `text-c-disabled`, `text-c-btn`, `text-c-tooltip`, `text-c-danger`, `text-c-alert`.
 - **Themed:** `text-green` / `bg-green`, plus `red`, `yellow`, `blue`, `orange`, `purple`.
-- **Border:** `border` (uses `--scalar-border-color`, default width `0.5px`); `shadow-border` for an inset hairline.
+- **Border:** `border` (uses `--scalar-border-color`, default width `0.5px`); `shadow-border` for an inset hairline, or `inset-shadow-border` to stack it with a `shadow-*`.
 - **Shadow:** `shadow` / `shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`.
 - **Radius:** `rounded` & `rounded-md` (3px), `rounded-lg` (6px), `rounded-xl` (8px), `rounded-2xl` (12px), `rounded-3xl` (16px), `rounded-full` (pill). No `rounded-sm`.
 - **Type:** `font-sans` (Inter), `font-code` (JetBrains Mono); sizes `text-3xs` 10, `text-xxs`/`text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21; weights `font-normal` 400, `font-medium` 500, `font-bold` 600.

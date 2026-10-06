@@ -26,8 +26,7 @@ describe('ServerDropdown', () => {
           // Render default and named slots so popover content is present in DOM
           ScalarPopover: {
             name: 'ScalarPopover',
-            template:
-              '<div data-test="popover"><slot /><slot name="popover" :close="() => {}" /><slot name="backdrop" /></div>',
+            template: '<div data-test="popover"><slot /><slot name="popover" :close="() => {}" :open="true" /></div>',
           },
           // Keep button semantics for click handling
           ScalarButton: {
@@ -35,7 +34,6 @@ describe('ServerDropdown', () => {
             template: '<button><slot /></button>',
           },
           ScalarIcon: true,
-          ScalarFloatingBackdrop: true,
           // Stub child item to count instances and emit events
           ServerDropdownItem: {
             name: 'ServerDropdownItem',
@@ -102,6 +100,17 @@ describe('ServerDropdown', () => {
     const emitted = wrapper.emitted('update:variable')
     expect(emitted).toBeTruthy()
     expect(emitted?.[0]).toEqual([{ index: 0, key: 'version', value: 'v2', meta: { type: 'document' } }])
+  })
+
+  it('emits update:open with the popover open state', () => {
+    const wrapper = makeWrapper()
+    expect(wrapper.emitted('update:open')?.[0]).toEqual([true])
+  })
+
+  it('emits update:open false when the popover content unmounts', () => {
+    const wrapper = makeWrapper()
+    wrapper.unmount()
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
   })
 
   it('emits update:servers when the Update Servers button is clicked', async () => {

@@ -167,7 +167,7 @@ const handleDeleteOperation = () => {
               withImages
               @dblclick="switchMode('edit')" />
             <div
-              class="brightness-lifted bg-b-1 absolute inset-0 -z-1 hidden rounded group-hover:block group-has-focus-visible:hidden" />
+              class="bg-b-1 dark:bg-b-1.5 absolute inset-0 -z-1 hidden rounded group-hover:block group-has-focus-visible:hidden" />
           </template>
 
           <div

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import {
-  ScalarFloating,
-  ScalarFloatingBackdrop,
-} from '@scalar/components/floating'
+import { ScalarFloating } from '@scalar/components/floating'
 import { ScalarIcon } from '@scalar/components/icon'
 import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
@@ -69,7 +66,7 @@ export type History = {
         #floating="{ width }">
         <!-- History Item -->
         <MenuItems
-          class="custom-scroll grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center p-0.75"
+          class="custom-scroll bg-b-1 dark:bg-b-1.5 grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center rounded-b-lg border border-t-0 p-0.75 shadow-md"
           static
           :style="{ width }">
           <MenuItem
@@ -96,8 +93,6 @@ export type History = {
             </div>
           </MenuItem>
         </MenuItems>
-        <ScalarFloatingBackdrop
-          class="rounded-none rounded-b-lg border border-t-0 after:hidden" />
       </template>
     </ScalarFloating>
   </Menu>

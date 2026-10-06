@@ -22,7 +22,6 @@ export type ServerDropdownProps = {
 </script>
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
-import { ScalarFloatingBackdrop } from '@scalar/components/floating'
 import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconPencilSimple, ScalarIconPlus } from '@scalar/icons'
 import type {
@@ -75,7 +74,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 </script>
 <template>
   <ScalarPopover
-    class="max-h-[inherit] p-0 text-base"
+    class="max-h-[inherit] rounded-none rounded-b-lg border border-t-0 p-0 text-base inset-shadow-none"
     focus
     :offset="0"
     placement="bottom"
@@ -99,7 +98,12 @@ const serverUrlWithoutTrailingSlash = computed(() => {
       </template>
     </ScalarButton>
 
-    <template #popover="{ close }">
+    <template #popover="{ close, open }">
+      <!-- Emit the slot value back out the parent -->
+      <ValueEmitter
+        :value="open"
+        @change="(value) => emit('update:open', value)"
+        @unmount="emit('update:open', false)" />
       <div
         class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
         @click="close">
@@ -132,16 +136,6 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           </button>
         </template>
       </div>
-    </template>
-    <template #backdrop="{ open }">
-      <!-- Emit the slot value back out the parent -->
-      <ValueEmitter
-        :value="open"
-        @change="(value) => emit('update:open', value)"
-        @unmount="emit('update:open', false)" />
-
-      <ScalarFloatingBackdrop
-        class="rounded-none rounded-b-lg border border-t-0 after:hidden" />
     </template>
   </ScalarPopover>
 </template>

@@ -22,6 +22,10 @@
   --shadow-sm: rgba(0, 0, 0, 0.09) 0px 1px 4px;
   --shadow-border: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
 
+  /* Inset Shadows */
+  --inset-shadow-\*: initial;
+  --inset-shadow-border: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
+
   /* Fonts */
   --font-\*: initial;
   --font-sans: var(--scalar-font);
@@ -122,6 +126,7 @@
   --color-pink: var(--scalar-color-pink);
 
   /* Brightness */
+  /* Deprecated: lift floating surfaces with `bg-b-1 dark:bg-b-1.5` instead */
   --brightness-lifted: var(--scalar-lifted-brightness);
   --brightness-backdrop: var(--scalar-backdrop-brightness);
 

@@ -42,7 +42,6 @@ describe('AddressBarHistory', () => {
           ScalarFloating: {
             template: '<div><slot /><slot name="floating" :width="400" /></div>',
           },
-          ScalarFloatingBackdrop: true,
           ScalarIcon: true,
           // Headless UI minimal stubs to allow slot rendering and clicks
           Menu: {

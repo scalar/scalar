@@ -32,7 +32,7 @@ Several subpaths export sub-components alongside the headline component; confirm
 | `@scalar/components/dropdown` | `ScalarDropdown` (+ menu/item/divider parts) |
 | `@scalar/components/error-boundary` | `ScalarErrorBoundary` |
 | `@scalar/components/file-upload` | `ScalarFileUpload` |
-| `@scalar/components/floating` | `ScalarFloating`, `ScalarFloatingBackdrop` |
+| `@scalar/components/floating` | `ScalarFloating` (`ScalarFloatingBackdrop` is deprecated) |
 | `@scalar/components/form` | `ScalarForm` (+ field/input/section/error parts) |
 | `@scalar/components/header` | `ScalarHeader`, `ScalarHeaderColumn`, `ScalarHeaderButton` |
 | `@scalar/components/hotkey` | `ScalarHotkey`, `ScalarHotkeyTooltip` |
@@ -63,7 +63,7 @@ Several subpaths export sub-components alongside the headline component; confirm
 - **Buttons & selection:** `ScalarButton`, `ScalarIconButton`, `ScalarToggle` / `ScalarToggleGroup` / `ScalarToggleInput`.
 - **Form inputs:** `ScalarTextInput` / `ScalarTextInputCopy`, `ScalarTextArea`, `ScalarCheckbox*`, `ScalarSearchInput`, `ScalarFileUpload`, `ScalarForm`.
 - **Selection / floating:** `ScalarCombobox` / `ScalarComboboxMultiselect`, `ScalarListbox`, `ScalarDropdown`, `ScalarPopover`, `ScalarTooltip` (all built on `ScalarFloating` + Floating UI).
-- **Overlays:** `ScalarModal`, `ScalarSavePrompt`, `ScalarFloatingBackdrop`.
+- **Overlays:** `ScalarModal`, `ScalarSavePrompt`. Floating panels paint their own surface (`bg-b-1 dark:bg-b-1.5 shadow-md inset-shadow-border`); `ScalarFloatingBackdrop` is deprecated.
 - **Layout & navigation:** `ScalarHeader` / `ScalarHeaderColumn` / `ScalarHeaderButton`, `ScalarSidebar`, `ScalarMenu`. Compose `ScalarHeaderColumn` children inside `ScalarHeader`; it has no layout slots.
 - **Content:** `ScalarCard`, `ScalarCodeBlock`, `ScalarMarkdown`, `ScalarSearchResults`, `ScalarVirtualText`, `ScalarWrappingText`.
 - **Utilities:** `ScalarLoading`, `ScalarHotkey`, `ScalarCopy`, `ScalarColorModeToggle`, `ScalarThemeSwatches`, `ScalarTeleport`, `ScalarErrorBoundary`.

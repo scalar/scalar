@@ -2,7 +2,6 @@ import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 import ScalarFloating from './ScalarFloating.vue'
-import ScalarFloatingBackdrop from './ScalarFloatingBackdrop.vue'
 
 const meta: Meta = {
   component: ScalarFloating,
@@ -19,7 +18,7 @@ const meta: Meta = {
     offset: { control: { type: 'range', min: 0, max: 100, step: 1 } },
   },
   render: (args) => ({
-    components: { ScalarFloating, ScalarFloatingBackdrop },
+    components: { ScalarFloating },
     setup() {
       return { args }
     },
@@ -36,9 +35,8 @@ const meta: Meta = {
   <ScalarFloating v-bind="args">
     <div class="rounded border bg-b-2 p-2">Target for #floating</div>
     <template #floating="{ width, height }">
-      <div class="grid relative max-w-[inherit] max-h-[inherit] size-60 rounded-xl" :style="{ width, height }">
+      <div class="grid max-w-[inherit] max-h-[inherit] size-60 rounded-xl bg-b-1 dark:bg-b-1.5 shadow-md inset-shadow-border" :style="{ width, height }">
         <div class="placeholder">Floating</div>
-        <ScalarFloatingBackdrop />
       </div>
     </template>
   </ScalarFloating>

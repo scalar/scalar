@@ -15,6 +15,8 @@ const tw = extendTailwindMerge({
     classGroups: {
       'font-size': ['text-3xs', 'text-xxs'],
       'font-weight': ['font-sidebar', 'font-sidebar-active'],
+      // Without this `inset-shadow-border` reads as a color, so `inset-shadow-none` cannot replace it
+      'inset-shadow': [{ 'inset-shadow': ['border'] }],
       'max-w': [{ 'max-w': [(value: any) => Boolean(value)] }],
       'w': [{ 'w': [(value: any) => Boolean(value)] }],
     },

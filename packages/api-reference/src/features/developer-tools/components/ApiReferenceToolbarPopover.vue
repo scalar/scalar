@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ScalarFloatingBackdrop } from '@scalar/components/floating'
 import { ScalarPopover } from '@scalar/components/popover'
 import { ScalarIconCaretDown, ScalarIconInfo } from '@scalar/icons'
 
@@ -10,7 +9,7 @@ const { translate } = useLocalization()
 
 <template>
   <ScalarPopover
-    class="max-h-[inherit] max-w-[inherit] p-0 text-base"
+    class="bg-b-2 dark:bg-b-2 max-h-[inherit] max-w-[inherit] rounded-lg p-0 text-base"
     placement="bottom-end"
     teleport>
     <template #default="{ open }">
@@ -39,9 +38,6 @@ const { translate } = useLocalization()
           </slot>
         </div>
       </div>
-    </template>
-    <template #backdrop>
-      <ScalarFloatingBackdrop class="bg-b-2 rounded-lg" />
     </template>
   </ScalarPopover>
 </template>

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  ScalarFloating,
-  ScalarFloatingBackdrop,
-} from '@scalar/components/floating'
+import { ScalarFloating } from '@scalar/components/floating'
 import { ScalarIconLockSimple, ScalarIconLockSimpleOpen } from '@scalar/icons'
 import { onClickOutside, onKeyStroke } from '@vueuse/core'
 import { computed, onBeforeUnmount, ref } from 'vue'
@@ -156,7 +153,7 @@ const isOrAlternatives = computed(
         v-if="isOpen"
         ref="panelRef"
         :aria-label="panelLabel"
-        class="relative flex flex-col rounded-xl p-0.75"
+        class="bg-b-1 dark:bg-b-1.5 inset-shadow-border relative flex flex-col rounded-xl p-0.75 shadow-md"
         role="dialog"
         @click.stop
         @mouseenter="cancelClose"
@@ -208,7 +205,6 @@ const isOrAlternatives = computed(
               :scheme />
           </ul>
         </div>
-        <ScalarFloatingBackdrop />
       </div>
     </template>
   </ScalarFloating>
