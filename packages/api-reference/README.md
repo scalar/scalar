@@ -66,20 +66,3 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
-
-### Custom tag actions
-
-The `Tag` component exported from `@scalar/api-reference/components` accepts an
-optional `actions` slot for custom header controls in modern and classic layouts.
-The default slot still contains the tag's operations or nested content. Omitting
-`actions` leaves the existing header unchanged. Actions follow the existing header
-visibility rules, including the hidden unnamed default tag header in modern layout.
-
-```vue
-<Tag v-bind="tagProps">
-  <template #actions>
-    <button @click="copyPage">Copy Page</button>
-  </template>
-  <!-- Tag content -->
-</Tag>
-```
