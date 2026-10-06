@@ -1,5 +1,5 @@
 {
-  "extends": ["../../tsconfig.json", "./.svelte-kit/tsconfig.json"],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "sourceMap": true,
     "declaration": true,
