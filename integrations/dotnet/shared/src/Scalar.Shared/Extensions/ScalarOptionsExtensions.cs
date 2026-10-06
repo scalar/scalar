@@ -511,6 +511,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Adds OAuth2 device authorization authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureFlow">An action to configure the flow.</param>
+    public static TOptions AddDeviceAuthorizationFlow<TOptions>(this TOptions options, string securitySchemeName, Action<DeviceAuthorizationFlow> configureFlow) where TOptions : ScalarOptions
+    {
+        return options.AddOAuth2Flows(securitySchemeName, flows => flows.WithDeviceAuthorization(configureFlow));
+    }
+
+    /// <summary>
     /// Adds OAuth2 client credentials authentication configuration for a specific security scheme.
     /// </summary>
     /// <param name="options">The options to configure.</param>

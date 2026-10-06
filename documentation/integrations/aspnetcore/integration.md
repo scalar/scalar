@@ -438,6 +438,24 @@ app.MapScalarApiReference(options => options
     }));
 ```
 
+##### Device Authorization Flow
+
+Pre-fill the device authorization flow for an OAuth2 security scheme:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("DeviceOAuth")
+    .AddDeviceAuthorizationFlow("DeviceOAuth", flow => flow
+        .WithDeviceAuthorizationUrl("https://auth.example.com/device")
+        .WithTokenUrl("https://auth.example.com/token")
+        .WithClientId("example-client")
+        .WithSelectedScopes("read")));
+```
+
+The scheme name must match the OAuth2 security scheme in your API description. Device authorization is a standard flow in OpenAPI 3.2. These options pre-fill or override the reference configuration; they do not change the API description or configure authentication on your server.
+
+You can also configure `ScalarFlows.DeviceAuthorization` directly or call `WithDeviceAuthorization` inside `AddOAuth2Flows`. The flow supports `WithClientSecret`, `WithCredentialsLocation`, and the common OAuth helpers for refresh URLs, tokens, and additional query and body parameters. Client secrets and tokens configured here are sent to the browser, so only use example credentials suitable for public documentation.
+
 ##### Advanced OAuth2 Configuration
 
 ```csharp
