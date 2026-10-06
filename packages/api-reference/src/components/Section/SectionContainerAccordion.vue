@@ -22,9 +22,11 @@ defineSlots<{
     <Disclosure
       as="div"
       class="section-accordion">
-      <div class="flex items-start gap-3">
+      <!-- Preserve the original header formatting context when no actions are supplied. -->
+      <div :class="$slots.actions ? 'flex items-start gap-3' : 'contents'">
         <DisclosureButton
-          class="section-accordion-button min-w-0 flex-1"
+          class="section-accordion-button"
+          :class="{ 'min-w-0 flex-1': $slots.actions }"
           @click="emit('update:modelValue', !modelValue)">
           <ScalarIconCaretRight
             class="section-accordion-chevron size-5 transition-transform"
