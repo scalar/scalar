@@ -1,5 +1,6 @@
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
+import { getNavigationTagNames } from '@/navigation/helpers/get-navigation-tag-names'
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedSchema } from '@/schemas/navigation'
@@ -84,8 +85,9 @@ export const traverseSchemas = ({
     const ref = `#/components/schemas/${name}`
 
     // Add to tags
-    if (schema?.['x-tags']) {
-      schema['x-tags'].forEach((tagName: string) => {
+    const navigationTags = getNavigationTagNames(document, schema?.['x-tags'], tagsMap)
+    if (navigationTags.length) {
+      navigationTags.forEach((tagName: string) => {
         const { tag, id: tagId } = getTag({ tagsMap, name: tagName, documentId, generateId })
         tagsMap.get(tagName)?.entries.push(
           createSchemaEntry({

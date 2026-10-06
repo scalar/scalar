@@ -76,6 +76,7 @@ export const ru = {
     responses: 'Ответы',
     testRequest: 'Проверить запрос',
     webhook: 'Вебхук',
+    audience: 'Аудитория',
     selectedContentType: 'Выбранный тип содержимого',
     callbacks: 'Обратные вызовы',
   },

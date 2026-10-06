@@ -1,5 +1,6 @@
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 
+import { getTagKind } from '@/helpers/get-tag-kind'
 import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
@@ -86,12 +87,14 @@ const createTagEntry = ({
 /** Sorts tags and returns entries */
 const getSortedTagEntries = ({
   _keys,
+  document,
   tagsMap,
   options: { tagsSorter, operationsSorter, generateId },
   documentId,
   sortOrder,
 }: {
   _keys: string[]
+  document: OpenApiDocument
   /** Map of tags and their entries */
   tagsMap: TagsMap
   options: Options
@@ -108,7 +111,7 @@ const getSortedTagEntries = ({
     const { tag, entries } = getTag({ tagsMap, name: key, documentId, generateId })
 
     // Skip if the tag is internal or scalar-ignore
-    if (isHidden(tag)) {
+    if (isHidden(tag) || getTagKind(document, tag) !== 'nav') {
       return []
     }
 
@@ -241,7 +244,7 @@ const nestTagsByParent = ({
     }
   }
 
-  const parentOf = getParentMap(document.tags ?? [])
+  const parentOf = getParentMap((document.tags ?? []).filter((tag) => getTagKind(document, tag) === 'nav'))
 
   // Re-parent entries by reference, tracking which ones leave the top level.
   const nested = new Set<string>()
@@ -322,7 +325,7 @@ export const traverseTags = ({
   // Native OpenAPI 3.2 tag nesting via `parent` takes precedence over x-tagGroups, but only
   // when at least one `parent` resolves to another declared tag outside a circular reference.
   // A stray or misspelled `parent` value must not disable the legacy `x-tagGroups` handling.
-  const parentOf = getParentMap(document.tags ?? [])
+  const parentOf = getParentMap((document.tags ?? []).filter((tag) => getTagKind(document, tag) === 'nav'))
   const hasNestedTags = Array.from(parentOf.keys()).some((name) => !isCyclic(parentOf, name))
   if (hasNestedTags) {
     // The flat traversal rewrites tag-level `x-scalar-order`, so capture the original values
@@ -335,6 +338,7 @@ export const traverseTags = ({
     }
 
     const flatEntries = getSortedTagEntries({
+      document,
       _keys: Array.from(tagsMap.keys()),
       tagsMap,
       options: { generateId, tagsSorter, operationsSorter },
@@ -351,6 +355,7 @@ export const traverseTags = ({
 
     return tagGroups.flatMap((tagGroup) => {
       const entries = getSortedTagEntries({
+        document,
         _keys: tagGroup.tags,
         tagsMap,
         options: { tagsSorter, operationsSorter, generateId },
@@ -378,6 +383,7 @@ export const traverseTags = ({
   const keys = Array.from(tagsMap.keys())
 
   const tags = getSortedTagEntries({
+    document,
     _keys: keys,
     tagsMap,
     options: { generateId, tagsSorter, operationsSorter },
