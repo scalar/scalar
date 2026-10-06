@@ -114,3 +114,9 @@ The setup writes cookies for the page's domain and cannot set cookies for an unr
 Cookie-style values remain serialized as authored, while legacy structured HAR cookies are percent-encoded. Do not decode and re-encode a combined Cookie header uniformly. Other generators retain their existing environment-specific header behavior.
 
 For OpenAPI 3.2 `in: cookie, style: cookie` parameters, omit `explode` or set it to `true`. `explode: false` is invalid for cookies because comma-separated values violate cookie syntax. Scalar tolerates that invalid combination by expanding arrays and objects into separate cookie entries; it emits a developer-console warning once per parameter name. Values are passed through unchanged, so provide any required escaping in the API description.
+
+## Query parameters
+
+HAR `queryString` entries contain raw names and values. Pass `2026-09-30T02:00:00Z`, not `2026-09-30T02%3A00%3A00Z`. URL-based examples encode these entries when constructing the URL; clients with query maps handle encoding themselves. A literal `%2F` value stays literal data and becomes `%252F` on the wire.
+
+Already serialized query strings belong in `url`, with `queryString` left empty. Scalar uses that path for OpenAPI `allowReserved` parameters and authored serialized examples.

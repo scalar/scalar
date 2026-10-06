@@ -12,6 +12,19 @@ import {
 } from './http'
 
 describe('buildQueryString', () => {
+  it('encodes raw values exactly once, preserving literal percent sequences', () => {
+    const query = [
+      { name: 'since', value: '2026-09-30T02:00:00Z' },
+      { name: 'filter[name]', value: 'a&b=c+ d/%2F雪' },
+      { name: 'filter[name]', value: '%' },
+    ]
+    const original = structuredClone(query)
+    expect(buildQueryString(query)).toBe(
+      '?since=2026-09-30T02%3A00%3A00Z&filter%5Bname%5D=a%26b%3Dc%2B%20d%2F%252F%E9%9B%AA&filter%5Bname%5D=%25',
+    )
+    expect(query).toStrictEqual(original)
+  })
+
   it('returns empty string for undefined query params', () => {
     expect(buildQueryString(undefined)).toBe('')
   })
@@ -56,7 +69,7 @@ describe('buildQueryString', () => {
   })
 
   it('handles parameters with special characters in values', () => {
-    const queryParams = [{ name: 'query', value: 'hello%20world' }]
+    const queryParams = [{ name: 'query', value: 'hello world' }]
     expect(buildQueryString(queryParams)).toBe('?query=hello%20world')
   })
 })
@@ -125,6 +138,12 @@ describe('normalizeUrl', () => {
 })
 
 describe('joinUrlAndQuery', () => {
+  it('appends encoded query values before a URL fragment', () => {
+    expect(joinUrlAndQuery('https://example.com?existing=a%2Fb#section', [{ name: 'q', value: 'a&b' }])).toBe(
+      'https://example.com?existing=a%2Fb&q=a%26b#section',
+    )
+  })
+
   it('appends a query string to a URL without existing params', () => {
     expect(joinUrlAndQuery('https://example.com', [{ name: 'foo', value: 'bar' }])).toBe('https://example.com?foo=bar')
   })

@@ -530,11 +530,11 @@ describe('httpie', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -695,11 +695,11 @@ describe('httpie', () => {
       queryString: [
         {
           name: 'price',
-          value: '%24100',
+          value: '$100',
         },
         {
           name: 'currency',
-          value: 'USD%24',
+          value: 'USD$',
         },
       ],
     })
@@ -713,7 +713,7 @@ describe('httpie', () => {
       queryString: [
         {
           name: 'amount',
-          value: '%2450.00',
+          value: '$50.00',
         },
       ],
     })

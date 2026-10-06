@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { dispositionValue } from '@/libs/prepare-request'
 
 /**
@@ -36,15 +36,7 @@ export const httpHttp11: Plugin = {
     const hostname = url?.hostname || 'UNKNOWN_HOSTNAME'
 
     // Start building the request
-    let requestString = `${normalizedRequest.method} ${path} HTTP/1.1\r\n`
-
-    // Handle query string parameters
-    if (normalizedRequest.queryString.length) {
-      const queryString = normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
-
-      // Append query string to the path
-      requestString = `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n`
-    }
+    let requestString = `${normalizedRequest.method} ${joinUrlAndQuery(path, normalizedRequest.queryString)} HTTP/1.1\r\n`
 
     // Store all headers
     const headers = new Map()
@@ -60,14 +52,6 @@ export const httpHttp11: Plugin = {
         headers.set(header.name, header.value)
       }
     })
-
-    // Query string parameters
-    if (normalizedRequest.queryString.length) {
-      const queryString = normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
-
-      // Append query string to the path
-      requestString = `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n`
-    }
 
     // Request body
     let body = ''

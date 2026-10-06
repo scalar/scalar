@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 /**
  * dart/http
@@ -76,10 +76,7 @@ export const dartHttp: Plugin = {
     }
 
     // Handle query string
-    const queryString = normalizedRequest.queryString?.length
-      ? '?' + normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
-      : ''
-    const url = `${normalizedRequest.url}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Handle body
     let body = ''

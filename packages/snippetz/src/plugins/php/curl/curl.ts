@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { normalizeMethod } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { objectToString } from '@/libs/php'
 import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 
@@ -37,15 +37,7 @@ export const phpCurl: Plugin = {
 
     // Initialize cURL
     // URL (with query parameters)
-    const queryString = normalizedRequest.queryString?.length
-      ? '?' +
-        normalizedRequest.queryString
-          .map((param) => {
-            return `${param.name}=${param.value}`
-          })
-          .join('&')
-      : ''
-    const url = `${normalizedRequest.url}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
     parts.push(`$ch = curl_init("${url}");`)
     parts.push('')
 

@@ -115,20 +115,12 @@ export const clojureCljhttp: Plugin = {
       return 'Method not supported'
     }
 
-    // Parse the URL so we can lift any query string into `:query-params`.
+    // Keep URI-ready URL queries intact, including authored percent encoding.
     const urlObject = new URL(request?.url ?? '')
-    let url = urlObject.pathname === '/' ? urlObject.origin : urlObject.toString()
+    const url =
+      urlObject.pathname === '/' ? `${urlObject.origin}${urlObject.search}${urlObject.hash}` : urlObject.toString()
 
-    // Collect query parameters from both the URL and the explicit list.
-    const queryObj = reduceQueryParams([
-      ...Array.from(urlObject.searchParams.entries()).map(([name, value]) => ({ name, value })),
-      ...(request?.queryString ?? []),
-    ])
-
-    if (Object.keys(queryObj).length > 0) {
-      // clj-http takes care of encoding the query string for us.
-      url = url.split('?')[0] ?? url
-    }
+    const queryObj = reduceQueryParams(request?.queryString)
 
     // Reduce headers into a plain object (last value wins for duplicates).
     const headers = (request?.headers ?? []).reduce<Record<string, unknown>>((accumulator, header) => {

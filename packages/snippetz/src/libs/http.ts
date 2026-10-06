@@ -27,14 +27,14 @@ export function normalizeRequest(request: Partial<HarRequest>): Partial<HarReque
 }
 
 /**
- * Builds the query string from request parameters
+ * Encodes raw HAR query names and values when constructing a URL
  */
 export function buildQueryString(queryParams?: Array<{ name: string; value: string }>): string {
   if (!queryParams?.length) {
     return ''
   }
 
-  const queryPairs = queryParams.map((param) => `${param.name}=${param.value}`)
+  const queryPairs = queryParams.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
   return `?${queryPairs.join('&')}`
 }
 
@@ -79,7 +79,10 @@ export const joinUrlAndQuery = (url: string, queryString?: NameValuePair[]): str
     return query
   }
 
-  return `${url}${url.includes('?') ? '&' : '?'}${query.slice(1)}`
+  const hashIndex = url.indexOf('#')
+  const base = hashIndex === -1 ? url : url.slice(0, hashIndex)
+  const hash = hashIndex === -1 ? '' : url.slice(hashIndex)
+  return `${base}${base.includes('?') ? '&' : '?'}${query.slice(1)}${hash}`
 }
 
 /**
@@ -127,13 +130,6 @@ export function reduceQueryParams(query: HarRequest['queryString'] = []): Record
     accumulateRepeatedValue(acc, name, value)
     return acc
   }, {})
-}
-
-/**
- * Builds the complete URL with query string
- */
-export function buildUrl(baseUrl: string, queryString: string): string {
-  return `${baseUrl}${queryString}`
 }
 
 /**

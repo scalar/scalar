@@ -105,9 +105,7 @@ describe('clojureCljhttp', () => {
 
     expect(result).toBe(`${REQUIRE}
 
-(client/get "https://example.com/api" {:query-params {:param1 "value1"
-                                                      :param2 "special value"
-                                                      :param3 "123"}})`)
+(client/get "https://example.com/api?param1=value1&param2=special%20value&param3=123")`)
   })
 
   it('has cookies', () => {

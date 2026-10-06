@@ -1,5 +1,7 @@
 import type { HarRequest, Plugin } from '@scalar/types/snippetz'
 
+import { joinUrlAndQuery } from '@/libs/http'
+
 /**
  * F# HttpClient plugin for generating HTTP request code
  */
@@ -12,7 +14,7 @@ export const fsharpHttpclient: Plugin = {
       return ''
     }
 
-    const finalUrl = buildUrlWithQueryString(request.url, request.queryString)
+    const finalUrl = joinUrlAndQuery(request.url ?? '', request.queryString)
     let code = ''
 
     // Initialize HttpRequestMessage
@@ -45,33 +47,6 @@ export const fsharpHttpclient: Plugin = {
 
     return code
   },
-}
-
-/**
- * Builds a query string from an array of query parameters
- */
-function buildQueryString(queryParams: { name: string; value: string }[]): string {
-  if (!queryParams || queryParams.length === 0) {
-    return ''
-  }
-
-  const params = queryParams.map((param) => `${param.name}=${param.value}`)
-  return '?' + params.join('&')
-}
-
-/**
- * Combines base URL with query string if present
- */
-function buildUrlWithQueryString(baseUrl: string | undefined, queryParams?: { name: string; value: string }[]): string {
-  if (!baseUrl) {
-    return ''
-  }
-
-  if (!queryParams || queryParams.length === 0) {
-    return baseUrl
-  }
-
-  return baseUrl + buildQueryString(queryParams)
 }
 
 /**
