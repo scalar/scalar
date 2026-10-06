@@ -805,4 +805,44 @@ curl_exec($ch);
 
 curl_close($ch);`)
   })
+  it('escapes quotes and backslashes in a plain text body', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'text/plain' }],
+      postData: {
+        mimeType: 'text/plain',
+        text: "it's a C:\\temp path",
+      },
+    })
+
+    expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, 'it\\'s a C:\\\\temp path');")
+  })
+
+  it('escapes quotes in a JSON body that cannot be parsed', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: "{'name': 'it's'}",
+      },
+    })
+
+    expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, '{\\'name\\': \\'it\\'s\\'}');")
+  })
+
+  it('escapes quotes in an octet-stream body', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/octet-stream',
+        text: "it's binary",
+      },
+    })
+
+    expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, 'it\\'s binary');")
+  })
 })
