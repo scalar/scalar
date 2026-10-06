@@ -6,7 +6,7 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
-import { type LoaderPlugin, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
+import { type LoaderPlugin, bundle, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/json-magic/helpers/unescape-json-pointer'
@@ -22,6 +22,7 @@ import {
   buildChunkIndex,
   chunkRefTemplates,
   chunkReference,
+  encodeSsrComponentName,
   fillChunkRef,
   navigationHeader,
 } from '@/helpers/chunk-index'
@@ -33,9 +34,10 @@ import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
+import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
-import { resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
+import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -131,7 +133,12 @@ const resolveLocalReferences = <T extends object>(document: T): T =>
  * because the generated chunks keep their `#/x-ext/…` pointers and the client resolves those against
  * the document root. Only the client's export path (`purgeInternalDocumentKeys`) strips them.
  */
-const BUNDLED_EXTERNAL_KEYS = [bundleExtensions.externalDocuments, bundleExtensions.externalDocumentsMappings] as const
+const BUNDLED_EXTERNAL_KEYS = [
+  bundleExtensions.externalDocuments,
+  bundleExtensions.externalDocumentsMappings,
+  'x-scalar-security-uri-aliases',
+  'x-scalar-original-security-keys',
+] as const
 
 /**
  * Copies the buckets bundling parks external documents in onto the coerced document.
@@ -246,7 +253,7 @@ export function externalizeComponentReferences(
           Object.keys(component).map((name) => {
             const ref =
               meta.mode === 'ssr'
-                ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
+                ? `${meta.baseUrl}/${meta.name}/components/${type}/${encodeSsrComponentName(name)}#`
                 : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
 
             return [name, { '$ref': ref, $global: true }]
@@ -799,7 +806,17 @@ export async function createServerWorkspaceStore(
         return
       }
 
-      addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
+      const loaded = document.data as Record<string, unknown>
+      const isThreeTwo = typeof loaded.openapi === 'string' && /^3\.2\.\d+$/.test(loaded.openapi)
+      // URI resolution adds working aliases; keep the caller's authored object unchanged.
+      const data: Record<string, unknown> = isThreeTwo ? JSON.parse(document.raw) : loaded
+      const origin = 'url' in input ? input.url : 'path' in input ? input.path : undefined
+      const loaders = [fetchUrls(), readFiles()]
+      if (isThreeTwo) {
+        await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
+        await resolveSecurityRequirements(data, { origin, loaders })
+      }
+      addDocumentSync(data, { name: input.name, ...input.meta }, navigationOptions)
     } catch (error) {
       // Honours the contract above: a document that cannot be processed is skipped rather than
       // taking the workspace with it, since the initial documents are ingested together and one
@@ -909,7 +926,21 @@ export async function createServerWorkspaceStore(
           ? segments.map((segment) =>
               escapeJsonPointer(decodeURIComponent(segment).replaceAll('~1', '/').replaceAll('~0', '~')),
             )
-          : parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
+          : parseJsonPointerSegments(
+              segments[1] === 'components' && !pointer.startsWith('#')
+                ? `/${segments
+                    .map((segment) => {
+                      try {
+                        return decodeURIComponent(segment)
+                      } catch {
+                        return segment
+                      }
+                    })
+                    .join('/')}`
+                : pointerPath,
+            ).map((segment, index) =>
+              segments[1] === 'components' && index >= 3 ? segment : escapeJsonPointer(segment),
+            )
       return getValueAtPath(assets, path)
     },
     addDocument,

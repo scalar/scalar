@@ -32,6 +32,7 @@ import { type RefNode, getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
+import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
@@ -1176,6 +1177,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           }),
       )
 
+      await resolveSecurityRequirements(getRaw(strictDocument), { origin: input.documentSource, loaders })
+
       // We coerce the values only when the document is not preprocessed by the server-side-store
       const coerced = withMeasurementSync('coerceValue', () =>
         coerce<Schema>(openapiSchema, normalizeBooleanSchemas(deepClone(strictDocument))),
@@ -1327,6 +1330,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * @returns The editable document object, or null if not found.
    */
   const getEditableDocument = async (documentName: string) => {
+    if (!Object.hasOwn(workspace.documents, documentName)) return null
+    preventPollution(documentName, 'workspace document name')
+
     const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
 
     if (!rawDocument) {
@@ -1337,7 +1343,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // This is the shared cleanup boundary for editing and saving. Both JSON and YAML
     // exports read the cleaned saved baseline, so serializers need no marker filtering.
     // Reverse all external references and restore original $refs.
-    const original = (await bundle(deepClone(rawDocument), {
+    const authoredDocument = deepClone(rawDocument)
+    restoreSecurityRequirements(authoredDocument)
+    const original = (await bundle(authoredDocument, {
       plugins: [openApiDocument(), restoreOriginalRefs(), removeExtraScalarKeys()],
       treeShake: false,
       urlMap: true,
