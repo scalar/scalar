@@ -1,8 +1,8 @@
 // @ts-check
 
 import eslint from '@eslint/js'
-// import prettier from 'eslint-plugin-prettier/recommended'
 import vue from 'eslint-plugin-vue'
+import globals from 'globals'
 import tslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
 
@@ -32,12 +32,11 @@ export default tslint.config(
   },
   eslint.configs.recommended,
   ...tslint.configs.recommended,
-  ...vue.configs['flat/base'],
-  ...vue.configs['flat/essential'],
   ...vue.configs['flat/strongly-recommended'],
   {
     languageOptions: {
       parser: vueParser,
+      globals: globals.browser,
 
       parserOptions: {
         parser: tslint.parser,
@@ -56,7 +55,8 @@ export default tslint.config(
       '@typescript-eslint/no-unused-expressions': 'warn',
       'consistent-return': 'off',
       'guard-for-in': 'warn',
-      'no-undef': ['warn', {}],
+      // TypeScript checks undefined names, including types and framework globals.
+      'no-undef': 'off',
       'no-inner-declarations': ['warn'],
       'no-param-reassign': 'warn',
       'no-return-assign': 'warn',
@@ -148,13 +148,7 @@ export default tslint.config(
           ignores: [],
         },
       ],
-      'vue/html-closing-bracket-newline': [
-        'warn',
-        {
-          singleline: 'never',
-          multiline: 'never',
-        },
-      ],
+      'vue/html-closing-bracket-newline': 'off',
       'vue/custom-event-name-casing': ['off', 'camelCase'],
       'no-array-constructor': 'off',
       '@typescript-eslint/no-array-constructor': 'warn',
@@ -198,22 +192,6 @@ export default tslint.config(
           format: ['PascalCase'],
         },
       ],
-    },
-  },
-
-  // Need to disable unused vars as we always inject the complete props from the tiptap node
-  {
-    files: ['packages/guide/src/editor/extensions/RichTextExtensions/**'],
-    rules: {
-      'vue/no-unused-properties': 'off',
-      'vue/prop-name-casing': 'off',
-      '@typescript-eslint/consistent-type-definitions': ['off'],
-    },
-  },
-  {
-    files: ['packages/api-client/src/v2/features/settings/CollectionSettings.vue'],
-    rules: {
-      'vue/html-closing-bracket-newline': 'off',
     },
   },
 )

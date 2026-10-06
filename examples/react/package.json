@@ -36,8 +36,8 @@
     "@types/react-dom": "catalog:*",
     "@typescript-eslint/parser": "catalog:*",
     "@vitejs/plugin-react": "catalog:*",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.3",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*"
   }

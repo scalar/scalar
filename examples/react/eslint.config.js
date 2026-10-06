@@ -6,7 +6,13 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default defineConfig([
   globalIgnores(['dist']),
-  reactHooks.configs['recommended-latest'],
+  {
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+    },
+  },
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {

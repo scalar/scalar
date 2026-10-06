@@ -49,7 +49,7 @@ catalogs:
     '@types/semver': 7.5.8
     '@types/supertest': 6.0.2
     '@types/ws': 8.18.1
-    '@typescript-eslint/parser': ^8.53.0
+    '@typescript-eslint/parser': ^8.71.1
     '@vitejs/plugin-react': 6.0.1
     '@vitejs/plugin-vue': ^6.0.8
     '@vue/test-utils': 2.4.11
@@ -163,3 +163,16 @@ minimumReleaseAgeExclude:
   - ajv@8.18.0
   # Electron runtime update, released September 29, 2026
   - electron@44.5.1
+  # Explicit ESLint tooling upgrade
+  - '@typescript-eslint/eslint-plugin@8.71.1'
+  - '@typescript-eslint/parser@8.71.1'
+  - '@typescript-eslint/project-service@8.71.1'
+  - '@typescript-eslint/scope-manager@8.71.1'
+  - '@typescript-eslint/tsconfig-utils@8.71.1'
+  - '@typescript-eslint/type-utils@8.71.1'
+  - '@typescript-eslint/types@8.71.1'
+  - '@typescript-eslint/typescript-estree@8.71.1'
+  - '@typescript-eslint/utils@8.71.1'
+  - '@typescript-eslint/visitor-keys@8.71.1'
+  - 'eslint@10.12.0'
+  - 'typescript-eslint@8.71.1'
