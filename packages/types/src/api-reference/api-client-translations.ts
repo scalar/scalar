@@ -104,6 +104,7 @@ export type ApiClientTranslations = {
     body: string
   }
   requestBodyViewToggle: {
+    schema: string
     form: string
     raw: string
     fixBody: string

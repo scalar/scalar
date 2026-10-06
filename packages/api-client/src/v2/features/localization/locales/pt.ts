@@ -108,6 +108,7 @@ export const pt = {
     'body': 'Corpo',
   },
   'requestBodyViewToggle': {
+    'schema': 'Esquema',
     'form': 'Formulário',
     'raw': 'Bruto',
     'fixBody': 'Corrija o corpo para mudar para a visualização de formulário',

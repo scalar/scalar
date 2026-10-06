@@ -108,6 +108,7 @@ export const fr = {
     'body': 'Corps',
   },
   'requestBodyViewToggle': {
+    'schema': 'Schéma',
     'form': 'Formulaire',
     'raw': 'Brut',
     'fixBody': 'Corrigez le corps pour passer à la vue formulaire',

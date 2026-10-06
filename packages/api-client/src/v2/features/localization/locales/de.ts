@@ -108,6 +108,7 @@ export const de = {
     'body': 'Inhalt',
   },
   'requestBodyViewToggle': {
+    'schema': 'Schema',
     'form': 'Formular',
     'raw': 'Rohdaten',
     'fixBody': 'Korrigieren Sie den Inhalt, um zur Formularansicht zu wechseln',
