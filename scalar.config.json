@@ -2352,6 +2352,7 @@
                   "release-notes": {
                     "title": "Release Notes",
                     "filepath": "packages/agent-chat/RELEASE_NOTES.md",
+                    "changelog": true,
                     "type": "page",
                     "head": {
                       "links": [
@@ -3094,6 +3095,7 @@
                   "changelog": {
                     "title": "Release notes",
                     "filepath": "packages/api-reference/RELEASE_NOTES.md",
+                    "changelog": true,
                     "type": "page"
                   },
                   "integrations": {
@@ -3592,6 +3594,7 @@
                   },
                   "release-notes": {
                     "filepath": "projects/scalar-app/RELEASE_NOTES.md",
+                    "changelog": true,
                     "type": "page",
                     "title": "Release notes",
                     "description": "What is new in recent Scalar desktop app releases.",
@@ -4044,6 +4047,7 @@
                   "changelog": {
                     "title": "Release notes",
                     "filepath": "packages/mock-server/RELEASE_NOTES.md",
+                    "changelog": true,
                     "type": "page"
                   }
                 }
@@ -4320,6 +4324,7 @@
                     "type": "page",
                     "title": "API Client",
                     "filepath": "projects/scalar-app/RELEASE_NOTES.md",
+                    "changelog": true,
                     "icon": "phosphor/regular/paper-plane-tilt",
                     "description": "Release notes for the Scalar API Client desktop and web app.",
                     "head": {
@@ -4335,6 +4340,7 @@
                     "type": "page",
                     "title": "API Reference",
                     "filepath": "packages/api-reference/RELEASE_NOTES.md",
+                    "changelog": true,
                     "icon": "phosphor/regular/notebook",
                     "description": "Release notes for the Scalar API Reference.",
                     "head": {
@@ -4350,6 +4356,7 @@
                     "type": "page",
                     "title": "Agent",
                     "filepath": "packages/agent-chat/RELEASE_NOTES.md",
+                    "changelog": true,
                     "icon": "phosphor/regular/sparkle",
                     "description": "Release notes for Scalar Agent and MCP servers.",
                     "head": {
@@ -4365,6 +4372,7 @@
                     "type": "page",
                     "title": "Mock Server",
                     "filepath": "packages/mock-server/RELEASE_NOTES.md",
+                    "changelog": true,
                     "icon": "phosphor/regular/cloud",
                     "description": "Release notes for the Scalar Mock Server.",
                     "head": {

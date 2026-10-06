@@ -16,4 +16,4 @@ Choose a product to read what shipped recently:
 <scalar-page-link filepath="packages/mock-server/RELEASE_NOTES.md" title="Mock Server" description="Node.js mock server that generates realistic API responses from OpenAPI documents">
 </scalar-page-link>
 
-Each release note links to the full maintainer changelog on GitHub when you need every pull request that landed in a version.
+Each release on the timeline links to the full maintainer changelog on GitHub when you need every pull request that landed in a version.
