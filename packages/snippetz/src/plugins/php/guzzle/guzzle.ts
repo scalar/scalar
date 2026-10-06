@@ -90,7 +90,19 @@ export const phpGuzzle: Plugin = {
           request.postData.params.forEach((param) => {
             accumulateRepeatedValue(formParams, param.name, param.value || '')
           })
-          options.form_params = formParams
+          if (Object.values(formParams).some(Array.isArray)) {
+            // Guzzle encodes arrays with indexed names, so serialize repeated fields directly.
+            options.body = new URLSearchParams(
+              request.postData.params.map(({ name, value }) => [name, value ?? '']),
+            ).toString()
+            const headers = options.headers ?? {}
+            if (!Object.keys(headers).some((name) => name.toLowerCase() === 'content-type')) {
+              headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            }
+            options.headers = headers
+          } else {
+            options.form_params = formParams
+          }
         }
       } else {
         // For other mime types (like application/octet-stream), use the raw body

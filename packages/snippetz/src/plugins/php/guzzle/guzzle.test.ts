@@ -688,12 +688,30 @@ $response = $client->request('POST', 'https://example.com', [
     expect(result).toBe(`$client = new GuzzleHttp\\Client();
 
 $response = $client->request('POST', 'https://example.com', [
-  'form_params' => [
-    'tag' => [
-      'a',
-      'b'
-    ]
+  'body' => 'tag=a&tag=b',
+  'headers' => [
+    'Content-Type' => 'application/x-www-form-urlencoded'
   ]
+]);`)
+  })
+  it('preserves repeated field order, encoding and an existing content type', () => {
+    const result = phpGuzzle.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'content-type', value: 'application/x-www-form-urlencoded; charset=utf-8' }],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [{ name: 'tag', value: 'a b' }, { name: 'other', value: 'a&b' }, { name: 'tag' }],
+      },
+    })
+
+    expect(result).toBe(`$client = new GuzzleHttp\\Client();
+
+$response = $client->request('POST', 'https://example.com', [
+  'headers' => [
+    'content-type' => 'application/x-www-form-urlencoded; charset=utf-8'
+  ],
+  'body' => 'tag=a+b&other=a%26b&tag='
 ]);`)
   })
 })
