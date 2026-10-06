@@ -10,7 +10,7 @@ export const pythonHttpxAsync: Plugin = {
   client: 'httpx_async',
   title: 'HTTPX (Async)',
   generate(request, configuration) {
-    let formattedReq = requestsLikeGenerate('await client', request, configuration)
+    let formattedReq = requestsLikeGenerate('await client', request, configuration, 'httpx')
     // add indent
     formattedReq = formattedReq
       .split('\n')

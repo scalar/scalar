@@ -266,7 +266,7 @@ describe('pythonHttpxSync', () => {
     })
 
     expect(result).toBe(`httpx.post("https://example.com",
-    data=b"binary content"
+    content=b"binary content"
 )`)
   })
 
@@ -605,6 +605,37 @@ describe('pythonHttpxSync', () => {
       postData: { mimeType: 'text/plain', text: "it's plain" },
     })
 
-    expect(result).toContain('data="it\'s plain"')
+    expect(result).toContain('content="it\'s plain"')
+  })
+  it.each(['GET', 'DELETE', 'HEAD', 'OPTIONS'])('sends text bodies with a %s request', (method) => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com',
+      method,
+      postData: { mimeType: 'text/plain', text: 'hello' },
+    })
+
+    expect(result).toBe(`httpx.request("${method}", "https://example.com", content="hello")`)
+  })
+
+  it('uses content for a raw text body', () => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'text/plain', text: 'hello' },
+    })
+
+    expect(result).toBe(`httpx.post("https://example.com",
+    content="hello"
+)`)
+  })
+
+  it.each(['GET', 'DELETE', 'HEAD', 'OPTIONS'])('sends +json bodies with a %s request', (method) => {
+    const result = pythonHttpxSync.generate({
+      url: 'https://example.com',
+      method,
+      postData: { mimeType: 'application/vnd.api+json', text: '"hello"' },
+    })
+
+    expect(result).toBe(`httpx.request("${method}", "https://example.com", json="hello")`)
   })
 })
