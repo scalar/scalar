@@ -411,4 +411,45 @@ response <- request("https://example.com/api") |>
 
 resp_body_string(response)`)
   })
+
+  it('escapes quotes and backslashes in string literals', () => {
+    const result = rHttr2.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'If-None-Match',
+          value: '"33a64df5"',
+        },
+      ],
+      queryString: [
+        {
+          name: 'filter',
+          value: 'name eq "Alice"',
+        },
+      ],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: 'path',
+            value: 'C:\\Users\\"me"',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`library(httr2)
+
+response <- request("https://example.com") |>
+  req_method("POST") |>
+  req_headers("If-None-Match" = "\\"33a64df5\\"") |>
+  req_url_query("filter" = "name eq \\"Alice\\"") |>
+  req_body_form(
+    "path" = "C:\\\\Users\\\\\\"me\\""
+  ) |>
+  req_perform()
+
+resp_body_string(response)`)
+  })
 })

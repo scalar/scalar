@@ -3,6 +3,9 @@ import type { HarRequest, Plugin, PluginConfiguration } from '@scalar/types/snip
 
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
+/** Quotes a value as an R string literal, escaping backslashes and double quotes. */
+const toRString = (value: string): string => `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+
 /**
  * Formats JSON text as an R list structure
  */
@@ -11,7 +14,7 @@ const jsonToRList = (text: string, indent: string): string => {
     const obj = JSON.parse(text)
     return formatRValue(obj, indent)
   } catch {
-    return `"${text}"`
+    return toRString(text)
   }
 }
 
@@ -29,7 +32,7 @@ const formatRValue = (value: unknown, indent: string): string => {
     return String(value)
   }
   if (typeof value === 'string') {
-    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+    return toRString(value)
   }
   if (Array.isArray(value)) {
     if (value.length === 0) {
@@ -67,14 +70,14 @@ export const rHttr2: Plugin = {
     const lines: string[] = ['library(httr2)', '']
 
     // Start the pipe chain
-    lines.push(`response <- request("${normalizedRequest.url}") |>`)
+    lines.push(`response <- request(${toRString(normalizedRequest.url)}) |>`)
 
     // Collect pipe steps
     const steps: string[] = []
 
     // Method (GET is default, so only add for non-GET)
     if (method !== 'GET') {
-      steps.push(`  req_method("${method}")`)
+      steps.push(`  req_method(${toRString(method)})`)
     }
 
     // Headers
@@ -94,16 +97,20 @@ export const rHttr2: Plugin = {
 
     // Auth
     if (configuration?.auth?.username && configuration?.auth?.password) {
-      steps.push(`  req_auth_basic("${configuration.auth.username}", "${configuration.auth.password}")`)
+      steps.push(
+        `  req_auth_basic(${toRString(configuration.auth.username)}, ${toRString(configuration.auth.password)})`,
+      )
     }
 
     if (Object.keys(headers).length) {
       const headerEntries = Object.entries(headers)
       if (headerEntries.length === 1) {
         const [name, value] = headerEntries[0]!
-        steps.push(`  req_headers("${name}" = "${value}")`)
+        steps.push(`  req_headers(${toRString(name)} = ${toRString(value)})`)
       } else {
-        const headerLines = headerEntries.map(([name, value]) => `    "${name}" = "${value}"`).join(',\n')
+        const headerLines = headerEntries
+          .map(([name, value]) => `    ${toRString(name)} = ${toRString(value)}`)
+          .join(',\n')
         steps.push(`  req_headers(\n${headerLines}\n  )`)
       }
     }
@@ -115,19 +122,19 @@ export const rHttr2: Plugin = {
       if (entries.length === 1) {
         const [name, value] = entries[0]!
         if (Array.isArray(value)) {
-          const items = value.map((v) => `"${v}"`).join(', ')
-          steps.push(`  req_url_query("${name}" = c(${items}))`)
+          const items = value.map(toRString).join(', ')
+          steps.push(`  req_url_query(${toRString(name)} = c(${items}))`)
         } else {
-          steps.push(`  req_url_query("${name}" = "${value}")`)
+          steps.push(`  req_url_query(${toRString(name)} = ${toRString(value)})`)
         }
       } else {
         const paramLines = entries
           .map(([name, value]) => {
             if (Array.isArray(value)) {
-              const items = value.map((v) => `"${v}"`).join(', ')
-              return `    "${name}" = c(${items})`
+              const items = value.map(toRString).join(', ')
+              return `    ${toRString(name)} = c(${items})`
             }
-            return `    "${name}" = "${value}"`
+            return `    ${toRString(name)} = ${toRString(value)}`
           })
           .join(',\n')
         steps.push(`  req_url_query(\n${paramLines}\n  )`)
@@ -154,10 +161,10 @@ export const rHttr2: Plugin = {
           .join(',\n')
         steps.push(`  req_body_multipart(\n${paramLines}\n  )`)
       } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
-        const paramLines = params.map((p) => `    "${p.name}" = "${p.value ?? ''}"`).join(',\n')
+        const paramLines = params.map((p) => `    ${toRString(p.name)} = ${toRString(p.value ?? '')}`).join(',\n')
         steps.push(`  req_body_form(\n${paramLines}\n  )`)
       } else if (text) {
-        steps.push(`  req_body_raw("${text}", type = "${mimeType ?? 'application/octet-stream'}")`)
+        steps.push(`  req_body_raw(${toRString(text)}, type = ${toRString(mimeType ?? 'application/octet-stream')})`)
       }
     }
 
@@ -165,7 +172,7 @@ export const rHttr2: Plugin = {
     steps.push('  req_perform()')
 
     // Join steps with pipe operator
-    lines[lines.length - 1] = `response <- request("${normalizedRequest.url}") |>`
+    lines[lines.length - 1] = `response <- request(${toRString(normalizedRequest.url)}) |>`
     lines.push(steps.join(' |>\n'))
 
     lines.push('')
