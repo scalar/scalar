@@ -5,9 +5,12 @@ import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /**
  * Escapes a string so it stays a valid EDN string literal. Backslashes are
- * escaped first, then double quotes, so the two passes do not interfere.
+ * escaped first, then double quotes, so the two passes do not interfere. Line
+ * breaks are written as escapes so the layout padding that is added after each
+ * new line can never end up inside the string value.
  */
-const escapeEdnString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+const escapeEdnString = (value: string): string =>
+  value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r/g, '\\r').replace(/\n/g, '\\n')
 
 /**
  * A Clojure keyword (e.g. `:json`) rendered verbatim in EDN.
@@ -55,6 +58,14 @@ const filterEmpty = (input: Record<string, unknown>): Record<string, unknown> =>
 const padBlock = (padSize: number, input: string): string => input.replace(/\n/g, `\n${' '.repeat(padSize)}`)
 
 /**
+ * Renders a map key. Keys that are valid as a keyword stay `:key`, anything
+ * else (spaces, quotes, brackets and so on) is written as a string key, which
+ * clj-http accepts for headers and query parameters.
+ */
+const renderKey = (key: string): string =>
+  /^[A-Za-z_*+!?<>=-][A-Za-z0-9_*+!?<>=.-]*$/.test(key) ? `:${key}` : `"${escapeEdnString(key)}"`
+
+/**
  * Renders a JavaScript value as an EDN literal, matching clj-http conventions:
  * maps are laid out vertically and vectors horizontally.
  */
@@ -77,8 +88,9 @@ const jsToEdn = (value: unknown): string => {
     // Simple vertical format, one key per line.
     const body = Object.keys(value)
       .reduce((accumulator, key) => {
-        const rendered = padBlock(key.length + 2, jsToEdn(value[key]))
-        return `${accumulator}:${key} ${rendered}\n `
+        const renderedKey = renderKey(key)
+        const rendered = padBlock(renderedKey.length + 1, jsToEdn(value[key]))
+        return `${accumulator}${renderedKey} ${rendered}\n `
       }, '')
       .trim()
     return `{${padBlock(1, body)}}`
