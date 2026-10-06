@@ -1,6 +1,7 @@
 // @ts-check
 
 import eslint from '@eslint/js'
+import tsParser from '@typescript-eslint/parser'
 import vue from 'eslint-plugin-vue'
 import globals from 'globals'
 import tslint from 'typescript-eslint'
@@ -39,7 +40,7 @@ export default tslint.config(
       globals: globals.browser,
 
       parserOptions: {
-        parser: tslint.parser,
+        parser: tsParser,
         extraFileExtensions: ['.vue'],
         // We will skip rules that require projectService as it decreased the lint speed massively
         // projectService: true,
