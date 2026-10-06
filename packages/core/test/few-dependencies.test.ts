@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 describe('few-dependencies', () => {
   it('has only expected `@scalar/*` packages as production dependencies', () => {
-    const packageJson = readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
+    const packageJson = readFileSync(path.join(import.meta.dirname, '..', 'package.json'), 'utf-8')
     const dependencies = JSON.parse(packageJson).dependencies
 
     expect(dependencies).toBeDefined()

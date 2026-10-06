@@ -98,6 +98,7 @@ const ScalarDocusaurus = (
       // Add the appropriate route based on the module system
       addRoute({
         path: normalizeUrl([baseUrl, defaultOptions.route ?? '/scalar']),
+        // biome-ignore lint/correctness/noGlobalDirnameFilename: Docusaurus builds this plugin as CommonJS.
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
         configuration: serializeConfigToJs(normalizedConfiguration),

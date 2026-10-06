@@ -637,7 +637,7 @@ describe('create-server-store', () => {
         ]),
       ).toBe(true)
 
-      await fs.rmdir(basePath, { recursive: true })
+      await fs.rm(basePath, { recursive: true })
     })
 
     it('escapes malicious component keys so chunks cannot escape the directory', async () => {

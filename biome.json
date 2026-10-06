@@ -40,7 +40,9 @@
       "!integrations/**/standalone.js",
       "!**/packages/api-reference/esm.js",
       "!**/target/**",
-      "!.claude/**"
+      "!.claude/**",
+      "!**/*.svg",
+      "!integrations/docker/assets/index.html"
     ]
   },
   "assist": {
@@ -99,7 +101,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false,
+      "preset": "none",
       "complexity": {
         "noExtraBooleanCast": "warn",
         "noUselessCatch": "warn",
@@ -333,5 +335,10 @@
         }
       }
     }
-  ]
+  ],
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  }
 }
