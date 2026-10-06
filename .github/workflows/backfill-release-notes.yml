@@ -62,7 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Format generated notes
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry-run && steps.generate.outputs.checkpoint-restored == 'true' }}
         run: |
           pnpm exec prettier --write \
             packages/api-reference/RELEASE_NOTES.{json,md} \
@@ -71,7 +71,7 @@ jobs:
             packages/mock-server/RELEASE_NOTES.{json,md}
 
       - name: Generate GitHub App token
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry-run && steps.generate.outputs.checkpoint-restored == 'true' }}
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -81,7 +81,7 @@ jobs:
           permission-pull-requests: write
 
       - name: Save generated notes in a draft PR
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry-run && steps.generate.outputs.checkpoint-restored == 'true' }}
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
         with:
           token: ${{ steps.app-token.outputs.token }}
@@ -98,8 +98,8 @@ jobs:
           branch: codex/backfill-generated-release-notes
           delete-branch: true
           draft: true
-          commit-message: 'docs: backfill product release notes'
-          title: 'docs: backfill product release notes'
+          commit-message: 'docs(release-notes): backfill product release notes'
+          title: 'docs(release-notes): backfill product release notes'
           body: |
             Fill missing product release notes using historical changelogs and the date each release reached main. Existing notes are preserved.
 
