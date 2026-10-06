@@ -2,60 +2,18 @@
   "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
   "skills": [
     {
-      "name": "cloud-agents-starter",
-      "type": "skill-md",
-      "description": "Minimal starter runbook for cloud agents to install dependencies, run packages, execute tests, and troubleshoot the Scalar monorepo quickly.",
-      "url": "https://raw.githubusercontent.com/scalar/scalar/7433064e4952590a13e40663ef0f5a56dbc81ca4/.agents/skills/cloud-agents-starter/SKILL.md",
-      "digest": "sha256:0e57b2f20831f95c3a7d678b0debce5dd7d0460741ea9e71b8a198acfeb85911"
-    },
-    {
-      "name": "mock-server",
+      "name": "scalar-mock-server",
       "type": "skill-md",
       "description": "Build, customize, and troubleshoot OpenAPI mock servers with @scalar/mock-server, including x-handler, x-seed, authentication, and Docker.",
-      "url": "https://raw.githubusercontent.com/scalar/scalar/7433064e4952590a13e40663ef0f5a56dbc81ca4/.agents/skills/mock-server/SKILL.md",
-      "digest": "sha256:4c153777a17668eff1c68ebd13f24542750584be40db1cb64855815e2c6d6702"
-    },
-    {
-      "name": "openapi-glossary",
-      "type": "skill-md",
-      "description": "Use consistent OpenAPI terminology and definitions when writing documentation, educational material, and tooling guidance.",
-      "url": "https://raw.githubusercontent.com/scalar/scalar/7433064e4952590a13e40663ef0f5a56dbc81ca4/.agents/skills/openapi-glossary/SKILL.md",
-      "digest": "sha256:68244bcf84b5a5dcb2cf9d0bc8845d4c8ad5fb4e1c4b727da1c5ba04e490eb05"
-    },
-    {
-      "name": "scalar-design-system",
-      "type": "archive",
-      "description": "Scalar's design system — design tokens, theming (@scalar/themes), CSS variables, and the @scalar/components library. Use when designing or implementing Scalar UI, especially with Paper (code-to-design / design-to-code), so output matches real Scalar tokens, colors, typography, spacing, and components instead of generic defaults.",
-      "url": "/.well-known/agent-skills/scalar-design-system.tar.gz",
-      "digest": "sha256:e3b508b589a00dd095a6572943e8616bf30c2feed33f14c7173167f730b278a3"
+      "url": "/.well-known/agent-skills/scalar-mock-server/SKILL.md",
+      "digest": "sha256:d9e2f0e60cbd175c8b1942dde7a9ecce534d415129688dd8a41c2b44f5a1a05e"
     },
     {
       "name": "scalar-docs",
       "type": "skill-md",
       "description": "Skill for writing and updating scalar.config.json — Scalar Docs configuration reference for users and LLMs.",
-      "url": "https://raw.githubusercontent.com/scalar/scalar/7433064e4952590a13e40663ef0f5a56dbc81ca4/.agents/skills/scalar-docs/SKILL.md",
+      "url": "/.well-known/agent-skills/scalar-docs/SKILL.md",
       "digest": "sha256:434ee91f08b2113f8f4232291a7b5a22fd44e35f6d24e3b99ec46a166b5665c3"
-    },
-    {
-      "name": "tests",
-      "type": "skill-md",
-      "description": "Write clear, maintainable Vitest and Playwright tests with precise assertions, consistent structure, and strong behavioral coverage.",
-      "url": "https://raw.githubusercontent.com/scalar/scalar/7433064e4952590a13e40663ef0f5a56dbc81ca4/.agents/skills/tests/SKILL.md",
-      "digest": "sha256:3be5d5de3757e8840365541f8bffffafabe3fe0493193a581c4909b7ff48bb6b"
-    },
-    {
-      "name": "typescript",
-      "type": "skill-md",
-      "description": "Write clear, predictable TypeScript and Vue TypeScript code with strong typing, maintainability, and consistent documentation conventions.",
-      "url": "https://raw.githubusercontent.com/scalar/scalar/7433064e4952590a13e40663ef0f5a56dbc81ca4/.agents/skills/typescript/SKILL.md",
-      "digest": "sha256:b380346d770addac82d9efce2e23cbe33832579c0206c029a01e635e358670ab"
-    },
-    {
-      "name": "vue-components",
-      "type": "skill-md",
-      "description": "Build Vue 3 components with TypeScript and Tailwind using clean structure, composable logic, accessibility, and maintainable patterns.",
-      "url": "https://raw.githubusercontent.com/scalar/scalar/7433064e4952590a13e40663ef0f5a56dbc81ca4/.agents/skills/vue-components/SKILL.md",
-      "digest": "sha256:b1ca7546bff948a1c70e1f579b0520b20654adf84435f04ac1e1ea67227d30d4"
     }
   ]
 }
