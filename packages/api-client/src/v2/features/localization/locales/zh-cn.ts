@@ -108,6 +108,7 @@ export const zhCn = {
     'body': '正文',
   },
   'requestBodyViewToggle': {
+    'schema': '架构',
     'form': '表单',
     'raw': '原始内容',
     'fixBody': '修正请求体以切换到表单视图',

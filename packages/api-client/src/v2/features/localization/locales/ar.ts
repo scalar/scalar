@@ -108,6 +108,7 @@ export const ar = {
     'body': 'الجسم',
   },
   'requestBodyViewToggle': {
+    'schema': 'المخطط',
     'form': 'نموذج',
     'raw': 'خام',
     'fixBody': 'صحح الجسم للتبديل إلى عرض النموذج',

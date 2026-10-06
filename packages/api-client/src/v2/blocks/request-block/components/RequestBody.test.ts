@@ -1,4 +1,6 @@
+import { Schema } from '@scalar/blocks/schema'
 import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
+import { ScalarListbox } from '@scalar/components/listbox'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -54,6 +56,225 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('renders writable schema fields independently of a custom example and preserves the edited payload', async () => {
+    const editedValue = '{"name":"Edited account"}'
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                  name: { type: 'string', description: 'Account name' },
+                  optionalField: { type: 'string', description: 'Not included in the example' },
+                  serverId: { type: 'string', readOnly: true },
+                  password: { type: 'string', writeOnly: true },
+                },
+              },
+              examples: { 'example-1': { value: editedValue } },
+            },
+          },
+        },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    const schema = wrapper.getComponent(Schema)
+    expect(schema.text()).toContain('optionalField')
+    expect(schema.text()).toContain('Not included in the example')
+    expect(schema.text()).toContain('required')
+    expect(schema.text()).toContain('password')
+    expect(schema.text()).not.toContain('serverId')
+    expect(wrapper.findComponent({ name: 'CodeInput' }).exists()).toBe(false)
+
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Raw')!
+      .trigger('click')
+    expect(wrapper.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe(editedValue)
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    expect(wrapper.emitted('update:formValue')).toBeUndefined()
+    expect(wrapper.emitted('generate:example')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('can inspect the schema when the edited JSON is invalid', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { name: { type: 'string' } } },
+              examples: { 'example-1': { value: '{invalid' } },
+            },
+          },
+        },
+      },
+    })
+    expect(
+      wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Form')!
+        .attributes('disabled'),
+    ).toBe('')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    expect(wrapper.getComponent(Schema).text()).toContain('name')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Raw')!
+      .trigger('click')
+    expect(wrapper.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe('{invalid')
+    wrapper.unmount()
+  })
+
+  it.each(['application/xml', 'multipart/form-data', 'application/x-www-form-urlencoded', 'application/octet-stream'])(
+    'offers schema inspection for %s bodies',
+    async (contentType) => {
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody: {
+            content: {
+              [contentType]: { schema: { type: 'string', description: 'Upload content' } },
+            },
+          },
+        },
+      })
+      await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Schema')!
+        .trigger('click')
+      expect(wrapper.getComponent(Schema).text()).toContain('Upload content')
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Form')).toBe(false)
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Body')).toBe(true)
+      wrapper.unmount()
+    },
+  )
+
+  it('keeps the body editor selected when the default form view is unavailable', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        defaultView: 'form',
+        requestBody: { content: { 'application/xml': { schema: { type: 'string' } } } },
+      },
+    })
+    expect(
+      wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Body')!
+        .attributes('aria-pressed'),
+    ).toBe('true')
+    wrapper.unmount()
+  })
+
+  it('does not offer schema inspection when there is no schema', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: { content: { 'application/json': { examples: { 'example-1': { value: {} } } } } },
+      },
+    })
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Schema')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('resolves schema references and expands nested fields', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                '$ref': '#/components/schemas/Account',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    settings: {
+                      type: 'object',
+                      properties: { timezone: { type: 'string', description: 'Account timezone' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    await wrapper.getComponent(Schema).get('button[aria-expanded="false"]').trigger('click')
+    expect(wrapper.getComponent(Schema).text()).toContain('Account timezone')
+    wrapper.unmount()
+  })
+
+  it('changes schema variants without updating the request body', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                oneOf: [
+                  { title: 'Email', type: 'object', properties: { address: { type: 'string' } } },
+                  { title: 'Webhook', type: 'object', properties: { url: { type: 'string' } } },
+                ],
+              },
+              examples: { 'example-1': { value: { address: 'test@example.com' } } },
+            },
+          },
+        },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    const schema = wrapper.getComponent(Schema)
+    expect(schema.text()).toContain('address')
+    schema.getComponent(ScalarListbox).vm.$emit('update:modelValue', { id: '1', label: 'Webhook' })
+    await nextTick()
+    expect(schema.text()).toContain('url')
+    expect(schema.text()).not.toContain('address')
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('leaves schema inspection when switching to an operation without a schema', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: { content: { 'application/json': { schema: { type: 'string' } } } },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    await wrapper.setProps({
+      requestBody: { content: { 'text/plain': { examples: { 'example-1': { value: 'Next request' } } } } },
+    })
+    expect(wrapper.findComponent(Schema).exists()).toBe(false)
+    expect(wrapper.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe('Next request')
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Schema')).toBe(false)
+    wrapper.unmount()
+  })
+
   it.each(['oneOf', 'anyOf'] as const)(
     'regenerates multipart rows when the selected %s branch changes',
     async (keyword) => {

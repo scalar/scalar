@@ -108,6 +108,7 @@ export const en = {
     body: 'Body',
   },
   requestBodyViewToggle: {
+    schema: 'Schema',
     form: 'Form',
     raw: 'Raw',
     fixBody: 'Fix the body to switch to the form view',

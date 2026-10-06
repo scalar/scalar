@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Schema } from '@scalar/blocks/schema'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
 import { ScalarCopyBackdrop } from '@scalar/components/copy'
@@ -410,15 +411,40 @@ const showBodyViewToggle = computed(
 )
 
 /** Selected body view, seeded from the document default (raw unless configured) */
-const bodyView = ref<'form' | 'raw'>(defaultView)
+const bodyView = ref<'form' | 'raw' | 'schema'>(defaultView)
 
-// Fall back to raw when the form view stops being available (e.g. the content type
-// changed to a non-structured one, or an external edit made the body unparseable).
-watch(isFormViewAvailable, (ok) => {
-  if (!ok) {
+/** Schema inspection is available for every media type with a schema, independently of its example. */
+const isSchemaViewAvailable = computed(
+  () => selectedContentType.value !== 'none' && bodySchema.value !== undefined,
+)
+
+// A different operation must start a fresh tree, including its expansion and composition state.
+watch(
+  () => requestBody,
+  () => {
+    if (bodyView.value === 'schema') {
+      bodyView.value = isFormViewAvailable.value ? defaultView : 'raw'
+    }
+  },
+)
+
+watch(isSchemaViewAvailable, (available) => {
+  if (!available && bodyView.value === 'schema') {
     bodyView.value = 'raw'
   }
 })
+
+// Fall back to raw when the form view stops being available (e.g. the content type
+// changed to a non-structured one, or an external edit made the body unparseable).
+watch(
+  isFormViewAvailable,
+  (ok) => {
+    if (!ok && bodyView.value === 'form') {
+      bodyView.value = 'raw'
+    }
+  },
+  { immediate: true },
+)
 
 /**
  * Whether we can offer to generate a fresh example from the schema.
@@ -469,15 +495,37 @@ const canGenerateExample = computed(() =>
               emits('generate:example', { contentType: selectedContentType })
             " />
           <RequestBodyViewToggle
-            v-if="showBodyViewToggle"
+            v-if="showBodyViewToggle || isSchemaViewAvailable"
             :disabled="!isFormViewAvailable"
             :modelValue="bodyView"
+            :rawLabel="
+              structuredCodec
+                ? undefined
+                : translate('apiClient.requestBodyStructured.body')
+            "
+            :showForm="showBodyViewToggle"
+            :showSchema="isSchemaViewAvailable"
             @update:modelValue="(v) => (bodyView = v)" />
         </div>
       </DataTableHeader>
       <DataTableRow>
+        <!-- Inspecting the schema never changes the selected example or request payload. -->
+        <div
+          v-if="bodyView === 'schema' && isSchemaViewAvailable"
+          class="min-w-0 border-t py-3 ps-10 pe-6">
+          <Schema
+            :key="selectedContentType"
+            :eventBus="null"
+            :options="{
+              hideReadOnly: true,
+              hideModels: true,
+              schemaKeyboardNav: true,
+            }"
+            :schema="bodySchema" />
+        </div>
+
         <!-- No Body -->
-        <template v-if="selectedContentType === 'none'">
+        <template v-else-if="selectedContentType === 'none'">
           <div
             class="text-c-3 flex min-h-10 w-full items-center justify-center border-t p-2 text-sm">
             <span>{{ translate('apiClient.requestBody.noBody') }}</span>

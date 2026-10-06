@@ -10,6 +10,7 @@
 
 /* Dependency Vue SFC styles */
 @import "@scalar/components/vue-styles.css";
+@import "@scalar/blocks/vue-styles.css";
 @import "@scalar/sidebar/vue-styles.css";
 
 /* API Client Tailwind Configuration */

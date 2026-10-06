@@ -108,6 +108,7 @@ export const ru = {
     'body': 'Тело',
   },
   'requestBodyViewToggle': {
+    'schema': 'Схема',
     'form': 'Форма',
     'raw': 'Исходный вид',
     'fixBody': 'Исправьте тело, чтобы переключиться в режим формы',
