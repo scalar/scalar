@@ -646,4 +646,22 @@ void main() async {
     expect(result).toContain(`final body = 'it\\'s plain';`)
     expect(result).toContain("http.post(Uri.parse('https://example.com'), headers: headers, body: body)")
   })
+  it.each(['GET', 'HEAD'])('sends text bodies with a %s request', (method) => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      method,
+      postData: { mimeType: 'text/plain', text: 'hello' },
+    })
+
+    expect(result).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final body = 'hello';
+
+  final request = http.Request('${method}', Uri.parse('https://example.com'));
+  request.body = body;
+  final response = await http.Response.fromStream(await request.send());
+  print(response.body);
+}`)
+  })
 })

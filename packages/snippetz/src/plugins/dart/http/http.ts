@@ -133,7 +133,10 @@ export const dartHttp: Plugin = {
     const method = normalizedRequest.method.toLowerCase()
     const headersPart = Object.keys(headers).length > 0 ? ', headers: headers' : ''
     const bodyPart = body ? ', body: body' : ''
-    if (['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(normalizedRequest.method)) {
+    if (
+      ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(normalizedRequest.method) &&
+      !(body && ['GET', 'HEAD'].includes(normalizedRequest.method))
+    ) {
       code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
     } else {
       const wireMethod = normalizedRequest.method.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\$/g, '\\$')
