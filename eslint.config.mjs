@@ -148,13 +148,7 @@ export default tslint.config(
           ignores: [],
         },
       ],
-      'vue/html-closing-bracket-newline': [
-        'warn',
-        {
-          singleline: 'never',
-          multiline: 'never',
-        },
-      ],
+      'vue/html-closing-bracket-newline': 'off',
       'vue/custom-event-name-casing': ['off', 'camelCase'],
       'no-array-constructor': 'off',
       '@typescript-eslint/no-array-constructor': 'warn',
