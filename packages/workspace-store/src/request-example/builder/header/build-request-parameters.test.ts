@@ -24,6 +24,38 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it.each([undefined, 'form', 'cookie'] as const)(
+    'reports invalid active 3.2 cookies with style %s without emitting cookies',
+    (style) => {
+      const parameter: ParameterObject = {
+        name: 'color',
+        in: 'cookie',
+        style,
+        explode: false,
+        examples: { default: { value: ['blue', 'black'] } },
+      }
+      const result = buildRequestParameters([parameter], 'default', '3.2.1')
+      expect(result.cookies).toStrictEqual([])
+      expect(result.cookieErrors).toStrictEqual([
+        `Cookie parameter "color" cannot serialize an array or object with style: ${style ?? 'form'} and explode: false because comma-separated cookie values are invalid. Use style: cookie with explode: true.`,
+      ])
+      expect(
+        buildRequestParameters(
+          [{ ...parameter, examples: { default: { value: ['blue'], 'x-disabled': true } } }],
+          'default',
+          '3.2.1',
+        ).cookieErrors,
+      ).toBeUndefined()
+      expect(
+        buildRequestParameters(
+          [{ ...parameter, examples: { default: { serializedValue: 'color=blue; color=black' } } }],
+          'default',
+          '3.2.1',
+        ).headers,
+      ).toStrictEqual({ Cookie: 'color=blue; color=black' })
+    },
+  )
+
   it.each(['deepObject', 'form'] as const)('sends property examples for %s object parameters', (style) => {
     const parameter: ParameterObject = {
       name: 'filter',

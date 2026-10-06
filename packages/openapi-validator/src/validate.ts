@@ -6,6 +6,7 @@ import { ERRORS } from '@/errors'
 import { explainComponentReferences } from '@/explain-component-references'
 import { OpenApiSpecifications, type OpenApiVersion } from '@/specifications'
 import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
+import { validateCookieParameters } from '@/validate-cookie-parameters'
 import { validatePathParameters } from '@/validate-path-parameters'
 
 export type ValidateOptions = ThrowOnErrorOption & {
@@ -23,6 +24,12 @@ export type ValidateOptions = ThrowOnErrorOption & {
    * @default false
    */
   checkPathParameters?: boolean
+  /**
+   * Check OpenAPI 3.2 cookie serialization declarations.
+   * Resolve references first for complete coverage.
+   * @default true
+   */
+  checkCookieParameters?: boolean
 }
 
 const validateDocument = createSpecificationValidator<OpenApiVersion, ValidateOptions>({
@@ -32,18 +39,19 @@ const validateDocument = createSpecificationValidator<OpenApiVersion, ValidateOp
   formats: (version) => (version === '3.1' || version === '3.2' ? { 'media-range': true } : undefined),
   errors: { emptyOrInvalid: ERRORS.EMPTY_OR_INVALID, versionNotSupported: ERRORS.OPENAPI_VERSION_NOT_SUPPORTED },
   transformErrors: explainComponentReferences,
-  // Path-template semantics that the JSON schema cannot express. These need a
-  // fully resolved document (a path parameter can be declared via `$ref`), so
-  // they are opt-in: callers that resolve references first can enable them.
-  postValidate: (specification, _version, options) =>
-    options?.checkPathParameters ? validatePathParameters(specification) : [],
+  // Cookie declarations can be checked without resolving references. Path-template
+  // checks require a resolved document to avoid reporting referenced parameters as missing.
+  postValidate: (specification, _version, options) => [
+    ...(options?.checkPathParameters ? validatePathParameters(specification) : []),
+    ...(options?.checkCookieParameters === false ? [] : validateCookieParameters(specification)),
+  ],
 })
 
 /**
  * Validates a single OpenAPI document against the OpenAPI Specification.
  *
  * Schema validation is delegated to `@scalar/json-schema-validator`; version
- * detection and the path-parameter semantic checks are OpenAPI-specific.
+ * detection and parameter semantic checks are OpenAPI-specific.
  *
  * This validator is strict about the specification: every required field,
  * including `info.version`, must be present. Callers that want to be lenient

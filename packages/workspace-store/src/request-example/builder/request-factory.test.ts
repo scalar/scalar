@@ -46,6 +46,43 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it.each(['3.2.0', '3.2.1'])('stops invalid structured cookie requests for %s', (openapiVersion) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        openapiVersion,
+        operation: {
+          parameters: [
+            { name: 'color', in: 'cookie', explode: false, examples: { default: { value: ['blue', 'black'] } } },
+          ],
+        },
+      }),
+    )
+    expect(request.cookies).toStrictEqual([])
+    expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
+      ok: false,
+      error: 'BUILD_REQUEST_FAILED',
+      message:
+        'Cookie parameter "color" cannot serialize an array or object with style: form and explode: false because comma-separated cookie values are invalid. Use style: cookie with explode: true.',
+    })
+  })
+
+  it.each(['3.0.4', '3.1.2', undefined])('preserves cookie serialization for version %s', (openapiVersion) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        openapiVersion,
+        operation: {
+          parameters: [
+            { name: 'color', in: 'cookie', explode: false, examples: { default: { value: ['blue', 'black'] } } },
+          ],
+        },
+      }),
+    )
+    expect(request.cookieErrors).toBeUndefined()
+    expect(request.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'color', value: 'blue,black' },
+    ])
+  })
+
   it.each(['get', 'PURGE', 'purge', 'customMethod'])(
     'sends a referenced whole-query parameter with method %s after environment substitution',
     (method) => {
