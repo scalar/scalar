@@ -1,4 +1,4 @@
-import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
@@ -13,12 +13,12 @@ const normalizeSchemaTypes = (schema: SchemaObject): string[] => {
  * or undefined when any segment is not a declared object property.
  */
 export const resolveLeafSchema = (schema: SchemaObject | undefined, segments: string[]): SchemaObject | undefined => {
-  let current = schema
+  let current = resolveSchemaWithAnnotations(schema)
   for (const segment of segments) {
     if (!current || !isObjectSchema(current) || !current.properties) {
       return undefined
     }
-    current = getResolvedRef(current.properties[segment], mergeSiblingReferences) as SchemaObject | undefined
+    current = resolveSchemaWithAnnotations(current.properties[segment])
   }
   return current
 }
@@ -102,15 +102,13 @@ export const coerceUntypedValue = (value: unknown): unknown => {
  * back into nested objects.
  */
 export const buildDottedNestedRowPredicate = (schema: unknown) => {
-  const resolved = schema ? (getResolvedRef(schema, mergeSiblingReferences) as SchemaObject | undefined) : undefined
+  const resolved = schema ? resolveSchemaWithAnnotations(schema as SchemaObject) : undefined
   if (!resolved || !isObjectSchema(resolved) || !resolved.properties) {
     return (_name: string, _value: unknown) => false
   }
   const nestedTopKeys = new Set<string>()
   for (const [key, child] of Object.entries(resolved.properties)) {
-    const childResolved = child
-      ? (getResolvedRef(child, mergeSiblingReferences) as SchemaObject | undefined)
-      : undefined
+    const childResolved = child ? resolveSchemaWithAnnotations(child) : undefined
     if (childResolved && isObjectSchema(childResolved) && childResolved.properties) {
       nestedTopKeys.add(key)
     }

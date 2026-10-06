@@ -36,6 +36,10 @@ import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyFor
 import RequestBodyStructured from '@/v2/blocks/request-block/components/RequestBodyStructured.vue'
 import RequestBodyViewToggle from '@/v2/blocks/request-block/components/RequestBodyViewToggle.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
+import {
+  getFormBodyRows,
+  getFormBodyValue,
+} from '@/v2/blocks/request-block/helpers/get-form-body-rows'
 import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
 import { CodeInput } from '@/v2/components/code-input'
 import {
@@ -336,7 +340,10 @@ watch(
 
     const codec = structuredCodec.value
     const isXml = isXmlMediaType(selectedContentType.value)
-    if (!requestBody || (!codec && !isXml)) {
+    const isForm =
+      selectedContentType.value === 'multipart/form-data' ||
+      selectedContentType.value === 'application/x-www-form-urlencoded'
+    if (!requestBody || (!codec && !isXml && !isForm)) {
       return
     }
 
@@ -348,6 +355,29 @@ watch(
       requestBodyCompositionSelection,
       openapiVersion,
     )
+
+    if (isForm) {
+      const rows = getFormBodyRows(
+        { value: selectedValue },
+        selectedContentType.value,
+        bodySchema.value,
+        requestBodyCompositionSelection,
+      )
+      emits('update:formValue', {
+        contentType: selectedContentType.value,
+        payload: rows.map((row) => ({
+          name: row.name,
+          value:
+            selectedContentType.value === 'multipart/form-data'
+              ? getFormBodyValue(row)
+              : (row.value ?? undefined),
+          isDisabled: row.isDisabled ?? false,
+          ...(row.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
+          ...(row.isArray ? { isArray: true } : {}),
+        })),
+      })
+      return
+    }
 
     emits('update:value', {
       // A branch with no writable content generates `null`/`undefined`; clear the editor rather than
@@ -513,6 +543,7 @@ const canGenerateExample = computed(() =>
           ">
           <RequestBodyForm
             :bodySchema
+            :compositionSelection="requestBodyCompositionSelection"
             :environment
             :example
             :selectedContentType

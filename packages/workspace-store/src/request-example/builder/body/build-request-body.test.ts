@@ -7,6 +7,77 @@ import type { ExampleObject, RequestBodyObject } from '@/schemas/v3.2/strict/ope
 import { buildRequestBody } from './build-request-body'
 
 describe('buildRequestBody', () => {
+  it('regroups structural allOf fields into a typed JSON part', () => {
+    const body = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            properties: {
+              file: {
+                allOf: [
+                  { type: 'object', properties: { name: { type: 'string' } } },
+                  { type: 'object', properties: { count: { type: 'integer' }, active: { type: 'boolean' } } },
+                ],
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'file.name', value: 'Alice' },
+                { name: 'file.count', value: '42' },
+                { name: 'file.active', value: 'false' },
+              ],
+            },
+          },
+        },
+      },
+    })
+    expect(buildRequestBody(body, 'default')).toStrictEqual({
+      mode: 'formdata',
+      value: [{ type: 'text', key: 'file', value: '{"name":"Alice","count":42,"active":false}' }],
+    })
+  })
+
+  it.each([false, true])(
+    'regroups annotated allOf object fields without losing leaf types (reversed: %s)',
+    (reversed) => {
+      const reference = {
+        $ref: '#/components/schemas/MyData',
+        '$ref-value': {
+          type: 'object' as const,
+          properties: { name: { type: 'string' as const }, value: { type: 'integer' as const } },
+          required: ['name'],
+        },
+      }
+      const annotation = { description: 'JSON file containing the data.' }
+      const body = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: { file: { allOf: reversed ? [annotation, reference] : [reference, annotation] } },
+              required: ['file'],
+            },
+            examples: {
+              default: {
+                value: [
+                  { name: 'file.name', value: 'Alice' },
+                  { name: 'file.value', value: '42' },
+                ],
+              },
+            },
+          },
+        },
+      })
+      expect(buildRequestBody(body, 'default')).toStrictEqual({
+        mode: 'formdata',
+        value: [{ type: 'text', key: 'file', value: '{"name":"Alice","value":42}' }],
+      })
+    },
+  )
+
   it.each([
     [{ dataValue: 'hello' }, '"hello"'],
     [{ dataValue: false }, 'false'],
@@ -20,6 +91,39 @@ describe('buildRequestBody', () => {
       mode: 'raw',
       value: expected,
       contentType: 'application/json',
+    })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('serializes selected %s nested rows using their declared types', (keyword) => {
+    const body = coerceValue(RequestBodyObjectSchema, {
+      content: {
+        'multipart/form-data': {
+          schema: {
+            type: 'object',
+            required: ['file'],
+            properties: {
+              file: {
+                [keyword]: [
+                  { type: 'object', properties: { count: { type: 'string' } } },
+                  { type: 'object', properties: { count: { type: 'integer' }, active: { type: 'boolean' } } },
+                ],
+              },
+            },
+          },
+          examples: {
+            default: {
+              value: [
+                { name: 'file.count', value: '42' },
+                { name: 'file.active', value: 'false' },
+              ],
+            },
+          },
+        },
+      },
+    })
+    expect(buildRequestBody(body, 'default', { [`requestBody.file.${keyword}`]: 1 })).toStrictEqual({
+      mode: 'formdata',
+      value: [{ type: 'text', key: 'file', value: '{"count":42,"active":false}' }],
     })
   })
 

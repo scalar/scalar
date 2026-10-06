@@ -1,7 +1,8 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
+import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
 import { coerceLeafValueToSchemaType } from '@scalar/workspace-store/request-example'
-import { resolve } from '@scalar/workspace-store/resolve'
 import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
@@ -21,6 +22,7 @@ export type LeafRow = {
   path: string[]
   schema: SchemaObject | undefined
   isRequired: boolean
+  description?: string
 }
 
 /**
@@ -35,6 +37,7 @@ export const collectLeafProperties = (
   schema: SchemaObject,
   parentPath: string[] = [],
   parentRequired = true,
+  parentDescription?: string,
 ): LeafRow[] => {
   // Nothing to walk if this is not an object schema or has no declared properties.
   if (!isObjectSchema(schema) || !schema.properties) {
@@ -46,7 +49,7 @@ export const collectLeafProperties = (
   const leaves: LeafRow[] = []
 
   for (const [key, rawChildSchema] of objectEntries(schema.properties)) {
-    const childSchema = resolve.schema(rawChildSchema)
+    const childSchema = resolveSchemaWithAnnotations(rawChildSchema)
     const path = [...parentPath, String(key)]
 
     // A leaf is only required when *every* ancestor was also required — a non-required
@@ -57,9 +60,9 @@ export const collectLeafProperties = (
     // everything else (primitives, arrays, files, additionalProperties placeholders)
     // is treated as a leaf and stops the descent.
     if (childSchema && isObjectSchema(childSchema) && childSchema.properties) {
-      leaves.push(...collectLeafProperties(childSchema, path, isRequired))
+      leaves.push(...collectLeafProperties(childSchema, path, isRequired, childSchema.description ?? parentDescription))
     } else {
-      leaves.push({ path, schema: childSchema, isRequired })
+      leaves.push({ path, schema: childSchema, isRequired, description: childSchema?.description ?? parentDescription })
     }
   }
 
@@ -92,7 +95,7 @@ export const collectExampleRows = (
   for (const [key, rawChildSchema] of objectEntries(schemaProperties)) {
     const keyStr = String(key)
     declaredKeys.add(keyStr)
-    const childSchema = resolve.schema(rawChildSchema)
+    const childSchema = resolveSchemaWithAnnotations(rawChildSchema)
     const path = [...parentPath, keyStr]
     const exampleSubvalue = exampleByKey.get(keyStr)
 
@@ -129,6 +132,7 @@ export const getFormBodyRows = (
   example: ExampleObject | undefined | null,
   contentType: string,
   formBodySchema?: SchemaObject,
+  compositionSelection?: Record<string, number>,
 ): TableRow[] => {
   // Forms use structured data even when the raw example also supplies wire text.
   const value = example?.dataValue !== undefined ? example.dataValue : example?.value
@@ -138,7 +142,8 @@ export const getFormBodyRows = (
   }
 
   // Get all the schema properties if the schema is an object schema
-  const schemaWithProperties = formBodySchema && isObjectSchema(formBodySchema) ? formBodySchema : undefined
+  const resolvedBodySchema = resolveFormSchema(formBodySchema, compositionSelection)
+  const schemaWithProperties = resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema : undefined
   // The request builder preserves composed fields because members can make them required.
   // Keep those fields checked so the initial form matches the body that will be sent.
   const isComposed = Boolean(schemaWithProperties?.allOf || schemaWithProperties?.oneOf || schemaWithProperties?.anyOf)
@@ -171,9 +176,9 @@ export const getFormBodyRows = (
     // Prefer the pre-resolved leaf (handles dotted names like `props.name`); fall back
     // to a top-level property lookup so user-added rows keep working.
     const leaf = leafByDottedName.get(name)
-    const propSchema = leaf?.schema ?? resolve.schema(schemaWithProperties.properties?.[name])
+    const propSchema = leaf?.schema ?? resolveSchemaWithAnnotations(schemaWithProperties.properties?.[name])
     row.schema = propSchema
-    row.description = propSchema?.description
+    row.description = leaf?.description ?? propSchema?.description
     row.isRequired = leaf?.isRequired ?? requiredSet?.has(name) ?? false
 
     // Top-level optional properties default to disabled (unchecked), matching how optional
