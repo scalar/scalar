@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { rubyNative } from './native'
 
 describe('rubyNative', () => {
+  it('preserves reserved path characters and existing percent-encoded triples', () => {
+    const url = 'https://example.com/items/a:b@c+$d&x=y;%2f%3F%23%25%5B%5D'
+    expect(rubyNative.generate({ url })).toContain(`url = URI("${url}")`)
+  })
+
   const baseHttpsRequest = `require 'uri'
 require 'net/http'
 

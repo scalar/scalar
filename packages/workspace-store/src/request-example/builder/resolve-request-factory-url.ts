@@ -4,6 +4,11 @@ import { safeRun } from '@scalar/helpers/types/safe-run'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { mergeSearchParams, mergeUrls } from '@scalar/helpers/url/merge-urls'
 
+import {
+  assertReservedPathUrl,
+  encodePathParameter,
+  serializeReservedPathParameter,
+} from '@/helpers/encode-path-parameter'
 import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import type { RequestFactory } from '@/request-example/builder/request-factory'
 
@@ -46,12 +51,26 @@ export const resolveRequestFactoryUrl = (
 
   const pathVariablesEncoded = safeRun(() =>
     Object.fromEntries(
-      Object.entries(request.path.variables).map(([key, value]) => [
-        key,
-        request.path.serializedParameters?.has(key)
-          ? replaceEnvVariables(value, variables)
-          : encodeURIComponent(replaceEnvVariables(value, variables)),
-      ]),
+      Object.entries(request.path.variables).map(([key, value]) => {
+        const replace = (text: string): string => replaceEnvVariables(text, variables)
+        const reserved =
+          request.path.reservedParameters && Object.hasOwn(request.path.reservedParameters, key)
+            ? request.path.reservedParameters[key]
+            : undefined
+        const encoded = request.path.serializedParameters?.has(key)
+          ? replace(value)
+          : reserved
+            ? serializeReservedPathParameter(
+                key,
+                {
+                  ...reserved,
+                  value: value === reserved.originalValue ? reserved.value : value,
+                },
+                replace,
+              )
+            : encodePathParameter(replace(value))
+        return [key, encoded]
+      }),
     ),
   )
   if (!pathVariablesEncoded.ok) {
@@ -74,7 +93,12 @@ export const resolveRequestFactoryUrl = (
   const origin = globalThis.window?.location?.origin
   const urlBase = origin && origin !== 'null' ? origin : 'http://localhost:3000'
   // Fallback for modal layout without a base server url (it should use the current origin)
-  const urlParsed = safeRun(() => new URL(mergedUrl, urlBase))
+  const urlParsed = safeRun(() => {
+    if (request.path.reservedParameters && Object.keys(request.path.reservedParameters).length) {
+      assertReservedPathUrl(mergedUrl)
+    }
+    return new URL(mergedUrl, urlBase)
+  })
   if (!urlParsed.ok) {
     return err(
       INVALID_REQUEST_FACTORY_URL,

@@ -9,6 +9,7 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import type { ReservedPathParameter } from '@/helpers/encode-path-parameter'
 import { getParameterExample } from '@/helpers/get-parameter-example'
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 
@@ -43,7 +44,7 @@ export const buildRequestParameters = (
   parameters: ReferenceType<ParameterObject>[] = [],
   /** The key of the current example */
   exampleName: string = 'default',
-  /** Originating version; older documents retain their historical serialization. */
+  /** Reserved path expansion was introduced in OpenAPI 3.2. */
   openapiVersion?: string,
 ): {
   cookies: XScalarCookie[]
@@ -51,6 +52,7 @@ export const buildRequestParameters = (
   cookieErrors?: string[]
   headers: Record<string, string>
   pathVariables: Record<string, string>
+  reservedPathParameters?: Record<string, ReservedPathParameter>
   allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
   serializedQuery?: string[]
@@ -166,6 +168,14 @@ export const buildRequestParameters = (
         // Path parameters use simple style by default
         const serialized = serializeSimpleStyle(deSerializedValue, getExplode(param, false))
         result.pathVariables[paramName] = String(serialized)
+        if (openapiVersion?.startsWith('3.2.') && 'schema' in param && param.allowReserved === true) {
+          ;(result.reservedPathParameters ??= {})[paramName] = {
+            value: deSerializedValue,
+            originalValue: String(serialized),
+            style: param.style ?? 'simple',
+            explode: getExplode(param, false),
+          }
+        }
         break
       }
 

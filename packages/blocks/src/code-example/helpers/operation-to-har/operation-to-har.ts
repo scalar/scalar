@@ -53,7 +53,7 @@ export type OperationToHarProps = {
    * Selected oneOf/anyOf variants for nested request body example generation
    * (e.g. from the schema dropdowns in the API reference).
    */
-  /** Originating OpenAPI version, used for XML mapping rules. */
+  /** Originating OpenAPI version, used for version-specific serialization. */
   openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
   /**

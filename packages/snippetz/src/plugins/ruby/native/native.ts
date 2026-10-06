@@ -43,12 +43,10 @@ const maybeAddCustomMethodClass = (lines: string[], method: string, hasBody: boo
 const encodeUrlWithPathPreservedBrackets = (url: string): string => {
   try {
     const parsedUrl = new URL(url)
-    const encodedPath = parsedUrl.pathname
-      .split('/')
-      .map((segment) =>
-        encodeURIComponent(decodeURIComponent(segment)).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%24/g, '$'),
-      )
-      .join('/')
+    // Preserve existing escapes and reserved path characters from the request builder.
+    const encodedPath = parsedUrl.pathname.replace(/%[0-9a-f]{2}|[\s\S]/giu, (character) =>
+      /^%[0-9a-f]{2}$/i.test(character) || character === '[' || character === ']' ? character : encodeURI(character),
+    )
 
     // Keep legacy behavior from the previous converter: omit trailing slash for origin-only URLs.
     if (parsedUrl.pathname === '/') {

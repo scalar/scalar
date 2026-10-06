@@ -1,5 +1,9 @@
 import { getCookieSerializationError } from '@scalar/helpers/http/get-cookie-serialization-error'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+import {
+  assertReservedPathUrl,
+  serializeReservedPathParameter,
+} from '@scalar/workspace-store/helpers/encode-path-parameter'
 import { getParameterExample } from '@scalar/workspace-store/helpers/get-parameter-example'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -134,7 +138,7 @@ export const processParameters = ({
   example?: string | undefined
   /** Whether to disable parameters by default. */
   defaultDisabled: boolean
-  /** Originating version for cookie serialization restrictions. */
+  /** Originating API description version. */
   openapiVersion?: string
 }): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
@@ -143,6 +147,7 @@ export const processParameters = ({
   const newCookies = [...harRequest.cookies]
   const cookieStyleEntries: HarRequest['cookies'] = []
   let newUrl = harRequest.url
+  let hasReservedPathParameter = false
   const serializedQuery: string[] = []
   const serializedCookies: string[] = []
 
@@ -221,7 +226,15 @@ export const processParameters = ({
 
     switch (param.in) {
       case 'path': {
-        newUrl = processPathParameters(newUrl, param, paramValue, style, explode)
+        const allowReserved = openapiVersion?.startsWith('3.2.') && 'schema' in param && param.allowReserved === true
+        hasReservedPathParameter ||= Boolean(allowReserved)
+        const pathValue = allowReserved
+          ? serializeReservedPathParameter(param.name, { value: paramValue, style, explode })
+          : undefined
+        newUrl =
+          pathValue === undefined
+            ? processPathParameters(newUrl, param, paramValue, style, explode)
+            : newUrl.replaceAll(`{${param.name}}`, () => pathValue)
         break
       }
 
@@ -361,6 +374,10 @@ export const processParameters = ({
     const hash = hashIndex < 0 ? '' : newUrl.slice(hashIndex)
     const base = hashIndex < 0 ? newUrl : newUrl.slice(0, hashIndex)
     newUrl = `${base}${base.includes('?') ? '&' : '?'}${serializedQuery.join('&')}${hash}`
+  }
+
+  if (hasReservedPathParameter) {
+    assertReservedPathUrl(newUrl)
   }
 
   return {
