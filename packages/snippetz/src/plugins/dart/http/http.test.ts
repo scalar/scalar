@@ -609,4 +609,59 @@ void main() async {
   print(response.body);
 }`)
   })
+  it('escapes single quotes and line breaks in a JSON body', () => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: '{\n  "note": "it\'s $5"\n}',
+      },
+    })
+
+    expect(result).toContain(`final body = '{\\n  "note": "it\\'s \\$5"\\n}';`)
+  })
+
+  it('escapes single quotes in header values', () => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'X-Name', value: "it's" }],
+    })
+
+    expect(result).toContain(`'X-Name': 'it\\'s',`)
+  })
+
+  it('sends a plain text body', () => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'text/plain' }],
+      postData: {
+        mimeType: 'text/plain',
+        text: "it's plain",
+      },
+    })
+
+    expect(result).toContain(`final body = 'it\\'s plain';`)
+    expect(result).toContain("http.post(Uri.parse('https://example.com'), headers: headers, body: body)")
+  })
+  it.each(['GET', 'HEAD'])('sends text bodies with a %s request', (method) => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      method,
+      postData: { mimeType: 'text/plain', text: 'hello' },
+    })
+
+    expect(result).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final body = 'hello';
+
+  final request = http.Request('${method}', Uri.parse('https://example.com'));
+  request.body = body;
+  final response = await http.Response.fromStream(await request.send());
+  print(response.body);
+}`)
+  })
 })
