@@ -1,3 +1,4 @@
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { HarRequest, PluginConfiguration } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
@@ -37,7 +38,8 @@ export function requestsLikeGenerate(
   clientVar: string,
   request?: Partial<HarRequest>,
   configuration?: PluginConfiguration,
-) {
+  library: 'requests' | 'httpx' = 'requests',
+): string {
   // Normalize request with defaults
   const normalizedRequest = {
     url: 'https://example.com',
@@ -81,7 +83,7 @@ export function requestsLikeGenerate(
   if (normalizedRequest.postData) {
     const { mimeType, text, params } = normalizedRequest.postData
 
-    if (mimeType === 'application/json' && text) {
+    if (isJsonMediaType(mimeType) && text) {
       try {
         options.json = JSON.parse(text)
       } catch {
@@ -130,7 +132,16 @@ export function requestsLikeGenerate(
         accumulateRepeatedValue(formData, param.name, param.value ?? '')
       })
       options.data = formData
+    } else if (text) {
+      // Any other body (text/plain, application/xml, …) is sent as it is
+      options.data = text
     }
+  }
+
+  // HTTPX accepts raw request bodies through content; data is reserved for form fields.
+  if (library === 'httpx' && typeof options.data === 'string') {
+    options.content = options.data
+    delete options.data
   }
 
   // Format all parameters
@@ -158,7 +169,10 @@ export function requestsLikeGenerate(
     } else if (key === 'json') {
       const jsonString = formatPythonValue(value)
       formattedParams.push(`${key}=${jsonString}`)
-    } else if (key === 'data' && normalizedRequest.postData?.mimeType === 'application/octet-stream') {
+    } else if (
+      (key === 'data' || key === 'content') &&
+      normalizedRequest.postData?.mimeType === 'application/octet-stream'
+    ) {
       // Special handling for binary data
       formattedParams.push(`${key}=b"${value}"`)
     } else {
@@ -167,7 +181,12 @@ export function requestsLikeGenerate(
     }
   }
 
-  if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'].includes(wireMethod)) {
+  // HTTPX convenience methods for these verbs do not accept request bodies.
+  const requiresGenericRequest =
+    library === 'httpx' &&
+    ['GET', 'DELETE', 'HEAD', 'OPTIONS'].includes(wireMethod) &&
+    ['json', 'data', 'content', 'files'].some((key) => key in options)
+  if (requiresGenericRequest || !['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'].includes(wireMethod)) {
     return `${clientVar}.request(${[JSON.stringify(wireMethod), urlParam, ...formattedParams.slice(1)].join(', ')})`
   }
 

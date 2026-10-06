@@ -10,6 +10,6 @@ export const pythonHttpxSync: Plugin = {
   client: 'httpx_sync',
   title: 'HTTPX (Sync)',
   generate(request, configuration) {
-    return requestsLikeGenerate('httpx', request, configuration)
+    return requestsLikeGenerate('httpx', request, configuration, 'httpx')
   },
 }
