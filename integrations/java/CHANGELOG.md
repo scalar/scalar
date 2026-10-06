@@ -1,5 +1,7 @@
 # @scalar/java-integration
 
+## 0.6.79
+
 ## 0.6.78
 
 ### Bundled API Reference

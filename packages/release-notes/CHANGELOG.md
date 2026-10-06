@@ -1,5 +1,7 @@
 # @scalar/release-notes
 
+## 0.2.6
+
 ## 0.2.5
 
 ## 0.2.4

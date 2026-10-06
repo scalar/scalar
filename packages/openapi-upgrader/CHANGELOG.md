@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.4.3
+
+### Patch Changes
+
+- [#10501](https://github.com/scalar/scalar/pull/10501): Keep Swagger 2.0 named examples whose name contains a slash, such as `Coupons/Promos`. Only registered media types are treated as media-type keys, so one such name no longer drops every request body example.
+
 ## 0.4.2
 
 ## 0.4.1

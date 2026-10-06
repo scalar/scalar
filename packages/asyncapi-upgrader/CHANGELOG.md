@@ -1,5 +1,11 @@
 # @scalar/asyncapi-upgrader
 
+## 0.1.16
+
+### Patch Changes
+
+- [#10481](https://github.com/scalar/scalar/pull/10481): Show AsyncAPI external documentation links in introductions, including references, and preserve root external documentation when upgrading AsyncAPI 2.x.
+
 ## 0.1.15
 
 ## 0.1.14

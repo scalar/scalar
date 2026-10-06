@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.73.1
+
+### Patch Changes
+
+- [#10490](https://github.com/scalar/scalar/pull/10490): Replace the OpenAPI parser dependency with JSON Magic and YAML helpers for serving API descriptions.
+
+  Require Node.js 22 or newer to match the runtime requirement of JSON Magic.
+
 ## 1.73.0
 
 ## 1.72.4

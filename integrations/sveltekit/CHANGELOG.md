@@ -1,5 +1,11 @@
 # @scalar/sveltekit
 
+## 0.3.28
+
+### Patch Changes
+
+- [#10478](https://github.com/scalar/scalar/pull/10478): Support SvelteKit 3 while retaining compatibility with SvelteKit 2.
+
 ## 0.3.27
 
 ## 0.3.26

@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 3.22.0
+
+### Minor Changes
+
+- [#10483](https://github.com/scalar/scalar/pull/10483): Add a request body schema view to the API Client so users can inspect all writable fields alongside custom examples without changing their request payload.
+
+### Patch Changes
+
+- [#10480](https://github.com/scalar/scalar/pull/10480): Resolve structural allOf object fields and annotation-only wrappers and selected oneOf/anyOf variants in form body fields, preserving descriptions, nested inputs, and multipart value types when switching variants.
+- [#10493](https://github.com/scalar/scalar/pull/10493): Floating surfaces now paint their own background, border, and shadow instead of using an absolutely positioned backdrop layer. The `#backdrop` slot on `ScalarDropdown`, `ScalarPopover`, `ScalarListbox`, and `ScalarCombobox` is removed; style the floating element with `class` instead. `ScalarFloatingBackdrop`, `--scalar-lifted-brightness`, and the `brightness-lifted` utility are deprecated in favor of `bg-b-1 dark:bg-b-1.5`. `ScalarFloatingBackdrop` itself now uses the same surface styles, so it no longer clips its slot or draws a real border. A new `inset-shadow-border` utility draws the hairline border so it can stack with `shadow-*` without taking up layout space; Tailwind's default `inset-shadow-*` sizes are reset, matching the other theme namespaces.
+
 ## 3.21.5
 
 ### Patch Changes
