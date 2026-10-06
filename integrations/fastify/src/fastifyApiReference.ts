@@ -1,10 +1,11 @@
 /// <reference types="@fastify/swagger" />
 import { renderApiReference } from '@scalar/client-side-rendering'
-import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
-import type { OpenAPI } from '@scalar/openapi-types'
+import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
+import { normalize } from '@scalar/json-magic/helpers/normalize'
 import type { FastifyBaseLogger, FastifySchema, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
+import { stringify } from 'yaml'
 
 import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
 import { getJavaScriptFile } from './utils/getJavaScriptFile'
@@ -127,9 +128,10 @@ const fastifyApiReference = fp<
       }
     }
 
-    const getSpecFilenameSlug = (spec: OpenAPI.Document) => {
+    const getSpecFilenameSlug = (spec: unknown): string => {
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
-      return slug(spec?.specification?.info?.title ?? 'spec')
+      const title: unknown = getValueByPath(spec, ['specification', 'info', 'title']).value
+      return slug(typeof title === 'string' ? title : 'spec')
     }
 
     // Only expose the document endpoints when we can serve the document ourselves.
@@ -147,7 +149,7 @@ const fastifyApiReference = fp<
         handler(_, reply) {
           const spec = normalize(specSource.get())
           const filename = getSpecFilenameSlug(spec)
-          const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
+          const json = JSON.parse(JSON.stringify(spec)) // parsing minifies the JSON
 
           return reply
             .header('Content-Type', 'application/json')
@@ -168,7 +170,7 @@ const fastifyApiReference = fp<
         handler(_, reply) {
           const spec = normalize(specSource.get())
           const filename = getSpecFilenameSlug(spec)
-          const yaml = toYaml(spec)
+          const yaml = stringify(spec)
           return reply
             .header('Content-Type', 'application/yaml')
             .header('Content-Disposition', `filename=${filename}.yaml`)
