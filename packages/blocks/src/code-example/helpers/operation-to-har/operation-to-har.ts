@@ -147,7 +147,6 @@ export const operationToHar = ({
       openapiVersion,
       example,
       defaultDisabled: defaultDisabledParameters,
-      openapiVersion,
     })
 
     // Correctly filter the global cookies by the processed url
