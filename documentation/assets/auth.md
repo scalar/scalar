@@ -23,7 +23,7 @@ scalar auth login --token "$SCALAR_API_KEY"
 scalar auth whoami
 ```
 
-For the Scalar Agent SDK, pass the personal token to the `token` option of `agentScalar`, then select the user's MCP installation. See the [Agent SDK guide](https://scalar.com/products/agent/sdk) for supported integrations and request examples.
+For the Scalar Agent SDK, pass the personal token to the `token` option of `agentScalar`, then select the user's MCP installation. See the [Agent SDK guide](https://scalar.com/products/agent/integration/sdk) for supported integrations and request examples.
 
 For direct connections to a hosted MCP installation, follow the [MCP guide](https://scalar.com/products/agent/mcp). Team members use a personal access token; external users follow the installation's configured OAuth flow. Authentication and access depend on the installation, so use its discovery metadata and documented credential format.
 
