@@ -38,6 +38,50 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Shows structural types instead of model names in schema labels and operation headings (default: false).
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="hideModelNames">The value to set.</param>
+    public static TOptions WithHideModelNames<TOptions>(this TOptions options, bool hideModelNames = true) where TOptions : ScalarOptions
+    {
+        options.HideModelNames = hideModelNames;
+        return options;
+    }
+
+    /// <summary>
+    /// Limits initially visible top-level request body properties (default: 12). Zero shows all; invalid values fall back to 12.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="limit">The value to set.</param>
+    public static TOptions WithMaxVisibleRequestBodyProperties<TOptions>(this TOptions options, int limit) where TOptions : ScalarOptions
+    {
+        options.MaxVisibleRequestBodyProperties = limit;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls whether parameter details are expanded initially (default: true).
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="expandAllParameters">The value to set.</param>
+    public static TOptions WithExpandAllParameters<TOptions>(this TOptions options, bool expandAllParameters = true) where TOptions : ScalarOptions
+    {
+        options.ExpandAllParameters = expandAllParameters;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls whether nested schema properties are expanded initially (default: false). Large API descriptions may render more slowly when enabled.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="expandAllSchemaProperties">The value to set.</param>
+    public static TOptions WithExpandAllSchemaProperties<TOptions>(this TOptions options, bool expandAllSchemaProperties = true) where TOptions : ScalarOptions
+    {
+        options.ExpandAllSchemaProperties = expandAllSchemaProperties;
+        return options;
+    }
+
+    /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>
     /// <param name="options">The options to configure.</param>
