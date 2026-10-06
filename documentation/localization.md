@@ -18,6 +18,7 @@ English (`en`).
 * `fr` — French
 * `de` — German
 * `zh-CN` — Simplified Chinese
+* `zh-TW` — Traditional Chinese (Taiwan)
 * `ar` — Arabic (renders right-to-left by default)
 * `pt` — Portuguese
 
@@ -41,7 +42,8 @@ Pass a `localization` object to your [API Reference configuration](configuration
 
 The locale used for the built-in UI translations. Regional values are accepted and fall back to the
 base language — for example `es-MX` resolves to `es`, and `zh-Hans` resolves to `zh-CN`. Unknown
-locales fall back to English.
+locales fall back to English. `zh-TW`, including case and underscore variants such as `zh-tw` and
+`zh_TW`, selects Traditional Chinese. Other Chinese locale values continue to resolve to `zh-CN`.
 
 ### `direction`
 

@@ -8,6 +8,7 @@ import { fr } from './locales/fr'
 import { pt } from './locales/pt'
 import { ru } from './locales/ru'
 import { zhCn } from './locales/zh-cn'
+import { zhTw } from './locales/zh-tw'
 import { en } from './translations'
 
 /** Dot-path keys for API Client UI strings. */
@@ -27,6 +28,7 @@ export const { provideLocalization, useLocalization, resolveLocalization } = cre
     fr: { apiClient: fr },
     de: { apiClient: de },
     'zh-CN': { apiClient: zhCn },
+    'zh-TW': { apiClient: zhTw },
     ar: { apiClient: ar },
     pt: { apiClient: pt },
   } satisfies Record<ApiReferenceBuiltInLocale, { apiClient: ApiClientTranslations }>,
