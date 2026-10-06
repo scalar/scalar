@@ -535,6 +535,19 @@ app.MapScalarApiReference(options =>
 });
 ```
 
+Choose which clients appear as tabs in the **Client Libraries** block, in order:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options.WithFeaturedClients(
+        new(ScalarTarget.Java, ScalarClient.NetHttp),
+        new(ScalarTarget.Shell, ScalarClient.Curl));
+});
+```
+
+Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
+
 ### Assets
 
 Scalar uses local assets by default. To load assets from a different location:

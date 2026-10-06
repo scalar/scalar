@@ -174,6 +174,15 @@ public partial class ScalarOptions
     public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient { get; set; }
 
     /// <summary>
+    /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.
+    /// </summary>
+    /// <remarks>
+    /// Leave unset to use the default featured clients. An empty array places all clients under More.
+    /// Clients excluded by EnabledClients or EnabledTargets are skipped. This does not change DefaultHttpClient.
+    /// </remarks>
+    public KeyValuePair<ScalarTarget, ScalarClient>[]? FeaturedClients { get; set; }
+
+    /// <summary>
     /// Controls the list of servers for the Scalar API Reference.
     /// </summary>
     /// <remarks>This list will override the servers defined in the OpenAPI document.</remarks>

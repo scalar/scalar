@@ -635,6 +635,18 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.
+    /// </summary>
+    /// <remarks>An empty array places all clients under More. This does not change the default HTTP client or enable hidden clients.</remarks>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="clients">The target and client pairs to feature.</param>
+    public static TOptions WithFeaturedClients<TOptions>(this TOptions options, params KeyValuePair<ScalarTarget, ScalarClient>[] clients) where TOptions : ScalarOptions
+    {
+        options.FeaturedClients = clients;
+        return options;
+    }
+
+    /// <summary>
     /// Controls the route pattern of the OpenAPI document.
     /// Can also be a complete URL to a remote OpenAPI document, just be aware of CORS restrictions in this case.
     /// The pattern can include the '{documentName}' placeholder which will be replaced with the document name.
