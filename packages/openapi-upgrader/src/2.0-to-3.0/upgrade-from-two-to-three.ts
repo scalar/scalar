@@ -156,14 +156,14 @@ function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
  * Swagger 2.0 examples to OpenAPI 3.0 content. The type must be a registered top-level
  * type (or `*`) and the subtype a single token, so named keys that contain a slash
  * ("Error 404/Not Found", "Coupons/Promos") stay named examples. Matching is
- * case-sensitive: producers write media types in lowercase, while names like
- * "Image/Before" are capitalized.
+ * case-sensitive for undeclared keys so "Image/Before" stays a name. Explicit
+ * consumes/produces entries take precedence, including mixed-case or private types.
  */
 const MEDIA_TYPE_KEY_PATTERN =
   /^(\*|application|audio|example|font|haptics|image|message|model|multipart|text|video)\/[a-zA-Z0-9*+.-]+$/
 
-function isMediaTypeKey(key: string): boolean {
-  return MEDIA_TYPE_KEY_PATTERN.test(key)
+const isMediaTypeKey = (key: string, declaredMediaTypes: readonly string[]): boolean => {
+  return declaredMediaTypes.includes(key) || MEDIA_TYPE_KEY_PATTERN.test(key)
 }
 
 /** Transforms x-example entries to OpenAPI 3.x examples format */
@@ -378,7 +378,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
             for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
               // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-              if (isMediaTypeKey(key)) {
+              if (isMediaTypeKey(key, produces)) {
                 if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
                   ;(responseObj.content as Record<string, unknown>)[key] = {}
                 }
@@ -526,7 +526,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
                     for (const [key, exampleValue] of Object.entries(responseItem.examples)) {
                       // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-                      if (isMediaTypeKey(key)) {
+                      if (isMediaTypeKey(key, operationItem.produces ?? produces)) {
                         if (typeof responseItem.content[key] !== 'object') {
                           responseItem.content[key] = {}
                         }
@@ -948,7 +948,7 @@ function migrateBodyParameter(
       // e.g. x-examples: { Request: { email: "test@example.com" } }
       // Decided per key, so a key that belongs to another media type never drops the named ones
       else if (isNonEmptyObject(xExamples)) {
-        const namedExamples = Object.entries(xExamples).filter(([key]) => !isMediaTypeKey(key))
+        const namedExamples = Object.entries(xExamples).filter(([key]) => !isMediaTypeKey(key, consumes))
 
         if (namedExamples.length) {
           requestBodyObject.content[type].examples = namedExamples.reduce<Record<string, OpenAPIV3.ExampleObject>>(

@@ -2625,6 +2625,72 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it.each(['Application/XML', 'x-custom/example'])('preserves the declared response media type %s', (mediaType) => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Declared response media types', version: '1.0' },
+      produces: ['application/json', mediaType],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                examples: { [mediaType]: '<response />' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        shared: {
+          description: 'OK',
+          examples: { [mediaType]: '<response />' },
+        },
+      },
+    })
+
+    const response = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    const shared = result.components?.responses?.shared as OpenAPIV3.ResponseObject
+    const expectedContent = { [mediaType]: { example: '<response />' } }
+    expect(response.content).toStrictEqual(expectedContent)
+    expect(shared.content).toStrictEqual(expectedContent)
+  })
+
+  it('excludes declared media types from named request examples for other content types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Declared request media types', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json', 'Application/XML'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                schema: { type: 'object' },
+                'x-examples': {
+                  'Application/XML': '<request />',
+                  'Image/Before': { id: 1 },
+                },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody.content?.['application/json']?.examples).toStrictEqual({
+      'Image/Before': { value: { id: 1 } },
+    })
+    expect(requestBody.content?.['Application/XML']?.examples).toStrictEqual({
+      default: { value: '<request />' },
+    })
+  })
+
   it('treats a token-style named example key with a slash as a named example', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
