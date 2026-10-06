@@ -143,6 +143,9 @@ Schema normalization and description parsing are cached within each renderer. Re
 schema expansion still tracks ancestors and stops at a depth of ten. Output may use tighter
 list spacing and normalized Markdown escaping compared with earlier versions.
 
+For OpenAPI 3.2 descriptions, tag headings use `summary` when present and otherwise
+use `name`. Tag selectors and operation tag metadata continue to use `name`.
+
 The package only generates Markdown. To produce HTML, pass the Markdown output to a
 Markdown renderer in your application.
 
