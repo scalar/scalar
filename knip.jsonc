@@ -147,6 +147,8 @@
     },
     "packages/api-reference": {
       "entry": [
+        // Loaded by the standalone browser through pluginUrls in the plugin example and E2E test
+        "public/examples/plugins/custom-extension.js",
         "src/index.ts",
         "src/components/index.ts",
         "src/blocks/index.ts",
