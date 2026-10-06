@@ -42,7 +42,7 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
 
       - name: Install skill generator dependencies
-        run: pnpm install --frozen-lockfile --filter @scalar-internal/build-scripts
+        run: pnpm install --frozen-lockfile --filter . --filter @scalar-internal/build-scripts
 
       - name: Check published agent skills
         run: pnpm script generate-agent-skills --check
