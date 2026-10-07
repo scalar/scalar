@@ -3967,11 +3967,78 @@
                     "type": "page",
                     "title": "Authentication"
                   },
-                  "commands": {
-                    "description": "Full command reference for the Scalar CLI: projects, registry, OpenAPI validation, bundling, and mocking.",
-                    "filepath": "documentation/guides/cli/commands.md",
+                  "ci-and-scripting": {
+                    "description": "Run the Scalar CLI in CI: authenticate with tokens, publish lint reports, adopt lint baselines, and read JSON output.",
+                    "filepath": "documentation/guides/cli/ci-and-scripting.md",
                     "type": "page",
-                    "title": "Commands"
+                    "title": "CI and Scripting"
+                  },
+                  "commands": {
+                    "type": "group",
+                    "title": "Commands",
+                    "mode": "folder",
+                    "page": {
+                      "type": "page",
+                      "title": "Commands",
+                      "description": "Full command reference for the Scalar CLI: projects, registry, OpenAPI validation, bundling, and mocking.",
+                      "filepath": "documentation/guides/cli/commands.md"
+                    },
+                    "children": {
+                      "document": {
+                        "type": "page",
+                        "title": "Document",
+                        "description": "Bundle, validate, lint, format, mock, and preview OpenAPI and AsyncAPI documents.",
+                        "filepath": "documentation/guides/cli/commands/document.md"
+                      },
+                      "project": {
+                        "type": "page",
+                        "title": "Project",
+                        "description": "Create, preview, publish, and roll back Scalar Docs projects.",
+                        "filepath": "documentation/guides/cli/commands/project.md"
+                      },
+                      "registry": {
+                        "type": "page",
+                        "title": "Registry",
+                        "description": "Publish, update, and download API descriptions in the Scalar Registry.",
+                        "filepath": "documentation/guides/cli/commands/registry.md"
+                      },
+                      "auth": {
+                        "type": "page",
+                        "title": "Auth",
+                        "description": "Log in to Scalar, check the current user, and log out.",
+                        "filepath": "documentation/guides/cli/commands/auth.md"
+                      },
+                      "team": {
+                        "type": "page",
+                        "title": "Team",
+                        "description": "List, inspect, and switch between your Scalar teams.",
+                        "filepath": "documentation/guides/cli/commands/team.md"
+                      },
+                      "schema": {
+                        "type": "page",
+                        "title": "Schema",
+                        "description": "Publish and manage shared schemas in the Scalar Registry.",
+                        "filepath": "documentation/guides/cli/commands/schema.md"
+                      },
+                      "sdk": {
+                        "type": "page",
+                        "title": "SDK",
+                        "description": "Create, build, and inspect generated SDKs.",
+                        "filepath": "documentation/guides/cli/commands/sdk.md"
+                      },
+                      "access-group": {
+                        "type": "page",
+                        "title": "Access Groups",
+                        "description": "Manage access groups and the email domains allowed into private docs.",
+                        "filepath": "documentation/guides/cli/commands/access-group.md"
+                      },
+                      "general": {
+                        "type": "page",
+                        "title": "General",
+                        "description": "Upgrade the CLI, set up shell completion, and print the command tree for AI agents.",
+                        "filepath": "documentation/guides/cli/commands/general.md"
+                      }
+                    }
                   }
                 }
               },
