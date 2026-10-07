@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { DialogTitle } from '@headlessui/vue'
 import { ScalarButton } from '@scalar/components/button'
-import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import {
+  ScalarIconArrowLeft,
   ScalarIconArrowUpRight,
   ScalarIconCalendar,
   ScalarIconGlobe,
@@ -12,11 +12,12 @@ import {
 } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { useRegisterLink } from '@/hooks/use-register-link'
 
+import { mountCalInline } from '../cal-embed'
 import { DEMO_CALL_URL } from '../constants'
 import ExploreScalarStickers from './ExploreScalarStickers.vue'
 
@@ -41,6 +42,12 @@ const { loader, href, open } = useRegisterLink({
 })
 
 /**
+ * The dialog has two steps: the overview, and the inline Cal.com booking for the demo call.
+ * Declared before the open-state watch below, which runs immediately and resets it.
+ */
+const step = ref<'overview' | 'demo'>('overview')
+
+/**
  * Decided once per open session. An upload defines `href` while the sign-up control has focus, and
  * swapping the focused <button> for an <a> at that moment drops keyboard focus to <body>. So the
  * element type stays put until the dialog closes; a later click on the button reuses the uploaded copy.
@@ -52,6 +59,9 @@ watch(
   (isOpen) => {
     if (isOpen) {
       sessionSignUpIsLink.value = signUpIsLink.value
+    } else {
+      // The next open starts at the overview again
+      step.value = 'overview'
     }
   },
   { immediate: true },
@@ -67,6 +77,37 @@ const onSignUp = (): void => {
   }
   void open()
 }
+
+const backEl = ref<HTMLButtonElement>()
+const calEl = ref<HTMLElement>()
+const calFailed = ref(false)
+
+/** The booking calendar follows the color mode of the surrounding reference */
+const isDarkMode = (): boolean =>
+  typeof document !== 'undefined' &&
+  document.querySelector('.dark-mode') !== null
+
+const showDemo = async (): Promise<void> => {
+  step.value = 'demo'
+  calFailed.value = false
+  await nextTick()
+  backEl.value?.focus()
+
+  if (!calEl.value) {
+    return
+  }
+
+  try {
+    await mountCalInline(calEl.value, isDarkMode() ? 'dark' : 'light')
+  } catch {
+    // The booking page link under the calendar is the way out when the embed cannot load
+    calFailed.value = true
+  }
+}
+
+const showOverview = (): void => {
+  step.value = 'overview'
+}
 </script>
 
 <template>
@@ -77,122 +118,159 @@ const onSignUp = (): void => {
       'explore-scalar-modal--vt': usesViewTransition,
       'explore-scalar-modal--stickers': morphStickers,
     }"
-    maxWidth="540px"
+    :maxWidth="step === 'demo' ? '960px' : '540px'"
     size="lg"
     :state="state">
     <div class="explore-scalar-panel bg-b-1 text-c-1 relative flex flex-col">
-      <!-- Hero: the brand gradient wash hugging the top edge, with the stickers as decoration -->
-      <div
-        class="explore-scalar-hero relative flex h-[200px] items-end justify-center overflow-hidden pb-6">
-        <span
-          aria-hidden="true"
-          class="explore-scalar-wash pointer-events-none absolute inset-x-0 top-0" />
-        <ExploreScalarStickers layout="hero" />
-      </div>
+      <template v-if="step === 'overview'">
+        <!-- Hero: the brand gradient wash hugging the top edge, with the stickers as decoration -->
+        <div
+          class="explore-scalar-hero relative flex h-[200px] items-end justify-center overflow-hidden pb-6">
+          <span
+            aria-hidden="true"
+            class="explore-scalar-wash pointer-events-none absolute inset-x-0 top-0" />
+          <ExploreScalarStickers layout="hero" />
+        </div>
 
-      <div class="px-8 pt-2 text-center">
-        <DialogTitle
-          as="h2"
-          class="text-c-1 m-0 text-xl leading-snug font-bold tracking-tight text-balance">
-          {{ translate('exploreScalar.title') }}
-        </DialogTitle>
-      </div>
+        <div class="px-8 pt-2 text-center">
+          <DialogTitle
+            as="h2"
+            class="text-c-1 m-0 text-xl leading-snug font-bold tracking-tight text-balance">
+            {{ translate('exploreScalar.title') }}
+          </DialogTitle>
+        </div>
 
-      <hr class="border-border mx-8 mt-5 border-0 border-t" />
+        <hr class="border-border mx-8 mt-5 border-0 border-t" />
 
-      <!-- WebKit drops the list role from a list-style: none list, so the role is explicit to keep "list, 2 items" -->
-      <ul
-        class="m-0 flex list-none flex-col gap-4 px-8 py-5"
-        role="list">
-        <li class="flex items-start gap-3">
-          <!-- The icon shares the title's line box, so it sits on the title and the description hangs below -->
-          <span class="text-c-1 flex h-6 shrink-0 items-center">
-            <ScalarIconPackage
-              class="size-5"
-              weight="regular" />
-          </span>
-          <span class="flex flex-col gap-0.5">
-            <span class="text-c-1 text-base leading-6 font-bold">
-              {{ translate('exploreScalar.generateTitle') }}
+        <!-- WebKit drops the list role from a list-style: none list, so the role is explicit to keep "list, 2 items" -->
+        <ul
+          class="m-0 flex list-none flex-col gap-4 px-8 py-5"
+          role="list">
+          <li class="flex items-start gap-3">
+            <!-- The icon shares the title's line box, so it sits on the title and the description hangs below -->
+            <span class="text-c-1 flex h-6 shrink-0 items-center">
+              <ScalarIconPackage
+                class="size-5"
+                weight="regular" />
             </span>
-            <span class="text-c-2 text-sm">
-              {{ translate('exploreScalar.generateDescription') }}
+            <span class="flex flex-col gap-0.5">
+              <span class="text-c-1 text-base leading-6 font-bold">
+                {{ translate('exploreScalar.generateTitle') }}
+              </span>
+              <span class="text-c-2 text-sm">
+                {{ translate('exploreScalar.generateDescription') }}
+              </span>
             </span>
-          </span>
-        </li>
-        <li class="flex items-start gap-3">
-          <span class="text-c-1 flex h-6 shrink-0 items-center">
-            <ScalarIconGlobe
-              class="size-5"
-              weight="regular" />
-          </span>
-          <span class="flex flex-col gap-0.5">
-            <span class="text-c-1 text-base leading-6 font-bold">
-              {{ translate('exploreScalar.platformTitle') }}
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-c-1 flex h-6 shrink-0 items-center">
+              <ScalarIconGlobe
+                class="size-5"
+                weight="regular" />
             </span>
-            <span class="text-c-2 text-sm">
-              {{ translate('exploreScalar.platformDescription') }}
+            <span class="flex flex-col gap-0.5">
+              <span class="text-c-1 text-base leading-6 font-bold">
+                {{ translate('exploreScalar.platformTitle') }}
+              </span>
+              <span class="text-c-2 text-sm">
+                {{ translate('exploreScalar.platformDescription') }}
+              </span>
             </span>
-          </span>
-        </li>
-      </ul>
+          </li>
+        </ul>
 
-      <!-- Sign-up comes first in the DOM so the dialog's initial focus lands on the primary action -->
-      <div class="flex flex-col gap-2 px-8 pt-1 pb-8">
-        <!-- The spinner hides the label, so the name is pinned while loading (the button is still announced as busy) -->
-        <ScalarButton
-          :aria-busy="loader.isLoading"
-          :aria-label="
-            loader.isActive ? translate('exploreScalar.signUp') : undefined
-          "
-          class="h-10 w-full rounded-full text-base"
-          :href="signUpHref"
-          :is="signUpHref ? 'a' : 'button'"
-          :loader="loader"
-          :rel="signUpHref ? 'noopener noreferrer' : undefined"
-          :target="signUpHref ? '_blank' : undefined"
-          variant="solid"
-          @click="onSignUp">
-          <span class="flex items-center gap-1">
-            {{ translate('exploreScalar.signUp') }}
-            <ScalarIconArrowUpRight
-              class="size-3.5"
+        <!-- Sign-up comes first in the DOM so the dialog's initial focus lands on the primary action -->
+        <div class="flex flex-col gap-2 px-8 pt-1 pb-8">
+          <!-- The spinner hides the label, so the name is pinned while loading (the button is still announced as busy) -->
+          <ScalarButton
+            :aria-busy="loader.isLoading"
+            :aria-label="
+              loader.isActive ? translate('exploreScalar.signUp') : undefined
+            "
+            class="h-10 w-full rounded-full text-base"
+            :href="signUpHref"
+            :is="signUpHref ? 'a' : 'button'"
+            :loader="loader"
+            :rel="signUpHref ? 'noopener noreferrer' : undefined"
+            :target="signUpHref ? '_blank' : undefined"
+            variant="solid"
+            @click="onSignUp">
+            <span class="flex items-center gap-1">
+              {{ translate('exploreScalar.signUp') }}
+              <ScalarIconArrowUpRight
+                class="size-3.5"
+                weight="bold" />
+              <span class="sr-only">
+                {{ translate('exploreScalar.opensInNewTab') }}
+              </span>
+            </span>
+          </ScalarButton>
+          <ScalarButton
+            class="h-10 w-full rounded-full text-base"
+            :icon="ScalarIconCalendar"
+            variant="outlined"
+            @click="showDemo">
+            {{ translate('exploreScalar.bookDemo') }}
+          </ScalarButton>
+        </div>
+      </template>
+
+      <!-- Booking step: the Cal.com calendar for a call with Marc, rendered inline -->
+      <template v-else>
+        <div class="flex flex-col px-6 pt-5 pb-6">
+          <button
+            ref="backEl"
+            class="text-c-2 hover:text-c-1 flex w-fit items-center gap-1 rounded text-sm font-medium"
+            type="button"
+            @click="showOverview">
+            <ScalarIconArrowLeft
+              class="size-4"
               weight="bold" />
-            <span class="sr-only">
-              {{ translate('exploreScalar.opensInNewTab') }}
-            </span>
-          </span>
-        </ScalarButton>
-        <ScalarButton
-          class="h-10 w-full rounded-full text-base"
-          :href="DEMO_CALL_URL"
-          :icon="ScalarIconCalendar"
-          is="a"
-          rel="noopener noreferrer"
-          target="_blank"
-          variant="outlined">
-          {{ translate('exploreScalar.bookDemo') }}
-          <span class="sr-only">
-            {{ translate('exploreScalar.opensInNewTab') }}
-          </span>
-        </ScalarButton>
-      </div>
+            {{ translate('exploreScalar.back') }}
+          </button>
+          <DialogTitle
+            as="h2"
+            class="text-c-1 m-0 pt-3 text-center text-xl leading-snug font-bold tracking-tight text-balance">
+            {{ translate('exploreScalar.bookDemo') }}
+          </DialogTitle>
+          <!-- Cal.com mounts its booking iframe in here -->
+          <div
+            ref="calEl"
+            class="explore-scalar-cal mt-4 min-h-[640px] w-full overflow-auto" />
+          <p
+            v-if="calFailed"
+            class="text-c-2 m-0 pt-3 text-center text-sm">
+            <a
+              class="text-c-accent"
+              :href="DEMO_CALL_URL"
+              rel="noopener noreferrer"
+              target="_blank">
+              {{ translate('exploreScalar.openBookingPage') }}
+              <span class="sr-only">
+                {{ translate('exploreScalar.opensInNewTab') }}
+              </span>
+            </a>
+          </p>
+        </div>
+      </template>
 
-      <!-- Close: last in the Tab order, at the inline end so RTL keeps it in the corner -->
-      <ScalarIconButton
-        class="text-c-2 hover:bg-b-2 hover:text-c-1 absolute end-3 top-3 rounded-full"
-        :icon="ScalarIconX"
-        :label="translate('exploreScalar.close')"
-        size="sm"
-        @click="state.hide()" />
+      <!-- Close: the dashboard's close circle, last in the Tab order, at the inline end so RTL keeps it in the corner -->
+      <button
+        :aria-label="translate('exploreScalar.close')"
+        class="bg-b-1/70 text-c-2 hover:bg-b-2 hover:text-c-1 ring-border absolute end-3 top-3 z-10 flex size-8 items-center justify-center rounded-full shadow-sm ring-1"
+        type="button"
+        @click="state.hide()">
+        <ScalarIconX class="size-4" />
+      </button>
     </div>
   </ScalarModal>
 </template>
 
 <!-- The dialog is portaled to <body>, outside this component's scope, so these rules are global and prefixed by the Dialog root class -->
 <style>
+/* The same corner as the dashboard's takeover card */
 .explore-scalar-modal .scalar-modal {
-  border-radius: var(--scalar-radius-3xl);
+  border-radius: 28px;
   overflow: hidden;
 }
 
@@ -346,7 +424,7 @@ const onSignUp = (): void => {
     border-radius: var(--scalar-radius);
   }
   to {
-    border-radius: var(--scalar-radius-3xl);
+    border-radius: 28px;
   }
 }
 @keyframes scalar-explore-fade-out {

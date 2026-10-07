@@ -595,6 +595,8 @@ export type ApiReferenceTranslations = {
     close: string
     opensInNewTab: string
     popupBlocked: string
+    back: string
+    openBookingPage: string
   }
   gettingStarted: {
     swaggerEditor: string

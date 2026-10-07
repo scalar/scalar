@@ -185,6 +185,8 @@ export const pt = {
     close: 'Fechar',
     opensInNewTab: 'Abre em uma nova aba',
     popupBlocked: 'Seu navegador bloqueou a nova aba. Clique novamente em "Cadastre-se no Scalar" para abri-la.',
+    back: 'Voltar',
+    openBookingPage: 'Abrir a página de agendamento',
   },
   gettingStarted: {
     swaggerEditor: 'Editor Swagger',

@@ -360,8 +360,8 @@ describe('ExploreScalarButton', () => {
     expectClosedByMorph(1)
 
     await openDialog(wrapper)
-    const close = Array.from(document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')).find((button) =>
-      button.textContent?.includes('Close'),
+    const close = Array.from(document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')).find(
+      (button) => button.getAttribute('aria-label') === 'Close',
     )
     if (!close) {
       throw new Error('Expected the close button')

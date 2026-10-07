@@ -183,6 +183,8 @@ export const en = {
     close: 'Close',
     opensInNewTab: 'Opens in a new tab',
     popupBlocked: 'Your browser blocked the new tab. Click "Sign up for Scalar" again to open it.',
+    back: 'Back',
+    openBookingPage: 'Open the booking page',
   },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',

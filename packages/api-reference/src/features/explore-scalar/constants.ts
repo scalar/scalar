@@ -1,5 +1,5 @@
-/** Booking form for a demo call with Marc, Scalar's CEO */
-export const DEMO_CALL_URL = 'https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a'
+/** Booking page for a demo call with Marc, Scalar's CEO; the dialog embeds it and links here as the fallback */
+export const DEMO_CALL_URL = 'https://scalar.cal.com/marc/30min'
 
 /** Shared view-transition-names for the card/panel and the three stickers */
 export const EXPLORE_TRANSITION_NAMES = {

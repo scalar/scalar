@@ -184,6 +184,8 @@ export const es = {
     close: 'Cerrar',
     opensInNewTab: 'Se abre en una pestaña nueva',
     popupBlocked: 'Tu navegador bloqueó la pestaña nueva. Haz clic de nuevo en "Regístrate en Scalar" para abrirla.',
+    back: 'Atrás',
+    openBookingPage: 'Abrir la página de reserva',
   },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',

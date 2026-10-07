@@ -178,6 +178,8 @@ export const zhCn = {
     close: '关闭',
     opensInNewTab: '在新标签页中打开',
     popupBlocked: '浏览器拦截了新标签页。请再次点击“注册 Scalar”以打开。',
+    back: '返回',
+    openBookingPage: '打开预约页面',
   },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',

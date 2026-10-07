@@ -178,6 +178,8 @@ export const ar = {
     close: 'إغلاق',
     opensInNewTab: 'يفتح في علامة تبويب جديدة',
     popupBlocked: 'حظر متصفحك علامة التبويب الجديدة. انقر على "سجّل في Scalar" مرة أخرى لفتحها.',
+    back: 'رجوع',
+    openBookingPage: 'افتح صفحة الحجز',
   },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',

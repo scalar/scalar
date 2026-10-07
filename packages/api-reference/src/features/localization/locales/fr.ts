@@ -186,6 +186,8 @@ export const fr = {
     opensInNewTab: 'S’ouvre dans un nouvel onglet',
     popupBlocked:
       'Votre navigateur a bloqué le nouvel onglet. Cliquez à nouveau sur « S’inscrire à Scalar » pour l’ouvrir.',
+    back: 'Retour',
+    openBookingPage: 'Ouvrir la page de réservation',
   },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',

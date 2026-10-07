@@ -7,9 +7,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEMO_CALL_URL } from '../constants'
 import ExploreScalarModal from './ExploreScalarModal.vue'
 
-const { toastMock, uploadMock } = vi.hoisted(() => ({
+const { toastMock, uploadMock, mountCalMock } = vi.hoisted(() => ({
   toastMock: vi.fn(),
   uploadMock: vi.fn(),
+  mountCalMock: vi.fn(),
 }))
 
 vi.mock('@scalar/use-toasts', () => ({
@@ -18,6 +19,10 @@ vi.mock('@scalar/use-toasts', () => ({
 
 vi.mock('@/helpers/upload-temp-document', () => ({
   uploadTempDocument: uploadMock,
+}))
+
+vi.mock('../cal-embed', () => ({
+  mountCalInline: mountCalMock,
 }))
 
 enableAutoUnmount(afterEach)
@@ -39,6 +44,8 @@ type MountOptions = {
   url?: string
   usesViewTransition?: boolean
   workspace?: WorkspaceStore
+  /** The app mounts the dialog closed and opens it later; most tests start open for brevity */
+  startOpen?: boolean
 }
 
 /**
@@ -47,9 +54,9 @@ type MountOptions = {
  */
 const mountModal = async (options: MountOptions = {}) => {
   const url = 'url' in options ? options.url : 'https://api.acme.io/openapi.json'
-  const { usesViewTransition = false, workspace = createWorkspace() } = options
+  const { usesViewTransition = false, workspace = createWorkspace(), startOpen = true } = options
   const state = useModal()
-  state.open = true
+  state.open = startOpen
   mount(ExploreScalarModal, {
     attachTo: document.body,
     props: { state, externalUrls, url, workspace, usesViewTransition, morphStickers: false },
@@ -71,7 +78,11 @@ const findInDialog = (selector: string, text: string) =>
   Array.from(getDialog().querySelectorAll<HTMLElement>(selector)).find((el) => el.textContent?.includes(text))
 
 const getSignUp = () => findInDialog('a, button', 'Sign up for Scalar')
-const getClose = () => findInDialog('button', 'Close')
+/** The close circle is icon-only, so it is found by its accessible name */
+const getClose = () =>
+  Array.from(getDialog().querySelectorAll<HTMLElement>('button')).find(
+    (el) => el.getAttribute('aria-label') === 'Close',
+  )
 
 const click = async (element: HTMLElement | undefined) => {
   if (!element) {
@@ -129,14 +140,73 @@ describe('ExploreScalarModal', () => {
     expect(rows[1]?.textContent).toContain('Docs, developer portals & registry')
   })
 
-  it('links the demo call to the booking form in a new tab', async () => {
+  it('mounts closed and opens later, the way the sidebar card renders it', async () => {
+    const errors: unknown[] = []
+    const onError = (event: ErrorEvent) => errors.push(event.error)
+    window.addEventListener('error', onError)
+
+    const state = await mountModal({ startOpen: false })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+
+    state.show()
+    await flushPromises()
+    await flushPromises()
+
+    window.removeEventListener('error', onError)
+    expect(errors).toEqual([])
+    expect(getSignUp()).toBeDefined()
+  })
+
+  it('moves to the booking step and mounts the Cal.com calendar when the demo call is chosen', async () => {
+    mountCalMock.mockResolvedValue(undefined)
     await mountModal()
 
-    const demo = findInDialog('a', 'Book a demo with Marc, our CEO')
-    expect(demo?.getAttribute('href')).toBe(DEMO_CALL_URL)
-    expect(demo?.getAttribute('target')).toBe('_blank')
-    expect(demo?.getAttribute('rel')).toContain('noopener')
-    expect(demo?.textContent).toContain('Opens in a new tab')
+    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
+
+    expect(mountCalMock).toHaveBeenCalledTimes(1)
+    const [element, theme] = mountCalMock.mock.calls[0] ?? []
+    expect(getDialog().contains(element)).toBe(true)
+    expect(theme).toBe('light')
+    expect(getDialog().querySelector('h2')?.textContent).toContain('Book a demo with Marc, our CEO')
+    expect(document.activeElement?.textContent).toContain('Back')
+    expect(getSignUp()).toBeUndefined()
+  })
+
+  it('returns to the overview from the booking step', async () => {
+    mountCalMock.mockResolvedValue(undefined)
+    await mountModal()
+
+    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
+    await click(findInDialog('button', 'Back'))
+
+    expect(getSignUp()).toBeDefined()
+    expect(getDialog().querySelector('h2')?.textContent).toContain('Everything your API needs')
+  })
+
+  it('starts at the overview again after the dialog was closed on the booking step', async () => {
+    mountCalMock.mockResolvedValue(undefined)
+    const state = await mountModal()
+
+    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
+    state.hide()
+    await flushPromises()
+    state.show()
+    await flushPromises()
+    await flushPromises()
+
+    expect(getSignUp()).toBeDefined()
+  })
+
+  it('offers the booking page link when the calendar cannot load', async () => {
+    mountCalMock.mockRejectedValue(new Error('offline'))
+    await mountModal()
+
+    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
+
+    const fallback = findInDialog('a', 'Open the booking page')
+    expect(fallback?.getAttribute('href')).toBe(DEMO_CALL_URL)
+    expect(fallback?.getAttribute('target')).toBe('_blank')
+    expect(fallback?.getAttribute('rel')).toContain('noopener')
   })
 
   it('renders the sign-up call to action as a link carrying the document url', async () => {
@@ -291,11 +361,9 @@ describe('ExploreScalarModal', () => {
     await mountModal()
 
     const focusable = Array.from(getDialog().querySelectorAll<HTMLElement>('a[href], button'))
-    expect(focusable.map((el) => el.textContent?.replace(/\s+/g, ' ').trim())).toEqual([
-      'Sign up for Scalar Opens in a new tab',
-      'Book a demo with Marc, our CEO Opens in a new tab',
-      'Close',
-    ])
+    expect(
+      focusable.map((el) => (el.getAttribute('aria-label') ?? el.textContent ?? '').replace(/\s+/g, ' ').trim()),
+    ).toEqual(['Sign up for Scalar Opens in a new tab', 'Book a demo with Marc, our CEO', 'Close'])
     expect(focusable.at(-1)).toBe(getClose())
   })
 

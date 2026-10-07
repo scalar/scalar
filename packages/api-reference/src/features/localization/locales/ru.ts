@@ -186,6 +186,8 @@ export const ru = {
     opensInNewTab: 'Откроется в новой вкладке',
     popupBlocked:
       'Браузер заблокировал новую вкладку. Нажмите «Зарегистрироваться в Scalar» ещё раз, чтобы открыть её.',
+    back: 'Назад',
+    openBookingPage: 'Открыть страницу бронирования',
   },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',

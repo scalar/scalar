@@ -186,6 +186,8 @@ export const de = {
     opensInNewTab: 'Öffnet in einem neuen Tab',
     popupBlocked:
       'Dein Browser hat den neuen Tab blockiert. Klicke erneut auf „Bei Scalar registrieren“, um ihn zu öffnen.',
+    back: 'Zurück',
+    openBookingPage: 'Buchungsseite öffnen',
   },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',
