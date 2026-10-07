@@ -10,10 +10,6 @@ const { layout } = defineProps<{
   layout: 'row' | 'hero'
 }>()
 
-/** The dialog hero gets its deeper shadow from the modal styles, so only the row carries one here */
-const ROW_SHADOW =
-  'drop-shadow-[0_1px_2px_rgb(0_0_0/0.14)] dark:drop-shadow-[0_1px_3px_rgb(0_0_0/0.5)]'
-
 type StickerLayout = {
   wrapper: string
   portals: string
@@ -25,9 +21,9 @@ type StickerLayout = {
 const LAYOUTS: Record<'row' | 'hero', StickerLayout> = {
   row: {
     wrapper: 'flex items-end justify-center gap-2 px-3 pt-4',
-    portals: `w-[52px] origin-bottom ${ROW_SHADOW}`,
-    sdks: `w-[56px] origin-bottom ${ROW_SHADOW}`,
-    agent: `w-[50px] origin-bottom ${ROW_SHADOW}`,
+    portals: 'w-[52px] origin-bottom',
+    sdks: 'w-[56px] origin-bottom',
+    agent: 'w-[50px] origin-bottom',
     rotate: { portals: '-6deg', sdks: '2deg', agent: '6deg' },
   },
   hero: {

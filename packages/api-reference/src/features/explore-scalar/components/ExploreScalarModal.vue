@@ -238,12 +238,6 @@ const onSignUp = (): void => {
     transparent 80%
   );
 }
-.explore-scalar-hero .explore-scalar-sticker {
-  filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.18));
-}
-.dark-mode .explore-scalar-hero .explore-scalar-sticker {
-  filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.6));
-}
 
 /*
  * ---- View transition: names on the modal side exist only while our transition runs ----
