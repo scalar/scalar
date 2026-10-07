@@ -14,13 +14,15 @@ const { value } = defineProps<{
   value?: NodeInput<ExternalDocumentationObject>
 }>()
 
-const documentation = computed(() => {
+const documentation = computed<ExternalDocumentationObject | undefined>(() => {
   const resolved = getResolvedRef(value)
   return resolved && typeof resolved.url === 'string' && resolved.url
     ? resolved
     : undefined
 })
-const url = computed(() => sanitizeUrl(documentation.value?.url))
+const url = computed<string | undefined>(() =>
+  sanitizeUrl(documentation.value?.url),
+)
 </script>
 
 <template>
