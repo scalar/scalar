@@ -6,7 +6,6 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedAsyncApiChannel,
-  TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed, useId } from 'vue'
@@ -24,6 +23,7 @@ import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
+import ChannelMessages from './ChannelMessages.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
@@ -33,7 +33,6 @@ import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiChannel } from './helpers/resolve-async-api-nodes'
-import Message from './Message.vue'
 import Operation from './Operation.vue'
 
 /** Subset of the configuration the shared `ParameterList` renderer needs. */
@@ -122,13 +121,6 @@ const operations = computed(() =>
   ),
 )
 
-const messages = computed<TraversedAsyncApiMessage[]>(() =>
-  filterChildrenByType<TraversedAsyncApiMessage>(
-    channel.children,
-    'asyncapi-message',
-  ),
-)
-
 const { level: headingLevel } = useDocumentOutline('channel')
 </script>
 
@@ -172,18 +164,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :specificationExtension="specificationExtension">
       <template #title>Parameters</template>
     </ParameterList>
-    <Message
-      v-for="message in messages"
-      :key="message.id"
-      :document="document"
-      :eventBus="eventBus"
-      :expandedItems="expandedItems"
-      :expansion="expansion"
-      :message="message"
-      :options="options"
-      parent="channel"
-      :scrollTargetId="scrollTargetId"
-      :specificationExtension="specificationExtension" />
     <Operation
       v-for="operation in operations"
       :key="operation.id"
@@ -192,6 +172,15 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :expandedItems="expandedItems"
       :expansion="expansion"
       :operation="operation"
+      :options="options"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
+    <ChannelMessages
+      :channel="channel"
+      :document="document"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :expansion="expansion"
       :options="options"
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension" />
@@ -238,19 +227,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :specificationExtension="specificationExtension">
           <template #title>Parameters</template>
         </ParameterList>
-        <Message
-          v-for="message in messages"
-          :key="message.id"
-          :document="document"
-          :eventBus="eventBus"
-          :expandedItems="expandedItems"
-          :expansion="expansion"
-          :message="message"
-          :options="options"
-          parent="channel"
-          :scrollTargetId="scrollTargetId"
-          :specificationExtension="specificationExtension" />
-        <Operation
+            <Operation
           v-for="operation in operations"
           :key="operation.id"
           :document="document"
@@ -258,6 +235,15 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :expandedItems="expandedItems"
           :expansion="expansion"
           :operation="operation"
+          :options="options"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
+        <ChannelMessages
+          :channel="channel"
+          :document="document"
+          :eventBus="eventBus"
+          :expandedItems="expandedItems"
+          :expansion="expansion"
           :options="options"
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
