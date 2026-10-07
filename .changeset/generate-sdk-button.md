@@ -1,6 +1,6 @@
 ---
-'@scalar/api-reference': minor
-'@scalar/blocks': minor
+'@scalar/api-reference': patch
+'@scalar/blocks': patch
 '@scalar/types': patch
 ---
 
