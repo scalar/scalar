@@ -81,9 +81,12 @@ const onSignUp = (): void => {
     size="lg"
     :state="state">
     <div class="explore-scalar-panel bg-b-1 text-c-1 relative flex flex-col">
-      <!-- Hero: lavender glow with the stickers as decoration -->
+      <!-- Hero: the brand gradient wash hugging the top edge, with the stickers as decoration -->
       <div
         class="explore-scalar-hero relative flex h-[200px] items-end justify-center overflow-hidden pb-6">
+        <span
+          aria-hidden="true"
+          class="explore-scalar-wash pointer-events-none absolute inset-x-0 top-0" />
         <ExploreScalarStickers layout="hero" />
       </div>
 
@@ -206,26 +209,34 @@ const onSignUp = (): void => {
   transform: none !important;
 }
 
-/* The glow reaches transparent at 72% of the hero, so the title below sits on plain background */
-.explore-scalar-hero {
-  background:
-    radial-gradient(
-      120% 95% at 50% 0%,
-      rgb(82 3 209 / 0.2) 0%,
-      rgb(0 130 208 / 0.09) 42%,
-      transparent 72%
-    ),
-    var(--scalar-background-1);
-}
-.dark-mode .explore-scalar-hero {
-  background:
-    radial-gradient(
-      120% 95% at 50% 0%,
-      rgb(82 3 209 / 0.38) 0%,
-      rgb(0 130 208 / 0.14) 42%,
-      transparent 72%
-    ),
-    var(--scalar-background-1);
+/*
+ * The scalar.com brand gradient hugging the top edge, copied from the dashboard's
+ * bg-brand-gradient-wash utility: the raw rainbow, faded out by a soft radial mask alone so its
+ * colors stay unblurred and true. The theme's color variables keep it right in dark mode.
+ */
+.explore-scalar-wash {
+  height: 48px;
+  background-image: linear-gradient(
+    90deg,
+    var(--scalar-color-blue),
+    var(--scalar-color-green) 16.6%,
+    var(--scalar-color-accent) 24.9%,
+    var(--scalar-color-orange) 41.5%,
+    var(--scalar-color-yellow) 58.1%,
+    var(--scalar-color-orange) 74.7%,
+    var(--scalar-color-purple) 91.3%,
+    var(--scalar-color-red)
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 0%,
+    black,
+    transparent 80%
+  );
+  mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 0%,
+    black,
+    transparent 80%
+  );
 }
 .explore-scalar-hero .explore-scalar-sticker {
   filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.18));
