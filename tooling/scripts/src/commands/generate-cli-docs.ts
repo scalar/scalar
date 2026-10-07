@@ -143,9 +143,14 @@ export const anchor = (heading: string) =>
     .trim()
     .replace(/\s+/g, '-')
 
-const escapeCell = (value: string) => value.replace(/\|/g, '\\|').replace(/\n/g, ' ')
+/** Escapes text for a table cell: backslashes first, so an escaped pipe cannot be undone */
+const escapeCell = (value: string) => value.replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, ' ')
 
-const code = (value: string) => `\`${escapeCell(value)}\``
+/**
+ * Inline code for a table cell. Backslashes are literal inside a code span, so only the pipe is
+ * escaped: GFM unescapes `\|` in table cells before it parses the code span.
+ */
+const code = (value: string) => `\`${value.replace(/\|/g, '\\|').replace(/\n/g, ' ')}\``
 
 /** Summary text, capitalized and without a trailing period, for lists and tables */
 const phrase = (value: string) => {

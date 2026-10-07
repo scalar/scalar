@@ -120,6 +120,18 @@ describe('renderCommand', () => {
     )
     expect(lines).toContain('| `--no-open` | Do not open the browser. |  |')
   })
+  it('escapes backslashes in text but keeps them literal in code', () => {
+    const lines = renderCommand(
+      command({
+        name: 'bundle',
+        command: 'scalar document bundle',
+        options: [{ flags: '--dir <C:\\docs>', description: 'Use a\\b or a|b', mandatory: false }],
+      }),
+      page,
+    )
+
+    expect(lines).toContain('| `--dir <C:\\docs>` | Use a\\\\b or a\\|b. |')
+  })
 })
 
 describe('renderPage', () => {
