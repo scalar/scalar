@@ -118,6 +118,9 @@ export const es = {
     generate: 'Generar MCP',
     connect: 'Conectar MCP',
   },
+  sdk: {
+    generate: 'Generar SDK',
+  },
   developerTools: {
     title: 'Herramientas de desarrollo',
     configure: 'Configurar',

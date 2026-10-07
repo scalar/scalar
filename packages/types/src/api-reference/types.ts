@@ -535,6 +535,10 @@ export type ApiReferenceTranslations = {
     generate: string
     connect: string
   }
+  sdk: {
+    /** Label for the button that opens the dashboard to generate an SDK */
+    generate: string
+  }
   developerTools: {
     title: string
     configure: string

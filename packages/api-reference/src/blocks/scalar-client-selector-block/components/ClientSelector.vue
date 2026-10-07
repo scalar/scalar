@@ -10,6 +10,10 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { getFeaturedClients } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
+import {
+  GenerateSdkButton,
+  useGenerateSdkContext,
+} from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 
 import ClientDropdown from './ClientDropdown.vue'
@@ -33,6 +37,12 @@ const {
 const headingId = useId()
 const morePanel = useId()
 const { translate } = useLocalization()
+
+/** The selected client panel hands its rounded bottom corners to the Generate SDK row when shown */
+const generateSdk = useGenerateSdkContext()
+const showGenerateSdk = computed(() =>
+  Boolean(generateSdk.value?.enabled.value),
+)
 
 /**
  * Whether a selection is a custom code sample (e.g. `custom/python`) rather than
@@ -166,7 +176,8 @@ defineExpose({
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"
-            class="selected-client card-footer -outline-offset-2">
+            class="selected-client card-footer -outline-offset-2"
+            :class="{ 'selected-client__has-footer': showGenerateSdk }">
             {{ client.title }}
           </TabPanel>
         </template>
@@ -175,11 +186,15 @@ defineExpose({
           :id="morePanel"
           :aria-labelledby="headingId"
           class="selected-client card-footer -outline-offset-2"
+          :class="{ 'selected-client__has-footer': showGenerateSdk }"
           role="tabpanel"
           tabindex="0">
           {{ selectedClientOption?.title }}
         </div>
       </TabPanels>
+
+      <!-- Local development only: hand the document to the dashboard to generate an SDK -->
+      <GenerateSdkButton variant="card" />
     </TabGroup>
   </div>
 </template>
@@ -198,6 +213,10 @@ defineExpose({
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
   min-height: fit-content;
+}
+.selected-client__has-footer {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);

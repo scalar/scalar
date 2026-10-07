@@ -89,6 +89,10 @@ import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
 import {
+  GENERATE_SDK_CONTEXT_SYMBOL,
+  useGenerateSdk,
+} from '@/features/generate-sdk'
+import {
   provideLocalization,
   resolveLocalization,
 } from '@/features/localization'
@@ -1424,6 +1428,20 @@ const agent = useAgent({
   }),
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
+
+// --------------------------------------------------------------------------- */
+// Generate SDK
+
+/**
+ * Lets every "Generate SDK" button (developer tools, client libraries, request examples) share one
+ * upload of the active document. Only enabled while the reference runs on a local URL.
+ */
+const generateSdk = useGenerateSdk({
+  workspace: workspaceStore,
+  externalUrls: () => mergedConfig.value.externalUrls,
+  documentUrl,
+})
+provide(GENERATE_SDK_CONTEXT_SYMBOL, generateSdk)
 
 const AgentScalarDrawer = defineAsyncComponent(
   () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),

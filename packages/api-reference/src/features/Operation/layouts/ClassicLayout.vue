@@ -32,6 +32,7 @@ import { SectionAccordion } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
+import { GenerateSdkButton } from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
@@ -360,7 +361,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :selectedContentType="selectedRequestBodyContentType"
             :selectedExample
             :selectedServer
-            @update:exampleKey="resolvedExampleKey = $event" />
+            @update:exampleKey="resolvedExampleKey = $event">
+            <template #actions>
+              <GenerateSdkButton variant="code" />
+            </template>
+          </CodeExample>
         </ScalarErrorBoundary>
       </div>
     </div>

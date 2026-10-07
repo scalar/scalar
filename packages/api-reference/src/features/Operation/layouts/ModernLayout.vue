@@ -26,6 +26,7 @@ import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
+import { GenerateSdkButton } from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
@@ -303,6 +304,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
                   class="font-code text-c-2 [&_em]:text-c-1 min-w-0 [&_em]:not-italic"
                   :deprecated="operation?.deprecated"
                   :path="path" />
+              </template>
+              <template #actions>
+                <GenerateSdkButton variant="code" />
               </template>
               <template #footer="{ exampleName }">
                 <div class="flex">

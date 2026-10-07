@@ -224,6 +224,8 @@ const emit = defineEmits<{
 
 defineSlots<{
   header: () => unknown
+  /** Extra controls rendered in the header beside the client picker */
+  actions?: () => unknown
   footer: ({ exampleName }: { exampleName: string }) => unknown
 }>()
 
@@ -503,13 +505,14 @@ const id = useId()
         v-if="generateLabel"
         v-html="generateLabel()" />
       <slot name="header" />
-      <!-- Client picker -->
+      <!-- Header actions: anything passed in, then the client picker -->
       <template
-        v-if="!isWebhook && clientCount"
+        v-if="(!isWebhook && clientCount) || $slots.actions"
         #actions>
+        <slot name="actions" />
         <!-- Multiple clients: render a dropdown to switch between them -->
         <ScalarCombobox
-          v-if="clientCount > 1"
+          v-if="!isWebhook && clientCount > 1"
           class="max-h-80"
           :filterFn="filterClientsByQuery"
           :inputLabel="clientSearchLabel"
@@ -531,7 +534,7 @@ const id = useId()
         </ScalarCombobox>
         <!-- Single client: just show its label, no need for a dropdown -->
         <span
-          v-else
+          v-else-if="!isWebhook && clientCount"
           class="text-c-2 flex h-full w-fit items-center px-0.5 py-0 text-base font-normal"
           data-testid="client-picker">
           {{ localSelectedClient?.title }}

@@ -117,6 +117,9 @@ export const ar = {
     generate: 'إنشاء MCP',
     connect: 'ربط MCP',
   },
+  sdk: {
+    generate: 'إنشاء SDK',
+  },
   developerTools: {
     title: 'أدوات المطورين',
     configure: 'الإعداد',
