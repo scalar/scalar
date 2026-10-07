@@ -224,7 +224,7 @@ describe('use-register-link', () => {
       await open()
 
       expect(toastMock).toHaveBeenCalledWith(
-        'Your browser blocked the new tab. Click "Sign up for Scalar" again to open it.',
+        'Your browser blocked the new tab. Click the button again to open it.',
         'error',
       )
       // The uploaded copy is kept, so the next click is a plain navigation

@@ -77,12 +77,11 @@ const getDialog = () => {
 const findInDialog = (selector: string, text: string) =>
   Array.from(getDialog().querySelectorAll<HTMLElement>(selector)).find((el) => el.textContent?.includes(text))
 
-const getSignUp = () => findInDialog('a, button', 'Sign up for Scalar')
-/** The close circle is icon-only, so it is found by its accessible name */
-const getClose = () =>
-  Array.from(getDialog().querySelectorAll<HTMLElement>('button')).find(
-    (el) => el.getAttribute('aria-label') === 'Close',
-  )
+const getSignUp = () => findInDialog('a, button', 'Try it out for free')
+/** The close and back circles are icon-only, so they are found by their accessible names */
+const getIconButton = (label: string) =>
+  Array.from(getDialog().querySelectorAll<HTMLElement>('button')).find((el) => el.getAttribute('aria-label') === label)
+const getClose = () => getIconButton('Close')
 
 const click = async (element: HTMLElement | undefined) => {
   if (!element) {
@@ -107,6 +106,8 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.clearAllMocks()
+  // jsdom has no Web Animations API; the morph test stubs it on the prototype
+  Reflect.deleteProperty(HTMLElement.prototype, 'animate')
 })
 
 describe('ExploreScalarModal', () => {
@@ -161,14 +162,14 @@ describe('ExploreScalarModal', () => {
     mountCalMock.mockResolvedValue(undefined)
     await mountModal()
 
-    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
+    await click(findInDialog('button', 'or get a demo with Marc'))
 
     expect(mountCalMock).toHaveBeenCalledTimes(1)
     const [element, theme] = mountCalMock.mock.calls[0] ?? []
     expect(getDialog().contains(element)).toBe(true)
     expect(theme).toBe('light')
     expect(getDialog().querySelector('h2')?.textContent).toContain('Book a demo with Marc, our CEO')
-    expect(document.activeElement?.textContent).toContain('Back')
+    expect(document.activeElement).toBe(getIconButton('Back'))
     expect(getSignUp()).toBeUndefined()
   })
 
@@ -176,18 +177,44 @@ describe('ExploreScalarModal', () => {
     mountCalMock.mockResolvedValue(undefined)
     await mountModal()
 
-    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
-    await click(findInDialog('button', 'Back'))
+    await click(findInDialog('button', 'or get a demo with Marc'))
+    await click(getIconButton('Back'))
 
     expect(getSignUp()).toBeDefined()
     expect(getDialog().querySelector('h2')?.textContent).toContain('Everything your API needs')
+  })
+
+  it('morphs the dialog size between the steps and mounts the calendar once the size has settled', async () => {
+    mountCalMock.mockResolvedValue(undefined)
+    vi.stubGlobal('matchMedia', () => ({ matches: false }))
+    let settle = (): void => undefined
+    const finished = new Promise<void>((resolve) => {
+      settle = resolve
+    })
+    const animate = vi.fn(() => ({ finished }))
+    HTMLElement.prototype.animate = animate as unknown as HTMLElement['animate']
+    await mountModal()
+
+    await click(findInDialog('button', 'or get a demo with Marc'))
+
+    const [keyframes] = (animate.mock.calls[0] ?? []) as unknown as [Keyframe[]]
+    expect(keyframes.map((frame) => Object.keys(frame).sort())).toEqual([
+      ['height', 'maxWidth', 'width'],
+      ['height', 'maxWidth', 'width'],
+    ])
+    expect(document.activeElement).toBe(getIconButton('Back'))
+    expect(mountCalMock).not.toHaveBeenCalled()
+
+    settle()
+    await flushPromises()
+    expect(mountCalMock).toHaveBeenCalledTimes(1)
   })
 
   it('starts at the overview again after the dialog was closed on the booking step', async () => {
     mountCalMock.mockResolvedValue(undefined)
     const state = await mountModal()
 
-    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
+    await click(findInDialog('button', 'or get a demo with Marc'))
     state.hide()
     await flushPromises()
     state.show()
@@ -201,7 +228,7 @@ describe('ExploreScalarModal', () => {
     mountCalMock.mockRejectedValue(new Error('offline'))
     await mountModal()
 
-    await click(findInDialog('button', 'Book a demo with Marc, our CEO'))
+    await click(findInDialog('button', 'or get a demo with Marc'))
 
     const fallback = findInDialog('a', 'Open the booking page')
     expect(fallback?.getAttribute('href')).toBe(DEMO_CALL_URL)
@@ -298,7 +325,7 @@ describe('ExploreScalarModal', () => {
 
     const busy = getSignUp()
     expect(busy?.getAttribute('aria-busy')).toBe('true')
-    expect(busy?.getAttribute('aria-label')).toBe('Sign up for Scalar')
+    expect(busy?.getAttribute('aria-label')).toBe('Try it out for free')
 
     finishUpload('https://tmp.acme.io/doc.json')
     await flushPromises()
@@ -363,7 +390,7 @@ describe('ExploreScalarModal', () => {
     const focusable = Array.from(getDialog().querySelectorAll<HTMLElement>('a[href], button'))
     expect(
       focusable.map((el) => (el.getAttribute('aria-label') ?? el.textContent ?? '').replace(/\s+/g, ' ').trim()),
-    ).toEqual(['Sign up for Scalar Opens in a new tab', 'Book a demo with Marc, our CEO', 'Close'])
+    ).toEqual(['Try it out for free Opens in a new tab', 'or get a demo with Marc', 'Close'])
     expect(focusable.at(-1)).toBe(getClose())
   })
 

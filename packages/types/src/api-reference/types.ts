@@ -592,6 +592,7 @@ export type ApiReferenceTranslations = {
     platformDescription: string
     signUp: string
     bookDemo: string
+    getDemo: string
     close: string
     opensInNewTab: string
     popupBlocked: string

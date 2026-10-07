@@ -4,8 +4,6 @@ import { ScalarButton } from '@scalar/components/button'
 import { ScalarModal, type ModalState } from '@scalar/components/modal'
 import {
   ScalarIconArrowLeft,
-  ScalarIconArrowUpRight,
-  ScalarIconCalendar,
   ScalarIconGlobe,
   ScalarIconPackage,
   ScalarIconX,
@@ -78,9 +76,59 @@ const onSignUp = (): void => {
   void open()
 }
 
+const panelEl = ref<HTMLElement>()
+const stepEl = ref<HTMLElement>()
 const backEl = ref<HTMLButtonElement>()
 const calEl = ref<HTMLElement>()
 const calFailed = ref(false)
+
+const prefersReducedMotion = (): boolean =>
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+
+/**
+ * Swaps the step and morphs the dialog from the old step's size to the new one instead of snapping.
+ * ScalarModal sizes the panel with an inline max-width, so the tween drives the measured width and
+ * height with max-width lifted, and the new step fades in on top. A click mid-morph measures the
+ * in-between size, so it carries on from there. Resolves once the size has settled.
+ */
+const changeStep = async (next: 'overview' | 'demo'): Promise<void> => {
+  const box = panelEl.value?.closest<HTMLElement>('.scalar-modal')
+  const from = box?.getBoundingClientRect()
+
+  step.value = next
+  await nextTick()
+
+  if (
+    !box ||
+    !from ||
+    typeof box.animate !== 'function' ||
+    prefersReducedMotion()
+  ) {
+    return
+  }
+
+  const to = box.getBoundingClientRect()
+  const resize = box.animate(
+    [
+      {
+        width: `${from.width}px`,
+        height: `${from.height}px`,
+        maxWidth: 'none',
+      },
+      { width: `${to.width}px`, height: `${to.height}px`, maxWidth: 'none' },
+    ],
+    { duration: 420, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' },
+  )
+  stepEl.value?.animate([{ opacity: 0 }, { opacity: 1 }], {
+    duration: 240,
+    delay: 100,
+    easing: 'ease',
+    fill: 'backwards',
+  })
+
+  // Cancelled when the dialog closes mid-morph; nothing is left to settle then
+  await resize.finished.catch(() => undefined)
+}
 
 /** The booking calendar follows the color mode of the surrounding reference */
 const isDarkMode = (): boolean =>
@@ -88,12 +136,14 @@ const isDarkMode = (): boolean =>
   document.querySelector('.dark-mode') !== null
 
 const showDemo = async (): Promise<void> => {
-  step.value = 'demo'
   calFailed.value = false
+  const morph = changeStep('demo')
   await nextTick()
   backEl.value?.focus()
 
-  if (!calEl.value) {
+  // The calendar mounts once the dialog has its final width, so its iframe does not relayout every frame
+  await morph
+  if (step.value !== 'demo' || !calEl.value) {
     return
   }
 
@@ -106,7 +156,7 @@ const showDemo = async (): Promise<void> => {
 }
 
 const showOverview = (): void => {
-  step.value = 'overview'
+  void changeStep('overview')
 }
 </script>
 
@@ -121,8 +171,13 @@ const showOverview = (): void => {
     :maxWidth="step === 'demo' ? '960px' : '540px'"
     size="lg"
     :state="state">
-    <div class="explore-scalar-panel bg-b-1 text-c-1 relative flex flex-col">
-      <template v-if="step === 'overview'">
+    <div
+      ref="panelEl"
+      class="explore-scalar-panel bg-b-1 text-c-1 relative flex flex-col">
+      <div
+        v-if="step === 'overview'"
+        ref="stepEl"
+        class="flex flex-col">
         <!-- Hero: the brand gradient wash hugging the top edge, with the stickers as decoration -->
         <div
           class="explore-scalar-hero relative flex h-[200px] items-end justify-center overflow-hidden pb-6">
@@ -180,79 +235,75 @@ const showOverview = (): void => {
         </ul>
 
         <!-- Sign-up comes first in the DOM so the dialog's initial focus lands on the primary action -->
-        <div class="flex flex-col gap-2 px-8 pt-1 pb-8">
+        <div class="flex flex-col gap-1 px-8 pt-1 pb-6">
           <!-- The spinner hides the label, so the name is pinned while loading (the button is still announced as busy) -->
           <ScalarButton
+            :is="signUpHref ? 'a' : 'button'"
             :aria-busy="loader.isLoading"
             :aria-label="
               loader.isActive ? translate('exploreScalar.signUp') : undefined
             "
             class="h-10 w-full rounded-full text-base"
             :href="signUpHref"
-            :is="signUpHref ? 'a' : 'button'"
             :loader="loader"
             :rel="signUpHref ? 'noopener noreferrer' : undefined"
             :target="signUpHref ? '_blank' : undefined"
             variant="solid"
             @click="onSignUp">
-            <span class="flex items-center gap-1">
-              {{ translate('exploreScalar.signUp') }}
-              <ScalarIconArrowUpRight
-                class="size-3.5"
-                weight="bold" />
-              <span class="sr-only">
-                {{ translate('exploreScalar.opensInNewTab') }}
-              </span>
+            {{ translate('exploreScalar.signUp') }}
+            <span class="sr-only">
+              {{ translate('exploreScalar.opensInNewTab') }}
             </span>
           </ScalarButton>
+          <!-- The quieter second path, read as a continuation of the primary action -->
           <ScalarButton
-            class="h-10 w-full rounded-full text-base"
-            :icon="ScalarIconCalendar"
-            variant="outlined"
+            class="bg-b-2 text-c-1 hover:bg-b-3 hover:text-c-1 active:bg-b-3 active:text-c-1 h-10 w-full rounded-full text-base font-medium"
+            variant="ghost"
             @click="showDemo">
-            {{ translate('exploreScalar.bookDemo') }}
+            {{ translate('exploreScalar.getDemo') }}
           </ScalarButton>
         </div>
-      </template>
+      </div>
 
       <!-- Booking step: the Cal.com calendar for a call with Marc, rendered inline -->
-      <template v-else>
-        <div class="flex flex-col px-6 pt-5 pb-6">
-          <button
-            ref="backEl"
-            class="text-c-2 hover:text-c-1 flex w-fit items-center gap-1 rounded text-sm font-medium"
-            type="button"
-            @click="showOverview">
-            <ScalarIconArrowLeft
-              class="size-4"
-              weight="bold" />
-            {{ translate('exploreScalar.back') }}
-          </button>
-          <DialogTitle
-            as="h2"
-            class="text-c-1 m-0 pt-3 text-center text-xl leading-snug font-bold tracking-tight text-balance">
-            {{ translate('exploreScalar.bookDemo') }}
-          </DialogTitle>
-          <!-- Cal.com mounts its booking iframe in here -->
-          <div
-            ref="calEl"
-            class="explore-scalar-cal mt-4 min-h-[640px] w-full overflow-auto" />
-          <p
-            v-if="calFailed"
-            class="text-c-2 m-0 pt-3 text-center text-sm">
-            <a
-              class="text-c-accent"
-              :href="DEMO_CALL_URL"
-              rel="noopener noreferrer"
-              target="_blank">
-              {{ translate('exploreScalar.openBookingPage') }}
-              <span class="sr-only">
-                {{ translate('exploreScalar.opensInNewTab') }}
-              </span>
-            </a>
-          </p>
-        </div>
-      </template>
+      <div
+        v-else
+        ref="stepEl"
+        class="flex flex-col px-6 pb-6">
+        <!-- Back mirrors the close circle in the opposite corner; the arrow flips with the reading direction -->
+        <button
+          ref="backEl"
+          :aria-label="translate('exploreScalar.back')"
+          class="bg-b-1/70 text-c-2 hover:bg-b-2 hover:text-c-1 ring-border absolute start-3 top-3 z-10 flex size-8 items-center justify-center rounded-full shadow-sm ring-1"
+          type="button"
+          @click="showOverview">
+          <ScalarIconArrowLeft class="size-4 rtl:-scale-x-100" />
+        </button>
+        <!-- The title row shares its vertical center with the two corner circles and stays clear of them -->
+        <DialogTitle
+          as="h2"
+          class="text-c-1 m-0 flex min-h-14 items-center justify-center px-8 text-center text-xl leading-snug font-bold tracking-tight text-balance">
+          {{ translate('exploreScalar.bookDemo') }}
+        </DialogTitle>
+        <!-- Cal.com mounts its booking iframe in here -->
+        <div
+          ref="calEl"
+          class="explore-scalar-cal mt-2 min-h-[640px] w-full overflow-auto" />
+        <p
+          v-if="calFailed"
+          class="text-c-2 m-0 pt-3 text-center text-sm">
+          <a
+            class="text-c-accent"
+            :href="DEMO_CALL_URL"
+            rel="noopener noreferrer"
+            target="_blank">
+            {{ translate('exploreScalar.openBookingPage') }}
+            <span class="sr-only">
+              {{ translate('exploreScalar.opensInNewTab') }}
+            </span>
+          </a>
+        </p>
+      </div>
 
       <!-- Close: the dashboard's close circle, last in the Tab order, at the inline end so RTL keeps it in the corner -->
       <button

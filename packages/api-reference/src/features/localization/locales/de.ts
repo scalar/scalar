@@ -180,12 +180,12 @@ export const de = {
     platformTitle: 'Docs, Developer Portals & Registry',
     platformDescription:
       'Veröffentliche diese Referenz mit Anleitungen, hoste deine APIs in einer Registry und teste sie im API-Client.',
-    signUp: 'Bei Scalar registrieren',
+    signUp: 'Kostenlos ausprobieren',
     bookDemo: 'Demo mit Marc, unserem CEO, buchen',
+    getDemo: 'oder eine Demo mit Marc vereinbaren',
     close: 'Schließen',
     opensInNewTab: 'Öffnet in einem neuen Tab',
-    popupBlocked:
-      'Dein Browser hat den neuen Tab blockiert. Klicke erneut auf „Bei Scalar registrieren“, um ihn zu öffnen.',
+    popupBlocked: 'Dein Browser hat den neuen Tab blockiert. Klicke erneut auf die Schaltfläche, um ihn zu öffnen.',
     back: 'Zurück',
     openBookingPage: 'Buchungsseite öffnen',
   },

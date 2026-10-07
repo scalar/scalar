@@ -180,12 +180,12 @@ export const fr = {
     platformTitle: 'Docs, portails développeurs et registre',
     platformDescription:
       'Publiez cette référence avec des guides, hébergez vos API dans un registre et testez-les dans le client API.',
-    signUp: 'S’inscrire à Scalar',
+    signUp: 'Essayer gratuitement',
     bookDemo: 'Réserver une démo avec Marc, notre CEO',
+    getDemo: 'ou obtenir une démo avec Marc',
     close: 'Fermer',
     opensInNewTab: 'S’ouvre dans un nouvel onglet',
-    popupBlocked:
-      'Votre navigateur a bloqué le nouvel onglet. Cliquez à nouveau sur « S’inscrire à Scalar » pour l’ouvrir.',
+    popupBlocked: 'Votre navigateur a bloqué le nouvel onglet. Cliquez à nouveau sur le bouton pour l’ouvrir.',
     back: 'Retour',
     openBookingPage: 'Ouvrir la page de réservation',
   },
