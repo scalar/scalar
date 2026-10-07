@@ -1,12 +1,13 @@
 import type { ExampleObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { getExampleValue } from '@/helpers/get-example-value'
+import { isGeneratedExample } from '@/request-example/builder/helpers/get-example'
 
 /**
  * Determines if a parameter is disabled
  *
  * First we explicitly check if its been disabled via the `x-disabled` extension.
- * Populated examples are enabled unless explicitly disabled. Empty optional parameters stay disabled.
+ * Authored populated examples are enabled unless explicitly disabled. Empty optional parameters stay disabled.
  *
  * @param param - The parameter to check.
  * @param example - The example to check.
@@ -27,7 +28,7 @@ export const isParamDisabled = (
 
   // Keep the editor, generated snippets, and outgoing requests aligned for pre-populated values.
   const value = getExampleValue(example)?.value
-  const hasValue = value !== undefined && value !== '' && value !== null
+  const hasValue = value !== undefined && value !== '' && value !== null && !isGeneratedExample(example)
   if (!defaultDisabled || hasValue) {
     return false
   }

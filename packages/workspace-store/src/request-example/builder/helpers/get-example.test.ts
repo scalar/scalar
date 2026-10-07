@@ -416,10 +416,10 @@ describe('schema-based parameters', () => {
 
   it.each<{ schema: SchemaObject; value: unknown }>([
     { schema: { type: 'number', default: 0, enum: [1, 0, 2, 3], examples: [2], example: 3 }, value: 0 },
-    { schema: { type: 'boolean', enum: [false, true], examples: [true], example: true }, value: false },
+    { schema: { type: 'boolean', enum: [false, true], examples: [true], example: true }, value: true },
     { schema: { type: 'string', examples: [''], example: 'fallback' }, value: '' },
     { schema: { type: 'null', example: null }, value: null },
-  ])('resolves schema references without changing fallback precedence ($value)', ({ schema, value }) => {
+  ])('resolves schema references with authored values before enum suggestions ($value)', ({ schema, value }) => {
     const param: ParameterWithSchemaObject = {
       name: 'q',
       in: 'query',
@@ -553,7 +553,7 @@ describe('schema-based parameters', () => {
     expect(result).toEqual({ value: 'active' })
   })
 
-  it('prioritizes default over enum over examples array over example field', () => {
+  it('prioritizes default over examples array over example field over enum', () => {
     const param = {
       schema: {
         type: 'string',

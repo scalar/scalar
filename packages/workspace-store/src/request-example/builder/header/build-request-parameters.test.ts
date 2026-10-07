@@ -24,6 +24,34 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it('omits optional enum suggestions while sending required and explicitly enabled values', () => {
+    const parameter: ParameterObject = {
+      name: 'mediaType',
+      in: 'query',
+      schema: { type: 'string', enum: ['None', 'Image'] },
+    }
+    const result = buildRequestParameters([
+      parameter,
+      { ...parameter, name: 'X-Media-Type', in: 'header' },
+      { ...parameter, name: 'media', in: 'cookie' },
+      {
+        name: 'filter',
+        in: 'query',
+        style: 'deepObject',
+        schema: { type: 'object', properties: { status: { type: 'string', enum: ['None', 'Active'] } } },
+      },
+    ])
+    expect(result.urlParams.toString()).toBe('')
+    expect(result.headers).toStrictEqual({})
+    expect(result.cookies).toStrictEqual([])
+    expect(buildRequestParameters([{ ...parameter, required: true }]).urlParams.toString()).toBe('mediaType=None')
+    expect(
+      buildRequestParameters([
+        { ...parameter, examples: { default: { value: 'Image', 'x-disabled': false } } },
+      ]).urlParams.toString(),
+    ).toBe('mediaType=Image')
+  })
+
   it.each([undefined, 'form', 'cookie'] as const)(
     'reports invalid active 3.2 cookies with style %s without emitting cookies',
     (style) => {
@@ -97,7 +125,11 @@ describe('buildRequestParameters', () => {
 
   it('sends pre-populated optional parameters while respecting explicit disable choices', () => {
     const parameters: ParameterObject[] = [
-      { name: 'x-scenario-id', in: 'header', schema: { type: 'string', enum: ['success', 'failure'] } },
+      {
+        name: 'x-scenario-id',
+        in: 'header',
+        schema: { type: 'string', enum: ['success', 'failure'], default: 'success' },
+      },
       { name: 'count', in: 'query', schema: { type: 'integer', default: 0 } },
       { name: 'active', in: 'cookie', schema: { type: 'boolean' }, examples: { default: { value: false } } },
       {

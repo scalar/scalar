@@ -10,6 +10,13 @@ import type {
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { resolve } from '@/resolve'
 
+// Keep suggestion provenance out of API descriptions and persisted user examples.
+const generatedExamples = new WeakSet<ExampleObject>()
+
+/** Whether an example contains only enum suggestions rather than authored values. */
+export const isGeneratedExample = (example: ExampleObject | undefined): boolean =>
+  example !== undefined && generatedExamples.has(example)
+
 /** Helper to get example from examples object with fallback to example field */
 const getExampleFromExamples = (
   examples: MediaTypeObject['examples'],
@@ -75,14 +82,16 @@ const getSchemaExample = (
   if ('default' in schema && schema.default !== undefined) {
     return { value: schema.default }
   }
-  if ('enum' in schema && schema.enum?.[0] !== undefined) {
-    return { value: schema.enum[0] }
-  }
   if ('examples' in schema && schema.examples?.[0] !== undefined) {
     return { value: schema.examples[0] }
   }
   if ('example' in schema && schema.example !== undefined) {
     return { value: schema.example }
+  }
+  if ('enum' in schema && schema.enum?.[0] !== undefined) {
+    const example = { value: schema.enum[0] }
+    generatedExamples.add(example)
+    return example
   }
 
   // Reference siblings create a fresh merged object, so track the underlying schema for cycles.
@@ -106,7 +115,7 @@ const getSchemaExample = (
   walk.ancestors.add(target)
   const properties = Object.entries(schema.properties).flatMap(([name, property]) => {
     const example = getSchemaExample(property, walk)
-    return example === undefined ? [] : [[name, example.value]]
+    return example === undefined ? [] : [{ name, example }]
   })
   walk.ancestors.delete(target)
   // Stops at schemas inside this walk have left the path, so the rest point above it.
@@ -115,7 +124,11 @@ const getSchemaExample = (
   stops.forEach((stop) => outerStops.add(stop))
 
   if (properties.length > 0) {
-    return { value: Object.fromEntries(properties) }
+    const example = { value: Object.fromEntries(properties.map(({ name, example }) => [name, example.value])) }
+    if (properties.every(({ example }) => isGeneratedExample(example))) {
+      generatedExamples.add(example)
+    }
+    return example
   }
   walk.withoutValues.set(target, { properties: schema.properties, stops })
   return undefined
