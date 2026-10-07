@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.23.1
+
+### Patch Changes
+
+- [#10483](https://github.com/scalar/scalar/pull/10483): Add a request body schema view to the API Client so users can inspect all writable fields alongside custom examples without changing their request payload.
+- [#10491](https://github.com/scalar/scalar/pull/10491): Use OpenAPI 3.2 tag categories to keep badges and audience labels out of navigation groups and display them on operations.
+
 ## 0.23.0
 
 ### Minor Changes

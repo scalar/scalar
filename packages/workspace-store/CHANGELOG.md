@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.68.2
+
+### Patch Changes
+
+- [#10491](https://github.com/scalar/scalar/pull/10491): Use OpenAPI 3.2 tag categories to keep badges and audience labels out of navigation groups and display them on operations.
+- [#10489](https://github.com/scalar/scalar/pull/10489): Report invalid non-exploded structured cookies in OpenAPI 3.2 documents and prevent invalid request and code sample generation. Recommend `style: cookie` with `explode: true`.
+- [#10480](https://github.com/scalar/scalar/pull/10480): Resolve structural allOf object fields and annotation-only wrappers and selected oneOf/anyOf variants in form body fields, preserving descriptions, nested inputs, and multipart value types when switching variants.
+- [#10487](https://github.com/scalar/scalar/pull/10487): Honor OpenAPI 3.2 allowReserved for path parameters while escaping forbidden path characters and preserving the encoded path in Ruby code examples.
+- [#10488](https://github.com/scalar/scalar/pull/10488): Resolve OpenAPI 3.2 security requirements by URI, including relative references based on the document URI, while preserving named schemes and authored exports.
+
 ## 0.68.1
 
 ### Patch Changes

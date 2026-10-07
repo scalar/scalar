@@ -1,5 +1,12 @@
 # @scalar/openapi-validator
 
+## 0.1.11
+
+### Patch Changes
+
+- [#10489](https://github.com/scalar/scalar/pull/10489): Report invalid non-exploded structured cookies in OpenAPI 3.2 documents and prevent invalid request and code sample generation. Recommend `style: cookie` with `explode: true`.
+- [#10485](https://github.com/scalar/scalar/pull/10485): Validate missing and mismatched path parameters for QUERY and methods under additionalOperations, including inherited path-level parameters.
+
 ## 0.1.10
 
 ## 0.1.9

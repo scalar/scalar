@@ -1,5 +1,20 @@
 # @scalar/snippetz
 
+## 0.10.7
+
+### Patch Changes
+
+- [#10507](https://github.com/scalar/scalar/pull/10507): fix: keep line breaks and unusual header or query names valid in clj-http code examples
+- [#10503](https://github.com/scalar/scalar/pull/10503): fix: escape quotes, backslashes and line breaks in C# HttpClient code examples
+- [#10496](https://github.com/scalar/scalar/pull/10496): fix: escape strings and send text bodies in the dart/http example
+- [#10479](https://github.com/scalar/scalar/pull/10479): Keep query parameter values raw for code examples that use client query maps, and encode values once when constructing snippet URLs.
+- [#10499](https://github.com/scalar/scalar/pull/10499): fix: keep every value of a repeated form field in the php/guzzle example
+- [#10510](https://github.com/scalar/scalar/pull/10510): fix: send the body in http/http1.1 examples for JSON media types with parameters or a +json suffix, and for plain text bodies
+- [#10487](https://github.com/scalar/scalar/pull/10487): Honor OpenAPI 3.2 allowReserved for path parameters while escaping forbidden path characters and preserving the encoded path in Ruby code examples.
+- [#10495](https://github.com/scalar/scalar/pull/10495): fix: escape quotes and backslashes in php/curl request bodies
+- [#10497](https://github.com/scalar/scalar/pull/10497): fix: send the body in python examples for JSON media types with parameters or a +json suffix, and for plain text bodies
+- [#10492](https://github.com/scalar/scalar/pull/10492): Escape quotes and backslashes in R httr2 code examples, so header, query and form values that contain them (an ETag, for example) produce valid R code.
+
 ## 0.10.6
 
 ### Patch Changes

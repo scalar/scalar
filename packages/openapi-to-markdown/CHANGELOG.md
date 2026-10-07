@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 1.5.3
+
+### Patch Changes
+
+- [#10484](https://github.com/scalar/scalar/pull/10484): Use OpenAPI 3.2 tag summaries as Markdown headings, falling back to tag names.
+
 ## 1.5.2
 
 ## 1.5.1

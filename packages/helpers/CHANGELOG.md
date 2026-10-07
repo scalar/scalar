@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.16.2
+
+### Patch Changes
+
+- [#10489](https://github.com/scalar/scalar/pull/10489): Report invalid non-exploded structured cookies in OpenAPI 3.2 documents and prevent invalid request and code sample generation. Recommend `style: cookie` with `explode: true`.
+
 ## 0.16.1
 
 ### Patch Changes
