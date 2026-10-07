@@ -170,6 +170,23 @@ export const fr = {
     unableToExportDocument: 'Impossible d’exporter le document actif',
     unknownError: 'Une erreur inconnue est survenue',
   },
+  exploreScalar: {
+    explore: 'Découvrir Scalar',
+    headline: 'Générez instantanément des SDKs, des MCPs et des docs pour votre API',
+    title: 'Tout ce dont votre API a besoin, à partir d’un seul document OpenAPI',
+    generateTitle: 'SDKs et serveurs MCP',
+    generateDescription:
+      'Des bibliothèques clientes typées et un serveur MCP, générés à partir de ce document et maintenus à jour.',
+    platformTitle: 'Docs, portails développeurs et registre',
+    platformDescription:
+      'Publiez cette référence avec des guides, hébergez vos API dans un registre et testez-les dans le client API.',
+    signUp: 'S’inscrire à Scalar',
+    bookDemo: 'Réserver une démo avec Marc, notre CEO',
+    close: 'Fermer',
+    opensInNewTab: 'S’ouvre dans un nouvel onglet',
+    popupBlocked:
+      'Votre navigateur a bloqué le nouvel onglet. Cliquez à nouveau sur « S’inscrire à Scalar » pour l’ouvrir.',
+  },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',
     description:

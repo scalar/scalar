@@ -582,6 +582,20 @@ export type ApiReferenceTranslations = {
     unableToExportDocument: string
     unknownError: string
   }
+  exploreScalar: {
+    explore: string
+    headline: string
+    title: string
+    generateTitle: string
+    generateDescription: string
+    platformTitle: string
+    platformDescription: string
+    signUp: string
+    bookDemo: string
+    close: string
+    opensInNewTab: string
+    popupBlocked: string
+  }
   gettingStarted: {
     swaggerEditor: string
     description: string

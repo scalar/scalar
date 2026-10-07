@@ -165,6 +165,20 @@ export const zhCn = {
     unableToExportDocument: '无法导出当前文档',
     unknownError: '发生未知错误',
   },
+  exploreScalar: {
+    explore: '探索 Scalar',
+    headline: '为你的 API 即时生成 SDK、MCP 和文档',
+    title: '一份 OpenAPI 文档，满足你的 API 所需的一切',
+    generateTitle: 'SDK 与 MCP 服务器',
+    generateDescription: '基于此文档生成类型化的客户端库和 MCP 服务器，并保持同步。',
+    platformTitle: '文档、开发者门户与注册表',
+    platformDescription: '发布带有指南的 API 参考，将你的 API 托管到注册表，并在 API 客户端中进行测试。',
+    signUp: '注册 Scalar',
+    bookDemo: '预约与我们的 CEO Marc 的演示',
+    close: '关闭',
+    opensInNewTab: '在新标签页中打开',
+    popupBlocked: '浏览器拦截了新标签页。请再次点击“注册 Scalar”以打开。',
+  },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',
     description:

@@ -170,6 +170,23 @@ export const ru = {
     unableToExportDocument: 'Не удалось экспортировать активный документ',
     unknownError: 'Произошла неизвестная ошибка',
   },
+  exploreScalar: {
+    explore: 'Изучить Scalar',
+    headline: 'Мгновенно создавайте SDK, MCP и документацию для вашего API',
+    title: 'Всё, что нужно вашему API, из одного документа OpenAPI',
+    generateTitle: 'SDK и MCP-серверы',
+    generateDescription:
+      'Типизированные клиентские библиотеки и MCP-сервер, созданные из этого документа и всегда актуальные.',
+    platformTitle: 'Документация, порталы для разработчиков и реестр',
+    platformDescription:
+      'Публикуйте этот справочник с руководствами, размещайте API в реестре и тестируйте их в API-клиенте.',
+    signUp: 'Зарегистрироваться в Scalar',
+    bookDemo: 'Записаться на демо с Marc, нашим CEO',
+    close: 'Закрыть',
+    opensInNewTab: 'Откроется в новой вкладке',
+    popupBlocked:
+      'Браузер заблокировал новую вкладку. Нажмите «Зарегистрироваться в Scalar» ещё раз, чтобы открыть её.',
+  },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',
     description:

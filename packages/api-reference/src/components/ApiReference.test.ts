@@ -977,3 +977,145 @@ describe('plugin auth accessor', () => {
     })
   })
 })
+
+describe('sidebar footer call to action', () => {
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'Footer API', version: '1.0.0' },
+    paths: {},
+  }
+
+  type FooterConfiguration = {
+    mcp?: { name?: string; url?: string; disabled?: boolean }
+    hideClientButton?: boolean
+  }
+
+  const stubLocation = (href: string) => {
+    const url = new URL(href)
+    vi.stubGlobal('location', {
+      href,
+      origin: url.origin,
+      protocol: url.protocol,
+      host: url.host,
+      hostname: url.hostname,
+      port: url.port,
+      pathname: url.pathname,
+      search: '',
+      hash: '',
+      ancestorOrigins: {} as DOMStringList,
+      assign: vi.fn(),
+      reload: vi.fn(),
+      replace: vi.fn(),
+      toString: () => href,
+    })
+  }
+
+  /** Mounts, then waits for `onMounted` and the async Explore chunk to settle */
+  const mountFooter = async (configuration: FooterConfiguration = {}) => {
+    const wrapper = mount(ApiReference, {
+      attachTo: window.document.body,
+      props: { configuration: { content: document, ...configuration } },
+    })
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+    return wrapper
+  }
+
+  const footerOf = (wrapper: ReturnType<typeof mount>) => {
+    const footer = wrapper.find('.darklight-reference')
+    const explore = footer.find('button[aria-haspopup="dialog"]')
+    return {
+      explore: explore.exists() ? explore.text() : undefined,
+      mcpRows: footer.find('.scalar-mcp-layer').exists(),
+      client: footer.text().includes('Open API Client'),
+    }
+  }
+
+  /** jsdom has no scrollIntoView, so the stub is installed per test and removed again afterwards */
+  const originalScrollIntoView = Element.prototype.scrollIntoView
+
+  beforeEach(async () => {
+    // Pending scroll retries from earlier tests find this attached mount
+    Element.prototype.scrollIntoView = vi.fn()
+    // Load the Explore chunk once, so the async component resolves within a microtask in every test
+    await import('@/features/explore-scalar')
+
+    // Headless UI's Dialog observes the panel size, and jsdom has no ResizeObserver; the file-level
+    // `vi.unstubAllGlobals()` removes this stub again
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        disconnect = vi.fn()
+        observe = vi.fn()
+        unobserve = vi.fn()
+      },
+    )
+  })
+
+  afterEach(() => {
+    Element.prototype.scrollIntoView = originalScrollIntoView
+  })
+
+  it('renders the Explore Scalar button on localhost without an MCP config', async () => {
+    const wrapper = await mountFooter()
+
+    expect(footerOf(wrapper)).toEqual({ explore: 'Explore Scalar', mcpRows: false, client: false })
+  })
+
+  it('renders the Explore Scalar button on localhost when mcp is an empty object', async () => {
+    const wrapper = await mountFooter({ mcp: {} })
+
+    expect(footerOf(wrapper)).toEqual({ explore: 'Explore Scalar', mcpRows: false, client: false })
+  })
+
+  it('renders the Explore Scalar button on localhost even when hideClientButton is true', async () => {
+    const wrapper = await mountFooter({ hideClientButton: true })
+
+    expect(footerOf(wrapper)).toEqual({ explore: 'Explore Scalar', mcpRows: false, client: false })
+  })
+
+  it('keeps the MCP rows on localhost when an MCP name or url is configured', async () => {
+    const wrapper = await mountFooter({ mcp: { name: 'Acme', url: 'https://mcp.acme.io' } })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
+  })
+
+  it('renders the API client button on localhost when mcp is disabled', async () => {
+    const wrapper = await mountFooter({ mcp: { disabled: true } })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+  })
+
+  it('renders nothing on localhost when mcp is disabled and hideClientButton is true', async () => {
+    const wrapper = await mountFooter({ mcp: { disabled: true }, hideClientButton: true })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: false })
+  })
+
+  it('renders the API client button on a public host', async () => {
+    stubLocation('https://docs.acme.io/')
+    const wrapper = await mountFooter()
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+  })
+
+  it('renders the MCP rows on a public host when mcp is configured', async () => {
+    stubLocation('https://docs.acme.io/')
+    const wrapper = await mountFooter({ mcp: {} })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
+  })
+
+  it('renders the API client button in server rendered output without touching window', async () => {
+    const app = createSSRApp({
+      render: () => h(ApiReference, { configuration: { content: document } }),
+    })
+
+    const html = await renderToString(app)
+
+    expect(html).toContain('Open API Client')
+    expect(html).not.toContain('Explore Scalar')
+    expect(html).not.toContain('scalar-mcp-layer')
+  })
+})

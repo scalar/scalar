@@ -1428,6 +1428,13 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 const AgentScalarDrawer = defineAsyncComponent(
   () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
 )
+
+/** Only rendered on localhost, so public hosts never fetch the Explore Scalar chunk */
+const ExploreScalarButton = defineAsyncComponent(() =>
+  import('@/features/explore-scalar').then(
+    (module) => module.ExploreScalarButton,
+  ),
+)
 const hasOpenedAgent = ref(false)
 
 // Keep the conversation mounted so closing and reopening preserves its state.
@@ -1709,20 +1716,43 @@ const bodyScrollLocked = useScrollLock(
 
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 
-const showMCPButton = computed(() => {
-  if (mergedConfig.value.mcp?.disabled) {
-    return false
+/**
+ * Only the browser knows the host. Reading window inside a computed makes the server render one
+ * footer and the client another (a hydration mismatch), so we resolve it after mount: SSR on
+ * localhost shows the API client button for one frame, then swaps.
+ */
+const isLocalhost = ref(false)
+onMounted(() => {
+  isLocalhost.value = isLocalUrl(window.location.href)
+})
+
+type SidebarCta = 'mcp' | 'explore' | 'client' | null
+
+/** Exactly one footer call to action may render, so the choice lives in a single computed */
+const sidebarCta = computed((): SidebarCta => {
+  const { mcp, hideClientButton } = mergedConfig.value
+
+  // mcp.disabled is the existing opt-out for the localhost promotion; it keeps working
+  if (mcp?.disabled) {
+    return hideClientButton ? null : 'client'
   }
 
-  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
-    return true
+  // An MCP server configured on purpose keeps the connect rows, on localhost too
+  if (mcp?.name || mcp?.url) {
+    return 'mcp'
   }
 
-  if (mergedConfig.value.mcp) {
-    return true
+  // Localhost is where we pitch Scalar (this replaces the old "Generate MCP" fan-out)
+  if (isLocalhost.value) {
+    return 'explore'
   }
 
-  return false
+  // `mcp: {}` off localhost keeps today's "Generate MCP" fan-out
+  if (mcp) {
+    return 'mcp'
+  }
+
+  return hideClientButton ? null : 'client'
 })
 </script>
 
@@ -1845,16 +1875,20 @@ const showMCPButton = computed(() => {
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="!mergedConfig.hideClientButton && !showMCPButton"
+                    v-if="sidebarCta === 'client'"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
                     :url="documentUrl" />
                   <OpenMCPButton
-                    v-if="showMCPButton"
+                    v-if="sidebarCta === 'mcp'"
                     :config="mergedConfig.mcp"
                     :externalUrls="mergedConfig.externalUrls"
-                    :isDevelopment="isDevelopment"
+                    :url="documentUrl"
+                    :workspace="workspaceStore" />
+                  <ExploreScalarButton
+                    v-if="sidebarCta === 'explore'"
+                    :externalUrls="mergedConfig.externalUrls"
                     :url="documentUrl"
                     :workspace="workspaceStore" />
                   <template #description>

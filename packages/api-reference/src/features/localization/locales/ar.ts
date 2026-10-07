@@ -165,6 +165,20 @@ export const ar = {
     unableToExportDocument: 'تعذر تصدير المستند النشط',
     unknownError: 'حدث خطأ غير معروف',
   },
+  exploreScalar: {
+    explore: 'استكشف Scalar',
+    headline: 'أنشئ SDKs وMCPs ووثائق لواجهة API الخاصة بك فورًا',
+    title: 'كل ما تحتاجه واجهة API الخاصة بك، من مستند OpenAPI واحد',
+    generateTitle: 'SDKs وخوادم MCP',
+    generateDescription: 'مكتبات عميل مُحدَّدة الأنواع وخادم MCP، يتم إنشاؤها من هذا المستند وتبقى متزامنة.',
+    platformTitle: 'الوثائق وبوابات المطورين والسجل',
+    platformDescription: 'انشر هذا المرجع مع الأدلة، واستضف واجهات API الخاصة بك في سجل، واختبرها في عميل API.',
+    signUp: 'سجّل في Scalar',
+    bookDemo: 'احجز عرضًا توضيحيًا مع Marc، رئيسنا التنفيذي',
+    close: 'إغلاق',
+    opensInNewTab: 'يفتح في علامة تبويب جديدة',
+    popupBlocked: 'حظر متصفحك علامة التبويب الجديدة. انقر على "سجّل في Scalar" مرة أخرى لفتحها.',
+  },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',
     description:
