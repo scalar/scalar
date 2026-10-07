@@ -122,7 +122,7 @@ const operations = computed(() =>
   ),
 )
 
-const messages = computed(() =>
+const messages = computed<TraversedAsyncApiMessage[]>(() =>
   filterChildrenByType<TraversedAsyncApiMessage>(
     channel.children,
     'asyncapi-message',

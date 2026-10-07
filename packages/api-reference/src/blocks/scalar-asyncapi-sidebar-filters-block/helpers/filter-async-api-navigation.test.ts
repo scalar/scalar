@@ -72,7 +72,7 @@ describe('filterAsyncApiNavigation', () => {
       ],
     },
   ])('filters channels without operations by server and protocol with children %j', ({ children }) => {
-    const channels = entries.map((entry) => ({ ...entry, children })) as TraversedEntry[]
+    const channels = entries.map((entry) => ({ ...entry, children }))
     expect(channelIds(filterAsyncApiNavigation(channels, document, { protocol: 'mqtt' }))).toStrictEqual(['mqttEvents'])
     expect(channelIds(filterAsyncApiNavigation(channels, document, { server: 'websocket' }))).toStrictEqual(['wsChat'])
     expect(filterAsyncApiNavigation(channels, document, { protocol: 'mqtt', server: 'websocket' })).toStrictEqual([])
@@ -80,8 +80,11 @@ describe('filterAsyncApiNavigation', () => {
   })
 
   it.each([undefined, []])('keeps operationless channels available on all servers with server list %j', (servers) => {
-    const channels = entries.map((entry) => ({ ...entry, children: [] })) as TraversedEntry[]
-    const allServers = { ...document, channels: { mqttEvents: { servers }, wsChat: { servers } } } as AsyncApiDocument
+    const channels = entries.map((entry) => ({ ...entry, children: [] }))
+    const allServers = {
+      ...document,
+      channels: { mqttEvents: { servers }, wsChat: { servers } },
+    } satisfies AsyncApiDocument
     expect(
       channelIds(filterAsyncApiNavigation(channels, allServers, { server: 'websocket', protocol: 'wss' })),
     ).toStrictEqual(['mqttEvents', 'wsChat'])
