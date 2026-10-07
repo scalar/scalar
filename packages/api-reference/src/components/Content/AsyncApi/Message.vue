@@ -20,6 +20,7 @@ import {
 } from '@/helpers/get-async-api-message-payload-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
 import {
   resolveSchemaRenderOptions,
@@ -194,13 +195,21 @@ const { level: headingLevel } = useDocumentOutline(
 
       <div class="message-layout">
         <div
-          v-if="description || headersSchema || payloadSchema"
+          v-if="
+            description ||
+            headersSchema ||
+            payloadSchema ||
+            resolvedMessage?.externalDocs ||
+            resolvedMessage?.tags?.length
+          "
           class="message-details min-w-0">
           <ScalarMarkdown
             v-if="description"
             class="message-description"
             :value="description"
             withImages />
+
+          <AsyncApiDocumentation :owner="resolvedMessage" />
 
           <div
             v-if="headersSchema"

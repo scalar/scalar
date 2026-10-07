@@ -15,6 +15,33 @@ import SchemaProperty from './SchemaProperty.vue'
 const scrollTargetId = ref('')
 
 describe('Schema', () => {
+  it('renders documentation on root and nested schemas once', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        eventBus: null,
+        options: { expandAllSchemaProperties: true },
+        schema: {
+          type: 'object',
+          externalDocs: { url: 'https://example.com/root' },
+          properties: {
+            child: {
+              type: 'object',
+              externalDocs: { url: 'https://example.com/child', description: '**Child** guide' },
+              properties: { value: { type: 'string', externalDocs: { url: 'https://example.com/value' } } },
+            },
+          },
+        },
+      },
+    })
+    expect(
+      wrapper
+        .findAll('a')
+        .map((link) => link.attributes('href'))
+        .filter((url) => url?.startsWith('https://example.com/')),
+    ).toStrictEqual(['https://example.com/root', 'https://example.com/child', 'https://example.com/value'])
+    expect(wrapper.get('strong').text()).toBe('Child')
+  })
+
   it('renders structural labels for nested references from the workspace store', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

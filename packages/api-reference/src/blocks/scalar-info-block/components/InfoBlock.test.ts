@@ -64,7 +64,7 @@ describe('InfoBlock', () => {
   it.each(['modern', 'classic'] as const)('renders inline AsyncAPI external documentation in %s layout', (layout) => {
     const wrapper = mountIntroduction({ documentType: 'asyncapi', info: { ...mockInfo, externalDocs } }, layout)
     expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
-    expect(wrapper.get('a').text()).toBe(externalDocs.description)
+    expect(wrapper.text()).toContain(externalDocs.description)
     expect(wrapper.get('a').attributes('target')).toBe('_blank')
   })
 
@@ -88,7 +88,7 @@ describe('InfoBlock', () => {
         layout,
       )
       expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
-      expect(wrapper.get('a').text()).toBe(externalDocs.description)
+      expect(wrapper.text()).toContain(externalDocs.description)
     },
   )
 

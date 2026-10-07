@@ -15,6 +15,7 @@ import { useDocumentOutline } from '@/features/document-outline'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
@@ -120,6 +121,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
       class="operation-description"
       :value="description"
       withImages />
+
+    <AsyncApiDocumentation :owner="resolvedOperation" />
 
     <OperationScopes :requiredSecurity="requiredSecurity" />
 

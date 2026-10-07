@@ -5,6 +5,25 @@ import { resolveOperationWithTraits } from '@/channel-example/resolve-operation-
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
 describe('resolveOperationWithTraits', () => {
+  it('inherits documentation from the last declaring trait and prefers operation documentation', () => {
+    const first = { url: 'https://example.com/first' }
+    const last = { url: 'https://example.com/last', description: '**Last** guide' }
+    const own = { url: 'https://example.com/own' }
+    const operation: AsyncApiOperationObject = {
+      action: 'send',
+      channel: { $ref: '#/channels/events' },
+      traits: [
+        { externalDocs: first },
+        { $ref: '#/components/operationTraits/last', '$ref-value': { externalDocs: last } },
+      ],
+    }
+    expect(resolveOperationWithTraits(operation).externalDocs).toStrictEqual(last)
+    expect(resolveOperationWithTraits({ ...operation, externalDocs: own }).externalDocs).toStrictEqual({
+      ...last,
+      ...own,
+    })
+  })
+
   it('uses operation security instead of trait security when both are defined', () => {
     const operation = {
       action: 'send',
