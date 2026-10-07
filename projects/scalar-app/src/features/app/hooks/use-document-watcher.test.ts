@@ -1,37 +1,47 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
-import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
 import { useDocumentWatcher } from '@/features/app/hooks/use-document-watcher'
 
-describe('useDocumentWatcher', () => {
-  let server: FastifyInstance
-  let url: string
+const BASE_URL = 'https://example.com'
 
+/**
+ * Serves API documents from memory, so the remote source never touches the network.
+ *
+ * Fake timers replace the global `setTimeout`, which the built-in fetch (undici) relies on too.
+ * Since Node 24.19, a real request sent after advancing the fake clock never settles, so going
+ * through a local HTTP server made these tests pass or fail depending on the Node version.
+ */
+const createFetch = (respond: (path: string) => Record<string, unknown> | Response) =>
+  vi.fn((input: string | URL | Request): Promise<Response> => {
+    const url = new URL(input instanceof Request ? input.url : input)
+    const result = respond(url.pathname)
+
+    return Promise.resolve(result instanceof Response ? result : Response.json(result))
+  })
+
+describe('useDocumentWatcher', () => {
   beforeEach(() => {
     vi.useFakeTimers()
-    server = fastify({ logger: false })
 
-    return async () => {
+    return () => {
       vi.clearAllTimers()
       vi.useRealTimers()
       vi.restoreAllMocks()
-      await server.close()
     }
   })
 
   it('watch the document and rebase it with the remote source', async () => {
     let showInitial = true
 
-    server.get('/', () => {
+    const fetch = createFetch(() => {
       if (showInitial) {
         showInitial = false
         return {
@@ -44,14 +54,12 @@ describe('useDocumentWatcher', () => {
         info: { title: 'New updated API', version: '1.0.0' },
       }
     })
-    await server.listen({ port: 0 })
-    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
-    const store = createWorkspaceStore()
+    const store = createWorkspaceStore({ fetch })
 
     await store.addDocument({
       name: 'default',
-      url,
+      url: BASE_URL,
     })
 
     const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
@@ -188,34 +196,25 @@ describe('useDocumentWatcher', () => {
   })
 
   it('only keeps one timeout at a time, and it switches when the document changes', async () => {
-    let callsA = 0
-    let callsB = 0
-    server.get('/a', () => {
-      callsA++
+    const calls: Record<string, number> = { a: 0, b: 0 }
+    const fetch = createFetch((path) => {
+      const name = path === '/a' ? 'a' : 'b'
+      calls[name] = (calls[name] ?? 0) + 1
       return {
         openapi: '3.0.0',
-        info: { title: 'Document A' + callsA, version: '1.0.0' },
+        info: { title: `Document ${name.toUpperCase()}${calls[name]}`, version: '1.0.0' },
       }
     })
-    server.get('/b', () => {
-      callsB++
-      return {
-        openapi: '3.0.0',
-        info: { title: 'Document B' + callsB, version: '1.0.0' },
-      }
-    })
-    await server.listen({ port: 0 })
-    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
-    const store = createWorkspaceStore()
+    const store = createWorkspaceStore({ fetch })
 
     await store.addDocument({
       name: 'a',
-      url: `${url}/a`,
+      url: `${BASE_URL}/a`,
     })
     await store.addDocument({
       name: 'b',
-      url: `${url}/b`,
+      url: `${BASE_URL}/b`,
     })
 
     const documentA = store.workspace.documents['a'] as OpenApiDocument | undefined
@@ -242,10 +241,8 @@ describe('useDocumentWatcher', () => {
 
   it('does exponential backoff on failure', async () => {
     let calls = 0
-    const fn = vi.fn()
-    server.get('/', (_, res) => {
+    const fetch = createFetch(() => {
       calls++
-      fn()
       if (calls <= 1) {
         return {
           openapi: '3.0.0',
@@ -253,16 +250,14 @@ describe('useDocumentWatcher', () => {
         }
       }
 
-      return res.status(500).send('Internal Server Error')
+      return new Response('Internal Server Error', { status: 500 })
     })
-    await server.listen({ port: 0 })
-    url = `http://localhost:${(server.server.address() as AddressInfo).port}`
 
-    const store = createWorkspaceStore()
+    const store = createWorkspaceStore({ fetch })
 
     await store.addDocument({
       name: 'default',
-      url,
+      url: BASE_URL,
     })
 
     const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
@@ -275,20 +270,20 @@ describe('useDocumentWatcher', () => {
     await nextTick()
 
     await vi.advanceTimersByTimeAsync(initialTimeout)
-    // Let HTTP requests finish without advancing the polling clock.
+    // Let the rebase finish without advancing the polling clock.
     await vi.waitFor(() => expect(rebase).toHaveBeenCalledTimes(1), { interval: 0 })
     await rebase.mock.results[0]?.value
     await nextTick()
-    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fetch).toHaveBeenCalledTimes(2)
 
     await vi.advanceTimersByTimeAsync(initialTimeout * 2 - 1)
     expect(rebase).toHaveBeenCalledTimes(1)
-    expect(fn).toHaveBeenCalledTimes(2)
+    expect(fetch).toHaveBeenCalledTimes(2)
 
     await vi.advanceTimersByTimeAsync(1)
     await vi.waitFor(() => expect(rebase).toHaveBeenCalledTimes(2), { interval: 0 })
     await rebase.mock.results[1]?.value
     await nextTick()
-    expect(fn).toHaveBeenCalledTimes(3)
+    expect(fetch).toHaveBeenCalledTimes(3)
   })
 })
