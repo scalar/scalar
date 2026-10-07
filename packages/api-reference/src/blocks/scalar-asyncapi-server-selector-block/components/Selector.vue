@@ -37,10 +37,6 @@ const serverOptions = computed(() =>
   })),
 )
 
-const serverUrlWithoutTrailingSlash = computed(
-  () => selectedServer?.url?.replace(/\/$/, '') || '',
-)
-
 const selectedServerLabel = computed(() =>
   selectedServer ? getServerLabel(selectedServer) : '',
 )
@@ -52,7 +48,6 @@ const selectedServerOption = computed(() =>
 // For testing
 defineExpose({
   servers,
-  serverUrlWithoutTrailingSlash,
   serverOptions,
   selectedServer,
 })

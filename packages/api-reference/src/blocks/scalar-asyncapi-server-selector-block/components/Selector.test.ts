@@ -57,7 +57,7 @@ describe('Selector', () => {
     })
 
     expect(wrapper.vm.serverOptions.length).toBe(0)
-    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('')
+    expect(wrapper.text()).toBe('Server:')
   })
 
   it('removes the trailing slash from the server URL', () => {
@@ -152,7 +152,6 @@ describe('Selector', () => {
       props: { servers: mockServers, selectedServer: null, target: 'test-target' },
     })
 
-    expect(wrapper.vm.selectedServer).toBeNull()
-    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('')
+    expect(wrapper.text()).toContain('Select a server')
   })
 })
