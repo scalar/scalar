@@ -24,6 +24,7 @@ import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-a
 import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
 import AsyncApiTags from './AsyncApiTags.vue'
 import Bindings from './Bindings.vue'
@@ -165,7 +166,9 @@ const hasMessageDetails = computed(() =>
     correlationId.value ||
     headersSchema.value ||
     payloadSchema.value ||
-    resolvedMessage.value?.bindings,
+    resolvedMessage.value?.bindings ||
+    resolvedMessage.value?.externalDocs ||
+    resolvedMessage.value?.tags?.length,
   ),
 )
 
@@ -316,6 +319,7 @@ const { level: headingLevel } = useDocumentOutline(
           <Bindings
             :bindings="resolvedMessage?.bindings"
             class="mt-3" />
+          <AsyncApiDocumentation :owner="resolvedMessage" />
 
           <div
             v-if="correlationId"

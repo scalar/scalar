@@ -9,6 +9,7 @@ import type {
 import { computed } from 'vue'
 
 import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
+import AsyncApiDocumentation from '@/components/Content/AsyncApi/AsyncApiDocumentation.vue'
 import {
   Section,
   SectionColumn,
@@ -80,7 +81,9 @@ const { level: headingLevel } = useDocumentOutline('document')
             </SectionHeaderTag>
             <template #links>
               <InfoLinks
-                :externalDocs="externalDocs"
+                :externalDocs="
+                  documentType === 'asyncapi' ? undefined : externalDocs
+                "
                 :info="info" />
             </template>
           </SectionHeader>
@@ -100,6 +103,12 @@ const { level: headingLevel } = useDocumentOutline('document')
           <SectionColumns>
             <SectionColumn>
               <slot name="download-link" />
+              <AsyncApiDocumentation
+                v-if="documentType === 'asyncapi'"
+                :owner="{
+                  externalDocs,
+                  tags: 'tags' in info ? info.tags : undefined,
+                }" />
               <InfoDescription
                 :description="info?.description"
                 :eventBus="eventBus"

@@ -35,6 +35,7 @@ import {
   type Component,
 } from 'vue'
 
+import ExternalDocumentation from '../shared/ExternalDocumentation.vue'
 import CopyLinkButton from './components/CopyLinkButton.vue'
 import WithBreadcrumb from './components/WithBreadcrumb.vue'
 import {
@@ -369,6 +370,7 @@ const objectSchemaForChildren = computed(() => {
     allOf: _allOf,
     not: _not,
     discriminator: _discriminator,
+    externalDocs: _externalDocs,
     ...objectSchema
   } = value
 
@@ -1131,6 +1133,10 @@ const onBeforeMatch = (): void => {
           :eventBus="eventBus" />
       </template>
     </SchemaPropertyHeading>
+
+    <ExternalDocumentation
+      class="my-2"
+      :value="optimizedValue?.externalDocs" />
 
     <!-- Description -->
     <!-- The heading's 20px slot already leaves slack under the name, so 4px is
