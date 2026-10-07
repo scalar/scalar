@@ -1,94 +1,98 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { type VueWrapper, mount } from '@vue/test-utils'
+import { type FastifyInstance, fastify } from 'fastify'
+import { afterEach, assert, describe, expect, it, vi } from 'vitest'
+import { defineComponent, nextTick, ref } from 'vue'
 
 import { useDocumentWatcher } from '@/features/app/hooks/use-document-watcher'
 
-const BASE_URL = 'https://example.com'
+const createDocument = (title: string): Record<string, unknown> => ({
+  openapi: '3.1.0',
+  info: { title, version: '1.0.0' },
+  paths: {},
+})
 
-/**
- * Serves API documents from memory, so the remote source never touches the network.
- *
- * Fake timers replace the global `setTimeout`, which the built-in fetch (undici) relies on too.
- * Since Node 24.19, a real request sent after advancing the fake clock never settles, so going
- * through a local HTTP server made these tests pass or fail depending on the Node version.
- */
-const createFetch = (respond: (path: string) => Record<string, unknown> | Response) =>
-  vi.fn((input: string | URL | Request): Promise<Response> => {
-    const url = new URL(input instanceof Request ? input.url : input)
-    const result = respond(url.pathname)
+describe('use-document-watcher', () => {
+  let wrapper: VueWrapper | undefined
+  let server: FastifyInstance | undefined
+  let directory: string | undefined
 
-    return Promise.resolve(result instanceof Response ? result : Response.json(result))
-  })
+  const mountWatcher = (params: Parameters<typeof useDocumentWatcher>[0]): void => {
+    wrapper = mount(
+      defineComponent({
+        setup: () => {
+          useDocumentWatcher(params)
+          return () => null
+        },
+      }),
+    )
+  }
 
-describe('useDocumentWatcher', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-
-    return () => {
-      vi.clearAllTimers()
-      vi.useRealTimers()
-      vi.restoreAllMocks()
+  afterEach(async () => {
+    wrapper?.unmount()
+    wrapper = undefined
+    vi.clearAllTimers()
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+    await server?.close()
+    server = undefined
+    if (directory) {
+      await rm(directory, { recursive: true, force: true })
+      directory = undefined
     }
   })
 
-  it('watch the document and rebase it with the remote source', async () => {
-    let showInitial = true
-
-    const fetch = createFetch(() => {
-      if (showInitial) {
-        showInitial = false
-        return {
-          openapi: '3.0.0',
-          info: { title: 'My API', version: '1.0.0' },
-        }
-      }
-      return {
-        openapi: '3.1.0',
-        info: { title: 'New updated API', version: '1.0.0' },
-      }
-    })
-
-    const store = createWorkspaceStore({ fetch })
-
-    await store.addDocument({
-      name: 'default',
-      url: BASE_URL,
-    })
-
-    const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
-    assert(defaultDocument)
-
-    // Enable watch mode on the document so the watcher starts polling
-    defaultDocument['x-scalar-watch-mode'] = true
+  it('rebases the document with the remote source', async () => {
+    vi.useFakeTimers()
+    let title = 'My API'
+    // In-memory responses keep the polling clock independent of socket timers.
+    const store = createWorkspaceStore({ fetch: () => Promise.resolve(Response.json(createDocument(title))) })
+    await store.addDocument({ name: 'default', url: 'https://example.com/openapi.json' })
+    const document = store.workspace.documents['default'] as OpenApiDocument | undefined
+    assert(document)
+    document['x-scalar-watch-mode'] = true
+    title = 'New updated API'
 
     const initialTimeout = 200
-    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
+    mountWatcher({ documentName: ref('default'), store, initialTimeout })
 
-    await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'), {
-      interval: 0,
-    })
+    await vi.advanceTimersByTimeAsync(initialTimeout - 1)
+    expect(store.workspace.documents['default']?.info?.title).toBe('My API')
+    await vi.advanceTimersByTimeAsync(1)
+    expect(store.workspace.documents['default']?.info?.title).toBe('New updated API')
+  })
+
+  it('rebases a document over HTTP with real timers', async () => {
+    let title = 'My API'
+    server = fastify({ logger: false })
+    server.get('/', () => createDocument(title))
+    await server.listen({ port: 0, host: '127.0.0.1' })
+    const url = `http://127.0.0.1:${(server.server.address() as AddressInfo).port}`
+    const store = createWorkspaceStore()
+    await store.addDocument({ name: 'default', url })
+    const document = store.workspace.documents['default'] as OpenApiDocument | undefined
+    assert(document)
+    document['x-scalar-watch-mode'] = true
+    title = 'New updated API'
+
+    mountWatcher({ documentName: ref('default'), store, initialTimeout: 20 })
+
+    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'))
   })
 
   it('watches documents imported from a local file path through the file loader', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'scalar-document-watcher-'))
+    directory = await mkdtemp(join(tmpdir(), 'scalar-document-watcher-'))
     const filePath = join(directory, 'openapi.json')
-    await writeFile(
-      filePath,
-      JSON.stringify({
-        openapi: '3.0.0',
-        info: { title: 'My API', version: '1.0.0' },
-      }),
-    )
+    await writeFile(filePath, JSON.stringify(createDocument('My API')))
 
-    // Reads files from disk like the desktop app's file loader (which goes through IPC)
+    // Reads files from disk like the desktop app's file loader (which goes through IPC).
     const fileLoader: LoaderPlugin = {
       type: 'loader',
       validate: () => true,
@@ -101,54 +105,24 @@ describe('useDocumentWatcher', () => {
         }
       },
     }
-
     const store = createWorkspaceStore({ fileLoader })
+    await store.addDocument({ name: 'default', path: filePath })
+    const document = store.workspace.documents['default'] as OpenApiDocument | undefined
+    assert(document)
+    document['x-scalar-watch-mode'] = true
+    await writeFile(filePath, JSON.stringify(createDocument('New updated API')))
 
-    await store.addDocument({
-      name: 'default',
-      path: filePath,
-    })
+    mountWatcher({ documentName: ref('default'), store, initialTimeout: 20 })
 
-    const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
-    assert(defaultDocument)
-
-    // Enable watch mode on the document so the watcher starts polling
-    defaultDocument['x-scalar-watch-mode'] = true
-
-    // Update the file on disk
-    await writeFile(
-      filePath,
-      JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'New updated API', version: '1.0.0' },
-      }),
-    )
-
-    const initialTimeout = 200
-    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
-
-    await vi.advanceTimersByTimeAsync(initialTimeout)
-
-    // File reads resolve on the real event loop, so wait for the rebase to land
-    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'), {
-      interval: 0,
-    })
-
-    await rm(directory, { recursive: true, force: true })
+    await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('New updated API'))
   })
 
-  it('keeps polling when the rebase throws, e.g. while the source file is missing', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'scalar-document-watcher-'))
+  it('keeps polling when the rebase throws while the source file is missing', async () => {
+    directory = await mkdtemp(join(tmpdir(), 'scalar-document-watcher-'))
     const filePath = join(directory, 'openapi.json')
-    await writeFile(
-      filePath,
-      JSON.stringify({
-        openapi: '3.0.0',
-        info: { title: 'My API', version: '1.0.0' },
-      }),
-    )
+    await writeFile(filePath, JSON.stringify(createDocument('My API')))
 
-    // A loader that throws on read errors, like the IPC readFile rejection in the desktop app
+    // A loader that throws on read errors, like an IPC readFile rejection in the desktop app.
     const fileLoader: LoaderPlugin = {
       type: 'loader',
       validate: () => true,
@@ -157,133 +131,125 @@ describe('useDocumentWatcher', () => {
         return { ok: true, data: JSON.parse(contents), raw: contents }
       },
     }
-
     const store = createWorkspaceStore({ fileLoader })
-
-    await store.addDocument({
-      name: 'default',
-      path: filePath,
-    })
-
-    const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
-    assert(defaultDocument)
-    defaultDocument['x-scalar-watch-mode'] = true
-
-    // Delete the source file so the first polls reject (e.g. a build wiped the generated spec)
+    await store.addDocument({ name: 'default', path: filePath })
+    const document = store.workspace.documents['default'] as OpenApiDocument | undefined
+    assert(document)
+    document['x-scalar-watch-mode'] = true
     await rm(filePath)
+    const rebase = vi.spyOn(store, 'rebaseDocument')
 
-    const initialTimeout = 200
-    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
+    mountWatcher({ documentName: ref('default'), store, initialTimeout: 20 })
 
-    // First poll throws — the watcher must survive and back off
-    await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.advanceTimersToNextTimerAsync()
-
-    // The file reappears with new content (e.g. the build regenerated it)
-    await writeFile(
-      filePath,
-      JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Regenerated API', version: '1.0.0' },
-      }),
-    )
-
-    // The next scheduled poll picks up the new content
-    await vi.advanceTimersByTimeAsync(initialTimeout * 2)
+    await vi.waitFor(() => expect(rebase).toHaveBeenCalled())
+    await expect(rebase.mock.results[0]?.value).rejects.toHaveProperty('code', 'ENOENT')
+    await writeFile(filePath, JSON.stringify(createDocument('Regenerated API')))
     await vi.waitFor(() => expect(store.workspace.documents['default']?.info?.title).toBe('Regenerated API'))
-
-    await rm(directory, { recursive: true, force: true })
   })
 
-  it('only keeps one timeout at a time, and it switches when the document changes', async () => {
-    const calls: Record<string, number> = { a: 0, b: 0 }
-    const fetch = createFetch((path) => {
-      const name = path === '/a' ? 'a' : 'b'
-      calls[name] = (calls[name] ?? 0) + 1
-      return {
-        openapi: '3.0.0',
-        info: { title: `Document ${name.toUpperCase()}${calls[name]}`, version: '1.0.0' },
-      }
+  it('only polls the selected document when the document changes', async () => {
+    vi.useFakeTimers()
+    const calls: string[] = []
+    const store = createWorkspaceStore({
+      fetch: (input) => {
+        const name = new URL(input.toString()).pathname.slice(1)
+        calls.push(name)
+        const count = calls.filter((call) => call === name).length
+        return Promise.resolve(Response.json(createDocument(`Document ${name.toUpperCase()}${count}`)))
+      },
     })
-
-    const store = createWorkspaceStore({ fetch })
-
-    await store.addDocument({
-      name: 'a',
-      url: `${BASE_URL}/a`,
-    })
-    await store.addDocument({
-      name: 'b',
-      url: `${BASE_URL}/b`,
-    })
-
+    await store.addDocument({ name: 'a', url: 'https://example.com/a' })
+    await store.addDocument({ name: 'b', url: 'https://example.com/b' })
     const documentA = store.workspace.documents['a'] as OpenApiDocument | undefined
     const documentB = store.workspace.documents['b'] as OpenApiDocument | undefined
     assert(documentA)
     assert(documentB)
-
     documentA['x-scalar-watch-mode'] = true
     documentB['x-scalar-watch-mode'] = true
-
-    const selectedDocument = ref<'a' | 'b'>('a')
-
+    const selectedDocument = ref('a')
     const initialTimeout = 200
-    useDocumentWatcher({ documentName: selectedDocument, store, initialTimeout })
+    mountWatcher({ documentName: selectedDocument, store, initialTimeout })
 
     selectedDocument.value = 'b'
     await nextTick()
-
     await vi.advanceTimersByTimeAsync(initialTimeout)
-    await vi.waitFor(() => expect(store.workspace.documents['b']?.info?.title).toBe('Document B2'), { interval: 0 })
 
+    expect(calls).toStrictEqual(['a', 'b', 'b'])
     expect(store.workspace.documents['a']?.info?.title).toBe('Document A1')
+    expect(store.workspace.documents['b']?.info?.title).toBe('Document B2')
+    expect(vi.getTimerCount()).toBe(1)
   })
 
-  it('does exponential backoff on failure', async () => {
-    let calls = 0
-    const fetch = createFetch(() => {
-      calls++
-      if (calls <= 1) {
-        return {
-          openapi: '3.0.0',
-          info: { title: 'My API', version: '1.0.0' },
-        }
-      }
-
-      return new Response('Internal Server Error', { status: 500 })
-    })
-
-    const store = createWorkspaceStore({ fetch })
-
-    await store.addDocument({
-      name: 'default',
-      url: BASE_URL,
-    })
-
-    const defaultDocument = store.workspace.documents['default'] as OpenApiDocument | undefined
-    assert(defaultDocument)
-    defaultDocument['x-scalar-watch-mode'] = true
-
-    const rebase = vi.spyOn(store, 'rebaseDocument')
+  it('backs off after failures and resets the delay after an unchanged response', async () => {
+    vi.useFakeTimers()
+    const store = createWorkspaceStore({ fetch: () => Promise.resolve(Response.json(createDocument('My API'))) })
+    await store.addDocument({ name: 'default', url: 'https://example.com/openapi.json' })
+    const document = store.workspace.documents['default'] as OpenApiDocument | undefined
+    assert(document)
+    document['x-scalar-watch-mode'] = true
+    type RebaseResult = Awaited<ReturnType<WorkspaceStore['rebaseDocument']>>
+    let resolveRebase: ((result: RebaseResult) => void) | undefined
+    const rebase = vi.spyOn(store, 'rebaseDocument').mockImplementation(
+      () =>
+        new Promise<RebaseResult>((resolve) => {
+          resolveRebase = resolve
+        }),
+    )
     const initialTimeout = 200
-    useDocumentWatcher({ documentName: ref('default'), store, initialTimeout })
-    await nextTick()
+    mountWatcher({ documentName: ref('default'), store, initialTimeout })
 
-    await vi.advanceTimersByTimeAsync(initialTimeout)
-    // Let the rebase finish without advancing the polling clock.
-    await vi.waitFor(() => expect(rebase).toHaveBeenCalledTimes(1), { interval: 0 })
-    await rebase.mock.results[0]?.value
-    await nextTick()
-    expect(fetch).toHaveBeenCalledTimes(2)
+    await vi.advanceTimersByTimeAsync(initialTimeout - 1)
+    expect(rebase).toHaveBeenCalledTimes(0)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(rebase).toHaveBeenCalledExactlyOnceWith({ name: 'default', url: 'https://example.com/openapi.json' })
 
+    // A slow request must finish before the next polling delay starts.
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(rebase).toHaveBeenCalledTimes(1)
+    assert(resolveRebase)
+    resolveRebase({ ok: false, type: 'FETCH_FAILED', message: 'Fetch failed' })
+    await vi.advanceTimersByTimeAsync(0)
     await vi.advanceTimersByTimeAsync(initialTimeout * 2 - 1)
     expect(rebase).toHaveBeenCalledTimes(1)
-    expect(fetch).toHaveBeenCalledTimes(2)
-
     await vi.advanceTimersByTimeAsync(1)
-    await vi.waitFor(() => expect(rebase).toHaveBeenCalledTimes(2), { interval: 0 })
-    await rebase.mock.results[1]?.value
-    await nextTick()
-    expect(fetch).toHaveBeenCalledTimes(3)
+    expect(rebase).toHaveBeenCalledTimes(2)
+
+    resolveRebase({ ok: false, type: 'FETCH_FAILED', message: 'Fetch failed' })
+    await vi.advanceTimersByTimeAsync(0)
+    await vi.advanceTimersByTimeAsync(initialTimeout * 4 - 1)
+    expect(rebase).toHaveBeenCalledTimes(2)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(rebase).toHaveBeenCalledTimes(3)
+
+    resolveRebase({ ok: false, type: 'NO_CHANGES_DETECTED', message: 'No changes' })
+    await vi.advanceTimersByTimeAsync(0)
+    await vi.advanceTimersByTimeAsync(initialTimeout - 1)
+    expect(rebase).toHaveBeenCalledTimes(3)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(rebase).toHaveBeenCalledTimes(4)
+    resolveRebase({ ok: false, type: 'NO_CHANGES_DETECTED', message: 'No changes' })
+    await vi.advanceTimersByTimeAsync(0)
+  })
+
+  it('stops polling when the component unmounts', async () => {
+    vi.useFakeTimers()
+    const store = createWorkspaceStore({ fetch: () => Promise.resolve(Response.json(createDocument('My API'))) })
+    await store.addDocument({ name: 'default', url: 'https://example.com/openapi.json' })
+    const document = store.workspace.documents['default'] as OpenApiDocument | undefined
+    assert(document)
+    document['x-scalar-watch-mode'] = true
+    const rebase = vi.spyOn(store, 'rebaseDocument')
+    const initialTimeout = 200
+    mountWatcher({ documentName: ref('default'), store, initialTimeout })
+    await vi.advanceTimersByTimeAsync(initialTimeout)
+    expect(rebase).toHaveBeenCalledTimes(1)
+    expect(vi.getTimerCount()).toBe(1)
+
+    assert(wrapper)
+    wrapper.unmount()
+    wrapper = undefined
+    expect(vi.getTimerCount()).toBe(0)
+    await vi.advanceTimersByTimeAsync(initialTimeout * 2)
+    expect(rebase).toHaveBeenCalledTimes(1)
   })
 })
