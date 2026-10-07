@@ -6,24 +6,25 @@ Usage: scalar [options] [command]
 CLI to work with your OpenAPI files
 
 Options:
-  -v, --version   output the version number
-  -h, --help      display help for command
+  -v, --version       output the version number
+  -h, --help          display help for command
 
 Commands:
-  readme          Open documentation for the CLI
-  upgrade         Upgrade current version of your cli
-  context         Print every command, argument, and option as JSON for AI
-                  agents
-  auth            Manage authorization on scalar platform
-  access-group    Manage access groups and allowed email domains for the current
-                  team
-  document        Manage local openapi file
-  project         Manage scalar project
-  registry        Manage your scalar registry
-  team            Manage user teams
-  sdk             Manage your Scalar SDKs (Enterprise Only)
-  schema          Manage your Scalar schemas
-  help [command]  display help for command
+  readme              Open documentation for the CLI
+  upgrade             Upgrade current version of your cli
+  context             Print every command, argument, and option as JSON for AI
+                      agents
+  completion <shell>  Generate shell completion definitions
+  auth                Manage authorization on scalar platform
+  access-group        Manage access groups and allowed email domains for the
+                      current team
+  document            Manage local openapi file
+  project             Manage scalar project
+  registry            Manage your scalar registry
+  team                Manage user teams
+  sdk                 Manage your Scalar SDKs (Enterprise Only)
+  schema              Manage your Scalar schemas
+  help [command]      display help for command
 ```
 
 ## readme
@@ -70,6 +71,19 @@ Options:
   -h, --help  display help for command
 ```
 
+## completion
+```
+Usage: scalar completion [options] <shell>
+
+Generate shell completion definitions
+
+Arguments:
+  shell       Shell to configure (choices: "bash", "zsh", "fish")
+
+Options:
+  -h, --help  display help for command
+```
+
 ## auth
 ```
 Usage: scalar auth [options] [command]
@@ -93,10 +107,8 @@ Usage: scalar auth login [options]
 Login to scalar
 
 Options:
-  --email <email>        Email
-  --password <password>  Password
-  --token <token>        Personal token
-  -h, --help             display help for command
+  --token <token>  Personal token
+  -h, --help       display help for command
 ```
 
 ### whoami
@@ -129,6 +141,7 @@ Options:
   -h, --help               display help for command
 
 Commands:
+  list [options]           List access groups for the current team
   create [options] <slug>  Create an access group (Pro or above)
   get [options] <slug>     Get an access group and its allowlists
   update [options] <slug>  Update access group metadata
@@ -136,6 +149,17 @@ Commands:
                            assignments
   domain                   Manage allowed email domains
   help [command]           display help for command
+```
+
+### list
+```
+Usage: scalar access-group list [options]
+
+List access groups for the current team
+
+Options:
+  --json      Print the result as JSON
+  -h, --help  display help for command
 ```
 
 ### create
@@ -318,12 +342,12 @@ Usage: scalar document join [options] <files...>
 Merge multiple OpenAPI or AsyncAPI documents into a single unified document
 
 Arguments:
-  files                                          Paths to the OpenAPI or AsyncAPI files to merge
+  files                                           Paths to the OpenAPI or AsyncAPI files to merge
 
 Options:
-  --output -o <file>                             Path to save the merged output file
-  --prefix-components-with-path-value -p <path>  Dot-separated path to extract a prefix value from each input file for component names
-  -h, --help                                     display help for command
+  -o, --output <file>                             Path to save the merged output file
+  -p, --prefix-components-with-path-value <path>  Dot-separated path to extract a prefix value from each input file for component names
+  -h, --help                                      display help for command
 ```
 
 ### format
@@ -448,11 +472,20 @@ Usage: scalar document lint [options] [file|url]
 Lint your OpenAPI or AsyncAPI file using spectral rules
 
 Arguments:
-  file|url               OpenAPI or AsyncAPI file path or url
+  file|url                 OpenAPI or AsyncAPI file path or url
 
 Options:
-  -r, --rule <file|url>  Rule path or url
-  -h, --help             display help for command
+  -r, --rule <file|url>    Rule path or url
+  --format <format>        Report format (choices: "text", "codeframe",
+                           "markdown", "summary", "json", "github-actions",
+                           "junit", default: "codeframe")
+  --max-problems <number>  Maximum displayed findings (totals and exit status
+                           include all findings) (default: 100)
+  -o, --output <file>      Write the report to a file instead of stdout
+  --generate-ignore-file   Record current findings in the ignore baseline
+  --ignore-file <file>     Ignore baseline path (Scalar file takes priority over
+                           Redocly fallback in the current directory)
+  -h, --help               display help for command
 ```
 
 ### upgrade
@@ -479,6 +512,9 @@ Options:
   -h, --help                  display help for command
 
 Commands:
+  list [options]              List projects and their slugs for the current
+                              team.
+  get [options] <slug>        Get project details for the current team.
   init [options]              Create a new Scalar Docs project.
   check-config [file]         Check a Scalar Configuration file
   create [options]            Create a new project that is not linked to a
@@ -491,6 +527,31 @@ Commands:
   deployments                 Inspect a project deployment history.
   upgrade [config]            Upgrade scalar project
   help [command]              display help for command
+```
+
+### list
+```
+Usage: scalar project list [options]
+
+List projects and their slugs for the current team.
+
+Options:
+  --json      Print project details as JSON
+  -h, --help  display help for command
+```
+
+### get
+```
+Usage: scalar project get [options] <slug>
+
+Get project details for the current team.
+
+Arguments:
+  slug        Project slug from scalar project list
+
+Options:
+  --json      Print project details as JSON
+  -h, --help  display help for command
 ```
 
 ### init
@@ -559,7 +620,7 @@ Usage: scalar project publish [options]
 Publish new build for a github sync project that is not linked.
 
 Options:
-  -s, --slug [slug]      Project slug found in Scalar Dashboard
+  -s, --slug [slug]      Project slug from scalar project list
   -c, --config [config]  Your config file of the project
   -p, --preview          Publish in preview mode
   -g, --github           Publish from your linked remote GitHub repository
@@ -573,7 +634,7 @@ Usage: scalar project rollback [options]
 Roll the live deployment back to a previously deployed build.
 
 Options:
-  -s, --slug [slug]      Project slug found in Scalar Dashboard
+  -s, --slug [slug]      Project slug from scalar project list
   -t, --to <publishUid>  Roll back to a specific build id (defaults to the next
                          older deployed build)
   -y, --yes              Skip the confirmation prompt
@@ -601,7 +662,7 @@ Usage: scalar project deployments list [options]
 List the production deployment history for a project.
 
 Options:
-  -s, --slug [slug]  Project slug found in Scalar Dashboard
+  -s, --slug [slug]  Project slug from scalar project list
   -h, --help         display help for command
 ```
 
@@ -705,6 +766,7 @@ List all registry APIs for a team namespace
 
 Options:
   --namespace <namespace>  Team namespace
+  --json                   Output registry API metadata as JSON
   -h, --help               display help for command
 ```
 
@@ -720,7 +782,8 @@ Arguments:
 
 Options:
   --version <version>  Document version (defaults to latest)
-  --format <format>    Output format (json or yaml) (default: "json")
+  --format <format>    Output format (json or yaml) (choices: "json", "yaml",
+                       default: "json")
   -o, --output <file>  Output file (defaults to stdout)
   -h, --help           display help for command
 ```
@@ -735,7 +798,8 @@ Options:
   -h, --help      display help for command
 
 Commands:
-  list            List all teams current user is part of
+  list [options]  List all teams current user is part of
+  get [options]   Get the current team and its namespaces
   set [options]   Set current active team for the user
   help [command]  display help for command
 ```
@@ -747,6 +811,18 @@ Usage: scalar team list [options]
 List all teams current user is part of
 
 Options:
+  --json      Output teams as JSON
+  -h, --help  display help for command
+```
+
+### get
+```
+Usage: scalar team get [options]
+
+Get the current team and its namespaces
+
+Options:
+  --json      Output the current team as JSON
   -h, --help  display help for command
 ```
 
@@ -772,6 +848,7 @@ Options:
 
 Commands:
   list [options]    List all SDKs for a team namespace
+  get [options]     Inspect SDK metadata, API source, versions, and build status
   create [options]  Create a new SDK. The SDK is created in the namespace of the
                     API it is built from.
   update [options]  Update SDK metadata.
@@ -787,8 +864,22 @@ Usage: scalar sdk list [options]
 List all SDKs for a team namespace
 
 Options:
+  --json                   Output structured SDK metadata as JSON
   --namespace <namespace>  Team namespace
   -h, --help               display help for command
+```
+
+### get
+```
+Usage: scalar sdk get [options]
+
+Inspect SDK metadata, API source, versions, and build status
+
+Options:
+  -s, --slug <slug>            SDK slug
+  -n, --namespace <namespace>  Team namespace
+  --json                       Output structured SDK metadata as JSON
+  -h, --help                   display help for command
 ```
 
 ### create
@@ -817,7 +908,8 @@ Options:
   -s, --slug <slug>            SDK slug
   -n, --namespace <namespace>  Team namespace
   --title <title>              Title
-  --isPrivate <isPrivate>      Privacy (true/false or public/private)
+  --isPrivate <isPrivate>      Privacy (true/false or public/private) (choices:
+                               "true", "false", "public", "private")
   -h, --help                   display help for command
 ```
 
@@ -888,7 +980,8 @@ Options:
   -n, --namespace <namespace>  Team namespace
   --title <title>              Title
   --description <description>  Description
-  --isPrivate <isPrivate>      Privacy (true/false or public/private)
+  --isPrivate <isPrivate>      Privacy (true/false or public/private) (choices:
+                               "true", "false", "public", "private")
   -h, --help                   display help for command
 ```
 
@@ -900,6 +993,7 @@ List all schemas for a team namespace
 
 Options:
   --namespace <namespace>  Team namespace
+  --json                   Output schema metadata as JSON
   -h, --help               display help for command
 ```
 
@@ -915,7 +1009,8 @@ Arguments:
 
 Options:
   --version <version>  Schema version (defaults to latest)
-  --format <format>    Output format (json or yaml) (default: "json")
+  --format <format>    Output format (json or yaml) (choices: "json", "yaml",
+                       default: "json")
   -o, --output <file>  Output file (defaults to stdout)
   -h, --help           display help for command
 ```
