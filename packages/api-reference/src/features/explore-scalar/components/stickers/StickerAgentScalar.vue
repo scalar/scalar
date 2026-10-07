@@ -3,7 +3,7 @@
  * The "Agent Scalar" sticker, artwork only.
  *
  * Extracted from the live sticker on scalar.com (the `agentSticker` group, without the peel
- * wrapper, lighting filters and the 6.5px copyright glyph) and optimised with
+ * wrapper and lighting filters; every printed text is kept) and optimised with
  * `svgo --multipass -p 1` using `preset-default` with `removeViewBox: false` and
  * `cleanupIds: false`. The viewBox is cropped to the artwork's bounding box. Re-export it the
  * same way; precision 0 breaks the visor.
@@ -147,6 +147,15 @@ const fills = {
         lengthAdjust="spacing"
         textLength="101.1">
         Agent Scalar
+      </tspan>
+    </text>
+    <text
+      fill="#767676"
+      style="font-size: 6.578px; font-weight: 700">
+      <tspan
+        x="120.8"
+        y="119.6">
+        ©
       </tspan>
     </text>
   </svg>

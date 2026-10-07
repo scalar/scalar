@@ -3,7 +3,7 @@
  * The "Developer Portals" sticker, artwork only.
  *
  * Extracted from `documentation/assets/remote/sticker-3.svg` (the `docsSticker` group, without the
- * peel wrapper, lighting filters and the illegible 2.8px paragraph) and optimised with
+ * peel wrapper and lighting filters; every printed text is kept) and optimised with
  * `svgo --multipass -p 1` using `preset-default` with `removeViewBox: false` and `cleanupIds: false`.
  * The viewBox is cropped to the artwork's bounding box. Re-export it the same way.
  */
@@ -41,6 +41,34 @@ export default {}
         x="43.8"
         y="112.1">
         Portals
+      </tspan>
+    </text>
+    <!-- The source sets textLength on the whole paragraph, which browsers apply across all three
+         lines at once and squash them; each line carries its share of the 70 unit measure instead -->
+    <text
+      fill="#dcdcdc"
+      style="font-size: 2.83764px; font-weight: 500; letter-spacing: 0.01em"
+      transform="translate(15.0137 118.313) rotate(0.696807)">
+      <tspan
+        x="0"
+        y="2.92363"
+        lengthAdjust="spacing"
+        textLength="70">
+        Scalar embraces open standards and makes it easy for you
+      </tspan>
+      <tspan
+        x="0"
+        y="6.70715"
+        lengthAdjust="spacing"
+        textLength="68.8">
+        to embrace them too. Join the open-source community and
+      </tspan>
+      <tspan
+        x="0"
+        y="10.4907"
+        lengthAdjust="spacing"
+        textLength="43.8">
+        start building on open foundations.
       </tspan>
     </text>
     <path
