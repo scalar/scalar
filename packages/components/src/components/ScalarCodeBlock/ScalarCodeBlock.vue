@@ -136,7 +136,7 @@ const { cx } = useBindCx()
       tabindex="0">
       <pre
         :id="id"
-        class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
+        class="m-0 p-0 border-0 bg-transparent text-nowrap whitespace-pre w-fit"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
