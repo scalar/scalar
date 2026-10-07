@@ -108,13 +108,15 @@ Errors fail the step; warnings, information, and hints do not. If your API descr
 scalar document lint openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule --generate-ignore-file
 ```
 
-The workflow automatically reads `.scalar.lint-ignore.yaml` from its working directory. Matching findings are omitted, and only errors outside the baseline fail the lint step. Generate the baseline when adopting linting or intentionally updating accepted findings; keep generation out of the CI check so new errors still fail it.
+The workflow automatically reads `.scalar.lint-ignore.yaml` from its working directory, or falls back to `.redocly.lint-ignore.yaml` when the Scalar file is absent. Matching findings are omitted, and only errors outside the baseline fail the lint step. Generate the baseline when adopting linting or intentionally updating accepted findings; keep generation out of the CI check so new errors still fail it.
 
 For CI systems that consume test reports, save JUnit XML:
 
 ```bash
 scalar document lint openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule --format junit --output lint-results.xml
 ```
+
+JUnit reports encode errors as `error` and warnings as `failure`. A JUnit viewer may mark warnings as failed tests even though the CLI exits successfully when there are no active errors. Reports display at most 100 findings by default; use `--max-problems` to raise the limit. Totals and the CLI exit status include all active findings.
 
 Configure report collection to run even if lint fails. For example, in GitHub Actions, place this step after a lint step that writes `lint-results.xml`:
 
@@ -127,5 +129,5 @@ Configure report collection to run even if lint fails. For example, in GitHub Ac
     path: lint-results.xml
 ```
 
-This uploads the XML as an artifact. To display it as test results, configure a JUnit-compatible viewer in your CI system. JSON reports are also available with `--format json`. See the [CLI lint reference](../cli/commands.md#lint) for all report formats, baseline paths, and exit behavior.
+This uploads the XML as an artifact. To display it as test results, configure a JUnit-compatible viewer in your CI system. JSON reports are also available with `--format json`. See the [CLI lint guide](../cli/ci-and-scripting.md#lint-reports) for all report formats, baseline paths, and exit behavior.
 
