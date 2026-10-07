@@ -9,6 +9,279 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.38 (2026-10-05)
+
+### macOS 13 requirement and authentication polish
+
+The desktop app now requires macOS 13 or later after updating to Electron 44. This release also brings authentication improvements and editor fixes from the API Client.
+
+- Updated to Electron 44.5.1, which requires macOS 13 or later
+- Fixed large request bodies rendering blank gaps when scrolling in the code editor
+- Made authentication field clearing consistent with separate reset actions for configured defaults
+- Polished the bearer token acquisition row to match the design of surrounding elements
+- Fixed long unbroken lines in request bodies stretching the client beyond the viewport
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1138)
+
+## 1.1.37 (2026-10-02)
+
+### Import Hono reference pages and accessibility improvements
+
+This release brings support for importing API descriptions from Hono reference page URLs and includes accessibility fixes for code blocks and keyboard navigation.
+
+- Import API descriptions directly from Hono reference page URLs, with automatic document discovery and watch mode support
+- Screen readers now announce code blocks with their language and context, such as "Code sample: Shell cURL"
+- Copy buttons in code blocks have stable accessible names that remain clear even when the visible label is hidden
+- Press Space to toggle options in multiselect comboboxes like the auth scheme picker without hiding the list
+- Update the desktop app’s Undici dependency to 8.11.2 to address security advisories
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1137)
+
+## 1.1.36 (2026-09-30)
+
+### Improved request body editing and clearer error handling
+
+This release makes it easier to work with array-based enum selections in request bodies, removes unnecessary authentication dropdowns, and provides better visibility when requests fail due to CORS or network issues.
+
+- Enum array selections now preserve their original types (numbers, booleans, strings) when editing request bodies in the Form view
+- Failed requests remain visible with guidance about possible CORS or network causes instead of disappearing after a toast message
+- Authentication dropdowns are hidden when only one required option is available, reducing visual clutter in the API Reference
+- Long enum selection labels now stay contained within their controls
+- Search performance improvements reduce unnecessary allocations during document search
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1136)
+
+## 1.1.35 (2026-09-29)
+
+### OAuth reliability improvements and accessibility refinements
+
+This release resolves OAuth configuration bugs that caused redirect URLs to be lost and scope selections to duplicate, while incorporating a comprehensive set of screen reader and keyboard accessibility improvements throughout the testing client.
+
+- OAuth redirect URLs now persist when changing credentials or clearing tokens, and refresh controls appear only when a refresh token is available
+- Selecting OAuth scopes no longer creates duplicate entries, and configured default scopes are applied automatically
+- Auth fields now expose their visible labels to screen readers in both masked and unmasked states
+- Opening the test modal moves focus to the close button first, and request filter tabs announce each option once instead of twice
+- At narrow widths, the modal header keeps the method label inside the address bar and the sidebar toggle moves to the backdrop as a circle
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1135)
+
+## 1.1.34 (2026-09-25)
+
+### Desktop login fixes and improved form handling
+
+This release resolves desktop login callback issues and brings several improvements to the API client, including better form field handling and response display on narrow screens.
+
+- Fixed desktop login callback port allocation and CORS configuration so authentication works reliably
+- Selecting files or editing optional form fields now automatically includes them in requests
+- Long response bodies remain scrollable in narrow layouts instead of expanding the entire panel
+- XML examples now generate correctly from schemas with proper attribute and namespace support
+- Mock server XML responses preserve schema metadata and report generation errors through headers
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1134)
+
+## 1.1.33 (2026-09-24)
+
+### OpenAPI 3.2 support for custom methods and query parameters
+
+This release adds OpenAPI 3.2 features to the API client, including support for custom HTTP methods like PURGE and QUERY, whole-query parameters, and improved parameter examples. SDK code samples now follow the example switcher, and several hydration and rendering issues have been resolved.
+
+- Custom HTTP methods from additionalOperations now appear in navigation and the method picker, with case-sensitive spelling preserved in requests and code samples
+- Whole-query parameters (in: querystring) can now be edited, validated, and sent with proper content-based serialization and percent-encoding
+- SDK code samples follow the request example switcher and show localized status messages when a linked sample is unavailable
+- Parameter examples using dataValue and serializedValue now work correctly in the editor, outgoing requests, and code snippets without double-encoding
+- Fixed server-side rendering hydration issues for auth forms, accordion headers, and initial sidebar selection
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1133)
+
+## 1.1.32 (2026-09-22)
+
+### OpenAPI 3.2 support with streaming responses and device authorization
+
+This release adds comprehensive OpenAPI 3.2 support, including streaming response rendering, OAuth device authorization flows, and multilingual UI translations. The editor now validates and suggests OpenAPI 3.2 features while continuing to accept existing 3.1 documents.
+
+- Display JSON Lines, JSON Sequences, and multipart response parts as they arrive with cancellation support and bounded display limits
+- Support OAuth device authorization flows with verification codes, cancellable token polling, and stored credentials
+- Localize the API Client in eight languages including English, Russian, Spanish, French, German, Chinese, Arabic, and Portuguese
+- Preserve OpenAPI 3.2 fields such as streaming item schemas, tag hierarchy, nested encoding, and additional operations
+- Fix duplicate parameter rows and lost focus when editing request headers, cookies, and query parameters
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1132)
+
+## 1.1.31 (2026-09-21)
+
+### Smarter parameter handling and faster example loading
+
+This release improves how the API client handles optional parameters with pre-filled values and makes working with large API descriptions much faster by loading external examples only when needed.
+
+- Optional parameters with default or enum values are now automatically enabled so they are included in your requests
+- External examples load on demand when you view them, making the client faster when working with APIs that have thousands of examples
+- Example payloads are cached and shared across the interface to reduce network requests
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1131)
+
+## 1.1.29 (2026-09-18)
+
+### Line wrapping toggle and OAuth2 metadata discovery
+
+This release adds interactive line wrapping for long request and response bodies, OAuth2 authorization server metadata discovery, and several polish fixes for the API client modal and authentication flows.
+
+- Toggle line wrapping in request and response bodies to view long strings without horizontal scrolling
+- OAuth2 flows now support metadata URLs to automatically discover authorization endpoints
+- Copy button added to the request body editor for quick clipboard access
+- OpenAPI 3.2 response summaries, server names, and deprecated security scheme indicators now render correctly
+- Fixed the API client modal showing no operation when reopening a document's first request
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1129)
+
+## 1.1.28 (2026-09-16)
+
+### Improved workspace settings, authentication, and request handling
+
+This release fixes workspace settings visibility issues, improves request body handling with schema generation and multipart arrays, and preserves mutual TLS security scheme types with read-only authentication guidance.
+
+- Fixed workspace settings options becoming unreadable while clicked, and made light theme color swatches visible
+- Added a button to generate request body examples from schema when custom examples hide schema fields
+- Optional query parameters and form body fields are now automatically enabled when you enter a value
+- Request duration is now available in post-response scripts as response time in milliseconds
+- Multipart form arrays are now sent correctly as separate parts with the same field name
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1128)
+
+## 1.1.27 (2026-09-07)
+
+### Form view improvements for request bodies
+
+This release adds control over the default request body editor view and fixes how optional form fields are handled.
+
+- You can now default the request body editor to Form view using the defaultRequestBodyView config option or the x-scalar-default-request-body-view extension in your OpenAPI document
+- Optional form-body properties (multipart/form-data and application/x-www-form-urlencoded) now start unchecked and are only sent when you enable them, matching how optional parameters already work
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1127)
+
+## 1.1.26 (2026-08-28)
+
+### Header layout polish and request body fix
+
+This release fixes the app header overflowing on mobile and resolves an issue where clicking Test Request could discard your edits when the operation was already open.
+
+- Fixed the app header overflowing the viewport on smaller screens
+- Clicking Test Request no longer throws away your edited request body when reopening the same operation
+- Added support for testing OpenAPI webhooks from both the API reference and API client
+- Reduced the standalone bundle size by 18 KB gzip by removing duplicate dependencies
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1126)
+
+## 1.1.25 (2026-08-20)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1125)
+
+## 1.1.24 (2026-08-20)
+
+### Fixes for request parameters and schema switching
+
+This release addresses several issues with parameter display and request body handling in the API client. Parameter names now appear correctly on first load, and switching between schema options properly resets edited examples.
+
+- Fixed parameter names appearing blank when first opening the Try It panel for GET endpoints
+- Fixed header parameters showing as empty rows when viewing operations after one with a request body
+- Reset edited request body examples when switching between oneOf or anyOf schema options
+- Improved stability of parameter row rendering using consistent component keys
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1124)
+
+## 1.1.22 (2026-08-13)
+
+### OAuth2 flow control, NDJSON support, and environment variables in scripts
+
+This release adds OpenAPI extensions to customize OAuth2 flows, renders NDJSON responses instead of showing a binary file placeholder, and fixes environment variables so they work correctly in pre-request and post-response scripts.
+
+- Use x-order to control the order of OAuth2 flow tabs, and x-scalar-ignore to hide flows that cannot run in the browser (like Client Credentials) or entire security schemes from the auth selector
+- NDJSON responses (application/x-ndjson or application/ndjson) now render as text with each JSON record pretty-printed in the preview
+- Environment variables now work in scripts: pm.environment.get() reads the active environment, and pm.environment.set() persists values like bearer tokens so they survive to the next request
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1122)
+
+## 1.1.21 (2026-08-07)
+
+### Cookie preset switcher and API improvements
+
+This release introduces a streamlined way to work with global cookies that share the same name, alongside fixes for header parameter behavior and multipart file display.
+
+- Global cookies with the same name now collapse into a single row with a dropdown to switch between preset values (e.g. Culture: PL or EN), sending only the selected value.
+- Header parameters with x-disabled: false now stay enabled while editing, fixing a bug where optional headers were incorrectly reset on every keystroke.
+- Long file names in multipart forms now truncate with an ellipsis instead of overflowing, with the full name visible on hover.
+- Plugins can now access the active server and custom fetch implementation in the beforeRequest hook for resolving relative URLs and making network calls.
+- Updated build and runtime dependencies to their latest compatible versions for improved stability.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1121)
+
+## 1.1.20 (2026-07-31)
+
+### OAuth2 improvements, form editor for JSON bodies, and AsyncAPI broker auth
+
+This release adds a form view for JSON and YAML request bodies, brings OAuth2 token acquisition directly to bearer auth schemes, and adds credential inputs for all AsyncAPI broker security types.
+
+- JSON and YAML request bodies now have a form view with dropdowns, required badges, and per-field validation — switch between Form and Raw with a single click
+- Bearer auth schemes can now acquire tokens through OAuth2 flows without switching auth methods, with an inline Authorize button and automatic token routing
+- All eight AsyncAPI broker security scheme types (SASL, X509, encryption, GSSAPI) now have dedicated credential input forms
+- Confidential OAuth2 clients can now use PKCE together with a client secret, following RFC 9700 recommendations
+- OAuth2 scope selection no longer drops changes when clicking checkboxes quickly, and checkboxes include accessible labels for screen readers
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1120)
+
+## 1.1.19 (2026-07-16)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1119)
+
+## 1.1.18 (2026-07-16)
+
+### Border radius now scales from a single theme variable
+
+Setting a custom border radius in your theme is simpler and more predictable. Override --scalar-radius once to rescale every corner in the interface, including buttons, inputs, and panels. Setting it to zero now produces a fully squared-off UI.
+
+- Border radius tokens now derive from --scalar-radius, so changing one variable rescales the entire interface
+- Setting --scalar-radius to zero produces a fully square theme with no rounded corners
+- Two new radius tokens added: --scalar-radius-2xl (12px) and --scalar-radius-3xl (16px)
+- Replaced hardcoded border radius values throughout the UI with theme tokens
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1118)
+
+## 1.1.16 (2026-07-15)
+
+### Clearer authentication warnings
+
+Authentication warnings now name the document type and distinguish unsupported authentication types from security schemes with a missing type.
+
+- Authentication warnings now correctly identify the document type (AsyncAPI or OpenAPI) instead of always saying OpenAPI
+- Unsupported AsyncAPI authentication types now show a clear message indicating the feature is not yet supported
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1116)
+
+## 1.1.15 (2026-07-08)
+
+### Cookie persistence and auth selector polish
+
+This release fixes cookie handling so server-set tokens like Django CSRF survive page reloads, and removes confusing delete buttons from read-only security schemes in the API reference.
+
+- Response cookies (such as Django csrftoken) now persist across page reloads and are replayed on later requests
+- Auth selector no longer shows delete buttons for security schemes that cannot be removed
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1115)
+
+## 1.1.12 (2026-06-30)
+
+### OAuth2 flows and URL imports now work in the desktop app
+
+Interactive OAuth2 (authorization code and implicit flows) never actually worked in the desktop app because the renderer runs on file:// URLs. This release adds loopback redirect support so you can complete OAuth2 flows through your system browser.
+
+- OAuth2 authorization code and implicit flows now work via a local loopback server that captures the redirect from your system browser
+- Importing OpenAPI documents from a URL no longer fails with a Content Security Policy error
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1112)
+
 ## 1.1.11 (2026-06-26)
 
 ### Synced example pickers and improved array parameter display
