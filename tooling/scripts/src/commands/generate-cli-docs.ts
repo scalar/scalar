@@ -87,7 +87,7 @@ const rank = (slug: string) => {
 }
 
 /** Every command in the tree that does something itself, depth first */
-export const flattenRunnable = (commands: ContextCommand[]): ContextCommand[] =>
+const flattenRunnable = (commands: ContextCommand[]): ContextCommand[] =>
   commands.flatMap((command) => [...(command.runnable ? [command] : []), ...flattenRunnable(command.commands)])
 
 /**
@@ -130,7 +130,7 @@ export const groupIntoPages = (context: CliContext): CommandPage[] => {
 }
 
 /** Heading for a command within its page, relative to the page's own group */
-export const commandHeading = (command: ContextCommand, page: CommandPage) => {
+const commandHeading = (command: ContextCommand, page: CommandPage) => {
   const prefix = page.slug === GENERAL_PAGE ? 'scalar ' : `scalar ${page.slug} `
   return command.command.startsWith(prefix) ? command.command.slice(prefix.length) : command.command
 }
@@ -150,7 +150,7 @@ const escapeCell = (value: string) => value.replace(/\\/g, '\\\\').replace(/\|/g
  * Inline code for a table cell. Backslashes are literal inside a code span, so only the pipe is
  * escaped: GFM unescapes `\|` in table cells before it parses the code span.
  */
-const code = (value: string) => `\`${value.replace(/\|/g, '\\|').replace(/\n/g, ' ')}\``
+const code = (value: string) => `\`${value.split('|').join('\\|').split('\n').join(' ')}\``
 
 /** Summary text, capitalized and without a trailing period, for lists and tables */
 const phrase = (value: string) => {
@@ -304,7 +304,7 @@ export const renderIndex = (pages: CommandPage[], version: string): string =>
  *
  * The `commands/` directory is owned by this script: stale pages for removed groups are deleted.
  */
-export const writeCliDocs = async (context: CliContext, outputDirectory: string) => {
+const writeCliDocs = async (context: CliContext, outputDirectory: string) => {
   const pages = groupIntoPages(context)
   const pagesDirectory = path.join(outputDirectory, 'commands')
 
