@@ -127,6 +127,93 @@ const collectAsyncApiMessages = (children: TraversedEntry[] | undefined): Traver
   collectEntries(children, 'asyncapi-message')
 
 describe('traverseAsyncApiDocument', () => {
+  it.each([undefined, []])('keeps channels with no operations and their visible messages with tags %j', (tags) => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1' },
+      channels: {
+        events: {
+          address: 'events',
+          tags,
+          messages: {
+            z: { title: 'Zebra' },
+            a: { title: 'Apple' },
+            hidden: { title: 'Hidden', 'x-internal': true },
+            ignored: { title: 'Ignored', 'x-scalar-ignore': true },
+          },
+        },
+        empty: {},
+        hidden: { 'x-internal': true },
+        ignored: { 'x-scalar-ignore': true },
+      },
+    } as unknown as AsyncApiDocument
+    const result = traverseAsyncApiDocument('events', document)
+    const channels = collectAsyncApiChannels(result.children)
+    expect(channels.map((channel) => channel.channelName)).toStrictEqual(['events', 'empty'])
+    expect(channels[0]?.children).toStrictEqual([
+      {
+        type: 'asyncapi-message',
+        id: 'events/channel/events/message/a',
+        title: 'Apple',
+        messageName: 'a',
+        channelName: 'events',
+      },
+      {
+        type: 'asyncapi-message',
+        id: 'events/channel/events/message/z',
+        title: 'Zebra',
+        messageName: 'z',
+        channelName: 'events',
+      },
+    ])
+    expect(channels[1]?.children).toStrictEqual([])
+    expect(collectAsyncApiOperations(result.children)).toStrictEqual([])
+    expect((document.channels?.events as { 'x-scalar-order'?: string[] })?.['x-scalar-order']).toStrictEqual(
+      channels[0]?.children?.map((entry) => entry.id),
+    )
+  })
+
+  it('keeps referenced channels and messages under their channel tags without operations', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1' },
+      channels: {
+        events: {
+          $ref: '#/components/channels/events',
+          '$ref-value': {
+            title: 'Events',
+            tags: [{ name: 'Updates' }],
+            messages: { event: { $ref: '#/components/messages/Event', '$ref-value': { title: 'An event' } } },
+          },
+        },
+      },
+    } as unknown as AsyncApiDocument
+    const result = traverseAsyncApiDocument('events', document)
+    const channels = collectAsyncApiChannels(result.children)
+    expect(channels.map((channel) => channel.id)).toStrictEqual(['events/tag/updates/channel/events'])
+    expect(collectAsyncApiMessages(result.children)).toStrictEqual([
+      {
+        type: 'asyncapi-message',
+        id: 'events/tag/updates/channel/events/message/event',
+        title: 'An event',
+        messageName: 'event',
+        channelName: 'events',
+      },
+    ])
+  })
+
+  it.each(['x-internal', 'x-scalar-ignore'])('keeps a channel hidden when all its operations are %s', (extension) => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1' },
+      channels: { events: { messages: { event: { title: 'An event' } } } },
+      operations: { send: { action: 'send', channel: { $ref: '#/channels/events' }, [extension]: true } },
+    } as unknown as AsyncApiDocument
+    const result = traverseAsyncApiDocument('events', document)
+    expect(collectAsyncApiChannels(result.children)).toStrictEqual([])
+    expect(collectAsyncApiMessages(result.children)).toStrictEqual([])
+  })
+
   it('emits only the default Introduction entry when there are no operations or description', () => {
     const document = {
       asyncapi: '3.0.0',

@@ -6,6 +6,7 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
   TraversedAsyncApiChannel,
+  TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
 } from '@scalar/workspace-store/schemas/navigation'
 import { computed, useId } from 'vue'
@@ -32,6 +33,7 @@ import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiChannel } from './helpers/resolve-async-api-nodes'
+import Message from './Message.vue'
 import Operation from './Operation.vue'
 
 /** Subset of the configuration the shared `ParameterList` renderer needs. */
@@ -120,6 +122,13 @@ const operations = computed(() =>
   ),
 )
 
+const messages = computed(() =>
+  filterChildrenByType<TraversedAsyncApiMessage>(
+    channel.children,
+    'asyncapi-message',
+  ),
+)
+
 const { level: headingLevel } = useDocumentOutline('channel')
 </script>
 
@@ -163,6 +172,18 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :specificationExtension="specificationExtension">
       <template #title>Parameters</template>
     </ParameterList>
+    <Message
+      v-for="message in messages"
+      :key="message.id"
+      :document="document"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :expansion="expansion"
+      :message="message"
+      :options="options"
+      parent="channel"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
     <Operation
       v-for="operation in operations"
       :key="operation.id"
@@ -217,6 +238,18 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :specificationExtension="specificationExtension">
           <template #title>Parameters</template>
         </ParameterList>
+        <Message
+          v-for="message in messages"
+          :key="message.id"
+          :document="document"
+          :eventBus="eventBus"
+          :expandedItems="expandedItems"
+          :expansion="expansion"
+          :message="message"
+          :options="options"
+          parent="channel"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
         <Operation
           v-for="operation in operations"
           :key="operation.id"

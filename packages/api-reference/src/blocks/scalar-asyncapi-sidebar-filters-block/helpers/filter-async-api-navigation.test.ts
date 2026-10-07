@@ -64,6 +64,42 @@ const entries: TraversedEntry[] = [
 const channelIds = (result: TraversedEntry[]) => result.map((entry) => entry.id)
 
 describe('filterAsyncApiNavigation', () => {
+  it.each<{ children: TraversedEntry[] }>([
+    { children: [] },
+    {
+      children: [
+        { type: 'asyncapi-message', id: 'message', title: 'Event', channelName: 'mqttEvents', messageName: 'event' },
+      ],
+    },
+  ])('filters channels without operations by server and protocol with children %j', ({ children }) => {
+    const channels = entries.map((entry) => ({ ...entry, children })) as TraversedEntry[]
+    expect(channelIds(filterAsyncApiNavigation(channels, document, { protocol: 'mqtt' }))).toStrictEqual(['mqttEvents'])
+    expect(channelIds(filterAsyncApiNavigation(channels, document, { server: 'websocket' }))).toStrictEqual(['wsChat'])
+    expect(filterAsyncApiNavigation(channels, document, { protocol: 'mqtt', server: 'websocket' })).toStrictEqual([])
+    expect(filterAsyncApiNavigation(channels, document, {})).toBe(channels)
+  })
+
+  it.each([undefined, []])('keeps operationless channels available on all servers with server list %j', (servers) => {
+    const channels = entries.map((entry) => ({ ...entry, children: [] })) as TraversedEntry[]
+    const allServers = { ...document, channels: { mqttEvents: { servers }, wsChat: { servers } } } as AsyncApiDocument
+    expect(
+      channelIds(filterAsyncApiNavigation(channels, allServers, { server: 'websocket', protocol: 'wss' })),
+    ).toStrictEqual(['mqttEvents', 'wsChat'])
+  })
+
+  it('drops a tag when none of its operationless channels match', () => {
+    const tag: TraversedEntry = {
+      type: 'tag',
+      id: 'tag',
+      title: 'Events',
+      name: 'Events',
+      isGroup: false,
+      isWebhooks: false,
+      children: [{ ...entries[0], children: [] } as TraversedEntry],
+    }
+    expect(filterAsyncApiNavigation([tag], document, { server: 'websocket' })).toStrictEqual([])
+  })
+
   it('returns the original tree when no filter is selected', () => {
     expect(filterAsyncApiNavigation(entries, document, {})).toBe(entries)
     expect(filterAsyncApiNavigation(entries, document, { protocol: 'all', server: 'all' })).toBe(entries)
