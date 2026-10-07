@@ -5,6 +5,25 @@ import { resolveOperationWithTraits } from '@/channel-example/resolve-operation-
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
 describe('resolveOperationWithTraits', () => {
+  it('inherits the last declared trait tags and preserves operation overrides', () => {
+    const first = [{ name: 'First', externalDocs: { url: 'https://example.com/first' } }]
+    const last = [{ name: 'Last', externalDocs: { url: 'https://example.com/last' } }]
+    const own = [{ name: 'Own', externalDocs: { url: 'https://example.com/own' } }]
+    const operation: AsyncApiOperationObject = {
+      action: 'receive',
+      channel: { $ref: '#/channels/events' },
+      traits: [
+        { tags: first },
+        { $ref: '#/components/operationTraits/last', '$ref-value': { tags: last } },
+        { description: 'Does not replace tags' },
+      ],
+    }
+    expect(resolveOperationWithTraits(operation).tags).toStrictEqual(last)
+    expect(resolveOperationWithTraits({ ...operation, tags: own }).tags).toStrictEqual(own)
+    expect(resolveOperationWithTraits({ ...operation, tags: [] }).tags).toStrictEqual([])
+    expect(resolveOperationWithTraits({ ...operation, traits: [{ tags: first }, { tags: [] }] }).tags).toStrictEqual([])
+  })
+
   it('inherits documentation from the last declaring trait and prefers operation documentation', () => {
     const first = { url: 'https://example.com/first' }
     const last = { url: 'https://example.com/last', description: '**Last** guide' }

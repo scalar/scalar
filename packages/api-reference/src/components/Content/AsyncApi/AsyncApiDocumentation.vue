@@ -2,6 +2,7 @@
 import { ExternalDocumentation } from '@scalar/blocks/shared'
 import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
 const { owner } = defineProps<{
@@ -9,7 +10,9 @@ const { owner } = defineProps<{
   owner?: Pick<AsyncApiInfoObject, 'externalDocs' | 'tags'>
 }>()
 
-const documentation = computed(() => {
+const documentation = computed<
+  { name: string | undefined; value: ExternalDocumentationObject }[]
+>(() => {
   const direct = getResolvedRef(owner?.externalDocs)
   const tags =
     owner?.tags?.flatMap((tag) => {

@@ -28,6 +28,12 @@ export const resolveOperationWithTraits = (operation: AsyncApiOperationObject): 
   const ownExternalDocs = getResolvedRef(operation.externalDocs)
   const externalDocs = ownExternalDocs ? { ...traitExternalDocs, ...ownExternalDocs } : traitExternalDocs
 
+  const traitTags = traits.reduce<AsyncApiOperationObject['tags']>((tags, traitRef) => {
+    const trait = getResolvedRef(traitRef)
+    return trait?.tags !== undefined ? trait.tags : tags
+  }, undefined)
+  const tags = operation.tags ?? traitTags
+
   const traitBindings = traits.reduce<AsyncApiOperationObject['bindings'] | undefined>((accumulated, traitRef) => {
     const trait = getResolvedRef(traitRef)
     if (!trait?.bindings) {
@@ -57,6 +63,7 @@ export const resolveOperationWithTraits = (operation: AsyncApiOperationObject): 
   return {
     ...operation,
     ...(externalDocs !== undefined ? { externalDocs } : {}),
+    ...(tags !== undefined ? { tags } : {}),
     ...(security !== undefined || hasOperationSecurity ? { security } : {}),
     ...(bindings !== operation.bindings ? { bindings } : {}),
   }

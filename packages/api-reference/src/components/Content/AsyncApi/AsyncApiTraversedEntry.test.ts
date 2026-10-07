@@ -39,10 +39,13 @@ describe('AsyncApiTraversedEntry', () => {
               action: 'receive',
               channel: { $ref: '#/channels/events' },
               externalDocs: { $ref: '#/components/externalDocs/operation' },
-              tags: [{ name: 'Operation tag', externalDocs: { url: 'https://example.com/operation-tag' } }],
+              traits: [{ $ref: '#/components/operationTraits/documentation' }],
             },
           },
           components: {
+            operationTraits: {
+              documentation: { tags: [{ $ref: '#/components/tags/operation' }] },
+            },
             externalDocs: {
               channel: { $ref: '#/components/externalDocs/guide' },
               guide: { url: 'https://example.com/channel', description: '**Channel** guide' },
@@ -50,7 +53,13 @@ describe('AsyncApiTraversedEntry', () => {
               message: { url: 'https://example.com/message' },
               tag: { url: 'https://example.com/channel-tag' },
             },
-            tags: { events: { name: 'Events', externalDocs: { $ref: '#/components/externalDocs/tag' } } },
+            tags: {
+              events: { name: 'Events', externalDocs: { $ref: '#/components/externalDocs/tag' } },
+              operation: {
+                name: 'Operation tag',
+                externalDocs: { url: 'https://example.com/operation-tag', description: '*Trait tag* guide' },
+              },
+            },
             messages: {
               notice: {
                 externalDocs: { $ref: '#/components/externalDocs/message' },
@@ -102,6 +111,7 @@ describe('AsyncApiTraversedEntry', () => {
         'https://example.com/operation-tag',
       ])
       expect(wrapper.get('strong').text()).toBe('Channel')
+      expect(wrapper.get('em').text()).toBe('Trait tag')
     },
   )
 
