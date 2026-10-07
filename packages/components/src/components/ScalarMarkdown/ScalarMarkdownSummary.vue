@@ -13,7 +13,7 @@ export default {}
 
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { useResizeObserver } from '@vueuse/core'
+import { useMutationObserver, useResizeObserver } from '@vueuse/core'
 import { onMounted, useId, useTemplateRef } from 'vue'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
@@ -32,6 +32,11 @@ const truncated = defineModel<boolean>('truncated', { default: false })
 const markdown = useTemplateRef('scalar-markdown')
 
 useResizeObserver(() => markdown.value?.el, checkTruncation)
+// Async Markdown enhancements may add a hidden block without changing the summary size.
+useMutationObserver(() => markdown.value?.el, checkTruncation, {
+  childList: true,
+  subtree: true,
+})
 
 /** Check if the markdown is being truncated */
 function checkTruncation() {
@@ -40,7 +45,9 @@ function checkTruncation() {
     return
   }
   truncated.value =
-    el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth
+    !!el.querySelector('[data-markdown-block]') ||
+    el.scrollHeight > el.clientHeight ||
+    el.scrollWidth > el.clientWidth
 }
 
 onMounted(checkTruncation)
@@ -100,6 +107,7 @@ defineOptions({ inheritAttrs: false })
     }
 
     /* Hide elements that don't make sense in the summary */
+    [data-markdown-block],
     img,
     svg,
     hr,
