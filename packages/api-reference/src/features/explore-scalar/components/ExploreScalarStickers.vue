@@ -25,9 +25,9 @@ type StickerLayout = {
 const LAYOUTS: Record<'row' | 'hero', StickerLayout> = {
   row: {
     wrapper: 'flex items-end justify-center gap-2 px-3 pt-4',
-    portals: `w-[60px] origin-bottom ${ROW_SHADOW}`,
-    sdks: `w-[64px] origin-bottom ${ROW_SHADOW}`,
-    agent: `w-[58px] origin-bottom ${ROW_SHADOW}`,
+    portals: `w-[52px] origin-bottom ${ROW_SHADOW}`,
+    sdks: `w-[56px] origin-bottom ${ROW_SHADOW}`,
+    agent: `w-[50px] origin-bottom ${ROW_SHADOW}`,
     rotate: { portals: '-6deg', sdks: '2deg', agent: '6deg' },
   },
   hero: {

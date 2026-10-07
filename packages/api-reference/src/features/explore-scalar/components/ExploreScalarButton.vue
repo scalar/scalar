@@ -296,12 +296,15 @@ const modalState: ModalState = reactive({
     @focusout="onFocusOut"
     @pointerenter="onPointerEnter"
     @pointerleave="onPointerLeave">
-    <!-- Anchored to the bottom, so growth happens upward over the end of the navigation -->
+    <!-- Anchored to the bottom, so growth happens upward over the end of the navigation.
+         The whole card opens the dialog (stickers and headline included); the button inside
+         stays the accessible control, and its activation reaches this handler by bubbling. -->
     <div
       ref="cardEl"
-      class="explore-scalar-card bg-b-1 text-sidebar-c-1 absolute inset-x-0 bottom-0 z-10 flex flex-col overflow-hidden rounded-lg"
+      class="explore-scalar-card bg-b-1 text-sidebar-c-1 absolute inset-x-0 bottom-0 z-10 flex cursor-pointer flex-col overflow-hidden rounded"
       :data-expanded="expanded || undefined"
-      :data-instant="instant || undefined">
+      :data-instant="instant || undefined"
+      @click="() => void open()">
       <!-- Gradient skin: the gradient button recipe; it fades out when the card opens (background-image does not interpolate, opacity does) -->
       <span
         aria-hidden="true"
@@ -330,9 +333,8 @@ const modalState: ModalState = reactive({
           ref="triggerEl"
           aria-haspopup="dialog"
           :aria-describedby="headlineId"
-          class="explore-scalar-cta text-sidebar-c-1 relative z-10 flex h-8 items-center justify-center gap-1.5 px-3.5 text-sm font-medium whitespace-nowrap"
-          type="button"
-          @click="() => void open()">
+          class="explore-scalar-cta text-sidebar-c-1 relative z-10 flex h-[31px] items-center justify-center gap-1.5 px-3.5 text-sm font-medium whitespace-nowrap"
+          type="button">
           <ScalarIconSparkle
             class="size-3.5"
             weight="bold" />
@@ -357,19 +359,8 @@ const modalState: ModalState = reactive({
 .explore-scalar-card {
   --explore-ease-out: cubic-bezier(0.32, 0.72, 0, 1);
   --explore-ease-in: cubic-bezier(0.4, 0, 0.2, 1);
-  /*
-   * The hairline border, preceded by the three outer shadows of --scalar-shadow-2 at zero size.
-   * Shadow lists only interpolate when every index agrees on inset/outset, so the collapsed list
-   * mirrors the shape of the expanded one and the drop shadow can grow instead of popping in.
-   */
-  box-shadow:
-    0 0 0 0 transparent,
-    0 0 0 0 transparent,
-    0 0 0 0 transparent,
-    inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
-  transition:
-    border-radius 240ms var(--explore-ease-in),
-    box-shadow 240ms var(--explore-ease-in);
+  /* A real border: an inset hairline shadow would be painted under the gradient skin and never show */
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 /* The 1px specular highlight of the gradient button lives on the skin, so it fades out with it */
 .explore-scalar-skin {
@@ -395,7 +386,7 @@ const modalState: ModalState = reactive({
 }
 .explore-scalar-cta {
   flex: 1 1 auto;
-  border-radius: var(--scalar-radius-lg);
+  border-radius: var(--scalar-radius);
   background-color: transparent;
   transition:
     flex-grow 240ms var(--explore-ease-in),
@@ -416,13 +407,6 @@ const modalState: ModalState = reactive({
 }
 
 /* ---- Open state: a single selector, driven by the script ---- */
-.explore-scalar-card[data-expanded] {
-  border-radius: var(--scalar-radius-xl);
-  box-shadow:
-    var(--scalar-shadow-2),
-    inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
-  transition-duration: 360ms;
-}
 .explore-scalar-card[data-expanded] .explore-scalar-skin {
   opacity: 0;
 }

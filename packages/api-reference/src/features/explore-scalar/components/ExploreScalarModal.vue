@@ -102,14 +102,14 @@ const onSignUp = (): void => {
         class="m-0 flex list-none flex-col gap-4 px-8 py-5"
         role="list">
         <li class="flex items-start gap-3">
-          <span
-            class="bg-b-2 text-c-1 flex size-8 shrink-0 items-center justify-center rounded-lg">
+          <!-- The icon shares the title's line box, so it sits on the title and the description hangs below -->
+          <span class="text-c-1 flex h-6 shrink-0 items-center">
             <ScalarIconPackage
-              class="size-4"
-              weight="bold" />
+              class="size-5"
+              weight="regular" />
           </span>
           <span class="flex flex-col gap-0.5">
-            <span class="text-c-1 text-base font-bold">
+            <span class="text-c-1 text-base leading-6 font-bold">
               {{ translate('exploreScalar.generateTitle') }}
             </span>
             <span class="text-c-2 text-sm">
@@ -118,14 +118,13 @@ const onSignUp = (): void => {
           </span>
         </li>
         <li class="flex items-start gap-3">
-          <span
-            class="bg-b-2 text-c-1 flex size-8 shrink-0 items-center justify-center rounded-lg">
+          <span class="text-c-1 flex h-6 shrink-0 items-center">
             <ScalarIconGlobe
-              class="size-4"
-              weight="bold" />
+              class="size-5"
+              weight="regular" />
           </span>
           <span class="flex flex-col gap-0.5">
-            <span class="text-c-1 text-base font-bold">
+            <span class="text-c-1 text-base leading-6 font-bold">
               {{ translate('exploreScalar.platformTitle') }}
             </span>
             <span class="text-c-2 text-sm">
@@ -339,7 +338,7 @@ const onSignUp = (): void => {
 }
 @keyframes scalar-explore-radius {
   from {
-    border-radius: var(--scalar-radius-xl);
+    border-radius: var(--scalar-radius);
   }
   to {
     border-radius: var(--scalar-radius-3xl);

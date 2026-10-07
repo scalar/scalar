@@ -177,6 +177,16 @@ describe('ExploreScalarButton', () => {
     expect(dialog?.textContent).toContain('Everything your API needs, from one OpenAPI document')
   })
 
+  it('opens the dialog when the card is clicked outside the button', async () => {
+    const wrapper = await mountButton()
+
+    await wrapper.get('.explore-scalar-headline').trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(getDialog()).not.toBeNull()
+  })
+
   it('expands on hover after the intent delay and collapses when the pointer leaves', async () => {
     stubMatchMedia({ hover: true })
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
