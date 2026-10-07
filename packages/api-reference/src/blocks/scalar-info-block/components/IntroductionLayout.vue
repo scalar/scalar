@@ -6,6 +6,7 @@ import type {
   ExternalDocumentationObject,
   InfoObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { computed } from 'vue'
 
 import {
   Section,
@@ -26,7 +27,7 @@ import InfoVersion from './InfoVersion.vue'
 import IntroductionLoading from './IntroductionLoading.vue'
 import SpecificationVersion from './SpecificationVersion.vue'
 
-defineProps<{
+const { applicationIdentifier, documentType } = defineProps<{
   id: string | undefined
   /** AsyncAPI root identifier, separate from the section navigation anchor. */
   applicationIdentifier?: string
@@ -39,6 +40,10 @@ defineProps<{
   headingSlugGenerator: (heading: Heading) => string
   eventBus: WorkspaceEventBus | null
 }>()
+
+const showApplicationIdentifier = computed<boolean>(
+  () => documentType === 'asyncapi' && Boolean(applicationIdentifier),
+)
 
 const { translate } = useLocalization()
 
@@ -79,7 +84,7 @@ const { level: headingLevel } = useDocumentOutline('document')
             </template>
           </SectionHeader>
           <dl
-            v-if="documentType === 'asyncapi' && applicationIdentifier"
+            v-if="showApplicationIdentifier"
             class="mb-3 text-base">
             <dt class="text-c-2">
               {{ translate('asyncapi.applicationIdentifier') }}
