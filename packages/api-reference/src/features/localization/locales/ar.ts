@@ -53,6 +53,7 @@ export const ar = {
     termsOfService: 'شروط الخدمة',
   },
   asyncapi: {
+    applicationIdentifier: 'معرّف التطبيق',
     servers: 'الخوادم',
     protocols: 'البروتوكولات',
   },

@@ -28,6 +28,8 @@ import SpecificationVersion from './SpecificationVersion.vue'
 
 defineProps<{
   id: string | undefined
+  /** AsyncAPI root identifier, separate from the section navigation anchor. */
+  applicationIdentifier?: string
   documentType?: 'openapi' | 'asyncapi'
   specificationVersion: string | undefined
   info: InfoObject | AsyncApiInfoObject | undefined
@@ -76,6 +78,16 @@ const { level: headingLevel } = useDocumentOutline('document')
                 :info="info" />
             </template>
           </SectionHeader>
+          <dl
+            v-if="documentType === 'asyncapi' && applicationIdentifier"
+            class="mb-3 text-base">
+            <dt class="text-c-2">
+              {{ translate('asyncapi.applicationIdentifier') }}
+            </dt>
+            <dd class="font-code text-c-1 [overflow-wrap:anywhere]">
+              {{ applicationIdentifier }}
+            </dd>
+          </dl>
           <SectionColumns>
             <SectionColumn>
               <slot name="download-link" />

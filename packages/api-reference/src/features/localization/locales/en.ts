@@ -53,6 +53,7 @@ export const en = {
     termsOfService: 'Terms of Service',
   },
   asyncapi: {
+    applicationIdentifier: 'Application identifier',
     servers: 'Servers',
     protocols: 'Protocols',
   },

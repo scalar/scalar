@@ -106,6 +106,8 @@ Behind the scenes the document is converted to the latest 3.x version (for examp
 
 ## What renders
 
+When the document includes a root `id`, the introduction displays it as **Application identifier**, separately from the application title, API version, and AsyncAPI specification version. URNs and URLs are displayed as selectable text.
+
 The reference renders the AsyncAPI document grouped by channel. For each channel you'll see:
 
 - The channel title (or address) and description.
