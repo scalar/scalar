@@ -133,6 +133,8 @@ When no message example contains a payload, Scalar generates a representative pa
 
 Generation supports native JSON Schema payloads and JSON Schema or AsyncAPI Schema wrappers. Other schema formats, such as Avro, and boolean payload schemas do not generate examples. Generated values illustrate the payload structure; they are not guaranteed to satisfy every JSON Schema constraint.
 
+The server selector shows each server title alongside its connection URL, falling back to the server map key when no title is provided. The selected server also shows its summary, protocol version, and description when provided. Selection and variable updates continue to use the server map key.
+
 ## Filtering by protocol and server
 
 When a document defines more than one protocol or server, **filter pickers** appear at the top of the sidebar, stacked beneath the document picker and working just like it:

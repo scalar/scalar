@@ -25,17 +25,24 @@ const { translate } = useLocalization()
 
 /**
  * AsyncAPI servers are a named map without a single `url`, so we key options by
- * the server name and label them with the constructed connection URL.
+ * the server name even when their human-friendly titles or URLs are identical.
  */
+const getServerLabel = (server: AsyncApiServerEntry): string =>
+  `${server.title?.trim() || server.name} · ${server.url.replace(/\/$/, '')}`
+
 const serverOptions = computed(() =>
   servers.map((server) => ({
     id: server.name,
-    label: server.url,
+    label: getServerLabel(server),
   })),
 )
 
 const serverUrlWithoutTrailingSlash = computed(
   () => selectedServer?.url?.replace(/\/$/, '') || '',
+)
+
+const selectedServerLabel = computed(() =>
+  selectedServer ? getServerLabel(selectedServer) : '',
 )
 
 const selectedServerOption = computed(() =>
@@ -66,7 +73,7 @@ defineExpose({
       variant="ghost">
       <span class="sr-only">{{ translate('server.label') }}:</span>
       <span class="overflow-x-auto">
-        {{ serverUrlWithoutTrailingSlash || translate('server.select') }}
+        {{ selectedServerLabel || translate('server.select') }}
       </span>
       <ScalarIconCaretDown
         class="text-c-2 ui-open:rotate-180 mt-0.25 size-3 transition-transform duration-100"
@@ -77,6 +84,6 @@ defineExpose({
     v-else
     class="text-c-1 flex h-auto w-full items-center gap-0.75 !rounded-b-xl px-3 py-1.5 text-base leading-[20px] whitespace-nowrap">
     <span class="sr-only">{{ translate('server.label') }}:</span>
-    <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
+    <span class="overflow-x-auto">{{ selectedServerLabel }}</span>
   </div>
 </template>

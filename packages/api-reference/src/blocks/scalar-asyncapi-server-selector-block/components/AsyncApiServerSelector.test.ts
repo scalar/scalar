@@ -1,4 +1,4 @@
-import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
+import { type AsyncApiServerEntry, getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -112,6 +112,72 @@ describe('AsyncApiServerSelector', () => {
       value: 'staging',
     })
     emit.mockRestore()
+  })
+
+  it('renders metadata from a referenced server and updates it with the selection', async () => {
+    const servers = getAsyncApiServers(
+      {
+        asyncapi: '3.1.0',
+        'x-scalar-original-document-hash': '',
+        info: { title: 'Events', version: '1.0.0' },
+        servers: {
+          production: {
+            $ref: '#/components/servers/broker',
+            '$ref-value': {
+              host: 'broker.example.com',
+              protocol: 'mqtt',
+              protocolVersion: '5.0',
+              title: 'Production broker',
+              summary: 'Public event stream',
+              description: 'Connect with **TLS**.',
+            },
+          },
+          staging: {
+            host: 'staging.example.com',
+            protocol: 'amqp',
+            protocolVersion: '0-9-1',
+            title: 'Staging broker',
+            summary: 'Preview event stream',
+          },
+        },
+      },
+      { webSocketOnly: false },
+    )
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: { servers, selectedServer: servers[0]!, eventBus },
+    })
+
+    expect(wrapper.text()).toContain('Production broker · mqtt://broker.example.com')
+    expect(wrapper.text()).toContain('MQTT 5.0')
+    expect(wrapper.text()).toContain('Public event stream')
+    expect(wrapper.find('strong').text()).toBe('TLS')
+
+    await wrapper.setProps({ selectedServer: servers[1] })
+
+    expect(wrapper.text()).toContain('Staging broker · amqp://staging.example.com')
+    expect(wrapper.text()).toContain('AMQP 0-9-1')
+    expect(wrapper.text()).toContain('Preview event stream')
+    expect(wrapper.text()).not.toContain('Public event stream')
+    expect(wrapper.text()).not.toContain('MQTT 5.0')
+    expect(wrapper.text()).not.toContain('Connect with')
+  })
+
+  it('omits empty metadata and treats summaries as plain text', async () => {
+    const server = createEntry({
+      name: 'production',
+      url: 'mqtt://broker.example.com',
+      server: { host: 'broker.example.com', protocol: 'mqtt', summary: '**Plain summary**', protocolVersion: ' ' },
+    })
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: { servers: [server], selectedServer: server, eventBus },
+    })
+
+    expect(wrapper.text()).toContain('**Plain summary**')
+    expect(wrapper.find('strong').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('MQTT')
+
+    await wrapper.setProps({ selectedServer: { ...server, server: { ...server.server, summary: '  ' } } })
+    expect(wrapper.text()).toBe('ServerServer:production · mqtt://broker.example.com')
   })
 
   it('handles a null selectedServer gracefully', () => {
