@@ -85,7 +85,7 @@ const { level: headingLevel } = useDocumentOutline('document')
           </SectionHeader>
           <dl
             v-if="showApplicationIdentifier"
-            class="mb-3 text-base">
+            class="mb-3 flex flex-col gap-1 text-base">
             <dt class="text-c-2">
               {{ translate('asyncapi.applicationIdentifier') }}
             </dt>
