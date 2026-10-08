@@ -566,6 +566,37 @@ app.MapScalarApiReference(options =>
 
 Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
 
+### Localization
+
+Translate the API Reference interface and embedded API Client:
+
+```csharp
+app.MapScalarApiReference(options => options.WithLocalization(new ScalarLocalizationOptions
+{
+    Locale = "de"
+}));
+```
+
+Use `Direction = TextDirection.Auto` to derive text direction from the locale, or override it with `TextDirection.LeftToRight` or `TextDirection.RightToLeft`. Omitted direction also follows the locale. Regional locale values use the browser's fallback rules; unknown locales fall back to English.
+
+Override individual labels using a `System.Text.Json.Nodes.JsonObject`. For example:
+
+```csharp
+options.WithLocalization(new ScalarLocalizationOptions
+{
+    Locale = "de",
+    Translations = new System.Text.Json.Nodes.JsonObject
+    {
+        ["operation"] = new System.Text.Json.Nodes.JsonObject
+        {
+            ["testRequest"] = "Anfrage ausprobieren"
+        }
+    }
+});
+```
+
+Overrides merge with the selected locale and English fallback. Embedded client overrides go under `apiClient`. This translates interface labels, not the content of your API description. See [Localization](../../localization.md) for supported locales and translation keys.
+
 ### Assets
 
 Scalar uses local assets by default. To load assets from a different location:

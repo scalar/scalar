@@ -16,6 +16,16 @@ namespace Scalar.AspNetCore;
 public static partial class ScalarOptionsExtensions
 {
     /// <summary>
+    /// Controls the UI locale, text direction, and translation overrides for the API Reference and embedded API Client.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="localization">The value to set.</param>
+    public static TOptions WithLocalization<TOptions>(this TOptions options, ScalarLocalizationOptions localization) where TOptions : ScalarOptions
+    {
+        options.Localization = localization;
+        return options;
+    }
+    /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>
     /// <param name="options">The options to configure.</param>
