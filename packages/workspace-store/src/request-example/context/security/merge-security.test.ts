@@ -81,7 +81,7 @@ describe('mergeSecurity', () => {
     },
   )
 
-  it.each(['configured', 'configuration-only', 'configured-without-name'] as const)(
+  it.each(['configured', 'configuration-only'] as const)(
     'restoring the %s default releases the name override and retains the token',
     async (source) => {
       const store = createWorkspaceStore()
@@ -97,9 +97,7 @@ describe('mergeSecurity', () => {
       const document = store.workspace.documents[documentSlug]
       assert(isOpenApiDocument(document))
       const mutators = authMutatorsFactory({ store, document })
-      const configuredSchemes: AuthenticationConfiguration['securitySchemes'] = {
-        key: source === 'configured-without-name' ? { type: 'apiKey', in: 'header' } : { ...scheme },
-      }
+      const configuredSchemes: AuthenticationConfiguration['securitySchemes'] = { key: { ...scheme } }
       store.auth.setAuthSecrets(documentSlug, 'key', { type: 'apiKey', 'x-scalar-secret-token': 'secret' })
       for (const name of ['', 'X-Key']) {
         mutators.updateSecurityScheme({ name: 'key', payload: { type: 'apiKey', name } }, configuredSchemes)
@@ -118,6 +116,87 @@ describe('mergeSecurity', () => {
       expect(document.components?.securitySchemes).toStrictEqual(source === 'configuration-only' ? {} : { key: scheme })
     },
   )
+
+  it('writes name edits to the document when the configuration does not supply a name', async () => {
+    const store = createWorkspaceStore()
+    const scheme = { type: 'apiKey', in: 'header', name: 'X-Key' } as const
+    await store.addDocument({
+      name: documentSlug,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'API key', version: '1.0.0' },
+        components: { securitySchemes: { key: scheme } },
+      },
+    })
+    const document = store.workspace.documents[documentSlug]
+    assert(isOpenApiDocument(document))
+    // A configuration that only pre-fills the token leaves the name to the document.
+    const configuredSchemes: AuthenticationConfiguration['securitySchemes'] = {
+      key: { type: 'apiKey', in: 'header', value: 'secret' },
+    }
+
+    authMutatorsFactory({ store, document }).updateSecurityScheme(
+      { name: 'key', payload: { type: 'apiKey', name: 'X-Edited' } },
+      configuredSchemes,
+    )
+
+    expect(document.components?.securitySchemes).toStrictEqual({ key: { ...scheme, name: 'X-Edited' } })
+    expect(store.auth.getAuthSecrets(documentSlug, 'key')).toBeUndefined()
+    expect(
+      mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
+    ).toStrictEqual({ ...scheme, name: 'X-Edited', value: 'secret', 'x-scalar-secret-token': 'secret' })
+  })
+
+  it('does not write secrets when a document name is edited without an override', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: documentSlug,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'API key', version: '1.0.0' },
+        components: { securitySchemes: { key: { type: 'apiKey', in: 'header', name: 'X-Key' } } },
+      },
+    })
+    const document = store.workspace.documents[documentSlug]
+    assert(isOpenApiDocument(document))
+    const mutators = authMutatorsFactory({ store, document })
+
+    for (const name of ['X', 'X-', 'X-E']) {
+      mutators.updateSecurityScheme({ name: 'key', payload: { type: 'apiKey', name } }, {})
+    }
+
+    expect(store.auth.getAuthSecrets(documentSlug, 'key')).toBeUndefined()
+  })
+
+  it('ignores a name override once the scheme is no longer configured', async () => {
+    const store = createWorkspaceStore()
+    const scheme = { type: 'apiKey', in: 'header', name: 'X-Key' } as const
+    await store.addDocument({
+      name: documentSlug,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'API key', version: '1.0.0' },
+        components: { securitySchemes: { key: scheme } },
+      },
+    })
+    const document = store.workspace.documents[documentSlug]
+    assert(isOpenApiDocument(document))
+    const configuredSchemes: AuthenticationConfiguration['securitySchemes'] = { key: { ...scheme, name: 'X-Api-Key' } }
+    store.auth.setAuthSecrets(documentSlug, 'key', { type: 'apiKey', 'x-scalar-secret-token': 'secret' })
+    authMutatorsFactory({ store, document }).updateSecurityScheme(
+      { name: 'key', payload: { type: 'apiKey', name: 'X-Custom' } },
+      configuredSchemes,
+    )
+    expect(
+      mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
+    ).toStrictEqual({ ...scheme, name: 'X-Custom', 'x-scalar-secret-token': 'secret' })
+
+    // The persisted override must not outlive the configuration it overrode.
+    expect(mergeSecurity(document.components?.securitySchemes, {}, store.auth, documentSlug).key).toStrictEqual({
+      ...scheme,
+      'x-scalar-secret-token': 'secret',
+    })
+  })
 
   it('persists a document scheme whose name matches an inherited configuration property', () => {
     const document = {
