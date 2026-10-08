@@ -1,12 +1,12 @@
 # Best MCP server generators (2026)
 
-*Last updated: September 2026*
+*Last updated: October 2026*
 
 An MCP server generator takes an API description, usually an OpenAPI document, and produces a Model Context Protocol server that exposes your endpoints as tools an AI agent can call, and the options worth evaluating in September 2026 are Scalar, Speakeasy (Gram and its open-source generator), FastMCP, openapi-mcp-generator, the AWS Labs OpenAPI MCP server, Bump.sh, and liblab.
 
 If you searched for "MCP server generator" you may have landed on a Stainless page first. That page is still live and still invites you to sign up, but Stainless [announced in May 2026](https://www.stainless.com/blog/stainless-is-joining-anthropic/) that it is joining Anthropic, winding down its hosted products, and closing new signups. This page is meant to be the current answer instead.
 
-It is written by Scalar, which hosts MCP servers and is on this list. Every claim about another tool links to its own documentation or repository, checked on 26 September 2026. New to the protocol? Start with [what is MCP](/learn/mcp/what-is-mcp).
+It is written by Scalar, which hosts MCP servers and is on this list. Every claim about another tool links to its own documentation or repository, checked on 26 September 2026 and re-checked for Stainless, Speakeasy, Postman, and Scalar pricing on 7 October 2026. New to the protocol? Start with [what is MCP](/learn/mcp/what-is-mcp); to write a server by hand instead, see [how to build an MCP server](/learn/mcp/build-mcp-server).
 
 ## Three shapes of MCP server generator
 
@@ -60,7 +60,7 @@ claude mcp add \
 
 Speakeasy offers two different things, and they are easy to confuse.
 
-**Gram (hosted).** Gram is Speakeasy's managed MCP platform, now part of what it calls the AI control plane. You [upload an OpenAPI document](https://www.speakeasy.com/docs/mcp/build/toolsets/create-default-toolset) and Gram generates a hosted server from it, or you write tools in TypeScript with [Gram Functions](https://www.speakeasy.com/blog/release-gram-functions). Gram's [source](https://github.com/speakeasy-api/gram) is public under AGPL-3.0. Speakeasy's [pricing page](https://www.speakeasy.com/pricing) lists a single "Tailored" enterprise plan.
+**Hosted MCP (formerly Gram).** Speakeasy's managed MCP platform launched as Gram in [September 2025](https://www.speakeasy.com/blog/release-gram-beta) and is now marketed as its AI control plane and MCP gateway, hosted at `app.getgram.ai`. You [import an OpenAPI document](https://www.speakeasy.com/docs/ai-control-plane/mcp-gateway/building-servers/openapi), curate the server, and connect a client to its hosted MCP URL, or write tools in TypeScript with [Gram Functions](https://www.speakeasy.com/blog/release-gram-functions). The Gram [source](https://github.com/speakeasy-api/gram) is public under AGPL-3.0. Speakeasy's [pricing page](https://www.speakeasy.com/pricing) lists a single "Tailored" enterprise plan, and the free tier announced at the beta launch no longer appears on any Speakeasy page we could find, so treat hosted pricing as unpublished.
 
 **The generator (code).** Speakeasy's MCP server generator produces a TypeScript server you deploy yourself, with [Cloudflare Workers configuration and Anthropic desktop extension (.dxt) output](https://www.speakeasy.com/docs/standalone-mcp/overview), and tool names, descriptions, and scoping controlled through OpenAPI extensions. On 17 September 2026 it was [released under AGPL-3.0](https://www.speakeasy.com/blog/partnering-with-google) together with Speakeasy's SDK generators.
 
@@ -155,6 +155,12 @@ Stainless [generated MCP servers as code](https://www.stainless.com/docs/mcp/) a
 
 Several docs platforms, including Mintlify, Fern, and Scalar, offer an MCP server that searches your documentation. That is useful, but it is a different thing. Mintlify's server, for example, [provides search, docs filesystem, and feedback tools](https://www.mintlify.com/docs/ai/model-context-protocol); it does not call your API endpoints. If you want agents to take actions through your API, you need one of the tools above.
 
+## Also not quite a generator: Postman and API gateways
+
+Postman's [MCP generator](https://learning.postman.com/docs/postman-ai/mcp-servers/generate) builds a server from public APIs you pick in the Postman API Network, not from your own OpenAPI document; Postman's product page says generating servers for internal APIs goes through its Agent Mode, which it labels as beta. Its remote server at `mcp.postman.com` lets agents manage Postman resources, not call your API.
+
+API gateways are the other route. Kong, Azure API Management, Apigee, AWS (through AgentCore Gateway), Tyk, WSO2, and Zuplo can each expose the APIs they already proxy as MCP tools. If your API sits behind one of them, that may be the shortest path; [best API management platforms (2026)](/library/best-api-management-platforms-2026) lists which tiers include it. [How to host an MCP server](/learn/mcp/host-mcp-server) compares gateway-hosted, managed, and self-deployed options.
+
 ## When to pick something other than Scalar
 
 - **The server must run inside your own network or VPC.** Use generated code (Speakeasy's generator, openapi-mcp-generator) or a runtime server (AWS Labs, FastMCP).
@@ -193,4 +199,4 @@ Either the server holds one credential and uses it for every call, or each user 
 
 ---
 
-*Tool status, licences, and prices are taken from each vendor's public announcements, pricing pages, documentation, and GitHub repositories as of 26 September 2026, and are linked inline. GitHub star counts were read the same day. This page is written by Scalar, which hosts MCP servers and has a working relationship with Speakeasy. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+*Tool status, licences, and prices are taken from each vendor's public announcements, pricing pages, documentation, and GitHub repositories as of 26 September 2026, and are linked inline; the Stainless announcement, Speakeasy's AGPL-3.0 release and hosted-product naming, Postman's generator inputs, and Scalar's pricing were re-checked on 7 October 2026. GitHub star counts were read on 26 September 2026. This page is written by Scalar, which hosts MCP servers and has a working relationship with Speakeasy. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*

@@ -27,6 +27,8 @@ Read them in this order if you are new to OpenAPI. Each article stands on its ow
 11. [Spectral rules](/learn/openapi/spectral-rules): how Spectral rulesets work, which built-in rules matter, and how to write your own.
 12. [API catalog](/learn/openapi/api-catalog): keeping track of every API in an organization with a catalog or registry.
 
+For the wider picture, the [API management guides](/learn/api-management) separate lifecycle tooling from the runtime gateway and cover [API governance](/learn/api-management/api-governance) end to end.
+
 ## Using the document
 
 13. [What is an API client?](/learn/openapi/what-is-an-api-client): tools for sending and testing requests, and how they import OpenAPI documents.

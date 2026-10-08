@@ -100,10 +100,12 @@ For who is allowed to connect—public, team, or specific customers via access g
 
 ## Billing
 
-MCP usage is metered differently depending on which surface is being hit:
+Both MCP surfaces draw on the Agent Scalar credits included in your plan: 50 on Free, 500 on Pro, 2,000 on Business, and custom usage on Enterprise. One credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 tokens, as listed on the [pricing page](/pricing).
 
-- **Docs MCP** queries are billed as [Agent messages](./pricing.md#keys), at the same rate as the in-docs Ask AI widget. You can review the breakdown on the billing usage page in the dashboard.
-- **Installation MCP** requests are not billed today. A credits system is in progress that will unify billing across docs chat, API chat, and MCP tools.
+- **Docs MCP** queries are metered as Docs chat messages, at the same rate as the in-docs Ask AI widget.
+- **Installation MCP** requests are metered as MCP tool calls.
+
+You can review the breakdown on the billing usage page in the dashboard. Hosted MCP servers themselves are included on Pro and above, so the Free plan's credits apply to the Docs MCP only.
 
 ## Rate Limiting and Abuse Protection
 
@@ -143,7 +145,7 @@ Only if you allow it. Each operation is set to Search, which only lets the agent
 
 <scalar-detail title="What does it cost?">
 
-Hosted MCP servers are part of the Pro, Business, and Enterprise plans. Installation MCP requests are not billed today, and Docs MCP queries count as Agent messages. See [Billing](#billing) above and [pricing](/pricing).
+Hosted MCP servers are part of the Pro, Business, and Enterprise plans. Usage draws on the Agent Scalar credits in your plan, where one credit covers 200 MCP tool calls or 2 Docs chat messages. See [Billing](#billing) above and [pricing](/pricing).
 
 </scalar-detail>
 

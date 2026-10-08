@@ -1,12 +1,14 @@
 # MCP OAuth: how MCP authentication works
 
-*Last updated: September 2026*
+*Last updated: October 2026*
 
 MCP OAuth is the authorization flow defined by the Model Context Protocol specification, in which an MCP client gets an OAuth 2.1 access token for a remote MCP server by discovering the server's authorization server through protected resource metadata (RFC 9728) and then running an authorization code flow with PKCE. The user signs in through a browser, the client stores the token, and every request to the MCP server carries it as a bearer token.
 
 The point of the design is that a client and a server that have never heard of each other can still complete a secure sign-in with nothing but the server's URL. No API keys pasted into JSON files, no manual app registration, and access that the user can revoke.
 
-This article walks through the flow step by step using the current specification, shows what the discovery documents look like on a real server, and covers the mistakes that break MCP authentication in practice.
+To add OAuth to an MCP server, you do not build a login system. Your server becomes an OAuth resource server: it publishes a small metadata document naming your existing authorization server, answers unauthenticated requests with `401` and a `WWW-Authenticate` header that points at that document, and validates the bearer token on every request, including that the token was issued for this server. The official SDKs ship helpers for each step, and there is a tested example below.
+
+This article walks through the flow step by step using the current specification, shows what the discovery documents look like on a real server, shows how to add the flow to your own server, and covers the mistakes that break MCP authentication in practice. Most confusion comes from mixing up two separate layers, how a client authenticates to the MCP server and how the MCP server authenticates to your API, so the article keeps them apart throughout.
 
 **On this page**
 
@@ -18,6 +20,7 @@ This article walks through the flow step by step using the current specification
 - [Scopes and step-up authorization](#scopes-and-step-up-authorization)
 - [Token rules: audience, passthrough and refresh](#token-rules-audience-passthrough-and-refresh)
 - [A real example: inspecting a Scalar MCP server](#a-real-example-inspecting-a-scalar-mcp-server)
+- [How to add OAuth to your own MCP server](#how-to-add-oauth-to-your-own-mcp-server)
 - [API keys, OAuth and the two layers of MCP auth](#api-keys-oauth-and-the-two-layers-of-mcp-auth)
 - [Common mistakes](#common-mistakes)
 - [Frequently asked questions](#frequently-asked-questions)
@@ -243,6 +246,124 @@ Reading it against the table earlier: RFC 9728 discovery, RFC 8414 path-insertio
 
 What the user sees is simpler. Their client opens a browser on Scalar's sign-in page, they sign in with an email one-time code or through SSO, Scalar checks their email against the installation's [access groups](/products/agent/authentication/customer-access), and the client receives a token. No Scalar dashboard access is granted, only the MCP server. You can brand that page with a login portal.
 
+## How to add OAuth to your own MCP server
+
+If you host the server yourself, the work is on the resource server side only. You need an authorization server that already exists (Auth0, Okta, Keycloak, Entra ID, or your own), advertises PKCE, and can issue tokens whose audience is your MCP server's URL. Then your server has to do three things:
+
+1. Serve the RFC 9728 protected resource metadata at `/.well-known/oauth-protected-resource/<path>`, naming the authorization server.
+2. Reject requests without a valid bearer token with `401` and a `WWW-Authenticate` header that carries `resource_metadata`.
+3. Validate each token: signature or introspection, expiry, scopes, and that it was issued for this server.
+
+The TypeScript SDK v2 (`@modelcontextprotocol/server`) has a helper for each step. This example runs on Node.js with the `@modelcontextprotocol/node` adapter; the handler itself is web-standard, so the same code works on Cloudflare Workers, Deno, and Bun without the adapter. We ran it on 7 October 2026 with the versions listed at the end of the page.
+
+```ts
+import { createServer } from 'node:http'
+import { toNodeHandler } from '@modelcontextprotocol/node'
+import {
+  McpServer,
+  OAuthError,
+  OAuthErrorCode,
+  createMcpHandler,
+  getOAuthProtectedResourceMetadataUrl,
+  oauthMetadataResponse,
+  requireBearerAuth,
+  type AuthInfo,
+  type AuthMetadataOptions,
+} from '@modelcontextprotocol/server'
+import * as z from 'zod/v4'
+
+// The public URL of this MCP server. Tokens must be issued for exactly this resource.
+const serverUrl = new URL(process.env.MCP_SERVER_URL ?? 'http://localhost:3000/mcp')
+
+// Your existing OAuth 2.1 authorization server. The MCP server only points at it.
+const authMetadata: AuthMetadataOptions = {
+  resourceServerUrl: serverUrl,
+  scopesSupported: ['orders:read'],
+  oauthMetadata: {
+    issuer: 'https://auth.example.com',
+    authorization_endpoint: 'https://auth.example.com/authorize',
+    token_endpoint: 'https://auth.example.com/token',
+    response_types_supported: ['code'],
+    code_challenge_methods_supported: ['S256'],
+  },
+}
+
+// Replace this with real validation: JWT signature and claims, or RFC 7662 introspection.
+const verifier = {
+  verifyAccessToken: async (token: string): Promise<AuthInfo> => {
+    if (token !== process.env.DEMO_TOKEN) {
+      throw new OAuthError(OAuthErrorCode.InvalidToken, 'Unknown token')
+    }
+    return {
+      token,
+      clientId: 'demo-client',
+      scopes: ['orders:read'],
+      expiresAt: Math.floor(Date.now() / 1000) + 3600,
+      resource: serverUrl,
+    }
+  },
+}
+
+const gate = requireBearerAuth({
+  verifier,
+  requiredScopes: ['orders:read'],
+  expectedResource: serverUrl,
+  resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(serverUrl),
+})
+
+const mcp = createMcpHandler(() => {
+  const server = new McpServer({ name: 'orders', version: '1.0.0' })
+  server.registerTool(
+    'get_order',
+    { description: 'Fetch one order by its ID.', inputSchema: z.object({ orderId: z.string() }) },
+    async ({ orderId }) => ({ content: [{ type: 'text', text: `order ${orderId}` }] }),
+  )
+  return server
+})
+
+const handler = toNodeHandler({
+  fetch: async (request: Request): Promise<Response> => {
+    // 1. Serve the discovery documents at /.well-known/...
+    const discovery = oauthMetadataResponse(request, authMetadata)
+    if (discovery) return discovery
+    // 2. Require a valid bearer token; failures become 401/403 with WWW-Authenticate
+    const auth = await gate(request)
+    if (auth instanceof Response) return auth
+    // 3. Serve MCP with the verified identity attached
+    return mcp.fetch(request, { authInfo: auth })
+  },
+})
+
+createServer((request, response) => handler(request, response)).listen(3000, '127.0.0.1')
+```
+
+With `DEMO_TOKEN=secret123 npx tsx oauth-server.ts` running, an unauthenticated `tools/list` gets the challenge that starts the client's discovery:
+
+```http
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer error="invalid_token", error_description="Missing Authorization header",
+                         scope="orders:read",
+                         resource_metadata="http://localhost:3000/.well-known/oauth-protected-resource/mcp"
+```
+
+The protected resource metadata names the authorization server and the scopes:
+
+```json
+{
+  "resource": "http://localhost:3000/mcp",
+  "authorization_servers": ["https://auth.example.com"],
+  "scopes_supported": ["orders:read"]
+}
+```
+
+And the same request with `Authorization: Bearer secret123` returns the tool list. Three things the example leaves to you, deliberately:
+
+- **Token validation.** The demo compares a string. A real verifier checks a JWT signature against the authorization server's JWKS, or calls its introspection endpoint, and fills `expiresAt`, `scopes`, and `resource` from the token's claims. The `expectedResource` option then enforces audience binding for you.
+- **Client registration.** That is the authorization server's job. Make sure it supports Client ID Metadata Documents or Dynamic Client Registration, or pre-register the clients you expect.
+- **HTTPS.** The example allows a plain `http://localhost` resource for testing; the metadata helper refuses a non-HTTPS issuer, and production needs TLS everywhere.
+
+In Python, the official SDK's `MCPServer` takes `auth=AuthSettings(...)` with a `token_verifier`, and its Streamable HTTP app serves the same discovery documents and challenges. The [Python SDK documentation](https://py.sdk.modelcontextprotocol.io/) covers it. And if you would rather not run any of this, Scalar's hosted servers implement the whole flow for an OpenAPI-described API, as the previous section showed.
+
 ## API keys, OAuth and the two layers of MCP auth
 
 When people say "MCP authentication" they often mean two different things, and mixing them up causes most design mistakes.
@@ -298,8 +419,8 @@ Installations are private by default. When a client connects, it discovers Scala
 
 ## Related
 
-- **Learn:** [Remote MCP servers](/learn/mcp/remote-mcp-servers) · [What is MCP?](/learn/mcp/what-is-mcp) · [Generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi) · [OpenAPI security schemes](/learn/openapi/openapi-security-schemes)
+- **Learn:** [How to host an MCP server](/learn/mcp/host-mcp-server) · [Remote MCP servers](/learn/mcp/remote-mcp-servers) · [How to build an MCP server](/learn/mcp/build-mcp-server) · [Generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi) · [OpenAPI security schemes](/learn/openapi/openapi-security-schemes)
 - **Docs:** [MCP authentication](/products/agent/authentication) · [Private access for customers](/products/agent/authentication/customer-access)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers with OAuth, access groups and branded sign-in
 
-*Specification details refer to MCP revision 2026-07-28. The Scalar metadata shown was retrieved on 26 September 2026 and trimmed for length; the client_id, code and verifier values in the flow examples are illustrative.*
+*Specification details refer to MCP revision 2026-07-28 and were re-checked against modelcontextprotocol.io on 7 October 2026, when 2026-07-28 was still the current revision. The Scalar metadata shown was retrieved on 26 September 2026 and trimmed for length; the client_id, code and verifier values in the flow examples are illustrative. The resource server example was run on 7 October 2026 with @modelcontextprotocol/server 2.3.1, @modelcontextprotocol/node 2.1.1 and zod 4.6.5 on Node.js 24.21.0.*
