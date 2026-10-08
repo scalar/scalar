@@ -1,5 +1,5 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
+import { type VueWrapper, enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import DataTableInput from './DataTableInput.vue'
@@ -237,6 +237,31 @@ describe('DataTableInput', () => {
     })
   })
 
+  describe('clear button', () => {
+    it('moves focus to the masked field after clearing a revealed secret', async () => {
+      wrapper = mount(DataTableInput, {
+        attachTo: document.body,
+        props: {
+          modelValue: 'secret',
+          type: 'password',
+          environment: mockEnvironment,
+          'onUpdate:modelValue': (value: string | number) => wrapper.setProps({ modelValue: String(value) }),
+        },
+      })
+
+      const button = (label: string) =>
+        wrapper.findAllComponents({ name: 'ScalarIconButton' }).find((btn) => btn.props('label') === label)
+
+      await button('Show Password')?.trigger('click')
+      await button('Clear Value')?.trigger('click')
+      await flushPromises()
+
+      // The clear button is gone, so focus lands on the field instead of the page
+      expect(button('Clear Value')).toBeUndefined()
+      expect(document.activeElement).toBe(wrapper.get('input').element)
+    })
+  })
+
   describe('visibility toggle button', () => {
     it('shows visibility toggle button when type is password', () => {
       wrapper = mount(DataTableInput, {
@@ -304,6 +329,75 @@ describe('DataTableInput', () => {
 
       // The name stays put so the button keeps one identity; only the state flips.
       expect(toggleButton()?.attributes('aria-pressed')).toBe('true')
+    })
+
+    it('hides the visibility toggle while the field is empty', async () => {
+      wrapper = mount(DataTableInput, {
+        props: {
+          modelValue: '',
+          type: 'password',
+          environment: mockEnvironment,
+        },
+      })
+
+      const toggleButton = () =>
+        wrapper.findAllComponents({ name: 'ScalarIconButton' }).find((btn) => btn.props('label') === 'Show Password')
+
+      expect(toggleButton()).toBeUndefined()
+
+      await wrapper.setProps({ modelValue: 'secret' })
+
+      expect(toggleButton()?.exists()).toBe(true)
+    })
+
+    it('masks the field again once its value is cleared', async () => {
+      wrapper = mount(DataTableInput, {
+        props: {
+          modelValue: 'secret',
+          type: 'password',
+          environment: mockEnvironment,
+        },
+      })
+
+      const toggleButton = () =>
+        wrapper.findAllComponents({ name: 'ScalarIconButton' }).find((btn) => btn.props('label') === 'Show Password')
+
+      await toggleButton()?.trigger('click')
+      expect(toggleButton()?.attributes('aria-pressed')).toBe('true')
+
+      await wrapper.setProps({ modelValue: '' })
+      await wrapper.setProps({ modelValue: 'pasted-secret' })
+
+      expect(toggleButton()?.attributes('aria-pressed')).toBe('false')
+      expect(wrapper.findComponent({ name: 'CodeInputLite' }).exists()).toBe(false)
+    })
+
+    it('keeps the revealed editor while the field is emptied by typing', async () => {
+      wrapper = mount(DataTableInput, {
+        attachTo: document.body,
+        props: {
+          modelValue: 'secret',
+          type: 'password',
+          environment: mockEnvironment,
+        },
+      })
+
+      const toggleButton = () =>
+        wrapper.findAllComponents({ name: 'ScalarIconButton' }).find((btn) => btn.props('label') === 'Show Password')
+
+      await toggleButton()?.trigger('click')
+      const editor = wrapper.get<HTMLElement>('[contenteditable]').element
+      editor.focus()
+
+      // Deleting the last character must not swap the editor out from under the caret
+      await wrapper.setProps({ modelValue: '' })
+      expect(wrapper.findComponent({ name: 'CodeInputLite' }).exists()).toBe(true)
+      expect(document.activeElement).toBe(editor)
+
+      // Once focus leaves the empty field it masks, so the next value stays hidden
+      editor.blur()
+      await wrapper.setProps({ modelValue: 'next-secret' })
+      expect(toggleButton()?.attributes('aria-pressed')).toBe('false')
     })
 
     it('toggles between masked and unmasked input when clicked', async () => {

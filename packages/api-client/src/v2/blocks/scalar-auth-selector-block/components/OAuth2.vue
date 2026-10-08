@@ -23,6 +23,7 @@ import type {
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import {
+  canResetSecretField,
   isSecretFieldCleared,
   type AuthSecretField,
 } from '@scalar/workspace-store/helpers/auth-secret-fields'
@@ -213,6 +214,30 @@ const handleResetSecret = (field: AuthSecretField): void => {
     flow: type,
     field,
   })
+}
+
+/**
+ * Reset needs a default to restore, otherwise it would only clear the field like the clear
+ * action does. A cleared access token is the exception: the token view stays open while it is
+ * cleared, and Reset is the only way back to the Authorize form.
+ */
+const canReset = (
+  field: AuthSecretField,
+  value: string | undefined,
+): boolean => {
+  if (
+    field === 'x-scalar-secret-token' &&
+    isSecretFieldCleared(flow.value, field)
+  ) {
+    return true
+  }
+  // Without a stored default, resetting the redirect URI re-runs the browser prefill below,
+  // unless the desktop loopback capture computes it at authorize time instead.
+  const fallback =
+    field === 'x-scalar-secret-redirect-uri' && !options.captureOAuth2Callback
+      ? resolveDefaultOAuth2RedirectUri(options)
+      : ''
+  return canResetSecretField(flow.value, field, value, fallback)
 }
 
 /** Fixed-choice fields must never write an empty string into the document. */
@@ -440,7 +465,9 @@ const handleSecretLocationUpdate = (value: string): void => {
     ">
     <DataTableRow>
       <RequestAuthDataTableInput
-        canReset
+        :canReset="
+          canReset('x-scalar-secret-token', flow['x-scalar-secret-token'])
+        "
         class="border-r-transparent"
         :environment
         :modelValue="flow['x-scalar-secret-token']"
@@ -541,7 +568,12 @@ const handleSecretLocationUpdate = (value: string): void => {
     <DataTableRow>
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
-        canReset
+        :canReset="
+          canReset(
+            'x-scalar-secret-auth-url',
+            flow['x-scalar-secret-auth-url'] ?? '',
+          )
+        "
         containerClass="border-r-0"
         :environment
         :modelValue="flow['x-scalar-secret-auth-url'] ?? ''"
@@ -558,7 +590,12 @@ const handleSecretLocationUpdate = (value: string): void => {
 
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
-        canReset
+        :canReset="
+          canReset(
+            'x-scalar-secret-token-url',
+            flow['x-scalar-secret-token-url'] ?? '',
+          )
+        "
         :environment
         :modelValue="flow['x-scalar-secret-token-url'] ?? ''"
         placeholder="https://galaxy.scalar.com/token"
@@ -575,7 +612,12 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow v-if="'x-scalar-secret-redirect-uri' in flow">
       <RequestAuthDataTableInput
-        canReset
+        :canReset="
+          canReset(
+            'x-scalar-secret-redirect-uri',
+            flow['x-scalar-secret-redirect-uri'],
+          )
+        "
         :environment
         :modelValue="flow['x-scalar-secret-redirect-uri']"
         :placeholder="
@@ -600,7 +642,12 @@ const handleSecretLocationUpdate = (value: string): void => {
       ">
       <DataTableRow>
         <RequestAuthDataTableInput
-          canReset
+          :canReset="
+            canReset(
+              'x-scalar-secret-username',
+              flow['x-scalar-secret-username'],
+            )
+          "
           class="text-c-2"
           :environment
           :modelValue="flow['x-scalar-secret-username']"
@@ -615,7 +662,12 @@ const handleSecretLocationUpdate = (value: string): void => {
 
       <DataTableRow>
         <RequestAuthDataTableInput
-          canReset
+          :canReset="
+            canReset(
+              'x-scalar-secret-password',
+              flow['x-scalar-secret-password'],
+            )
+          "
           :environment
           :modelValue="flow['x-scalar-secret-password']"
           placeholder="********"
@@ -631,7 +683,12 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow>
       <RequestAuthDataTableInput
-        canReset
+        :canReset="
+          canReset(
+            'x-scalar-secret-client-id',
+            flow['x-scalar-secret-client-id'],
+          )
+        "
         :environment
         :modelValue="flow['x-scalar-secret-client-id']"
         placeholder="12345"
@@ -645,7 +702,7 @@ const handleSecretLocationUpdate = (value: string): void => {
 
     <DataTableRow v-if="showClientSecret">
       <RequestAuthDataTableInput
-        canReset
+        :canReset="canReset('x-scalar-secret-client-secret', clientSecretValue)"
         :environment
         :modelValue="clientSecretValue"
         placeholder="XYZ123"

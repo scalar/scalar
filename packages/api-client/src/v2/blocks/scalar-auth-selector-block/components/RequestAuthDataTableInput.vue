@@ -2,7 +2,7 @@
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconArrowCounterClockwise } from '@scalar/icons'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { useId } from 'vue'
+import { useId, useTemplateRef } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'
 import { DataTableInput } from '@/v2/components/data-table'
@@ -41,10 +41,22 @@ const { translate } = useLocalization()
  * The masked native input is named the same way.
  */
 const labelId = `${id}-label`
+
+const field = useTemplateRef('field')
+
+/**
+ * Reset hides itself once the value matches the default again, so focus moves to the field
+ * first instead of falling back to the page.
+ */
+const handleReset = (): void => {
+  field.value?.focus()
+  emit('reset')
+}
 </script>
 <template>
   <DataTableInput
     :id="id"
+    ref="field"
     v-bind="$attrs"
     v-model="modelValue"
     :aria-labelledby="labelId"
@@ -69,7 +81,7 @@ const labelId = `${id}-label`
         class="h-6 w-6 self-center p-1.25"
         :icon="ScalarIconArrowCounterClockwise"
         :label="translate('apiClient.dataTableInput.resetValue')"
-        @click="emit('reset')" />
+        @click="handleReset" />
     </template>
   </DataTableInput>
 </template>

@@ -29,6 +29,7 @@ import type {
   SaslObjectSecret,
   SecuritySchemeObjectSecret,
   X509ObjectSecret,
+  XScalarSecretDefaults,
 } from '@/request-example/builder/security/secret-types'
 import type { OAuthFlowDeviceAuthorization } from '@/schemas/v3.2/strict/oauth-flow'
 
@@ -61,36 +62,73 @@ const SECRET_TO_INPUT_FIELD_MAP = {
   'x-scalar-secret-token-url': 'tokenUrl',
 } as const
 
+/**
+ * Keep only the defaults that would restore something. An empty default means Reset could only
+ * clear the field, which the clear action already does, so the key is left off entirely.
+ */
+const withSecretDefaults = (defaults: Partial<Record<AuthSecretField, string>>): XScalarSecretDefaults => {
+  const nonEmpty = Object.fromEntries(
+    Object.entries(defaults).filter(([, value]) => typeof value === 'string' && value !== ''),
+  ) as Partial<Record<AuthSecretField, string>>
+
+  return Object.keys(nonEmpty).length ? { 'x-scalar-secret-defaults': nonEmpty } : {}
+}
+
+/** Only string values count; anything else falls through to the next source. */
+const readString = (source: Record<string, unknown>, key: string): string | undefined => {
+  const value = source[key]
+  return typeof value === 'string' ? value : undefined
+}
+
 const mergeFlowSecrets = <const T extends readonly (keyof typeof SECRET_TO_INPUT_FIELD_MAP)[]>(
   properties: T,
   configSecrets: Record<string, unknown>,
   authStoreSecrets: Record<string, unknown> = {},
   oauth2RedirectUri?: string,
-): Record<T[number], string> & { 'x-scalar-secret-cleared-fields'?: string[] } => {
+  /**
+   * OpenID Connect passes the stored flow as both the config and the auth store, so its
+   * `x-scalar-secret-*` values are the user's own overrides and must not count as defaults.
+   */
+  includeConfigSecretValues = true,
+): Record<T[number], string> & { 'x-scalar-secret-cleared-fields'?: string[] } & XScalarSecretDefaults => {
   const clearedFields = properties.filter((property) => isSecretFieldCleared(authStoreSecrets, property))
+  const defaults: Partial<Record<AuthSecretField, string>> = {}
   const values = Object.fromEntries(
     properties.map((property) => {
       // Preserve explicit clears, while legacy schema-filled empties still inherit defaults.
-      const authStoreValue = typeof authStoreSecrets[property] === 'string' ? authStoreSecrets[property] : undefined
-      const configValue = typeof configSecrets[property] === 'string' ? configSecrets[property] : undefined
-      const configInputValue =
-        typeof configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]] === 'string'
-          ? configSecrets[SECRET_TO_INPUT_FIELD_MAP[property]]
-          : undefined
+      const authStoreValue = readString(authStoreSecrets, property)
+      const configValue = includeConfigSecretValues ? readString(configSecrets, property) : undefined
+      const configInputValue = readString(configSecrets, SECRET_TO_INPUT_FIELD_MAP[property])
 
       // oauth2RedirectUri (top-level config option) is used as a global fallback for the redirect URI,
       // applied only when neither the auth store nor per-scheme config have a value. This ensures
       // the configured redirect URI persists when switching between documents with the same OAuth config,
       // because each document starts with no stored redirect URI (authStoreValue === undefined).
+      const isRedirect = property === 'x-scalar-secret-redirect-uri'
+
+      // The value and its reset target share one fallback, so Reset always restores exactly what the
+      // field shows once the stored override is released.
+      const fallback = isRedirect
+        ? (configValue ?? configInputValue ?? oauth2RedirectUri ?? '')
+        : configValue || configInputValue || ''
+
+      // The redirect URI and explicitly cleared fields keep an empty stored value instead of falling
+      // back. For the redirect URI this is the stored value ahead of the same fallback as above.
       const value =
-        property === 'x-scalar-secret-redirect-uri' || isSecretFieldCleared(authStoreSecrets, property)
+        isRedirect || isSecretFieldCleared(authStoreSecrets, property)
           ? (authStoreValue ?? configValue ?? configInputValue ?? oauth2RedirectUri ?? '')
-          : authStoreValue || configValue || configInputValue || ''
+          : authStoreValue || fallback
+
+      defaults[property] = fallback
 
       return [property, value]
     }),
   ) as Record<T[number], string>
-  return { ...values, ...(clearedFields.length ? { 'x-scalar-secret-cleared-fields': clearedFields } : {}) }
+  return {
+    ...values,
+    ...(clearedFields.length ? { 'x-scalar-secret-cleared-fields': clearedFields } : {}),
+    ...withSecretDefaults(defaults),
+  }
 }
 
 const storedSecret = (secrets: object | undefined, field: AuthSecretField): string | undefined => {
@@ -138,6 +176,7 @@ const extractOAuthFlowSecrets = (
   flows: Record<string, unknown> | undefined,
   storeSecrets?: Partial<SecretsOAuthFlows> | Partial<SecretsOpenIdConnect>,
   oauth2RedirectUri?: string,
+  includeConfigSecretValues = true,
 ): {
   flows: OAuthFlowsObjectSecret
   selectedScopes: string[]
@@ -169,6 +208,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.implicit,
           oauth2RedirectUri,
+          includeConfigSecretValues,
         ),
         ...extractRefreshTokenSecret(storeSecrets?.implicit),
       } satisfies OAuthFlowImplicitSecret
@@ -189,6 +229,8 @@ const extractOAuthFlowSecrets = (
           ],
           flow,
           storeSecrets?.password,
+          undefined,
+          includeConfigSecretValues,
         ),
         ...extractCredentialsLocation(flow, storeSecrets?.password),
         ...extractRefreshTokenSecret(storeSecrets?.password),
@@ -208,6 +250,8 @@ const extractOAuthFlowSecrets = (
           ],
           flow,
           storeSecrets?.clientCredentials,
+          undefined,
+          includeConfigSecretValues,
         ),
         ...extractCredentialsLocation(flow, storeSecrets?.clientCredentials),
         ...extractRefreshTokenSecret(storeSecrets?.clientCredentials),
@@ -227,6 +271,8 @@ const extractOAuthFlowSecrets = (
           ],
           flow,
           storeSecrets?.deviceAuthorization,
+          undefined,
+          includeConfigSecretValues,
         ),
         ...extractCredentialsLocation(flow, storeSecrets?.deviceAuthorization),
         ...extractRefreshTokenSecret(storeSecrets?.deviceAuthorization),
@@ -249,6 +295,7 @@ const extractOAuthFlowSecrets = (
           flow,
           storeSecrets?.authorizationCode,
           oauth2RedirectUri,
+          includeConfigSecretValues,
         ),
         ...extractCredentialsLocation(flow, storeSecrets?.authorizationCode),
         ...extractRefreshTokenSecret(storeSecrets?.authorizationCode),
@@ -275,35 +322,39 @@ export const extractSecuritySchemeSecrets = (
   // Handle API Key security schemes
   if (scheme.type === 'apiKey') {
     const storeSecrets = secrets?.type === 'apiKey' ? secrets : undefined
+    const defaults = {
+      'x-scalar-secret-token': documentSecret(scheme, 'x-scalar-secret-token') || scheme.value || '',
+    }
     return {
       ...scheme,
-      'x-scalar-secret-token':
-        storedSecret(storeSecrets, 'x-scalar-secret-token') ??
-        (documentSecret(scheme, 'x-scalar-secret-token') || scheme.value || ''),
+      'x-scalar-secret-token': storedSecret(storeSecrets, 'x-scalar-secret-token') ?? defaults['x-scalar-secret-token'],
+      ...withSecretDefaults(defaults),
     } satisfies ApiKeyObjectSecret
   }
 
   // Handle HTTP Auth security schemes (e.g., Basic, Bearer)
   if (scheme.type === 'http') {
     const storeSecrets = secrets?.type === 'http' ? secrets : undefined
+    const defaults = {
+      'x-scalar-secret-token': documentSecret(scheme, 'x-scalar-secret-token') || scheme.token || '',
+      'x-scalar-secret-username': documentSecret(scheme, 'x-scalar-secret-username') || scheme.username || '',
+      'x-scalar-secret-password': documentSecret(scheme, 'x-scalar-secret-password') || scheme.password || '',
+    }
     return {
       ...scheme,
-      'x-scalar-secret-token':
-        storedSecret(storeSecrets, 'x-scalar-secret-token') ??
-        (documentSecret(scheme, 'x-scalar-secret-token') || scheme.token || ''),
+      'x-scalar-secret-token': storedSecret(storeSecrets, 'x-scalar-secret-token') ?? defaults['x-scalar-secret-token'],
       'x-scalar-secret-username':
-        storedSecret(storeSecrets, 'x-scalar-secret-username') ??
-        (documentSecret(scheme, 'x-scalar-secret-username') || scheme.username || ''),
+        storedSecret(storeSecrets, 'x-scalar-secret-username') ?? defaults['x-scalar-secret-username'],
       'x-scalar-secret-password':
-        storedSecret(storeSecrets, 'x-scalar-secret-password') ??
-        (documentSecret(scheme, 'x-scalar-secret-password') || scheme.password || ''),
+        storedSecret(storeSecrets, 'x-scalar-secret-password') ?? defaults['x-scalar-secret-password'],
+      ...withSecretDefaults(defaults),
     } satisfies HttpObjectSecret
   }
 
   // Handle OAuth2 security schemes and all supported flows
   if (scheme.type === 'oauth2') {
     const storeSecrets = secrets?.type === 'oauth2' ? secrets : undefined
-    const extracted = extractOAuthFlowSecrets(scheme.flows, storeSecrets, oauth2RedirectUri)
+    const extracted = extractOAuthFlowSecrets(scheme.flows, storeSecrets, oauth2RedirectUri, true)
     const configuredDefaultScopes = Array.isArray(scheme['x-default-scopes'])
       ? scheme['x-default-scopes'].filter((scope): scope is string => typeof scope === 'string')
       : []
@@ -329,6 +380,8 @@ export const extractSecuritySchemeSecrets = (
       },
       storeSecrets,
       oauth2RedirectUri,
+      // The flows above are the stored flows themselves, so only discovered or input keys are defaults
+      false,
     )
 
     return {
