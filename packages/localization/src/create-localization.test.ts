@@ -41,6 +41,46 @@ describe('create-localization', () => {
     expect(resolveLocalization({ locale: 'unknown' }).translations.common.greeting).toBe('Hello')
   })
 
+  it.each(['zh-TW', 'zh-tw', 'ZH-tW', 'zh_TW'])(
+    'selects the regional Chinese dictionary before the language fallback for %s',
+    (locale) => {
+      const chinese = createLocalization<Translations, Key>({
+        localeTranslations: {
+          en,
+          'zh-CN': { common: { greeting: '你好' }, schema: { save: '保存 {name}' } },
+          'zh-TW': { common: { greeting: '您好' }, schema: { save: '儲存 {name}' } },
+        },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+
+      const resolved = chinese.resolveLocalization({ locale })
+
+      expect(resolved.locale).toBe(locale)
+      expect(resolved.direction).toBe('ltr')
+      expect(resolved.translations.schema.save).toBe('儲存 {name}')
+      expect(
+        chinese.resolveLocalization({ locale, translations: { common: { greeting: '自訂' } } }).translations,
+      ).toStrictEqual({ common: { greeting: '自訂' }, schema: { save: '儲存 {name}' } })
+    },
+  )
+
+  it.each(['zh', 'zh-CN', 'zh-cn', 'zh_Hans', 'zh-Hant', 'zh-HK', 'zh-MO', 'zh-TW'])(
+    'preserves the Simplified Chinese fallback for %s when no regional dictionary matches',
+    (locale) => {
+      const chinese = createLocalization<Translations, Key>({
+        localeTranslations: {
+          en,
+          'zh-CN': { common: { greeting: '你好' }, schema: { save: '保存 {name}' } },
+        },
+        defaultLocale: 'en',
+        rtlLocales: new Set(),
+      })
+
+      expect(chinese.resolveLocalization({ locale }).translations.schema.save).toBe('保存 {name}')
+    },
+  )
+
   it('merges custom overrides on top of the built-in locale', () => {
     const resolved = resolveLocalization({
       locale: 'de',
