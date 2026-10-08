@@ -12,10 +12,7 @@ const NO_LISTENERS = Object.freeze({})
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  isDynamicRef,
-  resolveDynamicRef,
-} from '@scalar/workspace-store/helpers/dynamic-ref'
+import { isDynamicRef } from '@scalar/workspace-store/helpers/dynamic-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type {
   DiscriminatorObject,
@@ -37,7 +34,7 @@ import {
 
 import CopyLinkButton from './components/CopyLinkButton.vue'
 import WithBreadcrumb from './components/WithBreadcrumb.vue'
-import { resolveDynamicSchema, useDynamicScope } from './helpers/dynamic-scope'
+import { resolveDynamicSchema } from './helpers/dynamic-scope'
 import {
   getCompositionsToRender,
   inferDiscriminatorMappingComposition,
@@ -128,14 +125,11 @@ const props = withDefaults(
 /** Composition keywords that hold a list of schemas and can be flattened when they contain a single member. */
 const SINGLE_ITEM_COMPOSITIONS = ['oneOf', 'anyOf', 'allOf'] as const
 
-/** The dynamic scope inherited from the enclosing schema resources, used to bind `$dynamicRef`s. */
-const dynamicScope = useDynamicScope()
-
 /**
  * Simplified composition with `null` type.
  *
  * A top-level `$dynamicRef` (e.g. a linked-list `next` node) is bound to its concrete type via the
- * dynamic scope first; for ordinary schemas this is a no-op.
+ * magic proxy first; for ordinary schemas this is a no-op.
  *
  * The value is unwrapped here as well as at the `Schema` root, because callers such as
  * `ParameterListItem` and `Headers` hand a schema in below a root and would otherwise leave the
@@ -143,9 +137,7 @@ const dynamicScope = useDynamicScope()
  */
 const optimizedValue = computed(() =>
   normalizeObjectComposition(
-    optimizeValueForDisplay(
-      resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
-    ),
+    optimizeValueForDisplay(resolveDynamicSchema(unwrapForRead(props.schema))),
     props.name,
   ),
 )
@@ -208,8 +200,8 @@ const hasBreadcrumbLink = computed(
 /**
  * The array schema used for item inspection, with a `$dynamicRef` item bound to its concrete type.
  *
- * Returns the schema unchanged unless `items` is a `$dynamicRef` that resolves against the dynamic
- * scope, so ordinary arrays (including `$ref` items) keep their existing behavior exactly.
+ * Returns the schema unchanged unless `items` is a `$dynamicRef` that the magic proxy resolves via
+ * `$dynamicRef-value`, so ordinary arrays (including `$ref` items) keep their existing behavior exactly.
  */
 const arrayValueWithBoundItems = computed(() => {
   const value = optimizedValue.value
@@ -217,8 +209,12 @@ const arrayValueWithBoundItems = computed(() => {
     return value
   }
 
-  const bound = resolveDynamicRef(value.items.$dynamicRef, dynamicScope)
-  return bound ? ({ ...value, items: bound } as SchemaObject) : value
+  // `resolveDynamicSchema` reads the proxy's `$dynamicRef-value`; it returns the item unchanged when the
+  // reference cannot be bound, so ordinary arrays keep their existing behavior exactly.
+  const bound = resolveDynamicSchema(value.items)
+  return bound !== value.items
+    ? ({ ...value, items: bound } as SchemaObject)
+    : value
 })
 
 /** Checks if array items have complex structure */
