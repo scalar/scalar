@@ -7,6 +7,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import type { TraversedDocument } from '@/schemas/navigation'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -34,6 +35,37 @@ const fixture = () => ({
 })
 
 describe('asyncapi-chunks', () => {
+  it('loads channel-only navigation and referenced message payloads without fetching operations', async () => {
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'events', document: { ...fixture(), operations: undefined } }],
+    })
+    const requests: string[] = []
+    const client = createWorkspaceStore({
+      fetch: async (url) => {
+        requests.push(String(url))
+        return new Response(JSON.stringify(await server.get(String(url))), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+    })
+    await client.addDocument({ name: 'events', document: server.getWorkspace().documents.events! })
+    client.update('x-scalar-active-document', 'events')
+    await client.resolve(['x-scalar-navigation'])
+    const document = client.workspace.activeDocument
+    assert(isAsyncApiDocument(document))
+    const navigation: TraversedDocument | undefined = document['x-scalar-navigation']
+    const channels = navigation?.children?.filter((entry) => entry.type === 'asyncapi-channel')
+    expect(channels?.map((entry) => entry.channelName)).toStrictEqual(['selected', 'unrelated'])
+    expect(channels?.[0]?.children?.map((entry) => entry.type)).toStrictEqual(['asyncapi-message'])
+    await client.resolve(['channels', 'selected'])
+    const channel = getResolvedRef(document.channels?.selected)
+    expect(getResolvedRef(channel?.messages?.event)?.title).toBe('Shared event')
+    expect(getValueAtPath(getResolvedRef(getResolvedRef(document.components)?.schemas?.Node), ['type'])).toBe('object')
+    expect(requests.filter((url) => url.includes('/operations/'))).toStrictEqual([])
+  })
+
   it.each(['user:created', 'a/b~c', 'literal%2F?#'])(
     'resolves SSR chunks with reserved characters in %s',
     async (name) => {

@@ -3,6 +3,7 @@ import {
   ALL,
   type AsyncApiReachabilityContext,
   createReachabilityContext,
+  getChannelReachability,
   getOperationReachability,
 } from '@scalar/workspace-store/channel-example'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -28,8 +29,8 @@ const selectionMatches = (reachable: Set<string>, selected: string | undefined):
  * Filters one navigation entry against the selected protocol/server.
  *
  * - `asyncapi-operation` — kept only when the operation matches both filters.
- * - `asyncapi-channel` / `tag` — recursed into, then dropped when they have no
- *   children left (so empty channels and tags disappear from the sidebar).
+ * - Channels without operations are matched using their own server availability.
+ * - Channels / tags are recursed into and dropped when filtering removes all children.
  * - Everything else (description, models, schemas) passes through unchanged.
  *
  * `context` carries the document-level lookups so they are built once per filter
@@ -59,6 +60,17 @@ const filterEntry = (
     const keep = selectionMatches(protocols, filter.protocol) && selectionMatches(serverNames, filter.server)
 
     return keep ? entry : null
+  }
+
+  if (entry.type === 'asyncapi-channel' && !entry.children?.some((child) => child.type === 'asyncapi-operation')) {
+    const channelNode = document.channels?.[entry.channelName]
+    if (channelNode) {
+      const channel = getResolvedRef(channelNode, mergeSiblingReferences)
+      const { protocols, serverNames } = getChannelReachability(document, channel, context)
+      if (!selectionMatches(protocols, filter.protocol) || !selectionMatches(serverNames, filter.server)) {
+        return null
+      }
+    }
   }
 
   if (entry.type === 'asyncapi-channel' || entry.type === 'tag') {

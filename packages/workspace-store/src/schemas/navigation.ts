@@ -159,7 +159,7 @@ export type TraversedAsyncApiChannel = BaseSchema & {
   channelName: string
   /** Channel address for display and routing */
   channelAddress: string
-  /** Operations on the channel */
+  /** Operations on the channel, or messages when it has no operations. */
   children?: TraversedEntry[]
 }
 

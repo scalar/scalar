@@ -14,6 +14,7 @@ export type OutlineRole =
   | 'modelGroup'
   | 'operation'
   | 'model'
+  | 'channelMessage'
   | 'message'
   | 'operationSection'
 
@@ -33,6 +34,7 @@ const OUTLINE: Record<OutlineRole, number> = {
   modelGroup: 2,
   operation: 3,
   model: 3,
+  channelMessage: 3,
   message: 4,
   /** A titled group inside an operation: Body, Responses, Query Parameters */
   operationSection: 4,

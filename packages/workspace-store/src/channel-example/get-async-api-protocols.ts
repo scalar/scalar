@@ -1,6 +1,6 @@
 import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
-import type { AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 
@@ -118,9 +118,17 @@ export const getOperationReachability = (
   context: AsyncApiReachabilityContext = createReachabilityContext(document),
 ): OperationReachability => {
   const channel = resolveOperationChannel(document, operation)?.channel ?? null
-  const channelServerNames = getChannelServerNames(document, channel)
+  return getChannelReachability(document, channel, context)
+}
 
-  // A channel without declared servers is reachable on every server.
+/** Returns the servers and protocols available to a channel without requiring an operation. */
+export const getChannelReachability = (
+  document: AsyncApiDocument,
+  channel: AsyncApiChannelObject | null,
+  context: AsyncApiReachabilityContext = createReachabilityContext(document),
+): OperationReachability => {
+  // AsyncAPI makes channels with absent or empty server lists available on every server.
+  const channelServerNames = channel?.servers?.length ? getChannelServerNames(document, channel) : undefined
   const serverNames = channelServerNames
     ? new Set([...channelServerNames].filter((name) => context.allServerNames.has(name)))
     : new Set(context.allServerNames)

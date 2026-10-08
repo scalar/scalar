@@ -114,6 +114,8 @@ The reference renders the AsyncAPI document grouped by channel. For each channel
 - Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, and summary/description.
 - Each **message** under its operation, shown as a collapsible accordion. The message header shows **protocol** labels for every protocol it's carried over — its channel's server protocols unioned with any protocols it declares its own `bindings` for. Expanding a message reveals its description and its **headers** and **payload** schemas. Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
 
+Channels remain visible when no operation references them. Their messages appear directly beneath the channel, with the same schemas, examples, and navigation links as operation messages. Channels without messages remain visible too. Channels whose operations are all hidden with `x-internal` or `x-scalar-ignore` remain hidden.
+
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 
 Rendering works in both the `modern` and `classic` layouts.
@@ -142,7 +144,7 @@ When a document defines more than one protocol or server, **filter pickers** app
 - **Protocol** — shown when the servers use more than one `protocol` (for example a `wss` WebSocket server alongside an `mqtt` or `kafka` server). Selecting a protocol hides operations that aren't reachable over a server using it.
 - **Server** — shown when the document defines more than one server. Selecting a server hides operations whose channel isn't reachable through it.
 
-Both filters operate on the navigation tree itself: operations that don't match are hidden, and any channel or tag left empty is dropped. Channels that declare no `servers` are treated as available on every server (and therefore every protocol). Choosing **All protocols** / **All servers** clears that filter, and the filters reset when you switch documents.
+Both filters operate on the navigation tree itself: operations that do not match are hidden, and their channel or tag is dropped when filtering removes all its children. Channels without operations are filtered using their own server availability, including channels without messages. Channels with an absent or empty `servers` list are treated as available on every server (and therefore every protocol). Choosing **All protocols** / **All servers** clears that filter, and the filters reset when you switch documents.
 
 Each picker is only shown when there is more than one option to choose from.
 

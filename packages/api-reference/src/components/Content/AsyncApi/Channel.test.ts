@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import Channel from './Channel.vue'
+import Message from './Message.vue'
 
 function createChannel(overrides: Partial<TraversedAsyncApiChannel> = {}): TraversedAsyncApiChannel {
   return {
@@ -40,6 +41,39 @@ function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDo
 }
 
 describe('Channel', () => {
+  it.each(['modern', 'classic'] as const)('renders and expands direct messages in the %s layout', (layout) => {
+    const id = 'doc/channel/userSignedUp/message/signup'
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel({
+          children: [
+            { type: 'asyncapi-message', id, title: 'Signup', messageName: 'signup', channelName: 'userSignedUp' },
+          ],
+        }),
+        document: createDocumentWithChannel({
+          address: 'user/signedup',
+          messages: {
+            signup: {
+              title: 'Signup',
+              description: 'A new account',
+              payload: { type: 'string' },
+              examples: [{ payload: 'alice' }],
+            },
+          },
+        }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        expandedItems: { [id]: true },
+      },
+    })
+    expect(wrapper.getComponent(Message).props('expandedItems')).toStrictEqual({ [id]: true })
+    expect(wrapper.getComponent(Message).get('h2').text()).toBe('Signup')
+    expect(wrapper.text()).toContain('A new account')
+    expect(wrapper.text()).toContain('alice')
+    expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
+  })
+
   // These mount a Channel on its own, so it is the top of its page and its
   // heading is an h1. Inside a full reference it resolves to h2 — see
   // features/document-outline.
