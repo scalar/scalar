@@ -44,6 +44,8 @@ internal sealed class ScalarConfiguration
 
     public required DefaultHttpClient? DefaultHttpClient { get; init; }
 
+    public required string[]? FeaturedClients { get; init; }
+
     /// <remarks>
     /// This could be a dictionary of <see cref="ScalarTarget" /> and <see cref="ScalarClient" /> arrays or a boolean if all clients are hidden.
     /// </remarks>
