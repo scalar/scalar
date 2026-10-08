@@ -1,5 +1,5 @@
 ---
-'@scalar/api-reference': patch
+'@scalar/blocks': patch
 '@scalar/json-magic': minor
 '@scalar/workspace-store': patch
 ---
@@ -8,6 +8,8 @@ Resolve JSON Schema 2020-12 `$dynamicRef` inside the magic proxy. The proxy now 
 
 Rendering also binds a `$dynamicRef` that is an object property (not only array items) to its concrete type, so those properties no longer show up unresolved.
 
-Expose the dynamic-reference accessor through `@scalar/workspace-store/resolve` so API Reference does not depend directly on json-magic at runtime.
+Expose the dynamic-reference accessor through `@scalar/workspace-store/resolve` so the schema renderer does not depend directly on json-magic at runtime.
 
 Resolve references declared directly on a schema resource against that resource’s own anchors, including when the resource has no matching anchor.
+
+The bookend for a `$dynamicRef` is looked up in the whole resource that holds it, so a template with unrelated `$defs` still binds. A schema reached through a `$ref` contributes its own anchors even when the path passed through an `$id` resource, which keeps recursive references (such as a `User` with `friends`) bound. Dynamic references added to a document after it was first read (lazily loaded chunks, client edits) now resolve too, and request examples bookend the same way as the rendered schema.
