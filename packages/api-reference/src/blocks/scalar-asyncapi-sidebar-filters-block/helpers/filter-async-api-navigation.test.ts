@@ -72,7 +72,14 @@ describe('filterAsyncApiNavigation', () => {
       ],
     },
   ])('filters channels without operations by server and protocol with children %j', ({ children }) => {
-    const channels = entries.map((entry) => ({ ...entry, children }))
+    const channels = entries.map((entry) => ({
+      ...entry,
+      children: children.map((child) =>
+        child.type === 'asyncapi-message' && entry.type === 'asyncapi-channel'
+          ? { ...child, channelName: entry.channelName }
+          : child,
+      ),
+    }))
     expect(channelIds(filterAsyncApiNavigation(channels, document, { protocol: 'mqtt' }))).toStrictEqual(['mqttEvents'])
     expect(channelIds(filterAsyncApiNavigation(channels, document, { server: 'websocket' }))).toStrictEqual(['wsChat'])
     expect(filterAsyncApiNavigation(channels, document, { protocol: 'mqtt', server: 'websocket' })).toStrictEqual([])

@@ -69,7 +69,8 @@ describe('Channel', () => {
       },
     })
     expect(wrapper.getComponent(Message).props('expandedItems')).toStrictEqual({ [id]: true })
-    expect(wrapper.getComponent(Message).get('h2').text()).toBe('Signup')
+    expect(wrapper.findAllComponents(Message).length).toBe(1)
+    expect(wrapper.getComponent(Message).get('h3').text()).toBe('Signup')
     expect(wrapper.text()).toContain('A new account')
     expect(wrapper.text()).toContain('alice')
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)

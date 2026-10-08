@@ -227,7 +227,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :specificationExtension="specificationExtension">
           <template #title>Parameters</template>
         </ParameterList>
-            <Operation
+        <Operation
           v-for="operation in operations"
           :key="operation.id"
           :document="document"
