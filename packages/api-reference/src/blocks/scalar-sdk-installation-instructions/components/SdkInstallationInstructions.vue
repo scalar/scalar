@@ -211,7 +211,7 @@ const focusTab = (index: number) => {
 const onTabKeydown = (event: KeyboardEvent, index: number) => {
   const lastVisible = visibleCount.value - 1
 
-  let next = index
+  let next: number
   switch (event.key) {
     case 'ArrowRight':
     case 'ArrowDown':
