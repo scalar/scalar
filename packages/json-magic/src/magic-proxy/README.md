@@ -4,11 +4,13 @@
 
 ## Scan cost
 
-Reference indexing (`getSchemas`) already walks the document when the root proxy is created. The added `containsDynamicRef` probe is separate and lazy. It runs at most once per root proxy, when traversal first reaches a candidate resource with `$id`, `$defs`, or `$dynamicAnchor`. The result is shared with all descendant proxies, including a negative result.
+Reference indexing (`getSchemas`) already walks the document when the root proxy is created. Dynamic scoping adds no second document-wide walk. Instead, when traversal reaches a candidate resource (a schema with `$id`, `$defs`, or `$dynamicAnchor`), the proxy collects that resource's `$dynamicAnchor` declarations. The collection is cached per resource object, so each candidate is scanned at most once.
 
-A document without those keywords never runs the added probe. A document with `$id` or `$defs` but no `$dynamicRef` can pay for one extra full document scan. It then keeps the ordinary cache. The benchmark covers both cases; absence of dynamic references does not mean zero overhead.
+A document without those keywords never scans anything extra. A document with `$id` or `$defs` but no dynamic anchors pays for one scan per candidate resource and keeps the ordinary cache. The benchmark covers both cases; absence of dynamic references does not mean zero overhead.
 
-An unrelated `$dynamicRef` does not activate scoped caching for anchor-free resources. The scope starts only when a candidate resource actually contains a dynamic anchor. After that, resource boundaries remain in the scope even without a matching anchor, so resolution respects bookending.
+The scope starts only when a candidate resource actually contains a dynamic anchor, so anchor-free resources keep their shared proxy identity. After that, resource boundaries remain in the scope even without a matching anchor, so resolution respects bookending. Whether a schema is inside an explicit `$id` resource is decided by where it is written, not by the path that reached it: a schema reached through a `$ref` contributes its own anchors and `$defs` to the scope.
+
+There is deliberately no memoized "does this document use `$dynamicRef`" answer. The store adds content to a live document (lazily loaded chunks, client edits), and a cached negative answer would leave references added later permanently unresolved.
 
 ## Cache lifetime and size
 
@@ -28,7 +30,7 @@ Results are local measurements, not CI thresholds or a general claim about all A
 
 ### Local comparison
 
-Measured on macOS arm64 with Node 24.8.0 and Vitest 4.1.10. The comparison uses the proxy from the PR merge-base (`94091b585f`) and PR head (`14b3381fde`), with the remaining store/renderer code held at the PR version. Temporary source aliases avoid stale installed workspace builds. A selector delegates proxy creation to the relevant implementation, and raw unwrapping supports both implementations; baseline and PR measurements alternate order in the same process. Each row is the median of ten samples after four warm-up pairs.
+These figures were measured before the document-wide probe was replaced with per-resource anchor scans; treat them as indicative. Measured on macOS arm64 with Node 24.8.0 and Vitest 4.1.10. The comparison uses the proxy from the PR merge-base (`94091b585f`) and PR head (`14b3381fde`), with the remaining store/renderer code held at the PR version. Temporary source aliases avoid stale installed workspace builds. A selector delegates proxy creation to the relevant implementation, and raw unwrapping supports both implementations; baseline and PR measurements alternate order in the same process. Each row is the median of ten samples after four warm-up pairs.
 
 | Resource keywords | Operation                          | Base (ms) | PR (ms) | Change |
 | ----------------- | ---------------------------------- | --------: | ------: | -----: |
@@ -53,4 +55,4 @@ pnpm vitest bench --run --config packages/blocks/vite.config.ts packages/blocks/
 
 The benchmark suite uses Vitest's timed sampling and reports means; the alternating comparison above reports medians. Do not compare those statistics as if they were the same measurement.
 
-The dynamic-reference probe and anchor collections are snapshots for the lifetime of their proxy/resource view. Editing `$dynamicRef`, `$dynamicAnchor`, or resource boundaries after the first lookup does not invalidate them; recreate the root proxy after those structural edits. Anchor collections are isolated by traversal mode and resource view so an example builder cannot populate the proxy resolver's cache with values bound to another scope.
+Anchor collections are snapshots for the lifetime of their resource object. New content added to the document (for example a lazily bundled chunk) is picked up, because it arrives as new objects. Editing `$dynamicAnchor` or `$id` inside a resource that has already been scanned does not invalidate its collection; recreate the root proxy after those structural edits. Anchor collections are isolated by traversal mode and resource view so an example builder cannot populate the proxy resolver's cache with values bound to another scope.
