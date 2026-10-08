@@ -1060,19 +1060,19 @@ describe('sidebar footer call to action', () => {
   it('renders the Explore Scalar button on localhost without an MCP config', async () => {
     const wrapper = await mountFooter()
 
-    expect(footerOf(wrapper)).toEqual({ explore: 'Explore Scalar', mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
   })
 
   it('renders the Explore Scalar button on localhost when mcp is an empty object', async () => {
     const wrapper = await mountFooter({ mcp: {} })
 
-    expect(footerOf(wrapper)).toEqual({ explore: 'Explore Scalar', mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
   })
 
   it('renders the Explore Scalar button on localhost even when hideClientButton is true', async () => {
     const wrapper = await mountFooter({ hideClientButton: true })
 
-    expect(footerOf(wrapper)).toEqual({ explore: 'Explore Scalar', mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
   })
 
   it('keeps the MCP rows on localhost when an MCP name or url is configured', async () => {
@@ -1115,7 +1115,7 @@ describe('sidebar footer call to action', () => {
     const html = await renderToString(app)
 
     expect(html).toContain('Open API Client')
-    expect(html).not.toContain('Explore Scalar')
+    expect(html).not.toContain('Generate SDKs & MCP')
     expect(html).not.toContain('scalar-mcp-layer')
   })
 })

@@ -171,7 +171,7 @@ export const de = {
     unknownError: 'Ein unbekannter Fehler ist aufgetreten',
   },
   exploreScalar: {
-    explore: 'Scalar entdecken',
+    cta: 'SDKs & MCP generieren',
     headline: 'SDKs, MCPs & Docs für deine API sofort generieren',
     title: 'Alles, was deine API braucht, aus einem OpenAPI-Dokument',
     generateTitle: 'SDKs & MCP-Server',

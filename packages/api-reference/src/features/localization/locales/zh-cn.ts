@@ -166,7 +166,7 @@ export const zhCn = {
     unknownError: '发生未知错误',
   },
   exploreScalar: {
-    explore: '探索 Scalar',
+    cta: '生成 SDK 和 MCP',
     headline: '为你的 API 即时生成 SDK、MCP 和文档',
     title: '一份 OpenAPI 文档，满足你的 API 所需的一切',
     generateTitle: 'SDK 与 MCP 服务器',

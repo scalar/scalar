@@ -339,7 +339,7 @@ const modalState: ModalState = reactive({
           aria-haspopup="dialog"
           class="explore-scalar-cta text-sidebar-c-1 bg-b-1.5 from-b-1 to-b-2 relative z-10 flex h-[31px] items-center justify-center bg-linear-to-b px-3.5 text-sm font-medium whitespace-nowrap hover:bg-linear-to-t dark:bg-linear-to-t dark:hover:bg-linear-to-b"
           type="button">
-          {{ translate('exploreScalar.explore') }}
+          {{ translate('exploreScalar.cta') }}
         </button>
       </div>
     </div>
@@ -382,20 +382,30 @@ const modalState: ModalState = reactive({
 }
 /*
  * The gradient button is the trigger itself, in both states, so its background never animates.
- * Its hairline is transparent while it fills the card, where the card's own border already
- * draws that line, and takes the border colour once it is a pill. The 1px specular highlight
- * of the gradient recipe rides along in the same shadow.
+ * Nothing theme-coloured is ever transitioned here either, so switching light and dark mode
+ * swaps every colour instantly: the 1px specular highlight of the gradient recipe is a static
+ * shadow, and the hairline lives on a pseudo-element that only fades by opacity. It is faded
+ * out while the trigger fills the card, where the card's own border already draws that line,
+ * and in once it is a pill.
  */
 .explore-scalar-cta {
   flex: 1 1 auto;
   border-radius: var(--scalar-radius);
-  box-shadow:
-    inset 0 0 0 var(--scalar-border-width) transparent,
-    inset 0 1px 0 0 var(--explore-highlight);
+  box-shadow: inset 0 1px 0 0 var(--explore-highlight);
   transition:
     flex-grow 240ms var(--explore-ease-in),
-    box-shadow 200ms var(--explore-ease-in),
     border-radius 240ms var(--explore-ease-in);
+}
+.explore-scalar-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Follows the trigger's corners frame by frame while they animate */
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms var(--explore-ease-in);
 }
 .explore-scalar-card :deep(.explore-scalar-sticker),
 .explore-scalar-headline {
@@ -427,13 +437,13 @@ const modalState: ModalState = reactive({
 .explore-scalar-card[data-expanded] .explore-scalar-cta {
   flex-grow: 0;
   border-radius: var(--scalar-radius-full);
-  box-shadow:
-    inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color),
-    inset 0 1px 0 0 var(--explore-highlight);
   transition:
     flex-grow 360ms var(--explore-ease-out),
-    box-shadow 200ms var(--explore-ease-out),
     border-radius 360ms var(--explore-ease-out);
+}
+.explore-scalar-card[data-expanded] .explore-scalar-cta::after {
+  opacity: 1;
+  transition: opacity 200ms var(--explore-ease-out);
 }
 .explore-scalar-card[data-expanded] :deep(.explore-scalar-sticker),
 .explore-scalar-card[data-expanded] .explore-scalar-headline {
@@ -461,7 +471,8 @@ const modalState: ModalState = reactive({
 
 /* Instant: a morph lays the card out synchronously, expanded before the close and collapsed inside the open */
 .explore-scalar-card[data-instant],
-.explore-scalar-card[data-instant] :deep(*) {
+.explore-scalar-card[data-instant] :deep(*),
+.explore-scalar-card[data-instant] .explore-scalar-cta::after {
   transition-duration: 0s !important;
   transition-delay: 0s !important;
 }
@@ -469,7 +480,8 @@ const modalState: ModalState = reactive({
 /* There is no global reduced-motion rule in the repo, so the card declares its own */
 @media (prefers-reduced-motion: reduce) {
   .explore-scalar-card,
-  .explore-scalar-card :deep(*) {
+  .explore-scalar-card :deep(*),
+  .explore-scalar-card .explore-scalar-cta::after {
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
   }

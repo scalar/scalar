@@ -170,7 +170,7 @@ export const es = {
     unknownError: 'Se produjo un error desconocido',
   },
   exploreScalar: {
-    explore: 'Explorar Scalar',
+    cta: 'Genera SDKs y MCP',
     headline: 'Genera SDKs, MCPs y docs para tu API al instante',
     title: 'Todo lo que tu API necesita, a partir de un solo documento OpenAPI',
     generateTitle: 'SDKs y servidores MCP',

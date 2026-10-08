@@ -583,7 +583,8 @@ export type ApiReferenceTranslations = {
     unknownError: string
   }
   exploreScalar: {
-    explore: string
+    /** The sidebar call to action that opens the dialog */
+    cta: string
     headline: string
     title: string
     generateTitle: string

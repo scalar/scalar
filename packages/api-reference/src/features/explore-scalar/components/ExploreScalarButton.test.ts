@@ -153,7 +153,7 @@ describe('ExploreScalarButton', () => {
 
     // A native button, so Enter and Space activate it without extra key handling
     expect(trigger.attributes('type')).toBe('button')
-    expect(trigger.text()).toBe('Explore Scalar')
+    expect(trigger.text()).toBe('Generate SDKs & MCP')
     expect(trigger.attributes('aria-haspopup')).toBe('dialog')
     expect(trigger.attributes('aria-expanded')).toBeUndefined()
 

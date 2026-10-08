@@ -171,7 +171,7 @@ export const ru = {
     unknownError: 'Произошла неизвестная ошибка',
   },
   exploreScalar: {
-    explore: 'Изучить Scalar',
+    cta: 'Создать SDK и MCP',
     headline: 'Мгновенно создавайте SDK, MCP и документацию для вашего API',
     title: 'Всё, что нужно вашему API, из одного документа OpenAPI',
     generateTitle: 'SDK и MCP-серверы',

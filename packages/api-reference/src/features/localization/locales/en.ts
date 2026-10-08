@@ -170,7 +170,7 @@ export const en = {
     unknownError: 'An unknown error occurred',
   },
   exploreScalar: {
-    explore: 'Explore Scalar',
+    cta: 'Generate SDKs & MCP',
     headline: 'Instantly generate SDKs, MCPs & docs for your API',
     title: 'Everything your API needs, from one OpenAPI document',
     generateTitle: 'SDKs & MCP servers',

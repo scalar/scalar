@@ -166,7 +166,7 @@ export const ar = {
     unknownError: 'حدث خطأ غير معروف',
   },
   exploreScalar: {
-    explore: 'استكشف Scalar',
+    cta: 'أنشئ SDK وMCP',
     headline: 'أنشئ SDKs وMCPs ووثائق لواجهة API الخاصة بك فورًا',
     title: 'كل ما تحتاجه واجهة API الخاصة بك، من مستند OpenAPI واحد',
     generateTitle: 'SDKs وخوادم MCP',
