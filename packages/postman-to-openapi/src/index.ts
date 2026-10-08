@@ -1,3 +1,3 @@
-export { type ConvertOptions, convert, type PostmanRequestIndexPath, type TagNamingStrategy } from './convert'
-export { isPostmanCollection } from './is-postman-collection'
+export { type ConvertOptions, type PostmanRequestIndexPath, type TagNamingStrategy, convert } from './convert'
 export { extractPathFromUrl, normalizePath } from './helpers/urls'
+export { isPostmanCollection } from './is-postman-collection'

@@ -1,14 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
 import {
-  consoleWarnSpy,
   consoleErrorSpy,
-  resetConsoleSpies,
-  enableConsoleWarn,
+  consoleWarnSpy,
+  disableConsoleError,
   disableConsoleWarn,
   enableConsoleError,
-  disableConsoleError,
-  isConsoleWarnEnabled,
+  enableConsoleWarn,
   isConsoleErrorEnabled,
+  isConsoleWarnEnabled,
+  resetConsoleSpies,
 } from './console-spies'
 
 describe('console spies', () => {

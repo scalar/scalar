@@ -1,6 +1,7 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import fs from 'node:fs'
 import path from 'node:path'
+
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it, test } from 'vitest'
 
 import { convert } from './convert'

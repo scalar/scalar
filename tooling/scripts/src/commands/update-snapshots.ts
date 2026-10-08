@@ -1,8 +1,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { getWorkspaceRoot } from '@/helpers'
 import { Command } from 'commander'
+
+import { getWorkspaceRoot } from '@/helpers'
 
 export const updateTestSnapshots = new Command('update-snapshots')
   .description('Update the snapshot files')

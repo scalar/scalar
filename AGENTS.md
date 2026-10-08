@@ -544,7 +544,7 @@ Use consistent terminology:
 
 ### Lint and format
 
-- `pnpm lint:check` runs Biome on all TS files. This is the primary lint command.
+- `pnpm lint:check` checks Biome lint, formatting, and import organization, then checks Vue ESLint errors. Warnings remain advisory.
 - For Vue files: `pnpm lint:vue` (ESLint).
 - For formatting: `pnpm format:check` (Prettier + Biome format).
 

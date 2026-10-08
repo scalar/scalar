@@ -1,6 +1,7 @@
-import { getEntrypoint } from '@/utils/get-entrypoint'
 import type { Queue, Task } from '@/types/index'
 import { details as detailsUtility } from '@/utils/details'
+import { getEntrypoint } from '@/utils/get-entrypoint'
+
 import { workThroughQueue } from '../utils/workThroughQueue'
 
 /**
