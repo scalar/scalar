@@ -47,6 +47,8 @@ describe('AsyncApiServerSelector', () => {
         server: {
           host: `${name}.example.com`,
           protocol: 'mqtt',
+          protocolVersion: '5.0',
+          summary: `${name} event stream`,
           externalDocs: { url: `https://example.com/${name}`, description: `**${name}** guide` },
           tags: [{ name: 'Broker', externalDocs: { url: `https://example.com/${name}-tag` } }],
         },
@@ -63,6 +65,8 @@ describe('AsyncApiServerSelector', () => {
       'https://example.com/staging-tag',
     ])
     expect(wrapper.get('a').text()).toBe('**staging** guide')
+    expect(wrapper.text()).toContain('staging event stream')
+    expect(wrapper.text()).toContain('MQTT 5.0')
   })
 
   it('renders the server label', () => {

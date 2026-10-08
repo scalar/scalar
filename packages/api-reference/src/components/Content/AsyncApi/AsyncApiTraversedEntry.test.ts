@@ -104,7 +104,10 @@ describe('AsyncApiTraversedEntry', () => {
       expect(urls.sort()).toStrictEqual([
         'https://example.com/channel',
         'https://example.com/channel-tag',
+        // The channel catalog and operation view each retain the message's documentation.
         'https://example.com/message',
+        'https://example.com/message',
+        'https://example.com/message-tag',
         'https://example.com/message-tag',
         'https://example.com/model',
         'https://example.com/operation',
