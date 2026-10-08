@@ -19,6 +19,11 @@ public partial class ScalarOptions
     internal List<ScalarDocument> Documents { get; } = [];
 
     /// <summary>
+    /// Controls the UI locale, text direction, and translation overrides for the API Reference and embedded API Client.
+    /// </summary>
+    public ScalarLocalizationOptions? Localization { get; set; }
+
+    /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>
     public string? Favicon { get; set; } = "favicon.svg";
