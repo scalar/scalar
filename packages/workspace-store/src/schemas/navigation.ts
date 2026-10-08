@@ -4,9 +4,10 @@ import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import type { LiteralUnion } from 'type-fest'
 
 import { compose } from '@/schemas/compose'
+import type { ExternalDocumentationObject } from '@/schemas/v3.2/strict/external-documentation'
 import type { InfoObject } from '@/schemas/v3.2/strict/info'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
-import { TraversedEntryObjectRef } from '@/schemas/v3.2/strict/ref-definitions'
+import { ExternalDocumentationObjectRef, TraversedEntryObjectRef } from '@/schemas/v3.2/strict/ref-definitions'
 import type { SchemaObject } from '@/schemas/v3.2/strict/schema'
 import type { TagObject } from '@/schemas/v3.2/strict/tag'
 
@@ -229,6 +230,7 @@ export const TraversedTagSchemaDefinition = compose(
     type: Type.Literal('tag'),
     name: Type.String(),
     description: Type.Optional(Type.String()),
+    externalDocs: Type.Optional(ExternalDocumentationObjectRef),
     children: Type.Optional(Type.Array(TraversedEntryObjectRef)),
     isGroup: Type.Boolean(),
     isTagGroup: Type.Optional(Type.Boolean()),
@@ -246,6 +248,7 @@ export type TraversedTag = BaseSchema & {
   type: 'tag'
   name: string
   description?: string
+  externalDocs?: ExternalDocumentationObject
   children?: TraversedEntry[]
   isGroup: boolean
   /**

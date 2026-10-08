@@ -133,6 +133,21 @@ describe('InfoBlock', () => {
     expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
   })
 
+  it.each(['modern', 'classic'] as const)('keeps AsyncAPI tag links out of the introduction in %s layout', (layout) => {
+    const wrapper = mountIntroduction(
+      {
+        documentType: 'asyncapi',
+        info: {
+          ...mockInfo,
+          externalDocs,
+          tags: [{ name: 'Orders', externalDocs: { url: 'https://example.com/orders' } }],
+        },
+      },
+      layout,
+    )
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([externalDocs.url])
+  })
+
   it('does not treat an OpenAPI info extension as AsyncAPI external documentation', () => {
     const wrapper = mountIntroduction({ documentType: 'openapi', info: { ...mockInfo, externalDocs } }, 'modern')
     expect(wrapper.find('a').exists()).toBe(false)

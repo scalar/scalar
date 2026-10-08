@@ -155,7 +155,8 @@ const { level: headingLevel } = useDocumentOutline('channel')
         :value="description"
         withImages />
     </template>
-    <AsyncApiDocumentation :owner="resolvedChannel" />
+    <AsyncApiDocumentation
+      :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
       :eventBus="eventBus"
@@ -219,7 +220,8 @@ const { level: headingLevel } = useDocumentOutline('channel')
         <ScalarMarkdown
           :value="description"
           withImages />
-        <AsyncApiDocumentation :owner="resolvedChannel" />
+        <AsyncApiDocumentation
+          :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
         <ParameterList
           v-if="parameters.length"
           :eventBus="eventBus"

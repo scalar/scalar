@@ -123,8 +123,6 @@ Reusable schemas defined under `components.schemas` are rendered in the **Models
 
 Rendering works in both the `modern` and `classic` layouts.
 
-External documentation links appear beside their owning info, server, channel, operation, message, or schema. Links declared on tags appear beside the objects carrying those tags, without changing navigation grouping. Referenced External Documentation Objects are resolved, and their descriptions are retained as link labels, matching the OpenAPI presentation.
-
 <scalar-image
   src="/asyncapi-message.png"
   src-dark="/asyncapi-message-dark.png"

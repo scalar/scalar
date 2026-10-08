@@ -7,6 +7,29 @@ import { h } from 'vue'
 import Tag from './Tag.vue'
 
 describe('Tag', () => {
+  it.each(['modern', 'classic'] as const)('renders documentation in the %s tag section', (layout) => {
+    const wrapper = mount(Tag, {
+      props: {
+        tag: {
+          type: 'tag',
+          id: 'orders',
+          title: 'Orders',
+          name: 'Orders',
+          isGroup: false,
+          externalDocs: { url: 'https://example.com/orders', description: 'Orders guide' },
+        },
+        layout,
+        moreThanOneTag: true,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+    const link = wrapper.get('a')
+    expect(link.attributes('href')).toBe('https://example.com/orders')
+    expect(link.text()).toBe('Orders guide')
+    expect(link.element.closest('button')).toBeNull()
+  })
+
   const mockTag: TraversedTag = {
     type: 'tag',
     id: 'test-tag',

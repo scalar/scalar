@@ -4,12 +4,14 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
 import { Anchor } from '@/components/Anchor'
+import { LinkList } from '@/components/LinkList'
 import {
   SectionContainerAccordion,
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import { ExternalDocs } from '@/features/external-docs'
 
 const { tag, isCollapsed } = defineProps<{
   tag: TraversedTag
@@ -59,6 +61,9 @@ const { level: headingLevel } = useDocumentOutline('tag')
       #actions>
       <slot name="actions" />
     </template>
+    <LinkList v-if="tag.externalDocs">
+      <ExternalDocs :value="tag.externalDocs" />
+    </LinkList>
     <slot />
   </SectionContainerAccordion>
 </template>
