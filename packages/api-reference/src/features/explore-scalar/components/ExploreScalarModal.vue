@@ -291,7 +291,7 @@ const showOverview = (): void => {
               :content="translate('exploreScalar.dmMarc')"
               placement="top-end">
               <a
-                class="bg-b-1 text-c-1 shadow-border hover:bg-b-2 absolute end-1 top-1 flex size-8 items-center justify-center rounded-full"
+                class="text-c-2 shadow-border hover:text-c-1 absolute end-1 top-1 flex size-8 items-center justify-center rounded-full"
                 :href="MARC_X_DM_URL"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -299,7 +299,7 @@ const showOverview = (): void => {
                 @focus="showMarc"
                 @mouseenter="showMarc"
                 @mouseleave="hideMarc">
-                <!-- The X mark itself, in the current text colour -->
+                <!-- The X mark itself, in the current text colour: quiet until hovered -->
                 <svg
                   aria-hidden="true"
                   class="size-3.5"
