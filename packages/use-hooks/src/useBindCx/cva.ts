@@ -34,4 +34,4 @@ const { cva, cx, compose } = defineConfig({
   },
 })
 
-export { cva, cx, compose, tw }
+export { compose, cva, cx, tw }

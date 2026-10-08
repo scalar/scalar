@@ -293,14 +293,6 @@ export const TraversedOperationSchema = module.Import('TraversedOperationObject'
 export const TraversedSchemaSchema = module.Import('TraversedSchemaObject')
 export const TraversedWebhookSchema = module.Import('TraversedWebhookObject')
 
-//  ----- Type re-exports ----
-export type { ExternalDocumentationObject }
-export type { InfoObject }
-export type { PathsObject }
-export type { SecurityRequirementObject }
-export type { ServerObject }
-export type { TagObject }
-
 export type { CallbackObject } from './callback'
 export type { ComponentsObject, SecuritySchemes } from './components'
 export type { ContactObject } from './contact'
@@ -330,3 +322,5 @@ export type {
 } from './security-scheme'
 export type { ServerVariableObject } from './server-variable'
 export type { XMLObject } from './xml'
+//  ----- Type re-exports ----
+export type { ExternalDocumentationObject, InfoObject, PathsObject, SecurityRequirementObject, ServerObject, TagObject }

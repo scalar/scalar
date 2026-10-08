@@ -1,8 +1,8 @@
 import type { ExternalDocsObject } from './external-docs.js'
-import type { Extensions } from './schema.js'
 import type { MediaTypeListObject } from './media-type-list.js'
 import type { ParametersListObject } from './parameters-list.js'
 import type { ResponsesObject } from './responses.js'
+import type { Extensions } from './schema.js'
 import type { SchemesListObject } from './schemes-list.js'
 import type { SecurityObject } from './security.js'
 /**
