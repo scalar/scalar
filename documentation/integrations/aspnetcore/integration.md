@@ -607,6 +607,20 @@ app.MapScalarApiReference(options => options.WithShowExtensions("x-scopes", "x-i
 
 Keys must start with `x-`. They appear in configuration order and missing keys are omitted. Unset or empty lists display no extensions. Values render as text, including `false`, `0`, and `null`. Extensions on the API description root, tags, and response objects are not displayed. Existing plugin components take precedence. This does not change authentication or access control.
 
+### Schema Display
+
+Configure schema labels, request body truncation, and initial expansion:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithHideModelNames()
+    .WithMaxVisibleRequestBodyProperties(0)
+    .WithExpandAllParameters(false)
+    .WithExpandAllSchemaProperties());
+```
+
+Unset options retain the API Reference defaults: model names are visible, up to 12 top-level request body properties are shown, parameter details are expanded, and nested schema properties are collapsed. A property limit of `0` shows all top-level properties; negative values fall back to `12`. Expanding nested properties can slow rendering for large API descriptions. Hiding model names keeps the Models section and composition selector names visible.
+
 ### Assets
 
 Scalar uses local assets by default. To load assets from a different location:

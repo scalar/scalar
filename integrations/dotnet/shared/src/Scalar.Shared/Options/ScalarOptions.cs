@@ -29,6 +29,26 @@ public partial class ScalarOptions
     public string[]? ShowExtensions { get; set; }
 
     /// <summary>
+    /// Shows structural types instead of model names in schema labels and operation headings (default: false).
+    /// </summary>
+    public bool? HideModelNames { get; set; }
+
+    /// <summary>
+    /// Limits initially visible top-level request body properties (default: 12). Zero shows all; invalid values fall back to 12.
+    /// </summary>
+    public int? MaxVisibleRequestBodyProperties { get; set; }
+
+    /// <summary>
+    /// Controls whether parameter details are expanded initially (default: true).
+    /// </summary>
+    public bool? ExpandAllParameters { get; set; }
+
+    /// <summary>
+    /// Controls whether nested schema properties are expanded initially (default: false). Large API descriptions may render more slowly when enabled.
+    /// </summary>
+    public bool? ExpandAllSchemaProperties { get; set; }
+
+    /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>
     public string? Favicon { get; set; } = "favicon.svg";
