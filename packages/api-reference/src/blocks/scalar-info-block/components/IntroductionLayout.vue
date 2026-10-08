@@ -80,11 +80,19 @@ const { level: headingLevel } = useDocumentOutline('document')
               {{ info?.title }}
             </SectionHeaderTag>
             <template #links>
-              <InfoLinks
-                :externalDocs="
-                  documentType === 'asyncapi' ? undefined : externalDocs
-                "
-                :info="info" />
+              <div>
+                <AsyncApiDocumentation
+                  v-if="documentType === 'asyncapi'"
+                  :owner="{
+                    externalDocs,
+                    tags: 'tags' in info ? info.tags : undefined,
+                  }" />
+                <InfoLinks
+                  :externalDocs="
+                    documentType === 'asyncapi' ? undefined : externalDocs
+                  "
+                  :info="info" />
+              </div>
             </template>
           </SectionHeader>
           <dl
@@ -103,12 +111,6 @@ const { level: headingLevel } = useDocumentOutline('document')
           <SectionColumns>
             <SectionColumn>
               <slot name="download-link" />
-              <AsyncApiDocumentation
-                v-if="documentType === 'asyncapi'"
-                :owner="{
-                  externalDocs,
-                  tags: 'tags' in info ? info.tags : undefined,
-                }" />
               <InfoDescription
                 :description="info?.description"
                 :eventBus="eventBus"
