@@ -200,7 +200,7 @@ const showOverview = (): void => {
           <ExploreScalarStickers layout="hero" />
           <!-- Centre stage, in front of the pile, once Marc is invited -->
           <StickerMarc
-            class="explore-scalar-marc absolute bottom-5 left-[calc(50%-58px)] z-20 w-[116px] origin-bottom" />
+            class="explore-scalar-marc absolute bottom-5 left-[calc(50%-66px)] z-20 w-[132px] origin-bottom" />
         </div>
 
         <div class="px-8 pt-2 text-center">
@@ -391,38 +391,33 @@ const showOverview = (): void => {
 /*
  * ---- Marc takes centre stage ----
  * While the demo call is hovered or focused, Marc's sticker rises into the middle of the wall
- * with a springy settle, and the three product stickers tuck in underneath him: each slides in
- * behind his sticker, shrinks a little and tilts further so it peeks out at a different edge,
- * all on one unhurried ease, and everything returns together on the way back. The stickers' resting tilt is an inline custom
+ * with a springy settle, and the three product stickers shuffle in underneath him at their own
+ * size: each slides in behind his sticker and tilts a little further so it peeks out at a
+ * different edge, all on one unhurried ease, and everything returns together on the way back. The stickers' resting tilt is an inline custom
  * property, so the scatter sets `rotate` itself (a stylesheet cannot override that variable).
  * Only the individual transform properties move; the fallback entrance keyframes own `transform`.
  */
 .explore-scalar-modal .explore-scalar-hero .explore-scalar-sticker {
   transition:
     translate 360ms cubic-bezier(0.4, 0, 0.2, 1),
-    scale 360ms cubic-bezier(0.4, 0, 0.2, 1),
     rotate 360ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] .explore-scalar-sticker {
   transition:
     translate 560ms cubic-bezier(0.32, 0.72, 0, 1),
-    scale 560ms cubic-bezier(0.32, 0.72, 0, 1),
     rotate 560ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='portals'] {
-  rotate: -18deg;
-  translate: 34px 8px;
-  scale: 0.85;
+  rotate: -16deg;
+  translate: 46px 6px;
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='sdks'] {
-  rotate: -14deg;
-  translate: -26px -38px;
-  scale: 0.85;
+  rotate: -12deg;
+  translate: -24px -18px;
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='agent'] {
-  rotate: 18deg;
-  translate: -30px 8px;
-  scale: 0.85;
+  rotate: 16deg;
+  translate: -44px 6px;
 }
 .explore-scalar-modal .explore-scalar-marc {
   opacity: 0;
