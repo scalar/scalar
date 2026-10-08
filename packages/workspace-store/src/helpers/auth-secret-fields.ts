@@ -54,3 +54,33 @@ export const resetSecretField = (secrets: Record<string, unknown>, field: AuthSe
     delete secrets[clearedFieldsKey]
   }
 }
+
+const secretDefaultsKey = 'x-scalar-secret-defaults'
+
+/**
+ * The value a field returns to when its stored override is reset, as computed by the merge.
+ * Returns an empty string when the field has no document or configured default.
+ */
+export const getSecretFieldDefault = (secrets: object, field: AuthSecretField): string => {
+  const defaults: unknown = Reflect.get(secrets, secretDefaultsKey)
+  if (!isObjectLike(defaults)) {
+    return ''
+  }
+  const value: unknown = defaults[field]
+  return typeof value === 'string' ? value : ''
+}
+
+/**
+ * Reset is only worth offering when it would restore a different value. With no default, Reset
+ * would only clear the field, which the clear action already does. The fallback covers defaults
+ * that only the UI knows about, such as the browser-derived redirect URI.
+ */
+export const canResetSecretField = (
+  secrets: object,
+  field: AuthSecretField,
+  value: string | undefined,
+  fallbackDefault = '',
+): boolean => {
+  const defaultValue = getSecretFieldDefault(secrets, field) || fallbackDefault
+  return defaultValue !== '' && (value ?? '') !== defaultValue
+}
