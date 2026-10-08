@@ -289,7 +289,7 @@ const showOverview = (): void => {
       <div
         v-else
         ref="stepEl"
-        class="flex flex-col px-6 pb-6">
+        class="flex flex-col px-6 pt-12 pb-6">
         <!-- Back mirrors the close circle in the opposite corner; the arrow flips with the reading direction -->
         <button
           ref="backEl"
@@ -299,16 +299,16 @@ const showOverview = (): void => {
           @click="showOverview">
           <ScalarIconArrowLeft class="size-4 rtl:-scale-x-100" />
         </button>
-        <!-- The title row shares its vertical center with the two corner circles and stays clear of them -->
+        <!-- The calendar speaks for itself, so the title only names the dialog for assistive technology -->
         <DialogTitle
           as="h2"
-          class="text-c-1 m-0 flex min-h-14 items-center justify-center px-8 text-center text-xl leading-snug font-bold tracking-tight text-balance">
+          class="sr-only">
           {{ translate('exploreScalar.bookDemo') }}
         </DialogTitle>
         <!-- Cal.com mounts its booking iframe in here -->
         <div
           ref="calEl"
-          class="explore-scalar-cal mt-2 min-h-[640px] w-full overflow-auto" />
+          class="explore-scalar-cal min-h-[640px] w-full overflow-auto" />
         <p
           v-if="calFailed"
           class="text-c-2 m-0 pt-3 text-center text-sm">
