@@ -35,7 +35,7 @@ import {
   type Component,
 } from 'vue'
 
-import ExternalDocumentation from '../shared/ExternalDocumentation.vue'
+import ExternalDocs from '../shared/ExternalDocs.vue'
 import CopyLinkButton from './components/CopyLinkButton.vue'
 import WithBreadcrumb from './components/WithBreadcrumb.vue'
 import { resolveDynamicSchema, useDynamicScope } from './helpers/dynamic-scope'
@@ -1107,7 +1107,7 @@ const onBeforeMatch = (): void => {
       </template>
     </SchemaPropertyHeading>
 
-    <ExternalDocumentation
+    <ExternalDocs
       class="my-2"
       :value="optimizedValue?.externalDocs" />
 

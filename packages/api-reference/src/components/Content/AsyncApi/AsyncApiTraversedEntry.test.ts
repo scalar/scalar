@@ -110,8 +110,8 @@ describe('AsyncApiTraversedEntry', () => {
         'https://example.com/operation',
         'https://example.com/operation-tag',
       ])
-      expect(wrapper.get('strong').text()).toBe('Channel')
-      expect(wrapper.get('em').text()).toBe('Trait tag')
+      expect(wrapper.text()).toContain('**Channel** guide')
+      expect(wrapper.text()).toContain('*Trait tag* guide')
     },
   )
 

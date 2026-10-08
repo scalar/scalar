@@ -62,7 +62,7 @@ describe('AsyncApiServerSelector', () => {
       'https://example.com/staging',
       'https://example.com/staging-tag',
     ])
-    expect(wrapper.get('strong').text()).toBe('staging')
+    expect(wrapper.get('a').text()).toBe('**staging** guide')
   })
 
   it('renders the server label', () => {

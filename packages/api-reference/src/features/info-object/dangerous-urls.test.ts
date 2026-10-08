@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ExternalDocs from '@/features/external-docs/ExternalDocs.vue'
+import { ExternalDocs } from '@/features/external-docs'
 
 import Contact from './Contact.vue'
 import InfoLink from './InfoLink.vue'

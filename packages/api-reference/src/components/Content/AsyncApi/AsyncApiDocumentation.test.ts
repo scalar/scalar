@@ -29,9 +29,7 @@ describe('AsyncApiDocumentation', () => {
       'https://example.com/owner',
       'https://example.com/tag',
     ])
-    expect(wrapper.text()).toContain('Streams')
-    expect(wrapper.get('strong').text()).toBe('Owner')
-    expect(wrapper.get('em').text()).toBe('Tag')
+    expect(wrapper.findAll('a').map((link) => link.text())).toStrictEqual(['**Owner** guide', '*Tag* guide'])
   })
 
   it('omits tags and documentation that have not resolved', () => {
