@@ -4,7 +4,7 @@
 
 API management is the combination of a runtime API gateway and the lifecycle tooling around it. The gateway runs traffic: it routes requests, authenticates callers, enforces rate limits and quotas, and collects usage data. Lifecycle and governance tooling manages the API contract and everything derived from it: the design standard, the versioned API description, linting in CI, documentation and a developer portal, SDKs, and now MCP servers for AI agents. An "API management platform" bundles both; an API gateway is only the runtime half; API lifecycle management is only the contract half.
 
-The two halves are often bought together and often confused. This guide separates them layer by layer, explains how the OpenAPI document connects them, and gives an honest decision guide for the two questions teams actually ask: do I need a gateway if I already have a portal and a registry, and do I need lifecycle tooling if I already have a gateway. Scalar builds the lifecycle and governance half and does not build a gateway, and this page says so where it matters.
+The two halves are often bought together and often confused. This guide separates them layer by layer, explains how the OpenAPI document connects them, and gives an honest decision guide for the two questions teams actually ask: do I need a gateway if I already have a portal and a registry, and do I need lifecycle tooling if I already have a gateway. Scalar builds the lifecycle and governance half, and its only runtime component is the hosted MCP server that proxies AI agent traffic to your API. It is not a general-purpose API gateway, and this page says so where it matters.
 
 **On this page**
 
@@ -22,7 +22,7 @@ The two halves are often bought together and often confused. This guide separate
 
 - An **API gateway** is a reverse proxy that sits in front of your services at runtime. Every request passes through it. It authenticates, authorizes, rate limits, routes, transforms, caches, and logs.
 - **API lifecycle management** is everything that happens to an API before and around runtime: designing the contract, reviewing changes, linting against a style guide, versioning, publishing the description to a registry, generating documentation, SDKs, and MCP servers, and retiring old versions.
-- An **API management platform** is a product or suite that claims both. The large vendors (Kong, Apigee, Azure API Management, AWS API Gateway, MuleSoft, Tyk, Gravitee, WSO2, IBM API Connect) started as gateways and added lifecycle features. Lifecycle-first products (Scalar, Postman, Swagger Studio) started from the contract and the developer experience and pair with a gateway rather than replacing one.
+- An **API management platform** is a product or suite that claims both. The large vendors (Kong, Apigee, Azure API Management, AWS API Gateway, MuleSoft, Tyk, Gravitee, WSO2, IBM API Connect) started as gateways and added lifecycle features. Lifecycle-first products (Scalar, Postman, Swagger Studio) started from the contract and the developer experience and pair with a gateway for human and application traffic rather than replacing one.
 
 If you remember one thing: a gateway sees requests, lifecycle tooling sees the contract. Both are needed for an API anyone outside your team depends on, and they are different enough that buying one does not give you the other.
 
@@ -38,12 +38,12 @@ Vendors draw this picture differently, but the work is the same. The last column
 | **Documentation and developer portal** | Render the reference, write guides, let developers try requests and get keys | Scalar, ReadMe, Mintlify, Redocly, Stoplight, gateway portals (Konnect Dev Portal, Apigee portals, Azure APIM portal, Tyk Developer Portal) | Yes: API reference and docs, custom domains, access groups, Ask AI |
 | **SDKs** | Generate and publish client libraries from the contract | Scalar, Speakeasy, Fern, OpenAPI Generator, Kiota | Yes: SDK generator, published through your repositories |
 | **MCP and agent access** | Expose operations as tools AI agents can call, with authentication | Scalar hosted MCP, gateway MCP features (Kong AI Gateway, Azure APIM MCP, Apigee MCP, AWS AgentCore Gateway, Tyk MCP Gateway), generators | Yes: hosted MCP servers from the OpenAPI document, OAuth built in |
-| **Runtime gateway** | Proxy, route, authenticate, transform, and cache live traffic | Kong, Apigee, Azure APIM, AWS API Gateway, Tyk, Gravitee, Zuplo, MuleSoft, WSO2, Envoy, NGINX | **No.** Scalar does not proxy traffic |
-| **Rate limiting, quotas, and threat protection** | Enforce per-consumer limits, block abuse, validate requests at the edge | The gateway, plus WAFs and API security products (for example Cloudflare API Shield) | **No.** Scalar does not enforce runtime policy |
-| **Analytics** | Measure calls, latency, errors, and consumers from live traffic | The gateway's analytics, observability platforms | **No** API consumption analytics; Scalar does not see your traffic |
+| **Runtime gateway** | Proxy, route, authenticate, transform, and cache live traffic | Kong, Apigee, Azure APIM, AWS API Gateway, Tyk, Gravitee, Zuplo, MuleSoft, WSO2, Envoy, NGINX | **Agent traffic only.** The hosted MCP server proxies AI agent calls to your API with the credentials you configure; human and application traffic does not pass through Scalar |
+| **Rate limiting, quotas, and threat protection** | Enforce per-consumer limits, block abuse, validate requests at the edge | The gateway, plus WAFs and API security products (for example Cloudflare API Shield) | **Agent traffic only.** Hosted MCP traffic is rate limited; there is no policy engine for your API's other traffic |
+| **Analytics** | Measure calls, latency, errors, and consumers from live traffic | The gateway's analytics, observability platforms | **Agent traffic only.** Per-installation consumption analytics for calls made through the hosted MCP server; Scalar does not see traffic that bypasses it |
 | **Monetization** | Plans, billing, and metering per consumer | Gateway monetization modules, billing systems | **No** |
 
-Three observations about the table. First, the top six layers all consume the same artefact, the API description, and the bottom four all consume live traffic. Second, the gateway vendors' developer portals are the place the two halves overlap, which is why "developer portal" is the layer most often bought twice. Third, no vendor on either side covers every row well; the suites that claim to usually have a strong gateway and a serviceable portal, or a strong portal and no gateway.
+Three observations about the table. First, the top six layers all consume the same artefact, the API description, and the bottom four all consume live traffic. Second, the gateway vendors' developer portals are the place the two halves overlap, which is why "developer portal" is the layer most often bought twice. Third, no vendor on either side covers every row well; the suites that claim to usually have a strong gateway and a serviceable portal, or a strong portal and a gateway that only sees one kind of traffic.
 
 ## How the layers connect: the OpenAPI document as the contract
 
@@ -121,17 +121,17 @@ Most organizations past a handful of APIs end up with both. The mistake to avoid
 
 ## Where Scalar fits, and where it does not
 
-Scalar is an OpenAPI-based platform for API lifecycle and governance: a versioned [registry](/products/registry) for OpenAPI and AsyncAPI documents, JSON Schema, and rules; Spectral-compatible [linting](/products/registry/rules) that runs in Git and CI; an [API reference and developer portal](/products/docs); [SDKs](/products/sdk-generator); an open-source [API client](/products/api-client); and [hosted MCP servers](/products/agent/mcp), all driven from the same OpenAPI document. It works alongside an API gateway. It is not one.
+Scalar is an OpenAPI-based platform for API lifecycle and governance: a versioned [registry](/products/registry) for OpenAPI and AsyncAPI documents, JSON Schema, and rules, with breaking-change detection between published versions; Spectral-compatible [linting](/products/registry/rules) that runs in Git and CI; an [API reference and developer portal](/products/docs); [SDKs](/products/sdk-generator); an open-source [API client](/products/api-client); and [hosted MCP servers](/products/agent/mcp), all driven from the same OpenAPI document.
 
-Concretely, Scalar does not:
+Its one runtime component is the hosted MCP server. Agent calls made through it are proxied to your API with the credentials you configure, rate limited, and measured per installation, so for AI agent traffic Scalar does cover the gateway, rate limiting, and analytics rows above. For every other caller, your applications, partners, and SDK users, Scalar works alongside an API gateway. Concretely, Scalar does not:
 
-- proxy or route runtime traffic
-- enforce rate limits, quotas, or runtime security policies
-- provide API consumption analytics or usage dashboards
+- proxy, route, or rate limit traffic that does not come through its hosted MCP server
+- provide a general policy engine, quotas, or threat protection for your API
+- provide consumption analytics for traffic that bypasses the MCP server
 - provide monetization or billing
 - replace Kong, Apigee, Azure API Management, AWS API Gateway, MuleSoft, Tyk, Gravitee, WSO2, or IBM API Connect
 
-A typical pairing is a gateway for traffic and Scalar for the contract: the OpenAPI document is linted and published to the Scalar Registry from CI, the gateway imports it for routes, and Scalar renders the portal, generates the SDKs, and serves the MCP server from the same version. If you need runtime traffic control, quotas, analytics, or monetization, you need a gateway or an API security product in addition to Scalar, and the [roundup](/library/best-api-management-platforms-2026) lists the categories and vendors to evaluate.
+A typical pairing is a gateway for human and application traffic and Scalar for the contract and for agents: the OpenAPI document is linted and published to the Scalar Registry from CI, the gateway imports it for routes, and Scalar renders the portal, generates the SDKs, and serves the MCP server from the same version. If you need runtime traffic control, quotas, analytics, or monetization across all callers, you need a gateway or an API security product in addition to Scalar, and the [roundup](/library/best-api-management-platforms-2026) lists the categories and vendors to evaluate.
 
 ## Frequently asked questions
 
@@ -148,11 +148,11 @@ The practice and tooling for managing an API from design through retirement: wri
 </scalar-detail>
 
 <scalar-detail title="Can I use Scalar with Kong, Apigee, or Azure API Management?">
-Yes. Scalar manages the OpenAPI document, the documentation and developer portal, SDKs, and hosted MCP servers, while the gateway handles runtime traffic. Publish the document from CI to the Scalar Registry and import the same document into the gateway so routes and docs cannot drift.
+Yes. Scalar manages the OpenAPI document, the documentation and developer portal, SDKs, and hosted MCP servers, while the gateway handles human and application traffic. Publish the document from CI to the Scalar Registry and import the same document into the gateway so routes and docs cannot drift.
 </scalar-detail>
 
 <scalar-detail title="Does Scalar have an API gateway?">
-No. Scalar does not proxy traffic, enforce rate limits, or provide usage analytics or monetization. It is a lifecycle and governance platform that works alongside a gateway.
+Not a general-purpose one. Scalar's hosted MCP server proxies AI agent traffic to your API with rate limiting and per-installation consumption analytics, so for agents it plays the gateway role. It does not sit in front of your API for other callers, enforce quotas or runtime policy for them, or provide monetization. For that traffic it works alongside a gateway.
 </scalar-detail>
 
 <scalar-detail title="What is the difference between a developer portal and an API gateway?">
@@ -168,4 +168,4 @@ A developer portal is a website where developers discover an API, read its docum
 
 ---
 
-*Vendor names in the layer table are examples of products in each category, taken from their own documentation on 7 October 2026; the roundup linked above carries the sourced details, prices, and licences. Scalar wrote this guide and sells the lifecycle and governance layers, not a gateway. If something here is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues).*
+*Vendor names in the layer table are examples of products in each category, taken from their own documentation on 7 October 2026; the roundup linked above carries the sourced details, prices, and licences. Scalar wrote this guide and sells the lifecycle and governance layers and hosted MCP servers, not a general-purpose gateway. If something here is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues).*

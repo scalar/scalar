@@ -33,7 +33,7 @@ This page is written by Scalar, which builds a lifecycle and governance platform
 - **Cloudflare API Shield**: API security on Cloudflare's edge for Enterprise customers; not a full management suite.
 - **Postman**: the API development platform, with a public API network and an AI-native gateway called Fabric; not a classic API gateway.
 - **Swagger Studio**: SmartBear's design and governance product, formerly SwaggerHub, with a separate portal.
-- **Scalar**: an OpenAPI-based lifecycle and governance platform with a registry, Spectral-compatible linting, docs and a developer portal, SDKs, and hosted MCP servers; it works alongside a gateway and is not one.
+- **Scalar**: an OpenAPI-based lifecycle and governance platform with a registry, Spectral-compatible linting, docs and a developer portal, SDKs, and hosted MCP servers that proxy and rate limit agent traffic; for every other caller it works alongside a gateway.
 
 ## Three shapes of API management platform
 
@@ -41,7 +41,7 @@ This page is written by Scalar, which builds a lifecycle and governance platform
 
 **Cloud gateways.** Gateways sold as a cloud service, priced per request or per hour. Apigee, Azure API Management, AWS API Gateway, Zuplo, and Cloudflare API Shield. The fit usually follows the cloud you already run on.
 
-**Lifecycle and contract-first platforms.** Products that start from the API description and the developer experience: design, governance, registry, documentation, SDKs, and agent access. Scalar, Postman, and Swagger Studio. None of these proxies your traffic; each pairs with a gateway from the first two groups.
+**Lifecycle and contract-first platforms.** Products that start from the API description and the developer experience: design, governance, registry, documentation, SDKs, and agent access. Scalar, Postman, and Swagger Studio. None of these is a general-purpose gateway for your application traffic (Scalar's hosted MCP server proxies agent traffic, and Postman's Fabric is an AI gateway); each pairs with a gateway from the first two groups.
 
 A common mistake is comparing across the groups. A gateway and a lifecycle platform do different jobs, and most organizations with more than a few APIs end up with one of each.
 
@@ -64,7 +64,7 @@ Prices are as published by each vendor on 7 October 2026. Cloud prices depend on
 | [Cloudflare API Shield](https://developers.cloudflare.com/api-shield/plans/) | Cloud API security | Proprietary | Cloudflare edge | None | Not part of API Shield | Enterprise-only add-on; contact sales |
 | [Postman](https://www.postman.com/pricing/) | Lifecycle and contract-first | Proprietary | SaaS | Public and Private API Network; published documentation | MCP generator from public APIs in the API Network; Fabric AI gateway; Postman MCP server for Postman resources | Free; Solo $9 a month and Team $19 per user a month billed annually; Enterprise on request |
 | [Swagger Studio](https://swagger.io/product/studio/) | Lifecycle and contract-first | Proprietary | SaaS | Swagger Portal (separate product) | Not documented | Free trial; prices not shown in the pricing page markup we could read |
-| [Scalar](/pricing) | Lifecycle and contract-first | Closed service; API reference and client are MIT | Hosted; self-hosting with the MIT core | Included | Hosted MCP servers from the OpenAPI document on Pro and above | Free; Pro $150 a month; Business $600 a month; Enterprise custom |
+| [Scalar](/pricing) | Lifecycle and contract-first | Closed service; API reference and client are MIT | Hosted; self-hosting with the MIT core | Included | Hosted MCP servers from the OpenAPI document on Pro and above, with rate limiting and per-installation analytics for agent traffic | Free; Pro $150 a month; Business $600 a month; Enterprise custom |
 
 ## Self-hosted and hybrid gateways
 
@@ -206,13 +206,13 @@ Prices are as published by each vendor on 7 October 2026. Cloud prices depend on
 
 **Disclosure.** Scalar wrote this page.
 
-**What it is.** An OpenAPI-based platform for API lifecycle and governance: a versioned [Registry](/products/registry) for OpenAPI and AsyncAPI documents, JSON Schema, and rules; Spectral-compatible [linting](/products/registry/rules) in Git and CI; an [API reference and developer portal](/products/docs); [SDKs](/products/sdk-generator); an open-source [API client](/products/api-client); and [hosted MCP servers](/products/agent/mcp), all driven from the same OpenAPI document. The API reference and API client are MIT licensed and can be self-hosted. It works alongside an API gateway. It is not one: it does not proxy traffic, enforce rate limits or quotas, provide usage analytics, or handle monetization.
+**What it is.** An OpenAPI-based platform for API lifecycle and governance: a versioned [Registry](/products/registry) for OpenAPI and AsyncAPI documents, JSON Schema, and rules, with breaking-change detection between published versions; Spectral-compatible [linting](/products/registry/rules) in Git and CI; an [API reference and developer portal](/products/docs); [SDKs](/products/sdk-generator); an open-source [API client](/products/api-client); and [hosted MCP servers](/products/agent/mcp), all driven from the same OpenAPI document. The API reference and API client are MIT licensed and can be self-hosted. The hosted MCP server is the runtime piece: it proxies AI agent calls to your API with the credentials you configure, rate limits them, and reports consumption per installation. It is not a general-purpose gateway: it does not sit in front of your API for human or application traffic, enforce quotas or runtime policy for those callers, or handle monetization.
 
 **Pricing.** Free at $0 with up to 3 APIs in the registry; Pro at $150 a month (or $125 billed yearly) with hosted MCP servers, custom domains, and access groups; Business at $600 a month (or $500 yearly) with SSO; Enterprise custom. Figures are from the [pricing page](/pricing) on 7 October 2026.
 
 **Best for.** API teams that want the contract, documentation, SDKs, and agent access to come from one OpenAPI document, next to whichever gateway runs the traffic.
 
-**Watch out for.** If your evaluation is for a runtime gateway, Scalar is the wrong list entry; pair it with one of the gateways above.
+**Watch out for.** If your evaluation is for a gateway in front of all your API traffic, Scalar is the wrong list entry; pair it with one of the gateways above. Its proxying, rate limiting, and analytics apply to agent traffic through the hosted MCP server only.
 
 ## Do you need a gateway?
 
@@ -220,8 +220,8 @@ A gateway is for request time: authenticating external callers, enforcing per-co
 
 ## When to pick something other than Scalar
 
-- **You need a runtime gateway, rate limiting, quotas, or threat protection.** Pick a gateway from the first two groups. Scalar does not do any of this.
-- **You need API consumption analytics or monetization.** Those come from the gateway's traffic data. Kong, Apigee, Azure API Management, MuleSoft, and IBM all offer them.
+- **You need a gateway, rate limiting, quotas, or threat protection for all your API traffic.** Pick a gateway from the first two groups. Scalar's proxying and rate limiting cover agent traffic through its hosted MCP server, not your applications' calls.
+- **You need consumption analytics across every caller, or monetization.** Those come from the gateway's traffic data. Kong, Apigee, Azure API Management, MuleSoft, and IBM all offer them; Scalar's analytics cover MCP traffic only and it has no monetization.
 - **You want one vendor for gateway and portal.** Kong, Tyk, Apigee, Azure, AWS, Gravitee, WSO2, MuleSoft, and IBM each ship a portal with the gateway, and Zuplo includes one on every plan.
 - **You want everything open source with no feature-gated edition.** WSO2 API Manager.
 - **Your API work is collection-based rather than OpenAPI-based.** Postman.
@@ -246,7 +246,7 @@ Most, as of October 2026. Kong (AI MCP Proxy, Enterprise), Tyk (MCP Gateway), Gr
 </scalar-detail>
 
 <scalar-detail title="Is Scalar an API management platform?">
-Scalar is the lifecycle and governance half: registry, linting, documentation and developer portal, SDKs, and hosted MCP servers from one OpenAPI document. It is not a gateway and does not proxy traffic, so it is not a full API management platform in the sense the gateway vendors use. It works alongside a gateway.
+Scalar is the lifecycle and governance half: registry with breaking-change detection, linting, documentation and developer portal, SDKs, and hosted MCP servers from one OpenAPI document. Its hosted MCP server proxies, rate limits, and measures AI agent traffic, but it is not a gateway for your application traffic and has no monetization, so it is not a full API management platform in the sense the gateway vendors use. It works alongside a gateway.
 </scalar-detail>
 
 <scalar-detail title="How much does API management cost?">
@@ -261,4 +261,4 @@ Published entry points range from free tiers (Zuplo, AWS API Gateway's 12-month 
 
 ---
 
-*Licences, deployment options, features, and prices are taken from each vendor's documentation, pricing pages, repositories, and announcements as of 7 October 2026 and are linked inline. Azure prices come from Microsoft's Retail Prices API for East US because the pricing page renders client-side; AWS prices are for US East (N. Virginia). Where a vendor publishes no price, we say so rather than guess. This page is written by Scalar, which sells the lifecycle and governance products described in its own entry and does not sell a gateway. If you find something wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+*Licences, deployment options, features, and prices are taken from each vendor's documentation, pricing pages, repositories, and announcements as of 7 October 2026 and are linked inline. Azure prices come from Microsoft's Retail Prices API for East US because the pricing page renders client-side; AWS prices are for US East (N. Virginia). Where a vendor publishes no price, we say so rather than guess. This page is written by Scalar, which sells the lifecycle and governance products and the hosted MCP servers described in its own entry and does not sell a general-purpose gateway. If you find something wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*

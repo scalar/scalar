@@ -123,7 +123,7 @@ A style guide stops ugly APIs. It does not stop a change that renames a field ev
 
 The OpenAPI `info.version` field is the place to record the API's version, and the convention most teams adopt is semantic: a breaking change requires a major bump. The check then has two parts: detect breaking changes, and fail unless the major version changed.
 
-The Scalar CLI does not include a breaking-change command at the time of writing, so this guide uses [oasdiff](https://github.com/oasdiff/oasdiff), an Apache-2.0 tool that classifies OpenAPI differences and runs as a Docker image. Given the published `openapi.yaml` and a proposed `openapi-next.yaml` in which the `orderId` path parameter changed from a string to an integer:
+The Scalar Registry detects breaking changes between the versions you publish and shows them in the dashboard, so a team that publishes from CI sees what each release would break before it goes out. For the pull-request check itself, this guide uses [oasdiff](https://github.com/oasdiff/oasdiff), an Apache-2.0 tool that classifies OpenAPI differences and runs as a Docker image, because the Scalar CLI has no diff command at the time of writing and a CI check needs an exit code. Given the published `openapi.yaml` and a proposed `openapi-next.yaml` in which the `orderId` path parameter changed from a string to an integer:
 
 ```bash
 docker run --rm -v "$PWD":/specs tufin/oasdiff breaking /specs/openapi.yaml /specs/openapi-next.yaml
@@ -251,7 +251,7 @@ Governance that stops at HTTP misses the webhooks, Kafka topics, and WebSocket c
 
 ## Where governance ends and the gateway begins
 
-Everything on this page happens before a request is served. It makes the contract correct, consistent, versioned, and discoverable. It does not enforce anything at runtime: authentication of callers, rate limits, quotas, and traffic analytics are the job of an API gateway, and Scalar does not provide one. The two fit together through the same OpenAPI document: the version your CI publishes to the registry is the version the gateway should import for its routes and request validation, so the documentation, SDKs, MCP tools, and runtime routes never describe different APIs. [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway) draws the full boundary.
+Everything on this page happens before a request is served. It makes the contract correct, consistent, versioned, and discoverable. It does not enforce anything at runtime for your applications' traffic: authentication of callers, rate limits, quotas, and traffic analytics across every consumer are the job of an API gateway. Scalar's one runtime surface is the hosted MCP server, which proxies, rate limits, and measures AI agent calls to the operations you expose; everything else goes through your gateway. The two fit together through the same OpenAPI document: the version your CI publishes to the registry is the version the gateway should import for its routes and request validation, so the documentation, SDKs, MCP tools, and runtime routes never describe different APIs. [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway) draws the full boundary.
 
 ## Common mistakes
 
@@ -278,11 +278,11 @@ A set of conventions for naming, structure, errors, pagination, versioning, and 
 </scalar-detail>
 
 <scalar-detail title="How do I detect breaking changes in an OpenAPI document?">
-Compare the proposed document with the published version using a tool that classifies differences, such as oasdiff, and fail the build on error-level changes unless the major version was bumped. Run it in CI on every pull request that touches the document.
+Compare the proposed document with the published version using a tool that classifies differences, such as oasdiff, and fail the build on error-level changes unless the major version was bumped. Run it in CI on every pull request that touches the document. The Scalar Registry also flags breaking changes between the versions you publish, which catches anything that reached the registry by another route.
 </scalar-detail>
 
 <scalar-detail title="Does Scalar enforce API governance at runtime?">
-No. Scalar's governance runs on the API description: linting, versioning, registry access control, and the documentation, SDKs, and MCP servers generated from it. Runtime enforcement of authentication, rate limits, and quotas is the job of an API gateway, which Scalar works alongside.
+Only for AI agent traffic. Scalar's governance runs on the API description: linting, versioning, breaking-change detection, registry access control, and the documentation, SDKs, and MCP servers generated from it. Its hosted MCP server then proxies and rate limits agent calls to the operations you chose to expose. Runtime enforcement for your applications' traffic, such as authentication, rate limits, and quotas across every consumer, is the job of an API gateway, which Scalar works alongside.
 </scalar-detail>
 
 <scalar-detail title="Can I govern AsyncAPI documents the same way?">

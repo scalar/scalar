@@ -4,7 +4,7 @@
 
 API management is the combination of a runtime gateway and the lifecycle tooling around the API contract, and these guides explain the second half from the point of view of a team that already runs APIs: what the layers are, how they connect through the OpenAPI document, how to govern APIs with rules in CI, and how to keep an inventory that stays accurate.
 
-Scalar builds the lifecycle and governance layers, a registry, linting, documentation and a developer portal, SDKs, and hosted MCP servers, and does not build a gateway. The guides say so wherever the boundary matters, and they point to the gateway vendors where a gateway is what you need.
+Scalar builds the lifecycle and governance layers, a registry with breaking-change detection, linting, documentation and a developer portal, SDKs, and hosted MCP servers that proxy, rate limit, and measure AI agent traffic. It does not build a general-purpose gateway for human and application traffic. The guides say so wherever the boundary matters, and they point to the gateway vendors where a gateway is what you need.
 
 ## Start here
 
