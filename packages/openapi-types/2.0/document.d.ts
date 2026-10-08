@@ -5,11 +5,11 @@ import type { MediaTypeListObject } from './media-type-list.js'
 import type { ParameterDefinitionsObject } from './parameter-definitions.js'
 import type { PathsObject } from './paths.js'
 import type { ResponseDefinitionsObject } from './response-definitions.js'
+import type { Extensions } from './schema.js'
 import type { SchemesListObject } from './schemes-list.js'
 import type { SecurityObject } from './security.js'
 import type { SecurityDefinitionsObject } from './security-definitions.js'
 import type { TagObject } from './tag.js'
-import type { Extensions } from './schema.js'
 /**
  * Swagger object
  *

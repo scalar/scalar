@@ -1,5 +1,7 @@
 import { Scalar } from './scalar'
 
+export type { ServeConfiguration } from './scalar'
+export type { ApiReferenceConfiguration } from './types'
 export {
   Scalar,
   /**
@@ -7,6 +9,3 @@ export {
    */
   Scalar as apiReference,
 }
-
-export type { ServeConfiguration } from './scalar'
-export type { ApiReferenceConfiguration } from './types'

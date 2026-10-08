@@ -23,17 +23,17 @@ export {
   alternateTheme,
   bluePlanetTheme,
   deepSpaceTheme,
+  defaultFonts,
   defaultTheme,
   elysiajsTheme,
   fastifyTheme,
   keplerTheme,
+  laserwaveTheme,
   marsTheme,
   moonTheme,
   purpleTheme,
   saturnTheme,
   solarizedTheme,
-  laserwaveTheme,
-  defaultFonts,
 }
 
 /** Theme definition for Scalar platform themes. Matches user provided theme definitions. */

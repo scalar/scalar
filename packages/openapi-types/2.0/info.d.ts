@@ -1,6 +1,6 @@
 import type { ContactObject } from './contact.js'
-import type { Extensions } from './schema.js'
 import type { LicenseObject } from './license.js'
+import type { Extensions } from './schema.js'
 /**
  * Info object
  *
