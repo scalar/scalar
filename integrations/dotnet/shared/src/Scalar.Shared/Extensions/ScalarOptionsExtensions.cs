@@ -16,6 +16,72 @@ namespace Scalar.AspNetCore;
 public static partial class ScalarOptionsExtensions
 {
     /// <summary>
+    /// Controls the UI locale, text direction, and translation overrides for the API Reference and embedded API Client.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="localization">The value to set.</param>
+    public static TOptions WithLocalization<TOptions>(this TOptions options, ScalarLocalizationOptions localization) where TOptions : ScalarOptions
+    {
+        options.Localization = localization;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls which x-prefixed extension keys are displayed, in order. Unset or empty lists display no extensions; custom plugin components take precedence.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="extensions">The value to set.</param>
+    public static TOptions WithShowExtensions<TOptions>(this TOptions options, params string[] extensions) where TOptions : ScalarOptions
+    {
+        options.ShowExtensions = extensions;
+        return options;
+    }
+
+    /// <summary>
+    /// Shows structural types instead of model names in schema labels and operation headings (default: false).
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="hideModelNames">The value to set.</param>
+    public static TOptions WithHideModelNames<TOptions>(this TOptions options, bool hideModelNames = true) where TOptions : ScalarOptions
+    {
+        options.HideModelNames = hideModelNames;
+        return options;
+    }
+
+    /// <summary>
+    /// Limits initially visible top-level request body properties (default: 12). Zero shows all; invalid values fall back to 12.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="limit">The value to set.</param>
+    public static TOptions WithMaxVisibleRequestBodyProperties<TOptions>(this TOptions options, int limit) where TOptions : ScalarOptions
+    {
+        options.MaxVisibleRequestBodyProperties = limit;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls whether parameter details are expanded initially (default: true).
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="expandAllParameters">The value to set.</param>
+    public static TOptions WithExpandAllParameters<TOptions>(this TOptions options, bool expandAllParameters = true) where TOptions : ScalarOptions
+    {
+        options.ExpandAllParameters = expandAllParameters;
+        return options;
+    }
+
+    /// <summary>
+    /// Controls whether nested schema properties are expanded initially (default: false). Large API descriptions may render more slowly when enabled.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="expandAllSchemaProperties">The value to set.</param>
+    public static TOptions WithExpandAllSchemaProperties<TOptions>(this TOptions options, bool expandAllSchemaProperties = true) where TOptions : ScalarOptions
+    {
+        options.ExpandAllSchemaProperties = expandAllSchemaProperties;
+        return options;
+    }
+
+    /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>
     /// <param name="options">The options to configure.</param>
@@ -511,6 +577,17 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Adds OAuth2 device authorization authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureFlow">An action to configure the flow.</param>
+    public static TOptions AddDeviceAuthorizationFlow<TOptions>(this TOptions options, string securitySchemeName, Action<DeviceAuthorizationFlow> configureFlow) where TOptions : ScalarOptions
+    {
+        return options.AddOAuth2Flows(securitySchemeName, flows => flows.WithDeviceAuthorization(configureFlow));
+    }
+
+    /// <summary>
     /// Adds OAuth2 client credentials authentication configuration for a specific security scheme.
     /// </summary>
     /// <param name="options">The options to configure.</param>
@@ -631,6 +708,18 @@ public static partial class ScalarOptionsExtensions
     public static TOptions WithDefaultHttpClient<TOptions>(this TOptions options, ScalarTarget target, ScalarClient client) where TOptions : ScalarOptions
     {
         options.DefaultHttpClient = new KeyValuePair<ScalarTarget, ScalarClient>(target, client);
+        return options;
+    }
+
+    /// <summary>
+    /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.
+    /// </summary>
+    /// <remarks>An empty array places all clients under More. This does not change the default HTTP client or enable hidden clients.</remarks>
+    /// <param name="options">The options to configure.</param>
+    /// <param name="clients">The target and client pairs to feature.</param>
+    public static TOptions WithFeaturedClients<TOptions>(this TOptions options, params KeyValuePair<ScalarTarget, ScalarClient>[] clients) where TOptions : ScalarOptions
+    {
+        options.FeaturedClients = clients;
         return options;
     }
 

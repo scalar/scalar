@@ -14,6 +14,18 @@ namespace Scalar.AspNetCore;
 public static class ScalarFlowsExtensions
 {
     /// <summary>
+    /// Sets the device authorization flow configuration.
+    /// </summary>
+    /// <param name="flows"><see cref="ScalarFlows"/>.</param>
+    /// <param name="configureDeviceAuthorizationFlow">An action to configure the flow.</param>
+    public static ScalarFlows WithDeviceAuthorization(this ScalarFlows flows, Action<DeviceAuthorizationFlow> configureDeviceAuthorizationFlow)
+    {
+        flows.DeviceAuthorization ??= new DeviceAuthorizationFlow();
+        configureDeviceAuthorizationFlow(flows.DeviceAuthorization);
+        return flows;
+    }
+
+    /// <summary>
     /// Sets the implicit flow configuration.
     /// </summary>
     /// <param name="flows"><see cref="ScalarFlows"/>.</param>

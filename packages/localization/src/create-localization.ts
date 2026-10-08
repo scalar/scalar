@@ -98,6 +98,12 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     }
 
     const normalized = locale.replace('_', '-').toLowerCase()
+    const exactMatch = Object.keys(localeTranslations).find((key) => key.toLowerCase() === normalized)
+
+    // Regional dictionaries must win before the Chinese language fallback.
+    if (exactMatch) {
+      return exactMatch
+    }
 
     if (normalized.startsWith('zh') && 'zh-CN' in localeTranslations) {
       return 'zh-CN'

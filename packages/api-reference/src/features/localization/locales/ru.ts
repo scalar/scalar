@@ -54,6 +54,7 @@ export const ru = {
     termsOfService: 'Условия использования',
   },
   asyncapi: {
+    applicationIdentifier: 'Идентификатор приложения',
     servers: 'Серверы',
     protocols: 'Протоколы',
   },

@@ -96,13 +96,14 @@ type IsTraversableObject<T> = T extends object
       : true
   : false
 
-type MismatchPathForEntry<Expected, Actual, Path extends string> = IsTraversableObject<Expected> extends true
-  ? IsTraversableObject<Actual> extends true
-    ? [MismatchPathsFromDiff<Diff<Expected, Actual>, Path>] extends [never]
-      ? Path
-      : MismatchPathsFromDiff<Diff<Expected, Actual>, Path>
+type MismatchPathForEntry<Expected, Actual, Path extends string> =
+  IsTraversableObject<Expected> extends true
+    ? IsTraversableObject<Actual> extends true
+      ? [MismatchPathsFromDiff<Diff<Expected, Actual>, Path>] extends [never]
+        ? Path
+        : MismatchPathsFromDiff<Diff<Expected, Actual>, Path>
+      : Path
     : Path
-  : Path
 
 type MismatchPathsFromDiff<TDiff, Prefix extends string = ''> = {
   [K in keyof TDiff]: TDiff[K] extends DiffEntry<infer Expected, infer Actual>

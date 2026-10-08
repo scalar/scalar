@@ -22,6 +22,7 @@ export {
   createReachabilityContext,
   getAsyncApiProtocols,
   getAsyncApiServerOptions,
+  getChannelReachability,
   getOperationProtocols,
   getOperationReachability,
   getOperationServerNames,

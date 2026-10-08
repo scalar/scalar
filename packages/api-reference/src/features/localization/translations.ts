@@ -8,6 +8,7 @@ import { fr } from './locales/fr'
 import { pt } from './locales/pt'
 import { ru } from './locales/ru'
 import { zhCn } from './locales/zh-cn'
+import { zhTw } from './locales/zh-tw'
 
 export const localeTranslations = {
   en,
@@ -16,6 +17,7 @@ export const localeTranslations = {
   fr,
   de,
   'zh-CN': zhCn,
+  'zh-TW': zhTw,
   ar,
   pt,
 } satisfies Record<ApiReferenceBuiltInLocale, ApiReferenceTranslations>

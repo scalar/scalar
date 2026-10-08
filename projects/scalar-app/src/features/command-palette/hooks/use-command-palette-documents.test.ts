@@ -3,8 +3,8 @@ import type { TraversedDocument } from '@scalar/workspace-store/schemas/navigati
 import { describe, expect, it } from 'vitest'
 import { computed, ref, shallowRef } from 'vue'
 
-import type { RegistryDocument } from '@/types/configuration'
 import type { AppState } from '@/features/app'
+import type { RegistryDocument } from '@/types/configuration'
 
 import { useCommandPaletteDocuments } from './use-command-palette-documents'
 

@@ -438,6 +438,24 @@ app.MapScalarApiReference(options => options
     }));
 ```
 
+##### Device Authorization Flow
+
+Pre-fill the device authorization flow for an OAuth2 security scheme:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("DeviceOAuth")
+    .AddDeviceAuthorizationFlow("DeviceOAuth", flow => flow
+        .WithDeviceAuthorizationUrl("https://auth.example.com/device")
+        .WithTokenUrl("https://auth.example.com/token")
+        .WithClientId("example-client")
+        .WithSelectedScopes("read")));
+```
+
+The scheme name must match the OAuth2 security scheme in your API description. Device authorization is a standard flow in OpenAPI 3.2. These options pre-fill or override the reference configuration; they do not change the API description or configure authentication on your server.
+
+You can also configure `ScalarFlows.DeviceAuthorization` directly or call `WithDeviceAuthorization` inside `AddOAuth2Flows`. The flow supports `WithClientSecret`, `WithCredentialsLocation`, and the common OAuth helpers for refresh URLs, tokens, and additional query and body parameters. Client secrets and tokens configured here are sent to the browser, so only use example credentials suitable for public documentation.
+
 ##### Advanced OAuth2 Configuration
 
 ```csharp
@@ -534,6 +552,74 @@ app.MapScalarApiReference(options =>
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 ```
+
+Choose which clients appear as tabs in the **Client Libraries** block, in order:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options.WithFeaturedClients(
+        new(ScalarTarget.Java, ScalarClient.NetHttp),
+        new(ScalarTarget.Shell, ScalarClient.Curl));
+});
+```
+
+Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
+
+### Localization
+
+Translate the API Reference interface and embedded API Client:
+
+```csharp
+app.MapScalarApiReference(options => options.WithLocalization(new ScalarLocalizationOptions
+{
+    Locale = "de"
+}));
+```
+
+Use `Direction = TextDirection.Auto` to derive text direction from the locale, or override it with `TextDirection.LeftToRight` or `TextDirection.RightToLeft`. Omitted direction also follows the locale. Regional locale values use the browser's fallback rules; unknown locales fall back to English.
+
+Override individual labels using a `System.Text.Json.Nodes.JsonObject`. For example:
+
+```csharp
+options.WithLocalization(new ScalarLocalizationOptions
+{
+    Locale = "de",
+    Translations = new System.Text.Json.Nodes.JsonObject
+    {
+        ["operation"] = new System.Text.Json.Nodes.JsonObject
+        {
+            ["testRequest"] = "Anfrage ausprobieren"
+        }
+    }
+});
+```
+
+Overrides merge with the selected locale and English fallback. Embedded client overrides go under `apiClient`. This translates interface labels, not the content of your API description. See [Localization](../../localization.md) for supported locales and translation keys.
+
+### Specification Extensions
+
+Display selected extension keys on operations, parameters, response headers, and schema fields:
+
+```csharp
+app.MapScalarApiReference(options => options.WithShowExtensions("x-scopes", "x-internal"));
+```
+
+Keys must start with `x-`. They appear in configuration order and missing keys are omitted. Unset or empty lists display no extensions. Values render as text, including `false`, `0`, and `null`. Extensions on the API description root, tags, and response objects are not displayed. Existing plugin components take precedence. This does not change authentication or access control.
+
+### Schema Display
+
+Configure schema labels, request body truncation, and initial expansion:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithHideModelNames()
+    .WithMaxVisibleRequestBodyProperties(0)
+    .WithExpandAllParameters(false)
+    .WithExpandAllSchemaProperties());
+```
+
+Unset options retain the API Reference defaults: model names are visible, up to 12 top-level request body properties are shown, parameter details are expanded, and nested schema properties are collapsed. A property limit of `0` shows all top-level properties; negative values fall back to `12`. Expanding nested properties can slow rendering for large API descriptions. Hiding model names keeps the Models section and composition selector names visible.
 
 ### Assets
 

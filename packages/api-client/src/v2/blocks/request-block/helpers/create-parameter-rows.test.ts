@@ -4,6 +4,40 @@ import { describe, expect, it } from 'vitest'
 import { createParameterRows } from './create-parameter-rows'
 
 describe('createParameterRows', () => {
+  it.each(['query', 'header', 'cookie'] as const)(
+    'displays optional %s enum suggestions without enabling them',
+    (location) => {
+      const parameter: ParameterObject = {
+        name: 'mediaType',
+        in: location,
+        schema: { type: 'string', enum: ['None', 'Image'] },
+      }
+      expect(
+        createParameterRows(parameter, 'default').map(({ value, isDisabled, isDisabledByDefault }) => ({
+          value,
+          isDisabled,
+          isDisabledByDefault,
+        })),
+      ).toStrictEqual([{ value: 'None', isDisabled: true, isDisabledByDefault: true }])
+    },
+  )
+
+  it('keeps nested object enum suggestions disabled', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: { media: { type: 'object', properties: { type: { type: 'string', enum: ['None', 'Image'] } } } },
+      },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ name, value, isDisabled }) => ({ name, value, isDisabled })),
+    ).toStrictEqual([{ name: 'filter[media][type]', value: 'None', isDisabled: true }])
+  })
+
   it.each(['deepObject', 'form'] as const)('populates %s rows from property examples', (style) => {
     const parameter: ParameterObject = {
       name: 'filter',

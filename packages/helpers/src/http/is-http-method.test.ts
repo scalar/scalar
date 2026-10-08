@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { isHttpMethod } from './is-http-method'
+import { describe, expect, it } from 'vitest'
+
 import { HTTP_METHODS } from './http-methods'
+import { isHttpMethod } from './is-http-method'
 
 describe('isHttpMethod', () => {
   describe('valid HTTP methods', () => {

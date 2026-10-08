@@ -19,6 +19,36 @@ public partial class ScalarOptions
     internal List<ScalarDocument> Documents { get; } = [];
 
     /// <summary>
+    /// Controls the UI locale, text direction, and translation overrides for the API Reference and embedded API Client.
+    /// </summary>
+    public ScalarLocalizationOptions? Localization { get; set; }
+
+    /// <summary>
+    /// Controls which x-prefixed extension keys are displayed, in order. Unset or empty lists display no extensions; custom plugin components take precedence.
+    /// </summary>
+    public string[]? ShowExtensions { get; set; }
+
+    /// <summary>
+    /// Shows structural types instead of model names in schema labels and operation headings (default: false).
+    /// </summary>
+    public bool? HideModelNames { get; set; }
+
+    /// <summary>
+    /// Limits initially visible top-level request body properties (default: 12). Zero shows all; invalid values fall back to 12.
+    /// </summary>
+    public int? MaxVisibleRequestBodyProperties { get; set; }
+
+    /// <summary>
+    /// Controls whether parameter details are expanded initially (default: true).
+    /// </summary>
+    public bool? ExpandAllParameters { get; set; }
+
+    /// <summary>
+    /// Controls whether nested schema properties are expanded initially (default: false). Large API descriptions may render more slowly when enabled.
+    /// </summary>
+    public bool? ExpandAllSchemaProperties { get; set; }
+
+    /// <summary>
     /// Controls the path or URL to a favicon for the documentation.
     /// </summary>
     public string? Favicon { get; set; } = "favicon.svg";
@@ -172,6 +202,15 @@ public partial class ScalarOptions
     /// Controls the default HTTP client (default: shell/curl).
     /// </summary>
     public KeyValuePair<ScalarTarget, ScalarClient>? DefaultHttpClient { get; set; }
+
+    /// <summary>
+    /// Controls which HTTP clients appear as tabs in the Client Libraries block, in order.
+    /// </summary>
+    /// <remarks>
+    /// Leave unset to use the default featured clients. An empty array places all clients under More.
+    /// Clients excluded by EnabledClients or EnabledTargets are skipped. This does not change DefaultHttpClient.
+    /// </remarks>
+    public KeyValuePair<ScalarTarget, ScalarClient>[]? FeaturedClients { get; set; }
 
     /// <summary>
     /// Controls the list of servers for the Scalar API Reference.

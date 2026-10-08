@@ -299,6 +299,30 @@ describe('filterGlobalCookie', () => {
       expect(result).toBe(false)
     })
 
+    it('returns false when cookie path /api is requested at /apiv2', () => {
+      const cookie = createCookie({ path: '/api' })
+
+      const result = filterGlobalCookie({
+        cookie,
+        url: 'https://example.com/apiv2',
+        disabledGlobalCookies,
+      })
+
+      expect(result).toBe(false)
+    })
+
+    it('returns false when cookie path /api is requested at /apis', () => {
+      const cookie = createCookie({ path: '/api' })
+
+      const result = filterGlobalCookie({
+        cookie,
+        url: 'https://example.com/apis',
+        disabledGlobalCookies,
+      })
+
+      expect(result).toBe(false)
+    })
+
     it('returns true for root path', () => {
       const cookie = createCookie({ path: '/' })
 

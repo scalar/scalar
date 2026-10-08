@@ -11,6 +11,33 @@ import { describe, expect, it, vi } from 'vitest'
 import { processParameters } from './process-parameters'
 
 describe('parameter styles', () => {
+  it.each([true, false])(
+    'respects defaultDisabled %s for enum suggestions in generated snippets',
+    (defaultDisabled) => {
+      const result = processParameters({
+        harRequest: {
+          url: 'https://example.com/api/media',
+          method: 'GET',
+          headers: [],
+          queryString: [],
+          cookies: [],
+          httpVersion: 'HTTP/1.1',
+          headersSize: 0,
+          bodySize: 0,
+        },
+        defaultDisabled,
+        parameters: [
+          { name: 'mediaType', in: 'query', schema: { type: 'string', enum: ['None', 'Image'] } },
+          { name: 'X-Media-Type', in: 'header', schema: { type: 'string', enum: ['None', 'Image'] } },
+          { name: 'media', in: 'cookie', schema: { type: 'string', enum: ['None', 'Image'] } },
+        ],
+      })
+      expect(result.queryString).toStrictEqual(defaultDisabled ? [] : [{ name: 'mediaType', value: 'None' }])
+      expect(result.headers).toStrictEqual(defaultDisabled ? [] : [{ name: 'X-Media-Type', value: 'None' }])
+      expect(result.cookies).toStrictEqual(defaultDisabled ? [] : [{ name: 'media', value: 'None' }])
+    },
+  )
+
   it('preserves new example values and serialized query/path/cookie text', () => {
     const result = processParameters({
       harRequest: {

@@ -1,6 +1,7 @@
 import { REGEX } from '@/regex/regex-helpers'
-import { isRelativePath } from './is-relative-path'
+
 import { ensureProtocol } from './ensure-protocol'
+import { isRelativePath } from './is-relative-path'
 
 /**
  * Merges multiple URLSearchParams objects, preserving multiple values per param

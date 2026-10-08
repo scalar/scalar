@@ -54,6 +54,7 @@ export const pt = {
     termsOfService: 'Termos de Serviço',
   },
   asyncapi: {
+    applicationIdentifier: 'Identificador da aplicação',
     servers: 'Servidores',
     protocols: 'Protocolos',
   },

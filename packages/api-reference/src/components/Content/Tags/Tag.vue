@@ -14,6 +14,12 @@ const { tag, layout, moreThanOneTag } = defineProps<{
   /** Whether this tag sits inside a parent tag's container (drops its own padding). */
   nested?: boolean
 }>()
+defineSlots<{
+  /** Tag operations and nested content. */
+  default?: () => unknown
+  /** Optional header actions for embedded tag pages. */
+  actions?: () => unknown
+}>()
 </script>
 
 <template>
@@ -24,6 +30,11 @@ const { tag, layout, moreThanOneTag } = defineProps<{
       :layout="layout"
       :nested="nested"
       :tag="tag">
+      <template
+        v-if="$slots.actions"
+        #actions>
+        <slot name="actions" />
+      </template>
       <slot />
     </ClassicLayout>
   </template>
@@ -35,6 +46,11 @@ const { tag, layout, moreThanOneTag } = defineProps<{
       :moreThanOneTag="moreThanOneTag"
       :nested="nested"
       :tag="tag">
+      <template
+        v-if="$slots.actions"
+        #actions>
+        <slot name="actions" />
+      </template>
       <slot />
     </ModernLayout>
   </template>

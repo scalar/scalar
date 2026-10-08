@@ -66,7 +66,9 @@
 @custom-variant tree-control-hover (
   &:is(:where(.group\/tree-control):hover *),
   :where(.property--tree[data-heading-hovered]) > .property-toggle &,
-  :where([data-child-rail-hovered]) > :where(.property-toggle, .parameter-item-trigger, .callback-item-trigger, .schema-card-title) &
+  :where([data-child-rail-hovered])
+    > :where(.property-toggle, .parameter-item-trigger, .callback-item-trigger, .schema-card-title)
+    &
 );
 
 /* The rail's hit target: an 11px strip straddling the 1px line (6px outside,

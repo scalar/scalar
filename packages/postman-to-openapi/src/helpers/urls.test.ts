@@ -4,10 +4,10 @@ import {
   createCollectionVariableLookup,
   extractPathFromUrl,
   extractPathParameterNames,
-  extractServerObjectFromUrl,
   extractServerFromUrl,
-  getPathStructuralSignature,
+  extractServerObjectFromUrl,
   getDomainFromUrl,
+  getPathStructuralSignature,
   normalizePath,
 } from './urls'
 

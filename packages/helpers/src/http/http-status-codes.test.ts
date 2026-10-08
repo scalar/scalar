@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { httpStatusCodes, type HttpStatusCode, type HttpStatusCodes } from './http-status-codes'
+import { describe, expect, it } from 'vitest'
+
+import { type HttpStatusCode, type HttpStatusCodes, httpStatusCodes } from './http-status-codes'
 
 describe('HTTP Status Codes', () => {
   describe('Type Structure', () => {

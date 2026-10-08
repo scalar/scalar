@@ -23,6 +23,7 @@ import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
+import ChannelMessages from './ChannelMessages.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
@@ -174,6 +175,15 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :options="options"
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension" />
+    <ChannelMessages
+      :channel="channel"
+      :document="document"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :expansion="expansion"
+      :options="options"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
   </SectionContainerAccordion>
 
   <SectionContainer
@@ -225,6 +235,15 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :expandedItems="expandedItems"
           :expansion="expansion"
           :operation="operation"
+          :options="options"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
+        <ChannelMessages
+          :channel="channel"
+          :document="document"
+          :eventBus="eventBus"
+          :expandedItems="expandedItems"
+          :expansion="expansion"
           :options="options"
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />

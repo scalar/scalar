@@ -1,6 +1,11 @@
-import type { ExampleObject, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type {
+  ExampleObject,
+  ParameterObject,
+  ParameterWithSchemaObject,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
+import { getExample } from '../helpers/get-example'
 import { isParamDisabled } from './is-param-disabled'
 
 describe('isParamDisabled', () => {
@@ -147,5 +152,50 @@ describe('isParamDisabled', () => {
       expect(isParamDisabled(parameter, { value })).toBe(true)
       expect(isParamDisabled(parameter, { value, 'x-disabled': false })).toBe(false)
     }
+  })
+  it.each(['query', 'header', 'cookie'] as const)('keeps optional %s enum suggestions disabled', (location) => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: location,
+      schema: { type: 'string', enum: ['None', 'Image'] },
+    }
+    const example = getExample(parameter, 'default', undefined)
+    expect(example).toStrictEqual({ value: 'None' })
+    expect(isParamDisabled(parameter, example)).toBe(true)
+    expect(isParamDisabled({ ...parameter, required: true }, example)).toBe(false)
+    expect(isParamDisabled(parameter, example, false)).toBe(false)
+    for (const disabled of [true, false]) {
+      const edited = { ...parameter, examples: { default: { value: 'None', 'x-disabled': disabled } } }
+      expect(isParamDisabled(edited, getExample(edited, 'default', undefined))).toBe(disabled)
+    }
+  })
+
+  it.each<ParameterWithSchemaObject['schema']>([
+    { type: 'integer', enum: [0, 1] },
+    { type: 'number', enum: [1.5, 2.5] },
+    { type: 'boolean', enum: [false, true] },
+    { type: 'array', items: { type: 'string' }, enum: [['a', 'b']] },
+    { type: 'object', properties: { status: { type: 'string', enum: ['None', 'Active'] } } },
+    {
+      type: 'object',
+      properties: { filter: { type: 'object', properties: { status: { type: 'string', enum: ['None', 'Active'] } } } },
+    },
+    { '$ref': '#/components/schemas/Filter', '$ref-value': { type: 'string', enum: ['None', 'Active'] } },
+  ])('keeps generated schema values disabled: %j', (schema) => {
+    const parameter: ParameterObject = { name: 'filter', in: 'query', schema }
+    expect(isParamDisabled(parameter, getExample(parameter, 'default', undefined))).toBe(true)
+  })
+
+  it.each<ParameterWithSchemaObject['schema']>([
+    { type: 'integer', enum: [1, 0], default: 0 },
+    { type: 'boolean', enum: [true, false], example: false },
+    { type: 'string', enum: ['None', 'Image'], examples: ['Image'] },
+    {
+      type: 'object',
+      properties: { status: { type: 'string', enum: ['None', 'Active'] }, count: { type: 'integer', default: 0 } },
+    },
+  ])('enables authored schema values beside enums: %j', (schema) => {
+    const parameter: ParameterObject = { name: 'filter', in: 'query', schema }
+    expect(isParamDisabled(parameter, getExample(parameter, 'default', undefined))).toBe(false)
   })
 })

@@ -13,6 +13,7 @@ import { fr } from './locales/fr'
 import { pt } from './locales/pt'
 import { ru } from './locales/ru'
 import { zhCn } from './locales/zh-cn'
+import { zhTw } from './locales/zh-tw'
 import { en } from './translations'
 
 const Consumer = defineComponent({
@@ -23,7 +24,7 @@ const Consumer = defineComponent({
 })
 
 describe('index', () => {
-  it.each(Object.entries({ en, ru, es, fr, de, 'zh-CN': zhCn, ar, pt }))(
+  it.each(Object.entries({ en, ru, es, fr, de, 'zh-CN': zhCn, 'zh-TW': zhTw, ar, pt }))(
     'includes every client key and preserves interpolation placeholders in %s',
     (_locale, dictionary) => {
       expect(Object.keys(dictionary).sort()).toStrictEqual(Object.keys(en).sort())
@@ -45,6 +46,12 @@ describe('index', () => {
     ['fr-CA', 'Envoyer'],
     ['de-DE', 'Senden'],
     ['zh-Hans', '发送'],
+    ['zh-TW', '傳送'],
+    ['zh-tw', '傳送'],
+    ['zh_TW', '傳送'],
+    ['zh-Hant', '发送'],
+    ['zh-HK', '发送'],
+    ['zh-MO', '发送'],
     ['ar-EG', 'إرسال'],
     ['pt-BR', 'Enviar'],
   ])('selects built-in client translations for %s without overrides', (locale, send) => {
@@ -88,6 +95,14 @@ describe('index', () => {
     await nextTick()
     expect(wrapper.text()).toBe('Senden')
     expect(wrapper.attributes('lang')).toBe('de')
+    localization.value = { locale: 'zh-TW', translations: { apiClient: { addressBar: { send: '送出' } } } }
+    await nextTick()
+    expect(wrapper.text()).toBe('送出')
+    localization.value = { locale: 'zh-TW' }
+    await nextTick()
+    expect(wrapper.text()).toBe('傳送')
+    expect(wrapper.attributes('lang')).toBe('zh-TW')
+    expect(wrapper.attributes('dir')).toBe('ltr')
     localization.value = { locale: 'ar' }
     await nextTick()
     expect(wrapper.text()).toBe('إرسال')

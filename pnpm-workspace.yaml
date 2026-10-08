@@ -49,7 +49,7 @@ catalogs:
     '@types/semver': 7.5.8
     '@types/supertest': 6.0.2
     '@types/ws': 8.18.1
-    '@typescript-eslint/parser': ^8.53.0
+    '@typescript-eslint/parser': 8.71.0
     '@vitejs/plugin-react': 6.0.1
     '@vitejs/plugin-vue': ^6.0.8
     '@vue/test-utils': 2.4.11

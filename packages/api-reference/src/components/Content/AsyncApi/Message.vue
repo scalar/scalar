@@ -43,8 +43,11 @@ const {
   eventBus,
   options,
   expandedItems = {},
+  parent = 'operation',
 } = defineProps<
   {
+    /** Direct channel messages sit one heading level above operation messages. */
+    parent?: 'channel' | 'operation'
     message: TraversedAsyncApiMessage
     document: AsyncApiDocument
     eventBus: WorkspaceEventBus | null
@@ -158,7 +161,9 @@ const generatedPayload = computed<unknown>(() =>
     : undefined,
 )
 
-const { level: headingLevel } = useDocumentOutline('message')
+const { level: headingLevel } = useDocumentOutline(
+  parent === 'channel' ? 'channelMessage' : 'message',
+)
 </script>
 
 <template>

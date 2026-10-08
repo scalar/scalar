@@ -1,6 +1,6 @@
 @import "@scalar/themes/tailwind.css";
 
-@source './App.vue';
+@source "./App.vue";
 
 .scalar-app {
   @import "tailwindcss/utilities.css";

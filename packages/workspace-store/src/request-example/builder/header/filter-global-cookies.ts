@@ -3,10 +3,23 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import { matchesDomain } from './matches-domain'
 
 /**
+ * RFC 6265 path-match: cookie-path C matches request-path R when they are the same,
+ * or C is a prefix of R and the next character is a slash. A trailing slash on C
+ * already supplies that boundary, so `/api` matches `/api/users` but not `/apiv2`.
+ */
+const pathMatches = (requestPath: string, cookiePath: string): boolean => {
+  if (requestPath === cookiePath || cookiePath.endsWith('/')) {
+    return requestPath.startsWith(cookiePath)
+  }
+
+  return requestPath.startsWith(`${cookiePath}/`)
+}
+
+/**
  * Filter a global cookie to determine if it should be included with a request to the given URL.
  * - Returns false if the cookie is disabled, in the disabledGlobalCookies map, or missing a name.
  * - Returns false if the domain does not match.
- * - Returns false if the path is specified and does not match the URL pathname.
+ * - Returns false if the path is specified and the request pathname does not path-match it.
  * - Returns true otherwise.
  */
 export const filterGlobalCookie = ({
@@ -31,8 +44,9 @@ export const filterGlobalCookie = ({
     return false
   }
 
-  // If a path restriction exists, ensure the cookie is only sent for URLs with a matching prefix.
-  if (cookie.path && !urlObject.pathname.startsWith(cookie.path)) {
+  // An empty path means no path restriction. Otherwise require an RFC 6265 path-match,
+  // so a cookie for `/api` is not sent to `/apiv2`.
+  if (cookie.path && !pathMatches(urlObject.pathname, cookie.path)) {
     return false
   }
 

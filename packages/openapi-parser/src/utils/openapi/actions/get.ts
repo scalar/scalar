@@ -1,4 +1,5 @@
 import type { CommandChain, Queue, Task } from '@/types/index'
+
 import { workThroughQueue } from '../utils/workThroughQueue'
 
 /**

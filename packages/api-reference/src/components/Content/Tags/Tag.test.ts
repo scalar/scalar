@@ -1,6 +1,8 @@
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { h } from 'vue'
 
 import Tag from './Tag.vue'
 
@@ -14,6 +16,85 @@ describe('Tag', () => {
     description: 'A test tag description',
     isGroup: false,
   }
+
+  it.each(['modern', 'classic'] as const)('renders header actions alongside content in the %s layout', (layout) => {
+    const eventBus = createWorkspaceEventBus()
+    const onToggle = vi.fn()
+    const onCopy = vi.fn()
+    eventBus.on('toggle:nav-item', onToggle)
+    const wrapper = mount(Tag, {
+      props: { tag: mockTag, layout, moreThanOneTag: true, isCollapsed: false, eventBus },
+      slots: {
+        actions: () => h('button', { onClick: onCopy }, 'Copy Page'),
+        default: '<p>Tag content</p>',
+      },
+    })
+
+    expect(wrapper.text()).toContain('Test Tag')
+    expect(wrapper.text()).toContain('Tag content')
+    const actions = wrapper.findAll('button').filter((button) => button.text() === 'Copy Page')
+    expect(actions.length).toBe(1)
+    // Interactive actions must not be nested inside the collapse control.
+    expect(actions[0]!.element.parentElement?.closest('button')).toBeNull()
+    actions[0]!.element.click()
+    expect(onCopy).toHaveBeenCalledTimes(1)
+    expect(onToggle).not.toHaveBeenCalled()
+  })
+
+  it.each(['modern', 'classic'] as const)(
+    'keeps header actions available while collapsed in the %s layout',
+    (layout) => {
+      const wrapper = mount(Tag, {
+        props: { tag: mockTag, layout, moreThanOneTag: true, isCollapsed: true, eventBus: null },
+        slots: { actions: '<button>Copy Page</button>', default: '<p>Tag content</p>' },
+      })
+
+      expect(wrapper.text()).toContain('Copy Page')
+      expect(wrapper.text()).not.toContain('Tag content')
+    },
+  )
+
+  it.each(['modern', 'classic'] as const)('accepts an empty actions slot in the %s layout', (layout) => {
+    const wrapper = mount(Tag, {
+      props: { tag: mockTag, layout, moreThanOneTag: true, isCollapsed: false, eventBus: null },
+      slots: { actions: () => [], default: '<p>Tag content</p>' },
+    })
+
+    expect(wrapper.text()).toContain('Tag content')
+    expect(wrapper.findAll('button').filter((button) => button.text() === 'Copy Page').length).toBe(0)
+  })
+
+  it('preserves the hidden default tag header in modern layout when actions are supplied', () => {
+    const wrapper = mount(Tag, {
+      props: {
+        tag: { ...mockTag, title: 'default', description: '' },
+        layout: 'modern',
+        moreThanOneTag: false,
+        isCollapsed: false,
+        eventBus: null,
+      },
+      slots: { actions: '<button>Copy Page</button>', default: '<p>Tag content</p>' },
+    })
+
+    expect(wrapper.text()).not.toContain('Copy Page')
+    expect(wrapper.text()).toContain('Tag content')
+  })
+
+  it('preserves the classic collapse control when actions are supplied', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const onToggle = vi.fn()
+    eventBus.on('toggle:nav-item', onToggle)
+    const wrapper = mount(Tag, {
+      props: { tag: mockTag, layout: 'classic', moreThanOneTag: true, isCollapsed: false, eventBus },
+      slots: { actions: '<button>Copy Page</button>', default: '<p>Tag content</p>' },
+    })
+
+    await wrapper.get('button[aria-expanded]').trigger('click')
+    expect(onToggle).toHaveBeenCalledExactlyOnceWith({ id: 'test-tag', open: false })
+    await wrapper.setProps({ isCollapsed: true })
+    expect(wrapper.text()).not.toContain('Tag content')
+    expect(wrapper.text()).toContain('Copy Page')
+  })
 
   describe('layout rendering', () => {
     it('renders ClassicLayout when layout is classic', () => {
