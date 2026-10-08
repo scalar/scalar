@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { pushDynamicScope, resolveDynamicRef } from '@/magic-proxy/dynamic-ref'
 import { createMagicProxy } from '@/magic-proxy/proxy'
 
+/** A proxied document read by path, including the virtual `$ref-value` and `$dynamicRef-value` keys. */
+type ProxyNode = { readonly [key: string]: ProxyNode }
+
 /**
  * The magic proxy resolves JSON Schema 2020-12 `$dynamicRef` transparently through the virtual
  * `$dynamicRef-value` property, threading the dynamic scope as the document is walked. These tests
@@ -94,7 +97,7 @@ describe('proxy-dynamic-ref', () => {
       },
     }
 
-    const proxy = createMagicProxy(document) as any
+    const proxy = createMagicProxy(document) as unknown as ProxyNode
     const items = proxy.CategoryTree.properties.root.properties.children.items
 
     expect(items['$dynamicRef-value']).toMatchObject({ $dynamicAnchor: 'node' })
@@ -130,7 +133,7 @@ describe('proxy-dynamic-ref', () => {
       },
     }
 
-    const proxy = createMagicProxy(document) as any
+    const proxy = createMagicProxy(document) as unknown as ProxyNode
 
     const userItems = proxy.UserPage['$ref-value'].properties.items.items
     const groupItems = proxy.GroupPage['$ref-value'].properties.items.items
@@ -154,7 +157,7 @@ describe('proxy-dynamic-ref', () => {
       },
     }
 
-    const proxy = createMagicProxy(document) as any
+    const proxy = createMagicProxy(document) as unknown as ProxyNode
 
     expect(proxy.Widget.properties.orphan['$dynamicRef-value']).toBeUndefined()
     expect(proxy.Widget.properties.plain['$dynamicRef-value']).toBeUndefined()
@@ -168,7 +171,7 @@ describe('proxy-dynamic-ref', () => {
       b: { $ref: '#/$defs/shared' },
     }
 
-    const proxy = createMagicProxy(document) as any
+    const proxy = createMagicProxy(document) as unknown as ProxyNode
 
     // Without dynamic refs the proxy cache is untouched, so repeated access yields the same proxy.
     expect(proxy.$defs.shared).toBe(proxy.$defs.shared)
@@ -211,7 +214,7 @@ describe('proxy-dynamic-ref', () => {
       },
     }
 
-    const proxy = createMagicProxy(document) as any
+    const proxy = createMagicProxy(document) as unknown as ProxyNode
     const items = proxy.CategoryTree.properties.root.properties.children.items
 
     // The recursive `#node` resolves to the same proxy on the same path: this is what lets cycle
@@ -270,5 +273,104 @@ describe('proxy-dynamic-ref', () => {
       expect(templates.size).toBe(64)
       expect(visited.size).toBe(448)
     }
+  })
+
+  /** A generic page template with a default `#itemType` bookend. */
+  const pageTemplate = (): Record<string, unknown> => ({
+    $defs: { item: { $dynamicAnchor: 'itemType', not: {} } },
+    type: 'object',
+    properties: { items: { type: 'array', items: { $dynamicRef: '#itemType' } } },
+  })
+
+  it('binds dynamic references added to the document after an earlier read', () => {
+    // The store adds content to a live document (lazy chunks, client edits). An earlier read of an
+    // ordinary `$defs` schema must not freeze the document as "has no dynamic references".
+    const proxy = createMagicProxy({
+      components: { schemas: { Plain: { $defs: { x: { type: 'string' } } } } },
+    }) as unknown as Record<string, Record<string, Record<string, unknown>>>
+    expect(Reflect.get(proxy.components.schemas, 'Plain')).toBeDefined()
+
+    proxy.components.schemas.Page = pageTemplate()
+    proxy.components.schemas.UserPage = {
+      $id: 'urn:user-page',
+      $ref: '#/components/schemas/Page',
+      $defs: { item: { $dynamicAnchor: 'itemType', title: 'User' } },
+    }
+
+    const read = proxy as unknown as ProxyNode
+    const items = read.components.schemas.UserPage['$ref-value'].properties.items.items
+    expect(items['$dynamicRef-value']).toMatchObject({ title: 'User' })
+  })
+
+  it('binds a recursive anchor on a schema reached through a $ref from an explicit resource', () => {
+    // `User` has no `$id`, so it does not belong to `urn:user-page` even though that resource led here.
+    // Its own `#node` anchor must enter the scope so `friends` binds back to `User`.
+    const proxy = createMagicProxy({
+      components: {
+        schemas: {
+          Page: pageTemplate(),
+          UserPage: {
+            $id: 'urn:user-page',
+            $ref: '#/components/schemas/Page',
+            $defs: { item: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/User' } },
+          },
+          User: {
+            $dynamicAnchor: 'node',
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              friends: { type: 'array', items: { $dynamicRef: '#node' } },
+            },
+          },
+        },
+      },
+    }) as unknown as ProxyNode
+
+    const item = proxy.components.schemas.UserPage['$ref-value'].properties.items.items['$dynamicRef-value']
+    const user = item['$ref-value']
+    expect(user.properties.friends.items['$dynamicRef-value']).toMatchObject({ $dynamicAnchor: 'node' })
+  })
+
+  it('binds through a template whose unrelated $defs make it a scope entry', () => {
+    // Neither schema has an `$id`, so the binding's `#itemType` is the bookend for the whole document.
+    const build = (templateDefs: boolean): ProxyNode =>
+      createMagicProxy({
+        components: {
+          schemas: {
+            Template: {
+              ...(templateDefs ? { $defs: { Meta: { type: 'object' } } } : {}),
+              type: 'object',
+              properties: { items: { type: 'array', items: { $dynamicRef: '#itemType' } } },
+            },
+            UserPage: {
+              $ref: '#/components/schemas/Template',
+              $defs: { item: { $dynamicAnchor: 'itemType', title: 'User' } },
+            },
+          },
+        },
+      }) as unknown as ProxyNode
+
+    for (const templateDefs of [false, true]) {
+      const items = build(templateDefs).components.schemas.UserPage['$ref-value'].properties.items.items
+      expect(items['$dynamicRef-value']).toMatchObject({ title: 'User' })
+    }
+  })
+
+  it('keeps $ref-value identity under an active dynamic scope', () => {
+    const proxy = createMagicProxy({
+      components: {
+        schemas: {
+          Page: pageTemplate(),
+          UserPage: {
+            $id: 'urn:user-page',
+            $ref: '#/components/schemas/Page',
+            $defs: { item: { $dynamicAnchor: 'itemType', title: 'User' } },
+          },
+        },
+      },
+    }) as unknown as ProxyNode
+
+    const page = proxy.components.schemas.UserPage
+    expect(page['$ref-value']).toBe(page['$ref-value'])
   })
 })
