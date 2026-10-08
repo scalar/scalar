@@ -672,56 +672,56 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   </div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-orange">API Client</span>
-      <scalar-heading level="2" slug="scalar-api-client" class="c">
-        The Postman Alternative Your Team Is Dreaming Of
+      <span class="font-bold text-orange">MCP &amp; Agent</span>
+      <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
+        Turn Your OpenAPI Documents Into an MCP Server
       </scalar-heading>
       <p>
-        Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community.
+        Upload your OpenAPI documents and expose them as a hosted MCP server: just-in-time tool calls, secure delegated auth, and only 0.2% of your context window no matter how many APIs you connect.
       </p>
       <div class="flex flex-wrap text-orange gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline-first
+          <scalar-icon src="phosphor/bold/grid-four"></scalar-icon>
+          Just-in-time tool calls
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync your local API
+          <scalar-icon src="phosphor/bold/shield-check"></scalar-icon>
+          Secure delegated auth
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
-          OpenAPI by Heart
+          <scalar-icon src="phosphor/bold/users-three"></scalar-icon>
+          Scoped access
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate with Others
+          <scalar-icon src="phosphor/bold/arrows-out-line-horizontal"></scalar-icon>
+          Isolated execution
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock-In
+          <scalar-icon src="phosphor/bold/article"></scalar-icon>
+          Markdown in MCP
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Linux, Windows, macOS
+          <scalar-icon src="phosphor/bold/infinity"></scalar-icon>
+          Public and internal APIs
         </b>
       </div>
       <div class="product-actions mt-3">
-        <a class="product-action t-editor__anchor" href="https://client.scalar.com/" target="_blank" rel="noopener noreferrer" aria-label="Send an API request with Scalar">
-          Send Request &rarr;
+        <a class="product-action t-editor__anchor" href="https://dashboard.scalar.com/register" target="_blank" rel="noopener noreferrer" aria-label="Get started with Scalar MCP and Agent">
+          Get Started &rarr;
         </a>
-        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/api-client" aria-label="Learn more about Scalar API Client">
+        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">
           Learn More &rarr;
         </a>
       </div>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img alt="API Client" class="light-image" src="/api-client-static.svg"/>
-        <img alt="API Client" class="dark-image" src="/api-client-static-dark.svg"/>
+        <img alt="Claude connected to a Scalar MCP server" class="light-image" src="/agent-static.svg"/>
+        <img alt="Claude connected to a Scalar MCP server" class="dark-image" src="/agent-static-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-8">
-      <scalar-icon src="../assets/remote/cdn-6ce5b6dd90.svg"></scalar-icon>
+      <scalar-icon src="../assets/agent-scalar-sticker.svg"></scalar-icon>
     </div>
   </div>
 </div>
@@ -838,21 +838,20 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
-      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
+      <img alt="MCP & Agent Preview" class="light-image" src="/agent-static.svg" />
+      <img alt="MCP & Agent Preview" class="dark-image" src="/agent-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object class="sticker-clip-client" width="156" height="110"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
+        <object class="sticker-clip-agent" width="139" height="162" data="/agent-scalar-sticker-static.svg"></object>
       </div>
-      <div class="expander-hover-title">API Client</div>
+      <div class="expander-hover-title">MCP & Agent</div>
       <div class="expander">
         <div class="expander-content">
-          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
+          OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.
         </div>
       </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
+      <a class="expander-hover-link" href="/products/agent" aria-label="Learn more about MCP & Agent">Learn More</a>
     </div>
   </div>
 </div>
@@ -1727,9 +1726,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .dark-mode .light-image {
     display: none;
   }
-  .sticker-clip-client {
-    clip-path: path("M158 91.9102C158 95.8908 154.773 99.1172 150.792 99.1172L147.269 99.1172L147.269 105.78C147.268 107.948 145.511 109.705 143.343 109.705L86.2051 109.705C84.0373 109.705 82.2795 107.948 82.2793 105.78L82.2793 99.1172L7.208 99.1172C3.22741 99.1172 1.10673e-05 95.8908 -4.01752e-06 91.9101L-3.50643e-06 80.2178C-3.47119e-06 79.4117 0.135571 78.6109 0.400387 77.8496L25.7949 4.83984C26.8028 1.94219 29.5346 -5.6154e-06 32.6025 -5.4813e-06L150.792 -3.15072e-07C154.773 -1.41078e-07 158 3.22654 158 7.20703L158 91.9102Z")
-  }
   .sticker-clip-sdk {
     clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
   }
@@ -1739,6 +1735,10 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .sticker-clip-docs {
     overflow: hidden;
     border-radius: 20px;
+  }
+  /* Outline of the Agent Scalar speech-bubble sticker (139x162). */
+  .sticker-clip-agent {
+    clip-path: path("M128.27 0C134.19 0 139 4.8 139 10.73V134.6c0 5.93-4.8 10.73-10.73 10.73H22.72L7.46 160.3A4.39 4.39 0 0 1 0 157.17V128.3h.17V10.73C.17 4.81 4.97 0 10.9 0z");
   }
 
   @media screen and (max-width: 590px) {

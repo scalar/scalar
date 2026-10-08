@@ -4,3 +4,4 @@ export {
   useAgentContext,
 } from './use-agent'
 export { useIntersection } from './use-intersection'
+export { useRegisterLink } from './use-register-link'

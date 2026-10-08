@@ -91,10 +91,16 @@ useTooltip({
   );
 }
 
+/*
+ * The hairline is spelled out: the preflight that gives `border` its theme colour only reaches
+ * descendants of `.scalar-app`, and this element is the `.scalar-app` root itself, so the
+ * utility alone would fall back to currentColor (black on light, white on dark).
+ */
 :where(body, dialog) > .scalar-tooltip:before {
   content: '';
   inset: 0;
-  @apply absolute rounded-lg bg-b-tooltip -z-1 backdrop-blur border shadow;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  @apply absolute rounded-lg bg-b-tooltip -z-1 backdrop-blur shadow;
 }
 
 /* Leave the gap on the target-facing side so the other edges stay flush */

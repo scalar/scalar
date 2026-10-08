@@ -174,6 +174,27 @@ export const pt = {
     unableToExportDocument: 'Não foi possível exportar o documento ativo',
     unknownError: 'Ocorreu um erro desconhecido',
   },
+  exploreScalar: {
+    cta: 'Gerar SDKs e MCP',
+    headline: 'Gere SDKs, MCPs e docs para a sua API instantaneamente',
+    title: 'Tudo o que a sua API precisa, a partir de um único documento OpenAPI',
+    generateTitle: 'SDKs e servidores MCP',
+    generateDescription:
+      'Bibliotecas cliente tipadas e um servidor MCP, gerados a partir deste documento e mantidos em sincronia.',
+    platformTitle: 'Docs, portais para desenvolvedores e registro',
+    platformDescription:
+      'Publique esta referência com guias, hospede suas APIs em um registro e teste-as no cliente de API.',
+    signUp: 'Experimente grátis',
+    bookDemo: 'Agende uma demo com Marc, nosso CEO',
+    getDemo: 'ou agende uma demo com Marc',
+    messageMarc: 'Envie uma mensagem para Marc no X',
+    dmMarc: 'ou só me manda uma DM no X!',
+    close: 'Fechar',
+    opensInNewTab: 'Abre em uma nova aba',
+    popupBlocked: 'Seu navegador bloqueou a nova aba. Clique novamente no botão para abri-la.',
+    back: 'Voltar',
+    openBookingPage: 'Abrir a página de agendamento',
+  },
   gettingStarted: {
     swaggerEditor: 'Editor Swagger',
     description:
