@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  collectDynamicAnchors,
-  containsDynamicRef,
-  isDynamicRef,
-  pushDynamicScope,
-  resolveDynamicRef,
-} from '@/magic-proxy/dynamic-ref'
+import { collectDynamicAnchors, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/magic-proxy/dynamic-ref'
 
 /** Cast a plain object so tests can use the untyped 2020-12 keywords (`$defs`, `$dynamicAnchor`). */
 const schema = (value: Record<string, unknown>): Record<string, unknown> => value
@@ -119,18 +113,10 @@ describe('dynamic-ref', () => {
     expect(collectDynamicAnchors(schema({ type: 'object' })).size).toBe(0)
   })
 
-  it('detects a $dynamicRef nested anywhere', () => {
-    expect(containsDynamicRef({ properties: { a: { items: { $dynamicRef: '#node' } } } })).toBe(true)
-  })
-
-  it('returns false for documents without a $dynamicRef', () => {
-    expect(containsDynamicRef({ properties: { a: { $ref: '#/x', $dynamicAnchor: 'node' } } })).toBe(false)
-  })
-
-  it('does not loop on a self-referential document', () => {
-    const root: Record<string, unknown> = { type: 'object' }
-    root.self = root
-    expect(() => containsDynamicRef(root)).not.toThrow()
+  it('keeps an anchor node whose sibling $ref does not point at a schema object', () => {
+    // Spreading a string target would invent index keys (`0`, `1`, …) that render as properties.
+    const node = { $dynamicAnchor: 'itemType', $ref: '#/info/title', '$ref-value': 'My' }
+    expect(collectDynamicAnchors(schema({ $id: 'urn:r', $defs: { item: node } })).get('itemType')).toBe(node)
   })
 
   it('appends schemas that can hold a dynamic anchor', () => {
@@ -141,6 +127,14 @@ describe('dynamic-ref', () => {
     expect(pushDynamicScope([], anchored)).toEqual([anchored])
     expect(pushDynamicScope([], withId)).toEqual([withId])
     expect(pushDynamicScope([], withDefs)).toEqual([withDefs])
+  })
+
+  it('keeps inline anchors inside an explicit resource unless the schema was reached through a $ref', () => {
+    const scope = [schema({ $id: 'urn:a' })]
+    const anchored = schema({ $dynamicAnchor: 'node' })
+
+    expect(pushDynamicScope(scope, anchored)).toBe(scope)
+    expect(pushDynamicScope(scope, anchored, false)).toEqual([...scope, anchored])
   })
 
   it('leaves the scope unchanged for plain subschemas', () => {
@@ -171,6 +165,14 @@ describe('dynamic-ref', () => {
     // stays unresolved instead of binding to `outer`'s anchor.
     const bare = schema({ $id: 'urn:bare', type: 'object' })
     expect(resolveDynamicRef('#itemType', [outer, bare])).toBeUndefined()
+  })
+
+  it('finds the bookend in the holding resource behind a $defs-only scope entry', () => {
+    // Neither entry has an `$id`, so both belong to the document's resource. The template's unrelated
+    // `$defs` must not hide the binding's bookend.
+    const binding = schema({ $defs: { item: { $dynamicAnchor: 'itemType', title: 'User' } } })
+    const template = schema({ $defs: { Meta: { type: 'object' } } })
+    expect(resolveDynamicRef('#itemType', [binding, template])).toMatchObject({ title: 'User' })
   })
 
   it('returns undefined when no anchor matches', () => {
