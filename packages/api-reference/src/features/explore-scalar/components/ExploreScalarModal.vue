@@ -391,9 +391,9 @@ const showOverview = (): void => {
 /*
  * ---- Marc takes centre stage ----
  * While the demo call is hovered or focused, Marc's sticker rises into the middle of the wall
- * with a springy settle, and the three product stickers scatter outwards behind him: each slides
- * away from the centre, shrinks a little and tilts further, all on one unhurried ease, and
- * everything returns together on the way back. The stickers' resting tilt is an inline custom
+ * with a springy settle, and the three product stickers tuck in underneath him: each slides in
+ * behind his sticker, shrinks a little and tilts further so it peeks out at a different edge,
+ * all on one unhurried ease, and everything returns together on the way back. The stickers' resting tilt is an inline custom
  * property, so the scatter sets `rotate` itself (a stylesheet cannot override that variable).
  * Only the individual transform properties move; the fallback entrance keyframes own `transform`.
  */
@@ -410,19 +410,19 @@ const showOverview = (): void => {
     rotate 560ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='portals'] {
-  rotate: -24deg;
-  translate: -52px 14px;
-  scale: 0.8;
+  rotate: -18deg;
+  translate: 34px 8px;
+  scale: 0.85;
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='sdks'] {
-  rotate: -16deg;
-  translate: -60px -46px;
-  scale: 0.78;
+  rotate: -14deg;
+  translate: -26px -38px;
+  scale: 0.85;
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='agent'] {
-  rotate: 22deg;
-  translate: 16px 10px;
-  scale: 0.8;
+  rotate: 18deg;
+  translate: -30px 8px;
+  scale: 0.85;
 }
 .explore-scalar-modal .explore-scalar-marc {
   opacity: 0;
