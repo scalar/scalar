@@ -198,9 +198,9 @@ const showOverview = (): void => {
             aria-hidden="true"
             class="explore-scalar-wash pointer-events-none absolute inset-x-0 top-0" />
           <ExploreScalarStickers layout="hero" />
-          <!-- Stuck on at the end of the pile, hanging a little lower, once Marc is invited -->
+          <!-- Centre stage, in front of the pile, once Marc is invited -->
           <StickerMarc
-            class="explore-scalar-marc absolute bottom-4 left-[calc(50%+112px)] z-20 w-[84px] origin-center" />
+            class="explore-scalar-marc absolute bottom-5 left-[calc(50%-58px)] z-20 w-[116px] origin-bottom" />
         </div>
 
         <div class="px-8 pt-2 text-center">
@@ -389,36 +389,65 @@ const showOverview = (): void => {
 }
 
 /*
- * ---- Marc joins the wall ----
- * The pile slides over to make room and the sticker is pressed on: it lands from slightly above
- * scale with an overshoot, and its tilt settles at the same time. Leaving is quicker and plain.
+ * ---- Marc takes centre stage ----
+ * While the demo call is hovered or focused, Marc's sticker rises into the middle of the wall
+ * with a springy settle, and the three product stickers scatter outwards behind him: each slides
+ * away from the centre, shrinks a little and tilts further, all on one unhurried ease, and
+ * everything returns together on the way back. The stickers' resting tilt is an inline custom
+ * property, so the scatter sets `rotate` itself (a stylesheet cannot override that variable).
+ * Only the individual transform properties move; the fallback entrance keyframes own `transform`.
  */
-.explore-scalar-modal .explore-scalar-hero .explore-scalar-stickers {
-  transition: translate 420ms cubic-bezier(0.32, 0.72, 0, 1);
+.explore-scalar-modal .explore-scalar-hero .explore-scalar-sticker {
+  transition:
+    translate 360ms cubic-bezier(0.4, 0, 0.2, 1),
+    scale 360ms cubic-bezier(0.4, 0, 0.2, 1),
+    rotate 360ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-.explore-scalar-modal .explore-scalar-hero[data-marc] .explore-scalar-stickers {
-  translate: -22px 0;
+.explore-scalar-modal .explore-scalar-hero[data-marc] .explore-scalar-sticker {
+  transition:
+    translate 560ms cubic-bezier(0.32, 0.72, 0, 1),
+    scale 560ms cubic-bezier(0.32, 0.72, 0, 1),
+    rotate 560ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='portals'] {
+  rotate: -24deg;
+  translate: -52px 14px;
+  scale: 0.8;
+}
+.explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='sdks'] {
+  rotate: -16deg;
+  translate: -60px -46px;
+  scale: 0.78;
+}
+.explore-scalar-modal .explore-scalar-hero[data-marc] [data-sticker='agent'] {
+  rotate: 22deg;
+  translate: 16px 10px;
+  scale: 0.8;
 }
 .explore-scalar-modal .explore-scalar-marc {
   opacity: 0;
-  rotate: -6deg;
-  scale: 1.3;
+  rotate: -12deg;
+  scale: 0.55;
+  translate: 0 28px;
   transition:
-    opacity 140ms ease-in,
-    scale 240ms cubic-bezier(0.4, 0, 0.2, 1),
-    rotate 240ms cubic-bezier(0.4, 0, 0.2, 1);
+    opacity 160ms ease-in,
+    scale 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    rotate 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    translate 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .explore-scalar-modal .explore-scalar-hero[data-marc] .explore-scalar-marc {
   opacity: 1;
-  rotate: 10deg;
+  rotate: -4deg;
   scale: 1;
+  translate: 0 0;
   transition:
-    opacity 160ms ease-out,
-    scale 480ms cubic-bezier(0.34, 1.45, 0.64, 1),
-    rotate 480ms cubic-bezier(0.34, 1.45, 0.64, 1);
+    opacity 200ms ease-out,
+    scale 620ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    rotate 620ms cubic-bezier(0.34, 1.35, 0.64, 1),
+    translate 620ms cubic-bezier(0.34, 1.35, 0.64, 1);
 }
 @media (prefers-reduced-motion: reduce) {
-  .explore-scalar-modal .explore-scalar-hero .explore-scalar-stickers,
+  .explore-scalar-modal .explore-scalar-hero .explore-scalar-sticker,
   .explore-scalar-modal .explore-scalar-marc {
     transition: none;
   }
