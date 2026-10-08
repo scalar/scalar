@@ -135,5 +135,23 @@ describe('use-generate-sdk', () => {
 
       expect(enabled.value).toBe(false)
     })
+
+    it('is disabled while the document already lists SDKs', () => {
+      vi.stubGlobal('location', { href: 'http://localhost:5173/' })
+      const hasSdk = ref(true)
+      const { enabled } = useGenerateSdk({ workspace: createWorkspace(), externalUrls, hasSdk })
+
+      expect(enabled.value).toBe(false)
+
+      hasSdk.value = false
+      expect(enabled.value).toBe(true)
+    })
+
+    it('stays disabled on deployed references without SDKs', () => {
+      vi.stubGlobal('location', { href: 'https://docs.example.com/reference' })
+      const { enabled } = useGenerateSdk({ workspace: createWorkspace(), externalUrls, hasSdk: () => false })
+
+      expect(enabled.value).toBe(false)
+    })
   })
 })

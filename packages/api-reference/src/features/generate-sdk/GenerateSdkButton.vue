@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
+import { useLoadingState } from '@scalar/components/loading'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 
@@ -15,7 +17,7 @@ const { variant = 'card' } = defineProps<{
   /**
    * Where the button sits:
    * - `toolbar`: the developer tools header, matches the popover triggers next to it
-   * - `card`: a full-width row under the client libraries card
+   * - `card`: the client libraries card header, matches the "Authorize via OAuth2" button
    * - `code`: inline in the dark request example header, next to the client picker
    */
   variant?: 'toolbar' | 'card' | 'code'
@@ -25,8 +27,18 @@ const context = useGenerateSdkContext()
 const { translate } = useLocalization()
 const { toast } = useToasts()
 
+/** Spinner for the card variant, like the OAuth2 button it sits next to */
+const loader = useLoadingState()
+
 const handleClick = async () => {
+  // Ignore repeat clicks while an upload runs, otherwise they would clear the spinner early
+  if (loader.isLoading || context.value?.isGenerating.value) {
+    return
+  }
+
+  loader.start()
   const result = await context.value?.generate()
+  await loader.clear()
 
   if (!result || result.ok) {
     return
@@ -41,8 +53,19 @@ const handleClick = async () => {
 }
 </script>
 <template>
+  <!-- Same size, variant and classes as "Authorize via OAuth2" in the authentication card -->
+  <ScalarButton
+    v-if="context?.enabled.value && variant === 'card'"
+    :aria-busy="context.isGenerating.value"
+    class="text-c-1 px-3 py-1"
+    :loader
+    size="sm"
+    variant="gradient"
+    @click.stop="handleClick">
+    {{ translate('sdk.generate') }}
+  </ScalarButton>
   <button
-    v-if="context?.enabled.value"
+    v-else-if="context?.enabled.value"
     :aria-busy="context.isGenerating.value"
     class="generate-sdk-button"
     :class="`generate-sdk-button--${variant}`"
@@ -90,26 +113,6 @@ const handleClick = async () => {
 .generate-sdk-button--toolbar:hover {
   color: var(--scalar-color-1);
   background: var(--scalar-background-2);
-}
-
-/* Row under the client libraries card */
-.generate-sdk-button--card {
-  width: 100%;
-  justify-content: center;
-  color: var(--scalar-color-1);
-  font-weight: var(--scalar-font-medium);
-  padding: 9px 12px;
-  background: var(--scalar-background-1);
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-top: none;
-  border-radius: 0 0 var(--scalar-radius-xl) var(--scalar-radius-xl);
-}
-.generate-sdk-button--card:hover {
-  background: var(--scalar-background-2);
-}
-.generate-sdk-button--card:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 
 /* Inline in the request example header, beside the client picker */

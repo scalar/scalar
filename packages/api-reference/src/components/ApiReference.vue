@@ -82,6 +82,7 @@ import {
   AsyncApiSidebarFilters,
   filterAsyncApiNavigation,
 } from '@/blocks/scalar-asyncapi-sidebar-filters-block'
+import { hasRenderableSdks } from '@/blocks/scalar-sdk-installation-instructions'
 import { AgentScalarButton, OpenMCPButton } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
@@ -1434,12 +1435,15 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 
 /**
  * Lets every "Generate SDK" button (developer tools, client libraries, request examples) share one
- * upload of the active document. Only enabled while the reference runs on a local URL.
+ * upload of the active document. Only enabled while the reference runs on a local URL and the
+ * document does not already list its own SDKs (the same rule Content uses to swap the client
+ * libraries for SDK installation instructions).
  */
 const generateSdk = useGenerateSdk({
   workspace: workspaceStore,
   externalUrls: () => mergedConfig.value.externalUrls,
   documentUrl,
+  hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
 })
 provide(GENERATE_SDK_CONTEXT_SYMBOL, generateSdk)
 

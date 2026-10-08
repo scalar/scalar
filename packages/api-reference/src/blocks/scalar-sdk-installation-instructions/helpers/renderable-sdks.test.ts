@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRenderableSdks } from './renderable-sdks'
+import { getRenderableSdks, hasRenderableSdks } from './renderable-sdks'
 
 describe('getRenderableSdks', () => {
   it('returns an empty array for undefined', () => {
@@ -74,5 +74,36 @@ describe('getRenderableSdks', () => {
 
   it('drops entries that carry neither a description nor a source', () => {
     expect(getRenderableSdks([{ lang: 'Empty' }, { lang: 'Blank', description: '', source: '   ' }])).toEqual([])
+  })
+})
+
+describe('hasRenderableSdks', () => {
+  const openApi = (info: Record<string, unknown>) =>
+    ({ openapi: '3.1.0', info: { title: 'API', version: '1.0.0', ...info } }) as unknown as Parameters<
+      typeof hasRenderableSdks
+    >[0]
+
+  it('is true when the document lists an SDK with something to render', () => {
+    expect(
+      hasRenderableSdks(openApi({ 'x-scalar-sdk-installation': [{ lang: 'Node', source: 'npm i @acme/sdk' }] })),
+    ).toBe(true)
+  })
+
+  it('is false when the SDK entries have nothing to render', () => {
+    expect(hasRenderableSdks(openApi({ 'x-scalar-sdk-installation': [{ lang: 'Node' }] }))).toBe(false)
+  })
+
+  it('is false without the extension or with a malformed one', () => {
+    expect(hasRenderableSdks(openApi({}))).toBe(false)
+    expect(hasRenderableSdks(openApi({ 'x-scalar-sdk-installation': 'npm i @acme/sdk' }))).toBe(false)
+  })
+
+  it('is false for AsyncAPI documents and missing documents', () => {
+    const asyncApi = { asyncapi: '3.0.0', info: { title: 'Events', version: '1.0.0' } } as unknown as Parameters<
+      typeof hasRenderableSdks
+    >[0]
+
+    expect(hasRenderableSdks(asyncApi)).toBe(false)
+    expect(hasRenderableSdks(undefined)).toBe(false)
   })
 })

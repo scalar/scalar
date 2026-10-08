@@ -3,6 +3,9 @@ import type { AvailableClient } from '@scalar/types/snippetz'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { computed, ref } from 'vue'
+
+import { GENERATE_SDK_CONTEXT_SYMBOL, type GenerateSdkContext } from '@/features/generate-sdk/use-generate-sdk'
 
 import ClientSelector from './ClientSelector.vue'
 
@@ -266,6 +269,49 @@ describe('ClientLibraries', () => {
       const heading = wrapper.get(`#${panel.attributes('aria-labelledby')}`)
 
       expect(heading.text()).toBe('Client Libraries')
+    })
+  })
+
+  describe('Generate SDK', () => {
+    const createContext = (enabled: boolean): GenerateSdkContext => ({
+      enabled: computed(() => enabled),
+      isGenerating: ref(false),
+      generate: vi.fn(async () => ({ ok: true as const })),
+    })
+
+    const mountWithContext = (context: GenerateSdkContext) =>
+      mount(ClientSelector, {
+        props: { clientOptions: mockClientOptions, eventBus },
+        global: {
+          stubs: { 'ScalarIcon': true, 'ScalarCombobox': true },
+          provide: { [GENERATE_SDK_CONTEXT_SYMBOL as symbol]: context },
+        },
+      })
+
+    const findGenerateSdkButton = (wrapper: ReturnType<typeof mount>) =>
+      wrapper.findAll('button').find((button) => button.text() === 'Generate SDK')
+
+    it('offers Generate SDK beside the heading without renaming the tab list', async () => {
+      const context = createContext(true)
+      const wrapper = mountWithContext(context)
+      await flushPromises()
+
+      const button = findGenerateSdkButton(wrapper)
+      expect(button?.exists()).toBe(true)
+
+      const tablist = wrapper.get('[role="tablist"]')
+      expect(tablist.element.contains(button?.element ?? null)).toBe(false)
+      expect(wrapper.get(`#${tablist.attributes('aria-labelledby')}`).text()).toBe('Client Libraries')
+
+      await button?.trigger('click')
+      expect(context.generate).toHaveBeenCalledTimes(1)
+    })
+
+    it('hides Generate SDK when the context is disabled', async () => {
+      const wrapper = mountWithContext(createContext(false))
+      await flushPromises()
+
+      expect(findGenerateSdkButton(wrapper)).toBeUndefined()
     })
   })
 

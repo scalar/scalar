@@ -27,7 +27,7 @@ export type GenerateSdkContext = {
    *
    * The flow uploads the active document to Scalar and opens the dashboard, which only makes
    * sense while the reference is being developed locally ("offline mode"). Deployed references
-   * never show it.
+   * never show it, and neither does a document that already documents its own SDKs.
    */
   enabled: ComputedRef<boolean>
   /** True while the active document is being uploaded */
@@ -43,6 +43,8 @@ type UseGenerateSdkOptions = {
   documentUrl?: MaybeRefOrGetter<string | undefined>
   /** Override the local-only check (e.g. for tests or docs config) */
   enabled?: ComputedRef<boolean>
+  /** Whether the active document already lists SDK installation instructions. Hides every button. */
+  hasSdk?: MaybeRefOrGetter<boolean>
 }
 
 export const GENERATE_SDK_CONTEXT_SYMBOL: InjectionKey<GenerateSdkContext> = Symbol()
@@ -75,7 +77,10 @@ export const useGenerateSdk = (options: UseGenerateSdkOptions): GenerateSdkConte
   /** Temporary URL returned by the upload, reused across buttons */
   const tempDocumentUrl = ref<string>()
 
-  const enabled = options.enabled ?? computed(() => typeof window !== 'undefined' && isLocalUrl(window.location.href))
+  const isLocal = options.enabled ?? computed(() => typeof window !== 'undefined' && isLocalUrl(window.location.href))
+
+  // Offering to generate an SDK makes no sense once the document already ships one
+  const enabled = computed(() => isLocal.value && !toValue(options.hasSdk))
 
   const openLink = (documentUrl: string) => {
     const { dashboardUrl } = toValue(options.externalUrls)

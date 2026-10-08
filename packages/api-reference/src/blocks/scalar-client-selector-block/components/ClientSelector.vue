@@ -10,10 +10,7 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { getFeaturedClients } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
-import {
-  GenerateSdkButton,
-  useGenerateSdkContext,
-} from '@/features/generate-sdk'
+import { GenerateSdkButton } from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 
 import ClientDropdown from './ClientDropdown.vue'
@@ -37,12 +34,6 @@ const {
 const headingId = useId()
 const morePanel = useId()
 const { translate } = useLocalization()
-
-/** The selected client panel hands its rounded bottom corners to the Generate SDK row when shown */
-const generateSdk = useGenerateSdkContext()
-const showGenerateSdk = computed(() =>
-  Boolean(generateSdk.value?.enabled.value),
-)
 
 /**
  * Whether a selection is a custom code sample (e.g. `custom/python`) rather than
@@ -122,10 +113,16 @@ defineExpose({
       manual
       :selectedIndex="tabIndex"
       @change="onTabSelect">
-      <div
-        :id="headingId"
-        class="client-libraries-heading">
-        {{ translate('clientLibraries.heading') }}
+      <!-- The button sits outside the labelling span so it does not leak into the tab list's name -->
+      <div class="client-libraries-heading">
+        <span
+          :id="headingId"
+          class="client-libraries-heading-label">
+          {{ translate('clientLibraries.heading') }}
+        </span>
+
+        <!-- Local development only: hand the document to the dashboard to generate an SDK -->
+        <GenerateSdkButton variant="card" />
       </div>
 
       <!--
@@ -176,8 +173,7 @@ defineExpose({
           <TabPanel
             v-for="client in featuredClients"
             :key="client.id"
-            class="selected-client card-footer -outline-offset-2"
-            :class="{ 'selected-client__has-footer': showGenerateSdk }">
+            class="selected-client card-footer -outline-offset-2">
             {{ client.title }}
           </TabPanel>
         </template>
@@ -186,15 +182,11 @@ defineExpose({
           :id="morePanel"
           :aria-labelledby="headingId"
           class="selected-client card-footer -outline-offset-2"
-          :class="{ 'selected-client__has-footer': showGenerateSdk }"
           role="tabpanel"
           tabindex="0">
           {{ selectedClientOption?.title }}
         </div>
       </TabPanels>
-
-      <!-- Local development only: hand the document to the dashboard to generate an SDK -->
-      <GenerateSdkButton variant="card" />
     </TabGroup>
   </div>
 </template>
@@ -214,22 +206,34 @@ defineExpose({
   border-bottom-right-radius: var(--scalar-radius-xl);
   min-height: fit-content;
 }
-.selected-client__has-footer {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
+/*
+ * A 32px row like "Get a token" in the authentication card, so the Generate SDK button
+ * (24px tall, same as "Authorize via OAuth2") sits 4px in from the top, bottom and end edges.
+ * Logical padding keeps the label inset on the correct side in right-to-left locales, and
+ * nowrap keeps long translations on one line so the button never outgrows the row.
+ */
 .client-libraries-heading {
   font-size: var(--scalar-small);
   font-weight: var(--scalar-font-medium);
   color: var(--scalar-color-1);
-  padding: 9px 12px;
+  padding-block: 0;
+  padding-inline: 12px 4px;
   background-color: var(--scalar-background-2);
   display: flex;
   align-items: center;
-  max-height: 32px;
+  justify-content: space-between;
+  gap: 8px;
+  height: 32px;
+  white-space: nowrap;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top-left-radius: var(--scalar-radius-xl);
   border-top-right-radius: var(--scalar-radius-xl);
+}
+/* The label gives way to the button on narrow cards */
+.client-libraries-heading-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .client-libraries-list {
   container: client-libraries-list / inline-size;
