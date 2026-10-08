@@ -18,6 +18,7 @@ import { useRegisterLink } from '@/hooks/use-register-link'
 import { mountCalInline } from '../cal-embed'
 import { DEMO_CALL_URL } from '../constants'
 import ExploreScalarStickers from './ExploreScalarStickers.vue'
+import StickerMarc from './stickers/StickerMarc.vue'
 
 const { externalUrls, url, workspace, state } = defineProps<{
   /** Shape-compatible with useModal(); every close path (X, Escape, backdrop) goes through state.hide() */
@@ -76,6 +77,15 @@ const onSignUp = (): void => {
   void open()
 }
 
+/** Marc's own sticker joins the wall while the demo call is hovered or focused */
+const marcOnWall = ref(false)
+const showMarc = (): void => {
+  marcOnWall.value = true
+}
+const hideMarc = (): void => {
+  marcOnWall.value = false
+}
+
 const panelEl = ref<HTMLElement>()
 const stepEl = ref<HTMLElement>()
 const backEl = ref<HTMLButtonElement>()
@@ -96,6 +106,8 @@ const changeStep = async (next: 'overview' | 'demo'): Promise<void> => {
   const from = box?.getBoundingClientRect()
 
   step.value = next
+  // Leaving the overview unmounts the demo button without a mouseleave or blur
+  marcOnWall.value = false
   await nextTick()
 
   if (
@@ -180,11 +192,15 @@ const showOverview = (): void => {
         class="flex flex-col">
         <!-- Hero: the brand gradient wash hugging the top edge, with the stickers as decoration -->
         <div
-          class="explore-scalar-hero relative flex h-[200px] items-end justify-center overflow-hidden pb-6">
+          class="explore-scalar-hero relative flex h-[200px] items-end justify-center overflow-hidden pb-6"
+          :data-marc="marcOnWall ? '' : undefined">
           <span
             aria-hidden="true"
             class="explore-scalar-wash pointer-events-none absolute inset-x-0 top-0" />
           <ExploreScalarStickers layout="hero" />
+          <!-- Stuck on at the end of the pile, hanging a little lower, once Marc is invited -->
+          <StickerMarc
+            class="explore-scalar-marc absolute bottom-4 left-[calc(50%+112px)] z-20 w-[84px] origin-center" />
         </div>
 
         <div class="px-8 pt-2 text-center">
@@ -259,7 +275,11 @@ const showOverview = (): void => {
           <ScalarButton
             class="bg-b-2 text-c-1 hover:bg-b-3 hover:text-c-1 active:bg-b-3 active:text-c-1 h-10 w-full rounded-full text-base font-medium"
             variant="ghost"
-            @click="showDemo">
+            @blur="hideMarc"
+            @click="showDemo"
+            @focus="showMarc"
+            @mouseenter="showMarc"
+            @mouseleave="hideMarc">
             {{ translate('exploreScalar.getDemo') }}
           </ScalarButton>
         </div>
@@ -366,6 +386,42 @@ const showOverview = (): void => {
     black,
     transparent 80%
   );
+}
+
+/*
+ * ---- Marc joins the wall ----
+ * The pile slides over to make room and the sticker is pressed on: it lands from slightly above
+ * scale with an overshoot, and its tilt settles at the same time. Leaving is quicker and plain.
+ */
+.explore-scalar-modal .explore-scalar-hero .explore-scalar-stickers {
+  transition: translate 420ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.explore-scalar-modal .explore-scalar-hero[data-marc] .explore-scalar-stickers {
+  translate: -22px 0;
+}
+.explore-scalar-modal .explore-scalar-marc {
+  opacity: 0;
+  rotate: -6deg;
+  scale: 1.3;
+  transition:
+    opacity 140ms ease-in,
+    scale 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    rotate 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.explore-scalar-modal .explore-scalar-hero[data-marc] .explore-scalar-marc {
+  opacity: 1;
+  rotate: 10deg;
+  scale: 1;
+  transition:
+    opacity 160ms ease-out,
+    scale 480ms cubic-bezier(0.34, 1.45, 0.64, 1),
+    rotate 480ms cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .explore-scalar-modal .explore-scalar-hero .explore-scalar-stickers,
+  .explore-scalar-modal .explore-scalar-marc {
+    transition: none;
+  }
 }
 
 /*

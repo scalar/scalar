@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ModalState } from '@scalar/components/modal'
 import { supportsViewTransitions } from '@scalar/helpers/dom/start-view-transition'
-import { ScalarIconSparkle } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -333,11 +332,8 @@ const modalState: ModalState = reactive({
           ref="triggerEl"
           aria-haspopup="dialog"
           :aria-describedby="headlineId"
-          class="explore-scalar-cta text-sidebar-c-1 relative z-10 flex h-[31px] items-center justify-center gap-1.5 px-3.5 text-sm font-medium whitespace-nowrap"
+          class="explore-scalar-cta text-sidebar-c-1 relative z-10 flex h-[31px] items-center justify-center px-3.5 text-sm font-medium whitespace-nowrap"
           type="button">
-          <ScalarIconSparkle
-            class="size-3.5"
-            weight="bold" />
           {{ translate('exploreScalar.explore') }}
         </button>
       </div>

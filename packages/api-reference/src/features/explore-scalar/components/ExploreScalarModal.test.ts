@@ -210,6 +210,25 @@ describe('ExploreScalarModal', () => {
     expect(mountCalMock).toHaveBeenCalledTimes(1)
   })
 
+  it('puts the Marc sticker on the wall while the demo call is hovered or focused', async () => {
+    await mountModal()
+    const demo = findInDialog('button', 'or get a demo with Marc')
+    const wallWithMarc = () => getDialog().querySelector('[data-marc] [data-sticker="marc"]')
+    expect(wallWithMarc()).toBeNull()
+
+    demo?.dispatchEvent(new MouseEvent('mouseenter'))
+    await flushPromises()
+    expect(wallWithMarc()).not.toBeNull()
+
+    demo?.dispatchEvent(new MouseEvent('mouseleave'))
+    await flushPromises()
+    expect(wallWithMarc()).toBeNull()
+
+    demo?.focus()
+    await flushPromises()
+    expect(wallWithMarc()).not.toBeNull()
+  })
+
   it('starts at the overview again after the dialog was closed on the booking step', async () => {
     mountCalMock.mockResolvedValue(undefined)
     const state = await mountModal()
