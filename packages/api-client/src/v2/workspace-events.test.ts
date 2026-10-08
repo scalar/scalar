@@ -35,9 +35,10 @@ describe('workspace-events', () => {
     await store.saveDocument('api')
     const exported = JSON.parse(store.exportDocument('api', 'json') ?? '{}')
     expect(exported.components.securitySchemes.key.name).toBe(configured ? 'X-Key' : '')
+    // Document-backed edits leave the secrets untouched; configured edits store the override.
     expect(store.auth.getAuthSecrets('api', 'key')).toStrictEqual({
       type: 'apiKey',
-      name: configured ? '' : undefined,
+      ...(configured ? { name: '' } : {}),
       'x-scalar-secret-token': 'secret',
     })
 
