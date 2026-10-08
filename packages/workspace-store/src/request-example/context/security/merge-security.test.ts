@@ -144,7 +144,13 @@ describe('mergeSecurity', () => {
     expect(store.auth.getAuthSecrets(documentSlug, 'key')).toBeUndefined()
     expect(
       mergeSecurity(document.components?.securitySchemes, configuredSchemes, store.auth, documentSlug).key,
-    ).toStrictEqual({ ...scheme, name: 'X-Edited', value: 'secret', 'x-scalar-secret-token': 'secret' })
+    ).toStrictEqual({
+      ...scheme,
+      name: 'X-Edited',
+      value: 'secret',
+      'x-scalar-secret-token': 'secret',
+      'x-scalar-secret-defaults': { 'x-scalar-secret-token': 'secret' },
+    })
   })
 
   it('does not write secrets when a document name is edited without an override', async () => {
