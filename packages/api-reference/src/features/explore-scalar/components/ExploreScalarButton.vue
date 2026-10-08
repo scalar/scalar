@@ -159,6 +159,13 @@ let busy = false
 const morphStickers = ref(false)
 
 /**
+ * True while the dialog is open: the card is what morphed into the dialog, so nothing of it stays
+ * behind in the sidebar. It keeps its box (visibility, not display), so the footer never reflows
+ * and the close morph has a destination to lay out.
+ */
+const lifted = ref(false)
+
+/**
  * A name may exist on one element per snapshot, so the card side carries its names as inline
  * styles only while a run needs them; the modal side gets them from CSS scoped to the root attribute.
  */
@@ -210,11 +217,11 @@ const open = async (): Promise<void> => {
       // Names move from the card to the mounted panel and hero stickers
       setCardNames(false)
       modalState.open = true
+      lifted.value = true
 
       if (vt) {
-        // The unnamed card is part of the new root snapshot, so it must already be the plain bar
-        // there: otherwise a second, crisp copy of the expanded card sits in the sidebar while
-        // the real one flies to the centre
+        // The card is hidden in the new root snapshot; it collapses meanwhile, without
+        // transitions, so it is the plain bar again by the time it comes back
         instant.value = true
         expanded.value = false
       }
@@ -240,6 +247,7 @@ const close = async (): Promise<void> => {
   try {
     if (!usesViewTransition.value) {
       modalState.open = false
+      lifted.value = false
       await nextTick()
       // Focus is restored to the trigger by then; keyboard users keep the card open
       expanded.value = isFocusVisible(triggerEl.value)
@@ -254,10 +262,11 @@ const close = async (): Promise<void> => {
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
 
     await run('close', async () => {
-      // The old snapshot already captured the panel, the hero stickers and the plain bar under
-      // the backdrop. Only now is the card laid out expanded, without transitions, so the new
-      // snapshot has a real destination that never showed through the backdrop as a static copy.
+      // The old snapshot already captured the panel and the hero stickers, with nothing in the
+      // sidebar. Only now is the card shown and laid out expanded, without transitions, so the
+      // new snapshot has a real destination that never showed through the backdrop.
       modalState.open = false
+      lifted.value = false
       instant.value = true
       expanded.value = true
       await nextTick()
@@ -303,12 +312,8 @@ const modalState: ModalState = reactive({
       class="explore-scalar-card bg-b-1 text-sidebar-c-1 absolute inset-x-0 bottom-0 z-10 flex cursor-pointer flex-col overflow-hidden rounded"
       :data-expanded="expanded || undefined"
       :data-instant="instant || undefined"
+      :data-lifted="lifted || undefined"
       @click="() => void open()">
-      <!-- Gradient skin: the gradient button recipe; it fades out when the card opens (background-image does not interpolate, opacity does) -->
-      <span
-        aria-hidden="true"
-        class="explore-scalar-skin bg-b-1.5 from-b-1 to-b-2 pointer-events-none absolute inset-0 bg-linear-to-b dark:bg-linear-to-t" />
-
       <!-- Reveal area: 0fr while collapsed, hidden from assistive technology always; the dialog carries the real copy -->
       <div
         aria-hidden="true"
@@ -330,9 +335,9 @@ const modalState: ModalState = reactive({
       <div class="explore-scalar-pill flex justify-center">
         <button
           ref="triggerEl"
-          aria-haspopup="dialog"
           :aria-describedby="headlineId"
-          class="explore-scalar-cta text-sidebar-c-1 relative z-10 flex h-[31px] items-center justify-center px-3.5 text-sm font-medium whitespace-nowrap"
+          aria-haspopup="dialog"
+          class="explore-scalar-cta text-sidebar-c-1 bg-b-1.5 from-b-1 to-b-2 relative z-10 flex h-[31px] items-center justify-center bg-linear-to-b px-3.5 text-sm font-medium whitespace-nowrap hover:bg-linear-to-t dark:bg-linear-to-t dark:hover:bg-linear-to-b"
           type="button">
           {{ translate('exploreScalar.explore') }}
         </button>
@@ -355,16 +360,11 @@ const modalState: ModalState = reactive({
 .explore-scalar-card {
   --explore-ease-out: cubic-bezier(0.32, 0.72, 0, 1);
   --explore-ease-in: cubic-bezier(0.4, 0, 0.2, 1);
-  /* A real border: an inset hairline shadow would be painted under the gradient skin and never show */
+  --explore-highlight: rgb(255 255 255 / 0.7);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-/* The 1px specular highlight of the gradient button lives on the skin, so it fades out with it */
-.explore-scalar-skin {
-  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.7);
-  transition: opacity 200ms var(--explore-ease-in);
-}
-.dark-mode .explore-scalar-skin {
-  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+.dark-mode .explore-scalar-card {
+  --explore-highlight: rgb(255 255 255 / 0.06);
 }
 .explore-scalar-reveal {
   grid-template-rows: 0fr;
@@ -380,13 +380,21 @@ const modalState: ModalState = reactive({
   outline-width: 2px;
   outline-offset: -2px;
 }
+/*
+ * The gradient button is the trigger itself, in both states, so its background never animates.
+ * Its hairline is transparent while it fills the card, where the card's own border already
+ * draws that line, and takes the border colour once it is a pill. The 1px specular highlight
+ * of the gradient recipe rides along in the same shadow.
+ */
 .explore-scalar-cta {
   flex: 1 1 auto;
   border-radius: var(--scalar-radius);
-  background-color: transparent;
+  box-shadow:
+    inset 0 0 0 var(--scalar-border-width) transparent,
+    inset 0 1px 0 0 var(--explore-highlight);
   transition:
     flex-grow 240ms var(--explore-ease-in),
-    background-color 200ms var(--explore-ease-in),
+    box-shadow 200ms var(--explore-ease-in),
     border-radius 240ms var(--explore-ease-in);
 }
 .explore-scalar-card :deep(.explore-scalar-sticker),
@@ -402,10 +410,12 @@ const modalState: ModalState = reactive({
   scale: 0.92;
 }
 
-/* ---- Open state: a single selector, driven by the script ---- */
-.explore-scalar-card[data-expanded] .explore-scalar-skin {
-  opacity: 0;
+/* The dialog is the card now: nothing stays behind in the sidebar while it is open */
+.explore-scalar-card[data-lifted] {
+  visibility: hidden;
 }
+
+/* ---- Open state: a single selector, driven by the script ---- */
 .explore-scalar-card[data-expanded] .explore-scalar-reveal {
   grid-template-rows: 1fr;
   transition: grid-template-rows 360ms var(--explore-ease-out);
@@ -416,16 +426,14 @@ const modalState: ModalState = reactive({
 }
 .explore-scalar-card[data-expanded] .explore-scalar-cta {
   flex-grow: 0;
-  background-color: var(--scalar-background-2);
   border-radius: var(--scalar-radius-full);
+  box-shadow:
+    inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color),
+    inset 0 1px 0 0 var(--explore-highlight);
   transition:
     flex-grow 360ms var(--explore-ease-out),
-    background-color 200ms var(--explore-ease-in),
+    box-shadow 200ms var(--explore-ease-out),
     border-radius 360ms var(--explore-ease-out);
-}
-/* The one :hover rule left on purpose: it only tints the pill once the card is open and never drives the expansion */
-.explore-scalar-card[data-expanded] .explore-scalar-cta:hover {
-  background-color: var(--scalar-background-3);
 }
 .explore-scalar-card[data-expanded] :deep(.explore-scalar-sticker),
 .explore-scalar-card[data-expanded] .explore-scalar-headline {

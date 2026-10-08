@@ -33,7 +33,13 @@ type ViewTransitionCall = {
  */
 const stubViewTransition = ({ deferred = false }: { deferred?: boolean } = {}) => {
   const calls: ViewTransitionCall[] = []
-  const duringUpdate: { attribute: string | null; cardExpanded: boolean; cardInstant: boolean; cardName: string }[] = []
+  const duringUpdate: {
+    attribute: string | null
+    cardExpanded: boolean
+    cardInstant: boolean
+    cardLifted: boolean
+    cardName: string
+  }[] = []
   let finish: () => void = () => undefined
 
   const api = vi.fn((update: () => void | Promise<void>) => {
@@ -54,6 +60,7 @@ const stubViewTransition = ({ deferred = false }: { deferred?: boolean } = {}) =
         attribute: document.documentElement.getAttribute(EXPLORE_VT_ATTRIBUTE),
         cardExpanded: card?.hasAttribute('data-expanded') ?? false,
         cardInstant: card?.hasAttribute('data-instant') ?? false,
+        cardLifted: card?.hasAttribute('data-lifted') ?? false,
         cardName: card?.style.viewTransitionName ?? '',
       })
     })
@@ -319,6 +326,7 @@ describe('ExploreScalarButton', () => {
 
   it('falls back to a plain open when startViewTransition is unavailable', async () => {
     const wrapper = await mountButton()
+    const card = getCard(wrapper)
 
     await openDialog(wrapper)
 
@@ -326,6 +334,31 @@ describe('ExploreScalarButton', () => {
     expect(dialog).not.toBeNull()
     expect(dialog?.classList.contains('explore-scalar-modal--vt')).toBe(false)
     expect(document.documentElement.hasAttribute(EXPLORE_VT_ATTRIBUTE)).toBe(false)
+    // The card leaves the sidebar here too, and comes back with the plain close
+    expect(card.attributes('data-lifted')).toBeDefined()
+
+    await pressEscape()
+    expect(card.attributes('data-lifted')).toBeUndefined()
+  })
+
+  it('lifts the card out of the sidebar while the dialog is open and puts it back for the close morph', async () => {
+    const { duringUpdate } = stubViewTransition()
+    const wrapper = await mountButton()
+    const card = getCard(wrapper)
+    expect(card.attributes('data-lifted')).toBeUndefined()
+
+    await openDialog(wrapper)
+
+    // The new snapshot of the open morph has no card in the sidebar: the dialog is the card now
+    expect(duringUpdate[0]?.cardLifted).toBe(true)
+    expect(card.attributes('data-lifted')).toBeDefined()
+
+    await pressEscape()
+
+    // The close morph needs the card back as its destination, so it is shown inside that update
+    expect(duringUpdate[1]?.cardLifted).toBe(false)
+    expect(duringUpdate[1]?.cardExpanded).toBe(true)
+    expect(card.attributes('data-lifted')).toBeUndefined()
   })
 
   it('skips the view transition when reduced motion is preferred', async () => {
