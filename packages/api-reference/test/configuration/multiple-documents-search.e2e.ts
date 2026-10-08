@@ -70,7 +70,7 @@ test.describe('multi-document selector search', () => {
     await input.press('Enter')
 
     await expect(page.getByRole('heading', { name: 'Billing API', level: 1 })).toBeVisible()
-    await expect.poll(() => new URL(page.url()).hash).toContain('#billing/')
+    await expect.poll(() => new URL(page.url()).hash).toBe('#billing')
 
     const selectedUrl = page.url()
     await selector.getByRole('button').click()
