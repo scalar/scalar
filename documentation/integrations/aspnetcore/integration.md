@@ -597,6 +597,16 @@ options.WithLocalization(new ScalarLocalizationOptions
 
 Overrides merge with the selected locale and English fallback. Embedded client overrides go under `apiClient`. This translates interface labels, not the content of your API description. See [Localization](../../localization.md) for supported locales and translation keys.
 
+### Specification Extensions
+
+Display selected extension keys on operations, parameters, response headers, and schema fields:
+
+```csharp
+app.MapScalarApiReference(options => options.WithShowExtensions("x-scopes", "x-internal"));
+```
+
+Keys must start with `x-`. They appear in configuration order and missing keys are omitted. Unset or empty lists display no extensions. Values render as text, including `false`, `0`, and `null`. Extensions on the API description root, tags, and response objects are not displayed. Existing plugin components take precedence. This does not change authentication or access control.
+
 ### Assets
 
 Scalar uses local assets by default. To load assets from a different location:

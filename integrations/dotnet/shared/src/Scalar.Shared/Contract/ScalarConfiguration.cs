@@ -20,6 +20,8 @@ internal sealed class ScalarConfiguration
 
     public required ScalarLocalizationOptions? Localization { get; init; }
 
+    public required string[]? ShowExtensions { get; init; }
+
     public required bool? ShowSidebar { get; init; }
 
     public required OperationTitleSource? OperationTitleSource { get; init; }
