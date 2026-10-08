@@ -40,6 +40,8 @@ integrations that render the configuration into the HTML — without replacing t
 > as the page hosting the API reference. Only reference `pluginUrls` you control or fully trust — treat them like
 > any other `<script>` you add to your site, and prefer pinning a specific version rather than a floating tag.
 
+For a complete server integration example, see [custom plugins with NestJS](integrations/nestjs.md#custom-plugins).
+
 A minimal plugin module looks like this:
 
 ```typescript
