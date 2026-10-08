@@ -29,13 +29,16 @@ test.describe('collection-editor.monaco.e2e', () => {
     const modifier = await page.evaluate(() => (navigator.platform.startsWith('Mac') ? 'Meta' : 'Control'))
     const editor = page.locator('.monaco-editor').first()
     await editor.waitFor({ state: 'visible' })
+    // Initial operation focusing changes the selection asynchronously after Monaco mounts.
+    await expect(editor.locator('.json-focus-highlight').first()).toBeVisible()
+    const editorInput = editor.getByRole('textbox', { name: 'Editor content' })
 
     await page.getByRole('button', { name: /^Problems/ }).click()
 
     for (const openapi of ['3.1.0', '3.2.0']) {
       const setPaths = async (path: string): Promise<void> => {
-        await editor.locator('.view-line').first().click()
-        await page.keyboard.press(`${modifier}+a`)
+        await editorInput.focus()
+        await editorInput.press(`${modifier}+a`)
         await page.evaluate(
           (text) => navigator.clipboard.writeText(text),
           JSON.stringify(
@@ -51,7 +54,7 @@ test.describe('collection-editor.monaco.e2e', () => {
             2,
           ),
         )
-        await page.keyboard.press(`${modifier}+v`)
+        await editorInput.press(`${modifier}+v`)
       }
 
       // An invalid document first proves the worker has finished validating before we expect no problems.

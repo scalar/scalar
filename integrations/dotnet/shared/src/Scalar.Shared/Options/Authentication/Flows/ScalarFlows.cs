@@ -19,6 +19,11 @@ namespace Scalar.AspNetCore;
 public sealed class ScalarFlows
 {
     /// <summary>
+    /// Gets or sets the device authorization flow configuration.
+    /// </summary>
+    public DeviceAuthorizationFlow? DeviceAuthorization { get; set; }
+
+    /// <summary>
     /// Gets or sets the implicit flow configuration.
     /// </summary>
     public ImplicitFlow? Implicit { get; set; }
