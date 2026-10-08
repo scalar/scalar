@@ -584,6 +584,27 @@ export type ApiReferenceTranslations = {
     unableToExportDocument: string
     unknownError: string
   }
+  exploreScalar: {
+    /** The sidebar call to action that opens the dialog */
+    cta: string
+    headline: string
+    title: string
+    generateTitle: string
+    generateDescription: string
+    platformTitle: string
+    platformDescription: string
+    signUp: string
+    bookDemo: string
+    getDemo: string
+    messageMarc: string
+    /** Tooltip on the X logo, in Marc's own voice */
+    dmMarc: string
+    close: string
+    opensInNewTab: string
+    popupBlocked: string
+    back: string
+    openBookingPage: string
+  }
   gettingStarted: {
     swaggerEditor: string
     description: string

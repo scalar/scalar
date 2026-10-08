@@ -171,6 +171,27 @@ export const ru = {
     unableToExportDocument: 'Не удалось экспортировать активный документ',
     unknownError: 'Произошла неизвестная ошибка',
   },
+  exploreScalar: {
+    cta: 'Создать SDK и MCP',
+    headline: 'Мгновенно создавайте SDK, MCP и документацию для вашего API',
+    title: 'Всё, что нужно вашему API, из одного документа OpenAPI',
+    generateTitle: 'SDK и MCP-серверы',
+    generateDescription:
+      'Типизированные клиентские библиотеки и MCP-сервер, созданные из этого документа и всегда актуальные.',
+    platformTitle: 'Документация, порталы для разработчиков и реестр',
+    platformDescription:
+      'Публикуйте этот справочник с руководствами, размещайте API в реестре и тестируйте их в API-клиенте.',
+    signUp: 'Попробовать бесплатно',
+    bookDemo: 'Записаться на демо с Marc, нашим CEO',
+    getDemo: 'или записаться на демо с Marc',
+    messageMarc: 'Написать Marc в X',
+    dmMarc: 'или просто напишите мне в X!',
+    close: 'Закрыть',
+    opensInNewTab: 'Откроется в новой вкладке',
+    popupBlocked: 'Браузер заблокировал новую вкладку. Нажмите кнопку ещё раз, чтобы открыть её.',
+    back: 'Назад',
+    openBookingPage: 'Открыть страницу бронирования',
+  },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',
     description:

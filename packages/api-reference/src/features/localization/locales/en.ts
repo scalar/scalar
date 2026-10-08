@@ -170,6 +170,26 @@ export const en = {
     unableToExportDocument: 'Unable to export active document',
     unknownError: 'An unknown error occurred',
   },
+  exploreScalar: {
+    cta: 'Generate SDKs & MCP',
+    headline: 'Instantly generate SDKs, MCPs & docs for your API',
+    title: 'Everything your API needs, from one OpenAPI document',
+    generateTitle: 'SDKs & MCP servers',
+    generateDescription: 'Typed client libraries and an MCP server, generated from this document and kept in sync.',
+    platformTitle: 'Docs, developer portals & registry',
+    platformDescription:
+      'Publish this reference with guides, host your APIs in a registry and test them in the API client.',
+    signUp: 'Try it out for free',
+    bookDemo: 'Book a demo with Marc, our CEO',
+    getDemo: 'or get a demo with Marc',
+    messageMarc: 'Message Marc on X',
+    dmMarc: 'or just DM me on X!',
+    close: 'Close',
+    opensInNewTab: 'Opens in a new tab',
+    popupBlocked: 'Your browser blocked the new tab. Click the button again to open it.',
+    back: 'Back',
+    openBookingPage: 'Open the booking page',
+  },
   gettingStarted: {
     swaggerEditor: 'Swagger Editor',
     description:

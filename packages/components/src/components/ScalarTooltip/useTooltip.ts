@@ -274,7 +274,12 @@ function getAllParents(el: Element): Element[] {
   return parents
 }
 
-/** Check if mouse moved off the target but onto the tooltip */
+/**
+ * Check if the mouse moved off the target and the tooltip altogether
+ *
+ * Moving between the two keeps the tooltip open. Landing on a child of the target (an icon
+ * inside a button, say) counts as landing on the target: the pointer never left it.
+ */
 function isMovingOffElements(e: Event): boolean {
   const target = unref(config.value?.targetRef)
   if (e instanceof MouseEvent && e.relatedTarget instanceof Element && target) {
@@ -282,7 +287,7 @@ function isMovingOffElements(e: Event): boolean {
     return (
       e.relatedTarget.id !== ELEMENT_ID &&
       !relatedTargetParents.some((parent) => parent.id === ELEMENT_ID) &&
-      e.relatedTarget !== target
+      !target.contains(e.relatedTarget)
     )
   }
   return true
