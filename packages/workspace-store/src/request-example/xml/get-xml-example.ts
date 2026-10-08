@@ -139,13 +139,14 @@ const buildXmlExample = (
       return { schema: source as XmlSchema, scope: context.scope, evaluations: context.evaluation?.children ?? [] }
     }
     let schema = getResolvedRef(source, mergeSiblingReferences) as XmlSchema
+    // A reference declared on a resource bookends against that resource, matching the magic proxy.
+    const scope = pushDynamicScope(context.scope, schema)
     if (isDynamicRef(schema)) {
-      const bound = resolveDynamicRef(schema.$dynamicRef, context.scope)
+      const bound = resolveDynamicRef(schema.$dynamicRef, scope)
       if (bound) {
-        return shape(bound, context, seen)
+        return shape(bound, { ...context, scope }, seen)
       }
     }
-    const scope = pushDynamicScope(context.scope, schema)
     const evaluations = [...(context.evaluation?.children ?? [])]
     const contributions =
       context.evaluation?.children.filter(
