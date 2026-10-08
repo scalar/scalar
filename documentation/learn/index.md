@@ -1,18 +1,20 @@
 # Learn: OpenAPI, SDKs and MCP
 
-*Last updated: September 2026*
+*Last updated: October 2026*
 
-The Scalar knowledge centre is a free library of practical guides to OpenAPI, SDK generation and the Model Context Protocol (MCP), written for developers who build, document and ship APIs. Every article starts with a plain definition, then gets specific: working examples, the trade-offs that matter, common mistakes, and links to the primary sources so you can check anything we say.
+The Scalar knowledge centre is a free library of practical guides to OpenAPI, SDK generation, the Model Context Protocol (MCP) and API management, written for developers who build, document and ship APIs. Every article starts with a plain definition, then gets specific: working examples, the trade-offs that matter, common mistakes, and links to the primary sources so you can check anything we say.
 
 ## How to use this knowledge centre
 
-The guides are grouped into three tracks that follow the life of an API.
+The guides are grouped into four tracks that follow the life of an API.
 
 **OpenAPI** is the foundation. An OpenAPI document describes your API in a machine-readable way, and almost everything else in this library is built on top of one. If you are new to the topic, read [What is OpenAPI?](/learn/openapi/what-is-openapi) first, then [OpenAPI 3.1 vs 3.0](/learn/openapi/openapi-3-1-vs-3-0) to pick a version. After that, jump to whatever you are working on: documentation, linting, mocking, security schemes or catalogues.
 
 **SDKs** are how most developers actually consume an API. This track covers what a client SDK is, when it is worth having one, and how to generate SDKs from the OpenAPI document you already maintain instead of writing them by hand.
 
-**MCP** is how AI agents use APIs. These guides explain the protocol, how it relates to plain APIs and to function calling, how remote servers and OAuth work, and how to turn an OpenAPI document into an MCP server.
+**MCP** is how AI agents use APIs. These guides explain the protocol, how it relates to plain APIs and to function calling, how to build, host and secure a server, and how to turn an OpenAPI document into an MCP server.
+
+**API management** is how organizations keep many APIs consistent and discoverable. These guides separate the runtime gateway from the lifecycle tooling, cover governance with rules in CI, and explain catalogs and registries.
 
 A few conventions hold across every article:
 
@@ -63,6 +65,7 @@ The [MCP guides hub](/learn/mcp) has the same articles with a suggested reading 
 - [MCP vs API](/learn/mcp/mcp-vs-api): why agents need more than a REST API, and when an MCP server is worth adding.
 - [MCP vs function calling](/learn/mcp/mcp-vs-function-calling): how the protocol and the model feature fit together, and when you need each.
 - [MCP vs SDK](/learn/mcp/mcp-vs-sdk): when an agent should use your SDK and when it should use an MCP server.
+- [How to build an MCP server](/learn/mcp/build-mcp-server): a tested server in TypeScript and Python, connected to Claude Code and Cursor.
 - [REST API to MCP server](/learn/mcp/rest-api-to-mcp-server): an architecture guide for API providers putting an MCP server in front of their API.
 - [Generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi): the approaches for deriving MCP tools from an existing API description.
 - [OpenAPI to MCP server](/learn/mcp/openapi-to-mcp-server): how operations, parameters, schemas and security schemes map to MCP tools.
@@ -70,10 +73,19 @@ The [MCP guides hub](/learn/mcp) has the same articles with a suggested reading 
 - [Connect an MCP server to Claude](/learn/mcp/connect-mcp-server-to-claude): adding servers to Claude Code, Claude Desktop and claude.ai.
 - [MCP server configuration](/learn/mcp/mcp-server-configuration): client config files, scopes, and the details that differ between clients.
 - [How to test MCP servers](/learn/mcp/test-mcp-servers): the Inspector, unit tests, CI and evals with a real model.
-- [Remote MCP servers](/learn/mcp/remote-mcp-servers): the Streamable HTTP transport, local vs remote servers, hosting options and client setup.
-- [MCP OAuth](/learn/mcp/mcp-oauth): how MCP authentication works, from protected resource metadata to PKCE and client registration.
+- [How to host an MCP server](/learn/mcp/host-mcp-server): Cloudflare Workers, Vercel, AWS Lambda, Cloud Run and managed hosting compared, with a deploy-ready container.
+- [Remote MCP servers](/learn/mcp/remote-mcp-servers): the Streamable HTTP transport, local vs remote servers and client setup.
+- [MCP OAuth](/learn/mcp/mcp-oauth): how MCP authentication works, from protected resource metadata to PKCE and client registration, and how to add it to your server.
 - [MCP server security](/learn/mcp/mcp-server-security): threats and controls for production MCP servers.
 - [MCP server examples](/learn/mcp/mcp-server-examples): real, verifiable MCP servers from the MCP project and companies such as GitHub, Stripe and Sentry.
+
+## API management
+
+The [API management guides hub](/learn/api-management) has the same articles with a suggested reading order.
+
+- [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway): the runtime gateway, the lifecycle tooling, how they connect through OpenAPI, and whether you need each.
+- [API governance with OpenAPI](/learn/api-management/api-governance): style guides as rulesets, linting in CI, breaking-change checks and a working GitHub Actions workflow.
+- [API catalog](/learn/openapi/api-catalog): catalog vs registry, the RFC 9727 machine-readable catalog, and generating one from a registry.
 
 ## Frequently asked questions
 

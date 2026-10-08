@@ -1,10 +1,10 @@
 # What is an API catalog?
 
-*Last updated: September 2026*
+*Last updated: October 2026*
 
 An API catalog is a searchable inventory of an organization's APIs, where each entry records what the API does, who owns it, which version is current, and where its machine-readable description (usually an OpenAPI or AsyncAPI document) and its documentation live. It answers the question every growing engineering team eventually asks: "Do we already have an API for this, and where is it?"
 
-An API registry is closely related. The catalog is the index people browse; the registry is the versioned store that holds the actual API descriptions and serves them to tools. In practice most teams want both, and many products combine them. This guide explains the difference, what belongs in a catalog entry, the IETF standard for publishing a machine-readable catalog, and how to build one that stays accurate.
+An API registry is closely related. The catalog is the index people browse; the registry is the versioned store that holds the actual API descriptions and serves them to tools. In practice most teams want both, and many products combine them. This guide explains the difference, how both relate to a developer portal and an API gateway, what belongs in a catalog entry, the IETF standard for publishing a machine-readable catalog, how to build one that stays accurate, and which tools to use for each part.
 
 **On this page**
 
@@ -17,6 +17,8 @@ An API registry is closely related. The catalog is the index people browse; the 
 - [How to build an API catalog that stays accurate](#how-to-build-an-api-catalog-that-stays-accurate)
 - [Governance: rules, ownership and lifecycle](#governance-rules-ownership-and-lifecycle)
 - [Building a catalog with the Scalar Registry](#building-a-catalog-with-the-scalar-registry)
+- [Generate the catalog file from the registry](#generate-the-catalog-file-from-the-registry)
+- [Which tools to use](#which-tools-to-use)
 - [Common mistakes](#common-mistakes)
 - [Frequently asked questions](#frequently-asked-questions)
 
@@ -54,7 +56,7 @@ These four overlap in marketing copy. They do different jobs.
 | Source of data | Registry plus metadata | CI, Git, publish commands | Registry plus hand-written content | Its own configuration |
 | Question it answers | "Which API does this?" | "What exactly is version 2.3 of this API?" | "How do I use this API?" | "Should this request go through?" |
 
-A gateway sees live traffic, which makes it good at discovering undocumented APIs, but it does not know what an API is for. A developer portal is beautifully written but usually covers only the APIs someone decided to publish. The catalog and registry are what tie them together: the gateway config, the portal and the SDKs should all be derived from the same registered description.
+A gateway sees live traffic, which makes it good at discovering undocumented APIs, but it does not know what an API is for. A developer portal is beautifully written but usually covers only the APIs someone decided to publish. The catalog and registry are what tie them together: the gateway config, the portal and the SDKs should all be derived from the same registered description. [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway) covers the wider split between runtime and lifecycle tooling.
 
 ## What goes into a catalog entry
 
@@ -230,6 +232,57 @@ From there, the same registered document powers an [API reference](/products/api
 
 If you are consolidating from another registry, the [SwaggerHub/API Hub migration guide](/resources/migration/api-hub) walks through moving documents over.
 
+## Generate the catalog file from the registry
+
+Once the registry is the source of truth, the RFC 9727 catalog is a build step. The CLI lists what is registered and fetches any version:
+
+```bash
+# Every API registered under a namespace
+npx @scalar/cli registry list --namespace acme
+
+# One document, latest version, as YAML
+npx @scalar/cli registry get acme orders-api --format yaml --output orders-api.yaml
+```
+
+From that list, a short script turns each entry into a Linkset member. This one reads a JSON array of `{ name, anchor, description, docs }` objects, where `description` is the stable URL of the registered document and `docs` is the published reference, and writes the catalog:
+
+```js
+// build-catalog.mjs
+// Build an RFC 9727 api-catalog (Linkset, RFC 9264) from a list of registered APIs.
+// Usage: node build-catalog.mjs apis.json > .well-known/api-catalog
+import { readFileSync } from 'node:fs'
+
+const apis = JSON.parse(readFileSync(process.argv[2], 'utf8'))
+
+const linkset = apis.map((api) => ({
+  anchor: api.anchor,
+  'service-desc': [
+    {
+      href: api.description,
+      type: api.description.endsWith('yaml') ? 'application/yaml' : 'application/json',
+    },
+  ],
+  'service-doc': [{ href: api.docs, type: 'text/html' }],
+}))
+
+process.stdout.write(JSON.stringify({ linkset }, null, 2) + '\n')
+```
+
+Serve the output at `/.well-known/api-catalog` with the content type `application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"`, and run the script in the same CI job that publishes documents, so a new API appears in the catalog on the merge that registers it. We ran the script on 7 October 2026 on Node.js 24; the `registry` commands are the documented CLI commands and need a logged-in session.
+
+## Which tools to use
+
+| Need | Tool category | Examples |
+| --- | --- | --- |
+| Store and version the descriptions | API registry | Scalar Registry, Postman Private API Network, Swagger Studio, Git plus a convention |
+| Browse and search every API, with owners and lifecycle | API catalog | Backstage software catalog, Scalar Registry's dashboard, the catalog pages of gateway suites such as Kong Konnect, Apigee API hub, and Azure API Center |
+| Enforce the metadata the catalog depends on | Linter in CI | Spectral-compatible rules with `scalar document lint`, Spectral CLI, Redocly CLI |
+| Let consumers read docs and get credentials | Developer portal | Scalar Docs, ReadMe, Redocly, the portal that ships with your gateway |
+| Discover undocumented traffic and enforce access at runtime | API gateway | Kong, Apigee, Azure API Management, AWS API Gateway, Tyk, Gravitee, Zuplo |
+| Publish the catalog for machines | RFC 9727 file | A script like the one above, served from your domain |
+
+The registry and linter are the parts to get right first; everything else reads from them. [API governance with OpenAPI](/learn/api-management/api-governance) has the CI workflow, and [best API management platforms (2026)](/library/best-api-management-platforms-2026) compares the gateway suites and their portals with sourced prices.
+
 ## Common mistakes
 
 **Building the catalog by hand.** A catalog someone has to remember to update will be wrong within a quarter. Generate entries from registered documents.
@@ -266,8 +319,17 @@ You can catalog APIs without descriptions, but the entries will be thin and go s
 Publish each API's description from CI on every merge, lint it against a shared ruleset before publishing, and generate the catalog entry, documentation and client libraries from the registered document. Manual steps are where drift comes from.
 </scalar-detail>
 
+<scalar-detail title="What tools should I use for an API catalog and registry?">
+A registry to store and version the descriptions (the Scalar Registry, Postman's Private API Network, Swagger Studio, or Git with a convention), a linter in CI to enforce the metadata the catalog needs, and a catalog view on top, which can be the registry's own dashboard, Backstage, or the catalog page of a gateway suite. Publish an RFC 9727 file from the registry so machines can discover the APIs too.
+</scalar-detail>
+
 ## Related
 
-- **Learn:** [Spectral rules](/learn/openapi/spectral-rules) · [JSON Schema vs OpenAPI](/learn/openapi/json-schema-vs-openapi) · [llms.txt for API docs](/learn/openapi/llms-txt-for-api-docs)
-- **Docs:** [Registry getting started](/products/registry/getting-started)
+- **Learn:** [API governance with OpenAPI](/learn/api-management/api-governance) · [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway) · [Spectral rules](/learn/openapi/spectral-rules) · [llms.txt for API docs](/learn/openapi/llms-txt-for-api-docs)
+- **Library:** [Best API management platforms (2026)](/library/best-api-management-platforms-2026)
+- **Docs:** [Registry getting started](/products/registry/getting-started) · [Registry CLI](/products/registry/cli)
 - **Product:** [Scalar Registry](/products/registry) — one versioned home for your OpenAPI documents, schemas and rulesets, feeding docs, SDKs and MCP servers.
+
+---
+
+*RFC 9727 details were re-checked against rfc-editor.org on 7 October 2026; the catalog script on this page was run the same day on Node.js 24.21.0. Scalar wrote this guide and sells the registry it describes. If something is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues).*

@@ -63,6 +63,10 @@ Keep teams in Git and CI where reviews already happen. Run linting and breaking-
 
 Apply style guides, publishing rules, and access boundaries without creating a central bottleneck. Shared visibility into what is changing, who can release, and how API descriptions evolve reduces production surprises and keeps contracts consistent across teams.
 
+<h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/arrows-left-right"></scalar-icon>Alongside your gateway, not instead of it</h3>
+
+Scalar covers the API lifecycle: the versioned registry, linting and governance in Git and CI, the API reference and developer portal, SDKs, the API client, and hosted MCP servers, all from one OpenAPI document. It does not proxy runtime traffic, enforce rate limits or quotas, or provide consumption analytics or monetization. Those stay with your API gateway, which imports the same OpenAPI document Scalar governs, so routes, docs, SDKs, and agent tools never describe different APIs. [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway) explains the split.
+
 
 <h2 class="mt-10 t-editor__heading"> Govern and scale APIs across the organization</h2>
 

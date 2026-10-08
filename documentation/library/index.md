@@ -1,8 +1,8 @@
 # Library: API tool roundups and reviews
 
-*Last updated: September 2026*
+*Last updated: October 2026*
 
-The Scalar Library is a set of dated, sourced roundups of API tooling (documentation platforms, SDK generators, MCP server generators, and API clients), written to help you shortlist tools, not to sell you ours.
+The Scalar Library is a set of dated, sourced roundups of API tooling (documentation platforms, SDK generators, MCP server generators, API clients, and API management platforms), written to help you shortlist tools, not to sell you ours.
 
 Scalar makes tools in every one of these categories, so we are not a neutral reviewer. What we can promise is how these pages are made. Every price, licence, and status claim about another company links to that company's own pricing page, documentation, announcement, or GitHub repository, with the date we checked it. We do not publish review scores we could not read ourselves. Every roundup includes a section on when another tool is the better choice, and we mean it.
 
@@ -22,6 +22,10 @@ Hosted, generated-code, and runtime options for turning an OpenAPI document into
 
 <scalar-card title="Best open-source API clients (2026)" href="/library/best-open-source-api-clients-2026">
 Scalar, Bruno, Hoppscotch, Insomnia, Yaak, HTTPie, and RESTer, with the licence details that matter, including which "open source" clients need a paid licence at work.
+</scalar-card>
+
+<scalar-card title="Best API management platforms (2026)" href="/library/best-api-management-platforms-2026">
+Gateways and lifecycle platforms compared: Kong, Tyk, Gravitee, WSO2, MuleSoft, IBM, Apigee, Azure, AWS, Zuplo, Cloudflare, Postman, Swagger Studio, and Scalar, on licence, deployment, developer portal, MCP support, and published pricing.
 </scalar-card>
 
 ## Pricing and reviews

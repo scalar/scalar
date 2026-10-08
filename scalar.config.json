@@ -5906,6 +5906,39 @@
                     }
                   ]
                 }
+              },
+              "/best-api-management-platforms-2026": {
+                "type": "page",
+                "title": "Best API management platforms",
+                "filepath": "documentation/library/best-api-management-platforms-2026.md",
+                "description": "14 API management platforms compared, gateways and lifecycle tools, on licence, deployment, developer portal, MCP support and published pricing, with vendor sources and best-for verdicts.",
+                "head": {
+                  "title": "Best API Management Platforms (2026): Gateways and Lifecycle Tools — Scalar",
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/library/best-api-management-platforms-2026"
+                    }
+                  ],
+                  "meta": [
+                    {
+                      "name": "description",
+                      "content": "14 API management platforms compared, gateways and lifecycle tools, on licence, deployment, developer portal, MCP support and published pricing, with vendor sources and best-for verdicts."
+                    },
+                    {
+                      "property": "og:title",
+                      "content": "Best API Management Platforms (2026): Gateways and Lifecycle Tools — Scalar"
+                    },
+                    {
+                      "property": "og:description",
+                      "content": "14 API management platforms compared, gateways and lifecycle tools, on licence, deployment, developer portal, MCP support and published pricing, with vendor sources and best-for verdicts."
+                    },
+                    {
+                      "name": "robots",
+                      "content": "index, follow"
+                    }
+                  ]
+                }
               }
             },
             "icon": "phosphor/regular/books",
@@ -7495,6 +7528,72 @@
                         }
                       ]
                     }
+                  },
+                  "/build-mcp-server": {
+                    "type": "page",
+                    "title": "How to build an MCP server",
+                    "filepath": "documentation/learn/mcp/build-mcp-server.md",
+                    "description": "Build an MCP server step by step: tested TypeScript and Python servers on the official SDKs, connecting to Claude Code and Cursor, testing with the Inspector, and when to generate or host instead.",
+                    "head": {
+                      "title": "How to Build an MCP Server in TypeScript and Python (2026) — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/learn/mcp/build-mcp-server"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Build an MCP server step by step: tested TypeScript and Python servers on the official SDKs, connecting to Claude Code and Cursor, testing with the Inspector, and when to generate or host instead."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "How to Build an MCP Server in TypeScript and Python (2026) — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Build an MCP server step by step: tested TypeScript and Python servers on the official SDKs, connecting to Claude Code and Cursor, testing with the Inspector, and when to generate or host instead."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "/host-mcp-server": {
+                    "type": "page",
+                    "title": "How to host an MCP server",
+                    "filepath": "documentation/learn/mcp/host-mcp-server.md",
+                    "description": "Where to host an MCP server: Cloudflare Workers, Vercel, AWS Lambda, Cloud Run and managed hosting compared on limits and cost, with a deploy-ready container and launch checklist.",
+                    "head": {
+                      "title": "How to Host an MCP Server: Options Compared (2026) — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/learn/mcp/host-mcp-server"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Where to host an MCP server: Cloudflare Workers, Vercel, AWS Lambda, Cloud Run and managed hosting compared on limits and cost, with a deploy-ready container and launch checklist."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "How to Host an MCP Server: Options Compared (2026) — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "Where to host an MCP server: Cloudflare Workers, Vercel, AWS Lambda, Cloud Run and managed hosting compared on limits and cost, with a deploy-ready container and launch checklist."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
                   }
                 },
                 "page": {
@@ -8235,6 +8334,115 @@
                       {
                         "property": "og:description",
                         "content": "Guides to OpenAPI: what it is, 3.1 vs 3.0, OpenAPI vs Swagger, documentation, linting, mocking, security schemes and more, in a curated reading order."
+                      },
+                      {
+                        "name": "robots",
+                        "content": "index, follow"
+                      }
+                    ]
+                  },
+                  "layout": {
+                    "toc": false
+                  }
+                }
+              },
+              "api-management": {
+                "type": "group",
+                "title": "API management",
+                "mode": "folder",
+                "children": {
+                  "/api-management-vs-api-gateway": {
+                    "type": "page",
+                    "title": "API management vs API gateway",
+                    "filepath": "documentation/learn/api-management/api-management-vs-api-gateway.md",
+                    "description": "API management combines a runtime gateway with lifecycle tooling. Learn what each layer does, how OpenAPI connects them, and whether you need a gateway, a portal and registry, or both.",
+                    "head": {
+                      "title": "API Management vs API Gateway vs API Lifecycle Management — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/learn/api-management/api-management-vs-api-gateway"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "API management combines a runtime gateway with lifecycle tooling. Learn what each layer does, how OpenAPI connects them, and whether you need a gateway, a portal and registry, or both."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "API Management vs API Gateway vs API Lifecycle Management — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "API management combines a runtime gateway with lifecycle tooling. Learn what each layer does, how OpenAPI connects them, and whether you need a gateway, a portal and registry, or both."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "/api-governance": {
+                    "type": "page",
+                    "title": "API governance with OpenAPI",
+                    "filepath": "documentation/learn/api-management/api-governance.md",
+                    "description": "API governance with OpenAPI: a style guide as a Spectral ruleset, linting in CI, breaking-change checks, a registry with access control, and a tested GitHub Actions workflow.",
+                    "head": {
+                      "title": "API Governance with OpenAPI: Linting, CI and Breaking Changes — Scalar",
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/learn/api-management/api-governance"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "API governance with OpenAPI: a style guide as a Spectral ruleset, linting in CI, breaking-change checks, a registry with access control, and a tested GitHub Actions workflow."
+                        },
+                        {
+                          "property": "og:title",
+                          "content": "API Governance with OpenAPI: Linting, CI and Breaking Changes — Scalar"
+                        },
+                        {
+                          "property": "og:description",
+                          "content": "API governance with OpenAPI: a style guide as a Spectral ruleset, linting in CI, breaking-change checks, a registry with access control, and a tested GitHub Actions workflow."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "page": {
+                  "type": "page",
+                  "title": "Learn API management",
+                  "filepath": "documentation/learn/api-management/index.md",
+                  "description": "Guides to API management for API teams: gateway vs lifecycle tooling, API governance with OpenAPI, catalogs and registries, and sourced platform comparisons.",
+                  "head": {
+                    "title": "Learn API Management: Gateways, Governance and Registries — Scalar",
+                    "links": [
+                      {
+                        "rel": "canonical",
+                        "href": "https://scalar.com/learn/api-management"
+                      }
+                    ],
+                    "meta": [
+                      {
+                        "name": "description",
+                        "content": "Guides to API management for API teams: gateway vs lifecycle tooling, API governance with OpenAPI, catalogs and registries, and sourced platform comparisons."
+                      },
+                      {
+                        "property": "og:title",
+                        "content": "Learn API Management: Gateways, Governance and Registries — Scalar"
+                      },
+                      {
+                        "property": "og:description",
+                        "content": "Guides to API management for API teams: gateway vs lifecycle tooling, API governance with OpenAPI, catalogs and registries, and sourced platform comparisons."
                       },
                       {
                         "name": "robots",
