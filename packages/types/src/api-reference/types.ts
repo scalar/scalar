@@ -421,6 +421,8 @@ export type ApiReferenceTranslations = {
     termsOfService: string
   }
   asyncapi: {
+    /** Label for the root AsyncAPI application identifier. */
+    applicationIdentifier: string
     servers: string
     protocols: string
   }

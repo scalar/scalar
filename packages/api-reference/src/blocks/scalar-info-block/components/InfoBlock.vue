@@ -27,6 +27,8 @@ const {
 } = defineProps<{
   /** Optional unique identifier for the info block. */
   id?: string
+  /** AsyncAPI application identifier, separate from the introduction navigation anchor. */
+  applicationIdentifier?: string
   /** Original specification version of the input document (OpenAPI or AsyncAPI). */
   specificationVersion?: string
   /** The Info object from the API description. */
@@ -75,6 +77,7 @@ const introCardsSlot = computed(() =>
 <template>
   <IntroductionLayout
     :id
+    :applicationIdentifier
     :documentExtensions
     :documentType
     :eventBus="eventBus"

@@ -163,4 +163,34 @@ describe('InfoBlock', () => {
       expect(wrapper.text()).toContain(externalDocs.description)
     },
   )
+
+  it.each(['modern', 'classic'] as const)(
+    'renders the root identifier from loaded AsyncAPI documents in %s layout',
+    async (layout) => {
+      for (const asyncapi of ['2.6.0', '3.0.0', '3.1.0']) {
+        const store = createWorkspaceStore()
+        await store.addDocument({
+          name: 'events',
+          document: { asyncapi, id: 'urn:example:events', info: mockInfo, channels: {} },
+        })
+        const document = store.workspace.documents.events
+        const wrapper = mount(InfoBlock, {
+          props: {
+            id: 'events/introduction',
+            applicationIdentifier: document && 'id' in document ? document.id : undefined,
+            documentType: 'asyncapi',
+            info: document?.info,
+            specificationVersion: asyncapi,
+            layout,
+            documentDownloadType: 'none',
+            headingSlugGenerator: () => '',
+            eventBus,
+          },
+        })
+        expect(wrapper.get('dt').text()).toBe('Application identifier')
+        expect(wrapper.get('dd').text()).toBe('urn:example:events')
+        expect(wrapper.get('section').attributes('id')).toBe('events/introduction')
+      }
+    },
+  )
 })

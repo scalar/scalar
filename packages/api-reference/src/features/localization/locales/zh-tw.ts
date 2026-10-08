@@ -54,6 +54,7 @@ export const zhTw = {
     termsOfService: '服務條款',
   },
   asyncapi: {
+    applicationIdentifier: '應用程式識別碼',
     servers: '伺服器',
     protocols: '通訊協定',
   },
