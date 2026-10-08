@@ -36,6 +36,10 @@ const {
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
 }>()
+defineSlots<{
+  actions?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 /**
@@ -69,6 +73,13 @@ const hasChannels = computed(
           </ScreenReader>
         </SectionHeaderTag>
       </Anchor>
+      <template
+        v-if="$slots.actions"
+        #links>
+        <div class="flex items-start justify-end gap-3">
+          <slot name="actions" />
+        </div>
+      </template>
     </SectionHeader>
     <SectionContent>
       <SectionColumns>
