@@ -181,6 +181,8 @@ export const en = {
     signUp: 'Try it out for free',
     bookDemo: 'Book a demo with Marc, our CEO',
     getDemo: 'or get a demo with Marc',
+    messageMarc: 'Message Marc on X',
+    dmMarc: 'or just DM me on X!',
     close: 'Close',
     opensInNewTab: 'Opens in a new tab',
     popupBlocked: 'Your browser blocked the new tab. Click the button again to open it.',

@@ -183,6 +183,8 @@ export const pt = {
     signUp: 'Experimente grátis',
     bookDemo: 'Agende uma demo com Marc, nosso CEO',
     getDemo: 'ou agende uma demo com Marc',
+    messageMarc: 'Envie uma mensagem para Marc no X',
+    dmMarc: 'ou só me manda uma DM no X!',
     close: 'Fechar',
     opensInNewTab: 'Abre em uma nova aba',
     popupBlocked: 'Seu navegador bloqueou a nova aba. Clique novamente no botão para abri-la.',

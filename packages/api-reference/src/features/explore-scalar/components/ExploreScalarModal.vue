@@ -2,6 +2,7 @@
 import { DialogTitle } from '@headlessui/vue'
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarModal, type ModalState } from '@scalar/components/modal'
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import {
   ScalarIconArrowLeft,
   ScalarIconGlobe,
@@ -16,7 +17,7 @@ import { useLocalization } from '@/features/localization'
 import { useRegisterLink } from '@/hooks/use-register-link'
 
 import { mountCalInline } from '../cal-embed'
-import { DEMO_CALL_URL } from '../constants'
+import { DEMO_CALL_URL, MARC_X_DM_URL } from '../constants'
 import ExploreScalarStickers from './ExploreScalarStickers.vue'
 import StickerMarc from './stickers/StickerMarc.vue'
 
@@ -271,17 +272,50 @@ const showOverview = (): void => {
               {{ translate('exploreScalar.opensInNewTab') }}
             </span>
           </ScalarButton>
-          <!-- The quieter second path, read as a continuation of the primary action -->
-          <ScalarButton
-            class="bg-b-2 text-c-1 hover:bg-b-3 hover:text-c-1 active:bg-b-3 active:text-c-1 h-10 w-full rounded-full text-base font-medium"
-            variant="ghost"
-            @blur="hideMarc"
-            @click="showDemo"
-            @focus="showMarc"
-            @mouseenter="showMarc"
-            @mouseleave="hideMarc">
-            {{ translate('exploreScalar.getDemo') }}
-          </ScalarButton>
+          <!-- The quieter second path, read as a continuation of the primary action. The X circle sits
+               inside the pill but beside the button in the markup: a link inside a button is invalid. -->
+          <div class="bg-b-2 hover:bg-b-3 relative flex h-10 rounded-full">
+            <ScalarButton
+              class="text-c-1 hover:text-c-1 active:text-c-1 h-10 flex-1 rounded-full bg-transparent px-12 text-base font-medium hover:bg-transparent active:bg-transparent"
+              variant="ghost"
+              @blur="hideMarc"
+              @click="showDemo"
+              @focus="showMarc"
+              @mouseenter="showMarc"
+              @mouseleave="hideMarc">
+              {{ translate('exploreScalar.getDemo') }}
+            </ScalarButton>
+            <!-- The tooltip speaks in Marc's voice; the link itself keeps a plain name for assistive technology -->
+            <!-- Aligned to the circle's end so the tooltip stays inside the panel -->
+            <ScalarTooltip
+              :content="translate('exploreScalar.dmMarc')"
+              placement="top-end">
+              <a
+                class="bg-b-1 text-c-1 shadow-border hover:bg-b-2 absolute end-1 top-1 flex size-8 items-center justify-center rounded-full"
+                :href="MARC_X_DM_URL"
+                rel="noopener noreferrer"
+                target="_blank"
+                @blur="hideMarc"
+                @focus="showMarc"
+                @mouseenter="showMarc"
+                @mouseleave="hideMarc">
+                <!-- The X mark itself, in the current text colour -->
+                <svg
+                  aria-hidden="true"
+                  class="size-3.5"
+                  fill="currentColor"
+                  focusable="false"
+                  viewBox="0 0 24 24">
+                  <path
+                    d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                </svg>
+                <span class="sr-only">
+                  {{ translate('exploreScalar.messageMarc') }}
+                  {{ translate('exploreScalar.opensInNewTab') }}
+                </span>
+              </a>
+            </ScalarTooltip>
+          </div>
         </div>
       </div>
 

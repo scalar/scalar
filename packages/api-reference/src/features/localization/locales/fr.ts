@@ -183,6 +183,8 @@ export const fr = {
     signUp: 'Essayer gratuitement',
     bookDemo: 'Réserver une démo avec Marc, notre CEO',
     getDemo: 'ou obtenir une démo avec Marc',
+    messageMarc: 'Écrire à Marc sur X',
+    dmMarc: 'ou écris-moi simplement sur X !',
     close: 'Fermer',
     opensInNewTab: 'S’ouvre dans un nouvel onglet',
     popupBlocked: 'Votre navigateur a bloqué le nouvel onglet. Cliquez à nouveau sur le bouton pour l’ouvrir.',

@@ -182,6 +182,8 @@ export const es = {
     signUp: 'Pruébalo gratis',
     bookDemo: 'Reserva una demo con Marc, nuestro CEO',
     getDemo: 'o consigue una demo con Marc',
+    messageMarc: 'Escribe a Marc en X',
+    dmMarc: '¡o simplemente escríbeme por X!',
     close: 'Cerrar',
     opensInNewTab: 'Se abre en una pestaña nueva',
     popupBlocked: 'Tu navegador bloqueó la pestaña nueva. Haz clic de nuevo en el botón para abrirla.',

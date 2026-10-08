@@ -116,6 +116,30 @@ describe('useTooltip', () => {
     expect(tooltipElement?.style.display).toBe('none')
   })
 
+  it('stays open when the pointer moves from the tooltip onto a child of the target', async () => {
+    const icon = document.createElement('svg')
+    targetElement.appendChild(icon)
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+      delay: 0,
+    })
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // The tooltip can appear under the pointer for a frame, so the pointer "returns" to the icon
+    tooltipElement?.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget: icon }))
+    await nextTick()
+    expect(tooltipElement?.style.display).toBe('block')
+
+    tooltipElement?.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget: document.body }))
+    await nextTick()
+    expect(tooltipElement?.style.display).toBe('none')
+  })
+
   it('should hide tooltip on escape key', async () => {
     useTooltip({
       content: 'Test tooltip',

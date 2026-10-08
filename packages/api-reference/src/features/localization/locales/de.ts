@@ -183,6 +183,8 @@ export const de = {
     signUp: 'Kostenlos ausprobieren',
     bookDemo: 'Demo mit Marc, unserem CEO, buchen',
     getDemo: 'oder eine Demo mit Marc vereinbaren',
+    messageMarc: 'Marc auf X schreiben',
+    dmMarc: 'oder schreib mir einfach auf X!',
     close: 'Schließen',
     opensInNewTab: 'Öffnet in einem neuen Tab',
     popupBlocked: 'Dein Browser hat den neuen Tab blockiert. Klicke erneut auf die Schaltfläche, um ihn zu öffnen.',

@@ -176,6 +176,8 @@ export const zhCn = {
     signUp: '免费试用',
     bookDemo: '预约与我们的 CEO Marc 的演示',
     getDemo: '或预约与 Marc 的演示',
+    messageMarc: '在 X 上私信 Marc',
+    dmMarc: '或者直接在 X 上私信我！',
     close: '关闭',
     opensInNewTab: '在新标签页中打开',
     popupBlocked: '浏览器拦截了新标签页。请再次点击该按钮以打开。',

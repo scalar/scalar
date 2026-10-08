@@ -4,7 +4,7 @@ import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { DEMO_CALL_URL } from '../constants'
+import { DEMO_CALL_URL, MARC_X_DM_URL } from '../constants'
 import ExploreScalarModal from './ExploreScalarModal.vue'
 
 const { toastMock, uploadMock, mountCalMock } = vi.hoisted(() => ({
@@ -229,6 +229,28 @@ describe('ExploreScalarModal', () => {
     expect(wallWithMarc()).not.toBeNull()
   })
 
+  it('links to a direct message with Marc on X in a new tab', async () => {
+    await mountModal()
+
+    const link = findInDialog('a', 'Message Marc on X')
+    expect(link?.getAttribute('href')).toBe(MARC_X_DM_URL)
+    expect(link?.getAttribute('target')).toBe('_blank')
+    expect(link?.getAttribute('rel')).toContain('noopener')
+    expect(link?.textContent).toContain('Opens in a new tab')
+  })
+
+  it("shows a tooltip in Marc's voice on the X link", async () => {
+    await mountModal()
+
+    const link = findInDialog('a', 'Message Marc on X')
+    link?.focus()
+    await flushPromises()
+
+    const tooltip = document.getElementById(link?.getAttribute('aria-describedby') ?? '')
+    expect(tooltip?.getAttribute('role')).toBe('tooltip')
+    expect(tooltip?.textContent).toContain('or just DM me on X!')
+  })
+
   it('starts at the overview again after the dialog was closed on the booking step', async () => {
     mountCalMock.mockResolvedValue(undefined)
     const state = await mountModal()
@@ -409,7 +431,12 @@ describe('ExploreScalarModal', () => {
     const focusable = Array.from(getDialog().querySelectorAll<HTMLElement>('a[href], button'))
     expect(
       focusable.map((el) => (el.getAttribute('aria-label') ?? el.textContent ?? '').replace(/\s+/g, ' ').trim()),
-    ).toEqual(['Try it out for free Opens in a new tab', 'or get a demo with Marc', 'Close'])
+    ).toEqual([
+      'Try it out for free Opens in a new tab',
+      'or get a demo with Marc',
+      'Message Marc on X Opens in a new tab',
+      'Close',
+    ])
     expect(focusable.at(-1)).toBe(getClose())
   })
 

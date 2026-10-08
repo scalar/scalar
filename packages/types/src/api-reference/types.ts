@@ -594,6 +594,9 @@ export type ApiReferenceTranslations = {
     signUp: string
     bookDemo: string
     getDemo: string
+    messageMarc: string
+    /** Tooltip on the X logo, in Marc's own voice */
+    dmMarc: string
     close: string
     opensInNewTab: string
     popupBlocked: string
