@@ -23,22 +23,25 @@ Or set `SCALAR_API_KEY` and run `scalar auth login`. When both are set, `SCALAR_
 The default `codeframe` report shows findings alongside the relevant source lines. Choose a structured format to use lint results in CI:
 
 ```bash
+scalar document lint openapi.yaml --format codeframe
+scalar document lint openapi.yaml --format summary
 scalar document lint openapi.yaml --format github-actions
+scalar document lint openapi.yaml --format markdown --output lint-results.md
 scalar document lint openapi.yaml --format json --output lint-results.json
 scalar document lint openapi.yaml --format junit --output lint-results.xml
 ```
 
 Reports go to stdout unless you provide `--output`. Status and upgrade notices go to stderr, so you can also redirect stdout to a report file. Reports are written even when lint findings cause the command to fail. Prefer `--output` over shell redirection in scripts: Scalar checks that the destination is not the input document, the ruleset, the baseline, or a referenced file, which the shell cannot do. Parent directories must already exist.
 
-| Format | Output |
-| --- | --- |
-| `codeframe` | Findings with source excerpts and carets at the reported locations. This is the default. |
-| `text` | Human-readable findings with engine-native locations. |
-| `markdown` | Markdown tables grouped by source, followed by validation totals. |
-| `summary` | Finding counts grouped by severity and rule, followed by validation totals. |
-| `json` | An object with the CLI package `version` (for example, `"2.10.0"`), a `problems` array, and `totals` containing `errors`, `warnings`, and `ignored` counts. Each problem contains `ruleId`, `severity` (`error`, `warn`, `info`, or `hint`), `message`, a `location` array, `suggest`, and an optional `reference` URL. Locations contain `source.ref`, a JSON `pointer`, and `start`/`end` positions with 1-based `line` and `col` values. |
-| `github-actions` | Error, warning, and notice annotations. Local file paths are relative to `GITHUB_WORKSPACE`, or the current directory outside Actions. Remote sources appear in the message without a repository file attachment. |
-| `junit` | JUnit XML grouped by source, with one test case per displayed finding. Errors use `error`, warnings use `failure`, and information and hints use `system-out`. A separate totals suite records all active errors, warnings, ignored findings, and hidden findings. A clean run produces a valid report with zero tests. |
+| Format           | Output                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `codeframe`      | Findings with source excerpts and carets at the reported locations. This is the default. `NO_COLOR=1` turns colors off.                                                                                                                                                                                                                                                                                                                     |
+| `text`           | Human-readable findings with engine-native locations.                                                                                                                                                                                                                                                                                                                                                                                       |
+| `markdown`       | Markdown tables grouped by source, followed by validation totals.                                                                                                                                                                                                                                                                                                                                                                           |
+| `summary`        | Finding counts grouped by severity and rule, followed by validation totals.                                                                                                                                                                                                                                                                                                                                                                 |
+| `json`           | An object with the CLI package `version` (for example, `"2.10.0"`), a `problems` array, and `totals` containing `errors`, `warnings`, and `ignored` counts. Each problem contains `ruleId`, `severity` (`error`, `warn`, `info`, or `hint`), `message`, a `location` array, `suggest`, and an optional `reference` URL. Locations contain `source.ref`, a JSON `pointer`, and `start`/`end` positions with 1-based `line` and `col` values. |
+| `github-actions` | Error, warning, and notice annotations. Local file paths are relative to `GITHUB_WORKSPACE`, or the current directory outside Actions. Remote sources appear in the message without a repository file attachment.                                                                                                                                                                                                                           |
+| `junit`          | JUnit XML grouped by source, with one test case per displayed finding. Errors use `error`, warnings use `failure`, and information and hints use `system-out`. A separate totals suite records all active errors, warnings, ignored findings, and hidden findings. A clean run produces a valid report with zero tests.                                                                                                                     |
 
 By default, reports display at most 100 findings, ordered by severity. Use `--max-problems` to change this limit. Totals and the exit status always include all active findings, even when some are hidden:
 
@@ -72,6 +75,14 @@ scalar document lint openapi.yaml --ignore-file config/lint-ignore.yaml
 Generation records all current findings and exits successfully after writing the baseline. Regenerating replaces the selected input document's entries while preserving other inputs' entries, including findings in shared referenced files. To baseline several documents, run generation once for each input with the same ignore file.
 
 Entries match by source document, rule, and document path, independently of line numbers, severity, or message text. Local source paths are relative to the baseline directory. Several findings with the same identity share one entry. Renaming documents, reordering arrays, or changing rules may create new identities. Resolved entries can suppress a later recurrence at the same identity until you regenerate the baseline, so review baseline changes before committing them.
+
+The baseline uses Redocly's source → rule → JSON pointer layout:
+
+```yaml
+openapi.yaml:
+  info-description:
+    - '#/info'
+```
 
 ### Coming from Redocly
 
@@ -115,14 +126,14 @@ scalar sdk list --namespace acme --json
 scalar sdk get --slug widgets --namespace acme --json
 ```
 
-| Command | Returns |
-| --- | --- |
+| Command                       | Returns                                                                                                                                            |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `project list`, `project get` | `uid`, `name`, `slug`, `provider`, `isPrivate`, `repository`, and `activeDeployment`. An unlinked repository or missing live deployment is `null`. |
-| `team list` | An array of `{ uid, name, current }`. |
-| `team get` | `{ uid, name, slug, namespaces }`. |
-| `registry list` | `namespace`, `slug`, `title`, `version`, and `isPrivate`, without document content. |
-| `schema list` | `namespace`, `slug`, `title`, `version` (`null` before the first version), and `isPrivate`. |
-| `sdk list`, `sdk get` | The linked API, target languages, current version, version history, and the latest build attempt. Timestamps are Unix seconds. |
+| `team list`                   | An array of `{ uid, name, current }`.                                                                                                              |
+| `team get`                    | `{ uid, name, slug, namespaces }`.                                                                                                                 |
+| `registry list`               | `namespace`, `slug`, `title`, `version`, and `isPrivate`, without document content.                                                                |
+| `schema list`                 | `namespace`, `slug`, `title`, `version` (`null` before the first version), and `isPrivate`.                                                        |
+| `sdk list`, `sdk get`         | The linked API, target languages, current version, version history, and the latest build attempt. Timestamps are Unix seconds.                     |
 
 `--namespace` defaults to your current team's first namespace. To download a document, use `registry get` or `schema get`:
 
