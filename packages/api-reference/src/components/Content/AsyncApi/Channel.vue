@@ -169,7 +169,8 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     <Bindings
       :bindings="resolvedChannel?.bindings"
       class="mt-4" />
-    <AsyncApiDocumentation :owner="resolvedChannel" />
+    <AsyncApiDocumentation
+      :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
       :eventBus="eventBus"
@@ -258,7 +259,8 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         <Bindings
           :bindings="resolvedChannel?.bindings"
           class="mt-4" />
-        <AsyncApiDocumentation :owner="resolvedChannel" />
+        <AsyncApiDocumentation
+          :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
         <ParameterList
           v-if="parameters.length"
           :eventBus="eventBus"

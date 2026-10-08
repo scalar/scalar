@@ -7,6 +7,7 @@ import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import ChannelsList from '@/components/Content/AsyncApi/ChannelsList.vue'
+import { LinkList } from '@/components/LinkList'
 import { OperationsList } from '@/components/OperationsList'
 import {
   Section,
@@ -17,6 +18,7 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import type { HeadingLevel } from '@/features/document-outline'
+import { ExternalDocs } from '@/features/external-docs'
 import { useLocalization } from '@/features/localization'
 import { SpecificationExtension } from '@/features/specification-extension'
 
@@ -74,9 +76,12 @@ const hasChannels = computed(
         </SectionHeaderTag>
       </Anchor>
       <template
-        v-if="$slots.actions"
+        v-if="$slots.actions || tag.externalDocs"
         #links>
         <div class="flex items-start justify-end gap-3">
+          <LinkList v-if="tag.externalDocs">
+            <ExternalDocs :value="tag.externalDocs" />
+          </LinkList>
           <slot name="actions" />
         </div>
       </template>

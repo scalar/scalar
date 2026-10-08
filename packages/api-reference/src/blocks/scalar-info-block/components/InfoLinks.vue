@@ -7,7 +7,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
-import { getExternalDocumentation } from '@/components/Content/AsyncApi/helpers/get-external-documentation'
 import { LinkList } from '@/components/LinkList'
 import { ExternalDocs } from '@/features/external-docs'
 import {
@@ -17,15 +16,10 @@ import {
   TermsOfService,
 } from '@/features/info-object'
 
-const { info, externalDocs, tags } = defineProps<{
+const { info, externalDocs } = defineProps<{
   info: InfoObject | AsyncApiInfoObject
   externalDocs?: ExternalDocumentationObject
-  tags?: AsyncApiInfoObject['tags']
 }>()
-
-const documentation = computed<ExternalDocumentationObject[]>(() =>
-  getExternalDocumentation({ externalDocs, tags }),
-)
 
 /** Additional named links from the `x-scalar-links` extension (e.g. privacy policy, imprint) */
 const links = computed(() => {
@@ -45,7 +39,7 @@ const links = computed(() => {
 /** Whether there is at least one link to show, so we do not render an empty list */
 const hasLinks = computed(() =>
   Boolean(
-    documentation.value.length ||
+    externalDocs ||
     info.contact ||
     info.license ||
     info.termsOfService ||
@@ -57,9 +51,8 @@ const hasLinks = computed(() =>
 <template>
   <LinkList v-if="hasLinks">
     <ExternalDocs
-      v-for="(value, index) in documentation"
-      :key="index"
-      :value />
+      v-if="externalDocs"
+      :value="externalDocs" />
     <Contact
       v-if="info.contact"
       :value="info.contact" />

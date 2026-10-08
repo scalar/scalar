@@ -9,6 +9,7 @@ import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { type NavigationOptions, getNavigationOptions } from '@/navigation/get-navigation-options'
 import { getTag } from '@/navigation/helpers/get-tag'
+import { getTagExternalDocs } from '@/navigation/helpers/get-tag-external-docs'
 import { traverseDescription } from '@/navigation/helpers/traverse-description'
 import { traverseSchemas } from '@/navigation/helpers/traverse-schemas'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
@@ -194,7 +195,15 @@ const resolveOperationMessageNames = (
  */
 const toTagObject = (tag: AsyncApiTagEntry): TagObject[] => {
   const resolved = getResolvedAsyncApiRef(tag)
-  return resolved ? [{ name: resolved.name, description: resolved.description }] : []
+  if (!resolved) {
+    return []
+  }
+  const externalDocs = getResolvedAsyncApiRef(resolved.externalDocs)
+  return [{
+    name: resolved.name,
+    ...(resolved.description !== undefined ? { description: resolved.description } : {}),
+    ...(externalDocs ? { externalDocs } : {}),
+  }]
 }
 
 /**
@@ -439,6 +448,7 @@ const createTagEntry = ({
     parentId,
     isGroup: false,
   })
+  const externalDocs = getTagExternalDocs(tag)
   const title = tag['x-displayName'] ?? tag.name ?? 'Untitled Tag'
 
   tag['x-scalar-order'] = children.map((child) => child.id)
@@ -449,6 +459,7 @@ const createTagEntry = ({
     title,
     name: tag.name || title,
     description: tag.description,
+    ...(externalDocs ? { externalDocs } : {}),
     children,
     isGroup: false,
     isWebhooks: false,
@@ -617,6 +628,16 @@ export const traverseAsyncApiDocument = (
   const tagsMap: TagsMap = new Map()
   const untaggedChannels: TraversedAsyncApiChannel[] = []
 
+  // Info-level tags own their metadata and links, rather than contributing introduction links.
+  for (const tagRef of document.info.tags ?? []) {
+    if (!getResolvedAsyncApiRef(tagRef)?.name) {
+      continue
+    }
+    const tag = toTagObject(tagRef)
+    const entry = getTag({ tagsMap, name: tag.name, documentId, generateId })
+    entry.tag = tag
+  }
+
   for (const bucket of channelBuckets.values()) {
     // Operation-level tags are intentionally skipped for now: every operation is rendered
     // under its channel, and only the channel's own tags drive tag grouping below.
@@ -638,7 +659,9 @@ export const traverseAsyncApiDocument = (
     // Channels can declare their own tags independently of any operation tags.
     for (const tag of bucket.channelTags) {
       const tagName = tag.name ?? 'Untitled Tag'
-      const { id: tagId, entries } = getTag({ tagsMap, name: tagName, documentId, generateId })
+      const tagEntry = getTag({ tagsMap, name: tagName, documentId, generateId })
+      tagEntry.tag = { ...tagEntry.tag, ...tag }
+      const { id: tagId, entries } = tagEntry
 
       const alreadyRegistered = entries.some(
         (entry) => entry.type === 'asyncapi-channel' && entry.channelName === bucket.channelName,

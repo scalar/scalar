@@ -80,13 +80,8 @@ const { level: headingLevel } = useDocumentOutline('document')
             </SectionHeaderTag>
             <template #links>
               <InfoLinks
-                :externalDocs
-                :info
-                :tags="
-                  documentType === 'asyncapi' && 'tags' in info
-                    ? info.tags
-                    : undefined
-                " />
+                :externalDocs="externalDocs"
+                :info="info" />
             </template>
           </SectionHeader>
           <dl
