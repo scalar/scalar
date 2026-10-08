@@ -53,7 +53,7 @@
     "format": "prettier --write . && biome format --write",
     "lint:check": "biome ci --diagnostic-level=error && pnpm lint:vue --quiet",
     "lint:check:dist-dts-aliases": "tsx ./tooling/scripts/check-dist-dts-aliases.ts",
-    "lint:vue": "pnpm eslint \"**/*.vue\"",
+    "lint:vue": "pnpm eslint --config eslint.config.mjs \"**/*.vue\"",
     "lint:markdown": "remark --frail .",
     "lint:knip": "cross-env NODE_ENV=test knip",
     "lint:fix": "biome check --write && pnpm lint:vue --fix",
