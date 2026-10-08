@@ -1,6 +1,6 @@
 # PHP SDK generator from OpenAPI
 
-Scalar can generate a Composer package in PHP from your OpenAPI document and make it installable from Packagist with nothing more than a Git tag. **The PHP target is experimental.** It generates working code, but it is further from GA than Java, Kotlin, Ruby, and C#, and there is no public PHP sample yet. This page sticks to what is documented: configuration, publishing, and the pagination surface, with a clear note wherever it describes what the generator targets rather than output you can inspect.
+Scalar can generate a Composer package in PHP from your OpenAPI document and make it installable from Packagist with nothing more than a Git tag. **The PHP target is experimental.** It generates working code, but it is further from GA than C#, and there is no public PHP sample yet. This page sticks to what is documented: configuration, publishing, and the pagination surface, with a clear note wherever it describes what the generator targets rather than output you can inspect.
 
 ## Two names that matter in PHP
 
@@ -94,7 +94,7 @@ For more on that decision, see [OpenAPI Generator alternatives](/alternatives/op
 
 <scalar-detail title="Is the PHP SDK generator production ready?">
 
-No. PHP is experimental and generates working code, but it is further from GA than Java, Kotlin, Ruby, and C#. We would rather talk with you first than have you find a gap after your users do.
+No. PHP is experimental and generates working code, but it is further from GA than C#. We would rather talk with you first than have you find a gap after your users do.
 
 </scalar-detail>
 

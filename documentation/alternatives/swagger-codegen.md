@@ -38,7 +38,7 @@ If your document came from a framework, the better fix is usually to regenerate 
 
 | Tool | License | Reads OpenAPI 3.1 | Languages | Best for |
 | --- | --- | --- | --- | --- |
-| **Scalar** | Hosted service | Yes | TypeScript, Python, Go, CLI GA; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, C++ experimental | Published SDKs with releases handled |
+| **Scalar** | Hosted service | Yes | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA; C#, PHP, Rust, Swift, Dart, C++ experimental | Published SDKs with releases handled |
 | [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) | Apache 2.0 | [Beta](https://github.com/OpenAPITools/openapi-generator#overview) | Dozens of clients and servers | The closest drop-in, including server stubs |
 | [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) | MIT | Check your keywords | C#, Go, Java, PHP, Python, Ruby, TypeScript | Consistent internal clients |
 | [NSwag](https://github.com/RicoSuter/NSwag) | MIT | [Lists 2.0 and 3.0](https://github.com/RicoSuter/NSwag) | C#, TypeScript | .NET shops with Swagger-era tooling |
@@ -49,7 +49,7 @@ Checked against each project's repository, README or package page on 26 Septembe
 
 ### 1. Scalar SDK generator
 
-Scalar reads your OpenAPI 3.0 or 3.1 document (Swagger 2.0 is upgraded on load, so step one is optional for Scalar itself) and generates SDKs you publish from your own GitHub repositories. The generally available targets are TypeScript, Python, Go and a CLI; nine more languages are experimental and labelled as such. Generated SDKs include auto-paginating iterators, retries that honour `Retry-After`, timeouts, typed errors, and OAuth 2.0 support, with a generated README and publishing workflows. When you edit the generated code, your changes are [carried forward on every regeneration](/products/sdk-generator/custom-code) instead of being overwritten, which is the problem Swagger Codegen users usually solve with `.swagger-codegen-ignore` files and template forks.
+Scalar reads your OpenAPI 3.0 or 3.1 document (Swagger 2.0 is upgraded on load, so step one is optional for Scalar itself) and generates SDKs you publish from your own GitHub repositories. The generally available targets are TypeScript, Python, Go, Java, Kotlin, Ruby and a CLI; six more languages are experimental and labelled as such. Generated SDKs include auto-paginating iterators, retries that honour `Retry-After`, timeouts, typed errors, and OAuth 2.0 support, with a generated README and publishing workflows. When you edit the generated code, your changes are [carried forward on every regeneration](/products/sdk-generator/custom-code) instead of being overwritten, which is the problem Swagger Codegen users usually solve with `.swagger-codegen-ignore` files and template forks.
 
 It is a hosted product with a free plan (one SDK for APIs up to 25 endpoints), and [Pro at $150/month](/pricing). The same document can also power [API documentation](/products/api-references) and a [hosted MCP server](/products/agent/mcp).
 

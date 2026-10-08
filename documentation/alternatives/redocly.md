@@ -26,7 +26,7 @@ Redocly has real strengths, which we cover below. The reasons teams start evalua
 
 | Platform | Entry paid price | Pricing model | Interactive reference | SDK generation | Open-source renderer |
 | --- | --- | --- | --- | --- | --- |
-| **Scalar** | [$150/month](/pricing) | Flat, 5 editor seats included | Yes, full API client | Yes, TypeScript, Python, Go, CLI GA | Yes, MIT |
+| **Scalar** | [$150/month](/pricing) | Flat, 5 editor seats included | Yes, full API client | Yes, TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA | Yes, MIT |
 | [Redocly](https://redocly.com/pricing) | $10/seat/month | Per seat, page limits | Replay on hosted plans | Experimental TypeScript client | Redoc, MIT, no try-it |
 | [Mintlify](https://www.mintlify.com/pricing) | Listed at $450/month | Flat, unlimited seats | API playground | No | No |
 | [ReadMe](https://readme.com/pricing) | $250/month billed annually | Flat | Yes | No | No |
@@ -41,7 +41,7 @@ Prices are the vendors' published list prices on 26 September 2026. Plans change
 
 Scalar Docs hosts your guides and API references from a Git repository, with custom domains, Git sync, Markdown and MDX, and preview deployments on pull requests. The API reference inside it is the same [MIT-licensed renderer](https://github.com/scalar/scalar) you can self-host for free, so if you ever leave the hosted product, your reference keeps working on your own infrastructure. Every operation has a full API client, not a paid add-on.
 
-The same OpenAPI document also drives the [SDK generator](/products/sdk-generator) (TypeScript, Python, Go and CLI generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ experimental) and a [hosted MCP server](/products/agent/mcp). Pricing is [flat and published](/pricing): Free at $0, Pro at $150/month with 5 editor seats, one SDK and hosted MCP servers, Business at $600/month with SSO and 10 editor seats, and Enterprise on request.
+The same OpenAPI document also drives the [SDK generator](/products/sdk-generator) (TypeScript, Python, Go, Java, Kotlin, Ruby and CLI generally available; C#, PHP, Rust, Swift, Dart and C++ experimental) and a [hosted MCP server](/products/agent/mcp). Pricing is [flat and published](/pricing): Free at $0, Pro at $150/month with 5 editor seats, one SDK and hosted MCP servers, Business at $600/month with SSO and 10 editor seats, and Enterprise on request.
 
 **Verdict:** the closest match for teams who want Redocly's docs-first focus without per-seat growth, and who want SDKs and MCP from the same source.
 **Best for:** API companies whose docs, SDKs and agent access should never disagree about the API.

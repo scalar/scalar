@@ -6,19 +6,19 @@ The pages exist because "an SDK generator" is not one thing. A good Go client ta
 
 ## Generally available and experimental
 
-TypeScript, Python, and Go are **generally available**, together with the CLI target. They run through end-to-end tests that generate, build, and call a live server on every change to the generator, and their pages show real code from the public [Warp SDKs](https://github.com/TeamWarp).
+TypeScript, Python, Go, Java, and Kotlin are **generally available**, together with the CLI target. They run through end-to-end tests that generate, build, and call a live server on every change to the generator, and they are in production at [Warp](/customers/warp), [Profound](/customers), Dedalus Labs and others. The TypeScript, Python, and Go pages show real code from the public [Warp SDKs](https://github.com/TeamWarp).
 
-Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are **experimental**. They generate working code, and Java, Kotlin, Ruby, and C# sit in the same test matrix as the GA targets, but we would rather talk with you before you ship one of them to customers. The Java, Kotlin, Ruby, C#, PHP, Rust, and Swift pages say so up front and only show code we can source; where no public sample exists yet, they show configuration and documented behaviour instead.
+C#, PHP, Rust, Swift, Dart, and C++ are **experimental**. They generate working code, and C# sits in the same test matrix as the GA targets, but we would rather talk with you before you ship one of them to customers. The C#, PHP, Rust, and Swift pages say so up front and only show code we can source; where no public sample exists yet, they show configuration and documented behaviour instead.
 
 | Language | Status | Registry | Page |
 | --- | --- | --- | --- |
 | TypeScript | Generally available | npm | [TypeScript SDK generator](/sdk/typescript) |
 | Python | Generally available | PyPI | [Python SDK generator](/sdk/python) |
 | Go | Generally available | Go modules | [Go SDK generator](/sdk/go) |
-| Java | Experimental | Maven Central | [Java SDK generator](/sdk/java) |
-| Kotlin | Experimental | Maven Central | [Kotlin SDK generator](/sdk/kotlin) |
+| Java | Generally available | Maven Central | [Java SDK generator](/sdk/java) |
+| Kotlin | Generally available | Maven Central | [Kotlin SDK generator](/sdk/kotlin) |
+| Ruby | Generally available | RubyGems | [Ruby SDK generator](/sdk/ruby) |
 | C# | Experimental | NuGet | [C# SDK generator](/sdk/csharp) |
-| Ruby | Experimental | RubyGems | [Ruby SDK generator](/sdk/ruby) |
 | PHP | Experimental | Packagist | [PHP SDK generator](/sdk/php) |
 | Rust | Experimental | crates.io | [Rust SDK generator](/sdk/rust) |
 | Swift | Experimental | Swift Package Manager | [Swift SDK generator](/sdk/swift) |
@@ -33,7 +33,7 @@ Every target is driven by the same SDK configuration, so a change to your API re
 
 <scalar-detail title="Which SDK languages does Scalar support?">
 
-TypeScript, Python, and Go are generally available, along with a CLI target. Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental.
+TypeScript, Python, Go, Java, Kotlin, and Ruby are generally available, along with a CLI target. C#, PHP, Rust, Swift, Dart, and C++ are experimental.
 
 </scalar-detail>
 

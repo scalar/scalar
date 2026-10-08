@@ -40,7 +40,7 @@ We would rather you hear this from us than discover it in a trial.
 
 **An open-source generator.** Since September 2026 the Speakeasy generator — SDKs, Terraform providers, MCP servers, and CLIs — is [published under AGPL-3.0](https://github.com/speakeasy-api/openapi-generation). You can read it, change it, and run it without an account by electing the AGPL licence, or buy a commercial licence if copyleft does not suit you. Scalar's SDK generator is closed source, so if auditing or forking the generator matters to you, this is a real difference.
 
-**A longer production track record.** Speakeasy-generated SDKs have been shipping for years at scale. You can read [Vercel's](https://github.com/vercel/sdk) and [Dub's](https://github.com/dubinc/dub-node) in full. Scalar's generator is newer, and years of other people's edge cases is not something we can claim.
+**A longer production track record.** Speakeasy-generated SDKs have been shipping for years at scale. You can read [Vercel's](https://github.com/vercel/sdk) and [Dub's](https://github.com/dubinc/dub-node) in full. Scalar's generator is in production at [Warp](/customers/warp), [Profound](/customers), Dedalus Labs and others, and you can read the [Warp TypeScript SDK](https://github.com/TeamWarp/warp-sdk-typescript) in full too, but Speakeasy has been doing this for longer.
 
 ## The actual architectural choice
 

@@ -1,6 +1,6 @@
 # Java SDK generator from OpenAPI
 
-Scalar generates a Java SDK from your OpenAPI document with builder-based clients and params, a resource tree that mirrors your API, and an `autoPager()` that walks every page of a list endpoint. **The Java target is experimental.** It generates working code and sits in the same continuous integration matrix as the generally available targets, but it has not yet earned the GA label, so talk to us before you ship it to customers.
+Scalar generates a Java SDK from your OpenAPI document with builder-based clients and params, a resource tree that mirrors your API, and an `autoPager()` that walks every page of a list endpoint. **The Java target is generally available.** It runs through the same end-to-end tests as TypeScript, Python, and Go, generating, building, and calling a live server on every change to the generator.
 
 This page covers what the output looks like, the Java conventions it aims for, how it gets to Maven Central, and how it compares with OpenAPI Generator's `java` generator.
 
@@ -35,7 +35,7 @@ The artifact is `dev.warp:warp-java`, added in Gradle with `implementation("dev.
 
 **Pagination through `autoPager()`.** A list method returns a page type (here `TimeOffListAssignmentsPage`). Call `autoPager()` to stream items across pages, or check `page.hasNextPage()` to step through manually.
 
-**The generator's shared feature set.** The SDK Generator's feature list covers retries on temporary failures (two by default, covering network errors, 408, 409, 429, and 5xx), `Retry-After` support, a 60-second default timeout, and typed errors that expose status, headers, and the parsed body. Because the target is experimental, check the generated README in your preview repository for the exact class and method names before you document them for users.
+**The generator's shared feature set.** The SDK Generator's feature list covers retries on temporary failures (two by default, covering network errors, 408, 409, 429, and 5xx), `Retry-After` support, a 60-second default timeout, and typed errors that expose status, headers, and the parsed body. Check the generated README in your preview repository for the exact class and method names before you document them for users.
 
 ## Configure the target
 
@@ -82,9 +82,9 @@ PetApi apiInstance = new PetApi(defaultClient);
 // errors surface as ApiException with getCode()
 ```
 
-| | Scalar Java target (experimental) | OpenAPI Generator `java` |
+| | Scalar Java target | OpenAPI Generator `java` |
 | --- | --- | --- |
-| Status | Experimental | Stable |
+| Status | Generally available | Stable |
 | HTTP stack | One generated client | Choose from more than a dozen libraries |
 | Client shape | `WarpClient.builder()`, resource tree | `ApiClient` + `Configuration` + one `*Api` class per tag |
 | Params | Immutable builder objects | Method arguments |
@@ -98,7 +98,7 @@ Feature tables can lag the templates, so try your own schemas in both. For the w
 
 <scalar-detail title="Is the Java SDK generator production ready?">
 
-Not yet. Java is an experimental target. It generates working code and is in the same continuous integration matrix as the GA targets (TypeScript, Python, Go, and the CLI), and it is one of the closest to graduating. Talk to us before you depend on it in production.
+Yes. Java is generally available, alongside TypeScript, Python, Go, Kotlin, Ruby, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server on every generator change.
 
 </scalar-detail>
 
@@ -116,7 +116,7 @@ Maven Central does not offer OIDC trusted publishing and requires every artifact
 
 <scalar-detail title="Is there a separate Kotlin SDK?">
 
-Yes, Kotlin is its own experimental target that also publishes to Maven Central. See the [Kotlin SDK generator](/sdk/kotlin) page.
+Yes, Kotlin is its own generally available target that also publishes to Maven Central. See the [Kotlin SDK generator](/sdk/kotlin) page.
 
 </scalar-detail>
 

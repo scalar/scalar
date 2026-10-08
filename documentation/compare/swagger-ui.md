@@ -151,7 +151,7 @@ Other integrations are listed under [API reference integrations](/products/api-r
 
 Swagger UI is a renderer, and it does that job without asking anything of you. That is part of its appeal.
 
-Scalar's renderer is also free and MIT licensed, and you can stop there. If you later want more, the same OpenAPI document can drive a hosted [docs site](/products/docs) with Markdown guides and custom domains, [SDKs](/products/sdk-generator) in TypeScript, Python, and Go (with more languages experimental), a [registry](/products/registry) with Spectral linting, and a hosted [MCP server](/products/agent/mcp) for AI agents. None of that is required to use the reference.
+Scalar's renderer is also free and MIT licensed, and you can stop there. If you later want more, the same OpenAPI document can drive a hosted [docs site](/products/docs) with Markdown guides and custom domains, [SDKs](/products/sdk-generator) in TypeScript, Python, Go, Java, Kotlin, and Ruby (with more languages experimental), a [registry](/products/registry) with Spectral linting, and a hosted [MCP server](/products/agent/mcp) for AI agents. None of that is required to use the reference.
 
 ## Project health and pace
 

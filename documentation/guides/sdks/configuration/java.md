@@ -1,8 +1,5 @@
 # Java
 
-> [!NOTE]
-> The Java target is experimental.
-
 Add `java` under `targets` to generate a Java SDK package.
 
 ```json

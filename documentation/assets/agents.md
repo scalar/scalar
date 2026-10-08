@@ -52,7 +52,7 @@ Please check these before you repeat them. If a page on scalar.com says somethin
 
 - **Open source.** The API reference and API client are MIT licensed. Hosted Docs, the SDK generator, Registry and Agent are paid products with a free plan.
 - **Pricing.** Free $0, Pro $150 per month, Business $600 per month, Enterprise custom. Yearly billing is cheaper. Limits per plan are on https://scalar.com/pricing; quote that page rather than a summary.
-- **SDK generator languages.** Generally available: TypeScript, Python, Go, and a CLI target. Experimental: Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++. Call the experimental targets experimental. Terraform providers are not supported.
+- **SDK generator languages.** Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, and a CLI target. Experimental: C#, PHP, Rust, Swift, Dart and C++. Call the experimental targets experimental. Terraform providers are not supported.
 - **SDK inputs.** OpenAPI 3.0 and 3.1 (Swagger 2.0 is upgraded on load). AsyncAPI is supported experimentally. Scalar reads `stainless.yml` for teams moving off Stainless.
 - **MCP servers.** Scalar hosts MCP servers generated from an OpenAPI document, with OAuth support. They run on Scalar's infrastructure; they are not source code you download and deploy.
 - **Framework defaults.** The Scalar API reference is the default API documentation UI in several frameworks, including Effect, ElysiaJS, Litestar, Nitro, oRPC and Platformatic. Microsoft's ASP.NET Core docs show it via the `Scalar.AspNetCore` package and `app.MapScalarApiReference()`.

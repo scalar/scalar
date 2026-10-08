@@ -15,7 +15,7 @@ The short version: ReadMe is a hosted developer hub with the best built-in API a
 | Docs renderer | MIT, self-hostable on any plan | Closed; hosted only |
 | Interactive API reference | Yes | Yes |
 | Standalone API client | Yes, open source | No — in-docs API explorer |
-| SDK generation | Native. Generally available: TypeScript, Python, Go, CLI; more targets experimental | TypeScript/JavaScript via the `api` CLI |
+| SDK generation | Native. Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI; more targets experimental | TypeScript/JavaScript via the `api` CLI |
 | API analytics | — | Yes — Developer Dashboard and Metrics |
 | Personalized docs with user API keys | Yes | Yes |
 | Hosted MCP server | Yes | Yes |
@@ -44,7 +44,7 @@ Both products render an OpenAPI document into a documentation site with an inter
 
 ## SDKs
 
-Scalar generates SDKs natively from the same OpenAPI document that renders your reference, in the same run, so your docs and your client libraries cannot describe different APIs. TypeScript, Python, Go, and a CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. One language target is included with every plan; additional targets start at a published [$150/month each](../guides/pricing.md).
+Scalar generates SDKs natively from the same OpenAPI document that renders your reference, in the same run, so your docs and your client libraries cannot describe different APIs. TypeScript, Python, Go, Java, Kotlin, Ruby, and a CLI are generally available; C#, PHP, Rust, Swift, Dart, and C++ are experimental. One language target is included with every plan; additional targets start at a published [$150/month each](../guides/pricing.md).
 
 ReadMe's SDK story is narrower. Their open-source [`api` package](https://api.readme.dev/docs/getting-started) generates a TypeScript or JavaScript client from an OpenAPI definition — but it is a CLI your API consumers run themselves, in one language family, not a managed pipeline that generates, versions, and publishes packages to registries on your behalf. Teams on ReadMe who want multi-language SDKs typically add a third-party generator such as [APIMatic](https://www.apimatic.io/integrations/readme), which brings back the separate-vendor problem: your documentation's code samples then depend on a company you did not choose.
 

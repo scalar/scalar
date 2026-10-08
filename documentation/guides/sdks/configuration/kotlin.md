@@ -1,8 +1,5 @@
 # Kotlin
 
-> [!NOTE]
-> The Kotlin target is experimental.
-
 Add `kotlin` under `targets` to generate a Kotlin SDK package. Kotlin builds with Gradle and publishes to Maven Central, the same as the Java target.
 
 ```json

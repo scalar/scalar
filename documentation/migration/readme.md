@@ -244,7 +244,7 @@ Preview with `npx @scalar/cli project preview`, connect [Git Sync](/products/doc
 
 ## What you gain
 
-Teams usually move for reasons beyond the docs site: an [MIT-licensed API reference](/products/api-references) you can self-host or mount inside your app, a standalone [API client](/products/api-client), and [SDKs](/products/sdk-generator) generated from the same OpenAPI document as your docs. TypeScript, Python, Go, and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Scalar can also host an [MCP server generated from your OpenAPI document](/products/agent/mcp), with OAuth.
+Teams usually move for reasons beyond the docs site: an [MIT-licensed API reference](/products/api-references) you can self-host or mount inside your app, a standalone [API client](/products/api-client), and [SDKs](/products/sdk-generator) generated from the same OpenAPI document as your docs. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available; C#, PHP, Rust, Swift, Dart, and C++ are experimental. Scalar can also host an [MCP server generated from your OpenAPI document](/products/agent/mcp), with OAuth.
 
 ## Frequently asked questions
 

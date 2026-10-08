@@ -25,7 +25,7 @@ We did not benchmark generated code quality across all seven, because a fair ben
 
 | Generator | Status | Generator licence | Languages (vendor's own labels) | Free tier | Paid pricing |
 | --- | --- | --- | --- | --- | --- |
-| Scalar | Independent | Closed source | GA: TypeScript, Python, Go, CLI. Experimental: Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, C++ | 1 SDK up to 25 endpoints | 1 SDK included; extra SDKs $150 or $600/month ([pricing](/pricing)) |
+| Scalar | Independent | Closed source | GA: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI. Experimental: C#, PHP, Rust, Swift, Dart, C++ | 1 SDK up to 25 endpoints | 1 SDK included; extra SDKs $150 or $600/month ([pricing](/pricing)) |
 | Speakeasy | Independent; AI control plane focus | [AGPL-3.0](https://github.com/speakeasy-api/openapi-generation), commercial licence available | TypeScript, Python, Go, Java, C#, PHP, Ruby, Unity, plus Terraform, CLI, MCP | [1 SDK, 50 methods](https://www.speakeasy.com/docs/sdks/introduction) | [Tailored](https://www.speakeasy.com/pricing) |
 | Fern | Owned by Postman | [Apache-2.0](https://github.com/fern-api/fern) | TypeScript, Python, Java, Go, Ruby, PHP, C#, Swift, Rust | [Python and TypeScript, up to 200 endpoints](https://buildwithfern.com/pricing.md) | Enterprise, per SDK, billed annually |
 | OpenAPI Generator | Community project | [Apache-2.0](https://github.com/OpenAPITools/openapi-generator) | [80 client and 72 server generators](https://openapi-generator.tech/docs/generators) | Free | Free |
@@ -38,7 +38,7 @@ We did not benchmark generated code quality across all seven, because a fair ben
 
 **What it is.** A hosted SDK generator that compiles an OpenAPI document into idiomatic client libraries and a CLI, alongside Scalar's API reference, API client, and hosted MCP servers. `docs` is a build target, so one generation run emits the SDKs and a static API reference from the same compiled document. Inputs include OpenAPI, AsyncAPI, and gRPC. Scalar also reads `stainless.yml`, and can emit a Speakeasy-compatible module so existing call sites keep compiling during a migration (see [Scalar vs Speakeasy](/resources/compare/speakeasy)).
 
-**Languages.** Generally available: TypeScript, Python, Go, and CLI. Experimental: Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++. Terraform and SQL are not supported.
+**Languages.** Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI. Experimental: C#, PHP, Rust, Swift, Dart, and C++. Terraform and SQL are not supported.
 
 **Pricing.** Every plan includes one SDK (one language target for one API). Free covers SDKs up to 25 endpoints, Pro ($150 per month) up to 100, Business ($600 per month) up to 250. Additional SDKs are $150 per month each up to 100 endpoints, or $600 per month each for 101 to 250 endpoints. Enterprise is custom. Details on the [pricing page](/pricing).
 
@@ -46,7 +46,7 @@ We did not benchmark generated code quality across all seven, because a fair ben
 
 **Best for.** Teams who want SDKs, docs, and an MCP server generated from one OpenAPI document by one vendor, with a price they can calculate up front. Also teams leaving Stainless, since `stainless.yml` is read directly.
 
-**Watch out for.** Only four targets are generally available, fewer than Speakeasy or Fern. The generator is newer and has less production mileage than the incumbents. Real output: the public [Warp TypeScript SDK](https://github.com/TeamWarp/warp-sdk-typescript) and the [Warp case study](/customers/warp).
+**Watch out for.** Seven targets are generally available, still fewer than Speakeasy or Fern, and the generator is closed source. It is in production today at [Warp](/customers/warp), [Profound](/customers), Dedalus Labs and others. Real output: the public [Warp TypeScript SDK](https://github.com/TeamWarp/warp-sdk-typescript) and the [Warp case study](/customers/warp).
 
 ## 2. Speakeasy
 
@@ -143,7 +143,7 @@ We did not benchmark generated code quality across all seven, because a fair ben
 ## When another generator is the better choice
 
 - **You need Terraform providers.** Speakeasy and liblab generate them. Scalar does not.
-- **You need many languages generally available today.** Speakeasy and Fern have more mature targets than our four.
+- **You need many languages generally available today.** Speakeasy and Fern have more mature targets than our seven.
 - **You want to read and run the generator yourself.** Fern (Apache-2.0), OpenAPI Generator (Apache-2.0), Kiota (MIT), or Speakeasy (AGPL-3.0). Scalar's generator is closed.
 - **Your API is JSON-RPC.** Fern reads OpenRPC; Scalar does not.
 - **You consume other people's APIs and want free, consistent clients.** Kiota or OpenAPI Generator.

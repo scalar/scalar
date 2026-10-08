@@ -116,13 +116,13 @@ Worth knowing about even though it is not a product. [`stainlu/stainful`](https:
 
 Our answer, stated plainly so you can discount it appropriately.
 
-Scalar generates TypeScript, Python, Go, and CLI targets (generally available), plus Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ (experimental). [Every plan](/pricing) includes one SDK (one language target for one API), and additional SDKs are $150 per month each for up to 100 endpoints or $600 per month each for 101–250 endpoints, published. The SDK lives in your repository under your package name — Scalar opens pull requests against it and never cuts tags on your behalf.
+Scalar generates TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI targets (generally available), plus C#, PHP, Rust, Swift, Dart, and C++ (experimental). [Every plan](/pricing) includes one SDK (one language target for one API), and additional SDKs are $150 per month each for up to 100 endpoints or $600 per month each for 101–250 endpoints, published. The SDK lives in your repository under your package name — Scalar opens pull requests against it and never cuts tags on your behalf.
 
 Scalar also builds [MCP servers from the same OpenAPI document](../guides/agent/mcp.md), with per-endpoint tool selection, stored authentication, and OAuth for people outside your team. **We host these rather than generating a server you deploy yourself**, which is the opposite trade to Speakeasy's: theirs is code you own and run, ours is an endpoint you configure and we operate. If running it yourself is the requirement, that is a point for them.
 
 **The specific reason to look at us in this situation is that Scalar reads `stainless.yml` as an input.** That is not a general claim of superiority; it is one structural fact that happens to matter a great deal right now, and it is the subject of the next section.
 
-**Where we are behind:** no Terraform or SQL target, no OpenRPC input, and our generator is not open source, where Fern's is Apache-2.0 and Speakeasy's is now AGPL-3.0. AsyncAPI (experimental) and gRPC are supported as SDK inputs. Of our targets, TypeScript, Python, Go, and the CLI are generally available; the rest are marked experimental. If your migration depends on one of the experimental ones, talk to us before you plan around it rather than after.
+**Where we are behind:** no Terraform or SQL target, no OpenRPC input, and our generator is not open source, where Fern's is Apache-2.0 and Speakeasy's is now AGPL-3.0. AsyncAPI (experimental) and gRPC are supported as SDK inputs. Of our targets, TypeScript, Python, Go, Java, Kotlin, Ruby, and the CLI are generally available; the rest are marked experimental. If your migration depends on one of the experimental ones, talk to us before you plan around it rather than after.
 
 Terraform and SQL are on our roadmap. We are saying that as a fact about our plans, not as an answer to the gap: there is no ship date, and if you have a `terraform` target today you should go and read Speakeasy's material rather than wait on ours.
 

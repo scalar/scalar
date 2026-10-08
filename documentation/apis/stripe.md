@@ -178,7 +178,7 @@ claude mcp add \
   --transport http
 ```
 
-The same OpenAPI document can also produce your [API reference](/products/api-references) and [SDKs](/products/sdk-generator) (TypeScript, Python, Go and CLI are generally available).
+The same OpenAPI document can also produce your [API reference](/products/api-references) and [SDKs](/products/sdk-generator) (TypeScript, Python, Go, Java, Kotlin, Ruby and CLI are generally available).
 
 ## Official Stripe documentation
 

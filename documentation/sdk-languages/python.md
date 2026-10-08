@@ -129,7 +129,7 @@ If your team is comfortable owning the release pipeline and the call-site ergono
 
 <scalar-detail title="Is the Python SDK generator ready for production?">
 
-Yes. Python is generally available, alongside TypeScript, Go, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server.
+Yes. Python is generally available, alongside TypeScript, Go, Java, Kotlin, Ruby, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server.
 
 </scalar-detail>
 
