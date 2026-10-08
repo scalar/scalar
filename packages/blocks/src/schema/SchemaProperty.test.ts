@@ -18,6 +18,24 @@ const SpecificationExtension = defineComponent({
 })
 
 describe('SchemaProperty', () => {
+  it('renders a host-linked deep property anchor without adding links to its siblings', () => {
+    const options = { linkablePropertyPath: ['message', 'payload', 'metadata', 'id'] }
+    const mountProperty = (name: string) =>
+      mount(SchemaProperty, {
+        props: {
+          name,
+          level: 5,
+          breadcrumb: ['message', 'payload', 'metadata'],
+          schema: { type: 'string' },
+          options,
+          eventBus: null,
+        },
+      })
+    const target = mountProperty('id')
+    expect(target.get('[id="message.payload.metadata.id"]').text()).toBe('id')
+    expect(mountProperty('other').findComponent(WithBreadcrumb).exists()).toBe(false)
+  })
+
   it('keeps nameless noncollapsible array containers flat', () => {
     const wrapper = mount(SchemaProperty, {
       props: {

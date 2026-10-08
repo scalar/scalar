@@ -119,6 +119,8 @@ Channels remain visible when no operation references them. Their messages appear
 
 An operation lists only its supported messages. Omitting its `messages` property includes every channel message; setting `messages: []` includes none. The channel catalog does not change these operation subsets.
 
+Expanded messages also show their **correlation ID** description and runtime expression when provided, including metadata inherited from message traits. Expressions link to identifiable header or payload fields. Locations without a uniquely identifiable rendered field remain visible as code.
+
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 
 Rendering works in both the `modern` and `classic` layouts.

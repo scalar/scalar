@@ -9,7 +9,7 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref, useId, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
@@ -26,6 +26,7 @@ import {
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
 import { getChannelServerLabels } from './helpers/get-async-api-labels'
+import { getCorrelationIdTarget } from './helpers/get-correlation-id-target'
 import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
 import {
@@ -44,6 +45,8 @@ const {
   options,
   expandedItems = {},
   parent = 'operation',
+  scrollTargetId = '',
+  expansion,
 } = defineProps<
   {
     /** Direct channel messages sit one heading level above operation messages. */
@@ -126,10 +129,64 @@ const headersSchema = computed(() =>
     : undefined,
 )
 
+const correlationId = computed(() =>
+  getResolvedRef(resolvedMessage.value?.correlationId),
+)
+const correlationTarget = computed(() =>
+  resolvedMessage.value && correlationId.value?.location
+    ? getCorrelationIdTarget(
+        resolvedMessage.value,
+        correlationId.value.location,
+      )
+    : undefined,
+)
+const correlationBreadcrumb = computed(() =>
+  correlationTarget.value
+    ? [
+        message.id,
+        correlationTarget.value.section,
+        ...correlationTarget.value.path,
+      ]
+    : undefined,
+)
+const correlationTargetId = computed(() =>
+  correlationBreadcrumb.value?.join('.'),
+)
+const correlationHref = computed(() =>
+  correlationTargetId.value
+    ? `#${encodeURIComponent(correlationTargetId.value)}`
+    : undefined,
+)
+const localScrollTarget = ref('')
+const activeScrollTarget = computed(
+  () => scrollTargetId || localScrollTarget.value,
+)
+
+/** The event bus expands lazy parents; standalone messages can reveal their own schema instead. */
+const onCorrelationLink = (event: MouseEvent): void => {
+  const id = correlationTargetId.value
+  if (!id) {
+    return
+  }
+  event.preventDefault()
+  if (eventBus) {
+    eventBus.emit('scroll-to:nav-item', { id })
+    return
+  }
+  localScrollTarget.value = id
+  expansion?.commitPath(id)
+  void nextTick(() => {
+    const target = section.value?.ownerDocument.getElementById(id)
+    target?.scrollIntoView({ block: 'start' })
+    target?.focus({ preventScroll: true })
+  })
+}
+
 /** Fill in defaults so the shared Schema renderer always receives a complete options object. */
 const schemaOptions = computed<SchemaOptions>(() => ({
   hideReadOnly: false,
   ...resolveSchemaRenderOptions(options),
+  linkablePropertyPath: correlationBreadcrumb.value,
 }))
 
 /**
@@ -194,7 +251,7 @@ const { level: headingLevel } = useDocumentOutline(
 
       <div class="message-layout">
         <div
-          v-if="description || headersSchema || payloadSchema"
+          v-if="description || correlationId || headersSchema || payloadSchema"
           class="message-details min-w-0">
           <ScalarMarkdown
             v-if="description"
@@ -203,8 +260,32 @@ const { level: headingLevel } = useDocumentOutline(
             withImages />
 
           <div
-            v-if="headersSchema"
+            v-if="correlationId"
             class="message-schema">
+            <div class="message-schema-title">Correlation ID</div>
+            <ScalarMarkdown
+              v-if="correlationId.description"
+              :value="correlationId.description"
+              withImages />
+            <a
+              v-if="correlationHref"
+              class="text-c-accent mt-2 block w-fit max-w-full rounded underline underline-offset-2 focus-visible:outline"
+              :href="correlationHref"
+              @click="onCorrelationLink">
+              <code class="break-all">{{ correlationId.location }}</code>
+            </a>
+            <code
+              v-else-if="correlationId.location"
+              class="mt-2 block break-all"
+              >{{ correlationId.location }}</code
+            >
+          </div>
+
+          <div
+            v-if="headersSchema"
+            :id="`${message.id}.headers`"
+            class="message-schema"
+            tabindex="-1">
             <div class="message-schema-title">Headers</div>
             <Schema
               :breadcrumb="[message.id, 'headers']"
@@ -215,13 +296,15 @@ const { level: headingLevel } = useDocumentOutline(
               noncollapsible
               :options="schemaOptions"
               :schema="headersSchema"
-              :scrollTargetId="scrollTargetId"
+              :scrollTargetId="activeScrollTarget"
               :specificationExtension="specificationExtension" />
           </div>
 
           <div
             v-if="payloadSchema"
-            class="message-schema">
+            :id="`${message.id}.payload`"
+            class="message-schema"
+            tabindex="-1">
             <div class="message-schema-title">Payload</div>
             <Schema
               :breadcrumb="[message.id, 'payload']"
@@ -232,7 +315,7 @@ const { level: headingLevel } = useDocumentOutline(
               noncollapsible
               :options="schemaOptions"
               :schema="payloadSchema"
-              :scrollTargetId="scrollTargetId"
+              :scrollTargetId="activeScrollTarget"
               :specificationExtension="specificationExtension" />
           </div>
         </div>

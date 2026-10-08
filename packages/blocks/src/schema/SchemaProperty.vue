@@ -186,7 +186,19 @@ const arrayItemsCompositionPath = computed<string[]>(() => [
   'items',
 ])
 
-const shouldHaveLink = computed(() => props.level <= 2)
+const shouldHaveLink = computed((): boolean => {
+  const target = props.options.linkablePropertyPath
+  const path = childBreadcrumb.value
+  return (
+    props.level <= 2 ||
+    Boolean(
+      target &&
+      path &&
+      target.length === path.length &&
+      target.every((segment, index) => segment === path[index]),
+    )
+  )
+})
 
 /**
  * Whether the name gets a deep link (an anchor id and a trailing copy button).

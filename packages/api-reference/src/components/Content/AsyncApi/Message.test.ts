@@ -1,5 +1,6 @@
 import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -39,6 +40,129 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it('renders correlation metadata even without a description or schema', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({
+          correlationId: {
+            description: 'Trace **related messages**.',
+            location: '$message.header#/id',
+          },
+        }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+    expect(wrapper.text()).toContain('Correlation ID')
+    expect(wrapper.get('strong').text()).toBe('related messages')
+    expect(wrapper.get('code').text()).toBe('$message.header#/id')
+    expect(wrapper.find('a[href]').exists()).toBe(false)
+  })
+
+  it('inherits referenced correlation metadata and keeps message overrides', async () => {
+    const trait = {
+      correlationId: {
+        $ref: '#/components/correlationIds/common',
+        '$ref-value': { description: 'Shared tracing ID', location: '$message.header#/id' },
+      },
+    }
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ traits: [trait] }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+    })
+    expect(wrapper.text()).toContain('Shared tracing ID')
+    expect(wrapper.get('code').text()).toBe('$message.header#/id')
+    await wrapper.setProps({
+      document: createDocument({
+        traits: [trait],
+        correlationId: {
+          description: 'Local tracing ID',
+          location: '$message.payload#/id',
+        },
+      }),
+    })
+    expect(wrapper.text()).not.toContain('Shared tracing ID')
+    expect(wrapper.text()).toContain('Local tracing ID')
+    expect(wrapper.get('code').text()).toBe('$message.payload#/id')
+  })
+
+  it('links a deeply nested payload field and opens its ancestors on navigation', async () => {
+    const bus = createWorkspaceEventBus()
+    const scroll = vi.fn()
+    bus.on('scroll-to:nav-item', scroll)
+    const targetId = `${MESSAGE_ID}.payload.metadata.trace.id`
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: bus,
+        expandedItems: expanded,
+        document: createDocument({
+          correlationId: { location: '$message.payload#/metadata/trace/id' },
+          payload: {
+            type: 'object',
+            properties: {
+              metadata: {
+                type: 'object',
+                properties: {
+                  trace: { type: 'object', properties: { id: { type: 'string' } } },
+                },
+              },
+            },
+          },
+        }),
+      },
+    })
+    expect(wrapper.find(`[id="${targetId}"]`).exists()).toBe(false)
+    const link = wrapper.get('a[href]')
+    expect(link.text()).toBe('$message.payload#/metadata/trace/id')
+    expect(link.attributes('href')).toBe(`#${encodeURIComponent(targetId)}`)
+    await link.trigger('click')
+    expect(scroll).toHaveBeenCalledExactlyOnceWith({ id: targetId })
+    await wrapper.setProps({ scrollTargetId: targetId })
+    expect(wrapper.get(`[id="${targetId}"]`).text()).toBe('id')
+    expect(wrapper.get(`[id="${targetId}"]`).attributes('tabindex')).toBe('-1')
+  })
+
+  it('links referenced header fields and whole payload locations to their own message', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          correlationId: {
+            $ref: '#/components/correlationIds/common',
+            '$ref-value': { location: '$message.header#/correlationId' },
+          },
+          headers: { type: 'object', properties: { correlationId: { type: 'string' } } },
+        }),
+      },
+    })
+    expect(wrapper.get('a[href]').attributes('href')).toBe(
+      `#${encodeURIComponent(`${MESSAGE_ID}.headers.correlationId`)}`,
+    )
+    expect(wrapper.get(`[id="${MESSAGE_ID}.headers.correlationId"]`).text()).toBe('correlationId')
+  })
+
+  it('omits correlation metadata when absent or unresolved', () => {
+    for (const correlationId of [undefined, { $ref: '#/components/correlationIds/missing' }]) {
+      const wrapper = mount(Message, {
+        props: {
+          message: createMessage(),
+          document: createDocument({ correlationId }),
+          eventBus: null,
+          expandedItems: expanded,
+        },
+      })
+      expect(wrapper.text()).not.toContain('Correlation ID')
+    }
+  })
+
   it('regenerates displayed and copied payloads after nested schema edits', async () => {
     const payload = reactive({ type: 'object', properties: { id: { type: 'string', const: 'first' } } })
     const wrapper = mount(Message, {
