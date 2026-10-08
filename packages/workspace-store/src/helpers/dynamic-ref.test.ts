@@ -131,6 +131,14 @@ describe('dynamic-ref', () => {
       expect(resolveDynamicRef('#itemType', scope)).toMatchObject({ type: 'object' })
     })
 
+    it('grows the scope for an anchor reached through a $ref from inside an explicit resource', () => {
+      // The referenced schema lives outside `urn:page`, so its own anchor is a new scope entry.
+      const page = schema({ $id: 'urn:page' })
+      const user = schema({ $ref: '#/components/schemas/User', $dynamicAnchor: 'node', type: 'object' })
+      expect(pushDynamicScope([page], user)).toEqual([page, user])
+      expect(pushDynamicScope([page], schema({ $dynamicAnchor: 'node' }))).toEqual([page])
+    })
+
     it('leaves the scope unchanged for a bare $ref to a schema without an anchor', () => {
       const bareRef = schema({ $ref: '#/x', '$ref-value': { type: 'string' } })
       expect(pushDynamicScope([], bareRef)).toEqual([])
