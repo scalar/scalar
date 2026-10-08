@@ -54,6 +54,7 @@ describe('useDocumentOutline', () => {
       ['channel', 2],
       ['modelGroup', 2],
       ['operation', 3],
+      ['channelMessages', 3],
       ['model', 3],
       ['message', 4],
     ] as const)('resolves %s to h%i', (role, expected) => {

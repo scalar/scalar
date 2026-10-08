@@ -29,6 +29,7 @@ const selectionMatches = (reachable: Set<string>, selected: string | undefined):
  * Filters one navigation entry against the selected protocol/server.
  *
  * - `asyncapi-operation` — kept only when the operation matches both filters.
+ * - `asyncapi-message` — channel catalog messages match their channel servers/protocols.
  * - Channels without operations are matched using their own server availability.
  * - Channels / tags are recursed into and dropped when filtering removes all children.
  * - Everything else (description, models, schemas) passes through unchanged.
@@ -71,6 +72,17 @@ const filterEntry = (
         return null
       }
     }
+  }
+
+  if (entry.type === 'asyncapi-message') {
+    const channelNode = document.channels?.[entry.channelName]
+    if (!channelNode) {
+      return entry
+    }
+
+    const channel = getResolvedRef(channelNode, mergeSiblingReferences)
+    const { protocols, serverNames } = getChannelReachability(document, channel, context)
+    return selectionMatches(protocols, filter.protocol) && selectionMatches(serverNames, filter.server) ? entry : null
   }
 
   if (entry.type === 'asyncapi-channel' || entry.type === 'tag') {

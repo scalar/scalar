@@ -1,4 +1,5 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { TraversedAsyncApiChannel } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -68,7 +69,8 @@ describe('Channel', () => {
       },
     })
     expect(wrapper.getComponent(Message).props('expandedItems')).toStrictEqual({ [id]: true })
-    expect(wrapper.getComponent(Message).get('h2').text()).toBe('Signup')
+    expect(wrapper.findAllComponents(Message).length).toBe(1)
+    expect(wrapper.getComponent(Message).get('h3').text()).toBe('Signup')
     expect(wrapper.text()).toContain('A new account')
     expect(wrapper.text()).toContain('alice')
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
@@ -344,5 +346,106 @@ describe('Channel', () => {
     expect(operation.exists()).toBe(true)
     // The original bug passed a disconnected empty object here; assert the map is forwarded.
     expect(operation.props('expandedItems')).toEqual(expandedItems)
+  })
+
+  it.each(['modern', 'classic'] as const)(
+    'renders and expands channel catalog messages without widening operation subsets in the %s layout',
+    async (layout) => {
+      const document = {
+        asyncapi: '3.1.0',
+        info: { title: 'Catalog', version: '1.0.0' },
+        'x-scalar-original-document-hash': '',
+        channels: {
+          events: {
+            address: '/events',
+            messages: {
+              eventA: { title: 'Event A', description: 'Supported by Listen' },
+              eventB: { title: 'Event B', description: 'Channel-only details' },
+            },
+          },
+        },
+        operations: {
+          listen: {
+            action: 'receive',
+            title: 'Listen',
+            channel: { $ref: '#/channels/events' },
+            messages: [{ $ref: '#/channels/events/messages/eventA' }],
+          },
+        },
+      } satisfies AsyncApiDocument
+      const navigation = traverseAsyncApiDocument('catalog', document)
+      const channel = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
+      if (!channel || channel.type !== 'asyncapi-channel') {
+        throw new Error('Expected the catalog channel')
+      }
+      const messageId = 'catalog/channel/events/message/eventb'
+      const wrapper = mount(Channel, {
+        props: { channel, document, layout, isCollapsed: false, eventBus: null },
+      })
+
+      expect(
+        wrapper
+          .getComponent({ name: 'Operation' })
+          .findAllComponents(Message)
+          .map((message) => message.props('message').messageName),
+      ).toStrictEqual(['eventA'])
+      expect(wrapper.findAllComponents(Message).map((message) => message.props('message').id)).toStrictEqual([
+        'catalog/channel/events/operation/listen/message/eventa',
+        'catalog/channel/events/message/eventa',
+        messageId,
+      ])
+      expect(wrapper.text()).toContain('Channel messages')
+      expect(wrapper.text()).not.toContain('Channel-only details')
+      await wrapper.setProps({ expandedItems: { [messageId]: true } })
+      expect(wrapper.text()).toContain('Channel-only details')
+      expect(wrapper.findAll('h1,h2,h3').map((heading) => heading.text())).toStrictEqual([
+        '/events',
+        'Listen',
+        'Event A',
+        'Channel messages',
+        'Event A',
+        'Event B',
+      ])
+    },
+  )
+
+  it.each(['modern', 'classic'] as const)('renders message-only channels in the %s layout', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel({
+          children: [
+            {
+              type: 'asyncapi-message',
+              id: 'catalog-message',
+              title: 'Signup',
+              channelName: 'userSignedUp',
+              messageName: 'signup',
+            },
+          ],
+        }),
+        document: createDocumentWithChannel({ address: 'user/signedup', messages: { signup: { title: 'Signup' } } }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+    expect(wrapper.findAllComponents(Message).map((message) => message.props('message').messageName)).toStrictEqual([
+      'signup',
+    ])
+    expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain('Channel messages')
+  })
+
+  it('omits the channel catalog heading when there are no visible catalog messages', () => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: createDocument(),
+        layout: 'modern',
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+    expect(wrapper.text()).not.toContain('Channel messages')
   })
 })

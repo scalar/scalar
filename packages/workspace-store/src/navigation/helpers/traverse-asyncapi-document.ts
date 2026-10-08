@@ -237,7 +237,7 @@ const sortMessages = (entries: TraversedAsyncApiMessage[]): void => {
 }
 
 /**
- * Builds message entries under a channel or one of its operations.
+ * Builds message entries beneath a channel or operation.
  * Resolves each message ref, skips hidden messages, and sorts the result by title.
  */
 const createMessageEntries = ({
@@ -391,16 +391,15 @@ const createChannelEntry = ({
     return undefined
   }
 
-  const children =
-    operations.length > 0
-      ? operations
-      : createMessageEntries({
-          channelName: bucket.channelName,
-          channel: bucket.channel,
-          parentId: channelId,
-          messageNames: objectKeys(bucket.channel.messages ?? {}),
-          generateId,
-        })
+  // The catalog includes every visible channel message independently of operation subsets.
+  const messages = createMessageEntries({
+    channelName: bucket.channelName,
+    channel: bucket.channel,
+    parentId: channelId,
+    messageNames: objectKeys(bucket.channel.messages ?? {}),
+    generateId,
+  })
+  const children = [...operations, ...messages]
 
   // Persist the rendered order back onto the source channel for downstream consumers.
   // We skip channels that are stored as references, since the order should live on the target.
