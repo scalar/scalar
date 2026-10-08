@@ -248,10 +248,6 @@ html[data-theme="light"] body .api-client-drawer {
 }
 
 .scalar-app {
-  .markdown td > *,
-  .markdown th > * {
-    margin-bottom: 0;
-  }
   code.hljs * {
     font-size: var(--scalar-small);
     font-family: var(--scalar-font-code);
@@ -622,6 +618,10 @@ html[data-theme="light"] body .api-client-drawer {
     font-weight: var(--font-weight, var(--scalar-regular));
     border-right: 1px solid var(--scalar-border-color);
     border-bottom: 1px solid var(--scalar-border-color);
+  }
+  /* biome-ignore lint/style/noDescendingSpecificity: Table-cell content must override equally specific markdown list margins. */
+  .markdown :is(td, th) > * {
+    margin-bottom: 0;
   }
   .markdown th:empty {
     display: none;
