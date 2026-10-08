@@ -11,6 +11,7 @@ import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-secu
 import { mergeObjects } from '@/helpers/merge-object'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
+import { usesApiKeyNameOverride } from '@/request-example/context/security/uses-api-key-name-override'
 import type { WorkspaceDocument } from '@/schemas'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
@@ -809,16 +810,19 @@ export const authMutatorsFactory = ({
       }
 
       const configured = Object.hasOwn(configuredSchemes, name) ? configuredSchemes[name] : undefined
-      if (!configured) {
+      const documentScheme = getResolvedRef(getDocumentSecuritySchemes(document)[name])
+      if (!configured || !usesApiKeyNameOverride(configured, documentScheme)) {
         // Document-backed names must remain available to export and synchronization.
         const updated = updateSecurityScheme(document, data)
-        if (updated) {
+        const documentName = getAuthDocumentName(document)
+        const secrets = documentName ? store?.auth.getAuthSecrets(documentName, name) : undefined
+        // Only release an existing override, so typing a name does not write secrets on every keystroke.
+        if (updated && secrets?.type === 'apiKey' && secrets.name !== undefined) {
           updateSecuritySchemeSecrets(store, document, { name, payload: { type: 'apiKey', name: undefined } })
         }
         return updated
       }
 
-      const documentScheme = getResolvedRef(getDocumentSecuritySchemes(document)[name])
       const defaultName =
         ('name' in configured ? configured.name : undefined) ??
         (documentScheme && typeof documentScheme === 'object' && 'name' in documentScheme
