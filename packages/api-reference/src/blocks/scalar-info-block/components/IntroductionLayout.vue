@@ -9,7 +9,6 @@ import type {
 import { computed } from 'vue'
 
 import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
-import AsyncApiDocumentation from '@/components/Content/AsyncApi/AsyncApiDocumentation.vue'
 import {
   Section,
   SectionColumn,
@@ -80,19 +79,14 @@ const { level: headingLevel } = useDocumentOutline('document')
               {{ info?.title }}
             </SectionHeaderTag>
             <template #links>
-              <div>
-                <AsyncApiDocumentation
-                  v-if="documentType === 'asyncapi'"
-                  :owner="{
-                    externalDocs,
-                    tags: 'tags' in info ? info.tags : undefined,
-                  }" />
-                <InfoLinks
-                  :externalDocs="
-                    documentType === 'asyncapi' ? undefined : externalDocs
-                  "
-                  :info="info" />
-              </div>
+              <InfoLinks
+                :externalDocs
+                :info
+                :tags="
+                  documentType === 'asyncapi' && 'tags' in info
+                    ? info.tags
+                    : undefined
+                " />
             </template>
           </SectionHeader>
           <dl

@@ -1,1 +1,1 @@
-export { default as ExternalDocs } from './ExternalDocs.vue'
+export { ExternalDocs } from '@scalar/blocks/shared'

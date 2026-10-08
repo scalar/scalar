@@ -1,26 +1,20 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ExternalDocumentation from './ExternalDocumentation.vue'
+import ExternalDocs from './ExternalDocs.vue'
 
-describe('ExternalDocumentation', () => {
-  it('renders Markdown outside the documentation link', () => {
-    const wrapper = mount(ExternalDocumentation, {
-      props: {
-        value: {
-          url: 'https://example.com/guide',
-          description: '**Guide** with [details](https://example.com/details)',
-        },
-      },
+describe('ExternalDocs', () => {
+  it('uses the description as the link label, falling back to the URL', async () => {
+    const wrapper = mount(ExternalDocs, {
+      props: { value: { url: 'https://example.com/guide', description: 'Guide' } },
     })
+    expect(wrapper.get('a').text()).toBe('Guide')
+    expect(wrapper.get('a').attributes('aria-label')).toBe('Guide')
     expect(wrapper.get('a').attributes('href')).toBe('https://example.com/guide')
     expect(wrapper.get('a').attributes('target')).toBe('_blank')
-    expect(wrapper.get('strong').text()).toBe('Guide')
-    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
-      'https://example.com/guide',
-      'https://example.com/details',
-    ])
-    expect(wrapper.find('a a').exists()).toBe(false)
+    await wrapper.setProps({ value: { url: 'https://example.com/guide' } })
+    expect(wrapper.get('a').text()).toBe('https://example.com/guide')
+    expect(wrapper.get('a').attributes('aria-label')).toBe('https://example.com/guide')
   })
 
   it('resolves chained documentation references', () => {
@@ -33,19 +27,19 @@ describe('ExternalDocumentation', () => {
         '$ref-value': { url: 'https://example.com/target', description: '*Target*' },
       },
     })
-    const wrapper = mount(ExternalDocumentation, { props: { value } })
+    const wrapper = mount(ExternalDocs, { props: { value } })
     expect(wrapper.get('a').attributes('href')).toBe('https://example.com/target')
-    expect(wrapper.get('em').text()).toBe('Target')
+    expect(wrapper.get('a').text()).toBe('*Target*')
   })
 
   it('omits unresolved documentation', () => {
-    const wrapper = mount(ExternalDocumentation, { props: { value: { $ref: '#/missing' } } })
+    const wrapper = mount(ExternalDocs, { props: { value: { $ref: '#/missing' } } })
     expect(wrapper.text()).toBe('')
     expect(wrapper.find('a').exists()).toBe(false)
   })
 
   it('retains descriptions without linking unsafe URLs', () => {
-    const wrapper = mount(ExternalDocumentation, {
+    const wrapper = mount(ExternalDocs, {
       props: {
         value: {
           url: 'javascript:alert(1)',
@@ -54,6 +48,6 @@ describe('ExternalDocumentation', () => {
       },
     })
     expect(wrapper.find('a').exists()).toBe(false)
-    expect(wrapper.get('strong').text()).toBe('Useful')
+    expect(wrapper.text()).toBe('**Useful** description')
   })
 })

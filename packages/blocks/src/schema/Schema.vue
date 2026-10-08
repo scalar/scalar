@@ -9,7 +9,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, inject, provide, toRef, useId } from 'vue'
 
-import ExternalDocumentation from '../shared/ExternalDocumentation.vue'
+import ExternalDocs from '../shared/ExternalDocs.vue'
 import ScreenReader from '../shared/ScreenReader.vue'
 import {
   resolveDynamicSchema,
@@ -426,7 +426,7 @@ const toggle = (): void => {
       },
     ]"
     @keydown="onTreeKeydown">
-    <ExternalDocumentation
+    <ExternalDocs
       v-if="isTypeObject(resolvedSchema)"
       class="my-2"
       :value="resolvedSchema.externalDocs" />

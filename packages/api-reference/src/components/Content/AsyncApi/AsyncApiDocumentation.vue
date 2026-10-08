@@ -1,43 +1,28 @@
 <script setup lang="ts">
-import { ExternalDocumentation } from '@scalar/blocks/shared'
 import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ExternalDocumentationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
+import { LinkList } from '@/components/LinkList'
+import { ExternalDocs } from '@/features/external-docs'
+
+import { getExternalDocumentation } from './helpers/get-external-documentation'
+
 const { owner } = defineProps<{
-  /** Documentation and tags stay with their owner, independently of navigation grouping. */
+  /** Documentation stays with its owner, independently of navigation grouping. */
   owner?: Pick<AsyncApiInfoObject, 'externalDocs' | 'tags'>
 }>()
 
-const documentation = computed<
-  { name: string | undefined; value: ExternalDocumentationObject }[]
->(() => {
-  const direct = getResolvedRef(owner?.externalDocs)
-  const tags =
-    owner?.tags?.flatMap((tag) => {
-      const resolved = getResolvedRef(tag)
-      const value = getResolvedRef(resolved?.externalDocs)
-      return value?.url ? [{ name: resolved?.name, value }] : []
-    }) ?? []
-  return [...(direct?.url ? [{ name: undefined, value: direct }] : []), ...tags]
-})
+const documentation = computed<ExternalDocumentationObject[]>(() =>
+  getExternalDocumentation(owner),
+)
 </script>
 
 <template>
-  <div
-    v-if="documentation.length"
-    class="my-2 grid gap-2">
-    <div
-      v-for="(entry, index) in documentation"
+  <LinkList v-if="documentation.length">
+    <ExternalDocs
+      v-for="(value, index) in documentation"
       :key="index"
-      class="min-w-0">
-      <div
-        v-if="entry.name"
-        class="text-c-2 text-sm">
-        {{ entry.name }}
-      </div>
-      <ExternalDocumentation :value="entry.value" />
-    </div>
-  </div>
+      :value />
+  </LinkList>
 </template>

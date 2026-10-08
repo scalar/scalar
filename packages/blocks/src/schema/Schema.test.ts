@@ -39,7 +39,7 @@ describe('Schema', () => {
         .map((link) => link.attributes('href'))
         .filter((url) => url?.startsWith('https://example.com/')),
     ).toStrictEqual(['https://example.com/root', 'https://example.com/child', 'https://example.com/value'])
-    expect(wrapper.get('strong').text()).toBe('Child')
+    expect(wrapper.text()).toContain('**Child**')
   })
 
   it('renders structural labels for nested references from the workspace store', async () => {
