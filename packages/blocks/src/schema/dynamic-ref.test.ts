@@ -5,6 +5,10 @@ import { describe, expect, it } from 'vitest'
 
 import Schema from './Schema.vue'
 
+/** Read a proxied document by path, so the magic proxy resolves each step. */
+const readPath = (node: unknown, ...path: string[]): unknown =>
+  path.reduce((value, key) => (value as Record<string, unknown>)[key], node)
+
 /**
  * Builds a `PaginatedResponse<T>`-style resource as the workspace store hands it to rendering: a named
  * schema that extends a shared template through a root `$ref`, binding the template's `$dynamicRef` item
@@ -35,7 +39,7 @@ const buildPaginatedResource = (item: Record<string, unknown>) => {
     },
   }
 
-  return (createMagicProxy(root) as any).components.schemas.PaginatedResponse
+  return readPath(createMagicProxy(root), 'components', 'schemas', 'PaginatedResponse')
 }
 
 const mountSchema = (schema: unknown) =>
@@ -93,7 +97,7 @@ describe('Schema $dynamicRef rendering', () => {
         },
       },
     }
-    const template = (createMagicProxy(root) as any).components.schemas.PaginatedTemplate
+    const template = readPath(createMagicProxy(root), 'components', 'schemas', 'PaginatedTemplate')
     const text = mountSchema(template).text()
     expect(text).toContain('items')
   })
@@ -144,8 +148,8 @@ describe('Schema $dynamicRef rendering', () => {
       } as never,
     })
 
-    const doc = store.workspace.documents['default'] as any
-    const schema = doc.paths['/users'].get.responses['200'].content['application/json'].schema
+    const doc = store.workspace.documents['default']
+    const schema = readPath(doc, 'paths', '/users', 'get', 'responses', '200', 'content', 'application/json', 'schema')
 
     const text = mountSchema(schema).text()
 
@@ -175,7 +179,7 @@ describe('Schema $dynamicRef rendering', () => {
         },
       },
     }
-    const schema = (createMagicProxy(root) as any).components.schemas.Response
+    const schema = readPath(createMagicProxy(root), 'components', 'schemas', 'Response')
     expect(mountSchema(schema).text()).toContain('boundPropertyMarker')
   })
 
@@ -203,7 +207,7 @@ describe('Schema $dynamicRef rendering', () => {
         },
       },
     }
-    const tree = (createMagicProxy(root) as any).components.schemas.CategoryTree
+    const tree = readPath(createMagicProxy(root), 'components', 'schemas', 'CategoryTree')
     expect(() => mountSchema(tree)).not.toThrow()
   })
 })
