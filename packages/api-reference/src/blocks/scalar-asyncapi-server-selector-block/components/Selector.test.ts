@@ -1,6 +1,6 @@
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import Selector from './Selector.vue'
@@ -57,7 +57,7 @@ describe('Selector', () => {
     })
 
     expect(wrapper.vm.serverOptions.length).toBe(0)
-    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('')
+    expect(wrapper.text()).toBe('Server:')
   })
 
   it('removes the trailing slash from the server URL', () => {
@@ -73,15 +73,15 @@ describe('Selector', () => {
     expect(wrapper.text()).not.toContain('broker.example.com/')
   })
 
-  it('keys options by name and labels them by URL', () => {
+  it('keys options by name and labels them by name and URL', () => {
     const wrapper = mount(Selector, {
       props: { servers: mockServers, selectedServer: null, target: 'test-target' },
     })
 
     const options = wrapper.vm.serverOptions
     expect(options).toHaveLength(3)
-    expect(options[0]).toEqual({ id: 'production', label: 'mqtt://broker.example.com' })
-    expect(options[2]).toEqual({ id: 'local', label: 'ws://localhost:3000' })
+    expect(options[0]).toEqual({ id: 'production', label: 'production · mqtt://broker.example.com' })
+    expect(options[2]).toEqual({ id: 'local', label: 'local · ws://localhost:3000' })
   })
 
   it('updates the displayed server when the selection changes', async () => {
@@ -97,12 +97,61 @@ describe('Selector', () => {
     expect(wrapper.text()).toContain('staging.example.com')
   })
 
+  it('uses a human-friendly title for a single server', () => {
+    const server = createEntry({ name: 'production', title: 'Production broker', url: 'mqtt://broker.example.com' })
+    const wrapper = mount(Selector, {
+      props: { servers: [server], selectedServer: server, target: 'test-target' },
+    })
+
+    expect(wrapper.text()).toBe('Server:Production broker · mqtt://broker.example.com')
+  })
+
+  it('falls back to the map key for an empty title', () => {
+    const server = createEntry({ name: 'production', title: '  ', url: 'mqtt://broker.example.com' })
+    const wrapper = mount(Selector, {
+      props: { servers: [server], selectedServer: server, target: 'test-target' },
+    })
+
+    expect(wrapper.text()).toBe('Server:production · mqtt://broker.example.com')
+  })
+
+  it('preserves map keys when titles and URLs are identical', async () => {
+    const servers = ['production', 'staging'].map((name) =>
+      createEntry({ name, title: 'Shared broker', url: 'mqtt://broker.example.com' }),
+    )
+    const onUpdate = vi.fn()
+    const target = document.createElement('div')
+    target.id = 'test-target'
+    document.body.append(target)
+    const wrapper = mount(Selector, {
+      attachTo: target,
+      props: { servers, selectedServer: servers[0]!, target: 'test-target', 'onUpdate:modelValue': onUpdate },
+    })
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    const options = listbox.props('options')
+
+    expect(options).toStrictEqual([
+      { id: 'production', label: 'Shared broker · mqtt://broker.example.com' },
+      { id: 'staging', label: 'Shared broker · mqtt://broker.example.com' },
+    ])
+    await wrapper.find('button').trigger('click')
+    const stagingOption = document.querySelectorAll('[role="option"]')[1]
+    expect(stagingOption?.textContent).toContain('Shared broker')
+    stagingOption?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+
+    expect(onUpdate.mock.calls).toStrictEqual([['staging']])
+    await wrapper.setProps({ selectedServer: servers[1] })
+    expect(listbox.props('modelValue')).toStrictEqual(options[1])
+    wrapper.unmount()
+    target.remove()
+  })
+
   it('handles a null selectedServer', () => {
     const wrapper = mount(Selector, {
       props: { servers: mockServers, selectedServer: null, target: 'test-target' },
     })
 
-    expect(wrapper.vm.selectedServer).toBeNull()
-    expect(wrapper.vm.serverUrlWithoutTrailingSlash).toBe('')
+    expect(wrapper.text()).toContain('Select a server')
   })
 })
