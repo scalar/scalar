@@ -463,9 +463,8 @@ export const extensions = {
   externalDocumentsMappings: 'x-ext-urls',
 } as const
 
-type HookFn<T extends keyof Config['hooks']> = NonNullable<Config['hooks'][T]> extends (...args: infer A) => any
-  ? (...args: A) => any
-  : never
+type HookFn<T extends keyof Config['hooks']> =
+  NonNullable<Config['hooks'][T]> extends (...args: infer A) => any ? (...args: A) => any : never
 
 /**
  * Bundles an OpenAPI specification by resolving all external references.

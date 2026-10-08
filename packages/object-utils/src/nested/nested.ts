@@ -37,15 +37,16 @@ type PathImpl<K extends string | number, V, TraversedTypes> = V extends Primitiv
  *
  * See {@link Path}
  */
-type PathInternal<T, TraversedTypes = T> = T extends ReadonlyArray<infer V>
-  ? IsTuple<T> extends true
-    ? {
-        [K in TupleKeys<T>]-?: PathImpl<K & string, T[K], TraversedTypes>
-      }[TupleKeys<T>]
-    : PathImpl<ArrayKey, V, TraversedTypes>
-  : {
-      [K in keyof T]-?: PathImpl<K & string, T[K], TraversedTypes>
-    }[keyof T]
+type PathInternal<T, TraversedTypes = T> =
+  T extends ReadonlyArray<infer V>
+    ? IsTuple<T> extends true
+      ? {
+          [K in TupleKeys<T>]-?: PathImpl<K & string, T[K], TraversedTypes>
+        }[TupleKeys<T>]
+      : PathImpl<ArrayKey, V, TraversedTypes>
+    : {
+        [K in keyof T]-?: PathImpl<K & string, T[K], TraversedTypes>
+      }[keyof T]
 
 /**
  * Type which eagerly collects all paths through a type
@@ -91,15 +92,16 @@ type ArrayPathImpl<K extends string | number, V, TraversedTypes> = V extends Pri
  *
  * See {@link ArrayPath}
  */
-type ArrayPathInternal<T, TraversedTypes = T> = T extends ReadonlyArray<infer V>
-  ? IsTuple<T> extends true
-    ? {
-        [K in TupleKeys<T>]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
-      }[TupleKeys<T>]
-    : ArrayPathImpl<ArrayKey, V, TraversedTypes>
-  : {
-      [K in keyof T]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
-    }[keyof T]
+type ArrayPathInternal<T, TraversedTypes = T> =
+  T extends ReadonlyArray<infer V>
+    ? IsTuple<T> extends true
+      ? {
+          [K in TupleKeys<T>]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
+        }[TupleKeys<T>]
+      : ArrayPathImpl<ArrayKey, V, TraversedTypes>
+    : {
+        [K in keyof T]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
+      }[keyof T]
 
 /**
  * Type which eagerly collects all paths through a type which point to an array
