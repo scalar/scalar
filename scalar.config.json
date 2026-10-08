@@ -2367,7 +2367,7 @@
               },
               "../../products/sdk-generator": {
                 "title": "SDK Generator",
-                "description": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. TypeScript, Python, Go, and CLI targets are generally available, with Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ also supported.",
+                "description": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available, with Ruby, C#, PHP, Rust, Swift, Dart, and C++ also supported.",
                 "type": "group",
                 "mode": "nested",
                 "icon": "phosphor/regular/package",
@@ -2376,7 +2376,7 @@
                     "type": "page",
                     "title": "SDK Generator",
                     "filepath": "documentation/guides/sdks/index.md",
-                    "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, and CLI are GA, plus experimental Java, C#, Ruby, and more. Your custom code survives.",
+                    "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, and CLI are GA, plus experimental C#, Ruby, and more. Your custom code survives.",
                     "layout": {
                       "pageTitle": false
                     },
@@ -2396,7 +2396,7 @@
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, and CLI are GA, plus experimental Java, C#, Ruby, and more. Your custom code survives."
+                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, and CLI are GA, plus experimental C#, Ruby, and more. Your custom code survives."
                         },
                         {
                           "property": "og:title",
@@ -2404,7 +2404,7 @@
                         },
                         {
                           "property": "og:description",
-                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, and CLI are GA, plus experimental Java, C#, Ruby, and more. Your custom code survives."
+                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, and CLI are GA, plus experimental C#, Ruby, and more. Your custom code survives."
                         },
                         {
                           "property": "og:image",
@@ -2611,8 +2611,8 @@
                         "type": "page"
                       },
                       "java": {
-                        "title": "Java (Experimental)",
-                        "description": "Configuration reference for the experimental Java SDK target: package metadata, naming, and generation options.",
+                        "title": "Java",
+                        "description": "Configuration reference for the Java SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/java.md",
                         "type": "page"
                       },
@@ -2647,8 +2647,8 @@
                         "type": "page"
                       },
                       "kotlin": {
-                        "title": "Kotlin (Experimental)",
-                        "description": "Configuration reference for the experimental Kotlin SDK target: package metadata, naming, and generation options.",
+                        "title": "Kotlin",
+                        "description": "Configuration reference for the Kotlin SDK target: package metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/kotlin.md",
                         "type": "page"
                       },
@@ -6052,11 +6052,11 @@
               },
               "/java": {
                 "type": "page",
-                "title": "Java (Experimental)",
+                "title": "Java",
                 "filepath": "documentation/sdk-languages/java.md",
-                "description": "Generate a Java SDK from OpenAPI with builder-based params, autoPager pagination, and signed Maven Central publishing. The Java target is experimental.",
+                "description": "Generate a Java SDK from OpenAPI with builder-based params, autoPager pagination, and signed Maven Central publishing. The Java target is generally available.",
                 "head": {
-                  "title": "Java SDK Generator from OpenAPI (Experimental) — Scalar",
+                  "title": "Java SDK Generator from OpenAPI — Scalar",
                   "links": [
                     {
                       "rel": "canonical",
@@ -6066,15 +6066,15 @@
                   "meta": [
                     {
                       "name": "description",
-                      "content": "Generate a Java SDK from OpenAPI with builder-based params, autoPager pagination, and signed Maven Central publishing. The Java target is experimental."
+                      "content": "Generate a Java SDK from OpenAPI with builder-based params, autoPager pagination, and signed Maven Central publishing. The Java target is generally available."
                     },
                     {
                       "property": "og:title",
-                      "content": "Java SDK Generator from OpenAPI (Experimental) — Scalar"
+                      "content": "Java SDK Generator from OpenAPI — Scalar"
                     },
                     {
                       "property": "og:description",
-                      "content": "Generate a Java SDK from OpenAPI with builder-based params, autoPager pagination, and signed Maven Central publishing. The Java target is experimental."
+                      "content": "Generate a Java SDK from OpenAPI with builder-based params, autoPager pagination, and signed Maven Central publishing. The Java target is generally available."
                     },
                     {
                       "name": "robots",
@@ -6085,11 +6085,11 @@
               },
               "/kotlin": {
                 "type": "page",
-                "title": "Kotlin (Experimental)",
+                "title": "Kotlin",
                 "filepath": "documentation/sdk-languages/kotlin.md",
-                "description": "Generate a Kotlin SDK from OpenAPI as its own target, separate from Java, published to Maven Central. The Kotlin target is experimental; see what it covers.",
+                "description": "Generate a Kotlin SDK from OpenAPI as its own target, separate from Java, published to Maven Central. The Kotlin target is generally available; see what it covers.",
                 "head": {
-                  "title": "Kotlin SDK Generator from OpenAPI (Experimental) — Scalar",
+                  "title": "Kotlin SDK Generator from OpenAPI — Scalar",
                   "links": [
                     {
                       "rel": "canonical",
@@ -6099,15 +6099,15 @@
                   "meta": [
                     {
                       "name": "description",
-                      "content": "Generate a Kotlin SDK from OpenAPI as its own target, separate from Java, published to Maven Central. The Kotlin target is experimental; see what it covers."
+                      "content": "Generate a Kotlin SDK from OpenAPI as its own target, separate from Java, published to Maven Central. The Kotlin target is generally available; see what it covers."
                     },
                     {
                       "property": "og:title",
-                      "content": "Kotlin SDK Generator from OpenAPI (Experimental) — Scalar"
+                      "content": "Kotlin SDK Generator from OpenAPI — Scalar"
                     },
                     {
                       "property": "og:description",
-                      "content": "Generate a Kotlin SDK from OpenAPI as its own target, separate from Java, published to Maven Central. The Kotlin target is experimental; see what it covers."
+                      "content": "Generate a Kotlin SDK from OpenAPI as its own target, separate from Java, published to Maven Central. The Kotlin target is generally available; see what it covers."
                     },
                     {
                       "name": "robots",

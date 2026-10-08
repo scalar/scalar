@@ -172,7 +172,7 @@ return assignment, nil
 
 A single type with a status field, rather than one type per status, fits Go better: a `switch` on an integer is idiomatic, and wrapping with `%w` keeps the original error available up the call stack. Deadlines and cancellation come from the `context.Context`, so a timeout surfaces as `context.DeadlineExceeded` somewhere in the chain, which you check with `errors.Is`. The [Go SDK page](/sdk/go) shows the Warp module's error type and options in more detail.
 
-Other languages map the same three failure kinds onto their own idioms: exception hierarchies in Java, Kotlin, C#, PHP, and Ruby, and a `Result` with an error enum in Rust. Scalar generates those targets as experimental; see the per-language pages from [TypeScript](/sdk/typescript) onwards for what each one looks like.
+Other languages map the same three failure kinds onto their own idioms: exception hierarchies in Java, Kotlin, C#, PHP, and Ruby, and a `Result` with an error enum in Rust. Java and Kotlin are generally available; Scalar generates the others as experimental targets; see the per-language pages from [TypeScript](/sdk/typescript) onwards for what each one looks like.
 
 ## Retries and backoff
 

@@ -21,7 +21,7 @@ This page is written by Scalar, so read it with that in mind. Every claim we mak
 
 ## Where Fern is stronger
 
-**More production SDK languages.** Fern [generates SDKs](https://buildwithfern.com/learn/sdks/overview/introduction) in TypeScript, Python, Go, Java, .NET, PHP, Ruby, Swift, and Rust. Scalar's generally available targets are TypeScript, Python, Go, and a CLI; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. If you need a production-supported Java, C#, or Swift SDK today, Fern is further along.
+**More production SDK languages.** Fern [generates SDKs](https://buildwithfern.com/learn/sdks/overview/introduction) in TypeScript, Python, Go, Java, .NET, PHP, Ruby, Swift, and Rust. Scalar's generally available targets are TypeScript, Python, Go, Java, Kotlin, and a CLI; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. If you need a production-supported C# or Swift SDK today, Fern is further along.
 
 **OpenRPC.** Both products accept OpenAPI, AsyncAPI, and gRPC as SDK inputs. Fern also accepts OpenRPC, which Scalar does not. If you ship a JSON-RPC API described in OpenRPC, Fern covers it and we do not.
 
@@ -205,7 +205,7 @@ Fern's SDK generators are open source under [Apache-2.0](https://github.com/fern
 
 <scalar-detail title="Which SDK languages does Scalar support compared to Fern?">
 
-Scalar's generally available targets are TypeScript, Python, Go, and a CLI. Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Fern lists nine SDK languages. If you need production support in a language on Scalar's experimental list, talk to us first.
+Scalar's generally available targets are TypeScript, Python, Go, Java, Kotlin, and a CLI. Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Fern lists nine SDK languages. If you need production support in a language on Scalar's experimental list, talk to us first.
 
 </scalar-detail>
 

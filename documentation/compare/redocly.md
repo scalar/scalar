@@ -55,7 +55,7 @@ Scalar additionally ships 35 framework integrations — Express, Fastify, Hono, 
 
 Redocly is a documentation and governance company, and a good one. It does not offer a production SDK generator. Redocly CLI has an [experimental `generate-client` command](https://github.com/Redocly/redocly-cli) that emits a typed TypeScript client, clearly flagged as subject to change, with no other languages and no publishing workflow.
 
-Scalar generates SDKs from the same OpenAPI document that renders your docs, with package publishing, automated GitHub workflows, and webhook support. TypeScript, Python, Go, and a CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. One language target is included with every plan, and additional targets start at [$150/month each](https://scalar.com/pricing), published on the pricing page.
+Scalar generates SDKs from the same OpenAPI document that renders your docs, with package publishing, automated GitHub workflows, and webhook support. TypeScript, Python, Go, Java, Kotlin, and a CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. One language target is included with every plan, and additional targets start at [$150/month each](https://scalar.com/pricing), published on the pricing page.
 
 The same is true for MCP. Scalar hosts an MCP server generated from your OpenAPI document on the Pro plan at $150/month, so agents can call your API with the same source of truth your docs use. Redocly lists MCP servers on their [Enterprise tier](https://redocly.com/pricing) at $24 per seat/month.
 

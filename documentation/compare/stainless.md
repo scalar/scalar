@@ -17,7 +17,7 @@ If you are looking for the practical steps rather than the product comparison, g
 | | Scalar | Stainless |
 | --- | --- | --- |
 | Accepting new customers | Yes | [No, as of May 2026](https://www.stainless.com/blog/stainless-is-joining-anthropic) |
-| Generally available targets | TypeScript, Python, Go, CLI | [TypeScript, Python, Go, Java, Kotlin, Ruby, PHP, C#](https://www.stainless.com/products/sdks) |
+| Generally available targets | TypeScript, Python, Go, Java, Kotlin, CLI | [TypeScript, Python, Go, Java, Kotlin, Ruby, PHP, C#](https://www.stainless.com/products/sdks) |
 | Terraform providers | No | [Yes, experimental](https://www.stainless.com/docs/terraform/) |
 | MCP servers | Yes, hosted and configurable | [Yes](https://www.stainless.com/docs/mcp/), generated to deploy yourself |
 | Docs renderer | MIT, self-hostable on any plan | [Hosted docs platform](https://www.stainless.com/products/docs/) |
@@ -27,9 +27,9 @@ If you are looking for the practical steps rather than the product comparison, g
 
 ## Where Stainless is stronger
 
-**Scale, and everything that comes with it.** Stainless states that SDKs generated on their platform are [downloaded over 130 million times per week](https://www.stainless.com/docs/compare/speakeasy/), across [OpenAI, Cloudflare, Modern Treasury, Lithic, MUX, Replicate, and Weights & Biases](https://www.stainless.com/). Years of that traffic is years of edge cases found and fixed by someone else. Scalar's generator is newer, and no amount of testing substitutes for that exposure. This is the honest gap.
+**Scale, and everything that comes with it.** Stainless states that SDKs generated on their platform are [downloaded over 130 million times per week](https://www.stainless.com/docs/compare/speakeasy/), across [OpenAI, Cloudflare, Modern Treasury, Lithic, MUX, Replicate, and Weights & Biases](https://www.stainless.com/). Years of that traffic is years of edge cases found and fixed by someone else. Scalar's generator is in production at [Warp](/customers/warp), [Profound](/customers), Dedalus Labs and others, but not yet at that scale, and no amount of testing substitutes for that exposure. This is the honest gap.
 
-**More languages past the experimental line.** Stainless ships [TypeScript, Python, Go, Java, Kotlin, Ruby, PHP, and C#](https://www.stainless.com/products/sdks), with [SQL](https://www.stainless.com/docs/sdks/sql/) as an additional, experimental target. Scalar has four generally available targets. Stainless is also, as far as we know, the only generator that treats [Kotlin as a distinct SDK rather than a Java wrapper](https://www.stainless.com/docs/design/kotlin-and-java/) — nullable types instead of `Optional`, `Sequence` instead of `Stream`, `suspend` functions instead of `CompletableFuture`. That is a real design commitment, not a checkbox.
+**More languages past the experimental line.** Stainless ships [TypeScript, Python, Go, Java, Kotlin, Ruby, PHP, and C#](https://www.stainless.com/products/sdks), with [SQL](https://www.stainless.com/docs/sdks/sql/) as an additional, experimental target. Scalar has six generally available targets. Stainless also treats [Kotlin as a distinct SDK rather than a Java wrapper](https://www.stainless.com/docs/design/kotlin-and-java/) — nullable types instead of `Optional`, `Sequence` instead of `Stream`, `suspend` functions instead of `CompletableFuture`. Scalar generates Kotlin as its own target too, separate from Java, so compare the two outputs on your own document.
 
 **Terraform providers.** Stainless [generates Terraform providers](https://www.stainless.com/docs/terraform/) from an OpenAPI document, labelled experimental. Scalar does not, at all; Terraform is on our roadmap with no date. If your API is infrastructure that people declare rather than call, that is the whole comparison.
 
@@ -79,9 +79,9 @@ Alongside it, generally available targets carry end-to-end tests that generate, 
 
 ## Targets, honestly
 
-Scalar's generally available targets are **TypeScript, Python, Go, and the CLI**.
+Scalar's generally available targets are **TypeScript, Python, Go, Java, Kotlin, and the CLI**.
 
-Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Java, Kotlin, Ruby, and C# sit in the same continuous integration matrix as the generally available targets and are the closest behind, but the label is there for a reason. PHP, Rust, Swift, Dart, and C++ generate working code and carry a talk-to-us-first caveat. The [SDK generator page](../guides/sdks/index.md) says the same thing.
+Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Ruby and C# sit in the same continuous integration matrix as the generally available targets and are the closest behind, but the label is there for a reason. PHP, Rust, Swift, Dart, and C++ generate working code and carry a talk-to-us-first caveat. The [SDK generator page](../guides/sdks/index.md) says the same thing.
 
 If you are on a Stainless Kotlin, Java, C#, or PHP SDK today, that is the honest friction point in moving to Scalar, and it is worth raising with us before you plan a migration rather than after.
 
@@ -169,7 +169,7 @@ No. Terraform providers are on Scalar's roadmap with no date. If Terraform outpu
 
 <scalar-detail title="Which Stainless SDK languages can Scalar replace today?">
 
-TypeScript, Python, and Go are generally available, along with a CLI target. Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. If you are moving a Stainless Kotlin, Java, C#, or PHP SDK, talk to us before you plan the migration.
+TypeScript, Python, Go, Java, and Kotlin are generally available, along with a CLI target. Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. If you are moving a Stainless C# or PHP SDK, talk to us before you plan the migration.
 
 </scalar-detail>
 

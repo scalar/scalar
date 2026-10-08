@@ -118,7 +118,7 @@ The middleware and the reference are MIT licensed. The OpenAPI document your Hon
 
 - **An interactive [API reference](/products/api-references).** Every route and Zod schema, with search, themes, dark mode and request code samples in popular languages.
 - **A built-in [API client](/products/api-client).** "Test Request" opens a full client with environments, authentication and history. It also runs as a desktop and web app.
-- **[SDKs](/products/sdk-generator)** from the same document. TypeScript, Python, Go and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
+- **[SDKs](/products/sdk-generator)** from the same document. TypeScript, Python, Go, Java, Kotlin and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
 - **A [hosted MCP server](/products/agent/mcp)** so AI agents can call the endpoints you choose, with OAuth. Scalar hosts it, so there is nothing extra to deploy next to your Worker.
 
 For SDKs and MCP, save the document your app serves (for example `curl http://localhost:8787/scalar/openapi.json > openapi.json`) and publish it to the [Scalar Registry](/products/registry) from CI:

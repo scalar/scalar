@@ -74,7 +74,7 @@ The Scalar Galaxy demo is the same renderer on an example API with authenticatio
 
 **An API client.** Each operation has a "Test Request" button that opens the [Scalar API client](/products/api-client) with parameters and security schemes prefilled. The client is also a standalone, open-source app for desktop and web.
 
-**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the same `doc/openapi.yaml`. TypeScript, Python, Go, and CLI targets are generally available. A Ruby target exists but is experimental, as are Java, Kotlin, C#, PHP, Rust, Swift, Dart, and C++. Every plan includes one SDK.
+**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the same `doc/openapi.yaml`. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available. A Ruby target exists but is experimental, as are C#, PHP, Rust, Swift, Dart, and C++. Every plan includes one SDK.
 
 **A hosted MCP server.** Scalar can host an [MCP server](/products/agent/mcp) generated from your OpenAPI document, with OAuth, so AI agents can call the endpoints you choose. Scalar runs it; you do not add MCP code to your Rails app. Hosted MCP servers are included from the Pro plan.
 

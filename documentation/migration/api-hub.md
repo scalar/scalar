@@ -118,7 +118,7 @@ The Scalar API Client. It runs in the browser, inside your API reference, and as
 </scalar-detail>
 
 <scalar-detail title="Can I generate SDKs from the same document?">
-Yes. Scalar generates SDKs from your OpenAPI document. TypeScript, Python, Go, and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental.
+Yes. Scalar generates SDKs from your OpenAPI document. TypeScript, Python, Go, Java, Kotlin, and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental.
 </scalar-detail>
 
 ## Related

@@ -1,6 +1,6 @@
 # Kotlin SDK generator from OpenAPI
 
-Scalar can generate a Kotlin SDK from your OpenAPI document as its own target, separate from Java, built with Gradle and published to Maven Central. **The Kotlin target is experimental.** It generates working code and runs in the same continuous integration matrix as the generally available targets, but it is not GA, and we have not yet published a public Kotlin sample. This page is deliberately careful about that: it shows the configuration and the documented behaviour, and it marks clearly where it describes what the generator aims for rather than code you can inspect today.
+Scalar can generate a Kotlin SDK from your OpenAPI document as its own target, separate from Java, built with Gradle and published to Maven Central. **The Kotlin target is generally available.** It runs through the same end-to-end tests as TypeScript, Python, Go, and Java, but we have not yet published a public Kotlin sample. This page is deliberately careful about that: it shows the configuration and the documented behaviour, and it marks clearly where it describes documented behaviour rather than code you can inspect today.
 
 ## Kotlin or Java: which target do you need?
 
@@ -18,11 +18,11 @@ What is documented for the Kotlin target today:
 
 - **The same resource tree as every other target.** Your API's resources and methods (`timeOff.listAssignments`, and so on) come from the same configuration that drives the TypeScript, Python, and Go SDKs, with the same normalised verbs: `list`, `retrieve`, `create`.
 - **Pagination through an auto-pager.** The [pagination guide](/products/sdk-generator/pagination) documents `page.autoPager()` for walking every item and `page.hasNextPage()` for stepping through manually, shared with the Java target.
-- **The generator's shared feature set.** The SDK Generator's feature list (retries on network errors, 408, 409, 429, and 5xx with two attempts by default, `Retry-After` support, a 60-second default timeout, and typed errors carrying status, headers, and the parsed body) is written for all targets. On an experimental target, confirm each one in your preview.
+- **The generator's shared feature set.** The SDK Generator's feature list (retries on network errors, 408, 409, 429, and 5xx with two attempts by default, `Retry-After` support, a 60-second default timeout, and typed errors carrying status, headers, and the parsed body) is written for all targets. Confirm how each one surfaces in Kotlin in your preview.
 - **Authentication from your security schemes.** API keys, HTTP Basic and Bearer, OAuth 2.0, and OIDC, with an environment variable default for each credential.
 - **Docs for humans and agents.** A generated README, an `api.md` of every method, and an Agent Skill in `SKILL.md`.
 
-Beyond that, judge the preview by the things that make a Kotlin client feel native: nullable types for optional fields rather than wrapper objects, named and default arguments where Java would need a builder, and an API that reads naturally from coroutine code. Those are the questions worth asking of any Kotlin SDK, ours included, and the preview repository is where you answer them for an experimental target.
+Beyond that, judge the preview by the things that make a Kotlin client feel native: nullable types for optional fields rather than wrapper objects, named and default arguments where Java would need a builder, and an API that reads naturally from coroutine code. Those are the questions worth asking of any Kotlin SDK, ours included, and the preview repository is where you answer them.
 
 ## Configure the target
 
@@ -72,9 +72,9 @@ dependencies {
 
 OpenAPI Generator's [`kotlin` generator](https://openapi-generator.tech/docs/generators/kotlin) is stable and very flexible. Its `library` option covers `jvm-okhttp4` (the default), `jvm-ktor`, `jvm-retrofit2`, `jvm-spring-webclient`, `jvm-spring-restclient`, `jvm-volley`, `jvm-vertx`, and `multiplatform`. It serialises with Moshi by default and also supports Gson, Jackson, and `kotlinx_serialization`. The `useCoroutines` option applies to the Retrofit library. If you need Kotlin Multiplatform output or a Ktor client today, OpenAPI Generator is the better choice, and we would say so.
 
-| | Scalar Kotlin target (experimental) | OpenAPI Generator `kotlin` |
+| | Scalar Kotlin target | OpenAPI Generator `kotlin` |
 | --- | --- | --- |
-| Status | Experimental | Stable |
+| Status | Generally available | Stable |
 | HTTP stack | One generated client | Eight library options, including Ktor and Multiplatform |
 | Serialisation | Chosen by the generator | Moshi (default), Gson, Jackson, or kotlinx.serialization |
 | `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your preview | Marked unsupported in the generator's feature table |
@@ -88,7 +88,7 @@ The deciding question is usually whether you want one tool keeping several SDKs 
 
 <scalar-detail title="Is Scalar's Kotlin SDK generator production ready?">
 
-Not yet. Kotlin is experimental. It generates working code and sits in the same continuous integration matrix as the GA targets, and it is one of the closest to graduating. Talk to us before you publish it to users.
+Yes. Kotlin is generally available, alongside TypeScript, Python, Go, Java, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server on every generator change. There is no public Kotlin sample yet, so generate a preview from your own document to read the real code.
 
 </scalar-detail>
 

@@ -22,7 +22,7 @@ It is worth being precise here, because one common reason no longer applies.
 
 | Tool | Replaces | Docs renderer | SDK generation | Self-hosting | Entry paid price |
 | --- | --- | --- | --- | --- | --- |
-| **Scalar** | Docs and SDKs | MIT API reference, hosted docs | Native; TypeScript, Python, Go, CLI GA | API reference on any plan | Pro $150/month ([pricing](/pricing)) |
+| **Scalar** | Docs and SDKs | MIT API reference, hosted docs | Native; TypeScript, Python, Go, Java, Kotlin, CLI GA | API reference on any plan | Pro $150/month ([pricing](/pricing)) |
 | **Speakeasy** | SDKs | Uses a docs vendor | Native | Generator self-runnable (AGPL-3.0) | Enterprise, tailored ([pricing](https://www.speakeasy.com/pricing)) |
 | **Mintlify** | Docs | Closed, hosted | None; integrates third parties | Enterprise | Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing)) |
 | **ReadMe** | Docs | Closed, hosted | TypeScript/JavaScript via `api` CLI | No | Pro $250/month billed annually ([pricing](https://readme.com/pricing)) |
@@ -44,7 +44,7 @@ The open halves are inverted compared to Fern. Scalar's API reference and [API c
 
 Pricing is published: Free at $0, Pro at $150 per month, Business at $600 per month, Enterprise custom. Every plan includes one SDK. Additional SDKs are $150 per month each up to 100 endpoints, or $600 per month each for 101 to 250 endpoints. Custom HTML, CSS and JavaScript and custom domains start on Pro.
 
-SDK targets generally available today are TypeScript, Python, Go and CLI. Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental. AsyncAPI and gRPC are supported as SDK inputs; OpenRPC is not. MCP servers are [hosted by Scalar](/products/agent/mcp) with OAuth, not generated as code.
+SDK targets generally available today are TypeScript, Python, Go, Java, Kotlin and CLI. Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental. AsyncAPI and gRPC are supported as SDK inputs; OpenRPC is not. MCP servers are [hosted by Scalar](/products/agent/mcp) with OAuth, not generated as code.
 
 **Best for:** teams that want a Fern-shaped platform without a Postman dependency, with a documentation layer they can own and self-host.
 

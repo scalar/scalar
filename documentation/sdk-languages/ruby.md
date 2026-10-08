@@ -87,7 +87,7 @@ If you already run a Faraday middleware stack and want the generated client to s
 
 <scalar-detail title="Is the Ruby SDK generator stable?">
 
-No, Ruby is an experimental target. It generates working code and runs in the same continuous integration matrix as Java, Kotlin, C#, and the GA targets. Talk to us before you depend on it for a public gem.
+No, Ruby is an experimental target. It generates working code and runs in the same continuous integration matrix as C# and the GA targets. Talk to us before you depend on it for a public gem.
 
 </scalar-detail>
 

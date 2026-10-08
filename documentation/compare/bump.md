@@ -71,7 +71,7 @@ If your agents mostly need to call individual endpoints, the OpenAPI-driven appr
 
 ### SDKs
 
-Bump.sh does not generate SDKs. Scalar generates them from the same document as your docs: TypeScript, Python, Go, and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. One SDK is included on every plan. See [SDK Generator](/products/sdk-generator).
+Bump.sh does not generate SDKs. Scalar generates them from the same document as your docs: TypeScript, Python, Go, Java, Kotlin, and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. One SDK is included on every plan. See [SDK Generator](/products/sdk-generator).
 
 ## Pricing
 

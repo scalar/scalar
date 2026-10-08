@@ -43,7 +43,7 @@ Prices were checked on each vendor's pricing page on September 26, 2026.
 Scalar gives you hosted [Scalar Docs](/products/docs) with Markdown and MDX guides, an interactive [API reference](/products/api-references), and Git Sync, all configured from one `scalar.config.json`. The difference from Mintlify is what surrounds the docs:
 
 - **An open renderer.** The API reference is MIT licensed (15.7k stars on [GitHub](https://github.com/scalar/scalar)). You can self-host it on any plan, fork it, or mount it inside your app with framework integrations for [FastAPI](/products/api-references/integrations/fastapi), [NestJS](/products/api-references/integrations/nestjs), [ASP.NET Core](/products/api-references/integrations/aspnetcore/integration), [Laravel](/products/api-references/integrations/laravel) and many more.
-- **SDKs from the same run.** The [SDK generator](/products/sdk-generator) produces SDKs and the API reference from the same compiled OpenAPI document. TypeScript, Python, Go and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
+- **SDKs from the same run.** The [SDK generator](/products/sdk-generator) produces SDKs and the API reference from the same compiled OpenAPI document. TypeScript, Python, Go, Java, Kotlin and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
 - **A real API client.** The open-source [API client](/products/api-client) runs on web, macOS, Windows and Linux, so developers keep a tool after they leave your docs.
 - **Hosted MCP.** Scalar hosts [MCP servers](/products/agent/mcp) generated from your OpenAPI document, with OAuth.
 

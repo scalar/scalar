@@ -94,7 +94,7 @@ For a broader look at when OpenAPI Generator is the right tool, read [OpenAPI Ge
 
 <scalar-detail title="Is the C# SDK generator production ready?">
 
-Not yet. C# is experimental. It generates working code and sits in the same continuous integration matrix as the GA targets, alongside Java, Kotlin, and Ruby. Talk to us before you ship it to customers.
+Not yet. C# is experimental. It generates working code and sits in the same continuous integration matrix as the GA targets, alongside Ruby. Talk to us before you ship it to customers.
 
 </scalar-detail>
 

@@ -13,7 +13,7 @@
     </span>
   </a>
   <p>
-    Generate idiomatic, type-safe SDKs and a CLI from the OpenAPI document your team already maintains. TypeScript, Python, Go, and CLI targets are generally available, and nine more languages are available as experimental targets. Pick your targets, review real code in minutes, and publish from your own repositories through pull requests you control.
+    Generate idiomatic, type-safe SDKs and a CLI from the OpenAPI document your team already maintains. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available, and seven more languages are available as experimental targets. Pick your targets, review real code in minutes, and publish from your own repositories through pull requests you control.
   </p>
   <div class="flex flex-wrap gap-2">
     <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get started</a>
@@ -146,9 +146,9 @@ func main() {
 
 ## Why teams generate SDKs with Scalar
 
-- **SDKs that already ship.** Warp publishes its [TypeScript](https://github.com/TeamWarp/warp-sdk-typescript), [Python](https://github.com/TeamWarp/warp-sdk-python), and [Go](https://github.com/TeamWarp/warp-sdk-go) SDKs and its [CLI](https://github.com/TeamWarp/warp-cli) from Scalar, after moving off a discontinued vendor with no breaking changes for its users. [Read the Warp story](/customers/warp). Profound and Dedalus Labs generate their SDKs with Scalar too; see [customers](/customers).
+- **SDKs that already ship.** Warp publishes its [TypeScript](https://github.com/TeamWarp/warp-sdk-typescript), [Python](https://github.com/TeamWarp/warp-sdk-python), and [Go](https://github.com/TeamWarp/warp-sdk-go) SDKs and its [CLI](https://github.com/TeamWarp/warp-cli) from Scalar, after moving off a discontinued vendor with no breaking changes for its users. [Read the Warp story](/customers/warp). Profound and Dedalus Labs run Scalar-generated SDKs in production too; see [customers](/customers).
 - **From the team behind a 15.7k-star open-source project.** The same OpenAPI tooling powers the MIT-licensed [Scalar API Reference](/products/api-references), which Microsoft Learn documents for ASP.NET Core and eight frameworks ship as their default documentation UI.
-- **Honest about maturity.** Four targets are generally available and carry end-to-end tests. Everything else is labeled experimental, in the dashboard and on this page, until it earns the label.
+- **Honest about maturity.** Six targets are generally available and carry end-to-end tests. Everything else is labeled experimental, in the dashboard and on this page, until it earns the label.
 
 An SDK generator reads your OpenAPI document and writes the client library your users would otherwise write by hand: typed models, one method per operation, authentication, retries, pagination, and a README. Scalar does that per language rather than from one shared template, so a Python client reads like Python and a Go client reads like Go. The language pages go deeper on [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Go](/sdk/go).
 
@@ -168,6 +168,8 @@ Every target publishes to the registry its ecosystem expects, using workflows ge
 | TypeScript | npm |
 | Python | PyPI |
 | Go | Go modules |
+| Java | Maven Central |
+| Kotlin | Maven Central |
 | CLI | npm and Homebrew |
 
 </div>
@@ -177,8 +179,6 @@ Every target publishes to the registry its ecosystem expects, using workflows ge
 
 | Target | Package registry |
 | ------ | ---------------- |
-| Java | Maven Central |
-| Kotlin | Maven Central |
 | Ruby | RubyGems |
 | C# | NuGet |
 | PHP | Packagist |
@@ -191,7 +191,7 @@ Every target publishes to the registry its ecosystem expects, using workflows ge
 </div>
 
 <scalar-callout type="info" icon="phosphor/regular/info">
-  Generally available targets carry end-to-end tests that generate, build, and run against a live server on every change. Experimental targets generate working code, and Java, Kotlin, Ruby, and C# sit in the same test matrix, but the label is there for a reason: talk to us before you depend on one.
+  Generally available targets carry end-to-end tests that generate, build, and run against a live server on every change. Experimental targets generate working code, and Ruby and C# sit in the same test matrix, but the label is there for a reason: talk to us before you depend on one.
 </scalar-callout>
 
 ## Generated, not templated
@@ -423,7 +423,7 @@ A target becomes billable when you save a version and queue its build. Drafts ar
 
 <scalar-detail title="Which targets are production ready?">
 
-TypeScript, Python, Go, and the CLI target are generally available. The rest are marked experimental in the dashboard. Java, Kotlin, Ruby, and C# sit in the same continuous integration matrix as the generally available targets and are the closest behind them. PHP, Rust, Swift, Dart, and C++ generate working code, and we would rather talk to you first than have you discover a gap in production.
+TypeScript, Python, Go, Java, Kotlin, and the CLI target are generally available, and they are in production at Warp, Profound, Dedalus Labs and others. The rest are marked experimental in the dashboard. Ruby and C# sit in the same continuous integration matrix as the generally available targets and are the closest behind them. PHP, Rust, Swift, Dart, and C++ generate working code, and we would rather talk to you first than have you discover a gap in production.
 
 </scalar-detail>
 

@@ -64,7 +64,7 @@ app = FastAPI()
 add_scalar_reference(app)
 ```
 
-- **SDK generation.** The [SDK generator](/products/sdk-generator) builds SDKs and the reference from the same compiled document. TypeScript, Python, Go and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
+- **SDK generation.** The [SDK generator](/products/sdk-generator) builds SDKs and the reference from the same compiled document. TypeScript, Python, Go, Java, Kotlin and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
 - **A standalone API client** your developers keep after they leave the docs, on web, macOS, Windows and Linux.
 
 Pricing: Free $0, Pro $150 per month with 5 editor seats, Business $600 per month with SSO and 10 seats, Enterprise custom. One SDK is included on every plan.

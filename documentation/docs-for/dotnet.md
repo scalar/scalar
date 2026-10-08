@@ -87,7 +87,7 @@ The NuGet package is the start. The OpenAPI document it reads is the same input 
 
 - **An interactive [API reference](/products/api-references).** Every endpoint, schema and example from your controllers or minimal APIs, with search, dark mode, and request code samples for popular languages and HTTP clients. MIT licensed.
 - **A built-in [API client](/products/api-client).** The "Test Request" button opens a full client with environments, authentication and request history. It also runs as a desktop and web app.
-- **[SDKs](/products/sdk-generator)** generated from the same document. TypeScript, Python, Go and CLI are generally available. C#, Java, Kotlin, Ruby, PHP, Rust, Swift, Dart and C++ are experimental.
+- **[SDKs](/products/sdk-generator)** generated from the same document. TypeScript, Python, Go, Java, Kotlin and CLI are generally available. C#, Ruby, PHP, Rust, Swift, Dart and C++ are experimental.
 - **A [hosted MCP server](/products/agent/mcp)** so AI agents can call the endpoints you choose, with OAuth. Scalar hosts it; there is nothing extra to deploy.
 
 To use the last two, publish the document to the [Scalar Registry](/products/registry). Generate it at build time (see [build-time generation](/products/api-references/integrations/aspnetcore/build-time-generation)) and push it from CI:

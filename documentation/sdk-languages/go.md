@@ -138,7 +138,7 @@ If you are weighing open source generators more broadly, see [OpenAPI Generator 
 
 <scalar-detail title="Is the Go SDK generator generally available?">
 
-Yes. Go is generally available along with TypeScript, Python, and the CLI, and runs through the same end-to-end tests on every generator change.
+Yes. Go is generally available along with TypeScript, Python, Java, Kotlin, and the CLI, and runs through the same end-to-end tests on every generator change.
 
 </scalar-detail>
 

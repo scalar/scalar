@@ -25,7 +25,7 @@ The hard part of leaving is not the OpenAPI document. Every generator reads that
 
 | Tool | Documented `stainless.yml` import | Generally available SDK languages | Terraform | MCP | Generator licence | Published SDK price |
 | --- | --- | --- | --- | --- | --- | --- |
-| **Scalar** | Yes | TypeScript, Python, Go, CLI (Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, C++ experimental) | No (roadmap, no date) | Hosted MCP servers, Pro and above | Closed source (API reference MIT) | 1 SDK on every plan, extra SDKs $150/month each up to 100 endpoints ([pricing](/pricing)) |
+| **Scalar** | Yes | TypeScript, Python, Go, Java, Kotlin, CLI (Ruby, C#, PHP, Rust, Swift, Dart, C++ experimental) | No (roadmap, no date) | Hosted MCP servers, Pro and above | Closed source (API reference MIT) | 1 SDK on every plan, extra SDKs $150/month each up to 100 endpoints ([pricing](/pricing)) |
 | **Speakeasy** | No | TypeScript, Python, Go, Java, C#, PHP, Ruby ([announcement](https://www.speakeasy.com/blog/partnering-with-google)) | Yes ([repo](https://github.com/speakeasy-api/openapi-generation)) | Generated server code | AGPL-3.0, commercial licence available | Free: 1 SDK, 50 methods ([docs](https://www.speakeasy.com/docs/sdks/introduction)); Enterprise "Tailored" ([pricing](https://www.speakeasy.com/pricing)) |
 | **Fern** | No | Free: TypeScript, Python; Enterprise: 10 listed, Kotlin in progress ([pricing](https://buildwithfern.com/pricing.md)) | Not listed | Hosted docs MCP | [Apache-2.0](https://github.com/fern-api/fern) | Free up to 200 endpoints; Enterprise custom, per SDK, billed annually |
 | **OpenAPI Generator** | No | 89 community client generators ([list](https://openapi-generator.tech/docs/generators/)) | Experimental | No | [Apache-2.0](https://github.com/OpenAPITools/openapi-generator) | Free |
@@ -48,7 +48,7 @@ Warp is the worked example. Their SDK vendor discontinued its product, and they 
 
 You also get things Stainless charged for separately or did not offer: docs as a build target in the same run (so the reference and the SDK cannot drift), an MIT-licensed [API reference](/products/api-references) and [API client](/products/api-client), and [hosted MCP servers](/products/agent/mcp) generated from the same OpenAPI document, with OAuth.
 
-**Where it falls short:** no Terraform or SQL targets (both on the roadmap, no date). The generator is closed source. Only TypeScript, Python, Go and CLI are generally available; the other nine targets are experimental. Our MCP servers are hosted by us, not code you deploy. And Stainless's years of production traffic found edge cases that our newer generator has not yet met.
+**Where it falls short:** no Terraform or SQL targets (both on the roadmap, no date). The generator is closed source. Only TypeScript, Python, Go, Java, Kotlin and CLI are generally available; the other seven targets are experimental. Our MCP servers are hosted by us, not code you deploy. Scalar's generator is in production at [Warp](/customers/warp), [Profound](/customers), Dedalus Labs and others, but Stainless had years of production traffic at a larger scale.
 
 **Best for:** teams with TypeScript, Python or Go SDKs that must not break, who want docs and SDKs from one run at a published price.
 
@@ -106,7 +106,7 @@ Fern was [acquired by Postman in January 2026](https://buildwithfern.com/post/po
 
 [Kiota](https://github.com/microsoft/kiota) is MIT licensed. It generates API clients from OpenAPI, with C#, Go, Java, PHP and Python marked stable and TypeScript, Ruby and Dart in preview.
 
-**Where it beats Scalar:** free, open source, and stable in C#, Java and PHP, where Scalar is still experimental.
+**Where it beats Scalar:** free, open source, and stable in C# and PHP, where Scalar is still experimental.
 
 **Watch for:** Kiota shapes the client by its own conventions and has no way to read `stainless.yml`, so expect your users' call sites to change. TypeScript, the most common Stainless target, is still in preview.
 
@@ -118,7 +118,7 @@ Fern was [acquired by Postman in January 2026](https://buildwithfern.com/post/po
 
 [APIMatic](https://www.apimatic.io/) generates SDKs in seven languages, plus API portals and MCP servers. Its [pricing](https://www.apimatic.io/pricing) starts at $10 per month for one language and 20 endpoints, and Basic is $300 per month per language.
 
-**Where it beats Scalar:** Java, C#, PHP and Ruby SDKs as part of its core offering, where Scalar's targets are still experimental, and a public price for each tier.
+**Where it beats Scalar:** C#, PHP and Ruby SDKs as part of its core offering, where Scalar's targets are still experimental, and a public price for each tier.
 
 **Watch for:** per-language pricing adds up quickly, and there is no documented `stainless.yml` path.
 

@@ -83,7 +83,7 @@ The package is free and MIT licensed. The OpenAPI document it reads is also the 
 
 - **An interactive [API reference](/products/api-references).** Every path operation and Pydantic model, with search, eleven built-in themes, dark mode and request code samples in popular languages.
 - **A built-in [API client](/products/api-client).** "Test Request" opens a full client with environments, auth and history, so you can drop the Swagger UI "Try it out" flow. It also runs as a desktop and web app.
-- **[SDKs](/products/sdk-generator)** from the same document. Python, TypeScript, Go and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
+- **[SDKs](/products/sdk-generator)** from the same document. Python, TypeScript, Go, Java, Kotlin and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental.
 - **A [hosted MCP server](/products/agent/mcp)** so AI agents can call the endpoints you choose, with OAuth. Scalar hosts it; there is nothing to deploy.
 
 To use SDKs and MCP, export the document and publish it to the [Scalar Registry](/products/registry). FastAPI can write it without starting a server:

@@ -156,7 +156,7 @@ If you publish an API, the realistic answer is to offer both, because different 
 
 The expensive part is keeping them consistent. If the SDK and the MCP server are maintained separately, they drift: a field renamed in one, a new endpoint missing in the other. The fix is to treat your [OpenAPI document](/learn/openapi/what-is-openapi) as the single source and generate both from it.
 
-That is how Scalar works. The [SDK generator](/products/sdk-generator) produces SDKs from your OpenAPI document; TypeScript, Python, Go and CLI targets are generally available, and Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ are available as experimental targets. The same document powers a [hosted MCP server](/products/agent/mcp) that Scalar runs for you, where you choose which operations the model can search and execute. When the document changes, both follow. If you are weighing whether to build SDKs in-house at all, [build vs buy SDK](/learn/sdk/build-vs-buy-sdk) runs the numbers, and [generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) is the step-by-step guide.
+That is how Scalar works. The [SDK generator](/products/sdk-generator) produces SDKs from your OpenAPI document; TypeScript, Python, Go, Java, Kotlin and CLI targets are generally available, and Ruby, C#, PHP, Rust, Swift, Dart and C++ are available as experimental targets. The same document powers a [hosted MCP server](/products/agent/mcp) that Scalar runs for you, where you choose which operations the model can search and execute. When the document changes, both follow. If you are weighing whether to build SDKs in-house at all, [build vs buy SDK](/learn/sdk/build-vs-buy-sdk) runs the numbers, and [generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) is the step-by-step guide.
 
 A short checklist for deciding what to ship first:
 
@@ -197,7 +197,7 @@ Per operation, yes. An MCP call involves a model reading tool definitions and re
 </scalar-detail>
 
 <scalar-detail title="Can Scalar generate both an SDK and an MCP server?">
-Yes. Scalar's SDK generator produces SDKs from an OpenAPI document, with TypeScript, Python, Go and CLI generally available and nine further languages experimental. The same document can back a Scalar-hosted MCP server, which Scalar runs for you rather than generating server code.
+Yes. Scalar's SDK generator produces SDKs from an OpenAPI document, with TypeScript, Python, Go, Java, Kotlin and CLI generally available and seven further languages experimental. The same document can back a Scalar-hosted MCP server, which Scalar runs for you rather than generating server code.
 </scalar-detail>
 
 ## Related

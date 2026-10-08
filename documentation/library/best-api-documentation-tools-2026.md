@@ -58,7 +58,7 @@ Prices are the lowest paid tier as published on 26 September 2026. "Custom" mean
 
 **Best for.** Engineering-led teams who want to own the documentation layer, mount it inside their app, and generate SDKs and an MCP server from the same document.
 
-**Watch out for.** Scalar does not offer localization across many languages the way Mintlify does, and our SDK generator is newer than the incumbents.
+**Watch out for.** Scalar does not offer localization across many languages the way Mintlify does, and our SDK generator has fewer generally available languages than Speakeasy or Fern. It is in production at [Warp](/customers/warp), [Profound](/customers), Dedalus Labs and others.
 
 ## 2. Mintlify
 

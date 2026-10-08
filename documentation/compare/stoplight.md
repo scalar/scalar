@@ -82,7 +82,7 @@ If you prefer Prism, keep using it. It reads the same OpenAPI document.
 
 This is where the products diverge most. Stoplight is a design and documentation platform; it does not generate SDKs or MCP servers.
 
-Scalar generates [SDKs](/products/sdk-generator) from the same OpenAPI document. TypeScript, Python, Go, and CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. One SDK is included on every plan. Scalar also hosts [MCP servers](/products/agent/mcp) generated from your OpenAPI document, with OAuth, so AI agents can call the operations you choose.
+Scalar generates [SDKs](/products/sdk-generator) from the same OpenAPI document. TypeScript, Python, Go, Java, Kotlin, and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. One SDK is included on every plan. Scalar also hosts [MCP servers](/products/agent/mcp) generated from your OpenAPI document, with OAuth, so AI agents can call the operations you choose.
 
 If your roadmap ends at "publish good docs", this section does not matter. If it continues to client libraries and agent access, having all of it driven by one description in one platform removes a lot of glue.
 

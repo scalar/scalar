@@ -11,7 +11,7 @@ This page is written by Scalar. Every product claim on it is backed by our own d
 | Source of truth | One OpenAPI document (3.0 or 3.1; Swagger 2.0 upgraded on load) |
 | Docs update via | [Git sync](../guides/docs/integrations/github.md): commit, merge, published |
 | Preview before merge | [Preview deployment per pull request](../guides/docs/deployment/preview-deployments.md), with a PR comment link |
-| SDK targets | TypeScript, Python, Go, CLI generally available; more experimental |
+| SDK targets | TypeScript, Python, Go, Java, Kotlin, CLI generally available; more experimental |
 | Code samples in docs | Generated per SDK, injected as `x-codeSamples` into your reference |
 | Try-it-out | Open-source API client built into the reference |
 | Docs renderer license | MIT, self-hostable on any plan |

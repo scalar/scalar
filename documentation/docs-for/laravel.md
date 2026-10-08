@@ -85,7 +85,7 @@ When the list is dynamic, register documents from a service provider with the `S
 
 **An API client.** Each operation has a "Test Request" button that opens the [Scalar API client](/products/api-client) with parameters and auth prefilled. It is also available as a standalone open-source app for desktop and web.
 
-**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the same `api.json`. TypeScript, Python, Go, and CLI targets are generally available. A PHP SDK target exists but is experimental, alongside Java, Kotlin, Ruby, C#, Rust, Swift, Dart, and C++. Every plan includes one SDK.
+**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the same `api.json`. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available. A PHP SDK target exists but is experimental, alongside Ruby, C#, Rust, Swift, Dart, and C++. Every plan includes one SDK.
 
 **A hosted MCP server.** Scalar can host an [MCP server](/products/agent/mcp) generated from your OpenAPI document, with OAuth, so AI agents can call the endpoints you choose. Scalar runs it; there is no MCP code to add to your Laravel app. Hosted MCP servers are included from the Pro plan.
 

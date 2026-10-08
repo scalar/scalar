@@ -283,7 +283,7 @@ Be clear about these before you start, so none of them turns up as a surprise ha
 
 ## What you gain
 
-The reasons teams make this move are usually the ones that are not about the docs site itself: an [MIT-licensed API reference](/products/api-references) you can self-host or mount inside your own app, a standalone [API client](/products/api-client), and [SDKs](/products/sdk-generator) generated from the same OpenAPI document as your docs. TypeScript, Python, Go, and CLI SDKs are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Mintlify does not generate SDKs.
+The reasons teams make this move are usually the ones that are not about the docs site itself: an [MIT-licensed API reference](/products/api-references) you can self-host or mount inside your own app, a standalone [API client](/products/api-client), and [SDKs](/products/sdk-generator) generated from the same OpenAPI document as your docs. TypeScript, Python, Go, Java, Kotlin, and CLI SDKs are generally available; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Mintlify does not generate SDKs.
 
 ## Frequently asked questions
 
