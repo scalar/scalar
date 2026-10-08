@@ -174,6 +174,18 @@ Scans `documentation/blog/` for markdown files matching `YYYY-MM-DD-slug.md`, th
 pnpm --filter @scalar-internal/build-scripts start generate-blog
 ```
 
+### `generate-cli-docs -c, --context <file>`
+
+Generate the Scalar CLI command reference (`documentation/guides/cli/commands.md` and one page per command group in `commands/`) from the JSON that `scalar context` prints.
+
+The `commands/` directory is owned by this command: it is cleared on every run. A new command group gets a page automatically, but it only appears in the sidebar once it is added to `scalar.config.json`. The scheduled `update-scalar-cli-documentation` workflow runs this daily against the latest published CLI.
+
+**Usage:**
+```bash
+npx @scalar/cli@latest context > cli-context.json
+pnpm script generate-cli-docs --context cli-context.json
+```
+
 ### `generate-readme`
 
 Generate README.md files for packages with scalarReadme metadata.
