@@ -1,5 +1,5 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { assert, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
@@ -77,7 +77,8 @@ describe('RequestAuthTab', () => {
             type: 'http',
             scheme: 'bearer',
             description: 'Bearer token authentication',
-            'x-scalar-secret-token': '',
+            // A value, so the reveal toggle (only shown when there is something to reveal) renders
+            'x-scalar-secret-token': 'secret-token',
           },
         },
       })
@@ -904,6 +905,72 @@ describe('RequestAuthTab', () => {
           oauth2Name: 'OAuth2',
         }),
       )
+    })
+  })
+
+  describe('reset to default', () => {
+    const schemes = {
+      bearer: { type: 'http', scheme: 'bearer' },
+      basic: { type: 'http', scheme: 'basic', 'x-scalar-secret-username': '', 'x-scalar-secret-password': '' },
+      apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+      brokerApiKey: { type: 'apiKey', in: 'password' },
+    } as const
+
+    const fields = [
+      ['bearer', 'x-scalar-secret-token', 'Bearer Token'],
+      ['basic', 'x-scalar-secret-username', 'Username'],
+      ['basic', 'x-scalar-secret-password', 'Password'],
+      ['apiKey', 'x-scalar-secret-token', 'Value'],
+      ['brokerApiKey', 'x-scalar-secret-token', 'Value'],
+    ] as const
+
+    const findReset = (
+      kind: keyof typeof schemes,
+      field: string,
+      label: string,
+      secrets: Record<string, unknown>,
+    ): { wrapper: ReturnType<typeof mountWithProps>; reset: VueWrapper | undefined } => {
+      const wrapper = mountWithProps({
+        selectedSecuritySchemas: { Auth: [] },
+        securitySchemes: { Auth: { ...schemes[kind], [field]: '', ...secrets } },
+      })
+      const reset = wrapper
+        .findAllComponents(RequestAuthDataTableInput)
+        // Match the visible label exactly, since other fields carry buttons such as "Clear Value"
+        .find((input) => input.get('label').text() === label)!
+        .findAllComponents({ name: 'ScalarIconButton' })
+        .find((button) => button.props('label') === 'Reset to default')
+      return { wrapper, reset }
+    }
+
+    it.each(fields)('hides reset for %s %s without a default', (kind, field, label) => {
+      const { wrapper, reset } = findReset(kind, field, label, { [field]: 'typed' })
+      expect(reset).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it.each(fields)('hides reset for %s %s when it equals its default', (kind, field, label) => {
+      const { wrapper, reset } = findReset(kind, field, label, {
+        [field]: 'configured',
+        'x-scalar-secret-defaults': { [field]: 'configured' },
+      })
+      expect(reset).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it.each(fields)('resets %s %s when overridden or cleared', async (kind, field, label) => {
+      const defaults = { 'x-scalar-secret-defaults': { [field]: 'configured' } }
+      const cleared = findReset(kind, field, label, { ...defaults, [field]: '' })
+      expect(cleared.reset).toBeDefined()
+      cleared.wrapper.unmount()
+
+      const { wrapper, reset } = findReset(kind, field, label, { ...defaults, [field]: 'typed' })
+      const emitted = vi.fn()
+      const stop = eventBus.on('auth:reset:security-scheme-secret', emitted)
+      await reset!.trigger('click')
+      expect(emitted).toHaveBeenCalledExactlyOnceWith({ name: 'Auth', field })
+      stop()
+      wrapper.unmount()
     })
   })
 })

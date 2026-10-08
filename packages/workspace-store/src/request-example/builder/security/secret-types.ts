@@ -1,3 +1,4 @@
+import type { AuthSecretField } from '@/helpers/auth-secret-fields'
 import type { EncryptionSchemeType, SaslSchemeType } from '@/request-example/builder/security/broker-scheme-types'
 import type {
   XScalarAuthUrl,
@@ -28,11 +29,22 @@ import type {
   OpenIdConnectObject,
 } from '@/schemas/v3.2/strict/security-scheme'
 
+/**
+ * Derived while merging the auth store with the document and configuration: the value each field
+ * returns to when its stored override is reset. Fields without a non-empty default are left out.
+ * It is never persisted and never sent with a request; it only tells the auth UI whether Reset
+ * would restore anything.
+ */
+export type XScalarSecretDefaults = {
+  'x-scalar-secret-defaults'?: Partial<Record<AuthSecretField, string>>
+}
+
 type OAuthFlowCommonSecret = XScalarSecretClientId &
   XScalarSecretToken &
   XScalarSecretRefreshToken &
   XScalarAuthUrl &
-  XScalarTokenUrl & {
+  XScalarTokenUrl &
+  XScalarSecretDefaults & {
     /** Explicit clears are carried to the auth UI to prevent default prefill after remount. */
     'x-scalar-secret-cleared-fields'?: string[]
   }
@@ -77,8 +89,8 @@ export type BrokerApiKeyObject = {
   description?: string
 }
 
-export type ApiKeyObjectSecret = (ApiKeyObject | BrokerApiKeyObject) & XScalarSecretToken
-export type HttpObjectSecret = HttpObject & XScalarSecretHTTP & XScalarSecretToken
+export type ApiKeyObjectSecret = (ApiKeyObject | BrokerApiKeyObject) & XScalarSecretToken & XScalarSecretDefaults
+export type HttpObjectSecret = HttpObject & XScalarSecretHTTP & XScalarSecretToken & XScalarSecretDefaults
 /** Mutual TLS: the client certificate is presented at the TLS layer, so there is no secret to enter. */
 export type MutualTlsObjectSecret = MutualTlsObject
 export type OAuth2ObjectSecret = Omit<OAuth2Object, 'flows'> & { flows: OAuthFlowsObjectSecret }

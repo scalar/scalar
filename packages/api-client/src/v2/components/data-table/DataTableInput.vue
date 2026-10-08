@@ -2,7 +2,7 @@
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconEye, ScalarIconEyeSlash, ScalarIconX } from '@scalar/icons'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import type { VueClassProp } from '@/types/vue'
 import { CodeInputLite } from '@/v2/components/code-input'
@@ -52,19 +52,67 @@ const interactingWithDropdown = ref(false)
 const codeInput = useTemplateRef('codeInput')
 const maskedInput = useTemplateRef('maskedInput')
 
+/**
+ * Whether focus is inside the field. Tracked with focusin and focusout on the wrapper because the
+ * revealed editor does not report its own focus, and swapping it out mid-typing would drop focus.
+ */
+const fieldFocused = ref(false)
+
+/** There is nothing to reveal in an empty field, so the toggle only shows once it has a value */
+const showVisibilityToggle = computed(
+  () => props.type === 'password' && Boolean(props.modelValue),
+)
+
+// An emptied secret goes back to masked, so whatever is typed or pasted next stays hidden
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (!value && !fieldFocused.value) {
+      mask.value = true
+    }
+  },
+)
+
+/** A field emptied while typing in the revealed editor masks once focus leaves it */
+const handleFieldFocusOut = (): void => {
+  fieldFocused.value = false
+
+  if (!props.modelValue) {
+    mask.value = true
+  }
+}
+
 const handleBlur = () => !interactingWithDropdown.value && emit('inputBlur')
 
 const inputType = computed(() =>
   props.type === 'password' ? 'text' : (props.type ?? 'text'),
 )
 
+/** Focus whichever editor is showing, the masked input or the code input */
+const focus = (): void => {
+  codeInput.value?.focus()
+  maskedInput.value?.focus()
+}
+
 // If not an enum nor read only, focus the code input or masked input
 const handleLabelClick = () => {
   if (!props.enum?.length && !props.readOnly) {
-    codeInput.value?.focus()
-    maskedInput.value?.focus()
+    focus()
   }
 }
+
+/**
+ * The clear button disappears once the field is empty, so focus moves to the field instead of
+ * falling back to the page. A cleared secret is masked again so the next one is not shown.
+ */
+const clearValue = async (): Promise<void> => {
+  mask.value = true
+  emit('update:modelValue', '')
+  await nextTick()
+  focus()
+}
+
+defineExpose({ focus })
 </script>
 <template>
   <DataTableCell
@@ -76,7 +124,10 @@ const handleLabelClick = () => {
       @click="handleLabelClick">
       <slot />:
     </div>
-    <div class="relative flex min-w-0 flex-1">
+    <div
+      class="relative flex min-w-0 flex-1"
+      @focusin="fieldFocused = true"
+      @focusout="handleFieldFocusOut">
       <template v-if="props.enum && props.enum.length">
         <DataTableInputSelect
           :canAddCustomValue="props.canAddCustomEnumValue"
@@ -137,14 +188,14 @@ const handleLabelClick = () => {
       class="-ml-.25 h-6 w-6 self-center p-1.25"
       :icon="ScalarIconX"
       :label="translate('apiClient.dataTableInput.clearValue')"
-      @click="emit('update:modelValue', '')" />
+      @click="clearValue" />
     <!-- Toggle Visibility -->
     <!-- A toggle button keeps one name and reports its state, so the label
          stays "Show Password" while `aria-pressed` says whether the value is
          revealed. Flipping the name instead leaves screen readers silent,
          because activating a button does not re-announce its name. -->
     <ScalarIconButton
-      v-if="type === 'password'"
+      v-if="showVisibilityToggle"
       :aria-pressed="!mask"
       class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
       data-testid="data-table-password-toggle"

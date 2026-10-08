@@ -1,7 +1,7 @@
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
@@ -64,7 +64,18 @@ describe('OAuth2', () => {
   }
 
   it('clears a URL without erasing its document default and resets only that field', async () => {
-    const wrapper = mountWithProps()
+    const wrapper = mountWithProps({
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: 'https://example.com/token',
+          'x-usePkce': 'no',
+          scopes: { read: 'Read', write: 'Write' },
+          'x-scalar-secret-defaults': { 'x-scalar-secret-auth-url': 'https://example.com/auth' },
+        },
+      },
+    })
     const update = vi.fn()
     const reset = vi.fn()
     const documentUpdate = vi.fn()
@@ -159,6 +170,231 @@ describe('OAuth2', () => {
     })
     stop()
     wrapper.unmount()
+  })
+
+  describe('reset to default', () => {
+    const browserRedirect = window.location.origin + window.location.pathname
+
+    const authorizationCode = (secrets: Record<string, unknown> = {}): Record<string, unknown> => ({
+      authorizationUrl: 'https://example.com/auth',
+      tokenUrl: 'https://example.com/token',
+      refreshUrl: '',
+      scopes: {},
+      'x-usePkce': 'no',
+      'x-scalar-secret-client-id': '',
+      'x-scalar-secret-client-secret': '',
+      'x-scalar-secret-redirect-uri': browserRedirect,
+      'x-scalar-secret-token': '',
+      'x-scalar-secret-auth-url': 'https://example.com/auth',
+      'x-scalar-secret-token-url': 'https://example.com/token',
+      ...secrets,
+    })
+
+    const findReset = (wrapper: ReturnType<typeof mountWithProps>, label: string): VueWrapper | undefined =>
+      wrapper
+        .findAllComponents(RequestAuthDataTableInput)
+        .find((input) => input.get('label').text() === label)!
+        .findAllComponents({ name: 'ScalarIconButton' })
+        .find((button) => button.props('label') === 'Reset to default')
+
+    it('hides reset for a typed client ID without a default', () => {
+      const wrapper = mountWithProps({
+        flows: { authorizationCode: authorizationCode({ 'x-scalar-secret-client-id': 'typed' }) },
+      })
+      expect(findReset(wrapper, 'Client ID')).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it('hides reset for a client ID that equals its default', () => {
+      const wrapper = mountWithProps({
+        flows: {
+          authorizationCode: authorizationCode({
+            'x-scalar-secret-client-id': 'configured',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-client-id': 'configured' },
+          }),
+        },
+      })
+      expect(findReset(wrapper, 'Client ID')).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it('resets a client ID that differs from its default', async () => {
+      const wrapper = mountWithProps({
+        flows: {
+          authorizationCode: authorizationCode({
+            'x-scalar-secret-client-id': 'typed',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-client-id': 'configured' },
+          }),
+        },
+      })
+      const reset = vi.fn()
+      const stop = eventBus.on('auth:reset:security-scheme-secret', reset)
+      await findReset(wrapper, 'Client ID')!.trigger('click')
+      expect(reset).toHaveBeenCalledExactlyOnceWith({
+        name: 'OAuth2',
+        flow: 'authorizationCode',
+        field: 'x-scalar-secret-client-id',
+      })
+      stop()
+      wrapper.unmount()
+    })
+
+    it('compares the client secret against its default', () => {
+      const defaults = { 'x-scalar-secret-defaults': { 'x-scalar-secret-client-secret': 'configured-secret' } }
+      const same = mountWithProps({
+        flows: {
+          authorizationCode: authorizationCode({ ...defaults, 'x-scalar-secret-client-secret': 'configured-secret' }),
+        },
+      })
+      expect(findReset(same, 'Client Secret')).toBeUndefined()
+      same.unmount()
+
+      const different = mountWithProps({
+        flows: { authorizationCode: authorizationCode({ ...defaults, 'x-scalar-secret-client-secret': 'typed' }) },
+      })
+      expect(findReset(different, 'Client Secret')).toBeDefined()
+      different.unmount()
+    })
+
+    it('gates reset on the Auth URL and Token URL defaults', () => {
+      const urlDefaults = {
+        'x-scalar-secret-defaults': {
+          'x-scalar-secret-auth-url': 'https://example.com/auth',
+          'x-scalar-secret-token-url': 'https://example.com/token',
+        },
+      }
+      const same = mountWithProps({ flows: { authorizationCode: authorizationCode(urlDefaults) } })
+      expect(findReset(same, 'Auth URL')).toBeUndefined()
+      expect(findReset(same, 'Token URL')).toBeUndefined()
+      same.unmount()
+
+      // Cleared URLs can be restored from the source document
+      const cleared = mountWithProps({
+        flows: {
+          authorizationCode: authorizationCode({
+            ...urlDefaults,
+            'x-scalar-secret-auth-url': '',
+            'x-scalar-secret-token-url': '',
+          }),
+        },
+      })
+      expect(findReset(cleared, 'Auth URL')).toBeDefined()
+      expect(findReset(cleared, 'Token URL')).toBeDefined()
+      cleared.unmount()
+    })
+
+    it('gates reset on the password flow username and password defaults', () => {
+      const passwordFlow = (secrets: Record<string, unknown>): Record<string, unknown> => ({
+        tokenUrl: 'https://example.com/token',
+        refreshUrl: '',
+        scopes: {},
+        'x-scalar-secret-client-id': '',
+        'x-scalar-secret-client-secret': '',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-token-url': 'https://example.com/token',
+        'x-scalar-secret-username': '',
+        'x-scalar-secret-password': '',
+        ...secrets,
+      })
+
+      const noDefault = mountWithProps({
+        type: 'password',
+        flows: { password: passwordFlow({ 'x-scalar-secret-username': 'typed', 'x-scalar-secret-password': 'typed' }) },
+      })
+      expect(findReset(noDefault, 'Username')).toBeUndefined()
+      expect(findReset(noDefault, 'Password')).toBeUndefined()
+      noDefault.unmount()
+
+      const changed = mountWithProps({
+        type: 'password',
+        flows: {
+          password: passwordFlow({
+            'x-scalar-secret-username': 'typed',
+            'x-scalar-secret-password': 'typed',
+            'x-scalar-secret-defaults': {
+              'x-scalar-secret-username': 'configured-user',
+              'x-scalar-secret-password': 'configured-password',
+            },
+          }),
+        },
+      })
+      expect(findReset(changed, 'Username')).toBeDefined()
+      expect(findReset(changed, 'Password')).toBeDefined()
+      changed.unmount()
+    })
+
+    it('hides reset for a redirect URI that equals the browser prefill', () => {
+      const wrapper = mountWithProps({ flows: { authorizationCode: authorizationCode() } })
+      expect(findReset(wrapper, 'Redirect URL')).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it('resets a custom redirect URI back to the browser prefill', () => {
+      const wrapper = mountWithProps({
+        flows: {
+          authorizationCode: authorizationCode({ 'x-scalar-secret-redirect-uri': 'https://custom.example.com/cb' }),
+        },
+      })
+      expect(findReset(wrapper, 'Redirect URL')).toBeDefined()
+      wrapper.unmount()
+    })
+
+    it('uses the configured oauth2RedirectUri as the redirect reset target', () => {
+      const configuration = { oauth2RedirectUri: 'https://configured.example.com/cb' }
+      const same = mountWithProps({
+        configuration,
+        flows: {
+          authorizationCode: authorizationCode({ 'x-scalar-secret-redirect-uri': 'https://configured.example.com/cb' }),
+        },
+      })
+      expect(findReset(same, 'Redirect URL')).toBeUndefined()
+      same.unmount()
+
+      const browser = mountWithProps({ configuration, flows: { authorizationCode: authorizationCode() } })
+      expect(findReset(browser, 'Redirect URL')).toBeDefined()
+      browser.unmount()
+    })
+
+    it('hides redirect reset when the callback is captured and there is no stored default', () => {
+      const wrapper = mountWithProps({
+        configuration: { captureOAuth2Callback: vi.fn() as unknown as CaptureOAuth2Callback },
+        flows: {
+          authorizationCode: authorizationCode({ 'x-scalar-secret-redirect-uri': 'https://custom.example.com/cb' }),
+        },
+      })
+      expect(findReset(wrapper, 'Redirect URL')).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it('hides reset for an access token without a default', () => {
+      const wrapper = mountWithProps({
+        flows: { authorizationCode: authorizationCode({ 'x-scalar-secret-token': 'abc' }) },
+      })
+      expect(findReset(wrapper, 'Access Token')).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it('resets an access token that differs from its default', () => {
+      const wrapper = mountWithProps({
+        flows: {
+          authorizationCode: authorizationCode({
+            'x-scalar-secret-token': 'abc',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-token': 'cfg' },
+          }),
+        },
+      })
+      expect(findReset(wrapper, 'Access Token')).toBeDefined()
+      wrapper.unmount()
+    })
+
+    it('hides reset for a typed OpenID Connect client ID without a default', () => {
+      const wrapper = mountWithProps({
+        scheme: { type: 'openIdConnect' },
+        flows: { authorizationCode: authorizationCode({ 'x-scalar-secret-client-id': 'typed' }) },
+      })
+      expect(findReset(wrapper, 'Client ID')).toBeUndefined()
+      wrapper.unmount()
+    })
   })
 
   it('has no clear action for PKCE or credentials location and ignores invalid PKCE updates', async () => {

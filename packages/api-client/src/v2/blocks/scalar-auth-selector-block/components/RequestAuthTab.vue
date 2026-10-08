@@ -14,6 +14,7 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import { canResetSecretField } from '@scalar/workspace-store/helpers/auth-secret-fields'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getEnvironmentVariables,
@@ -429,7 +430,13 @@ const handleConfigAuthorize = (): void => {
       <!-- Bearer Token -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
-          canReset
+          :canReset="
+            canResetSecretField(
+              scheme,
+              'x-scalar-secret-token',
+              scheme['x-scalar-secret-token'],
+            )
+          "
           :containerClass="getStaticBorderClass()"
           :environment
           :modelValue="scheme['x-scalar-secret-token']"
@@ -497,7 +504,13 @@ const handleConfigAuthorize = (): void => {
       <template v-else-if="scheme?.scheme === 'basic'">
         <DataTableRow>
           <RequestAuthDataTableInput
-            canReset
+            :canReset="
+              canResetSecretField(
+                scheme,
+                'x-scalar-secret-username',
+                scheme['x-scalar-secret-username'],
+              )
+            "
             class="text-c-2"
             :environment
             :modelValue="scheme['x-scalar-secret-username']"
@@ -518,7 +531,13 @@ const handleConfigAuthorize = (): void => {
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
-            canReset
+            :canReset="
+              canResetSecretField(
+                scheme,
+                'x-scalar-secret-password',
+                scheme['x-scalar-secret-password'],
+              )
+            "
             :environment
             :modelValue="scheme['x-scalar-secret-password']"
             placeholder="********"
@@ -555,7 +574,13 @@ const handleConfigAuthorize = (): void => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
-          canReset
+          :canReset="
+            canResetSecretField(
+              scheme,
+              'x-scalar-secret-token',
+              scheme['x-scalar-secret-token'],
+            )
+          "
           :containerClass="
             apiKeyHasName(scheme) ? undefined : getStaticBorderClass()
           "
