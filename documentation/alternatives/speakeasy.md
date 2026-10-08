@@ -32,7 +32,7 @@ Both are legitimate. If your docs setup already works and you are happy with Spe
 
 | Tool | Shape | SDK languages (generally available) | Docs included | License of generator | Published SDK price |
 | --- | --- | --- | --- | --- | --- |
-| **Scalar** | Consolidated | TypeScript, Python, Go, Java, Kotlin, CLI (7 more experimental) | Yes, MIT API reference plus hosted docs | Closed source | 1 SDK on every plan, extra SDKs from $150/month ([pricing](/pricing)) |
+| **Scalar** | Consolidated | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI (6 more experimental) | Yes, MIT API reference plus hosted docs | Closed source | 1 SDK on every plan, extra SDKs from $150/month ([pricing](/pricing)) |
 | **Fern** | Consolidated | 10 languages on Enterprise ([pricing](https://buildwithfern.com/pricing)) | Yes, hosted | [Apache-2.0](https://github.com/fern-api/fern) | Free up to 200 endpoints (Python, TypeScript); Enterprise per SDK, custom |
 | **Speakeasy open-source generator** | Composed, self-run | See [repo](https://github.com/speakeasy-api/openapi-generation) | No | AGPL-3.0 | Free to run; commercial license from Speakeasy |
 | **OpenAPI Generator** | Composed, self-run | 80 client generators, community-maintained ([repo](https://github.com/OpenAPITools/openapi-generator)) | Basic HTML output | Apache-2.0 | Free |
@@ -48,7 +48,7 @@ Prices and language lists were checked on September 26, 2026. Stainless, once th
 
 **Verdict:** the consolidated choice if you want your API reference, SDKs and an API client from one OpenAPI document, with a price you can calculate before you call anyone.
 
-In Scalar's [SDK generator](/products/sdk-generator), `docs` is a build target alongside the language targets. One run produces the SDKs, a static API reference, and the augmented OpenAPI document the SDKs were generated from, so your reference and your libraries cannot describe different APIs. TypeScript, Python, Go, Java, Kotlin and CLI are generally available. Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental. Custom code survives regeneration through a three-way merge.
+In Scalar's [SDK generator](/products/sdk-generator), `docs` is a build target alongside the language targets. One run produces the SDKs, a static API reference, and the augmented OpenAPI document the SDKs were generated from, so your reference and your libraries cannot describe different APIs. TypeScript, Python, Go, Java, Kotlin, Ruby and CLI are generally available. C#, PHP, Rust, Swift, Dart and C++ are experimental. Custom code survives regeneration through a three-way merge.
 
 If you already ship Speakeasy SDKs, the TypeScript target can emit a [compatibility module](/resources/compare/speakeasy) that reproduces Speakeasy's standalone-function surface, marked deprecated and forwarding to the new client, so your users' call sites keep compiling while they migrate.
 

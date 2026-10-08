@@ -5,7 +5,7 @@
 Bump.sh is a hosted API documentation platform that publishes both OpenAPI and AsyncAPI documents, with change detection and changelogs built in. Scalar covers most of the same documentation ground, and when you bring your API into Scalar you also get a set of tools that sit around the docs:
 
 - **API Client:** A modern, open-source API testing client for Windows, macOS and Linux
-- **SDKs:** Generate type-safe client libraries. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available, with more languages in experimental status
+- **SDKs:** Generate type-safe client libraries. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI targets are generally available, with more languages in experimental status
 - **MCP servers:** Hosted MCP servers generated from the same OpenAPI document as your docs
 - **Spectral Linting:** Validate and lint your OpenAPI documents with Spectral rules
 - **Mock Server:** Spin up a fully-functional mock server from your OpenAPI document for frontend development and testing
@@ -91,7 +91,7 @@ Generate type-safe client libraries from your OpenAPI documents. The SDK generat
 | CLI        | Generally available     |
 | Java       | Generally available     |
 | Kotlin     | Generally available     |
-| Ruby       | Experimental            |
+| Ruby       | Generally available     |
 | C#         | Experimental            |
 | PHP        | Experimental            |
 | Rust       | Experimental            |
@@ -219,7 +219,7 @@ Scalar renders AsyncAPI documents as an API reference, with support still marked
 </scalar-detail>
 
 <scalar-detail title="Which SDK languages are production-ready?">
-TypeScript, Python, Go, Java, Kotlin, and CLI are generally available. Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental.
+TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#, PHP, Rust, Swift, Dart, and C++ are experimental.
 </scalar-detail>
 
 ## Related

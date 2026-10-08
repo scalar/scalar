@@ -88,7 +88,7 @@ The deciding question is usually whether you want one tool keeping several SDKs 
 
 <scalar-detail title="Is Scalar's Kotlin SDK generator production ready?">
 
-Yes. Kotlin is generally available, alongside TypeScript, Python, Go, Java, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server on every generator change. There is no public Kotlin sample yet, so generate a preview from your own document to read the real code.
+Yes. Kotlin is generally available, alongside TypeScript, Python, Go, Java, Ruby, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server on every generator change. There is no public Kotlin sample yet, so generate a preview from your own document to read the real code.
 
 </scalar-detail>
 

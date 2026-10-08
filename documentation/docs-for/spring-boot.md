@@ -93,7 +93,7 @@ scalar:
 
 **An API client with auth prefilled.** Each operation has a "Test Request" button that opens the [Scalar API client](/products/api-client). For local testing, `scalar.authentication.*` properties can prefill API keys, bearer tokens, or OAuth2 flows for the security schemes springdoc emits. Do not use prefilled secrets in production, because they are visible in the browser.
 
-**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the document at `/v3/api-docs`. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available, so a Java or Kotlin client for your Spring Boot API is a supported path. Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Every plan includes one SDK.
+**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the document at `/v3/api-docs`. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI targets are generally available, so a Java or Kotlin client for your Spring Boot API is a supported path. C#, PHP, Rust, Swift, Dart, and C++ are experimental. Every plan includes one SDK.
 
 **A hosted MCP server.** Scalar can host an [MCP server](/products/agent/mcp) generated from the same OpenAPI document, with OAuth, so AI agents can call the endpoints you expose. Scalar runs it; there is nothing extra to deploy next to your Spring service. Hosted MCP servers are included from the Pro plan.
 

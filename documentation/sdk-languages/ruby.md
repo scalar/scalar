@@ -1,6 +1,6 @@
 # Ruby SDK generator from OpenAPI
 
-Scalar generates a Ruby gem from your OpenAPI document with a `Client` object, `snake_case` resources, keyword arguments, and pagination you walk with a block. **The Ruby target is experimental.** It generates working code and is part of the same continuous integration matrix as the generally available targets, but we would rather talk with you before you publish it to your users than have you find a gap in production.
+Scalar generates a Ruby gem from your OpenAPI document with a `Client` object, `snake_case` resources, keyword arguments, and pagination you walk with a block. **The Ruby target is generally available.** It runs through the same end-to-end tests as TypeScript, Python, Go, Java, and Kotlin, generating, building, and calling a live server on every change to the generator.
 
 ## What the generated code looks like
 
@@ -29,7 +29,7 @@ Everything lives under one top-level module named after your API (`Warp`), model
 
 **A generated `api.md` and Agent Skill.** Like every target, the gem ships an `api.md` listing each method with its types and a `SKILL.md` so coding agents stop inventing method names.
 
-**The generator's shared feature set.** The SDK Generator's feature list covers retries on temporary failures (twice by default, covering network errors, 408, 409, 429, and 5xx) with `Retry-After` support, a 60-second default timeout, and typed errors carrying status, headers, and body. As an experimental target, confirm the exact option and error class names in your generated README before you document them.
+**The generator's shared feature set.** The SDK Generator's feature list covers retries on temporary failures (twice by default, covering network errors, 408, 409, 429, and 5xx) with `Retry-After` support, a 60-second default timeout, and typed errors carrying status, headers, and body. Confirm the exact option and error class names in your generated README before you document them.
 
 **One pagination caveat worth knowing.** If your API returns a full next-page URL rather than a cursor token (a `cursorUrl` scheme), the Ruby target declines that scheme instead of guessing. Prefer a `cursor` scheme where your API offers both. See [pagination](/products/sdk-generator/pagination).
 
@@ -71,9 +71,9 @@ If your API is a Rails app, you probably already produce an OpenAPI document, fo
 
 OpenAPI Generator's [`ruby` generator](https://openapi-generator.tech/docs/generators/ruby) is stable and free. It lets you choose the HTTP library with `library`: `typhoeus` by default, or `faraday` or `httpx`. The default gem name is `openapi_client`. There is also a [`ruby-nextgen`](https://openapi-generator.tech/docs/generators) generator, currently marked beta.
 
-| | Scalar Ruby target (experimental) | OpenAPI Generator `ruby` |
+| | Scalar Ruby target | OpenAPI Generator `ruby` |
 | --- | --- | --- |
-| Status | Experimental | Stable |
+| Status | Generally available | Stable |
 | HTTP library | One generated client | Typhoeus (default), Faraday, or HTTPX |
 | Client shape | `Warp::Client.new`, resources as methods | One `*Api` class per tag |
 | Method names | Normalised verbs: `list`, `retrieve`, `create` | Derived from `operationId` |
@@ -87,7 +87,7 @@ If you already run a Faraday middleware stack and want the generated client to s
 
 <scalar-detail title="Is the Ruby SDK generator stable?">
 
-No, Ruby is an experimental target. It generates working code and runs in the same continuous integration matrix as C# and the GA targets. Talk to us before you depend on it for a public gem.
+Yes. Ruby is generally available, alongside TypeScript, Python, Go, Java, Kotlin, and the CLI. It is covered by end-to-end tests that generate, build, and run the gem against a live server on every generator change.
 
 </scalar-detail>
 
@@ -105,7 +105,7 @@ Call the list method and iterate with a block. The pagination guide documents `a
 
 <scalar-detail title="Can I move an existing Stainless Ruby SDK to Scalar?">
 
-Scalar reads `stainless.yml`, so resource names, method names, and pagination schemes carry across. Because Ruby is experimental on Scalar, diff the generated surface against your current gem before switching. The [Stainless migration guide](/resources/migration/stainless) explains the process.
+Scalar reads `stainless.yml`, so resource names, method names, and pagination schemes carry across. Diff the generated surface against your current gem before switching, since method and class names can differ between generators. The [Stainless migration guide](/resources/migration/stainless) explains the process.
 
 </scalar-detail>
 

@@ -18,7 +18,7 @@ On top of this, Scalar provides:
 - **A free plan.** Scalar's free plan covers up to 3 APIs with 1 editor seat, and Pro is $150/month ($125/month billed yearly) with 5 editor seats included. To be fair, Stoplight's paid plans start lower: as of September 2026, [Stoplight Basic](https://stoplight.io/pricing) is $44/month billed annually for 3 users, and Startup, which adds custom domains, is $113/month billed annually for 8 users.
 - **Open source.** Scalar's API Reference and API Client are MIT licensed and can be self-hosted. Stoplight's [Elements](https://github.com/stoplightio/elements), [Spectral](https://github.com/stoplightio/spectral), and Prism are open source too, under Apache 2.0, so if you only use those, you may not need to move at all.
 - **Built-in API client.** Scalar has an API client built into the API reference, so readers can send test requests straight from the docs.
-- **SDKs and MCP servers.** Scalar generates SDKs (TypeScript, Python, Go, Java, Kotlin, and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental) and hosts MCP servers from the same OpenAPI document.
+- **SDKs and MCP servers.** Scalar generates SDKs (TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available; C#, PHP, Rust, Swift, Dart, and C++ are experimental) and hosts MCP servers from the same OpenAPI document.
 
 ## How does migrating work?
 

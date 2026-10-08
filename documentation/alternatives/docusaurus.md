@@ -82,7 +82,7 @@ The reference is the same MIT-licensed component used across Scalar (15.7k stars
 
 **Verdict:** the choice when you want to stop maintaining a docs build and get SDKs from the same document.
 
-[Scalar Docs](/products/docs) is hosted. You write Markdown and MDX in Git, configure navigation in one `scalar.config.json`, and add OpenAPI documents as routes. Git Sync, custom domains and versioned deploys are on Pro. The same OpenAPI document can drive the [SDK generator](/products/sdk-generator) (TypeScript, Python, Go, Java, Kotlin and CLI generally available; Ruby, C#, PHP, Rust, Swift, Dart and C++ experimental) and a hosted [MCP server](/products/agent/mcp).
+[Scalar Docs](/products/docs) is hosted. You write Markdown and MDX in Git, configure navigation in one `scalar.config.json`, and add OpenAPI documents as routes. Git Sync, custom domains and versioned deploys are on Pro. The same OpenAPI document can drive the [SDK generator](/products/sdk-generator) (TypeScript, Python, Go, Java, Kotlin, Ruby and CLI generally available; C#, PHP, Rust, Swift, Dart and C++ experimental) and a hosted [MCP server](/products/agent/mcp).
 
 A minimal config looks like this:
 

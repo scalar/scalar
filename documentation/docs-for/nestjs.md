@@ -95,7 +95,7 @@ The middleware and the reference it renders are MIT licensed. The OpenAPI docume
 
 - **An interactive [API reference](/products/api-references).** Every controller, DTO and example, with search, themes, dark mode and request code samples in popular languages.
 - **A built-in [API client](/products/api-client).** "Test Request" opens a full client with environments, authentication and history. It also runs as a desktop and web app.
-- **[SDKs](/products/sdk-generator)** from the same document. TypeScript, Python, Go, Java, Kotlin and CLI are generally available; Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental. A TypeScript SDK generated from your NestJS API gives frontend teams typed calls without hand-written fetch wrappers.
+- **[SDKs](/products/sdk-generator)** from the same document. TypeScript, Python, Go, Java, Kotlin, Ruby and CLI are generally available; C#, PHP, Rust, Swift, Dart and C++ are experimental. A TypeScript SDK generated from your NestJS API gives frontend teams typed calls without hand-written fetch wrappers.
 - **A [hosted MCP server](/products/agent/mcp)** so AI agents can call the endpoints you choose, with OAuth. Scalar hosts it; there is nothing to deploy.
 
 For SDKs and MCP, write the document to a file during your build (for example with `writeFileSync('openapi.json', JSON.stringify(document))` in a small script) and publish it to the [Scalar Registry](/products/registry) from CI:

@@ -45,7 +45,7 @@ It is version-controlled in your repository. Copy it as-is. You do not need to c
 
 Create a new SDK, choose **Import config**, and upload the OpenAPI document and `stainless.yml` together. Scalar reads the config, maps it onto its own generator, and produces SDKs for your configured targets.
 
-Check your targets against Scalar's language status before you plan the cut-over. TypeScript, Python, Go, Java, Kotlin, and CLI are generally available. Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental: they generate working code, but talk to us before you publish one to your users. Terraform and SQL targets are not supported; they are on our roadmap with no date. If you shipped a Stainless Terraform provider, you will need a different plan for it.
+Check your targets against Scalar's language status before you plan the cut-over. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#, PHP, Rust, Swift, Dart, and C++ are experimental: they generate working code, but talk to us before you publish one to your users. Terraform and SQL targets are not supported; they are on our roadmap with no date. If you shipped a Stainless Terraform provider, you will need a different plan for it.
 
 ## Step 4: Verify before you publish
 
@@ -141,7 +141,7 @@ They should not, if the resource mapping carries over. That is why step 4 asks y
 </scalar-detail>
 
 <scalar-detail title="Which Stainless languages does Scalar support?">
-TypeScript, Python, Go, Java, Kotlin, and CLI are generally available. Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Terraform and SQL are not supported.
+TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#, PHP, Rust, Swift, Dart, and C++ are experimental. Terraform and SQL are not supported.
 </scalar-detail>
 
 <scalar-detail title="Can Scalar replace Stainless MCP servers?">

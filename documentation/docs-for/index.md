@@ -46,7 +46,7 @@ The same document then feeds everything else Scalar builds:
 
 - An interactive [API reference](/products/api-references) with a built-in request client, search, themes and code samples.
 - The [API client](/products/api-client) as a desktop and web app for your team.
-- [SDKs](/products/sdk-generator) for TypeScript, Python, Go, Java, Kotlin and CLI (generally available), plus experimental targets such as C#, Ruby and PHP.
+- [SDKs](/products/sdk-generator) for TypeScript, Python, Go, Java, Kotlin, Ruby and CLI (generally available), plus experimental targets such as C#, PHP and Rust.
 - A [hosted MCP server](/products/agent/mcp) so AI agents can call your API, with OAuth.
 
 Serving the reference from your framework is free. Publish the document to the [Scalar Registry](/products/registry) when you want hosted docs, SDKs or MCP; see [pricing](/pricing) for plans.

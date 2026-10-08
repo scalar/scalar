@@ -66,7 +66,7 @@ npx @scalar/cli document serve openapi.yaml
 
 Because the API reference is MIT licensed (15.7k stars on [GitHub](https://github.com/scalar/scalar)), you can also embed it the way teams embedded Stoplight Elements: with a CDN script tag, as a [React component](/products/api-references/integrations/react), or through framework integrations for [Express](/products/api-references/integrations/express), [Spring Boot](/products/api-references/integrations/spring-boot), [Django](/products/api-references/integrations/django) and more.
 
-Scalar adds what Stoplight never had: [SDK generation](/products/sdk-generator) from the same document (TypeScript, Python, Go, Java, Kotlin and CLI generally available; Ruby, C#, PHP, Rust, Swift, Dart and C++ experimental), a standalone [API client](/products/api-client), and hosted [MCP servers](/products/agent/mcp).
+Scalar adds what Stoplight never had: [SDK generation](/products/sdk-generator) from the same document (TypeScript, Python, Go, Java, Kotlin, Ruby and CLI generally available; C#, PHP, Rust, Swift, Dart and C++ experimental), a standalone [API client](/products/api-client), and hosted [MCP servers](/products/agent/mcp).
 
 Pricing: Free $0, Pro $150 per month with 5 editor seats, Business $600 per month with SSO and 10 seats, Enterprise custom.
 

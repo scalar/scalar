@@ -135,7 +135,7 @@ As of September 2026, [Mintlify's pricing page](https://www.mintlify.com/pricing
 
 <scalar-detail title="Does Mintlify generate SDKs?">
 
-No. Mintlify renders code samples from SDKs generated elsewhere, such as Speakeasy, or from `x-codeSamples` in your OpenAPI document. Scalar generates SDKs natively; TypeScript, Python, Go, Java, Kotlin, and a CLI are generally available, and Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental.
+No. Mintlify renders code samples from SDKs generated elsewhere, such as Speakeasy, or from `x-codeSamples` in your OpenAPI document. Scalar generates SDKs natively; TypeScript, Python, Go, Java, Kotlin, Ruby, and a CLI are generally available, and C#, PHP, Rust, Swift, Dart, and C++ are experimental.
 
 </scalar-detail>
 

@@ -98,7 +98,7 @@ Feature tables can lag the templates, so try your own schemas in both. For the w
 
 <scalar-detail title="Is the Java SDK generator production ready?">
 
-Yes. Java is generally available, alongside TypeScript, Python, Go, Kotlin, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server on every generator change.
+Yes. Java is generally available, alongside TypeScript, Python, Go, Kotlin, Ruby, and the CLI. It is covered by end-to-end tests that generate, build, and run the SDK against a live server on every generator change.
 
 </scalar-detail>
 

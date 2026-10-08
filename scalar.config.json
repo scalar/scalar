@@ -2367,7 +2367,7 @@
               },
               "../../products/sdk-generator": {
                 "title": "SDK Generator",
-                "description": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available, with Ruby, C#, PHP, Rust, Swift, Dart, and C++ also supported.",
+                "description": "Generate idiomatic, type-safe SDKs and CLIs from your OpenAPI document. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI targets are generally available, with C#, PHP, Rust, Swift, Dart, and C++ also supported.",
                 "type": "group",
                 "mode": "nested",
                 "icon": "phosphor/regular/package",
@@ -2376,7 +2376,7 @@
                     "type": "page",
                     "title": "SDK Generator",
                     "filepath": "documentation/guides/sdks/index.md",
-                    "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, and CLI are GA, plus experimental C#, Ruby, and more. Your custom code survives.",
+                    "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are GA, plus experimental C#, PHP, and more. Your custom code survives.",
                     "layout": {
                       "pageTitle": false
                     },
@@ -2396,7 +2396,7 @@
                       "meta": [
                         {
                           "name": "description",
-                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, and CLI are GA, plus experimental C#, Ruby, and more. Your custom code survives."
+                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are GA, plus experimental C#, PHP, and more. Your custom code survives."
                         },
                         {
                           "property": "og:title",
@@ -2404,7 +2404,7 @@
                         },
                         {
                           "property": "og:description",
-                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, and CLI are GA, plus experimental C#, Ruby, and more. Your custom code survives."
+                          "content": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are GA, plus experimental C#, PHP, and more. Your custom code survives."
                         },
                         {
                           "property": "og:image",
@@ -2629,8 +2629,8 @@
                         "type": "page"
                       },
                       "ruby": {
-                        "title": "Ruby (Experimental)",
-                        "description": "Configuration reference for the experimental Ruby SDK target: gem metadata, naming, and generation options.",
+                        "title": "Ruby",
+                        "description": "Configuration reference for the Ruby SDK target: gem metadata, naming, and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/ruby.md",
                         "type": "page"
                       },
@@ -6184,11 +6184,11 @@
               },
               "/ruby": {
                 "type": "page",
-                "title": "Ruby (Experimental)",
+                "title": "Ruby",
                 "filepath": "documentation/sdk-languages/ruby.md",
-                "description": "Generate a Ruby gem from OpenAPI with keyword arguments, block-based pagination, and RubyGems publishing workflows. The Ruby target is experimental in Scalar.",
+                "description": "Generate a Ruby gem from OpenAPI with keyword arguments, block-based pagination, and RubyGems publishing workflows. The Ruby target is generally available in Scalar.",
                 "head": {
-                  "title": "Ruby SDK Generator from OpenAPI (Experimental) — Scalar",
+                  "title": "Ruby SDK Generator from OpenAPI — Scalar",
                   "links": [
                     {
                       "rel": "canonical",
@@ -6198,15 +6198,15 @@
                   "meta": [
                     {
                       "name": "description",
-                      "content": "Generate a Ruby gem from OpenAPI with keyword arguments, block-based pagination, and RubyGems publishing workflows. The Ruby target is experimental in Scalar."
+                      "content": "Generate a Ruby gem from OpenAPI with keyword arguments, block-based pagination, and RubyGems publishing workflows. The Ruby target is generally available in Scalar."
                     },
                     {
                       "property": "og:title",
-                      "content": "Ruby SDK Generator from OpenAPI (Experimental) — Scalar"
+                      "content": "Ruby SDK Generator from OpenAPI — Scalar"
                     },
                     {
                       "property": "og:description",
-                      "content": "Generate a Ruby gem from OpenAPI with keyword arguments, block-based pagination, and RubyGems publishing workflows. The Ruby target is experimental in Scalar."
+                      "content": "Generate a Ruby gem from OpenAPI with keyword arguments, block-based pagination, and RubyGems publishing workflows. The Ruby target is generally available in Scalar."
                     },
                     {
                       "name": "robots",

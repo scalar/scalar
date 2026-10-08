@@ -103,7 +103,7 @@ The same renderer powers the Scalar Galaxy demo, an example API with authenticat
 
 **An API client.** Every operation has a "Test Request" button that opens the [Scalar API client](/products/api-client), prefilled with the operation's parameters and your security schemes. The same client is available as a standalone, open-source desktop and web app.
 
-**SDKs from the same document.** Point the [Scalar SDK generator](/products/sdk-generator) at the document your Fastify app exposes. TypeScript, Python, Go, Java, Kotlin, and CLI targets are generally available; Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Every plan includes one SDK.
+**SDKs from the same document.** Point the [Scalar SDK generator](/products/sdk-generator) at the document your Fastify app exposes. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI targets are generally available; C#, PHP, Rust, Swift, Dart, and C++ are experimental. Every plan includes one SDK.
 
 **A hosted MCP server.** Scalar can host an [MCP server](/products/agent/mcp) generated from the same OpenAPI document, so AI agents can call the endpoints you choose to expose, with OAuth. Scalar runs it; you do not deploy MCP code alongside your Fastify service. Hosted MCP servers are included from the Pro plan.
 

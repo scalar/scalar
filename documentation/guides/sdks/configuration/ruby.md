@@ -1,8 +1,5 @@
 # Ruby
 
-> [!NOTE]
-> The Ruby target is experimental.
-
 Add `ruby` under `targets` to generate a Ruby SDK gem.
 
 ```json

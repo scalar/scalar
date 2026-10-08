@@ -105,7 +105,7 @@ OpenAPI Generator's feature tables can lag its templates, so test your own schem
 
 <scalar-detail title="Is the TypeScript SDK generator production ready?">
 
-Yes. TypeScript is one of the six generally available targets, together with Python, Go, Java, Kotlin, and the CLI. It sits in an end-to-end test matrix that generates, builds, and runs the SDK against a live server on every change.
+Yes. TypeScript is one of the seven generally available targets, together with Python, Go, Java, Kotlin, Ruby, and the CLI. It sits in an end-to-end test matrix that generates, builds, and runs the SDK against a live server on every change.
 
 </scalar-detail>
 

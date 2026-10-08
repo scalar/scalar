@@ -111,7 +111,7 @@ Swashbuckle also publishes a [ReDoc package](https://github.com/domaindrivendev/
 
 ### 6. Kiota for the client side
 
-Some teams used Swashbuckle-era tooling to generate clients as well. Microsoft's [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) generates API clients from an OpenAPI document in C#, Go, Java, PHP, Python, Ruby and TypeScript. If you want published, idiomatic SDKs with release automation instead, Scalar's [SDK generator](/products/sdk-generator) reads the same document; TypeScript, Python, Go, Java, and Kotlin are generally available and C# is experimental.
+Some teams used Swashbuckle-era tooling to generate clients as well. Microsoft's [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) generates API clients from an OpenAPI document in C#, Go, Java, PHP, Python, Ruby and TypeScript. If you want published, idiomatic SDKs with release automation instead, Scalar's [SDK generator](/products/sdk-generator) reads the same document; TypeScript, Python, Go, Java, Kotlin, and Ruby are generally available and C# is experimental.
 
 **Verdict:** a solid free choice for typed clients.
 **Best for:** consumers who need a client for an API they call, rather than a publisher shipping SDKs.

@@ -7,7 +7,7 @@ Zuplo is an API gateway where your API traffic flows through their infrastructur
 Scalar takes a different approach: it lives alongside your API without touching your traffic, focusing on documentation and developer tools. When you move your developer portal from Zuplo to Scalar, you get a suite of tools around your API:
 
 - **API Client:** A modern, open-source API testing client for Windows, macOS and Linux
-- **SDKs:** Generate type-safe client libraries. TypeScript, Python, Go, Java, Kotlin, and CLI are generally available, with more languages in experimental status
+- **SDKs:** Generate type-safe client libraries. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available, with more languages in experimental status
 - **MCP servers:** Hosted MCP servers generated from the same OpenAPI document
 - **Spectral Linting:** Validate and lint your OpenAPI documents with Spectral rules
 - **Mock Server:** Spin up a fully-functional mock server from your OpenAPI document for frontend development and testing
@@ -55,7 +55,7 @@ The Zuplo column reflects Zuplo's public pricing and docs as of September 2026. 
 | Built-in Themes              | 11 themes                 | —                      |
 | **Developer Tools**          |                           |                        |
 | Desktop API Client           | ✓                         | —                      |
-| SDK Generation               | ✓ (6 GA, 7 experimental)  | —                      |
+| SDK Generation               | ✓ (7 GA, 6 experimental)  | —                      |
 | Hosted MCP servers           | ✓                         | —                      |
 | Mock Server                  | ✓                         | ✓ ([mock policy](https://zuplo.com/docs/policies/mock-api-inbound)) |
 | Spectral Linting             | ✓                         | —                      |
@@ -84,7 +84,7 @@ Generate type-safe client libraries from your OpenAPI documents. The SDK generat
 | CLI        | Generally available |
 | Java       | Generally available |
 | Kotlin     | Generally available |
-| Ruby       | Experimental        |
+| Ruby       | Generally available |
 | C#         | Experimental        |
 | PHP        | Experimental        |
 | Rust       | Experimental        |
@@ -346,7 +346,7 @@ Mostly. Scalar Docs supports Markdown and MDX. Components that come from Zudoku,
 </scalar-detail>
 
 <scalar-detail title="Which SDK languages does Scalar support?">
-TypeScript, Python, Go, Java, Kotlin, and CLI are generally available. Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental.
+TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#, PHP, Rust, Swift, Dart, and C++ are experimental.
 </scalar-detail>
 
 ## Related
