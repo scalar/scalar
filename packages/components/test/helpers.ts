@@ -18,9 +18,8 @@ import {
   transparentCssPath,
 } from './shared'
 
-export { expect }
-
 export type { Device } from './shared'
+export { expect }
 
 /**
  * Visual test helpers.
