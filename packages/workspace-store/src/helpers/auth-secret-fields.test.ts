@@ -344,5 +344,56 @@ describe('auth-secret-fields', () => {
       expect(after[field]).toBe(target)
       expect(canResetSecretField(after, field, after[field] as string)).toBe(false)
     })
+
+    // OpenID Connect stores the discovered flow in the auth store, so only the discovered URLs are defaults
+    const oidcFields = ['x-scalar-secret-auth-url', 'x-scalar-secret-token-url'] as const
+    const oidcCases = oidcFields.flatMap((field) =>
+      (['override', 'clear'] as const).map((mode) => [field, mode] as const),
+    )
+
+    it.each(oidcCases)('restores OpenID Connect %s after an %s', async (field, mode) => {
+      const { store, mutators } = await setup()
+      mutators.updateSecuritySchemeSecrets({
+        name: 'OIDC',
+        overwrite: true,
+        payload: {
+          type: 'openIdConnect',
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/auth',
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            scopes: {},
+            'x-scalar-secret-client-id': 'edited',
+          },
+        },
+      })
+      const schemes = { OIDC: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } } as const
+      const read = (): Record<string, unknown> => {
+        const scheme = mergeSecurity({}, schemes, store.auth, 'document').OIDC
+        const merged = scheme?.type === 'openIdConnect' ? scheme.flows?.authorizationCode : undefined
+        if (!merged) {
+          throw new Error('Expected the discovered flow')
+        }
+        return merged
+      }
+      mutators.updateSecuritySchemeSecrets({
+        name: 'OIDC',
+        payload: {
+          type: 'openIdConnect',
+          authorizationCode: { [field]: mode === 'clear' ? '' : 'https://override.example.com' },
+        },
+      })
+      const before = read()
+      const target = getSecretFieldDefault(before, field)
+      expect(target).not.toBe('')
+      expect(canResetSecretField(before, field, before[field] as string)).toBe(true)
+      expect(getSecretFieldDefault(before, 'x-scalar-secret-client-id')).toBe('')
+
+      mutators.resetSecuritySchemeSecret({ name: 'OIDC', flow: 'authorizationCode', field })
+
+      const after = read()
+      expect(after[field]).toBe(target)
+      expect(canResetSecretField(after, field, after[field] as string)).toBe(false)
+    })
   })
 })
