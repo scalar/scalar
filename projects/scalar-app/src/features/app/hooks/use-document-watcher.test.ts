@@ -1,4 +1,5 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { type Server, createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -7,7 +8,6 @@ import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { type WorkspaceStore, createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type VueWrapper, mount } from '@vue/test-utils'
-import { type FastifyInstance, fastify } from 'fastify'
 import { afterEach, assert, describe, expect, it, vi } from 'vitest'
 import { defineComponent, nextTick, ref } from 'vue'
 
@@ -21,7 +21,7 @@ const createDocument = (title: string): Record<string, unknown> => ({
 
 describe('use-document-watcher', () => {
   let wrapper: VueWrapper | undefined
-  let server: FastifyInstance | undefined
+  let server: Server | undefined
   let directory: string | undefined
 
   const mountWatcher = (params: Parameters<typeof useDocumentWatcher>[0]): void => {
@@ -41,7 +41,12 @@ describe('use-document-watcher', () => {
     vi.clearAllTimers()
     vi.useRealTimers()
     vi.restoreAllMocks()
-    await server?.close()
+    if (server) {
+      const activeServer = server
+      await new Promise<void>((resolve, reject) => {
+        activeServer.close((error) => (error ? reject(error) : resolve()))
+      })
+    }
     server = undefined
     if (directory) {
       await rm(directory, { recursive: true, force: true })
@@ -71,10 +76,13 @@ describe('use-document-watcher', () => {
 
   it('rebases a document over HTTP with real timers', async () => {
     let title = 'My API'
-    server = fastify({ logger: false })
-    server.get('/', () => createDocument(title))
-    await server.listen({ port: 0, host: '127.0.0.1' })
-    const url = `http://127.0.0.1:${(server.server.address() as AddressInfo).port}`
+    server = createServer((_request, response) => {
+      response.setHeader('Content-Type', 'application/json')
+      response.end(JSON.stringify(createDocument(title)))
+    })
+    const activeServer = server
+    await new Promise<void>((resolve) => activeServer.listen(0, '127.0.0.1', resolve))
+    const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'default', url })
     const document = store.workspace.documents['default'] as OpenApiDocument | undefined
