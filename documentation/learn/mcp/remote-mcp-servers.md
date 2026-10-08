@@ -134,6 +134,8 @@ If the MCP server exists to expose an HTTP API you already describe with OpenAPI
 
 The honest rule of thumb: if your tools are mostly thin wrappers over API operations, options 1 or 4 save you a lot of code. If your tools do real work of their own (multi-step logic, local computation, stateful workflows), write the server yourself.
 
+For option 2, the platform decision (Cloudflare Workers, Vercel, AWS Lambda, Cloud Run, or a container) comes down to session state, duration limits, and cost model. [How to host an MCP server](/learn/mcp/host-mcp-server) compares them with the vendors' own figures and includes a deploy-ready container.
+
 ## Connect a remote MCP server to Claude, Cursor and VS Code
 
 Configuration formats below were checked against each vendor's documentation on 26 September 2026. Replace the URL with your server's endpoint.
@@ -311,7 +313,7 @@ Send an unauthenticated POST with curl and confirm you get a 401 with a WWW-Auth
 
 ## Related
 
-- **Learn:** [What is MCP?](/learn/mcp/what-is-mcp) · [MCP OAuth](/learn/mcp/mcp-oauth) · [MCP server examples](/learn/mcp/mcp-server-examples) · [OpenAPI to MCP server](/learn/mcp/openapi-to-mcp-server)
+- **Learn:** [How to host an MCP server](/learn/mcp/host-mcp-server) · [What is MCP?](/learn/mcp/what-is-mcp) · [MCP OAuth](/learn/mcp/mcp-oauth) · [MCP server examples](/learn/mcp/mcp-server-examples) · [OpenAPI to MCP server](/learn/mcp/openapi-to-mcp-server)
 - **Docs:** [MCP servers](/products/agent/mcp) · [Getting started with MCP & Agent](/products/agent/getting-started)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers from your OpenAPI document, with OAuth built in
 

@@ -140,7 +140,7 @@ Both renderers are free, and you can stop at the renderer with either.
 
 On the Redoc side, the upgrade path is Redocly's commercial platform, which adds the try-it console, governance, and hosted portals, priced per seat. That is covered on [Scalar vs Redocly](/resources/compare/redocly).
 
-On the Scalar side, the same OpenAPI document can drive a hosted [docs site](/products/docs) with Markdown guides, [SDKs](/products/sdk-generator) (TypeScript, Python, and Go generally available, more languages experimental), a [registry](/products/registry) with Spectral linting, and a hosted [MCP server](/products/agent/mcp). None of it is needed to use the reference.
+On the Scalar side, the same OpenAPI document can drive a hosted [docs site](/products/docs) with Markdown guides, [SDKs](/products/sdk-generator) (TypeScript, Python, Go, Java, Kotlin, and Ruby generally available, more languages experimental), a [registry](/products/registry) with Spectral linting, and a hosted [MCP server](/products/agent/mcp). None of it is needed to use the reference.
 
 ## Pricing
 

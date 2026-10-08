@@ -56,7 +56,7 @@ Guides live alongside in [Scalar Docs](/products/docs), written in Markdown or M
 }
 ```
 
-From the same document you can generate SDKs with the [SDK generator](/products/sdk-generator) (TypeScript, Python, Go and CLI generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ experimental) and run a hosted [MCP server](/products/agent/mcp) with OAuth. The reference and client are MIT licensed, with 15.7k stars on [GitHub](https://github.com/scalar/scalar), so you can also self-host the reference or mount it in your app.
+From the same document you can generate SDKs with the [SDK generator](/products/sdk-generator) (TypeScript, Python, Go, Java, Kotlin, Ruby and CLI generally available; C#, PHP, Rust, Swift, Dart and C++ experimental) and run a hosted [MCP server](/products/agent/mcp) with OAuth. The reference and client are MIT licensed, with 15.7k stars on [GitHub](https://github.com/scalar/scalar), so you can also self-host the reference or mount it in your app.
 
 Pricing is flat per plan rather than per site: Free $0 (up to 3 APIs, 1 editor seat), Pro $150 per month (up to 15 APIs, 5 editor seats, custom domains, Git Sync), Business $600 per month (up to 25 APIs, 10 seats, SSO), Enterprise custom.
 

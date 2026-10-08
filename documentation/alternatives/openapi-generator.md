@@ -38,7 +38,7 @@ We make Scalar, which is listed first. For a detailed, code-level head-to-head, 
 
 | Tool | License | Languages | Hosted publishing | Runs on |
 | --- | --- | --- | --- | --- |
-| **Scalar** | Hosted service | TypeScript, Python, Go, CLI GA; 9 more experimental | Yes | Scalar dashboard |
+| **Scalar** | Hosted service | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA; 6 more experimental | Yes | Scalar dashboard |
 | [Speakeasy](https://github.com/speakeasy-api/openapi-generation) | [AGPL-3.0](https://www.speakeasy.com/blog/partnering-with-google), commercial licence available | 7 SDK languages plus CLI and MCP | Commercial platform | Go binary |
 | [Fern](https://github.com/fern-api/fern) | Apache 2.0 | [TypeScript and Python free; 10 on Enterprise](https://buildwithfern.com/pricing.md) | Yes | CLI + cloud |
 | [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) | MIT | C#, Go, Java, PHP, Python, Ruby, TypeScript | No | CLI |
@@ -53,7 +53,7 @@ Licenses from each GitHub repository and vendor page, checked 26 September 2026.
 
 ### 1. Scalar SDK generator
 
-Scalar generates idiomatic SDKs from the OpenAPI document you already maintain, and publishes them from your own GitHub repositories through pull requests. TypeScript, Python, Go and a CLI are generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart and C++ are experimental, and we label them that way everywhere. OpenAPI 3.0 and 3.1 are supported and Swagger 2.0 documents are upgraded on load.
+Scalar generates idiomatic SDKs from the OpenAPI document you already maintain, and publishes them from your own GitHub repositories through pull requests. TypeScript, Python, Go, Java, Kotlin, Ruby and a CLI are generally available; C#, PHP, Rust, Swift, Dart and C++ are experimental, and we label them that way everywhere. OpenAPI 3.0 and 3.1 are supported and Swagger 2.0 documents are upgraded on load.
 
 The differences from OpenAPI Generator are in the parts around the code. Composition keywords become real union types with discriminator support. Pagination, retries with `Retry-After`, timeouts, typed errors and webhook signature verification are built in. Custom code you add in the SDK repository is carried forward on every regeneration through a [three-way merge](/products/sdk-generator/custom-code), so you never maintain template forks. Release pull requests, changelogs and registry publishing workflows are generated for you.
 

@@ -109,7 +109,7 @@ The Scalar Galaxy demo is the same renderer on an example API with authenticatio
 
 **An API client.** Each operation has a "Test Request" button that opens the [Scalar API client](/products/api-client), prefilled with parameters and the security schemes your document declares. Session and token auth from DRF show up there if drf-spectacular describes them.
 
-**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the same schema. The Python, TypeScript, Go, and CLI targets are generally available, so a Python client for your Django API is a supported path. Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Every plan includes one SDK.
+**SDKs.** The [Scalar SDK generator](/products/sdk-generator) reads the same schema. The Python, TypeScript, Go, Java, Kotlin, Ruby, and CLI targets are generally available, so a Python client for your Django API is a supported path. C#, PHP, Rust, Swift, Dart, and C++ are experimental. Every plan includes one SDK.
 
 **A hosted MCP server.** Scalar can host an [MCP server](/products/agent/mcp) generated from your OpenAPI document, with OAuth, so AI agents can call the endpoints you pick. Scalar runs it; you do not add MCP code to your Django project. Hosted MCP servers are included from the Pro plan.
 

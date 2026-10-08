@@ -164,7 +164,7 @@ There are two families. **Template-based open-source generators** give you the c
 | --- | --- | --- | --- | --- |
 | [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) | Open-source CLI, template-based | [Apache 2.0](https://github.com/OpenAPITools/openapi-generator) | [80 client generators](https://openapi-generator.tech/docs/generators), many marked beta or experimental | Breadth, niche languages, full control, zero licence cost |
 | [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) (Microsoft) | Open-source CLI | [MIT](https://github.com/microsoft/kiota) | C#, Go, Java, PHP, Python, Ruby, TypeScript and more; [maturity varies by language](https://github.com/microsoft/kiota) | Large APIs where you only need a subset of paths, .NET shops |
-| [Scalar](/products/sdk-generator) | Managed, dashboard and config | Generator is closed source; output is yours | TypeScript, Python, Go, CLI generally available; Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, C++ experimental | Idiomatic SDKs plus docs, published from your own repositories, with published pricing |
+| [Scalar](/products/sdk-generator) | Managed, dashboard and config | Generator is closed source; output is yours | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI generally available; C#, PHP, Rust, Swift, Dart, C++ experimental | Idiomatic SDKs plus docs, published from your own repositories, with published pricing |
 | [Speakeasy](https://www.speakeasy.com/docs/sdks/create-client-sdks) | CLI plus platform | Generator [open-sourced under AGPL-3.0 on 2026-09-17](https://www.speakeasy.com/blog/partnering-with-google) | TypeScript, Python, Go, Java, C#, PHP, Ruby ([source](https://www.speakeasy.com/blog/partnering-with-google)) | Teams that want to read and run the generator, Terraform providers |
 | [Fern](https://buildwithfern.com/learn/sdks/overview/introduction) | CLI plus platform, acquired by [Postman in January 2026](https://buildwithfern.com/post/postman-acquires-fern) | Repository is [Apache 2.0](https://github.com/fern-api/fern) | TypeScript, Python, Go, Java, C#, PHP, Ruby, Swift, Rust ([source](https://buildwithfern.com/learn/sdks/overview/introduction)) | Teams already on Postman, or APIs described in Fern's own definition format |
 | [liblab](https://liblab.com) | Managed platform | Commercial | C#, TypeScript, PHP, Java, Go, Python ([source](https://liblab.com)) | Teams that also want generated Terraform providers |
@@ -220,7 +220,7 @@ Sign in to the [dashboard](https://dashboard.scalar.com) and click **Create new 
 
   <scalar-step id="scalar-targets" title="Select targets">
 
-Pick one target or several. TypeScript, Python, Go, and the CLI are generally available. Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are experimental. Generation starts as soon as you click **Continue**.
+Pick one target or several. TypeScript, Python, Go, Java, Kotlin, Ruby, and the CLI are generally available. C#, PHP, Rust, Swift, Dart, and C++ are experimental. Generation starts as soon as you click **Continue**.
 
   </scalar-step>
 

@@ -14,7 +14,7 @@ The short version: OpenAPI Generator is a toolkit. It hands you a large set of M
 | --- | --- | --- |
 | Licence | Generator is closed source; API reference and API client are MIT | [Apache-2.0](https://github.com/OpenAPITools/openapi-generator) |
 | Price | One SDK included on every plan, including Free; more from $150/month | [Free](https://github.com/OpenAPITools/openapi-generator) |
-| Client generators | 4 generally available (TypeScript, Python, Go, CLI), 9 experimental | [80 client generators](https://openapi-generator.tech/docs/generators), several marked beta or experimental |
+| Client generators | 7 generally available (TypeScript, Python, Go, Java, Kotlin, Ruby, CLI), 6 experimental | [80 client generators](https://openapi-generator.tech/docs/generators), several marked beta or experimental |
 | Server stubs | No | [72 server generators](https://openapi-generator.tech/docs/generators) |
 | How you customise output | Edit generated code in Git; changes are merged forward | [Mustache templates](https://openapi-generator.tech/docs/templating) you override with `-t` |
 | Retries, pagination helpers | Built in | Not in the [typescript-fetch runtime](https://github.com/OpenAPITools/openapi-generator/blob/master/samples/client/petstore/typescript-fetch/builds/default/runtime.ts) |
@@ -154,9 +154,9 @@ None of those rows are hard for a strong platform team. They add up, though, and
 
 ## Language coverage, honestly
 
-Scalar's generally available targets are **TypeScript, Python, Go, and CLI**. Java, Kotlin, Ruby, C#, PHP, Rust, Swift, Dart, and C++ are **experimental**: they generate working code and run in our CI, but the label is there for a reason and we recommend talking to us before shipping one to customers.
+Scalar's generally available targets are **TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI**. C#, PHP, Rust, Swift, Dart, and C++ are **experimental**: they generate working code and run in our CI, but the label is there for a reason and we recommend talking to us before shipping one to customers.
 
-If you need production SDKs in Java, C#, PHP, or Ruby today, OpenAPI Generator has mature, widely used generators for all of them, and that is a real reason to choose it or to run both. Plenty of teams use Scalar for TypeScript and Python and OpenAPI Generator for a long-tail language nobody on the team wants to hand-write.
+If you need production SDKs in C# or PHP today, OpenAPI Generator has mature, widely used generators for both, and that is a real reason to choose it or to run both. Plenty of teams use Scalar for TypeScript and Python and OpenAPI Generator for a long-tail language nobody on the team wants to hand-write.
 
 ## Pricing
 

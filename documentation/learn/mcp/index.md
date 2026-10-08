@@ -1,6 +1,6 @@
 # MCP guides
 
-*Last updated: September 2026*
+*Last updated: October 2026*
 
 The Model Context Protocol (MCP) is the open standard AI applications use to discover and call tools, and these guides explain it from the point of view of someone who already runs an API. They cover what the protocol is, how it relates to the API and OpenAPI document you already have, how to turn that document into an MCP server, and how to run and secure that server once people depend on it.
 
@@ -21,25 +21,27 @@ A note on perspective. Scalar hosts MCP servers generated from OpenAPI documents
 3. **[MCP vs function calling](/learn/mcp/mcp-vs-function-calling)** How a model provider's tool calling relates to MCP, and when you need each.
 4. **[MCP vs SDK](/learn/mcp/mcp-vs-sdk)** Who decides what gets called, and when an agent is better served by your SDK or by an MCP server.
 
-## Build an MCP server from your API
+## Build an MCP server
 
-5. **[REST API to MCP server](/learn/mcp/rest-api-to-mcp-server)** An architecture guide for API providers: which endpoints to expose, how to describe them as tools, and what the server in front of your API must handle.
-6. **[Generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi)** Hand-written with the official SDK, generated code, or hosted: a fair comparison, a tested TypeScript server, and the tool-design decisions that matter.
-7. **[OpenAPI to MCP server: how the mapping works](/learn/mcp/openapi-to-mcp-server)** Operation by operation and field by field, including `$ref`, recursive schemas, `oneOf`, file uploads, and security schemes.
-8. **[MCP API documentation](/learn/mcp/mcp-api-documentation)** Documenting an MCP server for people and models, and publishing your API docs in forms agents can read.
+5. **[How to build an MCP server](/learn/mcp/build-mcp-server)** A complete, tested server in TypeScript and in Python, connected to Claude Code and Cursor and checked with the Inspector, plus when to generate or host one instead.
+6. **[REST API to MCP server](/learn/mcp/rest-api-to-mcp-server)** An architecture guide for API providers: which endpoints to expose, how to describe them as tools, and what the server in front of your API must handle.
+7. **[Generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi)** Hand-written with the official SDK, generated code, or hosted: a fair comparison, a tested TypeScript server, and the tool-design decisions that matter.
+8. **[OpenAPI to MCP server: how the mapping works](/learn/mcp/openapi-to-mcp-server)** Operation by operation and field by field, including `$ref`, recursive schemas, `oneOf`, file uploads, and security schemes.
+9. **[MCP API documentation](/learn/mcp/mcp-api-documentation)** Documenting an MCP server for people and models, and publishing your API docs in forms agents can read.
 
 ## Connect, configure, and test
 
-9. **[Connect an MCP server to Claude](/learn/mcp/connect-mcp-server-to-claude)** Adding local and remote servers to Claude Code, Claude Desktop, and claude.ai.
-10. **[MCP server configuration](/learn/mcp/mcp-server-configuration)** The client config files across major clients, scopes, and the small differences that break copied snippets.
-11. **[How to test MCP servers](/learn/mcp/test-mcp-servers)** Protocol checks with the Inspector, unit tests for each tool, CI, and evals with a real model.
+10. **[Connect an MCP server to Claude](/learn/mcp/connect-mcp-server-to-claude)** Adding local and remote servers to Claude Code, Claude Desktop, and claude.ai.
+11. **[MCP server configuration](/learn/mcp/mcp-server-configuration)** The client config files across major clients, scopes, and the small differences that break copied snippets.
+12. **[How to test MCP servers](/learn/mcp/test-mcp-servers)** Protocol checks with the Inspector, unit tests for each tool, CI, and evals with a real model.
 
 ## Run it in production
 
-12. **[Remote MCP servers](/learn/mcp/remote-mcp-servers)** Serving MCP over Streamable HTTP, hosting options, and the trade-offs against local stdio servers.
-13. **[MCP OAuth](/learn/mcp/mcp-oauth)** How authorization works for remote servers, and how to keep upstream API credentials away from the model.
-14. **[MCP server security](/learn/mcp/mcp-server-security)** Threats and controls for production servers: authentication, least privilege, untrusted input, rate limits, and audit trails.
-15. **[MCP server examples](/learn/mcp/mcp-server-examples)** Real servers, what they expose, and the design patterns worth copying.
+13. **[How to host an MCP server](/learn/mcp/host-mcp-server)** Cloudflare Workers, Vercel, AWS Lambda, Cloud Run, and managed hosting compared on session state, limits, and cost, with a deploy-ready container and the launch checklist.
+14. **[Remote MCP servers](/learn/mcp/remote-mcp-servers)** Serving MCP over Streamable HTTP, the kinds of remote server, and the trade-offs against local stdio servers.
+15. **[MCP OAuth](/learn/mcp/mcp-oauth)** How authorization works for remote servers, how to add it to your own server, and how to keep upstream API credentials away from the model.
+16. **[MCP server security](/learn/mcp/mcp-server-security)** Threats and controls for production servers: authentication, least privilege, untrusted input, rate limits, and audit trails.
+17. **[MCP server examples](/learn/mcp/mcp-server-examples)** Real servers, what they expose, and the design patterns worth copying.
 
 ## Try it with your own API
 

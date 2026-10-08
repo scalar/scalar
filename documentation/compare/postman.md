@@ -20,7 +20,7 @@ The short version: Postman is a large collaboration platform built around its ow
 | Where your work lives | Local, offline-first | Synced to Postman's cloud when signed in |
 | OpenAPI | The working format itself | [Imported and converted](https://learning.postman.com/docs/design-apis/specifications/import-a-specification/) to collections |
 | Documentation | Same platform, same OpenAPI document | [Generated from collections](https://learning.postman.com/docs/publishing-your-api/api-documentation-overview/); full sites via Fern |
-| SDK generation | Native. Generally available: TypeScript, Python, Go, CLI; more targets experimental | [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview), nine languages, Team plan and up; Fern sold separately |
+| SDK generation | Native. Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI; more targets experimental | [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview), nine languages, Team plan and up; Fern sold separately |
 | Client pricing | Free on every plan | [Free tier; paid from $9/month](https://www.postman.com/pricing/) |
 | Platforms | Web, macOS, Windows, Linux | [Web, macOS, Windows, Linux](https://www.postman.com/downloads/) |
 
@@ -141,7 +141,7 @@ Not yet. Scalar's client is HTTP-first, with streaming support for server-sent e
 
 <scalar-detail title="Does Postman generate SDKs?">
 
-Yes. The [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview) is available on the Team and Enterprise plans and generates client libraries from collections or OpenAPI documents. Postman also owns Fern, which is sold separately. Scalar generates SDKs from your OpenAPI document; TypeScript, Python, Go, and a CLI are generally available, with other languages experimental.
+Yes. The [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview) is available on the Team and Enterprise plans and generates client libraries from collections or OpenAPI documents. Postman also owns Fern, which is sold separately. Scalar generates SDKs from your OpenAPI document; TypeScript, Python, Go, Java, Kotlin, Ruby, and a CLI are generally available, with other languages experimental.
 
 </scalar-detail>
 
