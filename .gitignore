@@ -35,3 +35,8 @@ rollup.config-*.mjs
 
 .idea
 **/.claude/settings.local.json
+
+# Nested Git worktrees
+**/.worktrees/
+**/.claude/worktrees/
+**/.codex/worktrees/

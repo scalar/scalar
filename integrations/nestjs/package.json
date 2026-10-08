@@ -24,8 +24,8 @@
     "docker:build-fastify": "docker build --build-arg BASE_IMAGE=scalar-base -t nestjs-api-reference-fastify -f playground/nestjs-api-reference-fastify/Dockerfile .",
     "docker:run-express": "docker run -p 5056:5056 nestjs-api-reference-express",
     "docker:run-fastify": "docker run -p 5057:5057 nestjs-api-reference-fastify",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:check": "biome ci --diagnostic-level=error",
+    "lint:fix": "biome check --write",
     "test": "vitest --run",
     "types:check": "tsgo --noEmit"
   },

@@ -10,6 +10,10 @@ import vueParser from 'vue-eslint-parser'
 export default tslint.config(
   {
     ignores: [
+      // Nested checkouts have their own lint configuration and dependencies.
+      '**/.worktrees/**',
+      '**/.claude/worktrees/**',
+      '**/.codex/worktrees/**',
       '**/*.js',
       '**/*.cjs',
       '**/*.ts',
