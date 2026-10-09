@@ -31,9 +31,13 @@ describe('unwrapAsyncApiSchema', () => {
     expect(unwrapAsyncApiSchema(undefined)).toBeUndefined()
   })
 
-  it('skips boolean schemas', () => {
-    expect(unwrapAsyncApiSchema(true)).toBeUndefined()
-    expect(unwrapAsyncApiSchema(false)).toBeUndefined()
+  it.each([true, false])('explains direct, referenced, and wrapped boolean schemas: %j', (value) => {
+    const expected = value ? { description: 'Accepts any value.' } : { not: {}, description: 'Accepts no value.' }
+    expect(unwrapAsyncApiSchema(value)).toStrictEqual(expected)
+    expect(unwrapAsyncApiSchema({ $ref: '#/schema', '$ref-value': value })).toStrictEqual(expected)
+    expect(unwrapAsyncApiSchema({ schemaFormat: 'application/schema+json', schema: value })).toStrictEqual(expected)
+    expect(getAsyncApiMessagePayloadSchema(asMessage({ payload: value }))).toStrictEqual(expected)
+    expect(getAsyncApiMessageHeadersSchema(asMessage({ headers: value }))).toStrictEqual(expected)
   })
 })
 
