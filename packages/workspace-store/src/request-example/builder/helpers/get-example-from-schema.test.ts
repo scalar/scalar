@@ -2712,6 +2712,44 @@ describe('getExampleFromSchema', () => {
       expect(example.items).toEqual([])
     })
 
+    it('bookends a $dynamicRef declared on a resource against that resource, like the magic proxy', () => {
+      // `urn:inner` holds the reference but declares no `itemType`, so the reference stays unresolved
+      // instead of borrowing the outer binding. The rendered schema behaves the same way.
+      const example = getExampleFromSchema(
+        dyn({
+          $id: 'urn:outer',
+          $defs: { itemType: { $dynamicAnchor: 'itemType', type: 'object', properties: { id: { type: 'string' } } } },
+          type: 'object',
+          properties: { value: { $id: 'urn:inner', $dynamicRef: '#itemType' } },
+        }),
+      )
+
+      expect(example).toEqual({ value: null })
+    })
+
+    it('binds a recursive anchor on a schema reached through a $ref from an explicit resource', () => {
+      // `User` has no `$id`, so its `#node` anchor is not hidden by the `urn:user-page` resource that led here.
+      const user = {
+        $dynamicAnchor: 'node',
+        type: 'object',
+        required: ['name', 'friends'],
+        properties: {
+          name: { type: 'string' },
+          friends: { type: 'array', items: { $dynamicRef: '#node' } },
+        },
+      }
+      const example = getExampleFromSchema(
+        dyn({
+          $id: 'urn:user-page',
+          type: 'object',
+          required: ['owner'],
+          properties: { owner: { $ref: '#/components/schemas/User', '$ref-value': user } },
+        }),
+      ) as { owner: { friends: Record<string, unknown>[] } }
+
+      expect(example.owner.friends[0]).toHaveProperty('name')
+    })
+
     it('resolves recursive $dynamicRef to the active extended type', () => {
       const baseCategory = {
         $id: 'urn:base',

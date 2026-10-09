@@ -1168,10 +1168,14 @@ const generateExampleFromSchema = (
     return undefined
   }
 
-  // Resolve a `$dynamicRef` against the active dynamic scope, then continue with the bound schema.
-  // When nothing matches, fall through and render the reference as before (no regression).
+  // Grow the scope with this schema so nested references can bind to its `$dynamicAnchor`s.
+  const childScope = pushDynamicScope(dynamicScope, _schema)
+
+  // Resolve a `$dynamicRef` against the scope including this schema, then continue with the bound schema.
+  // A reference declared on a resource belongs to that resource, matching the magic proxy's
+  // `$dynamicRef-value`. When nothing matches, fall through and render the reference as before.
   if (isDynamicRef(_schema)) {
-    const resolvedDynamic = resolveDynamicRef(_schema.$dynamicRef, dynamicScope)
+    const resolvedDynamic = resolveDynamicRef(_schema.$dynamicRef, childScope)
     if (resolvedDynamic) {
       // The `seen` set guards against cycles in the static schema graph, but a `$dynamicRef` is resolved
       // per evaluation path and intentionally points outside that graph. Re-entering the bound type with a
@@ -1183,13 +1187,11 @@ const generateExampleFromSchema = (
         name,
         seen: new WeakSet(),
         schemaPath,
-        dynamicScope,
+        dynamicScope: childScope,
       })
     }
   }
 
-  // Grow the scope with this schema so nested references can bind to its `$dynamicAnchor`s.
-  const childScope = pushDynamicScope(dynamicScope, _schema)
   // The same shared node can resolve differently per scope, so skip the result cache under a scope.
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
