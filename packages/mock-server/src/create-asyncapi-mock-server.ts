@@ -10,6 +10,7 @@ import { generateMessage } from '@/utils/generate-message'
 import { processAsyncApiDocument } from '@/utils/process-asyncapi-document'
 import { resolveChannels } from '@/utils/resolve-channels'
 import { resolveLogger } from '@/utils/resolve-logger'
+import { setUpAsyncApiAuthenticationRoutes } from '@/utils/set-up-asyncapi-authentication-routes'
 
 /** Options for {@link createAsyncApiMockServer}. */
 export type AsyncApiMockServerOptions = {
@@ -73,6 +74,8 @@ export async function createAsyncApiMockServer(options: AsyncApiMockServerOption
 
   // CORS for the SSE/HTTP routes (WebSocket upgrades are not subject to CORS).
   app.use(cors())
+
+  setUpAsyncApiAuthenticationRoutes(app, document)
 
   const context: TransportContext = {
     app,
