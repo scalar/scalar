@@ -10,6 +10,10 @@ import vueParser from 'vue-eslint-parser'
 export default tslint.config(
   {
     ignores: [
+      // Nested checkouts have their own lint configuration and dependencies.
+      '**/.worktrees/**',
+      '**/.claude/worktrees/**',
+      '**/.codex/worktrees/**',
       '**/*.js',
       '**/*.cjs',
       '**/*.ts',
@@ -191,6 +195,18 @@ export default tslint.config(
         {
           selector: 'typeLike',
           format: ['PascalCase'],
+        },
+      ],
+    },
+  },
+  {
+    files: ['integrations/nuxt/**/*.vue'],
+    rules: {
+      // Nuxt and this module register these components automatically.
+      'vue/no-undef-components': [
+        'warn',
+        {
+          ignorePatterns: ['client-only', 'ssg_children', 'router-link', 'NuxtLink', 'NuxtPage', 'ScalarApiReference'],
         },
       ],
     },

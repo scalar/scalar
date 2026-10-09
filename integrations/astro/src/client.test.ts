@@ -107,7 +107,9 @@ describe('client', () => {
       state.generation = 0
     }
 
-    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {
+      // Expected failure scenarios should not print errors during the test run.
+    })
   })
 
   afterEach(() => {

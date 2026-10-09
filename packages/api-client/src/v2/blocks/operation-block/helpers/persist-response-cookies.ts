@@ -83,9 +83,9 @@ const isSameCookie = (a: Pick<XScalarCookie, 'name' | 'domain' | 'path'>, b: XSc
  *
  * Cookies are scoped like a browser would scope them — using the `Set-Cookie`
  * `Domain`/`Path` attributes, or falling back to the request host and default
- * path — so they are only replayed on matching requests. Expired cookies (an
- * `Expires` in the past or a non-positive `Max-Age`) remove the matching cookie,
- * matching how a server deletes a cookie.
+ * path — so they are only replayed on matching requests. A non-positive
+ * `Max-Age`, or a past `Expires` when `Max-Age` is absent, removes the matching
+ * cookie. `Max-Age` takes precedence when both attributes are present.
  *
  * @param cookieHeaderKeys - Serialized `Set-Cookie` values from the response
  * @param documentCookies - The current persisted document cookies (order matches the store)
@@ -129,10 +129,11 @@ export const getResponseCookieActions = ({
     const domain = parsed.domain || hostname
     const path = parsed.path || defaultPath
 
-    // A cookie is deleted when it is already expired via Expires or Max-Age.
+    // Max-Age takes precedence over Expires (RFC 6265, section 5.3).
     const expired =
-      (parsed.maxAge !== undefined && parsed.maxAge <= 0) ||
-      (parsed.expires instanceof Date && parsed.expires.getTime() <= now)
+      parsed.maxAge !== undefined
+        ? parsed.maxAge <= 0
+        : parsed.expires instanceof Date && parsed.expires.getTime() <= now
 
     resolved.set(`${parsed.name}\n${domain}\n${path}`, {
       cookie: { name: parsed.name, value: parsed.value, domain, path },

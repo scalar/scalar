@@ -51,3 +51,8 @@ integrations/nuxt/src/runtime/plugins/hydrateClient.d.mts
 packages/components/storybook-static/**/*
 packages/openapi-parser/tests/**/*.yaml
 packages/openapi-validator/tests/**/*.yaml
+
+# Nested Git worktrees
+**/.worktrees/
+**/.claude/worktrees/
+**/.codex/worktrees/

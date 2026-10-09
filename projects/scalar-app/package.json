@@ -23,7 +23,7 @@
     "dev:app": "electron-vite dev",
     "dev:app:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
     "dev:web": "vite",
-    "lint:fix": "biome check --write --unsafe && pnpm eslint \"**/*.vue\" --fix",
+    "lint:fix": "biome check --write && eslint \"**/*.vue\" --fix",
     "preview:app": "electron-vite preview",
     "preview:web": "vite preview",
     "test": "vitest --run",
