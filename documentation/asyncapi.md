@@ -121,8 +121,6 @@ An operation lists only its supported messages. Omitting its `messages` property
 
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 
-Boolean schemas are displayed with an explanation: `true` accepts any value and `false` accepts no value. This applies to payloads, reusable models, and properties within payloads and headers. Boolean schemas are different from `type: boolean`, which accepts only boolean values.
-
 Rendering works in both the `modern` and `classic` layouts.
 
 <scalar-image
