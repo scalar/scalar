@@ -194,7 +194,7 @@ describe('for-each-path-item-operation', () => {
   })
 
   it('terminates a cycle of hidden reference links without exposing the link', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const cycle = { $ref: '#/components/pathItems/Loop' }
     Object.defineProperty(cycle, '$ref-value', { value: cycle })
 
@@ -222,7 +222,7 @@ describe('for-each-path-item-operation', () => {
   })
 
   it('gives up on a reference cycle rather than following it forever', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     // A reference at itself. Resolving it produces another hop every time, so only a cap terminates.
     const cycle: Record<string, unknown> = { $ref: '#/components/pathItems/Loop' }
@@ -239,7 +239,7 @@ describe('for-each-path-item-operation', () => {
   })
 
   it('does not mutate the path item it was handed', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     // A `$ref-value` with no `$ref` beside it never resolves to anything, so the walk runs all the
     // way to the cap with the caller's own object still in hand. Resolving a path item is a read:

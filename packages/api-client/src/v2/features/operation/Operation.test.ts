@@ -135,7 +135,9 @@ describe('Operation', () => {
         },
       })
       const document = workspaceStore.workspace.documents['test-document']
-      if (!isOpenApiDocument(document)) throw new Error('Expected an OpenAPI document')
+      if (!isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
       const sourceParameter = getResolvedRef(document.components?.parameters?.Query)!
       const savedExample = () => getExample(sourceParameter, 'default', undefined)!
       await workspaceStore.externalExamples('test-document')(savedExample()).load()
@@ -186,7 +188,9 @@ describe('Operation', () => {
             selectedSecuritySchemes: [],
           })
           const result = buildRequest(request, { envVariables: {} })
-          if (!result.ok) throw new Error(result.error)
+          if (!result.ok) {
+            throw new Error(result.error)
+          }
           return Object.fromEntries(new URL(result.data.requestPayload[0]).searchParams)
         }
 

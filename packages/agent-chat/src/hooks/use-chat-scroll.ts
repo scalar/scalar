@@ -8,9 +8,13 @@ export function useChatScroll() {
 
   function getMsgContent(msg?: UIMessage) {
     const lastPart = msg?.parts.at(-1)
-    if (!lastPart) return
+    if (!lastPart) {
+      return
+    }
 
-    if (lastPart.type !== 'text') return
+    if (lastPart.type !== 'text') {
+      return
+    }
 
     return lastPart.text
   }

@@ -30,11 +30,17 @@ const serializer = unified()
     bullet: '-',
     join: [
       (left, right, parent) => {
-        if (!('spread' in parent)) return undefined
+        if (!('spread' in parent)) {
+          return undefined
+        }
         // Inside a tight list item, content after a nested list would otherwise continue its last item.
-        if (left.type === 'list' && right.type !== 'list') return 1
+        if (left.type === 'list' && right.type !== 'list') {
+          return 1
+        }
         // Code blocks in descriptions read better apart from the prose around them.
-        if (left.type === 'code' || right.type === 'code') return 1
+        if (left.type === 'code' || right.type === 'code') {
+          return 1
+        }
         return undefined
       },
     ],
@@ -61,11 +67,14 @@ const renderShownModel = async (
       ? [strong(text(view.title)), text(' ('), inlineCode(name), text(')')]
       : [inlineCode(name)]
   label.push(text(' — shown above'))
-  if (previous.name !== name) label.push(text(' as '), inlineCode(previous.name))
+  if (previous.name !== name) {
+    label.push(text(' as '), inlineCode(previous.name))
+  }
   label.push(text('.'))
   const blocks: ListItem['children'] = [paragraph(...label)]
-  if (view.description && view.description !== previous.description)
+  if (view.description && view.description !== previous.description) {
     blocks.push(...((await description(view.description)) as ListItem['children']))
+  }
   return item(...blocks)
 }
 
@@ -113,7 +122,9 @@ export const createDocumentRenderer = (): ((
       }[] = []
       for (const [path, reference] of Object.entries(group.paths ?? {})) {
         const pathItem = getResolvedPathItem(reference)
-        if (!pathItem) continue
+        if (!pathItem) {
+          continue
+        }
         forEachPathItemOperation(reference, (method, operation) => {
           const label = `${formatOperationMethod(method)} ${path}`
           entries.push({
@@ -138,7 +149,9 @@ export const createDocumentRenderer = (): ((
     const nodes: RootContent[] = []
     const sections: string[] = []
     const flush = async (): Promise<void> => {
-      if (!nodes.length) return
+      if (!nodes.length) {
+        return
+      }
       const children = nodes.splice(0)
       await expandDescriptions(children, description)
       sections.push(serializer.stringify({ type: 'root', children } satisfies Root).trimEnd())
@@ -146,8 +159,12 @@ export const createDocumentRenderer = (): ((
     if (!single) {
       const { info } = document
       const metadata = [field('OpenAPI Version', inlineCode(document.openapi))]
-      if (info.version) metadata.push(field('API Version', inlineCode(info.version)))
-      if (info.termsOfService) metadata.push(field('Terms of service', link(info.termsOfService, info.termsOfService)))
+      if (info.version) {
+        metadata.push(field('API Version', inlineCode(info.version)))
+      }
+      if (info.termsOfService) {
+        metadata.push(field('Terms of service', link(info.termsOfService, info.termsOfService)))
+      }
       if (info.contact) {
         const contact = [text(info.contact.name ?? '')]
         metadata.push(
@@ -162,18 +179,21 @@ export const createDocumentRenderer = (): ((
           ),
         )
       }
-      if (info.license)
+      if (info.license) {
         metadata.push(
           field(
             'License',
             info.license.url ? link(info.license.url, info.license.name ?? '') : text(info.license.name),
           ),
         )
+      }
       nodes.push(heading(1, text(info.title)), list(metadata), ...(await description(info.description)))
       if (whole) {
         const contents: RootContent[] = []
         for (const group of groups) {
-          if (!group.entries.length) continue
+          if (!group.entries.length) {
+            continue
+          }
           contents.push(
             paragraph(strong(text(group.title))),
             list(group.entries.map(({ id, label }) => item(paragraph(link(`#${encodeURIComponent(id!)}`, label))))),
@@ -185,19 +205,25 @@ export const createDocumentRenderer = (): ((
             list([...destinations].map(([name, url]) => item(paragraph(link(url, name))))),
           )
         }
-        if (contents.length) nodes.push(heading(2, text('Contents')), ...contents)
+        if (contents.length) {
+          nodes.push(heading(2, text('Contents')), ...contents)
+        }
       }
       if (document.servers?.length || (whole && document.servers !== undefined)) {
-        if (documentContext?.servers) nodes.push(anchor(documentContext.servers))
+        if (documentContext?.servers) {
+          nodes.push(anchor(documentContext.servers))
+        }
         nodes.push(heading(2, text('Servers')))
         const effectiveServers: NonNullable<OpenApiDocument['servers']> = document.servers?.length
           ? document.servers
           : [{ url: '/' }]
         const servers = effectiveServers.map((server) => {
           const nested: ListItem[] = []
-          if (server.description) nested.push(field('Description', text(server.description)))
+          if (server.description) {
+            nested.push(field('Description', text(server.description)))
+          }
           const variables = Object.entries(server.variables ?? {})
-          if (variables.length)
+          if (variables.length) {
             nested.push(
               item(
                 paragraph(strong(text('Variables:'))),
@@ -219,21 +245,27 @@ export const createDocumentRenderer = (): ((
                 ),
               ),
             )
+          }
           const entry = field('URL', inlineCode(server.url))
-          if (nested.length) entry.children.push(list(nested))
+          if (nested.length) {
+            entry.children.push(list(nested))
+          }
           return entry
         })
         nodes.push(list(servers))
       }
-      if (documentContext?.authentication) nodes.push(anchor(documentContext.authentication))
+      if (documentContext?.authentication) {
+        nodes.push(anchor(documentContext.authentication))
+      }
       nodes.push(...(await renderSecurity(document.security, document.components?.securitySchemes, description, 2)))
       if (document.tags?.length) {
         nodes.push(heading(2, text('Tags')))
         for (const tag of document.tags) {
           const title = /^3\.2\./.test(openapiVersion) ? (tag.summary ?? tag.name) : tag.name
           nodes.push(heading(3, text(title)), ...(await description(tag.description)))
-          if (tag.externalDocs)
+          if (tag.externalDocs) {
             nodes.push(paragraph(link(tag.externalDocs.url, tag.externalDocs.description ?? tag.externalDocs.url)))
+          }
         }
       }
       await flush()
@@ -241,10 +273,14 @@ export const createDocumentRenderer = (): ((
     for (const group of groups) {
       let hasOperations = false
       for (const { path, pathItem, method, operation, id } of group.entries) {
-        if (!hasOperations && !single) nodes.push(heading(2, text(group.title)))
+        if (!hasOperations && !single) {
+          nodes.push(heading(2, text(group.title)))
+        }
         hasOperations = true
         schemas.beginSection()
-        if (id) nodes.push(anchor(id))
+        if (id) {
+          nodes.push(anchor(id))
+        }
         nodes.push(
           ...(await renderOperation(document, path, method, pathItem, operation, group.webhook, {
             description,
@@ -264,9 +300,13 @@ export const createDocumentRenderer = (): ((
     const renderModel = async (name: string, schema: (typeof models)[number][1], level: 1 | 3): Promise<void> => {
       const view = schemas.view(schema)
       const summary = schemas.summarize(schema)
-      if (whole) nodes.push(anchor(anchors.get('schema', name)))
+      if (whole) {
+        nodes.push(anchor(anchors.get('schema', name)))
+      }
       nodes.push(heading(level, text(view.title ?? name)))
-      if (summary.length) nodes.push(paragraph(strong(text('Type:')), text('\u00a0'), ...summary))
+      if (summary.length) {
+        nodes.push(paragraph(strong(text('Type:')), text('\u00a0'), ...summary))
+      }
       nodes.push(
         ...(await description(view.description)),
         ...schemas.render(schema, 0, [], { hideDetails: true, name }),
@@ -298,11 +338,15 @@ export const createDocumentRenderer = (): ((
       await renderModel(selected[0], selected[1], 1)
     }
     const dependencies = models.filter(([name]) => name !== options.model)
-    if (dependencies.length) nodes.push(heading(2, text('Schemas')))
+    if (dependencies.length) {
+      nodes.push(heading(2, text('Schemas')))
+    }
     // Models the page already expanded cost one line each, grouped into a single list.
     const shownAbove: ListItem[] = []
     const flushShownAbove = (): void => {
-      if (shownAbove.length) nodes.push(list(shownAbove.splice(0)))
+      if (shownAbove.length) {
+        nodes.push(list(shownAbove.splice(0)))
+      }
     }
     for (const [name, schema] of dependencies) {
       schemas.beginSection()

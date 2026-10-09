@@ -276,10 +276,11 @@ const formatTable = (results: Result[]): string => {
     const ops = result.output?.operationCount ?? '-'
     const schemes = result.output?.securitySchemes.length ?? '-'
     const examples = result.output?.responseExampleCount ?? '-'
+    const validity = result.validation?.valid ? 'yes' : 'no'
     rows.push([
       result.file,
       result.status,
-      result.validation ? (result.validation.valid ? 'yes' : 'no') : '-',
+      result.validation ? validity : '-',
       `${reqs}→${ops}`,
       String(schemes),
       String(examples),

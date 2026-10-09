@@ -26,7 +26,9 @@ export const getClients = (
 
     const customClients = customCodeSamples.flatMap((sample, index) => {
       const id = ids[index] ?? `custom/${index}`
-      if (ids.indexOf(id) !== index) return []
+      if (ids.indexOf(id) !== index) {
+        return []
+      }
       const label = sample.label || formatLanguage(sample.lang) || id
       const lang = (sample.lang as TargetId) || 'plaintext'
 

@@ -1102,7 +1102,7 @@ describe('OperationBlock', () => {
     const requestBuiltCall = vi.mocked(executeHook).mock.calls.find((call) => call[1] === 'requestBuilt')
     expect(requestBuiltCall).toBeDefined()
 
-    const hookRequest = (requestBuiltCall?.[0] as { request: Request }).request
+    const hookRequest = (requestBuiltCall?.[0] as { request: Request } | undefined)?.request
     expect(hookRequest).toBeInstanceOf(Request)
 
     // The hook and the fetch call must observe the same Request instance, so header

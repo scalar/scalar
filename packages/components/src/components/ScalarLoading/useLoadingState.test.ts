@@ -34,7 +34,7 @@ describe('useLoadingState', () => {
   it('sets isActive to true when validate is called', () => {
     const loader = useLoadingState()
 
-    loader.validate()
+    void loader.validate()
 
     expect(loader.isActive).toBe(true)
     expect(loader.isValid).toBe(true)
@@ -44,7 +44,7 @@ describe('useLoadingState', () => {
   it('sets isActive to true when invalidate is called', () => {
     const loader = useLoadingState()
 
-    loader.invalidate()
+    void loader.invalidate()
 
     expect(loader.isActive).toBe(true)
     expect(loader.isInvalid).toBe(true)
@@ -255,7 +255,7 @@ describe('useLoadingState', () => {
     const loader = useLoadingState()
     const callback = vi.fn()
 
-    loader.validate().then(callback)
+    void loader.validate().then(callback)
 
     // Default validate: 1100ms - 300ms = 800ms, then clear() takes 300ms
     await vi.advanceTimersByTimeAsync(800)
@@ -268,7 +268,7 @@ describe('useLoadingState', () => {
     const loader = useLoadingState()
     const callback = vi.fn()
 
-    loader.invalidate().then(callback)
+    void loader.invalidate().then(callback)
 
     // Default invalidate: 1100ms - 300ms = 800ms, then clear() takes 300ms
     await vi.advanceTimersByTimeAsync(800)
@@ -281,7 +281,7 @@ describe('useLoadingState', () => {
     const loader = useLoadingState()
     const callback = vi.fn()
 
-    loader.clear().then(callback)
+    void loader.clear().then(callback)
 
     await vi.advanceTimersByTimeAsync(300)
 
@@ -374,7 +374,7 @@ describe('useLoadingState', () => {
     expect(loader.isLoading).toBe(true)
     expect(loader.isActive).toBe(true)
 
-    loader.clear()
+    void loader.clear()
     expect(loader.isLoading).toBe(false)
     expect(loader.isValid).toBe(false)
     expect(loader.isInvalid).toBe(false)

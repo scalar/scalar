@@ -338,8 +338,12 @@ describe('upgrade', () => {
         Number: nullableNumber,
       },
     }
-    const document =
-      version === '3.0' ? upgrade(input, '3.0') : version === '3.1' ? upgrade(input, '3.1') : upgrade(input, '3.2')
+    const document = (() => {
+      if (version === '3.0') {
+        return upgrade(input, '3.0')
+      }
+      return version === '3.1' ? upgrade(input, '3.1') : upgrade(input, '3.2')
+    })()
     const number = version === '3.0' ? { type: 'number', nullable: true } : { type: ['number', 'null'] }
     const reference =
       version === '3.0'
@@ -401,8 +405,12 @@ describe('upgrade', () => {
           },
         },
       }
-      const document =
-        version === '3.0' ? upgrade(input, '3.0') : version === '3.1' ? upgrade(input, '3.1') : upgrade(input, '3.2')
+      const document = (() => {
+        if (version === '3.0') {
+          return upgrade(input, '3.0')
+        }
+        return version === '3.1' ? upgrade(input, '3.1') : upgrade(input, '3.2')
+      })()
       const schema = version === '3.0' ? { type: 'number', nullable: true } : { type: ['number', 'null'] }
       expect(document.paths?.['/values']?.post?.requestBody?.content?.['application/json']?.schema).toStrictEqual(
         schema,

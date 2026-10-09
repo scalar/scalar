@@ -60,7 +60,9 @@ export const getChannelParameters = (
   if (channel.parameters) {
     for (const [name, parameterRef] of objectEntries(channel.parameters)) {
       const parameter = getResolvedRef(parameterRef)
-      if (parameter) definitions[name] = parameter
+      if (parameter) {
+        definitions[name] = parameter
+      }
     }
   }
 

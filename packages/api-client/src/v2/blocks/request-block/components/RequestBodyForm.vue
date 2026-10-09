@@ -142,7 +142,7 @@ const handleFileUpload = (index: number) => {
     multiple: false,
     accept: '*/*',
   })
-  open()
+  void open()
 }
 </script>
 

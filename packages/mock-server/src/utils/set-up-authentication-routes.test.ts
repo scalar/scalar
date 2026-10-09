@@ -92,7 +92,7 @@ describe('set-up-authentication-routes', () => {
   })
 
   it('warns when metadata collides with a declared API path', async () => {
-    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       await createMockServer({
         logger: false,

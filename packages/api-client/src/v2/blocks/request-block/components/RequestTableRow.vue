@@ -122,7 +122,9 @@ watch(
     // Do not overwrite a valid local name with an empty incoming prop — this
     // can happen when the placeholder row (appended by displayData) is briefly
     // mapped onto this component instance before Vue re-keys the list.
-    if (!newName && name.value && !deferKeyUpdates) return
+    if (!newName && name.value && !deferKeyUpdates) {
+      return
+    }
     name.value = newName ?? ''
   },
 )

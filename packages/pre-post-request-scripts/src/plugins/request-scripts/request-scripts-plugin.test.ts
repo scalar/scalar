@@ -86,10 +86,10 @@ describe('request-scripts-plugin', () => {
       vi.mocked(prewarmSandboxFrame).mockClear()
     })
 
-    it('warms up the sandbox when the operation defines scripts', () => {
+    it('warms up the sandbox when the operation defines scripts', async () => {
       const plugin = requestScriptsPlugin()
 
-      plugin.hooks?.onRequestMount?.({
+      await plugin.hooks?.onRequestMount?.({
         document: {},
         operation: { 'x-post-response': 'pm.test("noop", () => pm.expect(true).to.be.true)' },
       } as never)
@@ -97,10 +97,10 @@ describe('request-scripts-plugin', () => {
       expect(prewarmSandboxFrame).toHaveBeenCalledTimes(1)
     })
 
-    it('warms up the sandbox when only the document defines scripts', () => {
+    it('warms up the sandbox when only the document defines scripts', async () => {
       const plugin = requestScriptsPlugin()
 
-      plugin.hooks?.onRequestMount?.({
+      await plugin.hooks?.onRequestMount?.({
         document: { 'x-pre-request': 'pm.environment.set("ready", "yes")' },
         operation: {},
       } as never)
@@ -108,10 +108,10 @@ describe('request-scripts-plugin', () => {
       expect(prewarmSandboxFrame).toHaveBeenCalledTimes(1)
     })
 
-    it('does not warm up the sandbox when there are no scripts', () => {
+    it('does not warm up the sandbox when there are no scripts', async () => {
       const plugin = requestScriptsPlugin()
 
-      plugin.hooks?.onRequestMount?.({ document: {}, operation: {} } as never)
+      await plugin.hooks?.onRequestMount?.({ document: {}, operation: {} } as never)
 
       expect(prewarmSandboxFrame).not.toHaveBeenCalled()
     })

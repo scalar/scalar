@@ -1630,8 +1630,8 @@ describe('coerce', () => {
       l1: { l2: { l3: { inner: { q: 1 } } } },
     })
 
-    const toString = wrap(union([object({ x: string() }), string()]))
-    expect(coerce(toString, { l1: { l2: { l3: { inner: 'hi' } } } })).toEqual({
+    const stringUnion = wrap(union([object({ x: string() }), string()]))
+    expect(coerce(stringUnion, { l1: { l2: { l3: { inner: 'hi' } } } })).toEqual({
       l1: { l2: { l3: { inner: 'hi' } } },
     })
   })

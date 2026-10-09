@@ -40,7 +40,7 @@ describe('normalizeHttpMethod', () => {
     })
 
     it('should return default method for non-string inputs', () => {
-      const nonStringInputs = [123, true, false, {}, [], () => {}, Symbol('test')]
+      const nonStringInputs = [123, true, false, {}, [], () => undefined, Symbol('test')]
 
       nonStringInputs.forEach((input) => {
         expect(normalizeHttpMethod(input as unknown as string)).toBe('get')

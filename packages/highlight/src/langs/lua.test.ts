@@ -20,8 +20,11 @@ const runs = (code: string, lang: string): [string, string | null][] => {
   const out: [string, string | null][] = []
   for (const token of tokenize(code, lang)) {
     const last = out[out.length - 1]
-    if (last && last[1] === token.scope) last[0] += token.text
-    else out.push([token.text, token.scope])
+    if (last && last[1] === token.scope) {
+      last[0] += token.text
+    } else {
+      out.push([token.text, token.scope])
+    }
   }
   return out
 }
@@ -45,7 +48,9 @@ const matchesAt = (pairs: [string, string][], run: [string, string][], i: number
  */
 const indexOfRun = (pairs: [string, string][], run: [string, string][]): number => {
   for (let i = 0; i + run.length <= pairs.length; i++) {
-    if (matchesAt(pairs, run, i)) return i
+    if (matchesAt(pairs, run, i)) {
+      return i
+    }
   }
   return -1
 }

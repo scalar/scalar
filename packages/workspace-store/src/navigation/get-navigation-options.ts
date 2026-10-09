@@ -10,12 +10,12 @@ import type { IdGenerator } from '@/schemas/navigation'
  * Extension methods retain exact case because HTTP method tokens are case-sensitive.
  * Normalizing COPY and copy would collapse distinct operations onto the same anchor.
  */
-const getMethodId = (method: string | undefined): string | undefined =>
-  isHttpMethod(method)
-    ? method === method.toLowerCase()
-      ? method.toUpperCase()
-      : `additionalOperations/${method}`
-    : method
+const getMethodId = (method: string | undefined): string | undefined => {
+  if (!isHttpMethod(method)) {
+    return method
+  }
+  return method === method.toLowerCase() ? method.toUpperCase() : `additionalOperations/${method}`
+}
 
 export type NavigationOptions =
   | Partial<

@@ -29,8 +29,9 @@ export const createFixture = async ({ name, operations, properties, descriptions
     }
     return response.text()
   }
-  if (name === 'galaxy-full')
+  if (name === 'galaxy-full') {
     return readFileSync(new URL('../../galaxy/src/documents/3.1.yaml', import.meta.url), 'utf8')
+  }
   const description = descriptions
     ? Array.from(
         { length: 6 },

@@ -58,7 +58,12 @@ const INPUT_ALLOWED_KEYS = new Set(['Escape', 'ArrowDown', 'ArrowUp', 'Enter'])
 const areModifiersPressed = (event: KeyboardEvent, modifiers: HotKeyModifiers): boolean =>
   modifiers.length > 0 &&
   modifiers
-    .map((modifier) => (modifier === 'default' ? (isMacOS() ? 'metaKey' : 'ctrlKey') : modifier))
+    .map((modifier) => {
+      if (modifier === 'default') {
+        return isMacOS() ? 'metaKey' : 'ctrlKey'
+      }
+      return modifier
+    })
     .every((key) => event[key] === true)
 
 /**

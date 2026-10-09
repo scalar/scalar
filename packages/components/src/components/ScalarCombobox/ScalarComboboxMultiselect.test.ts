@@ -42,7 +42,7 @@ describe('ScalarComboboxMultiselect', () => {
   describe('with single options', () => {
     it('allows multiple selections', async () => {
       const onUpdate = vi.fn((value) => {
-        wrapper.setProps({ modelValue: value })
+        void wrapper.setProps({ modelValue: value })
       })
       const wrapper = mount(ScalarComboboxMultiselect, {
         props: {
@@ -69,7 +69,7 @@ describe('ScalarComboboxMultiselect', () => {
   describe('with grouped options', () => {
     it('allows multiple selections', async () => {
       const onUpdate = vi.fn((value) => {
-        wrapper.setProps({ modelValue: value })
+        void wrapper.setProps({ modelValue: value })
       })
       const wrapper = mount(ScalarComboboxMultiselect, {
         props: {

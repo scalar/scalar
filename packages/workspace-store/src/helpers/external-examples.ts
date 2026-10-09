@@ -28,13 +28,19 @@ export const createExternalExampleResolver = (
     }
     const url = resolveReferencePath(options.origin ?? '', example.externalValue) ?? example.externalValue
     const cached = cache.get(url)
-    if (cached) return cached
+    if (cached) {
+      return cached
+    }
     let pending: Promise<void> | undefined
     const state = shallowReactive<ExternalExampleState>({
       status: 'idle',
       load: () => {
-        if (pending) return pending
-        if (state.status === 'loaded') return Promise.resolve()
+        if (pending) {
+          return pending
+        }
+        if (state.status === 'loaded') {
+          return Promise.resolve()
+        }
         state.status = 'loading'
         pending = (async (): Promise<void> => {
           try {

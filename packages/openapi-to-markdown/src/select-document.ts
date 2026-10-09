@@ -477,7 +477,11 @@ export const selectDocument = (
     for (const [key, child] of Object.entries(value)) {
       // Names such as "example" are valid map entries; only keyword positions hold opaque data.
       if (key !== '$ref-value' && (namedLevels || (!opaqueValues.has(key) && !key.startsWith('x-')))) {
-        const childNamedLevels = namedLevels ? namedLevels - 1 : key === 'callbacks' ? 2 : namedMaps.has(key) ? 1 : 0
+        let childNamedLevels = namedLevels - 1
+        if (!namedLevels) {
+          const mapLevels = namedMaps.has(key) ? 1 : 0
+          childNamedLevels = key === 'callbacks' ? 2 : mapLevels
+        }
         visit(child, childNamedLevels)
       }
     }

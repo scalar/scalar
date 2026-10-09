@@ -107,7 +107,7 @@ function acceptTerms() {
   state.terms.accept()
 
   if (state.mode === 'preview' && state.getActiveDocumentJson) {
-    uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
+    void uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
   }
 }
 

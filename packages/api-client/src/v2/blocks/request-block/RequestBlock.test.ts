@@ -412,7 +412,7 @@ describe('RequestBlock', () => {
       .findAllComponents({ name: 'RequestParams' })
       .find((component) => (component.props() as any).title === 'Query Parameters')
 
-    expect((queryParams?.props() as any).rows.map((row: TableRow) => row.name)).toStrictEqual([
+    expect((queryParams?.props() as any)?.rows.map((row: TableRow) => row.name)).toStrictEqual([
       'page',
       'size',
       'sort',

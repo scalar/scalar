@@ -758,7 +758,9 @@ export const deleteSecurityScheme = (
     forEachPathItemOperation(pathItemRef, (method, operationRef) => {
       // Get mutable reference for the operation (could resolve $ref proxies)
       const resolvedOperation = getResolvedRef(operationRef)
-      if (!resolvedOperation) return
+      if (!resolvedOperation) {
+        return
+      }
 
       // Remove from operation-level security array
       if ('security' in resolvedOperation && resolvedOperation['security']) {

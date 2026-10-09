@@ -57,18 +57,19 @@ export const resolveRequestFactoryUrl = (
           request.path.reservedParameters && Object.hasOwn(request.path.reservedParameters, key)
             ? request.path.reservedParameters[key]
             : undefined
-        const encoded = request.path.serializedParameters?.has(key)
-          ? replace(value)
-          : reserved
-            ? serializeReservedPathParameter(
-                key,
-                {
-                  ...reserved,
-                  value: value === reserved.originalValue ? reserved.value : value,
-                },
-                replace,
-              )
-            : encodePathParameter(replace(value))
+        if (request.path.serializedParameters?.has(key)) {
+          return [key, replace(value)]
+        }
+        const encoded = reserved
+          ? serializeReservedPathParameter(
+              key,
+              {
+                ...reserved,
+                value: value === reserved.originalValue ? reserved.value : value,
+              },
+              replace,
+            )
+          : encodePathParameter(replace(value))
         return [key, encoded]
       }),
     ),

@@ -112,11 +112,12 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
         return
       }
 
-      const products = options.all
-        ? config.products
-        : options.product
+      let products = config.products
+      if (!options.all) {
+        products = options.product
           ? config.products.filter((product) => product.slug === options.product)
           : [createAdHocProduct(options, config.prompts.productDescriptionFallback ?? 'an open-source package')]
+      }
 
       if (products.length === 0) {
         throw new Error(

@@ -34,7 +34,7 @@ export const dartHttp: Plugin = {
     // Start building the Dart code
     let code = `import 'package:http/http.dart' as http;\n\nvoid main() async {\n`
 
-    if (multipart && multipart.some((param) => param.contentType)) {
+    if (Array.isArray(multipart) && multipart.some((param) => param.contentType)) {
       code = `import 'package:http_parser/http_parser.dart';\n${code}`
     }
 

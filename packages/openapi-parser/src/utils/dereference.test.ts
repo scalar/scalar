@@ -503,11 +503,11 @@ describe('dereference', () => {
     expect(
       (
         (
-          (result.specification as OpenApiDocumentV3_2).paths['/test'].query.responses[
-            '200'
-          ] as OpenApiResponseObjectV3_2
-        ).content['application/json'] as OpenApiMediaTypeObjectV3_2
-      ).schema,
+          (result.specification as OpenApiDocumentV3_2).paths['/test'].query.responses['200'] as
+            | OpenApiResponseObjectV3_2
+            | undefined
+        )?.content['application/json'] as OpenApiMediaTypeObjectV3_2 | undefined
+      )?.schema,
     ).toEqual({
       $ref: '#/components/schemas/Test',
     })
@@ -564,9 +564,9 @@ describe('dereference', () => {
         (
           (result.specification as OpenApiDocumentV3_2).paths['/test'].additionalOperations?.makeUnicorns.responses[
             '200'
-          ] as OpenApiResponseObjectV3_2
-        ).content['application/json'] as OpenApiMediaTypeObjectV3_2
-      ).schema,
+          ] as OpenApiResponseObjectV3_2 | undefined
+        )?.content['application/json'] as OpenApiMediaTypeObjectV3_2 | undefined
+      )?.schema,
     ).toEqual({
       $ref: '#/components/schemas/Test',
     })
