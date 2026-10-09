@@ -22,6 +22,7 @@ import {
 import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
+import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
 import ChannelMessages from './ChannelMessages.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
@@ -154,6 +155,8 @@ const { level: headingLevel } = useDocumentOutline('channel')
         :value="description"
         withImages />
     </template>
+    <AsyncApiDocumentation
+      :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
       :eventBus="eventBus"
@@ -217,6 +220,8 @@ const { level: headingLevel } = useDocumentOutline('channel')
         <ScalarMarkdown
           :value="description"
           withImages />
+        <AsyncApiDocumentation
+          :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
         <ParameterList
           v-if="parameters.length"
           :eventBus="eventBus"

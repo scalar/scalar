@@ -5,6 +5,8 @@ import type { InfoObject } from '@scalar/workspace-store/schemas/v3.2/strict/ope
 import { type VueWrapper, enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { SectionHeader } from '@/components/Section'
+
 import InfoBlock from './InfoBlock.vue'
 
 enableAutoUnmount(afterEach)
@@ -63,9 +65,10 @@ describe('InfoBlock', () => {
 
   it.each(['modern', 'classic'] as const)('renders inline AsyncAPI external documentation in %s layout', (layout) => {
     const wrapper = mountIntroduction({ documentType: 'asyncapi', info: { ...mockInfo, externalDocs } }, layout)
-    expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
-    expect(wrapper.get('a').text()).toBe(externalDocs.description)
-    expect(wrapper.get('a').attributes('target')).toBe('_blank')
+    const link = wrapper.getComponent(SectionHeader).get('a')
+    expect(link.attributes('href')).toBe(externalDocs.url)
+    expect(wrapper.text()).toContain(externalDocs.description)
+    expect(link.attributes('target')).toBe('_blank')
   })
 
   it.each(['modern', 'classic'] as const)(
@@ -88,7 +91,7 @@ describe('InfoBlock', () => {
         layout,
       )
       expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
-      expect(wrapper.get('a').text()).toBe(externalDocs.description)
+      expect(wrapper.text()).toContain(externalDocs.description)
     },
   )
 
@@ -128,6 +131,21 @@ describe('InfoBlock', () => {
   it.each(['modern', 'classic'] as const)('keeps OpenAPI external documentation in %s layout', (layout) => {
     const wrapper = mountIntroduction({ documentType: 'openapi', info: mockInfo, externalDocs }, layout)
     expect(wrapper.get('a').attributes('href')).toBe(externalDocs.url)
+  })
+
+  it.each(['modern', 'classic'] as const)('keeps AsyncAPI tag links out of the introduction in %s layout', (layout) => {
+    const wrapper = mountIntroduction(
+      {
+        documentType: 'asyncapi',
+        info: {
+          ...mockInfo,
+          externalDocs,
+          tags: [{ name: 'Orders', externalDocs: { url: 'https://example.com/orders' } }],
+        },
+      },
+      layout,
+    )
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([externalDocs.url])
   })
 
   it('does not treat an OpenAPI info extension as AsyncAPI external documentation', () => {

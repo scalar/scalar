@@ -30,6 +30,7 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
+import AsyncApiDocumentation from '@/components/Content/AsyncApi/AsyncApiDocumentation.vue'
 import { useLocalization } from '@/features/localization'
 
 import Selector from './Selector.vue'
@@ -80,7 +81,9 @@ const hasServerDetails = computed(() =>
   Boolean(
     serverSummary.value ||
     serverProtocolVersion.value ||
-    selectedServer?.description,
+    selectedServer?.description ||
+    selectedServer?.server.externalDocs ||
+    selectedServer?.server.tags?.length,
   ),
 )
 
@@ -138,5 +141,6 @@ const updateServerVariable = (key: string, value: string) => {
     <ScalarMarkdown
       v-if="selectedServer?.description"
       :value="selectedServer.description" />
+    <AsyncApiDocumentation :owner="selectedServer?.server" />
   </div>
 </template>

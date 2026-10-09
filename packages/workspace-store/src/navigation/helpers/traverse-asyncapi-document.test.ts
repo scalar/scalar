@@ -1,5 +1,6 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { describe, expect, it } from 'vitest'
+import { reactive } from 'vue'
 
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import type {
@@ -212,6 +213,40 @@ describe('traverseAsyncApiDocument', () => {
     const result = traverseAsyncApiDocument('events', document)
     expect(collectAsyncApiChannels(result.children)).toStrictEqual([])
     expect(collectAsyncApiMessages(result.children)).toStrictEqual([])
+  })
+
+  it('retains referenced info and channel tag documentation in tag sections', () => {
+    const externalDocs = { url: 'https://example.com/orders', description: 'Orders guide' }
+    const document: AsyncApiDocument = {
+      asyncapi: '3.1.0',
+      'x-scalar-original-document-hash': 'tag-docs',
+      info: { title: 'Events', version: '1.0.0', tags: [{ name: 'Overview', externalDocs }] },
+      channels: {
+        overview: { address: 'overview', tags: [{ name: 'Overview' }] },
+        orders: {
+          address: 'orders',
+          tags: [
+            {
+              $ref: '#/components/tags/orders',
+              '$ref-value': {
+                name: 'Orders',
+                externalDocs: { $ref: '#/components/externalDocs/orders', '$ref-value': externalDocs },
+              },
+            },
+          ],
+        },
+      },
+    }
+    const result = traverseAsyncApiDocument('events', reactive(document), mockOptions)
+    expect(
+      result.children
+        ?.filter((entry) => entry.type === 'tag')
+        .map((entry) => ({ name: entry.name, externalDocs: entry.externalDocs })),
+    ).toStrictEqual([
+      { name: 'Orders', externalDocs },
+      { name: 'Overview', externalDocs },
+    ])
+    expect(() => structuredClone(result)).not.toThrow()
   })
 
   it('emits only the default Introduction entry when there are no operations or description', () => {
