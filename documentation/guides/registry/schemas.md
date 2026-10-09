@@ -59,17 +59,17 @@ Open the schema's **Settings** page to change its details:
 
 Name and description save automatically. Changes to the path, version, and namespace apply when you click **Save**.
 
-Open the schema's **Access** page to choose whether it is:
-
-- **Public**: Share your schema with the world - anyone can reference it via the registry URL
-- **Private**: Keep your schema within your team - only invited users and access groups can view and reference it
-
 <scalar-image
   src="/registry-schema-settings.png"
   src-dark="/registry-schema-settings-dark.png"
   alt="A schema's Settings page, with its name, registry path, description, current version, and namespace"
   size="full">
 </scalar-image>
+
+Open the schema's **Access** page to choose whether it is:
+
+- **Public**: Share your schema with the world - anyone can reference it via the registry URL
+- **Private**: Keep your schema within your team - only invited users and access groups can view and reference it
 
 ### Define Your JSON Schema
 
