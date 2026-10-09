@@ -12,7 +12,8 @@ import { computed, useId, useTemplateRef } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
-import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
+import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
@@ -67,6 +68,14 @@ const headingText = computed(() =>
   ),
 )
 
+const requiredSecurity = computed<RequiredSecurity>(() =>
+  getAsyncApiRequiredSecurity(
+    document,
+    resolvedOperation.value,
+    operation.operationName,
+  ),
+)
+
 const description = computed(
   () =>
     resolvedOperation.value?.description ||
@@ -80,11 +89,6 @@ const messages = computed(() =>
     operation.children,
     'asyncapi-message',
   ),
-)
-
-/** OAuth scopes required by this operation, rendered below the description. */
-const requiredSecurity = computed(() =>
-  getAsyncApiRequiredSecurity(document, resolvedOperation.value),
 )
 
 const { level: headingLevel } = useDocumentOutline('operation')
@@ -113,6 +117,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
           {{ headingText }}
         </SectionHeaderTag>
       </Anchor>
+      <SecurityRequirementBadge :requiredSecurity />
     </div>
 
     <ScalarMarkdown
@@ -120,8 +125,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
       class="operation-description"
       :value="description"
       withImages />
-
-    <OperationScopes :requiredSecurity="requiredSecurity" />
 
     <Message
       v-for="message in messages"

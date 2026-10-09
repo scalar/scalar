@@ -11,10 +11,17 @@ const { scheme } = defineProps<{
 
 const { translate } = useLocalization()
 
+const isDeprecated = computed<boolean>(() =>
+  Boolean(
+    scheme.scheme && 'deprecated' in scheme.scheme && scheme.scheme.deprecated,
+  ),
+)
+
 const typeLabel = computed(() => {
   const definition = scheme.scheme
   switch (definition?.type) {
     case 'apiKey':
+    case 'httpApiKey':
       return translate('authentication.apiKey')
     case 'http':
       return `HTTP ${definition.scheme}`
@@ -25,13 +32,17 @@ const typeLabel = computed(() => {
     case 'mutualTLS':
       return translate('authentication.mutualTLS')
     default:
-      return undefined
+      return definition?.type
   }
 })
 
 const apiKeyInstruction = computed(() => {
   const definition = scheme.scheme
-  if (definition?.type !== 'apiKey') {
+  if (
+    (definition?.type !== 'apiKey' && definition?.type !== 'httpApiKey') ||
+    !('name' in definition) ||
+    typeof definition.name !== 'string'
+  ) {
     return undefined
   }
   const params = { name: definition.name }
@@ -53,7 +64,7 @@ const apiKeyInstruction = computed(() => {
       <!-- Keep the component key recognizable, even when its type has a friendlier label. -->
       <span
         class="font-medium"
-        :class="{ 'line-through': scheme.scheme?.deprecated }">
+        :class="{ 'line-through': isDeprecated }">
         {{ scheme.name }}
       </span>
       <span

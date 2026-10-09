@@ -6,6 +6,7 @@ import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
 import {
+  getAsyncApiSecuritySchemes,
   getAsyncApiServers,
   getSelectedAsyncApiServer,
 } from '@scalar/workspace-store/channel-example'
@@ -228,7 +229,11 @@ const securitySchemes = computed(() => {
     : undefined
 
   return mergeSecurity(
-    components?.securitySchemes,
+    asyncApiClientDocument.value
+      ? getAsyncApiSecuritySchemes(asyncApiClientDocument.value, {
+          operations: {},
+        })
+      : components?.securitySchemes,
     options.authentication?.securitySchemes,
     authStore,
     sourceDocument?.['x-scalar-navigation']?.name ?? '',
