@@ -37,7 +37,7 @@ This opens a browser to sign in. In CI or on a remote machine, use a personal to
 scalar auth login --token your-personal-token
 ```
 
-You can also set `SCALAR_API_KEY` and run `scalar auth login`. In CI, always use a token: without one, the CLI waits for a browser sign-in that never happens.
+You can also set `SCALAR_API_KEY` and run `scalar auth login`. In CI, always use a token: without one, the CLI waits up to three minutes for a browser sign-in and then fails.
 
 Verify your current authentication status:
 
@@ -67,7 +67,7 @@ scalar project create --name "My Documentation" --slug your-docs
 
 | Option   | Type     | Required | Description                     |
 | -------- | -------- | -------- | ------------------------------- |
-| `--name` | `string` | No       | Display name for your project   |
+| `--name` | `string` | Yes, outside an interactive terminal | Display name for your project |
 | `--slug` | `string` | No       | URL-friendly project identifier |
 
 ## Local Preview
