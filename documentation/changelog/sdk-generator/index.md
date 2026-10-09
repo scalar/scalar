@@ -256,11 +256,10 @@ This release brings substantial performance improvements to SDK generation acros
 
 ## 0.32.6 (2026-09-08)
 
-### Configuration improvements
+### Ruby gemspec metadata fix
 
-This release removes the unsupported Terraform target from configuration, and fixes metadata handling in Ruby SDKs.
+This release fixes Ruby SDK metadata so generated gemspecs link to the repository correctly.
 
-- Removed the Terraform target from configuration schema, as no emitter ever shipped for it.
 - Fixed Ruby SDK metadata to correctly strip branch suffixes from repository URLs in generated gemspecs.
 
 ## 0.32.5 (2026-09-08)
@@ -1035,91 +1034,3 @@ Generated SDKs now include provenance metadata that records which generator vers
 - Every generated SDK now includes a manifest file with a generatorVersion field that captures the exact version of the generator that created it.
 - TypeScript resource class names no longer collide unnecessarily across unrelated nested resources, reducing numeric suffixes in generated code.
 - Generated TypeScript SDKs now expose WebSocket send and receive event aliases through resource barrels and client namespaces.
-
-## 0.4.8 (2026-07-03)
-
-### Webhook support and union type improvements
-
-This release adds webhook signature verification and typed event parsing for TypeScript, Python, and Go SDKs. It also improves how union types are handled in request bodies and CLI parameters.
-
-- Added webhook helpers with Standard Webhooks signature verification and typed parsed events for TypeScript, Python, and Go
-- Improved union request body handling in TypeScript and CLI, including proper parameter scoping and optional body support
-- Fixed Go model ownership to follow idiomatic package layout with proper resource and shared package organization
-- Enhanced discriminator metadata imports for Python nested model fields
-- Fixed Go date path parameter interpolation when parameters appear out of URL order
-
-## 0.4.7 (2026-06-30)
-
-### Pagination improvements and OpenAPI transform support
-
-This release brings better pagination handling across TypeScript, Python, Go, and CLI targets, plus a new transform system for preprocessing OpenAPI specs before SDK generation.
-
-- Configure OpenAPI transforms to modify specs before SDK compilation
-- Generate native pagination classes in TypeScript and Python from named pagination schemes, including `fake_page` support for imported Stainless configs
-- Restore CLI flags for pagination controls like --limit while keeping --max-items for output limiting
-- Improve Go webhook handling with standard-webhooks library integration and per-event struct generation
-- Fix empty application/json request bodies by ignoring schema-less media entries
-
-## 0.4.6 (2026-06-25)
-
-### CLI npm publishing and Python import fixes
-
-- Generated CLI packages can now be published to npm with OIDC trusted publishing or access token authentication.
-- Fixed Python model imports in generated SDKs to ensure correct module references.
-
-## 0.4.5 (2026-06-24)
-
-### Generated SDKs now include complete license files
-
-This release improves the licensing experience for generated SDKs and enhances Python SDK documentation quality.
-
-- Generated SDKs now emit full LICENSE file templates for MIT, BSD-2-Clause, BSD-3-Clause, and ISC licenses based on your package configuration.
-- Python SDK method docstrings are significantly improved with structured argument descriptions, return types, usage examples, and deprecation notices.
-
-## 0.4.4 (2026-06-24)
-
-### Generated SDKs now include Apache-2.0 license files
-
-This release adds Apache-2.0 license files to all generated SDK packages by default and ships substantial improvements to Python SDK generation.
-
-- Generated SDK packages now include Apache-2.0 license files by default across all target languages.
-- Python SDKs now handle idempotency request options, async pagination, websocket helpers, and discriminated unions.
-- Python SDK generation improves handling of primitive path params, empty responses, and binary uploads.
-- Single-environment Python clients inline their default base URL instead of exporting an environments constant.
-- Python WebSocket clients expose a dedicated websocket_base_url property and preserve non-close receive errors.
-
-## 0.4.3 (2026-06-24)
-
-### C# SDK generation and Python type improvements
-
-This release brings major improvements to C# SDK generation with full smoke test support, polymorphic union handling, and better naming conventions. Python SDKs now use native datetime types and cleaner type annotations.
-
-- C# SDKs now generate with complete smoke test harnesses and emit client-level operations as methods on the main client class
-- C# solution structure now uses proper namespacing and tolerant deserialization
-- Python SDKs map date and datetime formats to native Python types instead of strings, with cleaner model imports
-- C# discriminated unions now render as proper polymorphic records instead of untyped objects
-- Fixed multiple C# params record name collisions that could cause compilation failures
-
-## 0.4.2 (2026-06-23)
-
-### Improved path parameter handling and multipart uploads
-
-This release fixes how reserved characters in path parameters are handled across TypeScript, Ruby, and Rust SDKs, and removes a spurious network request before multipart uploads in TypeScript.
-
-- TypeScript SDKs no longer make an unnecessary data URL fetch before multipart uploads
-- Path parameters marked allowReserved now preserve forward slashes instead of percent-encoding them
-- Rust SDKs serialize request bodies once instead of twice, reducing allocations
-- Rust discriminated unions now render as internally-tagged enums with correct variant mappings
-- Ruby SDKs now respect parameter serialization settings like style and explode that were previously ignored
-
-## 0.4.1 (2026-06-23)
-
-### TypeScript and Rust SDKs get WebSocket support and smarter response types
-
-This release brings major improvements to TypeScript and Rust SDK generation, including real WebSocket client support, smarter handling of anonymous response shapes, and better JSDoc for TypeScript fields.
-
-- Rust SDKs now generate typed WebSocket clients for upgrade operations with bidirectional message streams.
-- TypeScript SDKs emit scoped response interfaces and preserve configured model names even when they collide with resource classes.
-- Rust SDKs synthesize named types for inline response objects and string enums instead of falling back to generic JSON values.
-- TypeScript field JSDoc now shows parameter location labels and schema constraints like defaults and formats.
-- Generated Rust SDKs now pass clippy with zero warnings out of the box.
