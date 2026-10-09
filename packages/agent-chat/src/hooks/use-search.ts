@@ -24,14 +24,14 @@ export function useSearch() {
       return queryRef.value
     },
     set: (v) => {
-      search(v)
+      void search(v)
       queryRef.value = v
     },
   })
 
   const results = ref<ApiMetadata[]>([])
 
-  search('')
+  void search('')
 
   return {
     query,

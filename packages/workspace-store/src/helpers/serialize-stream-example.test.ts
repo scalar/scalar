@@ -41,7 +41,7 @@ describe('serialize-stream-example', () => {
   })
 
   it('warns once when every SSE record has no valid fields', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       expect(
         serializeStreamExample([{ unknown: true }, { id: 'bad\0id', retry: -1 }], 'text/event-stream', false),
@@ -55,7 +55,7 @@ describe('serialize-stream-example', () => {
   })
 
   it('keeps valid SSE records while reporting omitted records', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       expect(serializeStreamExample([{}, { data: false }, { data: '' }], 'text/event-stream', false)).toBe(
         'data: false\n\ndata: \n\n',
@@ -69,7 +69,7 @@ describe('serialize-stream-example', () => {
   })
 
   it('accepts an intentionally empty SSE sequence without a warning', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       expect(serializeStreamExample([], 'text/event-stream', false)).toBe('')
       expect(warn).not.toHaveBeenCalled()

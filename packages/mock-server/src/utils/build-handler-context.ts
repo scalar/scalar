@@ -88,11 +88,12 @@ function getExampleFromResponse(
   const responseSchema = acceptedResponse.schema ? getResolvedRefDeep(acceptedResponse.schema) : undefined
 
   // Extract example from example property or generate from schema
-  return acceptedResponse.example !== undefined
-    ? normalizeResponseBody(acceptedResponse.example, responseSchema)
-    : responseSchema
-      ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
-      : null
+  if (acceptedResponse.example !== undefined) {
+    return normalizeResponseBody(acceptedResponse.example, responseSchema)
+  }
+  return responseSchema
+    ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
+    : null
 }
 
 /**

@@ -48,12 +48,13 @@ describe('external-examples.integration', () => {
     const respond = (value: unknown): Promise<Response> => Promise.resolve(Response.json(value))
     const fetch = vi.fn((input: string | URL | Request) => {
       const url = String(input)
-      if (url.endsWith('/openapi.json'))
+      if (url.endsWith('/openapi.json')) {
         return respond({
           ...documentWithExamples(0),
           paths: { '/shipments': { $ref: './operations/shipping.json' } },
         })
-      if (url.endsWith('/shipping.json'))
+      }
+      if (url.endsWith('/shipping.json')) {
         return respond({
           post: {
             requestBody: {
@@ -68,6 +69,7 @@ describe('external-examples.integration', () => {
             responses: {},
           },
         })
+      }
       return respond({ shippingType: 'standard' })
     })
     const store = createWorkspaceStore()
@@ -77,13 +79,17 @@ describe('external-examples.integration', () => {
       'https://example.com/docs/operations/shipping.json',
     ])
     const document = store.workspace.documents.shipping
-    if (!isOpenApiDocument(document)) throw new Error('Expected OpenAPI document')
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected OpenAPI document')
+    }
     const operation = getResolvedRef(getResolvedRef(document.paths?.['/shipments'])?.post)
     const example = getResolvedRef(
       getResolvedRef(operation?.requestBody)?.content['application/json']?.examples?.standard,
     )
     expect(example).toEqual({ externalValue: 'https://example.com/docs/payloads/standard.json' })
-    if (!example) throw new Error('Expected example')
+    if (!example) {
+      throw new Error('Expected example')
+    }
     const state = store.externalExamples('shipping')(example)
     await state.load()
     expect(state.value).toEqual({ shippingType: 'standard' })
@@ -129,12 +135,16 @@ describe('external-examples.integration', () => {
     }
     await store.addDocument({ name: 'shipping', document })
     const stored = store.workspace.documents.shipping
-    if (!isOpenApiDocument(stored)) throw new Error('Expected OpenAPI document')
+    if (!isOpenApiDocument(stored)) {
+      throw new Error('Expected OpenAPI document')
+    }
     const remote = getResolvedRef(stored.components?.examples?.remote)
     expect(remote).toEqual({ externalValue: 'https://example.com/examples/payload.json' })
     expect(getResolvedRef(stored.components?.examples?.inline)?.value).toEqual({ externalValue: './business-field' })
     expect(fetch.mock.calls.length).toBe(1)
-    if (!remote) throw new Error('Expected example')
+    if (!remote) {
+      throw new Error('Expected example')
+    }
     await store.externalExamples('shipping')(remote).load()
     expect(fetch.mock.calls.map(([url]) => String(url))).toEqual([
       'https://example.com/examples/definition.json',

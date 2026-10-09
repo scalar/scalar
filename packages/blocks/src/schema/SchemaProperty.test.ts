@@ -45,11 +45,12 @@ describe('SchemaProperty', () => {
         ...(variant === 'typed' ? { type: 'object' } : {}),
         allOf: [
           { type: 'object', properties: { email: { type: 'string' } }, required: ['email'] },
-          variant === 'referenced'
-            ? { $ref: '#/components/schemas/TagsLastUpdated', '$ref-value': tags }
-            : variant === 'nested'
-              ? { allOf: [tags] }
-              : tags,
+          {
+            referenced: { $ref: '#/components/schemas/TagsLastUpdated', '$ref-value': tags },
+            nested: { allOf: [tags] },
+            inline: tags,
+            typed: tags,
+          }[variant],
         ],
       })
       const wrapper = mount(SchemaProperty, {

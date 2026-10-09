@@ -27,7 +27,7 @@ const createMockApi = () =>
 
 const createMockWorkspaceStore = () =>
   ({
-    addDocument: vi.fn(async () => {}),
+    addDocument: vi.fn(async () => undefined),
     update: vi.fn(),
     auth: { load: vi.fn() },
   }) as unknown as WorkspaceStore

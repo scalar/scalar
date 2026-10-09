@@ -29,7 +29,7 @@ describe('rehypeHighlight', () => {
   // Markdown section is never dropped.
   it('keeps the code block when highlighting throws', () => {
     const throwing = {
-      registerAlias: () => {},
+      registerAlias: () => undefined,
       highlight: () => {
         throw new SyntaxError('Invalid regular expression: Invalid escape')
       },

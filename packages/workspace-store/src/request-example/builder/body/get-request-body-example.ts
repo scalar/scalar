@@ -84,7 +84,9 @@ export const getExampleFromBody = (
       compositionSelection: requestBodyCompositionSelection,
       schemaPath: ['requestBody'],
     })
-    if (result.xml === undefined) return null
+    if (result.xml === undefined) {
+      return null
+    }
     // Consumers select dataValue before value, so retain the serialized result for editor and wire output.
     return example?.dataValue !== undefined
       ? { ...example, value: result.xml, serializedValue: result.xml }

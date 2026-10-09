@@ -16,7 +16,9 @@ const clean = (node: Nodes): void => {
     node.url = safeUrl(node.url)
   }
   if ('children' in node) {
-    for (const child of node.children) clean(child)
+    for (const child of node.children) {
+      clean(child)
+    }
     // The filter preserves the parent's existing child types.
     const previousLength = node.children.length
     node.children = node.children.filter(
@@ -43,8 +45,12 @@ const clean = (node: Nodes): void => {
     if (node.children.length !== previousLength) {
       const first = node.children.at(0)
       const last = node.children.at(-1)
-      if (first?.type === 'text') first.value = first.value.trimStart()
-      if (last?.type === 'text') last.value = last.value.trimEnd()
+      if (first?.type === 'text') {
+        first.value = first.value.trimStart()
+      }
+      if (last?.type === 'text') {
+        last.value = last.value.trimEnd()
+      }
     }
   }
   delete node.position
@@ -58,17 +64,31 @@ const pruneDefinitions = (tree: Root): void => {
     tree.children.filter((node) => node.type === 'footnoteDefinition').map((node) => [node.identifier, node]),
   )
   const collect = (node: Nodes): void => {
-    if (node.type === 'linkReference') links.add(node.identifier)
-    if (node.type === 'footnoteReference') footnotes.add(node.identifier)
-    if ('children' in node) node.children.forEach(collect)
+    if (node.type === 'linkReference') {
+      links.add(node.identifier)
+    }
+    if (node.type === 'footnoteReference') {
+      footnotes.add(node.identifier)
+    }
+    if ('children' in node) {
+      node.children.forEach(collect)
+    }
   }
   tree.children.filter((node) => node.type !== 'footnoteDefinition').forEach(collect)
   // Set iteration also visits footnotes discovered inside another footnote.
-  for (const identifier of footnotes) definitions.get(identifier)?.children.forEach(collect)
+  for (const identifier of footnotes) {
+    definitions.get(identifier)?.children.forEach(collect)
+  }
   tree.children = tree.children.filter((node) => {
-    if (node.type === 'definition') return links.has(node.identifier)
-    if (node.type === 'footnoteDefinition') return footnotes.has(node.identifier)
-    if (node.type === 'paragraph') return node.children.some((child) => child.type !== 'text' || child.value.trim())
+    if (node.type === 'definition') {
+      return links.has(node.identifier)
+    }
+    if (node.type === 'footnoteDefinition') {
+      return footnotes.has(node.identifier)
+    }
+    if (node.type === 'paragraph') {
+      return node.children.some((child) => child.type !== 'text' || child.value.trim())
+    }
     return true
   })
 }
@@ -88,7 +108,9 @@ export const createDescriptionParser = (): (() => DescriptionParser) => {
   const cache = new Map<string, Promise<RootContent[]>>()
   const parse = async (value: string): Promise<RootContent[]> => {
     // Most schema descriptions are one plain sentence. Parsing them costs more than the page's other text.
-    if (isPlainText(value)) return [{ type: 'paragraph', children: [{ type: 'text', value: value.trim() }] }]
+    if (isPlainText(value)) {
+      return [{ type: 'paragraph', children: [{ type: 'text', value: value.trim() }] }]
+    }
     const parsed = parser.parse(value)
     // Raw HTML and GitHub alerts retain Scalar's existing conversion behavior.
     const tree =
@@ -103,11 +125,16 @@ export const createDescriptionParser = (): (() => DescriptionParser) => {
     const copy = { ...node }
     if ('identifier' in copy) {
       copy.identifier = `${prefix}${copy.identifier}`
-      if ('label' in copy) copy.label = copy.identifier
-      if ('referenceType' in copy) copy.referenceType = 'full'
+      if ('label' in copy) {
+        copy.label = copy.identifier
+      }
+      if ('referenceType' in copy) {
+        copy.referenceType = 'full'
+      }
     }
-    if ('children' in copy)
+    if ('children' in copy) {
       copy.children = copy.children.map((child) => namespace(child, prefix)) as typeof copy.children
+    }
     return copy
   }
   const hasReference = (node: Nodes): boolean =>
@@ -115,11 +142,15 @@ export const createDescriptionParser = (): (() => DescriptionParser) => {
   return () => {
     const state = { nextId: 0 }
     return async (value) => {
-      if (!value) return []
+      if (!value) {
+        return []
+      }
       const prefix = `description-${state.nextId++}-`
       const cached = cache.get(value) ?? parse(value)
       if (!cache.has(value)) {
-        if (cache.size >= 8192) cache.clear()
+        if (cache.size >= 8192) {
+          cache.clear()
+        }
         cache.set(value, cached)
       }
       const nodes = await cached
@@ -135,8 +166,11 @@ export const expandDescriptions = async (nodes: RootContent[], description: Desc
   const found: { siblings: Nodes[]; node: Nodes }[] = []
   const collect = (siblings: Nodes[]): void => {
     for (const node of siblings) {
-      if (node.type === 'descriptionPlaceholder') found.push({ siblings, node })
-      else if ('children' in node) collect((node as Parent).children)
+      if (node.type === 'descriptionPlaceholder') {
+        found.push({ siblings, node })
+      } else if ('children' in node) {
+        collect((node as Parent).children)
+      }
     }
   }
   collect(nodes)

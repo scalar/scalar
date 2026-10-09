@@ -37,7 +37,7 @@ const getEnabledOperationHeaderParameterNames = (operation: OperationObject, exa
   const names = new Set<string>()
   for (const ref of operation.parameters ?? []) {
     const param = getResolvedRef(ref)
-    if (!param || param.in !== 'header') {
+    if (param?.in !== 'header') {
       continue
     }
     const example = getExample(param, exampleName, undefined)

@@ -96,7 +96,9 @@ export const hljsClass = (scope: string): string | null => {
     // falling through to the next, less specific scope. An owned value is
     // `string | null` (null means bare text); `?? null` only satisfies the
     // index-access type, it never fires for a key we have confirmed we own.
-    if (Object.hasOwn(HLJS_CLASSES, name)) return HLJS_CLASSES[name] ?? null
+    if (Object.hasOwn(HLJS_CLASSES, name)) {
+      return HLJS_CLASSES[name] ?? null
+    }
   }
   return null
 }

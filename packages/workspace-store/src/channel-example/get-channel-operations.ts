@@ -20,7 +20,9 @@ export const getChannelOperations = (document: AsyncApiDocument, channelName: st
   return Object.entries(operations)
     .map(([operationName, operationRef]) => {
       const resolvedOperation = getResolvedRef(operationRef)
-      if (!resolvedOperation) return undefined
+      if (!resolvedOperation) {
+        return undefined
+      }
       const operation = resolveOperationWithTraits(resolvedOperation)
       const resolved = resolveOperationChannel(document, operation)
       if (resolved?.channelName !== channelName) {

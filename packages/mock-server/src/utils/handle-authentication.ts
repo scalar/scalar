@@ -68,16 +68,13 @@ function isSchemeSatisfied(scheme: OpenAPIV3_2.SecuritySchemeObject, c: Context)
         return false
       }
 
-      const value =
-        scheme.in === 'header'
-          ? c.req.header(scheme.name)
-          : scheme.in === 'query'
-            ? c.req.query(scheme.name)
-            : scheme.in === 'cookie'
-              ? getCookie(c, scheme.name)
-              : undefined
-
-      return Boolean(value)
+      if (scheme.in === 'header') {
+        return Boolean(c.req.header(scheme.name))
+      }
+      if (scheme.in === 'query') {
+        return Boolean(c.req.query(scheme.name))
+      }
+      return scheme.in === 'cookie' && Boolean(getCookie(c, scheme.name))
     }
     // OAuth 2.0 and OpenID Connect both carry a bearer token in the `Authorization` header.
     case 'oauth2':

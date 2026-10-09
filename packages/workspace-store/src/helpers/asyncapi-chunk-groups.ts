@@ -19,7 +19,9 @@ export const asyncApiChunkGroups = (document: Record<string, unknown>): Map<stri
     ),
   }
   const walk = (value: unknown, source: string): void => {
-    if (!value || typeof value !== 'object') return
+    if (!value || typeof value !== 'object') {
+      return
+    }
     for (const [key, child] of Object.entries(value)) {
       if (key === '$ref' && typeof child === 'string' && child.startsWith('#/')) {
         const [collection, typeOrName, name] = parseJsonPointerSegments(child.slice(1))
@@ -29,18 +31,24 @@ export const asyncApiChunkGroups = (document: Record<string, unknown>): Map<stri
           references.add(source)
           parents.set(target, references)
         }
-      } else walk(child, source)
+      } else {
+        walk(child, source)
+      }
     }
   }
   for (const [section, entries] of Object.entries(collections)) {
-    for (const [name, value] of Object.entries(entries)) walk(value, `${section}/${name}`)
+    for (const [name, value] of Object.entries(entries)) {
+      walk(value, `${section}/${name}`)
+    }
   }
   const groups = new Map<string, string>()
   for (const [section, entries] of Object.entries(collections)) {
     const buckets = new Map<string, { id: string; bytes: number }>()
     let group = 0
     for (const [name, value] of Object.entries(entries)) {
-      if (!section.startsWith('components-')) continue
+      if (!section.startsWith('components-')) {
+        continue
+      }
       const sources = parents.get(`${section}/${name}`)
       const signature = sources?.size ? `parents:${JSON.stringify([...sources].sort())}` : `orphan:${name}`
       const bytes = Buffer.byteLength(JSON.stringify({ [name]: value })) + 1

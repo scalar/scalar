@@ -237,7 +237,7 @@ describe('createMockServer', () => {
     { example: [{ unknown: true }], expected: '' },
     { example: [{ id: 'bad\0id', retry: -1 }, { data: 'kept' }], expected: 'data: kept\n\n' },
   ])('reports omitted SSE records without corrupting the HTTP stream: $expected', async ({ example, expected }) => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       const server = await createMockServer({
         logger: false,

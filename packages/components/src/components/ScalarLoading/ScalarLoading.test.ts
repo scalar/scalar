@@ -94,7 +94,7 @@ describe('ScalarLoading', () => {
 
   it('applies icon-is-valid class when isValid is true', async () => {
     const loader = useLoadingState()
-    loader.validate()
+    void loader.validate()
 
     const wrapper = mount(ScalarLoading, { props: { loader } })
 
@@ -107,7 +107,7 @@ describe('ScalarLoading', () => {
 
   it('applies icon-is-invalid class when isInvalid is true', async () => {
     const loader = useLoadingState()
-    loader.invalidate()
+    void loader.invalidate()
 
     const wrapper = mount(ScalarLoading, { props: { loader } })
 
@@ -120,7 +120,7 @@ describe('ScalarLoading', () => {
 
   it('applies loader-path-off class when not loading and valid', async () => {
     const loader = useLoadingState()
-    loader.validate()
+    void loader.validate()
     // isValid is true, isLoading is false after validate
 
     const wrapper = mount(ScalarLoading, { props: { loader } })
@@ -134,7 +134,7 @@ describe('ScalarLoading', () => {
 
   it('applies loader-path-off class when not loading and invalid', async () => {
     const loader = useLoadingState()
-    loader.invalidate()
+    void loader.invalidate()
     // isInvalid is true, isLoading is false after invalidate
 
     const wrapper = mount(ScalarLoading, { props: { loader } })
@@ -277,7 +277,7 @@ describe('ScalarLoading', () => {
     expect(initialSvg.find('.svg-check-mark').exists()).toBe(true)
     expect(initialSvg.findAll('.svg-x-mark').length).toBe(4)
 
-    loader.validate()
+    void loader.validate()
     await nextTick()
     await vi.advanceTimersByTimeAsync(800)
 
@@ -286,7 +286,7 @@ describe('ScalarLoading', () => {
     expect(svgAfterValidate.find('.svg-check-mark').exists()).toBe(true)
     expect(svgAfterValidate.findAll('.svg-x-mark').length).toBe(4)
 
-    loader.invalidate()
+    void loader.invalidate()
     await nextTick()
     await vi.advanceTimersByTimeAsync(800)
 

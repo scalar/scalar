@@ -12,11 +12,15 @@ export const createDocumentAnchors = (): {
     get: (kind, identity, label = identity) => {
       const key = JSON.stringify([kind, identity])
       const previous = ids.get(key)
-      if (previous !== undefined) return previous
+      if (previous !== undefined) {
+        return previous
+      }
       const base = `scalar-${kind}-${label}`
       let id = slugs.slug(base)
       // A literal suffix in a later name can collide with the slugger's numeric suffix.
-      while (used.has(id)) id = slugs.slug(base)
+      while (used.has(id)) {
+        id = slugs.slug(base)
+      }
       used.add(id)
       ids.set(key, id)
       return id

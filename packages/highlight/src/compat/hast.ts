@@ -38,7 +38,9 @@ export type ToHastOptions = {
  */
 export const toHast = (code: string, lang: string, options: ToHastOptions = {}): ElementContent[] | null => {
   const grammar = grammarFor(canonicalName(lang))
-  if (grammar === undefined) return null
+  if (grammar === undefined) {
+    return null
+  }
 
   const prefix = options.prefix ?? HLJS_PREFIX
   const out: ElementContent[] = []
@@ -47,7 +49,9 @@ export const toHast = (code: string, lang: string, options: ToHastOptions = {}):
   let buffer = ''
 
   const flush = (): void => {
-    if (buffer === '') return
+    if (buffer === '') {
+      return
+    }
 
     if (className === null) {
       out.push({ type: 'text', value: buffer })

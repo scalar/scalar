@@ -74,14 +74,14 @@ export function resolveReferences(
   dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
 
   // Remove duplicates (according to message) from errors
-  errors = errors.filter(
+  const uniqueErrors = errors.filter(
     (error, index, self) => index === self.findIndex((t) => t.message === error.message && t.code === error.code),
   )
 
   // Return the resolved specification
   return {
-    valid: errors.length === 0,
-    errors,
+    valid: uniqueErrors.length === 0,
+    errors: uniqueErrors,
     schema: finalInput,
   }
 }

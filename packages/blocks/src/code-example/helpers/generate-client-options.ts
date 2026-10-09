@@ -32,14 +32,18 @@ export const getCustomClientIds = (samples: XCodeSample[]): CustomCodeSampleId[]
     const lang = (sample.lang || 'plaintext').toLowerCase()
     const group = JSON.stringify([lang, sample.label ?? ''])
     const existing = sample.example !== undefined ? linkedGroups.get(group) : undefined
-    if (existing) return existing
+    if (existing) {
+      return existing
+    }
 
     const seen = countByLang.get(lang) ?? 0
     countByLang.set(lang, seen + 1)
 
     const id: CustomCodeSampleId = seen === 0 ? `custom/${lang}` : `custom/${lang}/${seen}`
     // Named request examples share one language option; legacy samples remain separate.
-    if (sample.example !== undefined) linkedGroups.set(group, id)
+    if (sample.example !== undefined) {
+      linkedGroups.set(group, id)
+    }
     return id
   })
 }

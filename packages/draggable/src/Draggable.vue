@@ -108,7 +108,7 @@ const onDragOver = throttle((ev: DragEvent) => {
   let offset = 3
 
   // handle negative offset to be previous offset
-  if (ev.offsetY <= 0 && !!previousOffset && previousOffset !== 3) {
+  if (ev.offsetY <= 0 && previousOffset && previousOffset !== 3) {
     offset = previousOffset
   }
   // Above

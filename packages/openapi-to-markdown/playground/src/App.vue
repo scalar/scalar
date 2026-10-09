@@ -47,11 +47,15 @@ const filename = computed<string>(
 const request = async <T,>(url: string, signal: AbortSignal): Promise<T> => {
   const response = await fetch(url, { signal })
   const value = await response.json()
-  if (!response.ok) throw new Error(value.error ?? 'Request failed')
+  if (!response.ok) {
+    throw new Error(value.error ?? 'Request failed')
+  }
   return value as T
 }
 const render = async (): Promise<void> => {
-  if (!manifest.value) return
+  if (!manifest.value) {
+    return
+  }
   pending?.abort()
   const controller = new AbortController()
   pending = controller
@@ -63,18 +67,25 @@ const render = async (): Promise<void> => {
     document: documentId.value,
     linked: String(linked.value),
   })
-  if (mode.value !== 'full') query.set('page', String(page.value))
+  if (mode.value !== 'full') {
+    query.set('page', String(page.value))
+  }
   try {
     const output = await request<ExportResult>(
       `/__markdown/render?${query}`,
       controller.signal,
     )
-    if (!controller.signal.aborted) result.value = output
+    if (!controller.signal.aborted) {
+      result.value = output
+    }
   } catch (cause) {
-    if (!controller.signal.aborted)
+    if (!controller.signal.aborted) {
       error.value = cause instanceof Error ? cause.message : 'Export failed'
+    }
   } finally {
-    if (pending === controller) busy.value = false
+    if (pending === controller) {
+      busy.value = false
+    }
   }
 }
 const load = async (): Promise<void> => {
@@ -91,7 +102,9 @@ const load = async (): Promise<void> => {
       `/__markdown/document?document=${documentId.value}`,
       controller.signal,
     )
-    if (controller.signal.aborted) return
+    if (controller.signal.aborted) {
+      return
+    }
     manifest.value = value
     const model = initial.get('model')
     const selectedModel = model
@@ -107,11 +120,14 @@ const load = async (): Promise<void> => {
     initial.delete('model')
     await render()
   } catch (cause) {
-    if (!controller.signal.aborted)
+    if (!controller.signal.aborted) {
       error.value =
         cause instanceof Error ? cause.message : 'Could not load document'
+    }
   } finally {
-    if (pending === controller) busy.value = false
+    if (pending === controller) {
+      busy.value = false
+    }
   }
 }
 const chooseMode = (value: 'page' | 'linked' | 'full'): void => {
@@ -129,7 +145,9 @@ const copy = async (): Promise<void> => {
   }
 }
 const download = (): void => {
-  if (!result.value) return
+  if (!result.value) {
+    return
+  }
   const url = URL.createObjectURL(
     new Blob([result.value.markdown], { type: 'text/markdown;charset=utf-8' }),
   )

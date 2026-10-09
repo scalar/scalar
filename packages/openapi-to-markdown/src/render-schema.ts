@@ -159,8 +159,12 @@ const getReferenceName = (ref: string): string => {
 /** Only references that add nothing structural can be replaced by the schema they point to. */
 const getSharedName = (input: MarkdownSchema, view: Omit<SchemaView, 'name'>): string | undefined => {
   const ref = isObject(input) ? (input as { $ref?: unknown }).$ref : undefined
-  if (typeof ref !== 'string' || typeof view.schema !== 'object') return undefined
-  if (Object.keys(input).some((key) => structuralKeywords.has(key))) return undefined
+  if (typeof ref !== 'string' || typeof view.schema !== 'object') {
+    return undefined
+  }
+  if (Object.keys(input).some((key) => structuralKeywords.has(key))) {
+    return undefined
+  }
   const structured =
     Boolean(view.allOf?.length || view.anyOf?.length || view.oneOf?.length || view.properties.length) ||
     view.not !== undefined ||
@@ -187,13 +191,18 @@ const getSharedIdentity = (input: MarkdownSchema): object | undefined => {
 const resolveMarkdownSchema = (input: MarkdownSchema): unknown => {
   const target = getResolvedRef(input)
   const merged = getResolvedRef(input, mergeSiblingReferences)
-  if (typeof target !== 'boolean') return merged
+  if (typeof target !== 'boolean') {
+    return merged
+  }
   if (
     !isObject(merged) ||
     !Object.keys(merged).some((key) => !['$ref', '$ref-value', '$global', '$status'].includes(key))
-  )
+  ) {
     return target
-  if (target) return merged
+  }
+  if (target) {
+    return merged
+  }
   // A false target remains impossible, even when siblings describe a type or annotations.
   return { ...merged, allOf: [false, ...(Array.isArray(merged.allOf) ? merged.allOf : [])] }
 }
@@ -209,16 +218,24 @@ const primitiveTypes = new Set(['string', 'number', 'integer', 'boolean', 'null'
 
 /** Infer the JSON type of a literal, for `const` and `enum` schemas that do not declare one. */
 const getJsonType = (value: unknown): string => {
-  if (value === null) return 'null'
-  if (Array.isArray(value)) return 'array'
-  if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'number'
+  if (value === null) {
+    return 'null'
+  }
+  if (Array.isArray(value)) {
+    return 'array'
+  }
+  if (typeof value === 'number') {
+    return Number.isInteger(value) ? 'integer' : 'number'
+  }
   return typeof value
 }
 
 /** A schema that only allows `null`, as in `anyOf: [X, { type: 'null' }]`. */
 const isNullSchema = (input: unknown): boolean => {
   const schema = getResolvedRef(input as MarkdownSchema)
-  if (!isObject(schema)) return false
+  if (!isObject(schema)) {
+    return false
+  }
   const type = Array.isArray(schema.type) && schema.type.length === 1 ? schema.type[0] : schema.type
   return (
     type === 'null' &&
@@ -242,14 +259,19 @@ const getWrapped = (value: SchemaView): { core: MarkdownSchema; nullable: boolea
     value.discriminator ||
     value.enum ||
     value.const !== undefined
-  )
+  ) {
     return undefined
+  }
   const allOf = value.allOf ?? []
   const anyOf = value.anyOf ?? []
   const oneOf = value.oneOf ?? []
-  if (allOf.length === 1 && !anyOf.length && !oneOf.length) return { core: allOf[0]!, nullable: false }
+  if (allOf.length === 1 && !anyOf.length && !oneOf.length) {
+    return { core: allOf[0]!, nullable: false }
+  }
   const union = anyOf.length ? anyOf : oneOf
-  if (allOf.length || (anyOf.length && oneOf.length) || union.length !== 2) return undefined
+  if (allOf.length || (anyOf.length && oneOf.length) || union.length !== 2) {
+    return undefined
+  }
   const core = union.filter((branch) => !isNullSchema(branch))
   return core.length === 1 ? { core: core[0]!, nullable: true } : undefined
 }
@@ -260,20 +282,21 @@ type TypeLabel = { nodes: PhrasingContent[]; complete: boolean }
 /** Join alternatives with `|`, keeping neighbouring plain types in one code span. */
 const joinAlternatives = (alternatives: PhrasingContent[][]): PhrasingContent[] => {
   // `array of string | null` would read as an array of nullable strings.
-  if (alternatives.length > 1)
-    alternatives = alternatives.map((alternative) => {
-      const only = alternative.length === 1 ? alternative[0] : undefined
-      return only?.type === 'inlineCode' && only.value.startsWith('array of ')
-        ? [inlineCode(`(${only.value})`)]
-        : alternative
-    })
+  const groupedAlternatives = alternatives.map((alternative) => {
+    const only = alternative.length === 1 ? alternative[0] : undefined
+    return alternatives.length > 1 && only?.type === 'inlineCode' && only.value.startsWith('array of ')
+      ? [inlineCode(`(${only.value})`)]
+      : alternative
+  })
   const nodes: PhrasingContent[] = []
   let plain: string[] = []
   const flushPlain = (): void => {
-    if (plain.length) nodes.push(...(nodes.length ? [text(' | ')] : []), inlineCode(plain.join(' | ')))
+    if (plain.length) {
+      nodes.push(...(nodes.length ? [text(' | ')] : []), inlineCode(plain.join(' | ')))
+    }
     plain = []
   }
-  for (const alternative of alternatives) {
+  for (const alternative of groupedAlternatives) {
     const only = alternative.length === 1 ? alternative[0] : undefined
     if (only?.type === 'inlineCode') {
       plain.push(only.value)
@@ -293,7 +316,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
   const unwrapping = new Set<object>()
   const view = (input: MarkdownSchema): SchemaView => {
     const cached = typeof input === 'object' ? views.get(input) : undefined
-    if (cached) return cached
+    if (cached) {
+      return cached
+    }
     // Keep the linked document's nested identities and boolean schemas. Coercing a
     // second time here would discard boolean children and copy recursive targets.
     const schema = resolveMarkdownSchema(input)
@@ -308,9 +333,10 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
     const properties = Object.entries(value.properties ?? {})
       .filter(([, child]) => typeof child === 'boolean' || (child !== null && typeof child === 'object'))
       .sort(([a], [b]) => Number(required.has(b)) - Number(required.has(a)) || a.localeCompare(b))
+    const booleanType = schema ? 'any' : 'never'
     let result: SchemaView = {
       ...value,
-      type: typeof schema === 'boolean' ? (schema ? 'any' : 'never') : value.type,
+      type: typeof schema === 'boolean' ? booleanType : value.type,
       schema: schema as SchemaObject | boolean,
       required,
       properties,
@@ -326,15 +352,21 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       )
       result = { ...inner, ...annotations, core: wrapped.core, nullable: wrapped.nullable || inner.nullable }
     }
-    if (typeof input === 'object') views.set(input, result)
+    if (typeof input === 'object') {
+      views.set(input, result)
+    }
     return result
   }
   const primitives = new WeakMap<object, boolean>()
   /** Primitives, enums, consts and aliases of them, whose whole definition fits on one line. */
   const isPrimitive = (input: MarkdownSchema): boolean => {
-    if (typeof input !== 'object') return true
+    if (typeof input !== 'object') {
+      return true
+    }
     const cached = primitives.get(input)
-    if (cached !== undefined) return cached
+    if (cached !== undefined) {
+      return cached
+    }
     // Assume a recursive alias is not primitive while it is being checked.
     primitives.set(input, false)
     const value = view(input)
@@ -384,11 +416,21 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
   ] as const
   /** The declared types, or the types implied by `const`, `enum`, properties or items. */
   const getTypes = (value: SchemaView): string[] => {
-    if (value.type !== undefined) return [value.type].flat()
-    if (value.const !== undefined) return [getJsonType(value.const)]
-    if (value.enum?.length) return [...new Set(value.enum.map(getJsonType))]
-    if (value.properties.length || isObject(value.additionalProperties)) return ['object']
-    if (value.items !== undefined) return ['array']
+    if (value.type !== undefined) {
+      return [value.type].flat()
+    }
+    if (value.const !== undefined) {
+      return [getJsonType(value.const)]
+    }
+    if (value.enum?.length) {
+      return [...new Set(value.enum.map(getJsonType))]
+    }
+    if (value.properties.length || isObject(value.additionalProperties)) {
+      return ['object']
+    }
+    if (value.items !== undefined) {
+      return ['array']
+    }
     return []
   }
 
@@ -407,12 +449,16 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
 
     /** The reference a nested schema links to in linked mode, instead of expanding its target. */
     const getLink = (input: MarkdownSchema): string | undefined => {
-      if ((!linked && !destinations) || !isObject(input)) return undefined
+      if ((!linked && !destinations) || !isObject(input)) {
+        return undefined
+      }
       const ref = getRef(input)
       if (ref !== undefined) {
         // A primitive alias is shorter than a link to it, and saves the reader a page.
         const resolved = getResolvedRef(input) !== undefined
-        if (!linked && !destinations?.has(getReferenceName(ref))) return undefined
+        if (!linked && !destinations?.has(getReferenceName(ref))) {
+          return undefined
+        }
         return resolved && inlinePrimitives && isPrimitive(input) ? undefined : ref
       }
       const core = view(input).core
@@ -437,10 +483,13 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
               numericAnnotations.some((annotation) => annotation === key) ||
               (key === 'additionalProperties' && entry === false)) &&
             !(key in own)
-          )
+          ) {
             own[key] = entry
+          }
         }
-        if (getRef(current) !== undefined) break
+        if (getRef(current) !== undefined) {
+          break
+        }
         current = view(current as MarkdownSchema).core
       }
       return view(own as MarkdownSchema)
@@ -462,7 +511,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
           complete: !structural,
         }
       }
-      if (typeof value.schema === 'boolean') return { nodes: [], complete: true }
+      if (typeof value.schema === 'boolean') {
+        return { nodes: [], complete: true }
+      }
       const types = getTypes(value)
       const alternatives: PhrasingContent[][] = []
       let complete =
@@ -483,9 +534,11 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
           branches.every(
             (branch, index) => branch.complete && branch.nodes.length && !hasAnnotations(getOwnView(union[index]!)),
           )
-        )
+        ) {
           alternatives.push(...branches.map((branch) => branch.nodes))
-        else complete = false
+        } else {
+          complete = false
+        }
       }
       for (const type of types) {
         if (type !== 'array' || value.items === undefined) {
@@ -505,12 +558,17 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
             : [text('array of '), ...(items.nodes.length > 1 ? [text('('), ...items.nodes, text(')')] : items.nodes)],
         )
       }
-      if (!types.length && value.items !== undefined) complete = false
+      if (!types.length && value.items !== undefined) {
+        complete = false
+      }
       // Without a type to name, a nullable schema says so and leaves its structure to the lines below.
-      if (value.nullable && !types.includes('null'))
+      if (value.nullable && !types.includes('null')) {
         alternatives.push(alternatives.length || complete ? [inlineCode('null')] : [text('nullable')])
+      }
       // A schema without types or structure accepts any value.
-      if (!alternatives.length && complete) alternatives.push([inlineCode('any')])
+      if (!alternatives.length && complete) {
+        alternatives.push([inlineCode('any')])
+      }
       return { nodes: joinAlternatives(alternatives), complete }
     }
 
@@ -525,29 +583,49 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
     ): { line: PhrasingContent[]; description?: string } => {
       const linkedLabel = (nested || destinations !== undefined) && getLink(input) !== undefined
       const value = linkedLabel ? getLinkAnnotations(input) : view(input)
-      if (typeof value.schema === 'boolean')
+      if (typeof value.schema === 'boolean') {
         return { line: [text(value.schema ? 'any (true schema)' : 'never (false schema)')] }
+      }
       const nodes: PhrasingContent[] = showType ? [...label.nodes] : []
       const add = (name: string, entry: unknown): void => {
-        if (entry !== undefined) nodes.push(text(`${nodes.length ? ', ' : ''}${name}: `), inlineCode(entry))
+        if (entry !== undefined) {
+          nodes.push(text(`${nodes.length ? ', ' : ''}${name}: `), inlineCode(entry))
+        }
       }
       const flag = (name: string, entry: unknown): void => {
-        if (entry) nodes.push(text(`${nodes.length ? ', ' : ''}${name}`))
+        if (entry) {
+          nodes.push(text(`${nodes.length ? ', ' : ''}${name}`))
+        }
       }
       // Later references to a shared schema point back to this name.
       const ref = getRef(input)
       if (!linkedLabel && value.name !== undefined) {
         // In linked mode the expanded schema also has its own page.
-        if (linked && ref !== undefined) nodes.push(text(`${nodes.length ? ', ' : ''}schema: `), referenceNode(ref))
-        else add('schema', value.name)
+        if (linked && ref !== undefined) {
+          nodes.push(text(`${nodes.length ? ', ' : ''}schema: `), referenceNode(ref))
+        } else {
+          add('schema', value.name)
+        }
       }
-      if (linkedLabel && value.type !== undefined) add('type', [value.type].flat().join(' | '))
+      if (linkedLabel && value.type !== undefined) {
+        add('type', [value.type].flat().join(' | '))
+      }
       add('format', value.format)
-      if (value.enum) add('possible values', value.enum.map((entry) => JSON.stringify(entry)).join(', '))
-      if (value.const !== undefined) add('const', JSON.stringify(value.const))
-      if (value.default !== undefined) add('default', JSON.stringify(value.default))
-      for (const key of numericAnnotations) add(key, value[key])
-      for (const key of ['readOnly', 'writeOnly', 'deprecated'] as const) flag(key, value[key])
+      if (value.enum) {
+        add('possible values', value.enum.map((entry) => JSON.stringify(entry)).join(', '))
+      }
+      if (value.const !== undefined) {
+        add('const', JSON.stringify(value.const))
+      }
+      if (value.default !== undefined) {
+        add('default', JSON.stringify(value.default))
+      }
+      for (const key of numericAnnotations) {
+        add(key, value[key])
+      }
+      for (const key of ['readOnly', 'writeOnly', 'deprecated'] as const) {
+        flag(key, value[key])
+      }
       flag('no additional properties', value.additionalProperties === false)
       // A reference without its own description still says what it is, from the schema it links to.
       return { line: nodes, description: value.description ?? (linkedLabel ? view(input).description : undefined) }
@@ -566,8 +644,12 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         : {}
       if (Object.keys(siblings).length && !options.hideDetails) {
         const { line, description } = summarize(siblings as MarkdownSchema, { nested: false, showType: false })
-        if (line.length) nodes.push(paragraph(...line))
-        if (!options.hideDescription) nodes.push(...describe(description))
+        if (line.length) {
+          nodes.push(paragraph(...line))
+        }
+        if (!options.hideDescription) {
+          nodes.push(...describe(description))
+        }
       }
       nodes.push(paragraph(emphasis(text('Schema '), inlineCode(name), text(` is shown ${location}.`))))
       return nodes
@@ -575,7 +657,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
 
     /** Print a schema's summary line and description, unless the caller already did. */
     const header = (input: MarkdownSchema, depth: number, options: RenderOptions, showType = true): RootContent[] => {
-      if (options.hideDetails) return []
+      if (options.hideDetails) {
+        return []
+      }
       const { line, description } = summarize(input, { nested: depth > 0, showType })
       return [...(line.length ? [paragraph(...line)] : []), ...(options.hideDescription ? [] : describe(description))]
     }
@@ -616,7 +700,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       // A wrapper prints its merged summary, then its core schema's structure.
       if (value.core !== undefined) {
         const nodes = header(input, depth, options)
-        if (label.complete) return nodes
+        if (label.complete) {
+          return nodes
+        }
         return [
           ...nodes,
           ...render(value.core, depth, ancestors, {
@@ -636,15 +722,23 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
           const referenceOptions = options.name === undefined ? options : { ...options, hideDetails: true }
           return reference(input, referenceOptions, previous.name, 'above')
         }
-        if (value.name !== undefined && options.name === undefined && depth >= MAX_DEPTH && sections.has(shared))
+        if (value.name !== undefined && options.name === undefined && depth >= MAX_DEPTH && sections.has(shared)) {
           return reference(input, options, value.name, 'below under Schemas')
+        }
       }
-      if (depth >= MAX_DEPTH) return [paragraph(text('[Maximum schema depth reached]'))]
-      if (nodeCount >= maxNodes) return [paragraph(emphasis(text('[Schema output truncated]')))]
+      if (depth >= MAX_DEPTH) {
+        return [paragraph(text('[Maximum schema depth reached]'))]
+      }
+      if (nodeCount >= maxNodes) {
+        return [paragraph(emphasis(text('[Schema output truncated]')))]
+      }
       nodeCount++
-      if (shared && name !== undefined && !shown.has(shared))
+      if (shared && name !== undefined && !shown.has(shared)) {
         shown.set(shared, { name, description: value.description })
-      if (typeof value.schema === 'boolean') return header(input, depth, options)
+      }
+      if (typeof value.schema === 'boolean') {
+        return header(input, depth, options)
+      }
       const childAncestors = [...ancestors, identity]
       const nodes: RootContent[] = []
       // Discriminator values that name a branch are printed beside it instead of in a separate list.
@@ -657,7 +751,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
           ['anyOf', 'Any of:'],
           ['oneOf', 'One of:'],
         ] as const) {
-          if (!value[key]?.length) continue
+          if (!value[key]?.length) {
+            continue
+          }
           // One list item per branch keeps the boundary between branches visible.
           const branches = value[key].map((child) => {
             const blocks = render(child, depth + 1, childAncestors, { showType: true }) as ListItem['children']
@@ -665,7 +761,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
             const values = key === 'allOf' || ref === undefined ? [] : mappings.filter(([, target]) => target === ref)
             const first = blocks[0]
             if (values.length && first?.type === 'paragraph') {
-              for (const [name] of values) mapped.add(name)
+              for (const [name] of values) {
+                mapped.add(name)
+              }
               first.children.push(
                 text(`${first.children.length ? ', ' : ''}${value.discriminator!.propertyName}: `),
                 inlineCode(values.map(([name]) => name).join(', ')),
@@ -681,10 +779,13 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
             ),
             list(branches),
           )
-          if (discriminated) discriminatorShown = true
+          if (discriminated) {
+            discriminatorShown = true
+          }
         }
-        if (value.not !== undefined)
+        if (value.not !== undefined) {
           nodes.push(paragraph(strong(text('Not:'))), ...render(value.not, depth + 1, childAncestors))
+        }
       }
       // Child sections imply a single container type, but never its nullable alternatives.
       const impliedType =
@@ -697,8 +798,9 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
         // A reference sibling may require a field declared only in the target schema.
         const declared = new Set(value.properties.map(([name]) => name))
         const required = [...value.required].filter((name) => !declared.has(name))
-        if (required.length)
+        if (required.length) {
           nodes.push(paragraph(strong(text('Required fields:')), text(' '), inlineCode(required.join(', '))))
+        }
       }
       if (value.properties.length) {
         const properties = value.properties.map(([name, schema]): ListItem => {
@@ -707,9 +809,11 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
           const title: PhrasingContent[] = [
             strong(inlineCode(name), ...(value.required.has(name) ? [text(' (required)')] : [])),
           ]
-          if (line.length) title.push(text(': '), ...line)
+          if (line.length) {
+            title.push(text(': '), ...line)
+          }
           const blocks: ListItem['children'] = [paragraph(...title), ...describe(description)]
-          if (!childLabel.complete)
+          if (!childLabel.complete) {
             blocks.push(
               ...(render(schema, depth + 1, childAncestors, {
                 hideDetails: true,
@@ -717,6 +821,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
                 property: true,
               }) as ListItem['children']),
             )
+          }
           return item(...blocks)
         })
         nodes.push(list(properties))
@@ -731,15 +836,16 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
           ...render(value.items, depth + 1, childAncestors),
         )
       }
-      if (isObject(value.additionalProperties))
+      if (isObject(value.additionalProperties)) {
         nodes.push(
           paragraph(strong(text('Additional properties:'))),
           ...render(value.additionalProperties as MarkdownSchema, depth + 1, childAncestors),
         )
+      }
       const unmapped = mappings.filter(([name]) => !mapped.has(name))
       if (value.discriminator && (!discriminatorShown || unmapped.length)) {
         nodes.push(paragraph(strong(text('Discriminator:')), text(' '), inlineCode(value.discriminator.propertyName)))
-        if (unmapped.length)
+        if (unmapped.length) {
           nodes.push(
             list(
               unmapped.map(([name, target]) =>
@@ -753,6 +859,7 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
               ),
             ),
           )
+        }
       }
       return nodes
     }
@@ -769,31 +876,41 @@ export const createSchemaRenderer = ({ maxNodes = MAX_NODES }: SchemaRendererOpt
       patternProperties: 'map',
     }
     const getExampleSchema = (input: unknown, root: boolean): unknown => {
-      if (!isObject(input)) return input
+      if (!isObject(input)) {
+        return input
+      }
       if (!root && getLink(input as MarkdownSchema) !== undefined) {
         const types = getTypes(view(input as MarkdownSchema))
         return types.includes('array') && !types.includes('object') ? { type: 'array', items: {} } : { type: 'object' }
       }
       // Primitive references stay linked; a spread copy would lose the non-enumerable target.
       if (getRef(input) !== undefined) {
-        if (!root) return input
+        if (!root) {
+          return input
+        }
         // Merging keeps the `$ref` key, which must not be followed again.
         const merged = getResolvedRef(input as MarkdownSchema, mergeSiblingReferences)
-        if (!isObject(merged)) return merged
+        if (!isObject(merged)) {
+          return merged
+        }
         const { $ref: _ref, ...target } = merged
         return getExampleSchema(target, true)
       }
       const copy: Record<string, unknown> = { ...input }
       for (const [key, kind] of Object.entries(schemaKeywords)) {
         const value = input[key]
-        if (kind === 'one') copy[key] = getExampleSchema(value, false)
-        else if (kind === 'list' && Array.isArray(value))
+        if (kind === 'one') {
+          copy[key] = getExampleSchema(value, false)
+        } else if (kind === 'list' && Array.isArray(value)) {
           copy[key] = value.map((entry) => getExampleSchema(entry, false))
-        else if (kind === 'map' && isObject(value))
+        } else if (kind === 'map' && isObject(value)) {
           copy[key] = Object.fromEntries(
             Object.entries(value).map(([name, entry]) => [name, getExampleSchema(entry, false)]),
           )
-        if (copy[key] === undefined) delete copy[key]
+        }
+        if (copy[key] === undefined) {
+          delete copy[key]
+        }
       }
       return copy
     }

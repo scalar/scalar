@@ -56,8 +56,9 @@ describe('render-security', () => {
       '- **oauth**: OAuth 2.0: authorization code, authorize `https://auth.example.com/authorize`, token `https://auth.example.com/token`, scopes: `read, write`',
       '- **oidc**: OpenID Connect `https://auth.example.com/.well-known/openid-configuration`',
       '- **basic**: HTTP basic\n- **mtls**: Mutual TLS',
-    ])
+    ]) {
       expect(markdown).toContain(line)
+    }
     expect(markdown).not.toContain('"type"')
   })
 })

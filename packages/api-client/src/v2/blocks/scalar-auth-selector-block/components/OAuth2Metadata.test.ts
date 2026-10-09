@@ -71,7 +71,7 @@ describe('OAuth2Metadata', () => {
     const update = vi.fn()
     eventBus.on('auth:update:security-scheme', update)
     vi.useFakeTimers()
-    let resolveResponse: (value: Response) => void = () => {}
+    let resolveResponse: (value: Response) => void = () => undefined
     const response = new Promise<Response>((resolve) => {
       resolveResponse = resolve
     })

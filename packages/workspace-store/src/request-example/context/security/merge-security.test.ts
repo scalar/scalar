@@ -376,7 +376,7 @@ describe('mergeSecurity', () => {
 
     const sourceOauthScheme = getResolvedRef(securitySchemes.oauth2)
     expect(sourceOauthScheme?.type).toBe('oauth2')
-    if (!sourceOauthScheme || sourceOauthScheme.type !== 'oauth2') {
+    if (sourceOauthScheme?.type !== 'oauth2') {
       throw new Error('Expected oauth2 scheme in source securitySchemes')
     }
 

@@ -350,7 +350,7 @@ describe('responses', () => {
   })
 
   it('keeps content and logs warning when no-body status code has explicit body example', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const responses: Response[] = [
       {
         code: 204,

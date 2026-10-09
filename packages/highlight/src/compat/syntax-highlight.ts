@@ -90,7 +90,9 @@ const render = (
         end = stop
       }
 
-      if (stop === e) break
+      if (stop === e) {
+        break
+      }
 
       // Landed on a newline: close the line and restart after it. The newline
       // itself is written by the wrapper, not carried as token text.
@@ -111,10 +113,14 @@ const render = (
   }
   endLine()
 
-  if (!lineMode) return { html: lines.join(''), count: lines.length }
+  if (!lineMode) {
+    return { html: lines.join(''), count: lines.length }
+  }
 
   let html = ''
-  for (const content of lines) html += `<span class="line">${content}\n</span>`
+  for (const content of lines) {
+    html += `<span class="line">${content}\n</span>`
+  }
   return { html, count: lines.length }
 }
 
@@ -137,7 +143,9 @@ const applyCredentialMask = (html: string, credentials: string | string[] | unde
     (credential) => credential.length >= MIN_CREDENTIAL_LENGTH,
   )
 
-  if (!list.length) return html
+  if (!list.length) {
+    return html
+  }
 
   return list.reduce(
     (acc, credential) =>

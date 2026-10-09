@@ -153,13 +153,18 @@ export const phpLaravel: Plugin = {
     const requestMethod = normalizedRequest.method.toLowerCase()
     const supportsDirectMethod = ['delete', 'get', 'head', 'patch', 'post', 'put'].includes(requestMethod)
 
-    const requestCall = supportsDirectMethod
-      ? payload !== undefined && requestMethod !== 'head'
-        ? `${requestMethod}(${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
-        : `${requestMethod}(${quotePhpString(url)})`
-      : payload !== undefined
-        ? `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
-        : `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)})`
+    let requestCall: string
+    if (supportsDirectMethod) {
+      requestCall =
+        payload !== undefined && requestMethod !== 'head'
+          ? `${requestMethod}(${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
+          : `${requestMethod}(${quotePhpString(url)})`
+    } else {
+      requestCall =
+        payload !== undefined
+          ? `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)}, ${objectToString(escapeObjectKeys(payload), 1)})`
+          : `send(${quotePhpString(normalizedRequest.method)}, ${quotePhpString(url)})`
+    }
 
     const expression =
       chain.length > 0

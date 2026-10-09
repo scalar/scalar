@@ -23,7 +23,9 @@ export const registerLanguage = (...grammars: Grammar[]): void => {
     if (previous) {
       for (const key of [previous.name, ...(previous.aliases ?? [])]) {
         const lower = key.toLowerCase()
-        if (sources.get(lower) === previous) sources.delete(lower)
+        if (sources.get(lower) === previous) {
+          sources.delete(lower)
+        }
         cache.delete(lower)
       }
     }
@@ -53,10 +55,14 @@ const isCompiled = (value: Grammar | CompiledGrammar): value is CompiledGrammar 
 export const getLanguage = (name: string): CompiledGrammar | undefined => {
   const key = name.toLowerCase()
   const hit = cache.get(key)
-  if (hit) return hit
+  if (hit) {
+    return hit
+  }
 
   const grammar = sources.get(key)
-  if (!grammar) return undefined
+  if (!grammar) {
+    return undefined
+  }
 
   const built = compile(grammar)
   // Cache under every alias so repeat lookups skip the alias hop.
@@ -76,7 +82,9 @@ export const resolveGrammar = (lang: string | Grammar | CompiledGrammar): Compil
     return isCompiled(lang) ? lang : compile(lang)
   }
   const found = getLanguage(lang)
-  if (found) return found
+  if (found) {
+    return found
+  }
 
   const known = listLanguages()
   throw new Error(

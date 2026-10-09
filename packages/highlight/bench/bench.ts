@@ -28,7 +28,9 @@ type Result = {
 
 const time = (label: string, run: () => void, bytes: number): Result => {
   // Warm up so we measure optimized code, not the interpreter tier.
-  for (let i = 0; i < 50; i++) run()
+  for (let i = 0; i < 50; i++) {
+    run()
+  }
 
   const rates: number[] = []
   const perRun: number[] = []

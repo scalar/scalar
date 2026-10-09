@@ -44,24 +44,20 @@ export const serializeReservedPathParameter = (
     if (array && explode) {
       return array.map((item) => `;${encode(name)}=${encode(item)}`).join('')
     }
-    const data = entries
-      ? entries.flatMap(([key, item]) => [encode(key), encode(item)]).join(',')
-      : array
-        ? array.map(encode).join(',')
-        : encode(value)
+    const parts = entries ? entries.flatMap(([key, item]) => [key, item]) : (array ?? [value])
+    const data = parts.map(encode).join(',')
     return `;${encode(name)}=${data}`
   }
 
   const delimiter = style === 'label' && explode ? '.' : ','
-  const data = entries
-    ? entries
-        .map(([key, item]) =>
-          explode ? `${encode(key)}=${encode(item)}` : `${encode(key)}${delimiter}${encode(item)}`,
-        )
-        .join(delimiter)
-    : array
-      ? array.map(encode).join(delimiter)
-      : encode(value)
+  let data: string
+  if (entries) {
+    data = entries
+      .map(([key, item]) => (explode ? `${encode(key)}=${encode(item)}` : `${encode(key)}${delimiter}${encode(item)}`))
+      .join(delimiter)
+  } else {
+    data = array ? array.map(encode).join(delimiter) : encode(value)
+  }
   return style === 'label' ? `.${data}` : data
 }
 

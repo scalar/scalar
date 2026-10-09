@@ -312,7 +312,9 @@ export const executeResponseHook = async (
         // Do not await cancellation: it can wait for the retained branch to finish.
         for (const body of [previousResponse.body, clone.body]) {
           if (body && body !== nextResponse?.body && !body.locked) {
-            void body.cancel().catch(() => {})
+            void body.cancel().catch(() => {
+              // Cancellation is best effort; preserve the response already selected by the plugin.
+            })
           }
         }
       }

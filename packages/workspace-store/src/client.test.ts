@@ -598,11 +598,11 @@ describe('create-workspace-store', () => {
 
     // We expect the ref to have been resolved with the correct contents
     expect(
-      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value'].summary,
+      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)?.['$ref-value'].summary,
     ).toEqual(getDocument().paths['/users'].get.summary)
 
     expect(
-      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value']
+      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)?.['$ref-value']
         ?.responses?.[200]?.content['application/json']?.schema?.items['$ref-value']['$ref-value'],
     ).toEqual({
       ...getDocument().components.schemas.User,
@@ -664,7 +664,9 @@ describe('create-workspace-store', () => {
       const get = getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any
       expect(get['$ref-value'].summary).toBe('Get all users')
       // The shared schema lands in the document's components, once
-      expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
+      expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)?.['$ref-value'].type).toBe(
+        'object',
+      )
       expect(requests.slice(1).sort()).toEqual([
         '/chunks/default/components/schemas/User.json',
         '/chunks/default/operations/~1users/get.json',
@@ -802,7 +804,7 @@ describe('create-workspace-store', () => {
     // We resolve the ref
     await store.resolve(['paths', '/users', 'get'])
 
-    expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
+    expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)?.['$ref-value'].type).toBe('object')
   })
 
   it('build the sidebar client side', async () => {

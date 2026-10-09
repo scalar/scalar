@@ -112,8 +112,11 @@ const runs = (code: string, lang: string): [string, string | null][] => {
   const out: [string, string | null][] = []
   for (const token of tokenize(code, lang)) {
     const last = out[out.length - 1]
-    if (last && last[1] === token.scope) last[0] += token.text
-    else out.push([token.text, token.scope])
+    if (last && last[1] === token.scope) {
+      last[0] += token.text
+    } else {
+      out.push([token.text, token.scope])
+    }
   }
   return out
 }

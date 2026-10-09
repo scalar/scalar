@@ -115,24 +115,25 @@ export const parseQuerystringParameter = (url: string, parameter: OpenAPIV3_2.Pa
       encoding?.style !== undefined || encoding?.explode !== undefined || encoding?.allowReserved !== undefined
     if (styleBased) {
       const { style, explode } = resolveSerialization('query', encoding?.style, encoding?.explode)
-      const value = isObjectSchema(property)
-        ? deserializeObjectParameter({
-            style,
-            explode,
-            single,
-            map,
-            name,
-            propertyNames: getObjectPropertyNames(property),
-            reservedKeys: new Set(Object.keys(properties)),
-          })
-        : isArraySchema(property)
-          ? deserializeArrayParameter({
-              style,
-              explode,
-              single,
-              multi: params.has(name) ? params.getAll(name) : undefined,
-            })
-          : single
+      let value: unknown = single
+      if (isObjectSchema(property)) {
+        value = deserializeObjectParameter({
+          style,
+          explode,
+          single,
+          map,
+          name,
+          propertyNames: getObjectPropertyNames(property),
+          reservedKeys: new Set(Object.keys(properties)),
+        })
+      } else if (isArraySchema(property)) {
+        value = deserializeArrayParameter({
+          style,
+          explode,
+          single,
+          multi: params.has(name) ? params.getAll(name) : undefined,
+        })
+      }
       if (value !== undefined) {
         if (
           isObjectSchema(property) &&

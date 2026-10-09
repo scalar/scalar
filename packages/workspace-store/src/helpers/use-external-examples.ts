@@ -27,7 +27,9 @@ export const useExampleVisibility = (target: Ref<Element | ComponentPublicInstan
       observer?.disconnect()
       visible.value = false
       const node = element && ('$el' in element ? element.$el : element)
-      if (typeof Element === 'undefined' || !(node instanceof Element)) return
+      if (typeof Element === 'undefined' || !(node instanceof Element)) {
+        return
+      }
       if (typeof IntersectionObserver === 'undefined') {
         visible.value = true
         return
@@ -66,9 +68,13 @@ export const useExternalExamples = (
   )
 
   watchEffect(() => {
-    if (!enabled()) return
+    if (!enabled()) {
+      return
+    }
     for (const state of states.value) {
-      if (state.status === 'idle') void state.load()
+      if (state.status === 'idle') {
+        void state.load()
+      }
     }
   })
 
@@ -76,9 +82,13 @@ export const useExternalExamples = (
     pending: computed(() => states.value.some((state) => state.status !== 'loaded')),
     failed: computed(() => states.value.some((state) => state.status === 'error')),
     resolve: (example) => {
-      if (!example || example.value !== undefined || !example.externalValue) return example
+      if (!example || example.value !== undefined || !example.externalValue) {
+        return example
+      }
       const state = getResolver()(example)
-      if (state.status !== 'loaded') return example
+      if (state.status !== 'loaded') {
+        return example
+      }
       // A 3.2 example can pair structured data with external wire text. Keep both in the
       // resolved view so raw consumers display the download and form editors retain the data.
       if (example.dataValue !== undefined && state.serializedValue !== undefined) {

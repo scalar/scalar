@@ -27,7 +27,9 @@ describe('nodeUndici', () => {
         await writeFile(join(directory, 'second.bin'), bytes[1]!)
         await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
         const address = server.address()
-        if (!address || typeof address === 'string') throw new Error('Expected a local server address')
+        if (!address || typeof address === 'string') {
+          throw new Error('Expected a local server address')
+        }
         const snippet = nodeUndici.generate({
           url: `http://127.0.0.1:${address.port}/`,
           method: 'POST',
@@ -59,7 +61,9 @@ describe('nodeUndici', () => {
         const files = parsed.getAll('upload')
         expect(files.length).toBe(2)
         for (const [index, file] of files.entries()) {
-          if (!(file instanceof File)) throw new Error('Expected a file part')
+          if (!(file instanceof File)) {
+            throw new Error('Expected a file part')
+          }
           expect(file.name).toBe(index === 0 ? 'payload.bin' : 'second.bin')
           expect(new Uint8Array(await file.arrayBuffer())).toStrictEqual(bytes[index])
         }

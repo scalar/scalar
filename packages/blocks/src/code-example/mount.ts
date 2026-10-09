@@ -60,8 +60,15 @@ export type CreateCodeExampleOptions = {
  * The `.scalar-app` class scopes the Tailwind utilities, and the optional
  * color-mode class lets consumers pin the block to dark or light.
  */
-const getWrapperClass = (darkMode: boolean | undefined): string =>
-  ['scalar-app', darkMode === true ? 'dark-mode' : darkMode === false ? 'light-mode' : ''].filter(Boolean).join(' ')
+const getWrapperClass = (darkMode: boolean | undefined): string => {
+  if (darkMode === true) {
+    return 'scalar-app dark-mode'
+  }
+  if (darkMode === false) {
+    return 'scalar-app light-mode'
+  }
+  return 'scalar-app'
+}
 
 /**
  * Mount the CodeExample block to a DOM element without Vue.

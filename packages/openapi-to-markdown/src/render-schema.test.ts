@@ -11,8 +11,12 @@ import { type SchemaRenderer, createSchemaRenderer } from './render-schema'
 const stringify = (children: RootContent[]): string => {
   const expand = (nodes: Nodes[]): Nodes[] =>
     nodes.flatMap((node): Nodes[] => {
-      if (node.type === 'descriptionPlaceholder') return unified().use(remarkParse).parse(node.value).children
-      if ('children' in node) (node as { children: Nodes[] }).children = expand(node.children)
+      if (node.type === 'descriptionPlaceholder') {
+        return unified().use(remarkParse).parse(node.value).children
+      }
+      if ('children' in node) {
+        ;(node as { children: Nodes[] }).children = expand(node.children)
+      }
       return [node]
     })
   return unified()

@@ -387,8 +387,9 @@ describe('create-openapi-markdown-renderer', () => {
       '[Customer/Name\\~](/models/Customer%2FName~)',
       '[Node0](/models/Node0)',
       '400 Failure',
-    ])
+    ]) {
       expect(output).toContain(value)
+    }
     expect(output).not.toContain('deepSecret')
     expect(output).not.toContain('## Schemas')
     expect(JSON.stringify(input)).toBe(before)
@@ -447,8 +448,9 @@ describe('create-openapi-markdown-renderer', () => {
       '`extra` (required)',
       'minimum: `3`',
       'false schema',
-    ])
+    ]) {
       expect(output).toContain(value)
+    }
   })
   it('keeps supplied examples and uses text for unsafe or missing URLs', async () => {
     const renderer = await createOpenApiMarkdownRenderer({
@@ -535,7 +537,9 @@ describe('create-openapi-markdown-renderer', () => {
       ),
     )
     const [operation, a, b, node] = pages
-    for (const page of pages) expect(page).not.toContain('[Circular Reference]')
+    for (const page of pages) {
+      expect(page).not.toContain('[Circular Reference]')
+    }
     expect(operation).not.toContain('## Schemas')
     expect(operation).toContain('aField')
     expect(operation).toContain('[B](/models/B)')
@@ -707,8 +711,9 @@ describe('create-openapi-markdown-renderer', () => {
       '- **`next` (required)**: `string | null`',
       '- **`level`**: `integer`, possible values: `1, 2, 3`',
       '- **`parent`**: [Message](/models/Message.md) | `null`',
-    ])
+    ]) {
       expect(markdown).toContain(line)
+    }
     expect(markdown).not.toContain('/models/Timestamp.md')
     expect(markdown).not.toContain('Any of:')
     expect(markdown).not.toContain('All of:')

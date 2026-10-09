@@ -379,7 +379,7 @@ describe('AuthSelector', () => {
     // The combobox options render in a teleported popover that calls `scrollIntoView`, which jsdom
     // does not implement. Polyfill it so opening the dropdown does not throw.
     if (!HTMLElement.prototype.scrollIntoView) {
-      HTMLElement.prototype.scrollIntoView = () => {}
+      HTMLElement.prototype.scrollIntoView = () => undefined
     }
 
     /** Mounts attached to the DOM (so the teleported popover mounts) and opens the auth combobox. */
