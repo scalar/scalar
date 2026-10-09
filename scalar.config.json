@@ -1654,7 +1654,7 @@
                   "privacy": {
                     "title": "Privacy",
                     "type": "page",
-                    "description": "How Scalar Docs handles privacy: no analytics and no tracking scripts on your documentation by default.",
+                    "description": "How Scalar Docs handles privacy: first-party page view analytics, no third-party tracking, and only technically required cookies.",
                     "filepath": "documentation/guides/docs/privacy.md"
                   },
                   "configuration": {
