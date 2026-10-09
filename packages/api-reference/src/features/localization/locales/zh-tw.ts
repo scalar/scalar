@@ -29,6 +29,8 @@ export const zhTw = {
     entryOperation: '操作',
     entryTag: '標籤',
     entryTagGroup: '標籤群組',
+    entryChannel: '通道',
+    entryMessage: '訊息',
     entryWebhook: 'Webhook',
   },
   navigation: {

@@ -28,19 +28,25 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
 const { translate } = useLocalization()
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
-  heading: ScalarIconTextAlignLeft,
-  model: ScalarIconBracketsCurly,
-  operation: ScalarIconTerminalWindow,
-  tag: ScalarIconTag,
-  webhook: ScalarIconWebhooksLogo,
+  'heading': ScalarIconTextAlignLeft,
+  'model': ScalarIconBracketsCurly,
+  'operation': ScalarIconTerminalWindow,
+  'tag': ScalarIconTag,
+  'webhook': ScalarIconWebhooksLogo,
+  'asyncapi-channel': ScalarIconTerminalWindow,
+  'asyncapi-operation': ScalarIconTerminalWindow,
+  'asyncapi-message': ScalarIconBracketsCurly,
 }
 
 const entryLabels = computed((): { [x in EntryType]: string } => ({
-  heading: translate('search.entryHeading'),
-  operation: translate('search.entryOperation'),
-  tag: translate('search.entryTag'),
-  model: modelsSectionLabel,
-  webhook: translate('search.entryWebhook'),
+  'heading': translate('search.entryHeading'),
+  'operation': translate('search.entryOperation'),
+  'tag': translate('search.entryTag'),
+  'model': modelsSectionLabel,
+  'webhook': translate('search.entryWebhook'),
+  'asyncapi-channel': translate('search.entryChannel'),
+  'asyncapi-operation': translate('search.entryOperation'),
+  'asyncapi-message': translate('search.entryMessage'),
 }))
 </script>
 
@@ -85,6 +91,11 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
             {{ result.item.method ?? 'get' }}
           </span>
         </template>
+        <span
+          v-if="result.item.action"
+          class="text-c-2 text-xs font-semibold uppercase">
+          {{ result.item.action }}
+        </span>
         <span class="sr-only">{{ translate('common.path') }}:&nbsp;</span>
         {{ result.item.path }}
       </span>

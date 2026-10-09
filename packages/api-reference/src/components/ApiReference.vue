@@ -574,9 +574,7 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
- * documents are surfaced so the search index can pick up info.description
- * headings from either spec; AsyncAPI-specific entries (channels, operations,
- * messages) are not indexed yet.
+ * documents are surfaced so the search index can include their navigation content.
  */
 const activeSearchableDocument = computed(
   () => workspaceStore.workspace.activeDocument,

@@ -29,6 +29,8 @@ export const ru = {
     entryOperation: 'Операция',
     entryTag: 'Тег',
     entryTagGroup: 'Группа тегов',
+    entryChannel: 'Канал',
+    entryMessage: 'Сообщение',
     entryWebhook: 'Вебхук',
   },
   navigation: {
