@@ -18,7 +18,7 @@ Scalar helps teams create API interfaces built for developers and agents, includ
 Use Scalar as a controlled surface for API descriptions, SDK generation, MCP installations, registry workflows, and developer tooling.
 
 - **Single sign-on:** SAML-based SSO keeps authentication tied to your organization's identity provider. Read the [SSO guide](./sso/getting-started.md).
-- **Role-based access:** Manage access boundaries across workspaces, teams, and API projects as your organization grows.
+- **Role-based access:** Control what each team member can do with team roles. Read [User Management](./team/user-management.md).
 - **Private API interfaces:** Publish internal references, portals, and API workflows behind access controls while keeping public interfaces simple to share.
 - **Git-native review:** Keep API description changes visible in the same review flow your engineers already use.
 
@@ -27,8 +27,8 @@ Use Scalar as a controlled surface for API descriptions, SDK generation, MCP ins
 Scalar's hosted API interfaces are privacy-friendly by default, with only technically required cookies used for authentication and routing.
 
 - **Technically required cookies only:** Scalar uses required cookies for authentication and subpath routing, not visitor profiling.
-- **No fingerprinting:** Custom-domain projects do not use fingerprinting technologies to identify visitors.
-- **No request IP logging:** Request traffic is not logged; internal proxy error logs do not include IP addresses.
+- **No third-party tracking:** Hosted docs carry no third-party analytics scripts or tracking cookies.
+- **First-party analytics without IP addresses:** Docs sites count page views on Scalar's servers with a visitor pseudonym that changes daily. IP addresses are never stored, and each project can turn analytics off.
 - **GDPR privacy rights:** European users can request access, correction, deletion, transfer, or withdraw consent through Scalar's privacy contact.
 
 Read more in the [privacy notes](./docs/privacy.md).

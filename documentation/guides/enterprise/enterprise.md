@@ -84,7 +84,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
 
 <h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/shield-check"></scalar-icon>Enterprise security, access, and operations</h3>
 
-**SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Audit trails** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** with no third-party analytics on your custom domains, no visitor tracking cookies for docs traffic, and no IP logging for request traffic ([Docs privacy](../docs/privacy.md)). **MCP guardrails** so you choose which endpoints become agent tools, set search vs execute modes, and apply API auth per installation ([MCP](../agent/mcp.md)).
+**SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Audit trails** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** with no third-party analytics or tracking cookies, and first-party page view analytics that never store IP addresses ([Docs privacy](../docs/privacy.md)). **MCP guardrails** so you choose which endpoints become agent tools, set search vs execute modes, and apply API auth per installation ([MCP](../agent/mcp.md)).
 </div>
 <div class="enterprise-stats border-l sticky h-fit flex flex-col gap-3">
 
