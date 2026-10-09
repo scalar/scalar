@@ -341,6 +341,9 @@ export const ar = {
     'body': 'الجسم',
   },
   'requestParams': {
+    'addParameter': 'إضافة معلمة',
+    'searchParameters': 'البحث عن المعلمات',
+    'noParametersFound': 'لا توجد معلمات مطابقة',
     'clearAll': 'مسح الكل: {title}',
     'clear': 'مسح',
     'clearOptionalParameters': 'مسح المعاملات الاختيارية',

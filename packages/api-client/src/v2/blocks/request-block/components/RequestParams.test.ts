@@ -1,9 +1,35 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isParamDisabled } from '@scalar/workspace-store/request-example'
-import { mount } from '@vue/test-utils'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { createParameterRows } from '../helpers/create-parameter-rows'
 import RequestParams from './RequestParams.vue'
+import RequestTable from './RequestTable.vue'
+
+const filter = {
+  name: 'filters',
+  in: 'query',
+  style: 'deepObject',
+  explode: true,
+  schema: {
+    type: 'object',
+    required: ['required'],
+    properties: {
+      empty: { type: 'string', description: 'An optional filter' },
+      required: { type: 'string' },
+      populated: { type: 'string' },
+      zero: { type: 'integer' },
+    },
+  },
+  examples: { ex: { value: { populated: 'keep', zero: 0 }, 'x-disabled': true } },
+} satisfies ParameterObject
+
+const createRows = () => [
+  ...createParameterRows(filter, 'ex'),
+  ...createParameterRows({ name: 'take', in: 'query', schema: { type: 'integer' } }, 'ex'),
+]
 
 const environment = {
   description: 'Test Environment',
@@ -14,6 +40,128 @@ const environment = {
 const eventBus = createWorkspaceEventBus()
 
 describe('RequestParams', () => {
+  it('offers only empty optional expanded fields while keeping ordinary and populated disabled parameters visible', () => {
+    const wrapper = mount(RequestParams, {
+      props: {
+        rows: createRows(),
+        selectExpandedParameters: true,
+        eventBus,
+        exampleKey: 'ex',
+        title: 'Query Parameters',
+        environment,
+      },
+    })
+    expect(
+      wrapper
+        .getComponent(RequestTable)
+        .props('data')
+        .map((row) => [row.name, row.value]),
+    ).toStrictEqual([
+      ['filters[required]', ''],
+      ['filters[populated]', 'keep'],
+      ['filters[zero]', '0'],
+      ['take', ''],
+    ])
+    expect(
+      wrapper
+        .getComponent({ name: 'ScalarCombobox' })
+        .props('options')
+        .map((option: { label: string }) => option.label),
+    ).toStrictEqual(['filters[empty]'])
+    wrapper.unmount()
+  })
+
+  it('adds an empty field without changing the request and focuses its value', async () => {
+    const wrapper = mount(RequestParams, {
+      attachTo: document.body,
+      props: {
+        rows: createRows(),
+        selectExpandedParameters: true,
+        eventBus,
+        exampleKey: 'ex',
+        title: 'Query Parameters',
+        environment,
+      },
+    })
+    const picker = wrapper.getComponent({ name: 'ScalarCombobox' })
+    await picker.vm.$emit('update:modelValue', picker.props('options')[0])
+    await flushPromises()
+    expect(
+      wrapper
+        .getComponent(RequestTable)
+        .props('data')
+        .map((row) => row.name),
+    ).toStrictEqual(['filters[empty]', 'filters[required]', 'filters[populated]', 'filters[zero]', 'take'])
+    expect(wrapper.emitted('upsert')).toBeUndefined()
+    expect(document.activeElement).toBe(wrapper.findAll('[contenteditable][aria-label=" Value"]')[0]?.element)
+    await wrapper.get('button[aria-label="Delete filters[empty]"]').trigger('click')
+    expect(wrapper.emitted('delete')).toStrictEqual([[{ index: 0 }]])
+    expect(
+      wrapper
+        .getComponent({ name: 'ScalarCombobox' })
+        .props('options')
+        .map((option: { label: string }) => option.label),
+    ).toStrictEqual(['filters[empty]'])
+    wrapper.unmount()
+  })
+
+  it('maps edits and new custom rows to the full parameter context and retains a cleared field', async () => {
+    const rows = createRows()
+    const wrapper = mount(RequestParams, {
+      props: {
+        rows,
+        selectExpandedParameters: true,
+        eventBus,
+        exampleKey: 'ex',
+        title: 'Query Parameters',
+        environment,
+      },
+    })
+    const table = wrapper.getComponent(RequestTable)
+    await table.vm.$emit('upsertRow', 1, { name: 'filters[populated]', value: '', isDisabled: false })
+    await table.vm.$emit('upsertRow', 4, { name: 'custom', value: 'new', isDisabled: false })
+    expect(wrapper.emitted('upsert')).toStrictEqual([
+      [2, { name: 'filters[populated]', value: '', isDisabled: false }],
+      [5, { name: 'custom', value: 'new', isDisabled: false }],
+    ])
+    await wrapper.setProps({
+      rows: rows.map((row) => (row.name === 'filters[populated]' ? { ...row, value: '' } : row)),
+    })
+    expect(table.props('data').map((row) => row.name)).toStrictEqual([
+      'filters[required]',
+      'filters[populated]',
+      'filters[zero]',
+      'take',
+    ])
+    wrapper.unmount()
+  })
+
+  it('keeps the existing table for single-field objects and sections without selection enabled', () => {
+    const rows = createParameterRows(
+      { name: 'filter', in: 'query', schema: { type: 'object', properties: { status: { type: 'string' } } } },
+      'ex',
+    )
+    const wrapper = mount(RequestParams, {
+      props: {
+        rows,
+        selectExpandedParameters: true,
+        eventBus,
+        exampleKey: 'ex',
+        title: 'Query Parameters',
+        environment,
+      },
+    })
+    expect(wrapper.getComponent(RequestTable).props('data')).toStrictEqual(rows)
+    expect(wrapper.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(false)
+    wrapper.unmount()
+    const ordinary = mount(RequestParams, {
+      props: { rows: createRows(), eventBus, exampleKey: 'ex', title: 'Query Parameters', environment },
+    })
+    expect(ordinary.getComponent(RequestTable).props('data')).toStrictEqual(createRows())
+    expect(ordinary.findComponent({ name: 'ScalarCombobox' }).exists()).toBe(false)
+    ordinary.unmount()
+  })
+
   it('renders with empty parameters and passes data to table', () => {
     const wrapper = mount(RequestParams, {
       props: {

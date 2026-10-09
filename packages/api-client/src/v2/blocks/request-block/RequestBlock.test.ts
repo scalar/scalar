@@ -1,6 +1,6 @@
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
 
@@ -42,6 +42,63 @@ const defaultProps = {
 } satisfies RequestBlockProps
 
 describe('RequestBlock', () => {
+  it('preserves sibling values when editing a selected filter and resets selection across examples and operations', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const upsert = vi.fn()
+    eventBus.on('operation:upsert:parameter', upsert)
+    const filter = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: { type: 'object', properties: { empty: { type: 'string' }, status: { type: 'string' } } },
+      examples: { 'example-1': { value: { status: 'active' } } },
+    } satisfies NonNullable<OperationObject['parameters']>[number]
+    const wrapper = mount(RequestBlock, { props: { ...defaultProps, eventBus, operation: { parameters: [filter] } } })
+    const query = () => {
+      const section = wrapper
+        .findAllComponents(RequestParams)
+        .find((component) => component.props('selectExpandedParameters'))
+      if (!section) throw new Error('Missing query section')
+      return section
+    }
+    const select = async (): Promise<void> => {
+      const picker = query().getComponent({ name: 'ScalarCombobox' })
+      picker.vm.$emit('update:modelValue', picker.props('options')[0])
+      await flushPromises()
+    }
+    await select()
+    query()
+      .getComponent({ name: 'RequestTable' })
+      .vm.$emit('upsertRow', 0, { name: 'filters[empty]', value: 'new', isDisabled: false })
+    await vi.waitFor(() =>
+      expect(upsert.mock.calls[0]).toStrictEqual([
+        {
+          type: 'query',
+          payload: { name: 'filters', value: { empty: 'new', status: 'active' }, isDisabled: false },
+          originalParameter: filter,
+          meta: { method: 'get', path: defaultProps.path, exampleKey: 'example-1' },
+        },
+      ]),
+    )
+    await wrapper.setProps({ exampleKey: 'other' })
+    expect(
+      query()
+        .getComponent({ name: 'RequestTable' })
+        .props('data')
+        .map((row: TableRow) => row.name),
+    ).toStrictEqual([])
+    await select()
+    await wrapper.setProps({ path: '/other' })
+    expect(
+      query()
+        .getComponent({ name: 'RequestTable' })
+        .props('data')
+        .map((row: TableRow) => row.name),
+    ).toStrictEqual([])
+    wrapper.unmount()
+  })
+
   it('renders a whole-query editor and disables adding named query parameters', () => {
     const parameter = {
       name: 'json',
@@ -422,7 +479,7 @@ describe('RequestBlock', () => {
     ])
   })
 
-  it('removes deleted expanded query rows from the rendered rows', async () => {
+  it('keeps deleted expanded query fields available for selection', async () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()
     const pageable = {
@@ -505,6 +562,7 @@ describe('RequestBlock', () => {
     })
     expect((getQueryParams().props() as { rows: TableRow[] }).rows.map((row) => row.name)).toStrictEqual([
       'page',
+      'size',
       'sort',
     ])
   })

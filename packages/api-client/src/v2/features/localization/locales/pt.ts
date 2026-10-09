@@ -347,6 +347,9 @@ export const pt = {
     'body': 'Corpo',
   },
   'requestParams': {
+    'addParameter': 'Adicionar parâmetro',
+    'searchParameters': 'Buscar parâmetros',
+    'noParametersFound': 'Nenhum parâmetro correspondente',
     'clearAll': 'Limpar tudo: {title}',
     'clear': 'Limpar',
     'clearOptionalParameters': 'Limpar parâmetros opcionais',
