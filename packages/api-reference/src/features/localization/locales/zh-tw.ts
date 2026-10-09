@@ -118,6 +118,9 @@ export const zhTw = {
     generate: '產生 MCP',
     connect: '連線 MCP',
   },
+  sdk: {
+    generate: '產生 SDK',
+  },
   developerTools: {
     title: '開發者工具',
     configure: '設定',

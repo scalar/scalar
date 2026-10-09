@@ -119,6 +119,9 @@ export const pt = {
     generate: 'Gerar MCP',
     connect: 'Conectar MCP',
   },
+  sdk: {
+    generate: 'Gerar SDK',
+  },
   developerTools: {
     title: 'Ferramentas de Desenvolvedor',
     configure: 'Configurar',

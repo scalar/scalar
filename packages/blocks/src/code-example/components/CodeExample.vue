@@ -223,8 +223,10 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  header: () => unknown
-  footer: ({ exampleName }: { exampleName: string }) => unknown
+  'header': () => unknown
+  /** Rendered at the start of the footer, only while the example picker does not need that space */
+  'footer-start'?: () => unknown
+  'footer': ({ exampleName }: { exampleName: string }) => unknown
 }>()
 
 /** Grab the examples for the given content type */
@@ -587,8 +589,12 @@ const id = useId()
 
     <!-- Footer -->
     <ScalarCardFooter
-      v-if="showExamplePicker || $slots.footer"
-      class="request-card-footer bg-b-3">
+      v-if="showExamplePicker || $slots.footer || $slots['footer-start']"
+      class="request-card-footer bg-b-3"
+      :class="{
+        'request-card-footer--wraps':
+          !showExamplePicker && $slots['footer-start'],
+      }">
       <!-- Example picker -->
       <div
         v-if="showExamplePicker"
@@ -599,6 +605,12 @@ const id = useId()
             :modelValue="localExampleKey"
             @update:modelValue="selectExample" />
         </template>
+      </div>
+      <!-- Otherwise the start of the footer is free for the caller -->
+      <div
+        v-else-if="$slots['footer-start']"
+        class="request-card-footer-start">
+        <slot name="footer-start" />
       </div>
 
       <!-- Footer -->
@@ -641,6 +653,19 @@ const id = useId()
   padding: 6px;
   flex-shrink: 0;
   position: relative;
+}
+/*
+ * Footer-start content keeps its full width; when the footer is too narrow for everything,
+ * the end controls wrap onto a second line instead of squeezing or covering it.
+ */
+.request-card-footer--wraps {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.request-card-footer-start {
+  display: flex;
+  align-items: center;
+  flex: 1 0 auto;
 }
 .request-card-footer-addon {
   display: flex;

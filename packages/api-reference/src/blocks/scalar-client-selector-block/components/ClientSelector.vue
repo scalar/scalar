@@ -10,6 +10,7 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { getFeaturedClients } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
+import { GenerateSdkButton } from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 
 import ClientDropdown from './ClientDropdown.vue'
@@ -160,44 +161,68 @@ defineExpose({
           :selectedClient="activeClient" />
       </div>
 
-      <!-- Content -->
-      <TabPanels>
-        <template v-if="tabIndex >= 0">
-          <TabPanel
-            v-for="client in featuredClients"
-            :key="client.id"
-            class="selected-client card-footer -outline-offset-2">
-            {{ client.title }}
-          </TabPanel>
-        </template>
-        <div
-          v-else
-          :id="morePanel"
-          :aria-labelledby="headingId"
-          class="selected-client card-footer -outline-offset-2"
-          role="tabpanel"
-          tabindex="0">
-          {{ selectedClientOption?.title }}
-        </div>
-      </TabPanels>
+      <!-- Content: the selected client, with Generate SDK beside it rather than inside the tab panel -->
+      <div class="selected-client-row card-footer">
+        <TabPanels class="selected-client-panels">
+          <template v-if="tabIndex >= 0">
+            <TabPanel
+              v-for="client in featuredClients"
+              :key="client.id"
+              class="selected-client -outline-offset-2">
+              {{ client.title }}
+            </TabPanel>
+          </template>
+          <div
+            v-else
+            :id="morePanel"
+            :aria-labelledby="headingId"
+            class="selected-client -outline-offset-2"
+            role="tabpanel"
+            tabindex="0">
+            {{ selectedClientOption?.title }}
+          </div>
+        </TabPanels>
+
+        <!-- Local development only: opens the Explore Scalar dialog to generate an SDK -->
+        <GenerateSdkButton
+          class="selected-client-action"
+          variant="card" />
+      </div>
     </TabGroup>
   </div>
 </template>
 <style scoped>
-.selected-client {
-  color: var(--scalar-color-1);
-  font-size: var(--scalar-small);
-  font-family: var(--scalar-font-code);
-  padding: 9px 12px;
-  border-top: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* The card's footer box; Generate SDK sits on its end edge when the reference runs locally */
+.selected-client-row {
+  display: flex;
+  align-items: center;
   background: var(--scalar-background-1);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
   min-height: fit-content;
+}
+/* The client name gives way to the button on narrow cards and truncates instead */
+.selected-client-panels {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.selected-client {
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-small);
+  font-family: var(--scalar-font-code);
+  padding: 9px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Keeps the inset focus ring inside the card's rounded corners */
+  border-bottom-left-radius: var(--scalar-radius-xl);
+  border-bottom-right-radius: var(--scalar-radius-xl);
+}
+.selected-client-action {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-inline-end: 5px;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);

@@ -117,6 +117,9 @@ export const zhCn = {
     generate: '生成 MCP',
     connect: '连接 MCP',
   },
+  sdk: {
+    generate: '生成 SDK',
+  },
   developerTools: {
     title: '开发者工具',
     configure: '配置',

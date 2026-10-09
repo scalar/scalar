@@ -1,14 +1,16 @@
 import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@scalar/blocks/schema'
 import { ScalarListbox } from '@scalar/components/listbox'
+import { useModal } from '@scalar/components/modal'
 import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type VueWrapper, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
+import { computed, defineComponent, h, nextTick, ref } from 'vue'
 
+import { GENERATE_SDK_CONTEXT_SYMBOL, type GenerateSdkContext } from '@/features/generate-sdk/use-generate-sdk'
 import { provideLocalization } from '@/features/localization'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 
@@ -367,6 +369,50 @@ describe('ClassicLayout', () => {
     const testButton = wrapper.findComponent({ name: 'TestRequestButton' })
     expect(testButton.exists()).toBe(true)
     expect(testButton.props('path')).toBe('delivery.created')
+  })
+
+  describe('Generate SDK', () => {
+    const mountWithGenerateSdk = (Layout: typeof ClassicLayout | typeof ModernLayout, enabled: boolean) => {
+      const context: GenerateSdkContext = { enabled: computed(() => enabled), dialog: useModal(), open: vi.fn() }
+      const wrapper = mount(Layout, {
+        props,
+        global: {
+          provide: { [GENERATE_SDK_CONTEXT_SYMBOL as symbol]: context },
+          stubs: { RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' } },
+        },
+      })
+      return { context, wrapper }
+    }
+
+    it.each([
+      { name: 'classic', Layout: ClassicLayout },
+      { name: 'modern', Layout: ModernLayout },
+    ])(
+      'puts Generate SDK in the request example footer while it is offered in the $name layout',
+      async ({ Layout }) => {
+        const { context, wrapper } = mountWithGenerateSdk(Layout, true)
+        await nextTick()
+
+        const footer = wrapper.findComponent({ name: 'CodeExample' }).findComponent({ name: 'ScalarCardFooter' })
+        const button = footer.findAll('button').find((candidate) => candidate.text() === 'Generate SDK')
+        expect(button?.attributes('aria-haspopup')).toBe('dialog')
+
+        await button?.trigger('click')
+        expect(context.open).toHaveBeenCalledTimes(1)
+        wrapper.unmount()
+      },
+    )
+
+    it('adds no footer to the request example when Generate SDK is not offered', async () => {
+      // The classic layout has no other footer controls here, so an always-passed slot would leave an empty bar
+      const { wrapper } = mountWithGenerateSdk(ClassicLayout, false)
+      await nextTick()
+
+      const codeExample = wrapper.findComponent({ name: 'CodeExample' })
+      expect(codeExample.text()).not.toContain('Generate SDK')
+      expect(codeExample.findComponent({ name: 'ScalarCardFooter' }).exists()).toBe(false)
+      wrapper.unmount()
+    })
   })
 
   describe('responses', () => {

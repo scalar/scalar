@@ -119,6 +119,9 @@ export const ru = {
     generate: 'Создать MCP',
     connect: 'Подключить MCP',
   },
+  sdk: {
+    generate: 'Создать SDK',
+  },
   developerTools: {
     title: 'Инструменты разработчика',
     configure: 'Настроить',

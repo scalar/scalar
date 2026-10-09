@@ -7,6 +7,7 @@ import type {
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { computed } from 'vue'
 
+import { GenerateSdkButton } from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 
 import ApiReferenceToolbarTitle from './components/ApiReferenceToolbarTitle.vue'
@@ -59,6 +60,7 @@ const showDeveloperTools = computed<boolean>(() => {
         <DeployApiReference
           :externalUrls
           :workspace />
+        <GenerateSdkButton variant="toolbar" />
       </template>
     </div>
   </header>

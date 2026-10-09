@@ -82,12 +82,17 @@ import {
   AsyncApiSidebarFilters,
   filterAsyncApiNavigation,
 } from '@/blocks/scalar-asyncapi-sidebar-filters-block'
+import { hasRenderableSdks } from '@/blocks/scalar-sdk-installation-instructions'
 import { AgentScalarButton, OpenMCPButton } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
+import {
+  GENERATE_SDK_CONTEXT_SYMBOL,
+  useGenerateSdk,
+} from '@/features/generate-sdk'
 import {
   provideLocalization,
   resolveLocalization,
@@ -1425,6 +1430,26 @@ const agent = useAgent({
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
 
+// --------------------------------------------------------------------------- */
+// Generate SDK
+
+/**
+ * Lets every "Generate SDK" button (developer tools, client libraries, request examples) open the
+ * same Explore Scalar dialog. Only enabled while the reference runs on a local URL, an OpenAPI
+ * document has loaded, and that document does not already list its own SDKs (the same rule Content
+ * uses to swap the client libraries for SDK installation instructions).
+ */
+const generateSdk = useGenerateSdk({
+  hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
+  hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
+})
+provide(GENERATE_SDK_CONTEXT_SYMBOL, generateSdk)
+
+/** Only mounted while Generate SDK is offered, so public hosts never fetch the dialog chunk */
+const GenerateSdkDialog = defineAsyncComponent(
+  () => import('@/features/explore-scalar/components/ExploreScalarModal.vue'),
+)
+
 const AgentScalarDrawer = defineAsyncComponent(
   () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
 )
@@ -1781,6 +1806,16 @@ const sidebarCta = computed((): SidebarCta => {
       ]"
       :dir="apiReferenceLocalization.direction.value"
       :lang="documentLang">
+      <!-- The Explore Scalar dialog every Generate SDK button opens -->
+      <GenerateSdkDialog
+        v-if="generateSdk.enabled.value"
+        :externalUrls="mergedConfig.externalUrls"
+        :morphStickers="false"
+        :state="generateSdk.dialog"
+        :url="documentUrl"
+        :usesViewTransition="false"
+        :workspace="workspaceStore" />
+
       <!-- Agent Scalar -->
       <AgentScalarDrawer
         v-if="agent.agentEnabled.value && hasOpenedAgent"

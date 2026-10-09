@@ -50,24 +50,24 @@ export default {}
       style="font-size: 2.83764px; font-weight: 500; letter-spacing: 0.01em"
       transform="translate(15.0137 118.313) rotate(0.696807)">
       <tspan
-        x="0"
-        y="2.92363"
         lengthAdjust="spacing"
-        textLength="70">
+        textLength="70"
+        x="0"
+        y="2.92363">
         Scalar embraces open standards and makes it easy for you
       </tspan>
       <tspan
-        x="0"
-        y="6.70715"
         lengthAdjust="spacing"
-        textLength="68.8">
+        textLength="68.8"
+        x="0"
+        y="6.70715">
         to embrace them too. Join the open-source community and
       </tspan>
       <tspan
-        x="0"
-        y="10.4907"
         lengthAdjust="spacing"
-        textLength="43.8">
+        textLength="43.8"
+        x="0"
+        y="10.4907">
         start building on open foundations.
       </tspan>
     </text>

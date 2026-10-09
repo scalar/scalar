@@ -32,6 +32,10 @@ import { SectionAccordion } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
+import {
+  GenerateSdkButton,
+  useGenerateSdkContext,
+} from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
@@ -93,6 +97,15 @@ defineSlots<{
 const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
+
+/**
+ * Generate SDK takes the start of the code example footer, but only while it is offered: passing
+ * the slot at all would otherwise render an empty footer on deployed references.
+ */
+const generateSdk = useGenerateSdkContext()
+const showGenerateSdk = computed(() =>
+  Boolean(generateSdk.value?.enabled.value),
+)
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
 /** Whether the operation requires any OAuth scopes, used to skip the empty card item. */
@@ -360,7 +373,13 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :selectedContentType="selectedRequestBodyContentType"
             :selectedExample
             :selectedServer
-            @update:exampleKey="resolvedExampleKey = $event" />
+            @update:exampleKey="resolvedExampleKey = $event">
+            <template
+              v-if="showGenerateSdk"
+              #footer-start>
+              <GenerateSdkButton variant="footer" />
+            </template>
+          </CodeExample>
         </ScalarErrorBoundary>
       </div>
     </div>
