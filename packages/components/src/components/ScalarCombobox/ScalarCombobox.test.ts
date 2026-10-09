@@ -557,4 +557,30 @@ describe('ScalarCombobox', () => {
       expect(optionElements[1]?.text()).not.toContain('⭐')
     })
   })
+
+  describe('filtering', () => {
+    it('filters by option label when no filterFn is given', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: { default: '<button>Toggle</button>' },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await wrapper.find('input[type="text"]').setValue('not-present')
+
+      expect(wrapper.findAllComponents(ScalarComboboxOption)).toHaveLength(0)
+    })
+
+    it('shows the options as given when filterFn passes them through', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions, filterFn: (_query: string, options: Option[]) => options },
+        slots: { default: '<button>Toggle</button>' },
+      })
+
+      await wrapper.find('button').trigger('click')
+      await wrapper.find('input[type="text"]').setValue('not-present')
+
+      expect(wrapper.findAllComponents(ScalarComboboxOption)).toHaveLength(singleOptions.length)
+    })
+  })
 })
