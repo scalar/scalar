@@ -12,14 +12,16 @@ import { computed, useId, useTemplateRef } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
+import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
-import OperationSecurity from './OperationSecurity.vue'
 
 /** Subset of the configuration the nested `Message`/`Schema` renderers need. */
 type OperationOptions = AsyncApiSchemaRenderOptions
@@ -66,6 +68,14 @@ const headingText = computed(() =>
   ),
 )
 
+const requiredSecurity = computed<RequiredSecurity>(() =>
+  getAsyncApiRequiredSecurity(
+    document,
+    resolvedOperation.value,
+    operation.operationName,
+  ),
+)
+
 const description = computed(
   () =>
     resolvedOperation.value?.description ||
@@ -107,6 +117,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
           {{ headingText }}
         </SectionHeaderTag>
       </Anchor>
+      <SecurityRequirementBadge :requiredSecurity />
     </div>
 
     <ScalarMarkdown
@@ -114,11 +125,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
       class="operation-description"
       :value="description"
       withImages />
-
-    <OperationSecurity
-      :document="document"
-      :operation="resolvedOperation"
-      :operationName="operation.operationName" />
 
     <Message
       v-for="message in messages"

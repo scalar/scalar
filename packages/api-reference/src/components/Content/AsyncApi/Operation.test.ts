@@ -1,7 +1,7 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiOperation } from '@scalar/workspace-store/schemas/navigation'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import Operation from './Operation.vue'
 
@@ -32,9 +32,16 @@ function createDocument(operation: Record<string, unknown>): AsyncApiDocument {
   } as unknown as AsyncApiDocument
 }
 
+enableAutoUnmount(afterEach)
+
+afterEach(() => {
+  document.body.innerHTML = ''
+})
+
 describe('Operation', () => {
   it('renders the operation title and the action badge', () => {
     const wrapper = mount(Operation, {
+      attachTo: document.body,
       props: {
         operation: createOperation(),
         document: createDocument({
@@ -51,6 +58,7 @@ describe('Operation', () => {
 
   it('renders the send action badge', () => {
     const wrapper = mount(Operation, {
+      attachTo: document.body,
       props: {
         operation: createOperation({ action: 'send' }),
         document: createDocument({ action: 'send', channel: { $ref: '#/channels/userSignedUp' } }),
@@ -63,6 +71,7 @@ describe('Operation', () => {
 
   it('renders the operation description (the operation header is not collapsible)', () => {
     const wrapper = mount(Operation, {
+      attachTo: document.body,
       props: {
         operation: createOperation(),
         document: createDocument({
@@ -77,8 +86,9 @@ describe('Operation', () => {
     expect(wrapper.text()).toContain('Fired whenever a user signs up.')
   })
 
-  it('renders the required OAuth scopes below the description', () => {
+  it('shows required OAuth scopes in the authentication tooltip', async () => {
     const wrapper = mount(Operation, {
+      attachTo: document.body,
       props: {
         operation: createOperation(),
         document: {
@@ -99,12 +109,16 @@ describe('Operation', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('OAuth scopes')
-    expect(wrapper.text()).toContain('read:events')
+    expect(wrapper.text()).not.toContain('read:events')
+    await wrapper.get('button[aria-haspopup="dialog"]').trigger('click')
+    expect(document.body.textContent).toContain('Authentication required')
+    expect(document.body.textContent).toContain('read:events')
+    wrapper.unmount()
   })
 
-  it('documents scope-free inline alternatives alongside OAuth scopes without server security', () => {
+  it('documents scope-free inline alternatives alongside OAuth scopes without server security', async () => {
     const wrapper = mount(Operation, {
+      attachTo: document.body,
       props: {
         operation: createOperation(),
         document: {
@@ -127,15 +141,18 @@ describe('Operation', () => {
         eventBus: null,
       },
     })
-    expect(wrapper.text()).toContain('read:events')
-    expect(wrapper.text()).toContain('X-Events-Key')
-    expect(wrapper.text()).toContain('Event subscription key')
-    expect(wrapper.text()).toContain('one of')
-    expect(wrapper.text()).not.toContain('Connection credential')
+    await wrapper.get('button[aria-haspopup="dialog"]').trigger('click')
+    expect(document.body.textContent).toContain('read:events')
+    expect(document.body.textContent).toContain('X-Events-Key')
+    expect(document.body.textContent).toContain('Event subscription key')
+    expect(document.body.textContent).toContain('one of')
+    expect(document.body.textContent).not.toContain('Connection credential')
+    wrapper.unmount()
   })
 
   it('renders a message accordion for each message child', () => {
     const wrapper = mount(Operation, {
+      attachTo: document.body,
       props: {
         operation: createOperation({
           children: [

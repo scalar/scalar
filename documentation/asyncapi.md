@@ -162,7 +162,7 @@ Each picker is only shown when there is more than one option to choose from.
 
 Document-wide authentication is rendered the same way as OpenAPI. When the document defines component security schemes or inline server security, an **Authentication** selector appears in the introduction, listing every scheme so you can fill in credentials.
 
-Because AsyncAPI has no root-level `security`, the document-wide requirements are derived from the union of every server's `security` (a server applies to the whole connection). Connection authentication uses the selected server’s security. Each operation documents its own security schemes and required OAuth scopes separately. Alternatives within each list mean any one scheme can satisfy that list; operation security applies in addition to server security. Inline declarations do not need matching `components.securitySchemes` entries.
+Because AsyncAPI has no root-level `security`, the document-wide requirements are derived from the union of every server's `security` (a server applies to the whole connection). Connection authentication uses the selected server’s security. Each operation has an authentication badge that opens the same details tooltip used for OpenAPI, showing its security schemes and required OAuth scopes. Alternatives within each list mean any one scheme can satisfy that list; operation security applies in addition to server security. Inline declarations do not need matching `components.securitySchemes` entries.
 
 The selector fully supports the security scheme types that AsyncAPI shares with OpenAPI:
 
