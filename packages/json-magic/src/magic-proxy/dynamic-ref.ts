@@ -1,3 +1,5 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 import { getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
@@ -87,10 +89,10 @@ const dereferenceSiblingRef = (node: UnknownObject): UnknownObject => {
 
   const { '$ref-value': value, ...rest } = node
   // Only a schema object can be merged; spreading a string or array target would invent index keys.
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+  if (!isObject(value)) {
     return node
   }
-  return { ...(value as UnknownObject), ...rest }
+  return { ...value, ...rest }
 }
 
 const anchorCaches = new WeakMap<Unwrap, WeakMap<object, Map<string, UnknownObject>>>()
