@@ -123,6 +123,8 @@ Reusable schemas defined under `components.schemas` are rendered in the **Models
 
 Rendering works in both the `modern` and `classic` layouts.
 
+Search finds channels, operations, messages, channel parameters, and JSON Schema payload/header field names and descriptions, including nested fields. Selecting a field match opens its message in the channel catalog. Search follows the active protocol and server filters.
+
 <scalar-image
   src="/asyncapi-message.png"
   src-dark="/asyncapi-message-dark.png"

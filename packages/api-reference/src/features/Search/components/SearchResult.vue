@@ -2,6 +2,8 @@
 import { ScalarSearchResultItem } from '@scalar/components/search-results'
 import {
   ScalarIconBracketsCurly,
+  ScalarIconBroadcast,
+  ScalarIconEnvelope,
   ScalarIconTag,
   ScalarIconTerminalWindow,
   ScalarIconTextAlignLeft,
@@ -28,19 +30,25 @@ const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
 const { translate } = useLocalization()
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
-  heading: ScalarIconTextAlignLeft,
-  model: ScalarIconBracketsCurly,
-  operation: ScalarIconTerminalWindow,
-  tag: ScalarIconTag,
-  webhook: ScalarIconWebhooksLogo,
+  'asyncapi-channel': ScalarIconBroadcast,
+  'asyncapi-operation': ScalarIconTerminalWindow,
+  'asyncapi-message': ScalarIconEnvelope,
+  'heading': ScalarIconTextAlignLeft,
+  'model': ScalarIconBracketsCurly,
+  'operation': ScalarIconTerminalWindow,
+  'tag': ScalarIconTag,
+  'webhook': ScalarIconWebhooksLogo,
 }
 
 const entryLabels = computed((): { [x in EntryType]: string } => ({
-  heading: translate('search.entryHeading'),
-  operation: translate('search.entryOperation'),
-  tag: translate('search.entryTag'),
-  model: modelsSectionLabel,
-  webhook: translate('search.entryWebhook'),
+  'asyncapi-channel': translate('search.entryChannel'),
+  'asyncapi-operation': translate('search.entryOperation'),
+  'asyncapi-message': translate('search.entryMessage'),
+  'heading': translate('search.entryHeading'),
+  'operation': translate('search.entryOperation'),
+  'tag': translate('search.entryTag'),
+  'model': modelsSectionLabel,
+  'webhook': translate('search.entryWebhook'),
 }))
 </script>
 
@@ -71,11 +79,17 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
     <template
       v-if="
         result.item.type !== 'webhook' &&
-        (result.item.method || result.item.path) &&
-        result.item.path !== result.item.title
+        (result.item.action ||
+          ((result.item.method || result.item.path) &&
+            result.item.path !== result.item.title))
       "
       #description>
       <span class="inline-flex items-center gap-1">
+        <span
+          v-if="result.item.action"
+          class="font-code text-xs uppercase"
+          >{{ result.item.action }}</span
+        >
         <template v-if="result.item.type === 'operation'">
           <HttpMethod
             aria-hidden="true"

@@ -25,6 +25,8 @@ export const zhTw = {
     navigate: '導覽',
     select: '選擇',
     instructions: '按上/下箭頭導覽，按 Enter 選擇，輸入內容篩選結果',
+    entryChannel: '通道',
+    entryMessage: '訊息',
     entryHeading: '標題',
     entryOperation: '操作',
     entryTag: '標籤',

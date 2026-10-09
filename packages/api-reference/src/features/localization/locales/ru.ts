@@ -25,6 +25,8 @@ export const ru = {
     select: 'Выбрать',
     instructions:
       'Нажмите стрелку вверх или вниз для навигации, Enter для выбора, вводите текст для фильтрации результатов',
+    entryChannel: 'Канал',
+    entryMessage: 'Сообщение',
     entryHeading: 'Заголовок',
     entryOperation: 'Операция',
     entryTag: 'Тег',

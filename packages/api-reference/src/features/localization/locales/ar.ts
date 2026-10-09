@@ -24,6 +24,8 @@ export const ar = {
     navigate: 'تنقّل',
     select: 'اختيار',
     instructions: 'اضغط السهم للأعلى أو للأسفل للتنقل، Enter للاختيار، واكتب لتصفية النتائج',
+    entryChannel: 'قناة',
+    entryMessage: 'رسالة',
     entryHeading: 'عنوان',
     entryOperation: 'عملية',
     entryTag: 'وسم',

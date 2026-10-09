@@ -25,6 +25,8 @@ export const fr = {
     select: 'Sélectionner',
     instructions:
       'Appuyez sur flèche haut ou bas pour naviguer, Entrée pour sélectionner, saisissez du texte pour filtrer les résultats',
+    entryChannel: 'Canal',
+    entryMessage: 'Message',
     entryHeading: 'Titre',
     entryOperation: 'Opération',
     entryTag: 'Balise',

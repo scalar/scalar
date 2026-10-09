@@ -24,6 +24,8 @@ export const zhCn = {
     navigate: '导航',
     select: '选择',
     instructions: '按上/下箭头导航，按 Enter 选择，输入内容筛选结果',
+    entryChannel: '通道',
+    entryMessage: '消息',
     entryHeading: '标题',
     entryOperation: '操作',
     entryTag: '标签',
