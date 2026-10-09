@@ -8,6 +8,7 @@ import { createPathFromSegments } from '@/helpers/json-path-utils'
 import {
   type DynamicScope,
   carriesDynamicAnchor,
+  clearDynamicAnchorCaches,
   collectDynamicAnchors,
   resolveDynamicRef,
 } from '@/magic-proxy/dynamic-ref'
@@ -15,6 +16,7 @@ import type { UnknownObject } from '@/types'
 
 const isMagicProxy = Symbol('isMagicProxy')
 const magicProxyTarget = Symbol('magicProxyTarget')
+const magicProxyRevision = Symbol('magicProxyRevision')
 
 const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
@@ -142,14 +144,11 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * so they do not retain a discarded document once its root and proxies are no longer reachable.
      */
     dynamicProxyCache: WeakMap<object, WeakMap<object, T>>
-    /**
-     * Scope-keyed `$ref-value` cache used while a dynamic scope is active: one resolved proxy per
-     * `(scope, ref)`.
-     *
-     * The shared `cache` cannot hold these because the resolved value binds differently per scope. Keying
-     * by the interned scope keeps repeated reads from re-parsing the pointer and re-walking the path.
-     */
-    dynamicRefCache: WeakMap<object, Map<string, unknown>>
+    /** Shared edit revision and scope-keyed reference cache, refreshed after mutations. */
+    mutationState: {
+      revision: number
+      dynamicRefCache: WeakMap<object, Map<string, unknown>>
+    }
   } = {
     root: target,
     proxyCache: new WeakMap(),
@@ -159,7 +158,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     dynamicScope: [],
     scopeCache: new WeakMap(),
     dynamicProxyCache: new WeakMap(),
-    dynamicRefCache: new WeakMap(),
+    mutationState: { revision: 0, dynamicRefCache: new WeakMap() },
   },
 ): T => {
   if (!isObject(target) && !Array.isArray(target)) {
@@ -176,7 +175,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   // Return the existing proxy for this (scope, target) to ensure referential stability
   const scopedProxyCache = dynamicScopeActive ? args.dynamicProxyCache.get(args.dynamicScope) : undefined
   const existingProxy = dynamicScopeActive ? scopedProxyCache?.get(target) : args.proxyCache.get(target)
-  if (existingProxy) {
+  if (
+    existingProxy &&
+    (!dynamicScopeActive || Reflect.get(existingProxy, magicProxyRevision) === args.mutationState.revision)
+  ) {
     return existingProxy
   }
 
@@ -188,7 +190,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   // `currentContext` is the nearest enclosing `$id`, so a schema reached through a `$ref` is judged by
   // where it lives, not by the resources on the path that led to it.
   // Grown scopes are interned so the same `(parentScope, resource)` yields one stable array identity.
-  const childScope: DynamicScope =
+  const getChildScope = (): DynamicScope =>
     carriesDynamicAnchor(target as UnknownObject, args.currentContext !== '') &&
     // A resource with no anchors does not start a scope, so ordinary documents keep the shared cache.
     // Once a scope is active, retain every resource boundary for correct bookending.
@@ -196,6 +198,16 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     !args.dynamicScope.includes(target)
       ? internScope(args.scopeCache, args.dynamicScope, target as UnknownObject)
       : args.dynamicScope
+
+  const creationRevision = args.mutationState.revision
+  let scopeRevision = creationRevision
+  let childScope = getChildScope()
+  const invalidate = (): void => {
+    args.mutationState.revision++
+    args.cache.clear()
+    args.mutationState.dynamicRefCache = new WeakMap()
+    clearDynamicAnchorCaches()
+  }
 
   const handler: ProxyHandler<T> = {
     /**
@@ -207,6 +219,14 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - For all other properties, recursively wrap the returned value in a magic proxy (if applicable).
      */
     get(target, prop, receiver) {
+      if (prop === magicProxyRevision) {
+        return creationRevision
+      }
+      // Retained proxies also need to re-check their own resource after edits.
+      if (scopeRevision !== args.mutationState.revision) {
+        childScope = getChildScope()
+        scopeRevision = args.mutationState.revision
+      }
       if (prop === isMagicProxy) {
         // Used to identify if an object is a magic proxy
         return true
@@ -260,10 +280,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         // dynamic scope the resolved value can bind differently per path, so it is cached per scope.
         let refCache = args.cache
         if (childScope.length > 0) {
-          let scoped = args.dynamicRefCache.get(childScope)
+          let scoped = args.mutationState.dynamicRefCache.get(childScope)
           if (!scoped) {
             scoped = new Map()
-            args.dynamicRefCache.set(childScope, scoped)
+            args.mutationState.dynamicRefCache.set(childScope, scoped)
           }
           refCache = scoped
         }
@@ -356,10 +376,16 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         } else {
           parent[key] = newValue
         }
+        invalidate()
         return true
       }
 
-      return Reflect.set(target, prop, newValue, receiver)
+      const previous = Reflect.get(target, prop, receiver)
+      const updated = Reflect.set(target, prop, newValue, receiver)
+      if (updated && previous !== newValue) {
+        invalidate()
+      }
+      return updated
     },
     /**
      * Proxy "deleteProperty" trap for magic proxy.
@@ -367,7 +393,12 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * This will update the underlying target object.
      */
     deleteProperty(target, prop) {
-      return Reflect.deleteProperty(target, prop)
+      const existed = Reflect.has(target, prop)
+      const deleted = Reflect.deleteProperty(target, prop)
+      if (deleted && existed) {
+        invalidate()
+      }
+      return deleted
     },
     /**
      * Proxy "has" trap for magic proxy.
