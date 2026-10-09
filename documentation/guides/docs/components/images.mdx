@@ -10,7 +10,7 @@ The examples below reference images from your [assets directory](../content/asse
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `src` | `string` | _required_ | URL or relative path to the image. Relative paths resolve against `assetsDir` from `scalar.config.json`. |
+| `src` | `string` | _required_ | URL or path to the image. A path that starts with `/` points at a file in your `assetsDir`, so `/logo.png` serves `assets/logo.png`. Any other path is relative to the page file, and publishing fails if that file does not exist. |
 | `src-dark` | `string` | — | Dark-mode variant of `src`. Falls back to `src` when not set. |
 | `alt` | `string` | — | Alt text for accessibility. |
 | `caption` | `string` | — | Caption shown below the image. |

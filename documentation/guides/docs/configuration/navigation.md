@@ -523,7 +523,7 @@ Set `hidden` to `true` to fully hide an API reference. The setting cascades to e
 
 ### API Reference configuration
 
-When you add an API reference route (`type: "openapi"` or `type: "asyncapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../../configuration.md) (e.g. `authentication`, `theme`) can be used here.
+When you add an API reference route (`type: "openapi"` or `type: "asyncapi"`) in your navigation, you can pass API Reference options by adding a `config` object. Only the options in the table below are supported. Other [API Reference options](../../../configuration.md), like `theme` or `layout`, are ignored here. Set the site's theme with [`siteConfig.theme`](themes.md) instead.
 
 Example:
 
@@ -549,7 +549,28 @@ Example:
 }
 ```
 
-For all available options, see [Configuration](../../../configuration.md).
+| Option                         | Type                                              | Default   |
+| ------------------------------ | ------------------------------------------------- | --------- |
+| `authentication`               | `object`                                          | —         |
+| `baseServerURL`                | `string`                                          | —         |
+| `defaultHttpClient`            | `{ "targetKey": string, "clientKey": string }`    | —         |
+| `defaultOpenAllTags`           | `boolean`                                         | `false`   |
+| `documentDownloadType`         | `"both"`, `"yaml"`, `"json"`, `"direct"`, `"none"` | `"both"`  |
+| `expandAllModelSections`       | `boolean`                                         | `false`   |
+| `expandAllResponses`           | `boolean`                                         | `false`   |
+| `hiddenClients`                | `object`, `string[]`, or `true`                   | —         |
+| `hideClientButton`             | `boolean`                                         | `false`   |
+| `hideDownloadButton`           | `boolean`                                         | —         |
+| `hideModels`                   | `boolean`                                         | `false`   |
+| `hideTestRequestButton`        | `boolean`                                         | `false`   |
+| `operationTitleSource`         | `"summary"`, `"path"`                             | `"summary"` |
+| `orderRequiredPropertiesFirst` | `boolean`                                         | `true`    |
+| `orderSchemaPropertiesBy`      | `"alpha"`, `"preserve"`                           | `"alpha"` |
+| `proxyUrl`                     | `string`                                          | —         |
+| `servers`                      | `array`                                           | —         |
+| `showOperationId`              | `boolean`                                         | `false`   |
+
+Each option works the same way as in the [API Reference configuration](../../../configuration.md).
 
 ## Groups
 
