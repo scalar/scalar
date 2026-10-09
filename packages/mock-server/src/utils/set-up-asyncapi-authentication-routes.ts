@@ -5,7 +5,7 @@ import type { Hono } from 'hono'
 
 import { setUpAuthenticationRoutes } from './set-up-authentication-routes'
 
-/** Adapt AsyncAPI OAuth flows to the shared mock authorization and token handlers. */
+/** Adapt AsyncAPI OAuth and OpenID Connect schemes to the shared mock authorization and token handlers. */
 export const setUpAsyncApiAuthenticationRoutes = (app: Hono, document: AsyncApiDocument): void => {
   const components = getResolvedRef(document.components)
   // AsyncAPI also permits inline schemes on servers, operations, and operation traits.
@@ -20,10 +20,14 @@ export const setUpAsyncApiAuthenticationRoutes = (app: Hono, document: AsyncApiD
       ]
     }),
   ]
-  const securitySchemes: Record<string, OpenAPIV3_1.OAuth2SecurityScheme> = {}
+  const securitySchemes: Record<string, OpenAPIV3_1.OAuth2SecurityScheme | OpenAPIV3_1.OpenIdSecurityScheme> = {}
 
   for (const [index, rawScheme] of schemes.entries()) {
     const scheme = getResolvedRef(rawScheme)
+    if (scheme?.type === 'openIdConnect') {
+      securitySchemes[index] = { type: 'openIdConnect', openIdConnectUrl: scheme.openIdConnectUrl }
+      continue
+    }
     if (scheme?.type !== 'oauth2') {
       continue
     }

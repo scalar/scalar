@@ -1,8 +1,69 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createAsyncApiMockServer } from '@/create-asyncapi-mock-server'
 import { createMockServer } from '@/create-mock-server'
 
 describe('set-up-authentication-routes', () => {
+  it.each(['OpenAPI', 'AsyncAPI', 'AsyncAPI inline'] as const)(
+    'serves discovery and token requests for %s OpenID Connect',
+    async (format) => {
+      const scheme = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://provider.example.com/.well-known/openid-configuration',
+      }
+      const info = { title: 'OIDC Events', version: '1.0.0' }
+      const components = { securitySchemes: { oidc: scheme } }
+      const asyncServer =
+        format === 'OpenAPI'
+          ? undefined
+          : await createAsyncApiMockServer({
+              document: {
+                asyncapi: '3.0.0',
+                info,
+                ...(format === 'AsyncAPI inline'
+                  ? { servers: { events: { host: 'localhost', protocol: 'ws', security: [scheme] } } }
+                  : { components: { securitySchemes: { oidc: { $ref: '#/x-oidc' } } }, 'x-oidc': scheme }),
+              },
+            })
+      const app =
+        asyncServer?.app ??
+        (await createMockServer({ document: { openapi: '3.1.0', info, components }, logger: false }))
+      try {
+        const response = await app.request('https://mock.example.com/.well-known/openid-configuration')
+        expect(response.status).toBe(200)
+        const discovery = await response.json()
+        expect(discovery.issuer).toBe('https://mock.example.com')
+        expect(discovery.authorization_endpoint).toBe('https://mock.example.com/oauth/authorize')
+        expect(discovery.token_endpoint).toBe('https://mock.example.com/oauth/token')
+        const authorization = await app.request(
+          `${discovery.authorization_endpoint}?response_type=code&redirect_uri=http://localhost:5173/callback&scope=openid`,
+        )
+        expect(authorization.status).toBe(200)
+        expect(await authorization.text()).toContain('?code=super-secret-token')
+        for (const grant of ['authorization_code', 'refresh_token']) {
+          const token = await app.request(discovery.token_endpoint, {
+            method: 'POST',
+            body: new URLSearchParams({
+              grant_type: grant,
+              code: 'super-secret-token',
+              refresh_token: 'example-refresh-token',
+              scope: 'openid',
+            }),
+          })
+          expect(token.status).toBe(200)
+          expect(await token.json()).toStrictEqual({
+            access_token: 'super-secret-access-token',
+            token_type: 'Bearer',
+            expires_in: 3600,
+            refresh_token: 'example-refresh-token',
+            scope: 'openid',
+          })
+        }
+      } finally {
+        asyncServer?.websocket.server.close()
+      }
+    },
+  )
   it.each(['/custom/metadata', '/custom/metadata/'])(
     'serves OAuth2 metadata at %s and issues tokens locally',
     async (metadataPath) => {

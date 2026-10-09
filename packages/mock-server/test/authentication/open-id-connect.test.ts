@@ -32,9 +32,9 @@ describe('OpenID Connect', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
-      issuer: 'https://example.com',
-      authorization_endpoint: '/oauth/authorize',
-      token_endpoint: '/oauth/token',
+      issuer: 'http://localhost',
+      authorization_endpoint: 'http://localhost/oauth/authorize',
+      token_endpoint: 'http://localhost/oauth/token',
       response_types_supported: ['code', 'token', 'id_token'],
       subject_types_supported: ['public'],
       id_token_signing_alg_values_supported: ['RS256'],
