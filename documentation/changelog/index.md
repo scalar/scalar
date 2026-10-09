@@ -19,4 +19,4 @@ Choose a product to read what shipped recently:
 <scalar-page-link filepath="documentation/changelog/sdk-generator/index.md" title="SDK Generator" description="Type-safe SDKs and CLIs generated from OpenAPI documents">
 </scalar-page-link>
 
-Each release on the timeline links to the full maintainer changelog on GitHub when you need every pull request that landed in a version.
+For the API Client, API Reference, Agent, and Mock Server, each release on the timeline links to the full maintainer changelog on GitHub when you need every pull request that landed in a version.

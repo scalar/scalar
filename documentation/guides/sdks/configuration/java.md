@@ -92,7 +92,7 @@ Release environment name used by generated publishing workflows. It renders as t
 
 **Type:** `"portal" | "ossrh" | string`
 
-Maven Central/Sonatype platform variant an imported config named: `portal` for the Central Portal, `ossrh` for the retired OSSRH staging API. Declared on `maven` alone, because it describes nothing an npm, PyPI, or tag-served release could act on — a `sonatypePlatform` on any other registry is reported as an unknown publish option rather than silently accepted. The generated JVM release always publishes through the Central Portal, since OSSRH's June 2025 retirement leaves that the only path that publishes anything, so the value records where the SDK came from and does not change what is emitted.
+Maven Central/Sonatype platform variant an imported config named: `portal` for the Central Portal, `ossrh` for the retired OSSRH staging API. Declared on `maven` alone: a `sonatypePlatform` on any other registry is reported as an unknown publish option rather than silently accepted. The generated JVM release always publishes through the Central Portal, since OSSRH's June 2025 retirement leaves that the only path that publishes anything, so the value records where the SDK came from and does not change what is emitted.
 
 #### homepage
 

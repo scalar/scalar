@@ -22,13 +22,11 @@ This release ensures per-target configuration gates apply independently to each 
 
 ## 0.36.3 (2026-10-05)
 
-### README auth tables show accurate types for each language
+### Python item-cursor pagination types
 
-Generated README files now display authentication credentials with the exact types each SDK uses, making it easier to integrate correctly. Plus improvements to Python pagination protocols and Swift smoke testing.
+Python SDKs with item-cursor pagination now declare a protocol for cursor items, so imports and type checking work correctly.
 
-- README authentication tables now show precise credential types for each language instead of generic placeholders (for example, str | None in Python, string|null in PHP, and the actual ClientOptions type in TypeScript)
 - Python SDKs with item-cursor pagination now declare a runtime-checkable Protocol for cursor items, making imports and type checking work correctly
-- Swift SDKs now include a smoke test harness that runs against a mock server and reports operation coverage
 
 ## 0.36.2 (2026-10-05)
 
@@ -44,13 +42,13 @@ This release improves README documentation accuracy across all target languages 
 
 ## 0.36.1 (2026-10-02)
 
-### Keychain support for CLI credentials, type alias compatibility, and Go identifier fixes
+### Keychain support for CLI credentials, aliases for renamed types, and Go identifier fixes
 
-This release improves credential management on macOS, adds backwards compatibility options for renamed types in TypeScript and Python, and fixes Go identifier formatting issues.
+This release improves credential management on macOS, adds aliases for renamed types in TypeScript and Python, and fixes Go identifier formatting issues.
 
 - Generated CLIs now store credentials in the macOS Keychain, using the system security utility for secure storage that works across npm and binary distributions
 - TypeScript SDKs support type aliases through backCompat.typeAliases, keeping legacy type names and imports working after types are renamed or nested
-- Python SDKs support import path aliases to maintain compatibility when types move or are renamed, with optional deprecation messages
+- Python SDKs support import path aliases so existing imports keep working when types move or are renamed, with optional deprecation messages
 - Go SDKs now correctly handle nested model types in request parameters and format identifier segments like 'sla' as 'Sla' instead of 'SLA'
 - Python request serialization now resolves forward-referenced union members, fixing runtime errors when sending requests with recursive union types
 
@@ -60,7 +58,7 @@ This release improves credential management on macOS, adds backwards compatibili
 
 This release brings self-verification of generated Go code, fixes CLI credential routing across environments, and generates page types for Go pagination. C++ webhook signature verification now works correctly, and several type inference fixes improve Go SDK quality.
 
-- Emitters can now verify their output before files are written, with the Go target checking that generated samples compile. Invalid code is withheld and reported as Target/InvalidGeneratedCode.
+- Emitters can now verify their output before files are written, with the Go target checking generated samples for struct fields assigned the wrong type. Invalid code is withheld and reported as Target/InvalidGeneratedCode.
 - CLI commands now match stored credentials to the selected environment. Login and logout accept --environment, and the CLI reads a new PREFIX_ENVIRONMENT variable.
 - Go SDKs now generate proper page types for page-number and offset pagination, with GetNextPage and AutoPaging methods that handle totals and empty pages correctly.
 - C++ webhook signature verification now implements the Standard Webhooks HMAC scheme correctly, with constant-time comparison and timestamp tolerance checking.
@@ -68,13 +66,12 @@ This release brings self-verification of generated Go code, fixes CLI credential
 
 ## 0.35.2 (2026-09-28)
 
-### Homebrew cask publishing and Swift smoke testing
+### Homebrew cask publishing
 
-This release adds support for publishing generated CLIs as Homebrew casks with code signing and notarization, plus smoke testing for Swift SDKs against mock servers.
+This release adds support for publishing generated CLIs as Homebrew casks with code signing and notarization.
 
 - Publish generated CLIs to Homebrew as casks with `targets.cli.publish.homebrew.cask: true`, supporting macOS notarization and shell completions
 - Migrate users from Homebrew formulas to casks automatically with `replaceFormula: true` and tap migration support
-- Smoke test Swift SDKs against mock servers with the new `<Module>SmokeTest` executable
 - Generated Homebrew packages now pass `brew audit --strict` and `brew style` validation
 - Install from third-party Homebrew taps using fully qualified names to avoid conflicts with official packages
 
@@ -88,7 +85,6 @@ This release adds code signing support for macOS CLI binaries and accepts publis
 - Release workflows accept publishing credentials under common secret names from other generators as fallbacks, so repositories with existing PyPI, RubyGems, Homebrew, or Maven Central secrets publish without adding new ones.
 - Code signing runs on Linux using rcodesign and validates credentials early in the workflow, before compilation and any npm publish.
 - The generated config reference now shows complete per-target examples with all supported registries and their options spelled out.
-- Swift SDKs ship with a smoke test harness that runs against a mock server and reports results in JSON, matching the testing setup for other target languages.
 
 ## 0.35.0 (2026-09-26)
 
@@ -101,12 +97,13 @@ You can now name the branch where generated code is merged with custom work, cho
 - Enable `publish.homebrew.pullRequest` to open a pull request against protected taps instead of pushing directly.
 - Turn on `publish.homebrew.replaceCask` to migrate users from a cask to a formula automatically when the cask installs the same CLI command.
 - Go SDKs now name discriminated union arms and request constructors after their tags, and organize response fields in a stable order.
+- Swift SDKs ship a `<Module>SmokeTest` harness that runs every operation against a mock server and reports results in JSON, like the other targets.
 
 ## 0.34.0 (2026-09-24)
 
-### Fern compatibility mode and SDK variables support
+### Fern project detection and SDK variables support
 
-This release adds automatic Fern compatibility mode detection and support for x-fern-sdk-variables, which moves common path parameters like workspace or project IDs from method arguments to client constructor options. The generator also ships major performance improvements for large APIs and adds Swift code samples to the augmented OpenAPI document.
+This release adds automatic detection of Fern-annotated documents and support for x-fern-sdk-variables, which moves common path parameters like workspace or project IDs from method arguments to client constructor options. The generator also ships major performance improvements for large APIs and adds Swift code samples to the augmented OpenAPI document.
 
 - Fern-annotated OpenAPI documents are now read the Fern way when no config exists, deriving starter configuration from x-fern-* extensions for grouping, method names, pagination, and more
 - Path parameters marked with x-fern-sdk-variable become client constructor options in TypeScript, Python, Java, Kotlin and CLI targets, simplifying method signatures for multi-tenant APIs
@@ -134,7 +131,7 @@ This release brings automated Swift formatting with the WebAssembly swift-format
 
 - Generated Swift SDKs are now formatted with the pinned WebAssembly swift-format, eliminating the need for a Swift toolchain on the host machine.
 - Swift deployment floor drops to macOS 12 and iOS 15, and name collisions after escaping no longer emit duplicate declarations.
-- Go SDKs now correctly declare component oneOf unions that no resource configures, fixing compilation errors for several real-world APIs.
+- Go SDKs now correctly declare component oneOf unions that no resource configures, fixing compilation errors.
 - Python type package indexes defer eager re-exports when they would close a circular import, and forward-reference rebuilds now bind the full dotted module path.
 - Generated CLIs for APIs with multiple environments now support a global --environment flag with shell completions and a new environments command.
 
@@ -157,7 +154,7 @@ This release moves to OpenAPI 3.2 types, improves how SDKs handle multiple authe
 - Use OpenAPI 3.2 types across SDK packages while preserving schema metadata including defaults, examples, extensions, and readOnly flags alongside references.
 - Reject unsupported OpenAPI operations (QUERY, CONNECT, custom methods) and querystring parameters with source locations instead of silently omitting them.
 - Fix credential handling for APIs that offer multiple authentication alternatives so SDKs no longer demand every credential at once.
-- Update GitHub Actions in generated workflows to Node.js 24 compatible versions and configure Gradle cache settings for private repositories.
+- Update GitHub Actions in generated workflows to versions that run on Node.js 24 and configure Gradle cache settings for private repositories.
 - Render documented enum defaults in Java and Kotlin code samples instead of always showing the first enum member.
 
 ## 0.33.1 (2026-09-17)
@@ -197,14 +194,11 @@ This release brings clearer streaming implementations across all targets, with d
 
 ## 0.32.13 (2026-09-11)
 
-### Improved error reporting for TypeScript SDKs and stability annotations
+### Clearer error class names in TypeScript SDKs
 
-This release improves error handling in TypeScript SDKs with proper error class names and adds stability annotations to the schema. Generated TypeScript SDKs now report distinct error names for better debugging and log grouping.
+Generated TypeScript SDKs now report distinct error class names for better debugging and log grouping.
 
 - TypeScript error classes now report their actual names instead of generic 'Error', making debugging and error tracking much easier
-- Target stability is now defined in the schema, with TypeScript, Python, Go, and CLI marked as stable
-- Fixed deprecated response bodies in smoke tests causing client failures
-- Registry listing URLs now support different addressing schemes for Maven Central, Go modules, and GitHub releases
 
 ## 0.32.12 (2026-09-11)
 
@@ -215,16 +209,7 @@ This release enhances how the SDK generator links to package registries across d
 - Package registry URLs now support platform-specific addressing schemes, including Maven Central artifacts, Go modules, and GitHub release binaries
 - Mock servers no longer strip content from deprecated response bodies, ensuring generated clients can properly decode responses during testing
 - PHP package name resolution now correctly prioritizes Composer package names over internal namespace identifiers
-
-## 0.32.11 (2026-09-11)
-
-### TypeScript Speakeasy compatibility improvements and registry metadata
-
-- TypeScript SDKs now export models, types, and SDK metadata under the Speakeasy compatibility profile.
-- The models subpath now resolves correctly with a Security type derived from SDK credential options.
-- Types subpath exports ClosedEnum, OpenEnum, and Unrecognized for working with generated enum fields.
-- SDK_METADATA is now exported with language, version, and user agent information.
-- Publish destinations now include a packageNoun field naming what each registry ships (gem, crate, formula).
+- Target stability is now defined in the config schema, with TypeScript, Python, Go, and CLI marked as stable
 
 ## 0.32.10 (2026-09-11)
 
@@ -236,7 +221,6 @@ This release improves content negotiation for streaming responses across all tar
 - Generated CLI tools now display resource descriptions in command group listings, making help output more informative
 - Long CLI command samples wrap across multiple lines for better readability in documentation and man pages
 - Go SDK now properly handles websocket surfaces and non-JSON response bodies like zip archives
-- TypeScript SDKs under Speakeasy compatibility profile extract error messages from nested envelopes and expose response headers on base errors
 
 ## 0.32.9 (2026-09-10)
 
@@ -252,35 +236,32 @@ This release introduces support for generating Go SDKs in the newer v2 code styl
 
 ## 0.32.8 (2026-09-09)
 
-### Improved Go SDK generation and TypeScript compatibility
+### Improved Go SDK generation
 
-This release advances Go SDK generation with dialect-aware code samples and improved header handling, while also fixing critical TypeScript module resolution issues for Speakeasy compatibility.
+This release advances Go SDK generation with dialect-aware code samples and improved header handling.
 
 - Go code samples now align with the SDK dialect being generated, with full support for v2 param structs and nullable fields
 - Go header and cookie parameters are now correctly guarded and unwrapped based on the SDK dialect, with proper handling of optional and required fields
-- TypeScript SDKs now correctly serve ES modules for deep imports like core.js and funcs/, fixing dual-build loading issues
-- Speakeasy compatibility profile now automatically applies positional params, property casing, and serverURL aliases when importing gen.yaml
 
 ## 0.32.7 (2026-09-09)
 
 ### Faster SDK generation and improved config handling
 
-This release brings substantial performance improvements to SDK generation across all target languages, with build times reduced by up to 60% for large OpenAPI documents. The release also fixes several language-specific issues and improves handling of vendor extensions in configuration.
+This release brings substantial performance improvements to SDK generation across all target languages, with large OpenAPI documents generating noticeably faster. The release also fixes several language-specific issues and improves handling of vendor extensions in configuration.
 
-- SDK generation is now significantly faster for all languages, with Go seeing the largest improvement (11.9s vs 31.3s for large documents).
+- SDK generation is now significantly faster for all languages, with Go seeing the largest improvement.
 - TypeScript generation performance improved by 40%, with byte-identical output maintained across all optimizations.
 - Fixed C# response handling for non-JSON binary content, now returning raw HTTP responses instead of attempting JSON deserialization.
 - Improved JVM (Java and Kotlin) SDK generation with correct handling of query parameters in path segments and nested class references in code samples.
 
 ## 0.32.6 (2026-09-08)
 
-### Configuration improvements and dependency updates
+### Configuration improvements
 
-This release removes the unsupported Terraform target from configuration, improves how publish registries are mapped to language targets, and fixes metadata handling in Ruby SDKs.
+This release removes the unsupported Terraform target from configuration, and fixes metadata handling in Ruby SDKs.
 
 - Removed the Terraform target from configuration schema, as no emitter ever shipped for it.
 - Fixed Ruby SDK metadata to correctly strip branch suffixes from repository URLs in generated gemspecs.
-- Improved configuration schema type safety for Python compatibility options.
 
 ## 0.32.5 (2026-09-08)
 
@@ -362,11 +343,11 @@ This release improves publishing for generated CLIs and fixes several issues acr
 
 ## 0.31.0 (2026-08-28)
 
-### Speakeasy compatibility support and CLI package naming
+### Speakeasy import improvements and CLI package naming
 
-This release improves compatibility with Speakeasy projects and honors more naming overrides. CLI package naming now uses more readable kebab-case by default.
+This release improves importing Speakeasy projects and honors more naming overrides. CLI package naming now uses more readable kebab-case by default.
 
-- Imported Speakeasy projects now automatically read `x-speakeasy-name-override` and `x-speakeasy-globals`, and emit compatibility modules by default
+- Imported Speakeasy projects now automatically read `x-speakeasy-name-override` and `x-speakeasy-globals`
 - CLI packages now use kebab-case names (e.g. `scalar-galaxy-cli` instead of `scalargalaxy-cli`) with explicit override support via `targets.cli.packageName`
 - Honor `x-stainless-naming` property name overrides across TypeScript, Go, Ruby, C#, PHP, Rust, Java, and Kotlin targets
 
@@ -465,7 +446,7 @@ This release brings full Connect RPC support to the TypeScript target and improv
 
 ### Generate SDKs from Protocol Buffers
 
-You can now generate typed SDKs from gRPC services defined in Protocol Buffers. Point the generator at a compiled descriptor set or a directory of proto files, and it will produce SDKs with message models, RPC methods, and client scaffolding across all supported languages.
+You can now generate typed SDKs from gRPC services defined in Protocol Buffers. Point the generator at a compiled descriptor set or a directory of proto files, and it will produce SDKs with message models and client scaffolding in every language, and RPC methods wherever the target can send them.
 
 - Generate SDKs from protobuf inputs: descriptor sets or proto directories alongside OpenAPI and AsyncAPI documents.
 - Transcoded RPCs with google.api.http annotations compile to REST endpoints, enabling HTTP calls without a Connect runtime.
@@ -494,7 +475,7 @@ This release adds full AsyncAPI 3.x document support alongside OpenAPI, enabling
 - AsyncAPI 3.x documents are now accepted, with channels lowered to streaming methods where the runtime supports them
 - AsyncAPI channels served over http or https compile to streaming methods with the same framing logic OpenAPI operations already use—text/event-stream as SSE, NDJSON as JSON Lines
 - Diagnostics rules now declare which document types they apply to, preventing OpenAPI-specific rules from reporting findings under the wrong grammar for AsyncAPI documents
-- Twelve AsyncAPI-related diagnostic codes now have dedicated rules and documentation pages, including protocol support, schema format compatibility, and channel configuration issues
+- Twelve AsyncAPI-related diagnostic codes now have dedicated rules and documentation pages, including protocol support, supported schema formats, and channel configuration issues
 - Generated Python SDKs now install correctly in editable mode with pip install -e, fixing a metadata generation error for contributors working from a cloned repository
 
 ## 0.24.0 (2026-08-12)
@@ -511,14 +492,13 @@ This release makes multi-target SDK generation more reliable by isolating failur
 
 ## 0.23.8 (2026-08-11)
 
-### Fern compatibility extensions and TypeScript improvements
+### Fern extensions and TypeScript improvements
 
-This release adds support for Fern's server naming, base path, and global parameter extensions, improving compatibility with Fern-generated OpenAPI documents. TypeScript SDKs now properly handle open object schemas and punctuated query parameters.
+This release adds support for Fern's server naming, base path, and global parameter extensions, so Fern-generated OpenAPI documents keep their environments and constructor options. TypeScript SDKs now properly handle open object schemas and punctuated query parameters.
 
 - Fern's `x-fern-server-name`, `x-fern-default-url`, `x-fern-base-path`, and `x-fern-global-parameters` extensions are now mapped to client environments and constructor options.
 - TypeScript SDKs emit `[k: string]: unknown` index signatures for schemas marked `additionalProperties: true`, allowing you to access undeclared properties without casting.
 - Query parameters with punctuated names like `time_ranges[]` now use the document's exact spelling instead of an invented camelCase key when `propertyCasing: 'wire'` is set.
-- TypeScript Speakeasy compatibility profile now emits additional per-operation type aliases, including `…Globals` and response field aliases.
 - Fixed Python discriminated unions causing import errors and code sample generation issues for union request bodies.
 
 ## 0.23.7 (2026-08-11)
@@ -543,7 +523,6 @@ This release brings significant improvements to Rust SDK generation, including p
 - Generated Rust SDKs no longer export unreferenced base structs that nothing in the crate can name, resulting in cleaner public APIs
 - Ruby README examples are now complete and runnable, with proper client initialization, corrected error handling, and accurate code samples
 - Rust webhook signature verification now implements the standard-webhooks scheme in full, fixing a security issue where genuine deliveries were rejected
-- TypeScript code samples use named imports when Speakeasy compatibility mode is enabled
 
 ## 0.23.5 (2026-08-08)
 
@@ -556,11 +535,10 @@ This release brings modular organization to generated Rust SDKs and resolves an 
 
 ## 0.23.4 (2026-08-08)
 
-### C# SDK improvements and TypeScript CI fixes
+### TypeScript CI fixes and locked Ruby dependencies
 
-This release brings a complete C# SDK generation rewrite and fixes for TypeScript SDK CI formatting checks.
+This release fixes TypeScript SDK CI formatting checks and ships Ruby SDKs with a Gemfile.lock.
 
-- C# SDK generation is rebuilt, and generated C# SDKs now compile for a wide range of real-world APIs.
 - TypeScript SDK CI formatting checks now pass correctly, with Biome upgraded to 2.5.7 and idempotent formatting.
 - Ruby SDKs now ship with Gemfile.lock to ensure consistent development toolchain versions across contributors.
 
@@ -613,11 +591,10 @@ This release ships automatic formatting for PHP, Dart, and C++ SDKs, validates a
 
 ## 0.22.10 (2026-08-06)
 
-### C# SDK improvements and runnable Rust READMEs
+### Ruby Sorbet enum fixes and runnable Rust READMEs
 
-C# SDKs gain JSON-backed models, enum wrappers, and pagination wrappers, and generated release notes are published to the changelog page.
+Ruby request enums are now spelled correctly for Sorbet users, and Rust READMEs show complete runnable programs.
 
-- C# SDKs now generate JsonModel records, ApiEnum wrappers, dual service hierarchies, and pagination wrappers.
 - Ruby enum types in request positions are now spelled correctly for Sorbet users when a schema doubles as both request and response.
 - Rust README quickstart and api.md setup blocks now show complete runnable programs that match the generated code samples.
 
@@ -723,6 +700,7 @@ This release refines how Kotlin and Java SDKs are structured, with clearer model
 - Operation type names and package layouts now use camelCase directories and proper prefixes for client methods.
 - Field documentation no longer includes unreachable default values on required parameters, preventing misleading assertions about server behavior.
 - Quoted numeric samples are now properly normalized to their declared types, fixing type-check failures in generated code.
+- Go SDK generation is about 14 percent faster on large specifications.
 
 ## 0.22.0 (2026-07-31)
 
@@ -795,7 +773,7 @@ This release improves how generated SDKs handle OpenAPI inheritance patterns, re
 
 ## 0.19.8 (2026-07-25)
 
-### Go webhook parsing, Python compatibility improvements, and TypeScript param handling
+### Go webhook parsing, Python ergonomics, and TypeScript param handling
 
 This release improves generated SDKs across multiple languages with enhanced webhook support in Go, improved Python and TypeScript SDK ergonomics, and support for naming overrides through vendor extensions.
 
@@ -935,12 +913,10 @@ This release brings significant improvements to union type modeling in Go, bette
 
 ## 0.16.8 (2026-07-15)
 
-### Rust edition 2024 upgrade and Go SDK naming improvements
+### Go SDK naming improvements and Python date serialization
 
-This release upgrades generated Rust crates to edition 2024 and delivers significant refinements to the Go SDK emitter, improving type naming accuracy and eliminating dead code.
+This release refines the Go SDK emitter, improving type naming accuracy and eliminating dead code, and fixes Python date serialization.
 
-- Generated Rust crates now target edition 2024 with minimum Rust 1.85, fixing buildability issues with older toolchains and reserved identifiers.
-- Rust string enums now preserve unknown wire values in an Unknown(String) variant instead of corrupting them on round-trip serialization.
 - Go SDK emitter now correctly embeds allOf branches backed by first-class components instead of flattening them, eliminating duplicate types.
 - Python SDK now serializes date fields as ISO 8601 strings, fixing JSON encoding errors that previously dropped requests entirely.
 - Go SDK type naming is now more accurate, with improved handling of response unions, shared components, and request body types.
@@ -983,15 +959,12 @@ This release brings significant improvements to Python and Go SDK generation, in
 
 ## 0.16.4 (2026-07-09)
 
-### TypeScript SDK migration compatibility layer
+### Constructor option aliases and backward cursor pagination
 
-This release makes it easier to migrate TypeScript SDKs from other generators. You can now configure Scalar to emit compatibility wrappers that preserve your existing code while you transition to the new SDK.
+Clients can accept constructor option names an existing SDK used, and TypeScript pagination pages backward through previous-cursor fields.
 
-- Set `targets.typescript.compatibility` to generate wrapper functions matching another SDK generator's API surface, so existing code keeps compiling during migration.
-- Speakeasy compatibility mode emits tree-shakable standalone functions, request and response type aliases, and functional Result types that mirror Speakeasy's public API.
 - Configure `clientSettings.baseUrlAliases` to accept constructor option names from other generators, like Speakeasy's `serverURL`.
 - TypeScript pagination now preserves backward cursor pagination when using previous-cursor request fields.
-- Compatibility wrappers emit deprecated type aliases and utility modules so imports from existing SDKs continue resolving.
 
 ## 0.16.3 (2026-07-09)
 
@@ -1006,7 +979,7 @@ This release fixes how generated SDKs name response types when you declare model
 
 ### Python websocket improvements and TypeScript union naming refinements
 
-This release improves Python websocket methods with better parameter handling and shared connection state and refines TypeScript union member naming around wire discriminator tags.
+This release improves Python websocket methods with better parameter handling and shared connection state, and refines TypeScript union member naming around wire discriminator tags.
 
 - Python websocket connect methods now expose path parameters and options as typed arguments with a shared send queue.
 - TypeScript union member interfaces are now named after their wire discriminator tags or owning properties.

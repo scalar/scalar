@@ -81,7 +81,7 @@ Registry authentication mechanism. See `publish.npm` for the trusted-publisher p
 
 **Type:** `string`
 
-Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's environment protection rules gate the release, and this registry's secrets can come from that environment — one there overrides a repository secret of the same name. Under OIDC it must also match the environment registered on the trusted publisher. The CLI publishes all of its registries from one job, so there the first entry that names an environment decides it for every channel and later ones are ignored.
+Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's environment protection rules gate the release, and this registry's secrets can come from that environment — one there overrides a repository secret of the same name. Under OIDC it must also match the environment registered on the trusted publisher.
 
 #### access
 
@@ -91,7 +91,7 @@ Package visibility the release publishes with, as npm's `--access`:
 
 - `public` (the default): installable by anyone. An unscoped package is public anyway, but npm publishes a scoped one as `restricted` unless told otherwise, so without this default a scoped SDK would publish privately the first time and stay that way.
 - `restricted`: readable only by the publishing account or organization, and it needs a paid npm plan; on a free account npm rejects the publish. Scoped packages only: npm has no private unscoped packages, so `restricted` on one is an error from npm rather than a setting that takes effect.
-- Any other string is accepted for forward compatibility and passed to `npm publish` as given, as long as it has no whitespace. `--access` takes a single token, so a blank or spaced value is rejected here rather than by `npm publish` on the release runner, after the release tag has already been cut.
+- Any other string is passed to `npm publish` as given, as long as it has no whitespace. `--access` takes a single token, so a blank or spaced value is rejected here rather than by `npm publish` on the release runner, after the release tag has already been cut.
 
 Unused by every other registry: `--access` is an npm concept, and the ecosystems that model visibility at all do it on the account rather than per publish.
 

@@ -127,7 +127,7 @@ The code-sample pipeline also recognizes `x-codeSamples`, `x-code-samples`, and 
 
 ## Imported vendor extensions
 
-The following are compatibility readers. They are useful when importing an existing Fern, Speakeasy, or Stainless project; new documents should generally use the native Scalar extension or configuration field named in the table.
+The generator also reads these extensions written for other SDK generators. They are useful when importing an existing Fern, Speakeasy, or Stainless project; new documents should generally use the native Scalar extension or configuration field named in the table.
 
 ### Fern
 
@@ -144,7 +144,7 @@ The following are compatibility readers. They are useful when importing an exist
 | `x-fern-global-headers` | Document root | Default headers or client constructor options. |
 | `x-fern-global-parameters` | Document root | Client constructor options and their request locations. Header parameters are sent end to end; other locations are retained as configuration but are not yet emitted by every target. |
 | `x-fern-idempotency-headers` | Document root | Client idempotency-header setting; the first declared header wins. |
-| `x-fern-idempotent` | Operation | Participates in idempotency compatibility checks; per-operation intent cannot always be represented by Scalar's client-wide setting. |
+| `x-fern-idempotent` | Operation | Considered when deciding which operations are idempotent; per-operation intent cannot always be represented by Scalar's client-wide setting. |
 | `x-fern-base-path` | Document root | Appended to imported environment URLs. |
 | `x-fern-server-name` | Server | Imported environment name. |
 | `x-fern-default-url` | Server | Imported environment URL, replacing a templated server URL. |
