@@ -1,8 +1,11 @@
 import type { AsyncApiComponentsObject, AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createNavigation, traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
+import { createFuseInstance } from './create-fuse-instance'
 import { createSearchIndex } from './create-search-index'
 
 /** Navigation always includes a default Introduction text entry (see workspace-store). */
@@ -1086,5 +1089,165 @@ describe('createSearchIndex', () => {
         expect.arrayContaining(['A planet lifecycle event', 'Name of the planet']),
       )
     })
+  })
+  it('searches AsyncAPI content through resolved references and traits', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1.0' },
+        channels: {
+          planetEvents: {
+            address: 'planets/{planetId}/events',
+            title: 'Planet Events',
+            summary: 'Orbital changes',
+            description: 'Celestial notifications',
+            parameters: { planetId: { $ref: '#/components/parameters/Planet' } },
+            messages: { updated: { $ref: '#/components/messages/Updated' } },
+          },
+        },
+        operations: {
+          receiveUpdates: {
+            action: 'receive',
+            title: 'Watch planets',
+            channel: { $ref: '#/channels/planetEvents' },
+            traits: [{ $ref: '#/components/operationTraits/Watch' }],
+          },
+        },
+        components: {
+          parameters: { Planet: { description: 'Identifier of the observed planet' } },
+          operationTraits: { Watch: { description: 'Subscribe to orbital telemetry' } },
+          messageTraits: {
+            Envelope: {
+              description: 'A celestial change envelope',
+              headers: {
+                type: 'object',
+                properties: { traceToken: { type: 'string', description: 'Correlation token' } },
+              },
+            },
+          },
+          messages: {
+            Updated: {
+              title: 'Planet Updated',
+              name: 'planetChanged',
+              summary: 'Changed orbital properties',
+              traits: [{ $ref: '#/components/messageTraits/Envelope' }],
+              payload: {
+                schemaFormat: 'application/schema+json;version=draft-07',
+                schema: {
+                  type: 'object',
+                  properties: {
+                    changes: {
+                      type: 'array',
+                      items: {
+                        allOf: [
+                          {
+                            type: 'object',
+                            properties: {
+                              details: {
+                                type: 'object',
+                                properties: {
+                                  orbitRadius: { type: 'number', description: 'Radius of the orbit' },
+                                },
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.events
+    if (!document || !isAsyncApiDocument(document)) {
+      throw new Error('Expected an AsyncAPI document')
+    }
+    const index = createSearchIndex(document)
+    const channel = index.find((item) => item.type === 'asyncapi-channel')
+    const operation = index.find((item) => item.type === 'asyncapi-operation')
+    const message = index.find((item) => item.type === 'asyncapi-message')
+    expect(channel?.parameters).toStrictEqual(['planetId'])
+    expect(channel?.parameterDescriptions).toStrictEqual(['Identifier of the observed planet'])
+    expect(operation?.description).toBe('Subscribe to orbital telemetry')
+    expect(operation?.action).toBe('receive')
+    expect(message?.body).toStrictEqual(['changes', 'details', 'orbitRadius', 'traceToken'])
+    expect(message?.bodyDescriptions).toStrictEqual([
+      'Changed orbital properties',
+      'Radius of the orbit',
+      'Correlation token',
+    ])
+    expect(message?.description).toBe('A celestial change envelope')
+    const fuse = createFuseInstance()
+    fuse.setCollection(index)
+    for (const [query, type] of [
+      ['planetEvents', 'asyncapi-channel'],
+      ['planetId', 'asyncapi-channel'],
+      ['receiveUpdates', 'asyncapi-operation'],
+      ['telemetry', 'asyncapi-operation'],
+      ['planetChanged', 'asyncapi-message'],
+      ['orbitRadius', 'asyncapi-message'],
+      ['Correlation token', 'asyncapi-message'],
+    ] as const) {
+      expect(fuse.search(query)[0]?.item.type).toBe(type)
+    }
+  })
+
+  it('keeps message metadata searchable when schemas are unsupported', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1.0' },
+      channels: {
+        events: {
+          address: null,
+          messages: {
+            avro: {
+              title: 'Avro event',
+              payload: {
+                schemaFormat: 'application/vnd.apache.avro+json',
+                schema: { type: 'object', properties: { notJsonSchema: { type: 'string' } } },
+              },
+            },
+            boolean: { title: 'Boolean event', payload: true, headers: false },
+            nestedBoolean: { title: 'Nested boolean event', payload: { type: 'array', items: true } },
+            missing: { title: 'Missing schema', payload: { $ref: '#/missing' } },
+          },
+        },
+      },
+    } as unknown as AsyncApiDocument
+    document['x-scalar-navigation'] = traverseAsyncApiDocument('events', document)
+    expect(
+      createSearchIndex(document)
+        .filter((item) => item.type === 'asyncapi-message')
+        .map((item) => ({
+          title: item.title,
+          body: item.body,
+          path: item.path,
+        })),
+    ).toStrictEqual([
+      { title: 'Avro event', body: [], path: 'events' },
+      { title: 'Boolean event', body: [], path: 'events' },
+      { title: 'Missing schema', body: [], path: 'events' },
+      { title: 'Nested boolean event', body: [], path: 'events' },
+    ])
+  })
+
+  it('indexes recursive AsyncAPI payloads without looping', () => {
+    const tree: Record<string, unknown> = { type: 'object' }
+    tree.properties = { value: { type: 'string', description: 'Node value' }, children: { type: 'array', items: tree } }
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Trees', version: '1.0' },
+      channels: { trees: { address: 'trees', messages: { tree: { payload: tree } } } },
+    } as unknown as AsyncApiDocument
+    document['x-scalar-navigation'] = traverseAsyncApiDocument('trees', document)
+    const message = createSearchIndex(document).find((item) => item.type === 'asyncapi-message')
+    expect(message?.body).toStrictEqual(['value', 'children'])
+    expect(message?.bodyDescriptions).toStrictEqual(['Node value'])
   })
 })

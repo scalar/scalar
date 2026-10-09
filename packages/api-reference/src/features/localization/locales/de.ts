@@ -29,6 +29,8 @@ export const de = {
     entryOperation: 'Operation',
     entryTag: 'Tag',
     entryTagGroup: 'Tag-Gruppe',
+    entryChannel: 'Kanal',
+    entryMessage: 'Nachricht',
     entryWebhook: 'Webhook',
   },
   navigation: {

@@ -130,6 +130,12 @@ Rendering works in both the `modern` and `classic` layouts.
   size="full">
 </scalar-image>
 
+## Search
+
+Search finds channels, operations, and messages by their titles, names, summaries, and descriptions. Channel addresses and parameter names and descriptions are searchable too. For messages, search also includes payload and application-header field names and descriptions, including nested objects and array items in supported JSON Schema formats.
+
+Select a result to navigate to its content. Selecting a message opens its accordion.
+
 ## Payload examples
 
 Message-level `examples` appear in a code panel with a copy button and a picker when there is more than one example. Examples inherited from message traits are supported too.

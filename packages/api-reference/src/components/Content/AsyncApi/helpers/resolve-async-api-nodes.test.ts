@@ -50,4 +50,25 @@ describe('resolveAsyncApiOperation', () => {
   it('returns undefined for an unknown operation', () => {
     expect(resolveAsyncApiOperation(document, 'missing')).toBeUndefined()
   })
+
+  it('applies later traits and operation overrides without changing the source', () => {
+    const operation = {
+      action: 'receive',
+      channel: { $ref: '#/channels/events' },
+      summary: 'Own summary',
+      traits: [
+        { title: 'Initial title', summary: 'Trait summary', description: 'Initial description' },
+        { $ref: '#/traits/later', '$ref-value': { title: 'Later title', description: 'Later description' } },
+      ],
+    }
+    const source = { operations: { watch: operation } } as unknown as AsyncApiDocument
+    const resolved = resolveAsyncApiOperation(source, 'watch')
+    expect([resolved?.title, resolved?.summary, resolved?.description]).toStrictEqual([
+      'Later title',
+      'Own summary',
+      'Later description',
+    ])
+    expect(Object.hasOwn(operation, 'title')).toBe(false)
+    expect(Object.hasOwn(operation, 'description')).toBe(false)
+  })
 })
