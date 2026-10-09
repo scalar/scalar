@@ -8,6 +8,7 @@ import { respondWithToken } from '@/routes/respond-with-token'
 import { getOAuth2Metadata } from './get-oauth2-metadata'
 import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls'
 import { setUpDeviceAuthorization } from './set-up-device-authorization'
+import { setUpOpenIdConnect } from './set-up-openid-connect'
 
 /**
  * Helper function to set up authentication routes for OAuth 2.0 flows
@@ -15,6 +16,17 @@ import { setUpDeviceAuthorization } from './set-up-device-authorization'
 export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) {
   const securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject> =
     schema?.components?.securitySchemes || {}
+
+  const discoveryUrls = Object.values(securitySchemes).flatMap((rawScheme) => {
+    const scheme = getResolvedRef(rawScheme)
+    return scheme?.type === 'openIdConnect' && scheme.openIdConnectUrl ? [scheme.openIdConnectUrl] : []
+  })
+  setUpOpenIdConnect(
+    app,
+    discoveryUrls,
+    schema?.info?.title ?? '',
+    Object.values(securitySchemes).some((scheme) => getResolvedRef(scheme)?.type === 'oauth2'),
+  )
 
   setUpDeviceAuthorization(app, schema)
 
@@ -90,30 +102,10 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
         tokenUrls.add(getPathFromUrl(tokenRoute))
       }
     } else if (scheme.type === 'openIdConnect') {
-      // Handle OpenID Connect configuration
+      // Non-OIDC OAuth requests still use the permissive shared mock handlers.
       if (scheme.openIdConnectUrl) {
-        const configPath = getPathFromUrl(scheme.openIdConnectUrl ?? '/.well-known/openid-configuration')
-
-        // Add route for OpenID Connect configuration
-        app.get(configPath, (c) => {
-          // Discovery URLs must stay on the HTTP mock origin, even for WebSocket APIs.
-          const origin = new URL(c.req.url).origin
-          return c.json({
-            issuer: origin,
-            authorization_endpoint: `${origin}/oauth/authorize`,
-            token_endpoint: `${origin}/oauth/token`,
-            response_types_supported: ['code', 'token', 'id_token'],
-            subject_types_supported: ['public'],
-            id_token_signing_alg_values_supported: ['RS256'],
-          })
-        })
-
-        // Add standard endpoints
-        const authorizeRoute = '/oauth/authorize'
-        const tokenRoute = '/oauth/token'
-
-        authorizeUrls.add(getPathFromUrl(authorizeRoute))
-        tokenUrls.add(getPathFromUrl(tokenRoute))
+        authorizeUrls.add('/oauth/authorize')
+        tokenUrls.add('/oauth/token')
       }
     }
   })
