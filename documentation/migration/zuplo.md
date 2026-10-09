@@ -61,7 +61,7 @@ The Zuplo column reflects Zuplo's public pricing and docs as of September 2026. 
 | Spectral Linting             | ✓                         | —                      |
 | Code Snippet Generation      | 25+ languages             | —                      |
 | **Integrations**             |                           |                        |
-| GitHub Sync                  | ✓                         | —                      |
+| Git Sync                  | ✓                         | —                      |
 | CLI                          | ✓                         | —                      |
 | Framework Integrations       | many (see below)          | —                      |
 | **Open Source**              |                           |                        |
@@ -160,7 +160,7 @@ Once you have created your Scalar account:
 
 1. Open **Docs** in the dashboard and click **New Project**
 2. Choose **Create new docs**, or **Import Docs** if you want to store your OpenAPI in a GitHub or Bitbucket repository
-3. In a new project, click **+** in the editor's sidebar, choose **Add API Reference**, then **Import a new API**, and upload the exported OpenAPI file from Zuplo
+3. In a new project, click **+** in the editor's sidebar, choose **Add API Reference**, then **Import a new API**, click **Continue**, and upload the exported OpenAPI file from Zuplo
 4. Scalar will automatically parse and display your API reference
 
 If you are using Git Sync, you can commit your OpenAPI file to your repository and Scalar will automatically sync it.
@@ -194,7 +194,7 @@ If you are using Git Sync, create a `scalar.config.json` file in your repository
 }
 ```
 
-Automatic deployment publishes your site whenever changes land on your tracked branch, and it is on by default. Change it, or the branch Scalar publishes from, in the editor under **Settings → Git Sync**.
+Automatic deployment is the **Publish on merge** toggle under **Auto-publish** in the editor's **Settings → Git Sync**. It publishes your site whenever changes land on your tracked branch, and it is on by default. The **Tracked branch** is set on the same page.
 
 ### Step 5: Migrate Custom Styling
 
@@ -224,7 +224,7 @@ If you have Markdown guides in your Zuplo developer portal:
 1. Export any MDX or Markdown content from Zuplo
 2. Scalar Docs supports Markdown and MDX, so most pages move as they are. Components specific to Zudoku, or custom React pages, need replacing with Scalar components or plain Markdown
 3. Add your guides to Scalar with **+** → **Add Page** in the editor's sidebar, or add the `.md` files to your project
-4. Or, if using GitHub Sync, add them to your repository and reference them in `scalar.config.json`:
+4. Or, if using Git Sync, add them to your repository and reference them in `scalar.config.json`:
 
 ```json
 {

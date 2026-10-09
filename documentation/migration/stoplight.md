@@ -58,9 +58,9 @@ Stoplight had various flavors of project: Web Projects, Git Projects, Local Proj
 
 ### Git Projects
 
-Migrating a Stoplight "Git Project" is as simple as enabling GitHub Sync for Scalar. Stoplight was just pushing and pulling from a Git repo, and Scalar can do that too. This is built in, not some awkward GitHub Action.
+Migrating a Stoplight "Git Project" is as simple as enabling Git Sync for Scalar. Stoplight was just pushing and pulling from a Git repo, and Scalar can do that too. This is built in, not some awkward GitHub Action.
 
-To use Git Sync, open **Docs** in the [dashboard](https://dashboard.scalar.com/docs) and click **New Project**. Name your project, choose **Import Docs**, pick **GitHub** (or **Bitbucket**), and click **Continue**. Select your organization, pick the repository, and click **Connect repository**.
+To use Git Sync, open **Docs** in the [dashboard](https://dashboard.scalar.com/docs) and click **New Project**. Name your project, choose **Import Docs**, and click **Continue**. Pick **GitHub** and click **Connect to GitHub**, then select your organization and repository and click **Connect repository**. (On Bitbucket, pick a workspace and click **Link Repository** next to the repository.)
 
 <!-- TODO screenshot: the Import Docs flow with a repository selected -->
 
@@ -124,7 +124,7 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 }
 ```
 
-Automatic deployment publishes your site whenever changes land on your tracked branch, and it is on by default. Change it, or the branch Scalar publishes from, in the editor under **Settings → Git Sync**.
+Automatic deployment is the **Publish on merge** toggle under **Auto-publish** in the editor's **Settings → Git Sync**. It publishes your site whenever changes land on your tracked branch, and it is on by default. The **Tracked branch** is set on the same page.
 
 <!-- TODO screenshot: Settings → Git Sync -->
 
@@ -199,7 +199,7 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 > [!NOTE]
 > You can create more complex sidebars with nested pages and more. See this example [scalar.config.json](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/scalar.config.json) to see how it works.
 
-Commit this file and push. With automatic deployment on, the push to your tracked branch starts a publish, and it shows up in the editor's **Activity** panel. When that is done you can see how it all looks.
+Commit this file and push. With automatic deployment on, the push to your tracked branch starts a publish, and it shows up in the editor's **Activity** panel (open it with **Show activity** in the save toolbar menu). When that is done you can see how it all looks.
 
 ## Step 4: Review The New Documentation
 
