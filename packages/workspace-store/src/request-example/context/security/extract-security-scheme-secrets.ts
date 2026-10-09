@@ -327,6 +327,8 @@ export const extractSecuritySchemeSecrets = (
     }
     return {
       ...scheme,
+      // User edits take precedence over document and configuration defaults, even when cleared.
+      ...(storeSecrets?.name === undefined ? {} : { name: storeSecrets.name }),
       'x-scalar-secret-token': storedSecret(storeSecrets, 'x-scalar-secret-token') ?? defaults['x-scalar-secret-token'],
       ...withSecretDefaults(defaults),
     } satisfies ApiKeyObjectSecret

@@ -1,3 +1,5 @@
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+
 import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
 import { resetSecretField, updateClearedSecretFields } from '@/helpers/auth-secret-fields'
@@ -9,6 +11,7 @@ import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-secu
 import { mergeObjects } from '@/helpers/merge-object'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getSelectedSecurity } from '@/request-example/context/security/get-selected-security'
+import { usesApiKeyNameOverride } from '@/request-example/context/security/uses-api-key-name-override'
 import type { WorkspaceDocument } from '@/schemas'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
@@ -797,8 +800,41 @@ export const authMutatorsFactory = ({
       updateSelectedSecuritySchemes(store, document, payload),
     clearSelectedSecuritySchemes: (payload: AuthEvents['auth:clear:selected-security-schemes']) =>
       clearSelectedSecuritySchemes(store, document, payload),
-    updateSecurityScheme: (payload: AuthEvents['auth:update:security-scheme']) =>
-      updateSecurityScheme(document, payload),
+    updateSecurityScheme: (
+      data: AuthEvents['auth:update:security-scheme'],
+      configuredSchemes: AuthenticationConfiguration['securitySchemes'] = {},
+    ): SecuritySchemeObject | undefined => {
+      const { payload, name } = data
+      if (payload.type !== 'apiKey' || payload.name === undefined) {
+        return updateSecurityScheme(document, data)
+      }
+
+      const configured = Object.hasOwn(configuredSchemes, name) ? configuredSchemes[name] : undefined
+      const documentScheme = getResolvedRef(getDocumentSecuritySchemes(document)[name])
+      if (!configured || !usesApiKeyNameOverride(configured, documentScheme)) {
+        // Document-backed names must remain available to export and synchronization.
+        const updated = updateSecurityScheme(document, data)
+        const documentName = getAuthDocumentName(document)
+        const secrets = documentName ? store?.auth.getAuthSecrets(documentName, name) : undefined
+        // Only release an existing override, so typing a name does not write secrets on every keystroke.
+        if (updated && secrets?.type === 'apiKey' && secrets.name !== undefined) {
+          updateSecuritySchemeSecrets(store, document, { name, payload: { type: 'apiKey', name: undefined } })
+        }
+        return updated
+      }
+
+      const defaultName =
+        ('name' in configured ? configured.name : undefined) ??
+        (documentScheme && typeof documentScheme === 'object' && 'name' in documentScheme
+          ? documentScheme.name
+          : undefined)
+      // Restoring the default releases the override without clearing the API key token.
+      updateSecuritySchemeSecrets(store, document, {
+        name,
+        payload: { type: 'apiKey', name: payload.name === defaultName ? undefined : payload.name },
+      })
+      return undefined
+    },
     updateSecuritySchemeSecrets: (payload: AuthEvents['auth:update:security-scheme-secrets']) =>
       updateSecuritySchemeSecrets(store, document, payload),
     resetSecuritySchemeSecret: (payload: AuthEvents['auth:reset:security-scheme-secret']) =>

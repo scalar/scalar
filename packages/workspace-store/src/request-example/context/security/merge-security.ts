@@ -18,6 +18,7 @@ import { isEncryptionSchemeType, isSaslSchemeType } from '@/request-example/buil
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
 import { extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
+import { usesApiKeyNameOverride } from './uses-api-key-name-override'
 
 /** Document security merged with the config security schemes */
 export type MergedSecuritySchemes = Record<string, SecuritySchemeObjectSecret>
@@ -167,7 +168,15 @@ export const mergeSecurity = (
     // We coerce in case the scheme is missing any key fields like type.
     const coerced = coerceValue(SecuritySchemeObjectSchema, scheme)
     const merged = { ...(isObjectLike(scheme) ? scheme : {}), ...coerced }
-    acc[name] = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)
+    const extracted = extractSecuritySchemeSecrets(merged, authStore, name, documentName, oauth2RedirectUri)
+    const configured = Object.hasOwn(configSecuritySchemes, name) ? configSecuritySchemes[name] : undefined
+    // A name override left behind after the configuration changed must not hide the document name.
+    acc[name] =
+      extracted.type === 'apiKey' &&
+      merged.type === 'apiKey' &&
+      !usesApiKeyNameOverride(configured, resolvedDocumentSecuritySchemes[name])
+        ? { ...extracted, name: merged.name }
+        : extracted
     return acc
   }, {})
 }
