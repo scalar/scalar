@@ -203,7 +203,7 @@ The ruleset file itself is uploaded to your team's registry every time you publi
 
 If you omit `blockPublishOn` but set `namespace` and `slug` for a ruleset that already exists in your registry, Scalar uses that ruleset's policy from the registry.
 
-An OpenAPI route can set its own `ruleset`. If the route sets `filepath`, `namespace`, or `slug`, its ruleset replaces the project ruleset entirely, including `version` and `disableSync`. Otherwise the route keeps the project ruleset, and only its `blockPublishOn` applies, so a route can change `blockPublishOn` and keep the default ruleset.
+An OpenAPI route can set its own `ruleset`. If the route sets `filepath`, `namespace`, or `slug`, its ruleset replaces the project ruleset entirely, including `version` and `disableSync`. A route that sets `namespace` or `slug` without `filepath` therefore ends up with no ruleset file, and is not linted. Otherwise the route keeps the project ruleset, and only its `blockPublishOn` applies, so a route can change `blockPublishOn` and keep the default ruleset.
 
 ### navigation
 

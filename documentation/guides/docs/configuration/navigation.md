@@ -523,7 +523,7 @@ Set `hidden` to `true` to fully hide an API reference. The setting cascades to e
 
 ### API Reference configuration
 
-When you add an API reference route (`type: "openapi"` or `type: "asyncapi"`) in your navigation, you can pass API Reference options by adding a `config` object. Only the options in the table below are supported. Other [API Reference options](../../../configuration.md), like `theme` or `layout`, are ignored here. Set the site's theme with [`siteConfig.theme`](themes.md) instead.
+When you add an API reference route (`type: "openapi"` or `type: "asyncapi"`) in your navigation, you can pass API Reference options by adding a `config` object. Only the options in the table below can be set here. Other [API Reference options](../../../configuration.md), like `theme` or `layout`, are ignored here. Set the site's theme with [`siteConfig.theme`](themes.md) instead.
 
 Example:
 
@@ -566,7 +566,7 @@ Example:
 | `operationTitleSource`         | `"summary"`, `"path"`                             | `"summary"` |
 | `orderRequiredPropertiesFirst` | `boolean`                                         | `true`    |
 | `orderSchemaPropertiesBy`      | `"alpha"`, `"preserve"`                           | `"alpha"` |
-| `proxyUrl`                     | `string`                                          | —         |
+| `proxyUrl` | `string` | `"https://proxy.scalar.com"` |
 | `servers`                      | `array`                                           | —         |
 | `showOperationId`              | `boolean`                                         | `false`   |
 
