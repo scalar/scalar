@@ -15,9 +15,9 @@ const { variant = 'card' } = defineProps<{
    * Where the button sits:
    * - `toolbar`: the developer tools header, matches the popover triggers next to it
    * - `card`: the client libraries card header, matches the "Authorize via OAuth2" button
-   * - `code`: inline in the dark request example header, next to the client picker
+   * - `footer`: the start of the request example footer, matches the "Ask AI Agent" chip there
    */
-  variant?: 'toolbar' | 'card' | 'code'
+  variant?: 'toolbar' | 'card' | 'footer'
 }>()
 
 const context = useGenerateSdkContext()
@@ -73,16 +73,22 @@ const { translate } = useLocalization()
   background: var(--scalar-background-2);
 }
 
-/* Inline in the request example header, beside the client picker */
-.generate-sdk-button--code {
+/*
+ * Start of the request example footer: a quiet 24px button sized like the "Ask AI Agent" chip on
+ * the other end. The height is fixed because the classic layout has no other footer controls to
+ * stretch it.
+ */
+.generate-sdk-button--footer {
   color: var(--scalar-color-2);
-  font-size: var(--scalar-font-size-3);
-  font-weight: var(--scalar-regular);
-  padding: 0 6px;
-  margin-right: 6px;
-  height: 100%;
+  background: transparent;
+  font-size: inherit;
+  font-weight: var(--scalar-semibold);
+  line-height: inherit;
+  padding: 1px 6px;
+  height: 24px;
+  margin-inline-end: 4px;
 }
-.generate-sdk-button--code:hover {
-  color: var(--scalar-color-1);
+.generate-sdk-button--footer:hover {
+  background: var(--scalar-background-2);
 }
 </style>

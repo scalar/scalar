@@ -1010,6 +1010,38 @@ describe('RequestExample', () => {
       expect(wrapper.text()).toContain('Custom Footer')
     })
 
+    it('renders footer-start when the example picker is not shown', () => {
+      const wrapper = mount(RequestExample, {
+        props: { ...defaultProps, selectedContentType: 'text/plain' },
+        slots: { 'footer-start': '<button>Generate SDK</button>' },
+      })
+
+      expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'ScalarCardFooter' }).text()).toContain('Generate SDK')
+    })
+
+    it('gives the footer start to the example picker when there are several examples', () => {
+      const wrapper = mount(RequestExample, {
+        props: { ...defaultProps, selectedContentType: 'application/json' },
+        slots: {
+          'footer-start': '<button>Generate SDK</button>',
+          footer: '<button>Test Request</button>',
+        },
+      })
+
+      expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+      expect(wrapper.text()).not.toContain('Generate SDK')
+      expect(wrapper.text()).toContain('Test Request')
+    })
+
+    it('renders no footer without the picker or any footer slot', () => {
+      const wrapper = mount(RequestExample, {
+        props: { ...defaultProps, selectedContentType: 'text/plain' },
+      })
+
+      expect(wrapper.findComponent({ name: 'ScalarCardFooter' }).exists()).toBe(false)
+    })
+
     it('renders footer slot even without examples', () => {
       const wrapper = mount(RequestExample, {
         props: {

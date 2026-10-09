@@ -223,10 +223,10 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  header: () => unknown
-  /** Extra controls rendered in the header beside the client picker */
-  actions?: () => unknown
-  footer: ({ exampleName }: { exampleName: string }) => unknown
+  'header': () => unknown
+  /** Rendered at the start of the footer, only while the example picker does not need that space */
+  'footer-start'?: () => unknown
+  'footer': ({ exampleName }: { exampleName: string }) => unknown
 }>()
 
 /** Grab the examples for the given content type */
@@ -505,14 +505,13 @@ const id = useId()
         v-if="generateLabel"
         v-html="generateLabel()" />
       <slot name="header" />
-      <!-- Header actions: anything passed in, then the client picker -->
+      <!-- Client picker -->
       <template
-        v-if="(!isWebhook && clientCount) || $slots.actions"
+        v-if="!isWebhook && clientCount"
         #actions>
-        <slot name="actions" />
         <!-- Multiple clients: render a dropdown to switch between them -->
         <ScalarCombobox
-          v-if="!isWebhook && clientCount > 1"
+          v-if="clientCount > 1"
           class="max-h-80"
           :filterFn="filterClientsByQuery"
           :inputLabel="clientSearchLabel"
@@ -534,7 +533,7 @@ const id = useId()
         </ScalarCombobox>
         <!-- Single client: just show its label, no need for a dropdown -->
         <span
-          v-else-if="!isWebhook && clientCount"
+          v-else
           class="text-c-2 flex h-full w-fit items-center px-0.5 py-0 text-base font-normal"
           data-testid="client-picker">
           {{ localSelectedClient?.title }}
@@ -590,8 +589,12 @@ const id = useId()
 
     <!-- Footer -->
     <ScalarCardFooter
-      v-if="showExamplePicker || $slots.footer"
-      class="request-card-footer bg-b-3">
+      v-if="showExamplePicker || $slots.footer || $slots['footer-start']"
+      class="request-card-footer bg-b-3"
+      :class="{
+        'request-card-footer--wraps':
+          !showExamplePicker && $slots['footer-start'],
+      }">
       <!-- Example picker -->
       <div
         v-if="showExamplePicker"
@@ -602,6 +605,12 @@ const id = useId()
             :modelValue="localExampleKey"
             @update:modelValue="selectExample" />
         </template>
+      </div>
+      <!-- Otherwise the start of the footer is free for the caller -->
+      <div
+        v-else-if="$slots['footer-start']"
+        class="request-card-footer-start">
+        <slot name="footer-start" />
       </div>
 
       <!-- Footer -->
@@ -644,6 +653,19 @@ const id = useId()
   padding: 6px;
   flex-shrink: 0;
   position: relative;
+}
+/*
+ * Footer-start content keeps its full width; when the footer is too narrow for everything,
+ * the end controls wrap onto a second line instead of squeezing or covering it.
+ */
+.request-card-footer--wraps {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.request-card-footer-start {
+  display: flex;
+  align-items: center;
+  flex: 1 0 auto;
 }
 .request-card-footer-addon {
   display: flex;

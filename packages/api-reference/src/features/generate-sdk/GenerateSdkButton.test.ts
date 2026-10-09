@@ -11,7 +11,7 @@ const createContext = (enabled = true): GenerateSdkContext => {
   return { enabled: computed(() => enabled), dialog, open: vi.fn(() => dialog.show()) }
 }
 
-const mountButton = (context: GenerateSdkContext, variant?: 'toolbar' | 'card' | 'code') =>
+const mountButton = (context: GenerateSdkContext, variant?: 'toolbar' | 'card' | 'footer') =>
   mount(GenerateSdkButton, {
     props: { variant },
     global: { provide: { [GENERATE_SDK_CONTEXT_SYMBOL as symbol]: context } },
@@ -37,7 +37,7 @@ describe('GenerateSdkButton', () => {
     expect(wrapper.find('button').exists()).toBe(false)
   })
 
-  it.each(['card', 'toolbar', 'code'] as const)(
+  it.each(['card', 'toolbar', 'footer'] as const)(
     'opens the Explore Scalar dialog from the %s variant',
     async (variant) => {
       const context = createContext()
