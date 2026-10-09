@@ -891,6 +891,28 @@ describe('RequestAuthTab', () => {
       expect(wrapper.text()).not.toContain('Authorize via OAuth2')
     })
 
+    it('keeps Authorize rightmost, with Refresh between the gear and Authorize', () => {
+      /** Accessible names of the Get a token row controls, left to right */
+      const rowControls = (wrapper: ReturnType<typeof mountWithProps>): string[] => {
+        const label = wrapper.findAll('span').find((span) => span.text() === 'Get a token')
+        const buttons = label?.element.parentElement?.querySelectorAll('button') ?? []
+
+        return [...buttons].map((button) => (button.getAttribute('aria-label') ?? button.textContent ?? '').trim())
+      }
+
+      const withoutToken = mountWithProps({ securitySchemes: schemesWithOauth2 })
+      expect(rowControls(withoutToken)).toEqual(['Configure OAuth2', 'Authorize via OAuth2'])
+
+      // Refresh only appears once there is a token, and slots in without moving Authorize
+      const withToken = mountWithProps({
+        securitySchemes: {
+          ...schemesWithOauth2,
+          BearerAuth: { ...schemesWithOauth2.BearerAuth, 'x-scalar-secret-token': 'token' },
+        },
+      })
+      expect(rowControls(withToken)).toEqual(['Configure OAuth2', 'Refresh', 'Authorize via OAuth2'])
+    })
+
     it('runs authorize against the bearer scheme on click', async () => {
       vi.mocked(runOAuth2Authorize).mockResolvedValue([null, { accessToken: 'tok' }])
 
