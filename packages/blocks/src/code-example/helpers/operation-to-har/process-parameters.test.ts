@@ -12,6 +12,41 @@ import { processParameters } from './process-parameters'
 
 describe('parameter styles', () => {
   it.each([true, false])(
+    'omits disabled nested properties from snippets with defaultDisabled %s',
+    (defaultDisabled) => {
+      const result = processParameters({
+        harRequest: {
+          url: 'https://example.com/licenses',
+          method: 'GET',
+          headers: [],
+          queryString: [],
+          cookies: [],
+          httpVersion: 'HTTP/1.1',
+          headersSize: 0,
+          bodySize: 0,
+        },
+        defaultDisabled,
+        parameters: [
+          {
+            name: 'filters',
+            in: 'query',
+            style: 'deepObject',
+            explode: true,
+            schema: { type: 'object' },
+            examples: {
+              default: {
+                value: { email: 'saved', user: { address: { city: 'Paris', country: 'FR' } } },
+                'x-disabled': true,
+                'x-scalar-disabled-properties': { '[]': true, '["user","address","city"]': false },
+              },
+            },
+          },
+        ],
+      })
+      expect(result.queryString).toStrictEqual([{ name: 'filters[user][address][city]', value: 'Paris' }])
+    },
+  )
+  it.each([true, false])(
     'respects defaultDisabled %s for enum suggestions in generated snippets',
     (defaultDisabled) => {
       const result = processParameters({

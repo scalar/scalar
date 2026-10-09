@@ -77,7 +77,12 @@ describe('RequestBlock', () => {
       expect(upsert.mock.calls[0]).toStrictEqual([
         {
           type: 'query',
-          payload: { name: 'filters', value: { empty: 'new', status: 'active' }, isDisabled: false },
+          payload: {
+            name: 'filters',
+            value: { empty: 'new', status: 'active' },
+            isDisabled: false,
+            propertyState: { path: ['empty'], isDisabled: false },
+          },
           originalParameter: filter,
           meta: { method: 'get', path: defaultProps.path, exampleKey: 'example-1' },
         },
@@ -562,6 +567,7 @@ describe('RequestBlock', () => {
         name: 'pageable',
         value: {},
         isDisabled: true,
+        propertyState: { path: ['size'] },
       },
       originalParameter: pageable,
       meta: {

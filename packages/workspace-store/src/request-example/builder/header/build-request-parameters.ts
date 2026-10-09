@@ -13,6 +13,7 @@ import type { ReservedPathParameter } from '@/helpers/encode-path-parameter'
 import { getParameterExample } from '@/helpers/get-parameter-example'
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 
+import { filterDisabledProperties } from './filter-disabled-properties'
 import { isParamDisabled } from './is-param-disabled'
 import {
   serializeContentValue,
@@ -81,7 +82,11 @@ export const buildRequestParameters = (
     const { example, value } = selected
 
     // Skip disabled examples
-    if (!example || isParamDisabled(param, example)) {
+    const propertyStates =
+      param.in === 'query' && !selected.serialized && !selected.mediaSerialized
+        ? example?.['x-scalar-disabled-properties']
+        : undefined
+    if (!example || (!propertyStates && isParamDisabled(param, example))) {
       continue
     }
 
@@ -131,7 +136,13 @@ export const buildRequestParameters = (
       continue
     }
     /** De-serialize the example value if it is a string and matches the schema type */
-    const deSerializedValue = deSerializeParameter(value, param)
+    const fullValue = deSerializeParameter(value, param)
+    const deSerializedValue = propertyStates
+      ? filterDisabledProperties(fullValue, propertyStates, isParamDisabled(param, example))
+      : fullValue
+    if (propertyStates && deSerializedValue === undefined) {
+      continue
+    }
     const paramName = param.name
 
     // Handle by parameter location

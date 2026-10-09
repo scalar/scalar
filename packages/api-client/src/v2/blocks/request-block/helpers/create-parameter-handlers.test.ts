@@ -117,6 +117,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['size'], isDisabled: false },
           name: 'pageable',
           value: {
             page: '1',
@@ -162,6 +163,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['applicationInstanceId', 'in'], isDisabled: false },
           name: 'filters',
           value: {
             applicationInstanceId: {
@@ -208,6 +210,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['applicationInstanceId', 'notIn'], isDisabled: false },
           name: 'filters',
           value: {
             applicationInstanceId: {
@@ -255,6 +258,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['tags'], isDisabled: false },
           name: 'filters',
           value: { tags: ['1', '2'] },
           isDisabled: false,
@@ -305,6 +309,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['page'], isDisabled: false },
           name: 'pageable',
           value: {
             sort: 'username,asc',
@@ -351,6 +356,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['state'], isDisabled: false, previousPath: ['status'] },
           name: 'filters',
           value: { state: 'active' },
           isDisabled: false,
@@ -474,6 +480,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['user', 'role'], isDisabled: false, previousPath: ['role'] },
           name: 'filter',
           value: { user: { role: 'admin' } },
           isDisabled: false,
@@ -523,6 +530,11 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: {
+            path: ['applicationInstanceId', 'notIn'],
+            isDisabled: false,
+            previousPath: ['applicationInstanceId', 'in'],
+          },
           name: 'filters',
           value: {
             applicationInstanceId: {
@@ -573,6 +585,11 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: {
+            path: ['applicationInstanceId', 'status'],
+            isDisabled: false,
+            previousPath: ['applicationInstanceId', 'in'],
+          },
           name: 'filters',
           value: { applicationInstanceId: { status: 'active' } },
           isDisabled: false,
@@ -628,6 +645,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: [''], isDisabled: false, previousPath: ['applicationInstanceId', 'in'] },
           name: 'filters',
           value: {},
           isDisabled: false,
@@ -670,6 +688,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['role'], isDisabled: false },
           name: 'filter',
           value: { role: 'admin' },
           isDisabled: false,
@@ -754,6 +773,7 @@ describe('createParameterHandlers', () => {
       {
         type: 'query',
         payload: {
+          propertyState: { path: ['size'] },
           name: 'pageable',
           value: {
             page: '1',

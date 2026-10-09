@@ -4,6 +4,7 @@ import { getParameterExample } from '@/helpers/get-parameter-example'
 import { type NodeInput, getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getQuerystringParameter, serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { isParamDisabled } from '@/request-example/builder/header/is-param-disabled'
 import type { WorkspaceDocument } from '@/schemas'
 import type { DisableParametersConfig } from '@/schemas/extensions/operation/x-scalar-disable-parameters'
 import { isOpenApiDocument } from '@/schemas/type-guards'
@@ -66,6 +67,7 @@ export const upsertOperationParameter = (
     const preserveQuerystringValue = querystring && payload.value === serializeQuerystringParameter(querystring)
     const param = originalParameter
     const selected = getParameterExample(param, meta.exampleKey)
+    const inheritedDisabled = isParamDisabled(param, selected.example)
     const target =
       param.in !== 'querystring' && !selected.serialized && isContentTypeParameterObject(param)
         ? Object.values(param.content ?? {})[0]
@@ -135,7 +137,25 @@ export const upsertOperationParameter = (
         example.value = payload.value
       }
     }
-    example['x-disabled'] = payload.isDisabled
+    if (payload.propertyState) {
+      // Freeze the inherited state before changing values: adding the first populated field
+      // must not implicitly enable every untouched sibling.
+      const states: Record<string, boolean> = { '[]': inheritedDisabled, ...example['x-scalar-disabled-properties'] }
+      const { path, previousPath, isDisabled } = payload.propertyState
+      if (previousPath) {
+        delete states[JSON.stringify(previousPath)]
+      }
+      const key = JSON.stringify(path)
+      if (isDisabled === undefined) {
+        delete states[key]
+      } else {
+        states[key] = isDisabled
+      }
+      example['x-scalar-disabled-properties'] = states
+    } else {
+      example['x-disabled'] = payload.isDisabled
+      delete example['x-scalar-disabled-properties']
+    }
     return
   }
 
