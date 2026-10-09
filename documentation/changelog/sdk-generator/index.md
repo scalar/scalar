@@ -144,7 +144,7 @@ This release brings automated Swift formatting with the WebAssembly swift-format
 
 This release brings significant improvements to how generated SDKs and CLIs handle authentication, including operating system credential stores and better OAuth flows.
 
-- Generated CLIs now store credentials in your operating system's native credential store (Secret Service on Linux, Credential Manager on Windows) falling back to a permission-restricted file when no store is available.
+- Generated CLIs now store credentials in your operating system's native credential store (Secret Service on Linux, Credential Manager on Windows), falling back to a permission-restricted file when no store is available.
 - OAuth flows gained device authorization support, better refresh token handling, and a styled callback page for browser-based sign-ins.
 - Smoke test harnesses now configure sensible retry counts and timeouts, preventing builds from failing on transient network issues.
 
@@ -360,7 +360,7 @@ This release introduces an optional audit mode for smoke tests that measures how
 
 ### Generated CLI and SDK improvements
 
-This release improves publishing for generated CLIs and fixes several issues across multiple target languages, including faster generation for large SDKs, and cleaner CI workflows.
+This release improves publishing for generated CLIs and fixes several issues across multiple target languages, including faster generation for large SDKs and cleaner CI workflows.
 
 - Fixed npm publishing for generated CLIs by including required repository metadata for provenance-signed releases
 - Generated CLI package names are now properly hyphenated (for example, scalar-galaxy-cli instead of scalargalaxy-cli)
