@@ -444,6 +444,21 @@ serve({
 
 Use `rejectUnauthorized: true` to reject unauthorized clients during the TLS handshake instead. On plain HTTP or adapters without verified peer-certificate information, the security requirement is unsatisfied. Client-supplied certificate headers never satisfy it.
 
+### OpenID Connect
+
+Declaring an `openIdConnect` scheme starts a development identity provider on the mock origin. Discovery advertises:
+
+- `/oauth/authorize` for the authorization-code flow.
+- `/oauth/token` for form-encoded code exchange and refresh.
+- `/oauth/jwks` for the public RS256 verification key.
+- `/oauth/userinfo` for the identity associated with an issued access token.
+
+Start authorization with `scope=openid`, `client_id`, `redirect_uri`, and `response_type=code`. The consent page returns a single-use code. Exchange it with the same client ID and redirect URI. Optional S256 PKCE is supported; the token request must then include the matching `code_verifier`.
+
+ID tokens include `iss`, `sub`, `aud`, `iat`, `exp`, and the original `nonce` when supplied. The identity is always `scalar-mock-user`. UserInfo checks the issued bearer token and returns profile and email claims only when their scopes were granted. Codes expire after five minutes, access and ID tokens after one hour, and refresh tokens after one day. Refresh tokens rotate after each use; scopes can be reduced, not expanded.
+
+Keys and tokens are held in memory and reset when the mock restarts. This provider uses public clients (`token_endpoint_auth_methods_supported: [none]`) and does not implement client-secret authentication, implicit/hybrid identity flows, logout, or a user database. Ordinary OAuth2 mocks continue to accept arbitrary credentials and return example tokens.
+
 ### Silencing startup logging
 
 When the document declares security schemes, the mock server prints instructions on how to authenticate as it starts up. That is handy in a terminal, but it is just noise when the server runs inside a test suite or another program. Pass `logger: false` to silence it:

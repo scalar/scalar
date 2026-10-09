@@ -96,7 +96,7 @@ Supported schemes:
 | HTTP Digest | Issues an MD5 challenge with `qop=auth` and checks the response shape, nonce, and request URI. It does not verify a password or track nonce counts. |
 | `X509` | Requires a client certificate verified by the Node HTTPS adapter. |
 
-OAuth2 schemes register authorization, token, and refresh routes. OpenID Connect schemes register discovery, authorization, and token routes.
+OAuth2 schemes register authorization, token, and refresh routes. OpenID Connect schemes also register discovery, JWKS, and UserInfo routes; see [mock identity flows](getting-started.md#openid-connect).
 
 Broker schemes (`userPassword`, broker `apiKey`, `plain`, SCRAM, GSSAPI, and encryption schemes) cannot authenticate WebSocket/SSE requests. The server prints a warning and treats those alternatives as unsatisfied. It does not invent HTTP headers for broker credentials. An alternative supported scheme can still authorize the connection.
 
