@@ -29,8 +29,8 @@ Under **Specific Email Addresses**, type an email address and click **Add**.
 Open your [Docs](../getting-started.md) project in the editor and go to **Settings → Privacy**. Under **Access control**:
 
 1. Turn on **Private site**. Visitors now have to sign in, and members of your team always have access.
-2. Under **Access groups**, add the groups that should be able to view the site.
-3. Optionally, pick a **Login portal** to brand the sign-in page. Without one, visitors see the default sign-in page.
+2. Optionally, pick a **Login portal** to brand the sign-in page. Without one, visitors see the default sign-in page.
+3. Under **Access groups**, add the groups that should be able to view the site.
 
 <!-- TODO screenshot: Settings → Privacy with Private site on and an access group selected -->
 

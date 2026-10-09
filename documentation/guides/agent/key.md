@@ -6,7 +6,7 @@ Agent requires a key for production deployments. Keys are tied to specific OpenA
 
 1. Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis)
 2. Upload your OpenAPI document or connect via GitHub Actions for automatic sync
-3. Open your API, then its **Settings → Agent** page
+3. Open your API, then its **Settings → Agent** page, and turn on **AI chat**. The API needs at least one uploaded version.
 4. Under **Agent keys**, click **New agent key**
 
 ## Configuration

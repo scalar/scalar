@@ -22,7 +22,7 @@ Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis). In the **Sc
 The **Create Schema** dialog asks for:
 
 - **Schema Title**: a descriptive name that identifies its purpose (e.g., "User Profile", "Payment Method", "Address Schema")
-- **The schema itself**: upload a JSON Schema file, or paste it
+- **The schema itself** (optional): upload a file, paste JSON or YAML, or paste a link to fetch it. Leave it empty to start from `{}`.
 - **Schema Path**: the team namespace, slug, and version to publish it under. The path is how you reference the schema from your APIs.
 
 Click **Create**, and Scalar opens the schema's **Source** page.
@@ -35,11 +35,15 @@ Open the schema's **Settings** page to change its details:
 
 **Name**: The schema's display name.
 
+**Registry path**: The slug in the schema's registry path.
+
 **Description**: Explain what this JSON Schema defines and how it should be used.
 
 **Current version**: The version served by default (e.g., `0.1.0`, `1.0.0`). You can publish new versions as the schema changes.
 
 **Namespace**: The team namespace the schema is published under. Together with the slug, it makes up the registry path you use to reference the schema.
+
+Name and description save automatically. Changes to the path, version, and namespace apply when you click **Save**.
 
 Open the schema's **Access** page to choose whether it is:
 - **Public**: Share your schema with the world - anyone can reference it via the registry URL
@@ -97,7 +101,7 @@ Here's an example JSON Schema you might create:
 
 ### Publish Your Schema
 
-After defining your JSON Schema, click "Publish" to make it available in the registry. Once published, you'll receive a registry path that you can use to reference this schema.
+After defining your JSON Schema, click **Save** on the Source page to make it available in the registry. You can then reference it by its registry path.
 
 The registry path follows this format:
 ```
