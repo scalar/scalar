@@ -55,6 +55,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
       - name: Install Scalar CLI
         run: npm install -g @scalar/cli
 
@@ -77,4 +82,4 @@ jobs:
 
 ## Secrets
 
-To get a `SCALAR_API_KEY` and add it to your GitHub repository, go to https://dashboard.scalar.com/user/api-keys
+Create a personal token in the [dashboard](https://dashboard.scalar.com/account) under **Account > API Keys**, then add it to your GitHub repository as a secret named `SCALAR_API_KEY`. The Scalar CLI requires Node.js 24 or later, so keep the `setup-node` step in your workflow.

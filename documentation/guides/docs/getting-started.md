@@ -18,6 +18,7 @@ Write guides in Markdown or MDX, then add API documents for interactive API refe
 
 ```json
 {
+  "scalar": "2.0.0",
   "navigation": {
     "routes": {
       "/getting-started": {
@@ -34,7 +35,7 @@ Write guides in Markdown or MDX, then add API documents for interactive API refe
 Use preview deployments for review, publish from the CLI, or connect GitHub Actions for automatic deployments.
 
 ```bash
-npx @scalar/cli project publish
+npx @scalar/cli project publish --slug your-docs
 ```
   </scalar-step>
 </scalar-steps>
@@ -44,7 +45,7 @@ npx @scalar/cli project publish
 | Source | Description |
 | ------ | ----------- |
 | **GitHub** | Keep content and API documents in your repository. Use [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), and [scalar.config.json](configuration/scalar.config.json.md). |
-| **Any folder or CLI** | Work from any folder or repository without granting repository access. Publish with [`npx @scalar/cli project publish`](deployment/cli.md). |
+| **Any folder or CLI** | Work from any folder or repository without granting repository access. Publish with [`npx @scalar/cli project publish --slug your-docs`](deployment/cli.md). |
 | **Web editor** | Edit and store docs at [docs.scalar.com](https://docs.scalar.com). No Git required. |
 
 ## Next steps
