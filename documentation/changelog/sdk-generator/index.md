@@ -42,11 +42,13 @@ This release improves README documentation accuracy across all target languages,
 
 ## 0.36.1 (2026-10-02)
 
-### Keychain support for CLI credentials, Go identifier fixes, and Python union serialization
+### Keychain support for CLI credentials, aliases for renamed types, and Go identifier fixes
 
-This release improves credential management on macOS, fixes Go identifier formatting, and fixes Python serialization of recursive union types.
+This release improves credential management on macOS, adds aliases for renamed types in TypeScript and Python, and fixes Go identifier formatting issues.
 
 - Generated CLIs now store credentials in the macOS Keychain, using the system security utility for secure storage that works across npm and binary distributions
+- TypeScript SDKs support type aliases through backCompat.typeAliases, keeping legacy type names and imports working after types are renamed or nested
+- Python SDKs support import path aliases so existing imports keep working when types move or are renamed, with optional deprecation messages
 - Go SDKs now correctly handle nested model types in request parameters and format identifier segments like 'sla' as 'Sla' instead of 'SLA'
 - Python request serialization now resolves forward-referenced union members, fixing runtime errors when sending requests with recursive union types
 

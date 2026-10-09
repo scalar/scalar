@@ -120,7 +120,45 @@ Omit it to release on the stable line. A release train promoting to a convention
 
 **Type:** `object`
 
-Java/Kotlin emitter options, read by both JVM targets from their own block. Every option is honored, so setting one changes generated output; most move files or rename public classes, which is a source-breaking change for an SDK that already has consumers.
+Java/Kotlin emitter options, read by both JVM targets from their own block. All of them are honored — `elideConst`, `backCompat.camelCasePackageSegments` (Java only), `backCompat.flatModelPackages`, `backCompat.unnamespacedImplicitResponses`, and `backCompat.refNameNestedModels` — so setting any one changes generated output. Each moves files or renames public classes, which is a source-breaking change for an SDK that already has consumers.
+
+### backCompat
+
+**Type:** `object`
+
+Legacy model layout and naming behaviors, all off by default. Turn one on only to keep reproducing an already-published JVM SDK's layout, whose consumers compile against the packages and class names it shipped with; each option moves files or renames public classes, so flipping one on an SDK that already has consumers is a source-breaking change.
+
+#### camelCasePackageSegments
+
+**Type:** `boolean`
+
+Preserve camelCase resource package segments in Java SDKs instead of the lowercase default. Enable this for an already-published Java SDK whose consumers import camelCase packages. Accessor method names are unchanged. Kotlin always preserves its package casing and ignores this switch.
+
+**Default:** `false`
+
+#### flatModelPackages
+
+**Type:** `boolean`
+
+Emit every model into one flat `models` package instead of a package per resource, and name each operation-derived class — params, page, async page, page response, and the response an operation implies, unless `unnamespacedImplicitResponses` exempts that last one — after its full chain of resource ancestors rather than its leaf resource: `models/ProjectTaskCommentCreateParams` where the default writes `models/projects/tasks/comments/CommentCreateParams`. The flat package and the chain-prefixed names are one option because they cannot be separated: flattening on its own drops the leaf-named params of sibling resources into a single package, where the sibling that loses the race is renamed to an arbitrary deduplicated spelling. A model named after a component schema keeps its name and only moves up a package, an operation on a resource with `useNamespaceInTypeNames` disabled is named from that resource alone with its ancestors dropped from the prefix, and services are unaffected and stay nested. Off by default.
+
+**Default:** `false`
+
+#### refNameNestedModels
+
+**Type:** `boolean`
+
+Name a nested class after the component schema backing it rather than after the property or union variant that uses it: a `latestRejection` property whose schema is a `DecisionRejected` component renders `DecisionRejected` instead of `LatestRejection`, and a request body backed by a component renders that component's name instead of `Body`. This renames nested classes only — it promotes nothing to a top-level model, and union member accessors keep their tag-derived names. Off by default.
+
+**Default:** `false`
+
+#### unnamespacedImplicitResponses
+
+**Type:** `boolean`
+
+Name the response model an operation implies — one with no component schema of its own to be named after — from the leaf resource alone, never from the chain of resource ancestors that `flatModelPackages` prefixes onto that operation's params: `store.order.create` yields `OrderCreateResponse` alongside `StoreOrderCreateParams`. A top-level client method's implied response drops the prefix altogether, so `client.retrieveRateLimits` yields `RetrieveRateLimitsResponse` rather than `ClientRetrieveRateLimitsResponse`. A page response is named from the params side and keeps its prefix either way. Off by default.
+
+**Default:** `false`
 
 ### elideConst
 

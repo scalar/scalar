@@ -159,6 +159,54 @@ How `format: date-time` values are typed. 'string' (the default) declares them a
 
 **Default:** `"string"`
 
+### backCompat
+
+**Type:** `object`
+
+Legacy public names an already-published TypeScript SDK keeps declaring so its consumers' imports and annotations keep compiling. Every option here only adds names; nothing is renamed or removed.
+
+#### typeAliases
+
+**Type:** `object[]`
+
+Extra type names declared in generated resource modules, so an import or annotation an already-published TypeScript SDK shipped keeps compiling after the type it named moved or was renamed, e.g. `PartListResponse` for `PartList.Data` in `resources/widgets/parts`. Each entry appends `export type <name> = <to>;` to `module`, and the name is re-exported wherever that module's types are: the resource's own `export declare namespace`, its direct parent's namespace, and the resource barrels beside it. For a root resource module that parent is the client namespace. Deeper ancestors reach a nested module's alias through the nested namespace path (`Client.Widgets.Parts.PartListResponse`), not under their own name. Generation fails when `module` is not a resource module this SDK emits, when `to` is not a type `module` itself declares, when `module` already binds `name`, when another module already exports `name` or a generated class carries it (the shared namespaces and barrels would otherwise rename that type), or when `name` is a global type generated modules may use unqualified, such as `Array`, `Response`, `Blob` or `Date`. A stale entry is therefore caught when it stops resolving, rather than shipping without the name or renaming another type.
+
+##### module
+
+**Type:** `string`
+
+**Required**
+
+Path of the resource module that declares the alias, relative to `src/` and without an extension: `resources/widgets` for `src/resources/widgets.ts`, `resources/widgets/parts` for `src/resources/widgets/parts.ts`. This is the path consumers deep-import from.
+
+**Constraints:** `pattern: ^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*$`
+
+##### name
+
+**Type:** `string`
+
+**Required**
+
+Name the alias is declared under. Must be an identifier TypeScript accepts as a type alias name, so neither a reserved word nor a predefined type such as `string`.
+
+**Constraints:** `pattern: ^(?!(?:any|bigint|boolean|never|number|object|string|symbol|undefined|unknown|void|arguments|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|eval|export|extends|false|finally|for|function|if|implements|import|in|instanceof|interface|let|new|null|package|private|protected|public|return|static|super|switch|this|throw|true|try|typeof|var|while|with|yield)$)[A-Za-z_$][A-Za-z0-9_$]*$`
+
+##### to
+
+**Type:** `string`
+
+**Required**
+
+Type the alias points at, spelled as `module` itself names it: a type the module declares, optionally followed by members of its namespace, e.g. `PartList.Data` or `PartListCursorPage`. Imported types cannot be targeted, so the alias never needs an import.
+
+**Constraints:** `pattern: ^(?!(?:arguments|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|eval|export|extends|false|finally|for|function|if|implements|import|in|instanceof|interface|let|new|null|package|private|protected|public|return|static|super|switch|this|throw|true|try|typeof|var|void|while|with|yield)(?:\.|$))[A-Za-z_$][A-Za-z0-9_$]*(\.(?!(?:arguments|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|eval|export|extends|false|finally|for|function|if|implements|import|in|instanceof|interface|let|new|null|package|private|protected|public|return|static|super|switch|this|throw|true|try|typeof|var|void|while|with|yield)(?:\.|$))[A-Za-z_$][A-Za-z0-9_$]*)*$`
+
+##### deprecationMessage
+
+**Type:** `string`
+
+Rendered as the alias's `@deprecated` JSDoc tag, typically pointing callers at the current name.
+
 ## skip
 
 **Type:** `boolean`
