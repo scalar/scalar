@@ -825,7 +825,7 @@ describe('ApiReference custom fetch forwarding', () => {
   })
 })
 
-describe('ApiReference AsyncAPI search navigation', () => {
+describe('ApiReference AsyncAPI onServerChange', () => {
   it('reveals a filtered-out message when selected through search', async () => {
     const wrapper = mountComponent({
       props: {
@@ -879,9 +879,6 @@ describe('ApiReference AsyncAPI search navigation', () => {
     expect((content.props('items') as TraversedEntry[]).map((entry) => entry.id)).toContain(channel.id)
     expect(wrapper.find(`[id="${message.id}"]`).exists()).toBe(true)
   })
-})
-
-describe('ApiReference AsyncAPI onServerChange', () => {
   it('fires onServerChange with the connection URL when an AsyncAPI server is selected', async () => {
     const onServerChange = vi.fn()
 
