@@ -6,6 +6,15 @@ import { describe, expect, it } from 'vitest'
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
 
 describe('mergeAllOfSchemas', () => {
+  it.each([true, false])('retains a boolean allOf member: %j', (value) => {
+    const schema = { allOf: [value] }
+
+    expect(mergeAllOfSchemas(schema as unknown as SchemaObject)).toStrictEqual(
+      value ? { description: 'Accepts any value.' } : { not: {}, description: 'Accepts no value.' },
+    )
+    expect(schema).toStrictEqual({ allOf: [value] })
+  })
+
   it.each([false, true])('narrows inherited property enums with reversed order %s', (reverse) => {
     const base = {
       $ref: '#/components/schemas/ResourceIdentifier',

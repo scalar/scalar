@@ -12,6 +12,25 @@ describe('Model', () => {
     { layout: 'classic', value: false },
     { layout: 'modern', value: true },
     { layout: 'modern', value: false },
+  ] as const)('explains a $value allOf model member in the $layout layout', ({ layout, value }) => {
+    const wrapper = mount(Model, {
+      props: {
+        id: 'boolean-allof-model',
+        name: 'Boolean allOf model',
+        schema: { allOf: [value] } as unknown as SchemaObject,
+        eventBus: createWorkspaceEventBus(),
+        isCollapsed: false,
+        options: layout === 'classic' ? mockConfigClassic : mockConfigModern,
+      },
+    })
+    expect(wrapper.text()).toContain(value ? 'Accepts any value.' : 'Accepts no value.')
+  })
+
+  it.each([
+    { layout: 'classic', value: true },
+    { layout: 'classic', value: false },
+    { layout: 'modern', value: true },
+    { layout: 'modern', value: false },
   ] as const)('renders a $value boolean model in the $layout layout', ({ layout, value }) => {
     const wrapper = mount(Model, {
       props: {
