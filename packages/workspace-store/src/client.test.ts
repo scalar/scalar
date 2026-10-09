@@ -4263,9 +4263,9 @@ describe('create-workspace-store', () => {
       const document = store.workspace.documents['booleans']
       assert(isAsyncApiDocument(document))
       const message = getResolvedRef(getResolvedRef(document.channels?.events)?.messages?.event)
-      expect(getResolvedRef(message?.payload)).toMatchObject(schema)
-      expect(getResolvedRef(message?.headers)).toMatchObject(schema)
-      expect(getResolvedRef(document.components)?.schemas).toMatchObject({
+      expect(getResolvedRef(message?.payload)).toStrictEqual(schema)
+      expect(getResolvedRef(message?.headers)).toStrictEqual(schema)
+      expect(getResolvedRef(document.components)?.schemas).toStrictEqual({
         Anything: true,
         Nothing: false,
         Object: schema,

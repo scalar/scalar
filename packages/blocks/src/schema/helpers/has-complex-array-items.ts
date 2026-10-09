@@ -31,7 +31,15 @@ const hasComplexFeatures = (schema: SchemaObject): boolean =>
  * Checks if nested array items are complex
  */
 const hasComplexNestedArrayItems = (items: SchemaObject): boolean => {
-  if (!isArraySchema(items) || typeof items.items !== 'object') {
+  if (!isArraySchema(items)) {
+    return false
+  }
+
+  if (typeof items.items === 'boolean') {
+    return true
+  }
+
+  if (typeof items.items !== 'object') {
     return false
   }
 
@@ -58,7 +66,16 @@ const hasComplexNestedArrayItems = (items: SchemaObject): boolean => {
  */
 export const hasComplexArrayItems = (value: SchemaObject | undefined): boolean => {
   // Early return for invalid inputs
-  if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
+  if (!value || !isArraySchema(value)) {
+    return false
+  }
+
+  // Boolean item constraints need a child row to explain their validation meaning.
+  if (typeof value.items === 'boolean') {
+    return true
+  }
+
+  if (typeof value.items !== 'object') {
     return false
   }
 
