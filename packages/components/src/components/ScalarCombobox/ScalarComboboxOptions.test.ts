@@ -2,6 +2,7 @@ import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
+import { ScalarLoading, useLoadingState } from '../ScalarLoading'
 import ScalarComboboxOption from './ScalarComboboxOption.vue'
 import ScalarComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import ScalarComboboxOptions from './ScalarComboboxOptions.vue'
@@ -586,6 +587,94 @@ describe('ScalarComboboxOptions', () => {
 
       // Should not cause errors and should emit the update
       expect(onUpdate).toHaveBeenCalled()
+    })
+  })
+
+  describe('async options', () => {
+    it('emits the query as the user types', async () => {
+      const onUpdateQuery = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, 'onUpdate:query': onUpdateQuery },
+      })
+
+      await wrapper.find('input').setValue('main')
+
+      expect(onUpdateQuery).toHaveBeenLastCalledWith('main')
+    })
+
+    it('shows the options as given when filterFn passes them through', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, filterFn: (_query: string, options: Option[]) => options },
+      })
+
+      await wrapper.find('input').setValue('does not match any label')
+
+      expect(wrapper.findAllComponents(ScalarComboboxOption)).toHaveLength(3)
+    })
+
+    it('shows a spinner at the end of the search input while loading', async () => {
+      const loader = useLoadingState()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, loader },
+      })
+
+      expect(wrapper.findComponent(ScalarLoading).exists()).toBe(false)
+
+      loader.start()
+      await nextTick()
+
+      expect(wrapper.findComponent(ScalarLoading).exists()).toBe(true)
+      expect(wrapper.find('[role="listbox"]').attributes('aria-busy')).toBe('true')
+    })
+
+    it('keeps the current options visible while loading new ones', () => {
+      const loader = useLoadingState()
+      loader.start()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, loader },
+      })
+
+      expect(wrapper.findAllComponents(ScalarComboboxOption)).toHaveLength(3)
+      expect(wrapper.findAll('li[role="presentation"][aria-hidden="true"]')).toHaveLength(0)
+    })
+
+    it('shows placeholder rows instead of the no results message while the first options load', async () => {
+      const loader = useLoadingState()
+      loader.start()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: [], loader, noResults: 'No branches found' },
+      })
+
+      expect(wrapper.findAll('li[role="presentation"][aria-hidden="true"]')).toHaveLength(3)
+      expect(wrapper.text()).not.toContain('No branches found')
+
+      await loader.clear({ duration: 0 })
+
+      expect(wrapper.findAll('li[role="presentation"][aria-hidden="true"]')).toHaveLength(0)
+      expect(wrapper.text()).toContain('No branches found')
+    })
+
+    it('moves the active option to the top when new options replace it', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, filterFn: (_query: string, options: Option[]) => options },
+      })
+
+      const input = wrapper.find('input')
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      expect(input.attributes('aria-activedescendant')).toContain('-2')
+
+      await wrapper.setProps({ options: [{ id: 'a', label: 'Option A' }] })
+
+      expect(input.attributes('aria-activedescendant')).toContain('-a')
+    })
+
+    it('renders custom content at the end of the search input', () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions },
+        slots: { 'search-end': '<button data-test="clear">Clear</button>' },
+      })
+
+      expect(wrapper.find('[data-test="clear"]').exists()).toBe(true)
     })
   })
 })
