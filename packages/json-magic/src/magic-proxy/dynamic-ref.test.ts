@@ -113,11 +113,14 @@ describe('dynamic-ref', () => {
     expect(collectDynamicAnchors(schema({ type: 'object' })).size).toBe(0)
   })
 
-  it('keeps an anchor node whose sibling $ref does not point at a schema object', () => {
-    // Spreading a string target would invent index keys (`0`, `1`, …) that render as properties.
-    const node = { $dynamicAnchor: 'itemType', $ref: '#/info/title', '$ref-value': 'My' }
-    expect(collectDynamicAnchors(schema({ $id: 'urn:r', $defs: { item: node } })).get('itemType')).toBe(node)
-  })
+  it.each(['My', [], null, true, 42, new Date(), new Map()])(
+    'keeps an anchor node whose sibling $ref does not point at a schema object: %j',
+    (value) => {
+      // Spreading a string target would invent index keys (`0`, `1`, …) that render as properties.
+      const node = { $dynamicAnchor: 'itemType', $ref: '#/info/title', '$ref-value': value }
+      expect(collectDynamicAnchors(schema({ $id: 'urn:r', $defs: { item: node } })).get('itemType')).toBe(node)
+    },
+  )
 
   it('appends schemas that can hold a dynamic anchor', () => {
     const anchored = schema({ $dynamicAnchor: 'category' })

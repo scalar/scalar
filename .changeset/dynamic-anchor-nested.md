@@ -13,3 +13,5 @@ Expose the dynamic-reference accessor through `@scalar/workspace-store/resolve` 
 Resolve references declared directly on a schema resource against that resource’s own anchors, including when the resource has no matching anchor.
 
 The bookend for a `$dynamicRef` is looked up in the whole resource that holds it, so a template with unrelated `$defs` still binds. A schema reached through a `$ref` contributes its own anchors even when the path passed through an `$id` resource, which keeps recursive references (such as a `User` with `friends`) bound. Dynamic references added to a document after it was first read (lazily loaded chunks, client edits) now resolve too, and request examples bookend the same way as the rendered schema.
+
+XML serialization also resolves resource-level dynamic references against their own scope, so it does not borrow an outer binding across a resource boundary. Sibling references only merge plain schema objects, leaving non-schema targets unchanged.
