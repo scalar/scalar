@@ -361,6 +361,7 @@ describe('traverseAsyncApiDocument', () => {
       const document = {
         asyncapi: '3.0.0',
         info: { title: 'Escaped Identifiers API', version: '1.0.0' },
+        'x-scalar-original-document-hash': 'escaped-identifiers-fixture',
         channels: {
           [channelName]: {
             messages: {
@@ -376,7 +377,7 @@ describe('traverseAsyncApiDocument', () => {
             messages: [{ $ref: `#/channels/${channelRef}/messages/${messageRef}` }],
           },
         },
-      } as unknown as AsyncApiDocument
+      } satisfies AsyncApiDocument
 
       const result = traverseAsyncApiDocument('escaped', document, mockOptions)
       const channels = collectAsyncApiChannels(result.children)
@@ -405,6 +406,7 @@ describe('traverseAsyncApiDocument', () => {
     const document = {
       asyncapi: '3.0.0',
       info: { title: 'Unmatched References API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'unmatched-references-fixture',
       channels: {
         'events/tenant': { messages: { 'created/v1': { title: 'Created' } } },
       },
@@ -415,7 +417,7 @@ describe('traverseAsyncApiDocument', () => {
           messages: [{ $ref: messageRef }],
         },
       },
-    } as unknown as AsyncApiDocument
+    } satisfies AsyncApiDocument
 
     const result = traverseAsyncApiDocument('unmatched', document, mockOptions)
     const operations = collectAsyncApiOperations(result.children)
