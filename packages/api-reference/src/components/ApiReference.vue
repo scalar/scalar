@@ -1604,6 +1604,21 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
     documentStartTop: documentStartRef.value?.getBoundingClientRect().top,
   })
 
+  // Reveal a newly active operation without undoing a manual collapse when the
+  // observer reports the same operation again.
+  if (
+    mergedConfig.value.layout === 'modern' &&
+    id !== sidebarState.selectedItem.value
+  ) {
+    const entry = sidebarState.getEntryById(id)
+    if (
+      (entry?.type === 'operation' || entry?.type === 'webhook') &&
+      entry.parent
+    ) {
+      sidebarState.setExpanded(entry.parent.id, true)
+    }
+  }
+
   sidebarState.setSelected(id)
   setBreadcrumb(id)
 
