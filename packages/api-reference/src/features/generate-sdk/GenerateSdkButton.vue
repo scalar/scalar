@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
-import { useLoadingState } from '@scalar/components/loading'
-import { ScalarIconArrowUpRight } from '@scalar/icons'
-import { useToasts } from '@scalar/use-toasts'
 
 import { useLocalization } from '@/features/localization'
 
 import { useGenerateSdkContext } from './use-generate-sdk'
 
 /**
- * Opens the Scalar dashboard to generate an SDK for the active document.
+ * Opens the Explore Scalar dialog, which uploads the active document and signs the user up.
  *
  * Renders nothing unless the reference runs locally, see `useGenerateSdk`.
  */
@@ -25,56 +22,26 @@ const { variant = 'card' } = defineProps<{
 
 const context = useGenerateSdkContext()
 const { translate } = useLocalization()
-const { toast } = useToasts()
-
-/** Spinner for the card variant, like the OAuth2 button it sits next to */
-const loader = useLoadingState()
-
-const handleClick = async () => {
-  // Ignore repeat clicks while an upload runs, otherwise they would clear the spinner early
-  if (loader.isLoading || context.value?.isGenerating.value) {
-    return
-  }
-
-  loader.start()
-  const result = await context.value?.generate()
-  await loader.clear()
-
-  if (!result || result.ok) {
-    return
-  }
-
-  if (result.reason === 'export-failed') {
-    toast(translate('developerTools.unableToExportDocument'), 'error')
-    return
-  }
-
-  toast(result.message ?? translate('developerTools.unknownError'), 'error')
-}
 </script>
 <template>
   <!-- Same size, variant and classes as "Authorize via OAuth2" in the authentication card -->
   <ScalarButton
     v-if="context?.enabled.value && variant === 'card'"
-    :aria-busy="context.isGenerating.value"
+    aria-haspopup="dialog"
     class="text-c-1 px-3 py-1"
-    :loader
     size="sm"
     variant="gradient"
-    @click.stop="handleClick">
+    @click.stop="context.open()">
     {{ translate('sdk.generate') }}
   </ScalarButton>
   <button
     v-else-if="context?.enabled.value"
-    :aria-busy="context.isGenerating.value"
+    aria-haspopup="dialog"
     class="generate-sdk-button"
     :class="`generate-sdk-button--${variant}`"
     type="button"
-    @click.stop="handleClick">
-    <span>{{ translate('sdk.generate') }}</span>
-    <ScalarIconArrowUpRight
-      class="generate-sdk-button-icon"
-      weight="bold" />
+    @click.stop="context.open()">
+    {{ translate('sdk.generate') }}
   </button>
 </template>
 <style scoped>
@@ -92,15 +59,6 @@ const handleClick = async () => {
   line-height: 1.385;
   border-radius: var(--scalar-radius);
   outline-offset: 2px;
-}
-.generate-sdk-button[aria-busy='true'] {
-  cursor: progress;
-  opacity: 0.7;
-}
-.generate-sdk-button-icon {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
 }
 
 /* Developer tools header */

@@ -1,9 +1,10 @@
 import { type ClientOption, type ClientOptionGroup, DEFAULT_CLIENT } from '@scalar/blocks/code-example'
+import { useModal } from '@scalar/components/modal'
 import type { AvailableClient } from '@scalar/types/snippetz'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { GENERATE_SDK_CONTEXT_SYMBOL, type GenerateSdkContext } from '@/features/generate-sdk/use-generate-sdk'
 
@@ -275,8 +276,8 @@ describe('ClientLibraries', () => {
   describe('Generate SDK', () => {
     const createContext = (enabled: boolean): GenerateSdkContext => ({
       enabled: computed(() => enabled),
-      isGenerating: ref(false),
-      generate: vi.fn(async () => ({ ok: true as const })),
+      dialog: useModal(),
+      open: vi.fn(),
     })
 
     const mountWithContext = (context: GenerateSdkContext) =>
@@ -304,7 +305,7 @@ describe('ClientLibraries', () => {
       expect(wrapper.get(`#${tablist.attributes('aria-labelledby')}`).text()).toBe('Client Libraries')
 
       await button?.trigger('click')
-      expect(context.generate).toHaveBeenCalledTimes(1)
+      expect(context.open).toHaveBeenCalledTimes(1)
     })
 
     it('hides Generate SDK when the context is disabled', async () => {

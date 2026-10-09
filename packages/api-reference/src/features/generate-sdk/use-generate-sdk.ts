@@ -1,7 +1,5 @@
+import { type ModalState, useModal } from '@scalar/components/modal'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
-import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
-import type { ExternalUrls } from '@scalar/types/api-reference'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import {
   type ComputedRef,
   type InjectionKey,
@@ -13,34 +11,22 @@ import {
   toValue,
 } from 'vue'
 
-import { uploadTempDocument } from '@/helpers/upload-temp-document'
-
-/** Outcome of a Generate SDK attempt, so the UI can pick a localized message */
-export type GenerateSdkResult =
-  | { ok: true }
-  | { ok: false; reason: 'export-failed' }
-  | { ok: false; reason: 'upload-failed'; message?: string }
-
 export type GenerateSdkContext = {
   /**
    * Whether the Generate SDK buttons should render at all.
    *
-   * The flow uploads the active document to Scalar and opens the dashboard, which only makes
-   * sense while the reference is being developed locally ("offline mode"). Deployed references
-   * never show it, and neither does a document that already documents its own SDKs.
+   * They hand the active document to Scalar, which only makes sense while the reference is being
+   * developed locally ("offline mode"). Deployed references never show them, and neither does a
+   * document that already documents its own SDKs.
    */
   enabled: ComputedRef<boolean>
-  /** True while the active document is being uploaded */
-  isGenerating: Ref<boolean>
-  /** Upload the active document when needed and open the SDK registration page in a new tab */
-  generate: () => Promise<GenerateSdkResult>
+  /** State of the Explore Scalar dialog the buttons open; ApiReference renders that dialog once */
+  dialog: ModalState
+  /** Open the Explore Scalar dialog */
+  open: () => void
 }
 
 type UseGenerateSdkOptions = {
-  workspace: WorkspaceStore
-  externalUrls: MaybeRefOrGetter<ExternalUrls>
-  /** Public URL of the active document, when it already has one. Skips the upload. */
-  documentUrl?: MaybeRefOrGetter<string | undefined>
   /** Override the local-only check (e.g. for tests or docs config) */
   enabled?: ComputedRef<boolean>
   /** Whether the active document already lists SDK installation instructions. Hides every button. */
@@ -55,79 +41,22 @@ export const GENERATE_SDK_CONTEXT_SYMBOL: InjectionKey<GenerateSdkContext> = Sym
  */
 const contextRef: Ref<GenerateSdkContext | null> = ref(null)
 
-/** Build the dashboard registration link that kicks off SDK generation for a document */
-export const buildGenerateSdkUrl = (dashboardUrl: string, documentUrl: string): string => {
-  const url = new URL(`${dashboardUrl}/register`)
-  url.searchParams.set('url', documentUrl)
-  url.searchParams.set('createSDK', 'true')
-
-  return url.toString()
-}
-
 /**
  * Create the Generate SDK context.
  *
  * Call once from the API Reference root and provide it under `GENERATE_SDK_CONTEXT_SYMBOL`.
- * Every button shares the same temporary document URL, so clicking a second button after the
- * first one uploaded the document opens the dashboard right away instead of uploading again.
+ * Every button opens the same Explore Scalar dialog, which takes care of uploading the document
+ * and signing up, so the page only ever holds one copy of it.
  */
-export const useGenerateSdk = (options: UseGenerateSdkOptions): GenerateSdkContext => {
-  const isGenerating = ref(false)
-
-  /** Temporary URL returned by the upload, reused across buttons */
-  const tempDocumentUrl = ref<string>()
-
+export const useGenerateSdk = (options: UseGenerateSdkOptions = {}): GenerateSdkContext => {
   const isLocal = options.enabled ?? computed(() => typeof window !== 'undefined' && isLocalUrl(window.location.href))
 
   // Offering to generate an SDK makes no sense once the document already ships one
   const enabled = computed(() => isLocal.value && !toValue(options.hasSdk))
 
-  const openLink = (documentUrl: string) => {
-    const { dashboardUrl } = toValue(options.externalUrls)
-    window.open(buildGenerateSdkUrl(dashboardUrl, documentUrl), '_blank')
-  }
+  const dialog = useModal()
 
-  const generate = async (): Promise<GenerateSdkResult> => {
-    if (isGenerating.value) {
-      return { ok: true }
-    }
-
-    // A document that is already reachable online does not need to be uploaded
-    const documentUrl = toValue(options.documentUrl)
-    if (documentUrl && isValidUrl(documentUrl)) {
-      openLink(documentUrl)
-      return { ok: true }
-    }
-
-    if (tempDocumentUrl.value) {
-      openLink(tempDocumentUrl.value)
-      return { ok: true }
-    }
-
-    const document = options.workspace.exportActiveDocument('json')
-
-    if (!document) {
-      return { ok: false, reason: 'export-failed' }
-    }
-
-    isGenerating.value = true
-
-    try {
-      tempDocumentUrl.value = await uploadTempDocument(document, toValue(options.externalUrls))
-      openLink(tempDocumentUrl.value)
-      return { ok: true }
-    } catch (error) {
-      return {
-        ok: false,
-        reason: 'upload-failed',
-        message: error instanceof Error ? error.message : undefined,
-      }
-    } finally {
-      isGenerating.value = false
-    }
-  }
-
-  const context: GenerateSdkContext = { enabled, isGenerating, generate }
+  const context: GenerateSdkContext = { enabled, dialog, open: () => dialog.show() }
   contextRef.value = context
 
   return context
