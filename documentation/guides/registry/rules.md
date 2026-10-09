@@ -4,19 +4,36 @@ Use Rules to lint and verify your OpenAPI documents with Spectral-compatible rul
 
 Make sure you have created a Scalar Account and are logged in ([see create account guide](getting-started.md#create-your-scalar-account))
 
-## Create your first rule
+## Create your first ruleset
 
-Let's create our first rule! From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Rules, then click "+ New".
+Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis). In the **Rulesets** section, click **New Ruleset**.
 
-![Scalar Rules Page](../../assets/scalar-rules.png 'Scalar Rules Page')
+<scalar-image
+  src="/registry-apis-overview.png"
+  src-dark="/registry-apis-overview-dark.png"
+  alt="The APIs studio, with the Schemas and Rulesets sections and their New Schema and New Ruleset buttons"
+  size="full">
+</scalar-image>
 
-![Scalar Create Rule](../../assets/scalar-rules-1.png 'Scalar Create Rule')
+In the **Create Ruleset** dialog, give your ruleset a title and choose its path: a namespace and a slug. Click **Create**, and Scalar opens the ruleset's **Source** page, where you edit it.
 
-### Configure your rule
+<scalar-image
+  src="/registry-create-ruleset.png"
+  src-dark="/registry-create-ruleset-dark.png"
+  alt="The Create Ruleset dialog with a ruleset title and its registry path"
+  size="full">
+</scalar-image>
 
-When you create a new rule, it will extend the default Spectral OSS ruleset (`spectral:oas`). This provides a solid foundation of OpenAPI linting rules from the [Spectral project](https://stoplight.io/open-source/spectral).
+### Configure your ruleset
 
-![Scalar Rule Editor](../../assets/scalar-rules-edit.png 'Scalar Rule Editor')
+A new ruleset extends the default Spectral OSS ruleset (`spectral:oas`). This provides a solid foundation of OpenAPI linting rules from the [Spectral project](https://stoplight.io/open-source/spectral).
+
+<scalar-image
+  src="/registry-ruleset-source.png"
+  src-dark="/registry-ruleset-source-dark.png"
+  alt="A new ruleset's Source page, showing the default ruleset that extends spectral:oas"
+  size="full">
+</scalar-image>
 
 The default rule configuration looks like this:
 
@@ -45,7 +62,7 @@ Public rules can be shared with anyone and are accessible via their registry pat
 
 Private rules are restricted to your organization and can be shared with specific access groups. This is ideal for internal API standards and company-specific linting requirements.
 
-You can manage rule access from the rule's Overview page in the dashboard, similar to how you manage access for other registry resources.
+You can manage a ruleset's access from its **Access** page in the dashboard, the same way you manage access for other registry resources.
 
 ## CLI
 
