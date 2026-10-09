@@ -1,9 +1,9 @@
 import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 
-import { ScalarButton, ScalarDropdownButton, ScalarListboxCheckbox } from '../..'
+import { ScalarButton, ScalarDropdownButton, ScalarListboxCheckbox, useLoadingState } from '../..'
 import ScalarCombobox from './ScalarCombobox.vue'
 import ScalarComboboxMultiselect from './ScalarComboboxMultiselect.vue'
 import type { Option, OptionGroup } from './types'
@@ -251,6 +251,69 @@ export const CustomClasses: Story = {
     template: `
 <div class="flex flex-col items-center w-full min-h-96">
   <ScalarCombobox v-model="selected" placeholder="Change fruit..." v-bind="args">
+    <ScalarButton class="w-48 px-3" variant="outlined">
+      <div class="flex flex-1 items-center min-w-0">
+        <span class="inline-block truncate flex-1 min-w-0 text-left">
+        {{ selected?.label ?? 'Select a fruit' }}
+        </span>
+      </div>
+    </ScalarButton>
+  </ScalarCombobox>
+</div>
+`,
+  }),
+}
+
+/**
+ * Searches the options on a (fake) server as you type. The caller owns the query, the
+ * debounce and the loading state, the combobox only shows the results it is given.
+ *
+ * Type "error" to see a failed request.
+ */
+export const Async: Story = {
+  args: { options: [] },
+  render: (args) => ({
+    components: {
+      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
+      ScalarButton,
+    },
+    setup() {
+      const selected = ref<Option>()
+      const query = ref('')
+      const results = ref<Option[]>([])
+      const loader = useLoadingState()
+
+      let timeout: ReturnType<typeof setTimeout> | undefined
+      watch(
+        query,
+        (value) => {
+          clearTimeout(timeout)
+          loader.start()
+          timeout = setTimeout(() => {
+            if (value === 'error') {
+              void loader.invalidate({ persist: true })
+              return
+            }
+            results.value = options.filter((o) => o.label.toLowerCase().includes(value.toLowerCase()))
+            void loader.clear()
+          }, 800)
+        },
+        { immediate: true },
+      )
+
+      return { args, selected, query, results, loader }
+    },
+    template: `
+<div class="flex flex-col items-center w-full min-h-96">
+  <ScalarCombobox
+    v-model="selected"
+    v-model:query="query"
+    v-bind="args"
+    :loader
+    noResults="No fruits found"
+    :options="results"
+    placeholder="Search fruits..."
+    :filterFn="(_, options) => options">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
         <span class="inline-block truncate flex-1 min-w-0 text-left">

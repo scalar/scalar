@@ -20,6 +20,7 @@ export default {}
 import { ref } from 'vue'
 
 import type { ScalarFloatingOptions } from '../ScalarFloating'
+import type { LoadingState } from '../ScalarLoading'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
 import type {
@@ -40,15 +41,28 @@ defineProps<
     /** A function to filter the options based on a query,
      * if not provided, the options will be filtered by option label
      *
+     * Pass `(_, options) => options` when the caller searches the options itself (e.g. on a
+     * server) using the `query` model, so results the server already matched are shown as given.
+     *
      * @see {@link FilterFunction} for more information
      */
     filterFn?: FilterFunction<O, G>
+    /**
+     * The loading state of the options, see `useLoadingState`
+     *
+     * Shows a spinner at the end of the search input while active, or an X when the state is
+     * invalidated (e.g. a failed request).
+     */
+    loader?: LoadingState
   } & ScalarFloatingOptions
 >()
 
 const emit = defineEmits<ComboboxEmits>()
 
 const model = defineModel<O[]>({ default: () => [] })
+
+/** The search query, bind it to search the options yourself */
+const query = defineModel<string>('query', { default: '' })
 
 defineSlots<ComboboxSlots<O, G>>()
 
@@ -71,15 +85,24 @@ defineExpose({ comboboxPopoverRef })
     </template>
     <template #popover="{ open }">
       <ComboboxOptions
-        v-if="options?.length"
+        v-if="options?.length || loader"
         v-model="model"
+        v-model:query="query"
         :filterFn
+        :loader
         multiselect
         :open
         :options
         :placeholder
         @add="emit('add')">
         <!-- Pass through the combobox slots -->
+        <template
+          v-if="$slots['search-end']"
+          #search-end="props">
+          <slot
+            name="search-end"
+            v-bind="props" />
+        </template>
         <template
           v-if="$slots.option"
           #option="props">
