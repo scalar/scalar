@@ -2,6 +2,7 @@ import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
+import { getNameFromRef } from '@/helpers/get-name-from-ref'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -107,7 +108,7 @@ const getMessageTitle = (message: AsyncApiMessageLike, messageName: string): str
 /**
  * Parses a channel JSON pointer (`#/channels/<name>`) into the key used in `document.channels`.
  */
-const getChannelNameFromRef = (ref: string): string | undefined => ref.match(/^#\/channels\/([^/]+)$/)?.[1]
+const getChannelNameFromRef = (ref: string): string | undefined => getNameFromRef(ref, ['channels'])
 
 /**
  * Resolves the channel referenced by an operation.
@@ -163,7 +164,6 @@ const resolveOperationMessageNames = (
     return []
   }
 
-  const channelScopePrefix = `#/channels/${channelName}/messages/`
   const names = new Set<string>()
 
   for (const messageRef of operation.messages) {
@@ -172,12 +172,10 @@ const resolveOperationMessageNames = (
     }
 
     // Common case: a channel-scoped reference like `#/channels/<name>/messages/<id>`.
-    if (messageRef.$ref.startsWith(channelScopePrefix)) {
-      const candidate = messageRef.$ref.slice(channelScopePrefix.length)
-      if (channelMessages[candidate]) {
-        names.add(candidate)
-        continue
-      }
+    const candidate = getNameFromRef(messageRef.$ref, ['channels', channelName, 'messages'])
+    if (candidate && channelMessages[candidate]) {
+      names.add(candidate)
+      continue
     }
 
     // Fallback: a channel-level message that points to the same target.
