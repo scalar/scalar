@@ -229,35 +229,38 @@ const handleUpserRow = (
       @upsertRow="handleUpserRow" />
     <div
       v-if="availableFields.length"
-      ref="pickerContainer"
-      class="mx-2 border-t py-1">
-      <ScalarCombobox
-        :inputLabel="translate('apiClient.requestParams.searchParameters')"
-        :noResults="translate('apiClient.requestParams.noParametersFound')"
-        :options="availableFields"
-        :placeholder="translate('apiClient.requestParams.searchParameters')"
-        placement="bottom-start"
-        resize
-        :target="pickerContainer ?? undefined"
-        @update:modelValue="selectField">
-        <ScalarButton
-          class="gap-1.5"
-          size="sm"
-          variant="ghost">
-          <ScalarIconPlus class="size-3.5" />
-          {{ translate('apiClient.requestParams.addParameter') }}
-        </ScalarButton>
-        <template #option="{ option }">
-          <span class="min-w-0">
-            <span class="block break-all">{{ option.label }}</span>
-            <span
-              v-if="option.description"
-              class="text-c-2 block text-xs"
-              >{{ option.description }}</span
-            >
-          </span>
-        </template>
-      </ScalarCombobox>
+      class="border-t py-1">
+      <div
+        ref="pickerContainer"
+        class="mx-2">
+        <ScalarCombobox
+          :inputLabel="translate('apiClient.requestParams.searchParameters')"
+          :noResults="translate('apiClient.requestParams.noParametersFound')"
+          :options="availableFields"
+          :placeholder="translate('apiClient.requestParams.searchParameters')"
+          placement="bottom-start"
+          resize
+          :target="pickerContainer ?? undefined"
+          @update:modelValue="selectField">
+          <ScalarButton
+            class="gap-1.5"
+            size="sm"
+            variant="ghost">
+            <ScalarIconPlus class="size-3.5" />
+            {{ translate('apiClient.requestParams.addParameter') }}
+          </ScalarButton>
+          <template #option="{ option }">
+            <span class="min-w-0">
+              <span class="block break-all">{{ option.label }}</span>
+              <span
+                v-if="option.description"
+                class="text-c-2 block text-xs"
+                >{{ option.description }}</span
+              >
+            </span>
+          </template>
+        </ScalarCombobox>
+      </div>
     </div>
   </CollapsibleSection>
 </template>
