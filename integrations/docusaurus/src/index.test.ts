@@ -188,7 +188,7 @@ describe('ScalarDocusaurus', () => {
   })
 
   describe('contentLoaded', () => {
-    it('adds navbar link with baseUrl when showNavLink is true', () => {
+    it('adds navbar link with baseUrl when showNavLink is true', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/my-site/',
@@ -210,7 +210,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: true,
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -229,7 +229,7 @@ describe('ScalarDocusaurus', () => {
       )
     })
 
-    it('adds navbar link with default values', () => {
+    it('adds navbar link with default values', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/docs/',
@@ -251,7 +251,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: true,
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -263,7 +263,7 @@ describe('ScalarDocusaurus', () => {
       })
     })
 
-    it('does not add navbar link when showNavLink is false', () => {
+    it('does not add navbar link when showNavLink is false', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -285,7 +285,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: false,
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -294,7 +294,7 @@ describe('ScalarDocusaurus', () => {
       expect(mockActions.addRoute).toHaveBeenCalled()
     })
 
-    it('handles root baseUrl correctly', () => {
+    it('handles root baseUrl correctly', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -316,7 +316,7 @@ describe('ScalarDocusaurus', () => {
         route: '/scalar',
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -329,7 +329,7 @@ describe('ScalarDocusaurus', () => {
       )
     })
 
-    it('always adds route regardless of showNavLink setting', () => {
+    it('always adds route regardless of showNavLink setting', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/base/',
@@ -351,7 +351,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: false, // navbar disabled
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -368,7 +368,7 @@ describe('ScalarDocusaurus', () => {
       expect(mockContext.siteConfig.themeConfig.navbar.items).toHaveLength(0)
     })
 
-    it('passes content to route configuration', () => {
+    it('passes content to route configuration', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -395,7 +395,7 @@ describe('ScalarDocusaurus', () => {
         },
       } as const
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: testContent,
         actions: mockActions,
       })
@@ -413,7 +413,7 @@ describe('ScalarDocusaurus', () => {
       expect(route.configuration).toContain('"theme": "purple"')
     })
 
-    it('preserves function-valued configuration options through serialization', () => {
+    it('preserves function-valued configuration options through serialization', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -434,7 +434,7 @@ describe('ScalarDocusaurus', () => {
         route: '/scalar',
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {
           configuration: {
             url: 'https://example.com/openapi.json',
@@ -455,7 +455,7 @@ describe('ScalarDocusaurus', () => {
       expect(route.configuration).toContain('"url": "https://example.com/openapi.json"')
     })
 
-    it('evaluates a function-valued content at build time instead of shipping it to the browser', () => {
+    it('evaluates a function-valued content at build time instead of shipping it to the browser', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -476,7 +476,7 @@ describe('ScalarDocusaurus', () => {
         route: '/scalar',
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {
           configuration: {
             content: () => ({ openapi: '3.1.0', info: { title: 'Generated', version: '1.0.0' } }),
@@ -493,7 +493,7 @@ describe('ScalarDocusaurus', () => {
       expect(route.configuration).not.toContain('=>')
     })
 
-    it('drops content when a url is also provided, matching the CDN HTML path', () => {
+    it('drops content when a url is also provided, matching the CDN HTML path', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -514,7 +514,7 @@ describe('ScalarDocusaurus', () => {
         route: '/scalar',
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {
           configuration: {
             url: 'https://example.com/openapi.json',
@@ -530,7 +530,7 @@ describe('ScalarDocusaurus', () => {
       expect(route.configuration).not.toContain('content')
     })
 
-    it('uses default route when none specified', () => {
+    it('uses default route when none specified', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/site/',
@@ -552,7 +552,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: true,
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -565,7 +565,7 @@ describe('ScalarDocusaurus', () => {
       )
     })
 
-    it('uses default label when none specified', () => {
+    it('uses default label when none specified', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -586,7 +586,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: true,
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -596,7 +596,7 @@ describe('ScalarDocusaurus', () => {
   })
 
   describe('edge cases', () => {
-    it('handles complex baseUrl paths', () => {
+    it('handles complex baseUrl paths', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/very/deep/nested/path/',
@@ -618,7 +618,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: true,
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })
@@ -631,7 +631,7 @@ describe('ScalarDocusaurus', () => {
       )
     })
 
-    it('handles empty route string', () => {
+    it('handles empty route string', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/base/',
@@ -653,7 +653,7 @@ describe('ScalarDocusaurus', () => {
         showNavLink: true,
       })
 
-      plugin.contentLoaded?.({
+      await plugin.contentLoaded?.({
         content: {},
         actions: mockActions,
       })

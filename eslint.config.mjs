@@ -199,4 +199,16 @@ export default tslint.config(
       ],
     },
   },
+  {
+    files: ['integrations/nuxt/**/*.vue'],
+    rules: {
+      // Nuxt and this module register these components automatically.
+      'vue/no-undef-components': [
+        'warn',
+        {
+          ignorePatterns: ['client-only', 'ssg_children', 'router-link', 'NuxtLink', 'NuxtPage', 'ScalarApiReference'],
+        },
+      ],
+    },
+  },
 )

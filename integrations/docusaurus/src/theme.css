@@ -21,34 +21,6 @@
   --refs-sidebar-width: 300px;
 }
 /* basic theme */
-html[data-theme="light"] body,
-html[data-theme="light"] .scalar-card.dark-mode {
-  --scalar-color-1: var(--ifm-font-color-base, #1c1e21);
-  --scalar-color-2: var(--ifm-color-emphasis-700, #606770);
-  --scalar-color-3: var(--ifm-color-emphasis-600, #8d949e);
-  --scalar-color-accent: var(--ifm-menu-color-active, #277148);
-
-  --scalar-background-1: color-mix(in srgb, var(--ifm-background-color, #fff) 0%, white);
-  --scalar-background-2: color-mix(in srgb, rgba(0, 0, 0, 1) 4%, white);
-  --scalar-background-3: color-mix(in srgb, rgba(0, 0, 0, 1) 8%, white);
-  --scalar-background-accent: var(--ifm-menu-color-background-active, rgba(0, 0, 0, 0.05));
-
-  --scalar-border-color: var(--ifm-color-emphasis-300, #ebedf0);
-
-  --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 0.5px;
-
-  --scalar-color-green: #00a400;
-  --scalar-color-red: #fa383e;
-  --scalar-color-yellow: #ffba00;
-  --scalar-color-blue: #0072bd;
-  --scalar-color-orange: #fb892c;
-  --scalar-color-purple: #5203d1;
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
-}
-
 html[data-theme="dark"] body,
 .scalar-card.dark-mode {
   --scalar-color-1: var(--ifm-font-color-base, rgb(227, 227, 227));
@@ -78,6 +50,33 @@ html[data-theme="dark"] body,
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
   --scalar-button-1-color: black;
 }
+html[data-theme="light"] body,
+html[data-theme="light"] .scalar-card.dark-mode {
+  --scalar-color-1: var(--ifm-font-color-base, #1c1e21);
+  --scalar-color-2: var(--ifm-color-emphasis-700, #606770);
+  --scalar-color-3: var(--ifm-color-emphasis-600, #8d949e);
+  --scalar-color-accent: var(--ifm-menu-color-active, #277148);
+
+  --scalar-background-1: color-mix(in srgb, var(--ifm-background-color, #fff) 0%, white);
+  --scalar-background-2: color-mix(in srgb, rgba(0, 0, 0, 1) 4%, white);
+  --scalar-background-3: color-mix(in srgb, rgba(0, 0, 0, 1) 8%, white);
+  --scalar-background-accent: var(--ifm-menu-color-background-active, rgba(0, 0, 0, 0.05));
+
+  --scalar-border-color: var(--ifm-color-emphasis-300, #ebedf0);
+
+  --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+  --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px, rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 0.5px;
+
+  --scalar-color-green: #00a400;
+  --scalar-color-red: #fa383e;
+  --scalar-color-yellow: #ffba00;
+  --scalar-color-blue: #0072bd;
+  --scalar-color-orange: #fb892c;
+  --scalar-color-purple: #5203d1;
+  --scalar-button-1: rgba(0, 0, 0, 1);
+  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+}
 .sidebar-group-item:has(.active_page) .sidebar-group-item__folder {
   color: var(--scalar-color-accent);
 }
@@ -93,6 +92,10 @@ html[data-theme="dark"] body,
   --scalar-sidebar-search-background: var(--docsearch-searchbox-background, transparent);
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
   --scalar-sidebar-search--color: var(--scalar-color-3);
+  height: calc(100dvh - var(--ifm-navbar-height));
+  max-height: calc(100dvh - var(--ifm-navbar-height));
+  position: sticky;
+  top: var(--ifm-navbar-height);
 }
 html[data-theme="light"] body .t-doc__sidebar {
   --scalar-sidebar-item-hover-background: var(--ifm-menu-color-background-hover, rgba(0, 0, 0, 0.05));
@@ -142,12 +145,6 @@ html[data-theme="light"] body .api-client-drawer {
   font-size: 15px;
   border: 0;
   border-radius: 3px;
-}
-.t-doc__sidebar {
-  height: calc(100dvh - var(--ifm-navbar-height));
-  max-height: calc(100dvh - var(--ifm-navbar-height));
-  position: sticky;
-  top: var(--ifm-navbar-height);
 }
 .references-layout {
   overflow: initial !important;
@@ -417,11 +414,6 @@ html[data-theme="light"] body .api-client-drawer {
     color: var(--scalar-color-blue);
   }
 
-  /** Compromise here */
-  .hljs.language-cpp .hljs-built_in {
-    /* color: var(--scalar-color-1); */
-  }
-
   .hljs.language-php .hljs-variable {
     color: var(--scalar-color-blue);
   }
@@ -430,11 +422,16 @@ html[data-theme="light"] body .api-client-drawer {
     color: var(--scalar-color-1);
   }
 
-  .hljs.language-objectivec .hljs-built_in {
+  .hljs-built_in {
     color: var(--scalar-color-orange);
   }
 
-  .hljs-built_in {
+  /** Compromise here */
+  .hljs.language-cpp .hljs-built_in {
+    /* color: var(--scalar-color-1); */
+  }
+
+  .hljs.language-objectivec .hljs-built_in {
     color: var(--scalar-color-orange);
   }
 
@@ -548,14 +545,6 @@ html[data-theme="light"] body .api-client-drawer {
   .markdown del {
     text-decoration: line-through;
   }
-  .markdown code {
-    font-family: var(--scalar-font-code);
-    background-color: var(--scalar-background-2);
-    box-shadow: 0 0 0 1px var(--scalar-border-color);
-    font-size: var(--scalar-micro);
-    border-radius: 2px;
-    padding: 0 3px;
-  }
 
   .markdown pre code {
     display: block;
@@ -567,6 +556,14 @@ html[data-theme="light"] body .api-client-drawer {
     overflow-x: auto;
     max-width: 100%;
     min-width: 100px;
+  }
+  .markdown code {
+    font-family: var(--scalar-font-code);
+    background-color: var(--scalar-background-2);
+    box-shadow: 0 0 0 1px var(--scalar-border-color);
+    font-size: var(--scalar-micro);
+    border-radius: 2px;
+    padding: 0 3px;
   }
 
   .markdown hr {
@@ -622,9 +619,8 @@ html[data-theme="light"] body .api-client-drawer {
     border-right: 1px solid var(--scalar-border-color);
     border-bottom: 1px solid var(--scalar-border-color);
   }
-
-  .markdown td > *,
-  .markdown th > * {
+  /* biome-ignore lint/style/noDescendingSpecificity: Table-cell content must override equally specific markdown list margins. */
+  .markdown :is(td, th) > * {
     margin-bottom: 0;
   }
   .markdown th:empty {
