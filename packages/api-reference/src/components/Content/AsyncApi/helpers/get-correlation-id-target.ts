@@ -1,4 +1,4 @@
-import { isTypeObject } from '@scalar/blocks/schema/helpers'
+import { isTypeObject, optimizeValueForDisplay } from '@scalar/blocks/schema/helpers'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
@@ -56,11 +56,16 @@ export const getCorrelationIdTarget = (
     }
     const ancestors = new Set<unknown>()
     const target = path.reduce<unknown>((node, name, index) => {
-      const resolved = getResolvedRef(node)
-      if (!isTypeObject(resolved) || !resolved.properties || ancestors.has(resolved)) {
+      const source = unwrapAsyncApiSchema(node)
+      if (!source || ancestors.has(source)) {
         return undefined
       }
-      ancestors.add(resolved)
+      ancestors.add(source)
+      // Use the renderer's normalization so single branches and nullable fields share their anchors.
+      const resolved = optimizeValueForDisplay(source)
+      if (!isTypeObject(resolved) || !resolved.properties) {
+        return undefined
+      }
       const remaining = path.slice(index).join('.')
       // A literal dotted sibling can share this public anchor with a nested field.
       const collision = Object.keys(resolved.properties).some(

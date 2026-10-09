@@ -2,7 +2,7 @@ import { ScalarListbox } from '@scalar/components/listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
@@ -20,7 +20,7 @@ const SpecificationExtension = defineComponent({
 describe('SchemaProperty', () => {
   it('renders a host-linked deep property anchor without adding links to its siblings', () => {
     const options = { linkablePropertyPath: ['message', 'payload', 'metadata', 'id'] }
-    const mountProperty = (name: string) =>
+    const mountProperty = (name: string): VueWrapper =>
       mount(SchemaProperty, {
         props: {
           name,

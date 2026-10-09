@@ -149,6 +149,24 @@ describe('Message', () => {
     expect(wrapper.get(`[id="${MESSAGE_ID}.headers.correlationId"]`).text()).toBe('correlationId')
   })
 
+  it.each(['allOf', 'oneOf', 'anyOf'])('links fields rendered from a single %s branch', async (composition) => {
+    const targetId = `${MESSAGE_ID}.payload.id`
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          correlationId: { location: '$message.payload#/id' },
+          payload: { [composition]: [{ type: 'object', properties: { id: { type: 'string' } } }] },
+        }),
+      },
+    })
+    expect(wrapper.get('a[href]').attributes('href')).toBe(`#${encodeURIComponent(targetId)}`)
+    await wrapper.setProps({ scrollTargetId: targetId })
+    expect(wrapper.get(`[id="${targetId}"]`).text()).toBe('id')
+  })
+
   it('omits correlation metadata when absent or unresolved', () => {
     for (const correlationId of [undefined, { $ref: '#/components/correlationIds/missing' }]) {
       const wrapper = mount(Message, {

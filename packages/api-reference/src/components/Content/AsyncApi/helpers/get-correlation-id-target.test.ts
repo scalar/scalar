@@ -67,16 +67,17 @@ describe('get-correlation-id-target', () => {
   })
 
   it('resolves both the schema root and nested property references', () => {
+    const metadata = {
+      $ref: '#/components/schemas/Metadata',
+      '$ref-value': { type: 'object' as const, properties: { id: { type: 'string' as const } } },
+    }
     const referenced: AsyncApiMessageObject = {
       payload: {
         $ref: '#/components/schemas/Payload',
         '$ref-value': {
           type: 'object',
           properties: {
-            metadata: {
-              $ref: '#/components/schemas/Metadata',
-              '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
-            },
+            metadata,
           },
         },
       },
@@ -119,6 +120,20 @@ describe('get-correlation-id-target', () => {
       getCorrelationIdTarget({ payload: { type: 'object', example: { id: 'example' } } }, '$message.payload#/id'),
     ).toBeUndefined()
     expect(getCorrelationIdTarget({ payload: { $ref: '#/missing' } }, '$message.payload#/id')).toBeUndefined()
+  })
+
+  it.each(['allOf', 'oneOf', 'anyOf'])('locates fields in flattened %s compositions', (composition) => {
+    const variant = { type: 'object' as const, properties: { id: { type: 'string' as const } } }
+    expect(getCorrelationIdTarget({ payload: { [composition]: [variant] } }, '$message.payload#/id')).toStrictEqual({
+      section: 'payload',
+      path: ['id'],
+    })
+    expect(
+      getCorrelationIdTarget(
+        { payload: { type: 'object', properties: { metadata: { [composition]: [variant, { type: 'null' }] } } } },
+        '$message.payload#/metadata/id',
+      ),
+    ).toStrictEqual({ section: 'payload', path: ['metadata', 'id'] })
   })
 
   it('skips fields in ambiguous variants and unnamed array items', () => {

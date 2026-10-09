@@ -5,7 +5,10 @@ import {
   type SchemaRenderingProps,
 } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
-import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import type {
+  AsyncApiDocument,
+  AsyncApiMessageObject,
+} from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
@@ -129,18 +132,19 @@ const headersSchema = computed(() =>
     : undefined,
 )
 
-const correlationId = computed(() =>
-  getResolvedRef(resolvedMessage.value?.correlationId),
+const correlationId = computed<
+  Exclude<AsyncApiMessageObject['correlationId'], { $ref: string }>
+>(() => getResolvedRef(resolvedMessage.value?.correlationId))
+const correlationTarget = computed<ReturnType<typeof getCorrelationIdTarget>>(
+  () =>
+    resolvedMessage.value && correlationId.value?.location
+      ? getCorrelationIdTarget(
+          resolvedMessage.value,
+          correlationId.value.location,
+        )
+      : undefined,
 )
-const correlationTarget = computed(() =>
-  resolvedMessage.value && correlationId.value?.location
-    ? getCorrelationIdTarget(
-        resolvedMessage.value,
-        correlationId.value.location,
-      )
-    : undefined,
-)
-const correlationBreadcrumb = computed(() =>
+const correlationBreadcrumb = computed<string[] | undefined>(() =>
   correlationTarget.value
     ? [
         message.id,
@@ -149,16 +153,16 @@ const correlationBreadcrumb = computed(() =>
       ]
     : undefined,
 )
-const correlationTargetId = computed(() =>
+const correlationTargetId = computed<string | undefined>(() =>
   correlationBreadcrumb.value?.join('.'),
 )
-const correlationHref = computed(() =>
+const correlationHref = computed<string | undefined>(() =>
   correlationTargetId.value
     ? `#${encodeURIComponent(correlationTargetId.value)}`
     : undefined,
 )
-const localScrollTarget = ref('')
-const activeScrollTarget = computed(
+const localScrollTarget = ref<string>('')
+const activeScrollTarget = computed<string>(
   () => scrollTargetId || localScrollTarget.value,
 )
 
