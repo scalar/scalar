@@ -1276,8 +1276,9 @@ paths:
       },
     })
     const request = markdown.split('#### Request body')[1]!.split('#### Responses')[0]!
-    for (const expected of ['text/plain', 'Explode: `false`', 'Allow reserved: `false`', 'X-Part', 'part-value'])
+    for (const expected of ['text/plain', 'Explode: `false`', 'Allow reserved: `false`', 'X-Part', 'part-value']) {
       expect(request).toContain(expected)
+    }
     expect(request).not.toContain('X-Rate')
     const response = markdown.split('#### Responses')[1]!
     for (const expected of [
@@ -1286,8 +1287,9 @@ paths:
       '#/paths/~1next/get',
       '$response.body#/cursor',
       '**Request body:** `false`',
-    ])
+    ]) {
       expect(response).toContain(expected)
+    }
     expect(response).not.toContain('X-Part')
     expect(response).toContain('X-Empty')
     expect(

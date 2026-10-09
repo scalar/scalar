@@ -20,8 +20,12 @@ describe('CodeExample.external', () => {
         constructor(callback: typeof visible) {
           visible = callback
         }
-        observe(): void {}
-        disconnect(): void {}
+        observe(): void {
+          /* Observation is not needed by this test. */
+        }
+        disconnect(): void {
+          /* No observer resources are allocated by this test. */
+        }
       },
     )
     const fetch = vi
@@ -62,7 +66,9 @@ describe('CodeExample.external', () => {
     visible?.([{ isIntersecting: true }])
     await vi.waitFor(() => expect(wrapper.text()).toContain('Could not load this example'))
     const retry = wrapper.findAll('button').find((button) => button.text() === 'Retry')
-    if (!retry) throw new Error('Missing retry control')
+    if (!retry) {
+      throw new Error('Missing retry control')
+    }
     await retry.trigger('click')
     await vi.waitFor(() => expect(wrapper.text()).toContain('shippingType'))
     expect(wrapper.text()).toContain('standard')

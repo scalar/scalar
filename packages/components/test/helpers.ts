@@ -111,8 +111,8 @@ export const test = base.extend<ComponentTestOptions & ComponentTestFixtures>({
       const { story } = componentDetailsFromContext(c, s, testInfo)
 
       // The mount locator is the gallery root, so its child is the component itself
-      const target =
-        crop === 'viewport' ? page : crop === 'component' ? mountedStory.locator('> *') : page.locator('body')
+      const elementTarget = crop === 'component' ? mountedStory.locator('> *') : page.locator('body')
+      const target = crop === 'viewport' ? page : elementTarget
 
       for (const colorMode of colorModes) {
         await setColorMode(page, colorMode)

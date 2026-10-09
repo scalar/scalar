@@ -20,8 +20,11 @@ const runs = (code: string, lang: string): [string, string | null][] => {
   const out: [string, string | null][] = []
   for (const token of tokenize(code, lang)) {
     const last = out[out.length - 1]
-    if (last && last[1] === token.scope) last[0] += token.text
-    else out.push([token.text, token.scope])
+    if (last && last[1] === token.scope) {
+      last[0] += token.text
+    } else {
+      out.push([token.text, token.scope])
+    }
   }
   return out
 }
@@ -333,9 +336,11 @@ describe('haskell', () => {
       let best = Number.POSITIVE_INFINITY
       for (let round = 0; round < 6; round++) {
         const started = performance.now()
-        tokenizeStream(input, compiled, () => {})
+        tokenizeStream(input, compiled, () => undefined)
         const ns = ((performance.now() - started) * 1e6) / input.length
-        if (ns < best) best = ns
+        if (ns < best) {
+          best = ns
+        }
       }
       return best
     }

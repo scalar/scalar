@@ -129,7 +129,7 @@ describe('normalize-error', () => {
     })
 
     it('logs the error to console', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       const error = new Error('Test error')
 
       normalizeError(error)

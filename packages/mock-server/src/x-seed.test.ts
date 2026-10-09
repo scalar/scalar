@@ -342,7 +342,7 @@ describe('x-seed', () => {
 
   describe('error handling', () => {
     it('handles errors in seed code gracefully', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       const document = {
         openapi: '3.1.0',
@@ -393,7 +393,7 @@ describe('x-seed', () => {
     })
 
     it('handles invalid seed() usage', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       const document = {
         openapi: '3.1.0',

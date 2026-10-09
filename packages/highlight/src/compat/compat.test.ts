@@ -318,7 +318,9 @@ describe('colour agreement with code.css', () => {
     let compared = 0
     let differing = 0
     for (const [lang, code] of corpus) {
-      if (!langs(lang)) continue
+      if (!langs(lang)) {
+        continue
+      }
       const options = { lang, languages: referenceLanguages }
       const result = colorAgreement(referenceHighlight(code, options), syntaxHighlight(code, options))
       compared += result.compared

@@ -20,15 +20,20 @@ export const renderHeaders = async (
   const entries: ListItem[] = []
   for (const [name, reference] of Object.entries(headers ?? {})) {
     // OpenAPI reserves Content-Type for the media type map / encoding field.
-    if (name.toLowerCase() === 'content-type') continue
-    if (!getResolvedRef(reference)) continue
+    if (name.toLowerCase() === 'content-type') {
+      continue
+    }
+    if (!getResolvedRef(reference)) {
+      continue
+    }
     const header = getResolvedRef(reference, mergeSiblingReferences)
     const blocks: ListItem['children'] = [
       paragraph(strong(inlineCode(name)), text(header.required ? ' (required)' : '')),
       ...((await description(header.description)) as ListItem['children']),
     ]
-    if ('schema' in header && header.schema !== undefined)
+    if ('schema' in header && header.schema !== undefined) {
       blocks.push(...(schemas.render(header.schema) as ListItem['children']))
+    }
     if ('example' in header || 'examples' in header) {
       blocks.push(
         ...((await renderExamples(
@@ -44,7 +49,9 @@ export const renderHeaders = async (
     }
     for (const [mediaType, content] of Object.entries('content' in header ? (header.content ?? {}) : {})) {
       blocks.push(paragraph(strong(text('Content-Type:')), text(` ${mediaType}`)))
-      if (content.schema !== undefined) blocks.push(...(schemas.render(content.schema) as ListItem['children']))
+      if (content.schema !== undefined) {
+        blocks.push(...(schemas.render(content.schema) as ListItem['children']))
+      }
       blocks.push(
         ...((await renderExamples(content, description, mediaType, undefined, openapiVersion, schemaOpenapiVersion, {
           linked: schemas.linked,
@@ -68,7 +75,9 @@ export const renderEncoding = async (
   examples?: DocumentExamples,
 ): Promise<RootContent[]> => {
   const multipart = mediaType.startsWith('multipart/')
-  if (!multipart && mediaType !== 'application/x-www-form-urlencoded') return []
+  if (!multipart && mediaType !== 'application/x-www-form-urlencoded') {
+    return []
+  }
   const entries: ListItem[] = []
   for (const [name, entry] of Object.entries(encoding ?? {})) {
     const fields: ListItem[] = []
@@ -78,11 +87,15 @@ export const renderEncoding = async (
       ['explode', 'Explode'],
       ['allowReserved', 'Allow reserved'],
     ] as const) {
-      if (entry[key] !== undefined) fields.push(item(paragraph(text(`${label}: `), inlineCode(entry[key]))))
+      if (entry[key] !== undefined) {
+        fields.push(item(paragraph(text(`${label}: `), inlineCode(entry[key]))))
+      }
     }
     const blocks: ListItem['children'] = [paragraph(strong(inlineCode(name)))]
-    if (fields.length) blocks.push(list(fields))
-    if (multipart)
+    if (fields.length) {
+      blocks.push(list(fields))
+    }
+    if (multipart) {
       blocks.push(
         ...((await renderHeaders(
           entry.headers,
@@ -93,6 +106,7 @@ export const renderEncoding = async (
           examples,
         )) as ListItem['children']),
       )
+    }
     entries.push(item(...blocks))
   }
   return entries.length ? [paragraph(strong(text('Encoding:'))), list(entries)] : []
@@ -107,17 +121,22 @@ export const renderResponseLinks = async (
 ): Promise<RootContent[]> => {
   const entries: ListItem[] = []
   for (const [name, reference] of Object.entries(links ?? {})) {
-    if (!getResolvedRef(reference)) continue
+    if (!getResolvedRef(reference)) {
+      continue
+    }
     const link = getResolvedRef(reference, mergeSiblingReferences)
     const blocks: ListItem['children'] = [
       paragraph(strong(text(name))),
       ...((await description(link.description)) as ListItem['children']),
     ]
-    if (link.operationId) blocks.push(paragraph(strong(text('Operation ID:')), text(' '), inlineCode(link.operationId)))
-    if (link.operationRef)
+    if (link.operationId) {
+      blocks.push(paragraph(strong(text('Operation ID:')), text(' '), inlineCode(link.operationId)))
+    }
+    if (link.operationRef) {
       blocks.push(paragraph(strong(text('Operation reference:')), text(' '), inlineCode(link.operationRef)))
+    }
     const parameters = Object.entries(link.parameters ?? {})
-    if (parameters.length)
+    if (parameters.length) {
       blocks.push(
         list(
           parameters.map(([name, value]) =>
@@ -125,9 +144,13 @@ export const renderResponseLinks = async (
           ),
         ),
       )
-    if (link.requestBody !== undefined)
+    }
+    if (link.requestBody !== undefined) {
       blocks.push(paragraph(strong(text('Request body:')), text(' '), inlineCode(formatValue(link.requestBody))))
-    if (link.server) blocks.push(paragraph(strong(text('Server:')), text(' '), inlineCode(link.server.url)))
+    }
+    if (link.server) {
+      blocks.push(paragraph(strong(text('Server:')), text(' '), inlineCode(link.server.url)))
+    }
     entries.push(item(...blocks))
   }
   return entries.length ? [paragraph(strong(text('Links:'))), list(entries)] : []

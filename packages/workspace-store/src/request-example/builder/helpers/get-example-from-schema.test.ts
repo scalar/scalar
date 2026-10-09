@@ -2491,12 +2491,14 @@ describe('getExampleFromSchema', () => {
     it('leaves no sentinel in a chain that alternates objects and arrays', () => {
       // Whichever container the cap lands on has to be replaced by one of the same kind, so a mixed
       // chain comes back clean wherever the cut falls.
-      const alternating = (depth: number): SchemaObject =>
-        depth === 0
-          ? { type: 'string' }
-          : depth % 2 === 0
-            ? { type: 'object', properties: { next: alternating(depth - 1) } }
-            : { type: 'array', items: alternating(depth - 1) }
+      const alternating = (depth: number): SchemaObject => {
+        if (depth === 0) {
+          return { type: 'string' }
+        }
+        return depth % 2 === 0
+          ? { type: 'object', properties: { next: alternating(depth - 1) } }
+          : { type: 'array', items: alternating(depth - 1) }
+      }
 
       expect(JSON.stringify(getExampleFromSchema(alternating(30)))).not.toContain('Max Depth Exceeded')
     })

@@ -164,7 +164,9 @@ export const resolveLanguageName = (name: string): BundledLanguage | undefined =
   // `hasOwn` rather than `in`: `in` walks the prototype chain, so a caller
   // asking for `constructor` would get past this check and then try to call
   // `Object.prototype.constructor` as a loader.
-  if (Object.hasOwn(loaders, key)) return key as BundledLanguage
+  if (Object.hasOwn(loaders, key)) {
+    return key as BundledLanguage
+  }
   return Object.hasOwn(aliases, key) ? aliases[key] : undefined
 }
 
@@ -183,7 +185,9 @@ export const loadLanguage = (name: string): Promise<CompiledGrammar> => {
   }
 
   const registered = getLanguage(resolved)
-  if (registered) return Promise.resolve(registered)
+  if (registered) {
+    return Promise.resolve(registered)
+  }
 
   let inFlight = pending.get(resolved)
   if (!inFlight) {

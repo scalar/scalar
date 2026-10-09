@@ -45,7 +45,7 @@ describe('get-request-body-example', () => {
   })
 
   it('reports an authored SSE example whose records are all omitted', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       const body = { content: { 'text/event-stream': { example: [{ unknown: true }] } } }
       expect(getExampleFromBody(body, 'text/event-stream', 'default')).toStrictEqual({ value: '' })

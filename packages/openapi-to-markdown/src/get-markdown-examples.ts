@@ -44,24 +44,47 @@ const MAX_GENERATED_EXAMPLE_VALUES = 10_000
 export const countGeneratedExampleValues = (root: unknown, limit = MAX_GENERATED_EXAMPLE_VALUES): number => {
   const counts = new WeakMap<object, Map<number, number>>()
   const count = (input: unknown, level: number): number => {
-    if (level > EXAMPLE_DEPTH || !isObject(input)) return 1
+    if (level > EXAMPLE_DEPTH || !isObject(input)) {
+      return 1
+    }
     const cached = counts.get(input)?.get(level)
-    if (cached !== undefined) return cached
+    if (cached !== undefined) {
+      return cached
+    }
     const schema: unknown = getResolvedRef(input as SchemaObject, mergeSiblingReferences)
-    if (!isObject(schema)) return 1
+    if (!isObject(schema)) {
+      return 1
+    }
     // Supplied examples bypass schema expansion in the generator too.
-    if (schema.example !== undefined || (Array.isArray(schema.examples) && schema.examples.length > 0)) return 1
+    if (schema.example !== undefined || (Array.isArray(schema.examples) && schema.examples.length > 0)) {
+      return 1
+    }
     let total = 1
     const add = (child: unknown): void => {
-      if (total <= limit) total += count(child, level + 1)
+      if (total <= limit) {
+        total += count(child, level + 1)
+      }
     }
-    if (isObject(schema.properties)) Object.values(schema.properties).forEach(add)
-    if (isObject(schema.patternProperties)) Object.values(schema.patternProperties).forEach(add)
-    if (isObject(schema.additionalProperties)) add(schema.additionalProperties)
-    if (schema.items !== undefined) add(schema.items)
-    if (Array.isArray(schema.prefixItems)) schema.prefixItems.forEach(add)
-    if (Array.isArray(schema.allOf)) schema.allOf.forEach(add)
-    const variants = Array.isArray(schema.oneOf) ? schema.oneOf : Array.isArray(schema.anyOf) ? schema.anyOf : []
+    if (isObject(schema.properties)) {
+      Object.values(schema.properties).forEach(add)
+    }
+    if (isObject(schema.patternProperties)) {
+      Object.values(schema.patternProperties).forEach(add)
+    }
+    if (isObject(schema.additionalProperties)) {
+      add(schema.additionalProperties)
+    }
+    if (schema.items !== undefined) {
+      add(schema.items)
+    }
+    if (Array.isArray(schema.prefixItems)) {
+      schema.prefixItems.forEach(add)
+    }
+    if (Array.isArray(schema.allOf)) {
+      schema.allOf.forEach(add)
+    }
+    const anyOf = Array.isArray(schema.anyOf) ? schema.anyOf : []
+    const variants = Array.isArray(schema.oneOf) ? schema.oneOf : anyOf
     // Object and array generation can use the first variant, while other unions skip null.
     // A discriminator can choose any variant, so bound the largest candidate in that case.
     const nonNull = variants.find((variant) => {
@@ -74,8 +97,9 @@ export const countGeneratedExampleValues = (root: unknown, limit = MAX_GENERATED
         : [variants[0], nonNull]
     let variantCount = 0
     for (const candidate of candidates) {
-      if (candidate !== undefined && total <= limit && variantCount <= limit)
+      if (candidate !== undefined && total <= limit && variantCount <= limit) {
         variantCount = Math.max(variantCount, count(candidate, level + 1))
+      }
     }
     total += variantCount
     const levels = counts.get(input) ?? new Map<number, number>()
@@ -96,31 +120,51 @@ export const getMarkdownExamples = (
   schemaOpenapiVersion = openapiVersion,
   linked = false,
 ): MarkdownExample[] => {
-  if (source.example !== undefined) return [{ value: source.example }]
+  if (source.example !== undefined) {
+    return [{ value: source.example }]
+  }
   if (source.examples && Object.keys(source.examples).length) {
     return Object.entries(source.examples).flatMap(([name, reference]): MarkdownExample[] => {
       const example = getResolvedRef<unknown>(reference)
-      if (!isObject(example)) return []
+      if (!isObject(example)) {
+        return []
+      }
       const metadata = {
         name,
         summary: typeof example.summary === 'string' ? example.summary : undefined,
         description: typeof example.description === 'string' ? example.description : undefined,
       }
-      if (example.value !== undefined) return [{ ...metadata, value: example.value }]
-      if (/^3\.2\./.test(openapiVersion) && typeof example.serializedValue === 'string')
+      if (example.value !== undefined) {
+        return [{ ...metadata, value: example.value }]
+      }
+      if (/^3\.2\./.test(openapiVersion) && typeof example.serializedValue === 'string') {
         return [{ ...metadata, serializedValue: example.serializedValue }]
-      if (typeof example.externalValue === 'string') return [{ ...metadata, externalValue: example.externalValue }]
-      if (/^3\.2\./.test(openapiVersion) && example.dataValue !== undefined)
+      }
+      if (typeof example.externalValue === 'string') {
+        return [{ ...metadata, externalValue: example.externalValue }]
+      }
+      if (/^3\.2\./.test(openapiVersion) && example.dataValue !== undefined) {
         return [{ ...metadata, dataValue: example.dataValue }]
+      }
       return []
     })
   }
   const schema = getResolvedRef(source.schema as SchemaObject, mergeSiblingReferences)
-  if (!isObject(schema)) return []
-  if (schema.example !== undefined) return [{ value: schema.example }]
-  if (Array.isArray(schema.examples) && schema.examples.length) return schema.examples.map((value) => ({ value }))
-  if (linked) return []
-  if (countGeneratedExampleValues(source.schema) > MAX_GENERATED_EXAMPLE_VALUES) return [{ omitted: true }]
+  if (!isObject(schema)) {
+    return []
+  }
+  if (schema.example !== undefined) {
+    return [{ value: schema.example }]
+  }
+  if (Array.isArray(schema.examples) && schema.examples.length) {
+    return schema.examples.map((value) => ({ value }))
+  }
+  if (linked) {
+    return []
+  }
+  if (countGeneratedExampleValues(source.schema) > MAX_GENERATED_EXAMPLE_VALUES) {
+    return [{ omitted: true }]
+  }
   if (isXmlMediaType(mediaType)) {
     const result = getXmlBodyExample(source.schema as SchemaObject, undefined, {
       mode,

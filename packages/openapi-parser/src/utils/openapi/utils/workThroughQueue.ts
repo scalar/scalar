@@ -20,12 +20,11 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
     const options: any = 'options' in task ? task.options : undefined
 
     // Use the result of the previous task, or fall back to the original input
-    const currentSpecification = result.specification
-      ? result.specification
-      : typeof input === 'object'
-        ? // Detach from the original object
-          structuredClone(input)
-        : input
+    let currentSpecification = result.specification || input
+    if (!result.specification && typeof input === 'object') {
+      // Detach from the original object.
+      currentSpecification = structuredClone(input)
+    }
 
     // load
     if (name === 'load') {

@@ -98,14 +98,7 @@ export const getAsyncApiSecurityRequirements = (
   const operationRequirements = collectSecurityRequirements(document, operation?.security)
   const serverRequirements = collectSecurityRequirements(document, server?.security)
 
-  const combined =
-    operationRequirements.length === 0
-      ? serverRequirements
-      : serverRequirements.length === 0
-        ? operationRequirements
-        : [...operationRequirements, ...serverRequirements]
-
-  return dedupeRequirements(combined)
+  return dedupeRequirements([...operationRequirements, ...serverRequirements])
 }
 
 /**

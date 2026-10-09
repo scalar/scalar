@@ -51,7 +51,7 @@ export const Loading: Story = {
       const loader = useLoadingState()
       const toggleLoading = () => {
         if (loader.isLoading) {
-          loader.validate()
+          void loader.validate()
         } else {
           loader.start()
         }

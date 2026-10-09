@@ -23,7 +23,9 @@ export const openApiDocument = (): LifecyclePlugin => {
   const authoredRefs = new WeakMap<object, string>()
   const paths = new WeakMap<object, readonly string[]>()
   const indexPaths = (value: unknown, path: readonly string[]): void => {
-    if (value === null || typeof value !== 'object' || paths.has(value)) return
+    if (value === null || typeof value !== 'object' || paths.has(value)) {
+      return
+    }
     paths.set(value, path)
     for (const [key, child] of Object.entries(value)) {
       indexPaths(child, [...path, key])

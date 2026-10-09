@@ -37,7 +37,9 @@ export const resolveSecurityRequirements = async (
   document: Record<string, unknown>,
   { origin = '/', loaders }: SecurityUriOptions,
 ): Promise<void> => {
-  if (typeof document.openapi !== 'string' || !/^3\.2\.\d+$/.test(document.openapi)) return
+  if (typeof document.openapi !== 'string' || !/^3\.2\.\d+$/.test(document.openapi)) {
+    return
+  }
 
   const originalKeys = isObject(document[ORIGINAL_KEYS]) ? document[ORIGINAL_KEYS] : {}
   const components = isObject(document.components) ? document.components : {}
@@ -57,7 +59,9 @@ export const resolveSecurityRequirements = async (
   const cache = new Map<string, Promise<Awaited<ReturnType<LoaderPlugin['exec']>>>>()
 
   const visit = async (node: unknown, path: string[], base: string, external: boolean): Promise<void> => {
-    if (node === null || typeof node !== 'object' || visited.has(node) || isSchemaPath(path)) return
+    if (node === null || typeof node !== 'object' || visited.has(node) || isSchemaPath(path)) {
+      return
+    }
     visited.add(node)
 
     // Security is a fixed field on document and operation objects, not arbitrary example payloads.
@@ -66,9 +70,13 @@ export const resolveSecurityRequirements = async (
     const isDocument = path.length === 0 || (path[0] === 'x-ext' && path.length === 2)
     if (isObject(node) && (isDocument || isOperation) && Array.isArray(node.security)) {
       for (const [index, requirement] of node.security.entries()) {
-        if (!isObject(requirement)) continue
+        if (!isObject(requirement)) {
+          continue
+        }
         for (const [name, scopes] of Object.entries(requirement)) {
-          if (namedSchemes.has(name) || !Array.isArray(scopes)) continue
+          if (namedSchemes.has(name) || !Array.isArray(scopes)) {
+            continue
+          }
           const uri = (() => {
             try {
               return Object.hasOwn(aliases, name) && typeof aliases[name] === 'string'
@@ -78,7 +86,9 @@ export const resolveSecurityRequirements = async (
               return undefined
             }
           })()
-          if (uri === undefined) continue
+          if (uri === undefined) {
+            continue
+          }
           const key = await generateUniqueValue({
             defaultValue: external ? uri : name,
             validation: (candidate) =>
@@ -87,7 +97,9 @@ export const resolveSecurityRequirements = async (
               (!external || candidate === name || !Object.hasOwn(requirement, candidate)),
             maxRetries: Object.keys(schemes).length + 1,
           })
-          if (key === undefined) continue
+          if (key === undefined) {
+            continue
+          }
           if (!Object.hasOwn(aliases, key)) {
             const reference = { $ref: uri }
             await bundle(
@@ -124,7 +136,9 @@ export const resolveSecurityRequirements = async (
                     ),
                   }
                 : target
-            if (!Value.Check(SecuritySchemeObjectSchema, validationTarget)) continue
+            if (!Value.Check(SecuritySchemeObjectSchema, validationTarget)) {
+              continue
+            }
             Object.defineProperty(schemes, key, {
               value: reference,
               enumerable: true,
@@ -142,7 +156,9 @@ export const resolveSecurityRequirements = async (
             Object.defineProperty(mapping, name, { value: key, enumerable: true, writable: true, configurable: true })
             originalKeys[location] = mapping
             document[ORIGINAL_KEYS] = originalKeys
-            if (key === name) continue
+            if (key === name) {
+              continue
+            }
             const previous = Object.hasOwn(requirement, key) ? requirement[key] : []
             Object.defineProperty(requirement, key, {
               value: [...new Set([...(Array.isArray(previous) ? previous : []), ...scopes])],
@@ -156,7 +172,9 @@ export const resolveSecurityRequirements = async (
       }
     }
     for (const [key, child] of Object.entries(node)) {
-      if (key.startsWith('x-') || key === 'example' || key === 'examples' || key === 'security') continue
+      if (key.startsWith('x-') || key === 'example' || key === 'examples' || key === 'security') {
+        continue
+      }
       await visit(child, [...path, key], base, external)
     }
   }
@@ -166,11 +184,17 @@ export const resolveSecurityRequirements = async (
   // URI-only dependencies can load further documents, so process newly embedded documents too.
   while (isObject(document['x-ext'])) {
     const next = Object.entries(document['x-ext']).find(([key]) => !processedDocuments.has(key))
-    if (!next) break
+    if (!next) {
+      break
+    }
     const [key, external] = next
     processedDocuments.add(key)
-    if (!isObject(external)) continue
-    if (typeof external.openapi === 'string' && !/^3\.2\.\d+$/.test(external.openapi)) continue
+    if (!isObject(external)) {
+      continue
+    }
+    if (typeof external.openapi === 'string' && !/^3\.2\.\d+$/.test(external.openapi)) {
+      continue
+    }
     const mappings = document['x-ext-urls']
     const retrieval = isObject(mappings) && typeof mappings[key] === 'string' ? mappings[key] : key
     const retrievalUri = resolveReferencePath(entryBase, retrieval)
@@ -194,19 +218,26 @@ export const restoreSecurityRequirements = (document: Record<string, unknown>): 
         !Array.isArray(path) ||
         !path.every((segment) => typeof segment === 'string' && !isPollutionKey(segment)) ||
         !isObject(mapping)
-      )
+      ) {
         continue
+      }
       const requirement = path.reduce<unknown>((parent, segment) => {
-        if (parent === null || typeof parent !== 'object' || !Object.hasOwn(parent, segment)) return undefined
+        if (parent === null || typeof parent !== 'object' || !Object.hasOwn(parent, segment)) {
+          return undefined
+        }
         return Reflect.get(parent, segment)
       }, document)
-      if (!isObject(requirement)) continue
+      if (!isObject(requirement)) {
+        continue
+      }
       const entries = Object.entries(mapping).flatMap(([original, rewritten]) =>
         typeof rewritten === 'string' && Object.hasOwn(requirement, rewritten)
           ? [{ original, rewritten, scopes: requirement[rewritten] }]
           : [],
       )
-      for (const { rewritten } of entries) delete requirement[rewritten]
+      for (const { rewritten } of entries) {
+        delete requirement[rewritten]
+      }
       for (const { original, scopes } of entries) {
         Object.defineProperty(requirement, original, {
           value: scopes,
@@ -226,10 +257,15 @@ export const restoreSecurityRequirements = (document: Record<string, unknown>): 
     Object.hasOwn(components, 'securitySchemes') &&
     isObject(components.securitySchemes)
   ) {
-    for (const key of Object.keys(metadata.schemes)) delete components.securitySchemes[key]
-    if (!metadata.hadSecuritySchemes && Object.keys(components.securitySchemes).length === 0)
+    for (const key of Object.keys(metadata.schemes)) {
+      delete components.securitySchemes[key]
+    }
+    if (!metadata.hadSecuritySchemes && Object.keys(components.securitySchemes).length === 0) {
       delete components.securitySchemes
-    if (!metadata.hadComponents && Object.keys(components).length === 0) delete document.components
+    }
+    if (!metadata.hadComponents && Object.keys(components).length === 0) {
+      delete document.components
+    }
   }
   delete document[ALIASES]
   delete document[ORIGINAL_KEYS]

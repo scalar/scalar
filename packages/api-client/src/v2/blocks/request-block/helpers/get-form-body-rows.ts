@@ -214,7 +214,7 @@ export const getFormBodyRows = (
     }
     const row = mapRow({
       name,
-      value: value instanceof File ? value : value == null ? '' : stringifyValue(value),
+      value: value instanceof File || value == null ? (value ?? '') : stringifyValue(value),
       isDisabled,
     })
     if (contentType === 'multipart/form-data' && (Array.isArray(value) || isArray)) {

@@ -85,7 +85,7 @@ const extractInlineChildrenFromMarkdown = (value: string): HastElementContent[] 
   }
 
   const paragraph = tree.children.at(0)
-  if (!paragraph || paragraph.type !== 'element' || paragraph.tagName !== 'p') {
+  if (paragraph?.type !== 'element' || paragraph.tagName !== 'p') {
     return []
   }
 

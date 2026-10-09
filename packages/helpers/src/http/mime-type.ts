@@ -81,7 +81,7 @@ export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
     parameters.set(name, parameterValue)
   })
 
-  const toString = (): string => {
+  const serialize = (): string => {
     const serializedParameters = Array.from(parameters.entries()).map(([name, parameterValue]) => {
       const safeValue = HTTP_TOKEN_CODE_POINT.test(parameterValue)
         ? parameterValue
@@ -97,6 +97,6 @@ export const parseMimeType = (value: string = 'text/plain'): ParsedMimeType => {
     type,
     subtype,
     parameters,
-    toString,
+    toString: serialize,
   }
 }

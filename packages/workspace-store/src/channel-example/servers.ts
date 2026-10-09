@@ -95,7 +95,9 @@ export const getAsyncApiServers = (
     .filter(([name]) => channelServerNames?.has(name) ?? true)
     .map(([name, serverRef]) => {
       const server = resolveServer(serverRef)
-      if (!server) return undefined
+      if (!server) {
+        return undefined
+      }
       const protocol = server.protocol.trim().toLowerCase()
       const isWebSocket = isWebSocketProtocol(protocol)
       const url = buildAsyncApiServerBaseUrl(server, environmentVariables)

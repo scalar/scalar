@@ -44,8 +44,11 @@ export const escapeHtml = (s: string): string => {
   let last = 0
   for (let i = 0; i < s.length; i++) {
     const c = s.charCodeAt(i)
-    if (c !== AMP && c !== LT && c !== GT) continue
-    out += s.slice(last, i) + (c === AMP ? '&amp;' : c === LT ? '&lt;' : '&gt;')
+    if (c !== AMP && c !== LT && c !== GT) {
+      continue
+    }
+    const angleEntity = c === LT ? '&lt;' : '&gt;'
+    out += s.slice(last, i) + (c === AMP ? '&amp;' : angleEntity)
     last = i + 1
   }
   return last === 0 ? s : out + s.slice(last)
@@ -98,7 +101,9 @@ const openTag = (tags: Map<string, string>, prefix: string, scope: string): stri
  */
 export const highlight = (code: string, grammar: CompiledGrammar, options: RenderOptions = {}): string => {
   const prefix = escapeAttribute(options.classPrefix ?? DEFAULT_PREFIX)
-  if (options.lines) return renderLines(code, grammar, prefix, options.highlightLines).html
+  if (options.lines) {
+    return renderLines(code, grammar, prefix, options.highlightLines).html
+  }
 
   const tags = tagsFor(prefix)
   let out = ''
@@ -162,7 +167,9 @@ const renderLines = (
   let to = 0
 
   const flush = () => {
-    if (to > from) line += span(code, scope, from, to, prefix)
+    if (to > from) {
+      line += span(code, scope, from, to, prefix)
+    }
     from = to
   }
   const endLine = () => {
@@ -184,7 +191,9 @@ const renderLines = (
         }
         to = stop
       }
-      if (stop === end) break
+      if (stop === end) {
+        break
+      }
       endLine()
       at = stop + 1
       scope = null
@@ -197,7 +206,9 @@ const renderLines = (
   // A trailing newline in the source closes the last line rather than starting
   // an empty one.
   const endsWithNewline = code.endsWith('\n')
-  if (endsWithNewline && lines[lines.length - 1] === '') lines.pop()
+  if (endsWithNewline && lines[lines.length - 1] === '') {
+    lines.pop()
+  }
 
   let out = ''
   for (let i = 0; i < lines.length; i++) {

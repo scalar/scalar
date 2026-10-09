@@ -32,7 +32,9 @@ describe('Schema', () => {
       },
     })
     const document = store.workspace.documents.orders
-    if (!isOpenApiDocument(document)) throw new Error('Expected an OpenAPI document')
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Expected an OpenAPI document')
+    }
     const wrapper = mount(Schema, {
       props: {
         schema: getResolvedRef(document.components?.schemas?.OrderResponse),

@@ -41,7 +41,9 @@ const median = (values: number[]): number => {
 
 /** Median bytes/second over several batches, warmed up first. */
 const throughput = (run: () => void, bytes: number): number => {
-  for (let i = 0; i < 20; i++) run()
+  for (let i = 0; i < 20; i++) {
+    run()
+  }
 
   const rates: number[] = []
   for (let batch = 0; batch < BATCHES; batch++) {
@@ -137,7 +139,9 @@ if (process.argv.includes('--detail')) {
       }
       const entry = drift.get(key) ?? { chars: 0, examples: new Set<string>() }
       entry.chars += run.length
-      if (entry.examples.size < 6) entry.examples.add(`${lang}:${run.trim()}`)
+      if (entry.examples.size < 6) {
+        entry.examples.add(`${lang}:${run.trim()}`)
+      }
       drift.set(key, entry)
       run = ''
     }
@@ -180,11 +184,15 @@ const entries = Object.entries(samples).map(([lang, code]) => ({
 }))
 
 const beforeRate = throughput(() => {
-  for (const { code, options } of entries) referenceHighlight(code, options)
+  for (const { code, options } of entries) {
+    referenceHighlight(code, options)
+  }
 }, bytes)
 
 const afterRate = throughput(() => {
-  for (const { code, options } of entries) syntaxHighlight(code, options)
+  for (const { code, options } of entries) {
+    syntaxHighlight(code, options)
+  }
 }, bytes)
 
 console.log('\n## Throughput, whole corpus, source in and HTML out\n')

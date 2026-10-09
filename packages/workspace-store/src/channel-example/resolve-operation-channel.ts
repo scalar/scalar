@@ -42,7 +42,9 @@ export const resolveOperationChannel = (
 
   if (channelNameFromRef && document.channels?.[channelNameFromRef]) {
     const channel = getResolvedRef(document.channels[channelNameFromRef])
-    if (!channel) return undefined
+    if (!channel) {
+      return undefined
+    }
     const channelAddress =
       typeof channel.address === 'string' && channel.address.length > 0 ? channel.address : channelNameFromRef
 
@@ -50,7 +52,9 @@ export const resolveOperationChannel = (
   }
 
   const channel = getResolvedRef(channelNode)
-  if (!channel) return undefined
+  if (!channel) {
+    return undefined
+  }
   const channelName =
     channelNameFromRef ??
     findChannelName(document, channel) ??

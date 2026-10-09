@@ -52,7 +52,7 @@ describe('isHttpMethod', () => {
     })
 
     it('should return false for non-string inputs', () => {
-      const nonStringInputs = [123, true, false, {}, [], () => {}, Symbol('test')]
+      const nonStringInputs = [123, true, false, {}, [], () => undefined, Symbol('test')]
 
       nonStringInputs.forEach((input) => {
         expect(isHttpMethod(input as unknown as string)).toBe(false)

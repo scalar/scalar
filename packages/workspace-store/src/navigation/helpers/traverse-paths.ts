@@ -55,7 +55,7 @@ const createOperationEntry = ({
     path: path,
     parentId: parentId,
   })
-  const title = operationTitleSource === 'path' ? path : operation.summary?.trim() ? operation.summary : path
+  const title = operationTitleSource !== 'path' && operation.summary?.trim() ? operation.summary : path
 
   const isDeprecated = isDeprecatedOperation(operation)
 

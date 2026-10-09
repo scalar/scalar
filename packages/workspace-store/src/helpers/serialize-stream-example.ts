@@ -16,7 +16,7 @@ export const serializeStreamExample = (
     return undefined
   }
   const format = getStreamFormat(contentType)
-  const items = singleItem ? [value] : Array.isArray(value) ? value : [value]
+  const items = !singleItem && Array.isArray(value) ? value : [value]
   if (format === 'json-lines') {
     return items.map((item) => `${JSON.stringify(item)}\n`).join('')
   }

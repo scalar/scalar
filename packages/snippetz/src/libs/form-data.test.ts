@@ -54,16 +54,13 @@ describe('form-data', () => {
           xhr: 'xhr.send(body);',
         }
         expect(snippet).toContain(bodyBinding[client]!)
-        const end =
-          client === 'axios'
-            ? 'const options'
-            : client === 'xhr'
-              ? 'const xhr'
-              : client === 'jquery'
-                ? '$.ajax'
-                : client === 'undici'
-                  ? 'const { statusCode'
-                  : `${client}(`
+        const setupEnds: Record<string, string> = {
+          axios: 'const options',
+          xhr: 'const xhr',
+          jquery: '$.ajax',
+          undici: 'const { statusCode',
+        }
+        const end = setupEnds[client] ?? `${client}(`
         // Execute the generated setup. File selection is the documented browser precondition;
         // Node file reads use real files. Network execution is outside this serialization test.
         const setup = snippet
@@ -81,7 +78,9 @@ describe('form-data', () => {
         const uploads = parsed.getAll('upload')
         expect(uploads.length).toBe(2)
         for (const [index, upload] of uploads.entries()) {
-          if (!(upload instanceof File)) throw new Error('Expected a file upload')
+          if (!(upload instanceof File)) {
+            throw new Error('Expected a file upload')
+          }
           expect(upload.name).toBe(index === 0 ? first : second)
           expect(upload.type).toBe('application/octet-stream')
           expect(new Uint8Array(await upload.arrayBuffer())).toStrictEqual(bytes[index])
@@ -117,7 +116,9 @@ describe('form-data', () => {
     )
     const body: FormData = new Function(`${setup.join('\n')}\nreturn formData;`)()
     const file = body.get('upload')
-    if (!(file instanceof File)) throw new Error('Expected a file upload')
+    if (!(file instanceof File)) {
+      throw new Error('Expected a file upload')
+    }
     expect(file.name).toBe('inline.txt')
     expect(await file.text()).toBe('contents')
   })

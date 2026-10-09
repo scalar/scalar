@@ -92,8 +92,9 @@ describe('render-operation', () => {
     expect(markdown).not.toContain('# Tunnels')
     expect(markdown).not.toContain('OpenAPI Version')
     expect(markdown).not.toContain('## Operations')
-    for (const heading of ['## Path parameters', '## Query parameters', '## Header parameters', '## Responses'])
+    for (const heading of ['## Path parameters', '## Query parameters', '## Header parameters', '## Responses']) {
       expect(markdown).toContain(`\n${heading}\n`)
+    }
   })
 
   it('keeps document-level headings when rendering the whole document', async () => {

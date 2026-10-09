@@ -35,29 +35,20 @@ export const buildFormData = (params: MultipartParams, target: 'js' | 'node', va
   for (const param of params) {
     const name = JSON.stringify(param.name)
     const value = JSON.stringify(param.value ?? '')
+    const uploadContents = uploads.includes(param) ? `files[${uploads.indexOf(param)}]` : value
+    const fileContents = target === 'node' ? `readFileSync(${JSON.stringify(param.fileName)})` : uploadContents
     if (explicit) {
       const filename = param.fileName !== undefined ? `; filename="${dispositionValue(param.fileName)}"` : ''
       const type = param.contentType ?? (param.fileName !== undefined ? 'application/octet-stream' : undefined)
       const header = `\r\nContent-Disposition: form-data; name="${dispositionValue(param.name)}"${filename}\r\n${type ? `Content-Type: ${type}\r\n` : ''}\r\n`
       const contents =
-        param.fileName !== undefined
-          ? target === 'node'
-            ? `readFileSync(${JSON.stringify(param.fileName)})`
-            : uploads.includes(param)
-              ? `files[${uploads.indexOf(param)}]`
-              : value
-          : JSON.stringify((param.value ?? '').replace(/\r\n|\r|\n/g, '\r\n'))
+        param.fileName !== undefined ? fileContents : JSON.stringify((param.value ?? '').replace(/\r\n|\r|\n/g, '\r\n'))
       lines.push(`  "--" + ${variable}Boundary + ${JSON.stringify(header)},`)
       lines.push(`  ${contents},`)
       lines.push('  "\\r\\n",')
     } else if (param.fileName !== undefined) {
       const filename = JSON.stringify(param.fileName)
-      const contents =
-        target === 'node'
-          ? `readFileSync(${filename})`
-          : uploads.includes(param)
-            ? `files[${uploads.indexOf(param)}]`
-            : value
+      const contents = fileContents
       lines.push(
         `${variable}.append(${name}, new File([${contents}], ${filename}, { type: ${JSON.stringify(param.contentType ?? 'application/octet-stream')} }));`,
       )

@@ -131,7 +131,9 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
   Object.values(document.paths ?? {}).forEach((pathItemRef) => {
     forEachPathItemOperation(pathItemRef, (_method, operationRef) => {
       const resolvedOperation = getResolvedRef(operationRef)
-      if (!resolvedOperation) return
+      if (!resolvedOperation) {
+        return
+      }
 
       if ('tags' in resolvedOperation) {
         const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: 1 })
@@ -144,7 +146,9 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
   Object.values(document.webhooks ?? {}).forEach((pathItemRef) => {
     forEachPathItemOperation(pathItemRef, (_method, operationRef) => {
       const resolvedOperation = getResolvedRef(operationRef)
-      if (!resolvedOperation) return
+      if (!resolvedOperation) {
+        return
+      }
 
       const plainTags = unpackProxyObject(resolvedOperation.tags, { depth: 1 })
       resolvedOperation.tags = plainTags?.filter((tag) => tag !== payload.name)

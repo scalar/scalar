@@ -215,7 +215,7 @@ function handleFileUpload(callback: (file: File) => void) {
     multiple: false,
     accept: '*/*',
   })
-  open()
+  void open()
 }
 
 /** Dereferenced example */
@@ -380,15 +380,13 @@ watch(
       return
     }
 
+    // A branch with no writable content clears the editor instead of writing null.
+    let payload = ''
+    if (selectedValue != null) {
+      payload = isXml ? String(selectedValue) : codec!.stringify(selectedValue)
+    }
     emits('update:value', {
-      // A branch with no writable content generates `null`/`undefined`; clear the editor rather than
-      // writing the literal text `null` or leaving the previously selected branch's body behind.
-      payload:
-        selectedValue == null
-          ? ''
-          : isXml
-            ? String(selectedValue)
-            : codec!.stringify(selectedValue),
+      payload,
       contentType: selectedContentType.value,
     })
   },

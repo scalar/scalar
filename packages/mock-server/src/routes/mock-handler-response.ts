@@ -84,11 +84,12 @@ function getExampleFromResponse(
     return serializeResponseBody(selectedExample.value, acceptedContentType, responseSchema, provenance) ?? null
   }
 
-  const value = selectedExample
-    ? normalizeResponseBody(selectedExample.value, responseSchema)
-    : responseSchema
-      ? normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
-      : null
+  let value: unknown = null
+  if (selectedExample) {
+    value = normalizeResponseBody(selectedExample.value, responseSchema)
+  } else if (responseSchema) {
+    value = normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
+  }
   // Legacy examples retain the handler fallback's JSON encoding policy.
   return JSON.stringify(value) ?? null
 }

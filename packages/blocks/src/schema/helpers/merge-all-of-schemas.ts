@@ -22,11 +22,9 @@ const mergeEnums = (
   override: boolean = false,
 ): Partial<SchemaObject> => {
   const values =
-    existing.enum === undefined
-      ? incoming.enum?.slice()
-      : incoming.enum === undefined
-        ? existing.enum.slice()
-        : existing.enum.filter((value) => incoming.enum?.some((candidate) => isObjectEqual(value, candidate)))
+    existing.enum?.filter(
+      (value) => incoming.enum === undefined || incoming.enum.some((candidate) => isObjectEqual(value, candidate)),
+    ) ?? incoming.enum?.slice()
 
   if (values === undefined) {
     return {}

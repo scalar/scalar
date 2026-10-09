@@ -226,7 +226,9 @@ const sections = computed(() =>
   groupBy(
     operation.parameters?.flatMap((reference, index) => {
       const param = getResolvedRef(reference)
-      if (!param) return []
+      if (!param) {
+        return []
+      }
       return createParameterRows(param, exampleKey, {
         hiddenValuePaths:
           param.in === 'query' ? getHiddenValuePaths(param) : [],

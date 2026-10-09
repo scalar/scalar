@@ -50,14 +50,17 @@ if (process.argv[2] === '--worker') {
   const warm = await render()
   const warmRenderMs = performance.now() - warmAt
   const warmRenderCpuMs = cpuMilliseconds(warmCpuAt)
-  if (JSON.stringify(output) !== JSON.stringify(warm)) throw new Error('Output changed between repeated renders')
+  if (JSON.stringify(output) !== JSON.stringify(warm)) {
+    throw new Error('Output changed between repeated renders')
+  }
   process.stdout.write(
     `${JSON.stringify({ preparationMs, preparationCpuMs, firstRenderMs, firstRenderCpuMs, warmRenderMs, warmRenderCpuMs, peakRssMiB: process.resourceUsage().maxRSS / 1024, ...output })}\n`,
   )
 } else {
   const [, , oldModule, newModule, outputDirectory = 'benchmarks/results'] = process.argv
-  if (!oldModule || !newModule)
+  if (!oldModule || !newModule) {
     throw new Error('Usage: node benchmarks/compare.mjs OLD_MODULE NEW_MODULE [OUTPUT_DIRECTORY]')
+  }
   const samples = 5
   const median = (values) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]
   const results = []
@@ -83,8 +86,9 @@ if (process.argv[2] === '--worker') {
         ),
       ]),
     )
-    if (summary.old.headings !== summary.new.headings || summary.old.examples !== summary.new.examples)
+    if (summary.old.headings !== summary.new.headings || summary.old.examples !== summary.new.examples) {
       throw new Error(`Content count mismatch: ${scenario.name}`)
+    }
     results.push({ scenario, summary, raw })
     console.log(JSON.stringify({ scenario: scenario.name, ...summary }))
   }

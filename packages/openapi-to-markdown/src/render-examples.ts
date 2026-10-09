@@ -41,14 +41,13 @@ export const renderExamples = async (
     linked,
   )
   for (const example of values) {
-    if ('omitted' in example && quiet) continue
+    if ('omitted' in example && quiet) {
+      continue
+    }
     const start = nodes.length
     const generated = examples && example.generated
-    nodes.push(
-      paragraph(
-        strong(text(generated ? 'Generated example:' : example.name ? `Example: ${example.name}` : 'Example:')),
-      ),
-    )
+    const exampleLabel = example.name ? `Example: ${example.name}` : 'Example:'
+    nodes.push(paragraph(strong(text(generated ? 'Generated example:' : exampleLabel))))
     const addCode = (code: Code): void => {
       if (generated) {
         const scope = JSON.stringify([mediaType, mode, openapiVersion, schemaOpenapiVersion, code.lang])
@@ -65,7 +64,9 @@ export const renderExamples = async (
       nodes.push(paragraph(emphasis(text('Generated example omitted because it is too large.'))))
       continue
     }
-    if (example.summary) nodes.push(paragraph(text(example.summary)))
+    if (example.summary) {
+      nodes.push(paragraph(text(example.summary)))
+    }
     nodes.push(...(await description(example.description)))
     if ('error' in example) {
       nodes.push(paragraph(text(example.error)))
@@ -78,9 +79,10 @@ export const renderExamples = async (
       continue
     }
     if ('serializedValue' in example) {
+      const textLanguage = mediaType.includes('json') ? 'json' : 'text'
       addCode({
         type: 'code',
-        lang: isXmlMediaType(mediaType) ? 'xml' : mediaType.includes('json') ? 'json' : 'text',
+        lang: isXmlMediaType(mediaType) ? 'xml' : textLanguage,
         value: example.serializedValue,
       })
       continue

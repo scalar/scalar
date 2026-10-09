@@ -139,7 +139,9 @@ export const harToOperation = ({
 
     // Resolve the request body in case it is a reference
     const requestBody = getResolvedRef(baseOperation.requestBody)
-    if (!requestBody) return baseOperation
+    if (!requestBody) {
+      return baseOperation
+    }
 
     // Ensure the content type exists in the requestBody
     if (!requestBody.content[mimeType]) {
@@ -200,7 +202,9 @@ const setParameterDisabled = (param: ParameterObject, exampleKey: string, disabl
   }
 
   const example = getResolvedRef(param.examples[exampleKey])
-  if (example) example['x-disabled'] = disabled
+  if (example) {
+    example['x-disabled'] = disabled
+  }
 }
 
 /**

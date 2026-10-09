@@ -523,7 +523,7 @@ describe('createWorkspaceEventBus', () => {
 
     it('a throwing wildcard listener does not prevent other wildcard listeners from firing', () => {
       const bus = createWorkspaceEventBus()
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       const throwingHandler = vi.fn(() => {
         throw new Error('any boom')
@@ -543,7 +543,7 @@ describe('createWorkspaceEventBus', () => {
 
     it('a throwing wildcard listener does not prevent exact-match listeners from firing', () => {
       const bus = createWorkspaceEventBus()
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       const throwingAnyHandler = vi.fn(() => {
         throw new Error('any boom')
