@@ -1,7 +1,15 @@
+import type { TLSSocket } from 'node:tls'
+
 import type { OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
+import type { AsyncApiSecuritySchemeObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
+
+import { DIGEST_CHALLENGE, isValidDigestAuth } from './digest-authentication'
+
+/** Security shapes understood by HTTP and AsyncAPI transports. */
+type SecurityScheme = OpenAPIV3_2.SecuritySchemeObject | AsyncApiSecuritySchemeObject | { type: 'mutualTLS' }
 
 /** Realm advertised in `WWW-Authenticate` challenges. */
 const REALM = 'Scalar Mock Server'
@@ -14,7 +22,7 @@ const REALM = 'Scalar Mock Server'
  * well-formed `Basic <base64(user:password)>` value.
  */
 function isValidBasicAuth(authHeader?: string): boolean {
-  if (!authHeader?.startsWith('Basic ')) {
+  if (!authHeader || !/^Basic /i.test(authHeader)) {
     return false
   }
 
@@ -40,7 +48,7 @@ function isValidBasicAuth(authHeader?: string): boolean {
  * token itself (signature, expiry, scopes) is out of scope for a mock server.
  */
 function isValidBearerAuth(authHeader?: string): boolean {
-  if (!authHeader?.startsWith('Bearer ')) {
+  if (!authHeader || !/^Bearer /i.test(authHeader)) {
     return false
   }
 
@@ -48,7 +56,7 @@ function isValidBearerAuth(authHeader?: string): boolean {
 }
 
 /** Check whether a single security scheme is satisfied by the request. */
-function isSchemeSatisfied(scheme: OpenAPIV3_2.SecuritySchemeObject, c: Context): boolean {
+export const isSchemeSatisfied = (scheme: SecurityScheme, c: Context): boolean => {
   switch (scheme.type) {
     case 'http': {
       const authHeader = c.req.header('Authorization')
@@ -61,8 +69,13 @@ function isSchemeSatisfied(scheme: OpenAPIV3_2.SecuritySchemeObject, c: Context)
         return isValidBearerAuth(authHeader)
       }
 
+      if ('scheme' in scheme && scheme.scheme?.toLowerCase() === 'digest') {
+        return isValidDigestAuth(c)
+      }
+
       return false
     }
+    case 'httpApiKey':
     case 'apiKey': {
       if (!('name' in scheme) || !scheme.name || !('in' in scheme)) {
         return false
@@ -79,6 +92,14 @@ function isSchemeSatisfied(scheme: OpenAPIV3_2.SecuritySchemeObject, c: Context)
 
       return Boolean(value)
     }
+    case 'mutualTLS':
+    case 'X509': {
+      // Only trust the TLS adapter's verified peer, never a client-supplied certificate header.
+      const socket = (c.env as { incoming?: { socket?: Partial<TLSSocket> } } | undefined)?.incoming?.socket
+      return (
+        socket?.encrypted === true && socket.authorized === true && Boolean(socket.getPeerCertificate?.().raw?.length)
+      )
+    }
     // OAuth 2.0 and OpenID Connect both carry a bearer token in the `Authorization` header.
     case 'oauth2':
     case 'openIdConnect':
@@ -93,7 +114,7 @@ function isSchemeSatisfied(scheme: OpenAPIV3_2.SecuritySchemeObject, c: Context)
  *
  * Returns `null` for schemes that do not map to an HTTP authentication challenge.
  */
-function getChallenge(scheme: OpenAPIV3_2.SecuritySchemeObject): string | null {
+export const getChallenge = (scheme: SecurityScheme): string | null => {
   switch (scheme.type) {
     case 'http':
       if ('scheme' in scheme && scheme.scheme?.toLowerCase() === 'basic') {
@@ -104,7 +125,12 @@ function getChallenge(scheme: OpenAPIV3_2.SecuritySchemeObject): string | null {
         return `Bearer realm="${REALM}", error="invalid_token", error_description="The access token is invalid or has expired"`
       }
 
+      if ('scheme' in scheme && scheme.scheme?.toLowerCase() === 'digest') {
+        return DIGEST_CHALLENGE
+      }
+
       return null
+    case 'httpApiKey':
     case 'apiKey':
       if ('name' in scheme && scheme.name) {
         return `ApiKey realm="${REALM}", error="invalid_token", error_description="Invalid or missing API key", name="${scheme.name}"`

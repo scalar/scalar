@@ -43,6 +43,19 @@ const documentWith = ({
 })
 
 describe('handleAuthentication', () => {
+  it.each([
+    ['basicAuth', 'basic dXNlcjpwYXNz'],
+    ['basicAuth', 'bAsIc dXNlcjpwYXNz'],
+    ['bearerAuth', 'bearer token'],
+    ['bearerAuth', 'bEaReR token'],
+  ])('accepts case-insensitive %s credentials', async (scheme, authorization) => {
+    const server = await createMockServer({
+      logger: false,
+      document: documentWith({ operationSecurity: [{ [scheme]: [] }] }),
+    })
+    expect((await server.request('/secret', { headers: { Authorization: authorization } })).status).toBe(200)
+  })
+
   it('rejects a request without credentials', async () => {
     const server = await createMockServer({ document: documentWith({ operationSecurity: [{ bearerAuth: [] }] }) })
 

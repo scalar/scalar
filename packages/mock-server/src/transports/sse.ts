@@ -1,6 +1,7 @@
 import { streamSSE } from 'hono/streaming'
 
 import type { MockTransport, ResolvedOperation } from '@/transports/types'
+import { getAuthenticatedChannel } from '@/utils/authenticate-asyncapi-channel'
 
 /**
  * Built-in Server-Sent Events transport. Serves one-way, server-push channels over HTTP: a `GET`
@@ -24,17 +25,18 @@ export const sseTransport: MockTransport = {
   register: (channel, context) => {
     const { app, generateMessage, onMessage, log } = context
 
-    const receiveOperations = channel.operations.filter((operation) => operation.action === 'receive')
-    // Fall back to all channel messages when the channel has no explicit receive operation.
-    const operations: Pick<ResolvedOperation, 'messages'>[] =
-      receiveOperations.length > 0 ? receiveOperations : [{ messages: channel.messages }]
+    app.get(channel.route, (c) => {
+      const authorized = getAuthenticatedChannel(c, channel)
+      const receiveOperations = authorized.operations.filter((operation) => operation.action === 'receive')
+      // Fall back to all channel messages when the channel has no explicit receive operation.
+      const operations: Pick<ResolvedOperation, 'messages'>[] =
+        channel.operations.length > 0 ? receiveOperations : [{ messages: channel.messages }]
 
-    app.get(channel.route, (c) =>
-      streamSSE(c, async (stream) => {
+      return streamSSE(c, async (stream) => {
         log(`[sse] open ${channel.route}`)
 
         for (const operation of operations) {
-          const message = generateMessage(channel, operation.messages[0]?.id)
+          const message = generateMessage({ ...channel, messages: operation.messages })
           if (message) {
             await stream.writeSSE({ data: message.data, event: message.event })
             onMessage?.({ channel: channel.id, direction: 'out', payload: message.data })
@@ -42,7 +44,7 @@ export const sseTransport: MockTransport = {
         }
 
         log(`[sse] close ${channel.route}`)
-      }),
-    )
+      })
+    })
   },
 }

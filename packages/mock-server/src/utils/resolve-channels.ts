@@ -113,12 +113,28 @@ export function resolveChannels(document: AsyncApiDocument): ResolvedChannel[] {
               .filter((message: ResolvedMessage | undefined): message is ResolvedMessage => message !== undefined)
           : messages
 
-        return { id: operationName, action, messages: operationMessages } satisfies ResolvedOperation
+        return {
+          id: operationName,
+          action,
+          messages: operationMessages,
+          ...(operation.security ? { security: operation.security.map((scheme) => getResolvedRef(scheme)) } : {}),
+        } satisfies ResolvedOperation
       },
     )
 
+    const servers = getAsyncApiServers(document, { channel, webSocketOnly: false })
+    const security = servers.map(({ protocol, server }) => ({
+      protocol,
+      schemes: (server.security ?? []).map((scheme) => getResolvedRef(scheme)),
+    }))
+    // A channel restricted to unresolved servers must not accidentally become public.
+    if (channel.servers?.length && servers.length === 0) {
+      security.push({ protocol: '', schemes: [undefined] })
+    }
+
     return [
       {
+        ...(security.some(({ schemes }) => schemes.length) ? { security } : {}),
         id: channelName,
         address: channelAddress,
         route: honoRouteFromPath(`/${channelAddress.replace(/^\//, '')}`),

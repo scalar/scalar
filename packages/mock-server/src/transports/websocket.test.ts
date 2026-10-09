@@ -1,3 +1,4 @@
+import { Context } from 'hono'
 import { describe, expect, it, vi } from 'vitest'
 
 import { generateMessage } from '@/utils/generate-message'
@@ -37,7 +38,7 @@ function register(target: ResolvedChannel = channel) {
       get: (_route: string, _handler: unknown) => undefined,
     } as any,
     upgradeWebSocket: ((createHandlers: any) => {
-      handlers = createHandlers({})
+      handlers = createHandlers(new Context(new Request('http://localhost/echo')))
       return 'WS_ROUTE_HANDLER'
     }) as any,
     generateMessage,
@@ -79,6 +80,22 @@ describe('websocketTransport', () => {
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ direction: 'in', payload: '{"text":"hi"}' }))
     expect(sent).toHaveLength(1)
     expect(JSON.parse(sent[0]!)).toHaveProperty('text')
+  })
+
+  it('does not fall back to channel messages for empty operation message lists', () => {
+    const { handlers } = register({
+      ...channel,
+      operations: [
+        { id: 'send', action: 'send', messages: [] },
+        { id: 'receive', action: 'receive', messages: [] },
+      ],
+    })
+    const send = vi.fn()
+
+    handlers.onOpen({}, { send })
+    handlers.onMessage({ data: 'hello' }, { send })
+
+    expect(send).not.toHaveBeenCalled()
   })
 
   it('does not echo inbound messages on receive-only channels', () => {
