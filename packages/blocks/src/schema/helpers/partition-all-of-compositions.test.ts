@@ -4,6 +4,19 @@ import { describe, expect, it } from 'vitest'
 import { partitionAllOfCompositions } from './partition-all-of-compositions'
 
 describe('partitionAllOfCompositions', () => {
+  it('keeps boolean explanations separate from object descriptions', () => {
+    const schema = { allOf: [false, { description: 'Authored description', allOf: [true] }] }
+
+    expect(partitionAllOfCompositions(schema as unknown as SchemaObject)).toStrictEqual({
+      segments: [
+        { kind: 'object', schema: { not: {}, description: 'Accepts no value.' } },
+        { kind: 'object', schema: { description: 'Authored description' } },
+        { kind: 'object', schema: { description: 'Accepts any value.' } },
+      ],
+    })
+    expect(schema).toStrictEqual({ allOf: [false, { description: 'Authored description', allOf: [true] }] })
+  })
+
   it('returns a single object segment when there is no allOf', () => {
     const schema = { type: 'object', properties: { id: { type: 'string' } } } as SchemaObject
     const { segments } = partitionAllOfCompositions(schema)

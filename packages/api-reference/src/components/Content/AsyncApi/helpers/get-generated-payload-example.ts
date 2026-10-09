@@ -38,6 +38,19 @@ const snapshotSchema = <T>(source: T, seen = new WeakMap<object, object>()): T =
   return snapshot as T
 }
 
+/** An allOf containing a false schema cannot have a valid example. */
+const hasFalseAllOfMember = (source: unknown, seen = new Set<unknown>()): boolean => {
+  const schema = getResolvedRef(source)
+  if (schema === false) {
+    return true
+  }
+  if (!isObject(schema) || seen.has(schema)) {
+    return false
+  }
+  seen.add(schema)
+  return Array.isArray(schema.allOf) && schema.allOf.some((member) => hasFalseAllOfMember(member, seen))
+}
+
 /** Generate a payload only when the document does not already provide one. */
 export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unknown => {
   if (message.examples?.some((example) => getResolvedRef(example)?.payload !== undefined)) {
@@ -69,7 +82,7 @@ export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unkn
   }
 
   const schema = getAsyncApiMessagePayloadSchema(message)
-  if (!schema) {
+  if (!schema || hasFalseAllOfMember(schema)) {
     return undefined
   }
 

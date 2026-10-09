@@ -13,6 +13,18 @@ const generate = (message: Record<string, unknown>): unknown =>
   getGeneratedPayloadExample(message as AsyncApiMessageObject)
 
 describe('get-generated-payload-example', () => {
+  it('skips unsatisfiable boolean allOf payloads', () => {
+    expect(generate({ payload: { allOf: [false] } })).toBeUndefined()
+    expect(generate({ payload: { allOf: [{ allOf: [{ $ref: '#/schema', '$ref-value': false }] }] } })).toBeUndefined()
+    expect(generate({ payload: { allOf: [true, { type: 'string' }] } })).toBe('string')
+  })
+
+  it('handles recursive allOf while checking for false members', () => {
+    const schema: { allOf: unknown[] } = { allOf: [] }
+    schema.allOf.push(schema, false)
+    expect(generate({ payload: schema })).toBeUndefined()
+  })
+
   it.each([true, false])('skips direct, referenced, and wrapped boolean payload schemas: %j', (schema) => {
     expect(generate({ payload: schema })).toBeUndefined()
     expect(generate({ payload: { $ref: '#/schema', '$ref-value': schema } })).toBeUndefined()

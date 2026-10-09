@@ -39,6 +39,17 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it.each([true, false])('explains boolean allOf payload members: %j', (value) => {
+    const document = createDocument({ payload: { allOf: [value] } })
+    const wrapper = mount(Message, {
+      props: { message: createMessage(), eventBus: null, expandedItems: expanded, document },
+    })
+    expect(wrapper.text()).toContain(value ? 'Accepts any value.' : 'Accepts no value.')
+    if (!value) {
+      expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
+    }
+  })
+
   it.each([true, false])('renders a boolean payload with its validation meaning: %j', (payload) => {
     const document = createDocument({ payload })
     const wrapper = mount(Message, {
