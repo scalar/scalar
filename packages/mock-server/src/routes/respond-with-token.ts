@@ -6,8 +6,12 @@ const EXAMPLE_ACCESS_TOKEN = 'super-secret-access-token'
 /**
  * Responds with a JSON object simulating an OAuth 2.0 token response.
  */
-export function respondWithToken(c: Context) {
-  const grantType = c.req.query('grant_type')
+export const respondWithToken = async (c: Context): Promise<Response> => {
+  const body = await c.req.parseBody()
+  // OAuth clients send form data; retain query parameters for existing mock consumers.
+  const parameter = (name: string): string | undefined =>
+    typeof body[name] === 'string' ? body[name] : c.req.query(name)
+  const grantType = parameter('grant_type')
 
   if (!grantType) {
     return c.json(
@@ -33,7 +37,7 @@ export function respondWithToken(c: Context) {
   }
 
   // Validate required parameters for each grant type
-  if (grantType === 'authorization_code' && !c.req.query('code')) {
+  if (grantType === 'authorization_code' && !parameter('code')) {
     return c.json(
       {
         error: 'invalid_request',
@@ -49,7 +53,7 @@ export function respondWithToken(c: Context) {
     token_type: 'Bearer',
     expires_in: 3600,
     refresh_token: 'example-refresh-token',
-    scope: c.req.query('scope') ?? 'read write',
+    scope: parameter('scope') ?? 'read write',
   }
 
   // Security headers

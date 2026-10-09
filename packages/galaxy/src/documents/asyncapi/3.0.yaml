@@ -422,7 +422,7 @@ components:
         authorizationCode:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           tokenUrl: https://galaxy.scalar.com/oauth/token
-          refreshUrl: https://galaxy.scalar.com/oauth/refresh
+          refreshUrl: https://galaxy.scalar.com/oauth/token
           availableScopes:
             read:events: Subscribe to events
             write:events: Publish events (admin only)
