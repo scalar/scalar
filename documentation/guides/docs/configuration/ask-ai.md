@@ -58,4 +58,4 @@ Appearance options — the button, its sidebar placement, the floating widget po
 
 ## Usage tracking
 
-Team Owners and Admins can see how much each Docs project's Ask AI is used, in messages and credits, under **Team → Usage** in the [Scalar Dashboard](https://dashboard.scalar.com). Individual conversations and questions are not shown.
+Team Owners and Admins can see how much each Docs project's Ask AI is used, in messages, tokens, and credits, under **Team → Usage** in the [Scalar Dashboard](https://dashboard.scalar.com). The page shows one month at a time. Tool calls through your docs MCP server are listed separately, under **MCP Servers**. Individual conversations and questions are not shown.
