@@ -39,7 +39,7 @@ describe('set-up-device-authorization', () => {
       const clientId = 'client: with+symbols'
       const basic = {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${btoa('client%3A+with%2Bsymbols:secret')}`,
+        Authorization: `bAsIc ${btoa('client%3A+with%2Bsymbols:secret')}`,
       }
       const device = await (
         await server.request('/device', basicIssuance ? { ...post({}), headers: basic } : post({ client_id: clientId }))

@@ -2562,12 +2562,12 @@ describe('createMockServer', () => {
         document: {
           ...authenticatedDocument(),
           security: [{ mutualTls: [] }],
-          components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
+          components: { securitySchemes: { mutualTls: { type: 'unknownScheme' } } },
         },
         logger: false,
       })
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: mutualTLS')
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: unknownScheme')
     })
 
     it('answers requests as usual when logging is disabled', async () => {
