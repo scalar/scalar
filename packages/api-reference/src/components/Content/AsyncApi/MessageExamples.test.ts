@@ -1,4 +1,5 @@
 import { ExamplePicker } from '@scalar/blocks/code-example'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarCopy } from '@scalar/components/copy'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { mount } from '@vue/test-utils'
@@ -28,10 +29,10 @@ describe('MessageExamples', () => {
     expect(wrapper.get('pre').text()).toBe(JSON.stringify({ trace: 'abc' }, null, 2))
   })
 
-  it.each([null, false, 0, ''])('renders and copies a generated %j payload', (generatedPayload) => {
+  it.each([null, false, 0, ''])('renders a generated %j payload', (generatedPayload) => {
     const wrapper = mount(MessageExamples, { props: { generatedPayload } })
     expect(wrapper.get('pre').text()).toBe(String(generatedPayload))
-    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(String(generatedPayload))
+    expect(wrapper.getComponent(ScalarCodeBlock).props('prettyPrintedContent')).toBe(String(generatedPayload))
   })
 
   it('shows a named example and its summary', () => {
@@ -43,6 +44,7 @@ describe('MessageExamples', () => {
     expect(wrapper.get('pre').text()).toBe('{\n  "id": 1\n}')
     expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('{\n  "id": 1\n}')
     expect(wrapper.findComponent(ExamplePicker).exists()).toBe(false)
+    expect(wrapper.findAllComponents(ScalarCopy).length).toBe(1)
   })
 
   it('keeps duplicate names and unnamed examples selectable with matching copy content', async () => {
@@ -111,11 +113,11 @@ describe('MessageExamples', () => {
     expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('false')
   })
 
-  it.each([null, false, 0, ''])('renders and copies a %j payload', (payload) => {
+  it.each([null, false, 0, ''])('renders a %j payload', (payload) => {
     const wrapper = mount(MessageExamples, { props: { examples: [{ payload }] } })
     const expected = String(payload)
     expect(wrapper.get('pre').text()).toBe(expected)
-    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(expected)
+    expect(wrapper.getComponent(ScalarCodeBlock).props('prettyPrintedContent')).toBe(expected)
   })
 
   it('does not render an empty examples panel', () => {
@@ -129,5 +131,6 @@ describe('MessageExamples', () => {
     const wrapper = mount(MessageExamples, { props: { examples: [{ payload }] } })
     expect(wrapper.getComponent(ScalarVirtualCodeBlock).props('content')).toBe(payload)
     expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(payload)
+    expect(wrapper.findAllComponents(ScalarCopy).length).toBe(1)
   })
 })
