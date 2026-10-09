@@ -39,7 +39,7 @@ Add the following to your `.cursor/mcp.json`:
 Add the MCP server to your Claude Code configuration:
 
 ```sh
-claude mcp add scalar-docs https://<your-domain>/mcp
+claude mcp add --transport http scalar-docs https://<your-domain>/mcp
 ```
 
 ### Other MCP clients
@@ -58,4 +58,4 @@ Appearance options — the button, its sidebar placement, the floating widget po
 
 ## Usage tracking
 
-Track how users interact with Ask AI in the [Scalar Dashboard](https://dashboard.scalar.com). The dashboard shows the number of conversations, common questions, and usage trends over time.
+Team Owners and Admins can see how much each Docs project's Ask AI is used, in messages, tokens, and credits, under **Team → Usage** in the [Scalar Dashboard](https://dashboard.scalar.com). The page shows one month at a time. Tool calls through your docs MCP server are listed separately, under **MCP Servers**. Individual conversations and questions are not shown.
