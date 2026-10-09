@@ -42,7 +42,7 @@ Those documents being generated then committed to Git, by some sort of build scr
 
 If the generated OpenAPI is being powered by Stoplight CLI without Git then that could be a straight swap to use the Scalar CLI to push documents to the Registry (or run both for a while and see how things look.) Or you could take the chance to migrate to using Git, as it is generally considered best practice to keep the OpenAPI/Markdown alongside the source code.
 
-Teams following the design-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, either the desktop application or the hosted editor in Stoplight Platform. Scalar has an [editor in the dashboard](https://dashboard.scalar.com/apis) which can be used in the same way, allowing for changes to be made and pushed to the Registry, and/or synced back to Git. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
+Teams following the design-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, either the desktop application or the hosted editor in Stoplight Platform. Scalar has an [editor in the dashboard](https://dashboard.scalar.com/apis) which can be used in the same way, allowing for changes to be made and pushed to the Registry. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
 
 ![](../assets/migration/editor.png)
 
@@ -60,13 +60,13 @@ Stoplight had various flavors of project: Web Projects, Git Projects, Local Proj
 
 Migrating a Stoplight "Git Project" is as simple as enabling GitHub Sync for Scalar. Stoplight was just pushing and pulling from a Git repo, and Scalar can do that too. This is built in, not some awkward GitHub Action.
 
-To use GitHub Sync go to the dashboard, click **Create Documentation**, then select **GitHub Sync**. Pick the appropriate organization from the dropdown and find the repository to link.
+To use Git Sync, open **Docs** in the [dashboard](https://dashboard.scalar.com/docs) and click **New Project**. Name your project, choose **Import Docs**, pick **GitHub** (or **Bitbucket**), and click **Continue**. Select your organization, pick the repository, and click **Connect repository**.
 
-![](../assets/migration/create-docs-from-git.png)
+<!-- TODO screenshot: the Import Docs flow with a repository selected -->
 
-Click the **Link Repository** link next to the repository of interest, and a page with some GitHub Repository Settings will appear. The defaults are probably all fine, but perhaps you are using a special branch called `docs` or a particular version branch like `v3` instead of `main`.
+If you keep your docs on a special branch, like `docs` or a version branch like `v3` instead of `main`, change the branch Scalar publishes from in the editor under **Settings → Git Sync**.
 
-All of this can be changed later so pick whatever and click publish, it will be private by default so no worries about anyone seeing anything that is not ready.
+New projects are public: once published, anyone with the address can read them. To keep your site private while you get it ready, turn on **Private site** under **Settings → Privacy** before you publish. See [Private Docs](../guides/docs/configuration/private-docs.md).
 
 ### Web Projects: Exporting Stoplight Web Projects
 
@@ -124,9 +124,9 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 }
 ```
 
-Configure automatic deployment (publish when a branch is merged into your selected branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
+Automatic deployment publishes your site whenever changes land on your tracked branch, and it is on by default. Change it, or the branch Scalar publishes from, in the editor under **Settings → Git Sync**.
 
-![](../assets/migration/git-deployments.png)
+<!-- TODO screenshot: Settings → Git Sync -->
 
 The Stoplight sidebar content can be found in `toc.json`, and converted in your favorite text editor.
 
@@ -199,7 +199,7 @@ Copy and paste that chunk of JSON out of there, and make the following changes.
 > [!NOTE]
 > You can create more complex sidebars with nested pages and more. See this example [scalar.config.json](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/scalar.config.json) to see how it works.
 
-Commit this file and push. If automatic deployment is enabled in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings, a new entry under Deployments will appear once the branch is merged; when that is done you can see how it all looks.
+Commit this file and push. With automatic deployment on, the push to your tracked branch starts a publish, and it shows up in the editor's **Activity** panel. When that is done you can see how it all looks.
 
 ## Step 4: Review The New Documentation
 

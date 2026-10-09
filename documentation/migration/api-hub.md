@@ -25,7 +25,7 @@ To start, go into Swagger Studio (API Hub Design) and find the API you want to e
 
 ![API Hub Design](../assets/migration/ah-design.png)
 
-With this exported JSON file, you can [sign up for Scalar](https://dashboard.scalar.com/register), create a new docs project, click the **References** tab of the newly created project, click **Upload File**, and select the file you exported from API Hub. This adds your OpenAPI doc to Scalar, ready to be edited, previewed, and published.
+With this exported JSON file, you can [sign up for Scalar](https://dashboard.scalar.com/register), create a new docs project, then click **+** in the editor's sidebar and choose **Add API Reference**. Pick **Import a new API** and upload the file you exported from API Hub. This adds your OpenAPI document to your team's Registry and to your docs, ready to be edited, previewed, and published.
 
 ![Scalar](../assets/migration/ah-scalar.png)
 
@@ -33,15 +33,15 @@ With this exported JSON file, you can [sign up for Scalar](https://dashboard.sca
 
 API Hub Portal enables you to publish an interactive version of your OpenAPI doc along with markdown guides.
 
-In Scalar, you do not need to go to another product to do this. Just click the **Publish** button in the top right of your docs project. This brings you to a page where you can set your domain name, metadata, and more. Once ready, click **Publish** once more to deploy your site.
+In Scalar, you do not need to go to another product to do this. Just click **Publish** in the top right of the editor. The first time you publish, Scalar shows your site's visibility and domain so you can check them before it goes live. Set your subdomain or custom domain under **Settings → Site**.
 
 ![API Hub Portal](../assets/migration/ah-portal.png)
 
-Adding guides is just as simple. In your Scalar docs project, click the **Guides** tab. There you can add and edit pages. The editor supports Markdown, so you can simply copy and paste docs from your API Hub Portal project.
+Adding guides is just as simple. Click **+** in the editor's sidebar and choose **Add Page**. To bring over Markdown from your API Hub Portal project, paste it into the editor's code view, or add the `.md` files to your project. Markdown pasted into the visual editor stays as plain text.
 
-Just like API Hub Portal this is completely customizable. Just click the **Customize** button to edit your header, logo, style, footer, version, code, and config.
+Just like API Hub Portal this is completely customizable. Edit your header, logo, theme, footer, versions, and config from the editor's **Settings**.
 
-![Scalar theme](../assets/migration/ah-theme.png)
+<!-- TODO screenshot: the editor's Settings → Appearance with a theme selected -->
 
 ### (Optional) Using GitHub Sync with scalar.config.json
 
@@ -85,7 +85,7 @@ To set this up, create a `scalar.config.json` file in your repository root:
 }
 ```
 
-Configure automatic deployment (publish when a branch is merged into your main branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
+Automatic deployment publishes your site whenever changes land on your tracked branch, and it is on by default. Change it, or the branch Scalar publishes from, in the editor under **Settings → Git Sync**.
 
 ## How to migrate from API Hub Explore to Scalar
 

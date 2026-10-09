@@ -158,16 +158,16 @@ Scalar has a free plan, and you can get quite a lot done with it. No credit card
 
 Once you have created your Scalar account:
 
-1. Click **Create Documentation** in the dashboard
-2. Choose **Upload File** or **GitHub Sync** (if you want to store your OpenAPI in Git)
-3. Upload the exported OpenAPI file from Zuplo
+1. Open **Docs** in the dashboard and click **New Project**
+2. Choose **Create new docs**, or **Import Docs** if you want to store your OpenAPI in a GitHub or Bitbucket repository
+3. In a new project, click **+** in the editor's sidebar, choose **Add API Reference**, then **Import a new API**, and upload the exported OpenAPI file from Zuplo
 4. Scalar will automatically parse and display your API reference
 
-If you are using GitHub Sync, you can commit your OpenAPI file to a repository and Scalar will automatically sync it.
+If you are using Git Sync, you can commit your OpenAPI file to your repository and Scalar will automatically sync it.
 
 ### Step 4: Set Up Scalar Config
 
-If you are using GitHub Sync, create a `scalar.config.json` file in your repository root to configure your documentation:
+If you are using Git Sync, create a `scalar.config.json` file in your repository root to configure your documentation:
 
 ```json
 {
@@ -194,7 +194,7 @@ If you are using GitHub Sync, create a `scalar.config.json` file in your reposit
 }
 ```
 
-Configure automatic deployment (publish when a branch is merged into your main branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
+Automatic deployment publishes your site whenever changes land on your tracked branch, and it is on by default. Change it, or the branch Scalar publishes from, in the editor under **Settings → Git Sync**.
 
 ### Step 5: Migrate Custom Styling
 
@@ -223,7 +223,7 @@ If you have Markdown guides in your Zuplo developer portal:
 
 1. Export any MDX or Markdown content from Zuplo
 2. Scalar Docs supports Markdown and MDX, so most pages move as they are. Components specific to Zudoku, or custom React pages, need replacing with Scalar components or plain Markdown
-3. Add your guides to Scalar using the **Guides** tab in your documentation project
+3. Add your guides to Scalar with **+** → **Add Page** in the editor's sidebar, or add the `.md` files to your project
 4. Or, if using GitHub Sync, add them to your repository and reference them in `scalar.config.json`:
 
 ```json
