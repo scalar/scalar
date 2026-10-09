@@ -30,9 +30,9 @@ Python SDKs with item-cursor pagination now declare a protocol for cursor items,
 
 ## 0.36.2 (2026-10-05)
 
-### Improved README accuracy and Python union serialization fixes
+### README type accuracy, Python union fixes, and Go and Ruby naming fixes
 
-This release improves README documentation accuracy across all target languages and fixes several Python SDK bugs related to union types and recursive structures.
+This release improves README documentation accuracy across all target languages, fixes several Python SDK bugs related to union types and recursive structures, and corrects Go union routing and Ruby attribute naming.
 
 - README authentication and client options tables now show the exact types each language declares, matching what users see in their generated SDKs
 - Fixed Python SDKs silently dropping wire aliases and date formatting inside recursive request unions
@@ -68,7 +68,7 @@ This release brings self-verification of generated Go code, fixes CLI credential
 
 ### Homebrew cask publishing
 
-This release adds support for publishing generated CLIs as Homebrew casks with code signing and notarization.
+This release adds support for publishing generated CLIs as Homebrew casks.
 
 - Publish generated CLIs to Homebrew as casks with `targets.cli.publish.homebrew.cask: true`, supporting macOS notarization and shell completions
 - Migrate users from Homebrew formulas to casks automatically with `replaceFormula: true` and tap migration support
@@ -84,7 +84,6 @@ This release adds code signing support for macOS CLI binaries and accepts publis
 - Generated CLIs can now sign macOS binaries with a Developer ID certificate and optionally notarize them, so they run on Apple Silicon without Gatekeeper warnings.
 - Release workflows accept publishing credentials under common secret names from other generators as fallbacks, so repositories with existing PyPI, RubyGems, Homebrew, or Maven Central secrets publish without adding new ones.
 - Code signing runs on Linux using rcodesign and validates credentials early in the workflow, before compilation and any npm publish.
-- The generated config reference now shows complete per-target examples with all supported registries and their options spelled out.
 
 ## 0.35.0 (2026-09-26)
 
@@ -107,7 +106,7 @@ This release adds automatic detection of Fern-annotated documents and support fo
 
 - Fern-annotated OpenAPI documents are now read the Fern way when no config exists, deriving starter configuration from x-fern-* extensions for grouping, method names, pagination, and more
 - Path parameters marked with x-fern-sdk-variable become client constructor options in TypeScript, Python, Java, Kotlin and CLI targets, simplifying method signatures for multi-tenant APIs
-- Generation of large SDKs is now much faster, with C# and Go emit times cut by an order of magnitude or more on documents with thousands of operations
+- Generation of large SDKs is now much faster, especially for C# and Go
 - SDK code samples are now generated for each named example in the request body, linked by example name and content type for the API reference example switcher
 - Swift code samples are now added to the augmented OpenAPI document with typed arguments, pagination support, and streaming operations
 
@@ -137,21 +136,22 @@ This release brings automated Swift formatting with the WebAssembly swift-format
 
 ## 0.33.3 (2026-09-20)
 
-### Improved authentication and credential management for generated SDKs
+### Credential redaction in TypeScript request logs
 
-This release brings significant improvements to how generated SDKs and CLIs handle authentication, including operating system credential stores and better OAuth flows.
+TypeScript SDKs now redact the credentials your API description names wherever they log a request.
+
+- TypeScript request logs now redact the credential headers and query parameters your API description names, not only a fixed list of common header names.
+
+## 0.33.2 (2026-09-18)
+
+### Credential stores, OAuth improvements, and multi-scheme authentication
+
+This release stores generated CLI credentials in the operating system's credential store, improves OAuth flows, fixes SDKs for APIs that offer several authentication options, and reports unsupported OpenAPI operations instead of omitting them.
 
 - Generated CLIs now store credentials in your operating system's native credential store (Secret Service on Linux, Credential Manager on Windows), falling back to a permission-restricted file when no store is available.
 - OAuth flows gained device authorization support, better refresh token handling, and a styled callback page for browser-based sign-ins.
 - Smoke test harnesses now configure sensible retry counts and timeouts, preventing builds from failing on transient network issues.
-
-## 0.33.2 (2026-09-18)
-
-### OpenAPI 3.2 types and improved authentication handling
-
-This release moves to OpenAPI 3.2 types, improves how SDKs handle multiple authentication schemes, and includes several authentication-related fixes for generated CLIs.
-
-- Use OpenAPI 3.2 types across SDK packages while preserving schema metadata including defaults, examples, extensions, and readOnly flags alongside references.
+- Schema metadata such as defaults, examples, extensions, and readOnly flags written beside a `$ref` is now preserved.
 - Reject unsupported OpenAPI operations (QUERY, CONNECT, custom methods) and querystring parameters with source locations instead of silently omitting them.
 - Fix credential handling for APIs that offer multiple authentication alternatives so SDKs no longer demand every credential at once.
 - Update GitHub Actions in generated workflows to versions that run on Node.js 24 and configure Gradle cache settings for private repositories.
@@ -175,7 +175,7 @@ This release fixes how nullable references handle documentation and defaults, re
 
 Adding operations can silently move methods to new subresources when SDK structure is derived from the spec. This release warns when public accessors change or disappear.
 
-- Generated SDKs now warn when re-deriving resource placement renames or removes public methods, helping catch breaking changes before publish
+- Generation now warns when re-deriving resource placement renames or removes public methods, helping catch breaking changes before publish
 - Improved CLI error messages that no longer reference SDK constructor APIs unavailable to command-line users
 - TypeScript SDKs can now type `format: date-time` fields as JavaScript `Date` objects with `targets.typescript.options.dateTimeType: 'Date'`
 - Documents can now declare pagination schemes, response unwrapping, and client settings directly via extensions like `x-scalar-pagination` and `x-scalar-sdk-settings`
@@ -229,7 +229,7 @@ This release improves content negotiation for streaming responses across all tar
 This release introduces support for generating Go SDKs in the newer v2 code style through the codeStyle configuration option. It also adds proper schema support for prerelease channels across all package-publishing targets.
 
 - Go SDKs can now be generated in the v2 code style by setting targets.go.options.codeStyle to "v2", enabling the newer `v2` SDK shape (`param.Opt` optionals and union carriers).
-- Prerelease channels are now properly declared in the configuration schema for all targets that publish packages, replacing the previous workaround.
+- Prerelease channels are now properly declared in the configuration schema for all targets that publish packages.
 - Rust SDK builds in the smoke test harness now share a single target directory and skip debug artifacts, significantly reducing build times.
 - Go request unions now support the v2 carrier shape in generated SDKs.
 - The default Go code style remains unchanged, ensuring existing SDKs continue to generate identical output.
@@ -247,10 +247,10 @@ This release advances Go SDK generation with dialect-aware code samples and impr
 
 ### Faster SDK generation and improved config handling
 
-This release brings substantial performance improvements to SDK generation across all target languages, with large OpenAPI documents generating noticeably faster. The release also fixes several language-specific issues and improves handling of vendor extensions in configuration.
+This release brings substantial performance improvements to SDK generation across all target languages, with large OpenAPI documents generating noticeably faster. The release also fixes several language-specific issues.
 
 - SDK generation is now significantly faster for all languages, with Go seeing the largest improvement.
-- TypeScript generation performance improved by 40%, with byte-identical output maintained across all optimizations.
+- TypeScript generation is faster, with byte-identical output.
 - Fixed C# response handling for non-JSON binary content, now returning raw HTTP responses instead of attempting JSON deserialization.
 - Improved JVM (Java and Kotlin) SDK generation with correct handling of query parameters in path segments and nested class references in code samples.
 
@@ -264,14 +264,13 @@ This release fixes Ruby SDK metadata so generated gemspecs link to the repositor
 
 ## 0.32.5 (2026-09-08)
 
-### CLI file uploads, JVM compilation fixes, and improved mock server testing
+### CLI file uploads and JVM compilation fixes
 
-This release fixes critical issues with generated CLIs and JVM SDKs, and improves the reliability of smoke testing infrastructure. CLI file uploads now work correctly, Java and Kotlin SDKs compile without errors, and the mock server handles complex scenarios more accurately.
+This release fixes file uploads in generated CLIs and compilation of generated Java and Kotlin SDKs, and standardizes package install commands in augmented OpenAPI documents.
 
 - CLI file uploads now read actual file contents instead of sending path strings, using curl-style syntax like `@file.pdf` or `--document @openapi.json`
 - Generated Java and Kotlin SDKs now compile successfully, fixing conflicts with reserved method names and null handling in builder patterns
 - Package install commands in augmented OpenAPI documents now use standardized templates from the registry catalog for npm and PyPI
-- Fern OpenAPI extensions are now fully supported when importing Fern projects, including audience filtering and custom naming
 
 ## 0.32.4 (2026-09-08)
 
@@ -289,9 +288,9 @@ This release consolidates publishing registry metadata into a single source of t
 
 ### Speakeasy pagination import and unified code samples
 
-This release brings support for importing Speakeasy pagination configurations and unifies how code samples are generated across all target languages. SDKs generated from imported Speakeasy projects now preserve their pagination helpers, and code samples show consistent, realistic request data in every language.
+This release brings support for importing Speakeasy pagination configurations and unifies how code samples are generated across all target languages. SDKs generated from imported Speakeasy projects now generate pagination helpers, and code samples show consistent, realistic request data in every language.
 
-- Speakeasy pagination extensions are now mapped to Scalar pagination schemes when importing a gen.yaml, so list endpoints in imported projects ship the same page helpers the source SDK had.
+- Speakeasy pagination extensions are now mapped to Scalar pagination schemes when importing a gen.yaml, so list endpoints in imported projects get typed page helpers.
 - Code samples now show the same request data for an operation across all languages, with arrays properly filled and validation constraints like minItems honored consistently.
 - C# SDKs now send configured default headers from the client and stop declaring a member for them, so client-wide headers apply to every request.
 - Generated CLI now coerces repeatable flag values by their item schema, so empty strings stay empty and integers parse as numbers instead of becoming null.
@@ -331,24 +330,22 @@ Ruby SDKs can now publish to RubyGems using trusted publishing (OIDC) instead of
 
 ## 0.31.1 (2026-08-28)
 
-### Generated CLI and SDK improvements
+### npm publishing fix for generated CLIs
 
-This release improves publishing for generated CLIs and fixes several issues across multiple target languages, including faster generation for large SDKs and cleaner CI workflows.
+This release fixes npm publishing for generated CLIs.
 
 - Fixed npm publishing for generated CLIs by including required repository metadata for provenance-signed releases
-- Generated CLI package names are now properly hyphenated (for example, scalar-galaxy-cli instead of scalargalaxy-cli)
-- Go SDK generation is significantly faster for large documents, and Go SDKs now compile correctly with proper union reference handling
-- Ruby formatting now runs in parallel across worker threads, reducing generation time by about half for large SDKs
 
 ## 0.31.0 (2026-08-28)
 
-### Speakeasy import improvements and CLI package naming
+### Speakeasy import improvements, faster Go and Ruby generation, and CLI package naming
 
-This release improves importing Speakeasy projects and honors more naming overrides. CLI package naming now uses more readable kebab-case by default.
+This release improves importing Speakeasy projects and speeds up Go and Ruby generation for large documents. CLI package naming now uses more readable kebab-case by default.
 
 - Imported Speakeasy projects now automatically read `x-speakeasy-name-override` and `x-speakeasy-globals`
 - CLI packages now use kebab-case names (e.g. `scalar-galaxy-cli` instead of `scalargalaxy-cli`) with explicit override support via `targets.cli.packageName`
-- Honor `x-stainless-naming` property name overrides across TypeScript, Go, Ruby, C#, PHP, Rust, Java, and Kotlin targets
+- Go SDK generation is significantly faster for large documents, and Go SDKs now compile correctly with proper union reference handling
+- Ruby formatting now runs in parallel across worker threads, speeding up generation for large SDKs
 
 ## 0.30.1 (2026-08-27)
 
@@ -382,7 +379,7 @@ Smoke tests verify API integration by calling every operation. Previously, they 
 
 - Each operation generates up to two test cases: a minimal call with required params, and a maximal call that fills every optional argument the signature accepts.
 - Test reports label each case as 'required params' or 'all params' so failures clearly identify which coverage level broke.
-- Fixed latent bugs in Go, Python, and Kotlin samplers that surfaced when optional fields reached previously untested code paths.
+- Fixed latent bugs in Go, Python, and Kotlin sample generation that surfaced when optional fields reached previously untested code paths.
 - Documentation samples (README, docstrings, augmented OpenAPI) keep their minimal shape, so guides remain focused on the simplest working call.
 - Fixed Go recursive model handling to prevent stack overflows and infinite loops when schemas reference themselves.
 
@@ -434,7 +431,7 @@ This release improves SDK documentation across multiple targets and makes code s
 
 ### Connect protocol support and proto diagnostics
 
-This release brings full Connect RPC support to the TypeScript target and improves diagnostics for proto inputs. Connect calls now send the correct protocol headers and decode error envelopes properly, while server-streaming calls decode frames into the same Stream interface as SSE methods. Proto-based SDKs gain detailed diagnostics for unsupported features and configuration issues, with fixes that locate findings at the declaring .proto file.
+This release brings Connect RPC support for unary and server-streaming calls to the TypeScript target and improves diagnostics for proto inputs. Connect calls now send the correct protocol headers and decode error envelopes properly, while server-streaming calls decode frames into the same Stream interface as SSE methods. Proto-based SDKs gain detailed diagnostics for unsupported features and configuration issues, with fixes that locate findings at the declaring .proto file.
 
 - TypeScript SDKs generated from proto files now send working Connect calls with proper protocol headers, error handling, and server-streaming support.
 - Eight gRPC diagnostic rules registered with file locations and safe fixes, including query format mismatches and service placement issues.
@@ -455,11 +452,10 @@ You can now generate typed SDKs from gRPC services defined in Protocol Buffers. 
 
 ## 0.25.1 (2026-08-14)
 
-### gRPC support for Connect protocol and improved naming across targets
+### Improved naming across targets
 
-This release adds support for generating SDKs from Protocol Buffer definitions using the Connect protocol, converting RPCs into standard SDK methods. It also improves naming consistency across JVM, Python, and TypeScript targets.
+This release improves naming consistency across JVM, Python, and TypeScript targets.
 
-- Added support for generating Connect protocol clients from Protocol Buffer definitions, with automatic service placement and method generation.
 - Fixed TypeScript and JVM targets to require non-optional request body parameters when the payload cannot accept an empty object.
 - Improved JVM class naming to honor custom type names from extensions and preserve component titles for union arms.
 - Fixed Python array element models to use component names instead of numeric suffixes for better code clarity.
@@ -469,7 +465,7 @@ This release adds support for generating SDKs from Protocol Buffer definitions u
 
 ### AsyncAPI support and new diagnostics rules
 
-This release adds full AsyncAPI 3.x document support alongside OpenAPI, enabling SDK generation from AsyncAPI channels served over HTTP and WebSocket. The diagnostics engine now gates rules by document type and registers twelve previously anonymous AsyncAPI findings with their own documentation pages.
+This release adds AsyncAPI 3.x document support alongside OpenAPI, enabling SDK generation from AsyncAPI channels served over HTTP and WebSocket. The diagnostics engine now gates rules by document type and registers twelve previously anonymous AsyncAPI findings with their own documentation pages.
 
 - AsyncAPI 3.x documents are now accepted, with channels lowered to streaming methods where the runtime supports them
 - AsyncAPI channels served over http or https compile to streaming methods with the same framing logic OpenAPI operations already use—text/event-stream as SSE, NDJSON as JSON Lines
@@ -557,7 +553,7 @@ This release refines how path parameters are named and ordered across TypeScript
 
 ### Improved C# SDK generation with comprehensive documentation and cross-language fixes
 
-This release completes C# SDK generation, fully rewriting README generation, and fixes critical bugs across TypeScript, Go, Python, Ruby, and Rust targets.
+This release completes C# SDK generation, fully rewriting README generation, and fixes critical bugs across TypeScript, Go, Python, and Ruby targets.
 
 - C# SDKs now generate complete READMEs with feature documentation, client options tables, pagination guides, and Agent Skill files matching other language targets
 - Go SDKs now properly URL-escape string path parameters and validate against path traversal attempts, preventing request mis-targeting
@@ -567,15 +563,13 @@ This release completes C# SDK generation, fully rewriting README generation, and
 
 ## 0.23.1 (2026-08-07)
 
-### Improved SDK generation across all targets
+### Inheritance fixes and fuller JVM client documentation
 
-This release brings major improvements to multiple language targets, including proper formatting for PHP, Dart, and C++, enhanced JVM client construction with auth validation, and fixes for inheritance handling and path parameter typing.
+This release fixes inheritance handling and TypeScript path parameter typing, and documents the complete Kotlin and Java client surface.
 
-- PHP, Dart, and C++ SDKs now ship with automatic formatting applied using embedded WebAssembly formatters, eliminating whole-SDK diffs on first format
-- Kotlin and Java clients now validate authentication at construction and document their complete API surface including lifecycle methods and resource accessors
+- Kotlin and Java clients now document their complete API surface including lifecycle methods and resource accessors
 - Fixed inheritance handling so subclasses properly retain members contributed by composition branches, even when a base class declares identical properties
 - Path parameters typed by models from other resources are now correctly namespace-qualified in TypeScript, fixing compilation errors
-- Generated CI workflows now verify formatter-clean sources for TypeScript, Python, Go, Dart, and C++ SDKs
 
 ## 0.23.0 (2026-08-07)
 
@@ -631,12 +625,11 @@ This release rebuilds C# SDK generation with JSON-backed models and dual service
 
 ## 0.22.6 (2026-08-05)
 
-### Service interfaces, pagination improvements, and formatting updates
+### Service interfaces and formatting updates
 
-This release adds positional overloads and documentation to generated JVM service interfaces, improves pagination handling with operation-specific response classes, and adds automatic formatting for TypeScript and Python SDKs.
+This release adds positional overloads and documentation to generated JVM service interfaces, and adds automatic formatting for TypeScript and Python SDKs.
 
 - JVM service interfaces now have positional overloads, KDoc documentation, and proper resource management annotations
-- Pagination now emits operation-specific response classes for each endpoint, with page wrappers for every pagination scheme
 - TypeScript SDKs are now automatically formatted with Biome at generation time, Python SDKs with ruff
 - Ruby clients preserve nullability of map value schemas, fixing type safety for optional values in hash properties
 - Rust clients now send proper Accept headers, with content negotiation for streaming and vendor JSON types
@@ -667,9 +660,9 @@ This release rebuilds the generated Java and Kotlin runtime core with improved e
 
 ## 0.22.3 (2026-08-04)
 
-### Client option defaults, improved Rust and Kotlin params, PHP and C# foundations
+### Client option defaults, improved Rust and Kotlin params, and a rebuilt PHP emitter
 
-This release brings configured client option defaults to all targets, improves documentation accuracy in Rust, and lays foundational work for rebuilt PHP and C# SDKs.
+This release brings configured client option defaults to all targets, improves documentation accuracy in Rust, and rebuilds the PHP emitter.
 
 - Client options now honor configured default values across all languages, falling back after environment variables
 - Kotlin and Rust params classes gain proper header handling and collision resolution
@@ -699,7 +692,7 @@ This release refines how Kotlin and Java SDKs are structured, with clearer model
 - Operation type names and package layouts now use camelCase directories and proper prefixes for client methods.
 - Field documentation no longer includes unreachable default values on required parameters, preventing misleading assertions about server behavior.
 - Quoted numeric samples are now properly normalized to their declared types, fixing type-check failures in generated code.
-- Go SDK generation is about 14 percent faster on large specifications.
+- Go SDK generation is faster on large specifications.
 
 ## 0.22.0 (2026-07-31)
 
@@ -713,9 +706,9 @@ This release introduces a structured diagnostics system for analyzing OpenAPI sp
 
 ## 0.21.1 (2026-07-30)
 
-### Reference cycles now generate working SDKs across all targets
+### Reference cycle fixes across targets
 
-This release fixes SDK generation for OpenAPI documents with circular schema references. Previously, reference cycles caused exponential expansion, producing multi-megabyte files or exhausting memory. All targets now handle cycles correctly, generating compact, compilable code.
+This release refines how individual targets render reference cycles, so each one generates compact, compilable code.
 
 - Reference cycles in schemas are now cut at re-entry points, preventing combinatorial expansion while preserving one productive expansion per declaration
 - Python emits trailing imports and quoted forward references for mutually recursive models
@@ -741,7 +734,7 @@ This release brings full support for OpenAPI documents with reference cycles acr
 
 This release speeds up TypeScript SDK generation for large OpenAPI documents and fixes Homebrew formula configuration handling.
 
-- TypeScript model ownership lookups are now up to 10x faster on large schemas through per-IR indexing
+- TypeScript model ownership lookups are now much faster on large schemas
 - Homebrew formulas now respect configured homepage and description instead of silently ignoring them
 - Go SDKs no longer emit unused response structs for request-only models
 - Python webhook event payloads now render as subclasses when composed with allOf, eliminating thousands of duplicated lines
@@ -750,11 +743,11 @@ This release speeds up TypeScript SDK generation for large OpenAPI documents and
 
 ### Speakeasy config import and faster compilation for large specs
 
-This release adds support for importing Speakeasy gen.yaml configuration files and dramatically improves compilation speed for large OpenAPI documents through smarter memoization and optimized document loading.
+This release adds support for importing Speakeasy gen.yaml configuration files and dramatically improves compilation speed for large OpenAPI documents.
 
 - Import Speakeasy gen.yaml config files to automatically configure package names, module names, and retry settings across all target languages
-- Up to 5.5x faster compilation on large specs by bypassing unused workspace store layers and loading documents directly
-- Fixed exponential slowdown on specs with shared components — documents with 1000+ components now compile successfully instead of hanging
+- Much faster compilation for large OpenAPI documents
+- Fixed exponential slowdown on specs with shared components — documents with many shared components now compile successfully instead of hanging
 - Registry manifests now use proper one-line summaries instead of multi-paragraph descriptions, fixing PyPI publish rejections
 - Python SDK generator now correctly names classes after their usage context and handles complex union variants without shadowing imports
 
@@ -797,7 +790,7 @@ This release introduces scoped webhook parse and verify surfaces in Python and T
 
 ### Type improvements and publishing workflow updates
 
-This release improves type accuracy across TypeScript, Python, Go, and Ruby SDKs. Generated clients now handle vendor JSON media types, pagination models, and authentication schemes more precisely. The release workflow has been streamlined to publish directly from release tags.
+This release improves type accuracy across TypeScript, Python, Go, and Ruby SDKs. Generated clients now handle vendor JSON media types, pagination models, and authentication schemes more precisely.
 
 - TypeScript clients now send the correct Accept header for vendor JSON media types like application/vnd.pet.v2+json
 - Python resource methods now properly type object and array query parameters instead of collapsing them to generic objects
@@ -849,7 +842,6 @@ Generated SDKs now ship with SKILL.md files that teach AI coding agents how to i
 - Publishing workflows now use OIDC trusted publishing with workflow_dispatch triggers instead of reusable workflows
 - Go SDKs automatically warm the public module proxy after release so packages are immediately available on pkg.go.dev
 - README files now use a consistent generic intro sentence and link to the api.md operation catalog instead of embedding the OpenAPI description
-- TypeScript emitter now shares the core re-mint decision logic with other targets for more consistent type naming
 
 ## 0.19.1 (2026-07-20)
 
@@ -867,24 +859,12 @@ This release refines how the generator handles model ownership and type emission
 
 ### Improved release workflow and version management
 
-This release streamlines how generated SDKs are versioned and released. Release PRs now target the default branch directly, making it easier to see what will ship. SDK versioning is now fully independent of the generator, with all generated packages starting at 0.1.0 and managed by your own release tooling.
+This release streamlines how generated SDKs are versioned and released. Release PRs now target the default branch directly, making it easier to see what will ship. SDK versioning is now fully independent of the generator and managed by your own release tooling.
 
 - Release PRs now show the full pending release diff by targeting the default branch directly
-- Generated SDKs always start at version 0.1.0, with versioning controlled by your repository's release tooling
 - Manual version overrides are now handled through the Scalar dashboard instead of PR title edits
 - Improved documentation for handling conflicted release PRs and repository adoption scenarios
 - The release workflow automatically syncs merged releases back to the scalar-next integration branch
-
-## 0.18.0 (2026-07-17)
-
-### Automatic commit messages for generated SDK changes
-
-The generator can now produce Conventional Commits messages that describe what changed in your SDK between builds, making it easier to track and version generated code.
-
-- Each build diffs the generated SDK against the previous one and describes the change in a commit message that follows Conventional Commits
-- Breaking changes are automatically flagged with `!` and `BREAKING CHANGE:` in the generated message
-- Missing or invalid previous builds degrade gracefully to a generic `chore` message instead of crashing
-- Generated packages now use a fixed `0.1.0` version, letting your release tooling control versioning independently
 
 ## 0.17.0 (2026-07-17)
 

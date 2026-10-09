@@ -92,7 +92,7 @@ This registry's own `publish.<registry>` entry names the page to register a trus
 
 **Type:** `string`
 
-Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name. A registry released by git tag alone has no publish job, so it has no effect there.
+Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name.
 
 #### homepage
 
@@ -132,7 +132,7 @@ Legacy naming, response-API, and import-path behaviors, all off by default. Turn
 
 **Type:** `boolean`
 
-Name generated resource classes after the resource alone (`Accounts`, `AsyncAccounts`, `AccountsWithRawResponse`) instead of the default `Resource`-suffixed form (`AccountsResource`, …). Set this only for an already-published Python SDK whose consumers import or annotate the unsuffixed names, since flipping it renames every public symbol in `<package>.resources`. A resource keeps the `Resource` suffix wherever the unsuffixed name is already bound in a module its classes land in — a model (`DigitalCardArt`) or runtime symbol (`Query`, `Stream`) its own module imports, a name its parent module or `_client.py` binds, or a name another resource reaching the same module already took.
+Name generated resource classes after the resource alone (`Accounts`, `AsyncAccounts`, `AccountsWithRawResponse`) instead of the default `Resource`-suffixed form (`AccountsResource`, …). Set this only for an already-published Python SDK whose consumers import or annotate the unsuffixed names, since flipping it renames every public symbol in `<package>.resources`. A resource keeps the `Resource` suffix wherever the unsuffixed name is already bound in a module its classes land in — a model (`Widget`) or runtime symbol (`Query`, `Stream`) its own module imports, a name its parent module or `_client.py` binds, or a name another resource reaching the same module already took.
 
 **Default:** `false`
 

@@ -93,8 +93,6 @@ Package visibility the release publishes with, as npm's `--access`:
 - `restricted`: readable only by the publishing account or organization, and it needs a paid npm plan; on a free account npm rejects the publish. Scoped packages only: npm has no private unscoped packages, so `restricted` on one is an error from npm rather than a setting that takes effect.
 - Any other string is passed to `npm publish` as given, as long as it has no whitespace. `--access` takes a single token, so a blank or spaced value is rejected here rather than by `npm publish` on the release runner, after the release tag has already been cut.
 
-Unused by every other registry: `--access` is an npm concept, and the ecosystems that model visibility at all do it on the account rather than per publish.
-
 #### tag
 
 **Type:** `string`

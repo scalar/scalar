@@ -76,23 +76,11 @@ Publishes the PHP package on Packagist. `true` publishes with the defaults; an o
 
 Packagist reads versions from the repository's git tags, so a release is the `vX.Y.Z` tag: there is no upload step, no secret, and `authMethod` is unused. The destination repository has to be [submitted to Packagist](https://packagist.org/packages/submit) once.
 
-#### authMethod
-
-**Type:** `"oidc" | "access-token"`
-
-How the generated release workflow authenticates with the registry.
-
-`oidc` uses the registry's [OIDC trusted publishing](https://docs.github.com/en/actions/concepts/security/openid-connect): the publish job exchanges its GitHub Actions id-token for a short-lived, package-scoped token, so no long-lived credential is stored in the destination repository. It is the default wherever the registry supports it, and requires a trusted publisher registered on the registry naming the destination repository, the workflow file the publish job runs from — `release-please.yml`, the workflow the automated release publishes from (register `sdk-release.yml` as a second publisher only if the manual re-publish workflow is used) — and the `releaseEnvironment` when one is set.
-
-`access-token` publishes with a long-lived token read from a repository secret instead; use it while no trusted publisher is registered yet, then drop the override once one is, unless the registry's own entry says to keep it. Repository secrets live under **Settings → Secrets and variables → Actions** in the destination repository; an environment secret of the same name overrides one there when `releaseEnvironment` is set.
-
-This registry's own `publish.<registry>` entry names the page to register a trusted publisher on, the secret `access-token` reads, any exception to these defaults, and whether `authMethod` applies at all.
-
 #### releaseEnvironment
 
 **Type:** `string`
 
-Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name. A registry released by git tag alone has no publish job, so it has no effect there.
+Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name.
 
 #### homepage
 

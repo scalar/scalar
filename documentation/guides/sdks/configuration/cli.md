@@ -113,8 +113,6 @@ Package visibility the release publishes with, as npm's `--access`:
 - `restricted`: readable only by the publishing account or organization, and it needs a paid npm plan; on a free account npm rejects the publish. Scoped packages only: npm has no private unscoped packages, so `restricted` on one is an error from npm rather than a setting that takes effect.
 - Any other string is passed to `npm publish` as given, as long as it has no whitespace. `--access` takes a single token, so a blank or spaced value is rejected here rather than by `npm publish` on the release runner, after the release tag has already been cut.
 
-Unused by every other registry: `--access` is an npm concept, and the ecosystems that model visibility at all do it on the account rather than per publish.
-
 #### tag
 
 **Type:** `string`
@@ -153,23 +151,11 @@ There is no registry and no account to set up: the binaries are uploaded to the 
 
 Each release builds `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, and `windows-x64`, attached as `<binary>-<platform>.tar.gz` (`.zip` on Windows). The asset names carry no version, so `https://github.com/<owner>/<repo>/releases/latest/download/<binary>-<platform>.tar.gz` always points at the newest release; re-running a release replaces the assets.
 
-#### authMethod
-
-**Type:** `"oidc" | "access-token"`
-
-How the generated release workflow authenticates with the registry.
-
-`oidc` uses the registry's [OIDC trusted publishing](https://docs.github.com/en/actions/concepts/security/openid-connect): the publish job exchanges its GitHub Actions id-token for a short-lived, package-scoped token, so no long-lived credential is stored in the destination repository. It is the default wherever the registry supports it, and requires a trusted publisher registered on the registry naming the destination repository, the workflow file the publish job runs from — `release-please.yml`, the workflow the automated release publishes from (register `sdk-release.yml` as a second publisher only if the manual re-publish workflow is used) — and the `releaseEnvironment` when one is set.
-
-`access-token` publishes with a long-lived token read from a repository secret instead; use it while no trusted publisher is registered yet, then drop the override once one is, unless the registry's own entry says to keep it. Repository secrets live under **Settings → Secrets and variables → Actions** in the destination repository; an environment secret of the same name overrides one there when `releaseEnvironment` is set.
-
-This registry's own `publish.<registry>` entry names the page to register a trusted publisher on, the secret `access-token` reads, any exception to these defaults, and whether `authMethod` applies at all.
-
 #### releaseEnvironment
 
 **Type:** `string`
 
-Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name. A registry released by git tag alone has no publish job, so it has no effect there.
+Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name.
 
 #### homepage
 
@@ -187,7 +173,7 @@ Registry or package description metadata.
 
 **Type:** `object | false`
 
-Publishes the CLI to a Homebrew tap: a formula by default, or a cask with `cask`. Unlike every other registry this is not a boolean toggle: enabling it requires an object naming the `tapRepo` to push to, and `false` (or omitting the key) disables it.
+Publishes the CLI to a Homebrew tap: a formula by default, or a cask with `cask`. This is not a boolean toggle: enabling it requires an object naming the `tapRepo` to push to, and `false` (or omitting the key) disables it.
 
 Each release commits the formula (or cask) to the tap's default branch, or opens a pull request for it with `pullRequest`. The push authenticates with a [fine-grained personal access token](https://github.com/settings/personal-access-tokens) stored as the `HOMEBREW_TAP_TOKEN` repository secret; a `HOMEBREW_TAP_GITHUB_TOKEN` secret is read when that is unset. There is no OIDC path, so `authMethod` is unused. The formula pins the destination repository's release asset URLs, so that repository has to be public.
 
@@ -373,7 +359,7 @@ Identifies this CLI to an OAuth provider, for the browser-redirect flows. Requir
 
 Public OAuth client id registered for this CLI. Not a secret — a CLI is a public client, which is why the browser flow uses PKCE rather than a client secret — so it is baked into the generated source. A confidential secret must never be configured here; it would ship inside a published npm package.
 
-Deliberately not a `clientSettings.opts` entry carrying a `defaultValue`: an auth client option refuses defaults outright (see `ClientAuthField.defaultLiteral`) precisely so credentials cannot reach generated source, and routing a public identifier through that door would weaken the rule for every real credential.
+Deliberately not a `clientSettings.opts` entry carrying a `defaultValue`: an auth client option refuses defaults outright precisely so credentials cannot reach generated source, and routing a public identifier through that door would weaken the rule for every real credential.
 
 **Constraints:** `minLength: 1`
 
