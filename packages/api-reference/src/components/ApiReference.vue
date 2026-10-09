@@ -1435,11 +1435,12 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 
 /**
  * Lets every "Generate SDK" button (developer tools, client libraries, request examples) open the
- * same Explore Scalar dialog. Only enabled while the reference runs on a local URL and the document
- * does not already list its own SDKs (the same rule Content uses to swap the client libraries for
- * SDK installation instructions).
+ * same Explore Scalar dialog. Only enabled while the reference runs on a local URL, an OpenAPI
+ * document has loaded, and that document does not already list its own SDKs (the same rule Content
+ * uses to swap the client libraries for SDK installation instructions).
  */
 const generateSdk = useGenerateSdk({
+  hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
   hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
 })
 provide(GENERATE_SDK_CONTEXT_SYMBOL, generateSdk)

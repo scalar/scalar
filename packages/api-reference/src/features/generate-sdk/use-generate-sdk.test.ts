@@ -3,6 +3,9 @@ import { computed, ref } from 'vue'
 
 import { useGenerateSdk } from './use-generate-sdk'
 
+/** A loaded OpenAPI document without SDKs, which is when the buttons are offered */
+const ready = { hasDocument: true, hasSdk: false }
+
 describe('use-generate-sdk', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
@@ -10,7 +13,7 @@ describe('use-generate-sdk', () => {
 
   describe('open', () => {
     it('opens the shared Explore Scalar dialog', () => {
-      const { dialog, open } = useGenerateSdk()
+      const { dialog, open } = useGenerateSdk(ready)
 
       expect(dialog.open).toBe(false)
 
@@ -23,15 +26,15 @@ describe('use-generate-sdk', () => {
   describe('enabled', () => {
     it('is only enabled on local URLs by default', () => {
       vi.stubGlobal('location', { href: 'https://docs.example.com/reference' })
-      expect(useGenerateSdk().enabled.value).toBe(false)
+      expect(useGenerateSdk(ready).enabled.value).toBe(false)
 
       vi.stubGlobal('location', { href: 'http://localhost:5173/' })
-      expect(useGenerateSdk().enabled.value).toBe(true)
+      expect(useGenerateSdk(ready).enabled.value).toBe(true)
     })
 
     it('respects an explicit override', () => {
       vi.stubGlobal('location', { href: 'http://localhost:5173/' })
-      const { enabled } = useGenerateSdk({ enabled: computed(() => false) })
+      const { enabled } = useGenerateSdk({ ...ready, enabled: computed(() => false) })
 
       expect(enabled.value).toBe(false)
     })
@@ -39,7 +42,7 @@ describe('use-generate-sdk', () => {
     it('is disabled while the document already lists SDKs', () => {
       vi.stubGlobal('location', { href: 'http://localhost:5173/' })
       const hasSdk = ref(true)
-      const { enabled } = useGenerateSdk({ hasSdk })
+      const { enabled } = useGenerateSdk({ hasDocument: true, hasSdk })
 
       expect(enabled.value).toBe(false)
 
@@ -47,9 +50,21 @@ describe('use-generate-sdk', () => {
       expect(enabled.value).toBe(true)
     })
 
+    it('stays disabled until an OpenAPI document has loaded', () => {
+      // Before the document arrives there is no way to tell whether it lists SDKs
+      vi.stubGlobal('location', { href: 'http://localhost:5173/' })
+      const hasDocument = ref(false)
+      const { enabled } = useGenerateSdk({ hasDocument, hasSdk: false })
+
+      expect(enabled.value).toBe(false)
+
+      hasDocument.value = true
+      expect(enabled.value).toBe(true)
+    })
+
     it('stays disabled on deployed references without SDKs', () => {
       vi.stubGlobal('location', { href: 'https://docs.example.com/reference' })
-      const { enabled } = useGenerateSdk({ hasSdk: () => false })
+      const { enabled } = useGenerateSdk(ready)
 
       expect(enabled.value).toBe(false)
     })
