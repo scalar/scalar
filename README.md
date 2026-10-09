@@ -88,6 +88,12 @@
 
 #### Set up with your coding agent
 
+Install the `scalar-api-reference` skill to give your coding agent guidance for framework integration, configuration, and troubleshooting:
+
+```bash
+npx skills add scalar/scalar --skill scalar-api-reference
+```
+
 Copy this prompt into your coding agent from your project:
 
 ```text
