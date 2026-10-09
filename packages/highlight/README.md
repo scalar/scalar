@@ -1,6 +1,20 @@
 # @scalar/highlight
 
+[![Version](https://img.shields.io/npm/v/%40scalar/highlight)](https://www.npmjs.com/package/@scalar/highlight)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/highlight)](https://www.npmjs.com/package/@scalar/highlight)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fhighlight)](https://www.npmjs.com/package/@scalar/highlight)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
+
 Scalar's code highlighter.
+
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://github.com/user-attachments/assets/380abb34-8814-4b34-8926-19ab84a91d79">
+  <img
+    alt="Python, TypeScript, Rust and HTTP highlighted by @scalar/highlight"
+    src="https://github.com/user-attachments/assets/8ac62023-f56c-4dcd-a7e3-d0272a43c610">
+</picture>
 
 - **Small.** 2.3 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
@@ -319,6 +333,10 @@ devDependencies and neither reaches consumers.
 
 Repository-wide conventions live in the root [`AGENTS.md`](../../AGENTS.md).
 
+## Community
+
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
+
 ## License
 
-MIT
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).

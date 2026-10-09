@@ -36,6 +36,9 @@ const BEFORE_REGEX =
 /** Body of a regex literal: no unescaped `/`, character classes may hold one. */
 const REGEX = '/(?![/*])(?:[^/\\\\\\n\\[]|\\\\.|\\[(?:[^\\]\\\\\\n]|\\\\.)*\\])+/[dgimsuvy]*'
 
+/** A closing tag — `</button>`, or `</>` for a fragment. It holds nothing else. */
+const JSX_CLOSE = '(</)([A-Za-z][\\w.-]*)?([ \\t]*)(>)'
+
 const javascript: Grammar = {
   name: 'javascript',
   aliases: ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'typescript'],
@@ -78,6 +81,14 @@ const javascript: Grammar = {
             '\\b(?:if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch|finally|await|yield)\\b',
           scope: 'keyword.control',
         },
+        // `const greet = () => {}` and `const greet = function () {}` name a
+        // function just as much as `function greet() {}` does, so the binding
+        // reads as one. Without this the name went unscoped, because the rules
+        // below only recognise a name that sits directly in front of a `(`.
+        {
+          match: `\\b(const|let|var)([ \\t]+)(${ID})(?=[ \\t]*=[ \\t]*(?:async[ \\t]+)?(?:\\(|function\\b|${ID}[ \\t]*=>))`,
+          scope: ['keyword.declaration', null, 'function'],
+        },
         {
           match:
             '\\b(?:function|class|const|let|var|interface|enum|namespace|module|declare|abstract|implements|extends|constructor|static|readonly|override|public|private|protected|async|get|set|type)\\b',
@@ -116,7 +127,14 @@ const javascript: Grammar = {
         // Requiring no space before the colon keeps `cond ? a : b` out.
         { match: `\\b${ID}(?=\\??:)`, scope: 'property' },
         { match: `\\b${ID}(?=\\s*=>)`, scope: 'variable.parameter' },
-        { match: `\\b${ID}(?=[ \\t]*[(<])`, scope: 'function.call' },
+        { match: `\\b${ID}(?=[ \\t]*\\()`, scope: 'function.call' },
+        // A generic call such as `useState<number>(0)`. The argument list has to
+        // close and be followed by `(`, so a comparison like `count <= max` and
+        // JSX text like `<button>hi</button>` are not mistaken for calls.
+        {
+          match: `\\b${ID}(?=[ \\t]*<[^<>()\\n]*>[ \\t]*\\()`,
+          scope: 'function.call',
+        },
 
         {
           // Bare `=` goes last so `=>`, `==`, `===` and the compound forms all
@@ -215,28 +233,68 @@ const javascript: Grammar = {
         // what separates them from JSX is that a tag never follows an
         // identifier, `)` or `]` directly.
         {
-          match: '(?<![\\w$)\\]])(<)(/?)([A-Z][\\w.]*|[a-z][\\w-]*(?:\\.[\\w-]+)*)(?=[\\s/>])',
-          scope: ['punctuation.bracket', 'punctuation', 'tag'],
+          match: '(?<![\\w$)\\]])(<)([A-Z][\\w.]*|[a-z][\\w-]*(?:\\.[\\w-]+)*)(?=[\\s/>])',
+          scope: ['punctuation.bracket', 'tag'],
           push: 'jsx-tag',
         },
         {
           match: '(<)(>)',
           scope: ['punctuation.bracket', 'punctuation.bracket'],
+          push: 'jsx-children',
         },
+        // A closing tag met from expression context rather than from inside
+        // the element it closes, which is what a fragment of markup pasted on
+        // its own looks like. It does not pop: the state below it here is
+        // whatever `expression` was reached from, and closing a tag this
+        // grammar never saw open must not unwind it.
         {
-          match: '(</)(>)',
-          scope: ['punctuation.bracket', 'punctuation.bracket'],
+          match: JSX_CLOSE,
+          scope: ['punctuation.bracket', 'tag', null, 'punctuation.bracket'],
         },
       ],
     },
     'jsx-tag': {
       rules: [
-        { match: '/?>', scope: 'punctuation.bracket', pop: true },
+        { match: '/>', scope: 'punctuation.bracket', pop: true },
+        // The tag closes, so what follows is the element's children rather
+        // than more attributes.
+        { match: '>', scope: 'punctuation.bracket', set: 'jsx-children' },
         { match: '\\{', scope: 'interpolation', push: 'jsx-expression' },
         { match: `(${ID}(?:-${ID})*)(?=\\s*=)`, scope: 'tag.attribute' },
         { match: `\\b${ID}(?:-${ID})*`, scope: 'tag.attribute' },
         { match: '=', scope: 'operator' },
         { include: 'strings' },
+      ],
+    },
+    /**
+     * Between an element's tags.
+     *
+     * Children are markup, not an expression, and the difference is visible:
+     * `<button>Click me to open the Api Client</button>` used to run through
+     * the expression rules, which painted every capitalised word as a type and
+     * left `</button>` to be picked apart as three operators, because the
+     * lookbehind that opens a tag cannot fire directly after a letter.
+     */
+    'jsx-children': {
+      rules: [
+        {
+          match: JSX_CLOSE,
+          scope: ['punctuation.bracket', 'tag', null, 'punctuation.bracket'],
+          pop: true,
+        },
+        { match: '\\{', scope: 'interpolation', push: 'jsx-expression' },
+        // Nested markup. The lookbehind the `jsx` state needs is pointless
+        // here — inside children a `<` can only begin a tag.
+        {
+          match: '(<)([A-Z][\\w.]*|[a-z][\\w-]*(?:\\.[\\w-]+)*)(?=[\\s/>])',
+          scope: ['punctuation.bracket', 'tag'],
+          push: 'jsx-tag',
+        },
+        {
+          match: '(<)(>)',
+          scope: ['punctuation.bracket', 'punctuation.bracket'],
+          push: 'jsx-children',
+        },
       ],
     },
     'jsx-expression': {

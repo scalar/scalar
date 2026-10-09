@@ -6,6 +6,8 @@
  * change a single assertion. `mojo` has no highlight.js grammar, so its
  * sample has no reference to differ against.
  */
+
+import { standardLanguages } from '@scalar/code-highlight/languages'
 import type { LanguageFn } from 'highlight.js'
 import bash from 'highlight.js/lib/languages/bash'
 import c from 'highlight.js/lib/languages/c'
@@ -56,6 +58,10 @@ export const referenceLanguages: Record<string, LanguageFn> = {
   cpp,
   csharp,
   css,
+  // curl has no highlight.js grammar. `@scalar/code-highlight` ships its own,
+  // and that is what the ecosystem's screenshots and `code.css` were built
+  // against, so it is the reference to differ against here too.
+  curl: standardLanguages.curl as LanguageFn,
   dart,
   diff,
   dockerfile,

@@ -7,12 +7,23 @@
     word-spacing: normal;
     word-break: normal;
     word-wrap: normal;
-    line-height: 1.4;
     tab-size: 4;
   }
   code.hljs {
     all: unset;
     font-size: inherit;
+    /*
+     * On the code element, not on `:where(code.hljs) *`, because that selector
+     * reaches elements and never text nodes. A highlighter emits a token span
+     * only where it has a scope to give, so a line of entirely unscoped text —
+     * the content between two JSX tags, say — held no element and fell back to
+     * the surrounding line height, rendering a couple of pixels shorter than
+     * the lines around it. Line numbers hid this: that mode wraps every line in
+     * `span.line`, which is an element, so the same block rendered evenly with
+     * a gutter and unevenly without one. Declared here it sets the line box for
+     * every line, and the spans inherit it.
+     */
+    line-height: 1.4;
     color: var(--scalar-color-2);
     font-family: var(--scalar-font-code);
     counter-reset: linenumber;
