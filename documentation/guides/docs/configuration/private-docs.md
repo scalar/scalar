@@ -1,45 +1,40 @@
 # Private Docs
 
-This guide will help you start using our Access Groups to manage user access across your private guides and docs in our dashboard on scalar.com, which can be done alongside our [CLI](../../cli/getting-started.md).
+This guide shows you how to make a Docs site private and use access groups to choose who can view it. You can set this up in the dashboard and editor, or in your `scalar.config.json`.
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](../../registry/getting-started.md#create-your-scalar-account))
 
 ## Create your first access group
-Now let's make our first access group!
 
-From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Access > Groups, then click Create Access Group.
+Access groups decide who outside your team can view a private site. Creating one needs the Pro plan or above.
 
-![Scalar Access Group Page](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/fkz45YW1-1ncvfHnyDC_g.png "Scalar Access Group Page")
+In the [dashboard](https://dashboard.scalar.com), open **Settings** and go to **Configuration → Access Groups**. Click **New Access Group**, give it a name and a slug, then click **Create Access Group**.
 
-![Scalar Create Access Group](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/ZouPnTXFy7QpbbLSwXNOD.png "Scalar Create Access Group")
+<!-- TODO screenshot: Access Groups page with the New Access Group dialog -->
 
-Now that you have created an access group you can either add a catch-all for domains for access, or just granular email addresses.
+Now that you have an access group, you can allow a whole email domain, specific email addresses, or both.
 
-### Add Domains with Access
-To add a domain to an access group, type in the domain name you want to give access to and hit "add".
+### Allow an email domain
 
-![Scalar Add Domain Access](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/xffMOI_k_Lqhr0kKzYqCM.png "Scalar Add Domain Access")
+Under **Email Domain**, type a domain like `example.com` and click **Allow**. Anyone with an address at that domain can sign in.
 
+### Allow specific email addresses
 
-### Add Emails with Access
-To add only specific emails to an access group, type in the email you want to give access to and hit "add".
-![Scalar Add Email Access](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/sUeH6ekrSfTDB6a7yiQIA.png "Scalar Add Email Access")
+Under **Specific Email Addresses**, type an email address and click **Add**.
 
+<!-- TODO screenshot: an access group with a domain and an email address -->
 
-## Use the Access Group
-Now let's restrict one of our [Docs](../getting-started.md) projects to the newly created access group.
+## Make your docs private
 
-Navigate to your Docs Project and navigate to the Security section, ensure "Private Docs" is enabled then you can allow access to the newly created access group.
+Open your [Docs](../getting-started.md) project in the editor and go to **Settings → Privacy**. Under **Access control**:
 
-![Scalar Add Access Group Private Docs](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/g9hSpZfaEBr1JqD5gNExT.png "Scalar Add Access Group Private Docs")
+1. Turn on **Private site**. Visitors now have to sign in, and members of your team always have access.
+2. Under **Access groups**, add the groups that should be able to view the site.
+3. Optionally, pick a **Login portal** to brand the sign-in page. Without one, visitors see the default sign-in page.
 
-Once you selected a group, your docs will be private with only that access group enabled to view the project.
+<!-- TODO screenshot: Settings → Privacy with Private site on and an access group selected -->
 
-![Scalar Selected Access Group](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/yBSQ1q6s138toCv22FnVX.png "Scalar Selected Access Group")
-
-![Scalar Private Docs](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/O5TMvLdShzTbUJtb-8_I-.png "Scalar Private Docs")
-
-You can customize your login page to your branding if you want, and when you delete the access group changes will be made immediately and access will be revoked.
+Save and publish your changes for them to take effect. If you delete an access group later, its members lose access immediately.
 
 ## Configure in scalar.config.json
 

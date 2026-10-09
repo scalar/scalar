@@ -15,35 +15,43 @@ Unlike schemas defined within OpenAPI documents, Scalar Schemas are:
 ## Create your first schema
 Schemas allow you to reference shared components across your registry APIs.
 
-From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Registry > Schemas, then click "+ New" to create your first schema.
+Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis). In the **Schemas** section, click **New Schema**.
 
-![Registry Schemas Page](../../assets/schema.png "Scalar Schemas Page")
+<!-- TODO screenshot: APIs studio overview with the Schemas section and the New Schema button -->
 
-You'll be taken to the schema creation page where you can configure your new JSON Schema.
+The **Create Schema** dialog asks for:
 
-![Registry Create Schema](../../assets/schema-1.png "Scalar Create Schema")
+- **Schema Title**: a descriptive name that identifies its purpose (e.g., "User Profile", "Payment Method", "Address Schema")
+- **The schema itself**: upload a JSON Schema file, or paste it
+- **Schema Path**: the team namespace, slug, and version to publish it under. The path is how you reference the schema from your APIs.
+
+Click **Create**, and Scalar opens the schema's **Source** page.
+
+<!-- TODO screenshot: Create Schema dialog -->
 
 ### Configure Schema Details
 
-**Schema Name**: Give your schema a descriptive name that identifies its purpose (e.g., "User Profile", "Payment Method", "Address Schema").
+Open the schema's **Settings** page to change its details:
 
-**Description**: Add a description explaining what this JSON Schema defines and how it should be used.
+**Name**: The schema's display name.
 
-**Version**: Set the initial version for your schema (e.g., `0.1.0`, `1.0.0`). You can update versions as you publish new iterations.
+**Description**: Explain what this JSON Schema defines and how it should be used.
 
-**Namespace**: Select the team namespace where this schema will be published. This determines the registry path for referencing the schema.
+**Current version**: The version served by default (e.g., `0.1.0`, `1.0.0`). You can publish new versions as the schema changes.
 
-**Schema Access**: Choose whether your schema should be:
+**Namespace**: The team namespace the schema is published under. Together with the slug, it makes up the registry path you use to reference the schema.
+
+Open the schema's **Access** page to choose whether it is:
 - **Public**: Share your schema with the world - anyone can reference it via the registry URL
 - **Private**: Keep your schema within your team - only invited users and access groups can view and reference it
 
-![Scalar Schema Configuration](../../assets/schema-1.png "Scalar Schema Configuration")
+<!-- TODO screenshot: schema Settings page -->
 
 ### Define Your JSON Schema
 
-Once you've configured the metadata, you can define your JSON Schema. Click on the "Edit" tab to access the schema editor.
+Edit the schema on its **Source** page.
 
-![Scalar Schema Editor](../../assets/schema-editor.png "Scalar Schema Editor")
+<!-- TODO screenshot: schema Source page -->
 
 Here's an example JSON Schema you might create:
 

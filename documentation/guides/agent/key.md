@@ -4,10 +4,10 @@ Agent requires a key for production deployments. Keys are tied to specific OpenA
 
 ## Steps
 
-1. Go to [dashboard.scalar.com/registry](https://dashboard.scalar.com/registry)
+1. Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis)
 2. Upload your OpenAPI document or connect via GitHub Actions for automatic sync
-3. Navigate to your document
-4. Create an Agent key
+3. Open your API, then its **Settings → Agent** page
+4. Under **Agent keys**, click **New agent key**
 
 ## Configuration
 
