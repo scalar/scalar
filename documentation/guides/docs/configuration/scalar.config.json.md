@@ -165,7 +165,7 @@ If a property is missing from the file, Scalar falls back to the setting stored 
 
 ### ruleset
 
-Lint your API documents with a [Spectral ruleset](../../registry/rules.md) when you publish. Point `filepath` at a ruleset file in your repository:
+Lint every OpenAPI route with a [Spectral ruleset](../../registry/rules.md), and optionally block publishing when it finds problems. Point at a ruleset file in your repository, or at a ruleset in your team's registry:
 
 ```json
 {
@@ -176,34 +176,26 @@ Lint your API documents with a [Spectral ruleset](../../registry/rules.md) when 
 }
 ```
 
-The ruleset applies to API references that point at a local file (`filepath`) and sync to your team's registry. Scalar lints each of those API documents before it uploads it. A ruleset only takes effect when `filepath` points at a ruleset file in your project; registry coordinates alone (`namespace`, `slug`, `version`) do not apply a ruleset. Preview deployments are not linted.
-
-When the ruleset finds problems at or above `blockPublishOn`, Scalar skips the registry sync for that API document and adds a warning to the build log. Your docs site still publishes, and the API reference page is still built from your local file.
-
-The ruleset file itself is uploaded to your team's registry every time you publish. Add `namespace` and `slug` to choose where it goes, or set `disableSync` to keep it local:
-
 ```json
 {
   "ruleset": {
-    "filepath": "rules/spectral.yaml",
     "namespace": "acme",
-    "slug": "api-guidelines"
+    "slug": "api-guidelines",
+    "version": "1.2.0"
   }
 }
 ```
 
-| Property         | Type      | Description                                                                                                                              |
-| ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `filepath`       | `string`  | Path to a Spectral ruleset file, relative to `scalar.config.json`. Required for the ruleset to apply                                     |
-| `namespace`      | `string`  | Registry namespace to upload the ruleset to. Defaults to your team's first namespace                                                     |
-| `slug`           | `string`  | Registry slug for the ruleset. Defaults to one derived from the file name                                                                |
-| `version`        | `string`  | Not used when publishing docs. The registry ruleset is updated in place                                                                  |
-| `disableSync`    | `boolean` | Do not upload the ruleset file to your team's registry when the docs publish                                                             |
-| `blockPublishOn` | `string`  | Lowest severity that stops an API document from syncing to the registry: `error`, `warning`, `info`, `hint`, or `none`. Default: `none` |
+| Property         | Type      | Description                                                                                                                         |
+| ---------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `filepath`       | `string`  | Path to a Spectral ruleset file, relative to the configuration root                                                                 |
+| `namespace`      | `string`  | Namespace of the ruleset in your team registry                                                                                      |
+| `slug`           | `string`  | Slug of the ruleset in your team registry                                                                                           |
+| `version`        | `string`  | Version of the ruleset in your team registry                                                                                        |
+| `disableSync`    | `boolean` | When `filepath` is set alongside registry coordinates, do not publish the file to the registry each time the docs publish           |
+| `blockPublishOn` | `string`  | Lowest severity that blocks publishing: `error`, `warning`, `info`, `hint`, or `none`. Omit it to use the registry ruleset's policy |
 
-If you omit `blockPublishOn` but set `namespace` and `slug` for a ruleset that already exists in your registry, Scalar uses that ruleset's policy from the registry.
-
-An OpenAPI route can set its own `ruleset`. If the route sets `filepath`, `namespace`, or `slug`, its ruleset replaces the project ruleset entirely, including `version` and `disableSync`. A route that sets `namespace` or `slug` without `filepath` therefore ends up with no ruleset file, and is not linted. Otherwise the route keeps the project ruleset, and only its `blockPublishOn` applies, so a route can change `blockPublishOn` and keep the default ruleset.
+An OpenAPI route can set its own `ruleset`. Its keys override the project-level ones one at a time, so a route can change `blockPublishOn` and keep the default ruleset.
 
 ### navigation
 
