@@ -13,6 +13,134 @@ import type { MockTransport } from './transports/types'
 import { isAsyncApiDocument } from './utils/process-asyncapi-document'
 
 describe('createAsyncApiMockServer', () => {
+  it.each(['authorizationCode', 'implicit', 'password', 'clientCredentials'] as const)(
+    'serves the declared OAuth %s endpoints',
+    async (flow) => {
+      const { app, websocket } = await createAsyncApiMockServer({
+        document: {
+          asyncapi: '3.0.0',
+          info: { title: 'OAuth Events', version: '1.0.0' },
+          components: {
+            securitySchemes: {
+              oauth: {
+                type: 'oauth2',
+                flows: {
+                  [flow]: {
+                    ...(flow === 'authorizationCode' || flow === 'implicit'
+                      ? { authorizationUrl: 'https://auth.example.com/custom/authorize' }
+                      : {}),
+                    ...(flow !== 'implicit' ? { tokenUrl: 'https://auth.example.com/custom/token' } : {}),
+                    refreshUrl: 'https://auth.example.com/custom/refresh',
+                    availableScopes: { 'read:events': 'Read events' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      try {
+        for (const path of flow === 'implicit' ? ['/custom/refresh'] : ['/custom/token', '/custom/refresh']) {
+          const response = await app.request(path, {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded', origin: 'http://localhost:5173' },
+            body: 'grant_type=refresh_token&refresh_token=example-refresh-token&client_id=',
+          })
+          expect(response.status).toBe(200)
+          expect(response.headers.get('cache-control')).toBe('no-store')
+          expect(response.headers.get('access-control-allow-origin')).toBe('*')
+          expect(await response.json()).toStrictEqual({
+            access_token: 'super-secret-access-token',
+            token_type: 'Bearer',
+            expires_in: 3600,
+            refresh_token: 'example-refresh-token',
+          })
+        }
+        if (flow === 'authorizationCode' || flow === 'implicit') {
+          const response = await app.request(
+            `/custom/authorize?redirect_uri=http://localhost:5173/callback&response_type=${flow === 'implicit' ? 'token' : 'code'}&scope=read:events&state=example`,
+          )
+          expect(response.status).toBe(200)
+          const page = await response.text()
+          expect(page).toContain('OAuth Events')
+          expect(page).toContain(
+            flow === 'implicit' ? '#access_token=super-secret-access-token' : '?code=super-secret-token',
+          )
+        }
+      } finally {
+        websocket.server.close()
+      }
+    },
+  )
+
+  it.each(['component reference', 'server', 'operation', 'operation trait'] as const)(
+    'registers OAuth routes from a %s',
+    async (location) => {
+      const security = [{ $ref: '#/x-oauth' }]
+      const { app, websocket } = await createAsyncApiMockServer({
+        document: {
+          asyncapi: '3.1.0',
+          info: { title: 'Referenced OAuth', version: '1.0.0' },
+          'x-oauth': {
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://auth.example.com/authorize',
+                tokenUrl: 'https://auth.example.com/token',
+                availableScopes: {},
+              },
+            },
+          },
+          ...(location === 'component reference' ? { components: { securitySchemes: { oauth: security[0] } } } : {}),
+          ...(location === 'server' ? { servers: { events: { host: 'localhost', protocol: 'ws', security } } } : {}),
+          ...(location === 'operation' || location === 'operation trait'
+            ? {
+                channels: { events: { address: '/events' } },
+                operations: {
+                  receive: {
+                    action: 'receive',
+                    channel: { $ref: '#/channels/events' },
+                    ...(location === 'operation' ? { security } : { traits: [{ security }] }),
+                  },
+                },
+              }
+            : {}),
+        },
+      })
+      try {
+        // A flow without a separate refresh URL refreshes through its token endpoint.
+        const response = await app.request('/token', {
+          method: 'POST',
+          body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: 'example-refresh-token' }),
+        })
+        expect(response.status).toBe(200)
+        expect((await response.json()).access_token).toBe('super-secret-access-token')
+      } finally {
+        websocket.server.close()
+      }
+    },
+  )
+
+  it('does not create OAuth routes for broker credentials or unresolved schemes', async () => {
+    const { app, websocket } = await createAsyncApiMockServer({
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Broker authentication', version: '1.0.0' },
+        components: {
+          securitySchemes: {
+            broker: { type: 'userPassword' },
+            missing: { $ref: '#/components/securitySchemes/absent' },
+          },
+        },
+      },
+    })
+    try {
+      expect((await app.request('/oauth/token', { method: 'POST' })).status).toBe(404)
+    } finally {
+      websocket.server.close()
+    }
+  })
+
   // Some tests spy on the global console, so restore it even when an assertion throws first.
   afterEach(() => {
     vi.restoreAllMocks()
