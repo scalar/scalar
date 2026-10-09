@@ -11,6 +11,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
 import { dedupeRequirements } from './dedupe-requirements'
+import { resolveOperationWithTraits } from './resolve-operation-with-traits'
 
 type AsyncApiSecurityEntry = NonNullable<AsyncApiOperationObject['security']>[number]
 
@@ -32,31 +33,88 @@ const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecu
   return scheme
 }
 
-const getSecuritySchemeName = (document: AsyncApiDocument, entry: AsyncApiSecurityEntry): string | undefined => {
-  if ('$ref' in entry) {
-    const nameFromRef = getSecuritySchemeNameFromRef(entry.$ref)
-    if (nameFromRef) {
-      return nameFromRef
+/**
+ * Collect inline definitions without changing the API description. Location-based names keep
+ * credentials for unrelated declarations separate, even when their definitions are identical.
+ * Component names remain unchanged for existing auth configuration and persisted credentials.
+ */
+export const getAsyncApiSecuritySchemes = (
+  document: AsyncApiDocument,
+  includeOperations = true,
+): Record<string, AsyncApiSecuritySchemeObject> => {
+  const components = document.components ? getResolvedRef(document.components) : undefined
+  const schemes: Record<string, AsyncApiSecuritySchemeObject> = {}
+
+  for (const [name, reference] of Object.entries(components?.securitySchemes ?? {})) {
+    const scheme = getResolvedRef(reference)
+    if (scheme) {
+      schemes[name] = scheme
     }
   }
 
-  const resolvedDefinition = getSecuritySchemeDefinition(entry)
-  if (resolvedDefinition == null) {
+  const availableName = (name: string): string =>
+    Object.hasOwn(schemes, name) ? availableName(`${name} (inline)`) : name
+
+  const register = (security: AsyncApiSecurityEntry[] | undefined, location: string): void => {
+    for (const [index, entry] of (security ?? []).entries()) {
+      const scheme = getResolvedRef(entry)
+      if (!scheme || !('type' in scheme)) {
+        continue
+      }
+      const componentName = getComponentSecuritySchemeName(document, entry)
+      if (componentName !== undefined) {
+        continue
+      }
+      // A user-defined component may have the same name as our generated label.
+      const base = `${location} · ${scheme.type} ${index + 1}`
+      schemes[availableName(base)] = scheme
+    }
+  }
+
+  const servers = document.servers ? getResolvedRef(document.servers) : undefined
+  for (const [name, reference] of Object.entries(servers ?? {})) {
+    register(getResolvedRef(reference)?.security, `Server ${name}`)
+  }
+  if (!includeOperations) {
+    return schemes
+  }
+  const operations = document.operations ? getResolvedRef(document.operations) : undefined
+  for (const [name, reference] of Object.entries(operations ?? {})) {
+    const operation = getResolvedRef(reference)
+    if (operation) {
+      register(resolveOperationWithTraits(operation).security, `Operation ${name}`)
+    }
+  }
+  return schemes
+}
+
+const getComponentSecuritySchemeName = (
+  document: AsyncApiDocument,
+  entry: AsyncApiSecurityEntry,
+): string | undefined => {
+  if ('$ref' in entry) {
+    const name = getSecuritySchemeNameFromRef(entry.$ref)
+    if (name !== undefined) {
+      return name
+    }
+  }
+  const definition = getSecuritySchemeDefinition(entry)
+  if (!definition) {
     return undefined
   }
-
   const components = document.components ? getResolvedRef(document.components) : undefined
+  return Object.entries(components?.securitySchemes ?? {}).find(([, scheme]) =>
+    isObjectEqual(getSecuritySchemeDefinition(scheme), definition),
+  )?.[0]
+}
 
-  if (components?.securitySchemes) {
-    for (const [name, schemeRef] of Object.entries(components.securitySchemes)) {
-      const scheme = getResolvedRef(schemeRef)
-      if (scheme === resolvedDefinition || isObjectEqual(scheme, resolvedDefinition)) {
-        return name
-      }
-    }
+const getSecuritySchemeName = (document: AsyncApiDocument, entry: AsyncApiSecurityEntry): string | undefined => {
+  const componentName = getComponentSecuritySchemeName(document, entry)
+  if (componentName !== undefined) {
+    return componentName
   }
-
-  return undefined
+  const resolved = getResolvedRef(entry)
+  return Object.entries(getAsyncApiSecuritySchemes(document)).find(([, scheme]) => scheme === resolved)?.[0]
 }
 
 const securityEntryToRequirement = (
@@ -64,7 +122,7 @@ const securityEntryToRequirement = (
   entry: AsyncApiSecurityEntry,
 ): SecurityRequirementObject | undefined => {
   const schemeName = getSecuritySchemeName(document, entry)
-  if (!schemeName) {
+  if (schemeName === undefined) {
     return undefined
   }
 
@@ -103,7 +161,15 @@ export const getAsyncApiSecurityRequirements = (
       ? serverRequirements
       : serverRequirements.length === 0
         ? operationRequirements
-        : [...operationRequirements, ...serverRequirements]
+        : operationRequirements.flatMap((operationRequirement) =>
+            serverRequirements.map((serverRequirement) => {
+              const combined = { ...serverRequirement }
+              for (const [name, scopes] of Object.entries(operationRequirement)) {
+                combined[name] = [...new Set([...(combined[name] ?? []), ...(scopes ?? [])])]
+              }
+              return combined
+            }),
+          )
 
   return dedupeRequirements(combined)
 }

@@ -103,6 +103,37 @@ describe('Operation', () => {
     expect(wrapper.text()).toContain('read:events')
   })
 
+  it('documents scope-free inline alternatives alongside OAuth scopes without server security', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: {
+          ...createDocument({
+            action: 'receive',
+            channel: { $ref: '#/channels/userSignedUp' },
+            security: [
+              { type: 'oauth2', flows: {}, scopes: ['read:events'] },
+              { type: 'httpApiKey', name: 'X-Events-Key', in: 'header', description: 'Event subscription key' },
+            ],
+          }),
+          servers: {
+            main: {
+              host: 'example.com',
+              protocol: 'wss',
+              security: [{ type: 'http', scheme: 'bearer', description: 'Connection credential' }],
+            },
+          },
+        },
+        eventBus: null,
+      },
+    })
+    expect(wrapper.text()).toContain('read:events')
+    expect(wrapper.text()).toContain('X-Events-Key')
+    expect(wrapper.text()).toContain('Event subscription key')
+    expect(wrapper.text()).toContain('one of')
+    expect(wrapper.text()).not.toContain('Connection credential')
+  })
+
   it('renders a message accordion for each message child', () => {
     const wrapper = mount(Operation, {
       props: {

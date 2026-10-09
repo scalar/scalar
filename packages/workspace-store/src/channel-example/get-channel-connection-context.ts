@@ -2,6 +2,7 @@ import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 
 import { buildConnectionUrl } from '@/channel-example/build-connection-url'
 import { getAllChannelMessages } from '@/channel-example/get-all-channel-messages'
+import { getAsyncApiSecuritySchemes } from '@/channel-example/get-asyncapi-security-requirements'
 import { getChannelConnectionSecurityRequirements } from '@/channel-example/get-channel-connection-security'
 import { getChannelOperations } from '@/channel-example/get-channel-operations'
 import { getChannelParameters } from '@/channel-example/get-channel-parameters'
@@ -10,7 +11,6 @@ import { getAsyncApiServers, getSelectedAsyncApiServer } from '@/channel-example
 import type { BuildChannelConnectionContext, ChannelConnectionMeta } from '@/channel-example/types'
 import type { WorkspaceStore } from '@/client'
 import type { AuthMeta } from '@/events'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { getEnvironmentVariables } from '@/request-example/builder/helpers/get-environment-variables'
 import { getActiveEnvironment } from '@/request-example/context/environment'
 import { getSecuritySchemes } from '@/request-example/context/security/get-security-schemes'
@@ -115,10 +115,8 @@ export const getChannelConnectionContext = (
     method: ASYNCAPI_CHANNEL_AUTH_METHOD,
   })
 
-  const components = document.components ? getResolvedRef(document.components) : undefined
-
   const securitySchemes = mergeSecurity(
-    components?.securitySchemes ?? {},
+    getAsyncApiSecuritySchemes(document, false),
     options.authentication?.securitySchemes ?? {},
     workspaceStore.auth,
     documentName,

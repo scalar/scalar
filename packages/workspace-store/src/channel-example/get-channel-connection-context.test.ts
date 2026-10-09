@@ -60,6 +60,32 @@ describe('getChannelConnectionContext', () => {
     ])
   })
 
+  it('uses inline server authentication without merging operation credentials into the connection', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'inline',
+      document: {
+        ...echoChannelDocument,
+        servers: { echo: { host: 'example.com', protocol: 'wss', security: [{ type: 'http', scheme: 'bearer' }] } },
+        operations: {
+          send: {
+            action: 'send',
+            channel: { $ref: '#/channels/echo' },
+            security: [{ type: 'oauth2', flows: {}, scopes: ['send'] }],
+          },
+        },
+      },
+    })
+    const result = getChannelConnectionContext(store, 'inline', { channelName: 'echo' })
+    expect(result.ok).toBe(true)
+    if (!result.ok) {
+      throw new Error(result.error)
+    }
+    expect(result.data.security.requirements).toStrictEqual([{ 'Server echo · http 1': [] }])
+    expect(Object.keys(result.data.security.schemes)).toStrictEqual(['Server echo · http 1'])
+    expect(result.data.security.selected.selectedSchemes).toStrictEqual([{ 'Server echo · http 1': [] }])
+  })
+
   it('returns an error when the channel is missing', async () => {
     const store = createWorkspaceStore()
     const slug = 'echo-doc'

@@ -3,23 +3,16 @@ import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiServerObject } fr
 import { getAsyncApiSecurityRequirements } from '@/channel-example/get-asyncapi-security-requirements'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
-import { dedupeRequirements } from './dedupe-requirements'
 import type { ChannelOperationSummary } from './get-channel-operations'
 
 /**
- * Merges security requirements from the selected server and all operations on a channel.
+ * Connection authentication belongs to the selected server; operation security is documented separately.
  */
 export const getChannelConnectionSecurityRequirements = (
   document: AsyncApiDocument,
   _channel: AsyncApiChannelObject,
   server: AsyncApiServerObject | null,
-  channelOperations: ChannelOperationSummary[],
+  _channelOperations: ChannelOperationSummary[],
 ): SecurityRequirementObject[] => {
-  const serverRequirements = getAsyncApiSecurityRequirements(document, null, server)
-
-  const operationRequirements = channelOperations.flatMap(({ operation }) =>
-    getAsyncApiSecurityRequirements(document, operation, null),
-  )
-
-  return dedupeRequirements([...serverRequirements, ...operationRequirements])
+  return getAsyncApiSecurityRequirements(document, null, server)
 }
