@@ -1,5 +1,5 @@
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components/sidebar'
-import { mount } from '@vue/test-utils'
+import { type DOMWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { DraggingItem, HoveredItem } from '@/hooks/use-draggable'
@@ -62,7 +62,7 @@ describe('ScalarSidebar', () => {
           onToggleGroup: (id) => state.setExpanded(id, !state.isExpanded(id)),
         },
       })
-      const toggle = (label: string) => {
+      const toggle = (label: string): DOMWrapper<HTMLButtonElement> => {
         const button = wrapper.findAll('button').find((button) => button.text() === label)
         if (!button) {
           throw new Error(`Missing toggle: ${label}`)
