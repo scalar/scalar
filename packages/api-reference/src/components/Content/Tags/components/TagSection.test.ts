@@ -16,6 +16,57 @@ describe('TagSection', () => {
     ...overrides,
   })
 
+  it.each([false, true])('hides the empty operations card for a parent tag (collapsed: %s)', (isCollapsed) => {
+    const tag = createMockTag({
+      title: 'Catalog',
+      isGroup: true,
+      children: [
+        createMockTag({
+          id: 'items',
+          title: 'Items',
+          children: [
+            {
+              type: 'operation',
+              id: 'list-items',
+              ref: 'list-items',
+              title: 'List items',
+              method: 'get',
+              path: '/items',
+            },
+          ],
+        }),
+      ],
+    })
+    const wrapper = mount(TagSection, { props: { tag, isCollapsed, eventBus: null } })
+
+    expect(wrapper.text()).toContain('Catalog')
+    expect(wrapper.text()).toContain('This is a test tag description')
+    expect(wrapper.text()).not.toContain('Operations')
+    expect(wrapper.find('[aria-label="Catalog endpoints"]').exists()).toBe(false)
+  })
+
+  it('keeps the operations card when a parent also has its own operation', () => {
+    const tag = createMockTag({
+      title: 'Catalog',
+      children: [
+        createMockTag({ id: 'items', title: 'Items' }),
+        {
+          type: 'operation',
+          id: 'read-catalog',
+          ref: 'read-catalog',
+          title: 'Read catalog',
+          method: 'get',
+          path: '/catalog',
+        },
+      ],
+    })
+    const wrapper = mount(TagSection, { props: { tag, eventBus: null } })
+
+    expect(wrapper.text()).toContain('Operations')
+    expect(wrapper.get('[aria-label="Catalog endpoints"]').text()).toContain('/catalog')
+    expect(wrapper.get('[aria-label="Catalog endpoints"]').text()).not.toContain('Items')
+  })
+
   describe('basic rendering', () => {
     it('renders tag title and description', () => {
       const mockTag = createMockTag()
