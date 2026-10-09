@@ -13,7 +13,7 @@ import { getPathFromUrl } from './get-open-auth-token-urls'
  * still surfaces schemes that will not work.
  */
 export function logAuthenticationInstructions(
-  securitySchemes: Record<string, OpenAPIV3_2.SecuritySchemeObject>,
+  securitySchemes: Record<string, OpenAPIV3_2.SecuritySchemeObject | { type: 'mutualTLS' }>,
   log: MockServerLogger = (line) => console.log(line),
 ) {
   if (!securitySchemes || Object.keys(securitySchemes).length === 0) {
@@ -56,22 +56,29 @@ export function logAuthenticationInstructions(
         }
         break
       case 'http':
-        if (scheme.scheme === 'basic') {
+        if (scheme.scheme?.toLowerCase() === 'basic') {
           log('✅ HTTP Basic Authentication')
           log('   Use an Authorization header with any credentials ("username:password" in base64):')
           log('')
           log('   Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=')
           log('')
-        } else if (scheme.scheme === 'bearer') {
+        } else if (scheme.scheme?.toLowerCase() === 'bearer') {
           log('✅ Bearer Token Authentication')
           log('   Use an Authorization header with any bearer token')
           log('')
           log('   Authorization: Bearer YOUR_TOKEN_HERE')
           log('')
+        } else if (scheme.scheme?.toLowerCase() === 'digest') {
+          log('✅ HTTP Digest Authentication')
+          log('   Answer the MD5/qop=auth challenge with any username and password; the mock checks credential shape.')
         } else {
           console.error('❌ Unknown Security Scheme:', scheme)
         }
 
+        break
+      case 'mutualTLS':
+        log('✅ Mutual TLS Authentication')
+        log('   Use a trusted client certificate with a Node HTTPS server configured with requestCert and ca.')
         break
       case 'oauth2':
         if (

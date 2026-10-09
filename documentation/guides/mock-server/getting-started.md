@@ -410,6 +410,40 @@ Failures that are already handled elsewhere never reach this handler, so they ke
 - **Operations with no response** — an operation whose `responses` are empty responds with `{ "error": "No response defined for this operation." }`.
 - **Errors that carry a response** — an error such as Hono's `HTTPException` keeps the status and body it chose, and is not logged.
 
+### HTTP authentication
+
+Basic and Bearer schemes accept case-insensitive scheme names. Basic checks for a base64-encoded `username:password`; Bearer checks for a non-empty token. API keys must be present in their declared header, query parameter, or cookie. These are mock credential-shape checks, not password, token-signature, expiry, or scope validation.
+
+Digest authentication returns an MD5 challenge with `qop=auth`. Any username and password can be used to construct the response. The mock checks required directives, response shape, nonce, and request URI; it does not verify the password hash or implement replay protection.
+
+### Mutual TLS
+
+A `mutualTLS` scheme requires a peer certificate verified by the Node HTTPS adapter. Configure the HTTPS server to request certificates and trust your development CA:
+
+```ts
+import { readFileSync } from 'node:fs'
+import { createServer } from 'node:https'
+import { serve } from '@hono/node-server'
+import { createMockServer } from '@scalar/mock-server'
+
+const app = await createMockServer({ document })
+serve({
+  fetch: app.fetch,
+  createServer,
+  port: 3000,
+  serverOptions: {
+    key: readFileSync('server.key'),
+    cert: readFileSync('server.crt'),
+    ca: readFileSync('development-ca.crt'),
+    requestCert: true,
+    // Let the mock return an HTTP 401 for missing or untrusted certificates.
+    rejectUnauthorized: false,
+  },
+})
+```
+
+Use `rejectUnauthorized: true` to reject unauthorized clients during the TLS handshake instead. On plain HTTP or adapters without verified peer-certificate information, the security requirement is unsatisfied. Client-supplied certificate headers never satisfy it.
+
 ### Silencing startup logging
 
 When the document declares security schemes, the mock server prints instructions on how to authenticate as it starts up. That is handy in a terminal, but it is just noise when the server runs inside a test suite or another program. Pass `logger: false` to silence it:
