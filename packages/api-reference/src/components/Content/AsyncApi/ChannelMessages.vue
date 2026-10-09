@@ -37,6 +37,9 @@ const messages = computed<TraversedAsyncApiMessage[]>(() =>
     'asyncapi-message',
   ),
 )
+const hasOperations = computed(() =>
+  channel.children?.some((entry) => entry.type === 'asyncapi-operation'),
+)
 const { level: headingLevel } = useDocumentOutline('channelMessages')
 </script>
 
@@ -44,20 +47,23 @@ const { level: headingLevel } = useDocumentOutline('channelMessages')
   <div
     v-if="messages.length"
     class="mt-8">
-    <SectionHeaderTag :level="headingLevel">Channel messages</SectionHeaderTag>
-    <p class="text-c-2 mt-1 mb-3 text-sm">
-      All messages defined on this channel. Each operation lists the messages it
-      supports.
-    </p>
+    <SectionHeaderTag
+      class="text-c-1 mb-3 block! text-lg leading-[1.45] font-medium"
+      :level="headingLevel"
+      rule>
+      {{ hasOperations ? 'Other Channel Messages' : 'Messages' }}
+    </SectionHeaderTag>
     <Message
       v-for="message in messages"
       :key="message.id"
+      class="mt-3"
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
       :expansion="expansion"
       :message="message"
       :options="options"
+      parent="channel"
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension" />
   </div>

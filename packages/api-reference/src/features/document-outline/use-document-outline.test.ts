@@ -56,7 +56,9 @@ describe('useDocumentOutline', () => {
       ['operation', 3],
       ['channelMessages', 3],
       ['model', 3],
-      ['message', 4],
+      ['message', 6],
+      ['asyncApiOperation', 4],
+      ['channelMessage', 4],
     ] as const)('resolves %s to h%i', (role, expected) => {
       expect(levelOf(role, 'document')).toBe(expected)
     })

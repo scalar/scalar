@@ -254,7 +254,7 @@ describe('traverseAsyncApiDocument', () => {
     ])
   })
 
-  it('lists Galaxy channels with operation subsets and a separate channel catalog', () => {
+  it('lists Galaxy messages under their operations without duplicating the channel catalog', () => {
     const result = traverseAsyncApiDocument('galaxy', galaxyAsyncApiDocument, mockOptions)
     const channels = collectAsyncApiChannels(result.children)
     const operations = collectAsyncApiOperations(result.children)
@@ -267,23 +267,17 @@ describe('traverseAsyncApiDocument', () => {
       'userEvents',
     ])
     expect(operations.length).toBe(4)
-    expect(messages.length).toBe(4)
+    expect(messages.length).toBe(2)
 
     const channel = channels.find((entry) => entry.channelName === 'planetEvents')
-    expect(channel?.children?.map((entry) => entry.type)).toStrictEqual([
-      'asyncapi-operation',
-      'asyncapi-message',
-      'asyncapi-message',
-    ])
+    expect(channel?.children?.map((entry) => entry.type)).toStrictEqual(['asyncapi-operation'])
     expect(collectAsyncApiMessages(channel?.children).map((entry) => entry.messageName)).toStrictEqual([
-      'planetCreated',
-      'planetUpdated',
       'planetCreated',
       'planetUpdated',
     ])
   })
 
-  it('preserves operation message anchors when adding a shared channel catalog', () => {
+  it('preserves shared message anchors under each operation', () => {
     const result = traverseAsyncApiDocument('chatapp', chatAsyncApiDocument, mockOptions)
     const channel = collectAsyncApiChannels(result.children)[0]
     const operations = collectAsyncApiOperations(result.children)
@@ -295,7 +289,6 @@ describe('traverseAsyncApiDocument', () => {
     expect(collectAsyncApiMessages(channel?.children).map((message) => message.id)).toStrictEqual([
       'chatapp/channel/chat/operation/receivechatmessage/message/chatmessage',
       'chatapp/channel/chat/operation/sendchatmessage/message/chatmessage',
-      'chatapp/channel/chat/message/chatmessage',
     ])
   })
 
@@ -328,7 +321,7 @@ describe('traverseAsyncApiDocument', () => {
     const channel = collectAsyncApiChannels(result.children)[0]
     expect(
       channel?.children?.filter((entry) => entry.type === 'asyncapi-message').map((entry) => entry.messageName),
-    ).toStrictEqual(['eventA', 'eventB'])
+    ).toStrictEqual(['eventB'])
 
     expect(operation?.children).toEqual([
       expect.objectContaining({
@@ -486,7 +479,7 @@ describe('traverseAsyncApiDocument', () => {
     { messages: undefined, expected: ['eventA', 'eventB'] },
     { messages: [], expected: [] },
     { messages: [{ $ref: '#/channels/events/messages/eventA' }], expected: ['eventA'] },
-  ])('keeps operation subsets independent of the complete channel catalog: $expected', ({ messages, expected }) => {
+  ])('shows only unclaimed messages in the channel catalog: $expected', ({ messages, expected }) => {
     const document = {
       asyncapi: '3.1.0',
       info: { title: 'Catalog', version: '1.0.0' },
@@ -501,16 +494,44 @@ describe('traverseAsyncApiDocument', () => {
       (entry): entry is TraversedAsyncApiMessage => entry.type === 'asyncapi-message',
     )
 
-    expect(catalog?.map((message) => message.messageName)).toStrictEqual(['eventA', 'eventB'])
+    expect(catalog?.map((message) => message.messageName)).toStrictEqual(
+      ['eventA', 'eventB'].filter((name) => !expected.includes(name)),
+    )
     expect(operation?.children?.map((message) => message.title) ?? []).toStrictEqual(
       expected.map((name) => (name === 'eventA' ? 'A' : 'B')),
     )
-    expect(new Set(collectAsyncApiMessages(channel?.children).map((message) => message.id)).size).toBe(
-      2 + expected.length,
-    )
+    expect(new Set(collectAsyncApiMessages(channel?.children).map((message) => message.id)).size).toBe(2)
     expect(
       (document.channels.events as typeof document.channels.events & { 'x-scalar-order'?: string[] })['x-scalar-order'],
     ).toStrictEqual(channel?.children?.map((entry) => entry.id))
+  })
+
+  it('excludes messages used by any operation on the channel', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      channels: {
+        events: { address: '/events', messages: { a: { title: 'A' }, b: { title: 'B' }, c: { title: 'C' } } },
+      },
+      operations: {
+        receive: {
+          action: 'receive',
+          channel: { $ref: '#/channels/events' },
+          messages: [{ $ref: '#/channels/events/messages/a' }],
+        },
+        send: {
+          action: 'send',
+          channel: { $ref: '#/channels/events' },
+          messages: [{ $ref: '#/channels/events/messages/b' }],
+        },
+      },
+    } satisfies AsyncApiDocument
+    const result = traverseAsyncApiDocument('events', document)
+    const channel = collectAsyncApiChannels(result.children)[0]
+    expect(
+      channel?.children?.filter((entry) => entry.type === 'asyncapi-message').map((entry) => entry.messageName),
+    ).toStrictEqual(['c'])
   })
 
   it('renders tagged message-only channels, resolves references, sorts titles, and skips hidden entries', () => {

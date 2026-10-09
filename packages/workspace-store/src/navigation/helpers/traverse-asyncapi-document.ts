@@ -391,12 +391,17 @@ const createChannelEntry = ({
     return undefined
   }
 
-  // The catalog includes every visible channel message independently of operation subsets.
+  // Keep channel-only messages reachable without duplicating messages already owned by an operation.
+  const operationMessageNames = new Set(
+    bucket.operations.flatMap(({ operation }) =>
+      resolveOperationMessageNames(operation, bucket.channel, bucket.channelName),
+    ),
+  )
   const messages = createMessageEntries({
     channelName: bucket.channelName,
     channel: bucket.channel,
     parentId: channelId,
-    messageNames: objectKeys(bucket.channel.messages ?? {}),
+    messageNames: objectKeys(bucket.channel.messages ?? {}).filter((name) => !operationMessageNames.has(name)),
     generateId,
   })
   const children = [...operations, ...messages]
