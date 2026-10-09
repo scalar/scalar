@@ -29,7 +29,7 @@ const operationsAndWebhooks = computed(() => {
 </script>
 
 <template>
-  <template v-if="tag.children && tag.children?.length > 0">
+  <template v-if="operationsAndWebhooks.length > 0">
     <ScalarCard class="endpoints-card">
       <ScalarCardHeader muted>
         <ScreenReader>{{ tag.title }}</ScreenReader>
