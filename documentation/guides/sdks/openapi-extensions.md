@@ -2,6 +2,8 @@
 
 Scalar SDK Generator reads a small set of OpenAPI vendor extensions when it derives an SDK configuration and compiles an SDK. They let an API description carry SDK-specific intent without requiring a separate configuration file.
 
+When extensions are read depends on where they sit. Document-root and operation extensions are read when the generator derives a configuration from the document; once you supply a configuration, its resources, settings, and pagination are authoritative and those extensions are not re-read. Schema, parameter, and enum extensions apply on every build.
+
 Use these extensions only where the guide says they are supported. Values from an OpenAPI document are treated as untrusted input: malformed values are ignored or reported through [Diagnostics](diagnostics.md), rather than becoming generated code.
 
 Extensions that mirror a configuration block use the same field names and value shapes as [Configuration](configuration.md). A standalone Scalar SDK configuration remains the better home for settings shared across multiple documents or targets.
@@ -49,6 +51,8 @@ x-scalar-pagination:
 
 ### Operations
 
+These are read when a configuration is derived from the document. With a configuration of your own, an operation it places is generated even if it carries `x-scalar-ignore`.
+
 | Extension | Value | Effect |
 | --- | --- | --- |
 | `x-scalar-method` | Dotted `resource.method` name | Places an operation in a resource and names the generated method. A single segment is ignored; use `x-scalar-method-name` when only the name should change. |
@@ -56,7 +60,7 @@ x-scalar-pagination:
 | `x-scalar-ignore` | `true` | Omits the operation from generated SDKs. The standard `x-internal: true` marker has the same effect for operations. |
 | `x-scalar-deprecation-message` | String, or `{ default }` | Marks the method deprecated and supplies its deprecation message. |
 | `x-scalar-retries` | Non-negative integer | Sets the operation's retry count. |
-| `x-scalar-streaming` | `sse` or `jsonl` | Declares server-sent events or newline-delimited JSON streaming. |
+| `x-scalar-streaming` | `sse` or `jsonl` | Declares server-sent events or newline-delimited JSON streaming. It is also read on a Response Object on every build, which is the placement that applies when you supply a configuration. |
 | `x-scalar-pagination` | Scheme name, `false`, or an inline scheme | Enables paging with a root-declared scheme, explicitly disables it, or declares a one-operation scheme. |
 | `x-scalar-unwrap` | Response property name or `false` | Returns a property from a response envelope, or opts that operation out of global unwrapping. This extension is operation-only; use `x-scalar-sdk-settings.unwrapResponseFields` for the SDK-wide rule. |
 
@@ -87,7 +91,7 @@ paths:
 | `x-scalar-name` | Schema | Names a generated type or an inline schema promoted to a type. |
 | `x-scalar-model` | Component schema | Marks a schema as a surfaced model and can provide its resource-qualified model name. |
 | `x-scalar-property-name` | Property schema | Uses this spelling for the generated property. |
-| `x-scalar-ignore` | Component schema or property schema | Omits the component or property from the SDK. |
+| `x-scalar-ignore` | Component schema | Keeps the component from becoming a generated model. To omit a property, use `x-fern-ignore` or `x-stainless-skip`. |
 | `x-scalar-unknown` | Schema | Lowers the schema to the target's unknown/untyped value. |
 | `x-scalar-override-schema` | Schema | Replaces the schema used for SDK type lowering. |
 | `x-scalar-empty-object` | Schema | Treats a property-less object as a deliberate named empty type, rather than an untyped map. |
@@ -105,7 +109,7 @@ The following arrays are aligned with the enum's `enum` values by index. Values 
 
 | Extension | Value | Effect |
 | --- | --- | --- |
-| `x-scalar-enum-names` | Array of strings | SDK member names where the target emits named enum members. |
+| `x-scalar-enum-names` | Array of strings | SDK member names, honored by the Go, Rust, and Swift targets; other targets derive member names from the wire value. |
 | `x-scalar-enum-descriptions` | Array | Per-member documentation. |
 | `x-scalar-enum-deprecations` | Array | Per-member deprecation metadata. |
 | `x-scalar-enum-format` | `union` | Requests a union-style enum where supported. |
@@ -154,6 +158,7 @@ The following are compatibility readers. They are useful when importing an exist
 | `x-fern-parameter-name` | Parameter Object | Generated parameter name. |
 | `x-fern-enum` | Enum schema | Per-member name, description, and deprecation. Its per-target `casing` field is not mapped. |
 | `x-fern-default` | Parameter Object | The default value sent when the SDK caller omits the parameter. |
+| `x-fern-bearer`, `x-fern-header`, `x-fern-basic` | Security scheme | The credential's client option name and environment variable. A `prefix` on `x-fern-bearer` or `x-fern-header` is reported and not mapped. |
 | `x-fern-examples` | Any | Not used for generated SDK samples; its shape differs from Scalar's code-sample extensions. |
 
 ### Speakeasy
@@ -162,25 +167,26 @@ The following are compatibility readers. They are useful when importing an exist
 | --- | --- | --- |
 | `x-speakeasy-name-override` | Operation, including a global parameter | Operation method name or global client-option name. The root regex-rule form is deliberately not evaluated. |
 | `x-speakeasy-globals` | Document root | Hoists listed parameters to client constructor options. Header globals are emitted; query, path, and body locations are retained as configuration but are not yet sent by every target. |
-| `x-speakeasy-pagination` | Operation | Selects the imported pagination scheme. |
+| `x-speakeasy-pagination` | Operation | Declares a pagination scheme and binds the operation to it. |
 | `x-speakeasy-retries` | Document root | Imports SDK-wide retry settings. |
 
 ### Stainless
 
 | Extension | Supported placement | Scalar behavior |
 | --- | --- | --- |
-| `x-stainless-pagination-property` | Parameter or response-field schema | Infers pagination type and field roles. |
-| `x-stainless-skip` | Parameter or property schema | Omits the node. |
+| `x-stainless-pagination-property` | Request-parameter schema | Selects the pagination type an operation adopts from the configured schemes. |
+| `x-stainless-skip` | Parameter, property, or union-arm schema | Omits the node. A list of targets instead of `true` is honored by Go only. |
 | `x-stainless-empty-object` | Schema | Same behavior as `x-scalar-empty-object`. |
 | `x-stainless-param` | Parameter schema | Canonical SDK parameter name, re-cased for each target. |
-| `x-stainless-naming` | Object, enum, or parameter schema | Per-target `property_name` and `type_name` overrides. `node` is the TypeScript target alias. |
-| `x-stainless-renameMap` | Enum schema | SDK member names, using `{ sdkName: wireValue }`. |
+| `x-stainless-naming` | Object-property, object, enum, or parameter schema | Per-target `property_name` and `type_name` overrides. `node` is the TypeScript target alias. |
+| `x-stainless-renameMap` | Enum schema | SDK member names, using `{ sdkName: wireValue }`. Honored by Go, Rust, and Swift, like `x-scalar-enum-names`. |
+| `x-stainless-override-schema` | Schema | Same behavior as `x-scalar-override-schema`; the native extension wins when both are present. |
 
 ## Extensions outside the SDK vocabulary
 
 `x-scalar-navigation`, `x-scalar-order`, `x-scalar-is-dirty`, `x-scalar-original-document-hash`, `x-scalar-original-source-url`, and `x-scalar-registry-meta` are Scalar workspace metadata. The loader strips them before generation; do not use them to control an SDK.
 
-`x-displayName` and `x-tagGroups` are preserved or synthesized only when generating an augmented OpenAPI document with `openapi.tags: "resources"`; they do not alter generated SDK methods or models.
+With `openapi.tags: "resources"`, the augmented OpenAPI document labels each derived tag with `x-displayName` and removes `x-tagGroups`; neither affects generated SDK methods or models.
 
 ## Next steps
 

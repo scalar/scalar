@@ -34,7 +34,7 @@ Click **Connect repository**. From now on, every successful build pushes the gen
 
 ## How syncing works
 
-Builds never commit straight to your default branch. The repository follows a three-branch flow that Scalar manages together with the generated workflows, all of which run on the default `GITHUB_TOKEN` — no extra token to provision.
+Builds never commit straight to your default branch. The repository follows a three-branch flow that Scalar manages together with the generated workflows, all of which run on the default `GITHUB_TOKEN` — no extra token to provision (a CLI's Homebrew tap is the one exception: it needs `HOMEBREW_TAP_TOKEN`).
 
 <scalar-image
   src="/sdks/github-linked.png"
@@ -43,7 +43,7 @@ Builds never commit straight to your default branch. The repository follows a th
 </scalar-image>
 
 - **`scalar-generated`** holds pristine generator output. Scalar pushes here; you never commit to it.
-- **`scalar-next`** holds that output merged with your custom code. This is where you commit your own changes, directly or through pull requests, and where Scalar merges each regeneration.
+- **`scalar-next`** (renamable with `integrationBranch`) holds that output merged with your custom code. This is where you commit your own changes, directly or through pull requests, and where Scalar merges each regeneration.
 - **The default branch** (`main` unless you configure otherwise) only ever receives released states. Scalar keeps a **release pull request** open from `scalar-next` against it, so the diff you review is the entire pending release. Merging that pull request is what releases and publishes the version.
 - **`scalar-merge-conflict`** carries a regeneration that could not be merged cleanly; it arrives as a pull request for you to resolve.
 
@@ -137,10 +137,11 @@ Linking from the dashboard sets the target's `destinations` in your SDK configur
 | -------- | ---- | ----------- |
 | `repo` | `string` | The `owner/repo` the generated SDK is pushed to. |
 | `branch` | `string` | The repository's default branch, which releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
+| `integrationBranch` | `string` | The branch where generated output is combined with your custom code. Defaults to `scalar-next`. |
 
 ## Adding repository secrets
 
-[OIDC trusted publishing](registries.md) needs no secrets. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
+[OIDC trusted publishing](overview.md#authentication) needs no secrets, except NuGet's `NUGET_USER`. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
 
 <scalar-steps>
   <scalar-step id="secret-open" title="Open the repository's Actions secrets">
@@ -157,7 +158,7 @@ Select **New repository secret**.
 
   <scalar-step id="secret-add" title="Name it exactly and paste the value">
 
-Enter the **Name** the workflow expects (for example `NPM_TOKEN`) and paste the value, then **Add secret**. The per-language pages list the exact name each registry uses.
+Enter the **Name** the workflow expects (for example `NPM_TOKEN`) and paste the value, then **Add secret**. Each registry's guide (see [Package Registries](registries.md)) lists the exact name, and, where there is one, the other name the workflow also accepts, so a repository that already stores a credential under a common name from another generator (`PYPI_TOKEN`, `GEM_HOST_API_KEY`, `HOMEBREW_TAP_GITHUB_TOKEN`, …) needs no new secret.
 
   </scalar-step>
 </scalar-steps>

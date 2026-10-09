@@ -31,6 +31,8 @@ Rules read the document, the configuration, and the compiled result together, an
 
 The findings are graded, suppressions are applied, and the result is checked against your gate. A build that fails the gate fails before anything is written, so a failing build never publishes a half-correct SDK.
 
+One check runs after a target is emitted instead: a target whose generated code fails the compile checks it runs reports `Target/InvalidGeneratedCode` and is held back, while the other targets are still written. Today only the Go target runs one, and it catches a generated sample that assigns a struct field a type its declaration does not have.
+
   </scalar-step>
 </scalar-steps>
 
@@ -64,7 +66,7 @@ Rendered, one finding reads like this:
 
 ## Severity and the build gate
 
-There are three severities, and the defaults follow a single rule: **only conditions that stop generation outright are graded `error`.** Everything else — every condition that used to pass silently — starts at `warn` or `info`, so the analysis never turns a healthy build red on its own. Exactly three rules default to `error`: `Config/ParseError`, `Document/ReferenceError`, and `Pagination/UnknownScheme`.
+There are three severities, and the defaults follow a single rule: **only conditions that stop generation outright are graded `error`.** Everything else — every condition that used to pass silently — starts at `warn` or `info`, so the analysis never turns a healthy build red on its own. The one exception is `Target/InvalidGeneratedCode`: a target whose generated code fails its compile check is held back, even though builds like it passed before the check existed. Five rules default to `error`: `Config/ParseError`, `Config/InvalidIntegrationBranch`, `Document/ReferenceError`, `Pagination/UnknownScheme`, and `Target/InvalidGeneratedCode`.
 
 | Severity | What it means |
 | -------- | ------------- |
@@ -101,7 +103,7 @@ Each rule declares which document a finding is a critique of, which is what sepa
 | ---------- | ------- |
 | `config` | The remedy is an edit to your SDK configuration: place the endpoint, declare the model, bind the security scheme. |
 | `document` | The remedy is an edit to your OpenAPI document: a one-member enum, an undecodable response media type, undeclared root security. |
-| `internal` | The generator reporting on itself (`Internal/RuleCrash`), which critiques neither of your files. |
+| `internal` | The generator reporting on itself (`Internal/RuleCrash`, `Target/InvalidGeneratedCode`), which critiques neither of your files. |
 
 The configuration Scalar generates for you is meant to report **no** `config` findings on its first build: the configuration generator applies the same rules the analyzer checks. Findings with `document` provenance legitimately survive a first build, because no configuration can invent what the description does not say.
 
@@ -144,6 +146,12 @@ Every rule's suppression key is listed alongside it below.
 | `Endpoint/NotConfigured` | `info` | The document declares an operation that no resource places and `ignoredEndpoints` does not list. Configuration is the allow-list, so the operation is generated in no SDK at all. | The endpoint |
 | `Method/BodyRootParamUnnamed` | `info` | A method's JSON request body is an inline schema with no `title` and the method sets no `bodyParamName`, so the public parameter name for the whole body is generator-derived rather than chosen. | The endpoint |
 | `Target/NotRegistered` | `warn` | The configuration declares a target that has no generator, so the target is skipped instead of built. | The target id, such as `go` |
+| `Config/InvalidIntegrationBranch` | `error` | A target's `destinations.production.integrationBranch` is not a usable branch name: not a safe git ref, the same as the default branch, reserved for a branch the platform manages, a parent or child path of one of those, or containing `--components--`. | The config path, such as `targets.go.destinations.production.integrationBranch` |
+| `Config/AccessorShadowsMethod` | `warn` | A pinned resource accessor names the same member as a method beside it, so the accessor was renamed. | The resource path, such as `users.billing` |
+| `Config/UnknownPublishKey` | `warn` | A `publish` block carries a key that is neither a registry the target supports nor a reserved option such as `signing`, usually a misspelling. | `targets.<target>.publish.<key>` |
+| `Config/UnknownPublishOption` | `warn` | A registry entry under `publish` carries a key the configuration schema does not declare. | `targets.<target>.publish.<registry>.<key>` |
+| `Config/UnresolvableDestinationRepo` | `warn` | A destination repository is not a GitHub `owner/repo`, so the GitHub-only fields in generated package metadata are left out. | `targets.<target>.destinations.production.repo` |
+| `Config/OidcIssuerMismatch` | `warn` | The CLI's configured OAuth issuer rules out an OpenID Connect scheme's browser sign-in, so that sign-in is left out. | The security scheme name |
 | `Environment/InvalidURL` | `warn` | An `environments` value is not an absolute URL. Generated clients use environments as base URLs, so a relative value produces an SDK that cannot send a request without a manual override. | The environment name |
 
 ### Document and references
@@ -151,7 +159,9 @@ Every rule's suppression key is listed alongside it below.
 | Rule | Default | Fires when | Suppression key |
 | ---- | ------- | ---------- | --------------- |
 | `Document/ReferenceError` | `error` | A `$ref` in the document cannot be resolved, typically an external file or URL that does not exist. Schemas that use it degrade to untyped values. | The `$ref` string |
-| `Document/ExtensionReferenceError` | `warn` | The same, for a `$ref` inside a vendor extension the generator does not read. Nothing generated depends on it, so it warns instead of failing. References under `x-scalar-`, `x-fern-`, `x-stainless-`, and `x-speakeasy-` are read by the generator and stay at `error`. | The `$ref` string |
+| `Document/ExtensionReferenceError` | `warn` | The same, for a `$ref` inside a vendor extension the generator does not read. Nothing generated depends on it, so it warns instead of failing. References under `x-scalar-`, `x-fern-`, `x-stainless-`, and `x-speakeasy-` are read by the generator and stay at `error`, except `x-fern-examples`, which the generator does not read. | The `$ref` string |
+| `Document/DiscriminatorMappingContradicted` | `warn` | A discriminator maps a value to a variant whose schema pins the discriminator property to a different value. | The schema name |
+| `Document/DiscriminatorPropertyAbsent` | `warn` | A discriminator maps several values to a variant that does not declare the discriminator property. | The schema name |
 | `Compiler/DeepPointerUnresolved` | `warn` | A deep schema pointer such as `#/components/schemas/Pet/properties/tags` never resolved, so every reference to it becomes an untyped value in every SDK. | The pointer |
 
 ### Schemas and models
@@ -195,7 +205,27 @@ The generated README is code that has to compile, so its configured examples are
 | Rule | Default | Fires when | Suppression key |
 | ---- | ------- | ---------- | --------------- |
 | `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target generates without it. | The endpoint |
+| `Unsupported/WebhookSignatureAlgorithm` | `warn` | Webhooks are signed with an algorithm a target cannot verify (C++ verifies `hmac-sha1`, `hmac-sha256` and `hmac-sha512`, but not `ed25519` or `rsa-sha256`), so that SDK has no signature verifier for them and you must check signatures yourself. | The algorithm, such as `ed25519` |
+| `Target/InvalidGeneratedCode` | `error` | A target's generated code fails its compile check after emit, so that target is held back while the others are written. Only Go runs one today: a generated sample assigning a struct field a type its declaration does not have. | The declaration that fails, such as `CreateParams.Owner` |
 | `Internal/RuleCrash` | `warn` | A diagnostics rule itself failed and was skipped for this build. Your SDK still generates; the finding tells you one check did not run. | The crashing rule's code |
+
+### gRPC
+
+These fire only when the SDK is generated from a proto file.
+
+| Rule | Default | Fires when | Suppression key |
+| ---- | ------- | ---------- | --------------- |
+| `Grpc/NoMethodsGenerated` | `warn` | A configured target gets no operations at all from the proto input. | `grpc` |
+| `Grpc/ServiceNotFound` | `warn` | A configured `grpc.services` key names no service in the proto. | The service name |
+| `Grpc/ServiceNotPlaced` | `info` | A service the proto declares is not one the SDK is generated from. | The service name |
+| `Grpc/ServicePlacementUnapplied` | `warn` | A configured `grpc.services` block states fields that are not in effect. | `<service> <field> …` |
+| `Grpc/TranscodeQueryFormat` | `warn` | The configured query settings do not match what a transcoding gateway parses. | The settings, such as `arrayFormat nestedFormat` |
+| `Grpc/UnspellableProcedure` | `warn` | A service or RPC name cannot be written as a config endpoint, so it is skipped. | The service name |
+| `Unsupported/GrpcMethod` | `warn` | A gRPC method is left out of a target that has no Connect runtime to send it with. | The endpoint |
+| `Unsupported/GrpcPagination` | `warn` | A Connect RPC is configured to paginate, which no generated page runtime can do. | The endpoint |
+| `Unsupported/GrpcStreamingMode` | `warn` | A client-streaming or bidirectional RPC is dropped from the generated SDK. | The endpoint |
+| `Unsupported/GrpcTranscodeBinding` | `info` | Only the primary `google.api.http` binding of an RPC is generated. | The endpoint |
+| `Unsupported/GrpcTranscodeMissing` | `warn` | An RPC cannot be transcoded onto HTTP and falls back to the Connect protocol. | The endpoint |
 
 ### AsyncAPI
 

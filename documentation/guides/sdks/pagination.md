@@ -2,7 +2,9 @@
 
 A paginated method returns a page instead of a raw response. The page carries the items, remembers the request that produced them, and knows how to ask for the next one — so iterating it walks the whole collection, and no caller has to reimplement your paging rules.
 
-Pagination is declared, never guessed. An `offset` parameter is not always a pager and a `next` field is not always a cursor, so the generator refuses to infer paging from parameter names: you state the scheme once, and every target generates its own idiomatic helper from it.
+Pagination is declared, not guessed. An `offset` parameter is not always a pager and a `next` field is not always a cursor, so the generator does not infer paging from parameter names: you state the scheme once, and every target generates its own idiomatic helper from it.
+
+The one exception is the starter configuration derived for a document with no configuration and no pagination markers of its own (`x-scalar-pagination` anywhere, `x-fern-pagination` or `x-speakeasy-pagination` on an operation, or an `x-stainless-pagination-property` paging purpose on a request parameter). There, a `GET` operation whose shape is unmistakably opaque-cursor paging gets a `cursor` scheme written for it: an optional string `cursor`, `page_token` or `pageToken` query parameter and no `offset`, `page`, `after` or `before` beside it, answered by a JSON object with exactly one array property and exactly one string `next_cursor`, `nextCursor`, `next_page_token` or `nextPageToken` property (nullable counts). An integer `limit`, `page_size` or `pageSize` parameter becomes the page size. The scheme lands in the starter configuration like any other, so you can rename it, edit it, or set `paginated: false` on a method it should not cover. Nothing is inferred when the starter is derived for a run that includes the Dart or C++ target, whose pages cannot fetch the next one yet; a starter configuration written by an earlier run is your configuration from then on and applies to every target as written. A document carrying `x-fern-*` extensions is imported as a Fern project by default, which infers nothing; when it has no `x-fern-pagination`, pass `--no-compat` to get the plain starter and its inference.
 
 ## Start here
 
@@ -114,7 +116,7 @@ next, err := page.GetNextPage()
 
 ## Declaring a scheme
 
-A scheme can live in either place, and the shape is identical in both.
+A scheme can live in either place, and the shape is identical in both. Document-declared schemes are read when the configuration is derived from the document; once you supply a configuration, its `pagination` and `paginated` values are authoritative.
 
 **In the SDK configuration.** `pagination` holds an array of complete named schemes, and methods select one by name. This is the better home when the same scheme covers several operations, several documents, or several targets.
 
@@ -148,8 +150,8 @@ A method opts in through `paginated`:
 | ----- | ------ |
 | `"offsetPage"` | Paginates with that named scheme. |
 | `false` | Never paginates, whatever the document says. |
-| Omitted | Falls back to the document's pagination markers. If a marker names a type and exactly one configured scheme has that type, the method adopts it. More than one match is ambiguous, so the method stays unpaginated and reports `Pagination/AmbiguousMarker`. |
-| `true` | Treated as silence, the same as omitting it. It carries meaning only while importing a Fern, Speakeasy, or Stainless configuration, where it opts a non-list method into scheme discovery. |
+| Omitted | Falls back to the document's pagination markers (`x-stainless-pagination-property` on request-parameter schemas). If a marker names a type and exactly one configured scheme has that type, the method adopts it. More than one match is ambiguous, so the method stays unpaginated and reports `Pagination/AmbiguousMarker`. |
+| `true` | Resolves to no scheme: the method is not paginated, and document markers are not consulted. Only a Stainless import gives it meaning, matching the method against the configured schemes. |
 
 Configuration always wins over the document: a named scheme or an explicit `false` is never overridden by a marker.
 
@@ -173,10 +175,10 @@ Each entry under `request` describes one parameter the SDK sets when it asks for
 | --- | ---------- |
 | `type` | The field's role: `offset`, `pageNumber`, `cursor`, `cursorId`, `cursorUrl`, `limit`, or `pageSize`. |
 | `param` | The wire name of the parameter. Defaults to the entry's key. |
-| `location` | `query` or `body`. Defaults to `paramLocation`, then `query`. The schema also accepts `header`, but a generated page sends its paging parameters in the query string or the body only, so a `header` paging parameter is advanced as a query parameter. |
+| `location` | `query` or `body`. Defaults to `paramLocation`, then `query`. The schema also accepts `header`; Swift and Rust send a `header` paging parameter as a header, and so do Java and Kotlin when the operation declares that header; most other targets advance it as a query parameter. |
 | `path`, `property` | Where the field sits inside a request body, for body-located paging. |
 | `value` | A literal value to send for this field on every request. |
-| `schema` | The field's schema, which types the parameter in the generated params object. Absent, a cursor role types as a string and the numeric roles as a number. |
+| `schema` | The field's schema, which types the parameter in the generated params object. Absent, a cursor role types as a string and the numeric roles as an integer. |
 | `required` | Whether the generated parameter is required. |
 
 `limit` and `pageSize` are the same role under two names — use whichever matches your API's vocabulary.
@@ -193,7 +195,7 @@ Each entry under `response` describes one field the page reads out of the respon
 | `property` | The response property holding the value. |
 | `path` | The path to it, for a value nested inside an envelope, such as `["data", "items"]`. |
 | `location` | `body`, `header`, `linkHeader`, or `bodyLink`. Defaults to `body`. See [Where fields are read from](#where-fields-are-read-from). |
-| `headerName`, `rel` | The header and link relation for a header or `Link`-header field. Default to `Link` and `next`. |
+| `headerName`, `rel` | The header and link relation for a header or `Link`-header field. For `linkHeader` they default to `Link` and `next`; a `header` field's `headerName` defaults to the entry's key. |
 | `itemCursor` | The path *within each item* to the value used as the next cursor, for `cursorId` schemes. |
 | `cursorPath` | The path within this field's own object to the cursor, such as `["next"]` when the field is a `links` envelope. The field keeps its declared shape; only the cursor read descends. |
 | `schema` | The field's schema, which types the member on the generated page. |
@@ -297,7 +299,7 @@ There is no cursor field: the next request sends an identifier taken from the la
 The response carries a fully-formed URL for the next page rather than a token.
 
 <scalar-callout type="warning" icon="phosphor/regular/warning">
-  Support is uneven. Rust re-issues the request against the URL, which it reads from a `bodyLink` response field. Every other target writes the cursor's value into a request parameter, which is not what a URL is for, so such a scheme under-fetches rather than looping: Ruby declines the scheme, C# renders the last page, and the rest stop after the first. Prefer a `cursor` scheme over a URL where your API offers both.
+  Support is uneven and depends on how the URL field is declared. With `location: bodyLink`, Rust, Swift, and Ruby re-issue the request against the URL, while Java and Kotlin re-send the same operation with the URL's query string, so a cursor carried in the URL's path is not followed. C# treats the first page as the last, and TypeScript, Python, Go, and PHP stop after the first. Left at `location: body` in a `cursorUrl` scheme, the URL is still followed by Ruby, and by Swift when the scheme declares no request cursor parameter; under that same condition Java and Kotlin apply its query string to the same operation. Otherwise it is written into the cursor request parameter, which is not what a URL is for, and a server that ignores that parameter can return the first page again and again. Prefer a `cursor` scheme over a URL where your API offers both.
 </scalar-callout>
 
 ### `fakePage`
@@ -327,7 +329,7 @@ Whatever the caller sent with the first request — headers, query parameters, a
 
 ## What gets generated
 
-The scheme name becomes the page type, cased for each language: `offsetPage` generates `OffsetPage` in TypeScript, `SyncOffsetPage` and `AsyncOffsetPage` in Python, and so on. Two schemes that would case to the same name get a numeric suffix, so the name in your configuration is worth choosing deliberately.
+In TypeScript, Python, Go, Ruby, and PHP the scheme name becomes the page type, cased for each language: `offsetPage` generates `OffsetPage` in TypeScript, `SyncOffsetPage` and `AsyncOffsetPage` in Python, and so on. Java, Kotlin, and C# name a page class per method, and Rust, Dart, C++, and Swift use a generic page type. Two schemes that would case to the same name get a numeric suffix, so the name in your configuration is worth choosing deliberately.
 
 Alongside the page type, a target generates a params type carrying the scheme's request fields (so a paginated method accepts `offset` and `size` as normal arguments) and a response type carrying its response fields (so page metadata such as `total` stays accessible next to the items).
 
@@ -336,22 +338,22 @@ Alongside the page type, a target generates a params type carrying the scheme's 
 | TypeScript | `for await (const item of page)` | `page.hasNextPage()`, `page.getNextPage()`, `page.iterPages()` |
 | Python | `for item in page`, `async for item in page` | `page.has_next_page()`, `page.get_next_page()`, `page.iter_pages()` |
 | Go | `client.X.ListAutoPaging(...)` with `Next()`, `Current()`, `Err()` | `page.GetNextPage()` |
-| Java, Kotlin | `page.autoPager()` | `page.hasNextPage()` |
+| Java, Kotlin | `page.autoPager()` | `page.hasNextPage()`, `page.nextPage()` |
 | Ruby | `page.auto_paging_each` with a block | `page.next_page` |
 | C# | `await foreach (var item in page.Paginate())` | `page.HasNext()`, `page.Next()` |
 | PHP | `foreach ($page as $item)`, `$page->pagingEachItem()` | `$page->hasNextPage()`, `$page->getNextPage()` |
 | Rust | `let mut pager = ...paginate();` then `pager.next().await` | `Pager::next_page` |
 | Dart | — | `Page<T>` with `hasNextPage()` and `getNextPage()` |
 | C++ | — | `Page<T>` carrying the items field and next-page metadata, without fetching it |
-| Swift | — | Not yet: a paginated method returns the response as it is |
+| Swift | `for try await item in client.x.list(...)` | `.pages`, `firstPage()`, `page.hasNextPage`, `page.nextPage()` |
 
 Your generated README also picks up a `## Pagination` section walking a real paginated operation. Choose which one with `readme.exampleRequests.pagination`.
 
 ## Where fields are read from
 
-Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests, and C++ and Dart surface it as page metadata, but no target's page advances from a header, so a scheme whose only cursor lives in one stops after the first page. `bodyLink` is read by Rust, which follows it as a next-page URL, and by nothing else.
+Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests, and C++ and Dart surface it as page metadata, but only Swift's page advances from a header cursor, so on every other target a scheme whose only cursor lives in one stops after the first page. `bodyLink` is followed as a next-page URL by Rust, Swift, and Ruby; Java and Kotlin apply its query string to the same operation.
 
-`cursorPath` and `itemCursor` are read by TypeScript and Python; C# reads `itemCursor` only. On the other targets a scheme relying on either stops after the first page, so prefer a top-level cursor field where your API offers one.
+`itemCursor` is read by every target except Dart and C++; `cursorPath` is read by TypeScript, Python, Swift, Ruby, Java, and Kotlin. On the other targets a scheme relying on either stops after the first page, so prefer a top-level cursor field where your API offers one.
 
 If your API pages by a `Link` header and you need it followed, tell us — it is a gap we are tracking, not a design decision.
 
