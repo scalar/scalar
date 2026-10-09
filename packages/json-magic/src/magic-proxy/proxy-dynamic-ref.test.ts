@@ -12,6 +12,23 @@ type ProxyNode = { readonly [key: string]: ProxyNode }
  * exercise that behavior through the proxy itself (not the standalone resolver). See #9414.
  */
 describe('proxy-dynamic-ref', () => {
+  it('refreshes inherited scopes on child proxies saved before an anchor is added', () => {
+    const proxy = createMagicProxy({
+      $id: 'urn:page',
+      $defs: {} as Record<string, { $dynamicAnchor: string; title: string }>,
+      items: { $dynamicRef: '#item' },
+    })
+    const items = proxy.items
+    expect(Reflect.get(items, '$dynamicRef-value')).toBeUndefined()
+    proxy.$defs.item = { $dynamicAnchor: 'item', title: 'User' }
+    expect(Reflect.get(proxy.items, '$dynamicRef-value').title).toBe('User')
+    expect(Reflect.get(items, '$dynamicRef-value').title).toBe('User')
+    delete proxy.$defs.item
+    expect(Reflect.get(items, '$dynamicRef-value')).toBeUndefined()
+    proxy.$defs.item = { $dynamicAnchor: 'item', title: 'Group' }
+    expect(Reflect.get(items, '$dynamicRef-value').title).toBe('Group')
+  })
+
   it('resolves a dynamic reference declared on its resource boundary', () => {
     const proxy = createMagicProxy({
       $id: 'urn:resource',

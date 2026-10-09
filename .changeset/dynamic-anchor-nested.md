@@ -17,3 +17,5 @@ The bookend for a `$dynamicRef` is looked up in the whole resource that holds it
 XML serialization also resolves resource-level dynamic references against their own scope, so it does not borrow an outer binding across a resource boundary. Sibling references only merge plain schema objects, leaving non-schema targets unchanged.
 
 Invalidate dynamic anchor and reference caches when schemas are edited through the magic proxy, including anchor additions, replacements, and deletions inside previously scanned resources.
+
+Refresh the inherited dynamic scope of saved child proxies when anchors are added or removed after their first read.
