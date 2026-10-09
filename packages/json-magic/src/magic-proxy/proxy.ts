@@ -126,6 +126,8 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * the virtual `$dynamicRef-value` property. Stays empty for documents without `$dynamicRef`.
      */
     dynamicScope: DynamicScope
+    /** Refresh inherited scopes for proxies retained across schema edits. */
+    getDynamicScope?: () => DynamicScope
     /**
      * Interns dynamic-scope arrays so the same `(parentScope, resource)` always yields the same array
      * identity. That stable identity is what makes the scope-keyed caches below work.
@@ -190,18 +192,25 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   // `currentContext` is the nearest enclosing `$id`, so a schema reached through a `$ref` is judged by
   // where it lives, not by the resources on the path that led to it.
   // Grown scopes are interned so the same `(parentScope, resource)` yields one stable array identity.
-  const getChildScope = (): DynamicScope =>
-    carriesDynamicAnchor(target as UnknownObject, args.currentContext !== '') &&
-    // A resource with no anchors does not start a scope, so ordinary documents keep the shared cache.
-    // Once a scope is active, retain every resource boundary for correct bookending.
-    (dynamicScopeActive || collectDynamicAnchors(target as UnknownObject).size > 0) &&
-    !args.dynamicScope.includes(target)
-      ? internScope(args.scopeCache, args.dynamicScope, target as UnknownObject)
-      : args.dynamicScope
+  const getChildScope = (): DynamicScope => {
+    const inheritedScope = args.getDynamicScope?.() ?? args.dynamicScope
+    return carriesDynamicAnchor(target as UnknownObject, args.currentContext !== '') &&
+      (inheritedScope.length > 0 || collectDynamicAnchors(target as UnknownObject).size > 0) &&
+      !inheritedScope.includes(target)
+      ? internScope(args.scopeCache, inheritedScope, target as UnknownObject)
+      : inheritedScope
+  }
 
   const creationRevision = args.mutationState.revision
   let scopeRevision = creationRevision
   let childScope = getChildScope()
+  const getDynamicScope = (): DynamicScope => {
+    if (scopeRevision !== args.mutationState.revision) {
+      childScope = getChildScope()
+      scopeRevision = args.mutationState.revision
+    }
+    return childScope
+  }
   const invalidate = (): void => {
     args.mutationState.revision++
     args.cache.clear()
@@ -271,6 +280,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           ...args,
           currentContext: id ?? args.currentContext,
           dynamicScope: childScope,
+          getDynamicScope,
         })
       }
 
@@ -307,6 +317,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           ...args,
           currentContext: resolvedValue.context,
           dynamicScope: childScope,
+          getDynamicScope,
         })
 
         refCache.set(ref, proxiedValue)
@@ -325,6 +336,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         ...args,
         currentContext: id ?? args.currentContext,
         dynamicScope: childScope,
+        getDynamicScope,
       })
     },
     /**
