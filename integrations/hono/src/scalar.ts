@@ -32,7 +32,6 @@ const customTheme = `
   --scalar-border-color: rgba(255, 255, 255, 0.1);
   --scalar-scrollbar-color: rgba(255, 255, 255, 0.24);
   --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
-  --scalar-lifted-brightness: 1.45;
   --scalar-backdrop-brightness: 0.5;
 
   --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
@@ -46,7 +45,7 @@ const customTheme = `
   --scalar-color-green: #3dd68c;
   --scalar-color-red: #f66f81;
   --scalar-color-yellow: #f9b44e;
-  --scalar-color-blue: #5c73e7;
+  --scalar-color-blue: #788beb;
   --scalar-color-orange: #ff8d4d;
   --scalar-color-purple: #b191f9;
 }

@@ -10,7 +10,7 @@ vi.mock('@changesets/get-github-info', () => ({
 
 const mockGetInfo = vi.mocked(getInfo)
 
-describe('changelog functions', () => {
+describe('index', () => {
   beforeEach(() => {
     mockGetInfo.mockReset()
   })
@@ -38,7 +38,7 @@ describe('changelog functions', () => {
     expect(line).toBe('- [#42](https://github.com/scalar/scalar/pull/42): Add feature X')
   })
 
-  it('getDependencyReleaseLine always returns empty string', async () => {
+  it('suppresses dependency updates in the shared hook', async () => {
     const changesets: Array<NewChangesetWithCommit> = [
       {
         id: '123',
@@ -52,11 +52,50 @@ describe('changelog functions', () => {
       {
         name: '@scalar/api-reference',
         newVersion: '1.0.1',
+        oldVersion: '1.0.0',
+        type: 'patch',
+        changesets: ['123'],
+        packageJson: { name: '@scalar/api-reference', version: '1.0.0' },
+        dir: '/packages/api-reference',
       },
-    ] as Array<ModCompWithPackage>
+      {
+        name: '@scalar/dotnet-shared',
+        newVersion: '1.0.2',
+        oldVersion: '1.0.1',
+        type: 'patch',
+        changesets: [],
+        packageJson: { name: '@scalar/dotnet-shared', version: '1.0.1' },
+        dir: '/integrations/dotnet/shared',
+      },
+    ] satisfies Array<ModCompWithPackage>
 
     const output = await changelogFunctions.getDependencyReleaseLine(changesets, deps, { repo: 'scalar/scalar' })
 
     expect(output).toBe('')
+    expect(mockGetInfo).not.toHaveBeenCalled()
+  })
+
+  it('suppresses transitive dependency updates without changesets', async () => {
+    const output = await changelogFunctions.getDependencyReleaseLine(
+      [],
+      [
+        {
+          name: '@scalar/workspace-store',
+          oldVersion: '0.55.5',
+          newVersion: '0.55.6',
+          type: 'patch',
+          changesets: [],
+          packageJson: { name: '@scalar/workspace-store', version: '0.55.5' },
+          dir: '/packages/workspace-store',
+        },
+      ],
+      null,
+    )
+
+    expect(output).toBe('')
+  })
+
+  it('omits the dependency heading when no dependencies changed', async () => {
+    expect(await changelogFunctions.getDependencyReleaseLine([], [], null)).toBe('')
   })
 })

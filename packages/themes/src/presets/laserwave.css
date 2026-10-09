@@ -67,6 +67,7 @@
   --scalar-color-blue: #40b4c4;
   --scalar-color-orange: #ff52bf;
   --scalar-color-purple: #91889b;
+  --scalar-color-query: #7860a8;
 
   --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
   --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
@@ -82,6 +83,7 @@
   --scalar-color-blue: #40b4c4;
   --scalar-color-orange: #ff52bf;
   --scalar-color-purple: #91889b;
+  --scalar-color-query: #b8a2e3;
 
   --scalar-scrollbar-color: rgba(255, 255, 255, 0.24);
   --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
@@ -102,6 +104,7 @@
     --scalar-color-blue: color(display-p3 0.25098 0.705882 0.768627 / 1);
     --scalar-color-orange: color(display-p3 1 0.321569 0.74902 / 1);
     --scalar-color-purple: color(display-p3 0.568627 0.533333 0.607843 / 1);
+    --scalar-color-query: color(display-p3 0.470588 0.376471 0.658824 / 1);
   }
   .dark-mode {
     --scalar-color-accent: color(display-p3 0.929412 0.470588 0.760784 / 1);
@@ -111,5 +114,6 @@
     --scalar-color-blue: color(display-p3 0.25098 0.705882 0.768627 / 1);
     --scalar-color-orange: color(display-p3 1 0.321569 0.74902 / 1);
     --scalar-color-purple: color(display-p3 0.568627 0.533333 0.607843 / 1);
+    --scalar-color-query: color(display-p3 0.721569 0.635294 0.890196 / 1);
   }
 }

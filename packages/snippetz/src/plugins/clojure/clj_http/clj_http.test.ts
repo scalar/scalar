@@ -105,9 +105,7 @@ describe('clojureCljhttp', () => {
 
     expect(result).toBe(`${REQUIRE}
 
-(client/get "https://example.com/api" {:query-params {:param1 "value1"
-                                                      :param2 "special value"
-                                                      :param3 "123"}})`)
+(client/get "https://example.com/api?param1=value1&param2=special%20value&param3=123")`)
   })
 
   it('has cookies', () => {
@@ -273,10 +271,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "test.txt")} {:name "field"
+                                                 :content (clojure.java.io/file "test.txt")
+                                                 :filename "test.txt"} {:name "field"
                                                  :content "value"}]})`)
   })
 
@@ -295,10 +294,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "")}]})`)
+                                                 :content (clojure.java.io/file "")
+                                                 :filename ""}]})`)
   })
 
   it('uses the inline value as content when a part has both a file name and a value', () => {
@@ -317,10 +317,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content "file contents"}]})`)
+                                                 :content "file contents"
+                                                 :filename "test.txt"}]})`)
   })
 
   it('references the file path when a part has a file name and a null value', () => {
@@ -340,10 +341,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "test.txt")}]})`)
+                                                 :content (clojure.java.io/file "test.txt")
+                                                 :filename "test.txt"}]})`)
   })
 
   it('treats a null file name as a value-less part instead of a file', () => {
@@ -404,10 +406,11 @@ describe('clojureCljhttp', () => {
       },
     })
 
-    expect(result).toBe(`${REQUIRE}
+    expect(result).toBe(`(require '[clj-http.client :as client])
 
 (client/post "https://example.com" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "C:\\\\path\\\\to\\\\\\"file\\".txt")}]})`)
+                                                 :content (clojure.java.io/file "C:\\\\path\\\\to\\\\\\"file\\".txt")
+                                                 :filename "C:\\\\path\\\\to\\\\\\"file\\".txt"}]})`)
   })
 
   it('handles url-encoded form data with special characters', () => {
@@ -427,7 +430,7 @@ describe('clojureCljhttp', () => {
 
     expect(result).toBe(`${REQUIRE}
 
-(client/post "https://example.com" {:form-params {:special chars!@# "value"}})`)
+(client/post "https://example.com" {:form-params {"special chars!@#" "value"}})`)
   })
 
   it('handles binary data as a raw body', () => {
@@ -591,5 +594,44 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(`${REQUIRE}
 
 (client/get "https://example.com/${'a'.repeat(2000)}")`)
+  })
+
+  it('writes line breaks in a body as escapes so no indentation ends up in the string', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'text/plain', text: 'line one\nline two\r\nline three' },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:body "line one\\nline two\\r\\nline three"})`)
+  })
+
+  it('writes line breaks in a nested JSON value as escapes', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/json', text: JSON.stringify({ note: 'a\nb', other: 1 }) },
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/post "https://example.com" {:content-type :json
+                                    :form-params {:note "a\\nb"
+                                                  :other 1}})`)
+  })
+
+  it('writes header and query names that are not valid keywords as strings', () => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'X Custom', value: 'a' }],
+      queryString: [{ name: 'filter[name]', value: 'b' }],
+    })
+
+    expect(result).toBe(`${REQUIRE}
+
+(client/get "https://example.com" {:headers {"X Custom" "a"}
+                                   :query-params {"filter[name]" "b"}})`)
   })
 })

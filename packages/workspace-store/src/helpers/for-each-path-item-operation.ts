@@ -1,6 +1,8 @@
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
 import { type NodeInput, getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import type { OperationObject } from '@/schemas/v3.2/strict/operation'
@@ -14,13 +16,17 @@ import type { PathItemObject } from '@/schemas/v3.2/strict/path-item'
  */
 const MAX_REF_HOPS = 10
 
+/** Fixed OpenAPI fields use lowercase keys; mixed-case wire methods belong in additionalOperations. */
+const isFixedOperationKey = (method: string): method is HttpMethod =>
+  method === method.toLowerCase() && isHttpMethod(method)
+
 /**
  * Whether a merged path item still carries an unfollowed hop.
  *
- * `mergeSiblingReferences` spreads the resolved target over the siblings. When that target is itself
- * a reference, the spread carries its `$ref-value` across as a real key, which is the signal that
- * one more hop is waiting. A fully resolved path item never has one: the `$ref` sibling is kept (it
- * is what the author wrote) but nothing resolves through it any more.
+ * `mergeSiblingReferences` preserves the resolved target's `$ref-value`, including non-enumerable
+ * links in plain documents. That link signals that one more hop is waiting. A fully resolved path
+ * item never has one: the `$ref` sibling is kept (it is what the author wrote) but nothing resolves
+ * through it any more.
  */
 const hasUnfollowedRef = (pathItem: PathItemObject | undefined): boolean =>
   isObjectLike(pathItem) && Object.hasOwn(pathItem, '$ref-value')
@@ -72,14 +78,18 @@ export const getResolvedPathItem = (pathItem: NodeInput<PathItemObject> | undefi
  */
 export const getPathItemOperation = (
   pathItem: NodeInput<PathItemObject> | undefined,
-  method: HttpMethod,
+  method: string,
 ): NodeInput<OperationObject> | undefined => {
   const resolvedPathItem = getResolvedPathItem(pathItem)
   if (!resolvedPathItem) {
     return undefined
   }
 
-  return resolvedPathItem[method]
+  if (isFixedOperationKey(method)) {
+    return resolvedPathItem[method]
+  }
+  const operations = resolvedPathItem.additionalOperations
+  return operations && Object.hasOwn(operations, method) ? operations[method] : undefined
 }
 
 /**
@@ -87,22 +97,22 @@ export const getPathItemOperation = (
  */
 export const setPathItemOperation = (
   pathItem: NodeInput<PathItemObject> | undefined,
-  method: HttpMethod,
+  method: string,
   operation: OperationObject,
 ): void => {
   if (!pathItem || typeof pathItem !== 'object') {
     return
   }
 
-  if ('$ref' in pathItem && '$ref-value' in pathItem) {
-    const refValue = pathItem['$ref-value']
-    if (refValue) {
-      refValue[method] = operation
-      return
-    }
-  }
+  const target = '$ref' in pathItem && '$ref-value' in pathItem ? (pathItem['$ref-value'] ?? pathItem) : pathItem
 
-  pathItem[method] = operation
+  if (isFixedOperationKey(method)) {
+    target[method] = operation
+  } else {
+    preventPollution(method)
+    target.additionalOperations ??= {}
+    target.additionalOperations[method] = operation
+  }
 }
 
 /**
@@ -136,13 +146,20 @@ const pathItemRefChain = (pathItem: NodeInput<PathItemObject>): Record<string, u
  * bundling a split-file document produces — and gives a sibling precedence over the value it
  * resolves to, so a copy left anywhere along the chain keeps surfacing after the delete.
  */
-export const deletePathItemOperation = (pathItem: NodeInput<PathItemObject> | undefined, method: HttpMethod): void => {
+export const deletePathItemOperation = (pathItem: NodeInput<PathItemObject> | undefined, method: string): void => {
   if (!pathItem || typeof pathItem !== 'object') {
     return
   }
 
   for (const node of pathItemRefChain(pathItem)) {
-    delete node[method]
+    if (isFixedOperationKey(method)) {
+      delete node[method]
+    } else if (isObjectLike(node.additionalOperations)) {
+      delete node.additionalOperations[method]
+      if (Object.keys(node.additionalOperations).length === 0) {
+        delete node.additionalOperations
+      }
+    }
   }
 }
 
@@ -151,7 +168,7 @@ export const deletePathItemOperation = (pathItem: NodeInput<PathItemObject> | un
  */
 export const forEachPathItemOperation = (
   pathItem: NodeInput<PathItemObject> | undefined,
-  callback: (method: HttpMethod, operation: NodeInput<OperationObject>) => void,
+  callback: (method: string, operation: NodeInput<OperationObject>) => void,
 ): void => {
   const resolvedPathItem = getResolvedPathItem(pathItem)
   if (!resolvedPathItem) {
@@ -159,11 +176,19 @@ export const forEachPathItemOperation = (
   }
 
   for (const [key, operation] of Object.entries(resolvedPathItem)) {
-    if (!isHttpMethod(key) || operation === undefined) {
+    if (!isFixedOperationKey(key) || operation === undefined) {
       continue
     }
 
     callback(key, operation as NodeInput<OperationObject>)
+  }
+
+  // Preserve explicitly authored wire methods, including uppercase standard names.
+  // Schema validation can flag their placement without silently removing them from navigation.
+  for (const [method, operation] of Object.entries(resolvedPathItem.additionalOperations ?? {})) {
+    if (operation !== undefined && !isFixedOperationKey(method)) {
+      callback(method, operation)
+    }
   }
 }
 
@@ -179,3 +204,7 @@ export const pathItemIsEmpty = (pathItem: NodeInput<PathItemObject> | undefined)
 
   return !resolvedPathItem || Object.keys(resolvedPathItem).length === 0
 }
+
+/** JSON pointer suffix for an operation within its Path Item Object. */
+export const getPathItemOperationKey = (method: string): string =>
+  isFixedOperationKey(method) ? method : `additionalOperations/${escapeJsonPointer(method)}`

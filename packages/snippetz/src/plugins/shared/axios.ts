@@ -1,31 +1,10 @@
 import type { Plugin, TargetId } from '@scalar/types/snippetz'
 
-import { accumulateRepeatedValue, reduceQueryParams } from '@/libs/http'
-import { Raw, objectToString } from '@/libs/javascript'
+import { buildFormData, formDataHeaders } from '@/libs/form-data'
+import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
+import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
 
 type AxiosHeaders = Record<string, string | string[]>
-
-const escapeJsString = (value: string): string =>
-  value.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
-
-const sanitizeForGeneratedCode = (value: unknown): unknown => {
-  if (typeof value === 'string') {
-    return escapeJsString(value)
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => sanitizeForGeneratedCode(item))
-  }
-
-  if (value && typeof value === 'object' && !(value instanceof Raw)) {
-    return Object.entries(value).reduce<Record<string, unknown>>((acc, [key, objectValue]) => {
-      acc[key] = sanitizeForGeneratedCode(objectValue)
-      return acc
-    }, {})
-  }
-
-  return value
-}
 
 const addHeaderValue = (headers: AxiosHeaders, name: string, value: string): void => {
   if (value === '') {
@@ -36,11 +15,18 @@ const addHeaderValue = (headers: AxiosHeaders, name: string, value: string): voi
   accumulateRepeatedValue(headers, name, value)
 }
 
-const buildHeaders = (request: Parameters<Plugin['generate']>[0]): AxiosHeaders | undefined => {
+const buildHeaders = (
+  request: Parameters<Plugin['generate']>[0],
+): Record<string, string | string[] | Raw> | undefined => {
   const headers: AxiosHeaders = {}
+  const rawHeaders: Record<string, Raw> = {}
 
-  request?.headers?.forEach((header) => {
-    addHeaderValue(headers, header.name, header.value)
+  formDataHeaders(request ?? {})?.forEach((header) => {
+    if (header.value instanceof Raw) {
+      rawHeaders[header.name] = header.value
+    } else {
+      addHeaderValue(headers, header.name, header.value)
+    }
   })
 
   if (request?.cookies?.length) {
@@ -48,11 +34,12 @@ const buildHeaders = (request: Parameters<Plugin['generate']>[0]): AxiosHeaders 
     addHeaderValue(headers, 'Cookie', cookieValue)
   }
 
-  return Object.keys(headers).length ? headers : undefined
+  return Object.keys(headers).length || Object.keys(rawHeaders).length ? { ...headers, ...rawHeaders } : undefined
 }
 
 const buildData = (
   request: Parameters<Plugin['generate']>[0],
+  target: 'js' | 'node',
 ): { setup: string[]; data?: Raw | string | Record<string, unknown> } => {
   const setup: string[] = []
   const postData = request?.postData
@@ -94,29 +81,7 @@ const buildData = (
   }
 
   if (postData.mimeType === 'multipart/form-data' && postData.params?.length) {
-    setup.push('const formData = new FormData()')
-    postData.params.forEach((param) => {
-      const encodedName = escapeJsString(param.name)
-
-      if (param.fileName !== undefined) {
-        const encodedFileName = escapeJsString(param.fileName)
-        const blobWithType = param.contentType ? `, { type: '${escapeJsString(param.contentType)}' }` : ''
-        setup.push(`formData.append('${encodedName}', new Blob([]${blobWithType}), '${encodedFileName}')`)
-        return
-      }
-
-      if (param.contentType) {
-        const encodedContentType = escapeJsString(param.contentType)
-        const encodedValue = escapeJsString(param.value ?? '')
-        setup.push(
-          `formData.append('${encodedName}', new Blob(['${encodedValue}'], { type: '${encodedContentType}' }))`,
-        )
-        return
-      }
-
-      const encodedValue = escapeJsString(param.value ?? '')
-      setup.push(`formData.append('${encodedName}', '${encodedValue}')`)
-    })
+    setup.push(...buildFormData(postData.params, target))
 
     return {
       setup,
@@ -143,33 +108,33 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
       method: 'GET',
       ...request,
     }
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     const options: Record<string, unknown> = {
       method: normalizedRequest.method,
-      url: escapeJsString(normalizedRequest.url ?? ''),
+      url: normalizedRequest.url ?? '',
     }
 
     const params = reduceQueryParams(normalizedRequest.queryString)
     if (Object.keys(params).length) {
-      options.params = sanitizeForGeneratedCode(params)
+      options.params = params
     }
 
     const headers = buildHeaders(normalizedRequest)
     if (headers) {
-      options.headers = sanitizeForGeneratedCode(headers)
+      options.headers = headers
     }
 
     if (configuration?.auth?.username && configuration?.auth?.password) {
       options.auth = {
-        username: escapeJsString(configuration.auth.username),
-        password: escapeJsString(configuration.auth.password),
+        username: configuration.auth.username,
+        password: configuration.auth.password,
       }
     }
 
-    const { setup, data } = buildData(normalizedRequest)
+    const { setup, data } = buildData(normalizedRequest, target)
     if (data !== undefined) {
-      options.data = data instanceof Raw ? data : sanitizeForGeneratedCode(data)
+      options.data = data
     }
 
     const setupBlock = setup.length ? `${setup.join('\n')}\n\n` : ''

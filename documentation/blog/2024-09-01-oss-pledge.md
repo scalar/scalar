@@ -1,3 +1,7 @@
+---
+date: 2024-09-01
+---
+
 # Scalar Joins the Open-Source Pledge
 
 ## Sep 1st, 2024

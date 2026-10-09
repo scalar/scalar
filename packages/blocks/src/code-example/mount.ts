@@ -1,10 +1,11 @@
 import { ScalarTeleportRoot } from '@scalar/components/teleport'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -14,12 +15,16 @@ import CodeExample, { type CodeExampleProps } from './components/CodeExample.vue
 import { generateClientOptions } from './helpers/generate-client-options'
 
 export type CreateCodeExampleOptions = {
+  /** Localized status text shown when the selected example has no linked code sample. */
+  codeSampleUnavailable?: string
+  /** Localized accessible name for the focusable code sample scroller. */
+  codeSampleLabel?: string
   /** Workspace store that holds the OpenAPI document(s) to render from. */
   store: WorkspaceStore
   /** Path of the operation to render, e.g. '/users/{id}'. */
   path: string
   /** HTTP method of the operation to render. */
-  method: HttpMethod
+  method: string
   /** Pre-selected client ID, e.g. 'shell/curl'. */
   selectedClient?: AvailableClients[number]
   /**
@@ -109,7 +114,7 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
       return undefined
     }
     const pathItem = getResolvedRef(activeDocument.paths?.[options.path])
-    const operation = getResolvedRef(pathItem?.[options.method])
+    const operation = getResolvedRef(getPathItemOperation(pathItem, options.method))
     if (!operation) {
       return undefined
     }
@@ -142,6 +147,12 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
   // `x-scalar-default-client`, `x-scalar-default-example`) live. Change the
   // client, example, or server through the store to drive re-renders.
   const props = reactive<CodeExampleProps>({
+    get codeSampleUnavailable() {
+      return options.codeSampleUnavailable
+    },
+    get codeSampleLabel() {
+      return options.codeSampleLabel
+    },
     get operation(): OperationObject {
       return currentContext().operation
     },
@@ -187,6 +198,7 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
     ]),
   )
 
+  app.provide(EXTERNAL_EXAMPLES, () => options.store.externalExamples())
   app.mount(element)
 
   return {

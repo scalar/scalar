@@ -1,3 +1,4 @@
+from html import escape
 import json
 from enum import Enum
 from django.http import HttpResponse
@@ -507,7 +508,7 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
         {f"<title>{config.title if config.title else 'Scalar'}</title>"}
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="shortcut icon" href="{config.scalar_favicon_url}">
+        <link rel="shortcut icon" href="{escape(config.scalar_favicon_url, quote=True)}">
         <style>
             body {{
                 margin: 0;
@@ -521,7 +522,7 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
         <div id="app"></div>
 
         <!-- Load the Script -->
-        <script src="{config.scalar_js_url}"></script>
+        <script src="{escape(config.scalar_js_url, quote=True)}"></script>
 
         <!-- Initialize the Scalar API Reference -->
         <script>

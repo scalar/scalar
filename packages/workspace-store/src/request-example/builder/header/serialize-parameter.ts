@@ -269,3 +269,33 @@ export const serializeDeepObjectStyle = (paramName: string, value: unknown): Arr
 
   return result
 }
+
+// Request rebuilding and snippet rendering can serialize the same parameter repeatedly.
+const warnedCookieParameterNames = new Set<string>()
+
+/**
+ * Serializes OpenAPI 3.2 cookie style without escaping names or values.
+ * Cookie arrays and objects always expand into separate entries: explode: false
+ * is invalid because comma-separated cookie values violate RFC6265.
+ * Invalid declarations warn once per parameter name and retain the expanded fallback.
+ * Header builders join these entries with a semicolon and a single space.
+ */
+export const serializeCookieStyle = (
+  name: string,
+  value: unknown,
+  explode = true,
+): Array<{ name: string; value: string }> => {
+  if (!explode && !warnedCookieParameterNames.has(name)) {
+    warnedCookieParameterNames.add(name)
+    console.warn(
+      `Cookie parameter "${name}" uses invalid explode: false with style: cookie; serializing with explode: true.`,
+    )
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => ({ name, value: String(item) }))
+  }
+  if (isObjectLike(value)) {
+    return Object.entries(value).map(([key, item]) => ({ name: key, value: String(item) }))
+  }
+  return [{ name, value: String(value) }]
+}

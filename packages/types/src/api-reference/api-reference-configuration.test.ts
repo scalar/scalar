@@ -7,6 +7,62 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves an explicit extension allowlist and disables it by default', () => {
+    expect(apiReferenceConfigurationSchema.parse({}).showExtensions).toBeUndefined()
+    expect(apiReferenceConfigurationSchema.parse({ showExtensions: ['x-scopes'] }).showExtensions).toStrictEqual([
+      'x-scopes',
+    ])
+    expect(apiReferenceConfigurationSchema.parse({ showExtensions: [] }).showExtensions).toStrictEqual([])
+    expect(apiReferenceConfigurationSchema.safeParse({ showExtensions: ['summary'] }).success).toBe(false)
+    expect(apiReferenceConfigurationSchema.safeParse({ showExtensions: true }).success).toBe(false)
+  })
+
+  it.each([
+    [undefined, 12],
+    [0, 0],
+    [1, 1],
+    [50, 50],
+    [-1, 12],
+    [1.5, 12],
+    [Number.POSITIVE_INFINITY, 12],
+    [Number.NaN, 12],
+    [Number.MAX_SAFE_INTEGER + 1, 12],
+    ['50', 12],
+    [null, 12],
+  ])('normalizes request body property limit %s to %s', (value, expected) => {
+    expect(
+      apiReferenceConfigurationSchema.parse({ maxVisibleRequestBodyProperties: value }).maxVisibleRequestBodyProperties,
+    ).toBe(expected)
+  })
+
+  it.each([
+    [{}, false],
+    [{ hideModelNames: true }, true],
+    [{ hideModelNames: false }, false],
+    [{ hideModelNames: 'true' }, false],
+  ])('parses model name visibility for %j', (config, expected) => {
+    expect(apiReferenceConfigurationSchema.parse(config).hideModelNames).toBe(expected)
+  })
+
+  it.each([
+    [{}, true],
+    [{ expandAllParameters: true }, true],
+    [{ expandAllParameters: false }, false],
+  ])('preserves parameter expansion for %j', (config, expected) => {
+    expect(apiReferenceConfigurationSchema.parse(config).expandAllParameters).toBe(expected)
+  })
+
+  it('preserves API Client translations in reference configuration', () => {
+    const localization = {
+      locale: 'de',
+      translations: {
+        operation: { testRequest: 'Anfrage testen' },
+        apiClient: { addressBar: { send: 'Senden' } },
+      },
+    }
+    expect(apiReferenceConfigurationSchema.parse({ localization }).localization).toStrictEqual(localization)
+  })
+
   describe('schema', () => {
     it('validates a minimal configuration', () => {
       const minimalConfig = {}
@@ -74,6 +130,12 @@ describe('api-reference-configuration', () => {
       const config = { hiddenClients: true }
 
       expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ hiddenClients: true })
+    })
+
+    it('validates featuredClients', () => {
+      const config = { featuredClients: ['node/fetch', 'shell/curl'] }
+
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject(config)
     })
 
     it('validates localization configuration', () => {
@@ -381,6 +443,16 @@ describe('api-reference-configuration', () => {
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
       expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
+    })
+
+    it('preserves synchronous and async response replacements through configuration parsing', async () => {
+      const response = Response.json({ replaced: true })
+      const input = { response: new Response('original'), request: new Request('https://example.com') }
+      const syncConfig = apiReferenceConfigurationSchema.parse({ onResponseReceived: () => response })
+      const asyncConfig = apiReferenceConfigurationSchema.parse({ onResponseReceived: () => Promise.resolve(response) })
+
+      expect(syncConfig.onResponseReceived?.(input)).toBe(response)
+      expect(await asyncConfig.onResponseReceived?.(input)).toBe(response)
     })
 
     it('allows a function as onBeforeRequest', () => {

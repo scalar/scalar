@@ -1,6 +1,6 @@
 # Agent in Scalar API Reference
 
-Agent can also power the **chat control inside Scalar API Reference** (the sparkle icon in the reference UI). That flow uses an **Agent key** from the Registry, separate from MCP installations.
+Agent can also power the **chat control inside Scalar API Reference** (the sparkle icon in the reference UI). That flow uses an **Agent key** from your API's **Settings → Agent** page, separate from MCP installations. See [Agent Keys](./key.md).
 
 ### Free limits
 

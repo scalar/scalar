@@ -13,7 +13,7 @@ The mock server can mock **event-driven APIs** described with an [AsyncAPI 3.1](
 
 ## Usage
 
-WebSocket channels need to be attached to the HTTP server after `serve()`, so `createAsyncApiMockServer` returns both the Hono `app` and an `injectWebSocket` function:
+The mock server returns the Hono `app` and a `websocket` option. Pass both to `@hono/node-server` v2 to enable WebSocket channels:
 
 ```typescript
 import { serve } from '@hono/node-server'
@@ -49,15 +49,12 @@ const document = {
   },
 }
 
-const { app, injectWebSocket } = await createAsyncApiMockServer({
+const { app, websocket } = await createAsyncApiMockServer({
   document,
   onMessage: ({ channel, direction, payload }) => console.log(direction, channel, payload),
 })
 
-const server = serve({ fetch: app.fetch, port: 3000 })
-
-// Required for WebSocket channels to accept connections.
-injectWebSocket(server)
+serve({ fetch: app.fetch, port: 3000, websocket })
 ```
 
 Connect a WebSocket client to the channel route to receive a generated message and echo replies:
@@ -104,7 +101,7 @@ const signalrTransport: MockTransport = {
   },
 }
 
-const { app, injectWebSocket } = await createAsyncApiMockServer({
+const { app, websocket } = await createAsyncApiMockServer({
   document,
   transports: [signalrTransport], // appended after the built-in transports
 })

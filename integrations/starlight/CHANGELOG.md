@@ -1,5 +1,29 @@
 # @scalar/starlight
 
+## 0.2.13
+
+## 0.2.12
+
+## 0.2.11
+
+## 0.2.10
+
+## 0.2.9
+
+## 0.2.8
+
+### Patch Changes
+
+- [#10349](https://github.com/scalar/scalar/pull/10349): Support Astro 7 in the Starlight integration.
+
+## 0.2.7
+
+## 0.2.6
+
+## 0.2.5
+
+## 0.2.4
+
 ## 0.2.3
 
 ## 0.2.2

@@ -1,10 +1,12 @@
-import { cwd } from 'node:process'
+import { Buffer } from 'node:buffer'
+import { resolve } from 'node:path'
 
 import { upgrade as upgradeAsyncApi } from '@scalar/asyncapi-upgrader'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
-import { type LoaderPlugin, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
+import { type LoaderPlugin, bundle, extensions as bundleExtensions } from '@scalar/json-magic/bundle'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/json-magic/helpers/unescape-json-pointer'
@@ -14,6 +16,16 @@ import { asyncApiObjectSchema } from '@scalar/schemas/asyncapi/3.1'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { type Schema, coerce } from '@scalar/validation'
 
+import { asyncApiChunkGroups } from '@/helpers/asyncapi-chunk-groups'
+import {
+  CHUNK_INDEX_KEY,
+  buildChunkIndex,
+  chunkRefTemplates,
+  chunkReference,
+  encodeSsrComponentName,
+  fillChunkRef,
+  navigationHeader,
+} from '@/helpers/chunk-index'
 import { createChunkWriter } from '@/helpers/create-chunk-writer'
 import { deepClone } from '@/helpers/deep-clone'
 import { encodeChunkName } from '@/helpers/encode-chunk-name'
@@ -21,8 +33,11 @@ import { forEachPathItemOperation, getResolvedPathItem } from '@/helpers/for-eac
 import { keyOf } from '@/helpers/general'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
+import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
+import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
+import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -54,6 +69,24 @@ type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
   navigationOptions?: NavigationOptions
+  /**
+   * Sends the sparse document in its compact form, for documents large enough that the sparse
+   * document is itself a cost.
+   *
+   * It changes the wire shape only. The per-node chunk references under `components` and `paths`
+   * are replaced by the `x-scalar-chunk-index` extension, which lists what exists and how a
+   * reference to it is spelled, and `x-scalar-navigation` keeps its document entry but leaves its
+   * children in a chunk. The client store expands the index as it ingests the document and loads
+   * the children on request, so what it holds in memory — and everything reading from it — is
+   * exactly what it would have held without this option.
+   *
+   * `getResolvedDocument()` is unaffected: it carries the whole document and its navigation either
+   * way. AsyncAPI documents externalize their channels, operations, and components; compact mode
+   * moves their navigation children into a chunk too.
+   *
+   * @default false
+   */
+  compact?: boolean
 }
 type CreateServerWorkspaceStoreProps =
   | ({
@@ -65,7 +98,9 @@ type CreateServerWorkspaceStoreProps =
       mode: 'ssr'
     } & CreateServerWorkspaceStoreBase)
 
-const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
+/** Custom methods must remain distinct even on case-insensitive filesystems. */
+const getOperationChunkFilename = (method: string): string =>
+  isHttpMethod(method) && method === method.toLowerCase() ? method : `additional-${Buffer.from(method).toString('hex')}`
 
 /**
  * Wraps a document so local `$ref`s resolve while the store inspects it.
@@ -80,7 +115,9 @@ const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 
  * enumerable on a proxy and serializing one would inline every referenced value beside its `$ref`.
  */
 const resolveLocalReferences = <T extends object>(document: T): T =>
-  createMagicProxy(document as Record<string, never>) as T
+  createMagicProxy(document as Record<string, never>, {
+    documentUri: resolveOpenApiDocument(document, '/')?.baseUri,
+  }) as T
 
 /**
  * The keys `@scalar/json-magic` bundling parks external documents under.
@@ -96,7 +133,12 @@ const resolveLocalReferences = <T extends object>(document: T): T =>
  * because the generated chunks keep their `#/x-ext/…` pointers and the client resolves those against
  * the document root. Only the client's export path (`purgeInternalDocumentKeys`) strips them.
  */
-const BUNDLED_EXTERNAL_KEYS = [bundleExtensions.externalDocuments, bundleExtensions.externalDocumentsMappings] as const
+const BUNDLED_EXTERNAL_KEYS = [
+  bundleExtensions.externalDocuments,
+  bundleExtensions.externalDocumentsMappings,
+  'x-scalar-security-uri-aliases',
+  'x-scalar-original-security-keys',
+] as const
 
 /**
  * Copies the buckets bundling parks external documents in onto the coerced document.
@@ -106,14 +148,8 @@ const BUNDLED_EXTERNAL_KEYS = [bundleExtensions.externalDocuments, bundleExtensi
  * coercion drops them and leaves every rewritten reference dangling, which is how a split-file
  * document loses the operations it keeps in its other files.
  *
- * Copied by reference, deliberately. `upgrade` hands back the very object it was given when the
- * document is already 3.1, so the served workspace ends up sharing these buckets with the caller's
- * document — but that is what the store already does with every other field coercion passes through
- * untouched (`info` among them), so cloning only these two would buy consistency nowhere. It would
- * also be the worst place to pay for it: `x-ext` holds every external document that was bundled in,
- * so cloning it roughly doubles peak memory at ingest, and `deepClone` recurses per level and throws
- * on input nested a few thousand deep. Cloning the caller's document as a whole is the fix, and it
- * belongs with the aliasing the store already has rather than here.
+ * Use the normalized source so external boolean schema targets keep their converted semantics.
+ * Changed targets were copied during normalization; unchanged buckets remain shared and are not mutated here.
  */
 const preserveBundledExternals = (source: Record<string, unknown>, target: Record<string, unknown>): void => {
   for (const key of BUNDLED_EXTERNAL_KEYS) {
@@ -154,21 +190,19 @@ export function filterHttpMethodsOnly(paths: PathsObject): Record<string, Record
       continue
     }
 
-    const filteredMethods: Record<string, OperationObject> = {}
+    const operations = new Map<string, OperationObject>()
 
     forEachPathItemOperation(pathItemRef, (method, operation) => {
-      if (httpMethods.has(method.toLowerCase())) {
-        // Unwrapped because the caller hands us a resolved document. A magic proxy enumerates a
-        // virtual `$ref-value`, so storing one would inline every referenced component beside its
-        // `$ref` when the chunk is written — and a self-referential schema would never finish
-        // serializing. Unwrapping one level is enough: the proxy wraps lazily, so a raw target's
-        // children are already raw.
-        filteredMethods[method] = getRaw(getResolvedRef(operation) ?? operation)
-      }
+      // Unwrapped because the caller hands us a resolved document. A magic proxy enumerates a
+      // virtual `$ref-value`, so storing one would inline every referenced component beside its
+      // `$ref` when the chunk is written — and a self-referential schema would never finish
+      // serializing. Unwrapping one level is enough: the proxy wraps lazily, so a raw target's
+      // children are already raw.
+      operations.set(method, getRaw(getResolvedRef(operation) ?? operation))
     })
 
-    if (Object.keys(filteredMethods).length > 0) {
-      result[path] = filteredMethods
+    if (operations.size > 0) {
+      result[path] = Object.fromEntries(operations)
     }
   }
 
@@ -204,30 +238,29 @@ export function escapePaths(
 export function externalizeComponentReferences(
   document: OpenApiDocument,
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
-) {
-  const result: Record<string, any> = {}
-
+): Record<string, Record<string, { $ref: string; $global: boolean }>> {
   if (!document.components) {
-    return result
+    return {}
   }
 
-  Object.entries(document.components).forEach(([type, component]) => {
-    if (!component || typeof component !== 'object') {
-      return
-    }
+  // Define both dictionary levels as own properties so untrusted keys cannot invoke prototype setters.
+  return Object.fromEntries(
+    Object.entries(document.components)
+      .filter(([, component]) => component && typeof component === 'object')
+      .map(([type, component]) => [
+        type,
+        Object.fromEntries(
+          Object.keys(component).map((name) => {
+            const ref =
+              meta.mode === 'ssr'
+                ? `${meta.baseUrl}/${meta.name}/components/${type}/${encodeSsrComponentName(name)}#`
+                : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
 
-    result[type] = {}
-    Object.keys(component).forEach((name) => {
-      const ref =
-        meta.mode === 'ssr'
-          ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
-          : `./chunks/${encodeChunkName(meta.name)}/components/${encodeChunkName(type)}/${encodeChunkName(name)}.json#`
-
-      result[type][name] = { '$ref': ref, $global: true }
-    })
-  })
-
-  return result
+            return [name, { '$ref': ref, $global: true }]
+          }),
+        ),
+      ]),
+  )
 }
 
 /**
@@ -256,13 +289,26 @@ export function externalizePathReferences(
     const escapedPath = escapeJsonPointer(path)
 
     keyOf(pathItemRecord).forEach((type) => {
-      if (httpMethods.has(type)) {
+      if (isHttpMethod(type)) {
         const ref =
           meta.mode === 'ssr'
             ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`
             : `./chunks/${encodeChunkName(meta.name)}/operations/${encodeChunkName(path)}/${type}.json#`
 
         result[path][type] = { '$ref': ref, $global: true }
+      } else if (type === 'additionalOperations') {
+        result[path][type] = Object.fromEntries(
+          Object.keys(pathItem.additionalOperations ?? {}).map((method) => [
+            method,
+            {
+              '$ref':
+                meta.mode === 'ssr'
+                  ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${getOperationChunkFilename(method)}#`
+                  : `./chunks/${encodeChunkName(meta.name)}/operations/${encodeChunkName(path)}/${getOperationChunkFilename(method)}.json#`,
+              $global: true,
+            },
+          ]),
+        )
       } else if (type !== '$ref' && type !== '$ref-value') {
         // Skip the reference plumbing merged in by getResolvedPathItem. The referenced path item is
         // externalized on its own and its operations are externalized above, so keeping the `$ref`
@@ -409,6 +455,33 @@ export type ServerWorkspaceStore = {
    * @returns The resolved chunk, or `undefined` when not found
    */
   get: (pointer: string) => unknown
+  /**
+   * Returns a document whole, with local references resolving, for rendering on the server.
+   *
+   * `getWorkspace()` hands back the sparse document: every component and operation is a reference
+   * to a chunk, which is what the browser wants so it can load only what a page needs. A server
+   * render wants the opposite — the complete document, read through one reference, with `$ref-value`
+   * resolving locally and nothing fetched. That is the document the store built its navigation and
+   * chunks from, so this is that object rather than a second copy: it shares the components and
+   * operations the chunks are written from, and carries the same metadata and navigation as the
+   * sparse document.
+   *
+   * It is a magic proxy, never reactive, so reading it costs a property lookup and a pointer
+   * resolution. Use `getRaw` to serialize it: `$ref-value` is enumerable on the proxy and would
+   * inline every referenced value beside its `$ref`.
+   *
+   * @example
+   * ```ts
+   * const document = store.getResolvedDocument('petstore')
+   *
+   * // A real operation, not a chunk reference
+   * document?.paths?.['/pets']?.get
+   * ```
+   *
+   * @param name - The document name it was added under
+   * @returns The resolved document, or `undefined` when no document has that name
+   */
+  getResolvedDocument: (name: string) => ServerWorkspace['documents'][string] | undefined
 }
 
 /**
@@ -439,17 +512,29 @@ export async function createServerWorkspaceStore(
    */
   const assets: Record<
     string,
-    { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
+    {
+      asyncapi?: Record<string, Record<string, unknown>>
+      components?: ComponentsObject
+      operations?: Record<string, Record<string, OperationObject>>
+      /** Only in compact mode, where the navigation children travel as a chunk. */
+      navigation?: unknown
+    }
   > = {}
+
+  /**
+   * Each document whole, for `getResolvedDocument`.
+   *
+   * Written at the same point as `workspace.documents`, after everything that can throw, so a failed
+   * add leaves neither map with a half-processed entry.
+   */
+  const resolvedDocuments: Record<string, ServerWorkspace['documents'][string]> = {}
 
   /**
    * Adds an AsyncAPI document to the workspace.
    *
-   * AsyncAPI keeps its content under `channels` and `operations` instead of `paths`, so none of the
-   * OpenAPI externalization applies: there are no path operations to split into chunks, and the
-   * consumers read channels and operations straight off the stored document. The document is
-   * therefore kept whole, and only the AsyncAPI upgrader runs so 1.x/2.x documents reach the 3.x
-   * shape the traversal and renderer expect.
+   * Channels, operations and components become global chunk references. References inside each
+   * chunk retain their document-relative pointers so shared and recursive dependencies resolve
+   * against the same root. The whole document remains available for server rendering.
    *
    * @param document - The AsyncAPI document to process and add
    * @param meta - The document name plus any metadata to merge onto the stored document
@@ -475,10 +560,6 @@ export async function createServerWorkspaceStore(
     // nothing the schema does not model is dropped.
     mergeObjects(asyncApiDocument, coerce<Schema>(asyncApiObjectSchema, deepClone(asyncApiDocument)))
 
-    // Nothing is externalized, so the document owns no chunks. The empty entry keeps `get()` and
-    // chunk generation well defined for the document name.
-    assets[name] = {}
-
     // Traversed before the spread below: its last act is a top-level `x-scalar-order` write on the
     // document, and a snapshot taken first would both miss it and preserve whatever stale order the
     // input arrived with.
@@ -492,17 +573,83 @@ export async function createServerWorkspaceStore(
       navigationOptions ?? workspaceProps.navigationOptions,
     )
 
-    workspace.documents[name] = {
+    const whole = {
       ...documentMeta,
       ...asyncApiDocument,
       'x-original-aas-version': originalAasVersion,
       [extensions.document.navigation]: navigation,
     }
+    delete (whole as Record<string, unknown>)['openapi']
 
-    // A document carrying both discriminators is ingested as AsyncAPI here, but `getDocumentType`
-    // checks OpenAPI first — so leaving `openapi` in place would hand an OpenAPI renderer a
-    // navigation tree of channel entries. The document is stored as the type it was read as.
-    delete (workspace.documents[name] as Record<string, unknown>)['openapi']
+    const options =
+      workspaceProps.mode === 'static'
+        ? { mode: 'static' as const, name }
+        : { mode: 'ssr' as const, name, baseUrl: workspaceProps.baseUrl }
+    const refs = chunkRefTemplates(options)
+    const asyncapi: Record<string, Record<string, unknown>> = {}
+    const resolvedComponents = getRaw(getResolvedRef(resolveLocalReferences(asyncApiDocument).components))
+    const groups = asyncApiChunkGroups({ ...asyncApiDocument, components: resolvedComponents })
+    const externalize = (
+      section: string,
+      entries: Record<string, unknown> = {},
+    ): Record<string, { $ref: string; $global: true }> => {
+      const chunks: Record<string, unknown> = {}
+      const references = Object.entries(entries).map(([key, value]) => {
+        const group = groups.get(`${section}/${key}`)
+        const filename = group ?? key
+        if (group) {
+          const values = (chunks[escapeJsonPointer(group)] ??= {}) as Record<string, unknown>
+          Object.defineProperty(values, key, { value, enumerable: true, configurable: true, writable: true })
+        } else
+          Object.defineProperty(chunks, escapeJsonPointer(key), {
+            value,
+            enumerable: true,
+            configurable: true,
+            writable: true,
+          })
+        const fragment = group ? `#/${encodeURIComponent(escapeJsonPointer(key))}` : '#'
+        return [
+          key,
+          chunkReference(
+            workspaceProps.mode === 'static'
+              ? `./chunks/${encodeChunkName(name)}/asyncapi/${section}/${encodeChunkName(filename)}.json${fragment}`
+              : `${workspaceProps.baseUrl}/${name}/asyncapi/${section}/${encodeURIComponent(escapeJsonPointer(filename))}${fragment}`,
+          ),
+        ]
+      })
+      asyncapi[section] = chunks
+      return Object.fromEntries(references)
+    }
+    const components = Object.fromEntries(
+      Object.entries(resolvedComponents ?? {}).map(([type, entries]) => [
+        type,
+        type === 'servers' || type === 'securitySchemes'
+          ? entries
+          : externalize(`components-${type}`, entries as Record<string, unknown>),
+      ]),
+    )
+    asyncapi.models = Object.fromEntries(
+      Object.entries(resolvedComponents?.schemas ?? {}).map(([key, value]) => [escapeJsonPointer(key), value]),
+    )
+    const channels = externalize('channels', asyncApiDocument.channels)
+    const operations = externalize('operations', asyncApiDocument.operations)
+    assets[name] = {
+      asyncapi,
+      ...(workspaceProps.compact ? { navigation } : {}),
+    }
+    workspace.documents[name] = {
+      ...whole,
+      components,
+      channels,
+      operations,
+      ...(workspaceProps.compact
+        ? {
+            [extensions.document.navigation]: navigationHeader(navigation),
+            [extensions.document.navigationChunk]: fillChunkRef(refs.navigation),
+          }
+        : {}),
+    } as ServerWorkspace['documents'][string]
+    resolvedDocuments[name] = resolveLocalReferences(whole)
   }
 
   /**
@@ -541,20 +688,39 @@ export async function createServerWorkspaceStore(
     }
 
     const upgradedDocument = upgrade(document, '3.1')
-    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgradedDocument)
-    preserveBundledExternals(upgradedDocument, documentV3)
+    // Copy only containers changed by normalization; unchanged x-ext graphs remain shared.
+    const normalizedDocument = normalizeBooleanSchemas(upgradedDocument)
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, normalizedDocument)
+    preserveBundledExternals(normalizedDocument, documentV3)
 
     // Everything that inspects the document reads through this; everything that stores a piece of it
     // stores the raw `documentV3` or a `getRaw` of the piece.
     const resolvedDocument = resolveLocalReferences(documentV3)
 
     // add the assets
-    assets[meta.name] = {
+    const documentAssets: (typeof assets)[string] = {
       // Components need no resolution: they are externalized as authored, and the client resolves the
       // references inside them the same way it resolves the ones this store leaves behind.
       components: documentV3.components,
-      operations: resolvedDocument.paths && escapePaths(filterHttpMethodsOnly(resolvedDocument.paths)),
+      operations:
+        resolvedDocument.paths &&
+        escapePaths(
+          Object.fromEntries(
+            Object.entries(filterHttpMethodsOnly(resolvedDocument.paths)).map(([path, operations]) => [
+              path,
+              workspaceProps.mode === 'ssr'
+                ? Object.fromEntries(
+                    Object.entries(operations).map(([method, operation]) => [
+                      getOperationChunkFilename(method),
+                      operation,
+                    ]),
+                  )
+                : operations,
+            ]),
+          ),
+        ),
     }
+    assets[meta.name] = documentAssets
 
     const options =
       workspaceProps.mode === 'ssr'
@@ -569,13 +735,45 @@ export async function createServerWorkspaceStore(
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
-    workspace.documents[meta.name] = {
+    if (workspaceProps.compact) {
+      const refs = chunkRefTemplates(options)
+
+      // The navigation joins the chunks, so `get()` and the generated chunk files can serve it. The
+      // whole tree is served, header included, so a chunk stands on its own the way every other one
+      // does; the client keeps the children and already holds the header.
+      documentAssets.navigation = navigation
+
+      // `components` and `paths` are dropped from the document: the index carries every reference
+      // that was in them, plus the path-item keys that were never externalized.
+      const { components: _components, paths: _paths, ...documentWithoutChunkedSections } = documentV3
+
+      // Cast because a compact document is a wire form rather than a document: its two chunked
+      // sections are absent and its navigation children are elsewhere, both of which the client
+      // undoes — the sections as it ingests the document, the children when they are asked for.
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...documentWithoutChunkedSections,
+        [CHUNK_INDEX_KEY]: buildChunkIndex({ mode: options.mode, refs, components, paths }),
+        [extensions.document.navigation]: navigationHeader(navigation),
+        [extensions.document.navigationChunk]: fillChunkRef(refs.navigation),
+      } as unknown as ServerWorkspace['documents'][string]
+    } else {
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...documentV3,
+        components,
+        paths,
+        [extensions.document.navigation]: navigation,
+      }
+    }
+
+    // The same document without the externalization, for server rendering. A shallow spread, so the
+    // components and operations are the objects the chunks are written from rather than copies.
+    resolvedDocuments[meta.name] = resolveLocalReferences({
       ...documentMeta,
       ...documentV3,
-      components,
-      paths,
       [extensions.document.navigation]: navigation,
-    }
+    })
   }
 
   /**
@@ -608,7 +806,17 @@ export async function createServerWorkspaceStore(
         return
       }
 
-      addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta }, navigationOptions)
+      const loaded = document.data as Record<string, unknown>
+      const isThreeTwo = typeof loaded.openapi === 'string' && /^3\.2\.\d+$/.test(loaded.openapi)
+      // URI resolution adds working aliases; keep the caller's authored object unchanged.
+      const data: Record<string, unknown> = isThreeTwo ? JSON.parse(document.raw) : loaded
+      const origin = 'url' in input ? input.url : 'path' in input ? input.path : undefined
+      const loaders = [fetchUrls(), readFiles()]
+      if (isThreeTwo) {
+        await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
+        await resolveSecurityRequirements(data, { origin, loaders })
+      }
+      addDocumentSync(data, { name: input.name, ...input.meta }, navigationOptions)
     } catch (error) {
       // Honours the contract above: a document that cannot be processed is skipped rather than
       // taking the workspace with it, since the initial documents are ingested together and one
@@ -634,11 +842,33 @@ export async function createServerWorkspaceStore(
       }
 
       // Write the workspace document
-      const basePath = `${cwd()}/${workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER}`
+      const basePath = resolve(workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER)
       const writeChunk = await createChunkWriter(basePath)
       await writeChunk([WORKSPACE_FILE_NAME], workspace)
 
-      for (const [name, { components, operations }] of Object.entries(assets)) {
+      for (const [name, { components, operations, navigation, asyncapi }] of Object.entries(assets)) {
+        // Only compact documents chunk their navigation; otherwise it stays whole on the document.
+        if (navigation !== undefined) {
+          await writeChunk(['chunks', encodeChunkName(name), 'navigation.json'], navigation)
+        }
+
+        if (asyncapi) {
+          for (const [section, entries] of Object.entries(asyncapi)) {
+            for (const [key, value] of Object.entries(entries)) {
+              await writeChunk(
+                [
+                  'chunks',
+                  encodeChunkName(name),
+                  'asyncapi',
+                  section,
+                  `${encodeChunkName(unescapeJsonPointer(key))}.json`,
+                ],
+                value,
+              )
+            }
+          }
+        }
+
         if (components) {
           for (const [type, component] of Object.entries(components)) {
             for (const [key, value] of Object.entries(component)) {
@@ -659,7 +889,7 @@ export async function createServerWorkspaceStore(
                   encodeChunkName(name),
                   'operations',
                   encodeChunkName(unescapeJsonPointer(path)),
-                  `${encodeChunkName(method)}.json`,
+                  `${getOperationChunkFilename(method)}.json`,
                 ],
                 operation,
               )
@@ -671,6 +901,7 @@ export async function createServerWorkspaceStore(
     getWorkspace: () => {
       return workspace
     },
+    getResolvedDocument: (name) => resolvedDocuments[name],
     get: (pointer: string) => {
       const pointerPath = (() => {
         if (pointer.startsWith('#')) {
@@ -689,7 +920,27 @@ export async function createServerWorkspaceStore(
       })()
 
       // Keep the path segments escaped cuz we store them on the filesystem as escaped sequences
-      const path = parseJsonPointerSegments(pointerPath).map(escapeJsonPointer)
+      const segments = pointerPath.split('/').slice(1)
+      const path =
+        segments[1] === 'asyncapi'
+          ? segments.map((segment) =>
+              escapeJsonPointer(decodeURIComponent(segment).replaceAll('~1', '/').replaceAll('~0', '~')),
+            )
+          : parseJsonPointerSegments(
+              segments[1] === 'components' && !pointer.startsWith('#')
+                ? `/${segments
+                    .map((segment) => {
+                      try {
+                        return decodeURIComponent(segment)
+                      } catch {
+                        return segment
+                      }
+                    })
+                    .join('/')}`
+                : pointerPath,
+            ).map((segment, index) =>
+              segments[1] === 'components' && index >= 3 ? segment : escapeJsonPointer(segment),
+            )
       return getValueAtPath(assets, path)
     },
     addDocument,

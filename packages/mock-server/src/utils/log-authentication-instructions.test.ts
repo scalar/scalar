@@ -82,8 +82,8 @@ describe('logAuthenticationInstructions', () => {
     it.each([
       {
         name: 'an unsupported OAuth 2.0 flow',
-        scheme: { type: 'oauth2', flows: { deviceAuthorization: {} } },
-        expected: 'Unsupported OAuth 2.0 flow: deviceAuthorization',
+        scheme: { type: 'oauth2', flows: { unknownFlow: {} } },
+        expected: 'Unsupported OAuth 2.0 flow: unknownFlow',
       },
       {
         name: 'an unknown scheme type',

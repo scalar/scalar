@@ -1,3 +1,5 @@
+import { runInNewContext } from 'node:vm'
+
 import {
   apiReferenceConfigurationWithSourceSchema,
   htmlRenderingConfigurationSchema,
@@ -15,6 +17,54 @@ import {
 } from './html-rendering'
 
 describe('html-rendering', () => {
+  it('preserves JSON-only values and keys while escaping script parser control characters', () => {
+    const payload = '</script><!--<script> & " \\ \u2028\u2029'
+    const configuration = { [payload]: { value: payload, escaped: '\\u003c', empty: null } }
+    const serialized = serializeConfigToJs(configuration)
+
+    expect(serialized).not.toContain('<')
+    expect(JSON.parse(serialized)).toStrictEqual(configuration)
+  })
+
+  it.each([true, false])('round-trips untrusted data in inline scripts (bundle: %s)', (bundle) => {
+    const payload = '</ScRiPt><script>globalThis.injected = true</script><!--<script> & \" \\ \u2028\u2029'
+    const functionKey = `${payload}callback`
+    const arrayKey = `${payload}plugins`
+    const content = {
+      openapi: '3.2.1',
+      info: { title: 'Example', version: '1.0.0', description: payload },
+      paths: {},
+      'x-example': { [payload]: [payload] },
+    }
+    const callback = (value: number): boolean => value < 2
+    const configuration = {
+      content,
+      [payload]: payload,
+      [functionKey]: callback,
+      [arrayKey]: [callback, payload, { [payload]: payload }, undefined],
+    }
+    const tags = getScriptTags(configuration, undefined, undefined, bundle)
+    const script = tags.match(/<script (?:type="module"|type="text\/javascript")>([\s\S]*?)<\/script>/)?.[1]
+    expect(typeof script).toBe('string')
+    expect(script).not.toContain('</ScRiPt>')
+    expect(script).not.toContain('<!--')
+
+    const capture = (_selector: string, received: typeof configuration): void => {
+      expect(JSON.parse(JSON.stringify(received.content))).toStrictEqual(content)
+      expect(received[payload]).toBe(payload)
+      expect(received[functionKey](1)).toBe(true)
+      expect(received[functionKey](3)).toBe(false)
+      const [plugin, ...data] = received[arrayKey]
+      expect(typeof plugin).toBe('function')
+      expect((plugin as typeof callback)(1)).toBe(true)
+      expect(JSON.parse(JSON.stringify(data))).toStrictEqual([payload, { [payload]: payload }, null])
+    }
+    runInNewContext((script ?? '').replace(/^\s*import .*$/m, ''), {
+      createApiReference: capture,
+      Scalar: { createApiReference: capture },
+    })
+  })
+
   describe('renderApiReference', () => {
     it('returns HTML document with the default ESM build and custom theme', () => {
       const html = renderApiReference({ config: { customCss: 'body { color: red }' } })
@@ -482,6 +532,15 @@ describe('html-rendering', () => {
   })
 
   describe('serializeConfigToJs', () => {
+    it('preserves undefined entries in arrays containing callbacks', () => {
+      const result = serializeConfigToJs({ hooks: [() => 1, undefined, Symbol('hook')] })
+      const { hooks } = runInNewContext(`(${result})`)
+      expect(hooks[0]()).toBe(1)
+      expect(hooks[1]).toBeUndefined()
+      expect(hooks[2]).toBeUndefined()
+      expect(hooks.length).toBe(3)
+    })
+
     it('serializes a plain configuration to a JSON-like object literal', () => {
       const result = serializeConfigToJs({ url: 'https://example.com/openapi.json', theme: 'purple' })
       expect(result).toContain('"url": "https://example.com/openapi.json"')

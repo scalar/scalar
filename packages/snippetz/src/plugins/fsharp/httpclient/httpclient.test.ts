@@ -174,10 +174,20 @@ describe('fsharpHttpclient.generate - postData', () => {
       },
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead("test.txt"))')
-    expect(result).toContain('fileStreamContent_0.Headers.ContentType <- MediaTypeHeaderValue("text/plain")')
-    expect(result).toContain('content.Add(fileStreamContent_0, "test.txt", "test.txt")')
-    expect(result).toContain('httpRequestMessage.Content <- content')
+    expect(result).toBe(`let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("POST"),
+  new Uri("https://api.com/")
+)
+
+let content = new MultipartFormDataContent()
+let fileStreamContent_0 = new StreamContent(File.OpenRead("test.txt"))
+fileStreamContent_0.Headers.ContentType <- MediaTypeHeaderValue("text/plain")
+content.Add(fileStreamContent_0, "file1", "test.txt")
+httpRequestMessage.Content <- content
+
+let client = new HttpClient()
+let! result = client.SendAsync(httpRequestMessage)
+`)
   })
 
   it('adds string param content types to MultipartFormDataContent', () => {
@@ -209,12 +219,21 @@ describe('fsharpHttpclient.generate - postData', () => {
       },
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('let content = new MultipartFormDataContent()')
-    expect(result).toContain('content.Add(new StringContent("value1"), "field1")')
-    expect(result).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead("test.txt"))')
-    expect(result).toContain('fileStreamContent_0.Headers.ContentType <- MediaTypeHeaderValue("text/plain")')
-    expect(result).toContain('content.Add(fileStreamContent_0, "test.txt", "test.txt")')
-    expect(result).toContain('httpRequestMessage.Content <- content')
+    expect(result).toBe(`let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("POST"),
+  new Uri("https://api.com/")
+)
+
+let content = new MultipartFormDataContent()
+content.Add(new StringContent("value1"), "field1")
+let fileStreamContent_0 = new StreamContent(File.OpenRead("test.txt"))
+fileStreamContent_0.Headers.ContentType <- MediaTypeHeaderValue("text/plain")
+content.Add(fileStreamContent_0, "file1", "test.txt")
+httpRequestMessage.Content <- content
+
+let client = new HttpClient()
+let! result = client.SendAsync(httpRequestMessage)
+`)
   })
 })
 
@@ -308,7 +327,9 @@ describe('fsharpHttpclient.generate - edge cases', () => {
       ],
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('new Uri("https://example.com?q=hello world & more&special=!@#$%^&*()")')
+    expect(result).toContain(
+      'new Uri("https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()")',
+    )
   })
 
   it('handles URLs with dollar signs', () => {
@@ -327,7 +348,7 @@ describe('fsharpHttpclient.generate - edge cases', () => {
       ],
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('new Uri("https://example.com?price=$100&currency=USD$")')
+    expect(result).toContain('new Uri("https://example.com?price=%24100&currency=USD%24")')
   })
 
   it('handles URLs with dollar signs in path and query', () => {
@@ -337,7 +358,7 @@ describe('fsharpHttpclient.generate - edge cases', () => {
       queryString: [{ name: 'amount', value: '$50.00' }],
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('new Uri("https://example.com/api$v1/prices?amount=$50.00"')
+    expect(result).toContain('new Uri("https://example.com/api$v1/prices?amount=%2450.00"')
   })
 
   it('handles multiple headers with same name', () => {
@@ -374,8 +395,19 @@ describe('fsharpHttpclient.generate - edge cases', () => {
       },
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('let fileStreamContent_0 = new StreamContent(File.OpenRead(""))')
-    expect(result).toContain('content.Add(fileStreamContent_0, "", "")')
+    expect(result).toBe(`let httpRequestMessage = new HttpRequestMessage(
+  HttpMethod("POST"),
+  new Uri("https://api.com/")
+)
+
+let content = new MultipartFormDataContent()
+let fileStreamContent_0 = new StreamContent(File.OpenRead(""))
+content.Add(fileStreamContent_0, "file", "")
+httpRequestMessage.Content <- content
+
+let client = new HttpClient()
+let! result = client.SendAsync(httpRequestMessage)
+`)
   })
 
   it('handles JSON body with special characters', () => {

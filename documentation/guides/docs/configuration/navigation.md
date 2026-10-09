@@ -95,15 +95,16 @@ A link to a page on your site or to an external URL.
 }
 ```
 
-| Property | Type                              | Required | Description                                                     |
-| -------- | --------------------------------- | -------- | --------------------------------------------------------------- |
-| `type`   | `"link"`                          | Yes      | Must be `"link"`                                                |
-| `title`  | `string`                          | Yes      | The display text for the header link                            |
-| `to`     | `string`                          | Yes      | The route path or URL the link points to                        |
-| `align`  | `"start" \| "center" \| "end"`    | No       | Which region the link sits in (defaults to `"start"`)           |
-| `style`  | `"text" \| "button"`              | No       | Display style (defaults to `"text"`)                            |
-| `icon`   | `string`                          | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
-| `newTab` | `boolean`                         | No       | Whether to open the link in a new tab (defaults to `false`)     |
+| Property | Type                           | Required | Description                                                                                                                                                                                    |
+| -------- | ------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`   | `"link"`                       | Yes      | Must be `"link"`                                                                                                                                                                               |
+| `groups` | `string[]`                     | No       | Show the entry to visitors with a matching group. See [Personalization](personalization.md#filter-navigation).                                                                                 |
+| `title`  | `string`                       | Yes      | The display text for the header link                                                                                                                                                           |
+| `to`     | `string`                       | Yes      | The route path or URL the link points to                                                                                                                                                       |
+| `align`  | `"start" \| "center" \| "end"` | No       | Which region the link sits in (defaults to `"start"`)                                                                                                                                          |
+| `style`  | `"text" \| "button"`           | No       | Display style (defaults to `"text"`)                                                                                                                                                           |
+| `icon`   | `string`                       | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
+| `newTab` | `boolean`                      | No       | Whether to open the link in a new tab (defaults to `false`)                                                                                                                                    |
 
 #### Group dropdowns
 
@@ -263,16 +264,17 @@ Pages render markdown content from files in your repository. They are the most c
 
 ### Properties
 
-| Property        | Type      | Required | Description                                               |
-| --------------- | --------- | -------- | --------------------------------------------------------- |
-| `type`          | `"page"`  | Yes      | Must be `"page"`                                          |
-| `title`         | `string`  | No       | The display text in the navigation                        |
-| `filepath`      | `string`  | Yes      | Relative path to the markdown file                        |
-| `description`   | `string`  | No       | A description for SEO and metadata                        |
-| `icon`          | `string`  | No       | An icon to display next to the page. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
-| `showInSidebar` | `boolean` | No       | Whether to show the page in the sidebar (defaults `true`) |
-| `hidden`        | `boolean` | No       | Fully hide the page: no sidebar entry, no sitemap entry, and `noindex` (defaults `false`) |
-| `layout`        | `object`  | No       | Layout configuration options                              |
+| Property        | Type       | Required | Description                                                                                                                                                                                    |
+| --------------- | ---------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`          | `"page"`   | Yes      | Must be `"page"`                                                                                                                                                                               |
+| `groups`        | `string[]` | No       | Show the entry to visitors with a matching group. See [Personalization](personalization.md#filter-navigation).                                                                                 |
+| `title`         | `string`   | No       | The display text in the navigation                                                                                                                                                             |
+| `filepath`      | `string`   | Yes      | Relative path to the markdown file                                                                                                                                                             |
+| `description`   | `string`   | No       | A description for SEO and metadata                                                                                                                                                             |
+| `icon`          | `string`   | No       | An icon to display next to the page. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
+| `showInSidebar` | `boolean`  | No       | Whether to show the page in the sidebar (defaults `true`)                                                                                                                                      |
+| `hidden`        | `boolean`  | No       | Fully hide the page: no sidebar entry, no sitemap entry, and `noindex` (defaults `false`)                                                                                                      |
+| `layout`        | `object`   | No       | Layout configuration options                                                                                                                                                                   |
 
 ### Hidden pages
 
@@ -342,6 +344,8 @@ Pages support layout configuration to customize how they are displayed. These op
 | `header`      | `boolean` | —       | Whether to show the header. Falls back to the site-level [`layout.header`](site-config.md#layout) option |
 | `pageTitle`   | `boolean` | `true`  | Whether to show the page title           |
 | `pageActions` | `boolean` | `true`  | Whether to show page actions             |
+| `pageNav`     | `boolean` | `true`  | Whether to show previous and next page links at the bottom of the page |
+| `lastUpdated` | `boolean` | `false` | Whether to show the date the page last changed, above the previous and next links. See [Last updated date](site-config.md#last-updated-date) |
 | `search`      | `object`  | —       | Search configuration for this page       |
 
 ### Search Options
@@ -467,20 +471,21 @@ The entry renders your channels, operations, and messages in the sidebar. See [A
 
 ### Properties
 
-| Property     | Type                             | Required | Description                                                      |
-| ------------ | -------------------------------- | -------- | ---------------------------------------------------------------- |
-| `type`       | `"openapi" \| "asyncapi"`        | Yes      | Marks the entry as an API reference                              |
-| `title`      | `string`                         | No       | The display text in the navigation                               |
-| `filepath`   | `string`                         | No       | Relative path to the API document                                |
-| `url`        | `string`                         | No       | URL the API document is fetched from at build time               |
-| `namespace`  | `string`                         | No       | Registry namespace (when using Registry)                         |
-| `slug`       | `string`                         | No       | Registry slug (when using Registry)                              |
-| `version`    | `string`                         | No       | Registry version (when using Registry)                           |
+| Property     | Type                             | Required | Description                                                                                                                                                                                         |
+| ------------ | -------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`       | `"openapi" \| "asyncapi"`        | Yes      | Marks the entry as an API reference                                                                                                                                                                 |
+| `groups`     | `string[]`                       | No       | Show the entry to visitors with a matching group. See [Personalization](personalization.md#filter-navigation).                                                                                      |
+| `title`      | `string`                         | No       | The display text in the navigation                                                                                                                                                                  |
+| `filepath`   | `string`                         | No       | Relative path to the API document                                                                                                                                                                   |
+| `url`        | `string`                         | No       | URL the API document is fetched from at build time                                                                                                                                                  |
+| `namespace`  | `string`                         | No       | Registry namespace (when using Registry)                                                                                                                                                            |
+| `slug`       | `string`                         | No       | Registry slug (when using Registry)                                                                                                                                                                 |
+| `version`    | `string`                         | No       | Registry version (when using Registry)                                                                                                                                                              |
 | `icon`       | `string`                         | No       | An icon to display next to the reference. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
-| `mode`       | `"flat" \| "nested" \| "folder"` | No       | How the API reference is displayed in the sidebar                |
-| `singlePage` | `boolean`                        | No       | Render all operations on a single page (defaults to `false`)     |
-| `hidden`     | `boolean`                        | No       | Fully hide the API reference and all its generated pages (defaults to `false`) |
-| `config`     | `object`                         | No       | API Reference configuration options                              |
+| `mode`       | `"flat" \| "nested" \| "folder"` | No       | How the API reference is displayed in the sidebar                                                                                                                                                   |
+| `singlePage` | `boolean`                        | No       | Render all operations on a single page (defaults to `false`)                                                                                                                                        |
+| `hidden`     | `boolean`                        | No       | Fully hide the API reference and all its generated pages (defaults to `false`)                                                                                                                      |
+| `config`     | `object`                         | No       | API Reference configuration options                                                                                                                                                                 |
 
 ### Display Modes
 
@@ -573,16 +578,17 @@ Groups allow you to organize related pages, API references, and links into colla
 
 ### Properties
 
-| Property   | Type                             | Required | Description                                                      |
-| ---------- | -------------------------------- | -------- | ---------------------------------------------------------------- |
-| `type`     | `"group"`                        | Yes      | Must be `"group"`                                                |
-| `title`    | `string`                         | No       | The display text in the navigation                               |
-| `children` | `object`                         | Yes      | An object containing nested routes                               |
-| `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed                                       |
+| Property   | Type                             | Required | Description                                                                                                                                                                                     |
+| ---------- | -------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`     | `"group"`                        | Yes      | Must be `"group"`                                                                                                                                                                               |
+| `groups`   | `string[]`                       | No       | Show a nested group and its children to visitors with a matching group; unsupported on top-level route sections. See [Personalization](personalization.md#filter-navigation).                   |
+| `title`    | `string`                         | No       | The display text in the navigation                                                                                                                                                              |
+| `children` | `object`                         | Yes      | An object containing nested routes                                                                                                                                                              |
+| `mode`     | `"flat" \| "nested" \| "folder"` | No       | How the group is displayed                                                                                                                                                                      |
 | `icon`     | `string`                         | No       | An icon to display next to the group. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
-| `page`     | `object`                         | No       | A page to navigate to when clicking the folder (folder mode only) |
-| `open`     | `boolean`                        | No       | Whether the folder is expanded by default (folder mode only)     |
-| `hidden`   | `boolean`                        | No       | Fully hide the group and everything nested under it (defaults to `false`) |
+| `page`     | `object`                         | No       | A page to navigate to when clicking the folder (folder mode only)                                                                                                                               |
+| `open`     | `boolean`                        | No       | Whether the folder is expanded by default (folder mode only)                                                                                                                                    |
+| `hidden`   | `boolean`                        | No       | Fully hide the group and everything nested under it (defaults to `false`)                                                                                                                       |
 
 ### Display Modes
 
@@ -733,13 +739,14 @@ Links allow you to add external URLs to your navigation. Unlike pages that rende
 
 ### Properties
 
-| Property | Type     | Required | Description                         |
-| -------- | -------- | -------- | ----------------------------------- |
-| `type`   | `"link"`  | Yes      | Must be `"link"`                    |
-| `title`  | `string`  | No       | The display text in the navigation  |
-| `url`    | `string`  | Yes      | The external URL to link to         |
-| `icon`   | `string`  | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
-| `hidden` | `boolean` | No       | Hide the link from the sidebar (defaults to `false`) |
+| Property | Type       | Required | Description                                                                                                                                                                                    |
+| -------- | ---------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`   | `"link"`   | Yes      | Must be `"link"`                                                                                                                                                                               |
+| `groups` | `string[]` | No       | Show the entry to visitors with a matching group. See [Personalization](personalization.md#filter-navigation).                                                                                 |
+| `title`  | `string`   | No       | The display text in the navigation                                                                                                                                                             |
+| `url`    | `string`   | Yes      | The external URL to link to                                                                                                                                                                    |
+| `icon`   | `string`   | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
+| `hidden` | `boolean`  | No       | Hide the link from the sidebar (defaults to `false`)                                                                                                                                           |
 
 Since a link points to an external URL, there is no page to exclude from the sitemap or deindex — on links, `hidden: true` only removes the sidebar entry. The option exists on all route types for consistency.
 

@@ -8,6 +8,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
+import { buildRequest } from './build-request'
 import { requestFactory } from './request-factory'
 
 type ExtendedParameter = ParameterObject & { value: string }
@@ -45,6 +46,166 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it.each([
+    { version: '3.2.0', allowReserved: true, expected: 'a:b%2Fc' },
+    { version: '3.2.1', allowReserved: false, expected: 'a%3Ab%2Fc' },
+    { version: '3.2.1', allowReserved: undefined, expected: 'a%3Ab%2Fc' },
+    { version: '3.1.2', allowReserved: true, expected: 'a%3Ab%2Fc' },
+    { version: '3.0.4', allowReserved: true, expected: 'a%3Ab%2Fc' },
+    { version: undefined, allowReserved: true, expected: 'a%3Ab%2Fc' },
+  ])('respects path allowReserved=$allowReserved for OpenAPI $version', ({ version, allowReserved, expected }) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/{id}',
+        server: { url: 'https://example.com' },
+        proxyUrl: '',
+        openapiVersion: version,
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              allowReserved,
+              schema: { type: 'string' },
+              examples: { default: { dataValue: '{{id}}' } },
+            },
+          ],
+        },
+      }),
+    )
+    const built = buildRequest(request, { envVariables: { id: 'a:b/c' } })
+    assert(built.ok)
+    expect(String(built.data.requestPayload[0])).toBe(`https://example.com/${expected}`)
+  })
+
+  it('keeps authored serialized path examples intact with reserved expansion enabled', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/{id}',
+        server: { url: 'https://example.com' },
+        proxyUrl: '',
+        openapiVersion: '3.2.1',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              allowReserved: true,
+              schema: { type: 'string' },
+              examples: { default: { serializedValue: 'a%2fb%3Fc' } },
+            },
+          ],
+        },
+      }),
+    )
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(String(built.data.requestPayload[0])).toBe('https://example.com/a%2fb%3Fc')
+  })
+
+  it('preserves reserved path encoding after a request hook overrides the preview value', () => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        path: '/{id}',
+        server: { url: 'https://example.com' },
+        proxyUrl: '',
+        openapiVersion: '3.2.1',
+        operation: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              allowReserved: true,
+              schema: { type: 'string' },
+              examples: { default: { dataValue: 'original' } },
+            },
+          ],
+        },
+      }),
+    )
+    request.path.variables.id = 'a:b/c'
+    const built = buildRequest(request, { envVariables: {} })
+    assert(built.ok)
+    expect(String(built.data.requestPayload[0])).toBe('https://example.com/a:b%2Fc')
+  })
+
+  it.each(['3.2.0', '3.2.1'])('stops invalid structured cookie requests for %s', (openapiVersion) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        openapiVersion,
+        operation: {
+          parameters: [
+            { name: 'color', in: 'cookie', explode: false, examples: { default: { value: ['blue', 'black'] } } },
+          ],
+        },
+      }),
+    )
+    expect(request.cookies).toStrictEqual([])
+    expect(buildRequest(request, { envVariables: {} })).toStrictEqual({
+      ok: false,
+      error: 'BUILD_REQUEST_FAILED',
+      message:
+        'Cookie parameter "color" cannot serialize an array or object with style: form and explode: false because comma-separated cookie values are invalid. Use style: cookie with explode: true.',
+    })
+  })
+
+  it.each(['3.0.4', '3.1.2', undefined])('preserves cookie serialization for version %s', (openapiVersion) => {
+    const { request } = requestFactory(
+      createBaseArgs({
+        openapiVersion,
+        operation: {
+          parameters: [
+            { name: 'color', in: 'cookie', explode: false, examples: { default: { value: ['blue', 'black'] } } },
+          ],
+        },
+      }),
+    )
+    expect(request.cookieErrors).toBeUndefined()
+    expect(request.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'color', value: 'blue,black' },
+    ])
+  })
+
+  it.each(['get', 'PURGE', 'purge', 'customMethod'])(
+    'sends a referenced whole-query parameter with method %s after environment substitution',
+    (method) => {
+      const { request } = requestFactory(
+        createBaseArgs({
+          method,
+          server: { url: 'https://example.com' },
+          proxyUrl: '',
+          operation: {
+            parameters: [
+              {
+                $ref: '#/components/parameters/Search',
+                '$ref-value': {
+                  name: 'metadata',
+                  in: 'querystring',
+                  required: true,
+                  content: { 'application/x-www-form-urlencoded': { example: { q: '{{term}}' } } },
+                },
+              },
+            ],
+          },
+        }),
+      )
+      const result = buildRequest(request, { envVariables: { term: 'a + b' } })
+      assert(result.ok)
+      expect(result.data.requestPayload[0]).toBe('https://example.com/v1/users?q=a+%2B+b')
+      expect(result.data.requestPayload[1].body).toBe(null)
+      expect(result.data.requestPayload[1].method).toBe(method === 'get' ? 'GET' : method)
+      expect(request.query.toString()).toBe('')
+    },
+  )
+
+  it.each(['COPY', 'copy', 'customMethod', 'Get', 'pAtCh'])('preserves additional method %s', (method) => {
+    const { request } = requestFactory(createBaseArgs({ method }))
+    expect(request.method).toBe(method)
+  })
+
   it('does not include default headers disabled for the example', () => {
     const operation: OperationObject = {
       parameters: [],
@@ -157,34 +318,37 @@ describe('requestFactory', () => {
     expect(request.body).toBe(null)
   })
 
-  it('builds a JSON body for POST when an example exists', () => {
-    const { request } = requestFactory(
-      createBaseArgs({
-        method: 'post',
-        operation: {
-          requestBody: {
-            content: {
-              'application/json': {
-                examples: {
-                  default: { value: '{"name":"Ada"}' },
+  it.each(['post', 'QUERY', 'PROPFIND', 'customMethod'])(
+    'builds a JSON body for %s when an example exists',
+    (method) => {
+      const { request } = requestFactory(
+        createBaseArgs({
+          method,
+          operation: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  examples: {
+                    default: { value: '{"name":"Ada"}' },
+                  },
                 },
               },
             },
-          },
-        } as OperationObject,
-      }),
-    )
+          } as OperationObject,
+        }),
+      )
 
-    expect(request.body).toEqual({
-      mode: 'raw',
-      value: '{"name":"Ada"}',
-    })
-  })
+      expect(request.body).toEqual({
+        mode: 'raw',
+        value: '{"name":"Ada"}',
+      })
+    },
+  )
 
-  it('builds a body for DELETE when the method allows a body', () => {
+  it.each(['delete', 'query'] as const)('builds a body for %s when the method allows a body', (method) => {
     const { request } = requestFactory(
       createBaseArgs({
-        method: 'delete',
+        method,
         operation: {
           requestBody: {
             content: {
@@ -206,7 +370,7 @@ describe('requestFactory', () => {
   })
 
   it('normalizes the method to uppercase', () => {
-    const methods: HttpMethod[] = ['post', 'patch', 'put']
+    const methods: HttpMethod[] = ['post', 'patch', 'put', 'query']
 
     for (const method of methods) {
       const { request } = requestFactory(createBaseArgs({ method }))

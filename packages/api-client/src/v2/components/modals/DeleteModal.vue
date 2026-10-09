@@ -3,6 +3,7 @@ import { truncate } from '@scalar/helpers/string/truncate'
 import { computed } from 'vue'
 
 import { ConfirmationForm } from '@/v2/components/forms'
+import { useLocalization } from '@/v2/features/localization'
 
 const { name, warningMessage } = defineProps<{
   /** The name of the item to delete */
@@ -16,12 +17,14 @@ const emit = defineEmits<{
   (e: 'delete'): void
 }>()
 
+const { translate } = useLocalization()
+
 /** Condenses the name to 18 characters and adds an ellipsis if it's longer */
 const truncatedName = computed(() => truncate(name))
 </script>
 <template>
   <ConfirmationForm
-    :label="`Delete ${truncatedName}`"
+    :label="translate('apiClient.deleteModal.delete', { name: truncatedName })"
     variant="danger"
     @cancel="emit('close')"
     @submit="emit('delete')">

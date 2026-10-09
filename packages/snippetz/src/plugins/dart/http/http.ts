@@ -1,5 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
+
 /**
  * dart/http
  */
@@ -15,10 +17,26 @@ export const dartHttp: Plugin = {
     }
 
     // Normalize method to uppercase
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
+
+    const multipart =
+      normalizedRequest.postData?.mimeType === 'multipart/form-data' && normalizedRequest.postData.params
+    const dartString = (value: string): string => JSON.stringify(value).replaceAll('$', '\\$')
+    // Single quoted Dart string that is safe for quotes, backslashes, dollar signs and line breaks
+    const dartSingleQuoted = (value: string): string =>
+      `'${value
+        .replaceAll('\\', '\\\\')
+        .replaceAll("'", "\\'")
+        .replaceAll('$', '\\$')
+        .replaceAll('\n', '\\n')
+        .replaceAll('\r', '\\r')}'`
 
     // Start building the Dart code
     let code = `import 'package:http/http.dart' as http;\n\nvoid main() async {\n`
+
+    if (multipart && multipart.some((param) => param.contentType)) {
+      code = `import 'package:http_parser/http_parser.dart';\n${code}`
+    }
 
     // Handle cookies
     let cookieHeader = ''
@@ -33,7 +51,7 @@ export const dartHttp: Plugin = {
     // Handle headers
     const headers =
       normalizedRequest.headers?.reduce<Record<string, string>>((acc, header) => {
-        if (header.value && !/[; ]/.test(header.name)) {
+        if (header.value && !/[; ]/.test(header.name) && !(multipart && header.name.toLowerCase() === 'content-type')) {
           acc[header.name] = header.value
         }
         return acc
@@ -59,35 +77,34 @@ export const dartHttp: Plugin = {
         if (value.includes('utf8.encode')) {
           code += `    '${key}': ${value},\n`
         } else {
-          code += `    '${key}': '${value}',\n`
+          code += `    ${dartSingleQuoted(key)}: ${dartSingleQuoted(value)},\n`
         }
       }
       code += '  };\n\n'
     }
 
     // Handle query string
-    const queryString = normalizedRequest.queryString?.length
-      ? '?' + normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
-      : ''
-    const url = `${normalizedRequest.url}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Handle body
     let body = ''
     if (normalizedRequest.postData) {
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        body = `  final body = r'${normalizedRequest.postData.text}';\n\n`
+        const jsonText = normalizedRequest.postData.text ?? ''
+        // A raw string keeps the JSON readable, but it cannot hold a single quote or a line break
+        body = /['\r\n]/.test(jsonText)
+          ? `  final body = ${dartSingleQuoted(jsonText)};\n\n`
+          : `  final body = r'${jsonText}';\n\n`
       } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
-        body = `  final body = '${normalizedRequest.postData.params?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`).join('&') || ''}';\n\n`
-      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data') {
-        body = '  final body = <String,String>{\n'
-        for (const param of normalizedRequest.postData.params || []) {
-          const value = param.value || ''
-          const fileName = param.fileName || ''
-          body += `    '${param.name}': '${fileName || value}',\n`
-        }
-        body += '  };\n\n'
+        const formBody =
+          normalizedRequest.postData.params
+            ?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`)
+            .join('&') || ''
+        body = `  final body = ${dartSingleQuoted(formBody)};\n\n`
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        body = `  final body = '${normalizedRequest.postData.text}';\n\n`
+        body = `  final body = ${dartSingleQuoted(normalizedRequest.postData.text ?? '')};\n\n`
+      } else if (normalizedRequest.postData.text) {
+        body = `  final body = ${dartSingleQuoted(normalizedRequest.postData.text)};\n\n`
       }
     }
 
@@ -95,11 +112,46 @@ export const dartHttp: Plugin = {
       code += body
     }
 
+    if (multipart) {
+      code += `  final request = http.MultipartRequest(${dartString(normalizedRequest.method)}, Uri.parse(${dartString(url)}));\n`
+      if (Object.keys(headers).length) {
+        code += '  request.headers.addAll(headers);\n'
+      }
+      for (const param of multipart) {
+        const type = param.contentType ? `, contentType: MediaType.parse(${dartString(param.contentType)})` : ''
+        code +=
+          param.fileName !== undefined
+            ? `  request.files.add(await http.MultipartFile.fromPath(${dartString(param.name)}, ${dartString(param.fileName)}${type}));\n`
+            : `  request.files.add(http.MultipartFile.fromString(${dartString(param.name)}, ${dartString(param.value ?? '')}${type}));\n`
+      }
+      code += '  final response = await http.Response.fromStream(await request.send());\n'
+      code += '  print(response.body);\n}'
+      return code
+    }
+
     // Handle method and request
     const method = normalizedRequest.method.toLowerCase()
     const headersPart = Object.keys(headers).length > 0 ? ', headers: headers' : ''
     const bodyPart = body ? ', body: body' : ''
-    code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
+    if (
+      ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(normalizedRequest.method) &&
+      !(body && ['GET', 'HEAD'].includes(normalizedRequest.method))
+    ) {
+      code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
+    } else {
+      const wireMethod = normalizedRequest.method.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\$/g, '\\$')
+      code += `  final request = http.Request('${wireMethod}', Uri.parse('${url}'));\n`
+      if (Object.keys(headers).length > 0) {
+        code += '  request.headers.addAll(headers);\n'
+      }
+      if (body) {
+        code +=
+          normalizedRequest.postData?.mimeType === 'multipart/form-data'
+            ? '  request.bodyFields = body;\n'
+            : '  request.body = body;\n'
+      }
+      code += '  final response = await http.Response.fromStream(await request.send());\n'
+    }
     code += '  print(response.body);\n'
     code += '}'
 

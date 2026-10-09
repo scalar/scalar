@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "projects/scalar-app"
   },
-  "version": "1.1.27",
+  "version": "1.1.39",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -23,7 +23,7 @@
     "dev:app": "electron-vite dev",
     "dev:app:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
     "dev:web": "vite",
-    "lint:fix": "biome check --write --unsafe && pnpm eslint \"**/*.vue\" --fix",
+    "lint:fix": "biome check --write && eslint \"**/*.vue\" --fix",
     "preview:app": "electron-vite preview",
     "preview:web": "vite preview",
     "test": "vitest --run",
@@ -53,6 +53,7 @@
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
+    "@scalar/import": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
@@ -80,22 +81,22 @@
     "monaco-yaml": "catalog:*",
     "posthog-js": "catalog:*",
     "shell-quote": "^1.10.0",
-    "undici": "8.10.0",
+    "undici": "8.11.2",
     "vue": "catalog:*",
     "vue-router": "catalog:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
+    "@scalar/json-schema-validator": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@todesktop/cli": "1.27.0",
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "electron": "43.3.0",
+    "electron": "44.5.1",
     "electron-vite": "6.0.0-beta.1",
     "fake-indexeddb": "catalog:*",
-    "fastify": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-monaco-editor-esm": "catalog:*"
   }

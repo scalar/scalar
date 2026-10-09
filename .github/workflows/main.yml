@@ -34,6 +34,10 @@ env:
   # published — every install fails to resolve. Drop the pin once upstream
   # publishes a working release.
   NETLIFY_CLI_VERSION: '27.1.2'
+  # netlify@27.1.2 pulls in esbuild, sharp and unix-dgram, which run build
+  # scripts. pnpm 12 turns unapproved build scripts into a hard error, so allow
+  # these explicitly when installing the Netlify CLI on the fly.
+  NETLIFY_ALLOW_BUILDS: '--allow-build=esbuild --allow-build=sharp --allow-build=unix-dgram'
 
 jobs:
   build:
@@ -219,6 +223,30 @@ jobs:
           grep -q "User account created successfully" /tmp/response.html
         timeout-minutes: 2
 
+  test-block-snapshots:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    container:
+      image: scalarapi/playwright-runner:1.62.1
+      options: --privileged
+      env:
+        VM_ID: ${{ env.VM_ID }}
+        GITHUB_REPO_NAME: ${{ env.GITHUB_REPO_NAME }}
+        BLACKSMITH_STICKYDISK_TOKEN: ${{ env.BLACKSMITH_STICKYDISK_TOKEN }}
+        BLACKSMITH_INSTALLATION_MODEL_ID: ${{ env.BLACKSMITH_INSTALLATION_MODEL_ID }}
+        BLACKSMITH_REGION: ${{ env.BLACKSMITH_REGION }}
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Build storybook (@scalar/blocks)
+        run: pnpm --filter blocks build:storybook
+      - name: Run storybook snapshot tests (@scalar/blocks)
+        run: pnpm --filter blocks test:e2e:storybook:ci
+
   test-e2e-api-reference:
     needs: [build]
     runs-on: blacksmith-4vcpu-ubuntu-2204
@@ -401,13 +429,11 @@ jobs:
         uses: ./.github/actions/restore-build
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
-      - name: Install Netlify CLI
-        run: pnpm install -g netlify@${{ env.NETLIFY_CLI_VERSION }}
       - name: Build storybook
         run: pnpm --filter components build:storybook
       - name: Deploy Storybook to Netlify (Production)
         run: |
-          netlify deploy --dir "./packages/components/storybook-static" \
+          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
             --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \

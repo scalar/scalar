@@ -1,5 +1,11 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { HTTPException } from 'hono/http-exception'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { parse, stringify } from 'yaml'
 
 import { createMockServer } from './create-mock-server'
 
@@ -61,12 +67,401 @@ const documentWithBrokenResponseHeader: Record<string, unknown> = {
 }
 
 describe('createMockServer', () => {
+  describe('document sources', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: { '/pets': { $ref: './pets.json' } },
+      components: {
+        schemas: { Pet: { type: 'object', properties: { friend: { $ref: '#/components/schemas/Pet' } } } },
+      },
+    }
+    const pathItem = {
+      get: {
+        responses: { '200': { description: 'Pets', content: { 'application/json': { example: { name: 'Fido' } } } } },
+      },
+    }
+
+    const assertExports = async (app: Awaited<ReturnType<typeof createMockServer>>): Promise<void> => {
+      const response = await app.request('/pets')
+      expect(response.status).toBe(200)
+      expect(await response.json()).toEqual({ name: 'Fido' })
+      for (const format of ['json', 'yaml']) {
+        const exported = await app.request(`/openapi.${format}`)
+        expect(exported.status).toBe(200)
+        expect(exported.headers.get('content-type')).toContain(format)
+        const content = parse(await exported.text())
+        expect(content).toMatchObject({ info: document.info, 'x-ext': expect.any(Object) })
+        expect(JSON.stringify(content)).toContain('Fido')
+        expect(JSON.stringify(content)).not.toContain('$ref-value')
+      }
+    }
+
+    it.each([false, true])('exports a file document and its relative references (preloaded: %s)', async (preloaded) => {
+      const directory = await mkdtemp(join(tmpdir(), 'mock-exports-'))
+      const file = join(directory, 'openapi.json')
+      try {
+        await writeFile(file, JSON.stringify(document))
+        await writeFile(join(directory, 'pets.json'), JSON.stringify(pathItem))
+        const app = await createMockServer({
+          document: preloaded ? structuredClone(document) : file,
+          ...(preloaded ? { origin: file } : {}),
+          logger: false,
+        })
+        await assertExports(app)
+      } finally {
+        await rm(directory, { recursive: true, force: true })
+      }
+    })
+
+    it.each([false, true])('exports a URL document without refetching (preloaded: %s)', async (preloaded) => {
+      // Guarded URL loading uses the bundler's Undici transport rather than global fetch.
+      const bundlerRequire = createRequire(import.meta.resolve('@scalar/json-magic/bundle'))
+      const { Agent, MockAgent } = bundlerRequire('undici') as typeof import('undici')
+      const transport = new MockAgent()
+      transport.disableNetConnect()
+      const pool = transport.get('https://203.0.113.1')
+      if (!preloaded) {
+        pool.intercept({ path: '/openapi.json', method: 'GET' }).reply(200, document)
+      }
+      pool.intercept({ path: '/pets.json', method: 'GET' }).reply(200, pathItem)
+      const dispatch = vi
+        .spyOn(Agent.prototype, 'dispatch')
+        .mockImplementation((options, handler) => pool.dispatch(options, handler))
+      try {
+        const app = await createMockServer({
+          document: preloaded ? structuredClone(document) : 'https://203.0.113.1/openapi.json',
+          ...(preloaded ? { origin: 'https://203.0.113.1/openapi.json' } : {}),
+          logger: false,
+        })
+        await assertExports(app)
+        expect(dispatch).toHaveBeenCalledTimes(preloaded ? 1 : 2)
+        transport.assertNoPendingInterceptors()
+      } finally {
+        dispatch.mockRestore()
+        await transport.close()
+      }
+    })
+
+    it.each(['object', 'json', 'yaml'])(
+      'preserves the original OpenAPI version for inline %s input',
+      async (format) => {
+        const document = { openapi: '3.0.4', info: { title: 'Inline API', version: '1.0.0' }, paths: {} }
+        const inputs = { object: document, json: JSON.stringify(document), yaml: stringify(document) }
+        const input = inputs[format as keyof typeof inputs]
+        const app = await createMockServer({ document: input, logger: false })
+        for (const extension of ['json', 'yaml']) {
+          const response = await app.request(`/openapi.${extension}`)
+          expect(response.status).toBe(200)
+          expect(parse(await response.text())).toEqual(document)
+        }
+      },
+    )
+  })
+
+  it.each([
+    ['application/jsonl', '{"message":"hello"}\n'],
+    ['application/x-ndjson', '{"message":"hello"}\n'],
+    ['application/json-seq', '\u001e{"message":"hello"}\n'],
+    ['text/event-stream', 'event: update\ndata: hello\n\n'],
+  ])('streams referenced OpenAPI 3.2 item schemas as %s', async (contentType, chunk) => {
+    const item =
+      contentType === 'text/event-stream'
+        ? { type: 'object', properties: { event: { const: 'update' }, data: { const: 'hello' } } }
+        : { type: 'object', properties: { message: { $ref: '#/components/schemas/Message' } } }
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        components: { schemas: { Item: item, Message: { type: 'string', const: 'hello' } } },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Items',
+                  content: {
+                    [contentType]: { itemSchema: { $ref: '#/components/schemas/Item' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe(contentType)
+    expect(await response.text()).toBe(chunk.repeat(3))
+  })
+
+  it.each(['return undefined', "return res['200']", 'return [{ data: "handler" }]'])(
+    'streams custom handler responses with itemSchema: %s',
+    async (handler) => {
+      const server = await createMockServer({
+        logger: false,
+        document: {
+          openapi: '3.2.1',
+          info: { title: 'Stream', version: '1' },
+          paths: {
+            '/events': {
+              get: {
+                'x-handler': handler,
+                responses: {
+                  '200': {
+                    description: 'Events',
+                    content: {
+                      'text/event-stream': {
+                        itemSchema: { type: 'object', properties: { data: { type: 'string', const: 'generated' } } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const response = await server.request('/events')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toBe('text/event-stream')
+      expect(await response.text()).toBe(
+        handler.includes('handler') ? 'data: handler\n\n' : 'data: generated\n\n'.repeat(3),
+      )
+    },
+  )
+
+  it.each([
+    { example: [{ unknown: true }], expected: '' },
+    { example: [{ id: 'bad\0id', retry: -1 }, { data: 'kept' }], expected: 'data: kept\n\n' },
+  ])('reports omitted SSE records without corrupting the HTTP stream: $expected', async ({ example, expected }) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const server = await createMockServer({
+        logger: false,
+        document: {
+          openapi: '3.2.0',
+          info: { title: 'Stream', version: '1' },
+          paths: {
+            '/events': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'Events',
+                    content: { 'text/event-stream': { itemSchema: {}, example } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      const response = await server.request('/events')
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toBe('text/event-stream')
+      expect(response.headers.get('x-accel-buffering')).toBe('no')
+      expect(await response.text()).toBe(expected)
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'Skipped 1 SSE example item(s) with no valid event, id, retry, or data fields.',
+      )
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('preserves the created status for custom handler streams', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            post: {
+              'x-handler': "store.create('events', { id: 'created' }); return [{ data: 'created' }]",
+              responses: {
+                '201': {
+                  description: 'Created events',
+                  content: {
+                    'text/event-stream': {
+                      itemSchema: { type: 'object', properties: { data: { type: 'string' } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { method: 'POST' })
+    expect(response.status).toBe(201)
+    expect(response.headers.get('content-type')).toBe('text/event-stream')
+    expect(await response.text()).toBe('data: created\n\n')
+  })
+
+  it.each([
+    ['application/jsonl', '1\n', '2\n'],
+    ['text/event-stream', 'data: first\n\n', 'data: second\n\n'],
+  ])('honors named stream examples returned by custom handlers as %s', async (contentType, first, second) => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            get: {
+              'x-handler': "return res['200']",
+              responses: {
+                '200': {
+                  description: 'Events',
+                  content: {
+                    [contentType]: {
+                      itemSchema: {},
+                      examples: { first: { value: first }, second: { value: second } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { headers: { Prefer: 'example=second' } })
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe(contentType)
+    expect(await response.text()).toBe(second)
+  })
+
+  it('keeps explicit examples and response headers for itemSchema streams', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.2.1',
+        info: { title: 'Stream', version: '1' },
+        paths: {
+          '/events': {
+            get: {
+              responses: {
+                '201': {
+                  description: 'Events',
+                  headers: { 'X-Stream': { schema: { type: 'string', const: 'yes' } } },
+                  content: {
+                    'application/jsonl': {
+                      itemSchema: { type: 'integer', const: 7 },
+                      examples: { first: { value: '1\n' }, second: { value: '2\n3\n' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const response = await server.request('/events', { headers: { Prefer: 'code=201, example=second' } })
+    expect(response.status).toBe(201)
+    expect(response.headers.get('X-Stream')).toBe('yes')
+    expect(await response.text()).toBe('2\n3\n')
+  })
+
+  it('serves existing routes when an XML schema requires a 3.2 migration decision', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Pets',
+                content: {
+                  'application/json': { example: { id: 7 } },
+                  'application/xml': { schema: { type: 'object', properties: { id: { type: 'integer' } } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const server = await createMockServer({ document })
+    const response = await server.request('/pets', { headers: { Accept: 'application/json' } })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ id: 7 })
+  })
+
   // The error-handling tests below silence the log the server writes. Restoring through a hook
   // rather than inline keeps a failing assertion from leaving `console.error` mocked for the rest
   // of the file.
   afterEach(() => {
     vi.restoreAllMocks()
   })
+
+  it.each(['oneOf', 'anyOf'] as const)(
+    'serves generated root primitive and array %s responses',
+    async (composition) => {
+      const cases = [
+        { schema: { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] }, expected: 'first' },
+        {
+          schema: {
+            type: 'array',
+            [composition]: [
+              { items: { type: 'string', const: 'first' } },
+              { items: { type: 'string', const: 'second' } },
+            ],
+          },
+          expected: ['first'],
+        },
+        {
+          schema: {
+            properties: { ignored: { const: true } },
+            items: { type: 'string', const: 'ignored' },
+            [composition]: [{ type: 'string', minLength: 3 }, { type: 'number' }],
+          },
+          expected: 'string',
+        },
+        {
+          schema: {
+            properties: { ignored: { const: true } },
+            [composition]: [{ type: 'array', items: { type: 'string', const: 'selected' } }, { type: 'string' }],
+          },
+          expected: ['selected'],
+        },
+        {
+          schema: {
+            type: 'string',
+            [composition]: [
+              { [composition]: [{ const: 'nested first' }, { const: 'nested second' }] },
+              { const: 'outer second' },
+            ],
+          },
+          expected: 'nested first',
+        },
+      ]
+      for (const { schema, expected } of cases) {
+        const document = {
+          openapi: '3.1.0',
+          info: { title: 'Root unions', version: '1' },
+          paths: {
+            '/union': {
+              get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
+            },
+          },
+        }
+        const server = await createMockServer({ document })
+        const response = await server.request('/union')
+        expect(response.status).toBe(200)
+        expect(response.headers.get('content-type')).toContain('application/json')
+        expect(await response.json()).toStrictEqual(expected)
+      }
+    },
+  )
 
   it('supports deprecated specification key', async () => {
     const specification = {
@@ -1198,7 +1593,7 @@ describe('createMockServer', () => {
     })
   })
 
-  it('GET /foobar -> wraps schema examples for array responses', async () => {
+  it.each(['example', 'examples'] as const)('GET /foobar -> wraps schema %s for array responses', async (keyword) => {
     const document = {
       openapi: '3.1.0',
       info: {
@@ -1223,9 +1618,7 @@ describe('createMockServer', () => {
                           },
                         },
                       },
-                      example: {
-                        foo: 'bar',
-                      },
+                      [keyword]: keyword === 'example' ? { foo: 'bar' } : [{ foo: 'bar' }],
                     },
                   },
                 },
@@ -1432,6 +1825,7 @@ describe('createMockServer', () => {
 
     expect(response.status).toBe(200)
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(response.headers.get('Access-Control-Expose-Headers')).toBe('X-Scalar-XML-Error')
 
     expect(await response.json()).toMatchObject({
       foo: 'bar',

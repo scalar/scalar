@@ -171,4 +171,40 @@ describe('validate', () => {
     ])
     expect(() => validate(document, { throwOnError: true })).toThrow(message)
   })
+
+  it.each(['query', 'COPY'])('validates path parameters for %s only when enabled', (method) => {
+    const operation = { responses: { '200': { description: 'OK' } } }
+    const document = {
+      openapi: '3.2.1',
+      info: { title: 'New methods', version: '1.0.0' },
+      paths: {
+        '/pets/{petId}': method === 'query' ? { query: operation } : { additionalOperations: { COPY: operation } },
+      },
+    }
+    const operationPath = method === 'query' ? ['query'] : ['additionalOperations', 'COPY']
+    const result = validate(document, { checkPathParameters: true })
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      {
+        path: ['paths', '/pets/{petId}', ...operationPath],
+        message:
+          'Declared path parameter "petId" needs to be defined as a path parameter at either the path or operation level',
+      },
+    ])
+    expect(validate(document).valid).toBe(true)
+    expect(() => validate(document, { checkPathParameters: true, throwOnError: true })).toThrow(
+      'Declared path parameter "petId" needs to be defined as a path parameter at either the path or operation level',
+    )
+  })
+
+  it.each(['3.0.4', '3.1.2'])('rejects QUERY and additionalOperations in OpenAPI %s', (openapi) => {
+    for (const pathItem of [{ query: {} }, { additionalOperations: { COPY: {} } }]) {
+      const result = validate(
+        { openapi, info: { title: 'Earlier version', version: '1.0.0' }, paths: { '/pets': pathItem } },
+        { checkPathParameters: true },
+      )
+      expect(result.valid).toBe(false)
+    }
+  })
 })

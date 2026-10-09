@@ -309,3 +309,33 @@ describe('trailing slashes and edge formatting', () => {
     expect(result).toBe('schemas/user.json')
   })
 })
+
+describe('toRelativePath URI compatibility', () => {
+  it.each(['urn:example:schema', 'mailto:author@example.com', 'file:///api/schema.json', 'custom+schema:identity'])(
+    'preserves non-HTTP identity %s even without an indexed document',
+    (input) => {
+      expect(toRelativePath(input, 'https://example.com/api/root.json')).toBe(input)
+    },
+  )
+
+  it.each([
+    [
+      'https://example.com/api/schema.json?version=2#value',
+      'https://example.com/api/root.json?old=1#old',
+      'schema.json?version=2#value',
+    ],
+    ['https://example.com/api/schema.json', 'https://example.com/api/', 'schema.json'],
+    ['https://example.com/api/schema.json', 'https://example.com/api', 'api/schema.json'],
+    ['https://example.com/api/models/', 'https://example.com/api/root.json', 'models/'],
+    ['https://example.com/api/', 'https://example.com/api/root.json', 'https://example.com/api/'],
+    [
+      'https://other.example.com/schema.json',
+      'https://example.com/api/root.json',
+      'https://other.example.com/schema.json',
+    ],
+    ['/api/models/schema.json', '/api/', 'models/schema.json'],
+    ['C:\\api\\models\\schema.json', 'C:\\api\\root.json', 'models/schema.json'],
+  ])('relativizes %s against %s without losing URI identity', (input, base, expected) => {
+    expect(toRelativePath(input, base)).toBe(expected)
+  })
+})

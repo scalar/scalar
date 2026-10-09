@@ -134,7 +134,7 @@ test.describe('parameter linking', () => {
     await mockLazyTimers(page)
 
     // More than 12 properties forces the overflow into a collapsed
-    // "Show additional properties" section that is hidden by default.
+    // "Show 1 more property" section that is hidden by default.
     const properties = Object.fromEntries(
       Array.from({ length: 13 }, (_, index) => [
         `property${String(index + 1).padStart(2, '0')}`,
@@ -186,7 +186,7 @@ test.describe('parameter linking', () => {
     // Expand the collapsed section so the property's anchor exists, then read its
     // id. We build the deep link from the id instead of going through the clipboard
     // copy flow, which is flaky in CI.
-    await page.getByRole('button', { name: /Show additional properties/ }).click()
+    await page.getByRole('button', { name: /Show 1 more property/ }).click()
     const anchorId = await page.locator(`[id$=".body.${hiddenProperty}"]`).first().getAttribute('id')
     expect(anchorId).toBeTruthy()
 

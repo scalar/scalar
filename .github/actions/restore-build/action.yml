@@ -2,8 +2,8 @@ name: 'Restore Build'
 description: |
   Restore a pre-built workspace produced by an earlier `build` job in the
   same workflow run. Sets up pnpm + node, installs dependencies, downloads
-  the `build-output` artifact, and extracts every `dist/` directory back
-  into place.
+  the `build-output` artifact, and extracts every `dist/` directory (plus
+  the generated root `esm.js` of `@scalar/api-reference`) back into place.
 
   Intentionally never accepts a `run-id` input: artifacts must come from
   the same run as the consumer, so a PR-produced artifact can never feed a
@@ -33,6 +33,6 @@ runs:
         fi
         tar -xzf build-output.tar.gz
         rm build-output.tar.gz
-        echo "Restored workspace dist directories:"
+        echo "Restored workspace build output:"
         find packages integrations projects \
-          -mindepth 2 -maxdepth 2 -type d -name dist 2>/dev/null | sort
+          -mindepth 2 -maxdepth 2 \( -type d -name dist -o -type f -name esm.js \) 2>/dev/null | sort

@@ -11,7 +11,7 @@
     "directory": "packages/server-side-rendering"
   },
   "keywords": [],
-  "version": "0.1.46",
+  "version": "0.1.58",
   "engines": {
     "node": ">=22"
   },
@@ -35,6 +35,7 @@
   ],
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/types": "workspace:*",
     "@unhead/vue": "^2.1.12",
     "vue": "catalog:*"

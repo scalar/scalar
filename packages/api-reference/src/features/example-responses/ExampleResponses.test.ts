@@ -1,19 +1,375 @@
+import { createDetectChangesProxy } from '@scalar/workspace-store/helpers/detect-changes-proxy'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { type VueWrapper, mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import { nextTick, reactive } from 'vue'
 
 import ExampleResponses from './ExampleResponses.vue'
 
-const mockCopyToClipboard = vi.fn()
-
-vi.mock('@scalar/use-hooks/useClipboard', () => ({
-  useClipboard: vi.fn(() => ({
-    copyToClipboard: mockCopyToClipboard,
-  })),
-}))
+/**
+ * The example the card is currently displaying.
+ *
+ * The card no longer has a copy button of its own - the code block inside it owns that - so the
+ * rendered content is read straight off the component that receives it.
+ */
+const displayedExample = (wrapper: VueWrapper): string =>
+  wrapper.findComponent({ name: 'ExampleResponse' }).props('content') as string
 
 describe('ExampleResponses', () => {
+  it('keeps distinct examples selectable when media types normalize to the same key', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': { example: { message: 'plain' } },
+              'application/json; charset=utf-8': { example: { message: 'charset' } },
+              'application/problem+json': { example: { message: 'problem' } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ message: 'plain' })
+    await wrapper.setProps({ selectedContentTypes: { '200': 'application/json; charset=utf-8' } })
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ message: 'charset' })
+    await wrapper.setProps({ selectedContentTypes: { '200': 'application/problem+json' } })
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ message: 'problem' })
+  })
+
+  it('does not offer union alternatives when an empty enum excludes every value', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      enum: [],
+      oneOf: [
+        { type: 'string', title: 'Text' },
+        { type: 'number', title: 'Number' },
+      ],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    expect(wrapper.find('[data-testid="response-variant-picker"]').exists()).toBe(false)
+  })
+
+  it('announces what each status code means on its tab', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': { summary: 'A successful response', content: { 'application/json': {} } },
+          '400': { description: 'Bad Request', content: { 'application/json': {} } },
+        },
+      },
+    })
+
+    // The tabs show bare numbers, so the meaning has to reach screen readers
+    // some other way. `summary` wins over `description` when both exist.
+    const tabs = wrapper.findAllComponents({ name: 'ExampleResponseTab' })
+    expect(tabs[0]?.text()).toContain('A successful response')
+    expect(tabs[1]?.text()).toContain('Bad Request')
+  })
+
+  it('renders a response summary without a description or examples', () => {
+    const wrapper = mount(ExampleResponses, { props: { responses: { '204': { summary: 'Deletion completed' } } } })
+    expect(wrapper.text()).toContain('Deletion completed')
+  })
+
+  it('preserves the selected variant through unrelated workspace proxy updates', async () => {
+    const document = reactive(
+      createDetectChangesProxy({
+        info: { title: 'Before' },
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: coerceValue(SchemaObjectSchema, { oneOf: [{ const: 'first' }, { const: 'second' }] }),
+              },
+            },
+          },
+        },
+      }),
+    )
+    const wrapper = mount(ExampleResponses, { props: { responses: document.responses } })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    document.info.title = 'After'
+    document.responses['200'].description = 'Updated description'
+    await nextTick()
+    await wrapper.setProps({ responses: document.responses })
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).props('modelValue')).toBe('1')
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('second')
+  })
+
+  it('selects the first nested variant after selecting the second outer variant', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      oneOf: [{ const: 'outer' }, { oneOf: [{ const: 'nested first' }, { const: 'nested second' }] }],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    expect(displayedExample(wrapper)).toBe('nested first')
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('nested first')
+  })
+
+  it('selects variants when the response array type is inferred from items', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      items: { type: 'string' },
+      oneOf: [{ items: { type: 'string', const: 'phone' } }, { items: { type: 'string', const: 'email' } }],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual(['email'])
+  })
+
+  it.each([
+    { variant: { type: 'null' }, expected: 'null' },
+    { variant: { type: 'string', default: 'unavailable' }, expected: 'unavailable' },
+    {
+      variant: { type: 'array', items: { type: 'string', const: 'unavailable' } },
+      expected: JSON.stringify(['unavailable'], null, 2),
+    },
+  ])(
+    'selects a non-object variant alongside shared object properties: $variant.type',
+    async ({ variant, expected }) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        properties: { shared: { type: 'boolean', default: true } },
+        anyOf: [{ type: 'object', required: ['shared'] }, variant],
+      })
+      const wrapper = mount(ExampleResponses, {
+        props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+      })
+      const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+      await picker.vm.$emit('update:modelValue', '1')
+      expect(displayedExample(wrapper)).toBe(expected)
+      expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe(expected)
+      await picker.vm.$emit('update:modelValue', '0')
+      expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ shared: true })
+    },
+  )
+
+  it('renders an empty response when its schema reference is unresolved', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              // An unresolved reference can arrive before document resolution completes.
+              'application/json': { schema: { $ref: '#/components/schemas/Missing' } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain('No Body')
+  })
+
+  it.each([
+    {
+      type: 'string',
+      anyOf: [
+        { title: 'Phone', const: 'phone' },
+        { title: 'Email', const: 'email' },
+      ],
+      expected: 'email',
+    },
+    {
+      type: 'array',
+      oneOf: [
+        { title: 'Phone', items: { type: 'string', const: 'phone' } },
+        { title: 'Email', items: { type: 'string', const: 'email' } },
+      ],
+      expected: ['email'],
+    },
+  ])('selects variants with a shared root $type', async ({ expected, ...definition }) => {
+    const schema = coerceValue(SchemaObjectSchema, definition)
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    expect(displayedExample(wrapper)).toBe(typeof expected === 'string' ? expected : JSON.stringify(expected, null, 2))
+  })
+
+  it.each(['anyOf', 'oneOf'])('selects and copies a generated %s response variant', async (composition) => {
+    const phone = 'Phone number is associated with another account'
+    const email = 'Email address is associated with another account'
+    const schema = coerceValue(SchemaObjectSchema, {
+      [composition]: [phone, email].map((message) => ({
+        type: 'object',
+        properties: { message: { type: 'string', default: message } },
+        required: ['message'],
+        additionalProperties: false,
+      })),
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '409': { description: 'Conflict', content: { 'application/json': { schema } } } } },
+    })
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.props('modelValue')).toBe('0')
+    expect(wrapper.text()).toContain(phone)
+    expect(wrapper.text()).not.toContain(email)
+    await picker.vm.$emit('update:modelValue', '1')
+    expect(wrapper.text()).toContain(email)
+    expect(wrapper.text()).not.toContain(phone)
+    expect(displayedExample(wrapper)).toBe(JSON.stringify({ message: email }, null, 2))
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain(phone)
+    expect(wrapper.text()).toContain(email)
+    await wrapper.get('input[type="checkbox"]').setValue(false)
+    expect(wrapper.text()).toContain(email)
+    expect(wrapper.text()).not.toContain(phone)
+  })
+
+  it('resets the generated variant when the response or content type changes', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [
+        { type: 'string', default: 'first' },
+        { type: 'string', default: 'second' },
+      ],
+    })
+    const response = {
+      description: '',
+      content: {
+        'application/json': { schema },
+        'application/problem+json': { schema },
+      },
+    }
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': response, '409': { ...response } } },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    expect(wrapper.text()).toContain('second')
+    await wrapper.setProps({ selectedContentTypes: { '200': 'application/problem+json' } })
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).props('modelValue')).toBe('0')
+    expect(wrapper.text()).toContain('first')
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    await wrapper.findComponent({ name: 'ExampleResponseTabList' }).vm.$emit('change', 1)
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).props('modelValue')).toBe('0')
+    expect(wrapper.text()).toContain('first')
+  })
+
+  it('keeps explicit media type examples ahead of schema variants', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      anyOf: [
+        { type: 'string', default: 'generated first' },
+        { type: 'string', default: 'generated second' },
+      ],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema,
+                examples: { first: { value: 'explicit first' }, second: { value: 'explicit second' } },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findAllComponents({ name: 'ExamplePicker' }).length).toBe(1)
+    expect(wrapper.find('[data-testid="response-variant-picker"]').exists()).toBe(false)
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'second')
+    expect(wrapper.text()).toContain('explicit second')
+    expect(wrapper.text()).not.toContain('generated')
+    expect(displayedExample(wrapper)).toBe('explicit second')
+  })
+
+  it('selects referenced variants without dropping shared response properties', async () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { shared: { type: 'boolean', default: true } },
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Phone',
+          '$ref-value': {
+            title: 'Phone',
+            type: 'object',
+            properties: { message: { type: 'string', default: 'phone' } },
+          },
+        },
+        {
+          $ref: '#/components/schemas/Email',
+          '$ref-value': {
+            title: 'Email',
+            type: 'object',
+            properties: { message: { type: 'string', default: 'email' } },
+          },
+        },
+      ],
+    })
+    const wrapper = mount(ExampleResponses, {
+      props: { responses: { '200': { description: '', content: { 'application/json': { schema } } } } },
+    })
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.text()).toContain('Phone')
+    await picker.vm.$emit('update:modelValue', '1')
+    expect(picker.text()).toContain('Email')
+    expect(JSON.parse(displayedExample(wrapper))).toStrictEqual({ shared: true, message: 'email' })
+  })
+
+  it('selects a framed stream item variant', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Stream',
+            content: {
+              'application/jsonl': {
+                itemSchema: coerceValue(SchemaObjectSchema, {
+                  oneOf: [
+                    { title: 'First', type: 'object', properties: { id: { const: 1 } } },
+                    { title: 'Second', type: 'object', properties: { id: { const: 2 } } },
+                  ],
+                }),
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', '1')
+    expect(displayedExample(wrapper)).toBe('{"id":2}\n')
+    expect(wrapper.findComponent({ name: 'ExampleResponse' }).props('content')).toBe('{"id":2}\n')
+  })
+
+  it('displays the same framed streaming example', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'Stream',
+            content: {
+              'application/jsonl': {
+                itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
+    expect(displayedExample(wrapper)).toBe('{"id":7}\n')
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    expect(wrapper.text()).toContain('Stream item')
+    expect(wrapper.getComponent({ name: 'ExampleSchema' }).props('schema')).toStrictEqual({
+      type: 'object',
+      properties: { id: { type: 'integer', const: 7 } },
+    })
+  })
+
   it('renders a single example correctly', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
@@ -23,7 +379,11 @@ describe('ExampleResponses', () => {
             content: {
               'application/json': {
                 examples: {
-                  example1: { value: { message: 'Success' } },
+                  example1: {
+                    summary: 'Single example',
+                    description: 'Single example details',
+                    value: { message: 'Success' },
+                  },
                 },
               },
             },
@@ -42,6 +402,8 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Success')
     expect(wrapper.text()).not.toContain('value')
     expect(examplePicker.exists()).toBe(false)
+    expect(wrapper.text()).toContain('Single example')
+    expect(wrapper.text()).toContain('Single example details')
   })
 
   it('multiple examples for the same status code', async () => {
@@ -53,8 +415,8 @@ describe('ExampleResponses', () => {
             content: {
               'application/json': {
                 examples: {
-                  example1: { value: { message: 'Example 1' } },
-                  example2: { value: { message: 'Example 2' } },
+                  example1: { description: 'First **details**', value: { message: 'Example 1' } },
+                  example2: { description: 'Second details', value: { message: 'Example 2' } },
                 },
               },
             },
@@ -75,10 +437,16 @@ describe('ExampleResponses', () => {
     expect(textSelectLabel.text()).toContain('example1')
     expect(codeBlock[0]?.text()).toContain('Example 1')
     expect(codeBlock[0]?.text()).not.toContain('Example 2')
+    expect(wrapper.find('strong').text()).toBe('details')
+    expect(wrapper.text()).toContain('First details')
+    expect(wrapper.text()).not.toContain('Second details')
 
     await examplePicker.vm.$emit('update:modelValue', 'example2')
     expect(wrapper.text()).not.toContain('Example 1')
     expect(wrapper.text()).toContain('Example 2')
+    expect(wrapper.text()).toContain('Second details')
+    expect(wrapper.text()).not.toContain('First details')
+    expect(wrapper.text()).toContain('Successful response')
   })
 
   it('handles xml example response', () => {
@@ -330,31 +698,7 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).toContain('Access denied')
   })
 
-  it('copies example response when clicking copy button', async () => {
-    const wrapper = mount(ExampleResponses, {
-      props: {
-        responses: {
-          '200': {
-            description: 'OK',
-            content: {
-              'application/json': {
-                example: { foo: 'bar' },
-              },
-            },
-          },
-        },
-      },
-    })
-
-    const copyButton = wrapper.find('.code-copy')
-    expect(copyButton.exists()).toBe(true)
-
-    await copyButton.trigger('click')
-
-    expect(mockCopyToClipboard).toHaveBeenCalledWith('{\n  "foo": "bar"\n}')
-  })
-
-  it('copies the selected named example and follows response changes', async () => {
+  it('renders the selected named example and follows response changes', async () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -375,13 +719,11 @@ describe('ExampleResponses', () => {
     })
 
     await wrapper.getComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'second')
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{\n  "id": 2\n}')
+    expect(displayedExample(wrapper)).toBe('{\n  "id": 2\n}')
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{\n  "id": 2\n}')
 
     await wrapper.getComponent({ name: 'ExampleResponseTabList' }).vm.$emit('change', 1)
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('Not found')
+    expect(displayedExample(wrapper)).toBe('Not found')
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('Not found')
   })
 
@@ -389,7 +731,7 @@ describe('ExampleResponses', () => {
     { value: 0, content: '0' },
     { value: false, content: 'false' },
     { value: '', content: '' },
-  ])('copies the falsy example $value', async ({ value, content }) => {
+  ])('renders the falsy example $value', ({ value, content }) => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -398,12 +740,11 @@ describe('ExampleResponses', () => {
       },
     })
 
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith(content)
+    expect(displayedExample(wrapper)).toBe(content)
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe(content)
   })
 
-  it('copies a resolved example reference', async () => {
+  it('renders a resolved example reference', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -421,11 +762,10 @@ describe('ExampleResponses', () => {
       },
     })
 
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('{\n  "linked": true\n}')
+    expect(displayedExample(wrapper)).toBe('{\n  "linked": true\n}')
   })
 
-  it('copies the displayed generated example', async () => {
+  it('renders the displayed generated example', () => {
     const wrapper = mount(ExampleResponses, {
       props: {
         responses: {
@@ -439,8 +779,7 @@ describe('ExampleResponses', () => {
       },
     })
 
-    await wrapper.get('button[aria-label="Copy example value"]').trigger('click')
-    expect(mockCopyToClipboard).toHaveBeenLastCalledWith('Generated')
+    expect(displayedExample(wrapper)).toBe('Generated')
     expect(wrapper.getComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('Generated')
   })
 

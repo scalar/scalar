@@ -4,6 +4,29 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it('reports referenced OpenAPI 3.2 cookie declarations after resolution', async () => {
+    const result = await validate({
+      openapi: '3.2.1',
+      info: { title: 'Cookies', version: '1' },
+      paths: {
+        '/': {
+          get: { parameters: [{ $ref: '#/components/parameters/Color' }], responses: { '200': { description: 'OK' } } },
+        },
+      },
+      components: {
+        parameters: {
+          Color: { name: 'color', in: 'cookie', explode: false, schema: { $ref: '#/components/schemas/Colors' } },
+        },
+        schemas: { Colors: { type: 'array', items: { type: 'string' } } },
+      },
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors?.map(({ path }) => path)).toStrictEqual([
+      ['paths', '/', 'get', 'parameters', '0', 'explode'],
+      ['components', 'parameters', 'Color', 'explode'],
+    ])
+  })
+
   it('fails on invalid schema', async () => {
     const result = await validate('')
 
@@ -347,5 +370,52 @@ paths: {}
     await expect(validate(document, { throwOnError: true })).rejects.toThrow(
       "Can't resolve reference: #/components/schemas/Bad%ZZ",
     )
+  })
+
+  it.each(['query', 'COPY'])('reports missing path parameters for %s in OpenAPI 3.2', async (method) => {
+    const operation = { responses: { '200': { description: 'OK' } } }
+    const result = await validate({
+      openapi: '3.2.1',
+      info: { title: 'New methods', version: '1.0.0' },
+      paths: {
+        '/pets/{petId}': method === 'query' ? { query: operation } : { additionalOperations: { COPY: operation } },
+      },
+    })
+    const operationPath = method === 'query' ? ['query'] : ['additionalOperations', 'COPY']
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      {
+        path: ['paths', '/pets/{petId}', ...operationPath],
+        message:
+          'Declared path parameter "petId" needs to be defined as a path parameter at either the path or operation level',
+      },
+    ])
+  })
+
+  it.each(['query', 'COPY'])('resolves operation-level and inherited parameter references for %s', async (method) => {
+    const operation = {
+      parameters: [{ $ref: '#/components/parameters/Name' }],
+      responses: { '200': { description: 'OK' } },
+    }
+    const result = await validate({
+      openapi: '3.2.1',
+      info: { title: 'Referenced parameters', version: '1.0.0' },
+      paths: {
+        '/pets/{petId}/{name}': {
+          parameters: [{ $ref: '#/components/parameters/PetId' }],
+          ...(method === 'query' ? { query: operation } : { additionalOperations: { COPY: operation } }),
+        },
+      },
+      components: {
+        parameters: {
+          PetId: { name: 'petId', in: 'path', required: true, schema: { type: 'string' } },
+          Name: { name: 'name', in: 'path', required: true, schema: { type: 'string' } },
+        },
+      },
+    })
+
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
   })
 })

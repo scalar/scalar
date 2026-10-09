@@ -44,7 +44,7 @@ export const getStructuredBodyRows = (parsedValue: unknown, schema?: SchemaObjec
     // value rather than seeing the string "null". Empty rows are omitted on fold-back.
     const rendered = value === undefined || value === null ? '' : stringifyValue(value)
 
-    const row: TableRow = { name, value: rendered, isDisabled: false }
+    const row: TableRow = { name, value: rendered, isDisabled: false, arrayEncoding: 'json' }
 
     const leaf = leafByDottedName.get(name)
     const propSchema = leaf?.schema ?? (objectSchema ? resolve.schema(objectSchema.properties?.[name]) : undefined)

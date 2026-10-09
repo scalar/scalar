@@ -8,6 +8,7 @@ import type {
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 
 import EnvironmentVariablesTable from '@/v2/features/environments/components/EnvironmentVariablesTable.vue'
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   environmentName,
@@ -28,6 +29,8 @@ const emit = defineEmits<{
   (e: 'edit'): void
   (e: 'delete'): void
 }>()
+
+const { translate } = useLocalization()
 </script>
 <template>
   <div
@@ -50,23 +53,25 @@ const emit = defineEmits<{
         <span
           v-if="isActive"
           class="bg-c-accent text-b-1 flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium"
-          title="This is the active environment">
-          <span class="size-1.5 rounded-full bg-current"></span>
-          Active
-        </span>
+          :title="
+            translate('apiClient.environment.thisIsTheActiveEnvironment')
+          ">
+          <span class="size-1.5 rounded-full bg-current"></span
+          >{{ translate('apiClient.environment.active') }}</span
+        >
       </div>
 
       <!-- Actions -->
       <div class="hidden flex-row items-center gap-1 group-hover:flex">
         <ScalarIconButton
           :icon="ScalarIconNotePencil"
-          label="Edit Environment"
+          :label="translate('apiClient.environment.editEnvironment')"
           size="sm"
           @click="emit('edit')" />
 
         <ScalarIconButton
           :icon="ScalarIconTrash"
-          label="Delete Environment"
+          :label="translate('apiClient.environment.deleteEnvironment')"
           size="sm"
           @click="emit('delete')" />
       </div>

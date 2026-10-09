@@ -237,19 +237,19 @@ const sortMessages = (entries: TraversedAsyncApiMessage[]): void => {
 }
 
 /**
- * Builds nested message entries for one operation.
+ * Builds message entries beneath a channel or operation.
  * Resolves each message ref, skips hidden messages, and sorts the result by title.
  */
 const createMessageEntries = ({
   channelName,
   channel,
-  operationId,
+  parentId,
   messageNames,
   generateId,
 }: {
   channelName: string
   channel: AsyncApiChannelObject
-  operationId: string
+  parentId: string
   messageNames: string[]
   generateId: TraverseSpecOptions['generateId']
 }): TraversedAsyncApiMessage[] => {
@@ -271,7 +271,7 @@ const createMessageEntries = ({
           type: 'asyncapi-message',
           messageName,
           channelName,
-          parentId: operationId,
+          parentId,
         }),
         title: getMessageTitle(message, messageName),
         messageName,
@@ -319,7 +319,7 @@ const createOperationEntry = ({
   const messageEntries = createMessageEntries({
     channelName,
     channel,
-    operationId,
+    parentId: operationId,
     messageNames: resolveOperationMessageNames(operation, channel, channelName),
     generateId,
   })
@@ -340,7 +340,7 @@ const createOperationEntry = ({
  * Builds a channel navigation entry from a bucket and the operations to render under it.
  * The same channel may appear at the document root and under each of its channel-level tags.
  * Writes `x-scalar-order` on the source channel (when it is not a bare `$ref`) so other code can reuse the order.
- * Returns `undefined` when the channel is hidden or every requested operation was filtered out.
+ * Returns `undefined` when the channel is hidden or all its declared operations are hidden.
  */
 const createChannelEntry = ({
   bucket,
@@ -386,16 +386,27 @@ const createChannelEntry = ({
 
   sortOperations(operations, operationsSorter)
 
-  if (operations.length === 0) {
+  // A channel with hidden operations must not expose their messages through the fallback.
+  if (operations.length === 0 && bucket.operations.length > 0) {
     return undefined
   }
+
+  // The catalog includes every visible channel message independently of operation subsets.
+  const messages = createMessageEntries({
+    channelName: bucket.channelName,
+    channel: bucket.channel,
+    parentId: channelId,
+    messageNames: objectKeys(bucket.channel.messages ?? {}),
+    generateId,
+  })
+  const children = [...operations, ...messages]
 
   // Persist the rendered order back onto the source channel for downstream consumers.
   // We skip channels that are stored as references, since the order should live on the target.
   const channelNode = document.channels?.[bucket.channelName]
   if (channelNode && !('$ref' in channelNode)) {
     const orderedChannel: AsyncApiChannelObject & { 'x-scalar-order'?: string[] } = channelNode
-    orderedChannel['x-scalar-order'] = operations.map((child) => child.id)
+    orderedChannel['x-scalar-order'] = children.map((child) => child.id)
   }
 
   return {
@@ -404,7 +415,7 @@ const createChannelEntry = ({
     title: getChannelTitle(bucket.channel, bucket.channelName),
     channelName: bucket.channelName,
     channelAddress: bucket.channelAddress,
-    children: operations,
+    children,
   }
 }
 
@@ -553,10 +564,6 @@ const collectChannelBuckets = (document: AsyncApiDocument): Map<string, ChannelB
     }
 
     const operation = getResolvedRef(operationNode, mergeSiblingReferences)
-    if (isHidden(operation as Hideable)) {
-      continue
-    }
-
     const resolved = resolveOperationChannel(document, operation)
     if (!resolved) {
       continue

@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest --run",
-    "types:check": "tsgo --noEmit"
+    "types:check": "tsgo --noEmit",
+    "version:packages": "node dist/version.js"
   },
   "dependencies": {
     "@changesets/get-github-info": "^0.7.0",

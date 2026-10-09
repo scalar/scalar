@@ -7,10 +7,97 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
+
+import { provideLocalization } from '@/features/localization'
 
 import ExampleResponse from './ExampleResponse.vue'
 
 describe('ExampleResponse', () => {
+  it('does not generate an example while an external example is pending', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        response: { schema: { type: 'string', example: 'generated fallback' } },
+        example: undefined,
+        pending: true,
+      },
+    })
+    expect(wrapper.text()).toBe('No Body')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('localizes an XML failure received from the shared display and copy generation', () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization({ translations: { response: { xmlGenerationFailed: 'XML error: {message}' } } })
+          return () =>
+            h(ExampleResponse, {
+              response: undefined,
+              example: undefined,
+              contentType: 'application/xml',
+              generationError: {
+                severity: 'error',
+                code: 'unsupported-pattern',
+                message: 'Unsupported pattern',
+                path: [],
+              },
+            })
+        },
+      }),
+    )
+    expect(wrapper.text()).toBe('XML error: Unsupported pattern')
+    wrapper.unmount()
+  })
+
+  it.each([
+    {
+      contentType: 'text/event-stream',
+      value: { event: 'update', data: 'hello' },
+      expected: 'event: update\ndata: hello\n\n',
+    },
+    { contentType: 'application/jsonl', value: [{ id: 1 }, { id: 2 }], expected: '{"id":1}\n{"id":2}\n' },
+    { contentType: 'application/json-seq', value: [false, 0, null], expected: '\u001efalse\n\u001e0\n\u001enull\n' },
+    { contentType: 'application/jsonl', value: null, expected: 'null\n' },
+    { contentType: 'application/jsonl', value: false, expected: 'false\n' },
+    { contentType: 'application/jsonl', value: 0, expected: '0\n' },
+    { contentType: 'text/event-stream', value: 'data: unchanged\n\n', expected: 'data: unchanged\n\n' },
+  ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
+    const wrapper = mount(ExampleResponse, {
+      props: { response: {}, example: { value }, contentType },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe(expected)
+    wrapper.unmount()
+  })
+
+  it('renders a framed stream item example', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        response: { itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } } },
+        example: undefined,
+        contentType: 'application/jsonl',
+      },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('{"id":7}\n')
+  })
+
+  it('explains XML generation limits instead of displaying an empty response', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        contentType: 'application/xml',
+        response: coerceValue(MediaTypeObjectSchema, { schema: { type: 'object', xml: { name: 'root' } } }),
+        example: {
+          dataValue: Object.fromEntries(Array.from({ length: 10_001 }, (_, index) => [`item${index}`, index])),
+        },
+      },
+    })
+    expect(wrapper.text()).toBe(
+      'The XML example exceeds the generation limit. Supply a serialized XML example to display the complete payload.',
+    )
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+  })
+
   describe('basic rendering', () => {
     it('renders example when provided', () => {
       const example: ExampleObject = {
@@ -46,6 +133,9 @@ describe('ExampleResponse', () => {
           example,
         },
       })
+
+      expect(wrapper.text()).toContain('Success response example')
+      expect(wrapper.text()).toContain('This is a successful API response')
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
@@ -1034,7 +1124,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles example with undefined value', () => {
@@ -1142,7 +1232,7 @@ describe('ExampleResponse', () => {
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
       expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('prettyPrintedContent')).toBe('')
+      expect(codeBlock.props('prettyPrintedContent')).toBe('null')
     })
 
     it('handles circular references in $refValues gracefully', () => {
@@ -1382,5 +1472,30 @@ describe('ExampleResponse', () => {
       expect(codeBlock.exists()).toBe(true)
       expect(codeBlock.props('prettyPrintedContent')).toEqual(prettyPrintJson({ message: 'Inline value' }))
     })
+  })
+  it('renders schema-aware XML with XML highlighting', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: {
+        contentType: 'application/problem+xml',
+        example: undefined,
+        response: coerceValue(MediaTypeObjectSchema, {
+          schema: {
+            type: 'object',
+            xml: { name: 'person' },
+            properties: { id: { example: 7, xml: { attribute: true } } },
+          },
+        }),
+      },
+    })
+    const code = wrapper.findComponent({ name: 'ScalarCodeBlock' })
+    expect(code.props('lang')).toBe('xml')
+    expect(code.props('prettyPrintedContent')).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<person id="7"/>')
+  })
+
+  it('preserves serialized XML response examples', () => {
+    const wrapper = mount(ExampleResponse, {
+      props: { contentType: 'text/xml', response: undefined, example: { value: '<person id="8" />\n' } },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('prettyPrintedContent')).toBe('<person id="8" />\n')
   })
 })

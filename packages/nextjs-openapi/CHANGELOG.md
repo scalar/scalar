@@ -1,5 +1,29 @@
 # @scalar/nextjs-openapi
 
+## 0.3.49
+
+## 0.3.48
+
+## 0.3.47
+
+## 0.3.46
+
+## 0.3.45
+
+## 0.3.44
+
+## 0.3.43
+
+## 0.3.42
+
+## 0.3.41
+
+## 0.3.40
+
+### Patch Changes
+
+- [#10135](https://github.com/scalar/scalar/pull/10135): Extract parameters and JSON responses from variable handlers, including concise arrows and multiple declarations. Safely read declaration names and JSDoc.
+
 ## 0.3.39
 
 ## 0.3.38

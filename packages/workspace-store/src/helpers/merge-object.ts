@@ -40,9 +40,14 @@ export const mergeObjects = (
   replaceArrays = false,
   cache: Set<unknown> = new Set(),
 ): Record<string, unknown> => {
-  for (const key in b) {
-    if (!(key in a)) {
-      a[key] = b[key]
+  for (const key of Object.keys(b)) {
+    if (!Object.hasOwn(a, key)) {
+      // A JSON property named __proto__ is data, not an instruction to replace the prototype.
+      if (key === '__proto__') {
+        Object.defineProperty(a, key, { value: b[key], enumerable: true, configurable: true, writable: true })
+      } else {
+        a[key] = b[key]
+      }
     } else {
       const aValue = a[key]
       const bValue = b[key]

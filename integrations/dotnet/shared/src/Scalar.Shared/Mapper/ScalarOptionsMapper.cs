@@ -24,6 +24,12 @@ internal static partial class ScalarOptionsMapper
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
+            Localization = options.Localization,
+            ShowExtensions = options.ShowExtensions,
+            HideModelNames = options.HideModelNames,
+            MaxVisibleRequestBodyProperties = options.MaxVisibleRequestBodyProperties,
+            ExpandAllParameters = options.ExpandAllParameters,
+            ExpandAllSchemaProperties = options.ExpandAllSchemaProperties,
             Theme = options.Theme,
             Layout = options.Layout,
             Favicon = options.Favicon,
@@ -55,6 +61,9 @@ internal static partial class ScalarOptionsMapper
                     TargetKey = options.DefaultHttpClient.Value.Key
                 }
                 : null,
+            FeaturedClients = options.FeaturedClients?
+                .Select(client => $"{client.Key.ToStringFast(true)}/{client.Value.ToStringFast(true)}")
+                .ToArray(),
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
             Sources = sources,

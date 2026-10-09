@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { javaBody, quoteJava } from '@/libs/java'
-import { prepareRequest } from '@/libs/prepare-request'
+import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 
 /** Generates a request using AsyncHttpClient and closes the client after completion. */
 export const javaAsynchttp: Plugin = {
@@ -9,12 +9,17 @@ export const javaAsynchttp: Plugin = {
   client: 'asynchttp',
   title: 'AsyncHttp',
   generate(request, configuration) {
-    const { url, method, headers, body } = prepareRequest(request, configuration)
+    const prepared = prepareRequest(request, configuration)
+    const { url, method, headers, body } = prepared
+    const boundary = multipartFileBoundary(prepared)
     return [
-      ...javaBody(body),
+      ...javaBody(body, boundary),
       'try (AsyncHttpClient client = new DefaultAsyncHttpClient()) {',
       `  Response response = client.prepare(${quoteJava(method)}, ${quoteJava(url)})`,
-      ...headers.map(({ name, value }) => `    .addHeader(${quoteJava(name)}, ${quoteJava(value)})`),
+      ...headers.map(
+        ({ name, value }) =>
+          `    .addHeader(${quoteJava(name)}, ${boundary && name.toLowerCase() === 'content-type' ? `${quoteJava(value)}.replace(${quoteJava(boundary)}, boundary)` : quoteJava(value)})`,
+      ),
       ...(body ? ['    .setBody(body.toByteArray())'] : []),
       '    .execute()',
       '    .get();',

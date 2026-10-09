@@ -1,5 +1,30 @@
 # @scalar/client-side-rendering
 
+## 0.4.10
+
+## 0.4.9
+
+## 0.4.8
+
+## 0.4.7
+
+## 0.4.6
+
+## 0.4.5
+
+### Patch Changes
+
+- [#10344](https://github.com/scalar/scalar/pull/10344): Share JSON and property-name escaping for inline scripts between client-side and server-side rendering.
+- [#10344](https://github.com/scalar/scalar/pull/10344): Escape configuration data embedded in inline scripts to prevent HTML script injection.
+
+## 0.4.4
+
+## 0.4.3
+
+## 0.4.2
+
+## 0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

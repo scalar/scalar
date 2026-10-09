@@ -6,6 +6,7 @@ import {
   CommandActionForm,
   CommandActionInput,
 } from '@/v2/features/command-palette'
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   state,
@@ -35,9 +36,19 @@ const emit = defineEmits<{
   ): void
 }>()
 
+const { translate } = useLocalization()
+
 const isEditMode = computed(() => scope !== null)
-const title = computed(() => (isEditMode.value ? 'Edit Scope' : 'Add Scope'))
-const submitLabel = computed(() => (isEditMode.value ? 'Save' : 'Add Scope'))
+const title = computed(() =>
+  isEditMode.value
+    ? translate('apiClient.oauthScopesAddModal.edit')
+    : translate('apiClient.oauthScopesAddModal.add'),
+)
+const submitLabel = computed(() =>
+  isEditMode.value
+    ? translate('apiClient.oauthScopesAddModal.save')
+    : translate('apiClient.oauthScopesAddModal.add'),
+)
 
 const scopeData = ref({
   name: '',
@@ -76,10 +87,12 @@ const isDuplicateName = computed(() => {
 /** Human readable validation message rendered inline in the modal */
 const validationError = computed<string | null>(() => {
   if (isDuplicateName.value) {
-    return `A scope named "${trimmedName.value}" already exists.`
+    return translate('apiClient.oauthScopesAddModal.duplicate', {
+      name: trimmedName.value,
+    })
   }
   if (hasTouchedName.value && !trimmedName.value) {
-    return 'Scope name is required.'
+    return translate('apiClient.oauthScopesAddModal.required')
   }
   return null
 })
@@ -134,8 +147,8 @@ watch(
       @submit="handleSubmit">
       <!-- Name -->
       <div class="flex min-h-8 items-start gap-2 text-sm">
-        Name:
-        <CommandActionInput
+        {{ translate('apiClient.oauthScopesAddModal.name')
+        }}<CommandActionInput
           v-model="scopeData.name"
           autofocus
           class="field-sizing-content !p-0"
@@ -144,12 +157,14 @@ watch(
 
       <!-- Description -->
       <div class="flex min-h-8 items-start gap-2 text-sm">
-        Description:
-        <CommandActionInput
+        {{ translate('apiClient.oauthScopesAddModal.description')
+        }}<CommandActionInput
           v-model="scopeData.description"
           :autofocus="false"
           class="field-sizing-content !p-0"
-          placeholder="Read user data" />
+          :placeholder="
+            translate('apiClient.oauthScopesAddModal.readUserData')
+          " />
       </div>
 
       <!-- Inline validation error -->

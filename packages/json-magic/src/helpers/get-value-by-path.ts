@@ -27,7 +27,7 @@ export function getValueByPath(target: unknown, segments: string[]): { context: 
         return { context: '', value: undefined }
       }
       // If the accumulator is not an object or is null, stop traversal
-      if (typeof acc.value !== 'object' || acc.value === null) {
+      if (typeof acc.value !== 'object' || acc.value === null || !Object.hasOwn(acc.value, key)) {
         return { context: '', value: undefined }
       }
       // Attempt to get the id from the current value for context tracking

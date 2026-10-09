@@ -1,11 +1,63 @@
 import { describe, expect, it } from 'vitest'
 
+import { getNavigationOptions } from '@/navigation/get-navigation-options'
 import type { TagsMap } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
 import { traversePaths } from './traverse-paths'
 
 describe('traversePaths', () => {
+  it('includes additional operations with their nested JSON pointers', () => {
+    const document: OpenApiDocument = {
+      openapi: '3.2.1',
+      info: { title: 'Custom methods', version: '1' },
+      'x-scalar-original-document-hash': '',
+      paths: {
+        '/pets/{id}': { additionalOperations: { COPY: { summary: 'Copy pet' }, copy: { summary: 'Custom copy' } } },
+      },
+    }
+    const result = traversePaths({
+      document,
+      tagsMap: new Map(),
+      documentId: 'doc',
+      generateId: (entry) => (entry.type === 'operation' ? entry.method : ''),
+    })
+    expect(result.untaggedOperations.map(({ id, method, ref, title }) => ({ id, method, ref, title }))).toEqual([
+      { id: 'COPY', method: 'COPY', ref: '#/paths/~1pets~1{id}/additionalOperations/COPY', title: 'Copy pet' },
+      { id: 'copy', method: 'copy', ref: '#/paths/~1pets~1{id}/additionalOperations/copy', title: 'Custom copy' },
+    ])
+  })
+
+  it('keeps fixed and additional GET operations separately addressable', () => {
+    const document: OpenApiDocument = {
+      openapi: '3.2.1',
+      info: { title: 'Methods', version: '1' },
+      'x-scalar-original-document-hash': '',
+      paths: {
+        '/pets': {
+          get: { summary: 'List pets' },
+          additionalOperations: { GET: { summary: 'Authored GET' } },
+        },
+      },
+    }
+    const result = traversePaths({
+      document,
+      tagsMap: new Map(),
+      documentId: 'doc',
+      generateId: getNavigationOptions('doc').generateId,
+    })
+
+    expect(result.untaggedOperations.map(({ id, method, ref, title }) => ({ id, method, ref, title }))).toStrictEqual([
+      { id: 'doc/GET/pets', method: 'get', ref: '#/paths/~1pets/get', title: 'List pets' },
+      {
+        id: 'doc/additionalOperations/GET/pets',
+        method: 'GET',
+        ref: '#/paths/~1pets/additionalOperations/GET',
+        title: 'Authored GET',
+      },
+    ])
+  })
+
   // Helper to create a basic OpenAPI document
   const createDocument = (): OpenApiDocument => ({
     openapi: '3.1.0',

@@ -1,16 +1,21 @@
+import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@scalar/blocks/schema'
 import { ScalarListbox } from '@scalar/components/listbox'
+import { useModal } from '@scalar/components/modal'
+import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type VueWrapper, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
+import { computed, defineComponent, h, nextTick, ref } from 'vue'
 
+import { GENERATE_SDK_CONTEXT_SYMBOL, type GenerateSdkContext } from '@/features/generate-sdk/use-generate-sdk'
+import { provideLocalization } from '@/features/localization'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
-import { REQUEST_BODY_COMPOSITION_INDEX_SYMBOL } from '@/features/Operation/request-body-composition-index'
 
 import ClassicLayout from './ClassicLayout.vue'
+import ModernLayout from './ModernLayout.vue'
 
 const requiredSecurity: RequiredSecurity = { state: 'none', requirements: [] }
 
@@ -123,8 +128,10 @@ const props: ExtractComponentProps<typeof ClassicLayout> = {
   method: 'post',
   operation,
   options: {
+    expandAllParameters: true,
     expandAllResponses: false,
     expandAllSchemaProperties: false,
+    maxVisibleRequestBodyProperties: 12,
     schemaKeyboardNav: false,
     hideModels: false,
     hideTestRequestButton: true,
@@ -159,6 +166,45 @@ const getRequestBodyCompositionSelection = <T>(wrapper: VueWrapper<T>) =>
     | undefined
 
 describe('ClassicLayout', () => {
+  it.each([
+    { name: 'classic', Layout: ClassicLayout },
+    { name: 'modern', Layout: ModernLayout },
+  ])('localizes missing linked samples in the $name layout', async ({ Layout }) => {
+    const localization = ref<ApiReferenceLocalization>({ locale: 'de' })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization(localization)
+          return () =>
+            h(Layout, {
+              ...props,
+              selectedClient: 'custom/python',
+              selectedExample: 'missing',
+              operation: {
+                'x-codeSamples': [{ lang: 'python', example: 'first', source: 'create()' }],
+                requestBody: { content: { 'application/json': { examples: { missing: { value: {} } } } } },
+              },
+            })
+        },
+      }),
+    )
+    expect(wrapper.get('[role="status"]').text()).toBe('Für dieses Beispiel ist kein Codebeispiel verfügbar.')
+
+    localization.value = { locale: 'fr' }
+    await nextTick()
+    expect(wrapper.get('[role="status"]').text()).toBe('Aucun extrait de code disponible pour cet exemple.')
+
+    localization.value = {
+      locale: 'fr',
+      translations: { operation: { codeSampleUnavailable: 'Exemple indisponible.', codeSample: 'Extrait' } },
+    }
+    await nextTick()
+    expect(wrapper.get('[role="status"]').text()).toBe('Exemple indisponible.')
+    // The accessible name of the focusable code sample follows the same dictionary
+    expect(wrapper.findComponent({ name: 'CodeExample' }).props('codeSampleLabel')).toBe('Extrait')
+    wrapper.unmount()
+  })
+
   it('updates shared request body composition state when the root selection changes', async () => {
     const wrapper = mount(ClassicLayout, {
       props: props,
@@ -323,6 +369,50 @@ describe('ClassicLayout', () => {
     const testButton = wrapper.findComponent({ name: 'TestRequestButton' })
     expect(testButton.exists()).toBe(true)
     expect(testButton.props('path')).toBe('delivery.created')
+  })
+
+  describe('Generate SDK', () => {
+    const mountWithGenerateSdk = (Layout: typeof ClassicLayout | typeof ModernLayout, enabled: boolean) => {
+      const context: GenerateSdkContext = { enabled: computed(() => enabled), dialog: useModal(), open: vi.fn() }
+      const wrapper = mount(Layout, {
+        props,
+        global: {
+          provide: { [GENERATE_SDK_CONTEXT_SYMBOL as symbol]: context },
+          stubs: { RouterLink: { name: 'RouterLink', template: '<a><slot /></a>' } },
+        },
+      })
+      return { context, wrapper }
+    }
+
+    it.each([
+      { name: 'classic', Layout: ClassicLayout },
+      { name: 'modern', Layout: ModernLayout },
+    ])(
+      'puts Generate SDK in the request example footer while it is offered in the $name layout',
+      async ({ Layout }) => {
+        const { context, wrapper } = mountWithGenerateSdk(Layout, true)
+        await nextTick()
+
+        const footer = wrapper.findComponent({ name: 'CodeExample' }).findComponent({ name: 'ScalarCardFooter' })
+        const button = footer.findAll('button').find((candidate) => candidate.text() === 'Generate SDK')
+        expect(button?.attributes('aria-haspopup')).toBe('dialog')
+
+        await button?.trigger('click')
+        expect(context.open).toHaveBeenCalledTimes(1)
+        wrapper.unmount()
+      },
+    )
+
+    it('adds no footer to the request example when Generate SDK is not offered', async () => {
+      // The classic layout has no other footer controls here, so an always-passed slot would leave an empty bar
+      const { wrapper } = mountWithGenerateSdk(ClassicLayout, false)
+      await nextTick()
+
+      const codeExample = wrapper.findComponent({ name: 'CodeExample' })
+      expect(codeExample.text()).not.toContain('Generate SDK')
+      expect(codeExample.findComponent({ name: 'ScalarCardFooter' }).exists()).toBe(false)
+      wrapper.unmount()
+    })
   })
 
   describe('responses', () => {

@@ -1,4 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { HarResponse } from '@scalar/snippetz'
 
 import { getCookieHeaderKeys } from '@/v2/blocks/operation-block/helpers/get-cookie-header-keys'
@@ -10,7 +9,7 @@ type HarToFetchResponseProps = {
   /** Optional URL to set on the Response object */
   url?: string
   /** The HTTP method used for the request */
-  method: HttpMethod
+  method: string
   /** The request path */
   path: string
   /** Time in ms the request took */

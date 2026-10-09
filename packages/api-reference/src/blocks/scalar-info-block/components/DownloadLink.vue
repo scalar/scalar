@@ -1,10 +1,10 @@
 <script lang="ts" setup>
+import { Badge } from '@scalar/blocks/shared'
 import { sanitizeUrl } from '@scalar/helpers/url/is-safe-url'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
 
-import Badge from '@/components/Badge/Badge.vue'
 import { useLocalization } from '@/features/localization'
 
 const {
@@ -32,6 +32,14 @@ const label = computed(() =>
     ? translate('download.asyncapi')
     : translate('download.openapi'),
 )
+
+/**
+ * Both format buttons carry the same visible text and the format badge stays
+ * hidden until hover, so without an explicit name assistive technology reads
+ * out two identical buttons with no way to tell them apart.
+ */
+const formatLabel = (format: 'JSON' | 'YAML'): string =>
+  translate('download.asFormat', { label: label.value, format })
 
 /**
  * The document URL can be supplied by whoever controls the rendered document, so a protocol like
@@ -65,6 +73,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
     <!-- JSON  -->
     <button
       v-if="documentDownloadType === 'json' || documentDownloadType === 'both'"
+      :aria-label="formatLabel('JSON')"
       class="download-button"
       type="button"
       @click.prevent="() => handleDownloadClick('json')">
@@ -75,6 +84,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
     <!-- YAML -->
     <button
       v-if="documentDownloadType === 'yaml' || documentDownloadType === 'both'"
+      :aria-label="formatLabel('YAML')"
       class="download-button"
       type="button"
       @click.prevent="() => handleDownloadClick('yaml')">

@@ -2,20 +2,14 @@
 /**
  * Scalar floating backdrop component
  *
- * Provides an absolutely positioned backdrop for the floating element
- * This is used internally by a number of the Scalar floating components
- * (e.g. Dropdown, Popover, Listbox)
+ * Provides an absolutely positioned surface behind a floating element
  *
- * You can use this component directly if you need to customize the backdrop
- * for a floating component
+ * The backdrop inherits its border radius from its parent, so set the radius
+ * on the floating element itself and the backdrop will follow it
  *
- * @example
- * <ScalarDropdown>
- *   <!-- Menu stuff -->
- *   <template #backdrop>
- *     <ScalarFloatingBackdrop />
- *   </template>
- * </ScalarDropdown>
+ * @deprecated The Scalar floating components now paint their own surface, so
+ * style the floating element directly instead, e.g.
+ * `rounded-xl bg-b-1 dark:bg-b-1.5 shadow-md inset-shadow-border`
  */
 export default {}
 </script>
@@ -28,7 +22,9 @@ const { cx } = useBindCx()
 <template>
   <div
     v-bind="
-      cx('absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted')
+      cx(
+        'absolute inset-0 -z-1 rounded-[inherit] bg-b-1 dark:bg-b-1.5 shadow-md inset-shadow-border',
+      )
     ">
     <slot />
   </div>

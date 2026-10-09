@@ -3,6 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { shellCurl } from './curl'
 
 describe('shellCurl', () => {
+  it('preserves whole-query percent encoding when appending named parameters', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/search?%7b%22a%22%3a1%7d',
+      queryString: [{ name: 'token', value: 'secret' }],
+    })
+    expect(result).toBe(`curl 'https://example.com/search?%7b%22a%22%3a1%7d&token=secret'`)
+  })
+
+  it('preserves a custom method in the generated request', () => {
+    expect(shellCurl.generate({ url: 'https://example.com', method: 'customMethod' })).toContain(
+      '--request customMethod',
+    )
+  })
+
   it('returns a basic request', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
@@ -490,11 +504,11 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -667,11 +681,11 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'price',
-          value: '%24100',
+          value: '$100',
         },
         {
           name: 'currency',
-          value: 'USD%24',
+          value: 'USD$',
         },
       ],
     })
@@ -685,13 +699,25 @@ describe('shellCurl', () => {
       queryString: [
         {
           name: 'amount',
-          value: '%2450.00',
+          value: '$50.00',
         },
       ],
     })
 
     expect(result).toBe(`curl 'https://example.com/api$v1/prices?amount=%2450.00'`)
   })
+
+  it.each(['application/jsonl', 'application/x-ndjson; charset=utf-8'])(
+    'preserves stream framing for %s',
+    (mimeType) => {
+      const result = shellCurl.generate({
+        url: 'https://example.com',
+        postData: { mimeType, text: '{"message":"Hello stream"}\n' },
+      })
+
+      expect(result).toContain('--data-binary \'{"message":"Hello stream"}\n\'')
+    },
+  )
 
   it('pretty-prints --data bodies whose mimeType uses a +json suffix', () => {
     const result = shellCurl.generate({
@@ -764,7 +790,7 @@ describe('shellCurl', () => {
     expect(result).toContain(`--data '"hell'\\''o"'`)
   })
 
-  it('turns off globbing for bracket notation in a query parameter name', () => {
+  it('encodes bracket notation in a query parameter name', () => {
     const result = shellCurl.generate({
       url: 'https://example.com/api/users',
       queryString: [
@@ -775,8 +801,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl 'https://example.com/api/users?filter[user_id]=me' \\
-  --globoff`)
+    expect(result).toBe(`curl 'https://example.com/api/users?filter%5Buser_id%5D=me'`)
   })
 
   it('leaves a path placeholder alone', () => {
@@ -787,7 +812,7 @@ describe('shellCurl', () => {
     expect(result).toBe(`curl 'https://galaxy.scalar.com/planets/{planetId}'`)
   })
 
-  it('turns off globbing for a curly-brace set in a query value', () => {
+  it('encodes a curly-brace set in a query value', () => {
     const result = shellCurl.generate({
       url: 'https://example.com/api',
       queryString: [
@@ -798,8 +823,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl 'https://example.com/api?ids={1,2,3}' \\
-  --globoff`)
+    expect(result).toBe(`curl 'https://example.com/api?ids=%7B1%2C2%2C3%7D'`)
   })
 
   it('leaves a path placeholder alone even with a query string', () => {

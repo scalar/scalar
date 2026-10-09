@@ -7,6 +7,7 @@ import { getMediaTypeConfig } from '@/v2/blocks/response-block/helpers/media-typ
 import { processResponseBody } from '@/v2/blocks/response-block/helpers/process-response-body'
 import { resolveResponseBodyHandler } from '@/v2/blocks/response-block/helpers/resolve-response-body-handler'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
@@ -25,6 +26,8 @@ const {
   headers: { name: string; value: string }[]
   plugins?: ClientPlugin[]
 }>()
+
+const { translate } = useLocalization()
 
 /** Preview / Raw toggle */
 const toggle = ref(true)
@@ -123,7 +126,7 @@ const rawLanguage = computed(
         :language="rawLanguage as CodeMirrorLanguage" />
 
       <ResponseBodyInfo v-if="!hasRaw && !hasPreview">
-        Binary file
+        {{ translate('apiClient.responseBody.binaryFile') }}
       </ResponseBodyInfo>
     </div>
   </CollapsibleSection>

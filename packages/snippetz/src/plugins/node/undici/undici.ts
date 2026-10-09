@@ -1,6 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString } from '@/libs/http'
+import { buildFormData, formDataHeaders } from '@/libs/form-data'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
 /**
@@ -18,7 +19,7 @@ export const nodeUndici: Plugin = {
     }
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Reset undici defaults
     const options: Record<string, any> = {
@@ -26,13 +27,13 @@ export const nodeUndici: Plugin = {
     }
 
     // Query
-    const queryString = buildQueryString(normalizedRequest.queryString)
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers
-    if (normalizedRequest.headers?.length) {
+    const headers = formDataHeaders(normalizedRequest)
+    if (headers?.length) {
       options.headers = {}
-
-      normalizedRequest.headers.forEach((header) => {
+      headers.forEach((header) => {
         options.headers![header.name] = header.value
       })
     }
@@ -55,10 +56,16 @@ export const nodeUndici: Plugin = {
       }
     })
 
+    let prefix = ''
+
     // Add body
     if (normalizedRequest.postData) {
-      // Plain text
-      options.body = normalizedRequest.postData.text
+      if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
+        prefix = `${buildFormData(normalizedRequest.postData.params, 'node').join('\n')}\n\n`
+        options.body = new Raw('formData')
+      } else {
+        options.body = normalizedRequest.postData.text
+      }
 
       // JSON
       if (normalizedRequest.postData.mimeType === 'application/json') {
@@ -69,9 +76,12 @@ export const nodeUndici: Plugin = {
     // Transform to JSON
     const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''
 
-    // Code Template
-    return `import { request } from 'undici'
+    // Undici's encoder requires its own FormData class in a fresh Node process.
+    const imports = prefix ? 'request, FormData' : 'request'
 
-const { statusCode, body } = await request('${normalizedRequest.url}${queryString}'${jsonOptions})`
+    // Code Template
+    return `import { ${imports} } from 'undici'
+
+${prefix}const { statusCode, body } = await request('${url}'${jsonOptions})`
   },
 }

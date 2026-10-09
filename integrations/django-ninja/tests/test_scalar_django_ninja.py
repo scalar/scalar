@@ -2,6 +2,10 @@
 Tests for scalar_ninja core functionality.
 """
 
+from html.parser import HTMLParser
+
+import pytest
+
 from django.conf import settings
 from django.http import HttpResponse
 
@@ -794,3 +798,43 @@ class TestEdgeCases:
         config_end = html_content.find("})", config_start)
         config_section = html_content[config_start:config_end]
         assert "_integration" not in config_section
+
+
+class TestResourceUrlEscaping:
+    @pytest.mark.parametrize(
+        "parameter, tag, attribute",
+        [
+            ("scalar_js_url", "script", "src"),
+            ("scalar_favicon_url", "link", "href"),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://cdn.example.com/resource?v=1&theme=dark",
+            "https://example.com/\" onload=\"alert('xss')",
+            "https://example.com/\"></script><script>alert('xss')</script><img src=\"",
+            "",
+        ],
+    )
+    def test_resource_urls_remain_single_attributes(self, parameter, tag, attribute, url):
+        """URL values cannot add attributes or elements to the generated page."""
+        class ElementParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.elements = []
+
+            def handle_starttag(self, tag, attrs):
+                self.elements.append((tag, dict(attrs)))
+
+        baseline = ElementParser()
+        baseline.feed(get_scalar_api_reference(ScalarConfig()).content.decode())
+        actual = ElementParser()
+        actual.feed(get_scalar_api_reference(ScalarConfig(**{parameter: url})).content.decode())
+
+        expected = [
+            (name, {**attrs, attribute: url})
+            if name == tag and attribute in attrs else (name, attrs)
+            for name, attrs in baseline.elements
+        ]
+        assert actual.elements == expected

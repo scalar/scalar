@@ -36,6 +36,9 @@ import {
 const {
   options: optionsOrGroups,
   placeholder,
+  inputLabel,
+  noResults,
+  close,
   filterFn = filterByOptionLabel,
   multiselect,
 } = defineProps<{
@@ -43,6 +46,12 @@ const {
   options: OptionsOrGroups<O, G>
   /** The placeholder text to display in the combobox */
   placeholder?: string
+  /** An accessible label for the search input */
+  inputLabel?: string
+  /** The message to display when filtering returns no options */
+  noResults?: string
+  /** Close the popover without changing the current selection */
+  close?: () => void
   /**
    * A function to filter the options based on a query,
    * if not provided, the options will be filtered by option label
@@ -196,6 +205,27 @@ function addNew() {
   query.value = ''
 }
 
+/**
+ * Space toggles the active option in multiselect mode while the search box is empty.
+ *
+ * The options look like checkboxes, so keyboard users press Space to toggle them. Without this
+ * handler Space types a leading space into the query, which filters out every option whose label
+ * has no space and hides the whole list without any feedback (found by an accessibility audit).
+ * Once a query has been typed, Space keeps inserting a character so multi-word labels stay
+ * searchable. Key auto-repeat is ignored so holding Space after opening the popover with it does
+ * not toggle the option repeatedly, and IME composition is left alone.
+ */
+const handleSpace = (event: KeyboardEvent): void => {
+  if (!multiselect || query.value !== '' || event.isComposing) {
+    return
+  }
+  // Suppress repeated spaces too, so holding the key does not start filtering.
+  event.preventDefault()
+  if (!event.repeat) {
+    toggleSelected(activeRef.value)
+  }
+}
+
 // Manual autofocus for the input
 const input = ref<HTMLInputElement | null>(null)
 
@@ -203,16 +233,19 @@ const input = ref<HTMLInputElement | null>(null)
 onMounted(() => setTimeout(() => input.value?.focus(), 0))
 </script>
 <template>
-  <div class="relative flex">
+  <!-- Inset to line up with the options below -->
+  <div class="relative flex m-1 mb-0.75">
     <ScalarIconMagnifyingGlass
-      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
+      class="pointer-events-none absolute left-1.75 top-1/2 -translate-y-1/2 text-c-3 size-4" />
     <input
       ref="input"
       v-model="query"
       :aria-activedescendant="activeRef ? getOptionId(activeRef) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
-      class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
+      :aria-expanded="Boolean(filtered.length || slots.add || noResults)"
+      :aria-label="inputLabel"
+      class="min-w-0 flex-1 rounded-md border-0 py-1.5 pl-7.25 pr-1.75 leading-none text-c-1"
       data-1p-ignore
       :placeholder
       role="combobox"
@@ -220,15 +253,23 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       type="text"
       @keydown.down.prevent="moveActive(1)"
       @keydown.enter.prevent="activeRef && toggleSelected(activeRef)"
+      @keydown.esc.prevent="close?.()"
+      @keydown.space="handleSpace"
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
-    v-show="filtered.length || slots.add"
+    v-show="filtered.length || slots.add || noResults"
     :id="id"
     :aria-multiselectable="multiselect"
     class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
     role="listbox"
     tabindex="-1">
+    <li
+      v-if="!filtered.length && !slots.add && noResults"
+      class="text-c-3 px-2.5 py-2"
+      role="status">
+      {{ noResults }}
+    </li>
     <ComboboxOptionGroup
       v-for="(group, i) in groups"
       :id="`${id}-group-${i}`"

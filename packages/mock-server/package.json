@@ -16,7 +16,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.14.0",
+  "version": "0.17.5",
   "engines": {
     "node": ">=22"
   },
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "catalog:*",
-    "@hono/node-ws": "catalog:*",
+    "@hono/node-server": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
@@ -68,10 +68,13 @@
     "ajv-formats": "catalog:*",
     "hono": "catalog:*",
     "quickjs-emscripten": "catalog:*",
+    "ws": "catalog:*",
     "yaml": "catalog:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",
+    "@types/ws": "catalog:*",
+    "undici": "catalog:*",
     "vite": "catalog:*"
   }
 }

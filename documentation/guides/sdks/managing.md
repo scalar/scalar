@@ -45,6 +45,8 @@ Every build analyzes your OpenAPI document and configuration before it generates
 
 If a target is [linked to a repository](publishing/github.md), the build pushes to `scalar-generated`, merges into `scalar-next`, and updates the release pull request against your default branch. If [publishing is enabled](publishing/overview.md), merging that release pull request tags and publishes the version.
 
+A target set to [promote manually](publishing/github.md#promotion) stops short of that: the build is generated and mirrored to staging, and reaches the production repository when you promote it.
+
   </scalar-step>
 </scalar-steps>
 

@@ -1,0 +1,102 @@
+{
+  "openapi": "3.2.0",
+  "info": {
+    "title": "XML examples",
+    "version": "1.0.0",
+    "description": "Examples of attributes, namespaces, arrays, and mixed content."
+  },
+  "servers": [{ "url": "https://example.com" }],
+  "paths": {
+    "/people": {
+      "post": {
+        "summary": "Create a person",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "oneOf": [
+                  { "$ref": "#/components/schemas/Person" },
+                  {
+                    "type": "object",
+                    "title": "Organization",
+                    "xml": { "name": "organization" },
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 42,
+                        "xml": { "attribute": true }
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Analytical Engines"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "xml": { "name": "message" },
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "example": "en",
+                      "xml": { "nodeType": "attribute" }
+                    },
+                    "before": {
+                      "type": "string",
+                      "example": "Welcome ",
+                      "xml": { "nodeType": "text" }
+                    },
+                    "name": { "type": "string", "example": "Ada" },
+                    "after": {
+                      "type": "string",
+                      "example": "!",
+                      "xml": { "nodeType": "text" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Person": {
+        "type": "object",
+        "title": "Person",
+        "xml": { "name": "person" },
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 7,
+            "xml": { "attribute": true }
+          },
+          "name": {
+            "type": "string",
+            "example": "Ada Lovelace",
+            "xml": { "namespace": "urn:people", "prefix": "p" }
+          },
+          "aliases": {
+            "type": "array",
+            "xml": { "wrapped": true },
+            "example": ["Ada", "Enchantress of Numbers"],
+            "items": { "type": "string", "xml": { "name": "alias" } }
+          }
+        }
+      }
+    }
+  }
+}

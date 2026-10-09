@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString, buildUrl, normalizeRequest, processHeaders } from '@/libs/http'
+import { joinUrlAndQuery, normalizeRequest, processHeaders } from '@/libs/http'
 import { createChain, formatJson, indent, wrapInDoubleQuotes } from '@/libs/rust'
 
 /**
@@ -19,8 +19,7 @@ export const rustReqwest: Plugin = {
     const normalizedRequest = normalizeRequest(request)
 
     // Query string
-    const queryString = buildQueryString(normalizedRequest.queryString)
-    const url = buildUrl(normalizedRequest.url || '', queryString)
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers and cookies
     const headers = processHeaders(normalizedRequest)
@@ -57,9 +56,9 @@ const createMultipartPart = (param: {
   fileName?: string
   contentType?: string
 }): string => {
-  if (param.fileName) {
+  if (param.fileName !== undefined) {
     const part = [
-      indent(2, `let part = reqwest::multipart::Part::text(${wrapInDoubleQuotes(param.value || '')})`),
+      indent(2, `let part = reqwest::multipart::Part::bytes(std::fs::read(${wrapInDoubleQuotes(param.fileName)})?)`),
       indent(3, `.file_name(${wrapInDoubleQuotes(param.fileName)})`),
     ]
 
@@ -153,16 +152,19 @@ const createBodyCall = (postData: any): string | null => {
  */
 const buildRustCode = (url: string, method: string, chainedCalls: string[]): string => {
   const code = ['let client = reqwest::Client::new();', '']
+  const request = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'].includes(method)
+    ? `${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`
+    : `request(reqwest::Method::from_bytes(${wrapInDoubleQuotes(method)}.as_bytes())?, ${wrapInDoubleQuotes(url)})`
 
   // Add chained calls with proper formatting
   if (chainedCalls.length > 0) {
     code.push('let request = client')
-    code.push(indent(1, `.${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`))
+    code.push(indent(1, `.${request}`))
 
     // Add a newline before the first chained call
     code.push(...chainedCalls)
   } else {
-    code.push(`let request = client.${method.toLowerCase()}(${wrapInDoubleQuotes(url)})`)
+    code.push(`let request = client.${request}`)
   }
 
   // Add semicolon to the last chained call

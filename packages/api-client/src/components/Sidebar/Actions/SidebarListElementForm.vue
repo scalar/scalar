@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 
+import { useLocalization } from '@/v2/features/localization'
+
 defineProps<{
   danger?: boolean
   label?: string
@@ -10,6 +12,8 @@ const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'submit'): void
 }>()
+
+const { translate } = useLocalization()
 </script>
 <template>
   <form
@@ -22,7 +26,7 @@ const emit = defineEmits<{
         type="button"
         variant="outlined"
         @click="emit('cancel')">
-        Cancel
+        {{ translate('apiClient.sidebarListElementForm.cancel') }}
       </ScalarButton>
       <ScalarButton
         data-testid="sidebar-list-element-form-submit-button"

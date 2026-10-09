@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScreenReader } from '@scalar/blocks/shared'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
@@ -7,7 +8,6 @@ import { computed } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import ChannelsList from '@/components/Content/AsyncApi/ChannelsList.vue'
 import { OperationsList } from '@/components/OperationsList'
-import ScreenReader from '@/components/ScreenReader.vue'
 import {
   Section,
   SectionColumn,
@@ -36,6 +36,10 @@ const {
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
 }>()
+defineSlots<{
+  actions?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 /**
@@ -69,6 +73,13 @@ const hasChannels = computed(
           </ScreenReader>
         </SectionHeaderTag>
       </Anchor>
+      <template
+        v-if="$slots.actions"
+        #links>
+        <div class="flex items-start justify-end gap-3">
+          <slot name="actions" />
+        </div>
+      </template>
     </SectionHeader>
     <SectionContent>
       <SectionColumns>

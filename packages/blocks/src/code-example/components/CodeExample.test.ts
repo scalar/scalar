@@ -166,6 +166,141 @@ describe('RequestExample', () => {
     eventBus: mockEventBus,
   }
 
+  it('names the focusable region for a virtualized request example', () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        selectedClient: 'custom/python',
+        operation: { 'x-codeSamples': [{ lang: 'python', source: 'print("example")\n'.repeat(2000) }] },
+      },
+    })
+
+    const region = wrapper.get('[role="region"][aria-label="Request code sample"]')
+    expect(region.attributes('tabindex')).toBe('0')
+    expect(region.text()).toContain('print("example")')
+  })
+
+  it('keeps the SDK language selected while switching linked request examples', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [
+            { lang: 'python', example: 'example1', contentType: 'application/json', source: 'create("first")' },
+            { lang: 'python', example: 'example2', contentType: 'application/json', source: 'create("second")' },
+            {
+              lang: 'typescript',
+              example: 'example1',
+              contentType: 'application/json',
+              source: 'await create("first")',
+            },
+            {
+              lang: 'typescript',
+              example: 'example2',
+              contentType: 'application/json',
+              source: 'await create("second")',
+            },
+          ],
+        },
+      },
+    })
+
+    const languagePicker = wrapper.findComponent({ name: 'ScalarCombobox' })
+    expect(languagePicker.props('options')[0].options.map(({ id }: { id: string }) => id)).toEqual([
+      'custom/python',
+      'custom/typescript',
+    ])
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("first")')
+    await wrapper.findComponent({ name: 'ExamplePicker' }).vm.$emit('update:modelValue', 'example2')
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("second")')
+    expect(languagePicker.props('modelValue').id).toBe('custom/python')
+
+    await wrapper.setProps({ selectedClient: 'custom/typescript' })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('await create("second")')
+  })
+
+  it('keeps static samples unchanged while selecting the Test Request example', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        method: 'post',
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'python', source: 'client.items.create()' }],
+        },
+      },
+      slots: { footer: '<button>Test Request</button>' },
+    })
+
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+    expect(wrapper.text()).toContain('Test Request')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('client.items.create()')
+
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.exists()).toBe(true)
+    await picker.vm.$emit('update:modelValue', 'example2')
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('client.items.create()')
+    expect(wrapper.emitted('update:exampleKey')?.at(-1)).toEqual(['example2'])
+
+    await wrapper.setProps({ selectedClient: 'js/fetch' })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toContain('another')
+
+    await wrapper.setProps({ selectedClient: 'custom/python' })
+
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('client.items.create()')
+  })
+
+  it('shows unavailable linked samples as a status instead of copyable code', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'python', example: 'example1', source: 'create("first")' }],
+        },
+      },
+    })
+
+    await wrapper.setProps({ selectedExample: 'example2' })
+    expect(wrapper.get('[role="status"]').text()).toBe('No code sample available for this example.')
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+
+    await wrapper.setProps({ codeSampleUnavailable: 'Für dieses Beispiel ist kein Codebeispiel verfügbar.' })
+    expect(wrapper.get('[role="status"]').text()).toBe('Für dieses Beispiel ist kein Codebeispiel verfügbar.')
+
+    await wrapper.setProps({ selectedExample: 'example1' })
+    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('create("first")')
+  })
+
+  it('offers body examples for webhooks even when a custom client is selected', async () => {
+    const wrapper = mount(RequestExample, {
+      props: {
+        ...defaultProps,
+        method: 'post',
+        isWebhook: true,
+        selectedClient: 'custom/python',
+        operation: {
+          ...mockOperation,
+          'x-codeSamples': [{ lang: 'python', source: 'client.items.create()' }],
+        },
+      },
+    })
+
+    const picker = wrapper.findComponent({ name: 'ExamplePicker' })
+    expect(picker.exists()).toBe(true)
+    await picker.vm.$emit('update:modelValue', 'example2')
+    await nextTick()
+    expect(JSON.parse(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content'))).toEqual({ another: 'data' })
+  })
+
   describe('Component Rendering', () => {
     it('renders the component with basic props', () => {
       const wrapper = mount(RequestExample, {
@@ -875,6 +1010,38 @@ describe('RequestExample', () => {
       expect(wrapper.text()).toContain('Custom Footer')
     })
 
+    it('renders footer-start when the example picker is not shown', () => {
+      const wrapper = mount(RequestExample, {
+        props: { ...defaultProps, selectedContentType: 'text/plain' },
+        slots: { 'footer-start': '<button>Generate SDK</button>' },
+      })
+
+      expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(false)
+      expect(wrapper.findComponent({ name: 'ScalarCardFooter' }).text()).toContain('Generate SDK')
+    })
+
+    it('gives the footer start to the example picker when there are several examples', () => {
+      const wrapper = mount(RequestExample, {
+        props: { ...defaultProps, selectedContentType: 'application/json' },
+        slots: {
+          'footer-start': '<button>Generate SDK</button>',
+          footer: '<button>Test Request</button>',
+        },
+      })
+
+      expect(wrapper.findComponent({ name: 'ExamplePicker' }).exists()).toBe(true)
+      expect(wrapper.text()).not.toContain('Generate SDK')
+      expect(wrapper.text()).toContain('Test Request')
+    })
+
+    it('renders no footer without the picker or any footer slot', () => {
+      const wrapper = mount(RequestExample, {
+        props: { ...defaultProps, selectedContentType: 'text/plain' },
+      })
+
+      expect(wrapper.findComponent({ name: 'ScalarCardFooter' }).exists()).toBe(false)
+    })
+
     it('renders footer slot even without examples', () => {
       const wrapper = mount(RequestExample, {
         props: {
@@ -926,7 +1093,7 @@ describe('RequestExample', () => {
             summary: 'Referenced operation',
             requestBody: {
               $ref: '#/components/requestBodies/TestBody',
-              // @ts-expect-error - this is a test
+              // Deliberately test an unresolved request body reference.
               '$ref-value': undefined,
             },
           },
@@ -1472,7 +1639,8 @@ describe('RequestExample', () => {
       // Check for proper ARIA attributes
       const button = copyButton.find('button')
       expect(button.exists()).toBe(true)
-      // The button may not have aria-label directly, but should have proper structure
+      // The name says what is copied even while the visible label is hidden
+      expect(button.attributes('aria-label')).toBe('Copy JSON code')
       // Check for proper controls attribute on the ScalarCodeBlockCopy component
       const ariaControls = copyButton.attributes('aria-controls')
       expect(ariaControls).toBeTruthy()
@@ -1596,18 +1764,19 @@ describe('RequestExample', () => {
   })
 
   describe('Accessibility', () => {
-    it('has proper ARIA labels', () => {
+    it('names the focusable code sample after the selected client', async () => {
       const wrapper = mount(RequestExample, {
         props: defaultProps,
       })
 
-      const card = wrapper.findComponent({ name: 'Card' })
-      if (card.exists()) {
-        expect(card.attributes('aria-labelledby')).toBeTruthy()
-        expect(card.attributes('role')).toBe('region')
-      } else {
-        expect(true).toBe(true)
-      }
+      // jsdom never reports overflow, so the scroller keeps its initial tab stop and name here
+      const scroller = wrapper.get('.code-snippet [tabindex]')
+      expect(scroller.attributes('tabindex')).toBe('0')
+      expect(scroller.attributes('role')).toBe('group')
+      expect(scroller.attributes('aria-label')).toBe('Code sample: Shell cURL')
+
+      await wrapper.setProps({ codeSampleLabel: 'Codebeispiel' })
+      expect(scroller.attributes('aria-label')).toBe('Codebeispiel: Shell cURL')
     })
   })
 })

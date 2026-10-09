@@ -7,8 +7,9 @@ function needsQuotes(key: string) {
   return !/^[$A-Z_][0-9A-Z_$]*$/i.test(key)
 }
 
-function escapeObjectKey(key: string) {
-  return key.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
+/** Escapes a value for a single-quoted JavaScript string literal. */
+export const escapeJsString = (value: string): string => {
+  return value.replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll("'", "\\'")
 }
 
 /**
@@ -24,17 +25,36 @@ export class Raw {
  *
  * Handles nested objects, arrays, and special string values
  */
-export function objectToString(obj: Record<string, any>, indent = 0): string {
+export function objectToString(obj: object, indent = 0): string {
   const parts = []
   const indentation = ' '.repeat(indent)
   const innerIndentation = ' '.repeat(indent + 2)
+
+  // Arrays must be handled before Object.entries turns their indexes into object keys.
+  if (Array.isArray(obj)) {
+    const items = obj.map((item) => {
+      if (typeof item === 'string') {
+        return `'${escapeJsString(item)}'`
+      }
+      if (item && typeof item === 'object') {
+        return objectToString(item)
+      }
+      return JSON.stringify(item)
+    })
+
+    if (items.some((item) => item.includes('\n'))) {
+      const arrayString = items.map((item) => indentString(item, indent + 2)).join(',\n')
+      return `[\n${arrayString}\n${indentation}]`
+    }
+    return `[${items.join(', ')}]`
+  }
 
   if (Object.keys(obj).length === 0) {
     return '{}'
   }
 
   for (const [key, value] of Object.entries(obj)) {
-    const formattedKey = needsQuotes(key) ? `'${escapeObjectKey(key)}'` : key
+    const formattedKey = needsQuotes(key) ? `'${escapeJsString(key)}'` : key
 
     if (value instanceof Raw) {
       const lines = value.value.split('\n')
@@ -53,28 +73,10 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
       }
 
       parts.push(`${innerIndentation}${formattedKey}: ${formattedValue}`)
-    } else if (Array.isArray(value)) {
-      const items = value.map((item) => {
-        if (typeof item === 'string') {
-          return `'${item}'`
-        }
-        if (item && typeof item === 'object') {
-          return objectToString(item)
-        }
-        return JSON.stringify(item)
-      })
-
-      if (items.some((item) => item.includes('\n'))) {
-        // format vertically if any array element contains a newline
-        const arrayString = items.map((item) => indentString(item, indent + 4)).join(',\n')
-        parts.push(`${innerIndentation}${formattedKey}: [\n${arrayString}\n${innerIndentation}]`)
-      } else {
-        parts.push(`${innerIndentation}${formattedKey}: [${items.join(', ')}]`)
-      }
     } else if (value && typeof value === 'object') {
       parts.push(`${innerIndentation}${formattedKey}: ${objectToString(value, indent + 2)}`)
     } else if (typeof value === 'string') {
-      const formattedValue = `'${value}'`
+      const formattedValue = `'${escapeJsString(value)}'`
 
       parts.push(`${innerIndentation}${formattedKey}: ${formattedValue}`)
     } else {

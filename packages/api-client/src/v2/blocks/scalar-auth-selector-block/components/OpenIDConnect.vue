@@ -10,6 +10,7 @@ import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-reque
 import { fetchOpenIDConnectDiscovery } from '@/v2/blocks/scalar-auth-selector-block/helpers/fetch-openid-connect-discovery'
 import { openIDDiscoveryToFlows } from '@/v2/blocks/scalar-auth-selector-block/helpers/openid-discovery-to-flows'
 import { DataTableRow } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
@@ -38,6 +39,8 @@ const {
   customFetch?: CustomFetch
 }>()
 
+const { translate } = useLocalization()
+
 const loader = useLoadingState()
 const { toast } = useToasts()
 
@@ -61,7 +64,8 @@ const handleOpenIdConnect = async (): Promise<void> => {
   if (error) {
     console.error(error)
     toast(
-      error?.message ?? 'Failed to fetch OpenID Connect configuration',
+      error?.message ??
+        translate('apiClient.openIdConnect.failedToFetchConfiguration'),
       'error',
     )
     return
@@ -95,7 +99,7 @@ const handleUpdateOpenIdConnectUrl = (value: string): void =>
       placeholder="https://example.com/.well-known/openid-configuration"
       required
       @update:modelValue="handleUpdateOpenIdConnectUrl">
-      Discovery URL
+      {{ translate('apiClient.openIdConnect.discoveryUrl') }}
     </RequestAuthDataTableInput>
   </DataTableRow>
 
@@ -108,7 +112,7 @@ const handleUpdateOpenIdConnectUrl = (value: string): void =>
         size="sm"
         variant="outlined"
         @click="handleOpenIdConnect">
-        Fetch Configuration
+        {{ translate('apiClient.openIdConnect.fetchConfiguration') }}
       </ScalarButton>
     </div>
   </DataTableRow>

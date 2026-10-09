@@ -4,6 +4,8 @@
  * Derived from @url https://github.com/react-hook-form/react-hook-form/tree/011fad503cc8d4543892f8e847b9bd58c1d9400f/src/types/path
  *
  */
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
+
 import type { ArrayKey, BrowserNativeObject, IsAny, IsEqual, IsTuple, Primitive, TupleKeys } from './common'
 
 /**
@@ -35,15 +37,16 @@ type PathImpl<K extends string | number, V, TraversedTypes> = V extends Primitiv
  *
  * See {@link Path}
  */
-type PathInternal<T, TraversedTypes = T> = T extends ReadonlyArray<infer V>
-  ? IsTuple<T> extends true
-    ? {
-        [K in TupleKeys<T>]-?: PathImpl<K & string, T[K], TraversedTypes>
-      }[TupleKeys<T>]
-    : PathImpl<ArrayKey, V, TraversedTypes>
-  : {
-      [K in keyof T]-?: PathImpl<K & string, T[K], TraversedTypes>
-    }[keyof T]
+type PathInternal<T, TraversedTypes = T> =
+  T extends ReadonlyArray<infer V>
+    ? IsTuple<T> extends true
+      ? {
+          [K in TupleKeys<T>]-?: PathImpl<K & string, T[K], TraversedTypes>
+        }[TupleKeys<T>]
+      : PathImpl<ArrayKey, V, TraversedTypes>
+    : {
+        [K in keyof T]-?: PathImpl<K & string, T[K], TraversedTypes>
+      }[keyof T]
 
 /**
  * Type which eagerly collects all paths through a type
@@ -89,15 +92,16 @@ type ArrayPathImpl<K extends string | number, V, TraversedTypes> = V extends Pri
  *
  * See {@link ArrayPath}
  */
-type ArrayPathInternal<T, TraversedTypes = T> = T extends ReadonlyArray<infer V>
-  ? IsTuple<T> extends true
-    ? {
-        [K in TupleKeys<T>]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
-      }[TupleKeys<T>]
-    : ArrayPathImpl<ArrayKey, V, TraversedTypes>
-  : {
-      [K in keyof T]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
-    }[keyof T]
+type ArrayPathInternal<T, TraversedTypes = T> =
+  T extends ReadonlyArray<infer V>
+    ? IsTuple<T> extends true
+      ? {
+          [K in TupleKeys<T>]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
+        }[TupleKeys<T>]
+      : ArrayPathImpl<ArrayKey, V, TraversedTypes>
+    : {
+        [K in keyof T]-?: ArrayPathImpl<K & string, T[K], TraversedTypes>
+      }[keyof T]
 
 /**
  * Type which eagerly collects all paths through a type which point to an array
@@ -158,6 +162,13 @@ export function setNestedValue<T, P extends Path<T>>(obj: T, path: P, value: Pat
 
   // Loop over to get the nested object reference. Then assign the value to it
   keys.reduce((acc, current, idx) => {
+    if (!Object.hasOwn(acc, current)) {
+      // Existing own keys are data; only inherited keys can lead into a prototype.
+      preventPollution(current)
+      if (idx !== keys.length - 1) {
+        throw new Error(`Cannot traverse inherited or missing property: ${current}`)
+      }
+    }
     if (idx === keys.length - 1) {
       acc[current] = value
     }

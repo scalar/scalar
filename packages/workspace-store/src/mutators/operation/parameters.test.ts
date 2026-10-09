@@ -2,13 +2,21 @@ import { assert, describe, expect, it } from 'vitest'
 
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getQuerystringParameter, serializeQuerystringParameter } from '@/helpers/querystring-parameter'
 import {
   deleteAllOperationParameters,
   deleteOperationParameter,
   updateOperationExtraParameters,
   upsertOperationParameter,
 } from '@/mutators/operation/parameters'
-import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
+import { buildRequestParameters } from '@/request-example/builder/header/build-request-parameters'
+import { getExample } from '@/request-example/builder/helpers/get-example'
+import type {
+  OpenApiDocument,
+  ParameterObject,
+  ParameterWithContentObject,
+  ParameterWithSchemaObject,
+} from '@/schemas/v3.2/strict/openapi-document'
 
 const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => {
   return {
@@ -20,6 +28,87 @@ const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => 
 }
 
 describe('upsertOperationParameter', () => {
+  it.each([
+    { authored: { dataValue: 'old', externalValue: 'old.json' }, expected: { value: 'new', 'x-disabled': false } },
+    {
+      authored: { serializedValue: 'term=old', dataValue: 'old' },
+      expected: { serializedValue: 'new', 'x-disabled': false },
+    },
+  ])('replaces the original example source when editing', ({ authored, expected }) => {
+    const parameter: ParameterObject = { name: 'term', in: 'query', examples: { default: authored } }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/', exampleKey: 'default' },
+      payload: { name: 'term', value: 'new', isDisabled: false },
+    })
+    expect(parameter.examples?.default).toStrictEqual(expected)
+  })
+
+  it('keeps edited serialized query text verbatim, including names and encoding', () => {
+    const parameter: ParameterObject = {
+      name: 'term',
+      in: 'query',
+      examples: { default: { serializedValue: 'term=old' } },
+    }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/', exampleKey: 'default' },
+      payload: { name: 'term', value: 'term=hello%20world&term=again', isDisabled: false },
+    })
+    expect(buildRequestParameters([parameter]).serializedQuery).toStrictEqual(['term=hello%20world&term=again'])
+  })
+
+  it('preserves environment substitution when enabling an unchanged whole-query preview', () => {
+    const parameter: ParameterObject = {
+      name: 'form',
+      in: 'querystring',
+      content: {
+        'application/x-www-form-urlencoded': {
+          examples: { default: { dataValue: { q: '{{term}}' }, 'x-disabled': true } },
+        },
+      },
+    }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'form', value: 'q=%7B%7Bterm%7D%7D', isDisabled: false },
+    })
+    const querystring = getQuerystringParameter(parameter, 'default')!
+    expect(serializeQuerystringParameter(querystring, { term: 'a + b' })).toBe('q=a+%2B+b')
+  })
+
+  it('edits and toggles a whole query without double encoding or using its old media example', () => {
+    const parameter: ParameterObject = {
+      name: 'json',
+      in: 'querystring',
+      required: true,
+      content: { 'application/json': { examples: { default: { dataValue: { old: true } } } } },
+      examples: { default: { dataValue: { old: true } } },
+    }
+    const meta = { method: 'get', path: '/search', exampleKey: 'default' } as const
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta,
+      payload: { name: 'json', value: '%7B%22new%22%3Atrue%7D', isDisabled: false },
+    })
+    expect(parameter.examples).toStrictEqual({
+      default: { serializedValue: '%7B%22new%22%3Atrue%7D', 'x-disabled': false },
+    })
+    const querystring = getQuerystringParameter(parameter, 'default')!
+    expect(serializeQuerystringParameter(querystring)).toBe('%7B%22new%22%3Atrue%7D')
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta,
+      payload: { name: 'json', value: '%7B%22new%22%3Atrue%7D', isDisabled: true },
+    })
+    expect(getQuerystringParameter(parameter, 'default')).toBeUndefined()
+  })
+
   it('adds a query parameter with example and enabled state when it does not exist', () => {
     const document = createDocument({
       paths: {
@@ -215,43 +304,192 @@ describe('upsertOperationParameter', () => {
     expect(getResolvedRef(updatedQueryParam?.examples?.default as any)?.value).toBe('1')
   })
 
-  it('updates a content-type parameter', () => {
-    const document = createDocument({
-      paths: {
-        '/users': {
-          get: {
-            parameters: [
-              {
-                name: 'message',
-                in: 'query',
-                required: true,
-                content: {
-                  'application/json': {
-                    schema: { type: 'object' },
-                  },
-                },
-              },
-            ],
-          },
+  it('sends a populated JSON-content parameter and respects subsequent checkbox changes', () => {
+    const param: ParameterWithContentObject = {
+      name: 'filter',
+      in: 'query',
+      required: false,
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          example: { status: null, labels: [] },
+        },
+      },
+    }
+    const value = '{"status":null,"labels":[]}'
+    expect([...buildRequestParameters([param]).urlParams]).toStrictEqual([['filter', value]])
+
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'filter', value, isDisabled: false },
+    })
+
+    expect(param).toStrictEqual({
+      name: 'filter',
+      in: 'query',
+      required: false,
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          examples: { default: { value, 'x-disabled': false } },
         },
       },
     })
+    expect(getExample(param, 'default', undefined)).toStrictEqual({ value, 'x-disabled': false })
+    expect([...buildRequestParameters([param]).urlParams]).toStrictEqual([['filter', value]])
 
-    const op = getResolvedRef(getPathItemOperation(document.paths?.['/users'], 'get'))
-    assert(op)
-    const param = getResolvedRef(op.parameters?.[0])
-    assert(param)
-
-    upsertOperationParameter(document, {
+    upsertOperationParameter(null, {
       type: 'query',
       originalParameter: param,
-      meta: { method: 'get', path: '/users', exampleKey: 'default' },
-      payload: { name: 'message', value: '{"id": 1}', isDisabled: false },
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'filter', value, isDisabled: true },
+    })
+    expect(getExample(param, 'default', undefined)).toStrictEqual({ value, 'x-disabled': true })
+    expect(buildRequestParameters([param]).urlParams.toString()).toBe('')
+
+    const editedValue = '{"status":"active","labels":["new"]}'
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'filter', value: editedValue, isDisabled: false },
+    })
+    expect([...buildRequestParameters([param]).urlParams]).toStrictEqual([['filter', editedValue]])
+  })
+
+  it('creates a content example when the media type has none', () => {
+    const param: ParameterWithContentObject = {
+      name: 'message',
+      in: 'query',
+      content: { 'application/json': { schema: { type: 'object' } } },
+    }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'message', value: '{"id":1}', isDisabled: false },
+    })
+    expect(param).toStrictEqual({
+      name: 'message',
+      in: 'query',
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          examples: { default: { value: '{"id":1}', 'x-disabled': false } },
+        },
+      },
+    })
+  })
+
+  it.each([null, false, 0, ''])('preserves a falsy authored content example %s', (value) => {
+    const param: ParameterWithContentObject = {
+      name: 'filter',
+      in: 'query',
+      content: { 'application/json': { example: value } },
+    }
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'edited' },
+      payload: { name: 'filter', value: 'updated', isDisabled: false },
+    })
+    expect(getExample(param, 'default', undefined)).toStrictEqual({ value })
+  })
+
+  it('preserves a singular authored example when editing a different example', () => {
+    const param: ParameterWithContentObject = {
+      name: 'message',
+      in: 'query',
+      content: { 'text/plain': { example: 'original' } },
+    }
+
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'edited' },
+      payload: { name: 'message', value: 'updated', isDisabled: false },
     })
 
-    assert('examples' in param && param.examples)
-    expect(getResolvedRef(param.examples.default)?.value).toBe('{"id": 1}')
-    expect(getResolvedRef(param.examples.default)?.['x-disabled']).toBe(false)
+    expect(param.content).toStrictEqual({
+      'text/plain': {
+        examples: {
+          default: { value: 'original' },
+          edited: { value: 'updated', 'x-disabled': false },
+        },
+      },
+    })
+    expect(getExample(param, 'default', undefined)).toStrictEqual({ value: 'original' })
+    expect([...buildRequestParameters([param], 'edited').urlParams]).toStrictEqual([['message', 'updated']])
+  })
+
+  it('preserves named examples and metadata while updating a referenced content example', () => {
+    const example = { value: 'original', summary: 'Authored example' }
+    const param: ParameterWithContentObject = {
+      name: 'message',
+      in: 'query',
+      content: {
+        'text/plain': {
+          examples: {
+            selected: { $ref: '#/components/examples/message', '$ref-value': example },
+            other: { value: 'keep me' },
+          },
+        },
+      },
+    }
+
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'selected' },
+      payload: { name: 'message', value: 'updated', isDisabled: false },
+    })
+
+    expect(example).toStrictEqual({ value: 'updated', summary: 'Authored example', 'x-disabled': false })
+    expect(getExample(param, 'other', undefined)).toStrictEqual({ value: 'keep me' })
+    expect('examples' in param).toBe(false)
+  })
+
+  it('migrates previously saved edits without losing other examples or enabled states', () => {
+    // Older clients stored content-based edits alongside content. Model that persisted shape explicitly.
+    const param: ParameterWithContentObject & Pick<ParameterWithSchemaObject, 'examples'> = {
+      name: 'filter',
+      in: 'query',
+      examples: {
+        default: { value: '{"status":"saved"}', 'x-disabled': false },
+        other: { value: '{"status":"other"}', 'x-disabled': true },
+      },
+      content: {
+        'application/json': {
+          examples: {
+            default: { value: { status: 'authored' } },
+            untouched: { value: { status: 'untouched' } },
+          },
+        },
+      },
+    }
+    expect([...buildRequestParameters([param]).urlParams]).toStrictEqual([['filter', '{"status":"saved"}']])
+
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'filter', value: '{"status":"updated"}', isDisabled: false },
+    })
+
+    expect('examples' in param).toBe(false)
+    expect(param.content).toStrictEqual({
+      'application/json': {
+        examples: {
+          default: { value: '{"status":"updated"}', 'x-disabled': false },
+          other: { value: '{"status":"other"}', 'x-disabled': true },
+          untouched: { value: { status: 'untouched' } },
+        },
+      },
+    })
+    expect([...buildRequestParameters([param]).urlParams]).toStrictEqual([['filter', '{"status":"updated"}']])
+    expect(buildRequestParameters([param], 'other').urlParams.toString()).toBe('')
   })
 
   it('adds multiple parameters of different types', () => {

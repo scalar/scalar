@@ -1,5 +1,6 @@
-import { getXKeysFromObject } from '@/features/specification-extension/helpers'
 import { describe, expect, it } from 'vitest'
+
+import { getXKeysFromObject } from '@/features/specification-extension/helpers'
 
 describe('helpers', () => {
   describe('getXKeysFromObject', () => {

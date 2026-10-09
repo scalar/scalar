@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type {
   TraversedEntry,
   TraversedExample,
@@ -14,7 +13,7 @@ import RunnerTreeOperation from './RunnerTreeOperation.vue'
 const props = defineProps<{
   entries: TraversedEntry[]
   selectedOrder: SelectedItem[]
-  isSelected: (path: string, method: HttpMethod, exampleKey: string) => boolean
+  isSelected: (path: string, method: string, exampleKey: string) => boolean
   depth?: number
   disabled?: boolean
 }>()
@@ -23,7 +22,7 @@ const emit = defineEmits<{
   (
     e: 'toggle',
     path: string,
-    method: HttpMethod,
+    method: string,
     exampleKey: string,
     label: string,
   ): void
@@ -53,7 +52,7 @@ const getExamplesForOperation = (
 
 const getSelectionIndex = (
   path: string,
-  method: HttpMethod,
+  method: string,
   exampleKey: string,
 ): number => {
   const idx = props.selectedOrder.findIndex(
@@ -65,7 +64,7 @@ const getSelectionIndex = (
 
 const handleToggle = (
   path: string,
-  method: HttpMethod,
+  method: string,
   exampleKey: string,
 ): void => {
   if (props.disabled) {

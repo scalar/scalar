@@ -22,53 +22,9 @@ import {
   DataTableInputSelect,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'
-
-export type TableRow = {
-  /** The parameter or field name/key */
-  name: string
-  /** The parameter value, can be a string, file, or null */
-  value: string | File | null
-  /** Optional description for the parameter */
-  description?: string
-  /** Optional route for global parameters (e.g., cookies shared across workspace) */
-  globalRoute?: ApiReferenceEvents['ui:navigate']
-  /** Whether the parameter is disabled/inactive */
-  isDisabled?: boolean
-  /** Whether an optional parameter is disabled because it has no explicit x-disabled value */
-  isDisabledByDefault?: boolean
-  /** OpenAPI schema object with type, validation rules, examples, etc. */
-  schema?: SchemaObject
-  /** Preserve array values even while their JSON text is temporarily invalid. */
-  isArray?: boolean
-  /** Whether the parameter is required */
-  isRequired?: boolean
-  /**
-   * Whether the parameter is readonly and can not be modifies directly
-   * User can still override the parameter which is going to show up with the linethrough style
-   */
-  isReadonly?: boolean
-  /** Whether the parameter is overridden later on */
-  isOverridden?: boolean
-  /** Track the original parameter so we can update it */
-  originalParameter?: ParameterObject
-  /** Path to a value inside the original parameter example for expanded object parameters */
-  sourceParameterValuePath?: string[]
-  /**
-   * Selectable values for a grouped global cookie preset. When set, the value cell renders a
-   * dropdown to switch between predefined values (for example a `Culture` cookie with `PL`/`EN`)
-   * instead of an editable input.
-   */
-  presetOptions?: string[]
-}
-
-export type TableRowUpsertPayload = {
-  name: string
-  value: string | File
-  isDisabled: boolean
-  shouldRenameExpandedRow?: boolean
-}
 
 const {
   data,
@@ -98,6 +54,55 @@ const emit = defineEmits<{
   (e: 'selectPreset', value: string): void
 }>()
 
+const { translate } = useLocalization()
+
+export type TableRow = {
+  /** The parameter or field name/key */
+  name: string
+  /** The parameter value, can be a string, file, or null */
+  value: string | File | null
+  /** Optional description for the parameter */
+  description?: string
+  /** Optional route for global parameters (e.g., cookies shared across workspace) */
+  globalRoute?: ApiReferenceEvents['ui:navigate']
+  /** Whether the parameter is disabled/inactive */
+  isDisabled?: boolean
+  /** Whether an optional parameter is disabled because it has no explicit x-disabled value */
+  isDisabledByDefault?: boolean
+  /** OpenAPI schema object with type, validation rules, examples, etc. */
+  schema?: SchemaObject
+  /** Preserve array values even while their JSON text is temporarily invalid. */
+  isArray?: boolean
+  /** Text representation used by array enum controls. */
+  arrayEncoding?: 'json' | 'comma-separated'
+  /** Whether the parameter is required */
+  isRequired?: boolean
+  /**
+   * Whether the parameter is readonly and can not be modifies directly
+   * User can still override the parameter which is going to show up with the linethrough style
+   */
+  isReadonly?: boolean
+  /** Whether the parameter is overridden later on */
+  isOverridden?: boolean
+  /** Track the original parameter so we can update it */
+  originalParameter?: ParameterObject
+  /** Path to a value inside the original parameter example for expanded object parameters */
+  sourceParameterValuePath?: string[]
+  /**
+   * Selectable values for a grouped global cookie preset. When set, the value cell renders a
+   * dropdown to switch between predefined values (for example a `Culture` cookie with `PL`/`EN`)
+   * instead of an editable input.
+   */
+  presetOptions?: string[]
+}
+
+export type TableRowUpsertPayload = {
+  name: string
+  value: string | File
+  isDisabled: boolean
+  shouldRenameExpandedRow?: boolean
+}
+
 /**
  * Track local state for the row
  *
@@ -117,7 +122,7 @@ watch(
     // Do not overwrite a valid local name with an empty incoming prop — this
     // can happen when the placeholder row (appended by displayData) is briefly
     // mapped onto this component instance before Vue re-keys the list.
-    if (!newName && name.value) return
+    if (!newName && name.value && !deferKeyUpdates) return
     name.value = newName ?? ''
   },
 )
@@ -144,7 +149,7 @@ const displayValue = computed(
 const defaultValue = computed(() => data.schema?.default as string)
 
 /** See if we can extract enum values from the schema */
-const enumValue = computed<string[]>(() => {
+const enumValue = computed<unknown[]>(() => {
   if (!data.schema) {
     return []
   }
@@ -158,7 +163,9 @@ const enumValue = computed<string[]>(() => {
   if ('items' in data.schema) {
     const resolved = resolve.schema(data.schema.items)
     if (resolved?.enum) {
-      return resolved.enum.map((item) => String(item))
+      return data.arrayEncoding === 'json'
+        ? resolved.enum
+        : resolved.enum.map((item) => String(item))
     }
   }
 
@@ -229,7 +236,7 @@ const handleKeyBlur = (newName: string): void => {
   }
   // Do not emit an update that would blank the parameter name — this can fire
   // when CodeInputLite blurs before it has rendered its initial value.
-  if (!newName && data.name) {
+  if (!newName && data.name && (!deferKeyUpdates || name.value !== '')) {
     return
   }
 
@@ -262,7 +269,11 @@ const handleKeydown = (event: KeyboardEvent): void => {
       error: validationResult.ok === false && invalidParams?.has(data.name),
     }">
     <DataTableCheckbox
-      :ariaLabel="`Include ${data.name || 'row'} in request`"
+      :ariaLabel="
+        translate('apiClient.requestTableRow.include', {
+          name: data.name || translate('apiClient.requestTableRow.row'),
+        })
+      "
       class="!border-r"
       :disabled="hasCheckboxDisabled ?? false"
       :modelValue="!isDisabled"
@@ -271,11 +282,13 @@ const handleKeydown = (event: KeyboardEvent): void => {
     <!-- Name -->
     <DataTableCell>
       <CodeInputLite
-        :aria-label="`${label} Key`"
+        :aria-label="
+          translate('apiClient.requestTableRow.keyLabel', { name: label ?? '' })
+        "
         :disabled="data.isReadonly"
         :environment="environment"
         :modelValue="name"
-        placeholder="Key"
+        :placeholder="translate('apiClient.requestTableRow.key')"
         :required="Boolean(data.isRequired)"
         @blur="(v) => handleKeyBlur(v)"
         @keydown.capture="handleKeydown"
@@ -294,7 +307,12 @@ const handleKeydown = (event: KeyboardEvent): void => {
         @update:modelValue="(v) => emit('selectPreset', v)" />
       <CodeInputLite
         v-else
-        :aria-label="`${label} Value`"
+        :aria-label="
+          translate('apiClient.requestTableRow.valueLabel', {
+            name: label ?? '',
+          })
+        "
+        :arrayEncoding="data.arrayEncoding"
         class="pr-6 group-hover:pr-10 group-has-[.code-input-lite__editor:focus]:pr-10"
         :default="defaultValue"
         :disabled="data.isReadonly"
@@ -305,7 +323,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
         "
         :linethrough="data.isOverridden"
         :modelValue="displayValue"
-        placeholder="Value"
+        :placeholder="translate('apiClient.requestTableRow.value')"
         :type="typeValue"
         withFakeData
         @navigate="(route) => emit('navigate', route)"
@@ -317,7 +335,11 @@ const handleKeydown = (event: KeyboardEvent): void => {
               !data.isRequired &&
               data.isReadonly !== true
             "
-            :aria-label="`Delete ${data.name || 'row'}`"
+            :aria-label="
+              translate('apiClient.requestTableRow.deleteRow', {
+                name: data.name || translate('apiClient.requestTableRow.row'),
+              })
+            "
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 hidden h-fit rounded p-1 group-hover:flex group-has-[.code-input-lite__editor:focus]:flex"
             size="sm"
             variant="ghost"
@@ -329,7 +351,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
             v-if="data.globalRoute !== undefined"
             class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context -mr-0.5 h-fit"
             :icon="ScalarIconGlobe"
-            label="Global cookies are shared across the whole workspace. Click to navigate."
+            :label="translate('apiClient.requestTableRow.globalCookieHint')"
             size="xs"
             tooltip="top"
             variant="ghost"
@@ -337,7 +359,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
 
           <RequestTableTooltip
             v-if="data.isReadonly"
-            description="This is a readonly property and you can not modify it! If you want to change it you have to override it or disable it using the checkbox"
+            :description="translate('apiClient.requestTableRow.readOnlyHint')"
             :value="null" />
           <RequestTableTooltip
             v-else-if="data.schema"
@@ -365,7 +387,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
           class="bg-b-2 mt-1 block rounded p-0.5 text-center text-xs font-medium md:pointer-events-none md:absolute md:inset-x-1 md:top-1/2 md:mt-0 md:-translate-y-1/2 md:opacity-0 md:group-hover/upload:pointer-events-auto md:group-hover/upload:opacity-100"
           type="button"
           @click="emit('removeFile')">
-          Delete
+          {{ translate('apiClient.requestTableRow.delete') }}
         </button>
       </template>
       <template v-else>
@@ -375,7 +397,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
             size="sm"
             variant="outlined"
             @click="emit('uploadFile')">
-            <span>Select File</span>
+            <span>{{ translate('apiClient.requestTableRow.selectFile') }}</span>
             <ScalarIcon
               class="ml-1"
               icon="Upload"

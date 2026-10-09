@@ -3,6 +3,16 @@ import { describe, expect, it } from 'vitest'
 import { dartHttp } from './http'
 
 describe('dartHttp', () => {
+  it.each(['customMethod', 'COPY', 'Get'])('uses a generic request for %s', (method) => {
+    expect(dartHttp.generate({ url: 'https://example.com', method })).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final request = http.Request('${method}', Uri.parse('https://example.com'));
+  final response = await http.Response.fromStream(await request.send());
+  print(response.body);
+}`)
+  })
+
   it('returns a basic request', () => {
     const result = dartHttp.generate({
       url: 'https://example.com',
@@ -308,12 +318,10 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final body = <String,String>{
-    'file': 'test.txt',
-    'field': 'value',
-  };
-
-  final response = await http.post(Uri.parse('https://example.com'), body: body);
+  final request = http.MultipartRequest("POST", Uri.parse("https://example.com"));
+  request.files.add(await http.MultipartFile.fromPath("file", "test.txt"));
+  request.files.add(http.MultipartFile.fromString("field", "value"));
+  final response = await http.Response.fromStream(await request.send());
   print(response.body);
 }`)
   })
@@ -405,11 +413,11 @@ void main() async {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -501,11 +509,9 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final body = <String,String>{
-    'file': '',
-  };
-
-  final response = await http.post(Uri.parse('https://example.com'), body: body);
+  final request = http.MultipartRequest("POST", Uri.parse("https://example.com"));
+  request.files.add(await http.MultipartFile.fromPath("file", ""));
+  final response = await http.Response.fromStream(await request.send());
   print(response.body);
 }`)
   })
@@ -600,6 +606,61 @@ void main() async {
   final body = r'{"nested":{"array":[1,2,3],"object":{"foo":"bar"}},"simple":"value"}';
 
   final response = await http.post(Uri.parse('https://example.com'), headers: headers, body: body);
+  print(response.body);
+}`)
+  })
+  it('escapes single quotes and line breaks in a JSON body', () => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: '{\n  "note": "it\'s $5"\n}',
+      },
+    })
+
+    expect(result).toContain(`final body = '{\\n  "note": "it\\'s \\$5"\\n}';`)
+  })
+
+  it('escapes single quotes in header values', () => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'X-Name', value: "it's" }],
+    })
+
+    expect(result).toContain(`'X-Name': 'it\\'s',`)
+  })
+
+  it('sends a plain text body', () => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'text/plain' }],
+      postData: {
+        mimeType: 'text/plain',
+        text: "it's plain",
+      },
+    })
+
+    expect(result).toContain(`final body = 'it\\'s plain';`)
+    expect(result).toContain("http.post(Uri.parse('https://example.com'), headers: headers, body: body)")
+  })
+  it.each(['GET', 'HEAD'])('sends text bodies with a %s request', (method) => {
+    const result = dartHttp.generate({
+      url: 'https://example.com',
+      method,
+      postData: { mimeType: 'text/plain', text: 'hello' },
+    })
+
+    expect(result).toBe(`import 'package:http/http.dart' as http;
+
+void main() async {
+  final body = 'hello';
+
+  final request = http.Request('${method}', Uri.parse('https://example.com'));
+  request.body = body;
+  final response = await http.Response.fromStream(await request.send());
   print(response.body);
 }`)
   })

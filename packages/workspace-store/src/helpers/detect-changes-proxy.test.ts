@@ -439,3 +439,114 @@ describe('getRaw', () => {
     expect(raw.foo).toBe(99)
   })
 })
+
+describe('path construction', () => {
+  it('builds no path while only reading', () => {
+    const onBeforeChange = vi.fn()
+    const onAfterChange = vi.fn()
+    const proxy = createDetectChangesProxy({ a: { b: { c: 1 } } }, { hooks: { onBeforeChange, onAfterChange } })
+
+    expect(proxy.a.b.c).toBe(1)
+
+    expect(onBeforeChange).not.toHaveBeenCalled()
+    expect(onAfterChange).not.toHaveBeenCalled()
+  })
+
+  it('hands both hooks the same array, because the store mutates it', () => {
+    const seen: string[][] = []
+    const proxy = createDetectChangesProxy({ documents: { api: { info: {} } } } as Record<string, any>, {
+      hooks: {
+        onBeforeChange: (path) => seen.push(path),
+        onAfterChange: (path) => seen.push(path),
+      },
+    })
+
+    proxy.documents.api.info.title = 'Test'
+
+    expect(seen).toHaveLength(2)
+    expect(seen[0]).toBe(seen[1])
+    expect(seen[0]).toEqual(['documents', 'api', 'info', 'title'])
+  })
+
+  it('gives each write its own array', () => {
+    const seen: string[][] = []
+    const proxy = createDetectChangesProxy({ a: 1, b: 2 } as Record<string, unknown>, {
+      hooks: { onAfterChange: (path) => seen.push(path) },
+    })
+
+    proxy.a = 10
+    proxy.b = 20
+
+    expect(seen[0]).not.toBe(seen[1])
+    expect(seen).toEqual([['a'], ['b']])
+  })
+
+  it('reports the path a shared node was first reached through', () => {
+    const shared = { value: 1 }
+    const onAfterChange = vi.fn()
+    const proxy = createDetectChangesProxy({ first: shared, second: shared }, { hooks: { onAfterChange } })
+
+    // Reaching it under `second` first fixes the path its proxy reports.
+    expect(proxy.second).toBe(proxy.first)
+
+    proxy.first.value = 99
+    expect(onAfterChange).toHaveBeenLastCalledWith(['second', 'value'], 99)
+
+    proxy.second.value = 100
+    expect(onAfterChange).toHaveBeenLastCalledWith(['second', 'value'], 100)
+  })
+
+  it('reports the caller-supplied starting path', () => {
+    const onAfterChange = vi.fn()
+    const proxy = createDetectChangesProxy(
+      { a: { b: 1 } },
+      { hooks: { onAfterChange } },
+      {
+        proxyCache: new WeakMap(),
+        path: ['documents', 'api'],
+      },
+    )
+
+    proxy.a.b = 2
+
+    expect(onAfterChange).toHaveBeenCalledWith(['documents', 'api', 'a', 'b'], 2)
+  })
+
+  it('reports the full path when deleting a nested property', () => {
+    const onBeforeChange = vi.fn()
+    const onAfterChange = vi.fn()
+    const proxy = createDetectChangesProxy({ a: { b: { c: 1 } } } as Record<string, any>, {
+      hooks: { onBeforeChange, onAfterChange },
+    })
+
+    delete proxy.a.b.c
+
+    expect(onBeforeChange).toHaveBeenCalledWith(['a', 'b', 'c'])
+    expect(onAfterChange).toHaveBeenCalledWith(['a', 'b', 'c'])
+  })
+
+  it('still writes through when no hooks are registered', () => {
+    const target: Record<string, any> = { a: { b: 1 } }
+    const proxy = createDetectChangesProxy(target)
+
+    proxy.a.b = 2
+    delete proxy.a.b
+
+    expect('b' in target.a).toBe(false)
+  })
+
+  it('returns a value that is already a detect-changes proxy untouched', () => {
+    const inner = createDetectChangesProxy({ value: 1 })
+    const proxy = createDetectChangesProxy({ inner } as Record<string, unknown>)
+
+    expect(proxy.inner).toBe(inner)
+  })
+
+  it('does not wrap non-plain objects', () => {
+    const date = new Date()
+    const proxy = createDetectChangesProxy({ date, fn: () => 1 })
+
+    expect(proxy.date).toBe(date)
+    expect(typeof proxy.fn).toBe('function')
+  })
+})

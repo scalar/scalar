@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { reduceQueryParams } from '@/libs/http'
+import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/php'
 
 /**
@@ -16,7 +16,7 @@ export const phpGuzzle: Plugin = {
     }
 
     const options: Record<string, any> = {}
-    const method = (request.method || 'GET').toUpperCase()
+    const method = normalizeMethod(request.method)
     const url = request.url || ''
 
     // Handle headers
@@ -67,7 +67,7 @@ export const phpGuzzle: Plugin = {
           options.multipart = request.postData.params.map((param) => {
             const part: Record<string, any> = {
               name: param.name,
-              contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'r')`) : param.value || '',
+              contents: param.fileName ? new Raw(`fopen('${param.fileName}', 'rb')`) : param.value || '',
             }
 
             if (param.contentType) {
@@ -85,11 +85,24 @@ export const phpGuzzle: Plugin = {
         }
       } else if (request.postData.mimeType === 'application/x-www-form-urlencoded') {
         if (request.postData.params) {
-          const formParams: Record<string, string> = {}
+          // A repeated field name keeps every value instead of the last one
+          const formParams: Record<string, string | string[]> = {}
           request.postData.params.forEach((param) => {
-            formParams[param.name] = param.value || ''
+            accumulateRepeatedValue(formParams, param.name, param.value || '')
           })
-          options.form_params = formParams
+          if (Object.values(formParams).some(Array.isArray)) {
+            // Guzzle encodes arrays with indexed names, so serialize repeated fields directly.
+            options.body = new URLSearchParams(
+              request.postData.params.map(({ name, value }) => [name, value ?? '']),
+            ).toString()
+            const headers = options.headers ?? {}
+            if (!Object.keys(headers).some((name) => name.toLowerCase() === 'content-type')) {
+              headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            }
+            options.headers = headers
+          } else {
+            options.form_params = formParams
+          }
         }
       } else {
         // For other mime types (like application/octet-stream), use the raw body

@@ -13,7 +13,7 @@ describe('prepare-request', () => {
       method: 'patch',
       queryString: [
         { name: 'tag', value: 'one' },
-        { name: 'tag', value: 'two%20words' },
+        { name: 'tag', value: 'two words' },
       ],
       headers: [
         { name: 'X-Custom', value: 'one' },

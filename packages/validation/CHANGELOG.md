@@ -1,5 +1,23 @@
 # @scalar/validation
 
+## 0.6.6
+
+### Patch Changes
+
+- [#10417](https://github.com/scalar/scalar/pull/10417): Reduce union scoring overhead for literals, arrays, records, and missing optional values while preserving branch selection.
+
+## 0.6.5
+
+### Patch Changes
+
+- [#10315](https://github.com/scalar/scalar/pull/10315): Bound how deep union scoring looks into a value, so `coerce` no longer takes exponential time on recursive unions. `coerce` now also stops at a nesting depth of 1,000 calls instead of overflowing the stack. It leaves deeper values unchanged and logs a warning.
+
+## 0.6.4
+
+### Patch Changes
+
+- [#10212](https://github.com/scalar/scalar/pull/10212): Improve type safety for schema display metadata, schema property merging, deprecated configuration migration, and cyclic test fixtures. Load Vite declarations for raw playground imports.
+
 ## 0.6.3
 
 ### Patch Changes

@@ -45,7 +45,7 @@ Reference `--scalar-*` variables in CSS; in components, prefer the Tailwind clas
 | Variable | Light | Dark | Role |
 |---|---|---|---|
 | `--scalar-color-1` | `#1b1b1b` | `#e7e7e7` | Primary text |
-| `--scalar-color-2` | `#757575` | `#a4a4a4` | Secondary text |
+| `--scalar-color-2` | `#707070` | `#a4a4a4` | Secondary text |
 | `--scalar-color-3` | `#8e8e8e` | `#797979` | Muted text |
 | `--scalar-color-accent` | `#0099ff` | `#00aeff` | Accent / interactive |
 
@@ -61,7 +61,7 @@ Reference `--scalar-*` variables in CSS; in components, prefer the Tailwind clas
 - `--scalar-border-color` — `#dfdfdf` (light) / `#2d2d2d` (dark); `--scalar-border-width` — `0.5px`.
 - `--scalar-shadow-1` (subtle), `--scalar-shadow-2` (lifted).
 
-**Semantic colors** (`--scalar-color-{green,red,yellow,blue,orange,purple}`, plus `--scalar-color-danger` / `--scalar-color-alert` and matching `--scalar-background-*`). Light: green `#069061`, red `#ef0006`, yellow `#edbe20`, blue `#0082d0`, orange `#ff5800`, purple `#5203d1`.
+**Semantic colors** (`--scalar-color-{green,red,yellow,blue,orange,purple}`, plus `--scalar-color-danger` / `--scalar-color-alert` and matching `--scalar-background-*`). Light: green `#069061`, red `#ef0006`, yellow `#edbe20`, blue `#0072bd`, orange `#ff5800`, purple `#5203d1`.
 
 **Radii:** `--scalar-radius` `3px`, `--scalar-radius-md` `3px`, `--scalar-radius-lg` `6px`, `--scalar-radius-xl` `8px`, `--scalar-radius-2xl` `12px`, `--scalar-radius-3xl` `16px`, `--scalar-radius-full` pill. All derive from `--scalar-radius`, so overriding it on `:root` rescales every corner, and `0` makes the interface square. Everything except `-full` clamps to `--scalar-radius-max` (`20px`) so a large radius cannot swallow a container's content. Reach for `--scalar-radius-md` rather than `--scalar-radius` on anything that holds content.
 
@@ -78,7 +78,7 @@ Scalar maps `--scalar-*` variables onto a custom Tailwind theme. In components, 
 - **Background:** `bg-b-1`, `bg-b-1.5`, `bg-b-2`, `bg-b-3`, `bg-b-accent`, `bg-b-btn`, `bg-b-tooltip`, `bg-b-danger`, `bg-b-alert`.
 - **Text:** `text-c-1`, `text-c-2`, `text-c-3`, `text-c-accent`, `text-c-ghost`, `text-c-disabled`, `text-c-btn`, `text-c-tooltip`, `text-c-danger`, `text-c-alert`.
 - **Themed:** `text-green` / `bg-green`, plus `red`, `yellow`, `blue`, `orange`, `purple`.
-- **Border:** `border` (uses `--scalar-border-color`, default width `0.5px`); `shadow-border` for an inset hairline.
+- **Border:** `border` (uses `--scalar-border-color`, default width `0.5px`); `shadow-border` for an inset hairline, or `inset-shadow-border` to stack it with a `shadow-*`.
 - **Shadow:** `shadow` / `shadow-md` (shadow-1), `shadow-lg` (shadow-2), `shadow-sm`.
 - **Radius:** `rounded` & `rounded-md` (3px), `rounded-lg` (6px), `rounded-xl` (8px), `rounded-2xl` (12px), `rounded-3xl` (16px), `rounded-full` (pill). No `rounded-sm`.
 - **Type:** `font-sans` (Inter), `font-code` (JetBrains Mono); sizes `text-3xs` 10, `text-xxs`/`text-xs` 12, `text-sm` 13, `text-base` 14, `text-lg` 16, `text-xl` 21; weights `font-normal` 400, `font-medium` 500, `font-bold` 600.
@@ -110,7 +110,7 @@ Headline components (full list in [`references/components.md`](./references/comp
 
 Paper writes literal HTML/CSS to the canvas with `px` sizes and hex colors, so translate Scalar tokens into concrete values:
 
-- Ground `#fff`, text `#1b1b1b` (secondary `#757575`), accent `#0099ff`, borders `0.5px` `#dfdfdf`, radii 3–8px.
+- Ground `#fff`, text `#1b1b1b` (secondary `#707070`), accent `#0099ff`, borders `0.5px` `#dfdfdf`, radii 3–8px.
 - `Inter` for everything except code (`JetBrains Mono`); body text 16px, small 14px.
 - Spacing on a 4px grid (4, 8, 12, 16, 24…).
 - Default to light mode. Mirror the real component shapes (buttons, cards, sidebar rows) using these values.

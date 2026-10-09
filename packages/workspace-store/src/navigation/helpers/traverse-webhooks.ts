@@ -1,6 +1,4 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
-import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { isDeprecatedOperation } from '@/navigation/helpers/traverse-paths'
@@ -8,6 +6,7 @@ import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { ParentTag, TraversedWebhook } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject, TagObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import { getNavigationTagNames } from './get-navigation-tag-names'
 import { getTag } from './get-tag'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
@@ -33,7 +32,7 @@ const createWebhookEntry = ({
   parentId,
 }: {
   ref: string
-  method: HttpMethod
+  method: string
   webhook: OperationObject
   name: string
   title: string
@@ -110,10 +109,11 @@ export const traverseWebhooks = ({
         return
       }
 
-      const ref = `#/webhooks/${name}/${method}`
+      const ref = `#/webhooks/${name}/${getPathItemOperationKey(method)}`
 
-      if (operation.tags?.length) {
-        operation.tags.forEach((tagName: string) => {
+      const navigationTags = getNavigationTagNames(document, operation.tags, tagsMap)
+      if (navigationTags.length) {
+        navigationTags.forEach((tagName: string) => {
           const { tag, id: tagId } = getTag({ tagsMap, name: tagName, documentId, generateId })
           tagsMap.get(tagName)?.entries.push(
             createWebhookEntry({

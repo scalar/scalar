@@ -9,7 +9,7 @@ export type ModalProps = {
   /** The event bus for handling all events */
   eventBus: WorkspaceEventBus
   /** The method must be initialized and passed in */
-  method: ComputedRef<HttpMethod | undefined>
+  method: ComputedRef<string | undefined>
   /** The example name must be initialized and passed in */
   exampleName: ComputedRef<string | undefined>
   /** Whether the active route resolves from `document.webhooks`. */
@@ -37,7 +37,6 @@ export default {}
 <script setup lang="ts">
 import type { ScalarListboxOption } from '@scalar/components/listbox'
 import type { ModalState } from '@scalar/components/modal'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
@@ -56,6 +55,7 @@ import {
 
 import ModalClientContainer from '@/v2/components/modals/ModalClientContainer.vue'
 import { Sidebar, SidebarToggle } from '@/v2/components/sidebar'
+import { provideLocalization } from '@/v2/features/localization'
 import { type UseModalSidebarReturn } from '@/v2/features/modal/hooks/use-modal-sidebar'
 import { initializeModalEvents } from '@/v2/features/modal/modal-events'
 import Operation from '@/v2/features/operation/Operation.vue'
@@ -75,6 +75,10 @@ const {
 } = defineProps<
   Omit<ModalProps, 'options'> & { options: ApiClientOptionsRef }
 >()
+
+const { translate, locale, direction } = provideLocalization(
+  () => options.value.localization,
+)
 
 const activeWorkspace: ScalarListboxOption = {
   label: 'default',
@@ -154,7 +158,10 @@ defineExpose({
 </script>
 
 <template>
-  <ModalClientContainer :modalState>
+  <ModalClientContainer
+    :dir="direction"
+    :lang="locale"
+    :modalState>
     <!-- Toasts -->
     <ScalarToasts />
 
@@ -162,9 +169,17 @@ defineExpose({
     <main
       v-if="document.value && path?.value && method?.value"
       class="relative flex h-full min-h-0 w-full flex-1">
+      <!--
+        The toggle keeps its place inside the panel while the header row is wide
+        enough for the address bar to centre itself clear of it. Below `lg` the
+        bar fills the row and its method chip reaches the panel edge, so the
+        toggle moves onto the backdrop and mirrors the close button in the
+        opposite corner, leaving the whole row to the bar.
+      -->
       <SidebarToggle
         v-model="isSidebarOpen"
-        class="absolute top-2 left-4 z-10 max-md:top-4" />
+        class="absolute top-2 left-4 z-10 max-lg:fixed max-lg:top-2 max-lg:left-2"
+        variant="overlay" />
       <Sidebar
         v-show="isSidebarOpen"
         v-model:sidebarWidth="sidebarWidth"
@@ -186,6 +201,7 @@ defineExpose({
         :environment
         :eventBus
         :exampleName="exampleName?.value"
+        :isActive="modalState.open"
         :isWebhook="isWebhook.value"
         layout="modal"
         :method="method?.value"
@@ -199,7 +215,9 @@ defineExpose({
     <div
       v-else
       class="flex h-full w-full items-center justify-center">
-      <span class="text-c-3">No document selected</span>
+      <span class="text-c-3">{{
+        translate('apiClient.modal.noDocumentSelected')
+      }}</span>
     </div>
   </ModalClientContainer>
 </template>

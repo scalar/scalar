@@ -3,6 +3,95 @@ import { describe, expect, it } from 'vitest'
 import { join } from '@/utils/join/join'
 
 describe('join', () => {
+  it('preserves literal schema property names in components and inline responses', async () => {
+    const schema = {
+      type: 'object',
+      properties: JSON.parse(
+        '{"constructor":{"type":"string"},"prototype":{"type":"number"},"__proto__":{"type":"boolean"}}',
+      ),
+      required: ['constructor'],
+    }
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Example', version: '1.0.0' },
+      components: { schemas: { Thing: schema } },
+      paths: {
+        '/things': {
+          get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } } },
+        },
+      },
+    }
+    // Comparing serialized data avoids treating the literal constructor property as a type identity.
+    expect(JSON.stringify(await join([document]))).toBe(JSON.stringify({ ok: true, document }))
+    expect(Object.hasOwn(Object.prototype, 'type')).toBe(false)
+  })
+
+  it('preserves index merging for info extension arrays', async () => {
+    expect(
+      await join([
+        { info: { title: 'First', 'x-list': [{ name: 'First' }] } },
+        { info: { title: 'Second', 'x-list': [{ other: true }, { name: 'Second' }] } },
+      ]),
+    ).toStrictEqual({
+      ok: true,
+      document: {
+        info: { title: 'First', 'x-list': [{ other: true, name: 'First' }, { name: 'Second' }] },
+        paths: {},
+        components: undefined,
+        servers: undefined,
+        tags: undefined,
+        webhooks: undefined,
+      },
+    })
+  })
+
+  it('preserves metadata precedence, list deduplication, and shallow merging of other fields', async () => {
+    const result = await join([
+      {
+        info: { title: 'First', contact: { name: 'First' } },
+        tags: [{ name: 'shared', description: 'First' }],
+        servers: [{ url: 'https://example.com', description: 'First' }],
+        'x-settings': { first: true },
+      },
+      {
+        info: { title: 'Last', contact: { email: 'hello@example.com' } },
+        tags: [{ name: 'shared', description: 'Last' }],
+        servers: [{ url: 'https://example.com', description: 'Last' }],
+        'x-settings': { last: true },
+      },
+    ])
+
+    expect(result).toStrictEqual({
+      ok: true,
+      document: {
+        info: { title: 'First', contact: { name: 'First', email: 'hello@example.com' } },
+        paths: {},
+        webhooks: undefined,
+        components: undefined,
+        tags: [{ name: 'shared', description: 'Last' }],
+        servers: [{ url: 'https://example.com', description: 'Last' }],
+        'x-settings': { first: true },
+      },
+    })
+  })
+
+  it('preserves the public shape and category order of conflicts', async () => {
+    const document = {
+      components: { schemas: { Shared: { type: 'string' } } },
+      webhooks: { event: { post: {} } },
+      paths: { '/a/b': { get: {} } },
+    }
+
+    expect(await join([document, document])).toStrictEqual({
+      ok: false,
+      conflicts: [
+        { type: 'path', path: '/a/b', method: 'get' },
+        { type: 'webhook', path: 'event', method: 'post' },
+        { type: 'component', componentType: 'schemas', name: 'Shared' },
+      ],
+    })
+  })
+
   it.each([null, undefined, false, 0, ''])('replaces lower-precedence falsy path items (%s)', async (value) => {
     for (const field of ['paths', 'webhooks']) {
       const result = await join([{ [field]: { '/a': { get: {} } } }, { [field]: { '/a': value } }])

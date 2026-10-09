@@ -27,7 +27,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'
@@ -69,6 +69,21 @@ const serverVariables = computed(() => {
   )
 })
 
+const serverSummary = computed(() => selectedServer?.server.summary?.trim())
+
+const serverProtocolVersion = computed(() => {
+  const version = selectedServer?.server.protocolVersion?.trim()
+  return version ? `${selectedServer?.protocol.toUpperCase()} ${version}` : ''
+})
+
+const hasServerDetails = computed(() =>
+  Boolean(
+    serverSummary.value ||
+    serverProtocolVersion.value ||
+    selectedServer?.description,
+  ),
+)
+
 /** Update the selected server */
 const updateServer = (name: string) => {
   eventBus.emit('asyncapi-server:update:selected', { name })
@@ -97,7 +112,7 @@ const updateServerVariable = (key: string, value: string) => {
     :id="id"
     class="border"
     :class="{
-      'rounded-b-xl': !selectedServer?.description && !serverVariables,
+      'rounded-b-xl': !hasServerDetails && !serverVariables,
     }">
     <Selector
       v-if="servers.length"
@@ -111,9 +126,17 @@ const updateServerVariable = (key: string, value: string) => {
     :variables="serverVariables"
     @update:variable="updateServerVariable" />
 
-  <!-- Description -->
-  <ScalarMarkdown
-    v-if="selectedServer?.description"
-    class="text-c-3 rounded-b-xl border-x border-b px-3 py-1.5"
-    :value="selectedServer.description" />
+  <div
+    v-if="hasServerDetails"
+    class="text-c-3 flex flex-col gap-1.5 rounded-b-xl border-x border-b px-3 py-1.5">
+    <p
+      v-if="serverProtocolVersion"
+      class="text-c-2 text-sm">
+      {{ serverProtocolVersion }}
+    </p>
+    <p v-if="serverSummary">{{ serverSummary }}</p>
+    <ScalarMarkdown
+      v-if="selectedServer?.description"
+      :value="selectedServer.description" />
+  </div>
 </template>

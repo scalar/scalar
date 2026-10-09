@@ -5,14 +5,12 @@ import {
   type ClientOptionGroup,
 } from '@scalar/blocks/code-example'
 import { ScalarIcon } from '@scalar/components/icon'
-import type { TargetId } from '@scalar/types/snippetz'
+import type { AvailableClient, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
-import {
-  getFeaturedClients,
-  isFeaturedClient,
-} from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
+import { getFeaturedClients } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
+import { GenerateSdkButton } from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 
 import ClientDropdown from './ClientDropdown.vue'
@@ -21,11 +19,14 @@ const {
   clientOptions,
   eventBus,
   selectedClient = DEFAULT_CLIENT,
+  featuredClients: featuredClientIds,
 } = defineProps<{
   /** Computed list of all available Http Client options */
   clientOptions: ClientOptionGroup[]
   /** The currently selected Http Client (a built-in client id or a custom sample id) */
   selectedClient?: string
+  /** Clients to show as tabs, in order. Omit to use the default featured list. */
+  featuredClients?: AvailableClient[]
   /** Event bus */
   eventBus: WorkspaceEventBus
 }>()
@@ -75,7 +76,9 @@ const selectedClientOption = computed(
 )
 
 /** List of featured clients */
-const featuredClients = computed(() => getFeaturedClients(clientOptions))
+const featuredClients = computed(() =>
+  getFeaturedClients(clientOptions, featuredClientIds),
+)
 
 /** Currently selected tab index */
 const tabIndex = computed(() =>
@@ -119,6 +122,13 @@ defineExpose({
       <!--
         TabList may only contain Tab children (aria-required-children).
         The "More" combobox sits beside it in the same visual row.
+
+        Headless UI cannot express "no tab selected": while the active client
+        lives in "More", tabIndex is -1 and the library clamps it onto a real
+        tab, marking that one selected for assistive technology. Our own
+        aria-selected falls through after the library's props, so it wins and
+        reports the actual selection (WCAG 4.1.2). The clamped tab still keeps
+        tabindex="0" so the tablist stays reachable by keyboard.
       -->
       <div class="client-libraries-list">
         <TabList
@@ -126,8 +136,9 @@ defineExpose({
           class="client-libraries-tabs"
           :style="{ flexGrow: featuredClients.length }">
           <Tab
-            v-for="featuredClient in featuredClients"
-            :key="featuredClient.clientKey"
+            v-for="(featuredClient, index) in featuredClients"
+            :key="featuredClient.id"
+            :aria-selected="index === tabIndex"
             class="client-libraries rendered-code-sdks"
             :class="{
               'client-libraries__active': featuredClient.id === activeClient,
@@ -146,46 +157,72 @@ defineExpose({
         <ClientDropdown
           :clientOptions
           :eventBus
+          :featuredClients="featuredClientIds"
           :selectedClient="activeClient" />
       </div>
 
-      <!-- Content -->
-      <TabPanels>
-        <template v-if="isFeaturedClient(activeClient)">
-          <TabPanel
-            v-for="client in featuredClients"
-            :key="client.id"
-            class="selected-client card-footer -outline-offset-2">
-            {{ client.title }}
-          </TabPanel>
-        </template>
-        <div
-          v-else
-          :id="morePanel"
-          class="selected-client card-footer -outline-offset-2"
-          role="tabpanel"
-          tabindex="0">
-          {{ selectedClientOption?.title }}
-        </div>
-      </TabPanels>
+      <!-- Content: the selected client, with Generate SDK beside it rather than inside the tab panel -->
+      <div class="selected-client-row card-footer">
+        <TabPanels class="selected-client-panels">
+          <template v-if="tabIndex >= 0">
+            <TabPanel
+              v-for="client in featuredClients"
+              :key="client.id"
+              class="selected-client -outline-offset-2">
+              {{ client.title }}
+            </TabPanel>
+          </template>
+          <div
+            v-else
+            :id="morePanel"
+            :aria-labelledby="headingId"
+            class="selected-client -outline-offset-2"
+            role="tabpanel"
+            tabindex="0">
+            {{ selectedClientOption?.title }}
+          </div>
+        </TabPanels>
+
+        <!-- Local development only: opens the Explore Scalar dialog to generate an SDK -->
+        <GenerateSdkButton
+          class="selected-client-action"
+          variant="card" />
+      </div>
     </TabGroup>
   </div>
 </template>
 <style scoped>
-.selected-client {
-  color: var(--scalar-color-1);
-  font-size: var(--scalar-small);
-  font-family: var(--scalar-font-code);
-  padding: 9px 12px;
-  border-top: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* The card's footer box; Generate SDK sits on its end edge when the reference runs locally */
+.selected-client-row {
+  display: flex;
+  align-items: center;
   background: var(--scalar-background-1);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
   min-height: fit-content;
+}
+/* The client name gives way to the button on narrow cards and truncates instead */
+.selected-client-panels {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.selected-client {
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-small);
+  font-family: var(--scalar-font-code);
+  padding: 9px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Keeps the inset focus ring inside the card's rounded corners */
+  border-bottom-left-radius: var(--scalar-radius-xl);
+  border-bottom-right-radius: var(--scalar-radius-xl);
+}
+.selected-client-action {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-inline-end: 5px;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);

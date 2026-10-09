@@ -13,7 +13,9 @@ if (version && typeof window !== 'undefined') {
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { OpenApiClientButton } from '@scalar/api-client/blocks/operation-block'
-import type { ApiClientModal } from '@scalar/api-client/modal'
+import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
+import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
+import { useSchemaExpansion } from '@scalar/blocks/schema/expansion'
 import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
@@ -26,6 +28,7 @@ import {
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { makePoweredByUrl } from '@scalar/helpers/url/make-powered-by-url'
 import { apiReferenceConfigurationSchema } from '@scalar/schemas/api-reference'
 import {
   createSidebarState,
@@ -47,6 +50,7 @@ import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
   getActiveEnvironment,
   getServers,
@@ -60,9 +64,9 @@ import {
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
 import { useScrollLock } from '@vueuse/core'
-import diff from 'microdiff'
 import {
   computed,
+  defineAsyncComponent,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -78,26 +82,28 @@ import {
   AsyncApiSidebarFilters,
   filterAsyncApiNavigation,
 } from '@/blocks/scalar-asyncapi-sidebar-filters-block'
-import {
-  AgentScalarButton,
-  AgentScalarDrawer,
-  OpenMCPButton,
-} from '@/components/AgentScalar'
+import { hasRenderableSdks } from '@/blocks/scalar-sdk-installation-instructions'
+import { AgentScalarButton, OpenMCPButton } from '@/components/AgentScalar'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import Content from '@/components/Content/Content.vue'
-import { provideSchemaExpansion } from '@/components/Content/Schema/helpers/schema-expansion'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
+import {
+  GENERATE_SDK_CONTEXT_SYMBOL,
+  useGenerateSdk,
+} from '@/features/generate-sdk'
 import {
   provideLocalization,
   resolveLocalization,
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
+import { hasDocumentChanges } from '@/helpers/has-document-changes'
 import {
   getIdFromUrl,
   makeHrefFromId,
@@ -116,6 +122,7 @@ import {
   addToPriorityQueue,
   blockIntersection,
   intersectionEnabled,
+  scrollTargetId,
 } from '@/helpers/lazy-bus'
 import {
   loadAuthFromStorage,
@@ -127,8 +134,11 @@ import {
   normalizeConfigurations,
   type NormalizedConfiguration,
 } from '@/helpers/normalize-configurations'
+import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
+import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
+import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
@@ -188,7 +198,7 @@ provideUseId(() => useId())
  * Deliberately per-instance rather than module-global: `createApiReference` can
  * be called twice on one page, and two references must not share expansion.
  */
-provideSchemaExpansion()
+const expansion = useSchemaExpansion(scrollTargetId)
 
 // ---------------------------------------------------------------------------
 /**
@@ -346,6 +356,11 @@ const sidebarOptions = computed(() => ({
   },
 }))
 
+/** Tags the "Powered by Scalar" link with the integration, so we know where visitors come from */
+const poweredByUrl = computed(() =>
+  makePoweredByUrl(mergedConfig.value._integration),
+)
+
 /**
  * Locale string for the `lang` attribute. We normalize underscores to hyphens so values like
  * `es_MX` become valid BCP-47 language tags (`es-MX`).
@@ -479,6 +494,8 @@ const workspaceStore = createWorkspaceStore({
   verbose: isDevelopment,
 })
 
+provide(EXTERNAL_EXAMPLES, () => workspaceStore.externalExamples())
+
 /**
  * We need to keep the client store separate from the workspace store
  * This is because we want the client store to be a playground where users can test out their requests without affecting the references store
@@ -490,6 +507,26 @@ const clientStore = createWorkspaceStore({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
     }),
   ],
+})
+
+useDocumentEnvironment(workspaceStore)
+useDocumentEnvironment(clientStore)
+// The modal edits its own document but shares downloads and the configured source transport.
+clientStore.externalExamples = workspaceStore.externalExamples
+
+useConfiguredServers({
+  configurations: configList,
+  sourceStore: workspaceStore,
+  clientStore,
+})
+
+/** Preserve config server precedence while reading the values users edit in the client store. */
+const runtimeConfig = computed<ApiReferenceConfiguration>(() => {
+  const config = mergedConfig.value
+  const document = clientStore.workspace.documents[activeSlug.value]
+  return config.servers !== undefined && isOpenApiDocument(document)
+    ? { ...config, servers: document.servers }
+    : config
 })
 
 /**
@@ -865,8 +902,11 @@ const environment = computed(
 )
 
 if (typeof window !== 'undefined') {
-  // @ts-expect-error - For debugging purposes expose the store
-  window.dataDumpWorkspace = () => workspaceStore
+  // The debug hook is optional because it only exists after a reference is mounted.
+  const debugWindow: Window & {
+    dataDumpWorkspace?: () => typeof workspaceStore
+  } = window
+  debugWindow.dataDumpWorkspace = () => workspaceStore
 }
 
 // For testing
@@ -1011,13 +1051,10 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
       // Set the active server if the document is loaded successfully. Resolve relative servers
       // against this document's own base URL, not the active document's, so a background preload
       // does not derive its server from whichever document happens to be active.
-      const servers = getServers(
-        normalized.config.servers ?? document.servers,
-        {
-          baseServerUrl: config.baseServerURL,
-          documentUrl: normalized.source.url,
-        },
-      )
+      const servers = getServers(document.servers, {
+        baseServerUrl: config.baseServerURL,
+        documentUrl: normalized.source.url,
+      })
       if (servers.length > 0) {
         clientStore.updateDocument(
           slug,
@@ -1144,11 +1181,12 @@ const changeSelectedDocument = async (
   // Set the active slug and update any routing
   syncSlugAndUrlWithDocument(slug, elementId, config)
 
-  // Update the document on the route as well, the method and path don't matter as we update them before opening
+  // Sync the modal to the new document without naming an operation. Leaving path and
+  // method out resolves them to the document's first operation instead of a route that
+  // does not exist, so the modal still has something valid to show if it opens before
+  // a specific operation is selected.
   apiClient.value?.route({
     documentSlug: slug,
-    method: 'get',
-    path: '/',
   })
 
   // Load the document if it is not in the store yet (a background preload may already be loading it)
@@ -1272,12 +1310,12 @@ watch(
        * if we detect deep changes in the two sources
        */
       if (
-        diff(
+        hasDocumentChanges(
           updated.source.content,
           previous && 'content' in previous.source
             ? (previous.source.content ?? {})
             : {},
-        ).length
+        )
       ) {
         await addDocument(
           {
@@ -1330,7 +1368,11 @@ onBeforeMount(async () => {
 
     const prefix = resolveHashPrefix(
       hash,
-      sidebarState.index.value.keys(),
+      [
+        ...sidebarState.index.value.keys(),
+        // Heading-first descriptions still render a document-start section outside the sidebar.
+        ...candidates.map((slug) => `${slug}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
+      ],
       isMultiDocument.value,
     )
     inferredHashBasePath.value = prefix ? `#${prefix}` : undefined
@@ -1389,41 +1431,82 @@ const agent = useAgent({
 provide(AGENT_CONTEXT_SYMBOL, agent)
 
 // --------------------------------------------------------------------------- */
+// Generate SDK
+
+/**
+ * Lets every "Generate SDK" button (developer tools, client libraries, request examples) open the
+ * same Explore Scalar dialog. Only enabled while the reference runs on a local URL, an OpenAPI
+ * document has loaded, and that document does not already list its own SDKs (the same rule Content
+ * uses to swap the client libraries for SDK installation instructions).
+ */
+const generateSdk = useGenerateSdk({
+  hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
+  hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
+})
+provide(GENERATE_SDK_CONTEXT_SYMBOL, generateSdk)
+
+/** Only mounted while Generate SDK is offered, so public hosts never fetch the dialog chunk */
+const GenerateSdkDialog = defineAsyncComponent(
+  () => import('@/features/explore-scalar/components/ExploreScalarModal.vue'),
+)
+
+const AgentScalarDrawer = defineAsyncComponent(
+  () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
+)
+
+/** Only rendered on localhost, so public hosts never fetch the Explore Scalar chunk */
+const ExploreScalarButton = defineAsyncComponent(() =>
+  import('@/features/explore-scalar').then(
+    (module) => module.ExploreScalarButton,
+  ),
+)
+const hasOpenedAgent = ref(false)
+
+// Keep the conversation mounted so closing and reopening preserves its state.
+watch(agent.showAgent, (open) => {
+  if (open) {
+    hasOpenedAgent.value = true
+  }
+})
+
+// --------------------------------------------------------------------------- */
 // Api Client Modal
 
-// Setup the ApiClient on mount.
-// The modal is dynamic-imported so its dependency graph (CodeMirror, the request
-// editor, the response viewer, etc.) becomes a separate chunk that loads
-// asynchronously after the API reference paints.
+// Reference controls must keep working before the modal installs its own event handlers.
+const stopReferenceClientEvents = initializeWorkspaceEventHandlers({
+  eventBus,
+  store: ref(clientStore),
+  hooks: {},
+})
 const modal = useTemplateRef<HTMLElement>('modal')
-const apiClient = ref<ApiClientModal | null>(null)
-onMounted(async () => {
-  if (!modal.value) {
-    return
-  }
-
-  const { createApiClientModal } = await import('@scalar/api-client/modal')
-
-  // Bail if the component unmounted while the chunk was loading.
-  if (!modal.value) {
-    return
-  }
-
-  apiClient.value = createApiClientModal({
-    el: modal.value,
-    eventBus,
-    workspaceStore: clientStore,
-    options: mergedConfig,
-    plugins: [
-      ...pluginManager.getApiClientPlugins(),
-      ...mapConfigPlugins(mergedConfig, environment),
-    ],
-  })
+const clientLoadingStatus = ref<'idle' | 'loading' | 'error'>('idle')
+const apiClient = useLazyApiClient({
+  eventBus,
+  status: clientLoadingStatus,
+  load: async () => {
+    const { createApiClientModal } = await import('@scalar/api-client/modal')
+    return () => {
+      if (!modal.value) {
+        return null
+      }
+      stopReferenceClientEvents()
+      return createApiClientModal({
+        el: modal.value,
+        eventBus,
+        workspaceStore: clientStore,
+        options: runtimeConfig,
+        plugins: [
+          ...pluginManager.getApiClientPlugins(),
+          ...mapConfigPlugins(mergedConfig, environment),
+        ],
+      })
+    }
+  },
 })
 onBeforeUnmount(() => {
   stopPreloadingDocuments()
+  stopReferenceClientEvents()
   pluginManager.notifyDestroy()
-  apiClient.value?.app.unmount()
 })
 
 // ---------------------------------------------------------------------------
@@ -1526,11 +1609,25 @@ eventBus.on('select:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 /** Handle a scroll to navigation item event */
 eventBus.on('scroll-to:nav-item', ({ id }) => handleSelectSidebarEntry(id))
 
+/**
+ * Sentinel rendered at the very start of the document. Its position resolves which entry an
+ * intersecting section selects while the top of the document is still in view, and it drives the
+ * observer set up further down.
+ */
+const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
+
 /** Handle an intersecting navigation item event */
-eventBus.on('intersecting:nav-item', ({ id }) => {
+eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   if (!intersectionEnabled.value) {
     return
   }
+
+  // Resolved from the sentinel's position, not from the order the observers report in
+  const id = resolveIntersectingEntry({
+    id: intersectingId,
+    documentStartId: infoSectionId.value,
+    documentStartTop: documentStartRef.value?.getBoundingClientRect().top,
+  })
 
   sidebarState.setSelected(id)
   setBreadcrumb(id)
@@ -1597,8 +1694,6 @@ onBeforeMount(() => {
 // ---------------------------------------------------------------------------
 // Document start intersection observer
 
-const documentStartRef = useTemplateRef<HTMLElement>('documentStartRef')
-
 /**
  * Uses `immediate` so the sentinel fires as soon as it enters the viewport (not just at the center strip).
  * When the user scrolls away from the top, both this observer and the first section's center-strip
@@ -1646,20 +1741,43 @@ const bodyScrollLocked = useScrollLock(
 
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 
-const showMCPButton = computed(() => {
-  if (mergedConfig.value.mcp?.disabled) {
-    return false
+/**
+ * Only the browser knows the host. Reading window inside a computed makes the server render one
+ * footer and the client another (a hydration mismatch), so we resolve it after mount: SSR on
+ * localhost shows the API client button for one frame, then swaps.
+ */
+const isLocalhost = ref(false)
+onMounted(() => {
+  isLocalhost.value = isLocalUrl(window.location.href)
+})
+
+type SidebarCta = 'mcp' | 'explore' | 'client' | null
+
+/** Exactly one footer call to action may render, so the choice lives in a single computed */
+const sidebarCta = computed((): SidebarCta => {
+  const { mcp, hideClientButton } = mergedConfig.value
+
+  // mcp.disabled is the existing opt-out for the localhost promotion; it keeps working
+  if (mcp?.disabled) {
+    return hideClientButton ? null : 'client'
   }
 
-  if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
-    return true
+  // An MCP server configured on purpose keeps the connect rows, on localhost too
+  if (mcp?.name || mcp?.url) {
+    return 'mcp'
   }
 
-  if (mergedConfig.value.mcp) {
-    return true
+  // Localhost is where we pitch Scalar (this replaces the old "Generate MCP" fan-out)
+  if (isLocalhost.value) {
+    return 'explore'
   }
 
-  return false
+  // `mcp: {}` off localhost keeps today's "Generate MCP" fan-out
+  if (mcp) {
+    return 'mcp'
+  }
+
+  return hideClientButton ? null : 'client'
 })
 </script>
 
@@ -1688,9 +1806,19 @@ const showMCPButton = computed(() => {
       ]"
       :dir="apiReferenceLocalization.direction.value"
       :lang="documentLang">
+      <!-- The Explore Scalar dialog every Generate SDK button opens -->
+      <GenerateSdkDialog
+        v-if="generateSdk.enabled.value"
+        :externalUrls="mergedConfig.externalUrls"
+        :morphStickers="false"
+        :state="generateSdk.dialog"
+        :url="documentUrl"
+        :usesViewTransition="false"
+        :workspace="workspaceStore" />
+
       <!-- Agent Scalar -->
       <AgentScalarDrawer
-        v-if="agent.agentEnabled.value"
+        v-if="agent.agentEnabled.value && hasOpenedAgent"
         :agentScalarConfiguration="configList[activeSlug]?.agent"
         :externalUrls="mergedConfig.externalUrls"
         :workspaceStore />
@@ -1782,23 +1910,27 @@ const showMCPButton = computed(() => {
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="!mergedConfig.hideClientButton && !showMCPButton"
+                    v-if="sidebarCta === 'client'"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
                     :url="documentUrl" />
                   <OpenMCPButton
-                    v-if="showMCPButton"
+                    v-if="sidebarCta === 'mcp'"
                     :config="mergedConfig.mcp"
                     :externalUrls="mergedConfig.externalUrls"
-                    :isDevelopment="isDevelopment"
+                    :url="documentUrl"
+                    :workspace="workspaceStore" />
+                  <ExploreScalarButton
+                    v-if="sidebarCta === 'explore'"
+                    :externalUrls="mergedConfig.externalUrls"
                     :url="documentUrl"
                     :workspace="workspaceStore" />
                   <template #description>
                     <a
                       class="no-underline hover:underline"
-                      href="https://www.scalar.com"
-                      rel="noopener noreferrer"
+                      :href="poweredByUrl"
+                      rel="noopener"
                       target="_blank">
                       {{
                         apiReferenceLocalization.translate(
@@ -1854,13 +1986,16 @@ const showMCPButton = computed(() => {
           :environment
           :eventBus
           :expandedItems="sidebarState.expandedItems.value"
+          :expansion="expansion"
           :headingSlugGenerator="
             mergedConfig.generateHeadingSlug ??
             ((heading) => `${activeSlug}/description/${heading.slug}`)
           "
           :infoSectionId
           :items="sidebarItems"
-          :options="mergedConfig"
+          :options="runtimeConfig"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="SpecificationExtension"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
           "
@@ -1937,6 +2072,16 @@ const showMCPButton = computed(() => {
       </div>
       <!-- Client Modal mount point -->
       <div ref="modal" />
+      <div
+        v-if="clientLoadingStatus !== 'idle'"
+        class="bg-b-1 text-c-1 fixed right-4 bottom-4 z-[10001] rounded-lg border px-4 py-3 text-sm shadow-lg"
+        :role="clientLoadingStatus === 'error' ? 'alert' : 'status'">
+        {{
+          clientLoadingStatus === 'loading'
+            ? 'Loading request editor…'
+            : 'Could not load the request editor. Refresh the page and try again.'
+        }}
+      </div>
     </div>
     <ScalarToasts />
   </div>

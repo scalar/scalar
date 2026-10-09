@@ -1,3 +1,7 @@
+---
+date: 2025-08-19
+---
+
 # How to set up an OpenAPI mock server
 
 To create a mock server for your OpenAPI document, download the [Scalar CLI](https://github.com/scalar/scalar/blob/main/documentation/guides/cli/getting-started.md):

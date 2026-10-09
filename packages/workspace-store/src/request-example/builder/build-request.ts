@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { X_SCALAR_DATE, X_SCALAR_DNT, X_SCALAR_REFERER, X_SCALAR_USER_AGENT } from '@scalar/helpers/http/scalar-headers'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 import { type Result, err, ok } from '@scalar/helpers/types/result'
@@ -44,7 +45,8 @@ const formatSecurityValue = (
   }
 
   if (security.format === 'bearer') {
-    return `Bearer ${substitutedValue}`
+    // Normalize pasted tokens after resolving variables, which may also contain surrounding whitespace.
+    return `Bearer ${substitutedValue.trim()}`
   }
 
   return substitutedValue
@@ -131,6 +133,9 @@ export const buildRequest = (
     allowMissingRequestServerBase?: boolean
   },
 ): BuildRequestResult => {
+  if (request.cookieErrors?.length) {
+    return err(BUILD_REQUEST_FAILED, request.cookieErrors[0])
+  }
   const guarded = safeRun(() => buildRequestInner(request, options))
   if (!guarded.ok) {
     return err(BUILD_REQUEST_FAILED, guarded.error)
@@ -164,6 +169,14 @@ const buildRequestInner = (
 
   /** Create a new body object with the replaced values */
   const body: BodyInit | null = (() => {
+    if (request.body?.mode === 'multipart') {
+      const encoded = encodeMultipartBody(request.body.value, request.body.contentType, (value) =>
+        replaceEnvVariables(value, replace),
+      )
+      headers.set('content-type', encoded.type)
+      return encoded
+    }
+
     if (request.body?.mode === 'raw') {
       if (typeof request.body.value === 'string') {
         return replaceEnvVariables(request.body.value, replace)
@@ -298,7 +311,7 @@ const buildRequestInner = (
          *
          * @see https://github.com/whatwg/fetch/issues/50
          */
-        method: request.method.toUpperCase(),
+        method: isHttpMethod(request.method) ? request.method.toUpperCase() : request.method,
         headers,
         body,
         cache: request.cache,

@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { useLoadingState } from '@scalar/components/loading'
-import { isValidUrl } from '@scalar/helpers/url/is-valid-url'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { nextTick } from 'vue'
 
 import { useLocalization } from '@/features/localization'
-import { uploadTempDocument } from '@/helpers/upload-temp-document'
+import { useRegisterLink } from '@/hooks/use-register-link'
 
 const props = defineProps<{
   config?: {
@@ -24,10 +20,6 @@ const props = defineProps<{
 const { copyToClipboard } = useClipboard()
 const { translate } = useLocalization()
 
-const { toast } = useToasts()
-
-const loader = useLoadingState()
-
 const hasConfig = props.config?.name || props.config?.url
 
 const encoded = btoa(JSON.stringify(props.config ?? {}))
@@ -36,56 +28,14 @@ const name = encodeURIComponent(props.config?.name ?? '')
 const cursorLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=${name}&config=${encoded}`
 const vscodeLink = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(props.config ?? {}))}`
 
-const docUrl = defineModel<string>('url')
+const { open } = useRegisterLink({
+  externalUrls: () => props.externalUrls,
+  url: () => props.url,
+  workspace: () => props.workspace,
+})
 
-/** Generate and open the registration link */
-async function generateRegisterLink() {
-  if (loader.isLoading || !props.workspace) {
-    return
-  }
-
-  // If we have already have a document URL that is valid
-  if (docUrl.value && isValidUrl(docUrl.value)) {
-    openRegisterLink(docUrl.value)
-    return
-  }
-
-  loader.start()
-
-  const document = props.workspace.exportActiveDocument('json')
-
-  if (!document) {
-    toast(translate('developerTools.unableToExportDocument'), 'error')
-    await loader.invalidate()
-    return
-  }
-
-  try {
-    docUrl.value = await uploadTempDocument(document, props.externalUrls)
-    await loader.validate()
-    openRegisterLink(docUrl.value)
-
-    await nextTick()
-
-    await loader.clear()
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : translate('developerTools.unknownError')
-    toast(message, 'error')
-    await loader.invalidate()
-  }
-}
-
-/** Open the registration link in a new tab */
-function openRegisterLink(documentUrl: string) {
-  const url = new URL(`${props.externalUrls.dashboardUrl}/register`)
-  url.searchParams.set('url', documentUrl)
-  url.searchParams.set('createMcp', 'true')
-
-  window.open(url.toString(), '_blank')
-}
+/** Opens the dashboard register page (uploading a local or inline document first) with the MCP flow pre-selected */
+const generateRegisterLink = (): Promise<void> => open({ createMcp: 'true' })
 </script>
 
 <template>

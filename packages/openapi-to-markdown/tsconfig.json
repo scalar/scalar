@@ -2,10 +2,6 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "playground"],
   "compilerOptions": {
-    "types": ["vite/client", "node"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@/test/*": ["./test/*"]
-    }
+    "types": ["node"]
   }
 }

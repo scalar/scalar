@@ -3,6 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { getValueByPath } from './get-value-by-path'
 
 describe('getValueByPath', () => {
+  it('only resolves own properties, including prototype-named data', () => {
+    expect(getValueByPath({}, ['__proto__'])).toStrictEqual({ context: '', value: undefined })
+    expect(getValueByPath({}, ['constructor', 'prototype'])).toStrictEqual({ context: '', value: undefined })
+    const target = JSON.parse('{"__proto__":{"value":42}}')
+    expect(getValueByPath(target, ['__proto__', 'value'])).toStrictEqual({ context: '', value: 42 })
+  })
+
   it('should return the value at a simple path', () => {
     const target = {
       foo: 'bar',

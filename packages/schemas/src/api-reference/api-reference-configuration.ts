@@ -6,9 +6,11 @@ import {
   array,
   boolean,
   coerce,
+  evaluate,
   fn,
   intersection,
   literal,
+  number,
   object,
   optional,
   record,
@@ -53,6 +55,11 @@ export const apiReferenceConfigurationSchema = intersection([
       default: false,
       typeComment: 'Whether to show models in the sidebar, search, and content.',
     }),
+    hideModelNames: boolean({
+      default: false,
+      typeComment:
+        'Show structural types instead of model names in schema type labels and operation headings. Model section headings and composition selector labels keep their names.',
+    }),
     modelsSectionLabel: optional(union([literal('Models'), literal('Schemas'), string()]), {
       typeComment:
         'Label for the components.schemas section in the sidebar, content, and search. Use `Schemas` for OpenAPI terminology.',
@@ -86,6 +93,10 @@ export const apiReferenceConfigurationSchema = intersection([
     hideSearch: boolean({
       default: false,
       typeComment: 'Whether to show the sidebar search bar',
+    }),
+    showExtensions: optional(array(string()), {
+      typeComment:
+        'Extension keys to display on operations, parameters, response headers, and schema fields. Keys must start with x-. Custom plugin components take precedence.',
     }),
     showOperationId: boolean({
       default: false,
@@ -122,6 +133,10 @@ export const apiReferenceConfigurationSchema = intersection([
           'List of httpsnippet clients to hide from the clients menu. By default hides Unirest, pass `[]` to show all clients',
       },
     ),
+    featuredClients: optional(array(string() as unknown as LiteralSchema<AvailableClient>), {
+      typeComment:
+        'Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu',
+    }),
     defaultHttpClient: optional(
       // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
       // untouched (a real union would rewrite it to the first client). The cast only tightens
@@ -174,6 +189,12 @@ export const apiReferenceConfigurationSchema = intersection([
       {
         typeComment:
           'Fired right before the outbound request is sent; callback receives the exact fetch Request that goes over the wire. Experimental API.',
+      },
+    ),
+    onResponseReceived: optional(
+      fn<(input: { response: Response; request: Request }) => Response | void | Promise<Response | void>>(),
+      {
+        typeComment: 'Fired before response processing. Return a Response to replace it, or nothing to keep it.',
       },
     ),
     onShowMore: optional(fn<(tagId: string) => Promise<void> | void>(), {
@@ -249,6 +270,10 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Whether to expand all models by default. Warning: this can cause performance issues on big documents',
     }),
+    expandAllParameters: boolean({
+      default: true,
+      typeComment: 'Whether to show parameter details by default. Set to false to collapse each parameter.',
+    }),
     expandAllResponses: boolean({
       default: false,
       typeComment:
@@ -259,6 +284,14 @@ export const apiReferenceConfigurationSchema = intersection([
       typeComment:
         'Whether to expand all nested schema properties by default. Each row keeps its own disclosure control, so nested sections can still be collapsed manually. Warning: this can cause performance issues on big documents',
     }),
+    maxVisibleRequestBodyProperties: evaluate(
+      (value): number => (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 12),
+      number({
+        default: 12,
+        typeComment:
+          'Maximum initially visible top-level request body properties. Defaults to 12; 0 shows all without expanding nested properties.',
+      }),
+    ),
     tagsSorter: optional(union([literal('alpha'), fn<(a: any, b: any) => number>()]), {
       typeComment: 'Function to sort tags',
     }),
@@ -284,7 +317,9 @@ const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
 export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => {
-  const input = coerce(apiReferenceConfigurationSchema, rawInput)
+  const parsed = coerce(apiReferenceConfigurationSchema, rawInput)
+  // Migration removes the deprecated field from this same configuration object.
+  const input: Omit<typeof parsed, 'showToolbar'> & Partial<Pick<typeof parsed, 'showToolbar'>> = parsed
 
   if (input.hideDownloadButton) {
     console.warn(
@@ -347,7 +382,6 @@ export const apiReferenceConfigurationWithSourceSchema = (rawInput: unknown) => 
 
     input.showDeveloperTools = input.showToolbar
 
-    // @ts-expect-error - We're deleting the deprecated attribute
     delete input.showToolbar
   }
 

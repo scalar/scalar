@@ -8,9 +8,7 @@ import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, onMounted, ref, watch, type CSSProperties } from 'vue'
 
-type DropdownRow =
-  | { kind: 'env'; key: string; secondary: string }
-  | { kind: 'context'; key: string; secondary: string }
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   query,
@@ -42,6 +40,12 @@ const emit = defineEmits<{
    */
   (e: 'close'): void
 }>()
+
+const { translate } = useLocalization()
+
+type DropdownRow =
+  | { kind: 'env'; key: string; secondary: string }
+  | { kind: 'context'; key: string; secondary: string }
 
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
@@ -241,7 +245,7 @@ onClickOutside(
     class="scalar-client">
     <div
       ref="dropdownRef"
-      class="custom-scroll z-context fixed top-0 left-0 flex max-h-[60svh] w-56 flex-col rounded border p-0.75"
+      class="custom-scroll z-context bg-b-1 dark:bg-b-1.5 fixed top-0 left-0 flex max-h-[60svh] w-56 flex-col rounded border p-0.75 shadow-lg"
       :style="dropdownStyle"
       @mousedown.prevent>
       <!--
@@ -250,7 +254,11 @@ onClickOutside(
       -->
       <ul
         :id="listboxId"
-        aria-label="Variable suggestions"
+        :aria-label="
+          translate(
+            'apiClient.environmentVariablesDropdown.variableSuggestions',
+          )
+        "
         class="gap-1/2 flex flex-col"
         role="listbox">
         <template
@@ -289,12 +297,10 @@ onClickOutside(
         class="font-code text-xxs bg-b-inherit hover:bg-b-3 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="outlined"
         @click="redirectToEnvironment">
-        <ScalarIconPlus class="size-3" />
-        Add Variable
+        <ScalarIconPlus class="size-3" />{{
+          translate('apiClient.environmentVariablesDropdown.addVariable')
+        }}
       </ScalarButton>
-      <!-- Backdrop for the dropdown -->
-      <div
-        class="bg-b-1 brightness-lifted absolute inset-0 -z-1 rounded shadow-lg" />
     </div>
   </ScalarTeleport>
 </template>

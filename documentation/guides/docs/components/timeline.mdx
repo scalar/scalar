@@ -1,0 +1,151 @@
+import Preview from './Preview.mdx'
+
+# Timeline
+
+A timeline lists dated entries such as changelogs, release notes and product updates. Each entry shows its label, date and tags beside its content, and gets its own anchor and table of contents item. Wrap a series of `<TimelineItem>`s in `<Timeline>`, or [load them from a changelog file](#load-a-changelog-file).
+
+On wide pages the label hangs in the margin beside the entry and stays in view as you scroll. On narrow pages it stacks above the content.
+
+## Properties
+
+### TimelineItem
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `label` | `string` | — | Version or title of the entry. Also its anchor and its table of contents item. |
+| `date` | `string` | — | Release date in ISO 8601 (`2026-09-16`). Shown under the label as `Sep 16, 2026`. |
+| `description` | `string` | — | Text under the label. Replaces the formatted date when both are set. |
+| `tags` | `string[]` | — | Short labels such as `Added` or `Fixed`. In Markdown, a comma-separated list (`tags="Added, Fixed"`). |
+
+### Timeline
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `src` | `string` | — | Path to a Markdown changelog (`.md`), relative to the page. Its entries replace any `<TimelineItem>` children. |
+
+## Examples
+
+### Timeline Items
+
+Entries render in the order you write them, so put the newest first.
+
+<Preview>
+  <Timeline>
+    <TimelineItem label="v2.4.0" date="2026-09-16" tags={['Added', 'Fixed']}>
+      Incremental builds, and a fix for the sidebar flickering on Safari.
+    </TimelineItem>
+    <TimelineItem label="v2.3.0" date="2026-09-02" tags={['Changed']}>
+      The banner is now dismissible.
+    </TimelineItem>
+  </Timeline>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-timeline>
+  <scalar-timeline-item label="v2.4.0" date="2026-09-16" tags="Added, Fixed">
+
+Incremental builds, and a fix for the sidebar flickering on Safari.
+
+  </scalar-timeline-item>
+  <scalar-timeline-item label="v2.3.0" date="2026-09-02" tags="Changed">
+
+The banner is now dismissible.
+
+  </scalar-timeline-item>
+</scalar-timeline>
+```
+```mdx MDX
+<Timeline>
+  <TimelineItem label="v2.4.0" date="2026-09-16" tags={['Added', 'Fixed']}>
+    Incremental builds, and a fix for the sidebar flickering on Safari.
+  </TimelineItem>
+  <TimelineItem label="v2.3.0" date="2026-09-02" tags={['Changed']}>
+    The banner is now dismissible.
+  </TimelineItem>
+</Timeline>
+```
+</CodeGroup>
+
+### Custom Description
+
+Use `description` for text that is not a date, such as a release name. It takes the place of the formatted date.
+
+<Preview>
+  <Timeline>
+    <TimelineItem label="v3.0.0" date="2026-10-01" description="The big one" tags={['Breaking']}>
+      A new configuration format. See the migration guide before you upgrade.
+    </TimelineItem>
+  </Timeline>
+</Preview>
+
+<CodeGroup>
+```md Markdown
+<scalar-timeline>
+  <scalar-timeline-item label="v3.0.0" date="2026-10-01" description="The big one" tags="Breaking">
+
+A new configuration format. See the migration guide before you upgrade.
+
+  </scalar-timeline-item>
+</scalar-timeline>
+```
+```mdx MDX
+<Timeline>
+  <TimelineItem label="v3.0.0" date="2026-10-01" description="The big one" tags={['Breaking']}>
+    A new configuration format. See the migration guide before you upgrade.
+  </TimelineItem>
+</Timeline>
+```
+</CodeGroup>
+
+## Load a Changelog File
+
+A timeline can read its entries from a Markdown changelog in your project, so the file your release tooling writes is the one your docs show. Point `src` at the file:
+
+<CodeGroup>
+```md Markdown
+<scalar-timeline src="../CHANGELOG.md" />
+```
+```mdx MDX
+<Timeline src="../CHANGELOG.md" />
+```
+</CodeGroup>
+
+To make a whole page a changelog, set `changelog: true` on its entry in `scalar.config.json` instead. Everything before the first version heading renders as the page intro.
+
+```json scalar.config.json
+{
+  "type": "page",
+  "filepath": "CHANGELOG.md",
+  "title": "Changelog",
+  "changelog": true
+}
+```
+
+`changelog: true` also works as page frontmatter, but setting it in `scalar.config.json` keeps a generated `CHANGELOG.md` untouched.
+
+### Supported Formats
+
+Each `##` heading becomes an entry, labelled with the version and dated when the heading has an ISO date. Recognised section headings under it, such as `### Added`, become its tags and stay in the entry's content. Two formats are supported:
+
+- [Keep a Changelog](https://keepachangelog.com): a version and date per heading, with the sections `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` and `Security`.
+
+  ```md
+  ## [1.2.0] - 2026-09-16
+
+  ### Added
+
+  - Incremental builds.
+  ```
+
+- [Changesets](https://github.com/changesets/changesets): the format `changeset version` writes, with `Major Changes`, `Minor Changes` and `Patch Changes` sections. These become the tags `Breaking`, `Feature` and `Fix`.
+
+  ```md
+  ## 1.2.0
+
+  ### Minor Changes
+
+  - Incremental builds.
+  ```
+
+An `## [Unreleased]` section becomes an entry labelled Unreleased.

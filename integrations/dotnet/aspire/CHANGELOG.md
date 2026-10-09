@@ -1,5 +1,73 @@
 # @scalar/aspire
 
+## 0.11.31
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.73.1
+
+## 0.11.30
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.73.0
+
+## 0.11.29
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.4
+
+## 0.11.28
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.3
+
+## 0.11.27
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.2
+
+## 0.11.26
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.1
+
+## 0.11.25
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.0
+
+## 0.11.24
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.71.0
+
+## 0.11.23
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.70.0
+
+## 0.11.22
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.69.2
+
+## 0.11.21
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.69.1
+
+## 0.11.20
+
 ## 0.11.19
 
 ## 0.11.18

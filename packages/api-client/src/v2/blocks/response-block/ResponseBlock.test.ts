@@ -1,6 +1,6 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw } from 'vue'
 
@@ -36,6 +36,55 @@ describe('ResponseBlock', () => {
     plugins: [],
     eventBus: createWorkspaceEventBus(),
   }
+
+  it.each(['Content-Type', 'content-type'])('formats live records using the %s header', async (header) => {
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controller.enqueue(new TextEncoder().encode('{"ok":true}\n'))
+        controller.close()
+      },
+    })
+    const wrapper = mount(ResponseBlock, {
+      props: {
+        ...defaultProps,
+        response: getDefaultResponse({ headers: { [header]: 'application/jsonl' }, reader: stream.getReader() }),
+      },
+    })
+    await flushPromises()
+    expect(wrapper.text()).toContain('{\n  "ok": true\n}')
+    wrapper.unmount()
+  })
+
+  it.each(['Failed to fetch', 'Load failed', 'NetworkError when attempting to fetch resource.'])(
+    'keeps browser failure feedback visible for %s',
+    async (message) => {
+      vi.useFakeTimers()
+      const wrapper = mount(ResponseBlock, {
+        props: { ...defaultProps, requestError: new TypeError(message) },
+      })
+      try {
+        await vi.advanceTimersByTimeAsync(4000)
+        expect(wrapper.get('[role="alert"]').text()).toContain(message)
+        expect(wrapper.text()).toContain('Possible causes include CORS restrictions or a network connection problem.')
+        expect(wrapper.findComponent(ResponseEmpty).exists()).toBe(false)
+        await wrapper.setProps({ requestError: null })
+        expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+        expect(wrapper.findComponent(ResponseEmpty).exists()).toBe(true)
+      } finally {
+        wrapper.unmount()
+        vi.useRealTimers()
+      }
+    },
+  )
+
+  it('preserves other errors without suggesting CORS', () => {
+    const wrapper = mount(ResponseBlock, {
+      props: { ...defaultProps, requestError: new TypeError('Cannot decode response') },
+    })
+    expect(wrapper.get('[role="alert"]').text()).toContain('Cannot decode response')
+    expect(wrapper.text()).not.toContain('CORS')
+    wrapper.unmount()
+  })
 
   describe('empty state', () => {
     it('renders ResponseEmpty when no response provided', () => {
@@ -221,6 +270,19 @@ describe('ResponseBlock', () => {
 
       const liveRegion = wrapper.find('[aria-live="polite"]')
       expect(liveRegion.exists()).toBe(true)
+    })
+
+    it('renders the filter tabs without aria-controls', () => {
+      const wrapper = mount(ResponseBlock, {
+        props: {
+          ...defaultProps,
+          response: getDefaultResponse(),
+        },
+      })
+
+      const tabs = wrapper.findAll('[role="tab"]')
+      expect(tabs.length).toBeGreaterThan(0)
+      expect(tabs.every((tab) => tab.attributes('aria-controls') === undefined)).toBe(true)
     })
   })
 

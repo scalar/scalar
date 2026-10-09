@@ -1,6 +1,6 @@
 # Site Config
 
-The site configuration defines global settings for your documentation site: branding, custom head elements, footer content, and routing rules. These settings apply across your entire documentation site.
+The site configuration defines global settings for your documentation site: branding, custom head elements, an announcement banner, footer content, and routing rules. These settings apply across your entire documentation site.
 
 All site settings are configured within the `siteConfig` object in your `scalar.config.json` file.
 
@@ -175,6 +175,31 @@ Respect the user's system preference while allowing them to override it:
 }
 ```
 
+## Social Cards
+
+The `og` property points at your own template for the social card shown when a page is shared. Without it, Scalar draws a card from your theme, logo and page title.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "og": {
+      "imageTemplate": "./og/card.tsx"
+    }
+  }
+}
+```
+
+### Properties
+
+| Property        | Type     | Required | Description                                                                       |
+| --------------- | -------- | -------- | --------------------------------------------------------------------------------- |
+| `imageTemplate` | `string` | No       | Path to a TSX or JSX template, relative to `scalar.config.json` and inside the project |
+
+See [Social Cards](social-cards.md) for how to write one.
+
 ## Ask AI
 
 The `agent` property controls the appearance of [Ask AI](ask-ai.md) on your documentation site: the Ask AI button, its placement in the sidebar, the position of the floating chat widget, and the suggested questions shown in the chat.
@@ -219,6 +244,8 @@ The `layout` property controls global layout options that apply to all pages unl
       "header": true,
       "pageTitle": true,
       "pageActions": true,
+      "pageNav": true,
+      "lastUpdated": false,
       "search": {
         "enabled": true,
         "position": "header"
@@ -236,7 +263,15 @@ The `layout` property controls global layout options that apply to all pages unl
 | `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
 | `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
+| `pageNav`     | `boolean` | `true`   | Whether to show previous and next page links at the bottom of each page |
+| `lastUpdated` | `boolean` | `false`  | Whether to show the date each page last changed, above the previous and next links. See [Last updated date](#last-updated-date) |
 | `search`      | `object`  | —        | Search bar configuration                       |
+
+### Last updated date
+
+Scalar records the date for you, so there is no field to set it by hand. Each time you publish, Scalar compares every page's content with the previous publish, and the date moves forward only for pages whose content changed. Your first publish dates every page to that day.
+
+Previews do not have a publish history, so they show the current date.
 
 ### Search Configuration
 
@@ -284,6 +319,8 @@ The `search` object within `layout` controls the global search behavior.
 ## Head
 
 The `head` property allows you to inject custom elements into the HTML `<head>` of your documentation pages. This is useful for adding custom styles, scripts, meta tags, and favicon links.
+
+An `og:image` set here applies to every page and replaces the [social card](social-cards.md) Scalar generates, including one from your own template.
 
 ### Example
 
@@ -445,6 +482,51 @@ Add link elements for favicons, preloading resources, or other purposes:
 | `href`   | `string` | The URL or path to the resource       |
 | `type`   | `string` | The MIME type of the resource         |
 
+## Banner
+
+The `banner` property shows an announcement above the header on every page, such as a launch or a scheduled maintenance.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "banner": {
+      "content": "Version 2 is here. [See what changed](pages/changelog.md)",
+      "type": "info",
+      "dismissible": true
+    }
+  }
+}
+```
+
+### Properties
+
+| Property      | Type                                             | Default  | Description                                                                                                 |
+| ------------- | ------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `content`     | `string`                                         | —        | Banner text as inline Markdown (bold, italic, code, links). An empty string hides the banner                |
+| `type`        | `"neutral" \| "info" \| "warning" \| "critical"` | `"info"` | Color of the banner                                                                                         |
+| `dismissible` | `boolean`                                        | `false`  | Show a close button. A dismissed banner reappears when `content` changes                                    |
+| `icon`        | `string \| false`                                | —        | An [icon key or URL](../components/icons.mdx). Defaults to an icon for the `type`; `false` hides it         |
+
+Link to your own pages by their file path, relative to the project root, as you would inside a page. Links to other sites open in a new tab.
+
+### Styling
+
+To change the colors, set these variables in your [theme](themes.md):
+
+```css
+:root {
+  --scalar-banner-background: #6e56cf;
+  --scalar-banner-color: #ffffff;
+  --scalar-banner-icon-color: #ffffff;
+  --scalar-banner-border-color: transparent;
+}
+```
+
+To style one type, target `.scalar-banner[data-type="warning"]`.
+
 ## Footer
 
 The `footer` property allows you to add a custom footer to your documentation site.
@@ -601,6 +683,112 @@ Every page on your site advertises the feed in its `<head>`, so feed readers and
 ```
 
 Pages at `path` and beneath it also show a subscribe button in the page header, next to Copy Page — one per feed the page belongs to.
+
+## Access Control
+
+Set `isPrivate` to require visitors to sign in before they can view your documentation. Members of your workspace always have access. To let anyone else in, list the [access groups](private-docs.md) allowed to view the site.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "isPrivate": true,
+    "accessGroups": ["partners", "internal-team"],
+    "loginPortal": "acme-portal"
+  }
+}
+```
+
+### Properties
+
+| Property       | Type       | Default | Description |
+| -------------- | ---------- | ------- | ----------- |
+| `isPrivate`    | `boolean`  | `false` | Require visitors to sign in. |
+| `accessGroups` | `string[]` | —       | Slugs of the access groups allowed to view the site when `isPrivate` is `true`. Up to 50. |
+| `loginPortal`  | `string`   | —       | Slug of a custom login portal. Without one, visitors sign in on the default page. |
+
+Access groups and login portals are created in the [Scalar Dashboard](https://dashboard.scalar.com), and the config refers to them by slug. You can also manage these settings in your documentation project's **Settings → Privacy**, which reads and writes the same properties.
+
+## Personalization
+
+Set `userInfoHook` to your HTTPS endpoint to personalize published documentation for signed-in visitors:
+
+```json
+{
+  "siteConfig": {
+    "userInfoHook": "https://api.example.com/docs/user-info"
+  }
+}
+```
+
+Publish the configuration, then generate the project's signing secret in **Settings → Privacy → Personalization**. Your endpoint verifies Scalar's signed request and returns visitor groups, content values, and optional API playground inputs. See [Personalization](personalization.md) for the complete hook contract and a working example.
+
+Personalization changes visibility. Use [Access Control](#access-control) to restrict access to the site.
+
+## Content Signals
+
+The `contentSignals` property declares how search and AI crawlers may use your published documentation. Scalar writes these preferences as a `Content-Signal` line in the generated `robots.txt`.
+
+Content Signals are enabled by default. If you omit `contentSignals`, or omit an individual signal, all unspecified signals default to `"yes"`:
+
+```text
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+```
+
+### Properties
+
+Set `contentSignals` to `false` to omit the directive, or use an object with these optional properties:
+
+| Property  | Type              | Default | Description |
+| --------- | ----------------- | ------- | ----------- |
+| `enabled` | `boolean`         | `true`  | Whether to emit the directive. Set to `false` to retain your preferences without publishing them. |
+| `search`  | `"yes"` or `"no"` | `"yes"` | Building a search index and showing links and short excerpts. |
+| `aiInput` | `"yes"` or `"no"` | `"yes"` | Using content as input for AI answers, including retrieval and grounding. |
+| `aiTrain` | `"yes"` or `"no"` | `"yes"` | Training or fine-tuning AI models. |
+
+### Allow Search and AI Answers, Decline AI Training
+
+Add the following to your `scalar.config.json`:
+
+```json
+{
+  "siteConfig": {
+    "contentSignals": {
+      "search": "yes",
+      "aiInput": "yes",
+      "aiTrain": "no"
+    }
+  }
+}
+```
+
+After publishing, the generated `robots.txt` includes:
+
+```text
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+```
+
+### Disable the Directive
+
+Set `contentSignals` to `false` to omit the `Content-Signal` line entirely:
+
+```json
+{
+  "siteConfig": {
+    "contentSignals": false
+  }
+}
+```
+
+Alternatively, set `contentSignals.enabled` to `false` to keep your per-signal preferences for later. Disabling the directive does not declare `no` for any use. To decline a use explicitly, keep Content Signals enabled and set that signal to `"no"`.
+
+You can also manage these settings in your documentation project's **Settings → Content Signals**. Publish changes to update the generated file. If your project's assets include a custom `robots.txt`, Scalar preserves that file instead of generating one; edit its Content Signals directly.
+
+Content Signals are advisory preferences that crawlers may honor. They do not block access or replace authentication. See [Privacy](../privacy.md#content-signals) for more context.
 
 ## Routing
 

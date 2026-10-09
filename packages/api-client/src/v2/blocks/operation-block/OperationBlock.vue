@@ -17,6 +17,9 @@ export default {
 }
 
 export type OperationBlockProps = {
+  /** Keep execution and editing unavailable until the selected payload is ready. */
+  externalExamplesPending?: boolean
+  externalExamplesFailed?: boolean
   /** Event bus */
   eventBus: WorkspaceEventBus
   /** Application version */
@@ -32,7 +35,7 @@ export type OperationBlockProps = {
   /** Current request path */
   path: string
   /** Current request method */
-  method: HttpMethodType
+  method: string
   /** Whether `path` identifies an OpenAPI webhook. */
   isWebhook?: boolean
   /** HTTP clients */
@@ -59,6 +62,8 @@ export type OperationBlockProps = {
   source?: 'gitbook' | 'api-reference'
   /** Operation object */
   operation: OperationObject
+  /** Operation before downloaded examples are overlaid, for parameter edit targets. */
+  sourceOperation?: OperationObject
   /** Currently selected example key for the current operation */
   exampleKey: string
   /** Meta information for the auth update */
@@ -91,11 +96,16 @@ export type OperationBlockProps = {
 </script>
 <script setup lang="ts">
 import { generateClientOptions } from '@scalar/blocks/code-example'
+import { ScalarButton } from '@scalar/components/button'
 import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
-import { executeHook, type ClientPlugin } from '@scalar/oas-utils/helpers'
+import { isForbiddenHttpMethod } from '@scalar/helpers/http/is-forbidden-http-method'
+import {
+  executeHook,
+  executeResponseHook,
+  type ClientPlugin,
+} from '@scalar/oas-utils/helpers'
 import {
   AVAILABLE_CLIENTS,
   type AvailableClients,
@@ -127,10 +137,19 @@ import type {
   ServerObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
-import { computed, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  toValue,
+  watch,
+} from 'vue'
 
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { harToFetchRequest } from '@/v2/blocks/operation-block/helpers/har-to-fetch-request'
 import { harToFetchResponse } from '@/v2/blocks/operation-block/helpers/har-to-fetch-response'
 import {
@@ -151,12 +170,15 @@ import { validatePathParameters } from '@/v2/blocks/operation-block/helpers/vali
 import { RequestBlock } from '@/v2/blocks/request-block'
 import { ResponseBlock } from '@/v2/blocks/response-block'
 import { type History } from '@/v2/blocks/scalar-address-bar-block'
+import { useLocalization } from '@/v2/features/localization'
 import type { ModalProps } from '@/v2/features/modal/Modal.vue'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import Header from './components/Header.vue'
 
 const {
+  externalExamplesPending = false,
+  externalExamplesFailed = false,
   authMeta,
   environment,
   eventBus,
@@ -172,6 +194,7 @@ const {
   method,
   isWebhook = false,
   operation,
+  sourceOperation,
   path,
   plugins = [],
   proxyUrl,
@@ -190,6 +213,10 @@ const {
   defaultHeaders,
 } = defineProps<OperationBlockProps>()
 
+defineEmits<{ (e: 'retry:externalExamples'): void }>()
+
+const { translate } = useLocalization()
+
 /** Hoist up client generation so it doesn't get re-generated on every operation */
 const clientOptions = computed(() => generateClientOptions(httpClients))
 
@@ -199,6 +226,7 @@ const { copyToClipboard } = useClipboard()
 // Refs
 const abortController = ref<AbortController | null>(null)
 const response = ref<ResponseInstance | null>(null)
+const requestError = ref<Error | null>(null)
 const requestPayload = ref<RequestPayload | null>(null)
 
 /**
@@ -277,6 +305,7 @@ const copyAddressBarUrl = async (): Promise<void> => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
+    openapiVersion: document.openapi,
     requestBodyCompositionSelection,
   })
 
@@ -287,10 +316,14 @@ const copyAddressBarUrl = async (): Promise<void> => {
 
 /** Execute the current operation example */
 const handleExecute = async () => {
+  if (externalExamplesPending) return
+  requestError.value = null
   eventBus.flushDebouncedEmits?.()
+  // Source edits must reach the overlaid operation prop before building the request.
+  await nextTick()
 
   if (isWebhook && !requestPath.value.trim()) {
-    toast('Webhook URL required. Enter a destination first.', 'error')
+    toast(translate('apiClient.operationBlock.webhookUrlRequired'), 'error')
     return
   }
 
@@ -299,7 +332,7 @@ const handleExecute = async () => {
     exampleKey,
   )
   if (pathValidation.ok === false) {
-    toast('Path parameters must have values.', 'error')
+    toast(translate('apiClient.operationBlock.pathParametersRequired'), 'error')
     return
   }
 
@@ -317,6 +350,7 @@ const handleExecute = async () => {
     server: requestServer.value,
     selectedSecuritySchemes,
     isElectron: isElectron(),
+    openapiVersion: document.openapi,
     requestBodyCompositionSelection,
   })
 
@@ -421,6 +455,19 @@ const handleExecute = async () => {
     return
   }
 
+  // Check the final method because pre-request scripts can change it.
+  const requestMethod = built.data.requestPayload[1].method ?? 'GET'
+  if (isForbiddenHttpMethod(requestMethod)) {
+    persistScriptEnvironment()
+    toast(
+      translate('apiClient.operationBlock.forbiddenMethod', {
+        method: requestMethod.toUpperCase(),
+      }),
+      'error',
+    )
+    return
+  }
+
   // Store the abort controller for cancellation
   abortController.value = built.data.controller
 
@@ -458,24 +505,22 @@ const handleExecute = async () => {
     request,
     plugins,
     customFetch: toValue(options)?.customFetch,
+    onResponseReceived: async (response, responseDuration) => {
+      const result = await executeResponseHook(
+        {
+          response,
+          responseDuration,
+          requestBuilder,
+          request: buildSafeBodyRequest(...built.data.requestPayload),
+          document,
+          operation,
+          variablesStore,
+        },
+        plugins,
+      )
+      return result.response
+    },
   })
-
-  if (sendResult) {
-    // Execute the responseReceived hook
-    await executeHook(
-      {
-        response: sendResult.originalResponse.clone(),
-        responseDuration: sendResult.response.duration,
-        requestBuilder,
-        request: buildSafeBodyRequest(...sendResult.requestPayload),
-        document,
-        operation,
-        variablesStore,
-      },
-      'responseReceived',
-      plugins,
-    )
-  }
 
   // Save script environment writes (pre-request and, on success, post-response) back to the
   // active environment. Runs even when the send fails so a pre-request set is not lost.
@@ -499,6 +544,14 @@ const handleExecute = async () => {
   })
 
   if (sendError) {
+    // Cancellation also happens when navigating away; keep the new operation intact.
+    if (built.data.controller.signal.aborted) {
+      if (abortController.value === built.data.controller) {
+        abortController.value = null
+      }
+      return
+    }
+    requestError.value = sendError
     // clean up the response and request
     response.value = null
     requestPayload.value = null
@@ -543,7 +596,7 @@ onBeforeUnmount(() => {
 const operationHistory = computed<History[]>(() =>
   history
     .map((entry) => ({
-      method: entry.request.method as HttpMethodType,
+      method: entry.request.method as string,
       path: entry.request.url,
       duration: entry.time,
       status: entry.response.status,
@@ -584,6 +637,7 @@ const handleSelectHistoryItem = ({ index }: { index: number }) => {
         })
 
         // Update the response and request
+        requestError.value = null
         response.value = fetchResponse
         requestPayload.value = fetchRequest
       },
@@ -626,6 +680,7 @@ const handleNavigateSettings = () => {
 watch(
   [() => path, () => method, () => exampleKey],
   ([newPath, newMethod, newExampleKey]) => {
+    requestError.value = null
     const cached = responseCache.get(
       getOperationExampleKey(newMethod, newPath, newExampleKey),
     )
@@ -676,7 +731,7 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div class="bg-b-1 flex h-full flex-col">
+  <div class="bg-b-1 flex h-full min-w-0 flex-col">
     <div
       class="lg:min-h-header flex w-full flex-wrap items-center justify-center p-2 lg:p-0">
       <!-- Address Bar -->
@@ -688,6 +743,7 @@ onBeforeUnmount(() => {
         :environments
         :eventBus
         :exampleKey
+        :executionDisabled="externalExamplesPending"
         :hideClientButton
         :history="operationHistory"
         :integration
@@ -708,7 +764,27 @@ onBeforeUnmount(() => {
     <ViewLayout class="border-t">
       <ViewLayoutContent class="flex-1">
         <!-- Request Section -->
+        <ViewLayoutSection
+          v-if="externalExamplesPending"
+          aria-label="Request">
+          <template #title>Request</template>
+          <div
+            class="text-c-2 p-4"
+            role="status">
+            <template v-if="externalExamplesFailed">
+              Could not load this example.
+              <ScalarButton
+                size="sm"
+                variant="ghost"
+                @click="$emit('retry:externalExamples')">
+                Retry
+              </ScalarButton>
+            </template>
+            <template v-else>Loading example…</template>
+          </div>
+        </ViewLayoutSection>
         <RequestBlock
+          v-else
           :authMeta
           :clientOptions
           :defaultHeaders
@@ -716,11 +792,13 @@ onBeforeUnmount(() => {
             document['x-scalar-default-request-body-view']
           "
           :documentCookies
+          :documentSlug
           :environment
           :eventBus
           :exampleKey
           :layout
           :method
+          :openapiVersion="document.openapi"
           :operation
           :options="toValue(options)"
           :path="requestPath"
@@ -733,14 +811,17 @@ onBeforeUnmount(() => {
           :selectedSecurity
           :selectedSecuritySchemes
           :server="requestServer"
+          :sourceOperation
           :workspaceCookies />
 
         <!-- Response Section -->
         <ResponseBlock
           :appVersion
           :eventBus
+          :executionDisabled="externalExamplesPending"
           :layout
           :plugins
+          :requestError
           :requestPayload
           :response
           :totalPerformedRequests="operationHistory.length" />

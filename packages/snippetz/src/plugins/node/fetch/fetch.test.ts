@@ -208,11 +208,11 @@ describe('nodeFetch', () => {
       },
     })
 
-    expect(result).toBe(`import fs from 'node:fs'
+    expect(result).toBe(`import { readFileSync } from 'node:fs';
 
-const formData = new FormData()
-formData.append('foo', 'bar')
-formData.append('file', new Blob([fs.readFileSync('baz.txt')]), 'baz.txt')
+const formData = new FormData();
+formData.append("foo", "bar");
+formData.append("file", new File([readFileSync("baz.txt")], "baz.txt", { type: "application/octet-stream" }));
 
 fetch('https://example.com', {
   method: 'POST',

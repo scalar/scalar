@@ -9,22 +9,38 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
+
+defineSlots<{
+  default?: () => unknown
+  title?: () => unknown
+  /** Keeps interactive header actions outside the disclosure button. */
+  actions?: () => unknown
+}>()
 </script>
 <template>
   <section class="section-accordion-wrapper">
     <Disclosure
       as="div"
       class="section-accordion">
-      <DisclosureButton
-        class="section-accordion-button"
-        @click="emit('update:modelValue', !modelValue)">
-        <ScalarIconCaretRight
-          class="section-accordion-chevron size-5 transition-transform"
-          :class="{ 'rotate-90': modelValue }" />
-        <div class="section-accordion-title">
-          <slot name="title" />
+      <!-- Preserve the original header formatting context when no actions are supplied. -->
+      <div :class="$slots.actions ? 'flex items-start gap-3' : 'contents'">
+        <DisclosureButton
+          class="section-accordion-button"
+          :class="{ 'min-w-0 flex-1': $slots.actions }"
+          @click="emit('update:modelValue', !modelValue)">
+          <ScalarIconCaretRight
+            class="section-accordion-chevron size-5 transition-transform"
+            :class="{ 'rotate-90': modelValue }" />
+          <div class="section-accordion-title">
+            <slot name="title" />
+          </div>
+        </DisclosureButton>
+        <div
+          v-if="$slots.actions"
+          class="flex shrink-0 items-center gap-3">
+          <slot name="actions" />
         </div>
-      </DisclosureButton>
+      </div>
       <DisclosurePanel
         v-if="modelValue"
         class="section-accordion-content"
@@ -84,7 +100,7 @@ const emit = defineEmits<{
 .section-accordion-title :deep(.section-header) {
   margin-bottom: 0;
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .section-accordion-chevron {
     width: 16px;
     left: -16px;

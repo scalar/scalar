@@ -52,8 +52,8 @@ export function createFuseInstance(): Fuse<FuseData> {
     // Include the match score in results for debugging and potential UI enhancements
     includeScore: true,
 
-    // Include detailed match information showing which parts of the text matched
-    includeMatches: true,
+    // Results display whole entries, so avoid allocating unused character match ranges.
+    includeMatches: false,
 
     // Don't require matches to be at the beginning of strings
     // Makes search more flexible and user-friendly

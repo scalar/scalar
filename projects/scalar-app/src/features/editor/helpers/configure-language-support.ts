@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor'
 import { configureMonacoYaml } from 'monaco-yaml'
 
-import openApiJsonSchema from './../schemas/openapi-3.1-schema.json'
+import { openApiEditorSchema } from '../schemas/openapi-editor-schema'
 
 const OPENAPI_JSON_SCHEMA_URI = 'inmemory://model/scalar/openapi-json-schema'
 
@@ -20,7 +20,7 @@ export const configureJson = (globPattern: string): void => {
     {
       uri: OPENAPI_JSON_SCHEMA_URI,
       fileMatch: [globPattern],
-      schema: openApiJsonSchema,
+      schema: openApiEditorSchema,
     },
   ]
 
@@ -48,7 +48,7 @@ export const configureYaml = (globPattern: string): void => {
       {
         // If YAML file is opened matching this glob
         fileMatch: [globPattern],
-        schema: openApiJsonSchema,
+        schema: openApiEditorSchema,
         uri: OPENAPI_JSON_SCHEMA_URI,
       },
     ],

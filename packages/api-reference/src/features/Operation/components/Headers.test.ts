@@ -1,13 +1,10 @@
+import { createSchemaExpansionStore } from '@scalar/blocks/schema/expansion'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
-import {
-  SCHEMA_EXPANSION_SYMBOL,
-  createSchemaExpansionStore,
-} from '@/components/Content/Schema/helpers/schema-expansion'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import Headers from './Headers.vue'
@@ -34,13 +31,34 @@ const baseProps = {
   schemaKeyboardNav: false,
 }
 
-const mountHeaders = (props: Partial<typeof baseProps> = {}, store = createSchemaExpansionStore()) =>
+const mountHeaders = (props: Partial<typeof baseProps> = {}, store = createSchemaExpansionStore(scrollTargetId)) =>
   mount(Headers, {
-    props: { ...baseProps, ...props },
-    global: { provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: store } },
+    props: { ...baseProps, ...props, expansion: store },
   })
 
 describe('Headers', () => {
+  it('uses structural types for named response header schemas', () => {
+    const wrapper = mount(Headers, {
+      props: {
+        ...baseProps,
+        expandAllSchemaProperties: true,
+        hideModelNames: true,
+        headers: {
+          'X-Metadata': {
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              title: 'Metadata',
+              properties: { id: { type: 'string' } },
+            }),
+          },
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('X-Metadata')
+    expect(wrapper.text()).toContain('object')
+    expect(wrapper.text()).not.toContain('Type: Metadata')
+  })
+
   afterEach(() => {
     scrollTargetId.value = ''
   })
@@ -82,7 +100,7 @@ describe('Headers', () => {
     })
 
     it('stays closed when a body property of the same name opens', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
       const wrapper = mountHeaders({}, store)
 
       // A response body property literally named `headers` writes the plain key.
@@ -93,7 +111,7 @@ describe('Headers', () => {
     })
 
     it('uses the same marked key a committed deep link writes', async () => {
-      const store = createSchemaExpansionStore()
+      const store = createSchemaExpansionStore(scrollTargetId)
       const wrapper = mountHeaders({}, store)
 
       // `commitPath` derives `~headers` from the anchor path; the two spellings

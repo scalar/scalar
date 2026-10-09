@@ -26,18 +26,18 @@ export const createApp = async (): Promise<Hono> =>
 /**
  * Path the branch-built `@scalar/api-reference` bundle is served from.
  *
- * The build script copies the standalone bundle into the deploy output as
- * `scalar.js`; the route registered below serves it through the Cloudflare
- * Pages `ASSETS` binding.
+ * The build script copies the ESM entry point and its chunks into `scalar/` in the
+ * deploy output; the route below serves them through the Cloudflare Pages
+ * `ASSETS` binding, preserving relative imports between modules.
  */
-const LOCAL_BUNDLE_PATH = '/scalar.js'
+const LOCAL_BUNDLE_PATH = '/scalar/standalone.esm.js'
 
 /**
  * Whether this is a production build.
  *
  * Wrangler's `--define` flag (see the `build` script) replaces this identifier
  * with a literal `true` or `false` at build time, decided by the CI deploy
- * environment. Production loads the published `@scalar/api-reference` bundle
+ * environment. Production loads the published `@scalar/api-reference` ESM bundle
  * from the jsDelivr CDN; staging and PR previews load the bundle built from the
  * current branch instead, so reference UI changes can be reviewed before they
  * are released to npm.
@@ -60,10 +60,10 @@ type AssetsBinding = { ASSETS: { fetch: (request: Request) => Promise<Response> 
  * Worker origin, so Scalar resolves the document URL against the current origin.
  */
 export const configureApiReference = (app: Hono): void => {
-  // Serve the branch-built standalone bundle that the build step copied into
+  // Serve the branch-built ESM entry point and chunks that the build step copied into
   // the deploy output. Production never requests this route — it loads the
   // reference UI from the CDN.
-  app.get(LOCAL_BUNDLE_PATH, (c) => (c.env as AssetsBinding).ASSETS.fetch(c.req.raw))
+  app.get('/scalar/*', (c) => (c.env as AssetsBinding).ASSETS.fetch(c.req.raw))
 
   app.get(
     '/',
@@ -94,8 +94,8 @@ export const configureApiReference = (app: Hono): void => {
         key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
       },
       // Staging and PR previews render the reference UI built from this branch;
-      // production keeps the default jsDelivr CDN bundle.
-      ...(isProductionBuild ? {} : { cdn: LOCAL_BUNDLE_PATH }),
+      // production explicitly loads the published ESM build from jsDelivr.
+      bundle: isProductionBuild ? true : LOCAL_BUNDLE_PATH,
     }),
   )
 }

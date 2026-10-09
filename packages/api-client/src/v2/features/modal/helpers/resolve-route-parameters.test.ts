@@ -23,6 +23,23 @@ const getDocument = (overrides: Partial<OpenApiDocument> = {}): OpenApiDocument 
 })
 
 describe('resolve-route-parameters', () => {
+  it('opens an imported additional operation by its exact method or as the default', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'custom',
+      document: getDocument({
+        openapi: '3.2.1',
+        paths: {
+          '/pets': { get: {}, additionalOperations: { default: {}, customMethod: { summary: 'Custom request' } } },
+        },
+      }),
+    })
+    const ctx = { store, documentSlug: 'custom' }
+    expect(resolveMethod(ctx, '/pets', 'default')).toBe('default')
+    expect(resolveMethod(ctx, '/pets', 'customMethod')).toBe('customMethod')
+    expect(resolveMethod(ctx, '/pets', 'CUSTOMMETHOD')).toBeUndefined()
+  })
+
   // ─────────────────────────────────────────────────────────────────────────────
   // resolveDocumentSlug
   // ─────────────────────────────────────────────────────────────────────────────

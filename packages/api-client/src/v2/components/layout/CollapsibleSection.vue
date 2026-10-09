@@ -12,17 +12,31 @@ export default {
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components/icon'
-import { useId } from 'vue'
+import { computed, inject, toValue, useId } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
+
+import { COLLAPSIBLE_SECTION_HEADING_LEVEL } from './collapsible-section-heading-level'
 import ValueEmitter from './ValueEmitter.vue'
 
 const {
   defaultOpen = true,
+  heading = true,
   itemCount = 0,
   isStatic,
 } = defineProps<{
   /** Whether the disclosure is open by default. */
   defaultOpen?: boolean
+  /**
+   * Whether the title belongs in the document outline.
+   *
+   * A section of a request or response is a passage of the page, so its title
+   * is a heading by default. A caller whose title only names a cluster of
+   * controls opts out: the title renders as plain text and the section becomes
+   * a `group` named by it, which keeps the card findable without adding an
+   * entry to the heading outline that has no passage behind it.
+   */
+  heading?: boolean
   /** Number of items to show in badge when collapsed. */
   itemCount?: number
   /** Whether the disclosure is static and cannot be toggled. */
@@ -33,7 +47,25 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
 
-const headingId = useId()
+const { translate } = useLocalization()
+
+/**
+ * Defaults to `h2`, for a section that sits directly below the page title. A
+ * parent that renders a title above its sections provides a deeper level.
+ */
+const headingLevel = inject(COLLAPSIBLE_SECTION_HEADING_LEVEL, 2)
+
+/**
+ * The element that holds the title. A caller that opted out of the heading gets
+ * a `span`, which reads as plain text and is also the only valid choice inside
+ * the disclosure button, since a heading is not phrasing content.
+ */
+const titleTag = computed((): string =>
+  heading ? `h${toValue(headingLevel)}` : 'span',
+)
+
+/** Names the `group` a section without a heading becomes. */
+const titleId = useId()
 </script>
 
 <template>
@@ -52,9 +84,16 @@ const headingId = useId()
       :value="open"
       @change="(value) => emit('update:modelValue', value)" />
 
+    <!-- A section that carries a heading stays deliberately unnamed: naming it
+         would turn it into a region landmark wrapping its own heading, so
+         screen readers announce the title twice before reading the contents.
+         Without a heading there is nothing to duplicate, and `group` is not a
+         landmark, so the name bounds the card without joining the landmark
+         list. -->
     <section
-      :aria-labelledby="headingId"
-      class="contents">
+      :aria-labelledby="heading ? undefined : titleId"
+      class="contents"
+      :role="heading ? undefined : 'group'">
       <div
         class="bg-b-2 flex items-center"
         :class="isStatic && 'rounded-t-xl border-x border-t'">
@@ -70,19 +109,19 @@ const headingId = useId()
             size="md" />
 
           <!-- Heading with title -->
-          <h2
+          <component
+            :is="titleTag"
+            :id="heading ? undefined : titleId"
             class="text-c-1 m-0 flex flex-1 items-center gap-1.5 leading-[20px]">
-            <span
-              :id="headingId"
-              class="contents">
+            <span class="contents">
               <slot
                 name="title"
                 :open="open" />
               <span
                 v-if="!open"
-                class="sr-only">
-                (Collapsed)
-              </span>
+                class="sr-only"
+                >{{ translate('apiClient.collapsibleSection.collapsed') }}</span
+              >
             </span>
 
             <!-- Badge showing item count when collapsed. -->
@@ -90,9 +129,13 @@ const headingId = useId()
               v-if="!open && itemCount"
               class="bg-b-2 text-c-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold">
               {{ itemCount }}
-              <span class="sr-only">Item{{ itemCount === 1 ? '' : 's' }}</span>
+              <span class="sr-only">{{
+                itemCount === 1
+                  ? translate('apiClient.collapsibleSection.item')
+                  : translate('apiClient.collapsibleSection.items')
+              }}</span>
             </span>
-          </h2>
+          </component>
         </DisclosureButton>
 
         <!-- Optional actions slot that hides when the panel is closed. -->

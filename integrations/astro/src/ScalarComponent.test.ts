@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 
 import ScalarComponent from './ScalarComponent.astro'
 
+/**
+ * Astro escapes double quotes inside attribute values as `&#34;` (Astro 6)
+ * or `&quot;` (Astro 7). Normalize so assertions hold across versions.
+ */
+const unescapeQuotes = (html: string) => html.replaceAll('&#34;', '"').replaceAll('&quot;', '"')
+
 describe('ScalarComponent', () => {
   it('attributes the static reference to Astro by default', async () => {
     const container = await AstroContainer.create()
@@ -27,6 +33,6 @@ describe('ScalarComponent', () => {
       props: { configuration: {}, renderMode: 'client' },
     })
 
-    expect(html).toContain('&#34;_integration&#34;:&#34;astro&#34;')
+    expect(unescapeQuotes(html)).toContain('"_integration":"astro"')
   })
 })

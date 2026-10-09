@@ -1,5 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
 import type { ServerObject } from '@/schemas/v3.2/strict/openapi-document'
 
 export type ServerMeta =
@@ -9,7 +7,7 @@ export type ServerMeta =
   | {
       type: 'operation'
       path: string
-      method: HttpMethod
+      method: string
     }
 
 export type ServerEvents = {

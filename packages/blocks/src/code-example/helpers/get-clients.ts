@@ -1,10 +1,10 @@
 import type { TargetId } from '@scalar/types/snippetz'
 import type { XCodeSample } from '@scalar/workspace-store/schemas/extensions/operation'
 
+import type { ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from '../types'
 import { formatLanguage } from './format-language'
 import { getCustomClientIds } from './generate-client-options'
 import { CODE_EXAMPLES_GROUP_LABEL } from './get-custom-code-samples'
-import type { ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from '../types'
 
 /**
  * Merges custom code samples with the client options
@@ -24,8 +24,9 @@ export const getClients = (
     // Language-keyed ids so the same sample can be selected across operations
     const ids = getCustomClientIds(customCodeSamples)
 
-    const customClients = customCodeSamples.map((sample, index) => {
+    const customClients = customCodeSamples.flatMap((sample, index) => {
       const id = ids[index] ?? `custom/${index}`
+      if (ids.indexOf(id) !== index) return []
       const label = sample.label || formatLanguage(sample.lang) || id
       const lang = (sample.lang as TargetId) || 'plaintext'
 

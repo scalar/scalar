@@ -107,4 +107,27 @@ describe('selectResponseExample', () => {
 
     expect(selectResponseExample(mediaType, 'empty')).toEqual({ value: null })
   })
+  it('returns the selected provenance without reinterpreting the value in callers', () => {
+    expect(
+      selectResponseExample({
+        examples: {
+          default: {
+            serializedValue: '{"wire":true}',
+            dataValue: { ignored: true },
+            value: 'ignored',
+          },
+        },
+      }),
+    ).toStrictEqual({ serializedValue: '{"wire":true}', value: '{"wire":true}', provenance: 'serialized' })
+    expect(
+      selectResponseExample({
+        examples: {
+          default: {
+            dataValue: { native: true },
+            value: 'ignored',
+          },
+        },
+      }),
+    ).toStrictEqual({ dataValue: { native: true }, value: { native: true }, provenance: 'data' })
+  })
 })

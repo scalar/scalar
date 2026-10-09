@@ -8,6 +8,49 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves selected extensions through runtime configuration normalization', () => {
+    expect(coerce(apiReferenceConfigurationSchema, {}).showExtensions).toBeUndefined()
+    expect(
+      apiReferenceConfigurationWithSourceSchema({ showExtensions: ['x-scopes'], url: '/openapi.json' }).showExtensions,
+    ).toStrictEqual(['x-scopes'])
+    expect(coerce(apiReferenceConfigurationSchema, { showExtensions: [] }).showExtensions).toStrictEqual([])
+  })
+
+  it.each([
+    [undefined, 12],
+    [0, 0],
+    [1, 1],
+    [50, 50],
+    [-1, 12],
+    [1.5, 12],
+    [Number.POSITIVE_INFINITY, 12],
+    [Number.NaN, 12],
+    [Number.MAX_SAFE_INTEGER + 1, 12],
+    ['50', 12],
+    [null, 12],
+  ])('normalizes request body property limit %s to %s', (value, expected) => {
+    expect(
+      coerce(apiReferenceConfigurationSchema, { maxVisibleRequestBodyProperties: value })
+        .maxVisibleRequestBodyProperties,
+    ).toBe(expected)
+  })
+
+  it.each([
+    [{}, false],
+    [{ hideModelNames: true }, true],
+    [{ hideModelNames: false }, false],
+  ])('preserves model name visibility for %j', (config, expected) => {
+    expect(coerce(apiReferenceConfigurationSchema, config).hideModelNames).toBe(expected)
+  })
+
+  it.each([
+    [{}, true],
+    [{ expandAllParameters: true }, true],
+    [{ expandAllParameters: false }, false],
+  ])('preserves parameter expansion for %j', (config, expected) => {
+    expect(coerce(apiReferenceConfigurationSchema, config).expandAllParameters).toBe(expected)
+  })
+
   describe('schema', () => {
     it('validates a minimal configuration', () => {
       const minimalConfig = {}
@@ -87,6 +130,12 @@ describe('api-reference-configuration', () => {
       const config = { hiddenClients: true }
 
       expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject({ hiddenClients: true })
+    })
+
+    it('validates featuredClients', () => {
+      const config = { featuredClients: ['node/fetch', 'shell/curl'] }
+
+      expect(coerce(apiReferenceConfigurationSchema, config)).toMatchObject(config)
     })
 
     it('validates theme enum values', () => {
@@ -398,6 +447,18 @@ describe('api-reference-configuration', () => {
       const migratedConfig = coerce(apiReferenceConfigurationSchema, config)
 
       expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
+    })
+
+    it('preserves synchronous and async response replacements through configuration coercion', async () => {
+      const response = Response.json({ replaced: true })
+      const input = { response: new Response('original'), request: new Request('https://example.com') }
+      const syncConfig = coerce(apiReferenceConfigurationSchema, { onResponseReceived: () => response })
+      const asyncConfig = coerce(apiReferenceConfigurationSchema, {
+        onResponseReceived: () => Promise.resolve(response),
+      })
+
+      expect(syncConfig.onResponseReceived?.(input)).toBe(response)
+      expect(await asyncConfig.onResponseReceived?.(input)).toBe(response)
     })
 
     it('allows a function as onBeforeRequest', () => {

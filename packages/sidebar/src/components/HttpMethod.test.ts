@@ -5,6 +5,11 @@ import { describe, expect, it } from 'vitest'
 import HttpMethod from './HttpMethod.vue'
 
 describe('HttpMethod.vue', () => {
+  it('preserves custom method spelling', () => {
+    const wrapper = mount(HttpMethod, { props: { method: 'customMethod' } })
+    expect(wrapper.text()).toBe('customMethod')
+  })
+
   it('renders default element as span', () => {
     const wrapper = mount(HttpMethod, {
       props: { method: 'get' },
@@ -59,17 +64,15 @@ describe('HttpMethod.vue', () => {
     expect(wrapper.text()).toBe('post')
   })
 
-  it('handles unknown method: short shows fallback, normalized shows default', () => {
-    // When short is true, component uses getHttpMethodInfo(...).short which becomes "unknown"
+  it('preserves additional method names in both display modes', () => {
     const shortWrapper = mount(HttpMethod, {
       props: { method: 'foo', short: true },
     })
     expect(shortWrapper.text()).toBe('foo')
 
-    // When short is false, component uses normalizeHttpMethod which returns default "get"
     const normalizedWrapper = mount(HttpMethod, {
       props: { method: 'FOO' },
     })
-    expect(normalizedWrapper.text()).toBe('get')
+    expect(normalizedWrapper.text()).toBe('FOO')
   })
 })

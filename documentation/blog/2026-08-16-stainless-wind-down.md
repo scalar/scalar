@@ -1,3 +1,7 @@
+---
+date: 2026-08-16
+---
+
 # We wrote up the Stainless wind-down
 
 Stainless [announced on 18 May 2026](https://www.stainless.com/blog/stainless-is-joining-anthropic) that it is joining Anthropic and winding down all of its hosted products, including the SDK generator. New signups, projects, and SDKs closed the same day.

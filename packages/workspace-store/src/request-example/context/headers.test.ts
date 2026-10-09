@@ -1,6 +1,9 @@
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
+import { upsertOperationParameter } from '@/mutators/operation/parameters'
+import type { ParameterWithContentObject } from '@/schemas/v3.2/strict/parameter'
+
 import {
   filterDisabledDefaultHeaders,
   getDefaultHeaders,
@@ -49,6 +52,29 @@ describe('filterDisabledDefaultHeaders', () => {
 })
 
 describe('getDefaultHeaders', () => {
+  it.each([true, false])('respects a content-based header edit with disabled state %s', (isDisabled) => {
+    const param: ParameterWithContentObject = {
+      name: 'Accept',
+      in: 'header',
+      content: { 'text/plain': { example: 'application/json' } },
+    }
+    upsertOperationParameter(null, {
+      type: 'header',
+      originalParameter: param,
+      meta: { method: 'get', path: '/search', exampleKey: 'default' },
+      payload: { name: 'Accept', value: 'application/json', isDisabled },
+    })
+
+    expect(
+      getDefaultHeaders({
+        method: 'get',
+        operation: { parameters: [param] },
+        exampleName: 'default',
+        hideOverriddenHeaders: true,
+      }),
+    ).toStrictEqual(isDisabled ? { accept: '*/*' } : {})
+  })
+
   it('does not add Content-Type header when contentType is "none"', () => {
     const operation: OperationObject = {
       requestBody: {
@@ -322,6 +348,14 @@ describe('getDefaultHeaders', () => {
       hideOverriddenHeaders: true,
     })
     expect(filtered['accept']).toBeUndefined()
+  })
+
+  it('omits default Accept when an optional header has a schema default', () => {
+    const operation: OperationObject = {
+      parameters: [{ name: 'Accept', in: 'header', schema: { type: 'string', default: 'application/json' } }],
+    }
+    const headers = getDefaultHeaders({ method: 'get', operation, exampleName: 'default', hideOverriddenHeaders: true })
+    expect(headers['accept']).toBeUndefined()
   })
 
   it('keeps default Accept when a matching header parameter exists but is disabled for the example', () => {

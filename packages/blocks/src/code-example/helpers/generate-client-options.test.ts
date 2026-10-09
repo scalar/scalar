@@ -228,6 +228,18 @@ describe('generateClientOptions', () => {
 })
 
 describe('getCustomClientIds', () => {
+  it('groups named examples without merging separate SDK variants or legacy samples', () => {
+    expect(
+      getCustomClientIds([
+        { lang: 'Python', label: 'Sync', example: 'simple', source: '' },
+        { lang: 'Python', label: 'Async', example: 'simple', source: '' },
+        { lang: 'Python', label: 'Sync', example: 'detailed', source: '' },
+        { lang: 'Python', label: 'Async', example: 'detailed', source: '' },
+        { lang: 'Python', label: 'Sync', source: '' },
+      ]),
+    ).toEqual(['custom/python', 'custom/python/1', 'custom/python', 'custom/python/1', 'custom/python/2'])
+  })
+
   it('keys ids by language so a sample can be matched across operations', () => {
     const ids = getCustomClientIds([
       { lang: 'python', source: '' },

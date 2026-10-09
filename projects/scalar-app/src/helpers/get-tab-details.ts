@@ -1,4 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Tab } from '@scalar/workspace-store/schemas/extensions/workspace'
 
 import type { GetEntryByLocation } from '@/features/app/app-state'
@@ -42,7 +41,7 @@ export const getTabDetails = ({
   workspace?: string
   document?: string
   path?: string
-  method?: HttpMethod
+  method?: string
   getEntryByLocation: GetEntryByLocation
 }): { title: string; icon?: Tab['icon'] } => {
   if (!workspace) {

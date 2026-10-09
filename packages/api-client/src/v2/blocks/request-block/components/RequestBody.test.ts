@@ -1,10 +1,16 @@
+import { Schema } from '@scalar/blocks/schema'
+import { ScalarCodeBlockCopy } from '@scalar/components/code-block'
+import { ScalarListbox } from '@scalar/components/listbox'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
 import RequestBody from './RequestBody.vue'
+import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
 
 // Mock the useFileDialog hook
@@ -50,6 +56,414 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('renders writable schema fields independently of a custom example and preserves the edited payload', async () => {
+    const editedValue = '{"name":"Edited account"}'
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                  name: { type: 'string', description: 'Account name' },
+                  optionalField: { type: 'string', description: 'Not included in the example' },
+                  serverId: { type: 'string', readOnly: true },
+                  password: { type: 'string', writeOnly: true },
+                },
+              },
+              examples: { 'example-1': { value: editedValue } },
+            },
+          },
+        },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    const schema = wrapper.getComponent(Schema)
+    expect(schema.text()).toContain('optionalField')
+    expect(schema.text()).toContain('Not included in the example')
+    expect(schema.text()).toContain('required')
+    expect(schema.text()).toContain('password')
+    expect(schema.text()).not.toContain('serverId')
+    expect(wrapper.findComponent({ name: 'CodeInput' }).exists()).toBe(false)
+
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Raw')!
+      .trigger('click')
+    expect(wrapper.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe(editedValue)
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    expect(wrapper.emitted('update:formValue')).toBeUndefined()
+    expect(wrapper.emitted('generate:example')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('can inspect the schema when the edited JSON is invalid', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { name: { type: 'string' } } },
+              examples: { 'example-1': { value: '{invalid' } },
+            },
+          },
+        },
+      },
+    })
+    expect(
+      wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Form')!
+        .attributes('disabled'),
+    ).toBe('')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    expect(wrapper.getComponent(Schema).text()).toContain('name')
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Raw')!
+      .trigger('click')
+    expect(wrapper.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe('{invalid')
+    wrapper.unmount()
+  })
+
+  it.each(['application/xml', 'multipart/form-data', 'application/x-www-form-urlencoded', 'application/octet-stream'])(
+    'offers schema inspection for %s bodies',
+    async (contentType) => {
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody: {
+            content: {
+              [contentType]: { schema: { type: 'string', description: 'Upload content' } },
+            },
+          },
+        },
+      })
+      await wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Schema')!
+        .trigger('click')
+      expect(wrapper.getComponent(Schema).text()).toContain('Upload content')
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Form')).toBe(false)
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Body')).toBe(true)
+      wrapper.unmount()
+    },
+  )
+
+  it('keeps the body editor selected when the default form view is unavailable', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        defaultView: 'form',
+        requestBody: { content: { 'application/xml': { schema: { type: 'string' } } } },
+      },
+    })
+    expect(
+      wrapper
+        .findAll('button')
+        .find((button) => button.text() === 'Body')!
+        .attributes('aria-pressed'),
+    ).toBe('true')
+    wrapper.unmount()
+  })
+
+  it('does not offer schema inspection when there is no schema', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: { content: { 'application/json': { examples: { 'example-1': { value: {} } } } } },
+      },
+    })
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Schema')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('resolves schema references and expands nested fields', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                '$ref': '#/components/schemas/Account',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    settings: {
+                      type: 'object',
+                      properties: { timezone: { type: 'string', description: 'Account timezone' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    await wrapper.getComponent(Schema).get('button[aria-expanded="false"]').trigger('click')
+    expect(wrapper.getComponent(Schema).text()).toContain('Account timezone')
+    wrapper.unmount()
+  })
+
+  it('changes schema variants without updating the request body', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                oneOf: [
+                  { title: 'Email', type: 'object', properties: { address: { type: 'string' } } },
+                  { title: 'Webhook', type: 'object', properties: { url: { type: 'string' } } },
+                ],
+              },
+              examples: { 'example-1': { value: { address: 'test@example.com' } } },
+            },
+          },
+        },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    const schema = wrapper.getComponent(Schema)
+    expect(schema.text()).toContain('address')
+    schema.getComponent(ScalarListbox).vm.$emit('update:modelValue', { id: '1', label: 'Webhook' })
+    await nextTick()
+    expect(schema.text()).toContain('url')
+    expect(schema.text()).not.toContain('address')
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('leaves schema inspection when switching to an operation without a schema', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: { content: { 'application/json': { schema: { type: 'string' } } } },
+      },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Schema')!
+      .trigger('click')
+    await wrapper.setProps({
+      requestBody: { content: { 'text/plain': { examples: { 'example-1': { value: 'Next request' } } } } },
+    })
+    expect(wrapper.findComponent(Schema).exists()).toBe(false)
+    expect(wrapper.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe('Next request')
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Schema')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)(
+    'regenerates multipart rows when the selected %s branch changes',
+    async (keyword) => {
+      const requestBody = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object' as const,
+              required: ['file'],
+              properties: {
+                file: {
+                  [keyword]: [
+                    { type: 'object' as const, properties: { name: { type: 'string' as const } } },
+                    {
+                      type: 'object' as const,
+                      required: ['count'],
+                      properties: { count: { type: 'integer' as const } },
+                    },
+                  ],
+                },
+              },
+            },
+            examples: { 'example-1': { value: [{ name: 'file.name', value: 'Edited name' }] } },
+          },
+        },
+      })
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody,
+          requestBodyCompositionSelection: { [`requestBody.file.${keyword}`]: 0 },
+        },
+      })
+      await wrapper.setProps({ requestBodyCompositionSelection: { [`requestBody.file.${keyword}`]: 1 } })
+      expect(wrapper.emitted('update:formValue')).toStrictEqual([
+        [
+          {
+            contentType: 'multipart/form-data',
+            payload: [{ name: 'file.count', value: '1', isDisabled: false }],
+          },
+        ],
+      ])
+      wrapper.unmount()
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)(
+    'preserves urlencoded array text when switching %s variants',
+    async (keyword) => {
+      const requestBody = coerceValue(RequestBodyObjectSchema, {
+        content: {
+          'application/x-www-form-urlencoded': {
+            schema: {
+              type: 'object',
+              required: ['value'],
+              properties: {
+                value: {
+                  [keyword]: [
+                    { type: 'string', example: 'old' },
+                    { type: 'array', items: { type: 'integer' }, example: [1, 2] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      })
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody,
+          requestBodyCompositionSelection: { [`requestBody.value.${keyword}`]: 0 },
+        },
+      })
+      await wrapper.setProps({ requestBodyCompositionSelection: { [`requestBody.value.${keyword}`]: 1 } })
+      expect(wrapper.emitted('update:formValue')).toStrictEqual([
+        [
+          {
+            contentType: 'application/x-www-form-urlencoded',
+            payload: [{ name: 'value', value: '[1,2]', isDisabled: false }],
+          },
+        ],
+      ])
+      wrapper.unmount()
+    },
+  )
+
+  it('fills the XML raw editor with serialized structured data', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                xml: { name: 'pet' },
+                properties: { id: { type: 'integer', xml: { attribute: true } } },
+              },
+              examples: { 'example-1': { dataValue: { id: 7 } } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe(
+      '<?xml version="1.0" encoding="UTF-8"?>\n<pet id="7"/>',
+    )
+    wrapper.unmount()
+  })
+
+  it('fills the raw editor with a framed stream item example', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'application/jsonl': {
+              itemSchema: { type: 'object', properties: { id: { type: 'integer', const: 7 } } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe('{"id":7}\n')
+  })
+
+  it.each(['application/json', 'application/yaml'])(
+    'uses dataValue in the %s form even with wire text',
+    async (contentType) => {
+      const dataValue = { id: 'structured' }
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          defaultView: 'form',
+          requestBody: {
+            content: { [contentType]: { examples: { 'example-1': { dataValue, serializedValue: 'wire text' } } } },
+          },
+        },
+      })
+      await nextTick()
+      expect(wrapper.findComponent(RequestBodyStructured).props('parsedValue')).toStrictEqual(dataValue)
+      expect(wrapper.emitted('update:value')).toBeUndefined()
+      wrapper.unmount()
+    },
+  )
+
+  it.each([
+    ['application/json', ' { "id": "wire" } '],
+    ['application/xml', '<id>wire</id>'],
+  ])('preserves %s wire text in the raw editor when dataValue also exists', async (contentType, serializedValue) => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            [contentType]: { examples: { 'example-1': { dataValue: { id: 'structured' }, serializedValue } } },
+          },
+        },
+      },
+    })
+    await nextTick()
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe(serializedValue)
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it.each(['{"id":1}', '', null, false, 0])('keeps structured primitive %j in the raw editor', async (dataValue) => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        defaultView: 'form',
+        requestBody: {
+          content: {
+            'application/json': {
+              examples: { 'example-1': { dataValue } },
+            },
+          },
+        },
+      },
+    })
+    await nextTick()
+
+    expect(wrapper.findComponent(RequestBodyStructured).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'CodeInput' }).props('modelValue')).toBe(JSON.stringify(dataValue, null, 2))
+    expect(wrapper.emitted('update:value')).toBeUndefined()
+    wrapper.unmount()
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
     mockFiles.value = null
@@ -129,6 +543,51 @@ describe('RequestBody', () => {
       ],
     ])
   })
+
+  it.each(['application/xml', 'text/xml', 'application/vnd.person+xml; charset=utf-8'])(
+    'regenerates an edited %s body when a different oneOf branch is selected',
+    async (contentType) => {
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          openapiVersion: '3.2.0',
+          requestBody: {
+            content: {
+              [contentType]: {
+                example: '<person>Edited</person>',
+                schema: {
+                  type: 'object',
+                  oneOf: [
+                    {
+                      type: 'object',
+                      xml: { name: 'person' },
+                      properties: { name: { type: 'string', example: 'Ada' } },
+                    },
+                    {
+                      type: 'object',
+                      xml: { name: 'organization' },
+                      properties: { name: { type: 'string', example: 'Scalar' } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          requestBodyCompositionSelection: { 'requestBody.oneOf': 0 },
+        },
+      })
+      await wrapper.setProps({ requestBodyCompositionSelection: { 'requestBody.oneOf': 1 } })
+      expect(wrapper.emitted('update:value')).toStrictEqual([
+        [
+          {
+            contentType,
+            payload: '<?xml version="1.0" encoding="UTF-8"?>\n<organization>\n  <name>Scalar</name>\n</organization>',
+          },
+        ],
+      ])
+      wrapper.unmount()
+    },
+  )
 
   it('keeps the named example when the selection is first established on open', async () => {
     // On the first open of a composition body the modal applies the reference's selection, moving it
@@ -1784,5 +2243,127 @@ describe('RequestBody', () => {
     await nextTick()
     expect(rawWrapper.find('[data-testid="code-input"]').exists()).toBe(true)
     expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
+  })
+  const findGenerateButton = (wrapper: ReturnType<typeof mount>) =>
+    wrapper.find('[aria-label="Generate example from schema"]')
+
+  it('emits the selected content type when clicked', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: { type: 'object', properties: { name: { type: 'string' } } },
+          examples: { custom: { value: { name: 'custom' } } },
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, exampleKey: 'custom', requestBody },
+    })
+
+    const button = findGenerateButton(wrapper)
+    expect(button.exists()).toBe(true)
+
+    await button.trigger('click')
+
+    expect(wrapper.emitted('generate:example')).toEqual([[{ contentType: 'application/json' }]])
+  })
+
+  it('hides the button when the content type has no schema', () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          examples: { custom: { value: { name: 'custom' } } },
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, exampleKey: 'custom', requestBody },
+    })
+
+    expect(findGenerateButton(wrapper).exists()).toBe(false)
+  })
+
+  it('hides the button for non-structured bodies', () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/octet-stream': {
+          schema: { type: 'string', format: 'binary' },
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+    })
+
+    expect(findGenerateButton(wrapper).exists()).toBe(false)
+  })
+
+  it('copies the serialized body shown in the editor', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: { type: 'object' },
+          example: { hello: 'world' },
+        },
+      },
+    }
+
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    const execCommandDescriptor = Object.getOwnPropertyDescriptor(document, 'execCommand')
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: (command: string): boolean => {
+        if (command === 'copy') {
+          void writeText(document.querySelector('textarea')?.value)
+        }
+        return true
+      },
+    })
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+    })
+    await nextTick()
+
+    try {
+      await wrapper.getComponent(ScalarCodeBlockCopy).get('button').trigger('click')
+      await flushPromises()
+      expect(writeText).toHaveBeenCalledExactlyOnceWith(JSON.stringify({ hello: 'world' }, null, 2))
+    } finally {
+      wrapper.unmount()
+      if (execCommandDescriptor) {
+        Object.defineProperty(document, 'execCommand', execCommandDescriptor)
+      } else {
+        Reflect.deleteProperty(document, 'execCommand')
+      }
+      if (clipboardDescriptor) {
+        Object.defineProperty(navigator, 'clipboard', clipboardDescriptor)
+      } else {
+        Reflect.deleteProperty(navigator, 'clipboard')
+      }
+    }
+  })
+
+  it('hides the copy button when the body is empty', async () => {
+    const requestBody: RequestBodyObject = {
+      content: {
+        'application/json': {
+          schema: { type: 'string' },
+          example: '',
+        },
+      },
+    }
+
+    const wrapper = mount(RequestBody, {
+      props: { ...defaultProps, requestBody },
+    })
+    await nextTick()
+
+    expect(wrapper.findComponent({ name: 'CodeInput' }).exists()).toBe(true)
+    expect(wrapper.findComponent(ScalarCodeBlockCopy).exists()).toBe(false)
   })
 })

@@ -130,6 +130,8 @@ export function extractParameterDescriptions(parameters: ReferenceType<Parameter
  *
  * Walks every media type and includes both top-level and one level of nested property names so
  * common fields like `email` or `username` surface in search regardless of how the body is shaped.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractBodyFieldNames(operation: OperationObject): string[] {
   const names: string[] = []
@@ -143,6 +145,8 @@ export function extractBodyFieldNames(operation: OperationObject): string[] {
 
 /**
  * Extracts the descriptions of properties from the request body schema(s) of an operation.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractBodyDescriptions(operation: OperationObject): string[] {
   const descriptions: string[] = []
@@ -161,6 +165,8 @@ export function extractBodyDescriptions(operation: OperationObject): string[] {
  *
  * Same depth and composition behavior as `extractBodyFieldNames` — descends transparently through
  * `oneOf`/`anyOf`/`allOf`, walks one level into nested object properties, dedupes.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractSchemaFieldNames(schema: SchemaObject | undefined): string[] {
   const names: string[] = []
@@ -174,6 +180,8 @@ export function extractSchemaFieldNames(schema: SchemaObject | undefined): strin
 
 /**
  * Extracts the property descriptions of a schema for the search index.
+ *
+ * Retained as an independent reference for parity tests of the combined search field extractor.
  */
 export function extractSchemaDescriptions(schema: SchemaObject | undefined): string[] {
   const descriptions: string[] = []
@@ -187,6 +195,78 @@ export function extractSchemaDescriptions(schema: SchemaObject | undefined): str
     maxPropertyDepth: 2,
   })
   return descriptions
+}
+
+/** Search fields collected together without changing their independent ordering. */
+type SchemaSearchFields = {
+  names: string[]
+  descriptions: string[]
+}
+
+/**
+ * Creates extraction caches for one synchronous index build. Discarding them after the build
+ * ensures edits to existing schema objects are visible the next time search is indexed.
+ */
+export const createSearchFieldExtractor = (): {
+  schema: (schema: SchemaObject | undefined) => SchemaSearchFields
+  body: (operation: OperationObject) => SchemaSearchFields
+} => {
+  const schemas = new WeakMap<SchemaObject, SchemaSearchFields>()
+  const bodies = new WeakMap<object, SchemaSearchFields>()
+
+  const collect = (
+    walk: (visit: (key: string, schema: SchemaObject | undefined) => void) => void,
+  ): SchemaSearchFields => {
+    const names = new Set<string>()
+    const descriptions = new Set<string>()
+    walk((key, property) => {
+      if (key) {
+        names.add(key)
+      }
+      if (property && 'description' in property && typeof property.description === 'string' && property.description) {
+        descriptions.add(property.description)
+      }
+    })
+    return { names: [...names], descriptions: [...descriptions] }
+  }
+
+  const schema = (value: SchemaObject | undefined): SchemaSearchFields => {
+    // Callers outside the workspace store can pass schemas that have not been normalized.
+    if (!isSchemaObject(value)) {
+      return { names: [], descriptions: [] }
+    }
+    const cached = schemas.get(value)
+    if (cached) {
+      return cached
+    }
+    const fields = collect((visit) =>
+      collectSchemaProperties(value, { visit, visited: new Set<SchemaObject>(), maxPropertyDepth: 2 }),
+    )
+    schemas.set(value, fields)
+    return fields
+  }
+
+  return {
+    schema,
+    body: (operation) => {
+      const requestBody = getResolvedRef(operation.requestBody)
+      const cached = requestBody && bodies.get(requestBody)
+      if (cached) {
+        return cached
+      }
+      const media = Object.values(requestBody?.content ?? {})
+      // A single root has the same visitation context as a model. Multiple media types share
+      // their visited set, so extracting them independently could change depth-limited results.
+      const fields =
+        media.length === 1
+          ? schema(getResolvedRef(getResolvedRef(media[0])?.schema))
+          : collect((visit) => forEachRequestBodyProperty(operation, visit))
+      if (requestBody) {
+        bodies.set(requestBody, fields)
+      }
+      return fields
+    },
+  }
 }
 
 /**

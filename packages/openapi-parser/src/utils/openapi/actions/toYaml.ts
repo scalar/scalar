@@ -1,6 +1,7 @@
-import { getEntrypoint } from '@/utils/get-entrypoint'
 import type { Queue, Task } from '@/types/index'
+import { getEntrypoint } from '@/utils/get-entrypoint'
 import { toYaml as toYamlUtility } from '@/utils/to-yaml'
+
 import { workThroughQueue } from '../utils/workThroughQueue'
 
 /**

@@ -1,6 +1,8 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { objectToString } from '@/libs/php'
+import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 
 /**
  * php/curl
@@ -17,23 +19,25 @@ export const phpCurl: Plugin = {
     }
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Build PHP cURL code parts
     const parts: string[] = []
-    let hasMultipartMimeBody = false
+    const multipart =
+      normalizedRequest.postData?.mimeType === 'multipart/form-data' && normalizedRequest.postData.params
+        ? prepareRequest(normalizedRequest)
+        : undefined
+
+    const boundary = multipartFileBoundary(multipart)
+    const literal = (value: string): string =>
+      boundary ? `str_replace(${objectToString(boundary)}, $boundary, ${objectToString(value)})` : objectToString(value)
+    if (boundary) {
+      parts.push('$boundary = bin2hex(random_bytes(16));')
+    }
 
     // Initialize cURL
     // URL (with query parameters)
-    const queryString = normalizedRequest.queryString?.length
-      ? '?' +
-        normalizedRequest.queryString
-          .map((param) => {
-            return `${param.name}=${param.value}`
-          })
-          .join('&')
-      : ''
-    const url = `${normalizedRequest.url}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
     parts.push(`$ch = curl_init("${url}");`)
     parts.push('')
 
@@ -51,7 +55,7 @@ export const phpCurl: Plugin = {
 
     // Collect all headers to emit once, avoiding duplicate CURLOPT_HTTPHEADER calls.
     // Body processing may add a Content-Type header, so we determine it first.
-    const allHeaders: Array<{ name: string; value: string }> = [...(normalizedRequest.headers || [])]
+    const allHeaders = multipart?.headers ?? [...(normalizedRequest.headers || [])]
 
     // Helper to add Content-Type header if not already present
     const hasContentType = () => allHeaders.some((h) => h.name.toLowerCase() === 'content-type')
@@ -71,7 +75,11 @@ export const phpCurl: Plugin = {
 
     // Emit all headers once
     if (allHeaders.length) {
-      const headerStrings = allHeaders.map((header) => `'${header.name}: ${header.value}'`)
+      const headerStrings = allHeaders.map((header) =>
+        header.name.toLowerCase() === 'content-type'
+          ? literal(`${header.name}: ${header.value}`)
+          : objectToString(`${header.name}: ${header.value}`),
+      )
       parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, [${headerStrings.join(', ')}]);`)
 
       // Add encoding option if Accept-Encoding header includes compression
@@ -103,31 +111,20 @@ export const phpCurl: Plugin = {
             const phpArray = objectToString(jsonData)
             parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
           } catch {
-            parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
+            parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text)});`)
           }
         }
       } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
-        // Build multipart payload with curl_mime_* so duplicate keys remain distinct parts.
-        hasMultipartMimeBody = true
-        parts.push('$mime = curl_mime_init($ch);')
-
-        normalizedRequest.postData.params.forEach((param, index) => {
-          const partName = `$part${index}`
-          parts.push(`${partName} = curl_mime_addpart($mime);`)
-          parts.push(`curl_mime_name(${partName}, '${param.name}');`)
-
-          if (param.fileName !== undefined) {
-            parts.push(`curl_mime_filedata(${partName}, '${param.fileName}');`)
-          } else if (param.value !== undefined) {
-            parts.push(`curl_mime_data(${partName}, '${param.value}');`)
-          }
-
-          if (param.contentType) {
-            parts.push(`curl_mime_type(${partName}, '${param.contentType}');`)
-          }
-        })
-
-        parts.push('curl_setopt($ch, CURLOPT_MIMEPOST, $mime);')
+        // PHP does not expose curl_mime_*; an explicit body also preserves repeated field names.
+        parts.push("$body = '';")
+        for (const segment of multipart?.body ?? []) {
+          parts.push(
+            'file' in segment
+              ? `$body .= file_get_contents(${objectToString(segment.file)});`
+              : `$body .= ${literal(segment.text)};`,
+          )
+        }
+        parts.push('curl_setopt($ch, CURLOPT_POSTFIELDS, $body);')
       } else if (
         normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params
@@ -142,7 +139,7 @@ export const phpCurl: Plugin = {
           .join('&')
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${formData}');`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text || ''}');`)
+        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text || '')});`)
       } else if (normalizedRequest.postData.text) {
         // Try to parse as JSON and convert to PHP array, otherwise use raw text
         try {
@@ -150,7 +147,7 @@ export const phpCurl: Plugin = {
           const phpArray = objectToString(jsonData)
           parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
         } catch {
-          parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
+          parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text)});`)
         }
       }
     }
@@ -158,9 +155,6 @@ export const phpCurl: Plugin = {
     // Execute and close
     parts.push('')
     parts.push('curl_exec($ch);')
-    if (hasMultipartMimeBody) {
-      parts.push('curl_mime_free($mime);')
-    }
     parts.push('')
     parts.push('curl_close($ch);')
 

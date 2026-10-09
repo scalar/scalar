@@ -3,6 +3,7 @@ import { type Static, Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { XScalarCredentialsLocationSchema } from '@/schemas/extensions/security/x-scalar-credentials-location'
 import {
+  XScalarAuthUrlSchema,
   XScalarSecretClientCertificateSchema,
   XScalarSecretClientIdSchema,
   XScalarSecretClientSecretSchema,
@@ -12,20 +13,28 @@ import {
   XScalarSecretRefreshTokenSchema,
   XScalarSecretServiceNameSchema,
   XScalarSecretTokenSchema,
+  XScalarTokenUrlSchema,
 } from '@/schemas/extensions/security/x-scalar-security-secrets'
 import {
   OAuthFlowAuthorizationCodeSchema,
   OAuthFlowClientCredentialsSchema,
+  OAuthFlowDeviceAuthorizationSchema,
   OAuthFlowImplicitSchema,
   OAuthFlowPasswordSchema,
 } from '@/schemas/v3.2/strict/oauth-flow'
 import { SecurityRequirementObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
+
+/** Clear intent is separate from legacy empty values that inherited configured credentials. */
+const ClearedSecretFieldsSchema = Type.Object({
+  'x-scalar-secret-cleared-fields': Type.Optional(Type.Array(Type.String())),
+})
 
 const SecretsApiKeySchema = compose(
   Type.Object({
     type: Type.Literal('apiKey'),
   }),
   XScalarSecretTokenSchema,
+  ClearedSecretFieldsSchema,
 )
 
 export type SecretsApiKey = Static<typeof SecretsApiKeySchema>
@@ -36,18 +45,28 @@ const SecretsHttpSchema = compose(
   }),
   XScalarSecretTokenSchema,
   XScalarSecretHTTPSchema,
+  ClearedSecretFieldsSchema,
 )
 
 export type SecretsHttp = Static<typeof SecretsHttpSchema>
 
 const SecretsOAuthFlowCommonSchema = compose(
+  XScalarAuthUrlSchema,
+  XScalarTokenUrlSchema,
+  ClearedSecretFieldsSchema,
   XScalarSecretClientIdSchema,
   XScalarSecretTokenSchema,
   XScalarSecretRefreshTokenSchema,
 )
 
+/** An absent stored redirect must fall back to configuration; an empty string means the user cleared it. */
+const StoredRedirectUriSchema = Type.Partial(XScalarSecretRedirectUriSchema)
+
 const SecretsOAuthFlowsSchema = Type.Object({
-  implicit: Type.Optional(compose(SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema)),
+  deviceAuthorization: Type.Optional(
+    compose(SecretsOAuthFlowCommonSchema, XScalarSecretClientSecretSchema, XScalarCredentialsLocationSchema),
+  ),
+  implicit: Type.Optional(compose(SecretsOAuthFlowCommonSchema, StoredRedirectUriSchema)),
   password: Type.Optional(
     compose(
       SecretsOAuthFlowCommonSchema,
@@ -63,7 +82,7 @@ const SecretsOAuthFlowsSchema = Type.Object({
     compose(
       SecretsOAuthFlowCommonSchema,
       XScalarSecretClientSecretSchema,
-      XScalarSecretRedirectUriSchema,
+      StoredRedirectUriSchema,
       XScalarCredentialsLocationSchema,
     ),
   ),
@@ -82,10 +101,16 @@ export type SecretsOAuth = Static<typeof OAuthSchema>
 
 /** OpenID Connect schema contain the base flows as well since it doesn't exist in the spec */
 export const OpenIDConnectSchema = Type.Object({
-  type: Type.Literal('openIdConnect'),
-  implicit: Type.Optional(
-    compose(OAuthFlowImplicitSchema, SecretsOAuthFlowCommonSchema, XScalarSecretRedirectUriSchema),
+  deviceAuthorization: Type.Optional(
+    compose(
+      OAuthFlowDeviceAuthorizationSchema,
+      SecretsOAuthFlowCommonSchema,
+      XScalarSecretClientSecretSchema,
+      XScalarCredentialsLocationSchema,
+    ),
   ),
+  type: Type.Literal('openIdConnect'),
+  implicit: Type.Optional(compose(OAuthFlowImplicitSchema, SecretsOAuthFlowCommonSchema, StoredRedirectUriSchema)),
   password: Type.Optional(
     compose(
       OAuthFlowPasswordSchema,
@@ -108,7 +133,7 @@ export const OpenIDConnectSchema = Type.Object({
       OAuthFlowAuthorizationCodeSchema,
       SecretsOAuthFlowCommonSchema,
       XScalarSecretClientSecretSchema,
-      XScalarSecretRedirectUriSchema,
+      StoredRedirectUriSchema,
       XScalarCredentialsLocationSchema,
     ),
   ),
@@ -130,6 +155,7 @@ const SecretsSaslSchema = compose(
     ]),
   }),
   XScalarSecretHTTPSchema,
+  ClearedSecretFieldsSchema,
 )
 
 export type SecretsSasl = Static<typeof SecretsSaslSchema>
@@ -141,6 +167,7 @@ const SecretsX509Schema = compose(
   }),
   XScalarSecretClientCertificateSchema,
   XScalarSecretPrivateKeySchema,
+  ClearedSecretFieldsSchema,
 )
 
 export type SecretsX509 = Static<typeof SecretsX509Schema>
@@ -151,6 +178,7 @@ const SecretsEncryptionSchema = compose(
     type: Type.Union([Type.Literal('symmetricEncryption'), Type.Literal('asymmetricEncryption')]),
   }),
   XScalarSecretTokenSchema,
+  ClearedSecretFieldsSchema,
 )
 
 export type SecretsEncryption = Static<typeof SecretsEncryptionSchema>
@@ -161,6 +189,7 @@ const SecretsGssapiSchema = compose(
     type: Type.Literal('gssapi'),
   }),
   XScalarSecretServiceNameSchema,
+  ClearedSecretFieldsSchema,
 )
 
 export type SecretsGssapi = Static<typeof SecretsGssapiSchema>

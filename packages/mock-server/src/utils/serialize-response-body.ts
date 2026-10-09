@@ -1,6 +1,9 @@
-import { json2xml } from '@scalar/helpers/file/json2xml'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { serializeXmlExample } from '@scalar/workspace-store/request-example'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 type Schema = NonNullable<OpenAPIV3_1.ComponentsObject['schemas']>[string]
 
@@ -17,13 +20,6 @@ const isJsonDocumentContentType = (contentType: string | undefined): boolean => 
   const { subtype } = parseMimeType(contentType)
 
   return subtype === 'json' || subtype.endsWith('+json')
-}
-
-/** Whether a media type carries XML, including suffixed types such as `application/xhtml+xml`. */
-const isXmlContentType = (contentType: string | undefined): boolean => {
-  const { subtype } = parseMimeType(contentType)
-
-  return subtype === 'xml' || subtype.endsWith('+xml')
 }
 
 /**
@@ -78,11 +74,18 @@ export const serializeResponseBody = (
   body: unknown,
   contentType: string | undefined,
   schema?: Schema,
+  provenance?: 'data' | 'serialized',
 ): string | undefined => {
-  // XML: only an object tree can be turned into a document. `null` is `typeof 'object'` too, but it is
-  // not a valid XML root, so it falls through to `JSON.stringify` below rather than into `json2xml`.
-  if (body !== null && typeof body === 'object' && isXmlContentType(contentType)) {
-    return json2xml(body as Record<string, unknown>)
+  if (provenance === 'serialized' && typeof body === 'string') {
+    return body
+  }
+  if (provenance === 'data' && isJsonDocumentContentType(contentType)) {
+    return JSON.stringify(body)
+  }
+  if (isXmlMediaType(contentType)) {
+    return typeof body === 'string'
+      ? body
+      : serializeXmlExample(body, coerceValue(SchemaObjectSchema, schema ?? {}), { mode: 'read' }).xml
   }
 
   if (typeof body === 'string') {

@@ -10,23 +10,32 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import type { CodeInputModelValue } from '@/v2/components/code-input/CodeInput.vue'
+import { useLocalization } from '@/v2/features/localization'
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: CodeInputModelValue
-    value?: string[]
-    default?: CodeInputModelValue | undefined
-    canAddCustomValue?: boolean
-    type?: string | undefined
-  }>(),
-  { canAddCustomValue: true },
-)
+const {
+  modelValue,
+  value: enumValues,
+  default: defaultValue,
+  canAddCustomValue = true,
+  type,
+  arrayEncoding,
+} = defineProps<{
+  modelValue: CodeInputModelValue
+  value?: unknown[]
+  default?: CodeInputModelValue | undefined
+  canAddCustomValue?: boolean
+  type?: string | undefined
+  /** Body arrays use JSON; parameter arrays use comma-separated text. */
+  arrayEncoding?: 'json' | 'comma-separated'
+}>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
 }>()
 
-const options = computed(() => props.value ?? [])
+const { translate } = useLocalization()
+
+const options = computed(() => (enumValues ?? []).map(String))
 const addingCustomValue = ref(false)
 const customValue = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -54,7 +63,7 @@ const handleBlur = () => {
 }
 
 const isSelected = (value: string) => {
-  return props.modelValue.toString() === value
+  return modelValue.toString() === value
 }
 
 watch(addingCustomValue, (newValue) => {
@@ -66,43 +75,66 @@ watch(addingCustomValue, (newValue) => {
 })
 
 const initialValue = computed(() => {
-  return props.modelValue !== undefined ? props.modelValue : props.default
+  return modelValue !== undefined ? modelValue : defaultValue
 })
 
 /** Options for the array type */
 const arrayOptions = computed(() =>
-  options.value.map((option) => {
-    const id = option.toString()
-    return { id: id, label: id, value: id }
+  (enumValues ?? []).map((option) => {
+    const label = String(option)
+    // JSON identities keep values such as 1 and '1' distinct.
+    const id = arrayEncoding === 'json' ? JSON.stringify(option) : label
+    return { id, label, value: arrayEncoding === 'json' ? option : label }
   }),
 )
 
 /** Filter the options by what is selected */
 const selectedArrayOptions = computed(() => {
-  const selectedValues = new Set(props.modelValue.toString().split(','))
+  const value = modelValue.toString()
+  let values: unknown = value.split(',')
+  if (arrayEncoding === 'json') {
+    try {
+      values = JSON.parse(value)
+    } catch {
+      values = []
+    }
+  }
+  const selectedValues = new Set(
+    Array.isArray(values)
+      ? values.map((item) =>
+          arrayEncoding === 'json' ? JSON.stringify(item) : String(item),
+        )
+      : [],
+  )
   return arrayOptions.value.filter((option) => selectedValues.has(option.id))
 })
 
 /** Update the model value when the selected options change */
-const updateSelectedOptions = (selectedOptions: any) => {
-  const selectedValues = selectedOptions.map((option: any) => option.value)
-  emit('update:modelValue', selectedValues.join(','))
+const updateSelectedOptions = (
+  selectedOptions: { id: string; label: string; value: unknown }[],
+): void => {
+  const selectedValues = selectedOptions.map((option) => option.value)
+  emit(
+    'update:modelValue',
+    arrayEncoding === 'json'
+      ? JSON.stringify(selectedValues)
+      : selectedValues.join(','),
+  )
 }
 </script>
 
 <template>
   <div
-    class="group-[.alert]:outline-orange group-[.error]:outline-red w-full pr-10 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
+    class="group-[.alert]:outline-orange group-[.error]:outline-red w-full min-w-0 pr-10 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
     <template v-if="type === 'array'">
       <ScalarComboboxMultiselect
         :modelValue="selectedArrayOptions"
         :options="arrayOptions"
         @update:modelValue="updateSelectedOptions">
         <ScalarButton
-          class="custom-scroll h-full justify-start gap-1.5 px-2 py-1.5 pr-6 font-normal outline-none"
-          fullWidth
+          class="custom-scroll h-full w-full min-w-0 justify-start gap-1.5 px-2 py-1.5 pr-6 font-normal outline-none"
           variant="ghost">
-          <span class="text-c-1 whitespace-nowrap">{{
+          <span class="text-c-1 truncate">{{
             selectedArrayOptions.length > 0
               ? selectedArrayOptions.map((option) => option.label).join(', ')
               : 'Select a value'
@@ -119,7 +151,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
         ref="inputRef"
         v-model="customValue"
         class="text-c-1 w-full min-w-0 border-none px-2 py-1.5 outline-none"
-        placeholder="Value"
+        :placeholder="translate('apiClient.dataTableInputSelect.value')"
         type="text"
         @blur="handleBlur"
         @keyup.enter="addCustomValue" />
@@ -169,7 +201,9 @@ const updateSelectedOptions = (selectedOptions: any) => {
                   icon="Add"
                   size="sm" />
               </div>
-              <span>Add value</span>
+              <span>{{
+                translate('apiClient.dataTableInputSelect.addValue')
+              }}</span>
             </ScalarDropdownItem>
           </template>
         </template>

@@ -1,0 +1,1494 @@
+import { ScalarListbox } from '@scalar/components/listbox'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import { defineComponent, h } from 'vue'
+
+import WithBreadcrumb from './components/WithBreadcrumb.vue'
+import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
+import Schema from './Schema.vue'
+import SchemaProperty from './SchemaProperty.vue'
+import SchemaRailPanel from './SchemaRailPanel.vue'
+
+const SpecificationExtension = defineComponent({
+  props: { value: Object, showExtensions: Array },
+  setup: (props) => () => h('span', String(props.value?.['x-foo'])),
+})
+
+describe('SchemaProperty', () => {
+  it('keeps nameless noncollapsible array containers flat', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        schema: { type: 'array', items: { type: 'object', properties: { field: { type: 'string' } } } },
+        noncollapsible: true,
+        options: {},
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('field')
+    expect(wrapper.findAllComponents(SchemaRailPanel).length).toBe(0)
+    expect(wrapper.getComponent(SchemaProperty).props('depth')).toBe(0)
+    wrapper.unmount()
+  })
+
+  it.each(['inline', 'typed', 'referenced', 'nested'] as const)(
+    'keeps a named object with %s allOf members behind its own disclosure (#10324)',
+    async (variant) => {
+      const tags = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { userUseTags: { type: 'array', items: { type: 'string' } } },
+      })
+      const schema = coerceValue(SchemaObjectSchema, {
+        ...(variant === 'typed' ? { type: 'object' } : {}),
+        allOf: [
+          { type: 'object', properties: { email: { type: 'string' } }, required: ['email'] },
+          variant === 'referenced'
+            ? { $ref: '#/components/schemas/TagsLastUpdated', '$ref-value': tags }
+            : variant === 'nested'
+              ? { allOf: [tags] }
+              : tags,
+        ],
+      })
+      const wrapper = mount(SchemaProperty, {
+        props: { name: 'data', schema, eventBus: null, breadcrumb: ['response'], options: {} },
+      })
+
+      const toggle = wrapper.get('button[aria-expanded]')
+      expect(wrapper.get(`[id="${toggle.attributes('aria-labelledby')}"]`).text()).toBe('data')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+
+      await toggle.trigger('click')
+
+      expect(toggle.attributes('aria-expanded')).toBe('true')
+      const panel = wrapper.get(`[id="${toggle.attributes('aria-controls')}"]`)
+      expect(panel.get('[id="response.data.email"]').text()).toBe('email')
+      expect(panel.get('[id="response.data.userUseTags"]').text()).toBe('userUseTags')
+      const email = wrapper.findAllComponents(SchemaProperty).find((property) => property.props('name') === 'email')!
+      expect(email.text()).toContain('Type: string')
+      expect(email.get('.property-required').text()).toBe('required')
+
+      await toggle.trigger('click')
+
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      wrapper.unmount()
+    },
+  )
+
+  it('preserves every choice group in a named allOf property', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        name: 'data',
+        eventBus: null,
+        schema: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            { type: 'object', properties: { id: { type: 'string' } } },
+            {
+              oneOf: [
+                { title: 'Email', type: 'object', properties: { email: { type: 'string' } } },
+                { title: 'Phone', type: 'object', properties: { phone: { type: 'string' } } },
+              ],
+            },
+            {
+              oneOf: [
+                { title: 'Personal', type: 'object', properties: { personal: { type: 'string' } } },
+                { title: 'Business', type: 'object', properties: { business: { type: 'string' } } },
+              ],
+            },
+          ],
+        }),
+        options: {},
+      },
+    })
+
+    await wrapper.get('button[aria-expanded]').trigger('click')
+
+    expect(wrapper.findAllComponents(ScalarListbox).map((selector) => selector.props('options'))).toStrictEqual([
+      [
+        { id: '0', label: 'Email' },
+        { id: '1', label: 'Phone' },
+      ],
+      [
+        { id: '0', label: 'Personal' },
+        { id: '1', label: 'Business' },
+      ],
+    ])
+    wrapper.unmount()
+  })
+
+  it('renders nested composition selectors with correct titles', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        eventBus: null,
+        schema: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            { type: 'object', properties: { customerComment: { type: 'string' } } },
+            {
+              oneOf: [
+                { title: 'Guest', type: 'object', properties: { guestName: { type: 'string' } } },
+                {
+                  title: 'Member',
+                  allOf: [
+                    { type: 'object', properties: { memberId: { type: 'string' } } },
+                    {
+                      anyOf: [
+                        { title: 'Email', type: 'object', properties: { email: { type: 'string' } } },
+                        { title: 'Phone', type: 'object', properties: { phone: { type: 'string' } } },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }),
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+
+    const outerSelector = wrapper.getComponent(ScalarListbox)
+    expect(outerSelector.props('options')).toStrictEqual([
+      { id: '0', label: 'Guest' },
+      { id: '1', label: 'Member' },
+    ])
+    expect(outerSelector.text()).toBe('One of·Guest')
+    expect(wrapper.text()).toContain('guestName')
+
+    outerSelector.vm.$emit('update:modelValue', { id: '1', label: 'Member' })
+    await wrapper.vm.$nextTick()
+
+    const selectors = wrapper.findAllComponents(ScalarListbox)
+    expect(selectors.map((selector) => selector.text())).toStrictEqual(['One of·Member', 'Any of·Email'])
+    const innerSelector = selectors[1]!
+    expect(innerSelector.props('options')).toStrictEqual([
+      { id: '0', label: 'Email' },
+      { id: '1', label: 'Phone' },
+    ])
+    expect(wrapper.text()).toContain('memberId')
+    expect(wrapper.text()).not.toContain('guestName')
+
+    innerSelector.vm.$emit('update:modelValue', { id: '1', label: 'Phone' })
+    await wrapper.vm.$nextTick()
+
+    expect(selectors.map((selector) => selector.text())).toStrictEqual(['One of·Member', 'Any of·Phone'])
+    expect(wrapper.text()).toContain('phone')
+    expect(wrapper.text()).not.toContain('email')
+    expect(wrapper.text()).toContain('customerComment')
+    wrapper.unmount()
+  })
+
+  describe('expandable schema behavior', () => {
+    describe('object types', () => {
+      it('displays expandable sub-schema for object with additional properties', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              additionalProperties: {
+                nullable: true,
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        await button.trigger('click')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(schemas).toHaveLength(1)
+      })
+
+      it('displays expandable sub-schema for object with defined properties', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                test: {
+                  type: 'string',
+                },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        await button.trigger('click')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(schemas).toHaveLength(1)
+      })
+
+      it('shows object descriptions without duplicating them after expansion', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              description: 'This object groups the available filters.',
+              properties: {
+                test: {
+                  type: 'string',
+                },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        expect(wrapper.text()).toContain('This object groups the available filters.')
+        expect(wrapper.html().match(/This object groups the available filters\./g)).toHaveLength(1)
+
+        const button = wrapper.find('.property-toggle')
+        await button.trigger('click')
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.html().match(/This object groups the available filters\./g)).toHaveLength(1)
+      })
+
+      it('hides expand button for object without properties or additional properties', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(button.exists()).toBe(false)
+        expect(schemas).toHaveLength(0)
+      })
+    })
+
+    describe('array types', () => {
+      it('displays expandable sub-schema for array with object items', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        await button.trigger('click')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(schemas).toHaveLength(1)
+      })
+
+      // https://github.com/scalar/scalar/issues/5900
+      it.each(['allOf', 'oneOf', 'anyOf'] as const)(
+        'renders array items wrapped in a single-item %s without extra nesting',
+        async (composition) => {
+          // An array whose items are wrapped in a single-item composition is equivalent to
+          // an array whose items are a plain object. Both should render identically.
+          const compositionItems = mount(SchemaProperty, {
+            props: {
+              eventBus: null,
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'array',
+                title: 'foos array',
+                items: {
+                  title: 'foos array element',
+                  [composition]: [{ type: 'object', properties: { foo: { title: 'foo value', type: 'string' } } }],
+                },
+              }),
+              options: {},
+            },
+          })
+
+          const plainItems = mount(SchemaProperty, {
+            props: {
+              eventBus: null,
+              schema: coerceValue(SchemaObjectSchema, {
+                type: 'array',
+                title: 'bars array',
+                items: {
+                  type: 'object',
+                  title: 'bars array element',
+                  properties: { bar: { title: 'bar value', type: 'string' } },
+                },
+              }),
+              options: {},
+            },
+          })
+
+          await compositionItems.find('.property-toggle').trigger('click')
+          await plainItems.find('.property-toggle').trigger('click')
+
+          // The composition variant must not introduce an additional level of Schema nesting.
+          expect(compositionItems.findAllComponents(Schema)).toHaveLength(plainItems.findAllComponents(Schema).length)
+
+          // The member's property renders exactly once, as it does for plain items (the extra
+          // nesting used to render it under a second card).
+          expect(compositionItems.findAll('.property-name').map((name) => name.text())).toEqual(['foo'])
+          expect(plainItems.findAll('.property-name').map((name) => name.text())).toEqual(['bar'])
+        },
+      )
+
+      it('hides expand button for array with primitive items', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(button.exists()).toBe(false)
+        expect(schemas).toHaveLength(0)
+      })
+    })
+
+    describe('primitive types', () => {
+      it('hides expand button for string type', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'string',
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(button.exists()).toBe(false)
+        expect(schemas).toHaveLength(0)
+      })
+
+      it('hides expand button for integer type', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'integer',
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(button.exists()).toBe(false)
+        expect(schemas).toHaveLength(0)
+      })
+
+      it('hides expand button for number type', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'number',
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(button.exists()).toBe(false)
+        expect(schemas).toHaveLength(0)
+      })
+
+      it('hides expand button for boolean type', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'boolean',
+            }),
+            options: {},
+          },
+        })
+
+        const button = wrapper.find('.property-toggle')
+        const schemas = wrapper.findAllComponents(Schema)
+
+        expect(button.exists()).toBe(false)
+        expect(schemas).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('enum value display', () => {
+    describe('enum count behavior', () => {
+      it('displays all enum values when count is 12 or fewer', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'],
+            }),
+            options: {},
+          },
+        })
+
+        // Short flat values wrap as chips, all of them at once
+        const enumValues = wrapper.findAll('.property-enum-chip')
+        const toggleButton = wrapper.find('.enum-toggle-button')
+
+        expect(enumValues).toHaveLength(12)
+        expect(toggleButton.exists()).toBe(false)
+      })
+
+      it('displays first 8 enum values with toggle button when count exceeds 12', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm'],
+            }),
+            options: {},
+          },
+        })
+
+        const enumValues = wrapper.findAll('.property-enum-row')
+        const toggleButton = wrapper.find('.enum-toggle-button')
+
+        expect(enumValues).toHaveLength(8)
+        expect(toggleButton.exists()).toBe(true)
+        expect(toggleButton.text()).toBe('Show all values')
+      })
+
+      it('expands to show all enum values when toggle button is clicked', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm'],
+            }),
+            options: {},
+          },
+        })
+
+        const toggleButton = wrapper.find('.enum-toggle-button')
+        await toggleButton.trigger('click')
+
+        const enumValues = wrapper.findAll('.property-enum-row')
+        expect(enumValues).toHaveLength(13)
+        expect(toggleButton.text()).toBe('Hide values')
+      })
+
+      it('displays a single enum value as a const', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              enum: ['a'],
+            }),
+            options: {},
+          },
+        })
+
+        // One value is a constant, so it reads in the heading instead of as a list
+        expect(wrapper.find('.property-const').text()).toContain('a')
+        expect(wrapper.find('.property-enum').exists()).toBe(false)
+      })
+    })
+
+    describe('enum sources', () => {
+      it('displays enum values from array items property', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                enum: ['a', 'b', 'c'],
+              },
+            }),
+            options: {},
+          },
+        })
+
+        // A short item enum is inlined in the array's signature line, like a plain enum
+        const literals = wrapper.findAll('.property-type-token--literal').map((token) => token.text())
+        expect(literals).toEqual(['"a"', '"b"', '"c"'])
+        expect(wrapper.find('.property-enum').exists()).toBe(false)
+      })
+
+      it('displays enum values with their descriptions', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              'type': 'string',
+              'enum': ['Ice giant', 'Dwarf', 'Gas', 'Iron'],
+              'title': 'Planet',
+              'description': 'The type of planet',
+              'x-enumDescriptions': {
+                'Ice giant': 'A planet with a thick atmosphere of water, methane, and ammonia ice',
+                'Dwarf': 'A planet that is not massive enough to clear its orbit',
+                'Gas': 'A planet with a thick atmosphere of hydrogen and helium',
+                'Iron': 'A planet made mostly of iron',
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const enumList = wrapper.find('.property-enum .property-enum-values-card')
+        const html = enumList.html()
+
+        expect(html).toContain('Ice giant')
+        expect(html).toContain('Dwarf')
+        expect(html).toContain('Gas')
+        expect(html).toContain('Iron')
+        expect(html).toContain('A planet with a thick atmosphere of water, methane, and ammonia ice')
+        expect(html).toContain('A planet that is not massive enough to clear its orbit')
+        expect(html).toContain('A planet with a thick atmosphere of hydrogen and helium')
+        expect(html).toContain('A planet made mostly of iron')
+      })
+
+      it('lists enum values once for an array whose items are a $ref to an enum', () => {
+        // `noncollapsible` is how ParameterListItem mounts this. Without it the
+        // items card starts collapsed and this passes even with the bug present.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            compact: true,
+            noncollapsible: true,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                '$ref': '#/components/schemas/OrderBy',
+                '$ref-value': {
+                  type: 'string',
+                  title: 'OrderBy',
+                  enum: ['created_at', 'name'],
+                },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        expect(wrapper.findAll('.property-enum')).toHaveLength(1)
+        expect(wrapper.findAll('.property-enum-chip')).toHaveLength(2)
+      })
+
+      it('displays enum values within composition schemas', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              anyOf: [{ type: 'string', enum: ['a', 'b', 'c'] }, { type: 'null' }],
+            }),
+            options: {},
+          },
+        })
+
+        // A short typed enum is inlined in the signature line, so no separate list renders
+        const literals = wrapper.findAll('.property-type-token--literal').map((token) => token.text())
+        expect(literals).toEqual(['"a"', '"b"', '"c"'])
+        expect(wrapper.find('.property-enum').exists()).toBe(false)
+      })
+    })
+  })
+
+  describe('variant prop', () => {
+    it('displays pattern properties with variant prop', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          variant: 'patternProperties',
+          name: '^foo-',
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+          }),
+          options: {},
+        },
+      })
+
+      // Check that the pattern property name is rendered with the special styling
+      const patternName = wrapper.find('.property-name-pattern-properties')
+      expect(patternName.exists()).toBe(true)
+      expect(patternName.text()).toBe('^foo-')
+    })
+
+    it('displays additional properties with variant prop', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          variant: 'additionalProperties',
+          name: 'additionalProperty',
+          // @ts-expect-error
+          schema: {
+            type: 'anything',
+          },
+          options: {},
+        },
+      })
+
+      // Check that the additional property name is rendered with the special styling
+      const additionalName = wrapper.find('.property-name-additional-properties')
+      expect(additionalName.exists()).toBe(true)
+      expect(additionalName.text()).toBe('additionalProperty')
+    })
+
+    describe('map keys', () => {
+      const mountRow = (variant: 'additionalProperties' | 'patternProperties', name: string) =>
+        mount(SchemaProperty, {
+          props: {
+            variant,
+            name,
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: {},
+          },
+        })
+
+      it('names the key kind in the signature line for additional properties', () => {
+        const wrapper = mountRow('additionalProperties', 'measurement')
+
+        // The keyword leads the detail list; the name itself reads as a name.
+        expect(wrapper.find('.property-key-kind').text()).toBe('additionalProperty')
+        expect(wrapper.find('.property-name-additional-properties').text()).toBe('measurement')
+      })
+
+      it('names the key kind in the signature line for pattern properties', () => {
+        const wrapper = mountRow('patternProperties', '^x-')
+
+        expect(wrapper.find('.property-key-kind').text()).toBe('patternProperty')
+        expect(wrapper.find('.property-name-pattern-properties').text()).toBe('^x-')
+      })
+    })
+
+    it('renders a propertyNames enum as the enum card', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          name: 'measurement',
+          variant: 'additionalProperties',
+          propertyNamesEnum: ['alpha', 'beta'],
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('.property-enum--tree').exists()).toBe(true)
+    })
+
+    describe('cycles', () => {
+      const mountCycle = () =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            cycleKey: '#/components/schemas/Satellite',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+            }),
+            options: {},
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+      it('marks a cut cycle in the signature line and names the schema it returns to', () => {
+        const wrapper = mountCycle()
+        const detail = wrapper.find('.property-recursive')
+
+        expect(detail.text()).toBe('recursive')
+        expect(detail.attributes('title')).toBe('Recursive reference to Satellite')
+        // The row is a leaf: there is no panel to open
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+
+      it('reads the cycle key of the branch the panel renders', () => {
+        // `isArraySchema` accepts a type LIST, so this schema satisfies the
+        // object branch AND the array branch. The panel draws the object one,
+        // so the row has to test the object branch's key: reading the items'
+        // key instead misses the loop and expand-all walks it forever.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            cycleKey: '#/components/schemas/Satellite',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: ['array', 'object'],
+              items: { $ref: '#/components/schemas/Debris' },
+              properties: { name: { type: 'string' } },
+            }),
+            options: {},
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+        expect(wrapper.find('.property-recursive').text()).toBe('recursive')
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+
+      it('cuts a cycle that returns through array items', () => {
+        // The row's own schema is not the cycle — its ITEMS are, which is the
+        // shape of every `children: Node[]` tree model.
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'satellites',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: { $ref: '#/components/schemas/Satellite' },
+            }),
+            options: {},
+          },
+          global: {
+            provide: {
+              [SCHEMA_ANCESTORS_SYMBOL as symbol]: new Set(['#/components/schemas/Satellite']),
+            },
+          },
+        })
+
+        const detail = wrapper.find('.property-recursive')
+
+        expect(detail.text()).toBe('recursive')
+        // The row names the schema the loop returns to, not itself.
+        expect(detail.attributes('title')).toBe('Recursive reference to Satellite')
+        expect(wrapper.find('.property-children').exists()).toBe(false)
+      })
+    })
+
+    describe('collapsed rows', () => {
+      /** A row that satisfies BOTH branches; the panel draws the object one. */
+      const mountDualTyped = () =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'hybrid',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: ['array', 'object'],
+              items: { type: 'object', properties: { gamma: { type: 'string' } } },
+              properties: { alpha: { type: 'string' }, beta: { type: 'string' } },
+            }),
+            options: {},
+          },
+        })
+
+      it('previews the property names the panel would render', () => {
+        const wrapper = mountDualTyped()
+
+        // Describing the array items instead would advertise rows that open to
+        // something else entirely.
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ alpha, beta }')
+      })
+
+      it('describes the toggle with the count of those same rows', () => {
+        const wrapper = mountDualTyped()
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+
+        expect(countId).toBeTruthy()
+        expect(wrapper.find(`#${countId}`).text()).toBe('Properties: 2')
+      })
+
+      it('previews the first rows in panel order and elides the rest', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'wide',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                one: { type: 'string' },
+                two: { type: 'string' },
+                three: { type: 'string' },
+                four: { type: 'string' },
+                five: { type: 'string' },
+              },
+            }),
+            options: {},
+          },
+        })
+
+        // The same sorted list the panel renders, so the hint names the rows
+        // the reader will actually see first rather than document order.
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ five, four, one, +2 }')
+      })
+
+      it('counts and previews only the rows the filters leave behind', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                createdAt: { type: 'string', readOnly: true },
+                email: { type: 'string' },
+              },
+            }),
+            options: { hideReadOnly: true },
+          },
+        })
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+
+        // Raw keys would promise a row the panel drops, so the toggle would
+        // announce a child that is not there when it opens.
+        expect(wrapper.find(`#${countId}`).text()).toBe('Properties: 1')
+        expect(wrapper.find('.property-collapsed-preview').text()).toBe('{ email }')
+      })
+
+      it('drops the preview once the row is open', async () => {
+        const wrapper = mountDualTyped()
+
+        await wrapper.find('.property-toggle').trigger('click')
+
+        // The rows themselves are on screen now; the hint would just repeat them.
+        expect(wrapper.find('.property-collapsed-preview').exists()).toBe(false)
+      })
+    })
+
+    describe('child counts', () => {
+      /**
+       * The announced count and the rendered rows come from two different reads
+       * of the same schema: the count takes `Object.keys(properties).length`
+       * when no filter applies, the panel renders `sortPropertyNames`. They are
+       * pinned to each other here, so a change to either read that pulls them
+       * apart fails rather than announcing children that are not on screen.
+       *
+       * The children are all scalars, so the panel holds exactly one level of
+       * rows and every `.property` inside it is one of them.
+       */
+      const mountParent = (hideReadOnly: boolean) =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: {
+                createdAt: { type: 'string', readOnly: true },
+                email: { type: 'string' },
+                id: { type: 'string' },
+                nickname: { type: 'string' },
+                updatedAt: { type: 'string' },
+              },
+            }),
+            options: { hideReadOnly },
+          },
+        })
+
+      it.each([
+        ['keeping every child', false, 5],
+        ['hiding the read-only child', true, 4],
+      ])('announces the number of rows the open panel renders, %s', async (_case, hideReadOnly, expected) => {
+        const wrapper = mountParent(hideReadOnly)
+
+        await wrapper.find('.property-toggle').trigger('click')
+
+        const countId = wrapper.find('.property-toggle').attributes('aria-describedby')
+        const announced = wrapper.find(`#${countId}`).text()
+        const rendered = wrapper.find('.property-children').findAll('.property').length
+
+        expect(rendered).toBe(expected)
+        expect(announced).toBe(`Properties: ${rendered}`)
+      })
+    })
+
+    describe('hover marks', () => {
+      const mountRow = () =>
+        mount(SchemaProperty, {
+          props: {
+            name: 'account',
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              properties: { alpha: { type: 'string' } },
+            }),
+            options: {},
+          },
+        })
+
+      it('marks the row only while its heading is hovered', async () => {
+        const wrapper = mountRow()
+        const heading = wrapper.find('.property-heading')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+
+        await heading.trigger('pointerenter')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBe('')
+
+        await heading.trigger('pointerleave')
+
+        expect(wrapper.attributes('data-heading-hovered')).toBeUndefined()
+      })
+
+      it('clears the mark when the row leaves the DOM under the pointer', async () => {
+        const wrapper = mountRow()
+        // The row is this component's own element, so hold on to it: unmounting
+        // detaches the node but leaves whatever attributes it was carrying.
+        const row = wrapper.element as HTMLElement
+
+        await wrapper.find('.property-heading').trigger('pointerenter')
+
+        expect(row.getAttribute('data-heading-hovered')).toBe('')
+
+        // Unmounting hides the heading under the pointer, so no pointerleave
+        // ever follows and the row would stay marked.
+        wrapper.unmount()
+
+        expect(row.hasAttribute('data-heading-hovered')).toBe(false)
+      })
+
+      it('drops the rail marks when the row closes without a strip click', async () => {
+        const wrapper = mountRow()
+        const toggle = wrapper.find('.property-toggle')
+
+        await toggle.trigger('click')
+
+        const strip = wrapper.find('[data-rail-hit]')
+
+        expect(strip.exists()).toBe(true)
+
+        await strip.trigger('pointerenter')
+
+        expect(wrapper.attributes('data-child-rail-hovered')).toBe('')
+        expect(wrapper.find('.property-children').attributes('data-rail-hovered')).toBe('')
+
+        // A keyboard user closes from the toggle: the strip hides under the
+        // pointer without a pointerleave, so the row has to clear its own mark.
+        await toggle.trigger('click')
+
+        expect(wrapper.attributes('data-child-rail-hovered')).toBeUndefined()
+      })
+    })
+
+    it('displays regular property names without variant styling', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          name: 'regularProperty',
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'string',
+          }),
+          options: {},
+        },
+      })
+
+      // Check that regular property names don't have special styling
+      const patternName = wrapper.find('.property-name-pattern-properties')
+      const additionalName = wrapper.find('.property-name-additional-properties')
+
+      expect(patternName.exists()).toBe(false)
+      expect(additionalName.exists()).toBe(false)
+
+      // The name should still be rendered in the slot
+      expect(wrapper.text()).toContain('regularProperty')
+    })
+  })
+
+  describe('composition schemas', () => {
+    describe('array compositions', () => {
+      // A single-item composition is equivalent to its only member, so it is flattened and rendered
+      // like a plain object instead of through a composition panel. See #5900
+      it('flattens array items with a single-item oneOf composition', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                oneOf: [
+                  {
+                    type: 'object',
+                    description: 'foobar',
+                    properties: { test: { type: 'string' } },
+                  },
+                ],
+              },
+            }),
+            options: {},
+          },
+        })
+
+        await wrapper.find('.property-toggle').trigger('click')
+
+        // The member is rendered directly, with its description shown exactly once.
+        expect(wrapper.text()).toContain('test')
+        expect(wrapper.html().match(/foobar/g)).toHaveLength(1)
+      })
+
+      it('flattens array items with a single-item oneOf alongside a base type', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'array',
+              items: {
+                type: 'object',
+                oneOf: [
+                  {
+                    description: 'foobar',
+                    properties: { test: { type: 'string' } },
+                  },
+                ],
+              },
+            }),
+            options: {},
+          },
+        })
+
+        const buttons = wrapper.findAll('.property-toggle')
+        for (const button of buttons) {
+          await button.trigger('click')
+          await wrapper.vm.$nextTick()
+        }
+
+        expect(wrapper.text()).toContain('test')
+        expect(wrapper.html().match(/foobar/g)).toHaveLength(1)
+      })
+    })
+
+    describe('object compositions', () => {
+      it('renders object compositions with allOf with an object button', () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: coerceValue(SchemaObjectSchema, {
+              allOf: [
+                {
+                  properties: {
+                    testStr: { type: 'string', description: 'This is a test string' },
+                    testBool: { type: 'boolean', description: 'This is a test boolean' },
+                  },
+                  required: ['testStr'],
+                },
+              ],
+            }),
+            options: {},
+          },
+        })
+
+        // For allOf compositions, properties should be displayed directly without expansion
+        const html = wrapper.html()
+
+        // Check that both properties are rendered with their descriptions
+        expect(html).toContain('button')
+        expect(html).toContain('object')
+      })
+    })
+
+    describe('object properties', () => {
+      it('renders object properties with descriptions after expansion', async () => {
+        const wrapper = mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            schema: {
+              type: ['object', 'null'],
+              properties: {
+                galaxy: {
+                  type: 'string',
+                  description: 'Galaxy where the planet is located',
+                },
+                satellites: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                  description: 'List of satellites orbiting the planet',
+                },
+                habitable: {
+                  type: 'boolean',
+                  description: 'Whether the planet can support life',
+                },
+              },
+            } as any,
+            options: {},
+          },
+        })
+
+        // Expand all schema cards to reveal nested content
+        const buttons = wrapper.findAll('.property-toggle')
+        for (const button of buttons) {
+          await button.trigger('click')
+          await wrapper.vm.$nextTick()
+        }
+
+        const html = wrapper.html()
+        expect(html).toContain('galaxy')
+        expect(html).toContain('Galaxy where the planet is located')
+        expect(html).toContain('satellites')
+        expect(html).toContain('List of satellites orbiting the planet')
+        expect(html).toContain('habitable')
+        expect(html).toContain('Whether the planet can support life')
+      })
+    })
+  })
+
+  describe('discriminator context isolation', () => {
+    it('isolates child properties from parent discriminator context', async () => {
+      const childPropertySchema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          galaxy: {
+            type: 'string',
+            description: 'Galaxy of the planet',
+          },
+        },
+        required: ['galaxy'],
+      })
+
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: childPropertySchema,
+          name: 'Satellites',
+          level: 1,
+          options: {},
+        },
+      })
+
+      const expandButton = wrapper.find('.property-toggle')
+      if (expandButton.exists()) {
+        await expandButton.trigger('click')
+        await wrapper.vm.$nextTick()
+      }
+
+      const html = wrapper.html()
+
+      expect(html).toContain('galaxy')
+      expect(html).toContain('Galaxy of the planet')
+
+      expect(html).not.toContain('satellites')
+      expect(html).not.toContain('Satellites surrounding the planet')
+    })
+  })
+
+  describe('example values', () => {
+    it('renders a truthy boolean example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'boolean',
+            example: true,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('true')
+    })
+
+    it('renders a falsy boolean example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'boolean',
+            example: false,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('false')
+    })
+
+    it('renders a zero numeric example', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'integer',
+            example: 0,
+          }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('Example')
+      expect(wrapper.text()).toContain('0')
+    })
+  })
+
+  describe('anchor link behavior', () => {
+    it('renders anchor id for level-2 property with breadcrumb and name', () => {
+      // Level-2 properties appear inside allOf groups — they need anchors too
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 2,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('#body\\.BaseObject\\.myField').exists()).toBe(true)
+    })
+
+    it('does not render anchor id for level-3 property', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 3,
+          name: 'nestedField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('#body\\.BaseObject\\.nestedField').exists()).toBe(false)
+    })
+
+    it('wraps a linked name in the anchor and trails the heading with a copy button', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 1,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      const anchor = wrapper.find('div#body\\.BaseObject\\.myField')
+
+      expect(anchor.exists()).toBe(true)
+      expect(anchor.text()).toContain('myField')
+      // The copy button is the heading's last child, not part of the anchor,
+      // so the tab order matches the visual order.
+      expect(anchor.find('button').exists()).toBe(false)
+      expect(wrapper.find('.property-heading > :last-child').classes()).toContain('copy-link-trailing')
+    })
+
+    it('renders an unlinked name as a bare span without the anchor wrapper', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'myField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      const heading = wrapper.find('.property-heading')
+
+      expect(heading.text()).toContain('myField')
+      expect(heading.find('div[id]').exists()).toBe(false)
+      expect(wrapper.findComponent(WithBreadcrumb).exists()).toBe(false)
+    })
+
+    it('does not mount the anchor wrapper for a level-3 property', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          breadcrumb: ['body', 'BaseObject'],
+          level: 3,
+          name: 'nestedField',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('nestedField')
+      expect(wrapper.findComponent(WithBreadcrumb).exists()).toBe(false)
+    })
+
+    /**
+     * The linked and unlinked branches carry two hand-copied versions of the
+     * same name span, so only a test can keep them in step. `trailing` puts the
+     * copy button in the heading rather than inside the anchor, which leaves the
+     * anchor holding nothing but the slot: unwrap it and the two branches have
+     * to produce byte-identical markup, template comments included.
+     */
+    describe('name span copies', () => {
+      const mountName = (variant: 'additionalProperties' | 'patternProperties' | undefined, linked: boolean) =>
+        mount(SchemaProperty, {
+          props: {
+            eventBus: null,
+            breadcrumb: linked ? ['body', 'BaseObject'] : undefined,
+            level: 1,
+            name: 'myField',
+            variant,
+            schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+            options: {},
+          },
+        })
+
+      /**
+       * The block the template duplicates: the leading comment plus the name
+       * span. Taking the span's own siblings rather than the slot's innerHTML
+       * leaves out the comments `WithBreadcrumb` renders around its slot, which
+       * belong to that component and not to the copies under test.
+       */
+      const nameMarkup = (wrapper: ReturnType<typeof mountName>): string => {
+        const span = wrapper.find('.property-name span').element
+        const lead = span.previousSibling
+        // nodeType 8 is a comment, which is a real DOM node in a dev build
+        const comment = lead?.nodeType === 8 ? `<!--${lead.textContent}-->` : ''
+
+        // `useId` counts per mount, so the generated ids are noise here.
+        return `${comment}${span.outerHTML}`.replace(/ id="[^"]*"/g, '')
+      }
+
+      it.each([
+        ['a plain name', undefined],
+        ['an additionalProperties name', 'additionalProperties'],
+        ['a patternProperties name', 'patternProperties'],
+      ] as const)('renders %s identically with and without a breadcrumb', (_case, variant) => {
+        const linked = mountName(variant, true)
+        const unlinked = mountName(variant, false)
+
+        // Guard the comparison: without the anchor both sides would trivially
+        // be the same branch.
+        expect(linked.findComponent(WithBreadcrumb).exists()).toBe(true)
+        expect(unlinked.findComponent(WithBreadcrumb).exists()).toBe(false)
+
+        expect(nameMarkup(linked)).toBe(nameMarkup(unlinked))
+      })
+    })
+  })
+
+  describe('specification extensions', () => {
+    it('selects field extensions and prefers schema values over parameter values', async () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-owner': 'schema', 'x-hidden': 'secret' }),
+          extensionSource: { 'x-owner': 'parameter', 'x-policy': false },
+          options: { showExtensions: ['x-owner', 'x-policy'] },
+          specificationExtension: SpecificationExtension,
+        },
+      })
+      const extension = wrapper.getComponent(SpecificationExtension)
+      expect(extension.props('value')).toStrictEqual({
+        type: 'string',
+        'x-owner': 'schema',
+        'x-policy': false,
+        'x-hidden': 'secret',
+      })
+      expect(extension.props('showExtensions')).toStrictEqual(['x-owner', 'x-policy'])
+      await wrapper.setProps({ options: {} })
+      expect(extension.props('showExtensions')).toBeUndefined()
+    })
+
+    it('renders extensions from a parameter without a schema', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          schema: undefined,
+          extensionSource: { 'x-owner': 'parameter' },
+          options: { showExtensions: ['x-owner'] },
+          specificationExtension: SpecificationExtension,
+        },
+      })
+      expect(wrapper.getComponent(SpecificationExtension).props('value')).toStrictEqual({ 'x-owner': 'parameter' })
+      expect(wrapper.getComponent(SpecificationExtension).props('showExtensions')).toStrictEqual(['x-owner'])
+    })
+
+    it('mounts the extension renderer for a schema with an x- key', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          specificationExtension: SpecificationExtension,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', 'x-foo': 'bar' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.findComponent(SpecificationExtension).text()).toBe('bar')
+    })
+
+    it('does not mount the extension renderer for a schema without x- keys', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: null,
+          name: 'status',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', description: 'Plain' }),
+          options: {},
+        },
+      })
+
+      expect(wrapper.findComponent(SpecificationExtension).exists()).toBe(false)
+    })
+  })
+
+  describe('model links', () => {
+    it('renders the model name as plain text when hideModels is enabled', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: createWorkspaceEventBus(),
+          modelName: 'Planet',
+          schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          options: { hideModels: true },
+        },
+      })
+
+      expect(wrapper.text()).toContain('Planet')
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
+    })
+
+    it('renders the model name as plain text when the referenced model is hidden', () => {
+      const wrapper = mount(SchemaProperty, {
+        props: {
+          eventBus: createWorkspaceEventBus(),
+          modelName: 'Planet',
+          schema: coerceValue(SchemaObjectSchema, { type: 'object' }),
+          options: {
+            document: coerceValue(OpenAPIDocumentSchema, {
+              openapi: '3.1.0',
+              info: { title: 'Test', version: '1.0.0' },
+              components: { schemas: { Planet: { type: 'object', 'x-internal': true } } },
+            }),
+          },
+        },
+      })
+
+      expect(wrapper.text()).toContain('Planet')
+      expect(wrapper.find('.property-heading button').exists()).toBe(false)
+    })
+  })
+})

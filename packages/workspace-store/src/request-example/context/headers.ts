@@ -1,9 +1,9 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { isParamDisabled } from '@/request-example/builder/header/is-param-disabled'
+import { getExample } from '@/request-example/builder/helpers/get-example'
 
 /** Default Accept header value to accept all response types. */
 const DEFAULT_ACCEPT = '*/*'
@@ -31,8 +31,7 @@ export const restoreConventionalDefaultHeaderNames = (headers: Record<string, st
 
 /**
  * Lowercase names of **enabled** operation parameters with `in: header` for the given example.
- * Uses the same rules as the request builder (`isParamDisabled`): optional parameters are treated
- * as disabled unless `examples[exampleName]['x-disabled']` is explicitly `false`.
+ * Uses the same example selection and enablement rules as the request builder, including schema defaults.
  */
 const getEnabledOperationHeaderParameterNames = (operation: OperationObject, exampleName: string): Set<string> => {
   const names = new Set<string>()
@@ -41,8 +40,7 @@ const getEnabledOperationHeaderParameterNames = (operation: OperationObject, exa
     if (!param || param.in !== 'header') {
       continue
     }
-    const rawExample = 'examples' in param && param.examples?.[exampleName] ? param.examples[exampleName] : undefined
-    const example = rawExample ? getResolvedRef(rawExample) : undefined
+    const example = getExample(param, exampleName, undefined)
     if (!isParamDisabled(param, example)) {
       names.add(param.name.toLowerCase())
     }
@@ -120,7 +118,7 @@ export const getDefaultHeaders = ({
     appVersion: '0.0.0',
   },
 }: {
-  method: HttpMethod
+  method: string
   operation: OperationObject
   exampleName: string
   hideDisabledHeaders?: boolean

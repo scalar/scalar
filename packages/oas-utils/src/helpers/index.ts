@@ -7,6 +7,7 @@ export {
   type WebSocketPluginCloseInfo,
   type WebSocketPluginFrame,
   executeHook,
+  executeResponseHook,
   executeWebSocketHook,
   subscribePluginEvents,
 } from './client-plugins'

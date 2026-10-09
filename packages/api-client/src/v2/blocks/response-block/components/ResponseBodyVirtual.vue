@@ -5,6 +5,7 @@ import { computed } from 'vue'
 
 import { processResponseBody } from '@/v2/blocks/response-block/helpers/process-response-body'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 
@@ -13,6 +14,8 @@ const { content, data, headers } = defineProps<{
   data: unknown
   headers: { name: string; value: string }[]
 }>()
+
+const { translate } = useLocalization()
 
 const textContent = computed(() => formatJsonOrYamlString(content))
 
@@ -26,7 +29,9 @@ const responseBody = computed(() =>
 
 <template>
   <CollapsibleSection class="!max-h-100% response-body-virtual overflow-x-auto">
-    <template #title>Body</template>
+    <template #title>
+      {{ translate('apiClient.responseBodyVirtual.body') }}
+    </template>
     <template
       v-if="responseBody.dataUrl"
       #actions>
@@ -36,7 +41,7 @@ const responseBody = computed(() =>
         :type="responseBody.mimeType?.essence" />
     </template>
     <div class="font-code text-xxs rounded-t border-x border-t px-2.5 py-1.5">
-      This response body is massive! Syntax highlighting won't work here.
+      {{ translate('apiClient.responseBodyVirtual.largeBodyHint') }}
     </div>
     <ScalarVirtualText
       containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"

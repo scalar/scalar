@@ -3,6 +3,16 @@ import { describe, expect, it } from 'vitest'
 import { convertToLocalRef } from './convert-to-local-ref'
 
 describe('convertToLocalRef', () => {
+  it('resolves a qualified pointer into the document root', () => {
+    expect(
+      convertToLocalRef(
+        'https://example.com/openapi.yaml#/components/schemas/Value',
+        'https://example.com/model.json',
+        new Map([['https://example.com/openapi.yaml', '']]),
+      ),
+    ).toBe('components/schemas/Value')
+  })
+
   const schemas = new Map([
     ['https://example.com/schema1.json', '/components/schemas/Schema1'],
     ['https://example.com/schema2.json', '/components/schemas/Schema2'],

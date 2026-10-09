@@ -9,6 +9,7 @@ export type {
   OAuth2ObjectSecret,
   OAuthFlowAuthorizationCodeSecret,
   OAuthFlowClientCredentialsSecret,
+  OAuthFlowDeviceAuthorizationSecret,
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
@@ -50,6 +51,7 @@ export {
   resolveLeafSchema,
   resolveRequestFactoryUrl,
   serializeContentValue,
+  serializeCookieStyle,
   serializeDeepObjectStyle,
   serializeFormPropertyWithEncoding,
   serializeFormStyle,
@@ -59,6 +61,9 @@ export {
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from './builder'
+export { needsMultipartEncoding } from './builder/body/build-multipart'
+export { buildRequestBody } from './builder/body/build-request-body'
+export { serializeMultipartBody } from './builder/body/encode-multipart-body'
 export type { MergedSecuritySchemes } from './context'
 export {
   type BuildRequestExampleContext,
@@ -89,3 +94,7 @@ export {
 } from './functions'
 export { createVariablesStoreForRequest } from './variable-store'
 export type { VariableEntry, VariablesStore } from './variable-store/types'
+export { getXmlBodyExample } from './xml/get-xml-body-example'
+export { type XmlExampleOptions, getXmlExampleFromSchema, serializeXmlExample } from './xml/get-xml-example'
+export { serializeXmlPart } from './xml/serialize-xml-part'
+export type { XmlDiagnostic, XmlExampleResult } from './xml/xml-node'

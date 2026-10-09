@@ -258,8 +258,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <div class="hero-cell-logo"><svg class="hero-logo" viewBox="0 1.1 74.19 16.87" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M15.56 17.72H2.29c-.93 0-1.76-.55-2.11-1.41a2.29 2.29 0 0 1 .5-2.5l9.18-9.19H3.28A3.27 3.27 0 0 1 0 1.34h12.23a2.29 2.29 0 0 1 1.62 3.92l-9.18 9.19h7.61a3.28 3.28 0 0 1 3.28 3.27ZM74.19 7.5a6.4 6.4 0 0 0-6.39-6.4c-1.88 0-3.58.83-4.75 2.13A6.37 6.37 0 0 0 58.3 1.1a6.4 6.4 0 0 0-6.38 6.39v10.23a3.27 3.27 0 0 0 3.27-3.27V7.49a3.12 3.12 0 0 1 3.11-3.11 3.12 3.12 0 0 1 3.12 3.1v6.97a3.28 3.28 0 0 0 3.27 3.27V7.5a3.12 3.12 0 0 1 3.11-3.12 3.12 3.12 0 0 1 3.12 3.12v6.96a3.28 3.28 0 0 0 3.27 3.27V7.5ZM50.28 9.53a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0Zm-3.28 0a5.16 5.16 0 1 0-10.31 0 5.16 5.16 0 0 0 10.31 0Zm-14.9 0a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0Zm-3.27 0a5.16 5.16 0 1 0-10.32 0 5.16 5.16 0 0 0 10.32 0Z"/></svg><span class="hero-cell-kind">Docs</span></div>
 <div class="hero-cell-body">
 <div class="hero-zoom-docs">
-<img class="light-image" src="/api-docs-static-zoom-glass.svg" alt="Zoom API documentation preview" />
-<img class="dark-image" src="/api-docs-static-zoom-glass-dark.svg" alt="Zoom API documentation preview" />
+<img class="light-image" src="/api-docs-static-zoom-glass.svg" alt="Zoom API documentation preview" fetchpriority="high" />
+<img class="dark-image" src="/api-docs-static-zoom-glass-dark.svg" alt="Zoom API documentation preview" fetchpriority="high" />
 </div>
 </div>
 </div>
@@ -327,8 +327,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 <div class="hero-cell-logo"><svg class="hero-logo" viewBox="0 0 441 128" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"><path d="M166.971 40.917c11.605 0 23.824 4.606 31.392 13.519a.14.14 0 0 1-.015.196l-11.393 9.858a.14.14 0 0 1-.198-.013 24.4 24.4 0 0 0-8.422-6.174 24.9 24.9 0 0 0-10.437-2.133c-13.41 0-22.35 9.192-22.35 22.63 0 6.713 2.223 12.345 6.087 16.29a22.1 22.1 0 0 0 7.464 4.805 22.5 22.5 0 0 0 8.799 1.511 26.7 26.7 0 0 0 10.378-1.996 26.25 26.25 0 0 0 8.635-5.752.14.14 0 0 1 .192-.007l11.645 10.047a.13.13 0 0 1 .034.044.14.14 0 0 1 .015.053.14.14 0 0 1-.036.103c-6.497 7.175-17.999 12.866-32.397 12.866-11.139 0-20.793-3.91-27.569-10.565S128 90.12 128 78.928c0-22.63 16.169-38.011 38.971-38.011M272.297 40.924c22.067 0 36.337 15.52 36.337 36.95a61 61 0 0 1-.457 6.659.14.14 0 0 1-.047.088.14.14 0 0 1-.093.035h-54.261a.14.14 0 0 0-.136.171c2.321 10.287 10.27 16.557 21.26 16.557a23.64 23.64 0 0 0 10.369-2.151 23.24 23.24 0 0 0 8.236-6.335.14.14 0 0 1 .096-.051.14.14 0 0 1 .103.032l.447.373 11.163 9.719a.14.14 0 0 1 .049.093.14.14 0 0 1-.031.101c-6.316 7.834-16.808 13.599-31.355 13.599-21.772 0-38.196-15.077-38.196-37.983 0-11.238 3.87-20.663 10.319-27.317a35.7 35.7 0 0 1 11.989-7.934 36.2 36.2 0 0 1 14.208-2.606m.887 15.229a19.4 19.4 0 0 0-8.036 1.46 19.2 19.2 0 0 0-6.683 4.624 20.44 20.44 0 0 0-4.538 8.68.2.2 0 0 0-.001.062q.007.031.027.057a.14.14 0 0 0 .109.054h37.036a.14.14 0 0 0 .135-.174c-2.156-8.804-8.293-14.763-18.049-14.763M225.661 11.976a.14.14 0 0 1 .1.04.142.142 0 0 1 .041.1v103.509a.14.14 0 0 1-.01.054.144.144 0 0 1-.077.077.14.14 0 0 1-.054.01h-16.684a.14.14 0 0 1-.054-.01.14.14 0 0 1-.077-.077.14.14 0 0 1-.01-.054V12.117a.14.14 0 0 1 .141-.14zM361.385 40.92q.029 0 .054.01a.14.14 0 0 1 .077.076.14.14 0 0 1 .011.054v18.552c0 .081-.07.146-.151.14-1.944-.147-3.88-.29-5.072-.29-13.058 0-20.725 9.19-20.725 21.253v34.91a.14.14 0 0 1-.01.054.144.144 0 0 1-.077.077.14.14 0 0 1-.054.01h-16.683a.14.14 0 0 1-.054-.01.14.14 0 0 1-.077-.077.14.14 0 0 1-.01-.054v-73.52a.14.14 0 0 1 .087-.13.14.14 0 0 1 .054-.01h16.683a.14.14 0 0 1 .1.04.142.142 0 0 1 .041.1V53.04a.104.104 0 0 0 .15.092.1.1 0 0 0 .037-.03c5.851-7.815 14.488-12.162 23.613-12.162l2.006-.022zm26.947-28.944a.14.14 0 0 1 .1.04.142.142 0 0 1 .041.1v63.165c0 .13.157.19.244.095l30.691-33.455a.14.14 0 0 1 .104-.046h20.063c.122 0 .187.145.105.236l-26.752 29.515a.13.13 0 0 0-.036.082.14.14 0 0 0 .02.088l27.119 43.755a.15.15 0 0 1 .022.071.144.144 0 0 1-.069.125.14.14 0 0 1-.072.019h-19.033a.14.14 0 0 1-.12-.067l-19.234-30.912a.14.14 0 0 0-.119-.066h-.18a.2.2 0 0 0-.057.012.14.14 0 0 0-.047.033l-12.612 13.55a.14.14 0 0 0-.037.096v17.213a.1.1 0 0 1-.011.054.14.14 0 0 1-.076.077.14.14 0 0 1-.054.01h-16.685a.14.14 0 0 1-.099-.041.14.14 0 0 1-.031-.046.14.14 0 0 1-.01-.054V12.117q0-.028.01-.054a.14.14 0 0 1 .13-.087zM84 64c0 11.046-8.954 20-20 20s-20-8.954-20-20 8.954-20 20-20 20 8.954 20 20m16.04 47.354c1.702 1.702 1.531 4.519-.468 5.858C89.399 124.026 77.163 128 64 128s-25.4-3.974-35.572-10.788c-2-1.339-2.17-4.156-.468-5.858l14.615-14.616c1.321-1.32 3.37-1.53 5.033-.678A35.84 35.84 0 0 0 64 100a35.85 35.85 0 0 0 16.391-3.94c1.663-.85 3.712-.643 5.033.678z" /> <path d="M99.572 10.788c1.999 1.34 2.17 4.156.468 5.858L85.424 31.262c-1.32 1.32-3.37 1.53-5.033.678A35.85 35.85 0 0 0 64 28c-19.882 0-36 16.118-36 36a35.85 35.85 0 0 0 3.94 16.391c.851 1.663.643 3.712-.678 5.033L16.646 100.04c-1.702 1.702-4.519 1.531-5.858-.468C3.974 89.399 0 77.163 0 64 0 28.654 28.654 0 64 0c13.163 0 25.399 3.974 35.572 10.788" /></svg><span class="hero-cell-kind">Docs</span></div>
 <div class="hero-cell-body">
 <div class="hero-clerk-docs">
-<img class="light-image" src="/clerk-docs-glass.svg" alt="Clerk API documentation preview" />
-<img class="dark-image" src="/clerk-docs-glass-dark.svg" alt="Clerk API documentation preview" />
+<img class="light-image" src="/clerk-docs-glass.svg" alt="Clerk API documentation preview" fetchpriority="high" />
+<img class="dark-image" src="/clerk-docs-glass-dark.svg" alt="Clerk API documentation preview" fetchpriority="high" />
 </div>
 </div>
 </div>
@@ -482,7 +482,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
 </div>
 
 <div class="logowall">
-  <div class="logowall-item">
+  <div class="logowall-item logowall-item-tr">
     <scalar-icon class="logowall-logo" src="../assets/remote/logo-tr.svg"></scalar-icon>
   </div>
   <div class="logowall-item">
@@ -672,56 +672,56 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   </div>
   <div class="product product-reversed">
     <div class="product-copy">
-      <span class="font-bold text-orange">API Client</span>
-      <scalar-heading level="2" slug="scalar-api-client" class="c">
-        The Postman Alternative Your Team Is Dreaming Of
+      <span class="font-bold text-orange">MCP &amp; Agent</span>
+      <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
+        Turn Your OpenAPI Documents Into an MCP Server
       </scalar-heading>
       <p>
-        Fully open-source & offline first API Client built on the OpenAPI standard, by us & our community.
+        Upload your OpenAPI documents and expose them as a hosted MCP server: just-in-time tool calls, secure delegated auth, and only 0.2% of your context window no matter how many APIs you connect.
       </p>
       <div class="flex flex-wrap text-orange gap-y-2">
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/wifi-slash"></scalar-icon>
-          Offline-first
+          <scalar-icon src="phosphor/bold/grid-four"></scalar-icon>
+          Just-in-time tool calls
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/globe"></scalar-icon>
-          Sync your local API
+          <scalar-icon src="phosphor/bold/shield-check"></scalar-icon>
+          Secure delegated auth
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/graph"></scalar-icon>
-          OpenAPI by Heart
+          <scalar-icon src="phosphor/bold/users-three"></scalar-icon>
+          Scoped access
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users"></scalar-icon>
-          Collaborate with Others
+          <scalar-icon src="phosphor/bold/arrows-out-line-horizontal"></scalar-icon>
+          Isolated execution
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple-open"></scalar-icon>
-          No Vendor Lock-In
+          <scalar-icon src="phosphor/bold/article"></scalar-icon>
+          Markdown in MCP
         </b>
         <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/desktop-tower"></scalar-icon>
-          Linux, Windows, macOS
+          <scalar-icon src="phosphor/bold/infinity"></scalar-icon>
+          Public and internal APIs
         </b>
       </div>
       <div class="product-actions mt-3">
-        <a class="product-action t-editor__anchor" href="https://client.scalar.com/" target="_blank" rel="noopener noreferrer" aria-label="Send an API request with Scalar">
-          Send Request &rarr;
+        <a class="product-action t-editor__anchor" href="https://dashboard.scalar.com/register" target="_blank" rel="noopener noreferrer" aria-label="Get started with Scalar MCP and Agent">
+          Get Started &rarr;
         </a>
-        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/api-client" aria-label="Learn more about Scalar API Client">
+        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">
           Learn More &rarr;
         </a>
       </div>
     </div>
     <div class="product-image">
       <div class="product-image-transform">
-        <img alt="API Client" class="light-image" src="/api-client-static.svg"/>
-        <img alt="API Client" class="dark-image" src="/api-client-static-dark.svg"/>
+        <img alt="Claude connected to a Scalar MCP server" class="light-image" src="/agent-static.svg"/>
+        <img alt="Claude connected to a Scalar MCP server" class="dark-image" src="/agent-static-dark.svg"/>
       </div>
     </div>
     <div class="draggable sticker-8">
-      <scalar-icon src="../assets/remote/cdn-6ce5b6dd90.svg"></scalar-icon>
+      <scalar-icon src="../assets/agent-scalar-sticker.svg"></scalar-icon>
     </div>
   </div>
 </div>
@@ -838,21 +838,20 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   </div>
   <div class="expander-hover">
     <div class="expander-hover-preview">
-      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
-      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
+      <img alt="MCP & Agent Preview" class="light-image" src="/agent-static.svg" />
+      <img alt="MCP & Agent Preview" class="dark-image" src="/agent-static-dark.svg" />
     </div>
     <div class="relative">
       <div class="expander-hover-sticker">
-        <object class="sticker-clip-client" width="156" height="110"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
+        <object class="sticker-clip-agent" width="139" height="162" data="/agent-scalar-sticker-static.svg"></object>
       </div>
-      <div class="expander-hover-title">API Client</div>
+      <div class="expander-hover-title">MCP & Agent</div>
       <div class="expander">
         <div class="expander-content">
-          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
+          OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.
         </div>
       </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
+      <a class="expander-hover-link" href="/products/agent" aria-label="Learn more about MCP & Agent">Learn More</a>
     </div>
   </div>
 </div>
@@ -918,10 +917,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .t-editor.page {
     margin-right: unset;
   }
-  .t-editor .slider,
-  .t-editor .hero-visual {
-    margin-top: unset;
-  }
   .t-editor .editor-static .page-node,
   .t-editor .page-node,
   .t-editor .content {
@@ -979,7 +974,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   }
   .hero-visual {
     position: relative;
-    margin-top: 64px;
+    margin-top: 0;
     padding-top: 64px;
     /* 76px wider per side than the content column, so the cards line up with
        the product images below -- those sit at -76px (see
@@ -1039,7 +1034,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     zoom: calc(100cqw / 720px);
     border-radius: 16px;
     overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--hero-glass-tint, rgba(255, 255, 255, 0.08));
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
@@ -1054,27 +1049,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     overflow: hidden;
     background-color: transparent;
   }
-  [data-sdk-lang="typescript"] {
-    --hero-lang: #3178c6;
-  }
-  [data-sdk-lang="python"] {
-    --hero-lang: #ffd845;
-  }
-  [data-sdk-lang="java"] {
-    --hero-lang: #e76f00;
-  }
-  [data-sdk-lang="kotlin"] {
-    --hero-lang: #a97bff;
-  }
-  [data-sdk-lang="rust"] {
-    --hero-lang: #dea584;
-  }
-  [data-sdk-lang="go"] {
-    --hero-lang: #00add8;
-  }
-  [data-sdk-lang="bash"] {
-    --hero-lang: #89e051;
-  }
   .hero-glass-ide-main {
     flex: 1;
     display: flex;
@@ -1087,7 +1061,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     display: flex;
     align-items: stretch;
     overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: var(--hero-glass-tabs-tint, rgba(255, 255, 255, 0.06));
     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   }
   .hero-glass-tabs button {
@@ -1112,14 +1086,15 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   }
   .hero-glass-tabs button.active {
     color: rgb(255, 255, 255);
-    background-color: rgba(255, 255, 255, 0.18);
+    background-color: var(--hero-glass-tab-active-tint, rgba(255, 255, 255, 0.18));
   }
-  .hero-glass-tabs button.active::after {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: 1px;
-    background-color: var(--hero-lang, rgba(255, 255, 255, 0.4));
+  /* Warp reads as one solid tinted panel instead of stacked translucent
+     layers: the card's own backing carries the brand wash, so the tab strip
+     and the active tab sit on it without adding a band of their own. */
+  .hero-cell[data-hero-cell="warp-sdk"] {
+    --hero-glass-tint: #b74b0f8a;
+    --hero-glass-tabs-tint: transparent;
+    --hero-glass-tab-active-tint: transparent;
   }
   /* no copy chrome on the SDK panes */
   .hero-glass-codewrap .t-editor__language-picker {
@@ -1751,9 +1726,6 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .dark-mode .light-image {
     display: none;
   }
-  .sticker-clip-client {
-    clip-path: path("M158 91.9102C158 95.8908 154.773 99.1172 150.792 99.1172L147.269 99.1172L147.269 105.78C147.268 107.948 145.511 109.705 143.343 109.705L86.2051 109.705C84.0373 109.705 82.2795 107.948 82.2793 105.78L82.2793 99.1172L7.208 99.1172C3.22741 99.1172 1.10673e-05 95.8908 -4.01752e-06 91.9101L-3.50643e-06 80.2178C-3.47119e-06 79.4117 0.135571 78.6109 0.400387 77.8496L25.7949 4.83984C26.8028 1.94219 29.5346 -5.6154e-06 32.6025 -5.4813e-06L150.792 -3.15072e-07C154.773 -1.41078e-07 158 3.22654 158 7.20703L158 91.9102Z")
-  }
   .sticker-clip-sdk {
     clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
   }
@@ -1763,6 +1735,10 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   .sticker-clip-docs {
     overflow: hidden;
     border-radius: 20px;
+  }
+  /* Outline of the Agent Scalar speech-bubble sticker (139x162). */
+  .sticker-clip-agent {
+    clip-path: path("M128.27 0C134.19 0 139 4.8 139 10.73V134.6c0 5.93-4.8 10.73-10.73 10.73H22.72L7.46 160.3A4.39 4.39 0 0 1 0 157.17V128.3h.17V10.73C.17 4.81 4.97 0 10.9 0z");
   }
 
   @media screen and (max-width: 590px) {

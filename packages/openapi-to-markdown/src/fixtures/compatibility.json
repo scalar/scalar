@@ -1,0 +1,210 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Markdown benchmark",
+    "version": "1.0",
+    "description": "A shared object used by this API.",
+    "contact": {
+      "name": "API Team",
+      "email": "team@example.com",
+      "url": "https://example.com/contact"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://example.com/license"
+    },
+    "termsOfService": "https://example.com/terms"
+  },
+  "servers": [
+    {
+      "url": "https://example.com/api"
+    }
+  ],
+  "security": [
+    {
+      "bearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Resources",
+      "description": "Resource operations"
+    }
+  ],
+  "paths": {
+    "/resources/0": {
+      "post": {
+        "operationId": "resource0",
+        "summary": "Resource 0",
+        "description": "A shared object used by this API.",
+        "tags": [
+          "Resources"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resource"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "XML result",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "xml": {
+                    "name": "result"
+                  },
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "value"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resources/1": {
+      "post": {
+        "operationId": "resource1",
+        "summary": "Resource 1",
+        "description": "A shared object used by this API.",
+        "tags": [
+          "Resources"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resource"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Resource": {
+        "type": "object",
+        "description": "A shared object used by this API.",
+        "required": [
+          "field0"
+        ],
+        "properties": {
+          "field0": {
+            "type": "string",
+            "description": "Field 0",
+            "example": "value0"
+          },
+          "field1": {
+            "type": "string",
+            "description": "Field 1",
+            "example": "value1"
+          },
+          "field2": {
+            "type": "string",
+            "description": "Field 2",
+            "example": "value2"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Owner"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/Resource"
+          }
+        }
+      },
+      "Owner": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "event": {
+      "post": {
+        "summary": "Event notification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Owner"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Received"
+          }
+        }
+      }
+    }
+  }
+}

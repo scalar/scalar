@@ -151,6 +151,21 @@ const children = computed(() =>
     : [],
 )
 
+/**
+ * Whether this item is the one currently displayed on the page.
+ *
+ * `isSelected` also reports true for every ancestor of the displayed item,
+ * which is what the active styling of a group needs. Only the deepest
+ * selected node is the current page though, so a group counts as current when
+ * none of its children are selected. Leaf items already get this from the
+ * `selected` prop of ScalarSidebarButton.
+ */
+const isCurrent = computed(
+  () =>
+    isSelected(item.id) &&
+    !(hasChildren(item) && item.children.some((child) => isSelected(child.id))),
+)
+
 /** The URL for this item, when the consumer provides one it renders as a link */
 const href = computed(() => getHref?.(item) || undefined)
 
@@ -277,6 +292,7 @@ const handleSelect = (event: MouseEvent) => {
       <ScalarSidebarButton
         :is="href ? 'a' : 'button'"
         :active="isSelected(item.id)"
+        :aria-current="isCurrent ? 'page' : undefined"
         :aria-expanded="isDiscrete ? undefined : open"
         :href="href"
         :indent="level"

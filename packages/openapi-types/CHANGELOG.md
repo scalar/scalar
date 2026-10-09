@@ -1,5 +1,20 @@
 # @scalar/openapi-types
 
+## 0.9.7
+
+### Patch Changes
+
+- [#10273](https://github.com/scalar/scalar/pull/10273): Accept valid OpenAPI 3.1 and 3.2 schemas with JSON Schema core keywords, references with sibling keywords, custom formats, and keywords independent of the declared type.
+
+## 0.9.6
+
+### Patch Changes
+
+- [#9886](https://github.com/scalar/scalar/pull/9886): Fix empty `$dynamicRef` array items in the Models section. A model that binds a
+  generic template's item type through a `$ref` sibling `$defs` (a named
+  `Paginated<User>`) lost that binding while resolving the schema for display, so
+  the item rendered empty. The model now keeps the binding and shows the bound type.
+
 ## 0.9.5
 
 ### Patch Changes

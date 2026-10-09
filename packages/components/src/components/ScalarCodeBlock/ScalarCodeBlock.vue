@@ -28,6 +28,17 @@ type BaseProps = {
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
+  /**
+   * Accessible name for the code scroller. Long code scrolls inside a focusable region so
+   * keyboard users can reach it, and a focusable region needs a name or screen readers announce
+   * nothing when focus lands on it.
+   */
+  label?: string
+  /**
+   * Accessible name for the copy button. The visible label only reads "Copy" (and the language)
+   * while the block is hovered, so the name has to say what is copied on its own.
+   */
+  copyLabel?: string
 }
 
 /**
@@ -39,6 +50,8 @@ const {
   lang = 'plaintext',
   lineNumbers = false,
   copy = 'hover',
+  label = 'Code sample',
+  copyLabel,
   content,
   prettyPrintedContent,
   hideCredentials,
@@ -127,18 +140,25 @@ const { cx } = useBindCx()
         'relative bg-b-1 min-h-0 min-w-0 focus-visible:outline',
       )
     ">
-    <!-- Inherits the corners so the inset focus ring follows a rounded code block -->
+    <!--
+      Inherits the corners so the inset focus ring follows a rounded code block.
+      Always a tab stop so code that scrolls stays reachable by keyboard (WCAG 2.1.1). A named
+      group rather than a region, so every code sample does not add a landmark.
+    -->
     <div
-      tabindex="0"
-      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1">
+      :aria-label="label"
+      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1"
+      role="group"
+      tabindex="0">
       <pre
         :id="id"
-        class="m-0 bg-transparent text-nowrap whitespace-pre w-fit"
+        class="m-0 p-0 border-0 bg-transparent text-nowrap whitespace-pre w-fit"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
     <ScalarCodeBlockCopy
       v-if="showCopy"
+      :aria-controls="id"
       class="scalar-code-copy absolute"
       :class="[
         isOneLine
@@ -147,9 +167,9 @@ const { cx } = useBindCx()
         { 'opacity-100': copy === 'always' },
       ]"
       :content="prettyContent"
-      :showLang="!isOneLine"
+      :copyLabel="copyLabel"
       :lang="lang"
-      :aria-controls="id">
+      :showLang="!isOneLine">
       <template #backdrop>
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop"

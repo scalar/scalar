@@ -1,5 +1,51 @@
 # @scalar/openapi-parser
 
+## 0.29.12
+
+### Patch Changes
+
+- [#10489](https://github.com/scalar/scalar/pull/10489): Report invalid non-exploded structured cookies in OpenAPI 3.2 documents and prevent invalid request and code sample generation. Recommend `style: cookie` with `explode: true`.
+
+## 0.29.11
+
+## 0.29.10
+
+## 0.29.9
+
+## 0.29.8
+
+## 0.29.7
+
+## 0.29.6
+
+## 0.29.5
+
+### Patch Changes
+
+- [#10274](https://github.com/scalar/scalar/pull/10274): Add a standard-agnostic `join` utility with configurable merge strategies and conflict reporting to `@scalar/json-magic/join`. Use it in the OpenAPI parser while retaining OpenAPI upgrades, component prefixes, and OpenAPI conflict reports in the parser.
+
+## 0.29.4
+
+## 0.29.3
+
+### Patch Changes
+
+- [#10216](https://github.com/scalar/scalar/pull/10216): Allow more time for parser comparison tests on slower CI runners.
+
+## 0.29.2
+
+### Patch Changes
+
+- [#10202](https://github.com/scalar/scalar/pull/10202): Explain invalid URI references and OpenAPI component names, and return parser errors for malformed reference escapes.
+- [#10113](https://github.com/scalar/scalar/pull/10113): Ignore unsafe component keys and check own properties when joining API descriptions.
+- [#10141](https://github.com/scalar/scalar/pull/10141): Report the actual document version after upgrading, including preserved OpenAPI 3.2 documents. Return no version for empty or unsupported input.
+- [#10136](https://github.com/scalar/scalar/pull/10136): Restore modal and single-file reference tests, update layout selectors, and remove stale comments. Named-resource resolution remains unsupported and is tested explicitly.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 0.29.1
 
 ### Patch Changes

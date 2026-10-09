@@ -61,26 +61,35 @@ describe('getHttpMethodInfo', () => {
     })
   })
 
+  it.each(['customMethod', 'constructor', '__proto__'])('displays the custom method %s', (method) => {
+    expect(getHttpMethodInfo(method)).toEqual({
+      short: method,
+      colorClass: 'text-c-2',
+      colorVar: 'var(--scalar-color-2)',
+      backgroundColor: 'bg-c-2',
+    })
+  })
+
   it('handles unknown HTTP methods', () => {
     const unknownMethod = 'UNKNOWN'
     const result = getHttpMethodInfo(unknownMethod)
 
-    expect(result.short).toBe('unknown')
-    expect(result).toHaveProperty('color')
+    expect(result.short).toBe('UNKNOWN')
+    expect(result).toHaveProperty('colorClass')
     expect(result).toHaveProperty('backgroundColor')
   })
 
   it('handles empty string', () => {
     const result = getHttpMethodInfo('')
     expect(result.short).toBe('')
-    expect(result).toHaveProperty('color')
+    expect(result).toHaveProperty('colorClass')
     expect(result).toHaveProperty('backgroundColor')
   })
 
   it('handles whitespace-only strings', () => {
     const result = getHttpMethodInfo('   ')
     expect(result.short).toBe('')
-    expect(result).toHaveProperty('color')
+    expect(result).toHaveProperty('colorClass')
     expect(result).toHaveProperty('backgroundColor')
   })
 })

@@ -1,6 +1,6 @@
 # CLI (npm, binaries, Homebrew)
 
-The CLI target ships in two forms from one source tree. The **npm** package stays a normal Node CLI (with a `bin`), so users can `npm install -g`. The release workflow can also cross-compile **standalone executables** and attach them to the GitHub Release, and update a [Homebrew](https://brew.sh/) tap that installs them. See the [CLI configuration](../cli.md) for options.
+The CLI target ships in two forms from one source tree. The **npm** package stays a normal Node CLI (with a `bin`), so users can `npm install -g`. The release workflow can also cross-compile **standalone executables** and attach them to the GitHub Release, and update a [Homebrew](https://brew.sh/) tap that installs them. See the [CLI configuration](../configuration/cli.md) for options.
 
 These three registry keys are independent, and you can enable any combination:
 

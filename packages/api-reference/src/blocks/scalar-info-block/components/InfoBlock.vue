@@ -3,6 +3,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
   ExternalDocumentationObject,
   InfoObject,
@@ -21,14 +22,18 @@ const {
   documentDownloadType = 'both',
   documentUrl,
   documentType,
+  info,
+  externalDocs,
 } = defineProps<{
   /** Optional unique identifier for the info block. */
   id?: string
+  /** AsyncAPI application identifier, separate from the introduction navigation anchor. */
+  applicationIdentifier?: string
   /** Original specification version of the input document (OpenAPI or AsyncAPI). */
   specificationVersion?: string
-  /** The Info object from the OpenAPI document. */
+  /** The Info object from the API description. */
   info: InfoObject | AsyncApiInfoObject | undefined
-  /** The external documentation object from the OpenAPI document, if present. */
+  /** An explicit external documentation object, overriding AsyncAPI info.externalDocs. */
   externalDocs?: ExternalDocumentationObject
   /** OpenAPI extension fields at the document level. */
   documentExtensions?: Record<string, unknown>
@@ -48,6 +53,17 @@ const {
   documentType?: 'openapi' | 'asyncapi'
 }>()
 
+/** AsyncAPI 3.x carries external documentation on info and allows references. */
+const resolvedExternalDocs = computed<ExternalDocumentationObject | undefined>(
+  () =>
+    getResolvedRef(
+      externalDocs ??
+        (documentType === 'asyncapi' && info && 'externalDocs' in info
+          ? info.externalDocs
+          : undefined),
+    ),
+)
+
 /**
  * Put the selectors in
  * - the after slot for classic layout,
@@ -61,10 +77,11 @@ const introCardsSlot = computed(() =>
 <template>
   <IntroductionLayout
     :id
+    :applicationIdentifier
     :documentExtensions
     :documentType
     :eventBus="eventBus"
-    :externalDocs
+    :externalDocs="resolvedExternalDocs"
     :headingSlugGenerator
     :info
     :infoExtensions

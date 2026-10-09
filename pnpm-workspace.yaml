@@ -14,18 +14,17 @@ packages:
 catalogs:
   '*':
     '@ai-sdk/vue': 3.0.33
-    '@astrojs/starlight': 0.37.7
+    '@astrojs/starlight': 0.42.2
     '@fastify/basic-auth': ^6.3.0
     '@fastify/http-proxy': ^11.6.0
     '@fastify/swagger': ^9.8.1
     '@floating-ui/utils': 0.2.10
     '@floating-ui/vue': 1.1.9
-    '@faker-js/faker': 10.4.0
+    '@faker-js/faker': 10.6.0
     '@google-cloud/storage': 7.21.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
-    '@hono/node-server': ^1.19.10
-    '@hono/node-ws': ^1.2.0
+    '@hono/node-server': ^2.1.1
     '@modelcontextprotocol/sdk': 1.26.0
     '@nestjs/cli': '^11.0.14'
     '@nestjs/common': '^11.1.11'
@@ -50,7 +49,7 @@ catalogs:
     '@types/semver': 7.5.8
     '@types/supertest': 6.0.2
     '@types/ws': 8.18.1
-    '@typescript-eslint/parser': ^8.53.0
+    '@typescript-eslint/parser': 8.71.0
     '@vitejs/plugin-react': 6.0.1
     '@vitejs/plugin-vue': ^6.0.8
     '@vue/test-utils': 2.4.11
@@ -62,7 +61,7 @@ catalogs:
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
     ansis: 4.1.0
-    astro: 5.18.1
+    astro: 7.2.10
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0
@@ -72,7 +71,7 @@ catalogs:
     fastify: ^5.11.2
     flatted: ^3.4.0
     fuse.js: ^7.5.0
-    hono: ^4.13.7
+    hono: ^4.13.8
     get-port-please: 3.2.0
     github-slugger: 2.0.0
     highlight.js: ^11.11.1
@@ -101,7 +100,7 @@ catalogs:
     type-fest: ^5.8.0
     truncate-json: 3.0.1
     tsx: 4.19.4
-    undici: 7.24.4
+    undici: 7.29.1
     vite-plugin-monaco-editor-esm: 2.0.2
     vite-ssg: 28.3.0
     vite-svg-loader: 5.1.1
@@ -114,27 +113,39 @@ catalogs:
     yaml: ^2.9.0
     zod: ^4.4.3
     posthog-js: 1.407.5
-    ws: 8.21.0
-ignoredBuiltDependencies:
-  - '@firebase/util'
-  - core-js
-  - core-js-pure
-  - dtrace-provider
-  - protobufjs
-  - sharp
-  - unrs-resolver
-  - vue-demi
-  - workerd
+    ws: 8.21.3
+# pnpm 12 replaces onlyBuiltDependencies/ignoredBuiltDependencies with a single
+# allowBuilds map: true runs the package's build scripts, false skips them.
+allowBuilds:
+  '@firebase/util': false
+  '@nestjs/core': true
+  '@parcel/watcher': false
+  '@swc/core': true
+  '@tailwindcss/oxide': true
+  core-js: false
+  core-js-pure: false
+  dtrace-provider: false
+  electron: true
+  esbuild: false
+  lefthook: true
+  protobufjs: false
+  sharp: false
+  unrs-resolver: false
+  vue-demi: false
+  workerd: false
+
+# pnpm 12 no longer reads the "pnpm" field in package.json; overrides live here now.
+overrides:
+  '@types/node': catalog:*
+  fast-uri@3.1.2: 3.0.1
+  lodash: 4.18.1
+  property-information: 7.1.0
+  undici: catalog:*
+  scalar-app>undici: 8.11.2
 
 # Do not lower this value; add popular packages to minimumReleaseAgeExclude or wait before updating.
 minimumReleaseAge: 7200 # 5 days
 
-onlyBuiltDependencies:
-  - '@nestjs/core'
-  - '@swc/core'
-  - '@tailwindcss/oxide'
-  - lefthook
-  - electron
 minimumReleaseAgeExclude:
   # Lets trust ourselves
   - '@scalar/*'
@@ -150,3 +161,5 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
+  # Electron runtime update, released September 29, 2026
+  - electron@44.5.1

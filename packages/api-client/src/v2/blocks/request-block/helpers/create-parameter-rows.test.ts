@@ -4,6 +4,114 @@ import { describe, expect, it } from 'vitest'
 import { createParameterRows } from './create-parameter-rows'
 
 describe('createParameterRows', () => {
+  it.each(['query', 'header', 'cookie'] as const)(
+    'displays optional %s enum suggestions without enabling them',
+    (location) => {
+      const parameter: ParameterObject = {
+        name: 'mediaType',
+        in: location,
+        schema: { type: 'string', enum: ['None', 'Image'] },
+      }
+      expect(
+        createParameterRows(parameter, 'default').map(({ value, isDisabled, isDisabledByDefault }) => ({
+          value,
+          isDisabled,
+          isDisabledByDefault,
+        })),
+      ).toStrictEqual([{ value: 'None', isDisabled: true, isDisabledByDefault: true }])
+    },
+  )
+
+  it('keeps nested object enum suggestions disabled', () => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: { media: { type: 'object', properties: { type: { type: 'string', enum: ['None', 'Image'] } } } },
+      },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ name, value, isDisabled }) => ({ name, value, isDisabled })),
+    ).toStrictEqual([{ name: 'filter[media][type]', value: 'None', isDisabled: true }])
+  })
+
+  it.each(['deepObject', 'form'] as const)('populates %s rows from property examples', (style) => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style,
+      explode: true,
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: { active: { type: 'string', pattern: '^eq\\.(true|false)$', example: 'eq.true' } },
+      },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ name, value, isDisabled }) => ({ name, value, isDisabled })),
+    ).toStrictEqual([
+      { name: style === 'deepObject' ? 'filter[active]' : 'active', value: 'eq.true', isDisabled: false },
+    ])
+  })
+
+  it.each([
+    { example: { dataValue: 'hello' }, value: 'hello' },
+    { example: { dataValue: false }, value: 'false' },
+    { example: { dataValue: 0 }, value: '0' },
+    { example: { serializedValue: 'term=a%20b' }, value: 'term=a%20b' },
+  ])('displays and enables authored parameter examples: $value', ({ example, value }) => {
+    const rows = createParameterRows(
+      { name: 'term', in: 'query', schema: { type: 'string' }, examples: { default: example } },
+      'default',
+    )
+    expect(rows.map(({ value, isDisabled }) => ({ value, isDisabled }))).toStrictEqual([{ value, isDisabled: false }])
+  })
+
+  it('retains the whole-query value while disabled so it can be re-enabled', () => {
+    const parameter: ParameterObject = {
+      name: 'metadata',
+      in: 'querystring',
+      content: { 'application/x-www-form-urlencoded': {} },
+      examples: { default: { serializedValue: 'q=a+%2B+b', 'x-disabled': true } },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ value, isDisabled }) => ({ value, isDisabled })),
+    ).toStrictEqual([{ value: 'q=a+%2B+b', isDisabled: true }])
+  })
+
+  it('shows a content-based whole query as one editable serialized value', () => {
+    const parameter: ParameterObject = {
+      name: 'metadata',
+      in: 'querystring',
+      required: true,
+      content: { 'application/x-www-form-urlencoded': { example: { foo: 'a + b', bar: true } } },
+    }
+    const rows = createParameterRows(parameter, 'default')
+    expect(
+      rows.map(({ name, value, isDisabled, originalParameter }) => ({ name, value, isDisabled, originalParameter })),
+    ).toStrictEqual([
+      { name: 'metadata', value: 'foo=a+%2B+b&bar=true', isDisabled: false, originalParameter: parameter },
+    ])
+  })
+
+  it('does not offer decoded schema suggestions in the raw whole-query editor', () => {
+    const rows = createParameterRows(
+      {
+        name: 'search',
+        in: 'querystring',
+        required: true,
+        content: { 'application/json': { schema: { type: 'string', enum: ['cat', 'dog'], examples: ['dog'] } } },
+        examples: { default: { dataValue: 'cat' } },
+      },
+      'default',
+    )
+    expect(rows[0]?.value).toBe('%22cat%22')
+    expect(rows[0]?.schema).toBeUndefined()
+  })
+
   it('expands default form query object parameters into property rows', () => {
     const pageSchema = {
       type: 'integer',
@@ -598,6 +706,28 @@ describe('createParameterRows', () => {
     ])
   })
 
+  it('auto-enables an optional header with a pre-populated value (x-scenario-id bug)', () => {
+    const parameter: ParameterObject = {
+      name: 'x-scenario-id',
+      in: 'header',
+      required: false,
+      schema: { type: 'string', enum: ['200_createEnrollment_success', '400_bad_request'] },
+      examples: {
+        default: {
+          value: '200_createEnrollment_success',
+          // no x-disabled set — would normally start unchecked
+        },
+      },
+    }
+
+    const [row] = createParameterRows(parameter, 'default')
+
+    expect({
+      isDisabled: row?.isDisabled,
+      isDisabledByDefault: row?.isDisabledByDefault,
+    }).toStrictEqual({ isDisabled: false, isDisabledByDefault: true })
+  })
+
   it('does not mark an explicitly disabled parameter as disabled by default', () => {
     const parameter: ParameterObject = {
       name: 'header',
@@ -617,5 +747,49 @@ describe('createParameterRows', () => {
       isDisabled: row?.isDisabled,
       isDisabledByDefault: row?.isDisabledByDefault,
     }).toStrictEqual({ isDisabled: true, isDisabledByDefault: undefined })
+  })
+  it.each(['query', 'header', 'cookie'] as const)(
+    'preserves empty and falsy values for optional %s rows',
+    (location) => {
+      for (const value of [undefined, null, '', 0, false]) {
+        const parameter: ParameterObject = {
+          name: 'value',
+          in: location,
+          schema: { type: 'string' },
+          examples: { default: { value } },
+        }
+        const [row] = createParameterRows(parameter, 'default')
+        expect({
+          value: row?.value,
+          isDisabled: row?.isDisabled,
+          isDisabledByDefault: row?.isDisabledByDefault,
+        }).toStrictEqual({
+          value: value === undefined || value === null ? '' : String(value),
+          isDisabled: value !== 0 && value !== false,
+          isDisabledByDefault: true,
+        })
+      }
+    },
+  )
+
+  it.each(['form', 'deepObject'] as const)('enables populated expanded %s query parameters', (style) => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style,
+      explode: true,
+      schema: { type: 'object', properties: { count: { type: 'integer' }, active: { type: 'boolean' } } },
+      examples: { default: { value: { count: 0, active: false } } },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map((row) => ({
+        value: row.value,
+        isDisabled: row.isDisabled,
+        isDisabledByDefault: row.isDisabledByDefault,
+      })),
+    ).toStrictEqual([
+      { value: '0', isDisabled: false, isDisabledByDefault: true },
+      { value: 'false', isDisabled: false, isDisabledByDefault: true },
+    ])
   })
 })

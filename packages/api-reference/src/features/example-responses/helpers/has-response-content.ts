@@ -16,7 +16,7 @@ function hasMediaTypeContent(mediaType: MediaTypeObject | undefined): boolean {
     return false
   }
 
-  const hasSchema = Boolean(mediaType.schema)
+  const hasSchema = Boolean(mediaType.schema || mediaType.itemSchema)
   const hasExample = 'example' in mediaType && mediaType.example !== null
   const hasExamples = Boolean(mediaType.examples)
 

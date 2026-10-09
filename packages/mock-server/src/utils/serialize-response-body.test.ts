@@ -132,6 +132,8 @@ describe('serializeResponseBody', () => {
   })
 
   it('serializes a null XML body rather than building a document from it', () => {
-    expect(serializeResponseBody(null, 'application/xml')).toBe('null')
+    expect(serializeResponseBody(null, 'application/xml')).toBe(
+      '<?xml version="1.0" encoding="UTF-8"?>\n<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>',
+    )
   })
 })

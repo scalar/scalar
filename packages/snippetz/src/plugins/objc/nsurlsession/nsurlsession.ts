@@ -1,12 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { collectHeaders, joinUrlAndQuery, normalizeMethod, normalizeUrl } from '@/libs/http'
-
-/**
- * Boundary used for multipart bodies. NSURLSession does not provide one, so we
- * emit a stable placeholder the user can replace as needed.
- */
-const MULTIPART_BOUNDARY = '---011000010111000001101001'
+import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 
 /**
  * Escapes a string so it can be safely embedded inside an Objective-C `@"..."`
@@ -79,9 +74,21 @@ export const objcNsurlsession: Plugin = {
 
     const method = normalizeMethod(request.method)
     const url = normalizeUrl(joinUrlAndQuery(request.url ?? '', request.queryString))
-    const headers = collectHeaders(request.headers, request.cookies)
+    const multipart =
+      request.postData?.mimeType === 'multipart/form-data' && request.postData.params
+        ? prepareRequest(request)
+        : undefined
+    const headers = multipart?.headers ?? collectHeaders(request.headers, request.cookies)
 
+    const boundary = multipartFileBoundary(multipart)
+    const literal = (value: string): string =>
+      boundary
+        ? `[${objcStringLiteral(value)} stringByReplacingOccurrencesOfString:${objcStringLiteral(boundary)} withString:boundary]`
+        : objcStringLiteral(value)
     const lines: string[] = ['#import <Foundation/Foundation.h>']
+    if (boundary) {
+      lines.push('', 'NSString *boundary = [[NSUUID UUID] UUIDString];')
+    }
 
     // Headers (cookies are folded into a single Cookie header by collectHeaders)
     const hasHeaders = headers.length > 0
@@ -124,30 +131,14 @@ export const objcNsurlsession: Plugin = {
         })
       } else if (mimeType === 'multipart/form-data' && params?.length) {
         hasBody = true
-        lines.push(
-          '',
-          nsDeclaration('NSArray', 'parameters', params),
-          `NSString *boundary = @"${MULTIPART_BOUNDARY}";`,
-          '',
-          'NSError *error;',
-          'NSMutableString *body = [NSMutableString string];',
-          'for (NSDictionary *param in parameters) {',
-          '  [body appendFormat:@"--%@\\r\\n", boundary];',
-          '  if (param[@"fileName"]) {',
-          '    [body appendFormat:@"Content-Disposition:form-data; name=\\"%@\\"; filename=\\"%@\\"\\r\\n", param[@"name"], param[@"fileName"]];',
-          '    [body appendFormat:@"Content-Type: %@\\r\\n\\r\\n", param[@"contentType"]];',
-          '    [body appendFormat:@"%@", [NSString stringWithContentsOfFile:param[@"fileName"] encoding:NSUTF8StringEncoding error:&error]];',
-          '    if (error) {',
-          '      NSLog(@"%@", error);',
-          '    }',
-          '  } else {',
-          '    [body appendFormat:@"Content-Disposition:form-data; name=\\"%@\\"\\r\\n\\r\\n", param[@"name"]];',
-          '    [body appendFormat:@"%@", param[@"value"]];',
-          '  }',
-          '}',
-          '[body appendFormat:@"\\r\\n--%@--\\r\\n", boundary];',
-          'NSData *postData = [body dataUsingEncoding:NSUTF8StringEncoding];',
-        )
+        lines.push('', 'NSMutableData *postData = [NSMutableData data];')
+        for (const segment of multipart?.body ?? []) {
+          if ('file' in segment) {
+            lines.push(`[postData appendData:[NSData dataWithContentsOfFile:${objcStringLiteral(segment.file)}]];`)
+          } else {
+            lines.push(`[postData appendData:[${literal(segment.text)} dataUsingEncoding:NSUTF8StringEncoding]];`)
+          }
+        }
       } else if (mimeType === 'application/octet-stream') {
         hasBody = true
         lines.push('', `NSData *postData = [${objcStringLiteral(text ?? '')} dataUsingEncoding:NSUTF8StringEncoding];`)
@@ -168,6 +159,11 @@ export const objcNsurlsession: Plugin = {
 
     if (hasHeaders) {
       lines.push('[request setAllHTTPHeaderFields:headers];')
+      if (boundary) {
+        lines.push(
+          '[request setValue:[@"multipart/form-data; boundary=" stringByAppendingString:boundary] forHTTPHeaderField:@"Content-Type"];',
+        )
+      }
     }
 
     if (hasBody) {

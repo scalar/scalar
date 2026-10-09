@@ -153,14 +153,17 @@ function wrapAsExampleObject(value: unknown): OpenAPIV3.ExampleObject {
 /**
  * True if the key looks like a MIME media type (e.g. application/json, text/plain).
  * Used to distinguish media-type example keys from named example keys when migrating
- * Swagger 2.0 examples to OpenAPI 3.0 content. Requires exactly one slash and
- * token-style type/subtype (no spaces or semicolons) to avoid false positives
- * for named keys that contain a slash (e.g. "Error 404/Not Found").
+ * Swagger 2.0 examples to OpenAPI 3.0 content. The type must be a registered top-level
+ * type (or `*`) and the subtype a single token, so named keys that contain a slash
+ * ("Error 404/Not Found", "Coupons/Promos") stay named examples. Matching is
+ * case-sensitive for undeclared keys so "Image/Before" stays a name. Explicit
+ * consumes/produces entries take precedence, including mixed-case or private types.
  */
-const MEDIA_TYPE_KEY_PATTERN = /^[a-zA-Z0-9*+.-]+\/[a-zA-Z0-9*+.+-]+$/
+const MEDIA_TYPE_KEY_PATTERN =
+  /^(\*|application|audio|example|font|haptics|image|message|model|multipart|text|video)\/[a-zA-Z0-9*+.-]+$/
 
-function isMediaTypeKey(key: string): boolean {
-  return MEDIA_TYPE_KEY_PATTERN.test(key)
+const isMediaTypeKey = (key: string, declaredMediaTypes: readonly string[]): boolean => {
+  return declaredMediaTypes.includes(key) || MEDIA_TYPE_KEY_PATTERN.test(key)
 }
 
 /** Transforms x-example entries to OpenAPI 3.x examples format */
@@ -227,6 +230,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
   // Schemas
   if (document.definitions) {
+    for (const schema of Object.values(document.definitions)) {
+      migrateSchemaNullability(schema)
+    }
+
     document.components = Object.assign({}, document.components, {
       schemas: document.definitions,
     })
@@ -347,6 +354,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
           // Transform schema to content
           if (responseObj.schema) {
+            migrateSchemaNullability(responseObj.schema)
             if (typeof responseObj.content !== 'object') {
               responseObj.content = {}
             }
@@ -370,7 +378,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
             for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
               // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-              if (isMediaTypeKey(key)) {
+              if (isMediaTypeKey(key, produces)) {
                 if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
                   ;(responseObj.content as Record<string, unknown>)[key] = {}
                 }
@@ -490,6 +498,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     }, {})
                   }
                   if (responseItem.schema) {
+                    migrateSchemaNullability(responseItem.schema)
                     const produces = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
 
                     if (typeof responseItem.content !== 'object') {
@@ -517,7 +526,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
                     for (const [key, exampleValue] of Object.entries(responseItem.examples)) {
                       // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-                      if (isMediaTypeKey(key)) {
+                      if (isMediaTypeKey(key, operationItem.produces ?? produces)) {
                         if (typeof responseItem.content[key] !== 'object') {
                           responseItem.content[key] = {}
                         }
@@ -638,6 +647,39 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   return document as OpenAPIV3.Document
 }
 
+/**
+ * Swagger tooling uses x-nullable for the nullability keyword introduced in OpenAPI 3.0.
+ * Visit only subschemas so example/default values and custom extensions remain user data.
+ */
+const migrateSchemaNullability = (schema: unknown): void => {
+  if (!isObjectLike(schema)) {
+    return
+  }
+
+  if (typeof schema['x-nullable'] === 'boolean') {
+    // False is already the default in OpenAPI 3.0 and needs no keyword in later versions.
+    if (schema['x-nullable']) {
+      schema.nullable = true
+    }
+    delete schema['x-nullable']
+  }
+
+  if (isObjectLike(schema.properties)) {
+    for (const property of Object.values(schema.properties)) {
+      migrateSchemaNullability(property)
+    }
+  }
+
+  migrateSchemaNullability(schema.items)
+  migrateSchemaNullability(schema.additionalProperties)
+
+  if (Array.isArray(schema.allOf)) {
+    for (const member of schema.allOf) {
+      migrateSchemaNullability(member)
+    }
+  }
+}
+
 function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
   const schemaProperties = [
     'type',
@@ -656,9 +698,10 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     'uniqueItems',
     'enum',
     'multipleOf',
+    'x-nullable',
   ]
 
-  return schemaProperties.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
+  const schema = schemaProperties.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
     if (Object.hasOwn(obj, property)) {
       acc[property] = obj[property]
       delete obj[property]
@@ -666,6 +709,9 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
 
     return acc
   }, {})
+
+  migrateSchemaNullability(schema)
+  return schema
 }
 
 function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.ParameterLocation {
@@ -855,6 +901,7 @@ function migrateBodyParameter(
   delete bodyParameter.in
 
   const { schema, ...requestBody } = bodyParameter
+  migrateSchemaNullability(schema)
 
   const requestBodyObject: OpenAPIV3.RequestBodyObject = {
     content: {},
@@ -899,13 +946,19 @@ function migrateBodyParameter(
       }
       // Fallback: x-examples keyed by example name instead of media type
       // e.g. x-examples: { Request: { email: "test@example.com" } }
-      else if (isNonEmptyObject(xExamples) && !Object.keys(xExamples).some(isMediaTypeKey)) {
-        requestBodyObject.content[type].examples = Object.entries(xExamples).reduce<
-          Record<string, OpenAPIV3.ExampleObject>
-        >((acc, [key, exampleValue]) => {
-          acc[key] = wrapAsExampleObject(exampleValue)
-          return acc
-        }, {})
+      // Decided per key, so a key that belongs to another media type never drops the named ones
+      else if (isNonEmptyObject(xExamples)) {
+        const namedExamples = Object.entries(xExamples).filter(([key]) => !isMediaTypeKey(key, consumes))
+
+        if (namedExamples.length) {
+          requestBodyObject.content[type].examples = namedExamples.reduce<Record<string, OpenAPIV3.ExampleObject>>(
+            (acc, [key, exampleValue]) => {
+              acc[key] = wrapAsExampleObject(exampleValue)
+              return acc
+            },
+            {},
+          )
+        }
       }
 
       // Handle x-example (singular) only when we did not set examples for this type

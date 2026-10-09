@@ -16,6 +16,10 @@ pre-commit:
       run: 'pnpm prettier --write {staged_files}'
       stage_fixed: true
     biome:
-      glob: '*.{js,ts,cjs,mjs,d.ts,d.cts,d.mts,jsx,tsx,json,jsonc,vue,svelte,astro}'
+      glob: '*.{js,ts,cjs,mjs,d.ts,d.cts,d.mts,jsx,tsx,json,jsonc,css,vue,svelte,astro}'
       run: pnpm biome check --write --diagnostic-level=error --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      stage_fixed: true
+    eslint:
+      glob: '*.vue'
+      run: pnpm eslint --fix {staged_files}
       stage_fixed: true

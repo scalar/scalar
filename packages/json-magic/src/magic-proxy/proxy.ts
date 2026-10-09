@@ -53,7 +53,11 @@ const REF_KEY = '$ref'
  */
 export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S extends UnknownObject>(
   target: T,
-  options?: Partial<{ showInternal: boolean }>,
+  options?: Partial<{
+    showInternal: boolean
+    /** Canonical URI identifying the root document for qualified references. */
+    documentUri: string
+  }>,
   args: {
     /**
      * The root object for resolving local JSON references.
@@ -83,7 +87,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     root: target,
     proxyCache: new WeakMap(),
     cache: new Map(),
-    schemas: getSchemas(target),
+    schemas: getSchemas(target, '', [], new Map(options?.documentUri ? [[options.documentUri, '']] : [])),
     currentContext: '',
   },
 ): T => {
@@ -208,7 +212,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         }
 
         // Set the value on the parent node
-        getParentNode()[segments.at(-1)] = newValue
+        const parent = getParentNode()
+        const key = segments.at(-1)!
+        if (key === '__proto__') {
+          Object.defineProperty(parent, key, { value: newValue, enumerable: true, configurable: true, writable: true })
+        } else {
+          parent[key] = newValue
+        }
         return true
       }
 

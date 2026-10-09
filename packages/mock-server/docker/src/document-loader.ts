@@ -7,6 +7,8 @@ const TEMP_DOCUMENT_YAML = '/tmp/openapi.yaml'
 
 interface DocumentInfo {
   path: string
+  /** Original source used to resolve references after loading the document. */
+  origin: string
   format: 'json' | 'yaml'
 }
 
@@ -23,7 +25,7 @@ export async function loadDocument(commandLineUrl?: string): Promise<DocumentInf
       const format = detectDocumentFormat(content)
       const tempPath = format === 'json' ? TEMP_DOCUMENT_JSON : TEMP_DOCUMENT_YAML
       writeFileSync(tempPath, content, 'utf8')
-      return { path: tempPath, format }
+      return { path: tempPath, origin: commandLineUrl, format }
     } catch (error) {
       throw new Error(
         `Failed to fetch OpenAPI document from URL ${commandLineUrl}: ${error instanceof Error ? error.message : String(error)}`,
@@ -37,7 +39,7 @@ export async function loadDocument(commandLineUrl?: string): Promise<DocumentInf
     const format = detectDocumentFormat(process.env.OPENAPI_DOCUMENT)
     const tempPath = format === 'json' ? TEMP_DOCUMENT_JSON : TEMP_DOCUMENT_YAML
     writeFileSync(tempPath, process.env.OPENAPI_DOCUMENT, 'utf8')
-    return { path: tempPath, format }
+    return { path: tempPath, origin: tempPath, format }
   }
 
   // Third priority: OPENAPI_DOCUMENT_URL environment variable
@@ -52,7 +54,7 @@ export async function loadDocument(commandLineUrl?: string): Promise<DocumentInf
       const format = detectDocumentFormat(content)
       const tempPath = format === 'json' ? TEMP_DOCUMENT_JSON : TEMP_DOCUMENT_YAML
       writeFileSync(tempPath, content, 'utf8')
-      return { path: tempPath, format }
+      return { path: tempPath, origin: process.env.OPENAPI_DOCUMENT_URL, format }
     } catch (error) {
       throw new Error(
         `Failed to fetch OpenAPI document from URL ${process.env.OPENAPI_DOCUMENT_URL}: ${error instanceof Error ? error.message : String(error)}`,
@@ -67,7 +69,7 @@ export async function loadDocument(commandLineUrl?: string): Promise<DocumentInf
     console.log(`✓ Found OpenAPI document: ${document}`)
     const content = readFileSync(document, 'utf8')
     const format = detectDocumentFormat(content)
-    return { path: document, format }
+    return { path: document, origin: document, format }
   }
 
   throw new Error(

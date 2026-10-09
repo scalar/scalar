@@ -1,5 +1,294 @@
 # @scalar/workspace-store
 
+## 0.68.2
+
+### Patch Changes
+
+- [#10491](https://github.com/scalar/scalar/pull/10491): Use OpenAPI 3.2 tag categories to keep badges and audience labels out of navigation groups and display them on operations.
+- [#10489](https://github.com/scalar/scalar/pull/10489): Report invalid non-exploded structured cookies in OpenAPI 3.2 documents and prevent invalid request and code sample generation. Recommend `style: cookie` with `explode: true`.
+- [#10480](https://github.com/scalar/scalar/pull/10480): Resolve structural allOf object fields and annotation-only wrappers and selected oneOf/anyOf variants in form body fields, preserving descriptions, nested inputs, and multipart value types when switching variants.
+- [#10487](https://github.com/scalar/scalar/pull/10487): Honor OpenAPI 3.2 allowReserved for path parameters while escaping forbidden path characters and preserving the encoded path in Ruby code examples.
+- [#10488](https://github.com/scalar/scalar/pull/10488): Resolve OpenAPI 3.2 security requirements by URI, including relative references based on the document URI, while preserving named schemes and authored exports.
+
+## 0.68.1
+
+### Patch Changes
+
+- [#10431](https://github.com/scalar/scalar/pull/10431): Keep explicit authentication field clears separate from configured defaults, add field-local reset actions, and prevent clearing fixed-choice OAuth settings.
+- [#10460](https://github.com/scalar/scalar/pull/10460): Preserve multipart file metadata in generated code examples, including arrays and composed schemas, read actual file bytes across code example targets, let HTTP clients set the multipart boundary, and preserve typed text fields without turning them into file attachments.
+
+## 0.68.0
+
+### Minor Changes
+
+- [#10432](https://github.com/scalar/scalar/pull/10432): Generate lazy AsyncAPI channel, operation, message, and schema chunks. Group shared dependencies to reduce requests while preserving direct model loading, recursive references, navigation, servers, and authentication.
+
+### Patch Changes
+
+- [#10458](https://github.com/scalar/scalar/pull/10458): Stop walking every path through shared schemas when collecting a parameter's declared example values. A shared schema found to declare no values is now skipped on the other paths that reach it, so a request whose parameter points into a deep graph of shared schemas no longer takes seconds to minutes to render.
+
+## 0.67.2
+
+### Patch Changes
+
+- [#10429](https://github.com/scalar/scalar/pull/10429): Use the schema title for sidebar entries of models grouped with `x-tags`, matching untagged models.
+
+## 0.67.1
+
+### Patch Changes
+
+- [#10383](https://github.com/scalar/scalar/pull/10383): Populate object parameter values from property examples when no parameter or root schema value is provided.
+- [#10361](https://github.com/scalar/scalar/pull/10361): Preserve configured OAuth redirect URLs when changing credentials or clearing tokens, and hide refresh controls when no refresh token is available.
+
+  Previously saved redirect overrides, including empty strings and prefilled page origins, remain unchanged because they cannot be distinguished from intentional user choices. Users affected by the earlier bug must enter the intended redirect URL again.
+
+  The public `@scalar/workspace-store` OAuth secrets types now expose `x-scalar-secret-redirect-uri` as optional (`string | undefined`). Consumers must handle an absent override separately from an explicit empty string.
+
+## 0.67.0
+
+### Minor Changes
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Mock-server XML response bytes now use the shared schema-aware serializer instead of `json2xml`, including attributes, namespaces, and root naming. Existing XML response snapshots may need updating. Supplied serialized XML remains unchanged.
+
+  Generate XML examples from schema metadata, preserving attributes, namespaces, array wrappers, repeated elements, and OpenAPI 3.2 text and CDATA nodes. Use the same XML serialization for request bodies, code snippets, response examples, mock responses, and Markdown documentation. Preserve serialized media examples and escape schema string examples as element text.
+
+  Explain XML generation failures in response example panels, including the serialized-example escape hatch for large payloads. Expose XML generation failures in mock response headers with `X-Scalar-XML-Error`, containing the first error diagnostic code. Report diagnostics to other consumers through a callback or the developer console, and format element-only descendants within mixed content without changing text values.
+
+### Patch Changes
+
+- [#10341](https://github.com/scalar/scalar/pull/10341): Avoid excessive processing time when encoding chunk names with long runs of dots.
+- [#10342](https://github.com/scalar/scalar/pull/10342): Prevent prototype pollution when merging documents and writing nested values or JSON references, while preserving prototype-named JSON data properties.
+
+  Dot-separated mutations now reject new `constructor` and `prototype` keys, as well as `__proto__`, instead of creating these keys through inherited properties.
+
+- [#10334](https://github.com/scalar/scalar/pull/10334): Include optional form fields when selecting files or editing values, while preserving explicitly unchecked fields.
+- [#10192](https://github.com/scalar/scalar/pull/10192): Apply edited XML bodies instead of their original serialized or data examples, render schema-free XML examples in Markdown, and share reference decoding and response provenance selection.
+
+## 0.66.0
+
+### Minor Changes
+
+- [#10189](https://github.com/scalar/scalar/pull/10189): Support OpenAPI 3.2 `in: querystring` parameters, including content-based serialization, editing the entire query string, schema rendering, and generated request URLs.
+
+  Non-form whole-query content, including JSON delimiters, is percent-encoded in request URLs and code samples. Use an example with `serializedValue` on the parameter itself for URI-ready query content that must retain its existing encoding.
+
+  Preserve the encoding of named query values when they coexist with whole-query content in generated code samples, while encoding query authentication values once.
+
+  Explain why the whole-query editor disables adding named parameters. Existing named parameters follow the whole-query value, preserving duplicate keys for the server to interpret.
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Support OpenAPI 3.2 additionalOperations in operation storage, navigation, documentation, callbacks, and the API client. Preserve custom HTTP method spelling when displaying and sending requests and generating code samples.
+
+  Traversed operation and webhook methods now use the exported `OperationMethod` type, which accepts custom strings while retaining known-method editor completion. Consumers must handle unknown methods; this open type cannot provide exhaustive checking over the fixed HTTP method set. Unknown method presentation uses `colorClass` and `colorVar`, matching known methods. Preserve uppercase and mixed-case additional operation names consistently.
+
+- [#10310](https://github.com/scalar/scalar/pull/10310): Connect SDK code samples to named request body examples using optional example and contentType fields. Keep the example switcher available for static samples and use the selected request example in API client snippets. Display unavailable linked samples as a localized status message in all supported languages.
+
+### Patch Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Preserve authored method variants in request data and navigation links. Generate custom-method requests with generic client APIs, and explain when RestSharp cannot represent a method.
+- [#10186](https://github.com/scalar/scalar/pull/10186): Include the current document-defined custom method in the request method picker and preserve its spelling when selected.
+
+  Keep QUERY operation chunk names aligned with their references when additional operations are supported.
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Preserve request bodies for extension HTTP methods such as QUERY and PROPFIND in the browser client.
+- [#10322](https://github.com/scalar/scalar/pull/10322): Use OpenAPI 3.2 dataValue and serializedValue examples for named parameters in the editor, outgoing requests, and code samples. Preserve already serialized values without encoding them twice.
+
+  Optional parameters with `dataValue` or `serializedValue` examples are now enabled by default, matching legacy `value` examples. Explicitly disabled examples remain disabled.
+
+  Parameter-level `serializedValue` examples remain editable as raw wire text, including parameter names and percent encoding (for example, `term=hello` rather than `hello`). Media-level cookie examples are percent-encoded when sent, matching generated snippets. Generating snippets no longer modifies the input cookies.
+
+- [#10319](https://github.com/scalar/scalar/pull/10319): Update the OpenAPI version badge when the document version changes during live editing.
+- [#10315](https://github.com/scalar/scalar/pull/10315): Stop following `$ref-value` chains at the first reference that loops back, so a document whose references point at each other (or at themselves) no longer overflows the stack while it loads.
+
+## 0.65.0
+
+### Minor Changes
+
+- [#10177](https://github.com/scalar/scalar/pull/10177): Use OpenAPI 3.2 schemas throughout workspace-store consumers, stories, tests, and type generation. Update the app editor to offer OpenAPI 3.2 validation and completion while continuing to accept existing 3.1 documents.
+
+  Preserve OpenAPI 3.2 fields in the loose workspace schema, including tag hierarchy, streaming media types, nested encoding, additional operations, and OAuth device authorization.
+
+  The editor intentionally offers the 3.2 field set to documents declaring 3.1 as well; it does not flag 3.2-only fields solely because the declared version is 3.1. This does not certify conformance to the declared version or automatically update it. Before using 3.2-only fields, migrate and explicitly declare OpenAPI 3.2, and verify support in other validators and generators. Remove the unused 3.1 loose-schema generator to prevent schema drift.
+
+  Migration: the OpenAPI 3.1 loose-schema generator (`@scalar/workspace-store/schemas/v3.1/openapi`, published through the wildcard as `@scalar/workspace-store/schemas/v3.1/openapi/index`) and its `@scalar/workspace-store/schemas/v3.1/openapi/reference` helpers have been removed. Import the generator from `@scalar/workspace-store/schemas/v3.2/openapi/index` and the reference helpers from `@scalar/workspace-store/schemas/v3.2/openapi/reference` instead. The `./schemas/*` wildcard and the 3.1 strict-schema exports remain available; the explicit 3.2 strict-schema exports are additive. Locally generated types now use the `OpenAPIV3_2` namespace instead of `OpenAPIV3_1`.
+
+  Inline the editor path-extension reference so Monaco retains the leading-slash path pattern and does not report valid paths as unknown properties.
+
+  Document ingestion continues to upgrade only to OpenAPI 3.1, so existing inline XML bodies without `xml.name` remain loadable. This schema migration does not opt consumers into the stricter OpenAPI 3.2 XML upgrade.
+
+- [#10191](https://github.com/scalar/scalar/pull/10191): Support OpenAPI 3.2 OAuth device authorization with verification codes, cancellable token polling, stored credentials, and OAuth metadata discovery. Add mock device authorization and approval endpoints with pending, denial, expiry, and polling backoff responses.
+
+  Use consistent form-encoded Basic credentials and environment substitution across OAuth token and refresh flows. Allow HTTP metadata and verification links on local development hosts and reserved test domains, coerce discovery fields consistently, and report device-code expiry clearly.
+
+- [#10208](https://github.com/scalar/scalar/pull/10208): Share OpenAPI 3.2 example-value selection across request bodies, response examples, and code snippets. Preserve serialized payloads verbatim, serialize structured JSON strings correctly, retain falsy values, and replace original example sources after body edits. Keep dataValue and serializedValue during document ingestion.
+
+  Editing a request body, including form fields, discards its authored `externalValue` URL and replaces it with the edited inline value in the workspace and exported API description. Rendering or focusing a form field preserves the external source.
+
+  Form editors prefer structured `dataValue` when both example fields exist, while raw editors, requests, and code snippets preserve `serializedValue` as wire text. Structured examples now affect generated request payloads and snippets; XML remains raw-only in the request editor.
+
+- [#10178](https://github.com/scalar/scalar/pull/10178): Support OpenAPI 3.2 streaming item schemas in the workspace store, request body examples, and API reference schema views. Frame generated and structured examples as JSON Lines, JSON Sequence, or server-sent events while preserving explicit wire-format strings.
+
+  Preserve generated falsy request examples (`0`, `false`, and empty strings) for non-streaming bodies as well.
+
+  Use cURL `--data-binary` for supported streaming media types, making framed body handling explicit. Authored arrays and objects are framed as stream records; authored wire-format strings remain unchanged. SSE records with no valid fields are safely omitted with one console warning per serialization call reporting the omitted count, including when all records are omitted.
+
+### Patch Changes
+
+- [#10298](https://github.com/scalar/scalar/pull/10298): Keep the navigation header inline in a compact document, so `x-scalar-navigation.name`, `title` and the other fields stay readable by plain property access and auth, history and the client modal keep working. Only the children travel in the navigation chunk, and `resolve(['x-scalar-navigation'])` loads them onto the document in place. This replaces the 0.64.0 compact wire form, which sent the whole navigation as a chunk reference.
+
+  Keep pending navigation loads separate when a workspace is reloaded or a document is replaced, so the current document receives its children and stale requests do not publish changes.
+
+- [#10251](https://github.com/scalar/scalar/pull/10251): Preserve chained path-item references with non-enumerable links.
+
+  Remove the HTML output APIs `createHtmlFromOpenApi` and `renderer.renderHtml` from `@scalar/openapi-to-markdown`. Use `createMarkdownFromOpenApi` or `renderer.render` and convert the resulting Markdown with an application-provided renderer when HTML is needed.
+
+- [#10203](https://github.com/scalar/scalar/pull/10203): Add a picker for generated response examples with anyOf or oneOf schema variants.
+
+  Apply union selections to primitive and array examples in the shared generator without reusing the selection for nested unions.
+
+  The shared generator change also affects request examples, snippets, mock responses, and AsyncAPI payloads: root primitive/array unions now generate their chosen branch before type inference from sibling properties or items. For example, a string schema with `oneOf: [{ const: "first" }, { const: "second" }]` now generates `"first"` by default, and selecting the second branch generates `"second"`. Keywords for unrelated types do not force object/array generation. Root selections are consumed once; nested unions retain their own default or path-specific choice.
+
+  Do not show a response variant picker for an empty enum, which permits no valid alternatives.
+
+  Preserve the generated branch shape in mock HTTP responses instead of re-wrapping selected primitive values as arrays based on root sibling `items`. Explicit authored examples retain the existing array normalization.
+
+- [#10201](https://github.com/scalar/scalar/pull/10201): Support positional and nested multipart request encoding with prefixEncoding, itemEncoding, and nested encoding objects. Keep generated code snippets in sync with multipart request bodies.
+
+  Reject ambiguous named positional items and multipart nesting beyond eight levels. Use a stable fallback root for XML parts.
+
+  Document multipart content-type defaults and wildcard selection policies. Route structured XML parts through a shared adapter while retaining legacy root-name behavior.
+
+  Regenerate multipart boundaries that collide with resolved text or nested delimiters, keeping binary payload bytes intact.
+
+- [#10272](https://github.com/scalar/scalar/pull/10272): Preserve components named `__proto__` when generating sparse server documents.
+- [#10303](https://github.com/scalar/scalar/pull/10303): Preserve parameter edits when another parameter changes, including parameters displaying downloaded examples. Keep downloaded values out of the document until explicitly edited, and use examples and defaults from resolved schema references when building requests.
+- [#10172](https://github.com/scalar/scalar/pull/10172): Preserve boolean schema semantics during client and server ingestion by normalizing true and false schemas to equivalent object schemas before coercion. Keep boolean examples, annotations, and additionalProperties values unchanged.
+
+  Server normalization now copies only changed schema containers and their ancestors, preserving caller-owned values and sharing unchanged bundled data. Iterative normalization supports deep schema graphs without adding a recursive clone at server ingestion. Opaque example/default/enum/const values remain literal, including in external resources named like OpenAPI map fields.
+
+  Internal schema markers remain available through backing-data APIs such as `getRaw`, but are omitted from public proxy serialization, rendered schema fields, and saved JSON/YAML API-description exports.
+
+  After saving, normalized schema positions export `true` as `{}` and `false` as `{ not: {} }`. Validation semantics are unchanged, but the saved representation can differ from the authored text. Boolean `additionalProperties` stays literal `true` or `false`, including after saving and exporting. Original, unsaved exports retain their authored boolean schemas. JSON and YAML exports share the existing save/edit cleanup boundary for internal markers.
+
+- [#10198](https://github.com/scalar/scalar/pull/10198): Support OpenAPI 3.2 cookie serialization with semicolon-separated entries and no percent-encoding in requests and code examples.
+
+  Browser XHR and jQuery code examples now set explicit Cookie header values through `document.cookie` and enable credentialed requests, including when no structured HAR cookies are supplied. Run the cookie setup on the request origin. Requests without cookie-style parameters retain structured HAR cookies alongside explicit Cookie headers.
+
+  Warn once per parameter name in the developer console when cookie-style parameters declare invalid `explode: false`, then use the expanded fallback consistently for requests and snippets. Browser cookie setup cannot assign cookies to an unrelated API domain; credentialed cross-origin responses require the appropriate CORS configuration and eligible stored cookies.
+
+- [#10206](https://github.com/scalar/scalar/pull/10206): Add generic document identity hooks for bundling and an explicit root URI option for reference proxies. Honor OpenAPI 3.2 `$self` through an OpenAPI plugin in workspace-store, including external documents and partial bundles, and enable it in OpenAPI bundling callers.
+
+  URI resolution now honors root-relative and protocol-relative URLs, query/fragment references, and trailing-slash directory bases for all bundler consumers. Absolute non-HTTP identifiers remain unchanged instead of becoming filesystem paths; loader support is unchanged. Relative HTTP references retain query strings and fragments and are emitted only when they round-trip to the original URL.
+
+  Preserve authored reference spellings through serialized partial bundles and editable exports, while keeping older OpenAPI resolution and configured loader restrictions unchanged.
+
+  Keep references matching authored root schema identifiers intact so schema labels and anchors retain their existing behavior.
+
+- [#10279](https://github.com/scalar/scalar/pull/10279): Write workspace chunks to the requested absolute output directory, including Windows drives and network shares.
+
+## 0.64.0
+
+### Minor Changes
+
+- [#10264](https://github.com/scalar/scalar/pull/10264): Add a `compact` option to the server workspace store, which shrinks the sparse document the browser downloads before it can render anything: Cloudflare's public API goes from 4,447 KB to 431 KB (346 KB to 63 KB gzipped). The navigation becomes one more lazily resolved chunk, and the per-node chunk references become one `x-scalar-chunk-index` extension the client expands back into the very same references as it ingests the document. Defaults are unchanged, and what the client holds in memory is identical either way.
+- [#10240](https://github.com/scalar/scalar/pull/10240): Load external examples on demand when their selected preview is visible or Test Request opens, instead of downloading every payload while loading the API description. Share and cache downloads, preserve relative URL origins, and show loading and retry states while preventing incomplete requests from being sent.
+- [#10263](https://github.com/scalar/scalar/pull/10263): feat: add a `reactive: false` option to the client workspace store, which keeps the whole store API on plain objects for read-mostly consumers such as a server render
+
+### Patch Changes
+
+- [#10268](https://github.com/scalar/scalar/pull/10268): Save content-based parameter edits in the media type's examples so enabled JSON query parameters are included in requests. Preserve previously saved edits and migrate them when the parameter is edited again.
+- [#10255](https://github.com/scalar/scalar/pull/10255): fix(api-client): auto-enable optional header/query/cookie rows that have a pre-populated value
+
+  Optional parameters (headers, query params, cookies) start disabled by default. When the API
+  description provides a default or enum value for such a parameter (e.g. `x-scenario-id` with an enum),
+  the row was rendered with its checkbox unchecked even though a value was already selected — so the
+  parameter was silently dropped from every request until the user manually checked it.
+
+  The fix auto-enables any row that is only disabled by default (no explicit `x-disabled: true`) and
+  already carries a non-empty value, mirroring the existing behaviour when a user types a value into
+  a previously-empty row.
+
+  Use the same enablement rules for the parameter editor, outgoing requests, and generated code snippets.
+
+## 0.63.0
+
+### Minor Changes
+
+- [#10261](https://github.com/scalar/scalar/pull/10261): Add `getDocumentRevision(document)`, a counter the store bumps on every write to a document. A consumer caching a derivation of a schema node can validate the entry against it in constant time, instead of walking the subtree to see whether anything moved. It reads the same from any view of the document, including one with the reactive and detect-changes proxies stripped for reads, and returns 0 for a document no store tracks.
+- [#10261](https://github.com/scalar/scalar/pull/10261): Type the result of `resolve.schema` as read-only. A resolved schema is the document's own node or a shallow merge over it, so writing to it writes into the document behind the store's back; every change belongs in a store mutation, and a caller that needs a modified shape copies what it needs first. No in-repo consumer had to change.
+
+### Patch Changes
+
+- [#10261](https://github.com/scalar/scalar/pull/10261): Make rendering from the store cheaper: the detect-changes proxy no longer allocates a path on every property read, `getResolvedRefDeep` stops deep-unpacking every node it visits, `resolve.schema` builds its composed typebox schema once, and `getExampleFromSchema` builds its options cache key once per call instead of once per node.
+- [#10261](https://github.com/scalar/scalar/pull/10261): Follow chains of references when resolving. A reference can point at a second reference — `resolve()` on a static or SSR workspace leaves the component behind as a `{ $ref: '#/x-ext/<hash>', $global: true }` stub with the content under `x-ext` — so `getResolvedRef` and `getResolvedRefDeep` now hop through references that carry nothing but a `$ref` until they reach the node itself, instead of handing back the stub. A reference that carries keywords of its own stays its own hop, since it is a schema in its own right.
+
+## 0.62.0
+
+### Minor Changes
+
+- [#10257](https://github.com/scalar/scalar/pull/10257): Expose each document whole from the server workspace store through `getResolvedDocument`, for rendering on the server from one reference while the browser keeps loading chunks. Resolve relative chunk references from a static workspace against the URL the document was loaded from; they failed before a request was made.
+
+### Patch Changes
+
+- [#10231](https://github.com/scalar/scalar/pull/10231): Trim surrounding whitespace from bearer tokens after resolving environment variables.
+- [#9638](https://github.com/scalar/scalar/pull/9638): Keep `$ref-value` optional in the shared `reference()` schema helper. An unresolved `{ $ref }` (for example a sparse chunk from the server store) now passes through coercion untouched instead of being coerced into a synthesized default that dropped the reference. This aligns the helper with the schema position that already made this choice.
+
+  Apply the same behavior to both OpenAPI 3.1 and 3.2 reference helpers, including the current workspace ingestion schema.
+
+- [#10179](https://github.com/scalar/scalar/pull/10179): Warn when OAuth2 metadata routes collide with declared API paths. Keep the OAuth2 metadata field in OpenAPI 3.2 schemas and document the HTTP exception for local development.
+- [#10179](https://github.com/scalar/scalar/pull/10179): Support OpenAPI 3.2 OAuth2 metadata URLs in workspace schemas and the shared authentication UI. Fetch HTTPS authorization server metadata or HTTP metadata from local development URLs to discover flows or fill missing endpoints while preserving explicit configuration.
+
+  For local development, Scalar deliberately relaxes the OpenAPI 3.2 TLS requirement: metadata URLs and discovered endpoints may use HTTP for local development URLs recognized by the shared `isLocalUrl` helper, including loopback hosts, `0.0.0.0`, and reserved development domains such as `*.test` and `*.example`. Other hosts require HTTPS.
+
+  Discovery leaves `refreshUrl` unchanged. Token refresh already falls back to the flow's token URL when no refresh URL is configured, so a discovered token endpoint also supports refresh without overriding an explicit refresh URL.
+
+## 0.61.0
+
+### Minor Changes
+
+- [#10173](https://github.com/scalar/scalar/pull/10173): Support the OpenAPI 3.2 QUERY request method in workspace operations, navigation, server chunks, and request examples.
+
+  Give QUERY a dedicated color tuned to each theme preset in light and dark mode and place it after GET in the method picker. Server chunk extraction also recognizes uppercase method keys while retaining their authored case. QUERY is modeled in the 3.2 schemas only.
+
+- [#9851](https://github.com/scalar/scalar/pull/9851): Validate and coerce OpenAPI documents against the v3.2 schemas so OpenAPI 3.2 fields are preserved in the store instead of being stripped, and type the store (workspace, documents, and navigation) against the v3.2 document. The internal upgrade target stays 3.1, but the public document type now widens to the 3.2 superset (for example `parameter.in` gains `"querystring"`, tags gain `parent`/`kind`/`summary`).
+
+  To keep the v3.2 schema a true superset of 3.1, the `x-scalar-ignore` extension is kept on security schemes (so they can still be hidden from the auth UI), and 3.2 `querystring` parameters are now serialized into the request query string instead of being dropped when building requests.
+
+### Patch Changes
+
+- [#9885](https://github.com/scalar/scalar/pull/9885): Render `$dynamicRef` array items when the binding schema is referenced by name.
+  A response that used `$ref: '#/components/schemas/PaginatedUserResponse'` (rather
+  than an inline `$id`/`$defs` binding) hid the resource's `$dynamicAnchor` behind
+  the `$ref`, so the dynamic scope never grew and the item type rendered empty.
+  `pushDynamicScope` now follows a bare `$ref` to reach the named binding resource.
+- [#9817](https://github.com/scalar/scalar/pull/9817): Resolve relative `externalValue` URLs on example objects against the document origin, so external request and response examples load even when referenced with a relative path
+- [#10068](https://github.com/scalar/scalar/pull/10068): Generate a proper UUID example for version-specific uuid formats (uuid1, uuid3, uuid4, uuid5), so documents from FastAPI/Pydantic get a UUID example instead of an empty one.
+- [#10072](https://github.com/scalar/scalar/pull/10072): Add a "generate example from schema" button to the request body, so the schema-generated fields stay reachable once an operation ships custom examples
+- [#10165](https://github.com/scalar/scalar/pull/10165): Truncate deeply nested examples with an empty value of the declared type — `{}`, `[]`, or a placeholder of the declared primitive — instead of the `[Max Depth Exceeded]` string, so a truncated example no longer contradicts the type its schema declares. A value the schema states outright through `example`, `examples`, `default`, `const` or `enum` wins at that depth, including through a composition wrapper; a property excluded by `mode` is omitted there rather than replaced by a placeholder; and a composition nothing can describe, or a negative constraint, answers with `null`. Only schemas that describe no shape at all keep the sentinel. A schema shared between a deep chain and a shallower position is also no longer served the truncated example.
+- [#10164](https://github.com/scalar/scalar/pull/10164): Serve deprecated response schemas from the mock instead of answering a declared JSON response with an empty body, and generate a deprecated AsyncAPI message payload instead of sending `null`. `getExampleFromSchema` takes a new `includeDeprecated` option for callers that must produce a value satisfying the schema. A declared response header that generates no value is now skipped rather than clearing a header of the same name the mock already set, such as the CORS headers.
+- [#10081](https://github.com/scalar/scalar/pull/10081): Keep the `mutualTLS` security scheme type instead of turning it into an apiKey form, and show read-only authentication guidance for mutual TLS and unsupported browser broker credentials.
+- [#9666](https://github.com/scalar/scalar/pull/9666): Only normalize OpenAPI Reference Objects during bundling, never Schema Objects. `normalizeRefs` used to strip every sibling except `$ref` on any node outside `components/schemas`, which also hit inline schemas. In JSON Schema 2020-12 a `$ref` may legally carry sibling keywords — for example a `$defs`/`$dynamicAnchor` binding that specializes a generic template like `Paginated<T>` — and such schemas appear inline anywhere a schema is allowed (a response's `content.<media>.schema`, an `allOf` branch, …). Dropping those siblings discarded the binding, leaving `$dynamicRef` to resolve to the template's empty fallback and rendering an empty array (for example the `data` array of `GET /planets` in the Scalar Galaxy). Reference Objects are still normalized as before. A new `@scalar/helpers/openapi/is-schema-path` helper detects schema positions.
+- [#9851](https://github.com/scalar/scalar/pull/9851): Preserve mutualTLS security schemes and the default request body view extension in OpenAPI 3.2 document schemas and types.
+
+  Render OpenAPI 3.2 querystring parameters in the query parameters section.
+
+- [#10137](https://github.com/scalar/scalar/pull/10137): Skip Paths Object extension keys so they cannot be mistaken for API paths. Add a regression test with an operation-shaped extension.
+- [#10114](https://github.com/scalar/scalar/pull/10114): Keep chunk filenames inside the output directory and match their references on Windows. Reject existing symlinks below the output root when writing chunks and the workspace manifest.
+- [#10131](https://github.com/scalar/scalar/pull/10131): Copy the example shown in the response card, including named, generated, referenced, and falsy values.
+- [#10194](https://github.com/scalar/scalar/pull/10194): Fix editing server variables supplied through the configuration.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
+- [#10142](https://github.com/scalar/scalar/pull/10142): Send multipart array properties as separate parts with the same field name, applying encoding to each item. Preserve JSON item content types, uploaded files, and array values after form edits, and generate matching code snippets.
+
+  Send JSON form fields without an upload filename and preserve fields and files in request history.
+
+  Rename the RestSharp snippet's internal `getMethod` helper so it no longer clashes with the `getMethod` that Nitro bundles into server builds (the new multipart imports shifted chunking and surfaced the collision).
+
+- [#10199](https://github.com/scalar/scalar/pull/10199): Honor OpenAPI discriminator `defaultMapping` when generating oneOf and anyOf examples with an absent or unmapped discriminating property. Preserve explicit variant selections and prefer explicit and implicit mappings before the fallback.
+
 ## 0.60.0
 
 ### Minor Changes

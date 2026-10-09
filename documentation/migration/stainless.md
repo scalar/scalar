@@ -1,14 +1,16 @@
 # How to migrate from Stainless to Scalar
 
-In May 2026, Stainless [announced they are joining Anthropic](https://www.stainless.com/blog/stainless-is-joining-anthropic) and winding down their hosted products:
+*Last updated: September 2026*
+
+On May 18, 2026, Stainless [announced they are joining Anthropic](https://www.stainless.com/blog/stainless-is-joining-anthropic) and winding down their hosted products:
 
 > "As we focus on Claude Platform capabilities and connecting agents to APIs, we'll be winding down all hosted Stainless products, including our SDK generator. Starting today, new signups, projects, and SDKs will not be available."
 
 If you are a Stainless customer, your existing SDKs keep working — Stainless is clear that you own the code you have generated. What stops is regeneration. The next time your API changes, nothing updates.
 
-Scalar is the closest thing to a drop-in replacement, and we have built the migration around one idea: **you should not have to re-author anything.** Give us your OpenAPI document and your `stainless.yml`, and we generate from the configuration you already have.
+Scalar is built to be as close to a drop-in replacement as we can make it, and we have built the migration around one idea: **you should not have to re-author anything.** Give us your OpenAPI document and your `stainless.yml`, and we generate from the configuration you already have.
 
-This guide is the practical how-to, and it assumes you have already picked Scalar. If you are still deciding, start elsewhere: [Scalar vs Stainless](../compare/stainless.md) covers where Stainless is genuinely stronger and where we would be overselling, and [the wind-down write-up](../resources/stainless-wind-down.md) weighs the whole field — OpenAPI Generator, Speakeasy, Fern, APIMatic, liblab, and the open source options — saying where each of them beats us.
+This guide is the practical how-to, and it assumes you have already picked Scalar. If you are still deciding, start elsewhere: [Scalar vs Stainless](/resources/compare/stainless) covers where Stainless is genuinely stronger and where we would be overselling, [Stainless alternatives](/alternatives/stainless) lays out the options side by side, and [the wind-down write-up](/resources/stainless-wind-down) weighs the whole field — OpenAPI Generator, Speakeasy, Fern, APIMatic, liblab, and the open source options — saying where each of them beats us.
 
 ## The short version
 
@@ -42,6 +44,8 @@ It is version-controlled in your repository. Copy it as-is. You do not need to c
 ## Step 3: Import into Scalar
 
 Create a new SDK, choose **Import config**, and upload the OpenAPI document and `stainless.yml` together. Scalar reads the config, maps it onto its own generator, and produces SDKs for your configured targets.
+
+Check your targets against Scalar's language status before you plan the cut-over. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#, PHP, Rust, Swift, Dart, and C++ are experimental: they generate working code, but talk to us before you publish one to your users. Terraform and SQL targets are not supported; they are on our roadmap with no date. If you shipped a Stainless Terraform provider, you will need a different plan for it.
 
 ## Step 4: Verify before you publish
 
@@ -122,6 +126,34 @@ So there is no deadline that breaks anything already published. The question is 
 
 We will do the migration with you, including the config import and the API surface diff. [Talk to us](https://scalar.cal.com/) or [start free](https://dashboard.scalar.com/register).
 
+## Frequently asked questions
+
+<scalar-detail title="Do my existing Stainless SDKs stop working?">
+No. Stainless [states](https://www.stainless.com/blog/stainless-is-joining-anthropic) that you own the SDKs you have generated and can modify them freely. Published packages keep working. What stops is regeneration when your API changes.
+</scalar-detail>
+
+<scalar-detail title="Do I have to rewrite my stainless.yml?">
+No. Scalar reads `stainless.yml` directly, including resources, methods, sub-resources, models, pagination schemes, and per-language package names. Upload it as-is alongside your OpenAPI document.
+</scalar-detail>
+
+<scalar-detail title="Will my users see breaking changes after the switch?">
+They should not, if the resource mapping carries over. That is why step 4 asks you to diff the generated `api.md` against your current one before publishing. Package names and registries do not change.
+</scalar-detail>
+
+<scalar-detail title="Which Stainless languages does Scalar support?">
+TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#, PHP, Rust, Swift, Dart, and C++ are experimental. Terraform and SQL are not supported.
+</scalar-detail>
+
+<scalar-detail title="Can Scalar replace Stainless MCP servers?">
+Scalar hosts MCP servers generated from your OpenAPI document, with OAuth. They run on Scalar's infrastructure rather than as code you deploy yourself, so if you need the server inside your own network, that is a real difference. See [Scalar MCP](/products/agent/mcp).
+</scalar-detail>
+
+## Related
+
+- **Learn:** [Generate an SDK from OpenAPI](/learn/sdk/generate-sdk-from-openapi) · [Build vs buy an SDK](/learn/sdk/build-vs-buy-sdk)
+- **Docs:** [Stainless alternatives](/alternatives/stainless) · [Scalar vs Stainless](/resources/compare/stainless) · [Stainless wind-down](/resources/stainless-wind-down)
+- **Product:** [Scalar SDK Generator](/products/sdk-generator) — reads your `stainless.yml` and regenerates the SDKs your users already installed
+
 ---
 
-*This guide describes Stainless as documented on their own site as of July 2026. Stainless announced their wind-down in May 2026 and their documentation may change or be withdrawn. If you find something here that is out of date, please [open an issue](https://github.com/scalar/scalar/issues).*
+*This guide describes Stainless as documented on its own site as of September 26, 2026, including its [announcement](https://www.stainless.com/blog/stainless-is-joining-anthropic) and [docs platform hosting guide](https://www.stainless.com/docs/docs-platform/hosting-and-deploys/). Stainless announced its wind-down in May 2026 and its documentation may change or be withdrawn. If you find something here that is out of date, please [open an issue](https://github.com/scalar/scalar/issues).*

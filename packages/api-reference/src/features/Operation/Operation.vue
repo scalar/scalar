@@ -6,19 +6,23 @@ export default {}
 
 export type OperationProps = {
   id: string
-  method: HttpMethod
+  method: string
   /** The subset of the configuration object required for the operation component */
   options: Pick<
     ApiReferenceConfigurationRaw,
+    | 'expandAllParameters'
     | 'expandAllResponses'
     | 'hideModels'
+    | 'hideModelNames'
     | 'hideTestRequestButton'
     | 'layout'
     | 'orderRequiredPropertiesFirst'
     | 'orderSchemaPropertiesBy'
     | 'expandAllSchemaProperties'
+    | 'maxVisibleRequestBodyProperties'
     | 'schemaKeyboardNav'
     | 'showOperationId'
+    | 'showExtensions'
   >
   /** Document object */
   document: OpenApiDocument
@@ -49,11 +53,12 @@ export type OperationProps = {
 
 <script lang="ts" setup>
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getFirstServer } from '@scalar/workspace-store/helpers/get-first-server'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -89,7 +94,12 @@ const {
   pathValue,
   securitySchemes,
   server,
-} = defineProps<OperationProps>()
+} = defineProps<OperationProps & SchemaRenderingProps>()
+
+defineSlots<{
+  /** Replaces the default copy control without replacing the security badge. */
+  actions?: () => unknown
+}>()
 
 /**
  * Operation from the new workspace store, ensure we are de-reference
@@ -97,7 +107,7 @@ const {
  * Also adds in params from the pathItemObject
  */
 const operation = computed(() => {
-  const entity = getResolvedRef(pathValue?.[method])
+  const entity = getResolvedRef(getPathItemOperation(pathValue, method))
 
   if (!entity) {
     return null
@@ -154,6 +164,7 @@ const selectedSecuritySchemes = computed(() =>
       :clientOptions
       :document
       :eventBus
+      :expansion="expansion"
       :isCollapsed
       :isWebhook
       :method
@@ -161,25 +172,42 @@ const selectedSecuritySchemes = computed(() =>
       :options
       :path
       :requiredSecurity
+      :scrollTargetId="scrollTargetId"
       :selectedClient
       :selectedExample
       :selectedSecuritySchemes
-      :selectedServer />
+      :selectedServer
+      :specificationExtension="specificationExtension">
+      <template
+        v-if="$slots.actions"
+        #actions>
+        <slot name="actions" />
+      </template>
+    </ClassicLayout>
     <ModernLayout
       v-else
       :id
       :clientOptions
       :document
       :eventBus
+      :expansion="expansion"
       :isWebhook
       :method
       :operation
       :options
       :path
       :requiredSecurity
+      :scrollTargetId="scrollTargetId"
       :selectedClient
       :selectedExample
       :selectedSecuritySchemes
-      :selectedServer />
+      :selectedServer
+      :specificationExtension="specificationExtension">
+      <template
+        v-if="$slots.actions"
+        #actions>
+        <slot name="actions" />
+      </template>
+    </ModernLayout>
   </template>
 </template>

@@ -241,16 +241,23 @@ describe('httpie', () => {
       },
     })
 
-    expect(result).toBe(`{
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="file"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
   cat -- 'test.txt'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="field"\\0015\\0012\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="field"\\0015\\0012\\0015\\0012'
   printf '%b' 'value'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary--\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
 } | http 'POST' 'https://example.com' \\
-  'Content-Type:multipart/form-data; boundary=scalar-boundary'`)
+  'Content-Type:multipart/form-data; boundary='"$boundary"''`)
   })
 
   it('curl: handles multipart form data content types on string parts', () => {
@@ -304,16 +311,23 @@ describe('httpie', () => {
       },
     })
 
-    expect(result).toBe(`{
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="file"; filename="filename"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename="filename"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
   cat -- 'filename'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="props"\\0015\\0012Content-Type: application/json\\0015\\0012\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="props"\\0015\\0012Content-Type: application/json\\0015\\0012\\0015\\0012'
   printf '%b' '{"name":"","description":"","created_at":null}'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary--\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
 } | http 'POST' 'https://example.com/widget/v1/widgets' \\
-  'Content-Type:multipart/form-data; boundary=scalar-boundary'`)
+  'Content-Type:multipart/form-data; boundary='"$boundary"''`)
   })
 
   it('curl: leaves non-JSON multipart values untouched when contentType claims JSON', () => {
@@ -357,13 +371,18 @@ describe('httpie', () => {
       },
     })
 
-    expect(result).toBe(`{
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="file"; filename="test.txt"\\0015\\0012Content-Type: text/plain\\0015\\0012\\0015\\0012'
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename="test.txt"\\0015\\0012Content-Type: text/plain\\0015\\0012\\0015\\0012'
   cat -- 'test.txt'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary--\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
 } | http 'POST' 'https://example.com' \\
-  'Content-Type:multipart/form-data; boundary=scalar-boundary'`)
+  'Content-Type:multipart/form-data; boundary='"$boundary"''`)
   })
 
   it('curl: handles multipart form data with single quotes in parameter name', () => {
@@ -385,16 +404,23 @@ describe('httpie', () => {
       },
     })
 
-    expect(result).toBe(`{
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="field'\\''name"\\0015\\0012\\0015\\0012'
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="field'\\''name"\\0015\\0012\\0015\\0012'
   printf '%b' 'value'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="file'\\''name"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file'\\''name"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
   cat -- 'test.txt'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary--\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
 } | http 'POST' 'https://example.com' \\
-  'Content-Type:multipart/form-data; boundary=scalar-boundary'`)
+  'Content-Type:multipart/form-data; boundary='"$boundary"''`)
   })
 
   it('curl: handles multipart form data with JSON payload', () => {
@@ -504,11 +530,11 @@ describe('httpie', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -573,13 +599,18 @@ describe('httpie', () => {
       },
     })
 
-    expect(result).toBe(`{
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="file"; filename=""\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename=""\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
   cat -- ''
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary--\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
 } | http 'POST' 'https://example.com' \\
-  'Content-Type:multipart/form-data; boundary=scalar-boundary'`)
+  'Content-Type:multipart/form-data; boundary='"$boundary"''`)
   })
 
   it('curl: handles JSON body with special characters', () => {
@@ -664,11 +695,11 @@ describe('httpie', () => {
       queryString: [
         {
           name: 'price',
-          value: '%24100',
+          value: '$100',
         },
         {
           name: 'currency',
-          value: 'USD%24',
+          value: 'USD$',
         },
       ],
     })
@@ -682,7 +713,7 @@ describe('httpie', () => {
       queryString: [
         {
           name: 'amount',
-          value: '%2450.00',
+          value: '$50.00',
         },
       ],
     })
@@ -810,16 +841,23 @@ describe('httpie', () => {
       },
     })
 
-    expect(result).toBe(`{
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="file"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
+    expect(result).toBe(`boundary=scalar-$(od -An -N16 -tx1 /dev/urandom | tr -d '[:space:]')
+{
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="file"; filename="test.txt"\\0015\\0012Content-Type: application/octet-stream\\0015\\0012\\0015\\0012'
   cat -- 'test.txt'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary\\0015\\0012Content-Disposition: form-data; name="field"\\0015\\0012\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '\\0015\\0012Content-Disposition: form-data; name="field"\\0015\\0012\\0015\\0012'
   printf '%b' 'value'
   printf '%b' '\\0015\\0012'
-  printf '%b' '--scalar-boundary--\\0015\\0012'
+  printf '%b' '--'
+  printf '%s' "$boundary"
+  printf '%b' '--\\0015\\0012'
 } | http 'POST' 'https://example.com' \\
-  'Content-Type:multipart/form-data; boundary=scalar-boundary'`)
+  'Content-Type:multipart/form-data; boundary='"$boundary"''`)
   })
 
   it('handles url-encoded form data with special characters', () => {

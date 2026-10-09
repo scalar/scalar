@@ -15,6 +15,7 @@ import {
   DataTableHeader,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 const { environment, environmentName, eventBus, collectionType } = defineProps<
   {
@@ -23,6 +24,8 @@ const { environment, environmentName, eventBus, collectionType } = defineProps<
     eventBus: WorkspaceEventBus
   } & CollectionType
 >()
+
+const { translate } = useLocalization()
 
 /** Column widths: Name, Value, Actions (delete button) */
 const COLUMNS = ['1fr', '1fr', '36px']
@@ -102,9 +105,15 @@ const handleVariableDelete = (index: number): void =>
     :columns="COLUMNS">
     <!-- Accessibility header row -->
     <DataTableRow class="sr-only !block">
-      <DataTableHeader>Name</DataTableHeader>
-      <DataTableHeader>Value</DataTableHeader>
-      <DataTableHeader>Actions</DataTableHeader>
+      <DataTableHeader>
+        {{ translate('apiClient.environmentVariablesTable.name') }}
+      </DataTableHeader>
+      <DataTableHeader>
+        {{ translate('apiClient.environmentVariablesTable.value') }}
+      </DataTableHeader>
+      <DataTableHeader>
+        {{ translate('apiClient.environmentVariablesTable.actions') }}
+      </DataTableHeader>
     </DataTableRow>
 
     <!-- Variable rows -->
@@ -115,10 +124,14 @@ const handleVariableDelete = (index: number): void =>
       <!-- Name -->
       <DataTableCell>
         <CodeInputLite
-          aria-label="Environment Variable Name"
+          :aria-label="
+            translate(
+              'apiClient.environmentVariablesTable.environmentVariableName',
+            )
+          "
           :environment="undefined"
           :modelValue="row.name"
-          placeholder="Name"
+          :placeholder="translate('apiClient.environmentVariablesTable.name')"
           @update:modelValue="
             (name) => handleVariableChange(name, row.value, index)
           " />
@@ -127,10 +140,14 @@ const handleVariableDelete = (index: number): void =>
       <!-- Value -->
       <DataTableCell>
         <CodeInputLite
-          aria-label="Environment Variable Value"
+          :aria-label="
+            translate(
+              'apiClient.environmentVariablesTable.environmentVariableValue',
+            )
+          "
           :environment="undefined"
           :modelValue="row.value"
-          placeholder="Value"
+          :placeholder="translate('apiClient.environmentVariablesTable.value')"
           @update:modelValue="
             (value) => handleVariableChange(row.name, value, index)
           " />

@@ -3,11 +3,152 @@ import { type IncomingMessage, type ServerResponse, createServer } from 'node:ht
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
 describe('createMarkdownFromOpenApi', () => {
+  it('uses migrated XML reference semantics for an older API description', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.0',
+      info: { title: 'Migrated XML', version: '1.0.0' },
+      components: {
+        schemas: { Address: { type: 'object', properties: { city: { type: 'string', example: 'Berlin' } } } },
+      },
+      paths: {
+        '/address': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Address',
+                content: {
+                  'application/xml': {
+                    schema: {
+                      type: 'object',
+                      xml: { name: 'document' },
+                      properties: { address: { $ref: '#/components/schemas/Address' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(markdown).toContain('<document>\n  <Address>\n    <city>Berlin</city>\n  </Address>\n</document>')
+  })
+
+  it('retains XML reference wrappers when rendering with the TypeScript exporter', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.2.0',
+      info: { title: 'Reference XML', version: '1' },
+      components: {
+        schemas: {
+          Person: {
+            type: 'object',
+            xml: { nodeType: 'none' },
+            properties: { name: { type: 'string', example: 'Alice' } },
+          },
+        },
+      },
+      paths: {
+        '/people': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Person',
+                content: {
+                  'application/xml': {
+                    schema: {
+                      $ref: '#/components/schemas/Person',
+                      xml: { name: 'envelope', nodeType: 'element' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(result).toContain('<envelope>\n  <name>Alice</name>\n</envelope>')
+    expect(result).not.toContain('Unable to generate an XML example.')
+  })
+
+  it('shows a failed XML example instead of silently dropping an unsupported patterned property', async () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      const result = await createMarkdownFromOpenApi({
+        openapi: '3.1.0',
+        info: { title: 'Patterned XML', version: '1' },
+        paths: {
+          '/people': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Person',
+                  content: {
+                    'application/xml': {
+                      example: { name: 'Alice' },
+                      schema: {
+                        type: 'object',
+                        xml: { name: 'person' },
+                        patternProperties: { '(name|title)': { type: 'string' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      expect(result).toContain('Unable to generate an XML example.')
+      expect(result).not.toContain('```xml')
+      expect(warning).toHaveBeenCalledWith(
+        'Unable to generate an XML example:',
+        expect.objectContaining({ code: 'unsupported-pattern', path: ['name'] }),
+      )
+    } finally {
+      warning.mockRestore()
+    }
+  })
+
+  it('preserves schema-free XML request and response examples', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.2.0',
+      info: { title: 'XML examples', version: '1' },
+      paths: {
+        '/messages': {
+          post: {
+            requestBody: {
+              content: {
+                'application/xml': {
+                  examples: {
+                    default: { serializedValue: '<request>supplied</request>' },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/xml': {
+                    example: '<response>supplied</response>',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(result).toContain('```xml\n<request>supplied</request>\n```')
+    expect(result).toContain('```xml\n<response>supplied</response>\n```')
+  })
+
   it('renders title, version and OpenAPI version', async () => {
     const content = {
       openapi: '3.1.1',
@@ -21,7 +162,7 @@ describe('createMarkdownFromOpenApi', () => {
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
 Test description`
@@ -29,6 +170,53 @@ Test description`
     const result = await createMarkdownFromOpenApi(content)
 
     expect(result).toContain(markdown)
+  })
+
+  it('coerces document metadata before rendering', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.0',
+      info: { title: 'Coerced API', version: 12 },
+      paths: {},
+    })
+
+    expect(markdown).toContain('# Coerced API')
+    // A version that coercion dropped is left out instead of printed empty.
+    expect(markdown).not.toContain('**API Version:**')
+  })
+
+  it('resolves an embedded schema resource without loading it as an external reference', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Embedded resource', version: '1' },
+      paths: {
+        '/pets': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: 'https://schemas.example/pet.json#pet' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Pet: {
+            $id: 'https://schemas.example/pet.json',
+            $anchor: 'pet',
+            type: 'object',
+            properties: { name: { type: 'string' } },
+          },
+        },
+      },
+    })
+
+    expect(markdown).toContain('name')
   })
 
   it('renders servers', async () => {
@@ -59,16 +247,16 @@ Test description`
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
+
+<a id="scalar-context-global-servers"></a>
 
 ## Servers
 
 - **URL:** \`https://test.com\`
   - **Description:** Test server
-
 - **URL:** \`https://test.com/{version}\`
-
   - **Description:** Test server v2
   - **Variables:**
     - \`version\` (default: \`v2\`): Test version
@@ -98,10 +286,18 @@ Test description`
 
     const markdown = `# Test API
 
-- **OpenAPI Version:** \`3.1.1\`
+- **OpenAPI Version:** \`3.2.0\`
 - **API Version:** \`1.0.0\`
 
+## Contents
+
+**Operations**
+
+- [GET /test](#scalar-operation-get-test)
+
 ## Operations
+
+<a id="scalar-operation-get-test"></a>
 
 ### Test operation
 
@@ -165,7 +361,7 @@ Test description`
 
     const result = await createMarkdownFromOpenApi(content)
 
-    expect(result).toContain('Request Body')
+    expect(result).toContain('Request body')
     expect(result).toContain('name')
     expect(result).toContain('email')
     expect(result).toContain('Responses')
@@ -527,10 +723,18 @@ Test description`
     expect(resultJson).toMatchInlineSnapshot(`
       "# Test API
 
-      - **OpenAPI Version:** \`3.1.1\`
+      - **OpenAPI Version:** \`3.2.0\`
       - **API Version:** \`1.0.0\`
 
+      ## Contents
+
+      **Operations**
+
+      - [GET /items](#scalar-operation-get-items)
+
       ## Operations
+
+      <a id="scalar-operation-get-items"></a>
 
       ### Get items
 
@@ -539,21 +743,18 @@ Test description`
 
       #### Responses
 
-      ##### Status: 200 Successful response
+      ##### 200 Successful response
 
-      ###### Content-Type: application/json
+      **Content type:** \`application/json\`
 
       **Array of:**
 
-      - **\`id\`**
+      - **\`id\`**: \`string\`
+      - **\`name\`**: \`string\`
 
-        \`string\`
+      <a id="scalar-example-1"></a>
 
-      - **\`name\`**
-
-        \`string\`
-
-      **Example:**
+      **Generated example:**
 
       \`\`\`json
       [
@@ -571,7 +772,15 @@ Test description`
       - **OpenAPI Version:** \`3.1.1\`
       - **API Version:** \`1.0.0\`
 
+      ## Contents
+
+      **Operations**
+
+      - [GET /items](#scalar-operation-get-items)
+
       ## Operations
+
+      <a id="scalar-operation-get-items"></a>
 
       ### Get items
 
@@ -580,28 +789,25 @@ Test description`
 
       #### Responses
 
-      ##### Status: 200 Successful response
+      ##### 200 Successful response
 
-      ###### Content-Type: application/xml
+      **Content type:** \`application/xml\`
 
       **Array of:**
 
-      - **\`id\`**
+      - **\`id\`**: \`string\`
+      - **\`name\`**: \`string\`
 
-        \`string\`
+      <a id="scalar-example-1"></a>
 
-      - **\`name\`**
-
-        \`string\`
-
-      **Example:**
+      **Generated example:**
 
       \`\`\`xml
       <?xml version="1.0" encoding="UTF-8"?>
-      <0>
+      <root>
         <id></id>
         <name></name>
-      </0>
+      </root>
       \`\`\`
       "
     `)
@@ -796,7 +1002,7 @@ paths:
       const result = await createMarkdownFromOpenApi(content)
 
       expect(result).toContain('Create node')
-      expect(result).toContain('Request Body')
+      expect(result).toContain('Request body')
       expect(result).toContain('value')
     }, 10_000)
 
@@ -955,4 +1161,328 @@ paths:
       })
     }
   })
+  it('renders schemas without a type without emitting empty inline code', async () => {
+    const output = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Composed', version: '1' },
+      components: { schemas: { Value: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
+    })
+    expect(output).toBe(
+      '# Composed\n\n- **OpenAPI Version:** `3.2.0`\n- **API Version:** `1`\n\n## Contents\n\n**Schemas**\n\n- [Value](#scalar-schema-value)\n\n## Schemas\n\n<a id="scalar-schema-value"></a>\n\n### Value\n\n**Type:** `string | number`\n',
+    )
+  })
+  it('preserves an optional request body description without inventing an operation ID', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Optional body', version: '1' },
+      paths: {
+        '/pets': {
+          post: {
+            requestBody: { required: false, description: 'Optional pet data.', content: {} },
+            responses: { '204': { description: 'Saved' } },
+          },
+        },
+      },
+    })
+    expect(result).toContain('Optional pet data.')
+    expect(result).toMatch(/Required:.*`false`/)
+    expect(result).not.toContain('Operation ID:')
+  })
+  it('renders a primitive component description once with its Markdown formatting', async () => {
+    const result = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Components', version: '1' },
+      components: { schemas: { Status: { type: 'string', description: 'A **unique status**.', enum: ['ready'] } } },
+    })
+    expect(result.match(/unique status/g)).toStrictEqual(['unique status'])
+    expect(result).toContain('**unique status**')
+    expect(result).toContain('"ready"')
+    expect(result).not.toContain('Example:')
+  })
+  it('preserves request and response examples independently, including falsy values without schemas', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Examples', version: '1' },
+      components: { examples: { Response: { summary: 'Referenced response', value: false } } },
+      paths: {
+        '/examples': {
+          post: {
+            requestBody: { content: { 'application/json': { example: 0 } } },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'string', example: 'generated replacement' },
+                    examples: { supplied: { $ref: '#/components/examples/Response' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+      0,
+      false,
+    ])
+    expect(markdown).toContain('Referenced response')
+    expect(markdown).not.toContain('generated replacement')
+  })
+
+  it('preserves referenced response headers, response links, and multipart encoding', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Details', version: '1' },
+      components: {
+        headers: { Rate: { description: 'Remaining calls', schema: { type: 'integer' }, example: 0 } },
+        links: {
+          Next: {
+            operationRef: '#/paths/~1next/get',
+            parameters: { cursor: '$response.body#/cursor' },
+            requestBody: false,
+          },
+        },
+      },
+      paths: {
+        '/upload': {
+          post: {
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: { type: 'object', properties: { file: { type: 'string' } } },
+                  encoding: {
+                    file: {
+                      contentType: 'text/plain',
+                      style: 'form',
+                      explode: false,
+                      allowReserved: false,
+                      headers: { 'X-Part': { schema: { type: 'string' }, example: 'part-value' } },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                headers: { 'X-Rate': { $ref: '#/components/headers/Rate' }, 'X-Empty': { example: null } },
+                links: { next: { $ref: '#/components/links/Next' } },
+              },
+            },
+          },
+        },
+      },
+    })
+    const request = markdown.split('#### Request body')[1]!.split('#### Responses')[0]!
+    for (const expected of ['text/plain', 'Explode: `false`', 'Allow reserved: `false`', 'X-Part', 'part-value'])
+      expect(request).toContain(expected)
+    expect(request).not.toContain('X-Rate')
+    const response = markdown.split('#### Responses')[1]!
+    for (const expected of [
+      'X-Rate',
+      'Remaining calls',
+      '#/paths/~1next/get',
+      '$response.body#/cursor',
+      '**Request body:** `false`',
+    ])
+      expect(response).toContain(expected)
+    expect(response).not.toContain('X-Part')
+    expect(response).toContain('X-Empty')
+    expect(
+      [...response.matchAll(/```json\s*\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!)),
+    ).toStrictEqual([0, null])
+  })
+  it('preserves supplied XML through document loading', async () => {
+    for (const value of [null, false, 0, '', '<Pet id="42" />']) {
+      const markdown = await createMarkdownFromOpenApi({
+        openapi: '3.1.1',
+        info: { title: 'XML examples', version: '1' },
+        paths: {
+          '/xml': {
+            get: { responses: { '200': { description: 'OK', content: { 'application/xml': { example: value } } } } },
+          },
+        },
+      })
+      expect(markdown).toContain(`\`\`\`xml\n${String(value)}${value === '' ? '' : '\n'}\`\`\``)
+    }
+  })
+
+  it('keeps generated request and response examples in their respective directions', async () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        id: { type: 'integer', readOnly: true, example: 42 },
+        secret: { type: 'string', writeOnly: true, example: 'secret' },
+        name: { type: 'string', example: 'Ada' },
+      },
+    }
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Directions', version: '1' },
+      paths: {
+        '/pets': {
+          post: {
+            requestBody: { content: { 'application/json': { schema } } },
+            responses: { '200': { description: 'OK', content: { 'application/json': { schema } } } },
+          },
+        },
+      },
+    })
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+      { secret: 'secret', name: 'Ada' },
+      { id: 42, name: 'Ada' },
+    ])
+  })
+
+  it('preserves boolean schemas through document loading', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Boolean schemas', version: '1' },
+      components: {
+        schemas: {
+          Allowed: true,
+          Forbidden: false,
+          Container: {
+            type: 'object',
+            properties: { anything: true, nothing: false, values: { type: 'array', items: false } },
+            allOf: [true],
+            not: false,
+          },
+        },
+      },
+    })
+    expect(markdown).toContain('**Type:** any (true schema)')
+    expect(markdown).toContain('**Type:** never (false schema)')
+    expect(markdown.match(/any \(true schema\)/g)?.length).toBe(3)
+    expect(markdown.match(/never \(false schema\)/g)?.length).toBe(4)
+  })
+
+  it('preserves parameter examples and content examples without schema fallbacks', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Parameter examples', version: '1' },
+      components: { examples: { Empty: { value: '', description: 'An **empty** query.' } } },
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            parameters: [
+              {
+                name: 'query',
+                in: 'query',
+                schema: { type: 'string', example: 'unused' },
+                examples: { empty: { $ref: '#/components/examples/Empty' } },
+              },
+              { name: 'filter', in: 'query', content: { 'application/json': { example: false } } },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+    expect([...markdown.matchAll(/```json\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!))).toStrictEqual([
+      '',
+      false,
+    ])
+    expect(markdown).toContain('An **empty** query.')
+    expect(markdown).toContain('**Operation ID:** `search`')
+    expect(markdown).not.toContain('unused')
+  })
+
+  it('renders form encoding only on supported media types and ignores reserved headers', async () => {
+    const markdown = await createMarkdownFromOpenApi({
+      openapi: '3.1.1',
+      info: { title: 'Encoding', version: '1' },
+      paths: {
+        '/form': {
+          post: {
+            requestBody: {
+              content: {
+                'application/x-www-form-urlencoded': {
+                  schema: { type: 'object', properties: { field: { type: 'string' } } },
+                  encoding: {
+                    field: {
+                      style: 'form',
+                      explode: false,
+                      headers: { 'X-Ignored': { description: 'Not multipart' } },
+                    },
+                  },
+                },
+                'application/json': { encoding: { ignored: { contentType: 'text/ignored' } } },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                headers: {
+                  'content-type': { description: 'Reserved header' },
+                  'X-Content': { content: { 'application/json': { example: 0 } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(markdown).toContain('**Encoding:**')
+    expect(markdown).toContain('Explode: `false`')
+    expect(markdown).toContain('**`X-Content`**')
+    expect(markdown).not.toContain('Not multipart')
+    expect(markdown).not.toContain('text/ignored')
+    expect(markdown).not.toContain('Reserved header')
+    const response = markdown.split('#### Responses')[1]!
+    expect(
+      [...response.matchAll(/```json\s*\n([\s\S]*?)\n\s*```/g)].map((match) => JSON.parse(match[1]!)),
+    ).toStrictEqual([0])
+  })
+  it('retains constraints beside boolean schema references through document loading', async () => {
+    const markdown = await createMarkdownFromOpenApi(
+      {
+        openapi: '3.1.1',
+        info: { title: 'Boolean siblings', version: '1' },
+        components: {
+          schemas: {
+            Any: true,
+            String: { $ref: '#/components/schemas/Any', type: 'string', minLength: 3 },
+          },
+        },
+      },
+      { model: 'String' },
+    )
+    expect(markdown).toContain('**Type:** `string`')
+    expect(markdown).toContain('minLength: `3`')
+  })
+
+  it.each(['3.0.4', '3.1.2', '3.2.0'])(
+    'renders named examples according to the declared version %s',
+    async (openapi) => {
+      const markdown = await createMarkdownFromOpenApi({
+        openapi,
+        info: { title: 'Versioned examples', version: '1' },
+        components: { examples: { Falsy: { dataValue: false } } },
+        paths: {
+          '/examples': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'boolean' },
+                      examples: { supplied: { $ref: '#/components/examples/Falsy' } },
+                    },
+                    'application/xml': { examples: { supplied: { serializedValue: '<ok/>' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      expect(markdown.includes('```json\nfalse\n```')).toBe(openapi === '3.2.0')
+      expect(markdown.includes('```xml\n<ok/>\n```')).toBe(openapi === '3.2.0')
+    },
+  )
 })

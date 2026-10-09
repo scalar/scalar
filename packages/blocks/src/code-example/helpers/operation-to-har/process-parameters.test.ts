@@ -1,11 +1,77 @@
+import { buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { type OperationObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  type OperationObject,
+  type ParameterObject,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Request as HarRequest } from 'har-format'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { processParameters } from './process-parameters'
 
 describe('parameter styles', () => {
+  it.each([true, false])(
+    'respects defaultDisabled %s for enum suggestions in generated snippets',
+    (defaultDisabled) => {
+      const result = processParameters({
+        harRequest: {
+          url: 'https://example.com/api/media',
+          method: 'GET',
+          headers: [],
+          queryString: [],
+          cookies: [],
+          httpVersion: 'HTTP/1.1',
+          headersSize: 0,
+          bodySize: 0,
+        },
+        defaultDisabled,
+        parameters: [
+          { name: 'mediaType', in: 'query', schema: { type: 'string', enum: ['None', 'Image'] } },
+          { name: 'X-Media-Type', in: 'header', schema: { type: 'string', enum: ['None', 'Image'] } },
+          { name: 'media', in: 'cookie', schema: { type: 'string', enum: ['None', 'Image'] } },
+        ],
+      })
+      expect(result.queryString).toStrictEqual(defaultDisabled ? [] : [{ name: 'mediaType', value: 'None' }])
+      expect(result.headers).toStrictEqual(defaultDisabled ? [] : [{ name: 'X-Media-Type', value: 'None' }])
+      expect(result.cookies).toStrictEqual(defaultDisabled ? [] : [{ name: 'media', value: 'None' }])
+    },
+  )
+
+  it('preserves new example values and serialized query/path/cookie text', () => {
+    const result = processParameters({
+      harRequest: {
+        url: 'https://example.com/{id}',
+        method: 'GET',
+        headers: [],
+        queryString: [],
+        cookies: [],
+        httpVersion: 'HTTP/1.1',
+        headersSize: 0,
+        bodySize: 0,
+      },
+      defaultDisabled: true,
+      parameters: [
+        { name: 'id', in: 'path', required: true, examples: { default: { serializedValue: 'a%2Fb' } } },
+        { name: 'term', in: 'query', examples: { default: { serializedValue: 'term=a%20b&term=c%2Fd' } } },
+        { name: 'X-Audit', in: 'header', examples: { default: { serializedValue: 'hello-wire' } } },
+        { name: 'color', in: 'cookie', style: 'cookie', examples: { default: { dataValue: ['blue', 'black'] } } },
+        { name: 'preferences', in: 'cookie', examples: { default: { serializedValue: 'greeting=hello%20world' } } },
+      ],
+    })
+    expect(result).toStrictEqual({
+      url: 'https://example.com/a%2Fb?term=a%20b&term=c%2Fd',
+      hasSerializedQuery: true,
+      headers: [
+        { name: 'X-Audit', value: 'hello-wire' },
+        { name: 'Cookie', value: 'color=blue; color=black; greeting=hello%20world' },
+      ],
+      queryString: [],
+      cookies: [],
+      hasCookieStyleEntries: true,
+    })
+  })
+
   const createHarRequest = (url: string): HarRequest => ({
     url,
     method: 'get',
@@ -22,6 +88,164 @@ describe('parameter styles', () => {
     parameters: OperationObject['parameters']
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
+
+  it.each([
+    { location: 'query', serialized: true, value: 'term=a%20b' },
+    { location: 'path', serialized: true, value: 'a%20b' },
+    { location: 'header', serialized: true, value: 'a b' },
+    { location: 'cookie', serialized: true, value: 'term=a%20b' },
+    { location: 'query', serialized: false, value: 'a b' },
+    { location: 'path', serialized: false, value: 'a b' },
+    { location: 'header', serialized: false, value: 'a b' },
+    { location: 'cookie', serialized: false, value: 'a b' },
+  ] as const)(
+    'aligns $location examples across client and snippets (serialized: $serialized)',
+    ({ location, serialized, value }) => {
+      const example = { serializedValue: value }
+      const parameter: ParameterObject = {
+        name: 'term',
+        in: location,
+        required: true,
+        ...(serialized
+          ? { examples: { default: example } }
+          : { content: { 'text/plain': { examples: { default: example } } } }),
+      }
+      const path = location === 'path' ? '/{term}' : '/'
+      const { request } = requestFactory({
+        exampleName: 'default',
+        method: 'get',
+        path,
+        environment: { color: '#FFFFFF', variables: [] },
+        globalCookies: [],
+        proxyUrl: '',
+        server: { url: 'https://example.com' },
+        defaultHeaders: {},
+        isElectron: false,
+        selectedSecuritySchemes: [],
+        operation: { parameters: [parameter] },
+      })
+      const built = buildRequest(request, { envVariables: {} })
+      if (!built.ok) {
+        throw new Error('Expected a successful request')
+      }
+      const [url, init] = built.data.requestPayload
+      const snippet = runProcessParameters({
+        harRequest: createHarRequest(`https://example.com${path}`),
+        parameters: [parameter],
+      })
+      const query = snippet.queryString
+        .map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
+        .join('&')
+      expect(String(url).replaceAll('+', '%20')).toBe(`${snippet.url}${query ? `?${query}` : ''}`)
+      if (location === 'header') {
+        expect(new Headers(init.headers).get('term')).toBe(snippet.headers[0]?.value)
+      }
+      if (location === 'cookie') {
+        const cookie =
+          snippet.headers.find(({ name }) => name.toLowerCase() === 'cookie')?.value ??
+          snippet.cookies
+            .map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`)
+            .join('; ')
+        expect(new Headers(init.headers).get('cookie')).toBe(cookie)
+      }
+    },
+  )
+
+  it.each([false, true])('keeps cookie inputs unchanged with serialized cookies: %s', (includeSerialized) => {
+    const harRequest = createHarRequest('https://example.com/')
+    harRequest.headers = [{ name: 'Cookie', value: 'session=existing' }]
+    harRequest.cookies = [{ name: 'global', value: 'a b' }]
+    const original = structuredClone(harRequest)
+    const parameters: OperationObject['parameters'] = [
+      { name: 'regular', in: 'cookie', examples: { default: { value: 'c d' } } },
+      {
+        name: 'media',
+        in: 'cookie',
+        content: { 'text/plain': { examples: { default: { serializedValue: 'e f' } } } },
+      },
+      ...(includeSerialized
+        ? [{ name: 'wire', in: 'cookie' as const, examples: { default: { serializedValue: 'wire=g%20h' } } }]
+        : []),
+    ]
+    const result = runProcessParameters({ harRequest, parameters })
+    expect(harRequest).toStrictEqual(original)
+    expect(runProcessParameters({ harRequest, parameters })).toStrictEqual(result)
+    expect(result.cookies).toStrictEqual(
+      includeSerialized
+        ? []
+        : [
+            { name: 'global', value: 'a b' },
+            { name: 'regular', value: 'c d' },
+            { name: 'media', value: 'e f' },
+          ],
+    )
+    expect(result.headers).toStrictEqual([
+      {
+        name: 'Cookie',
+        value: includeSerialized
+          ? 'session=existing; global=a%20b; regular=c%20d; media=e%20f; wire=g%20h'
+          : 'session=existing',
+      },
+    ])
+  })
+
+  it('warns authors before expanding invalid cookie-style explode: false in snippets', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/'),
+      parameters: [
+        { name: 'color', in: 'cookie', style: 'cookie', explode: false, required: true, example: ['blue', 'black'] },
+      ],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'Cookie', value: 'color=blue; color=black' }])
+    expect(warning).toHaveBeenCalledExactlyOnceWith(
+      'Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.',
+    )
+    warning.mockRestore()
+  })
+
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black'], expected: 'color=blue; color=black' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+  ])('preserves cookie style in the HAR header: $expected', ({ value, expected }) => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/'),
+      parameters: [{ name: 'color', in: 'cookie', style: 'cookie', required: true, example: value }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'Cookie', value: expected }])
+    expect(result.cookies).toStrictEqual([])
+  })
+
+  it('merges cookie style with existing headers and legacy cookies without changing the input header', () => {
+    const harRequest = createHarRequest('/')
+    harRequest.headers = [{ name: 'cookie', value: 'session=abc' }]
+    harRequest.cookies = [{ name: 'legacy', value: 'a b' }]
+    const result = runProcessParameters({
+      harRequest,
+      parameters: [{ name: 'token', in: 'cookie', style: 'cookie', required: true, example: '%2F+==' }],
+    })
+    expect(result.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc; legacy=a%20b; token=%2F+==' }])
+    expect(result.cookies).toStrictEqual([])
+    expect(harRequest.headers).toStrictEqual([{ name: 'cookie', value: 'session=abc' }])
+  })
+
+  it('keeps a whole JSON query in the snippet URL without a name or equals sign', () => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('https://example.com/search?old=true'),
+      parameters: [
+        {
+          name: 'json',
+          in: 'querystring',
+          required: true,
+          content: { 'application/json': { example: { flag: true } } },
+        },
+      ],
+    })
+    expect(result.url).toBe('https://example.com/search?%7B%22flag%22%3Atrue%7D')
+    expect(result.queryString).toStrictEqual([])
+  })
 
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
@@ -473,7 +697,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'blue%2Cblack%2Cbrown' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'blue,black,brown' }])
     })
 
     it('should handle form style with explode=false and object values', () => {
@@ -500,7 +724,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'R%2C100%2CG%2C200%2CB%2C150' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'R,100,G,200,B,150' }])
     })
 
     it('should handle form style with explode=true and single value', () => {
@@ -605,7 +829,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'blue%20black%20brown' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'blue black brown' }])
     })
 
     it('should handle spaceDelimited style with explode=false and object values', () => {
@@ -632,7 +856,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'R%20100%20G%20200%20B%20150' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'R 100 G 200 B 150' }])
     })
   })
 
@@ -657,7 +881,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'blue%7Cblack%7Cbrown' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'blue|black|brown' }])
     })
 
     it('should handle pipeDelimited style with explode=false and object values', () => {
@@ -684,7 +908,7 @@ describe('parameter styles', () => {
       })
 
       expect(result.url).toBe('/api/users')
-      expect(result.queryString).toEqual([{ name: 'color', value: 'R%7C100%7CG%7C200%7CB%7C150' }])
+      expect(result.queryString).toEqual([{ name: 'color', value: 'R|100|G|200|B|150' }])
     })
   })
 
@@ -1589,8 +1813,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // With explicit explode: false, array values should be comma-separated and URL encoded
-      expect(result.queryString).toEqual([{ name: 'tags', value: 'javascript%2Ctypescript%2Cvue' }])
+      // With explicit explode: false, array values should be comma-separated and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'tags', value: 'javascript,typescript,vue' }])
     })
 
     it('handles query parameter with array value from named example', () => {
@@ -1679,52 +1903,36 @@ describe('parameter styles', () => {
       })
 
       // Form style query parameters default to explode: true
-      // Object values without schema should be serialized as JSON string and URL encoded
-      expect(result.queryString).toEqual([{ name: 'user', value: '%7B%22name%22%3A%22John%22%2C%22age%22%3A30%7D' }])
+      // Object values without schema should be serialized as JSON string and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'user', value: '{"name":"John","age":30}' }])
     })
   })
 
-  // The OpenAPI 3.2 `querystring` location is serialized like a regular query parameter so its
-  // value still lands in the query string instead of being silently dropped.
-  describe('querystring parameters', () => {
-    it('serializes a scalar querystring parameter into the query string', () => {
-      const result = runProcessParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'q',
-            in: 'querystring',
-            required: true,
-            schema: coerceValue(SchemaObjectSchema, { type: 'string', example: 'hello' }),
-          },
-        ],
-      })
-
-      expect(result.queryString).toEqual([{ name: 'q', value: 'hello' }])
+  it('serializes whole text queries without a parameter name', () => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/api/users'),
+      parameters: [
+        { name: 'q', in: 'querystring', required: true, content: { 'text/plain': { example: 'hello world' } } },
+      ],
     })
+    expect(result.url).toBe('/api/users?hello%20world')
+    expect(result.queryString).toEqual([])
+  })
 
-    it('expands an object querystring parameter into individual query params', () => {
-      const result = runProcessParameters({
-        harRequest: createHarRequest('/api/users'),
-        parameters: [
-          {
-            name: 'filter',
-            in: 'querystring',
-            required: true,
-            schema: coerceValue(SchemaObjectSchema, {
-              type: 'object',
-              example: { page: '1', limit: '10' },
-            }),
-          },
-        ],
-      })
-
-      // Form style defaults to explode: true, so the object expands into individual query params
-      expect(result.queryString).toEqual([
-        { name: 'page', value: '1' },
-        { name: 'limit', value: '10' },
-      ])
+  it('serializes a whole form query directly into the URL', () => {
+    const result = runProcessParameters({
+      harRequest: createHarRequest('/api/users'),
+      parameters: [
+        {
+          name: 'filter',
+          in: 'querystring',
+          required: true,
+          content: { 'application/x-www-form-urlencoded': { example: { page: 1, limit: 10 } } },
+        },
+      ],
     })
+    expect(result.url).toBe('/api/users?page=1&limit=10')
+    expect(result.queryString).toEqual([])
   })
 
   describe('content-based parameters', () => {
@@ -1756,8 +1964,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Object values should be serialized as JSON strings and URL encoded
-      expect(result.queryString).toEqual([{ name: 'offset', value: '%7B%22test%22%3A%22what%22%7D' }])
+      // Object values should be serialized as JSON strings and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'offset', value: '{"test":"what"}' }])
     })
 
     it('handles query parameter with text/plain content type', () => {
@@ -1786,8 +1994,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Plain text values should be URL encoded
-      expect(result.queryString).toEqual([{ name: 'description', value: 'This%20is%20plain%20text%20content' }])
+      // Plain text values remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'description', value: 'This is plain text content' }])
     })
 
     it('handles query parameter with text/xml content type', () => {
@@ -1816,10 +2024,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // XML values should be URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'xmlData', value: '%3Croot%3E%3Citem%3Evalue%3C%2Fitem%3E%3C%2Froot%3E' },
-      ])
+      // XML values remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'xmlData', value: '<root><item>value</item></root>' }])
     })
 
     it('handles query parameter with application/xml content type', () => {
@@ -1848,11 +2054,11 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Application XML values should be URL encoded
+      // Application XML values remain raw in HAR
       expect(result.queryString).toEqual([
         {
           name: 'payload',
-          value: '%3C%3Fxml%20version%3D%221.0%22%3F%3E%3Cdata%3E%3Cfield%3Etest%3C%2Ffield%3E%3C%2Fdata%3E',
+          value: '<?xml version="1.0"?><data><field>test</field></data>',
         },
       ])
     })
@@ -1883,10 +2089,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Form data should be URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'formData', value: 'username%3Djohn_doe%26email%3Djohn%40example.com' },
-      ])
+      // Form data remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'formData', value: 'username=john_doe&email=john@example.com' }])
     })
 
     it('handles query parameter with text/html content type', () => {
@@ -1915,10 +2119,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // HTML values should be URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'htmlContent', value: '%3Cdiv%3E%3Cp%3EHello%20World%3C%2Fp%3E%3C%2Fdiv%3E' },
-      ])
+      // HTML values remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'htmlContent', value: '<div><p>Hello World</p></div>' }])
     })
 
     it('handles query parameter with application/octet-stream content type', () => {
@@ -1948,8 +2150,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Binary data (base64 encoded) should be URL encoded
-      expect(result.queryString).toEqual([{ name: 'binaryData', value: 'SGVsbG8gV29ybGQ%3D' }])
+      // Binary data (base64 encoded) remain raw in HAR
+      expect(result.queryString).toEqual([{ name: 'binaryData', value: 'SGVsbG8gV29ybGQ=' }])
     })
 
     it('handles content-based parameter with array value', () => {
@@ -1981,10 +2183,8 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Array values in content should be serialized as JSON strings and URL encoded
-      expect(result.queryString).toEqual([
-        { name: 'tags', value: '%5B%22javascript%22%2C%22typescript%22%2C%22vue%22%5D' },
-      ])
+      // Array values in content should be serialized as JSON strings and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'tags', value: '["javascript","typescript","vue"]' }])
     })
 
     it('handles content-based parameter with nested object value', () => {
@@ -2019,11 +2219,11 @@ describe('parameter styles', () => {
         ],
       })
 
-      // Nested objects should be serialized as JSON strings and URL encoded
+      // Nested objects should be serialized as JSON strings and kept raw in HAR
       expect(result.queryString).toEqual([
         {
           name: 'filter',
-          value: '%7B%22user%22%3A%7B%22name%22%3A%22John%22%2C%22age%22%3A30%7D%2C%22active%22%3Atrue%7D',
+          value: '{"user":{"name":"John","age":30},"active":true}',
         },
       ])
     })
@@ -2058,8 +2258,8 @@ describe('parameter styles', () => {
       })
 
       // Should use parameter's content type (application/json), not request's (text/html)
-      // The value should be JSON stringified and URL encoded
-      expect(result.queryString).toEqual([{ name: 'data', value: '%7B%22id%22%3A123%2C%22name%22%3A%22Test%22%7D' }])
+      // The value should be JSON stringified and kept raw in HAR
+      expect(result.queryString).toEqual([{ name: 'data', value: '{"id":123,"name":"Test"}' }])
     })
   })
 
@@ -2171,11 +2371,13 @@ describe('parameter styles', () => {
           ],
         })
 
-        // Should be JSON stringified and URL encoded
-        expect(result.queryString).toContainEqual({
-          name: 'filter',
-          value: '%7B%22status%22%3A%22active%22%2C%22limit%22%3A10%7D',
-        })
+        // Should be JSON stringified and kept raw in HAR
+        expect(result.queryString).toStrictEqual([
+          {
+            name: 'filter',
+            value: '{"status":"active","limit":10}',
+          },
+        ])
       })
 
       it('should serialize query parameter with application/json content for array', () => {
@@ -2199,8 +2401,8 @@ describe('parameter styles', () => {
           ],
         })
 
-        // Should be JSON stringified and URL encoded
-        expect(result.queryString).toContainEqual({ name: 'ids', value: '%5B1%2C2%2C3%5D' })
+        // Should be JSON stringified and kept raw in HAR
+        expect(result.queryString).toStrictEqual([{ name: 'ids', value: '[1,2,3]' }])
       })
 
       it('should serialize query parameter with text/plain content as string', () => {
@@ -2224,8 +2426,8 @@ describe('parameter styles', () => {
           ],
         })
 
-        // Object values are serialized as JSON strings and URL encoded
-        expect(result.queryString).toContainEqual({ name: 'data', value: '%7B%22key%22%3A%22value%22%7D' })
+        // Object values are serialized as JSON strings and kept raw in HAR
+        expect(result.queryString).toStrictEqual([{ name: 'data', value: '{"key":"value"}' }])
       })
     })
   })
@@ -2249,7 +2451,7 @@ describe('allowReserved query parameter encoding', () => {
     example?: string | undefined
   }) => processParameters({ ...args, defaultDisabled: true })
 
-  it('URL encodes query parameter values by default', () => {
+  it('keeps query parameter values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2265,7 +2467,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'query', value: 'hello%20world%26foo%3Dbar' }])
+    expect(result.queryString).toEqual([{ name: 'query', value: 'hello world&foo=bar' }])
   })
 
   it('does not URL encode query parameter values when allowReserved is true', () => {
@@ -2285,10 +2487,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'query', value: 'hello world&foo=bar' }])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?query=hello world&foo=bar')
   })
 
-  it('URL encodes query parameter values when allowReserved is false', () => {
+  it('keeps query parameter values raw when allowReserved is false', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2305,10 +2508,10 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'query', value: 'test%2Fpath%3Fquery%3Dvalue' }])
+    expect(result.queryString).toEqual([{ name: 'query', value: 'test/path?query=value' }])
   })
 
-  it('URL encodes form style array values by default', () => {
+  it('keeps form style array values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2328,8 +2531,8 @@ describe('allowReserved query parameter encoding', () => {
     })
 
     expect(result.queryString).toEqual([
-      { name: 'tags', value: 'tag%20one' },
-      { name: 'tags', value: 'tag%26two' },
+      { name: 'tags', value: 'tag one' },
+      { name: 'tags', value: 'tag&two' },
     ])
   })
 
@@ -2353,13 +2556,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([
-      { name: 'tags', value: 'tag one' },
-      { name: 'tags', value: 'tag&two' },
-    ])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?tags=tag one&tags=tag&two')
   })
 
-  it('URL encodes deepObject style values by default', () => {
+  it('keeps deepObject style values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2380,7 +2581,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'filter[name]', value: 'John%20Doe%26Co' }])
+    expect(result.queryString).toEqual([{ name: 'filter[name]', value: 'John Doe&Co' }])
   })
 
   it('does not URL encode deepObject style values when allowReserved is true', () => {
@@ -2405,10 +2606,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'filter[name]', value: 'John Doe&Co' }])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?filter%5Bname%5D=John Doe&Co')
   })
 
-  it('URL encodes content-based parameter values by default', () => {
+  it('keeps content-based parameter values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2429,7 +2631,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'data', value: '%7B%22key%22%3A%22value%20with%20spaces%22%7D' }])
+    expect(result.queryString).toEqual([{ name: 'data', value: '{"key":"value with spaces"}' }])
   })
 
   it('does not URL encode content-based parameter values when allowReserved is true', () => {
@@ -2454,10 +2656,11 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'data', value: '{"key":"value with spaces"}' }])
+    expect(result.queryString).toStrictEqual([])
+    expect(result.url).toBe('/api/search?data={"key":"value with spaces"}')
   })
 
-  it('URL encodes spaceDelimited style values by default', () => {
+  it('keeps spaceDelimited style values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2476,10 +2679,10 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'colors', value: 'red%26blue%20green' }])
+    expect(result.queryString).toEqual([{ name: 'colors', value: 'red&blue green' }])
   })
 
-  it('URL encodes pipeDelimited style values by default', () => {
+  it('keeps pipeDelimited style values raw by default', () => {
     const result = runProcessParameters({
       harRequest: createHarRequest('/api/search'),
       parameters: [
@@ -2498,7 +2701,7 @@ describe('allowReserved query parameter encoding', () => {
       ],
     })
 
-    expect(result.queryString).toEqual([{ name: 'colors', value: 'red%26blue%7Cgreen' }])
+    expect(result.queryString).toEqual([{ name: 'colors', value: 'red&blue|green' }])
   })
 })
 
@@ -2526,14 +2729,31 @@ describe('processParameters defaultDisabled', () => {
     },
   ]
 
-  it('omits optional query parameters when defaultDisabled is true', () => {
+  it('includes populated optional query parameters when defaultDisabled is true', () => {
     const result = processParameters({
       harRequest: createHarRequest('/items'),
       parameters: optionalQueryParameters,
       defaultDisabled: true,
     })
 
-    expect(result.queryString).toEqual([])
+    expect(result.queryString).toStrictEqual([{ name: 'filter', value: 'active' }])
+  })
+
+  it.each([undefined, null, ''])('omits empty optional values (%s) when defaultDisabled is true', (value) => {
+    const result = processParameters({
+      harRequest: createHarRequest('/items'),
+      parameters: [
+        {
+          name: 'filter',
+          in: 'query',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string' }),
+          examples: { default: { value } },
+        },
+      ],
+      example: 'default',
+      defaultDisabled: true,
+    })
+    expect(result.queryString).toStrictEqual([])
   })
 
   it('includes optional query parameters from schema when defaultDisabled is false', () => {
@@ -2543,7 +2763,7 @@ describe('processParameters defaultDisabled', () => {
       defaultDisabled: false,
     })
 
-    expect(result.queryString).toContainEqual({ name: 'filter', value: 'active' })
+    expect(result.queryString).toStrictEqual([{ name: 'filter', value: 'active' }])
   })
 
   it('omits parameters when the selected example sets x-disabled true even if defaultDisabled is false', () => {

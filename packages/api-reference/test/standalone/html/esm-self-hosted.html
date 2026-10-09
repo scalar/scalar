@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- The test intercepts this origin and serves the files built in this checkout instead. -->
+    <script type="module">
+      import { createApiReference } from 'https://docs.example.test/scalar/esm.js'
+
+      createApiReference('#app', {
+        content: {
+          openapi: '3.1.0',
+          info: { title: 'Hello World', version: '1.0.0' },
+          paths: {},
+        },
+      })
+    </script>
+  </body>
+</html>

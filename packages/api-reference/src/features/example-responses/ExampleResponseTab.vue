@@ -49,7 +49,7 @@ import { Tab } from '@headlessui/vue'
   opacity: 1;
 }
 .tab:focus-visible:before {
-  outline: 1px solid var(--scalar-color-accent);
+  outline: 1px solid var(--scalar-focus-color);
 }
 .tab span {
   z-index: 1;

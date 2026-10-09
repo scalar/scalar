@@ -1,5 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-
 import type { WorkspaceStore } from '@/client'
 import { canHaveOrder, getOpenapiObject } from '@/navigation/helpers/get-openapi-object'
 import { getParentEntry } from '@/navigation/helpers/get-parent-entry'
@@ -16,7 +14,7 @@ type UpdateOrderIdParams = {
       /** Operation or webhook entries to update the order ID for */
       entries: (WithParent<TraversedOperation> | WithParent<TraversedWebhook>)[]
       operation: OperationObject
-      method: HttpMethod
+      method: string
       path: string
     }
   | {

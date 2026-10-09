@@ -1,17 +1,21 @@
-import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
 /**
- * Extract path from URL
+ * Extract path from URL. Metadata routes preserve trailing slashes because discovery
+ * fetches the exact declared URL, unlike normalized token routes.
  */
-export function getPathFromUrl(url: string): string {
+export function getPathFromUrl(
+  url: string,
+  { preserveTrailingSlash = false }: { preserveTrailingSlash?: boolean } = {},
+): string {
   try {
     // Handle relative URLs by prepending a base
     const urlObject = url.startsWith('http') ? new URL(url) : new URL(url, 'http://example.com')
 
     // Normalize: remove trailing slash except for root path
     const path = urlObject.pathname
-    return path === '/' ? path : path.replace(/\/$/, '')
+    return preserveTrailingSlash || path === '/' ? path : path.replace(/\/$/, '')
   } catch {
     // If URL is invalid, return the original string
     return url
@@ -53,7 +57,7 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
       continue
     }
 
-    const flows = scheme.flows // Type assertion no longer needed
+    const flows: OpenAPIV3_2.OAuthFlows | undefined = scheme.flows
 
     // Helper to safely add valid OAuth URLs
     const addOAuthUrl = (url?: string) => {
@@ -62,6 +66,8 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
       }
     }
 
+    addOAuthUrl(flows?.deviceAuthorization?.tokenUrl)
+    addOAuthUrl(flows?.deviceAuthorization?.refreshUrl)
     addOAuthUrl(flows?.password?.tokenUrl)
     addOAuthUrl(flows?.password?.refreshUrl)
     addOAuthUrl(flows?.clientCredentials?.tokenUrl)

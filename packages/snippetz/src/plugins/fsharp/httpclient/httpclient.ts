@@ -1,4 +1,6 @@
-import type { Plugin } from '@scalar/types/snippetz'
+import type { HarRequest, Plugin } from '@scalar/types/snippetz'
+
+import { joinUrlAndQuery } from '@/libs/http'
 
 /**
  * F# HttpClient plugin for generating HTTP request code
@@ -12,7 +14,7 @@ export const fsharpHttpclient: Plugin = {
       return ''
     }
 
-    const finalUrl = buildUrlWithQueryString(request.url, request.queryString)
+    const finalUrl = joinUrlAndQuery(request.url ?? '', request.queryString)
     let code = ''
 
     // Initialize HttpRequestMessage
@@ -20,7 +22,11 @@ export const fsharpHttpclient: Plugin = {
 
     // Add headers if present
     if (request.headers && request.headers.length > 0) {
-      code += generateHeadersCode(request.headers)
+      code += generateHeadersCode(
+        request.postData?.mimeType === 'multipart/form-data' && request.postData.params
+          ? request.headers.filter(({ name }) => name.toLowerCase() !== 'content-type')
+          : request.headers,
+      )
     }
 
     // Add request body if present
@@ -41,33 +47,6 @@ export const fsharpHttpclient: Plugin = {
 
     return code
   },
-}
-
-/**
- * Builds a query string from an array of query parameters
- */
-function buildQueryString(queryParams: { name: string; value: string }[]): string {
-  if (!queryParams || queryParams.length === 0) {
-    return ''
-  }
-
-  const params = queryParams.map((param) => `${param.name}=${param.value}`)
-  return '?' + params.join('&')
-}
-
-/**
- * Combines base URL with query string if present
- */
-function buildUrlWithQueryString(baseUrl: string | undefined, queryParams?: { name: string; value: string }[]): string {
-  if (!baseUrl) {
-    return ''
-  }
-
-  if (!queryParams || queryParams.length === 0) {
-    return baseUrl
-  }
-
-  return baseUrl + buildQueryString(queryParams)
 }
 
 /**
@@ -110,7 +89,7 @@ function generateCookiesCode(cookies: { name: string; value: string }[], url: st
 /**
  * Generates code to set the request content based on postData
  */
-function generatePostDataCode(postData: any): string {
+function generatePostDataCode(postData: NonNullable<HarRequest['postData']>): string {
   if (!postData) {
     return ''
   }
@@ -139,7 +118,7 @@ function generatePostDataCode(postData: any): string {
 /**
  * Generates code for generic content types
  */
-function generateGenericContentCode(postData: any, contentType: string): string {
+function generateGenericContentCode(postData: NonNullable<HarRequest['postData']>, contentType: string): string {
   let code = `let content = new StringContent("${escapeString(postData.text ?? '')}", Encoding.UTF8, "${escapeString(contentType ?? '')}")\n`
   code += `content.Headers.ContentType <- MediaTypeHeaderValue("${escapeString(contentType ?? '')}")\n`
   return code
@@ -148,19 +127,19 @@ function generateGenericContentCode(postData: any, contentType: string): string 
 /**
  * Generates code for multipart/form-data content
  */
-function generateMultipartFormDataCode(postData: any): string {
+function generateMultipartFormDataCode(postData: NonNullable<HarRequest['postData']>): string {
   let code = 'let content = new MultipartFormDataContent()\n'
 
   let fileIndex = 0
   let stringContentIndex = 0
-  for (const param of postData.params) {
-    if (param.value === 'BINARY') {
+  for (const param of postData.params ?? []) {
+    if (param.fileName !== undefined) {
       const escapedFileName = escapeString(param.fileName ?? '')
       code += `let fileStreamContent_${fileIndex} = new StreamContent(File.OpenRead("${escapedFileName}"))\n`
       if (param.contentType) {
         code += `fileStreamContent_${fileIndex}.Headers.ContentType <- MediaTypeHeaderValue("${escapeString(param.contentType)}")\n`
       }
-      code += `content.Add(fileStreamContent_${fileIndex}, "${escapedFileName}", "${escapedFileName}")\n`
+      code += `content.Add(fileStreamContent_${fileIndex}, "${escapeString(param.name)}", "${escapedFileName}")\n`
       fileIndex++
     } else {
       const escapedName = escapeString(param.name ?? '')
@@ -182,7 +161,7 @@ function generateMultipartFormDataCode(postData: any): string {
 /**
  * Generates code for JSON content
  */
-function generateJsonContentCode(postData: any): string {
+function generateJsonContentCode(postData: NonNullable<HarRequest['postData']>): string {
   let prettyJson: string
   try {
     prettyJson = JSON.stringify(JSON.parse(postData.text ?? '{}'), null, 2)
@@ -196,9 +175,9 @@ function generateJsonContentCode(postData: any): string {
 /**
  * Generates code for application/x-www-form-urlencoded content
  */
-function generateUrlEncodedFormDataCode(postData: any): string {
+function generateUrlEncodedFormDataCode(postData: NonNullable<HarRequest['postData']>): string {
   let code = 'let formUrlEncodedContentDictionary = new Dictionary<string, string>()\n'
-  for (const param of postData.params) {
+  for (const param of postData.params ?? []) {
     code += `formUrlEncodedContentDictionary.Add("${escapeString(param.name ?? '')}", "${escapeString(param.value ?? '')}")\n`
   }
 

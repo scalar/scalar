@@ -1,7 +1,16 @@
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { mergeObjects } from '@scalar/helpers/object/merge-objects'
 import type { PartialDeep } from 'type-fest'
-import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, inject, provide, toValue } from 'vue'
+import {
+  type ComputedRef,
+  type InjectionKey,
+  type MaybeRefOrGetter,
+  computed,
+  effectScope,
+  inject,
+  provide,
+  toValue,
+} from 'vue'
 
 /** A locale identifier, for example `en` or `zh-CN`. */
 export type Locale = string
@@ -89,6 +98,12 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     }
 
     const normalized = locale.replace('_', '-').toLowerCase()
+    const exactMatch = Object.keys(localeTranslations).find((key) => key.toLowerCase() === normalized)
+
+    // Regional dictionaries must win before the Chinese language fallback.
+    if (exactMatch) {
+      return exactMatch
+    }
 
     if (normalized.startsWith('zh') && 'zh-CN' in localeTranslations) {
       return 'zh-CN'
@@ -145,7 +160,7 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     }
 
     return Object.entries(params).reduce(
-      (result, [param, paramValue]) => result.replaceAll(`{${param}}`, String(paramValue)),
+      (result, [param, paramValue]) => result.replaceAll(`{${param}}`, () => String(paramValue)),
       template,
     )
   }
@@ -163,9 +178,12 @@ export const createLocalization = <Translations extends Record<string, unknown>,
     }
   }
 
+  const ownContexts = new WeakSet<LocalizationContext<Translations, Key>>()
+
   const provideLocalization = (localization: MaybeRefOrGetter<LocalizationInput<Translations> | undefined>) => {
     const context = createContext(localization)
 
+    ownContexts.add(context)
     provide(LOCALIZATION_SYMBOL, context)
 
     return context
@@ -175,8 +193,35 @@ export const createLocalization = <Translations extends Record<string, unknown>,
   // construct a fresh context (and its computed chain) on every call.
   const fallbackContext = createContext(undefined)
 
-  const useLocalization = (): LocalizationContext<Translations, Key> =>
-    inject(LOCALIZATION_SYMBOL, fallbackContext) as LocalizationContext<Translations, Key>
+  const inheritedContexts = new WeakMap<
+    LocalizationContext<Translations, Key>,
+    LocalizationContext<Translations, Key>
+  >()
+
+  const useLocalization = (): LocalizationContext<Translations, Key> => {
+    const inherited = inject(LOCALIZATION_SYMBOL, fallbackContext) as LocalizationContext<Translations, Key>
+    if (inherited === fallbackContext || ownContexts.has(inherited)) {
+      return inherited
+    }
+
+    // Packages can contribute different dictionaries under the same provider. Resolve their own
+    // defaults before consuming the inherited overrides, and share that work between consumers.
+    const cached = inheritedContexts.get(inherited)
+    if (cached) {
+      return cached
+    }
+    // This cached context outlives the first consumer. A detached scope makes ownership explicit;
+    // the context contains only lazy computeds, with no watchers or external resources to dispose.
+    const context = effectScope(true).run(() =>
+      createContext(() => ({
+        locale: inherited.locale.value,
+        direction: inherited.direction.value,
+        translations: inherited.translations.value as PartialDeep<Translations>,
+      })),
+    )!
+    inheritedContexts.set(inherited, context)
+    return context
+  }
 
   return {
     resolveLocalization,

@@ -148,4 +148,24 @@ info:
 
     expect(text).toBe(jsonContent)
   })
+  it.each(['{openapi: 3.1.0, info: {title: Test, version: 1.0.0}, paths: {}}', '[one, two]'])(
+    'converts flow-style YAML to valid JSON: %s',
+    async (content) => {
+      await downloadDocument(content, 'test', 'json')
+      const blob = createObjectURLSpy.mock.calls[0]![0] as Blob
+      expect(blob.type).toBe('application/json')
+      const { parse } = await import('yaml')
+      expect(JSON.parse(String(await readBlobBody(blob)))).toEqual(parse(content))
+    },
+  )
+
+  it('preserves flow-style YAML when no conversion is requested', async () => {
+    const content = '{openapi: 3.1.0, paths: {}} # keep this comment'
+    await downloadDocument(content, 'test')
+    const blob = createObjectURLSpy.mock.calls[0]![0] as Blob
+    expect(blob.type).toBe('application/x-yaml')
+    expect(await readBlobBody(blob)).toBe(content)
+    const link = createElementSpy.mock.results.at(-1)!.value as HTMLAnchorElement
+    expect(link.download).toBe('test.yaml')
+  })
 })

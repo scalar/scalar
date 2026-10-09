@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { rustReqwest } from './reqwest'
 
 describe('rustReqwest', () => {
+  it.each(['customMethod', 'COPY', 'Get'])('uses a generic request for %s', (method) => {
+    expect(rustReqwest.generate({ url: 'https://example.com', method })).toBe(`let client = reqwest::Client::new();
+
+let request = client.request(reqwest::Method::from_bytes("${method}".as_bytes())?, "https://example.com");
+
+let response = request.send().await?;`)
+  })
+
   it('returns a basic request', () => {
     const result = rustReqwest.generate({
       url: 'https://example.com',
@@ -288,7 +296,7 @@ let request = client
     .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
-        let part = reqwest::multipart::Part::text("")
+        let part = reqwest::multipart::Part::bytes(std::fs::read("test.txt")?)
             .file_name("test.txt");
         form = form.part("file", part);
         form = form.text("field", "value");
@@ -325,7 +333,7 @@ let request = client
     .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
-        let part = reqwest::multipart::Part::text("")
+        let part = reqwest::multipart::Part::bytes(std::fs::read("test.txt")?)
             .file_name("test.txt")
             .mime_str("text/plain")
             .unwrap();
@@ -421,11 +429,11 @@ let response = request.send().await?;`)
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -513,7 +521,9 @@ let request = client
     .post("https://example.com")
     .multipart({
         let mut form = reqwest::multipart::Form::new();
-        form = form.text("file", "");
+        let part = reqwest::multipart::Part::bytes(std::fs::read("")?)
+            .file_name("");
+        form = form.part("file", part);
             form
         });
 

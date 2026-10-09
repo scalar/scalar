@@ -10,6 +10,11 @@ describe('XCodeSamplesSchema', () => {
     source: 'console.log("Hello, world!");',
   }
 
+  it('preserves named request example links', () => {
+    const value = { 'x-codeSamples': [{ ...sampleCode, example: 'detailed', contentType: 'application/json' }] }
+    expect(Value.Parse(XCodeSamplesSchema, value)).toEqual(value)
+  })
+
   it('allows a single code sample', () => {
     const result = Value.Parse(XCodeSamplesSchema, {
       'x-codeSamples': [

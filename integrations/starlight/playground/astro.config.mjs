@@ -10,7 +10,7 @@ export default defineConfig({
       title: 'Scalar + Starlight',
       description: 'A demo docs site using the @scalar/starlight plugin.',
       // Your own docs. The plugin appends an "API Reference" entry below this.
-      sidebar: [{ label: 'Guides', autogenerate: { directory: 'guides' } }],
+      sidebar: [{ label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] }],
       plugins: [
         scalarStarlight({
           configuration: {

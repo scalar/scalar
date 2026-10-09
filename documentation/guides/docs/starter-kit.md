@@ -40,13 +40,21 @@ First, authenticate with your Scalar account:
 npx @scalar/cli auth login
 ```
 
-Then publish your documentation:
+Create a project to publish to. You only need to do this once:
 
 ```bash
-npx @scalar/cli project publish
+npx @scalar/cli project create --name "My Docs" --slug my-docs
 ```
 
-Your site will be available at `<your-slug>.apidocumentation.com`.
+If that slug is already taken, Scalar picks a unique one and prints it. Use the printed slug in the next step.
+
+Then publish your documentation to that project:
+
+```bash
+npx @scalar/cli project publish --slug my-docs
+```
+
+Your site will be available at `<subdomain>.apidocumentation.com`. The subdomain is `siteConfig.subdomain` from your `scalar.config.json`, or your project slug if that is not set. The CLI prints the URL when the publish finishes.
 
 ## Stuck?
 

@@ -160,7 +160,7 @@ using var response = await client.SendAsync(request);`)
       url: 'https://example.com/api',
       queryString: [
         { name: 'param1', value: 'value1' },
-        { name: 'param2', value: 'special%20value' },
+        { name: 'param2', value: 'special value' },
         { name: 'param3', value: '123' },
       ],
     })
@@ -446,5 +446,41 @@ using var response = await client.SendAsync(request);`)
     expect(result).toContain('request.Headers.TryAddWithoutValidation("Cookie", "session=abc123");')
     expect(result).toContain('"""')
     expect(result).toContain('"name": "John"')
+  })
+  it('escapes quotes and backslashes in the url, headers, cookies and form fields', () => {
+    const result = csharpHttpclient.generate({
+      url: 'https://example.com/a"b',
+      method: 'post',
+      headers: [
+        { name: 'X-Test', value: 'a"b\\c' },
+        { name: 'Authorization', value: 'Bearer to"ken' },
+        { name: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+      ],
+      cookies: [{ name: 'a', value: 'b"c' }],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'k"1', value: 'v"1' },
+          { name: 'k2', value: 'line1\nline2' },
+        ],
+      },
+    })
+
+    expect(result).toContain('"https://example.com/a\\"b"')
+    expect(result).toContain('TryAddWithoutValidation("X-Test", "a\\"b\\\\c")')
+    expect(result).toContain('new AuthenticationHeaderValue("Bearer", "to\\"ken")')
+    expect(result).toContain('TryAddWithoutValidation("Cookie", "a=b\\"c")')
+    expect(result).toContain('["k\\"1"] = "v\\"1",')
+    expect(result).toContain('["k2"] = "line1\\nline2",')
+  })
+
+  it('escapes backslashes and line breaks in octet-stream bodies', () => {
+    const result = csharpHttpclient.generate({
+      url: 'https://example.com',
+      method: 'post',
+      postData: { mimeType: 'application/octet-stream', text: 'a\\b"c\nd' },
+    })
+
+    expect(result).toContain('GetBytes("a\\\\b\\"c\\nd")')
   })
 })

@@ -11,6 +11,8 @@ import {
 } from '@scalar/components/menu'
 import { ScalarIconGear } from '@scalar/icons'
 
+import { useLocalization } from '@/v2/features/localization'
+
 const { activeWorkspace, workspaces } = defineProps<{
   /**
    * The currently active workspace.
@@ -32,6 +34,8 @@ const emit = defineEmits<{
   /** Emitted when the user wants to open the settings */
   (e: 'navigate:to:settings'): void
 }>()
+
+const { translate } = useLocalization()
 
 defineSlots<{
   /** Slot for customizing the actions section of the sidebar menu. */
@@ -61,7 +65,7 @@ defineSlots<{
                 emit('navigate:to:settings')
               }
             ">
-            Settings
+            {{ translate('apiClient.sidebarMenu.settings') }}
           </ScalarMenuLink>
         </slot>
       </ScalarMenuSection>

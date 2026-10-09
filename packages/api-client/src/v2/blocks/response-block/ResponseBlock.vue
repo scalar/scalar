@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { isElectron } from '@scalar/helpers/general/is-electron'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { RequestPayload } from '@scalar/workspace-store/request-example'
@@ -19,25 +20,49 @@ import ResponseLoadingOverlay from '@/v2/blocks/response-block/components/Respon
 import ResponseMetaInformation from '@/v2/blocks/response-block/components/ResponseMetaInformation.vue'
 import { textMediaTypes } from '@/v2/blocks/response-block/helpers/media-types'
 import { parseSetCookie } from '@/v2/blocks/response-block/helpers/parse-set-cookie'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
-const { layout, totalPerformedRequests, response, requestPayload } =
-  defineProps<{
-    /** Preprocessed response */
-    response: ResponseInstance | null
-    /** Original request as a [url, RequestInit] tuple */
-    requestPayload: RequestPayload | null
-    /** Client layout */
-    layout: ClientLayout
-    /** Total number of performed requests */
-    totalPerformedRequests: number
-    /** Application version */
-    appVersion: string
-    /** Registered app plugins */
-    plugins: ClientPlugin[]
-    /** Workspace event bus */
-    eventBus: WorkspaceEventBus
-  }>()
+const {
+  layout,
+  totalPerformedRequests,
+  response,
+  requestPayload,
+  requestError,
+} = defineProps<{
+  /** Wait for the selected external request example before sending. */
+  executionDisabled?: boolean
+  /** Failure retained until the next request or operation change. */
+  requestError?: Error | null
+  /** Preprocessed response */
+  response: ResponseInstance | null
+  /** Original request as a [url, RequestInit] tuple */
+  requestPayload: RequestPayload | null
+  /** Client layout */
+  layout: ClientLayout
+  /** Total number of performed requests */
+  totalPerformedRequests: number
+  /** Application version */
+  appVersion: string
+  /** Registered app plugins */
+  plugins: ClientPlugin[]
+  /** Workspace event bus */
+  eventBus: WorkspaceEventBus
+}>()
+
+const { translate } = useLocalization()
+
+/** Browsers hide CORS details, so these messages warrant guidance, not a diagnosis. */
+const showNetworkErrorHelp = computed<boolean>(
+  () =>
+    !isElectron() &&
+    requestError?.name === 'TypeError' &&
+    [
+      'Failed to fetch',
+      'Load failed',
+      'NetworkError when attempting to fetch resource.',
+    ].includes(requestError.message),
+)
 
 // Headers
 const responseHeaders = computed(() => {
@@ -50,6 +75,10 @@ const responseHeaders = computed(() => {
       }))
     : []
 })
+
+const responseContentType = computed(
+  () => response?.headers['content-type'] ?? response?.headers['Content-Type'],
+)
 
 // Cookies
 const responseCookies = computed(
@@ -130,18 +159,31 @@ defineExpose({
   activeFilter,
   filters,
 })
+
+const filterLabels = computed(() => ({
+  All: translate('apiClient.sectionFilter.all'),
+  Auth: translate('apiClient.sectionFilter.auth'),
+  Variables: translate('apiClient.sectionFilter.variables'),
+  Cookies: translate('apiClient.sectionFilter.cookies'),
+  Headers: translate('apiClient.sectionFilter.headers'),
+  Query: translate('apiClient.sectionFilter.query'),
+  Body: translate('apiClient.sectionFilter.body'),
+}))
 </script>
 <template>
-  <ViewLayoutSection aria-label="Response">
+  <!-- Bound the stacked response section so long bodies keep their own scroll area. -->
+  <ViewLayoutSection
+    :aria-label="translate('apiClient.responseBlock.response')"
+    class="max-xl:max-h-full">
     <template #title>
       <div class="flex h-8 flex-1 items-center">
         <div
           aria-live="polite"
           class="flex items-center"
           :class="{ 'animate-response-heading': response }">
-          <span class="response-heading pointer-events-none absolute">
-            Response
-          </span>
+          <span class="response-heading pointer-events-none absolute">{{
+            translate('apiClient.responseBlock.response')
+          }}</span>
           <ResponseMetaInformation
             v-if="response"
             class="animate-response-children"
@@ -150,8 +192,8 @@ defineExpose({
         </div>
         <SectionFilter
           v-model="activeFilter"
-          :filterIds="filterIds"
-          :filters="filters" />
+          :filters="filters"
+          :labels="filterLabels" />
       </div>
     </template>
     <div
@@ -161,9 +203,24 @@ defineExpose({
         'content-start': response,
       }"
       :role="activeFilter === 'All' && response ? 'tabpanel' : 'none'">
-      <template v-if="!response">
+      <div
+        v-if="requestError"
+        class="flex flex-col gap-3 p-4 text-sm"
+        role="alert">
+        <h3 class="text-c-1 font-medium">
+          {{ translate('apiClient.responseBlock.requestFailed') }}
+        </h3>
+        <p class="text-c-2 break-words">{{ requestError.message }}</p>
+        <p
+          v-if="showNetworkErrorHelp"
+          class="text-c-2 leading-relaxed">
+          {{ translate('apiClient.responseBlock.networkErrorHelp') }}
+        </p>
+      </div>
+      <template v-else-if="!response">
         <ResponseEmpty
           :appVersion="appVersion"
+          :executionDisabled
           :layout="layout"
           :totalPerformedRequests="totalPerformedRequests"
           @addRequest="
@@ -190,7 +247,9 @@ defineExpose({
           class="response-section-content-headers"
           :headers="requestHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
-          <template #title>Request Headers</template>
+          <template #title>
+            {{ translate('apiClient.responseBlock.requestHeaders') }}
+          </template>
         </HeadersComponent>
         <!-- Response headers section -->
         <HeadersComponent
@@ -199,7 +258,9 @@ defineExpose({
           class="response-section-content-headers"
           :headers="responseHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'">
-          <template #title>Response Headers</template>
+          <template #title>
+            {{ translate('apiClient.responseBlock.responseHeaders') }}
+          </template>
         </HeadersComponent>
 
         <!-- Inject response section plugin components -->
@@ -219,6 +280,7 @@ defineExpose({
             v-if="'reader' in response"
             :id="filterIds.Body"
             class="response-section-content-body"
+            :contentType="responseContentType"
             :reader="response.reader" />
 
           <!-- Virtualized Text for massive responses -->
@@ -241,7 +303,7 @@ defineExpose({
             layout="client"
             :plugins="plugins"
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
-            title="Body" />
+            :title="translate('apiClient.responseBlock.body')" />
         </template>
       </template>
       <ResponseLoadingOverlay :eventBus="eventBus" />

@@ -777,3 +777,108 @@ describe('real-world OpenAPI scenarios', () => {
     }
   })
 })
+
+describe('proxied documents', () => {
+  it('resolves through a magic proxy without rewriting the document', () => {
+    const document = {
+      components: { schemas: { User: { type: 'object', properties: { id: { type: 'integer' } } } } },
+      body: { $ref: '#/components/schemas/User' },
+    }
+    const proxy = createMagicProxy(document)
+
+    expect(getResolvedRefDeep(proxy.body)).toEqual({ type: 'object', properties: { id: { type: 'integer' } } })
+    // The document keeps its own shape: only the returned tree is plain.
+    expect(document.body).toEqual({ $ref: '#/components/schemas/User' })
+  })
+
+  it('resolves a shared node once per call and returns the same object for both uses', () => {
+    const shared = { type: 'string' }
+    const node = { first: shared, second: shared }
+
+    const result = getResolvedRefDeep(node) as Record<string, unknown>
+
+    expect(result.first).toEqual({ type: 'string' })
+    expect(result.first).toBe(result.second)
+  })
+
+  it('reflects an edit made between two calls', () => {
+    const document = {
+      components: { schemas: { User: { type: 'object', title: 'before' } } },
+      body: { $ref: '#/components/schemas/User' },
+    }
+    const proxy = createMagicProxy(document)
+
+    expect(getResolvedRefDeep(proxy.body)).toEqual({ type: 'object', title: 'before' })
+
+    document.components.schemas.User.title = 'after'
+
+    expect(getResolvedRefDeep(proxy.body)).toEqual({ type: 'object', title: 'after' })
+  })
+
+  it('keeps cycle safety for a node that points at itself', () => {
+    const node: Record<string, unknown> = { name: 'root' }
+    node.self = node
+
+    expect(getResolvedRefDeep(node)).toEqual({ name: 'root', self: '[circular]' })
+  })
+})
+
+describe('reference chains', () => {
+  it('follows a two-hop chain through a $global stub', () => {
+    const node = {
+      $ref: '#/components/schemas/User',
+      '$ref-value': {
+        $ref: '#/x-ext/89db6c7',
+        $global: true,
+        $status: 'loaded',
+        '$ref-value': { type: 'object', properties: { id: { type: 'string' } } },
+      },
+    }
+
+    expect(getResolvedRefDeep(node)).toEqual({ type: 'object', properties: { id: { type: 'string' } } })
+  })
+
+  it('keeps the siblings of the reference it was handed', () => {
+    const node = {
+      $ref: '#/components/schemas/User',
+      description: 'from the property',
+      '$ref-value': {
+        $ref: '#/x-ext/89db6c7',
+        $global: true,
+        '$ref-value': { type: 'object', description: 'from the schema' },
+      },
+    }
+
+    expect(getResolvedRefDeep(node)).toEqual({ type: 'object', description: 'from the property' })
+  })
+
+  it('stops at an inner reference that carries keywords of its own', () => {
+    const node = {
+      $ref: '#/components/schemas/PaginatedUser',
+      '$ref-value': {
+        $id: 'https://example.com/PaginatedUser',
+        '$ref': '#/components/schemas/PaginatedTemplate',
+        '$ref-value': { type: 'object' },
+      },
+    }
+
+    // The inner reference stays a hop of its own, so the deep walk resolves it as a nested node.
+    expect(getResolvedRefDeep(node)).toEqual({ type: 'object', $id: 'https://example.com/PaginatedUser' })
+  })
+
+  it('treats an unresolved inner reference the way it treats an unresolved one', () => {
+    const stub = { $ref: './chunks/User.json#', $global: true }
+    const chain = { $ref: '#/components/schemas/User', '$ref-value': stub }
+
+    expect(getResolvedRefDeep(chain)).toBeUndefined()
+    expect(getResolvedRefDeep({ $ref: '#/components/schemas/User' })).toBeUndefined()
+  })
+
+  it('terminates on a reference cycle', () => {
+    const first: Record<string, unknown> = { $ref: '#/a' }
+    const second: Record<string, unknown> = { $ref: '#/b', '$ref-value': first }
+    first['$ref-value'] = second
+
+    expect(getResolvedRefDeep(first)).toBe('[circular]')
+  })
+})

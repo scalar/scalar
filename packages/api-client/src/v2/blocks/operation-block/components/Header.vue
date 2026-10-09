@@ -7,10 +7,12 @@
   and close button for modal. Layout and visibility depend on `layout` and `source` props.
  */
 export type HeaderProps = {
+  /** An external example must finish loading before sending. */
+  executionDisabled?: boolean
   /** Current request path */
   path: string
   /** Current request method */
-  method: HttpMethod
+  method: string
   /** Whether this request comes from an OpenAPI webhook. */
   isWebhook?: boolean
   /** Client layout */
@@ -49,7 +51,6 @@ export type HeaderProps = {
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarIconButton } from '@scalar/components/icon-button'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconGearSix } from '@scalar/icons'
 import type {
   ServerMeta,
@@ -60,6 +61,7 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 
 import { AddressBar, type History } from '@/v2/blocks/scalar-address-bar-block'
 import EnvironmentSelector from '@/v2/blocks/scalar-address-bar-block/components/EnvironmentSelector.vue'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 import OpenApiClientButton from './OpenApiClientButton.vue'
@@ -83,6 +85,8 @@ const emit = defineEmits<{
   /** Update the full destination URL used to deliver a webhook. */
   (e: 'update:webhook-url', url: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const handleSelectEnvironment = (environmentName: string) => {
   eventBus.emit('workspace:update:active-environment', environmentName)
@@ -112,6 +116,7 @@ const handleAddEnvironment = () => {
       :environments
       :eventBus
       :exampleKey
+      :executionDisabled
       :history
       :isWebhook
       :layout
@@ -122,10 +127,8 @@ const handleAddEnvironment = () => {
       :servers
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
-      @update:webhook-url="(value) => emit('update:webhook-url', value)"
-      @select:history:item="
-        (payload) => emit('select:history:item', payload)
-      " />
+      @select:history:item="(payload) => emit('select:history:item', payload)"
+      @update:webhook-url="(value) => emit('update:webhook-url', value)" />
 
     <div class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl:mb-0">
       <!--
@@ -142,7 +145,7 @@ const handleAddEnvironment = () => {
       <ScalarIconButton
         v-if="layout !== 'modal' && !isWebhook"
         :icon="ScalarIconGearSix"
-        label="Operation settings"
+        :label="translate('apiClient.header.operationSettings')"
         size="sm"
         weight="bold"
         @click="emit('navigate:settings')" />
@@ -169,13 +172,16 @@ const handleAddEnvironment = () => {
       <button
         v-if="layout === 'modal' && source !== 'gitbook'"
         class="app-exit-button zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
+        data-modal-initial-focus
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon
           icon="Close"
           size="lg"
           thickness="2" />
-        <span class="sr-only">Close Client</span>
+        <span class="sr-only">{{
+          translate('apiClient.header.closeClient')
+        }}</span>
       </button>
 
       <!--
@@ -186,13 +192,16 @@ const handleAddEnvironment = () => {
       <button
         v-if="layout === 'modal' && source === 'gitbook'"
         class="text-c-1 hover:bg-b-2 active:text-c-1 -mr-1.5 rounded p-2"
+        data-modal-initial-focus
         type="button"
         @click="eventBus.emit('ui:close:client-modal')">
         <ScalarIcon
           icon="Close"
           size="md"
           thickness="1.75" />
-        <span class="sr-only">Close Client</span>
+        <span class="sr-only">{{
+          translate('apiClient.header.closeClient')
+        }}</span>
       </button>
     </div>
   </div>

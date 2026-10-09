@@ -59,7 +59,8 @@ const buildMultipartBody = (
         lines.push(`appendToBody(${swiftStringLiteral(`Content-Type: ${escapedContentType}\r\n`)})`)
       }
       lines.push('appendToBody("\\r\\n")')
-      lines.push(`appendToBody(${swiftStringLiteral(`<# File data for ${param.fileName || 'file'} #>\r\n`)})`)
+      lines.push(`body.append(try Data(contentsOf: URL(fileURLWithPath: ${swiftStringLiteral(param.fileName)})))`)
+      lines.push('appendToBody("\\r\\n")')
     } else {
       lines.push(`appendToBody(${swiftStringLiteral(`Content-Disposition: form-data; name="${escapedName}"\r\n`)})`)
       if (escapedContentType) {

@@ -14,7 +14,12 @@
     "documentation/assets/vector.js",
     "documentation/assets/brand.js",
     "documentation/assets/enterprise-contact-form.js",
-    "documentation/assets/company.js"
+    "documentation/assets/company.js",
+    "documentation/assets/sdk-demo.js",
+    "documentation/assets/structured-data.js",
+    // Free tool widgets: the page scripts are referenced in scalar.config.json and
+    // load their modules with dynamic import() at runtime, which knip cannot trace
+    "documentation/assets/free-tools/*.js"
   ],
   "ignore": [
     // Loaded at runtime by `@scalar/release-notes` (release:version script), not statically imported
@@ -63,11 +68,26 @@
     // no longer have an internal consumer. They are kept for parity with v3.2 and the 3.1 upgrade
     // path, and remain reachable via the package `./schemas/*` export.
     "packages/workspace-store/src/schemas/v3.1/strict/ref-definitions.ts": ["exports"],
-    "packages/workspace-store/src/schemas/v3.1/strict/schema.ts": ["types"],
-    // `normalRef` mirrors `recursiveRef` for the non-recursive variant and has no consumer yet.
-    "packages/workspace-store/src/schemas/v3.2/openapi/reference.ts": ["exports"]
+    "packages/workspace-store/src/schemas/v3.1/strict/schema.ts": ["types"]
   },
   "workspaces": {
+    ".": {
+      // Loaded dynamically from the composite action's github-script step.
+      "entry": [".github/actions/update-contributors/update-contributors.ts"],
+      "ignoreDependencies": [
+        // Executed from the repo root by tooling/changelog-generator/src/version.ts.
+        "@changesets/cli"
+      ]
+    },
+    "integrations/rust": {
+      "ignoreDependencies": [
+        // The build copies the standalone bundle; Changesets tracks its version for Rust releases.
+        "@scalar/api-reference"
+      ]
+    },
+    "tooling/changelog-generator": {
+      "entry": ["src/index.ts", "src/version.ts"]
+    },
     "packages/api-client": {
       "entry": [
         "src/components/HttpMethod/index.ts",
@@ -113,10 +133,12 @@
       ]
     },
     "packages/blocks": {
-      "entry": ["src/code-example/index.ts"],
-      "ignoreDependencies": [
-        // Used only via vi.mock('@vueuse/core') in tests
-        "@vueuse/core"
+      "entry": [
+        "src/code-example/index.ts",
+        "src/shared/index.ts",
+        "src/schema/index.ts",
+        "src/schema/helpers/index.ts",
+        "src/schema/expansion/index.ts"
       ]
     },
     "packages/agent-chat": {
@@ -125,6 +147,8 @@
     },
     "packages/api-reference": {
       "entry": [
+        // Loaded by the standalone browser through pluginUrls in the plugin example and E2E test
+        "public/examples/plugins/custom-extension.js",
         "src/index.ts",
         "src/components/index.ts",
         "src/blocks/index.ts",
@@ -208,6 +232,7 @@
       "entry": [
         "src/bundle/index.ts",
         "src/magic-proxy/index.ts",
+        "src/join/index.ts",
         "src/diff/index.ts",
         "src/dereference/index.ts",
         "src/bundle/plugins/node.ts",
@@ -234,6 +259,16 @@
     },
     "packages/object-utils": {
       "entry": ["src/*/index.ts"]
+    },
+    "packages/openapi-to-markdown": {
+      // Run manually to compare the old and new renderers.
+      "entry": [
+        "src/index.ts",
+        "benchmarks/compare.mjs",
+        "playground/src/main.ts",
+        "playground/vite.config.ts",
+        "playground/worker.mjs"
+      ]
     },
     "packages/openapi-parser": {
       "entry": [
@@ -336,9 +371,6 @@
         "src/libs/execute-scripts/postman-adapter/sandbox-frame-entry.ts"
       ]
     },
-    "packages/openapi-to-markdown": {
-      "ignoreDependencies": ["vue"]
-    },
     "packages/react-renderer": {
       "ignoreDependencies": ["react", "react-dom", "vue"]
     },
@@ -364,8 +396,11 @@
     },
     "integrations/docusaurus": {
       "docusaurus": {
-        "config": ["playground/docusaurus.config.ts"],
+        // Analyze the playground statically: executing it imports the unbuilt integration.
+        // Keep configuration-only references (such as sidebars) in the entry list below.
+        "config": [],
         "entry": [
+          "playground/docusaurus.config.ts",
           "playground/sidebars.ts",
           "playground/src/{pages,components}/**/*.tsx",
           "playground/{blog,docs}/**/*.mdx",
@@ -380,7 +415,9 @@
       "ignoreDependencies": [
         // Used by webpack
         "path",
-        // Docusaurus aliases
+        // Virtual modules normally recognized while loading the Docusaurus configuration
+        "@docusaurus/Link",
+        "@docusaurus/useDocusaurusContext",
         "@theme/*",
         "@site/*"
       ]

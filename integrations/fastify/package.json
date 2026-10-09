@@ -17,9 +17,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.68.0",
+  "version": "1.73.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "pnpm types:check && vite build",
@@ -61,10 +61,10 @@
   },
   "dependencies": {
     "@scalar/client-side-rendering": "workspace:*",
-    "@scalar/openapi-parser": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
     "fastify-plugin": "catalog:*",
-    "github-slugger": "catalog:*"
+    "github-slugger": "catalog:*",
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@fastify/basic-auth": "catalog:*",
@@ -72,12 +72,12 @@
     "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/helpers": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
     "typescript": "^5.8.3",
     "vite": "catalog:*",
     "vite-plugin-dts": "^4.3.0",
-    "vitest": "catalog:*",
-    "yaml": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

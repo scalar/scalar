@@ -18,11 +18,13 @@
  */
 export function createPathFromSegments(obj: any, segments: string[]) {
   return segments.reduce((acc, part) => {
-    if (acc[part] === undefined) {
-      if (isNaN(Number(part))) {
-        acc[part] = {}
+    if (!Object.hasOwn(acc, part) || acc[part] === undefined) {
+      const value = isNaN(Number(part)) ? {} : []
+      if (part === '__proto__') {
+        // Avoid the prototype setter while preserving ordinary proxy set notifications.
+        Object.defineProperty(acc, part, { value, enumerable: true, configurable: true, writable: true })
       } else {
-        acc[part] = []
+        acc[part] = value
       }
     }
     return acc[part]

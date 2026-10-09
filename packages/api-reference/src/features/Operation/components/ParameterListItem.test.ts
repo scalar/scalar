@@ -1,9 +1,15 @@
+import { SchemaProperty, SchemaRailPanel } from '@scalar/blocks/schema'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { ResponseObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  ParameterObjectSchema,
+  ResponseObjectSchema,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ParameterListItem from './ParameterListItem.vue'
 
@@ -16,6 +22,232 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('renders selected extensions from both a parameter and its schema', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'limit',
+        eventBus: null,
+        options: { ...baseOptions, showExtensions: ['x-owner', 'x-policy'] },
+        specificationExtension: SpecificationExtension,
+        parameter: coerceValue(ParameterObjectSchema, {
+          name: 'limit',
+          in: 'query',
+          'x-owner': 'Platform',
+          schema: coerceValue(SchemaObjectSchema, { type: 'integer', 'x-policy': 'public' }),
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('"Platform"')
+    expect(wrapper.text()).toContain('"public"')
+  })
+
+  it.each([false, true])('shows structural response types with hideModels=%s', (hideModels) => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        eventBus: null,
+        name: '200',
+        options: { ...baseOptions, hideModels, hideModelNames: true, expandAllSchemaProperties: true },
+        parameter: coerceValue(ResponseObjectSchema, {
+          description: 'Order created',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/OrderResponse',
+                '$ref-value': {
+                  type: 'object',
+                  properties: {
+                    order: {
+                      $ref: '#/components/schemas/Order',
+                      '$ref-value': {
+                        type: 'object',
+                        properties: {
+                          customer: { type: 'object', title: 'Customer', properties: { name: { type: 'string' } } },
+                        },
+                      },
+                    },
+                    orders: { type: 'array', items: { type: 'object', title: 'Order' } },
+                  },
+                },
+              },
+            },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('object')
+    expect(wrapper.text()).toContain('array of object')
+    expect(wrapper.text()).toContain('customer')
+    expect(wrapper.text()).toContain('name')
+    expect(wrapper.text()).not.toContain('OrderResponse')
+    expect(wrapper.text()).not.toContain('Customer')
+    expect(wrapper.text()).not.toContain('Type: Order')
+  })
+
+  it.each(['inline array', 'referenced array', 'object'] as const)(
+    'indents the children of an expanded %s parameter (#10380)',
+    async (variant) => {
+      const item = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { field: { type: 'string' } },
+      })
+      const schema = coerceValue(
+        SchemaObjectSchema,
+        variant === 'object'
+          ? item
+          : {
+              type: 'array',
+              items:
+                variant === 'referenced array' ? { $ref: '#/components/schemas/Filter', '$ref-value': item } : item,
+            },
+      )
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          name: 'filters',
+          parameter: { name: 'filters', in: 'query', schema, description: 'Search filters.' },
+          options: baseOptions,
+          eventBus: null,
+        },
+      })
+
+      // Nesting is visual behavior here: the panel supplies the indentation.
+      const panel = wrapper.getComponent(SchemaRailPanel)
+      expect(panel.props('depth')).toBe(1)
+      expect(panel.props('closeOnRail')).toBe(false)
+      expect(panel.text()).toContain('field')
+      expect(panel.getComponent(SchemaProperty).props('depth')).toBe(1)
+      expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Search filters.')
+      await wrapper.get('.property-heading').trigger('click')
+      expect(panel.isVisible()).toBe(true)
+      wrapper.unmount()
+    },
+  )
+
+  it('indents compact parameter children only once when opened', async () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'filters',
+        parameter: {
+          name: 'filters',
+          in: 'query',
+          schema: {
+            type: 'array',
+            items: { type: 'object', properties: { field: { type: 'string' } } },
+          },
+        },
+        collapsableItems: true,
+        options: baseOptions,
+        eventBus: null,
+      },
+    })
+
+    const toggle = wrapper.get('button[aria-expanded]')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    await toggle.trigger('click')
+    expect(wrapper.text()).toContain('field')
+    expect(wrapper.findAllComponents(SchemaRailPanel).length).toBe(1)
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    wrapper.unmount()
+  })
+
+  it('displays both the complete body and stream item schemas', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: false,
+        eventBus: null,
+        name: '200',
+        options: baseOptions,
+        parameter: coerceValue(ResponseObjectSchema, {
+          description: 'Events',
+          content: {
+            'application/jsonl': {
+              schema: { type: 'array', maxItems: 10 },
+              itemSchema: {
+                type: 'object',
+                properties: { message: { type: 'string', description: 'Streamed message' } },
+              },
+            },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('Stream item')
+    expect(wrapper.text()).toContain('Streamed message')
+    expect(wrapper.findComponent(SchemaProperty).props('schema')).toHaveProperty('maxItems', 10)
+  })
+
+  it('keeps a compact parameter without details static', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: true,
+        eventBus: null,
+        name: 'limit',
+        options: baseOptions,
+        parameter: { in: 'query', name: 'limit', required: true },
+      },
+    })
+
+    expect(wrapper.text()).toContain('limit')
+    expect(wrapper.text()).toContain('required')
+    expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
+  })
+
+  it('opens a compact parameter description without a schema', async () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: true,
+        eventBus: null,
+        name: 'limit',
+        options: baseOptions,
+        parameter: { in: 'query', name: 'limit', description: 'Maximum results.' },
+      },
+    })
+
+    const toggle = wrapper.get('button[aria-expanded]')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+    expect(wrapper.text()).toContain('Maximum results.')
+  })
+
+  it('opens a compact parameter when its anchor is the initial scroll target', () => {
+    scrollTargetId.value = 'operation.query.limit'
+    try {
+      const wrapper = mount(ParameterListItem, {
+        props: {
+          collapsableItems: true,
+          breadcrumb: ['operation', 'query'],
+          eventBus: null,
+          name: 'limit',
+          options: baseOptions,
+          parameter: { in: 'query', name: 'limit', schema: { type: 'integer', enum: [10, 20] } },
+        },
+      })
+      const toggle = wrapper.get('button[aria-expanded]')
+      expect(wrapper.attributes('id')).toBe('operation.query.limit')
+      expect(toggle.attributes('aria-expanded')).toBe('true')
+      expect(wrapper.text()).toContain('20')
+      wrapper.unmount()
+    } finally {
+      scrollTargetId.value = ''
+    }
+  })
+
+  it('keeps scalar response details visible when responses are collapsible', () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        collapsableItems: true,
+        eventBus: null,
+        name: '204',
+        options: baseOptions,
+        parameter: { description: 'No content' },
+      },
+    })
+    expect(wrapper.text()).toContain('No content')
+    expect(wrapper.find('button[aria-expanded]').exists()).toBe(false)
+  })
+
   it('keeps model names visible when hideModels is enabled', () => {
     const wrapper = mount(ParameterListItem, {
       props: {

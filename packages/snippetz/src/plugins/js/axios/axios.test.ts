@@ -464,18 +464,26 @@ describe('jsAxios', () => {
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+formData.append("file", new File([files[0]], "test.txt", { type: "application/octet-stream" }));
+formData.append("field", "value");
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([]), 'test.txt')
-formData.append('field', 'value')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -494,17 +502,31 @@ formData.append('field', 'value')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formDataBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const formData = new Blob([
+  "--" + formDataBoundary + "\\r\\nContent-Disposition: form-data; name=\\"user\\"\\r\\nContent-Type: application/json;charset=utf-8\\r\\n\\r\\n",
+  "{\\"name\\":\\"scalar\\"}",
+  "\\r\\n",
+  "--" + formDataBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + formDataBoundary });
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
+  headers: {
+    'Content-Type': formData.type
+  },
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('user', new Blob(['{"name":"scalar"}'], { type: 'application/json;charset=utf-8' }))`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles multipart form data content types on files', () => {
@@ -523,17 +545,25 @@ formData.append('user', new Blob(['{"name":"scalar"}'], { type: 'application/jso
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+formData.append("file", new File([files[0]], "test.txt", { type: "text/plain" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([], { type: 'text/plain' }), 'test.txt')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles multipart form data with empty file names', () => {
@@ -551,17 +581,25 @@ formData.append('file', new Blob([], { type: 'text/plain' }), 'test.txt')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+formData.append("file", new File([files[0]], "", { type: "application/octet-stream" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([]), '')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('handles url-encoded form data', () => {
@@ -759,17 +797,23 @@ encodedParams.append('field\\'name', 'value\\'one')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+formData.append("field'name", "value'one");
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('field\\'name', 'value\\'one')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('escapes single quotes in multipart content type', () => {
@@ -788,17 +832,31 @@ formData.append('field\\'name', 'value\\'one')`,
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formDataBoundary = Array.from(globalThis.crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+const formData = new Blob([
+  "--" + formDataBoundary + "\\r\\nContent-Disposition: form-data; name=\\"payload\\"\\r\\nContent-Type: application/x.scalar'json\\r\\n\\r\\n",
+  "value",
+  "\\r\\n",
+  "--" + formDataBoundary + "--\\r\\n",
+], { type: "multipart/form-data; boundary=" + formDataBoundary });
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
+  headers: {
+    'Content-Type': formData.type
+  },
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('payload', new Blob(['value'], { type: 'application/x.scalar\\'json' }))`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('escapes single quotes in file names for multipart data', () => {
@@ -816,17 +874,25 @@ formData.append('payload', new Blob(['value'], { type: 'application/x.scalar\\'j
       },
     })
 
-    expect(result).toBe(
-      createSnippet(
-        `{
+    expect(result).toBe(`import axios from 'axios'
+
+const formData = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+formData.append("file", new File([files[0]], "te'st.txt", { type: "application/octet-stream" }));
+
+const options = {
   method: 'POST',
   url: 'https://example.com',
   data: formData
-}`,
-        `const formData = new FormData()
-formData.append('file', new Blob([]), 'te\\'st.txt')`,
-      ),
-    )
+}
+
+try {
+  const { data } = await axios.request(options)
+  console.log(data)
+} catch (error) {
+  console.error(error)
+}`)
   })
 
   it('escapes single quotes in query values', () => {

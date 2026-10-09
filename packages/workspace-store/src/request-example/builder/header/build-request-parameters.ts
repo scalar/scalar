@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { getCookieSerializationError } from '@scalar/helpers/http/get-cookie-serialization-error'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
@@ -8,12 +9,14 @@ import {
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { ParameterObject, ReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import type { ReservedPathParameter } from '@/helpers/encode-path-parameter'
+import { getParameterExample } from '@/helpers/get-parameter-example'
 import { deSerializeParameter } from '@/request-example/builder/header/de-serialize-parameter'
 
-import { getExample } from '../helpers/get-example'
 import { isParamDisabled } from './is-param-disabled'
 import {
   serializeContentValue,
+  serializeCookieStyle,
   serializeDeepObjectStyle,
   serializeFormStyle,
   serializeFormStyleForCookies,
@@ -41,12 +44,19 @@ export const buildRequestParameters = (
   parameters: ReferenceType<ParameterObject>[] = [],
   /** The key of the current example */
   exampleName: string = 'default',
+  /** Reserved path expansion was introduced in OpenAPI 3.2. */
+  openapiVersion?: string,
 ): {
   cookies: XScalarCookie[]
+  /** Invalid active cookie parameters that prevent sending this request. */
+  cookieErrors?: string[]
   headers: Record<string, string>
   pathVariables: Record<string, string>
+  reservedPathParameters?: Record<string, ReservedPathParameter>
   allowReservedQueryParameters: Set<string>
   urlParams: URLSearchParams
+  serializedQuery?: string[]
+  serializedPathParameters?: Set<string>
 } => {
   const result: ReturnType<typeof buildRequestParameters> = {
     cookies: [],
@@ -64,17 +74,62 @@ export const buildRequestParameters = (
   // Second pass: process all parameters
   for (const referencedParam of parameters) {
     const param = getResolvedRef(referencedParam)
-    if (!param) continue
-    const example = getExample(param, exampleName, undefined)
+    if (!param) {
+      continue
+    }
+    const selected = getParameterExample(param, exampleName)
+    const { example, value } = selected
 
     // Skip disabled examples
     if (!example || isParamDisabled(param, example)) {
       continue
     }
 
-    /** Replace environment variables in the key and value */
-    const value = example.value
+    /** Parameter-level wire text already contains its name, delimiters, and encoding. */
+    if (selected.serialized) {
+      const wireValue = String(value)
+      switch (param.in) {
+        case 'query':
+          ;(result.serializedQuery ??= []).push(wireValue)
+          break
+        case 'path':
+          result.pathVariables[param.name] = wireValue
+          ;(result.serializedPathParameters ??= new Set()).add(param.name)
+          break
+        case 'header':
+          result.headers[param.name] = wireValue
+          break
+        case 'cookie':
+          result.headers.Cookie = [result.headers.Cookie, wireValue].filter(Boolean).join('; ')
+          break
+      }
+      continue
+    }
 
+    if (selected.mediaSerialized) {
+      const text = String(value)
+      switch (param.in) {
+        case 'query':
+          result.urlParams.set(param.name, text)
+          break
+        case 'header':
+          result.headers[param.name] = text
+          break
+        case 'path':
+          result.pathVariables[param.name] = text
+          break
+        case 'cookie':
+          result.cookies.push(
+            coerceValue(xScalarCookieSchema, {
+              name: encodeURIComponent(param.name),
+              value: encodeURIComponent(text),
+              path: '/',
+            }),
+          )
+          break
+      }
+      continue
+    }
     /** De-serialize the example value if it is a string and matches the schema type */
     const deSerializedValue = deSerializeParameter(value, param)
     const paramName = param.name
@@ -113,14 +168,18 @@ export const buildRequestParameters = (
         // Path parameters use simple style by default
         const serialized = serializeSimpleStyle(deSerializedValue, getExplode(param, false))
         result.pathVariables[paramName] = String(serialized)
+        if (openapiVersion?.startsWith('3.2.') && 'schema' in param && param.allowReserved === true) {
+          ;(result.reservedPathParameters ??= {})[paramName] = {
+            value: deSerializedValue,
+            originalValue: String(serialized),
+            style: param.style ?? 'simple',
+            explode: getExplode(param, false),
+          }
+        }
         break
       }
 
-      // The 3.2 `querystring` location represents the whole query string. Handle it like a
-      // regular query parameter so schema-based values still expand into the query string
-      // instead of being silently dropped.
-      case 'query':
-      case 'querystring': {
+      case 'query': {
         processQueryParameter(
           param,
           paramName,
@@ -132,6 +191,23 @@ export const buildRequestParameters = (
       }
 
       case 'cookie': {
+        const [major, minor] = (openapiVersion ?? '').split('.')
+        const error =
+          major === '3' && minor === '2' && !('content' in param)
+            ? getCookieSerializationError(param, deSerializedValue)
+            : undefined
+        if (error) {
+          ;(result.cookieErrors ??= []).push(error)
+          break
+        }
+        if ('style' in param && param.style === 'cookie') {
+          result.cookies.push(
+            ...serializeCookieStyle(paramName, deSerializedValue, getExplode(param, true)).map((cookie) =>
+              coerceValue(xScalarCookieSchema, { ...cookie, path: '/' }),
+            ),
+          )
+          break
+        }
         processCookieParameter(paramName, deSerializedValue, getExplode(param, true), result.cookies)
         break
       }

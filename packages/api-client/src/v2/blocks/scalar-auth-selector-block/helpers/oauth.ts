@@ -6,11 +6,13 @@ import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { OAuthFlowsObjectSecret } from '@scalar/workspace-store/request-example'
 import { getServerVariables } from '@scalar/workspace-store/request-example'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { encode, fromUint8Array } from 'js-base64'
+import { fromUint8Array } from 'js-base64'
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
 import { getOAuthCallbackData } from './oauth-callback'
+import { oauthClientAuthorization } from './oauth-client-authorization'
+import { type DeviceAuthorizationOptions, authorizeDevice } from './oauth-device-authorization'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlows = Omit<OAuthFlowsObjectSecret, 'implicit'>
@@ -149,6 +151,7 @@ export const authorizeOauth2 = async (
    * default popup-polling approach. Required for the Electron desktop app.
    */
   captureCallback?: CaptureOAuth2Callback,
+  deviceOptions?: DeviceAuthorizationOptions,
 ): Promise<ErrorResponse<OAuth2Tokens>> => {
   const flow = flows[type]
 
@@ -157,6 +160,20 @@ export const authorizeOauth2 = async (
       return [new Error('Flow not found'), null]
     }
 
+    if (type === 'deviceAuthorization' && flows.deviceAuthorization) {
+      return authorizeDevice(
+        flows.deviceAuthorization,
+        selectedScopes,
+        activeServer,
+        proxyUrl,
+        environmentVariables,
+        customFetch,
+        deviceOptions,
+      )
+    }
+    if (type === 'deviceAuthorization') {
+      return [new Error('Flow not found'), null]
+    }
     const scopes = selectedScopes.join(' ')
 
     // Client Credentials or Password Flow
@@ -177,10 +194,11 @@ export const authorizeOauth2 = async (
     // Generate a random state string with the length of 8 characters
     const state = (Math.random() + 1).toString(36).substring(2, 10)
 
-    const authorizationUrl = makeUrlAbsolute(
-      flows[type]!['x-scalar-secret-auth-url'] ?? flows[type]!.authorizationUrl,
-      getActiveServerBase(activeServer, environmentVariables),
-    )
+    const authUrl = flows[type]!['x-scalar-secret-auth-url'] ?? flows[type]!.authorizationUrl
+    if (!authUrl.trim()) {
+      return [new Error('Authorization URL is required'), null]
+    }
+    const authorizationUrl = makeUrlAbsolute(authUrl, getActiveServerBase(activeServer, environmentVariables))
 
     const url = new URL(authorizationUrl)
 
@@ -241,7 +259,10 @@ export const authorizeOauth2 = async (
     }
 
     // Common to all flows
-    url.searchParams.set('client_id', flow['x-scalar-secret-client-id'])
+    url.searchParams.set(
+      'client_id',
+      replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim(),
+    )
     url.searchParams.set('state', state)
     if (scopes) {
       url.searchParams.set('scope', scopes)
@@ -410,24 +431,28 @@ const authorizeServers = async (
     formData.set('scope', scopes)
   }
 
+  // Ignore surrounding copy/paste whitespace without changing stored credentials or other secrets.
+  const clientId = replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim()
+  const clientSecret = replaceEnvVariables(flow['x-scalar-secret-client-secret'], environmentVariables).trim()
   /** Where to add the credentials */
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
   /**
    * PKCE and client authentication are independent: a confidential client may use both.
    * We send the client_secret whenever one is set, regardless of PKCE (see RFC 9700 Section 2.1.1).
    */
-  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  const hasClientSecret = Boolean(clientSecret)
   /**
    * Public authorization-code clients still need client_id in the token body.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.
    */
-  const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
+  const shouldSendClientIdInBody =
+    addCredentialsToBody || ((type === 'authorizationCode' || type === 'deviceAuthorization') && !hasClientSecret)
 
   if (shouldSendClientIdInBody) {
-    formData.set('client_id', flow['x-scalar-secret-client-id'])
+    formData.set('client_id', clientId)
   }
   if (addCredentialsToBody && hasClientSecret) {
-    formData.set('client_secret', flow['x-scalar-secret-client-secret'])
+    formData.set('client_secret', clientSecret)
   }
   if (redirectUri) {
     formData.set('redirect_uri', redirectUri)
@@ -473,14 +498,15 @@ const authorizeServers = async (
 
     // Add client id + secret to headers for confidential clients.
     if (!addCredentialsToBody && hasClientSecret) {
-      headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
+      headers.Authorization = oauthClientAuthorization(clientId, clientSecret)
     }
 
     // Check if we should use the proxy
-    const tokenUrl = makeUrlAbsolute(
-      flow['x-scalar-secret-token-url'] ?? flow.tokenUrl,
-      getActiveServerBase(activeServer, environmentVariables),
-    )
+    const tokenUrlValue = flow['x-scalar-secret-token-url'] ?? flow.tokenUrl
+    if (!tokenUrlValue.trim()) {
+      return [new Error('Token URL is required'), null]
+    }
+    const tokenUrl = makeUrlAbsolute(tokenUrlValue, getActiveServerBase(activeServer, environmentVariables))
     const url = shouldUseProxy(proxyUrl, tokenUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', tokenUrl]]).toString()}`
       : tokenUrl
@@ -546,20 +572,24 @@ export const refreshOauth2Token = async (
   formData.set('grant_type', 'refresh_token')
   formData.set('refresh_token', refreshToken)
 
+  // Ignore surrounding copy/paste whitespace without changing stored credentials or other secrets.
+  const clientId = replaceEnvVariables(flow['x-scalar-secret-client-id'], environmentVariables).trim()
+  const clientSecret = replaceEnvVariables(flow['x-scalar-secret-client-secret'], environmentVariables).trim()
   const addCredentialsToBody = flow['x-scalar-credentials-location'] === 'body'
   /** A confidential client keeps using its secret on refresh, even when PKCE is enabled. */
-  const hasClientSecret = Boolean(flow['x-scalar-secret-client-secret'])
+  const hasClientSecret = Boolean(clientSecret)
   /**
    * Public authorization-code clients still need client_id in the refresh body per RFC 6749 Section 6.
    * We only send it implicitly for that case to avoid conflicting with Basic auth.
    */
-  const shouldSendClientIdInBody = addCredentialsToBody || (type === 'authorizationCode' && !hasClientSecret)
+  const shouldSendClientIdInBody =
+    addCredentialsToBody || ((type === 'authorizationCode' || type === 'deviceAuthorization') && !hasClientSecret)
 
   if (shouldSendClientIdInBody) {
-    formData.set('client_id', flow['x-scalar-secret-client-id'])
+    formData.set('client_id', clientId)
   }
   if (addCredentialsToBody && hasClientSecret) {
-    formData.set('client_secret', flow['x-scalar-secret-client-secret'])
+    formData.set('client_secret', clientSecret)
   }
 
   if (flow['x-scalar-security-body']) {
@@ -576,10 +606,13 @@ export const refreshOauth2Token = async (
     }
 
     if (!addCredentialsToBody && hasClientSecret) {
-      headers.Authorization = `Basic ${encode(`${flow['x-scalar-secret-client-id']}:${flow['x-scalar-secret-client-secret']}`)}`
+      headers.Authorization = oauthClientAuthorization(clientId, clientSecret)
     }
 
-    const refreshUrl = flow.refreshUrl || flow['x-scalar-secret-token-url'] || flow.tokenUrl
+    const refreshUrl = flow.refreshUrl || (flow['x-scalar-secret-token-url'] ?? flow.tokenUrl)
+    if (!refreshUrl.trim()) {
+      return [new Error('Token URL is required'), null]
+    }
     const absoluteRefreshUrl = makeUrlAbsolute(refreshUrl, getActiveServerBase(activeServer, environmentVariables))
     const url = shouldUseProxy(proxyUrl, absoluteRefreshUrl)
       ? `${proxyUrl}?${new URLSearchParams([['scalar_url', absoluteRefreshUrl]]).toString()}`

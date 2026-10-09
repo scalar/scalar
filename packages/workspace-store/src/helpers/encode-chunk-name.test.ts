@@ -35,6 +35,27 @@ describe('encode-chunk-name', () => {
     expect(encodeChunkName('~x5c~')).toBe('~0x5c~0')
   })
 
+  it.each([
+    ['name...', 'name~x2e~~x2e~~x2e~'],
+    ['...', '~x2e~~x2e~~x2e~'],
+    ['a...b..', 'a...b~x2e~~x2e~'],
+    ['name.\n', 'name.~xa~'],
+    ['name.\u2028', 'name.~x2028~'],
+    ['CON.', 'CON~x2e~'],
+  ])('preserves trailing-dot encoding for %j', (name, expected) => {
+    expect(encodeChunkName(name)).toBe(expected)
+  })
+
+  it('preserves a long run of interior dots', () => {
+    const name = `${'.'.repeat(100_000)}x`
+
+    expect(encodeChunkName(name)).toBe(name)
+  })
+
+  it('encodes a long run of trailing dots', () => {
+    expect(encodeChunkName(`name${'.'.repeat(100_000)}`)).toBe(`name${'~x2e~'.repeat(100_000)}`)
+  })
+
   it.each(['CON', 'NUL.txt', 'aux', 'com1', 'LPT9', 'name.'])('avoids Windows reserved filename %s', (name) => {
     expect(encodeChunkName(name)).not.toBe(name)
     expect(encodeChunkName(name).endsWith('.')).toBe(false)

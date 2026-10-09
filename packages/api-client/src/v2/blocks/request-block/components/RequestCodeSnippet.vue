@@ -19,6 +19,7 @@ import { computed, ref, watch } from 'vue'
 
 import { DataTable, DataTableRow } from '@/v2/components/data-table'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   clientOptions,
@@ -32,8 +33,12 @@ const {
   securitySchemes,
   selectedClient,
   globalCookies,
+  openapiVersion,
+  requestBodyCompositionSelection,
   integration,
 } = defineProps<CodeExampleProps & { eventBus: WorkspaceEventBus }>()
+
+const { translate } = useLocalization()
 
 /** Grab any custom code samples from the operation */
 const customCodeSamples = computed(() => getCustomCodeSamples(operation))
@@ -82,7 +87,7 @@ const handleClientChange = (option: ClientOption | undefined) => {
 }
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() =>
+const generatedCode = computed<string | null>(() =>
   generateCodeSnippet({
     defaultDisabledParameters: true,
     clientId: localSelectedClient.value?.id,
@@ -95,6 +100,8 @@ const generatedCode = computed<string>(() =>
     securitySchemes,
     example: selectedExample,
     globalCookies,
+    openapiVersion,
+    requestBodyCompositionSelection,
     includeDefaultHeaders: integration === 'client',
   }),
 )
@@ -110,7 +117,9 @@ const hasClients = computed(() =>
     v-if="hasClients"
     class="group/preview w-full border-t"
     :defaultOpen="false">
-    <template #title>Code Snippet</template>
+    <template #title>
+      {{ translate('apiClient.requestCodeSnippet.codeSnippet') }}
+    </template>
 
     <!-- Client selector -->
     <template #actions>
@@ -145,10 +154,18 @@ const hasClients = computed(() =>
         presentational>
         <DataTableRow>
           <div class="overflow-hidden">
+            <div
+              v-if="generatedCode === null"
+              class="text-c-2 p-4"
+              role="status">
+              {{ translate('apiClient.requestCodeSnippet.unavailable') }}
+            </div>
             <ScalarCodeBlock
+              v-else
               class="text-base"
               :content="generatedCode"
               :hideCredentials="secretCredentials"
+              :label="translate('apiClient.requestCodeSnippet.codeSnippet')"
               :lang="localSelectedClient?.lang ?? 'plaintext'"
               lineNumbers />
           </div>

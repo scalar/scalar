@@ -1,7 +1,6 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
-import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
@@ -10,6 +9,7 @@ import { XScalarStabilityValues } from '@/schemas/extensions/operation'
 import type { ParentTag, TraversedExample, TraversedOperation } from '@/schemas/navigation'
 import type { OpenApiDocument, OperationObject } from '@/schemas/v3.2/strict/openapi-document'
 
+import { getNavigationTagNames } from './get-navigation-tag-names'
 import { getTag } from './get-tag'
 
 export const isDeprecatedOperation = (operation: OperationObject) => {
@@ -40,7 +40,7 @@ const createOperationEntry = ({
 }: {
   ref: string
   operation: OperationObject
-  method: HttpMethod
+  method: string
   path: string
   parentTag?: ParentTag
   generateId: TraverseSpecOptions['generateId']
@@ -133,11 +133,12 @@ export const traversePaths = ({
         return
       }
 
-      const ref = `#/paths/${escapeJsonPointer(path)}/${method}`
+      const ref = `#/paths/${escapeJsonPointer(path)}/${getPathItemOperationKey(method)}`
 
       // Traverse tags
-      if (operation.tags?.length) {
-        operation.tags.forEach((tagName: string) => {
+      const navigationTags = getNavigationTagNames(document, operation.tags, tagsMap)
+      if (navigationTags.length) {
+        navigationTags.forEach((tagName: string) => {
           const { tag, id: tagId } = getTag({
             tagsMap,
             name: tagName,

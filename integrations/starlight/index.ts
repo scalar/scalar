@@ -3,8 +3,7 @@
 
 import { scalarStarlight } from './src/plugin'
 
-export { scalarStarlight }
-
 export type { ScalarStarlightOptions } from './src/plugin'
+export { scalarStarlight }
 
 export default scalarStarlight

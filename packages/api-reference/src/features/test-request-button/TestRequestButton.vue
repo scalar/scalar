@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import { ScreenReader } from '@scalar/blocks/shared'
 import { ScalarIconPlay } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
-import ScreenReader from '@/components/ScreenReader.vue'
 import { useLocalization } from '@/features/localization'
 
 const {
@@ -15,7 +14,7 @@ const {
   requestBodyCompositionSelection,
 } = defineProps<{
   id: string
-  method: HttpMethod
+  method: string
   path: string
   eventBus: WorkspaceEventBus
   exampleName?: string

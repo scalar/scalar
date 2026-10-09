@@ -11,6 +11,22 @@ import {
 } from './security-scheme'
 
 describe('Security Schemas', () => {
+  it('retains device authorization in configured OAuth flows', () => {
+    const result = securityOauthSchema.parse({
+      type: 'oauth2',
+      flows: {
+        deviceAuthorization: {
+          deviceAuthorizationUrl: 'https://example.com/device',
+          tokenUrl: 'https://example.com/token',
+          scopes: { read: 'Read' },
+        },
+      },
+    })
+    expect(result.flows.deviceAuthorization?.deviceAuthorizationUrl).toBe('https://example.com/device')
+    expect(result.flows.deviceAuthorization?.type).toBe('deviceAuthorization')
+    expect(result.flows.deviceAuthorization?.scopes).toStrictEqual({ read: 'Read' })
+  })
+
   describe('API Key Schema', () => {
     it('should validate a valid API key schema', () => {
       const apiKey = {

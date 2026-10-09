@@ -6,6 +6,136 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it('retains file metadata when allOf combines binary contributions', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        { type: 'string', format: 'binary', example: '@first.bin' },
+        { type: 'string', format: 'binary', example: '@second.bin' },
+      ],
+    })
+    const file = getExampleFromSchema(schema, { binaryAsFile: true }) as File
+    expect(file).toBeInstanceOf(File)
+    expect(file.name).toBe('second.bin')
+    expect(getExampleFromSchema(schema)).toBe('@second.bin')
+  })
+
+  it('keeps file generation separate from cached JSON examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { upload: { type: 'array', items: { type: 'string', format: 'binary', example: '@payload.bin' } } },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual({ upload: ['@payload.bin'] })
+    const example = getExampleFromSchema(schema, { binaryAsFile: true })
+    expect(
+      (example as { upload: File[] }).upload.map((file) => ({
+        name: file.name,
+        size: file.size,
+        isFile: file instanceof File,
+      })),
+    ).toStrictEqual([{ name: 'payload.bin', size: 0, isFile: true }])
+    const file = (example as { upload: File[] }).upload[0]!
+    expect(file.name).toBe('payload.bin')
+    expect(file.size).toBe(0)
+    expect(getExampleFromSchema(schema)).toStrictEqual({ upload: ['@payload.bin'] })
+  })
+
+  it('retains the selected binary or text composition branch for file generation', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        upload: {
+          oneOf: [
+            { type: 'string', example: '@text' },
+            { type: 'string', format: 'binary', example: '@payload.bin' },
+          ],
+        },
+      },
+    })
+    expect(
+      getExampleFromSchema(schema, { binaryAsFile: true, compositionSelection: { 'upload.oneOf': 0 } }),
+    ).toStrictEqual({ upload: '@text' })
+    const example = getExampleFromSchema(schema, {
+      binaryAsFile: true,
+      compositionSelection: { 'upload.oneOf': 1 },
+    }) as { upload: File }
+    expect(example.upload).toBeInstanceOf(File)
+    expect(example.upload.name).toBe('payload.bin')
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)(
+    'ignores type-inapplicable root keywords for selected %s branches without changing the source',
+    (composition) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        properties: { objectOnly: { const: 'unused' } },
+        items: { type: 'string', const: 'arrayOnly' },
+        [composition]: [
+          { type: 'string', minLength: 3 },
+          { type: 'array', items: { type: 'string', const: 'selected' } },
+        ],
+      })
+      const original = structuredClone(schema)
+      expect(getExampleFromSchema(schema, { emptyString: 'text', compositionSelection: { [composition]: 0 } })).toBe(
+        'text',
+      )
+      expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 1 } })).toStrictEqual(['selected'])
+      expect(schema).toStrictEqual(original)
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)('selects root %s branches before shared type inference', (composition) => {
+    const cases = [
+      { type: 'string', [composition]: [{ const: 'first' }, { const: 'second' }] },
+      {
+        type: 'array',
+        [composition]: [{ items: { type: 'string', const: 'first' } }, { items: { type: 'string', const: 'second' } }],
+      },
+      {
+        items: { type: 'string' },
+        [composition]: [{ items: { type: 'string', const: 'first' } }, { items: { type: 'string', const: 'second' } }],
+      },
+      { properties: { shared: { const: true } }, [composition]: [{ type: 'object' }, { type: 'null' }] },
+    ]
+    const expected = ['second', ['second'], ['second'], null]
+    cases.forEach((definition, index) => {
+      const schema = coerceValue(SchemaObjectSchema, definition)
+      const original = structuredClone(schema)
+      expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 1 } })).toStrictEqual(
+        expected[index],
+      )
+      expect(schema).toStrictEqual(original)
+    })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('does not reuse a selected %s index in a nested union', (composition) => {
+    for (const type of ['string', undefined]) {
+      const schema = coerceValue(SchemaObjectSchema, {
+        ...(type ? { type } : {}),
+        [composition]: [{ const: 'outer' }, { [composition]: [{ const: 'inner first' }, { const: 'inner second' }] }],
+      })
+      expect(getExampleFromSchema(schema, { compositionSelection: { [composition]: 1 } })).toBe('inner first')
+    }
+  })
+
+  it('consumes a root object selection while preserving selections on child properties', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: { shared: { const: true } },
+      oneOf: [
+        { properties: { outer: { const: true } } },
+        {
+          oneOf: [
+            { properties: { child: { oneOf: [{ const: 'first' }, { const: 'second' }] } } },
+            { properties: { wrong: { const: true } } },
+          ],
+        },
+      ],
+    })
+    expect(getExampleFromSchema(schema, { compositionSelection: { oneOf: 1, 'child.oneOf': 1 } })).toStrictEqual({
+      shared: true,
+      child: 'second',
+    })
+  })
+
   it.each(['oneOf', 'anyOf'] as const)('uses discriminator fallback in %s examples', (composition) => {
     const variants = ['Cat', 'Dog', 'OtherPet'].map((name) => ({
       $ref: '#/components/schemas/' + name,
@@ -2661,5 +2791,65 @@ describe('getExampleFromSchema', () => {
       expect(example.next).toHaveProperty('createdAt')
       expect(example.next).toHaveProperty('next')
     })
+  })
+})
+
+describe('options cache key', () => {
+  it('does not serve one options object result to a call with different options', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        legacy: { type: 'string', deprecated: true },
+      },
+    } as const
+
+    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
+    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({ name: '', legacy: '' })
+    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
+  })
+
+  it('keys nested results by the options of the call they were produced in', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        child: {
+          type: 'object',
+          properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+        },
+      },
+    } as const
+
+    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({
+      child: { name: '', legacy: '' },
+    })
+    expect(getExampleFromSchema(schema)).toEqual({ child: { name: '' } })
+  })
+
+  it('picks up an options object mutated between two calls', () => {
+    const schema = {
+      type: 'object',
+      properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+    } as const
+    const options: { includeDeprecated?: boolean } = { includeDeprecated: true }
+
+    expect(getExampleFromSchema(schema, options)).toEqual({ name: '', legacy: '' })
+
+    options.includeDeprecated = false
+
+    expect(getExampleFromSchema(schema, options)).toEqual({ name: '' })
+  })
+
+  it('reflects a schema edited between two calls with different options', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: { name: { type: 'string', example: 'before' } },
+    }
+
+    expect(getExampleFromSchema(schema, { mode: 'read' })).toEqual({ name: 'before' })
+
+    schema.properties!.name = { type: 'string', example: 'after' }
+
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ name: 'after' })
   })
 })

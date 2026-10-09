@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { ScalarIconArrowUpRight } from '@scalar/icons'
 import { computed } from 'vue'
+
+import { useLocalization } from '@/v2/features/localization'
 
 const {
   integration,
@@ -22,6 +25,8 @@ const {
   /** HTTP method for the operation to open in the client after import */
   operationMethod?: string
 }>()
+
+const { translate } = useLocalization()
 
 /** Link to import an OpenAPI document */
 const href = computed((): string | undefined => {
@@ -52,7 +57,13 @@ const href = computed((): string | undefined => {
 
   if (operationPath?.length && operationMethod?.length) {
     link.searchParams.set('operation_path', operationPath)
-    link.searchParams.set('operation_method', operationMethod.toLowerCase())
+    link.searchParams.set(
+      'operation_method',
+      operationMethod === operationMethod.toUpperCase() &&
+        isHttpMethod(operationMethod)
+        ? operationMethod.toLowerCase()
+        : operationMethod,
+    )
   }
 
   // Integration identifier
@@ -92,9 +103,10 @@ const href = computed((): string | undefined => {
     target="_blank">
     <ScalarIconArrowUpRight
       class="size-3"
-      weight="regular" />
-    Open API Client
-  </a>
+      weight="regular" />{{
+      translate('apiClient.openApiClientButton.openAPIClient')
+    }}</a
+  >
 </template>
 
 <style scoped>

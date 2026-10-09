@@ -1,6 +1,5 @@
 import { getResolvedRefDeep } from '@scalar/blocks/code-example'
 import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 import type { DragOffset, DraggingItem, HoveredItem, SidebarState } from '@scalar/sidebar'
@@ -245,7 +244,7 @@ const moveOperationBetweenDocuments = (
 const getDereferencedOperation = (
   document: OpenApiDocument,
   path: string,
-  method: HttpMethod,
+  method: string,
 ): OperationObject | undefined => {
   const operation = getPathItemOperation(document.paths?.[path], method)
 

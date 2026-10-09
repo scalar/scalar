@@ -111,7 +111,7 @@ describe('getCustomCodeSamples', () => {
       'x-readme': {
         'code-samples': [
           { language: 'curl', name: 'Custom cURL', code: 'curl https://api.example.com' },
-          { language: 'node', code: 'await client.list();' },
+          { language: 'node', code: 'await client.list();', correspondingExample: 'response-example' },
         ],
       },
       responses: {},

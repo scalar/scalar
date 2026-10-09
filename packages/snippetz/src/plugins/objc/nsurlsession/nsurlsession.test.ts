@@ -239,11 +239,40 @@ describe('objcNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('NSString *boundary = @"---011000010111000001101001";')
-    expect(result).toContain('@"name": @"file"')
-    expect(result).toContain('@"fileName": @"test.txt"')
-    expect(result).toContain('@"value": @"value"')
-    expect(result).toContain('NSData *postData = [body dataUsingEncoding:NSUTF8StringEncoding];')
+    expect(result).toBe(`#import <Foundation/Foundation.h>
+
+NSString *boundary = [[NSUUID UUID] UUIDString];
+
+NSDictionary *headers = @{ @"Content-Type": @"multipart/form-data; boundary=scalar-boundary" };
+
+NSMutableData *postData = [NSMutableData data];
+[postData appendData:[[@"--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[NSData dataWithContentsOfFile:@"test.txt"]];
+[postData appendData:[[@"\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[[@"--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"field\\"\\r\\n\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[[@"value" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[[@"\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[[@"--scalar-boundary--\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+
+NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com"]
+                                                      cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                  timeoutInterval:10.0];
+[request setHTTPMethod:@"POST"];
+[request setAllHTTPHeaderFields:headers];
+[request setValue:[@"multipart/form-data; boundary=" stringByAppendingString:boundary] forHTTPHeaderField:@"Content-Type"];
+[request setHTTPBody:postData];
+
+NSURLSession *session = [NSURLSession sharedSession];
+NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+  if (error) {
+    NSLog(@"%@", error);
+  } else {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+    NSLog(@"%@", httpResponse);
+  }
+}];
+[dataTask resume];`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -262,7 +291,34 @@ describe('objcNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('@"contentType": @"application/json;charset=utf-8"')
+    expect(result).toBe(`#import <Foundation/Foundation.h>
+
+NSDictionary *headers = @{ @"Content-Type": @"multipart/form-data; boundary=scalar-boundary" };
+
+NSMutableData *postData = [NSMutableData data];
+[postData appendData:[@"--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"user\\"\\r\\nContent-Type: application/json;charset=utf-8\\r\\n\\r\\n" dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[@"{\\"name\\":\\"scalar\\"}" dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[@"\\r\\n" dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[@"--scalar-boundary--\\r\\n" dataUsingEncoding:NSUTF8StringEncoding]];
+
+NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com"]
+                                                      cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                  timeoutInterval:10.0];
+[request setHTTPMethod:@"POST"];
+[request setAllHTTPHeaderFields:headers];
+[request setHTTPBody:postData];
+
+NSURLSession *session = [NSURLSession sharedSession];
+NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+  if (error) {
+    NSLog(@"%@", error);
+  } else {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+    NSLog(@"%@", httpResponse);
+  }
+}];
+[dataTask resume];`)
   })
 
   it('handles multipart form data content types on files', () => {
@@ -281,7 +337,37 @@ describe('objcNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('@"contentType": @"text/plain"')
+    expect(result).toBe(`#import <Foundation/Foundation.h>
+
+NSString *boundary = [[NSUUID UUID] UUIDString];
+
+NSDictionary *headers = @{ @"Content-Type": @"multipart/form-data; boundary=scalar-boundary" };
+
+NSMutableData *postData = [NSMutableData data];
+[postData appendData:[[@"--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\nContent-Type: text/plain\\r\\n\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[NSData dataWithContentsOfFile:@"test.txt"]];
+[postData appendData:[[@"\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[[@"--scalar-boundary--\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+
+NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com"]
+                                                      cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                  timeoutInterval:10.0];
+[request setHTTPMethod:@"POST"];
+[request setAllHTTPHeaderFields:headers];
+[request setValue:[@"multipart/form-data; boundary=" stringByAppendingString:boundary] forHTTPHeaderField:@"Content-Type"];
+[request setHTTPBody:postData];
+
+NSURLSession *session = [NSURLSession sharedSession];
+NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+  if (error) {
+    NSLog(@"%@", error);
+  } else {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+    NSLog(@"%@", httpResponse);
+  }
+}];
+[dataTask resume];`)
   })
 
   it('handles multipart form data with empty file names', () => {
@@ -299,7 +385,37 @@ describe('objcNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('@"fileName": @""')
+    expect(result).toBe(`#import <Foundation/Foundation.h>
+
+NSString *boundary = [[NSUUID UUID] UUIDString];
+
+NSDictionary *headers = @{ @"Content-Type": @"multipart/form-data; boundary=scalar-boundary" };
+
+NSMutableData *postData = [NSMutableData data];
+[postData appendData:[[@"--scalar-boundary\\r\\nContent-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[NSData dataWithContentsOfFile:@""]];
+[postData appendData:[[@"\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+[postData appendData:[[@"--scalar-boundary--\\r\\n" stringByReplacingOccurrencesOfString:@"scalar-boundary" withString:boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+
+NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com"]
+                                                      cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                  timeoutInterval:10.0];
+[request setHTTPMethod:@"POST"];
+[request setAllHTTPHeaderFields:headers];
+[request setValue:[@"multipart/form-data; boundary=" stringByAppendingString:boundary] forHTTPHeaderField:@"Content-Type"];
+[request setHTTPBody:postData];
+
+NSURLSession *session = [NSURLSession sharedSession];
+NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+  if (error) {
+    NSLog(@"%@", error);
+  } else {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+    NSLog(@"%@", httpResponse);
+  }
+}];
+[dataTask resume];`)
   })
 
   it('falls back to text body for multipart without params', () => {
@@ -396,11 +512,11 @@ describe('objcNsurlsession', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { HttpMethod as HttpMethodBadge } from '@scalar/blocks/code-example'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { ScalarIconDotsSixVertical, ScalarIconX } from '@scalar/icons'
 
 const {
@@ -14,7 +13,7 @@ const {
   isDragAfter = false,
 } = defineProps<{
   index: number
-  method: HttpMethod
+  method: string
   path: string
   exampleKey: string
   isLocked?: boolean

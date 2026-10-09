@@ -1,0 +1,193 @@
+import Preview from './Preview.mdx'
+
+# Prompts
+
+Prompts hand readers a ready-made prompt for their AI coding agent. The prompt is previewed on the page so readers can see exactly what they're copying, and one click copies it. Long prompts are clipped with an expand button.
+
+The prompt itself is a fenced code block inside the component, so it's copied exactly as written: headings, lists, and code stay intact. If your prompt contains its own code blocks, see [Prompt with a Code Block](#prompt-with-a-code-block).
+
+## Properties
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `string` | — | Label shown in the header, next to the copy button. |
+
+## Examples
+
+### Basic Prompt
+
+<Preview>
+<Prompt title="Generate a users client">
+
+```text
+Read the OpenAPI document at /openapi.json and write a TypeScript client for the /users endpoints using fetch. Keep it dependency-free.
+```
+
+</Prompt>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-prompt title="Generate a users client">
+
+```text
+Read the OpenAPI document at /openapi.json and write a TypeScript client for the /users endpoints using fetch. Keep it dependency-free.
+```
+
+</scalar-prompt>
+````
+````mdx MDX
+<Prompt title="Generate a users client">
+
+```text
+Read the OpenAPI document at /openapi.json and write a TypeScript client for the /users endpoints using fetch. Keep it dependency-free.
+```
+
+</Prompt>
+````
+</CodeGroup>
+
+### Long Prompt
+
+A prompt taller than the preview is clipped with a fade and an **Expand prompt** button. Short prompts show in full, without the button.
+
+<Preview>
+<Prompt title="Document the users endpoints">
+
+```md
+# Document the /users endpoints
+
+Update the OpenAPI document at /openapi.json so every /users endpoint is fully described.
+
+## For each operation
+
+- Add a one-line summary and a longer description.
+- Give it a unique, camelCase operationId.
+- Describe every path, query, and header parameter.
+- Add an example request body where there is one.
+- Document every response status code the handler can return, including errors.
+
+## Rules
+
+- Do not change any handler code.
+- Reuse existing schemas from components/schemas instead of inlining new ones.
+- If a behavior is unclear from the code, leave a TODO and ask me rather than guessing.
+```
+
+</Prompt>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-prompt title="Document the users endpoints">
+
+```md
+# Document the /users endpoints
+
+Update the OpenAPI document at /openapi.json so every /users endpoint is fully described.
+
+…
+```
+
+</scalar-prompt>
+````
+````mdx MDX
+<Prompt title="Document the users endpoints">
+
+```md
+# Document the /users endpoints
+
+Update the OpenAPI document at /openapi.json so every /users endpoint is fully described.
+
+…
+```
+
+</Prompt>
+````
+</CodeGroup>
+
+### Prompt with a Code Block
+
+If the prompt contains its own code block, wrap the whole prompt in four backticks instead of three. A three-backtick fence would end at the first inner fence and cut the prompt short. The inner code block is copied along with the rest of the prompt.
+
+<Preview>
+<Prompt title="Add Scalar to Next.js">
+
+````md
+Create `app/reference/route.ts` with the following, then open `/reference` to check it renders:
+
+```ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+export const GET = ApiReference({ url: '/openapi.json' })
+```
+````
+
+</Prompt>
+</Preview>
+
+<CodeGroup>
+`````md Markdown
+<scalar-prompt title="Add Scalar to Next.js">
+
+````md
+Create `app/reference/route.ts` with the following, then open `/reference` to check it renders:
+
+```ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+export const GET = ApiReference({ url: '/openapi.json' })
+```
+````
+
+</scalar-prompt>
+`````
+`````mdx MDX
+<Prompt title="Add Scalar to Next.js">
+
+````md
+Create `app/reference/route.ts` with the following, then open `/reference` to check it renders:
+
+```ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+export const GET = ApiReference({ url: '/openapi.json' })
+```
+````
+
+</Prompt>
+`````
+</CodeGroup>
+
+### Without a Title
+
+<Preview>
+<Prompt>
+
+```text
+Summarize what changed in the last release.
+```
+
+</Prompt>
+</Preview>
+
+<CodeGroup>
+````md Markdown
+<scalar-prompt>
+
+```text
+Summarize what changed in the last release.
+```
+
+</scalar-prompt>
+````
+````mdx MDX
+<Prompt>
+
+```text
+Summarize what changed in the last release.
+```
+
+</Prompt>
+````
+</CodeGroup>

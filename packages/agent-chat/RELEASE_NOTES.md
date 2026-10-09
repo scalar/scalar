@@ -9,6 +9,68 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.35 (2026-09-22)
+
+### Faster startup and smarter OpenAPI reference resolution
+
+This release makes the agent chat load faster by deferring the API client modal until you actually need it. We also improved how relative references resolve in OpenAPI 3.2 documents, honoring the $self identifier and preserving authored reference spellings.
+
+- The API client modal now loads on demand when you open a request, saving 292 KB (28%) on initial page load.
+- Added support for OpenAPI 3.2 $self to resolve relative references against the document's declared identity instead of its network location.
+- Preserved authored reference spellings through partial bundles and editable exports, so schema labels and anchors keep their existing behavior.
+- URI resolution now correctly handles root-relative URLs, protocol-relative URLs, query strings, and fragments across all bundler workflows.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01235)
+
+## 0.12.28 (2026-08-20)
+
+### Security and infrastructure improvements
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01228)
+
+## 0.12.27 (2026-08-20)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01227)
+
+## 0.12.25 (2026-08-13)
+
+### Better international input and NDJSON response rendering
+
+- Fixed Enter key sending messages too early when typing Japanese, Chinese, or Korean text on macOS Chrome and Safari.
+- NDJSON responses now render as pretty-printed JSON records instead of showing as a binary file.
+- Removed a debug log statement that fired every time you toggled the response view.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01225)
+
+## 0.12.22 (2026-07-16)
+
+### Updated package README with refreshed platform overview
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01222)
+
+## 0.12.21 (2026-07-16)
+
+### Border radius now scales from a single variable
+
+Setting --scalar-radius now rescales every corner in the interface, including larger radii and pills. Previously, overriding the base radius left some corners rounded because tokens were independent.
+
+- All border radius tokens now derive from --scalar-radius, so setting it to 0 squares off the entire interface
+- Two new tokens, --scalar-radius-2xl (12px) and --scalar-radius-3xl (16px), fill out the scale
+- The rounded-2xl and rounded-3xl Tailwind utilities now work correctly
+- Default values are unchanged, so existing themes render identically unless you were overriding --scalar-radius alone
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01221)
+
+## 0.12.16 (2026-07-02)
+
+### Remove duplicate heading from start panel
+
+The Agent Chat start panel no longer renders a hidden heading tag, preventing SEO issues on API reference pages where crawlers were detecting duplicate headings.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01216)
+
 ## 0.12.7 (2026-06-08)
 
 ### Polish and bug fixes shipped

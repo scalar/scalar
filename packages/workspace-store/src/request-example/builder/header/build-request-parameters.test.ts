@@ -1,7 +1,8 @@
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/example'
 import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
+import { getCookieHeader } from './build-request-cookie-header'
 import { buildRequestParameters } from './build-request-parameters'
 
 /**
@@ -23,6 +24,175 @@ const createParameter = (
   }) as ExtendedParameter
 
 describe('buildRequestParameters', () => {
+  it('omits optional enum suggestions while sending required and explicitly enabled values', () => {
+    const parameter: ParameterObject = {
+      name: 'mediaType',
+      in: 'query',
+      schema: { type: 'string', enum: ['None', 'Image'] },
+    }
+    const result = buildRequestParameters([
+      parameter,
+      { ...parameter, name: 'X-Media-Type', in: 'header' },
+      { ...parameter, name: 'media', in: 'cookie' },
+      {
+        name: 'filter',
+        in: 'query',
+        style: 'deepObject',
+        schema: { type: 'object', properties: { status: { type: 'string', enum: ['None', 'Active'] } } },
+      },
+    ])
+    expect(result.urlParams.toString()).toBe('')
+    expect(result.headers).toStrictEqual({})
+    expect(result.cookies).toStrictEqual([])
+    expect(buildRequestParameters([{ ...parameter, required: true }]).urlParams.toString()).toBe('mediaType=None')
+    expect(
+      buildRequestParameters([
+        { ...parameter, examples: { default: { value: 'Image', 'x-disabled': false } } },
+      ]).urlParams.toString(),
+    ).toBe('mediaType=Image')
+  })
+
+  it.each([undefined, 'form', 'cookie'] as const)(
+    'reports invalid active 3.2 cookies with style %s without emitting cookies',
+    (style) => {
+      const parameter: ParameterObject = {
+        name: 'color',
+        in: 'cookie',
+        style,
+        explode: false,
+        examples: { default: { value: ['blue', 'black'] } },
+      }
+      const result = buildRequestParameters([parameter], 'default', '3.2.1')
+      expect(result.cookies).toStrictEqual([])
+      expect(result.cookieErrors).toStrictEqual([
+        `Cookie parameter "color" cannot serialize an array or object with style: ${style ?? 'form'} and explode: false because comma-separated cookie values are invalid. Use style: cookie with explode: true.`,
+      ])
+      expect(
+        buildRequestParameters(
+          [{ ...parameter, examples: { default: { value: ['blue'], 'x-disabled': true } } }],
+          'default',
+          '3.2.1',
+        ).cookieErrors,
+      ).toBeUndefined()
+      expect(
+        buildRequestParameters(
+          [{ ...parameter, examples: { default: { serializedValue: 'color=blue; color=black' } } }],
+          'default',
+          '3.2.1',
+        ).headers,
+      ).toStrictEqual({ Cookie: 'color=blue; color=black' })
+    },
+  )
+
+  it.each(['deepObject', 'form'] as const)('sends property examples for %s object parameters', (style) => {
+    const parameter: ParameterObject = {
+      name: 'filter',
+      in: 'query',
+      style,
+      explode: true,
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: { active: { type: 'string', pattern: '^eq\\.(true|false)$', example: 'eq.true' } },
+      },
+    }
+    expect([...buildRequestParameters([parameter], 'default').urlParams]).toStrictEqual([
+      [style === 'deepObject' ? 'filter[active]' : 'active', 'eq.true'],
+    ])
+    expect([
+      ...buildRequestParameters(
+        [{ ...parameter, examples: { default: { value: { active: 'eq.false' }, 'x-disabled': true } } }],
+        'default',
+      ).urlParams,
+    ]).toStrictEqual([])
+  })
+
+  it('uses structured examples for query, header, path and cookie parameters', () => {
+    const result = buildRequestParameters([
+      { name: 'term', in: 'query', examples: { default: { dataValue: 'hello-data' } } },
+      { name: 'X-Audit', in: 'header', examples: { default: { serializedValue: 'hello-wire' } } },
+      { name: 'id', in: 'path', required: true, examples: { default: { dataValue: 0 } } },
+      { name: 'color', in: 'cookie', style: 'cookie', examples: { default: { dataValue: ['blue', 'black'] } } },
+    ])
+    expect([...result.urlParams]).toStrictEqual([['term', 'hello-data']])
+    expect(result.headers).toStrictEqual({ 'X-Audit': 'hello-wire' })
+    expect(result.pathVariables).toStrictEqual({ id: '0' })
+    expect(result.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'color', value: 'blue' },
+      { name: 'color', value: 'black' },
+    ])
+  })
+
+  it('sends pre-populated optional parameters while respecting explicit disable choices', () => {
+    const parameters: ParameterObject[] = [
+      {
+        name: 'x-scenario-id',
+        in: 'header',
+        schema: { type: 'string', enum: ['success', 'failure'], default: 'success' },
+      },
+      { name: 'count', in: 'query', schema: { type: 'integer', default: 0 } },
+      { name: 'active', in: 'cookie', schema: { type: 'boolean' }, examples: { default: { value: false } } },
+      {
+        name: 'disabled',
+        in: 'header',
+        schema: { type: 'string' },
+        examples: { default: { value: 'omit', 'x-disabled': true } },
+      },
+      { name: 'empty', in: 'query', schema: { type: 'string', default: '' } },
+    ]
+    const result = buildRequestParameters(parameters, 'default')
+    expect(result.headers).toStrictEqual({ 'x-scenario-id': 'success' })
+    expect(result.urlParams.toString()).toBe('count=0')
+    expect(result.cookies.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'active', value: 'false' },
+    ])
+  })
+
+  it.each([
+    { value: 'Hello%2C%20world!', expected: 'color=Hello%2C%20world!' },
+    { value: ['blue', 'black', 'brown'], expected: 'color=blue; color=black; color=brown' },
+    { value: { greeting: 'Hello%2C%20world!', code: 42 }, expected: 'greeting=Hello%2C%20world!; code=42' },
+    { value: '', expected: 'color=' },
+    { value: [], expected: '' },
+    { value: {}, expected: '' },
+  ])('serializes cookie style $expected', ({ value, expected }) => {
+    const result = buildRequestParameters([
+      {
+        name: 'color',
+        in: 'cookie',
+        style: 'cookie',
+        required: true,
+        examples: { default: { value } },
+      },
+    ])
+    expect(getCookieHeader(result.cookies, undefined)).toBe(expected)
+  })
+
+  it('warns once per name while expanding repeated invalid cookie parameters', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      for (const name of ['color', 'color', 'size', 'size']) {
+        const result = buildRequestParameters([
+          {
+            name,
+            in: 'cookie',
+            style: 'cookie',
+            explode: false,
+            required: true,
+            examples: { default: { value: ['blue', 'black'] } },
+          },
+        ])
+        expect(getCookieHeader(result.cookies, undefined)).toBe(`${name}=blue; ${name}=black`)
+      }
+      expect(warning.mock.calls).toStrictEqual([
+        ['Cookie parameter "color" uses invalid explode: false with style: cookie; serializing with explode: true.'],
+        ['Cookie parameter "size" uses invalid explode: false with style: cookie; serializing with explode: true.'],
+      ])
+    } finally {
+      warning.mockRestore()
+    }
+  })
+
   describe('getExample (internal helper)', () => {
     /**
      * Tests for the internal getExample function which extracts examples from parameters.
@@ -117,7 +287,7 @@ describe('buildRequestParameters', () => {
       expect(result.headers).toEqual({})
     })
 
-    it('returns empty result when parameters are optional (not required)', () => {
+    it('includes optional parameters with populated examples', () => {
       const params = [
         createParameter(
           { name: 'X-Optional-Header', in: 'header', value: 'optional', required: false },
@@ -127,8 +297,7 @@ describe('buildRequestParameters', () => {
 
       const result = buildRequestParameters(params)
 
-      // Optional parameters are disabled by default
-      expect(result.headers).toEqual({})
+      expect(result.headers).toStrictEqual({ 'X-Optional-Header': 'optional' })
     })
 
     it('includes optional parameters when explicitly enabled via x-disabled: false', () => {
@@ -803,35 +972,16 @@ describe('buildRequestParameters', () => {
     })
   })
 
-  // The OpenAPI 3.2 `querystring` location is handled like a regular query parameter so its
-  // value still lands in the query string instead of being silently dropped.
-  describe('querystring parameters', () => {
-    it('builds a scalar querystring parameter into the query string', () => {
-      const params = [
-        createParameter({ name: 'q', in: 'querystring', value: 'hello' }, { default: { value: 'hello' } }),
-      ]
-
-      const result = buildRequestParameters(params)
-
-      expect(result.urlParams.get('q')).toBe('hello')
-    })
-
-    it('expands an object querystring parameter into individual query params', () => {
-      const params = [
-        {
-          name: 'filter',
-          in: 'querystring',
-          required: true,
-          examples: { default: { value: { page: '1', limit: '10' } } },
-        },
-      ] satisfies ParameterObject[]
-
-      const result = buildRequestParameters(params)
-
-      // Form style defaults to explode: true, so the object expands into individual query params
-      expect(result.urlParams.get('page')).toBe('1')
-      expect(result.urlParams.get('limit')).toBe('10')
-    })
+  it('leaves whole-query content to the request factory instead of adding a named query', () => {
+    const params: ParameterObject[] = [
+      {
+        name: 'filter',
+        in: 'querystring',
+        required: true,
+        content: { 'application/json': { example: { page: 1, limit: 10 } } },
+      },
+    ]
+    expect(buildRequestParameters(params).urlParams.toString()).toBe('')
   })
 
   describe('cookie parameters', () => {

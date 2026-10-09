@@ -7,7 +7,7 @@
  * keeps the spacing and colours identical to the platform's own badge.
  */
 ;(() => {
-  const HREF = 'https://www.scalar.com'
+  const HREF = 'https://scalar.com/'
   const LABEL = 'Powered by Scalar'
   const MARKER = 'poweredByScalar'
 

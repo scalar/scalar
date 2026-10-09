@@ -1,5 +1,4 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 /**
  * Generates a unique string ID for an API location, based on the document, path, method, and example.
@@ -21,7 +20,7 @@ export const generateLocationId = ({
 }: {
   document: string
   path?: string
-  method?: HttpMethod
+  method?: string
   example?: string
   /** Namespace webhook entries without changing existing operation IDs. */
   isWebhook?: boolean

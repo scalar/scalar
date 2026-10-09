@@ -1,4 +1,3 @@
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createSidebarState, generateReverseIndex, getChildEntry } from '@scalar/sidebar'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { getParentEntry } from '@scalar/workspace-store/navigation'
@@ -15,7 +14,7 @@ export type UseModalSidebarReturn = {
   getEntryByLocation: (location: {
     document: string
     path?: string
-    method?: HttpMethod
+    method?: string
     example?: string
     isWebhook?: boolean
   }) => TraversedEntry | undefined
@@ -50,7 +49,7 @@ export const useModalSidebar = ({
   workspaceStore: WorkspaceStore | null
   documentSlug: ComputedRef<string | undefined>
   path: ComputedRef<string | undefined>
-  method: ComputedRef<HttpMethod | undefined>
+  method: ComputedRef<string | undefined>
   exampleName: ComputedRef<string | undefined>
   isWebhook?: ComputedRef<boolean>
   route: (payload: RoutePayload) => void

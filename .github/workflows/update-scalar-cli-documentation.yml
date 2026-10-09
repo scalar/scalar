@@ -22,12 +22,13 @@ jobs:
     # can be opened by the app rather than by GITHUB_TOKEN.
     environment: release-bot
     timeout-minutes: 15
-    strategy:
-      matrix:
-        commands-markdown: [documentation/guides/cli/commands.md]
-
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      # No shared caches: this job runs the published CLI, so it must not be
+      # able to write into the turbo or pnpm caches other workflows restore.
+      - name: Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -35,31 +36,21 @@ jobs:
           node-version-file: '.nvmrc'
           package-manager-cache: false
 
+      - name: Install the docs generator
+        run: pnpm install --frozen-lockfile --filter @scalar-internal/build-scripts...
+
+      # `scalar context` prints the whole command tree as JSON, so the reference
+      # does not depend on the layout of the CLI README.
+      - name: Read the CLI command tree
+        run: npx --yes @scalar/cli@latest context > "$RUNNER_TEMP/cli-context.json"
+
       - name: Generate CLI documentation
-        run: npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
-
-      - name: Extract just the commands
-        run: |
-          sed -n '/^## Commands$/,/^## /p' ${{ matrix.commands-markdown }} | sed '$d' > ${{ matrix.commands-markdown }}-extracted.md
-
-      - name: Update the heading levels
-        run: |
-          awk '
-            BEGIN { code=0 }
-            /^[[:space:]]*(```|~~~)/ { code = !code; print; next }
-            !code && /^#{1,6} / {
-              sub(/^#/, "", $0)  # remove one leading #
-            }
-            { print }
-          ' ${{ matrix.commands-markdown }}-extracted.md > ${{ matrix.commands-markdown }}
-
-      - name: Remove the temporary files
-        run: rm -Rf ${{ matrix.commands-markdown }}-*.md
+        run: pnpm script generate-cli-docs --context "$RUNNER_TEMP/cli-context.json"
 
       - name: Check for changes
         id: check-changes
         run: |
-          if git diff --quiet ${{ matrix.commands-markdown }}; then
+          if [ -z "$(git status --porcelain -- documentation/guides/cli)" ]; then
             echo "has-changes=false" >> $GITHUB_OUTPUT
           else
             echo "has-changes=true" >> $GITHUB_OUTPUT
@@ -76,7 +67,7 @@ jobs:
         if: steps.check-changes.outputs.has-changes == 'true'
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
           # Scope the token to the minimum needed to open the docs PR.
           permission-contents: write
@@ -88,20 +79,23 @@ jobs:
         with:
           # The app token (not GITHUB_TOKEN) is what makes the PR trigger CI.
           token: ${{ steps.app-token.outputs.token }}
-          # Restrict the PR to the generated markdown file only. Even if an
-          # upstream step were compromised and touched other files, nothing but
-          # this path can be staged into the PR.
-          add-paths: ${{ matrix.commands-markdown }}
+          # Restrict the PR to the generated markdown only. Even if an upstream
+          # step were compromised and touched other files, nothing but these
+          # paths can be staged into the PR.
+          add-paths: |
+            documentation/guides/cli/commands.md
+            documentation/guides/cli/commands/**
           base: main
           commit-message: 'docs(cli): update commands'
           title: 'docs(cli): update commands'
           body: |
             > This PR was automatically created by a scheduled workflow.
 
-            This PR updates the CLI commands documentation by running the latest version of @scalar/cli.
+            This PR updates the CLI command reference from the latest version of @scalar/cli.
 
             ```bash
-            npx @scalar/cli@latest readme generate --output ${{ matrix.commands-markdown }}
+            npx @scalar/cli@latest context > cli-context.json
+            pnpm script generate-cli-docs --context cli-context.json
             ```
           branch: docs/update-cli-documentation
           delete-branch: true

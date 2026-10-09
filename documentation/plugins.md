@@ -40,6 +40,8 @@ integrations that render the configuration into the HTML — without replacing t
 > as the page hosting the API reference. Only reference `pluginUrls` you control or fully trust — treat them like
 > any other `<script>` you add to your site, and prefer pinning a specific version rather than a floating tag.
 
+For a complete server integration example, see [custom plugins with NestJS](integrations/nestjs.md#custom-plugins).
+
 A minimal plugin module looks like this:
 
 ```typescript
@@ -448,6 +450,8 @@ Runs after a response is received.
 | `document` | `OpenApiDocument` | The current OpenAPI document. |
 | `operation` | `OperationObject` | The current operation. |
 | `variablesStore?` | `VariablesStore` | The request variable store. |
+
+If a hook acquires a stream reader with `response.body.getReader()`, release its lock in a `finally` block with `reader.releaseLock()` before the hook returns or throws. Scalar cannot cancel a discarded clone while its body is locked. A returned streaming response may retain the reader while consuming the stream, but it must release the reader when it finishes or is canceled.
 
 ### Example
 

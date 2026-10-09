@@ -46,7 +46,19 @@ export type ReferenceObject = {
   '$global'?: boolean
 }
 
+/**
+ * Object or Reference Object with a resolved `$ref-value`.
+ *
+ * `$ref-value` is kept optional on purpose (mirroring the schema position in `schema.ts`): an
+ * unresolved reference — for example a sparse chunk `$ref` produced by the server store — is just
+ * `{ $ref }` with no resolved value yet. If it were required, such a value would match neither
+ * union branch, so coercion would fall back to the plain-object branch and silently drop the
+ * `$ref`. With it optional the `{ $ref }` matches the reference branch and is preserved unchanged.
+ *
+ * The bundler/proxy still populates `$ref-value` for resolved documents, so `getResolvedRef` keeps
+ * returning the value in practice.
+ */
 export const reference = <T extends TSchema>(schema: T) =>
-  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': schema }))
+  compose(ReferenceObjectSchema, Type.Object({ '$ref-value': Type.Optional(schema) }))
 
-export type ReferenceType<Value> = Value | (ReferenceObject & { '$ref-value': Value })
+export type ReferenceType<Value> = Value | (ReferenceObject & { '$ref-value'?: Value })

@@ -2,12 +2,15 @@ import { expect, test } from '@playwright/test'
 import { serveExample } from '@test/utils/serve-example'
 
 test.describe('mcpButton', () => {
-  test('shows mcp button by default', async ({ page }) => {
+  // The examples are served from localhost, where the footer pitches Scalar instead of the
+  // "Generate MCP" fan-out. That fan-out is only rendered on public hosts now.
+  test('shows the Explore Scalar call to action by default on localhost', async ({ page }) => {
     const example = await serveExample()
 
     await page.goto(example)
 
-    await expect(page.getByText('Generate MCP')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Generate SDKs & MCP' })).toBeVisible()
+    await expect(page.getByText('Generate MCP')).toBeHidden()
   })
 
   test('set mcp config', async ({ page }) => {
@@ -35,21 +38,36 @@ test.describe('mcpButton', () => {
     await expect(page.getByRole('link', { name: 'Open API Client' })).toBeVisible()
   })
 
-  test('fans the entries out on hover with no mcp config', async ({ page }) => {
+  test('expands the Explore Scalar card on hover and opens the dialog on click', async ({ page }) => {
     const example = await serveExample()
 
     await page.goto(example)
 
-    // Without a config the entries render as <button>, so the fan-out has to
-    // move them up on hover instead of leaving an empty popup.
-    const vscode = page.getByRole('button', { name: 'VS Code' })
-    const top = async () => (await vscode.boundingBox())?.y ?? 0
+    const trigger = page.getByRole('button', { name: 'Generate SDKs & MCP' })
+    const card = page.locator('.explore-scalar-card')
+    const height = async () => (await card.boundingBox())?.height ?? 0
 
-    const collapsed = await top()
+    const collapsed = await height()
 
-    await page.locator('.scalar-mcp-layer').hover()
+    await trigger.hover()
 
-    // poll waits out the CSS transition rather than reading a mid-animation frame
-    await expect.poll(async () => collapsed - (await top())).toBeGreaterThan(40)
+    // The card grows upward over the navigation, from a 32px bar to a card with the stickers.
+    // poll waits out the CSS transition rather than reading a mid-animation frame.
+    await expect.poll(async () => (await height()) - collapsed).toBeGreaterThan(100)
+
+    await trigger.click()
+
+    // The dialog root has no box of its own (its panel is fixed), so the panel content is what to look for
+    const dialog = page.getByRole('dialog')
+    await expect(
+      dialog.getByRole('heading', { name: 'Everything your API needs, from one OpenAPI document' }),
+    ).toBeVisible()
+    await expect(dialog.getByRole('button', { name: 'or get a demo with Marc' })).toBeVisible()
+
+    // Input is ignored while the open morph is still playing, so wait for it to settle first
+    await expect(page.locator('html')).not.toHaveAttribute('data-scalar-explore-vt')
+    await page.keyboard.press('Escape')
+
+    await expect(dialog).toHaveCount(0)
   })
 })

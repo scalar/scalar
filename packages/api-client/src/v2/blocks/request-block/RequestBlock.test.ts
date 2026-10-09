@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
 
 import RequestBody from '@/v2/blocks/request-block/components/RequestBody.vue'
+import RequestParams from '@/v2/blocks/request-block/components/RequestParams.vue'
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
 import { AuthSelector } from '@/v2/blocks/scalar-auth-selector-block'
 
@@ -36,10 +37,36 @@ const defaultProps = {
   selectedClient: 'shell/curl' as const,
   workspaceCookies: [],
   documentCookies: [],
+  documentSlug: 'test-document',
   defaultHeaders: {},
 } satisfies RequestBlockProps
 
 describe('RequestBlock', () => {
+  it('renders a whole-query editor and disables adding named query parameters', () => {
+    const parameter = {
+      name: 'json',
+      in: 'querystring' as const,
+      required: true,
+      content: { 'application/json': { example: { term: 'hello' } } },
+    }
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        operation: { parameters: [parameter] },
+        exampleKey: 'default',
+      },
+    })
+    const querySection = wrapper
+      .findAllComponents(RequestParams)
+      .find((section) => section.props('title') === 'Query String')!
+    expect(querySection.props('showAddRowPlaceholder')).toBe(false)
+    expect(querySection.text()).toContain(
+      'This parameter supplies the entire query string, so additional named parameters cannot be added. Existing named parameters are sent after it; duplicate keys are preserved.',
+    )
+    expect(querySection.props('rows').map((row) => row.value)).toStrictEqual(['%7B%22term%22%3A%22hello%22%7D'])
+    wrapper.unmount()
+  })
+
   it('renders request name input and emits on change for non-modal layout', async () => {
     const eventBus = createWorkspaceEventBus()
     const fn = vi.fn()
@@ -69,7 +96,7 @@ describe('RequestBlock', () => {
     })
   })
 
-  it('renders summary text instead of input in modal layout', () => {
+  it('renders summary as a heading instead of an input in modal layout', () => {
     const wrapper = mount(RequestBlock, {
       props: { ...defaultProps, operation: { summary: 'My request' }, layout: 'modal' },
       global: {
@@ -79,7 +106,23 @@ describe('RequestBlock', () => {
       },
     })
 
-    expect(wrapper.find('span').text()).toBe('My request')
+    expect(wrapper.find('h2').text()).toBe('My request')
+  })
+
+  it('omits the summary heading when the operation has no summary', () => {
+    const wrapper = mount(RequestBlock, {
+      props: { ...defaultProps, operation: {}, layout: 'modal' },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    // An empty heading is worse than none, so nothing is announced. The
+    // collapsible sections below render their own headings, so look only for
+    // one holding the (absent) summary.
+    expect(wrapper.findAll('h2').map((heading) => heading.text())).not.toContain('')
   })
 
   it('applies aria-label with request summary on the container', () => {
@@ -96,6 +139,25 @@ describe('RequestBlock', () => {
     })
 
     expect(wrapper.attributes('aria-label')).toBe('Request: Summary')
+  })
+
+  it('renders the filter tabs without aria-controls and keeps the tabpanel', () => {
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        operation: { ...(defaultProps.operation as any), summary: 'Summary' },
+      },
+      global: {
+        stubs: {
+          RouterLink: true,
+        },
+      },
+    })
+
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs.length).toBeGreaterThan(0)
+    expect(tabs.every((tab) => tab.attributes('aria-controls') === undefined)).toBe(true)
+    expect(wrapper.find('[role="tabpanel"]').exists()).toBe(true)
   })
 
   it('shows Auth section opened in modal layout when security is required', () => {
@@ -202,9 +264,9 @@ describe('RequestBlock', () => {
     expect(bodyGet.isVisible()).toBe(false)
   })
 
-  it('shows request body for methods with a body', () => {
+  it.each(['post', 'query'] as const)('shows the request body for %s', (method) => {
     const wrapper = mount(RequestBlock, {
-      props: { ...defaultProps, method: 'post' },
+      props: { ...defaultProps, method },
       global: {
         stubs: {
           RouterLink: true,
@@ -655,5 +717,88 @@ describe('RequestBlock', () => {
     })
 
     expect(wrapper.text()).toContain('Plugin Request Component')
+  })
+  const operation = {
+    summary: 'Create a user',
+    requestBody: {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object' as const,
+            properties: { name: { type: 'string' as const, examples: ['Ada'] } },
+          },
+          examples: { custom: { value: { name: 'custom' } } },
+        },
+      },
+    },
+  }
+
+  it('creates a new example seeded with the generated body and navigates to it', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const createDraft = vi.fn()
+    const updateContentType = vi.fn()
+    const updateValue = vi.fn()
+    const navigate = vi.fn()
+
+    eventBus.on('operation:create:draft-example', createDraft)
+    eventBus.on('operation:update:requestBody:contentType', updateContentType)
+    eventBus.on('operation:update:requestBody:value', updateValue)
+    eventBus.on('ui:navigate', navigate)
+
+    const wrapper = mount(RequestBlock, {
+      props: { ...defaultProps, method: 'post' as const, eventBus, exampleKey: 'custom', operation },
+    })
+
+    await wrapper.findComponent(RequestBody).vm.$emit('generate:example', { contentType: 'application/json' })
+    await nextTick()
+
+    const meta = { path: defaultProps.path, method: 'post', exampleKey: 'Generated from schema' }
+
+    expect(createDraft).toHaveBeenCalledWith({
+      documentName: 'test-document',
+      meta: { path: defaultProps.path, method: 'post' },
+      exampleName: 'Generated from schema',
+    })
+    expect(updateContentType).toHaveBeenCalledWith({
+      payload: { contentType: 'application/json' },
+      meta,
+    })
+    expect(updateValue).toHaveBeenCalledWith({
+      payload: JSON.stringify({ name: 'Ada' }, null, 2),
+      contentType: 'application/json',
+      meta,
+    })
+    expect(navigate).toHaveBeenCalledWith({
+      page: 'example',
+      documentSlug: 'test-document',
+      path: defaultProps.path,
+      method: 'post',
+      exampleName: 'Generated from schema',
+    })
+  })
+
+  it('picks a free name when a generated example already exists', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const createDraft = vi.fn()
+    eventBus.on('operation:create:draft-example', createDraft)
+
+    const wrapper = mount(RequestBlock, {
+      props: {
+        ...defaultProps,
+        method: 'post' as const,
+        eventBus,
+        exampleKey: 'custom',
+        operation: { ...operation, 'x-draft-examples': ['Generated from schema'] },
+      },
+    })
+
+    await wrapper.findComponent(RequestBody).vm.$emit('generate:example', { contentType: 'application/json' })
+    await nextTick()
+
+    expect(createDraft).toHaveBeenCalledExactlyOnceWith({
+      documentName: 'test-document',
+      meta: { path: defaultProps.path, method: 'post' },
+      exampleName: 'Generated from schema (2)',
+    })
   })
 })

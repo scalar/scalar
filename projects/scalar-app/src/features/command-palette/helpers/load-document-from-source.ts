@@ -2,9 +2,10 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import type { LoaderPlugin } from '@scalar/json-magic/bundle'
 import { parseJson, parseYaml } from '@scalar/json-magic/bundle/plugins/browser'
 import { isPostmanCollection } from '@scalar/postman-to-openapi'
-import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import type { UrlDoc, WorkspaceStore } from '@scalar/workspace-store/client'
 
 import { getOpenApiFromPostman } from '@/features/command-palette/helpers/get-openapi-from-postman'
+import { loadDocumentFromUrl } from '@/helpers/load-document-from-url'
 
 export type ImportEventData = {
   source: string
@@ -60,6 +61,7 @@ export const loadDocumentFromSource = async (
   importEventData: ImportEventData,
   name: string,
   watchMode: boolean,
+  fetch?: UrlDoc['fetch'],
 ): Promise<boolean> => {
   const { source, type } = importEventData
   const normalizedSource = type === 'url' ? source.trim() : source
@@ -69,15 +71,9 @@ export const loadDocumentFromSource = async (
     return false
   }
 
-  // If the source is a URL, add it directly with watch mode metadata.
+  // Discover the document behind reference pages before importing it.
   if (type === 'url') {
-    return await workspaceStore.addDocument({
-      name,
-      url: normalizedSource,
-      meta: {
-        'x-scalar-watch-mode': watchMode,
-      },
-    })
+    return await loadDocumentFromUrl(workspaceStore, normalizedSource, name, watchMode, fetch)
   }
 
   if (type === 'file') {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
@@ -17,28 +18,34 @@ import type { OperationProps } from '@/features/Operation/Operation.vue'
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
-const { parameters = [], requestBody } = defineProps<{
-  breadcrumb?: string[]
-  parameters?: ReferenceType<ParameterObject>[]
-  requestBody?: RequestBodyObject | undefined
-  eventBus: WorkspaceEventBus | null
-  /** The document the operation belongs to, used to resolve schema references for display */
-  document?: OpenApiDocument
-  options: Pick<
-    OperationProps['options'],
-    | 'hideModels'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-  >
-}>()
+const { parameters = [], requestBody } = defineProps<
+  {
+    breadcrumb?: string[]
+    parameters?: ReferenceType<ParameterObject>[]
+    requestBody?: RequestBodyObject | undefined
+    eventBus: WorkspaceEventBus | null
+    /** The document the operation belongs to, used to resolve schema references for display */
+    document?: OpenApiDocument
+    options: Pick<
+      OperationProps['options'],
+      | 'expandAllParameters'
+      | 'hideModels'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+      | 'showExtensions'
+      | 'maxVisibleRequestBodyProperties'
+      | 'hideModelNames'
+    >
+  } & SchemaRenderingProps
+>()
 const { translate } = useLocalization()
 
 /** Thread the selected request body content type up to the layout */
 const selectedContentType = defineModel<string>('selectedContentType')
 
-type ParameterLocation = 'cookie' | 'header' | 'path' | 'query'
+type ParameterLocation = Exclude<ParameterObject['in'], 'querystring'>
 
 /** Use a single loop to reduce parameters by type(in) */
 const splitParameters = computed(() =>
@@ -66,40 +73,56 @@ const splitParameters = computed(() =>
   <!-- Path parameters-->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'path'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['path']">
+    :parameters="splitParameters['path']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.pathParameters') }}</template>
   </ParameterList>
 
   <!-- Query parameters -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'query'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['query']">
+    :parameters="splitParameters['query']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.queryParameters') }}</template>
   </ParameterList>
 
   <!-- Headers -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'headers'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['header']">
+    :parameters="splitParameters['header']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.headers') }}</template>
   </ParameterList>
 
   <!-- Cookies -->
   <ParameterList
     :breadcrumb="breadcrumb ? [...breadcrumb, 'cookies'] : undefined"
+    :collapsableItems="options.expandAllParameters === false"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['cookie']">
+    :parameters="splitParameters['cookie']"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.cookies') }}</template>
   </ParameterList>
 
@@ -110,8 +133,11 @@ const splitParameters = computed(() =>
     :breadcrumb="breadcrumb ? [...breadcrumb, 'body'] : undefined"
     :document="document"
     :eventBus="eventBus"
+    :expansion="expansion"
     :options="options"
-    :requestBody="requestBody">
+    :requestBody="requestBody"
+    :scrollTargetId="scrollTargetId"
+    :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.body') }}</template>
   </RequestBody>
 </template>

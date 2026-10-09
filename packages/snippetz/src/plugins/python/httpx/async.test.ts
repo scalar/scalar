@@ -280,7 +280,7 @@ describe('pythonHttpxAsync', () => {
 
     expect(result).toBe(`async with httpx.AsyncClient() as client:
     await client.post("https://example.com",
-        data=b"binary content"
+        content=b"binary content"
     )`)
   })
 
@@ -600,5 +600,40 @@ describe('pythonHttpxAsync', () => {
           ]
         }
     )`)
+  })
+  it.each(['GET', 'DELETE', 'HEAD', 'OPTIONS'])('sends text bodies with a %s request', (method) => {
+    const result = pythonHttpxAsync.generate({
+      url: 'https://example.com',
+      method,
+      postData: { mimeType: 'text/plain', text: 'hello' },
+    })
+
+    expect(result).toBe(
+      `async with httpx.AsyncClient() as client:\n    await client.request("${method}", "https://example.com", content="hello")`,
+    )
+  })
+
+  it('uses content for a raw text body', () => {
+    const result = pythonHttpxAsync.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'text/plain', text: 'hello' },
+    })
+
+    expect(result).toBe(`async with httpx.AsyncClient() as client:\n    await client.post("https://example.com",
+        content="hello"
+    )`)
+  })
+
+  it.each(['GET', 'DELETE', 'HEAD', 'OPTIONS'])('sends +json bodies with a %s request', (method) => {
+    const result = pythonHttpxAsync.generate({
+      url: 'https://example.com',
+      method,
+      postData: { mimeType: 'application/vnd.api+json', text: '"hello"' },
+    })
+
+    expect(result).toBe(
+      `async with httpx.AsyncClient() as client:\n    await client.request("${method}", "https://example.com", json="hello")`,
+    )
   })
 })

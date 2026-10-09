@@ -13,6 +13,51 @@ import type {
 import { type ConfigAuthScheme, extractSecuritySchemeSecrets } from './extract-security-scheme-secrets'
 
 describe('extractSecuritySchemeSecrets', () => {
+  it('preserves device authorization credentials and stored tokens', () => {
+    const store = createAuthStore()
+    store.setAuthSecrets('doc', 'device', {
+      type: 'oauth2',
+      deviceAuthorization: {
+        'x-scalar-secret-client-id': 'client',
+        'x-scalar-secret-client-secret': 'secret',
+        'x-scalar-secret-token': 'access',
+        'x-scalar-secret-refresh-token': 'refresh',
+      },
+    })
+    const result = extractSecuritySchemeSecrets(
+      {
+        type: 'oauth2',
+        flows: {
+          deviceAuthorization: {
+            deviceAuthorizationUrl: 'https://example.com/device',
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            scopes: {},
+          },
+        },
+      },
+      store,
+      'device',
+      'doc',
+    )
+    expect(result.type).toBe('oauth2')
+    if (result.type !== 'oauth2') {
+      throw new Error('Expected OAuth2')
+    }
+    expect(result.flows.deviceAuthorization).toStrictEqual({
+      deviceAuthorizationUrl: 'https://example.com/device',
+      tokenUrl: 'https://example.com/token',
+      refreshUrl: '',
+      scopes: {},
+      'x-scalar-secret-client-id': 'client',
+      'x-scalar-secret-client-secret': 'secret',
+      'x-scalar-secret-token': 'access',
+      'x-scalar-secret-refresh-token': 'refresh',
+      'x-scalar-secret-token-url': 'https://example.com/token',
+      'x-scalar-secret-defaults': { 'x-scalar-secret-token-url': 'https://example.com/token' },
+    })
+  })
+
   const documentSlug = 'test-document'
   const schemeName = 'test-scheme'
 
@@ -74,6 +119,7 @@ describe('extractSecuritySchemeSecrets', () => {
         in: 'header',
         value: 'config-token',
         'x-scalar-secret-token': 'config-token',
+        'x-scalar-secret-defaults': { 'x-scalar-secret-token': 'config-token' },
       })
     })
 
@@ -99,6 +145,7 @@ describe('extractSecuritySchemeSecrets', () => {
         in: 'header',
         value: 'config-token',
         'x-scalar-secret-token': 'store-token',
+        'x-scalar-secret-defaults': { 'x-scalar-secret-token': 'config-token' },
       })
     })
 
@@ -348,6 +395,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-redirect-uri': '',
             'x-scalar-secret-token': '',
             'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize' },
           },
         },
         'x-default-scopes': [],
@@ -389,6 +437,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
             'x-scalar-secret-token': 'access-token-123',
             'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize' },
           },
         },
         'x-default-scopes': [],
@@ -540,6 +589,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-password': '',
             'x-scalar-secret-token': '',
             'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-token-url': 'https://example.com/oauth/token' },
           },
         },
         'x-default-scopes': [],
@@ -584,6 +634,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-username': 'user@example.com',
             'x-scalar-secret-password': 'user-password',
             'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-token-url': 'https://example.com/oauth/token' },
             'x-scalar-secret-token': 'access-token-789',
           },
         },
@@ -678,6 +729,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-client-secret': '',
             'x-scalar-secret-token': '',
             'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-token-url': 'https://example.com/oauth/token' },
           },
         },
         'x-default-scopes': [],
@@ -720,6 +772,7 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-client-secret': 'secret-456',
             'x-scalar-secret-token': 'token-789',
             'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            'x-scalar-secret-defaults': { 'x-scalar-secret-token-url': 'https://example.com/oauth/token' },
             'x-scalar-credentials-location': 'body',
           },
         },
@@ -816,6 +869,10 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-token': '',
             'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
             'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            'x-scalar-secret-defaults': {
+              'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+              'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            },
           },
         },
         'x-default-scopes': [],
@@ -864,6 +921,10 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-token': 'token-789',
             'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
             'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            'x-scalar-secret-defaults': {
+              'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+              'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+            },
           },
         },
         'x-default-scopes': [],
@@ -1154,6 +1215,7 @@ describe('extractSecuritySchemeSecrets', () => {
         scopes: { read: 'Read' },
         refreshUrl: '',
         'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+        'x-scalar-secret-defaults': { 'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize' },
         'x-scalar-secret-client-id': 'implicit-client',
         'x-scalar-secret-redirect-uri': 'https://implicit.example.com/callback',
         'x-scalar-secret-token': 'implicit-token',
@@ -1171,6 +1233,10 @@ describe('extractSecuritySchemeSecrets', () => {
         'x-scalar-secret-token': 'auth-code-token',
         'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
         'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+        'x-scalar-secret-defaults': {
+          'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+          'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+        },
       })
     })
 
@@ -1468,6 +1534,8 @@ describe('extractSecuritySchemeSecrets', () => {
             'x-scalar-secret-redirect-uri': 'https://app.example.com/callback',
             'x-scalar-secret-token': 'token-123',
             'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+            // Only the discovered URL counts, never the stored client ID or redirect URI
+            'x-scalar-secret-defaults': { 'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize' },
           },
         },
       } satisfies OpenIdConnectObjectSecret)
@@ -1514,6 +1582,7 @@ describe('extractSecuritySchemeSecrets', () => {
           'x-scalar-secret-redirect-uri': 'https://app.example.com/implicit/callback',
           'x-scalar-secret-token': 'implicit-token',
           'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+          'x-scalar-secret-defaults': { 'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize' },
         },
         authorizationCode: {
           authorizationUrl: 'https://example.com/oauth/authorize',
@@ -1527,6 +1596,10 @@ describe('extractSecuritySchemeSecrets', () => {
           'x-scalar-secret-token': 'auth-code-token',
           'x-scalar-secret-token-url': 'https://example.com/oauth/token',
           'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+          'x-scalar-secret-defaults': {
+            'x-scalar-secret-auth-url': 'https://example.com/oauth/authorize',
+            'x-scalar-secret-token-url': 'https://example.com/oauth/token',
+          },
         },
       })
     })
@@ -1866,6 +1939,243 @@ describe('extractSecuritySchemeSecrets', () => {
       expect(result['x-scalar-secret-token']).toBe('store-token')
       expect(result['x-scalar-secret-username']).toBe('store-username')
       expect(result['x-scalar-secret-password']).toBe('store-password')
+    })
+  })
+
+  describe('x-scalar-secret-defaults', () => {
+    it('takes bearer, basic and apiKey defaults from the config keys', () => {
+      const authStore = createAuthStore()
+      const http = extractSecuritySchemeSecrets(
+        { type: 'http', scheme: 'basic', token: 'cfg-token', username: 'cfg-user', password: 'cfg-pass' },
+        authStore,
+        schemeName,
+        documentSlug,
+      )
+      const apiKey = extractSecuritySchemeSecrets(
+        { type: 'apiKey', name: 'X-API-Key', in: 'header', value: 'cfg-key' },
+        authStore,
+        schemeName,
+        documentSlug,
+      )
+
+      expect((http as HttpObjectSecret)['x-scalar-secret-defaults']).toStrictEqual({
+        'x-scalar-secret-token': 'cfg-token',
+        'x-scalar-secret-username': 'cfg-user',
+        'x-scalar-secret-password': 'cfg-pass',
+      })
+      expect((apiKey as ApiKeyObjectSecret)['x-scalar-secret-defaults']).toStrictEqual({
+        'x-scalar-secret-token': 'cfg-key',
+      })
+    })
+
+    it('prefers a document-level x-scalar-secret value over the config key', () => {
+      const authStore = createAuthStore()
+      const scheme = {
+        type: 'http',
+        scheme: 'basic',
+        username: 'cfg-user',
+        'x-scalar-secret-username': 'document-user',
+      } as unknown as ConfigAuthScheme
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as HttpObjectSecret
+
+      expect(result['x-scalar-secret-defaults']).toStrictEqual({ 'x-scalar-secret-username': 'document-user' })
+    })
+
+    it('leaves the key off when no field has a default', () => {
+      const authStore = createAuthStore()
+      const http = extractSecuritySchemeSecrets({ type: 'http', scheme: 'bearer' }, authStore, schemeName, documentSlug)
+      const apiKey = extractSecuritySchemeSecrets(
+        { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+        authStore,
+        schemeName,
+        documentSlug,
+      )
+
+      expect(http).not.toHaveProperty('x-scalar-secret-defaults')
+      expect(apiKey).not.toHaveProperty('x-scalar-secret-defaults')
+    })
+
+    it('reports the configured value of a broker apiKey', () => {
+      const authStore = createAuthStore()
+      const result = extractSecuritySchemeSecrets(
+        { type: 'apiKey', in: 'user', value: 'broker-user' },
+        authStore,
+        schemeName,
+        documentSlug,
+      ) as ApiKeyObjectSecret
+
+      expect(result['x-scalar-secret-defaults']).toStrictEqual({ 'x-scalar-secret-token': 'broker-user' })
+    })
+
+    it('maps every OAuth field to its config input key', () => {
+      const authStore = createAuthStore()
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          password: {
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            scopes: {},
+            'x-scalar-client-id': 'cfg-client',
+            clientSecret: 'cfg-secret',
+            username: 'cfg-user',
+            password: 'cfg-pass',
+            token: 'cfg-token',
+          },
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/auth',
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            scopes: {},
+            'x-usePkce': 'no',
+            'x-scalar-redirect-uri': 'https://example.com/callback',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as OAuth2ObjectSecret
+
+      expect(result.flows.password?.['x-scalar-secret-defaults']).toStrictEqual({
+        'x-scalar-secret-client-id': 'cfg-client',
+        'x-scalar-secret-client-secret': 'cfg-secret',
+        'x-scalar-secret-username': 'cfg-user',
+        'x-scalar-secret-password': 'cfg-pass',
+        'x-scalar-secret-token': 'cfg-token',
+        'x-scalar-secret-token-url': 'https://example.com/token',
+      })
+      expect(result.flows.authorizationCode?.['x-scalar-secret-defaults']).toStrictEqual({
+        'x-scalar-secret-redirect-uri': 'https://example.com/callback',
+        'x-scalar-secret-auth-url': 'https://example.com/auth',
+        'x-scalar-secret-token-url': 'https://example.com/token',
+      })
+    })
+
+    it('treats a document-level empty redirect URI as the default, so nothing is reported', () => {
+      const authStore = createAuthStore()
+      const scheme = {
+        type: 'oauth2',
+        flows: {
+          implicit: {
+            authorizationUrl: 'https://example.com/auth',
+            refreshUrl: '',
+            scopes: {},
+            'x-scalar-secret-redirect-uri': '',
+            'x-scalar-redirect-uri': 'https://example.com/callback',
+          },
+        },
+      } as unknown as ConfigAuthScheme
+
+      const result = extractSecuritySchemeSecrets(
+        scheme,
+        authStore,
+        schemeName,
+        documentSlug,
+        'https://global.example.com/callback',
+      ) as OAuth2ObjectSecret
+
+      expect(result.flows.implicit?.['x-scalar-secret-redirect-uri']).toBe('')
+      expect(result.flows.implicit?.['x-scalar-secret-defaults']).toStrictEqual({
+        'x-scalar-secret-auth-url': 'https://example.com/auth',
+      })
+    })
+
+    it('uses the global oauth2RedirectUri as the redirect default when it is passed', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        authorizationCode: { 'x-scalar-secret-redirect-uri': 'https://mine.example.com/callback' },
+      })
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://example.com/auth',
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            scopes: {},
+            'x-usePkce': 'no',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(
+        scheme,
+        authStore,
+        schemeName,
+        documentSlug,
+        'https://global.example.com/callback',
+      ) as OAuth2ObjectSecret
+
+      expect(result.flows.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe('https://mine.example.com/callback')
+      expect(result.flows.authorizationCode?.['x-scalar-secret-defaults']?.['x-scalar-secret-redirect-uri']).toBe(
+        'https://global.example.com/callback',
+      )
+    })
+
+    it('still reports the default of a cleared field', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'oauth2',
+        clientCredentials: {
+          'x-scalar-secret-client-id': '',
+          'x-scalar-secret-cleared-fields': ['x-scalar-secret-client-id'],
+        },
+      })
+      const scheme: ConfigAuthScheme = {
+        type: 'oauth2',
+        flows: {
+          clientCredentials: {
+            tokenUrl: 'https://example.com/token',
+            refreshUrl: '',
+            scopes: {},
+            'x-scalar-client-id': 'cfg-client',
+          },
+        },
+      }
+
+      const result = extractSecuritySchemeSecrets(scheme, authStore, schemeName, documentSlug) as OAuth2ObjectSecret
+
+      expect(result.flows.clientCredentials?.['x-scalar-secret-client-id']).toBe('')
+      expect(result.flows.clientCredentials?.['x-scalar-secret-defaults']?.['x-scalar-secret-client-id']).toBe(
+        'cfg-client',
+      )
+    })
+
+    it('never reports the stored OpenID Connect secrets as defaults, only the discovered URLs', () => {
+      const authStore = createAuthStore()
+      authStore.setAuthSecrets(documentSlug, schemeName, {
+        type: 'openIdConnect',
+        authorizationCode: {
+          authorizationUrl: 'https://example.com/auth',
+          tokenUrl: 'https://example.com/token',
+          refreshUrl: '',
+          scopes: {},
+          'x-usePkce': 'no',
+          'x-scalar-secret-client-id': 'mine',
+          'x-scalar-secret-redirect-uri': 'https://mine.example.com/callback',
+        },
+      })
+      const scheme: ConfigAuthScheme = {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
+      }
+
+      const result = extractSecuritySchemeSecrets(
+        scheme,
+        authStore,
+        schemeName,
+        documentSlug,
+      ) as OpenIdConnectObjectSecret
+
+      expect(result.flows?.authorizationCode?.['x-scalar-secret-client-id']).toBe('mine')
+      expect(result.flows?.authorizationCode?.['x-scalar-secret-redirect-uri']).toBe(
+        'https://mine.example.com/callback',
+      )
+      expect(result.flows?.authorizationCode?.['x-scalar-secret-defaults']).toStrictEqual({
+        'x-scalar-secret-auth-url': 'https://example.com/auth',
+        'x-scalar-secret-token-url': 'https://example.com/token',
+      })
     })
   })
 

@@ -8,7 +8,9 @@ import {
 import type { ScalarIconComponent } from '@scalar/icons/types'
 import { HttpMethod } from '@scalar/sidebar'
 import type { FuseResult } from 'fuse.js'
+import { computed } from 'vue'
 
+import { useLocalization } from '@/v2/features/localization'
 import type { FuseData } from '@/v2/features/search/types'
 
 defineProps<{
@@ -16,6 +18,8 @@ defineProps<{
   isSelected: boolean
   result: FuseResult<FuseData>
 }>()
+
+const { translate } = useLocalization()
 
 /**
  * Icon used for each search result type. Operations use the terminal glyph to
@@ -28,11 +32,11 @@ const ENTRY_ICONS: { [x in FuseData['type']]: ScalarIconComponent } = {
   tag: ScalarIconTag,
 }
 
-const ENTRY_LABELS: { [x in FuseData['type']]: string } = {
-  heading: 'Heading',
-  operation: 'Operation',
-  tag: 'Tag',
-}
+const ENTRY_LABELS = computed(() => ({
+  heading: translate('apiClient.searchResult.heading'),
+  operation: translate('apiClient.searchResult.operation'),
+  tag: translate('apiClient.searchResult.tag'),
+}))
 </script>
 
 <template>
@@ -56,17 +60,22 @@ const ENTRY_LABELS: { [x in FuseData['type']]: string } = {
         <HttpMethod
           aria-hidden="true"
           :method="result.item.method ?? 'get'" />
-        <span class="sr-only">
-          HTTP Method: {{ result.item.method ?? 'get' }}
+        <span class="sr-only"
+          >{{ translate('apiClient.searchResult.httpMethod') }}
+          {{ result.item.method ?? 'get' }}
         </span>
-        <span class="sr-only">Path:&nbsp;</span>
+        <span class="sr-only">{{
+          translate('apiClient.searchResult.path')
+        }}</span>
         {{ result.item.path }}
       </span>
     </template>
     <template
       v-else-if="result.item.description"
       #description>
-      <span class="sr-only">Description:&nbsp;</span>
+      <span class="sr-only">{{
+        translate('apiClient.searchResult.description')
+      }}</span>
       {{ result.item.description }}
     </template>
   </ScalarSearchResultItem>

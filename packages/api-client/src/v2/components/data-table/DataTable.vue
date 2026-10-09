@@ -30,7 +30,14 @@ const { cx } = useBindCx()
         class="sr-only">
         <slot name="caption" />
       </caption>
-      <slot />
+      <!--
+        The HTML parser inserts a `tbody` around rows that sit directly under a `table`, so the
+        rows are wrapped in one here to keep server-rendered markup hydratable. `contents` keeps
+        it out of the table's grid, the same way the rows lay themselves out.
+      -->
+      <tbody class="contents">
+        <slot />
+      </tbody>
     </table>
   </div>
 </template>

@@ -19,6 +19,11 @@ const { tag, isCollapsed } = defineProps<{
   nested?: boolean
 }>()
 
+defineSlots<{
+  default?: () => unknown
+  actions?: () => unknown
+}>()
+
 const { level: headingLevel } = useDocumentOutline('tag')
 </script>
 
@@ -48,6 +53,11 @@ const { level: headingLevel } = useDocumentOutline('tag')
         class="tag-description"
         :value="tag?.description"
         withImages />
+    </template>
+    <template
+      v-if="$slots.actions"
+      #actions>
+      <slot name="actions" />
     </template>
     <slot />
   </SectionContainerAccordion>

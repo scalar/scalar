@@ -28,6 +28,76 @@ describe('generateCodeSnippet', () => {
     securitySchemes: [],
   }
 
+  it('matches linked samples by both example key and media type', () => {
+    const customCodeSamples: XCodeSample[] = [
+      { lang: 'python', example: 'basic', contentType: 'application/json', source: 'json_sample()' },
+      { lang: 'python', example: 'basic', contentType: 'text/plain', source: 'text_sample()' },
+      { lang: 'python', example: 'other', source: 'any_media_sample()' },
+    ]
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        customCodeSamples,
+        clientId: 'custom/python',
+        example: 'basic',
+        contentType: 'text/plain',
+      }),
+    ).toBe('text_sample()')
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        customCodeSamples,
+        clientId: 'custom/python',
+        example: 'other',
+        contentType: 'text/plain',
+      }),
+    ).toBe('any_media_sample()')
+    expect(
+      generateCodeSnippet({ ...baseParams, customCodeSamples, clientId: 'custom/python', example: 'missing' }),
+    ).toBeNull()
+  })
+
+  it('requires an exact media type match including parameters', () => {
+    expect(
+      generateCodeSnippet({
+        ...baseParams,
+        clientId: 'custom/python',
+        example: 'basic',
+        contentType: 'application/json; charset=utf-8',
+        customCodeSamples: [
+          { lang: 'python', example: 'basic', contentType: 'application/json', source: 'json_sample()' },
+        ],
+      }),
+    ).toBeNull()
+  })
+
+  it.each([undefined, 'form', 'cookie'] as const)(
+    'returns an actionable error for invalid 3.2 cookie style %s',
+    (style) => {
+      expect(
+        generateCodeSnippet({
+          ...baseParams,
+          clientId: 'js/fetch',
+          openapiVersion: '3.2.1',
+          operation: {
+            parameters: [
+              {
+                name: 'color',
+                in: 'cookie',
+                style,
+                explode: false,
+                required: true,
+                examples: { default: { value: ['blue', 'black'] } },
+              },
+            ],
+          },
+        }),
+      ).toBe(
+        `Cookie parameter "color" cannot serialize an array or object with style: ${style ?? 'form'} and explode: false because comma-separated cookie values are invalid. Use style: cookie with explode: true.`,
+      )
+    },
+  )
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -235,7 +305,7 @@ try {
     expect(withOptional).toBe("fetch('https://api.example.com/search?q=findme')")
   })
 
-  it('omits optional query parameters from snippets when defaultDisabledParameters is true', () => {
+  it('includes populated optional query parameters in snippets when defaultDisabledParameters is true', () => {
     const operationWithOptionalQuery: OperationObject = {
       ...mockOperation,
       parameters: [
@@ -251,7 +321,7 @@ try {
       ],
     }
 
-    const withoutOptional = generateCodeSnippet({
+    const withOptional = generateCodeSnippet({
       ...baseParams,
       clientId: 'js/fetch',
       path: '/search',
@@ -259,7 +329,7 @@ try {
       defaultDisabledParameters: true,
     })
 
-    expect(withoutOptional).toBe("fetch('https://api.example.com/search')")
+    expect(withOptional).toBe("fetch('https://api.example.com/search?q=findme')")
   })
 
   it('processes different clientId formats without errors', () => {

@@ -5,9 +5,12 @@ import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /**
  * Escapes a string so it stays a valid EDN string literal. Backslashes are
- * escaped first, then double quotes, so the two passes do not interfere.
+ * escaped first, then double quotes, so the two passes do not interfere. Line
+ * breaks are written as escapes so the layout padding that is added after each
+ * new line can never end up inside the string value.
  */
-const escapeEdnString = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+const escapeEdnString = (value: string): string =>
+  value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r/g, '\\r').replace(/\n/g, '\\n')
 
 /**
  * A Clojure keyword (e.g. `:json`) rendered verbatim in EDN.
@@ -55,6 +58,14 @@ const filterEmpty = (input: Record<string, unknown>): Record<string, unknown> =>
 const padBlock = (padSize: number, input: string): string => input.replace(/\n/g, `\n${' '.repeat(padSize)}`)
 
 /**
+ * Renders a map key. Keys that are valid as a keyword stay `:key`, anything
+ * else (spaces, quotes, brackets and so on) is written as a string key, which
+ * clj-http accepts for headers and query parameters.
+ */
+const renderKey = (key: string): string =>
+  /^[A-Za-z_*+!?<>=-][A-Za-z0-9_*+!?<>=.-]*$/.test(key) ? `:${key}` : `"${escapeEdnString(key)}"`
+
+/**
  * Renders a JavaScript value as an EDN literal, matching clj-http conventions:
  * maps are laid out vertically and vectors horizontally.
  */
@@ -77,8 +88,9 @@ const jsToEdn = (value: unknown): string => {
     // Simple vertical format, one key per line.
     const body = Object.keys(value)
       .reduce((accumulator, key) => {
-        const rendered = padBlock(key.length + 2, jsToEdn(value[key]))
-        return `${accumulator}:${key} ${rendered}\n `
+        const renderedKey = renderKey(key)
+        const rendered = padBlock(renderedKey.length + 1, jsToEdn(value[key]))
+        return `${accumulator}${renderedKey} ${rendered}\n `
       }, '')
       .trim()
     return `{${padBlock(1, body)}}`
@@ -115,20 +127,12 @@ export const clojureCljhttp: Plugin = {
       return 'Method not supported'
     }
 
-    // Parse the URL so we can lift any query string into `:query-params`.
+    // Keep URI-ready URL queries intact, including authored percent encoding.
     const urlObject = new URL(request?.url ?? '')
-    let url = urlObject.pathname === '/' ? urlObject.origin : urlObject.toString()
+    const url =
+      urlObject.pathname === '/' ? `${urlObject.origin}${urlObject.search}${urlObject.hash}` : urlObject.toString()
 
-    // Collect query parameters from both the URL and the explicit list.
-    const queryObj = reduceQueryParams([
-      ...Array.from(urlObject.searchParams.entries()).map(([name, value]) => ({ name, value })),
-      ...(request?.queryString ?? []),
-    ])
-
-    if (Object.keys(queryObj).length > 0) {
-      // clj-http takes care of encoding the query string for us.
-      url = url.split('?')[0] ?? url
-    }
+    const queryObj = reduceQueryParams(request?.queryString)
 
     // Reduce headers into a plain object (last value wins for duplicates).
     const headers = (request?.headers ?? []).reduce<Record<string, unknown>>((accumulator, header) => {
@@ -181,15 +185,16 @@ export const clojureCljhttp: Plugin = {
       }
       case 'multipart/form-data': {
         if (postData.params) {
-          params.multipart = postData.params.map((param) =>
-            // Reference a file when there is a string fileName and no inline
-            // body. A part carrying an actual value (a common HAR file part
-            // with body bytes) keeps that value as the content, while an
-            // empty or null value still references the file path.
-            typeof param.fileName === 'string' && !param.value
-              ? { name: param.name, content: new File(param.fileName) }
-              : { name: param.name, content: param.value },
-          )
+          params.multipart = postData.params.map((param) => ({
+            name: param.name,
+            content:
+              typeof param.fileName === 'string' &&
+              (param.value == null || param.value === '' || param.value === `@${param.fileName}`)
+                ? new File(param.fileName)
+                : param.value,
+            ...(typeof param.fileName === 'string' ? { filename: param.fileName } : {}),
+            ...(param.contentType ? { 'mime-type': param.contentType } : {}),
+          }))
         }
         deleteHeader(headers, 'content-type')
         break

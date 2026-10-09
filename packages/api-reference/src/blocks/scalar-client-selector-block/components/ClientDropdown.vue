@@ -9,21 +9,24 @@ import {
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type { TargetId } from '@scalar/types/snippetz'
+import type { AvailableClient, TargetId } from '@scalar/types/snippetz'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref } from 'vue'
 
 import { isFeaturedClient } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
 import { useLocalization } from '@/features/localization'
 
-const { clientOptions, eventBus, selectedClient } = defineProps<{
-  /** Client options */
-  clientOptions: ClientOptionGroup[]
-  /** The currently selected Http Client (a built-in client id or a custom sample id) */
-  selectedClient?: string
-  /** Event bus */
-  eventBus: WorkspaceEventBus
-}>()
+const { clientOptions, eventBus, selectedClient, featuredClients } =
+  defineProps<{
+    /** Client options */
+    clientOptions: ClientOptionGroup[]
+    /** The currently selected Http Client (a built-in client id or a custom sample id) */
+    selectedClient?: string
+    /** Clients shown as tabs beside this dropdown. */
+    featuredClients?: AvailableClient[]
+    /** Event bus */
+    eventBus: WorkspaceEventBus
+  }>()
 
 const containerRef = ref<HTMLElement>()
 const { translate } = useLocalization()
@@ -68,6 +71,7 @@ const selectedTargetKey = computed(
     class="client-libraries-more">
     <ScalarCombobox
       :filterFn="filterClientsByQuery"
+      :inputLabel="translate('clientLibraries.searchLabel')"
       :modelValue="findClient(clientOptions, selectedClient)"
       :options="clientOptions"
       placement="bottom-end"
@@ -77,13 +81,18 @@ const selectedTargetKey = computed(
         class="client-libraries client-libraries__select"
         :class="{
           'client-libraries__active':
-            selectedClient && !isFeaturedClient(selectedClient),
+            selectedClient &&
+            !isFeaturedClient(selectedClient, featuredClients),
         }"
         type="button">
         <div
           aria-hidden="true"
           class="client-libraries-icon__more">
-          <template v-if="selectedClient && !isFeaturedClient(selectedClient)">
+          <template
+            v-if="
+              selectedClient &&
+              !isFeaturedClient(selectedClient, featuredClients)
+            ">
             <div :class="`client-libraries-icon__${selectedTargetKey}`">
               <ScalarIcon
                 v-if="selectedTargetKey"

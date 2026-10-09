@@ -3,9 +3,12 @@ import { ScalarHotkey } from '@scalar/components/hotkey'
 
 import Computer from '@/assets/computer.ascii?raw'
 import { ScalarAsciiArt } from '@/components/ScalarAsciiArt'
+import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 const { totalPerformedRequests, layout, appVersion } = defineProps<{
+  /** Wait for the selected external request example before sending. */
+  executionDisabled?: boolean
   /** Client layout */
   layout: ClientLayout
   /** Total number of performed requests */
@@ -19,6 +22,8 @@ const emits = defineEmits<{
   (e: 'sendRequest'): void
   (e: 'openCommandPalette'): void
 }>()
+
+const { translate } = useLocalization()
 </script>
 <template>
   <div class="flex-center relative flex flex-1 flex-col gap-6 p-2 capitalize">
@@ -30,21 +35,23 @@ const emits = defineEmits<{
       <div
         v-if="layout !== 'modal'"
         class="scalar-version-number">
-        Scalar App V{{ appVersion }} Beta
+        {{
+          translate('apiClient.responseEmpty.version', { version: appVersion })
+        }}
         <div class="mt-2">
           <a
             href="https://github.com/scalar/scalar/issues/2669"
-            target="_blank">
-            Roadmap
-          </a>
+            target="_blank"
+            >{{ translate('apiClient.responseEmpty.roadmap') }}</a
+          >
         </div>
       </div>
       <a
         class="gitbook-show scalar-version-number"
         href="https://www.scalar.com"
-        target="_blank">
-        Powered By Scalar.com
-      </a>
+        target="_blank"
+        >{{ translate('apiClient.responseEmpty.poweredByScalarcom') }}</a
+      >
       <ScalarAsciiArt
         :art="Computer"
         class="text-c-3" />
@@ -57,8 +64,8 @@ const emits = defineEmits<{
         class="flex items-center gap-1.5"
         type="button"
         @click="emits('openCommandPalette')">
-        Get Started
-        <ScalarHotkey
+        {{ translate('apiClient.responseEmpty.getStarted')
+        }}<ScalarHotkey
           hotkey="k"
           :modifier="['default']" />
       </button>
@@ -67,15 +74,16 @@ const emits = defineEmits<{
         class="flex items-center gap-1.5"
         type="button"
         @click="emits('addRequest')">
-        New Request
-        <ScalarHotkey hotkey="N" />
+        {{ translate('apiClient.responseEmpty.newRequest')
+        }}<ScalarHotkey hotkey="N" />
       </button>
       <button
         class="flex items-center gap-1.5"
+        :disabled="executionDisabled"
         type="button"
         @click="emits('sendRequest')">
-        Send Request
-        <ScalarHotkey hotkey="↵" />
+        {{ translate('apiClient.responseEmpty.sendRequest')
+        }}<ScalarHotkey hotkey="↵" />
       </button>
     </div>
   </div>

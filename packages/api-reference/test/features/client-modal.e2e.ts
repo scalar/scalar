@@ -33,7 +33,13 @@ test.describe('client modal', () => {
 
     await expect(page.getByRole('dialog')).toBeVisible()
 
-    await expect(page.getByRole('dialog').getByRole('button', { name: 'Show Sidebar' })).toBeFocused()
+    // Initial focus lands on the close button so the way out of the dialog is announced first.
+    await expect(page.getByRole('dialog').getByRole('button', { name: 'Close Client' })).toBeFocused()
+
+    // Activating it from the initial focus closes the dialog and returns focus to the opener.
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('dialog')).toBeHidden()
+    await expect(page.getByRole('button', { name: 'Test Request' }).first()).toBeFocused()
   })
 
   test('opens a webhook with an editable request destination', async ({ page }) => {

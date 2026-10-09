@@ -1,20 +1,10 @@
-import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
+import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 import { escapeSingleQuotes } from '@/libs/shell'
-
-/**
- * True for `application/json`, any RFC 6839 `+json` structured-syntax suffix
- * (e.g. `application/vnd.api+json`), and parameterized variants
- * (e.g. `application/json;charset=utf-8`). Case-insensitive.
- */
-const isJsonContentType = (value: string | undefined): boolean => {
-  if (!value) {
-    return false
-  }
-  const { subtype } = parseMimeType(value)
-  return subtype === 'json' || subtype.endsWith('+json')
-}
+import { buildShellBody, quoteShellBoundary, shellBoundarySetup } from '@/libs/shell-body'
 
 /**
  * Pretty-prints a JSON string and falls back to the original value when it
@@ -40,16 +30,10 @@ export const shellWget: Plugin = {
     // against an explicit `method: undefined`, which would otherwise overwrite the default.
     const normalizedRequest = {
       ...request,
-      method: (request?.method ?? 'GET').toUpperCase(),
+      method: normalizeMethod(request?.method),
     }
 
-    // Build the URL, joining extra query parameters with `&` when the URL already carries a query string
-    const baseUrl = normalizedRequest.url ?? ''
-    const separator = baseUrl.includes('?') ? '&' : '?'
-    const queryString = normalizedRequest.queryString?.length
-      ? separator + normalizedRequest.queryString.map((param) => `${param.name}=${param.value}`).join('&')
-      : ''
-    const url = `${baseUrl}${queryString}`
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
     // Quote the URL whenever it contains anything the shell could interpret (spaces, query separators, globs, …)
     const isShellSafe = /^[A-Za-z0-9._~:/%@+,=-]*$/.test(url)
     const urlPart = isShellSafe ? url : `'${escapeSingleQuotes(url)}'`
@@ -63,11 +47,22 @@ export const shellWget: Plugin = {
       parts.push(`--password '${escapeSingleQuotes(configuration.auth.password)}'`)
     }
 
+    const multipart =
+      normalizedRequest.postData?.mimeType === 'multipart/form-data' && normalizedRequest.postData.params
+        ? prepareRequest(normalizedRequest)
+        : undefined
+
+    const boundary = multipartFileBoundary(multipart)
+
     // Headers
-    if (normalizedRequest.headers?.length) {
-      normalizedRequest.headers.forEach((header) => {
-        const headerValue = escapeSingleQuotes(`${header.name}: ${header.value}`)
-        parts.push(`--header '${headerValue}'`)
+    const headers = multipart?.headers ?? normalizedRequest.headers
+    if (headers?.length) {
+      headers.forEach((header) => {
+        const headerValue = quoteShellBoundary(
+          `${header.name}: ${header.value}`,
+          header.name.toLowerCase() === 'content-type' ? boundary : undefined,
+        )
+        parts.push(`--header ${headerValue}`)
       })
     }
 
@@ -83,7 +78,7 @@ export const shellWget: Plugin = {
     if (normalizedRequest.postData) {
       const { mimeType, text, params } = normalizedRequest.postData
 
-      if (isJsonContentType(mimeType)) {
+      if (isJsonMediaType(mimeType)) {
         if (text) {
           parts.push(`--body-data '${escapeSingleQuotes(prettyPrintJson(text))}'`)
         }
@@ -96,17 +91,7 @@ export const shellWget: Plugin = {
           .join('&')
         parts.push(`--body-data '${escapeSingleQuotes(body)}'`)
       } else if (mimeType === 'multipart/form-data' && params) {
-        // Wget has no native multipart support, so we approximate it: files are
-        // streamed with --body-file and plain fields are sent as --body-data.
-        params.forEach((param) => {
-          if (param.fileName !== undefined) {
-            parts.push(`--body-file='${escapeSingleQuotes(param.fileName)}'`)
-          } else {
-            const rawValue = param.value ?? ''
-            const displayValue = isJsonContentType(param.contentType) && rawValue ? prettyPrintJson(rawValue) : rawValue
-            parts.push(`--body-data '${escapeSingleQuotes(`${param.name}=${displayValue}`)}'`)
-          }
-        })
+        parts.push('--body-file="$multipart_body"')
       } else if (text) {
         // Fall back to the raw text, pretty-printing it when it happens to be JSON
         parts.push(`--body-data '${escapeSingleQuotes(prettyPrintJson(text))}'`)
@@ -115,6 +100,9 @@ export const shellWget: Plugin = {
 
     parts.push('--output-document', `- ${urlPart}`)
 
-    return parts.join(' \\\n  ')
+    const command = parts.join(' \\\n  ')
+    return multipart?.body
+      ? `${boundary ? shellBoundarySetup : ''}multipart_body=$(mktemp)\ntrap 'rm -f "$multipart_body"' EXIT\n${buildShellBody(multipart.body, boundary)} > "$multipart_body"\n${command}`
+      : command
   },
 }

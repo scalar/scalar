@@ -3,6 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { pythonAiohttp } from './aiohttp'
 
 describe('pythonAiohttp', () => {
+  it.each(['customMethod', 'COPY', 'Get'])('uses a generic request for %s', (method) => {
+    expect(
+      pythonAiohttp.generate({ url: 'https://example.com', method }),
+    ).toBe(`async with aiohttp.ClientSession() as session:
+    await session.request("${method}", "https://example.com")`)
+  })
+
   it('returns a basic request', () => {
     const result = pythonAiohttp.generate({
       url: 'https://example.com',

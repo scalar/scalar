@@ -37,6 +37,7 @@ import {
   type SecuritySchemeOption,
 } from '@/v2/blocks/scalar-auth-selector-block/helpers/security-scheme'
 import { CollapsibleSection } from '@/v2/components/layout'
+import { useLocalization } from '@/v2/features/localization'
 
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
@@ -46,6 +47,8 @@ const {
   createAnySecurityScheme = false,
   canDeleteSchemes = true,
   defaultOpen = true,
+  heading = true,
+  hideSingleRequiredScheme = false,
   isStatic = false,
   meta,
   proxyUrl,
@@ -68,6 +71,15 @@ const {
   canDeleteSchemes?: boolean
   /** Whether the authentication disclosure should start expanded */
   defaultOpen?: boolean
+  /**
+   * Whether the title belongs in the document outline. The client renders the
+   * selector as one section of a request, so it is a heading there. A surface
+   * that only offers the schemes as a card of controls, such as the reference,
+   * turns it off and the card is named as a group instead.
+   */
+  heading?: boolean
+  /** Hides a sole active required choice in the reference while preserving client controls. */
+  hideSingleRequiredScheme?: boolean
   /** Creates a static disclosure that cannot be collapsed */
   isStatic?: boolean
   meta: AuthMeta
@@ -82,6 +94,8 @@ const {
   /** Type of the document the schemes belong to, used to label the missing-type warning */
   documentType?: 'openapi' | 'asyncapi'
 }>()
+
+const { translate, translations } = useLocalization()
 
 const titleId = useId()
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
@@ -108,7 +122,9 @@ const authIndicator = computed<{ icon: Icon; text: string } | null>(() => {
 
   return {
     icon: isOptional ? 'Unlock' : 'Lock',
-    text: isOptional ? 'Optional' : 'Required',
+    text: isOptional
+      ? translate('apiClient.authSelector.optional')
+      : translate('apiClient.authSelector.required'),
   }
 })
 
@@ -119,6 +135,7 @@ const availableSchemeOptions = computed(() =>
     securitySchemes ?? {},
     selectedSecurity?.selectedSchemes ?? [],
     createAnySecurityScheme,
+    translations.value.apiClient,
   ),
 )
 
@@ -159,11 +176,37 @@ const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
   })
 })
 
+/** Keep selection available whenever it can change auth or recover an empty saved selection. */
+const showSchemeSelector = computed<boolean>(() => {
+  if (
+    !hideSingleRequiredScheme ||
+    createAnySecurityScheme ||
+    securityRequirements?.length !== 1 ||
+    Object.keys(securityRequirements[0] ?? {}).length === 0
+  ) {
+    return true
+  }
+
+  const schemeOptions = availableSchemeOptions.value.flatMap((option) =>
+    'options' in option ? option.options : [option],
+  )
+
+  return (
+    schemeOptions.length !== 1 ||
+    activeSchemeOptions.value.length !== 1 ||
+    activeSchemeOptions.value[0]?.id !== schemeOptions[0]?.id
+  )
+})
+
 /**
  * Opens the combobox dropdown when clicking the auth indicator badge.
  * Prevents the disclosure from toggling if it is already open.
  */
 const handleAuthIndicatorClick = (event: Event): void => {
+  if (!showSchemeSelector.value) {
+    return
+  }
+
   if (isDisclosureOpen.value) {
     event.stopPropagation()
   }
@@ -226,6 +269,7 @@ defineExpose({
   <CollapsibleSection
     class="group/params relative"
     :defaultOpen
+    :heading
     :isStatic="isStatic"
     :itemCount="activeSchemeOptions.length"
     @update:modelValue="(open) => (isDisclosureOpen = open)">
@@ -237,8 +281,11 @@ defineExpose({
 
         <span
           v-if="authIndicator"
-          class="text-c-3 hover:bg-b-3 hover:text-c-1 -my-0.5 -mr-1 cursor-pointer rounded px-1 py-0.5 leading-[normal] font-normal"
-          :class="{ 'text-c-1': authIndicator.text === 'Required' }"
+          class="text-c-3 -my-0.5 -mr-1 rounded px-1 py-0.5 leading-[normal] font-normal"
+          :class="{
+            'text-c-1': authIndicator.icon === 'Lock',
+            'hover:bg-b-3 hover:text-c-1 cursor-pointer': showSchemeSelector,
+          }"
           data-testid="auth-indicator"
           @click="handleAuthIndicatorClick">
           {{ authIndicator.text }}
@@ -246,8 +293,10 @@ defineExpose({
       </div>
     </template>
 
-    <!-- Auth Dropdown (hidden when only one scheme is available) -->
-    <template #actions>
+    <!-- The client keeps its selection and deletion controls. -->
+    <template
+      v-if="showSchemeSelector"
+      #actions>
       <ScalarComboboxMultiselect
         class="w-72 text-xs"
         :modelValue="activeSchemeOptions"
@@ -264,20 +313,21 @@ defineExpose({
           variant="ghost">
           <!-- Single auth scheme selected -->
           <template v-if="activeSchemeOptions.length === 1">
-            <span class="sr-only">Selected Auth Type:</span>
-            {{ activeSchemeOptions[0]?.label }}
+            {{
+              translate('apiClient.authSelector.selectedType', {
+                type: activeSchemeOptions[0]?.label ?? '',
+              })
+            }}
           </template>
 
           <!-- Multiple auth schemes selected -->
           <template v-else-if="activeSchemeOptions.length > 1">
-            Multiple
-            <span class="sr-only">Auth Types Selected</span>
+            {{ translate('apiClient.authSelector.multipleTypes') }}
           </template>
 
           <!-- No auth schemes selected -->
           <template v-else>
-            <span class="sr-only">Select</span>
-            Auth Type
+            {{ translate('apiClient.authSelector.selectType') }}
           </template>
 
           <ScalarIconCaretDown
@@ -296,7 +346,11 @@ defineExpose({
             v-if="option.isDeletable && canDeleteSchemes"
             class="-m-0.5 shrink-0 p-0.5 opacity-0 group-hover/item:opacity-100"
             :icon="ScalarIconTrash"
-            :label="`Delete ${option.label}`"
+            :label="
+              translate('apiClient.authSelector.deleteScheme', {
+                name: option.label,
+              })
+            "
             size="xs"
             @click.stop="handleDeleteRequest(option)" />
         </template>

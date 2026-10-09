@@ -86,6 +86,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   hideModels: z.boolean().optional().default(false).catch(false),
   /**
+   * Show structural types instead of model names in schema type labels and operation headings.
+   * Model section headings and composition selector labels keep their names.
+   * @default false
+   */
+  hideModelNames: z.boolean().optional().default(false).catch(false),
+  /**
    * Label for the components.schemas section in the sidebar, content, and search.
    * Use `Schemas` for OpenAPI terminology; `Models` is the historical default.
    * @default 'Models'
@@ -129,6 +135,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default false
    */
   showOperationId: z.boolean().optional().default(false).catch(false),
+  /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
+  showExtensions: z.array(z.string().regex(/^x-/)).optional(),
   /** Whether dark mode is on or off initially (light mode) */
   darkMode: z.boolean().optional(),
   /** forceDarkModeState makes it always this state no matter what */
@@ -167,6 +175,13 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       clientKey: z.custom<ClientId<TargetId>>(),
     })
     .optional(),
+  /**
+   * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
+   * Entries are full client ids such as `'node/fetch'`.
+   *
+   * Unknown or hidden clients are skipped.
+   */
+  featuredClients: z.array(z.custom<AvailableClient>()).optional(),
   /**
    * Initial view for the request body editor with structured (JSON/YAML) bodies.
    *
@@ -229,6 +244,10 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     .optional() as z.ZodType<
     | ((a: { request: Request; requestBuilder: any; envVariables: Record<string, string> }) => Promise<void> | void)
     | undefined
+  >,
+  /** Fired before response processing. Return a Response to replace it, or nothing to keep it. */
+  onResponseReceived: z.function().optional() as z.ZodType<
+    ((input: { response: Response; request: Request }) => Response | void | Promise<Response | void>) | undefined
   >,
   /**
    * onShowMore is fired when the user clicks the "Show more" button on the references
@@ -423,6 +442,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    */
   expandAllModelSections: z.boolean().optional().default(false).catch(false),
   /**
+   * Whether to show parameter details by default. Set to false to collapse each parameter.
+   * @default true
+   */
+  expandAllParameters: z.boolean().optional().default(true).catch(true),
+  /**
    * Whether to expand all responses by default
    *
    * Warning: this can cause performance issues on big documents
@@ -438,6 +462,12 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
    * @default false
    */
   expandAllSchemaProperties: z.boolean().optional().default(false).catch(false),
+  /**
+   * Maximum initially visible top-level request body properties.
+   * Set to 0 to show all without expanding nested properties.
+   * @default 12
+   */
+  maxVisibleRequestBodyProperties: z.number().int().nonnegative().optional().default(12).catch(12),
   /**
    * Function to sort tags
    * @default 'alpha' for alphabetical sorting
@@ -545,6 +575,12 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
     envVariables: Record<string, string>
   }) => void | Promise<void> | undefined
   /**
+   * Fired before response processing. Return a Response to replace the body, status, or headers
+   * used by the client, or return nothing to keep the current response. Receives a clone so
+   * reading the body does not consume the client response. Avoid reading unbounded streams.
+   */
+  onResponseReceived?: (input: { response: Response; request: Request }) => Response | void | Promise<Response | void>
+  /**
    * Fired after the outbound fetch `Request` has been built, right before it is sent. The `request` is the exact
    * object handed to fetch: mutating its headers modifies the outgoing request, and hashing its body produces a
    * hash that matches what the server receives (useful for request signing — a rebuilt `multipart/form-data` body
@@ -581,7 +617,9 @@ export type ApiReferenceConfiguration = ApiReferenceConfigurationRaw & {
 /** Configuration for the Api Reference */
 export const apiReferenceConfigurationWithSourceSchema: ZodType<
   Omit<ApiReferenceConfiguration, 'url' | 'content'> & SourceConfiguration
-> = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((configuration) => {
+> = apiReferenceConfigurationSchema.extend(sourceConfigurationSchema.shape).transform((parsed) => {
+  // Migration removes the deprecated field from this same configuration object.
+  const configuration: Omit<typeof parsed, 'showToolbar'> & Partial<Pick<typeof parsed, 'showToolbar'>> = parsed
   // Migrate hideDownloadButton to documentDownloadType
   if (configuration.hideDownloadButton) {
     console.warn(
@@ -650,7 +688,6 @@ export const apiReferenceConfigurationWithSourceSchema: ZodType<
 
     configuration.showDeveloperTools = configuration.showToolbar
 
-    // @ts-expect-error - We're deleting the deprecated attribute
     delete configuration.showToolbar
   }
 

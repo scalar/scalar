@@ -4,6 +4,43 @@ We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenA
 
 On top of that, we've added a few things for your convenience:
 
+## Editor completion and version compatibility
+
+The Scalar App editor offers OpenAPI 3.2 completion and structural diagnostics for documents declaring either OpenAPI 3.1 or 3.2. This permissive editing policy helps you work with newer fields, but the absence of editor errors does not certify that a document conforms to its declared OpenAPI version.
+
+For example, the editor accepts `itemSchema`, `additionalOperations`, and `style: cookie` even when the document still declares `openapi: 3.1.0`. Those fields are not part of OpenAPI 3.1, and tools that validate that version may reject the document. Editor completion does not automatically change the declared version.
+
+Before using OpenAPI 3.2-only fields, migrate the document to OpenAPI 3.2 and explicitly set a matching version such as `openapi: 3.2.0`. Check that your validators, generators, and other consumers support that version, and validate the resulting document with a validator that respects the declared version. If you need to remain compatible with OpenAPI 3.1 consumers, keep the declaration and field usage within OpenAPI 3.1.
+
+## Whole-query parameters (OpenAPI 3.2)
+
+An `in: querystring` parameter describes the entire query string. Its `name` is documentary and is not added to the request URL. Scalar uses the parameter's `content` media type to serialize its value.
+
+For content other than `application/x-www-form-urlencoded`, Scalar percent-encodes the serialized value, including JSON delimiters. For example, a JSON value of `{"limit":2}` produces `?%7B%22limit%22%3A2%7D` in both requests and generated code samples.
+
+To supply URI-ready content with its encoding preserved, set `serializedValue` in an example on the **parameter itself**:
+
+```yaml
+parameters:
+  - name: search
+    in: querystring
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            limit:
+              type: integer
+    examples:
+      default:
+        serializedValue: '%7B%22limit%22%3A2%7D'
+```
+
+A `serializedValue` under a media type describes serialized media content and still undergoes URI encoding. The parameter-level example bypasses that step; provide any escaping required by the target server and HTTP client yourself.
+
+OpenAPI 3.2 does not allow mixing `in: querystring` and named `in: query` parameters. For existing descriptions containing both, Scalar preserves the values and emits the whole-query content first, followed by named query parameters and query authentication parameters. Duplicate keys are preserved: a whole-query `status=available` and a named `status=sold` produce `?status=available&status=sold`. Scalar does not choose which value wins; that depends on the receiving server. The editor explains why additional named parameters cannot be added while keeping existing rows editable.
+
 ## Custom Specification Extensions
 
 You can add custom specification extensions (starting with a `x-`) through [our plugin API](configuration.md).
@@ -71,6 +108,38 @@ paths:
 +          main();
 ```
 
+### Link code samples to request examples
+
+Set `example` to a key in `requestBody.content[contentType].examples` and set `contentType` to that media type. Samples with the same `lang` and `label` share one language option. The example switcher chooses the matching sample without changing the selected language.
+
+```yaml
+openapi: 3.1.0
+info: { title: Widgets API, version: '1.0' }
+paths:
+  /widgets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object }
+            examples:
+              simple: { value: { name: Basic } }
+              detailed: { value: { name: Premium, description: More features } }
+      responses:
+        '200': { description: Created }
+      x-codeSamples:
+        - lang: Python
+          example: simple
+          contentType: application/json
+          source: client.widgets.create(name="Basic")
+        - lang: Python
+          example: detailed
+          contentType: application/json
+          source: client.widgets.create(name="Premium", description="More features")
+```
+
+The same fields work with `x-scalar-examples`, `x-code-samples`, and `x-custom-examples`. Omit `contentType` to use a sample for any media type with that example key. The `contentType` must exactly match the request body media type key, including any parameters: `application/json; charset=utf-8` does not match `application/json`. Static samples without `example` keep their own language-menu entries. Their source stays unchanged when switching body examples, but the switcher still controls which example opens in Test Request. If a linked sample is missing for the selected example, Scalar displays an unavailable message.
+
 ### Code samples from other tools
 
 If your OpenAPI document is generated by another tool, we also read code samples from the extensions those tools write. When more than one of these is present on an operation, we use the highest-priority source only (instead of showing duplicates from every tool). Priority, highest first:
@@ -117,7 +186,7 @@ paths:
         node: await client.accounts.list();
 ```
 
-`x-readme.code-samples` is a list of samples using ReadMe's field names (`language`, `code`, `name`):
+`x-readme.code-samples` is a list of samples using ReadMe's field names (`language`, `code`, `name`). ReadMe's `correspondingExample` refers to a response example, so it is not used to link samples to request body examples:
 
 ```yaml
 paths:
@@ -183,7 +252,9 @@ paths:
 
 `externalValue` is a standard OpenAPI field on an [Example Object](https://spec.openapis.org/oas/v3.1.0#example-object). It lets you keep large request or response examples outside of your OpenAPI document and point to them by URL instead. This is useful when a single document would otherwise contain hundreds or thousands of big example payloads.
 
-Scalar fetches the referenced payload while loading the document and uses it for the example selector, the request preview, the generated code snippets, and the Test Request dialog.
+Scalar fetches an external example only when its selected preview becomes visible or you open it in Test Request. Other examples, including examples on hidden operations, are not downloaded during document loading. The request preview, generated code snippets, and Test Request use the same resolved payload.
+
+Successful downloads are cached for the loaded document. Selecting an example again reuses its payload; replacing the document clears the cache. While an example loads, Scalar shows a loading message. If the download fails, you can retry. Sending the request is disabled until its selected example is ready.
 
 ```yaml
 paths:
@@ -680,3 +751,34 @@ paths:
 ```
 
 See [Testing in the API Client](./guides/app/testing.md) for all available assertions and the full `pm` API reference.
+
+## XML examples
+
+XML examples use the schema's `xml` metadata for element names, attributes, namespaces,
+and array wrappers. Automatic generation has depth and node limits to keep large API
+descriptions responsive. When a response example exceeds these limits, the response
+panel explains that a complete serialized example is needed.
+
+To display an existing XML payload without generating a tree, use an OpenAPI 3.2
+media-level `serializedValue`. It is preserved exactly, including whitespace:
+
+```yaml
+openapi: 3.2.0
+info:
+  title: XML example
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: Pets
+          content:
+            application/xml:
+              examples:
+                pets:
+                  serializedValue: '<pets><pet id="1">Milo</pet></pets>'
+```
+
+For OpenAPI 3.0 or 3.1, use a string `value` in the media-level Example Object.
+Schema-level string examples represent data and are escaped as XML text.

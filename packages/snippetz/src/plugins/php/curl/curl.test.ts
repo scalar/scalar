@@ -285,25 +285,37 @@ curl_close($ch);`)
       },
     })
 
-    expect(result).toBe(`$ch = curl_init("https://example.com");
+    expect(result).toBe(`$boundary = bin2hex(random_bytes(16));
+$ch = curl_init("https://example.com");
 
 curl_setopt($ch, CURLOPT_POST, true);
-$mime = curl_mime_init($ch);
-$part0 = curl_mime_addpart($mime);
-curl_mime_name($part0, 'file');
-curl_mime_filedata($part0, 'test.txt');
-$part1 = curl_mime_addpart($mime);
-curl_mime_name($part1, 'field');
-curl_mime_data($part1, 'value');
-curl_setopt($ch, CURLOPT_MIMEPOST, $mime);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [str_replace('scalar-boundary', $boundary, 'Content-Type: multipart/form-data; boundary=scalar-boundary')]);
+$body = '';
+$body .= str_replace('scalar-boundary', $boundary, '--scalar-boundary\r
+Content-Disposition: form-data; name="file"; filename="test.txt"\r
+Content-Type: application/octet-stream\r
+\r
+');
+$body .= file_get_contents('test.txt');
+$body .= str_replace('scalar-boundary', $boundary, '\r
+');
+$body .= str_replace('scalar-boundary', $boundary, '--scalar-boundary\r
+Content-Disposition: form-data; name="field"\r
+\r
+');
+$body .= str_replace('scalar-boundary', $boundary, 'value');
+$body .= str_replace('scalar-boundary', $boundary, '\r
+');
+$body .= str_replace('scalar-boundary', $boundary, '--scalar-boundary--\r
+');
+curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
 curl_exec($ch);
-curl_mime_free($mime);
 
 curl_close($ch);`)
   })
 
-  it('preserves duplicate multipart field names with curl_mime parts', () => {
+  it('preserves duplicate multipart field names in the serialized body', () => {
     const result = phpCurl.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -325,17 +337,27 @@ curl_close($ch);`)
     expect(result).toBe(`$ch = curl_init("https://example.com");
 
 curl_setopt($ch, CURLOPT_POST, true);
-$mime = curl_mime_init($ch);
-$part0 = curl_mime_addpart($mime);
-curl_mime_name($part0, 'file');
-curl_mime_data($part0, 'first');
-$part1 = curl_mime_addpart($mime);
-curl_mime_name($part1, 'file');
-curl_mime_data($part1, 'second');
-curl_setopt($ch, CURLOPT_MIMEPOST, $mime);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data; boundary=scalar-boundary']);
+$body = '';
+$body .= '--scalar-boundary\r
+Content-Disposition: form-data; name="file"\r
+\r
+';
+$body .= 'first';
+$body .= '\r
+';
+$body .= '--scalar-boundary\r
+Content-Disposition: form-data; name="file"\r
+\r
+';
+$body .= 'second';
+$body .= '\r
+';
+$body .= '--scalar-boundary--\r
+';
+curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
 curl_exec($ch);
-curl_mime_free($mime);
 
 curl_close($ch);`)
   })
@@ -457,11 +479,11 @@ curl_close($ch);`)
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -547,17 +569,25 @@ curl_close($ch);`)
       },
     })
 
-    expect(result).toBe(`$ch = curl_init("https://example.com");
+    expect(result).toBe(`$boundary = bin2hex(random_bytes(16));
+$ch = curl_init("https://example.com");
 
 curl_setopt($ch, CURLOPT_POST, true);
-$mime = curl_mime_init($ch);
-$part0 = curl_mime_addpart($mime);
-curl_mime_name($part0, 'file');
-curl_mime_filedata($part0, '');
-curl_setopt($ch, CURLOPT_MIMEPOST, $mime);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [str_replace('scalar-boundary', $boundary, 'Content-Type: multipart/form-data; boundary=scalar-boundary')]);
+$body = '';
+$body .= str_replace('scalar-boundary', $boundary, '--scalar-boundary\r
+Content-Disposition: form-data; name="file"; filename=""\r
+Content-Type: application/octet-stream\r
+\r
+');
+$body .= file_get_contents('');
+$body .= str_replace('scalar-boundary', $boundary, '\r
+');
+$body .= str_replace('scalar-boundary', $boundary, '--scalar-boundary--\r
+');
+curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
 curl_exec($ch);
-curl_mime_free($mime);
 
 curl_close($ch);`)
   })
@@ -774,5 +804,45 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
 curl_exec($ch);
 
 curl_close($ch);`)
+  })
+  it('escapes quotes and backslashes in a plain text body', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'text/plain' }],
+      postData: {
+        mimeType: 'text/plain',
+        text: "it's a C:\\temp path",
+      },
+    })
+
+    expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, 'it\\'s a C:\\\\temp path');")
+  })
+
+  it('escapes quotes in a JSON body that cannot be parsed', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: "{'name': 'it's'}",
+      },
+    })
+
+    expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, '{\\'name\\': \\'it\\'s\\'}');")
+  })
+
+  it('escapes quotes in an octet-stream body', () => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/octet-stream',
+        text: "it's binary",
+      },
+    })
+
+    expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, 'it\\'s binary');")
   })
 })

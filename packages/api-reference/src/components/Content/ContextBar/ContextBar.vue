@@ -182,6 +182,7 @@ onBeforeUnmount(() => {
     :aria-hidden="!hasBreadcrumb"
     :aria-label="hasBreadcrumb ? 'Breadcrumb' : undefined"
     class="context-bar bg-b-1.5 text-c-2 sticky top-(--refs-header-height) z-10 flex items-center gap-1.5 text-sm"
+    data-scalar-scroll-header
     :data-stuck="isStuck || undefined">
     <template
       v-for="(crumb, index) in displayCrumbs"
@@ -224,7 +225,7 @@ onBeforeUnmount(() => {
  * Match the section content inset (0 60px) so crumbs line up under the section
  * headings. A fixed height keeps the content below from moving when the active
  * hierarchy changes and the breadcrumbs appear.
- * The bar lives inside `.narrow-references-container`, so it shares the same
+ * The bar lives inside `.references-container`, so it shares the same
  * container query the sections use to drop their inset on narrow layouts.
  */
 .context-bar {
@@ -236,7 +237,7 @@ onBeforeUnmount(() => {
   box-shadow: inset 0 calc(var(--scalar-border-width) * -1) 0
     var(--scalar-border-color);
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .context-bar {
     padding-inline: 24px;
   }

@@ -1,6 +1,7 @@
 import type { HarRequest, Plugin } from '@scalar/types/snippetz'
 
 import { accumulateRepeatedValue, buildQueryString, normalizeRequest } from '@/libs/http'
+import { dispositionValue } from '@/libs/prepare-request'
 import { formatPythonValue } from '@/plugins/python/requestsLike'
 
 const createBasicAuthToken = (value: string): string => {
@@ -109,37 +110,45 @@ const buildRequestBody = (
   }
 
   if (mimeType === 'multipart/form-data' && params) {
-    const payloadLines = ['boundary = "----ScalarSnippetzBoundary"', 'data_list = []']
+    imports.add('import uuid')
+    const payloadLines = ['boundary = uuid.uuid4().hex', 'data_list = []']
 
     params.forEach((param) => {
-      payloadLines.push('data_list.append("--" + boundary)')
+      payloadLines.push('data_list.append(("--" + boundary).encode("utf-8"))')
 
       if (param.fileName !== undefined) {
         payloadLines.push(
-          `data_list.append(${JSON.stringify(`Content-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"`)})`,
+          `data_list.append(${JSON.stringify(`Content-Disposition: form-data; name="${dispositionValue(param.name)}"; filename="${dispositionValue(param.fileName)}"`)}.encode("utf-8"))`,
         )
       } else {
-        payloadLines.push(`data_list.append(${JSON.stringify(`Content-Disposition: form-data; name="${param.name}"`)})`)
+        payloadLines.push(
+          `data_list.append(${JSON.stringify(`Content-Disposition: form-data; name="${dispositionValue(param.name)}"`)}.encode("utf-8"))`,
+        )
       }
 
       if (param.contentType) {
-        payloadLines.push(`data_list.append(${JSON.stringify(`Content-Type: ${param.contentType}`)})`)
+        payloadLines.push(`data_list.append(${JSON.stringify(`Content-Type: ${param.contentType}`)}.encode("utf-8"))`)
       }
 
-      payloadLines.push('data_list.append("")')
+      payloadLines.push('data_list.append(b"")')
 
       if (param.fileName !== undefined) {
-        payloadLines.push(`data_list.append(open(${JSON.stringify(param.fileName)}, "rb").read().decode("latin-1"))`)
+        payloadLines.push(`data_list.append(open(${JSON.stringify(param.fileName)}, "rb").read())`)
       } else {
-        payloadLines.push(`data_list.append(${JSON.stringify(param.value ?? '')})`)
+        payloadLines.push(`data_list.append(${JSON.stringify(param.value ?? '')}.encode("utf-8"))`)
       }
     })
 
-    payloadLines.push('data_list.append("--" + boundary + "--")')
-    payloadLines.push('data_list.append("")')
-    payloadLines.push('payload = "\\r\\n".join(data_list)')
+    payloadLines.push('data_list.append(("--" + boundary + "--").encode("utf-8"))')
+    payloadLines.push('data_list.append(b"")')
+    payloadLines.push('payload = b"\\r\\n".join(data_list)')
 
-    headers['Content-Type'] = 'multipart/form-data; boundary=----ScalarSnippetzBoundary'
+    for (const name of Object.keys(headers)) {
+      if (name.toLowerCase() === 'content-type') {
+        delete headers[name]
+      }
+    }
+    headers['Content-Type'] = 'multipart/form-data'
 
     return {
       payloadLines,
@@ -220,6 +229,9 @@ export const pythonPython3: Plugin = {
 
     if (Object.keys(preparedHeaders).length) {
       setupLines.push(`headers = ${formatPythonValue(preparedHeaders, 0)}`)
+      if (normalizedRequest.postData?.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
+        setupLines.push('headers["Content-Type"] = "multipart/form-data; boundary=" + boundary')
+      }
     }
 
     const requestArguments = [JSON.stringify(normalizedRequest.method), JSON.stringify(path)]

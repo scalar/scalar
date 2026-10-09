@@ -1,4 +1,5 @@
 import { canMethodHaveBody } from '@scalar/helpers/http/can-method-have-body'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import { replacePathVariables } from '@scalar/helpers/regex/replace-variables'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -6,6 +7,8 @@ import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/g
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 
+import type { ReservedPathParameter } from '@/helpers/encode-path-parameter'
+import { type QuerystringParameter, getQuerystringParameter } from '@/helpers/querystring-parameter'
 import { getServerVariables } from '@/request-example/builder/helpers/get-server-variables'
 import {
   type BuildRequestSecurityResult,
@@ -85,6 +88,8 @@ import { buildRequestParameters } from './header/build-request-parameters'
  * ```
  */
 export type RequestFactory = {
+  /** Invalid active cookie declarations, retained for previews and reported before sending. */
+  cookieErrors?: string[]
   /**
    * The base API server URL prior to environment or server variable substitution.
    * May still contain placeholders such as `{version}` or `{region}`.
@@ -104,6 +109,10 @@ export type RequestFactory = {
      * @example { "userId": "{env.USER_ID}" }
      */
     variables: Record<string, string>
+    /** Names whose example is already URI-encoded. */
+    serializedParameters?: Set<string>
+    /** Schema-based values using OpenAPI 3.2 reserved expansion. */
+    reservedParameters?: Record<string, ReservedPathParameter>
     /**
      * The raw request path string, as entered by the user or read from the OpenAPI schema.
      * Placeholders are not yet substituted.
@@ -135,6 +144,12 @@ export type RequestFactory = {
    * The actual query string is assembled later, after variable and environment expansion.
    */
   query: URLSearchParams
+
+  /** URI-ready named-parameter examples, appended without re-encoding. */
+  serializedQuery?: string[]
+
+  /** OpenAPI 3.2 whole-query parameter, serialized after environment substitution. */
+  querystring?: QuerystringParameter
 
   /**
    * Headers to be sent with this request, combining spec-provided defaults, user overrides,
@@ -208,6 +223,7 @@ export const requestFactory = ({
   defaultHeaders,
   isElectron,
   selectedSecuritySchemes,
+  openapiVersion,
   requestBodyCompositionSelection,
 }: RequestExampleMeta & {
   /** The operation object */
@@ -227,6 +243,8 @@ export const requestFactory = ({
   /** The selected security schemes for the current operation */
   selectedSecuritySchemes: SecuritySchemeObjectSecret[]
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
+  /** Originating OpenAPI version, used for version-specific serialization. */
+  openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
 }): {
   request: RequestFactory
@@ -234,7 +252,11 @@ export const requestFactory = ({
   const requestBody = getResolvedRef(operation.requestBody)
 
   /** Build out the request parameters */
-  const params = buildRequestParameters(operation.parameters ?? [], exampleName)
+  const params = buildRequestParameters(operation.parameters ?? [], exampleName, openapiVersion)
+  const querystringParameter = operation.parameters
+    ?.map((parameter) => getResolvedRef(parameter))
+    .find((parameter) => parameter?.in === 'querystring')
+  const querystring = querystringParameter ? getQuerystringParameter(querystringParameter, exampleName) : undefined
   const security = buildRequestSecurity(selectedSecuritySchemes)
 
   const headers = new Headers({
@@ -244,7 +266,7 @@ export const requestFactory = ({
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method)
-    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection)
+    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion)
     : null
 
   // Delete the Content-Type header so the browser will set it automatically based on the request body
@@ -276,14 +298,19 @@ export const requestFactory = ({
   }
 
   const request: RequestFactory = {
+    ...(params.cookieErrors ? { cookieErrors: params.cookieErrors } : {}),
     baseUrl,
     proxyUrl,
     path: {
       variables: params.pathVariables,
+      ...(params.serializedPathParameters ? { serializedParameters: params.serializedPathParameters } : {}),
+      ...(params.reservedPathParameters ? { reservedParameters: params.reservedPathParameters } : {}),
       raw: path,
     },
     query: params.urlParams,
-    method: method.toUpperCase(),
+    ...(params.serializedQuery ? { serializedQuery: params.serializedQuery } : {}),
+    ...(querystring ? { querystring } : {}),
+    method: isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method,
     headers,
     body,
     cookies: cookiesList,

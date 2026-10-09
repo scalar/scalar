@@ -278,34 +278,35 @@ $response`)
       },
     })
 
-    expect(result).toBe(`$headers = @{
-  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+    expect(result).toBe(`$boundary = [guid]::NewGuid().ToString('N')
+$headers = @{
+  'Content-Type' = ('multipart/form-data; boundary=scalar-boundary').Replace('scalar-boundary', $boundary)
 }
 
 $body = [System.IO.MemoryStream]::new()
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="file"; filename="test.txt"\r
 Content-Type: application/octet-stream\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 $bytes = [System.IO.File]::ReadAllBytes('test.txt')
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="field"\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('value')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('value').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary--\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 
 $response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
@@ -380,35 +381,36 @@ $response`)
       },
     })
 
-    expect(result).toBe(`$headers = @{
-  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+    expect(result).toBe(`$boundary = [guid]::NewGuid().ToString('N')
+$headers = @{
+  'Content-Type' = ('multipart/form-data; boundary=scalar-boundary').Replace('scalar-boundary', $boundary)
 }
 
 $body = [System.IO.MemoryStream]::new()
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="file"; filename="filename"\r
 Content-Type: application/octet-stream\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 $bytes = [System.IO.File]::ReadAllBytes('filename')
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="props"\r
 Content-Type: application/json\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"name":"","description":"","created_at":null}')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('{"name":"","description":"","created_at":null}').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary--\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 
 $response = Invoke-RestMethod -Uri 'https://example.com/widget/v1/widgets' -Method 'POST' -Headers $headers -Body $body.ToArray()
@@ -473,24 +475,25 @@ $response`)
       },
     })
 
-    expect(result).toBe(`$headers = @{
-  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+    expect(result).toBe(`$boundary = [guid]::NewGuid().ToString('N')
+$headers = @{
+  'Content-Type' = ('multipart/form-data; boundary=scalar-boundary').Replace('scalar-boundary', $boundary)
 }
 
 $body = [System.IO.MemoryStream]::new()
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="file"; filename="test.txt"\r
 Content-Type: text/plain\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 $bytes = [System.IO.File]::ReadAllBytes('test.txt')
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary--\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 
 $response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
@@ -517,34 +520,35 @@ $response`)
       },
     })
 
-    expect(result).toBe(`$headers = @{
-  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+    expect(result).toBe(`$boundary = [guid]::NewGuid().ToString('N')
+$headers = @{
+  'Content-Type' = ('multipart/form-data; boundary=scalar-boundary').Replace('scalar-boundary', $boundary)
 }
 
 $body = [System.IO.MemoryStream]::new()
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="field''name"\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('value')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('value').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="file''name"; filename="test.txt"\r
 Content-Type: application/octet-stream\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 $bytes = [System.IO.File]::ReadAllBytes('test.txt')
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary--\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 
 $response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
@@ -698,11 +702,11 @@ $response`)
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -777,24 +781,25 @@ $response`)
       },
     })
 
-    expect(result).toBe(`$headers = @{
-  'Content-Type' = 'multipart/form-data; boundary=scalar-boundary'
+    expect(result).toBe(`$boundary = [guid]::NewGuid().ToString('N')
+$headers = @{
+  'Content-Type' = ('multipart/form-data; boundary=scalar-boundary').Replace('scalar-boundary', $boundary)
 }
 
 $body = [System.IO.MemoryStream]::new()
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary\r
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary\r
 Content-Disposition: form-data; name="file"; filename=""\r
 Content-Type: application/octet-stream\r
 \r
-')
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 $bytes = [System.IO.File]::ReadAllBytes('')
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes('--scalar-boundary--\r
-')
+$bytes = [System.Text.Encoding]::UTF8.GetBytes(('--scalar-boundary--\r
+').Replace('scalar-boundary', $boundary))
 $body.Write($bytes, 0, $bytes.Length)
 
 $response = Invoke-RestMethod -Uri 'https://example.com' -Method 'POST' -Headers $headers -Body $body.ToArray()
@@ -905,11 +910,11 @@ $response`)
       queryString: [
         {
           name: 'price',
-          value: '%24100',
+          value: '$100',
         },
         {
           name: 'currency',
-          value: 'USD%24',
+          value: 'USD$',
         },
       ],
     })
@@ -926,7 +931,7 @@ $response`)
       queryString: [
         {
           name: 'amount',
-          value: '%2450.00',
+          value: '$50.00',
         },
       ],
     })

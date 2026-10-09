@@ -1,10 +1,11 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { normalize } from '@scalar/json-magic/helpers/normalize'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type Context, Hono, type MiddlewareHandler } from 'hono'
 import { every } from 'hono/combine'
 import { cors } from 'hono/cors'
 
-import type { HttpMethod, MockServerOptions } from '@/types'
+import type { MockServerOptions } from '@/types'
 import { buildSeedContext } from '@/utils/build-seed-context'
 import { executeSeed } from '@/utils/execute-seed'
 import { getOperations } from '@/utils/get-operation'
@@ -26,8 +27,8 @@ import { respondWithOpenApiDocument } from './routes/respond-with-openapi-docume
 
 /** The operation a route mocks, used to name what failed in an error response */
 type MockedOperation = {
-  /** Uppercased HTTP method, for example `GET` */
-  method: Uppercase<HttpMethod>
+  /** HTTP method with the capitalization sent in the request, for example `GET` or `copy` */
+  method: string
   /** The OpenAPI path key, for example `/pets/{petId}` (not the Hono route it is registered as) */
   path: string
   /** The `operationId` of the operation, when the document declares one */
@@ -104,8 +105,15 @@ export async function createMockServer(configuration: MockServerOptions): Promis
     )
   })
 
-  /** Dereferenced OpenAPI document */
-  const schema = await processOpenApiDocument(configuration?.document ?? configuration?.specification)
+  const input = configuration?.document ?? configuration?.specification
+  const schema = await processOpenApiDocument(input, configuration?.origin)
+  const sourceDocument = typeof input === 'string' ? normalize(input) : input
+  // Source locations need a bundled export so relative references remain usable outside the server.
+  const exportDocument =
+    configuration?.origin ||
+    (typeof input === 'string' && (sourceDocument === null || typeof sourceDocument !== 'object'))
+      ? getRaw(schema)
+      : input
 
   // Seed data from schemas with x-seed extension
   // This happens before routes are set up so data is available immediately
@@ -136,7 +144,13 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   }
 
   // CORS headers
-  app.use(cors())
+  const allowedMethods = new Set(['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'QUERY'])
+  for (const pathItem of Object.values(schema?.paths ?? {})) {
+    for (const method of Object.keys(getOperations(getResolvedRef(pathItem)))) {
+      allowedMethods.add(method)
+    }
+  }
+  app.use(cors({ origin: '*', allowMethods: [...allowedMethods], exposeHeaders: ['X-Scalar-XML-Error'] }))
 
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
@@ -181,12 +195,11 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   orderedPathKeys.forEach(({ path, query }) => {
     // A path item may itself be a `$ref`, so resolve it before reading its operations.
     const pathItem = getResolvedRef(paths[path])
-    const methods = Object.keys(getOperations(pathItem)) as HttpMethod[]
+    const operations = getOperations(pathItem)
 
     /** Keys for all operations of a specified path */
-    methods.forEach((method) => {
+    Object.entries(operations).forEach(([method, operation]) => {
       const route = honoRouteFromPath(path)
-      const operation = pathItem?.[method] as OpenAPIV3_1.OperationObject
 
       // Remember which operation this route mocks, so the error handler can name it when something
       // fails downstream. Recorded on the context rather than mapped back from the request path,
@@ -194,8 +207,7 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       // of the route so a failure in request validation is named too. The OpenAPI path key is kept
       // (rather than the Hono route) because that is what the document author reads.
       const mockedOperation: MockedOperation = {
-        // `toUpperCase` widens to `string`, so restate the narrower type the method union guarantees.
-        method: method.toUpperCase() as Uppercase<HttpMethod>,
+        method,
         path,
         ...(operation?.operationId ? { operationId: operation.operationId } : {}),
       }
@@ -243,15 +255,9 @@ export async function createMockServer(configuration: MockServerOptions): Promis
 
       // Route to appropriate handler
       if (hasHandler) {
-        handlers.push(async (c) => await mockHandlerResponse(c, operation))
+        handlers.push(async (c) => await mockHandlerResponse(c, operation, pathItem?.parameters, schema.openapi))
       } else {
-        handlers.push(async (c) => await mockAnyResponse(c, operation))
-      }
-
-      if (query.length === 0) {
-        handlers.forEach((handler) => app[method](route, handler))
-
-        return
+        handlers.push(async (c) => await mockAnyResponse(c, operation, schema.openapi))
       }
 
       // The pinned query parameters are not part of the route, so they are checked here. A request
@@ -259,8 +265,20 @@ export async function createMockServer(configuration: MockServerOptions): Promis
       // key without the query string.
       const operationChain = every(...handlers)
 
-      app[method](route, async (c, next) => {
-        if (!requestMatchesPinnedQuery(c, query)) {
+      // Hono uppercases methods during registration. Match the original method ourselves so
+      // additional operations such as COPY and copy remain distinct.
+      const register = (handler: MiddlewareHandler): void => {
+        if (method === method.toUpperCase()) {
+          app.on(method, route, handler)
+        } else {
+          app.all(route, handler)
+        }
+      }
+      register(async (c, next) => {
+        if (
+          (c.req.method !== method && !(method === 'GET' && c.req.method === 'HEAD')) ||
+          !requestMatchesPinnedQuery(c, query)
+        ) {
           await next()
 
           return
@@ -272,14 +290,10 @@ export async function createMockServer(configuration: MockServerOptions): Promis
   })
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) =>
-    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'json'),
-  )
+  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, exportDocument, 'json'))
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) =>
-    respondWithOpenApiDocument(c, configuration?.document ?? configuration?.specification, 'yaml'),
-  )
+  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, exportDocument, 'yaml'))
 
   return app
 }

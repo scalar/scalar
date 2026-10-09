@@ -265,6 +265,7 @@ def get_scalar_api_reference(
             """
             The URL to use to load the Scalar JavaScript.
             It is normally set to a CDN URL.
+            Only use trusted URLs, as the loaded JavaScript runs in the page.
             """
         ),
     ] = "https://cdn.jsdelivr.net/npm/@scalar/api-reference",
@@ -282,6 +283,7 @@ def get_scalar_api_reference(
         Doc(
             """
             The URL of the favicon to use. It is normally shown in the browser tab.
+            Use a trusted URL for this resource.
             """
         ),
     ] = "https://fastapi.tiangolo.com/img/favicon.png",
@@ -724,7 +726,7 @@ def get_scalar_api_reference(
         <title>{page_title}</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="shortcut icon" href="{scalar_favicon_url}">
+        <link rel="shortcut icon" href="{escape_html(scalar_favicon_url, quote=True)}">
         <style>
             body {{
                 margin: 0;
@@ -738,7 +740,7 @@ def get_scalar_api_reference(
         <div id="app"></div>
 
         <!-- Load the Script -->
-        <script src="{scalar_js_url}"></script>
+        <script src="{escape_html(scalar_js_url, quote=True)}"></script>
 
         <!-- Initialize the Scalar API Reference -->
         <script>

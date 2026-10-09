@@ -1,4 +1,6 @@
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import type { WorkspaceDocument } from '@scalar/workspace-store/schemas/workspace'
 
 /** The array shape stored under `x-scalar-sdk-installation`. */
 type SdkInstallationList = NonNullable<XScalarSdkInstallation['x-scalar-sdk-installation']>
@@ -62,3 +64,13 @@ export const getRenderableSdks = (xScalarSdkInstallation: SdkInstallationList | 
         return [{ lang: sdk.lang, description: resolved }]
       })
     : []
+
+/**
+ * Whether a document already lists SDK installation instructions worth showing.
+ *
+ * Uses the same rule as the introduction, which swaps the client libraries for these
+ * instructions, so "Generate SDK" disappears exactly when the document documents its own SDKs.
+ * AsyncAPI documents have no such extension and never count.
+ */
+export const hasRenderableSdks = (document: WorkspaceDocument | undefined): boolean =>
+  isOpenApiDocument(document) && getRenderableSdks(document.info?.['x-scalar-sdk-installation']).length > 0

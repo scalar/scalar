@@ -1,5 +1,73 @@
 # @scalar/aspnetcore
 
+## 2.17.15
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.73.1
+
+## 2.17.14
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.73.0
+
+## 2.17.13
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.4
+
+## 2.17.12
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.3
+
+## 2.17.11
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.2
+
+## 2.17.10
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.1
+
+## 2.17.9
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.72.0
+
+## 2.17.8
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.71.0
+
+## 2.17.7
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.70.0
+
+## 2.17.6
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.69.2
+
+## 2.17.5
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.69.1
+
+## 2.17.4
+
 ## 2.17.3
 
 ## 2.17.2

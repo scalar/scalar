@@ -1,7 +1,9 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { encode as encodeBase64 } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { RequestFactory } from '@/request-example/builder/request-factory'
+import { type RequestFactory, requestFactory } from '@/request-example/builder/request-factory'
 
 import { buildRequestBody } from './body/build-request-body'
 import { buildRequest, resolveExecutableRequestUrl } from './build-request'
@@ -33,6 +35,88 @@ const unwrap = (factory: RequestFactory, options: Parameters<typeof buildRequest
 }
 
 describe('buildRequest', () => {
+  it('preserves serialized parameter text through the final request URL and headers', () => {
+    const { request } = requestFactory({
+      exampleName: 'default',
+      method: 'get',
+      path: '/users/{id}',
+      environment: { color: '#FFFFFF', variables: [] },
+      globalCookies: [{ name: 'session', value: 'global' }],
+      proxyUrl: '',
+      server: { url: 'https://example.com' },
+      defaultHeaders: {},
+      isElectron: false,
+      selectedSecuritySchemes: [],
+      operation: {
+        parameters: [
+          { name: 'id', in: 'path', required: true, examples: { default: { serializedValue: 'a%2Fb' } } },
+          { name: 'term', in: 'query', examples: { default: { serializedValue: 'term=a%20b&term=c%2Fd' } } },
+          { name: 'flag', in: 'query', examples: { default: { dataValue: false } } },
+          { name: 'X-Audit', in: 'header', examples: { default: { serializedValue: 'hello-wire' } } },
+          { name: 'regular', in: 'cookie', examples: { default: { value: 'a b' } } },
+          { name: 'preferences', in: 'cookie', examples: { default: { serializedValue: 'a=1; b=hello%20world' } } },
+        ],
+      },
+    })
+    const [url, init] = unwrap(request, { envVariables: {} }).requestPayload
+    expect(url).toBe('https://example.com/users/a%2Fb?flag=false&term=a%20b&term=c%2Fd')
+    expect(new Headers(init.headers).get('X-Audit')).toBe('hello-wire')
+    expect(new Headers(init.headers).get('Cookie')).toBe('a=1; b=hello%20world; session=global; regular=a b')
+  })
+
+  it('sends XML roots, untyped defaults, and wildcard parameters consistently', async () => {
+    const requestBody = {
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ id: 1 }, 'untyped', 'plain'] } },
+          schema: {
+            type: 'array' as const,
+            prefixItems: [
+              { type: 'object' as const, xml: { name: 'user' } },
+              coerceValue(SchemaObjectSchema, {}),
+              { type: 'string' as const },
+            ],
+          },
+          prefixEncoding: [{ contentType: 'application/xml' }, {}, { contentType: 'text/*; charset=utf-8' }],
+        },
+      },
+    }
+    const [, init] = unwrap(createFactory({ method: 'POST', body: buildRequestBody(requestBody) }), {
+      envVariables: {},
+    }).requestPayload
+    expect(init.body).toBeInstanceOf(Blob)
+    const wire = await (init.body as Blob).text()
+    expect(wire).toContain(
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<user>\n  <id>1</id>\n</user>',
+    )
+    expect(wire).toContain('Content-Type: application/octet-stream\r\n\r\nuntyped')
+    expect(wire).toContain('Content-Type: text/plain; charset=utf-8\r\n\r\nplain')
+  })
+
+  it('sends nested multipart bodies with matching boundaries and resolved variables', async () => {
+    const body = buildRequestBody({
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ document: '{{name}}' }] } },
+          itemEncoding: { contentType: 'multipart/form-data', encoding: { document: { contentType: 'text/plain' } } },
+        },
+      },
+    })
+    const [, init] = unwrap(
+      createFactory({ method: 'POST', body, headers: new Headers({ 'Content-Type': 'multipart/mixed' }) }),
+      { envVariables: { name: 'Alice' } },
+    ).requestPayload
+    if (!(init.body instanceof Blob)) {
+      throw new Error('Expected a multipart Blob')
+    }
+    expect(new Headers(init.headers).get('content-type')).toBe(init.body.type)
+    const boundary = init.body.type.match(/boundary="?([^";]+)/)?.[1]
+    const wire = await init.body.text()
+    expect(wire.startsWith('--' + boundary + '\r\n')).toBe(true)
+    expect(wire.endsWith('--' + boundary + '--\r\n')).toBe(true)
+    expect(wire).toContain('name="document"\r\nContent-Type: text/plain\r\n\r\nAlice')
+  })
+
   beforeEach(() => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined)
   })
@@ -196,6 +280,35 @@ describe('buildRequest', () => {
     ).requestPayload
 
     expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer eyJ')
+  })
+
+  it.each([' \ttoken\r\n ', ' \t{{jwt}}\n '])('trims surrounding whitespace from bearer token %j', (value) => {
+    const factory = createFactory({
+      security: [{ in: 'header', name: 'Authorization', format: 'bearer', value }],
+    })
+    const [, requestInit] = unwrap(factory, { envVariables: { jwt: ' \ttoken\r\n ' } }).requestPayload
+
+    expect((requestInit.headers as Headers).get('Authorization')).toBe('Bearer token')
+    expect(factory.security[0]?.value).toBe(value)
+  })
+
+  it('preserves whitespace in Basic auth credentials', () => {
+    const [, requestInit] = unwrap(
+      createFactory({
+        security: [{ in: 'header', name: 'Authorization', format: 'basic', value: '{{u}}:{{p}}' }],
+      }),
+      { envVariables: { u: ' alice ', p: ' password ' } },
+    ).requestPayload
+
+    expect((requestInit.headers as Headers).get('Authorization')).toBe(`Basic ${encodeBase64(' alice : password ')}`)
+  })
+
+  it('preserves whitespace in query API keys', () => {
+    const [url] = unwrap(createFactory({ security: [{ in: 'query', name: 'api_key', value: '{{key}}' }] }), {
+      envVariables: { key: ' secret ' },
+    }).requestPayload
+
+    expect(new URL(url).searchParams.get('api_key')).toBe(' secret ')
   })
 
   it('merges security query parameters with env substitution into the request URL', () => {

@@ -220,16 +220,41 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('let boundary = UUID().uuidString')
-    expect(result).toContain(
-      'appendToBody("Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\n")',
-    )
-    expect(result).toContain('appendToBody("<# File data for test.txt #>\\r\\n")')
-    expect(result).toContain('appendToBody("Content-Disposition: form-data; name=\\"field\\"\\r\\n")')
-    expect(result).toContain('appendToBody("value")')
-    expect(result).toContain(
-      'request.setValue("multipart/form-data; boundary=\\(boundary)", forHTTPHeaderField: "Content-Type")',
-    )
+    expect(result).toBe(`import Foundation
+
+var request = URLRequest(url: URL(string: "https://example.com")!)
+request.httpMethod = "POST"
+let boundary = UUID().uuidString
+var body = Data()
+
+func appendToBody(_ value: String) {
+  body.append(value.data(using: .utf8)!)
+}
+
+appendToBody("--\\(boundary)\\r\\n")
+appendToBody("Content-Disposition: form-data; name=\\"file\\"; filename=\\"test.txt\\"\\r\\n")
+appendToBody("\\r\\n")
+body.append(try Data(contentsOf: URL(fileURLWithPath: "test.txt")))
+appendToBody("\\r\\n")
+
+appendToBody("--\\(boundary)\\r\\n")
+appendToBody("Content-Disposition: form-data; name=\\"field\\"\\r\\n")
+appendToBody("\\r\\n")
+appendToBody("value")
+appendToBody("\\r\\n")
+
+appendToBody("--\\(boundary)--\\r\\n")
+request.setValue("multipart/form-data; boundary=\\(boundary)", forHTTPHeaderField: "Content-Type")
+request.httpBody = body
+
+let (data, response) = try await URLSession.shared.data(for: request)
+
+guard let httpResponse = response as? HTTPURLResponse,
+      200..<300 ~= httpResponse.statusCode else {
+  throw URLError(.badServerResponse)
+}
+
+print(String(data: data, encoding: .utf8) ?? "")`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -308,8 +333,35 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain('filename=\\"\\"')
-    expect(result).toContain('<# File data for file #>')
+    expect(result).toBe(`import Foundation
+
+var request = URLRequest(url: URL(string: "https://example.com")!)
+request.httpMethod = "POST"
+let boundary = UUID().uuidString
+var body = Data()
+
+func appendToBody(_ value: String) {
+  body.append(value.data(using: .utf8)!)
+}
+
+appendToBody("--\\(boundary)\\r\\n")
+appendToBody("Content-Disposition: form-data; name=\\"file\\"; filename=\\"\\"\\r\\n")
+appendToBody("\\r\\n")
+body.append(try Data(contentsOf: URL(fileURLWithPath: "")))
+appendToBody("\\r\\n")
+
+appendToBody("--\\(boundary)--\\r\\n")
+request.setValue("multipart/form-data; boundary=\\(boundary)", forHTTPHeaderField: "Content-Type")
+request.httpBody = body
+
+let (data, response) = try await URLSession.shared.data(for: request)
+
+guard let httpResponse = response as? HTTPURLResponse,
+      200..<300 ~= httpResponse.statusCode else {
+  throw URLError(.badServerResponse)
+}
+
+print(String(data: data, encoding: .utf8) ?? "")`)
   })
 
   it('escapes multipart values before embedding in Swift literals', () => {
@@ -328,11 +380,36 @@ describe('swiftNsurlsession', () => {
       },
     })
 
-    expect(result).toContain(
-      'appendToBody("Content-Disposition: form-data; name=\\"file\\"; filename=\\"te\\\\\\"st\\\\\\\\name.txt\\"\\r\\n")',
-    )
-    expect(result).toContain('appendToBody("Content-Type: text/plain; note=\\\\\\"a\\\\\\\\b\\\\\\"\\r\\n")')
-    expect(result).toContain('appendToBody("<# File data for te\\"st\\\\name.txt #>\\r\\n")')
+    expect(result).toBe(`import Foundation
+
+var request = URLRequest(url: URL(string: "https://example.com")!)
+request.httpMethod = "POST"
+let boundary = UUID().uuidString
+var body = Data()
+
+func appendToBody(_ value: String) {
+  body.append(value.data(using: .utf8)!)
+}
+
+appendToBody("--\\(boundary)\\r\\n")
+appendToBody("Content-Disposition: form-data; name=\\"file\\"; filename=\\"te\\\\\\"st\\\\\\\\name.txt\\"\\r\\n")
+appendToBody("Content-Type: text/plain; note=\\\\\\"a\\\\\\\\b\\\\\\"\\r\\n")
+appendToBody("\\r\\n")
+body.append(try Data(contentsOf: URL(fileURLWithPath: "te\\"st\\\\name.txt")))
+appendToBody("\\r\\n")
+
+appendToBody("--\\(boundary)--\\r\\n")
+request.setValue("multipart/form-data; boundary=\\(boundary)", forHTTPHeaderField: "Content-Type")
+request.httpBody = body
+
+let (data, response) = try await URLSession.shared.data(for: request)
+
+guard let httpResponse = response as? HTTPURLResponse,
+      200..<300 ~= httpResponse.statusCode else {
+  throw URLError(.badServerResponse)
+}
+
+print(String(data: data, encoding: .utf8) ?? "")`)
   })
 
   it('handles multipart fallback to text body when params are missing', () => {
@@ -428,11 +505,11 @@ describe('swiftNsurlsession', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -567,11 +644,11 @@ describe('swiftNsurlsession', () => {
       queryString: [
         {
           name: 'price',
-          value: '%24100',
+          value: '$100',
         },
         {
           name: 'currency',
-          value: 'USD%24',
+          value: 'USD$',
         },
       ],
     })
@@ -587,7 +664,7 @@ describe('swiftNsurlsession', () => {
       queryString: [
         {
           name: 'amount',
-          value: '%2450.00',
+          value: '$50.00',
         },
       ],
     })

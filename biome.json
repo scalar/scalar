@@ -6,7 +6,9 @@
       "!**/node_modules",
       "!**/.claude/**",
       "!**/dist",
-      "!.claude/worktrees/**",
+      "!!**/.worktrees",
+      "!!**/.claude/worktrees",
+      "!!**/.codex/worktrees",
       "!**/.venv",
       "!**/.turbo",
       "!**/.nuxt",
@@ -40,7 +42,9 @@
       "!integrations/**/standalone.js",
       "!**/packages/api-reference/esm.js",
       "!**/target/**",
-      "!.claude/**"
+      "!.claude/**",
+      "!**/*.svg",
+      "!integrations/docker/assets/index.html"
     ]
   },
   "assist": {
@@ -99,7 +103,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false,
+      "preset": "none",
       "complexity": {
         "noExtraBooleanCast": "warn",
         "noUselessCatch": "warn",
@@ -114,6 +118,7 @@
       "correctness": {
         "noConstAssign": "warn",
         "noConstantCondition": "warn",
+        "noConstantMathMinMaxClamp": "warn",
         "noEmptyCharacterClassInRegex": "warn",
         "noEmptyPattern": "warn",
         "noGlobalDirnameFilename": "error",
@@ -121,10 +126,12 @@
         "noInnerDeclarations": "warn",
         "noInvalidBuiltinInstantiation": "warn",
         "noInvalidConstructorSuper": "warn",
+        "noInvalidUseBeforeDeclaration": "warn",
         "noNonoctalDecimalEscape": "warn",
         "noPrecisionLoss": "warn",
         "noSelfAssign": "warn",
         "noSetterReturn": "warn",
+        "noStringCaseMismatch": "warn",
         "noSwitchDeclarations": "warn",
         "noUnreachable": "warn",
         "noUnreachableSuper": "warn",
@@ -176,8 +183,10 @@
         "noImportAssign": "warn",
         "noMisleadingCharacterClass": "warn",
         "noMisleadingInstantiator": "warn",
+        "noMisrefactoredShorthandAssign": "warn",
         "noPrototypeBuiltins": "warn",
         "noRedeclare": "warn",
+        "noSelfCompare": "warn",
         "noShadowRestrictedNames": "warn",
         "noSparseArray": "warn",
         "noTsIgnore": "error",
@@ -333,5 +342,10 @@
         }
       }
     }
-  ]
+  ],
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  }
 }

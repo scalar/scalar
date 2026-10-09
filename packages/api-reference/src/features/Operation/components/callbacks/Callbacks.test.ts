@@ -1,15 +1,47 @@
-import type { CallbackObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { createSchemaExpansionStore } from '@scalar/blocks/schema/expansion'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-
-import {
-  SCHEMA_EXPANSION_SYMBOL,
-  createSchemaExpansionStore,
-} from '@/components/Content/Schema/helpers/schema-expansion'
 
 import Callbacks from './Callbacks.vue'
 
 describe('Callbacks', () => {
+  it('renders additional callback operations with their nested breadcrumb', () => {
+    const wrapper = mount(Callbacks, {
+      props: {
+        path: '/subscribe',
+        breadcrumb: ['subscribe'],
+        callbacks: {
+          onData: {
+            '{$request.query.callbackUrl}': {
+              additionalOperations: { 'deliver~Event': { summary: 'Deliver event' } },
+            },
+          },
+        },
+        eventBus: null,
+        options: {
+          hideModels: false,
+          orderRequiredPropertiesFirst: false,
+          orderSchemaPropertiesBy: 'alpha',
+          expandAllParameters: false,
+          expandAllSchemaProperties: false,
+          maxVisibleRequestBodyProperties: 12,
+          schemaKeyboardNav: false,
+        },
+      },
+    })
+    const callback = wrapper.findComponent({ name: 'Callback' })
+    expect(callback.props('method')).toBe('deliver~Event')
+    expect(callback.props('breadcrumb')).toEqual([
+      'subscribe',
+      'callbacks',
+      'onData',
+      '{$request.query.callbackUrl}',
+      'additionalOperations',
+      'deliver~Event',
+    ])
+  })
+
   it('flattens nested callback structure into individual callback items', () => {
     const mockCallbacks = {
       onData: {
@@ -65,7 +97,7 @@ describe('Callbacks', () => {
           },
         },
       },
-    } as CallbackObject
+    } satisfies NonNullable<OperationObject['callbacks']>
 
     const wrapper = mount(Callbacks, {
       props: {
@@ -73,10 +105,12 @@ describe('Callbacks', () => {
         callbacks: mockCallbacks,
         eventBus: null,
         options: {
+          expandAllParameters: true,
           hideModels: false,
           orderRequiredPropertiesFirst: false,
           orderSchemaPropertiesBy: 'alpha',
           expandAllSchemaProperties: false,
+          maxVisibleRequestBodyProperties: 12,
           schemaKeyboardNav: false,
         },
       },
@@ -123,7 +157,7 @@ describe('Callbacks', () => {
           post: { responses: { '200': { description: 'Backup' } } },
         },
       },
-    } as CallbackObject
+    } satisfies NonNullable<OperationObject['callbacks']>
 
     const mountCallbacks = () =>
       mount(Callbacks, {
@@ -131,20 +165,17 @@ describe('Callbacks', () => {
           path: '/subscribe',
           breadcrumb: ['op'],
           callbacks: oneNameManyRows,
+          expansion: createSchemaExpansionStore(),
           eventBus: null,
           options: {
+            expandAllParameters: true,
             hideModels: false,
             orderRequiredPropertiesFirst: false,
             orderSchemaPropertiesBy: 'alpha' as const,
             expandAllSchemaProperties: false,
+            maxVisibleRequestBodyProperties: 12,
             schemaKeyboardNav: false,
           },
-        },
-        global: {
-          // `<ApiReference>` owns one store for the whole page, so two rows that
-          // key alike really do share state. Left to their own fallbacks they
-          // never would, and the collision below would be invisible.
-          provide: { [SCHEMA_EXPANSION_SYMBOL as symbol]: createSchemaExpansionStore() },
         },
       })
 

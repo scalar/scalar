@@ -1,3 +1,4 @@
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { HarRequest } from '@scalar/types/snippetz'
 
 type HeaderPair = {
@@ -21,26 +22,27 @@ type NameOptionalValuePair = {
 export function normalizeRequest(request: Partial<HarRequest>): Partial<HarRequest> & { method: string } {
   return {
     ...request,
-    method: (request.method || 'GET').toUpperCase(),
+    method: normalizeMethod(request.method),
   }
 }
 
 /**
- * Builds the query string from request parameters
+ * Encodes raw HAR query names and values when constructing a URL
  */
 export function buildQueryString(queryParams?: Array<{ name: string; value: string }>): string {
   if (!queryParams?.length) {
     return ''
   }
 
-  const queryPairs = queryParams.map((param) => `${param.name}=${param.value}`)
+  const queryPairs = queryParams.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
   return `?${queryPairs.join('&')}`
 }
 
 /**
  * Normalizes a request method.
  */
-export const normalizeMethod = (method?: string): string => (method || 'GET').toUpperCase()
+export const normalizeMethod = (method?: string): string =>
+  method ? (isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method) : 'GET'
 
 /**
  * Normalizes URL formatting while preserving origin-only paths.
@@ -77,7 +79,10 @@ export const joinUrlAndQuery = (url: string, queryString?: NameValuePair[]): str
     return query
   }
 
-  return `${url}${url.includes('?') ? '&' : '?'}${query.slice(1)}`
+  const hashIndex = url.indexOf('#')
+  const base = hashIndex === -1 ? url : url.slice(0, hashIndex)
+  const hash = hashIndex === -1 ? '' : url.slice(hashIndex)
+  return `${base}${base.includes('?') ? '&' : '?'}${query.slice(1)}${hash}`
 }
 
 /**
@@ -125,13 +130,6 @@ export function reduceQueryParams(query: HarRequest['queryString'] = []): Record
     accumulateRepeatedValue(acc, name, value)
     return acc
   }, {})
-}
-
-/**
- * Builds the complete URL with query string
- */
-export function buildUrl(baseUrl: string, queryString: string): string {
-  return `${baseUrl}${queryString}`
 }
 
 /**

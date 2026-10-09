@@ -53,7 +53,11 @@ test.describe('pattern hover dropdown', () => {
 
     // Deep-link straight to the operation so its request body is rendered.
     await page.goto(`${example}#tag/users/post-users`)
-    await expect(page.getByRole('group', { name: 'Request Body' })).toBeVisible()
+    const requestBody = page.getByRole('group', { name: 'Request Body' })
+    await expect(requestBody).toBeVisible()
+
+    // Scroll before hovering so screenshot capture does not move the trigger away from the pointer.
+    await requestBody.scrollIntoViewIfNeeded()
   })
 
   test('shows Pattern button inline for a string property with pattern', async ({ page }) => {

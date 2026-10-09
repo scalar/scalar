@@ -33,6 +33,71 @@ beforeEach(() => {
 })
 
 describe('multiple configurations', () => {
+  it.each([
+    { label: 'empty scopes', populatedScopes: false, redirectUri: undefined },
+    { label: 'populated scopes', populatedScopes: true, redirectUri: undefined },
+    { label: 'a configured redirect', populatedScopes: false, redirectUri: 'https://app.example.com/callback' },
+  ])('prefills the OAuth2 redirect on initial load with $label', async ({ populatedScopes, redirectUri }) => {
+    const scopes: Record<string, string> = populatedScopes ? { read: 'Read access' } : {}
+    const wrapper = mount(ApiReference, {
+      attachTo: document.body,
+      props: {
+        configuration: {
+          oauth2RedirectUri: redirectUri,
+          authentication: {
+            preferredSecurityScheme: 'OAuth2',
+            securitySchemes: {
+              OAuth2: {
+                flows: {
+                  authorizationCode: {
+                    authorizationUrl: 'https://auth.example.com/authorize',
+                    tokenUrl: 'https://auth.example.com/token',
+                    'x-scalar-client-id': 'scalar-demo-client',
+                  },
+                },
+              },
+            },
+          },
+          content: {
+            openapi: '3.1.1',
+            info: { title: 'OAuth API', version: '1.0.0' },
+            paths: {},
+            components: {
+              securitySchemes: {
+                OAuth2: {
+                  type: 'oauth2',
+                  flows: {
+                    authorizationCode: {
+                      authorizationUrl: 'https://auth.example.com/authorize',
+                      tokenUrl: 'https://auth.example.com/token',
+                      scopes,
+                    },
+                  },
+                },
+              },
+            },
+            security: [{ OAuth2: [] }],
+          },
+        },
+      },
+    })
+
+    await flushPromises()
+
+    const redirectInput = wrapper
+      .findAllComponents({ name: 'RequestAuthDataTableInput' })
+      .find((input) => input.text().includes('Redirect URL'))
+    if (!redirectInput) {
+      throw new Error('Expected the OAuth2 redirect input')
+    }
+    expect(redirectInput.props('modelValue')).toBe(redirectUri ?? 'http://localhost:3000/')
+
+    // A successful prefill must still let the user clear the redirect deliberately.
+    redirectInput.vm.$emit('update:modelValue', '')
+    await flushPromises()
+    expect(redirectInput.props('modelValue')).toBe('')
+  })
+
   it('renders a single API reference', async () => {
     const wrapper = mount(ApiReference, {
       props: {
@@ -570,6 +635,36 @@ describe('Rendering', () => {
     expect(html).toContain('Test API')
   })
 
+  it.each([
+    ['express', 'https://scalar.com/?utm_source=powered-by&utm_medium=api-reference&utm_campaign=express'],
+    ['dotnet', 'https://scalar.com/?utm_source=powered-by&utm_medium=api-reference&utm_campaign=dotnet'],
+    [undefined, 'https://scalar.com/?utm_source=powered-by&utm_medium=api-reference'],
+  ] as const)('server-renders the powered by link for the %s integration', async (integration, expected) => {
+    const app = createSSRApp({
+      render: () =>
+        h(ApiReference, {
+          configuration: {
+            _integration: integration,
+            content: {
+              openapi: '3.1.0',
+              info: { title: 'Test API', version: '1.0.0' },
+              paths: {},
+            },
+          },
+        }),
+    })
+
+    const html = await renderToString(app)
+
+    // The link has to be in the server-rendered HTML, not only added on the client
+    const document = new DOMParser().parseFromString(html, 'text/html')
+    const link = document.querySelector('a[href*="utm_source=powered-by"]')
+    expect(link?.getAttribute('href')).toBe(expected)
+    expect(link?.getAttribute('rel')).toBe('noopener')
+    expect(link?.getAttribute('target')).toBe('_blank')
+    expect(link?.textContent?.trim()).toBe('Powered by Scalar')
+  })
+
   it('includes crawler navigation links for entries inside collapsed groups', async () => {
     const document = {
       openapi: '3.1.0',
@@ -880,5 +975,147 @@ describe('plugin auth accessor', () => {
       type: 'apiKey',
       'x-scalar-secret-token': token,
     })
+  })
+})
+
+describe('sidebar footer call to action', () => {
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'Footer API', version: '1.0.0' },
+    paths: {},
+  }
+
+  type FooterConfiguration = {
+    mcp?: { name?: string; url?: string; disabled?: boolean }
+    hideClientButton?: boolean
+  }
+
+  const stubLocation = (href: string) => {
+    const url = new URL(href)
+    vi.stubGlobal('location', {
+      href,
+      origin: url.origin,
+      protocol: url.protocol,
+      host: url.host,
+      hostname: url.hostname,
+      port: url.port,
+      pathname: url.pathname,
+      search: '',
+      hash: '',
+      ancestorOrigins: {} as DOMStringList,
+      assign: vi.fn(),
+      reload: vi.fn(),
+      replace: vi.fn(),
+      toString: () => href,
+    })
+  }
+
+  /** Mounts, then waits for `onMounted` and the async Explore chunk to settle */
+  const mountFooter = async (configuration: FooterConfiguration = {}) => {
+    const wrapper = mount(ApiReference, {
+      attachTo: window.document.body,
+      props: { configuration: { content: document, ...configuration } },
+    })
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+    return wrapper
+  }
+
+  const footerOf = (wrapper: ReturnType<typeof mount>) => {
+    const footer = wrapper.find('.darklight-reference')
+    const explore = footer.find('button[aria-haspopup="dialog"]')
+    return {
+      explore: explore.exists() ? explore.text() : undefined,
+      mcpRows: footer.find('.scalar-mcp-layer').exists(),
+      client: footer.text().includes('Open API Client'),
+    }
+  }
+
+  /** jsdom has no scrollIntoView, so the stub is installed per test and removed again afterwards */
+  const originalScrollIntoView = Element.prototype.scrollIntoView
+
+  beforeEach(async () => {
+    // Pending scroll retries from earlier tests find this attached mount
+    Element.prototype.scrollIntoView = vi.fn()
+    // Load the Explore chunk once, so the async component resolves within a microtask in every test
+    await import('@/features/explore-scalar')
+
+    // Headless UI's Dialog observes the panel size, and jsdom has no ResizeObserver; the file-level
+    // `vi.unstubAllGlobals()` removes this stub again
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        disconnect = vi.fn()
+        observe = vi.fn()
+        unobserve = vi.fn()
+      },
+    )
+  })
+
+  afterEach(() => {
+    Element.prototype.scrollIntoView = originalScrollIntoView
+  })
+
+  it('renders the Explore Scalar button on localhost without an MCP config', async () => {
+    const wrapper = await mountFooter()
+
+    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
+  })
+
+  it('renders the Explore Scalar button on localhost when mcp is an empty object', async () => {
+    const wrapper = await mountFooter({ mcp: {} })
+
+    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
+  })
+
+  it('renders the Explore Scalar button on localhost even when hideClientButton is true', async () => {
+    const wrapper = await mountFooter({ hideClientButton: true })
+
+    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
+  })
+
+  it('keeps the MCP rows on localhost when an MCP name or url is configured', async () => {
+    const wrapper = await mountFooter({ mcp: { name: 'Acme', url: 'https://mcp.acme.io' } })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
+  })
+
+  it('renders the API client button on localhost when mcp is disabled', async () => {
+    const wrapper = await mountFooter({ mcp: { disabled: true } })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+  })
+
+  it('renders nothing on localhost when mcp is disabled and hideClientButton is true', async () => {
+    const wrapper = await mountFooter({ mcp: { disabled: true }, hideClientButton: true })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: false })
+  })
+
+  it('renders the API client button on a public host', async () => {
+    stubLocation('https://docs.acme.io/')
+    const wrapper = await mountFooter()
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+  })
+
+  it('renders the MCP rows on a public host when mcp is configured', async () => {
+    stubLocation('https://docs.acme.io/')
+    const wrapper = await mountFooter({ mcp: {} })
+
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
+  })
+
+  it('renders the API client button in server rendered output without touching window', async () => {
+    const app = createSSRApp({
+      render: () => h(ApiReference, { configuration: { content: document } }),
+    })
+
+    const html = await renderToString(app)
+
+    expect(html).toContain('Open API Client')
+    expect(html).not.toContain('Generate SDKs & MCP')
+    expect(html).not.toContain('scalar-mcp-layer')
   })
 })

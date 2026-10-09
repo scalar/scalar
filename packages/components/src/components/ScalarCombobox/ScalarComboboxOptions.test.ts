@@ -77,6 +77,121 @@ describe('ScalarComboboxOptions', () => {
       expect(filteredOptions[0]?.text()).toBe('Option 2')
     })
 
+    it('renders a non-selectable message when no options match', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, noResults: 'No matches' },
+      })
+
+      await wrapper.find('input[type="text"]').setValue('missing')
+
+      expect(wrapper.find('[role="status"]').text()).toBe('No matches')
+      expect(wrapper.findAllComponents(ScalarComboboxOption)).toHaveLength(0)
+    })
+
+    it('moves with ArrowDown and confirms the active option with Enter', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown.down')
+      expect(input.attributes('aria-activedescendant')).toContain('2')
+
+      await input.trigger('keydown.enter')
+      expect(onUpdate).toHaveBeenCalledWith([singleOptions[1]])
+    })
+
+    it('toggles the active option with Space in multiselect mode when the query is empty', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown.down')
+      await input.trigger('keydown.space')
+
+      expect(onUpdate).toHaveBeenCalledWith([singleOptions[1]])
+      // The list stays visible so the user can keep selecting
+      expect(wrapper.findAllComponents(ScalarComboboxOption)).toHaveLength(3)
+    })
+
+    it('keeps inserting a space once a query has been typed', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.setValue('Opt')
+      const event = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      input.element.dispatchEvent(event)
+
+      expect(onUpdate).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('prevents repeated Space presses from filtering the list without toggling again', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      await input.trigger('keydown', { key: ' ' })
+      const event = new KeyboardEvent('keydown', { key: ' ', repeat: true, cancelable: true })
+      input.element.dispatchEvent(event)
+
+      expect(onUpdate.mock.calls).toStrictEqual([[[singleOptions[0]]]])
+      expect(event.defaultPrevented).toBe(true)
+      expect((input.element as HTMLInputElement).value).toBe('')
+    })
+
+    it('leaves composing Space presses alone', () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, multiselect: true, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const event = new KeyboardEvent('keydown', { key: ' ', isComposing: true, cancelable: true })
+      wrapper.find('input[type="text"]').element.dispatchEvent(event)
+
+      expect(onUpdate).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('leaves Space alone in single select mode', () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions, 'onUpdate:modelValue': onUpdate },
+      })
+
+      const input = wrapper.find('input[type="text"]')
+      const event = new KeyboardEvent('keydown', { key: ' ', cancelable: true })
+      input.element.dispatchEvent(event)
+
+      expect(onUpdate).not.toHaveBeenCalled()
+      expect(event.defaultPrevented).toBe(false)
+    })
+
+    it('closes on Escape without changing the selection', async () => {
+      const close = vi.fn()
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: {
+          options: singleOptions,
+          close,
+          'onUpdate:modelValue': onUpdate,
+        },
+      })
+
+      await wrapper.find('input[type="text"]').trigger('keydown.esc')
+
+      expect(close).toHaveBeenCalledOnce()
+      expect(onUpdate).not.toHaveBeenCalled()
+    })
+
     it('uses a custom filter function', async () => {
       const filterFn = (query: string, flat: Option[], _groups: OptionGroup<Option>[]): Option[] =>
         query === '' ? flat : flat.filter((o) => o.id === '3')

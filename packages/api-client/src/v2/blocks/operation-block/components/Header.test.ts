@@ -100,4 +100,18 @@ describe('Header', () => {
     expect(props.method).toBe('put')
     expect(props.path).toBe('/animals')
   })
+
+  it('marks the close button as the initial focus target in modal layout', () => {
+    const target = render({ layout: 'modal' }).find('[data-modal-initial-focus]')
+    expect(target.exists()).toBe(true)
+    expect(target.element.tagName).toBe('BUTTON')
+    expect(target.text()).toContain('Close Client')
+
+    const gitbookTarget = render({ layout: 'modal', source: 'gitbook' }).find('[data-modal-initial-focus]')
+    expect(gitbookTarget.exists()).toBe(true)
+    expect(gitbookTarget.element.tagName).toBe('BUTTON')
+    expect(gitbookTarget.text()).toContain('Close Client')
+
+    expect(render({ layout: 'web' }).find('[data-modal-initial-focus]').exists()).toBe(false)
+  })
 })

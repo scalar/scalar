@@ -19,6 +19,23 @@ import { unpackOverridesProxy } from '@/helpers/overrides-proxy'
  * @param depth - Optional, limits recursion depth. `null` means unlimited depth (default is 1).
  * @returns - A plain object or array with all proxies removed up to the specified depth.
  */
+/**
+ * Strips the known proxies (Vue reactivity, overrides, detect-changes, magic) from a value without
+ * touching its properties, returning the raw object underneath.
+ *
+ * Use this when the raw object is wanted as an identity — a cache key or a cycle guard — rather than as
+ * data. `unpackProxyObject` walks the value's own properties and writes each one back, which costs a
+ * read and a write per property and mutates the object it unpacks; callers that only compare identities
+ * pay for neither.
+ */
+export const unpackProxyShallow = <T>(input: T): T => {
+  if (typeof input !== 'object' || input === null) {
+    return input
+  }
+
+  return unpackDetectChangesProxy(toRaw(getRaw(unpackOverridesProxy(input))))
+}
+
 export const unpackProxyObject = <T>(input: T, { depth = 0 }: { depth?: number | null } = {}): T => {
   // Internal DFS helper to recursively strip all known proxies (Vue, overrides, detect-changes, magic proxies)
   const dfs = (value: any, currentDepth: number = 0): any => {

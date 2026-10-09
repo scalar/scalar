@@ -16,9 +16,10 @@ Combine this with access control that fits your audience: keep it public for an 
 
 ## Per-customer keys
 
-Global auth stores one key per installation. If you need a *different* stored key per customer, create one installation per customer, each with its own stored credential and its own access group. See [Private access for customers](./customer-access.md). If instead each customer should bring their own key, use [passthrough auth](./public-passthrough.md).
+Global auth stores one key per installation. If you need a *different* stored key per customer, create one installation per customer, each with its own stored credential and its own access group. See [Private access for customers](./customer-access.md). If instead each customer should bring their own credential, use [passthrough auth](./public-passthrough.md) for keys, or [OAuth passthrough](./oauth-passthrough.md) when your API has its own OAuth authorization server.
 
 ## Related
 
 - [Authentication](./index.md) — the two layers, and the other recipes
 - [Private access for customers](./customer-access.md) — gate the server with access groups and OAuth
+- [OAuth passthrough](./oauth-passthrough.md) — let each user sign in with your API's own authorization server

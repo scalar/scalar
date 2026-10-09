@@ -36,3 +36,6 @@
  * Scalar Tailwind v3 Reset Styles
  */
 @import "./tailwind/v3-reset.css";
+
+/* Method colors are selected dynamically from @scalar/helpers. */
+@source inline("text-query bg-query/10");

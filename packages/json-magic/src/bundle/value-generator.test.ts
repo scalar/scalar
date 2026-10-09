@@ -3,6 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { generateUniqueValue, uniqueValueGeneratorFactory } from './value-generator'
 
 describe('generateUniqueHash', () => {
+  it.each(['__proto__', 'constructor'])('rejects colliding prototype key %s without mutating the map', async (key) => {
+    const map = {}
+    await expect(generateUniqueValue(() => key, 'input', map)).rejects.toBe('Can not generate unique compressed values')
+    expect(Object.getPrototypeOf(map)).toBe(Object.prototype)
+    expect(Object.keys(map)).toStrictEqual([])
+  })
+
   it('should generate hash values from the function we pass in', async () => {
     const hashFunction = (value: string) => {
       if (value === 'a') {

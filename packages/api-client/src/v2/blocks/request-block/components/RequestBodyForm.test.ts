@@ -1,3 +1,4 @@
+import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
@@ -5,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
 
 import { CodeInputLite } from '@/v2/components/code-input'
+import { DataTableCheckbox } from '@/v2/components/data-table'
 
 import RequestBodyForm from './RequestBodyForm.vue'
 import RequestTable from './RequestTable.vue'
@@ -68,6 +70,151 @@ describe('RequestBodyForm', () => {
     vi.clearAllMocks()
     mockFiles.value = null
     fileDialogOnChange = undefined
+  })
+
+  it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
+    'preserves external examples through render and focus until a form edit for %s',
+    async (selectedContentType) => {
+      const example: ExampleObject = { externalValue: '/examples/body.json', value: { field: 'original' } }
+      const wrapper = mount(RequestBodyForm, {
+        attachTo: document.body,
+        props: { example, selectedContentType, environment: defaultEnvironment },
+      })
+      try {
+        await nextTick()
+        expect(wrapper.emitted('update:formValue')).toBeUndefined()
+        const input = wrapper.findAllComponents(RequestTableRow)[0]!.findAllComponents(CodeInputLite)[0]!
+        const editor = input.get('[contenteditable="true"]').element as HTMLElement
+        editor.focus()
+        await nextTick()
+        editor.blur()
+        await nextTick()
+        expect(wrapper.emitted('update:formValue')).toBeUndefined()
+        expect(example).toStrictEqual({ externalValue: '/examples/body.json', value: { field: 'original' } })
+
+        input.vm.$emit('update:modelValue', 'edited')
+        input.vm.$emit('blur', 'edited', new FocusEvent('blur'))
+        await nextTick()
+        expect(wrapper.emitted('update:formValue')).toStrictEqual([
+          [[{ name: 'edited', value: 'original', isDisabled: false }]],
+        ])
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
+  it.each(['file-first', 'tags-first'] as const)(
+    'includes optional files and tags after an example refresh (%s)',
+    async (order) => {
+      type FormPayload = ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
+      const wrapper = mount(RequestBodyForm, {
+        props: {
+          example: { value: { files: [], tags: [''] } },
+          bodySchema: {
+            type: 'object',
+            properties: {
+              files: { type: 'array', items: { type: 'string', format: 'binary' } },
+              tags: { type: 'array', items: { type: 'string' } },
+            },
+          },
+          selectedContentType: 'multipart/form-data',
+          environment: defaultEnvironment,
+        },
+      })
+      const editTags = async (): Promise<void> => {
+        wrapper
+          .findAllComponents(RequestTableRow)[1]!
+          .findAllComponents(CodeInputLite)[1]!
+          .vm.$emit('update:modelValue', '["first","second"]')
+        await nextTick()
+      }
+      const upload = async (): Promise<void> => {
+        wrapper.getComponent(RequestTable).vm.$emit('uploadFile', 0)
+        await nextTick()
+      }
+      try {
+        await (order === 'file-first' ? upload() : editTags())
+        const firstUpdate = wrapper.emitted<[FormPayload]>('update:formValue')!.at(-1)![0]
+        const untouched = firstUpdate[order === 'file-first' ? 1 : 0]!
+        expect(untouched.isDisabled).toBe(true)
+        expect(untouched.isDisabledByDefault).toBe(true)
+        await wrapper.setProps({ example: { value: firstUpdate } })
+        await (order === 'file-first' ? editTags() : upload())
+        const rows = wrapper.emitted<[FormPayload]>('update:formValue')!.at(-1)![0]
+        expect(rows).toStrictEqual([
+          { name: 'files', value: rows[0]!.value, isDisabled: false, isArray: true },
+          { name: 'tags', value: ['first', 'second'], isDisabled: false, isArray: true },
+        ])
+        expect(rows[0]!.value).toBeInstanceOf(File)
+        expect((rows[0]!.value as File).name).toBe('test.txt')
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
+  it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
+    'preserves untouched defaults and explicit checkbox choices across edits for %s',
+    async (selectedContentType) => {
+      type FormPayload = ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
+      const wrapper = mount(RequestBodyForm, {
+        props: {
+          example: { value: { first: '', second: '' } },
+          bodySchema: { type: 'object', properties: { first: { type: 'string' }, second: { type: 'string' } } },
+          selectedContentType,
+          environment: defaultEnvironment,
+        },
+      })
+      const refresh = async (): Promise<void> => {
+        const value = wrapper.emitted<[FormPayload]>('update:formValue')!.at(-1)![0]
+        await wrapper.setProps({ example: { value } })
+      }
+      const edit = async (index: number, value: string): Promise<void> => {
+        wrapper
+          .findAllComponents(RequestTableRow)
+          [index]!.findAllComponents(CodeInputLite)[1]!
+          .vm.$emit('update:modelValue', value)
+        await nextTick()
+      }
+      try {
+        await edit(0, 'one')
+        await refresh()
+        await edit(1, 'two')
+        await refresh()
+        const firstRow = wrapper.findAllComponents(RequestTableRow)[0]!
+        firstRow.getComponent(DataTableCheckbox).vm.$emit('update:modelValue', false)
+        await nextTick()
+        await refresh()
+        await edit(0, 'changed')
+        expect(wrapper.emitted<[FormPayload]>('update:formValue')!.at(-1)![0]).toStrictEqual([
+          { name: 'first', value: 'changed', isDisabled: true },
+          { name: 'second', value: 'two', isDisabled: false },
+        ])
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
+  it('keeps an explicitly unchecked file field disabled after selecting a file', async () => {
+    type FormPayload = ApiReferenceEvents['operation:update:requestBody:formValue']['payload']
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: [{ name: 'files', value: '', isDisabled: true }] },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    try {
+      wrapper.getComponent(RequestTable).vm.$emit('uploadFile', 0)
+      await nextTick()
+      const rows = wrapper.emitted<[FormPayload]>('update:formValue')!.at(-1)![0]
+      expect(rows).toStrictEqual([{ name: 'files', value: rows[0]!.value, isDisabled: true }])
+      expect(rows[0]!.value).toBeInstanceOf(File)
+    } finally {
+      wrapper.unmount()
+    }
   })
 
   it('initializes localFormBodyRows from example prop and syncs on changes', async () => {
@@ -504,4 +651,49 @@ describe('RequestBodyForm', () => {
       }
     },
   )
+  it('saves a deliberately cleared body key', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { existing: 'value' } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const input = wrapper.findComponent(RequestTableRow).findAllComponents(CodeInputLite)[0]!
+    input.vm.$emit('update:modelValue', '')
+    await nextTick()
+    input.vm.$emit('blur', '')
+    await nextTick()
+    expect(wrapper.emitted('update:formValue')?.at(-1)).toStrictEqual([
+      [{ name: '', value: 'value', isDisabled: false }],
+    ])
+    wrapper.unmount()
+  })
+
+  it('retains value focus after committing existing and new body keys', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      attachTo: document.body,
+      props: {
+        example: { value: { existing: 'value' } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    try {
+      for (const index of [0, 1]) {
+        const row = wrapper.findAllComponents(RequestTableRow)[index]!
+        const inputs = row.findAllComponents(CodeInputLite)
+        const valueEditor = inputs[1]!.get('[contenteditable="true"]').element as HTMLElement
+        inputs[0]!.vm.$emit('update:modelValue', `renamed${index}`)
+        await nextTick()
+        inputs[0]!.vm.$emit('blur', `renamed${index}`)
+        valueEditor.focus()
+        await nextTick()
+        expect(document.activeElement).toBe(valueEditor)
+        expect(valueEditor.isConnected).toBe(true)
+      }
+    } finally {
+      wrapper.unmount()
+    }
+  })
 })

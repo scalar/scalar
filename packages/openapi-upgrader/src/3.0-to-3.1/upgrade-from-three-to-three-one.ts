@@ -119,17 +119,17 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   }
 
   // 2. Handle exclusiveMinimum and exclusiveMaximum
-  if (schema.exclusiveMinimum === true) {
+  if (schema.exclusiveMinimum === true && schema.minimum !== undefined) {
     schema.exclusiveMinimum = schema.minimum
     delete schema.minimum
-  } else if (schema.exclusiveMinimum === false) {
+  } else if (typeof schema.exclusiveMinimum === 'boolean') {
     delete schema.exclusiveMinimum
   }
 
-  if (schema.exclusiveMaximum === true) {
+  if (schema.exclusiveMaximum === true && schema.maximum !== undefined) {
     schema.exclusiveMaximum = schema.maximum
     delete schema.maximum
-  } else if (schema.exclusiveMaximum === false) {
+  } else if (typeof schema.exclusiveMaximum === 'boolean') {
     delete schema.exclusiveMaximum
   }
 
@@ -161,69 +161,31 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
     delete schema.example
   }
 
-  // 4. Handle multipart file uploads
-  if (schema.type === 'object' && schema.properties !== undefined) {
-    const parentPath = path?.slice(0, -1)
-    const isMultipart = parentPath?.some((segment, index) => {
-      return segment === 'content' && path?.[index + 1] === 'multipart/form-data'
-    })
-
-    if (isMultipart && schema.properties !== null) {
-      for (const value of Object.values(schema.properties)) {
-        if (
-          typeof value === 'object' &&
-          value !== null &&
-          'type' in value &&
-          'format' in value &&
-          value.type === 'string' &&
-          value.format === 'binary'
-        ) {
-          value.contentMediaType = 'application/octet-stream'
-
-          delete value.format
-        }
-      }
-    }
-  }
-
-  // 5. Handle binary file uploads
-  if (path?.includes('content') && path?.includes('application/octet-stream')) {
-    return {}
-  }
-
-  // 6. Handle older formats
+  // 4. Handle older formats
   const { format: _, ...rest } = schema
 
-  if (schema.type === 'string') {
+  if (schema.type === 'string' || (Array.isArray(schema.type) && schema.type.includes('string'))) {
     if (schema.format === 'binary') {
-      return {
-        ...rest,
-        type: 'string',
-        contentMediaType: 'application/octet-stream',
-      }
+      // Raw binary is outside JSON Schema's types, including nullable type unions.
+      const { type: _type, ...binarySchema } = rest
+      const hasMediaType = path?.at(-1) === 'schema' && path.at(-3) === 'content'
+
+      // A whole-body schema already has its media type. Reusable schemas and multipart
+      // properties need a fallback, while explicit Encoding Objects remain authoritative.
+      return hasMediaType ? binarySchema : { contentMediaType: 'application/octet-stream', ...binarySchema }
     }
 
-    if (schema.format === 'base64') {
+    if (schema.format === 'base64' || schema.format === 'byte') {
+      // The surrounding media type describes the container, not necessarily the
+      // encoded bytes. Preserve an explicit contentMediaType without guessing one.
       return {
         ...rest,
-        type: 'string',
         contentEncoding: 'base64',
-      }
-    }
-
-    if (schema.format === 'byte') {
-      const parentPath = path?.slice(0, -1)
-      const contentMediaType = parentPath?.find((_, index) => path?.[index - 1] === 'content')
-      return {
-        ...rest,
-        type: 'string',
-        contentEncoding: 'base64',
-        contentMediaType,
       }
     }
   }
 
-  // 7. Handle x-webhooks
+  // 5. Handle x-webhooks
   // `x-webhooks` is a document-root extension, so only rename it there. Anywhere else (a schema
   // property, an example) a key named `x-webhooks` is unrelated and must be left alone.
   if (schema['x-webhooks'] !== undefined && (path === undefined || path.length === 0)) {

@@ -1947,6 +1947,75 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('keeps every named x-example when one of the names contains a slash', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples with a slash in a name', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                schema: { type: 'object' },
+                'x-examples': {
+                  'Reward Redemption': { discount_type: 'reward' },
+                  'Coupons/Promos': { discount_type: 'redemption_code' },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      'Reward Redemption': { value: { discount_type: 'reward' } },
+      'Coupons/Promos': { value: { discount_type: 'redemption_code' } },
+    })
+  })
+
+  it('keeps named x-examples next to keys for other media types or capitalized type words', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'x-examples mixing media-type and named keys', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                schema: { type: 'object' },
+                'x-examples': {
+                  'application/xml': '<request />',
+                  Request: { id: 1 },
+                  'Image/Before': { id: 2 },
+                },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody?.content?.['application/json']?.examples).toStrictEqual({
+      Request: { value: { id: 1 } },
+      'Image/Before': { value: { id: 2 } },
+    })
+  })
+
   it('prefers x-examples over x-example when both exist on same body parameter', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -2554,6 +2623,123 @@ describe('upgradeFromTwoToThree', () => {
       id: 0,
       error: 'Not Found',
     })
+  })
+
+  it.each(['Application/XML', 'x-custom/example'])('preserves the declared response media type %s', (mediaType) => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Declared response media types', version: '1.0' },
+      produces: ['application/json', mediaType],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                examples: { [mediaType]: '<response />' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        shared: {
+          description: 'OK',
+          examples: { [mediaType]: '<response />' },
+        },
+      },
+    })
+
+    const response = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    const shared = result.components?.responses?.shared as OpenAPIV3.ResponseObject
+    const expectedContent = { [mediaType]: { example: '<response />' } }
+    expect(response.content).toStrictEqual(expectedContent)
+    expect(shared.content).toStrictEqual(expectedContent)
+  })
+
+  it('excludes declared media types from named request examples for other content types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Declared request media types', version: '1.0' },
+      paths: {
+        '/test': {
+          post: {
+            consumes: ['application/json', 'Application/XML'],
+            parameters: [
+              {
+                name: 'body',
+                in: 'body',
+                schema: { type: 'object' },
+                'x-examples': {
+                  'Application/XML': '<request />',
+                  'Image/Before': { id: 1 },
+                },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    const requestBody = result.paths?.['/test']?.post?.requestBody as OpenAPIV3.RequestBodyObject
+    expect(requestBody.content?.['application/json']?.examples).toStrictEqual({
+      'Image/Before': { value: { id: 1 } },
+    })
+    expect(requestBody.content?.['Application/XML']?.examples).toStrictEqual({
+      default: { value: '<request />' },
+    })
+  })
+
+  it('treats a token-style named example key with a slash as a named example', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Token-style slash key test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                examples: {
+                  'Coupons/Promos': { id: 1 },
+                  'application/vnd.api+json': { id: 2 },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response200 = result.paths?.['/test']?.get?.responses?.['200'] as OpenAPIV3.ResponseObject
+    expect(response200.content?.['Coupons/Promos']).toBeUndefined()
+    expect(response200.content?.['application/json']?.examples?.['Coupons/Promos']?.value).toStrictEqual({ id: 1 })
+    expect(response200.content?.['application/vnd.api+json']?.example).toStrictEqual({ id: 2 })
+  })
+
+  it('treats a named example key with a slash in #/responses as a named example', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Global response slash key test', version: '1.0' },
+      produces: ['application/json'],
+      paths: {},
+      responses: {
+        'promo-response': {
+          description: 'OK',
+          examples: {
+            'Coupons/Promos': { id: 1 },
+            'application/xml': '<promo />',
+          },
+        },
+      },
+    })
+
+    const promoResponse = result.components?.responses?.['promo-response'] as OpenAPIV3.ResponseObject
+    expect(promoResponse.content?.['Coupons/Promos']).toBeUndefined()
+    expect(promoResponse.content?.['application/json']?.examples?.['Coupons/Promos']?.value).toStrictEqual({ id: 1 })
+    expect(promoResponse.content?.['application/xml']?.example).toBe('<promo />')
   })
 
   it('transforms global responses defined in #/responses with examples', () => {

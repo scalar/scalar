@@ -5,6 +5,10 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <nav class="playground-nav">
     <RouterLink to="/">Code Example Blocks</RouterLink>
+    <RouterLink to="/specification-extensions"
+      >Specification Extensions</RouterLink
+    >
+    <RouterLink to="/schemas">Schema Blocks</RouterLink>
     <RouterLink to="/api-reference-light">API Reference Light</RouterLink>
   </nav>
   <main class="playground-main">

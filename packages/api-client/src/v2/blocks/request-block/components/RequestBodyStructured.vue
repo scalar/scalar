@@ -8,6 +8,7 @@ import type { TableRow } from '@/v2/blocks/request-block/components/RequestTable
 import { foldStructuredBodyRows } from '@/v2/blocks/request-block/helpers/fold-structured-body-rows'
 import { getStructuredBodyRows } from '@/v2/blocks/request-block/helpers/get-structured-body-rows'
 import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
+import { useLocalization } from '@/v2/features/localization'
 
 const { parsedValue, bodySchema, contentType, environment } = defineProps<{
   /** The parsed (object) value of the structured body */
@@ -23,6 +24,8 @@ const emit = defineEmits<{
   /** Serialized body text for the current content type */
   (e: 'update:value', payload: string): void
 }>()
+
+const { translate } = useLocalization()
 
 const codec = computed(() => getStructuredBodyCodec(contentType))
 
@@ -102,7 +105,7 @@ const handleDeleteRow = (index: number) => {
     :data="localRows"
     deferKeyUpdates
     :environment="environment"
-    label="Body"
+    :label="translate('apiClient.requestBodyStructured.body')"
     @deleteRow="handleDeleteRow"
     @upsertRow="handleUpsertRow" />
 </template>

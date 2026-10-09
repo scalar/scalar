@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { SpecificationExtensions } from '@scalar/blocks/specification-extensions'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { computed } from 'vue'
 
 import { usePluginManager } from '@/plugins'
 
-const { value } = defineProps<{
+const { value, showExtensions = [] } = defineProps<{
+  /** Explicitly selected keys that may use the default renderer. */
+  showExtensions?: string[]
   /**
    * Any value that can contain OpenAPI specification extensions.
    */
@@ -17,9 +20,9 @@ const { getSpecificationExtensions } = usePluginManager()
  * Extract registered OpenAPI extension names
  */
 function getCustomExtensionNames(
-  value: Record<string, any> | undefined,
+  source: Record<string, unknown> | undefined,
 ): `x-${string}`[] {
-  return Object.keys(value ?? {}).filter((item): item is `x-${string}` =>
+  return Object.keys(source ?? {}).filter((item): item is `x-${string}` =>
     item.startsWith('x-'),
   )
 }
@@ -44,12 +47,28 @@ const customExtensionNames = computed(() => getCustomExtensionNames(value))
 const customExtensions = computed(() =>
   getCustomOpenApiExtensionComponents(customExtensionNames.value),
 )
+/** Custom plugin components retain ownership of their extension keys. */
+const defaultExtensions = computed<Record<string, unknown>>(() =>
+  Object.fromEntries(
+    [...new Set(showExtensions)]
+      .filter(
+        (name) =>
+          name.startsWith('x-') &&
+          Object.hasOwn(value ?? {}, name) &&
+          !customExtensions.value.some((extension) => extension.name === name),
+      )
+      .map((name) => [name, value?.[name]]),
+  ),
+)
 </script>
 
 <template>
+  <SpecificationExtensions :extensions="defaultExtensions" />
   <template v-if="typeof value === 'object' && customExtensions.length">
     <div class="text-base">
-      <template v-for="extension in customExtensions">
+      <template
+        v-for="(extension, index) in customExtensions"
+        :key="index">
         <ScalarErrorBoundary>
           <template v-if="extension.renderer">
             <!-- Custom rendering -->

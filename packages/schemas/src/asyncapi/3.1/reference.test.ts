@@ -41,4 +41,15 @@ describe('recursiveRef', () => {
       '$ref-value': { type: 'http', scheme: 'bearer' },
     })
   })
+
+  it('stops at a `$ref-value` chain that loops back on itself', () => {
+    const schema = recursiveRef(securityLikeSchema)
+    const a: Record<string, unknown> = { $ref: '#/components/securitySchemes/b' }
+    const b: Record<string, unknown> = { $ref: '#/components/securitySchemes/a' }
+    a['$ref-value'] = b
+    b['$ref-value'] = a
+
+    expect(() => coerce(schema, a)).not.toThrow()
+    expect(coerce(schema, a)).toMatchObject({ $ref: '#/components/securitySchemes/b' })
+  })
 })

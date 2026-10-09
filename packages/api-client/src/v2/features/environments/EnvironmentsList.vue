@@ -11,6 +11,7 @@ import { ref } from 'vue'
 
 import EnvironmentCreateModal from '@/v2/features/environments/components/EnvironmentCreateModal.vue'
 import EnvironmentDeleteModal from '@/v2/features/environments/components/EnvironmentDeleteModal.vue'
+import { useLocalization } from '@/v2/features/localization'
 
 import EnvironmentComponent from './components/Environment.vue'
 
@@ -25,6 +26,8 @@ const { environments, eventBus, collectionType, activeEnvironment } =
       activeEnvironment?: string
     } & CollectionType
   >()
+
+const { translate } = useLocalization()
 
 const createEnvironmentModalState = useModal()
 const deleteEnvironmentModalState = useModal()
@@ -76,8 +79,9 @@ const openUpsertModal = (name?: string) => {
       size="xs"
       variant="ghost"
       @click="() => openUpsertModal()">
-      <ScalarIconPlus />
-      Add Environment
+      <ScalarIconPlus />{{
+        translate('apiClient.environmentsList.addEnvironment')
+      }}
     </ScalarButton>
   </div>
 

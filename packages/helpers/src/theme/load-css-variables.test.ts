@@ -43,10 +43,10 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#E7E7E7',
       '--scalar-border-color': '#DFDFDF',
       '--scalar-color-1': '#1B1B1B',
-      '--scalar-color-2': '#757575',
+      '--scalar-color-2': '#707070',
       '--scalar-color-3': '#8E8E8E',
       '--scalar-color-accent': '#0099FF',
-      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-blue': '#0072BD',
       '--scalar-color-green': '#069061',
       '--scalar-color-orange': '#FF5800',
       '--scalar-color-purple': '#5203D1',
@@ -77,10 +77,10 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#E7E7E7',
       '--scalar-border-color': '#0000001A',
       '--scalar-color-1': '#1B1B1B',
-      '--scalar-color-2': '#757575',
+      '--scalar-color-2': '#6D6D6D',
       '--scalar-color-3': '#8E8E8E',
       '--scalar-color-accent': '#1B1B1B',
-      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-blue': '#0071BB',
       '--scalar-color-green': '#069061',
       '--scalar-color-orange': '#FB892C',
       '--scalar-color-purple': '#5203D1',
@@ -114,7 +114,7 @@ const expectedPresetVariables = {
       '--scalar-color-2': '#000000',
       '--scalar-color-3': '#000000',
       '--scalar-color-accent': '#645B0F',
-      '--scalar-color-blue': '#1D4ED8',
+      '--scalar-color-blue': '#1841B5',
       '--scalar-color-green': '#047857',
       '--scalar-color-orange': '#C2410C',
       '--scalar-color-purple': '#6D28D9',
@@ -144,7 +144,7 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#ECEEF1',
       '--scalar-border-color': '#D7D7CEAD',
       '--scalar-color-1': '#1B1B1B',
-      '--scalar-color-2': '#757575',
+      '--scalar-color-2': '#707070',
       '--scalar-color-3': '#8E8E8E',
       '--scalar-color-accent': '#5469D4',
       '--scalar-color-blue': '#1763A6',
@@ -163,7 +163,7 @@ const expectedPresetVariables = {
       '--scalar-color-2': '#C9CED8',
       '--scalar-color-3': '#8C99AD',
       '--scalar-color-accent': '#5469D4',
-      '--scalar-color-blue': '#2B7ABF',
+      '--scalar-color-blue': '#468BC7',
       '--scalar-color-green': '#30A159',
       '--scalar-color-orange': '#F07528',
       '--scalar-color-purple': '#7A59B1',
@@ -211,10 +211,10 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#E0E2E6',
       '--scalar-border-color': '#D5D5D5',
       '--scalar-color-1': '#09090B',
-      '--scalar-color-2': '#71717A',
+      '--scalar-color-2': '#696970',
       '--scalar-color-3': '#19191C80',
       '--scalar-color-accent': '#09090B',
-      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-blue': '#006DB5',
       '--scalar-color-green': '#069061',
       '--scalar-color-orange': '#FB892C',
       '--scalar-color-purple': '#5203D1',
@@ -244,10 +244,10 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#E3E3E6',
       '--scalar-border-color': '#E4E4E7',
       '--scalar-color-1': '#09090B',
-      '--scalar-color-2': '#71717A',
+      '--scalar-color-2': '#6D6D75',
       '--scalar-color-3': '#19191C80',
       '--scalar-color-accent': '#09090B',
-      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-blue': '#0072BD',
       '--scalar-color-green': '#069061',
       '--scalar-color-orange': '#FB892C',
       '--scalar-color-purple': '#5203D1',
@@ -277,7 +277,7 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#E4E4DF',
       '--scalar-border-color': '#D7D7CED9',
       '--scalar-color-1': '#1B1B1B',
-      '--scalar-color-2': '#757575',
+      '--scalar-color-2': '#676767',
       '--scalar-color-3': '#8E8E8E',
       '--scalar-color-accent': '#1763A6',
       '--scalar-color-blue': '#1763A6',
@@ -296,7 +296,7 @@ const expectedPresetVariables = {
       '--scalar-color-2': '#A1A1AA',
       '--scalar-color-3': '#FFFFFF88',
       '--scalar-color-accent': '#4EB3EC',
-      '--scalar-color-blue': '#2B7ABF',
+      '--scalar-color-blue': '#3E86C5',
       '--scalar-color-green': '#30A159',
       '--scalar-color-orange': '#F07528',
       '--scalar-color-purple': '#7A59B1',
@@ -311,10 +311,10 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#E7E7E7',
       '--scalar-border-color': '#0000001A',
       '--scalar-color-1': '#1B1B1B',
-      '--scalar-color-2': '#757575',
+      '--scalar-color-2': '#707070',
       '--scalar-color-3': '#8E8E8E',
       '--scalar-color-accent': '#7070FF',
-      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-blue': '#0072BD',
       '--scalar-color-green': '#069061',
       '--scalar-color-orange': '#FB892C',
       '--scalar-color-purple': '#5203D1',
@@ -344,10 +344,10 @@ const expectedPresetVariables = {
       '--scalar-background-2': '#F2EFE8',
       '--scalar-background-3': '#E9E7E2',
       '--scalar-border-color': '#CBA59C99',
-      '--scalar-color-1': '#C75549',
-      '--scalar-color-2': '#C75549',
-      '--scalar-color-3': '#C75549',
-      '--scalar-color-accent': '#C75549',
+      '--scalar-color-1': '#B24C41',
+      '--scalar-color-2': '#B24C41',
+      '--scalar-color-3': '#B24C41',
+      '--scalar-color-accent': '#B24C41',
       '--scalar-color-blue': '#19689A',
       '--scalar-color-green': '#09533A',
       '--scalar-color-orange': '#B26C34',
@@ -412,10 +412,10 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#E7E7E7',
       '--scalar-border-color': '#0000001A',
       '--scalar-color-1': '#1B1B1B',
-      '--scalar-color-2': '#757575',
+      '--scalar-color-2': '#707070',
       '--scalar-color-3': '#8E8E8E',
       '--scalar-color-accent': '#F06292',
-      '--scalar-color-blue': '#0082D0',
+      '--scalar-color-blue': '#0072BD',
       '--scalar-color-green': '#069061',
       '--scalar-color-orange': '#FB892C',
       '--scalar-color-purple': '#5203D1',
@@ -446,10 +446,10 @@ const expectedPresetVariables = {
       '--scalar-background-3': '#EDEDED',
       '--scalar-border-color': '#0000001A',
       '--scalar-color-1': '#1C1E21',
-      '--scalar-color-2': '#757575',
+      '--scalar-color-2': '#707070',
       '--scalar-color-3': '#8E8E8E',
       '--scalar-color-accent': '#2F8555',
-      '--scalar-color-blue': '#3B8BA5',
+      '--scalar-color-blue': '#33788F',
       '--scalar-color-green': '#007300',
       '--scalar-color-orange': '#FB892C',
       '--scalar-color-purple': '#5203D1',
@@ -559,5 +559,91 @@ describe('load-css-variables', () => {
     const expected = expectedPresetVariables[id]
 
     expect(parsed).toMatchObject(expected)
+  })
+})
+
+/**
+ * WCAG 2.x relative luminance and contrast ratio for sRGB hex colors.
+ *
+ * Kept local to the test: the palette guards below only need the formula, and
+ * a dependency on a color library would make the test pass or fail on a bump
+ * rather than on a change to the preset.
+ */
+const linearChannel = (channel: number): number =>
+  channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+
+const hexToRgb = (hex: string): [number, number, number] => {
+  const value = hex.replace('#', '')
+  return [0, 2, 4].map((offset) => Number.parseInt(value.slice(offset, offset + 2), 16) / 255) as [
+    number,
+    number,
+    number,
+  ]
+}
+
+const luminance = ([r, g, b]: [number, number, number]): number =>
+  0.2126 * linearChannel(r) + 0.7152 * linearChannel(g) + 0.0722 * linearChannel(b)
+
+const contrastRatio = (foreground: string, background: string): number => {
+  const [hi, lo] = [luminance(hexToRgb(foreground)), luminance(hexToRgb(background))].sort((a, b) => b - a)
+  return (hi! + 0.05) / (lo! + 0.05)
+}
+
+/**
+ * Projects a `color(display-p3 r g b)` value onto an sRGB display by converting
+ * through XYZ and clipping each channel, which is what a browser does on a
+ * monitor without a wide gamut. A Colour Contrast Analyser on such a monitor
+ * samples this clipped color, so it is the value the palette has to satisfy.
+ */
+const displayP3ToClippedSrgb = ([r, g, b]: [number, number, number]): string => {
+  const [lr, lg, lb] = [linearChannel(r), linearChannel(g), linearChannel(b)]
+  const x = 0.4865709 * lr + 0.2656677 * lg + 0.1982173 * lb
+  const y = 0.2289746 * lr + 0.6917385 * lg + 0.0792869 * lb
+  const z = 0.0451134 * lg + 1.0439444 * lb
+  const linearSrgb = [
+    3.2404542 * x - 1.5371385 * y - 0.4985314 * z,
+    -0.969266 * x + 1.8760108 * y + 0.041556 * z,
+    0.0556434 * x - 0.2040259 * y + 1.0572252 * z,
+  ]
+  return linearSrgb
+    .map((channel) => Math.min(1, Math.max(0, channel)))
+    .map((channel) => (channel <= 0.0031308 ? 12.92 * channel : 1.055 * channel ** (1 / 2.4) - 0.055))
+    .map((channel) =>
+      Math.round(channel * 255)
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')
+}
+
+describe('default preset contrast', () => {
+  /** Small text needs 4.5:1 under WCAG 1.4.3, and the blue is used for 13px labels and code strings. */
+  const MINIMUM_TEXT_CONTRAST = 4.5
+
+  it.each(['light', 'dark'] as const)('keeps --scalar-color-blue legible as text in %s mode', async (mode) => {
+    const variables = (await loadCssVariables(presets.default.theme))[mode]
+    const blue = variables['--scalar-color-blue']!
+
+    expect(contrastRatio(blue, variables['--scalar-background-1']!)).toBeGreaterThanOrEqual(MINIMUM_TEXT_CONTRAST)
+    expect(contrastRatio(blue, variables['--scalar-background-2']!)).toBeGreaterThanOrEqual(MINIMUM_TEXT_CONTRAST)
+  })
+
+  it('keeps the wide-gamut light blue in step with its hex value and legible once clipped to sRGB', async () => {
+    const variables = (await loadCssVariables(presets.default.theme)).light
+    const blue = variables['--scalar-color-blue']!
+
+    // The @supports block re-declares the light palette in display-p3, and that
+    // is the value every current browser paints, so it must track the hex.
+    const supportsBlock = presets.default.theme.match(/@supports[^{]*\{[\s\S]*?\.light-mode\s*\{([\s\S]*?)\}/)?.[1]
+    const p3 = supportsBlock?.match(/--scalar-color-blue:\s*color\(display-p3\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
+    expect(p3).not.toBeNull()
+
+    const coordinates = p3!.slice(1, 4).map(Number) as [number, number, number]
+    hexToRgb(blue).forEach((channel, index) => {
+      expect(Math.abs(coordinates[index]! - channel)).toBeLessThan(1 / 255)
+    })
+
+    const clipped = displayP3ToClippedSrgb(coordinates)
+    expect(contrastRatio(clipped, variables['--scalar-background-2']!)).toBeGreaterThanOrEqual(MINIMUM_TEXT_CONTRAST)
   })
 })

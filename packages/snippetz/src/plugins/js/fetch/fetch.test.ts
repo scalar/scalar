@@ -78,6 +78,29 @@ describe('jsFetch', () => {
 })`)
   })
 
+  it('preserves nested arrays in the JSON body', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com/test',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/json' }],
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({ type: 'Example', coordinates: [[[1]]] }),
+      },
+    })
+
+    expect(result).toBe(`fetch('https://example.com/test', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    type: 'Example',
+    coordinates: [[[1]]]
+  })
+})`)
+  })
+
   it('has raw body', () => {
     const result = jsFetch.generate({
       url: 'https://example.com',
@@ -226,9 +249,11 @@ describe('jsFetch', () => {
       },
     })
 
-    expect(result).toBe(`const formData = new FormData()
-formData.append('foo', 'bar')
-formData.append('file', new Blob([]), 'baz.txt')
+    expect(result).toBe(`const formData = new FormData();
+// Select upload files with an <input type="file" multiple> element first.
+const files = document.querySelector('input[type="file"]').files;
+formData.append("foo", "bar");
+formData.append("file", new File([files[0]], "baz.txt", { type: "application/octet-stream" }));
 
 fetch('https://example.com', {
   method: 'POST',

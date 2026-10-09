@@ -15,7 +15,6 @@ const createPathParam = (name: string, value: unknown) =>
 describe('validatePathParameters', () => {
   it('skips unresolved references while validating the remaining parameters', () => {
     expect(
-      // @ts-expect-error A raw reference can arrive before its required $ref-value is populated.
       validatePathParameters([{ $ref: '#/components/parameters/missing' }, createPathParam('userId', '')]),
     ).toEqual({ ok: false, invalidParams: ['userId'] })
   })

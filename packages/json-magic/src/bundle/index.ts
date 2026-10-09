@@ -9,3 +9,4 @@ export {
   prefixInternalRefRecursive,
   resolveAndCopyReferences,
 } from './bundle'
+export type { DocumentIdentity, DocumentResolver } from './document-references'

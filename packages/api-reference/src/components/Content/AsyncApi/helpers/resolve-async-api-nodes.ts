@@ -7,6 +7,8 @@ import type {
 import { resolveOperationWithTraits } from '@scalar/workspace-store/channel-example'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 
+import { resolveMessageTraits } from './resolve-message-traits'
+
 /**
  * Resolve a channel from the document by its `document.channels` key.
  *
@@ -32,7 +34,7 @@ export const resolveAsyncApiMessage = (
 ): AsyncApiMessageObject | undefined => {
   const channel = resolveAsyncApiChannel(document, channelName)
   const node = channel?.messages?.[messageName]
-  return node ? getResolvedRef(node, mergeSiblingReferences) : undefined
+  return node ? resolveMessageTraits(getResolvedRef(node, mergeSiblingReferences)) : undefined
 }
 
 /**

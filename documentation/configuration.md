@@ -302,8 +302,8 @@ To make authentication easier you can prefill the credentials for your users:
             tokenUrl: 'https://auth.example.com/oauth2/token',
             'x-scalar-redirect-uri': 'https://your-app.com/callback',
             // Use PKCE for additional security: 'SHA-256', 'plain', or 'no'
-            // With 'SHA-256' or 'plain', authorizationCode is treated as a public client.
-            // The Client Secret field is hidden and client_secret is not sent in token/refresh requests.
+            // PKCE can be used with or without a client secret.
+            // For public clients, leave clientSecret empty and clear any stored Client Secret.
             'x-usePkce': 'SHA-256',
             // Preselected scopes
             selectedScopes: ['profile', 'email'],
@@ -365,7 +365,11 @@ To make authentication easier you can prefill the credentials for your users:
 }
 ```
 
-For OAuth2 `authorizationCode` flows, when `x-usePkce` is set to `'SHA-256'` or `'plain'`, Scalar treats the flow as a public PKCE client. In that mode, the Client Secret input is hidden in the authentication form, and `client_secret` is not included in token exchange or refresh requests.
+For OAuth2 `authorizationCode` flows, setting `x-usePkce` to `'SHA-256'` or `'plain'` enables PKCE. The Client Secret input remains visible because confidential clients can use both PKCE and a client secret. When a secret is present, Scalar uses it to authenticate token exchange and refresh requests according to `x-scalar-credentials-location`: HTTP Basic authentication for `'header'`, or `client_secret` in the request body for `'body'`.
+
+For public clients, leave `clientSecret` empty or omit it, and clear any stored Client Secret in the authentication form. With an empty secret, Scalar omits both `client_secret` and HTTP Basic authentication and sends `client_id` in the request body. Stored credentials take precedence over configuration values, so removing `clientSecret` from the configuration does not clear a previously entered secret.
+
+In credential fields, **X / Clear Value** empties only that field. **Reset to default** releases that field's override and restores its current document or configured value. It appears only when the field has a default that differs from the current value: the document or configured value, or for Redirect URL the current page URL. A cleared access token keeps **Reset to default** so you can get back to the Authorize form. Clearing Auth URL or Token URL keeps the source URL available for reset; authorization reports a missing URL until you restore or enter one. PKCE and Credentials Location use fixed choices and have no clear button. **Clear tokens** removes the current flow's access and refresh tokens, while **Reset discovery** removes the stored OpenID Connect discovery form.
 
 The `authentication` configuration accepts:
 
@@ -469,6 +473,20 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
+### featuredClients
+
+**Type:** `AvailableClient[]`
+
+The "Client Libraries" block shows a row of featured clients as tabs, the other clients can be found under "More" menu. By default the featured clients are `shell/curl`, `ruby/native`, `node/undici`, `php/guzzle` and `python/python3`.
+
+Pass a list of client ids (`target/client`) to choose which clients are featured and in which order. IDs that do not exist, or that are hidden through `hiddenClients`, are skipped.
+
+```javascript
+{
+  featuredClients: ['shell/curl', 'node/fetch', 'python/requests', 'java/okhttp'],
+}
+```
+
 ### defaultOpenFirstTag
 
 **Type:** `boolean`
@@ -551,6 +569,21 @@ By default the models are all closed in the model section at the bottom, this fl
 }
 ```
 
+### expandAllParameters
+
+**Type:** `boolean`
+
+Show parameter details by default. Set to `false` to start path, query, header, and cookie parameters collapsed. Click a parameter to show its details. Names, types, and required markers stay visible.
+
+The default is `true`. This does not change response or nested schema expansion settings.
+
+```js
+Scalar.createApiReference('#app', {
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
+  expandAllParameters: false,
+})
+```
+
 ### expandAllResponses
 
 **Type:** `boolean`
@@ -565,6 +598,22 @@ By default response sections are closed in the operations. This flag will open t
 }
 ```
 
+
+### maxVisibleRequestBodyProperties
+
+**Type:** `number`
+
+The maximum number of top-level request body properties shown before the “Show N more properties” control. Accepts non-negative integers; `0` shows all top-level properties. Invalid values fall back to `12`.
+
+This option does not expand nested properties. Use `expandAllSchemaProperties` to control nested expansion separately. Increasing the limit can affect performance for very large request bodies.
+
+**Default:** `12`
+
+```javascript
+{
+  maxVisibleRequestBodyProperties: 0
+}
+```
 
 ### expandAllSchemaProperties
 
@@ -636,6 +685,25 @@ Whether to show the dark mode toggle.
 }
 ```
 
+### showExtensions
+
+Display selected OpenAPI extensions on operations, parameters, response headers, and schema fields without writing a plugin. Disabled by default.
+Works in both layouts and the standalone browser build:
+
+```js
+Scalar.createApiReference('#app', {
+  url: '/openapi.json',
+  showExtensions: ['x-scopes'],
+})
+```
+
+Keys must start with `x-`. Selected keys appear in configuration order, using the exact key as the label.
+Values appear as compact schema-style rows. Arrays show their values without type labels or visible indices, and objects show their property names. Top-level values start expanded; nested collections can be expanded with the disclosure button.
+Missing keys are omitted; `false`, `0`, `null`, and empty arrays or objects remain visible. Values are displayed as text, not HTML or Markdown.
+
+The same selection applies to fields in request and response bodies and the Models section, including nested fields. Extensions on the API description root, tags, and response objects are not displayed.
+It does not change authentication behavior. Existing plugin components take precedence for keys they render.
+
 ### showOperationId
 
 **Type:** `boolean`
@@ -663,6 +731,22 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 ```javascript
 {
   hideModels: true
+}
+```
+
+### hideModelNames
+
+**Type:** `boolean`
+
+Show structural types such as `object` and `array of object` instead of model names in schema type labels and operation headings. This applies to request bodies, responses, parameters, and headers, including nested properties. Model section headings and composition selector labels keep their names so models and alternatives remain identifiable.
+
+This option does not hide the models section. Use `hideModels` separately to hide that section.
+
+**Default:** `false`
+
+```javascript
+{
+  hideModelNames: true
 }
 ```
 
@@ -1565,6 +1649,38 @@ Use [`onBeforeRequest`](#onbeforerequest) instead when you need to mutate the re
   }
 }
 ```
+
+### onResponseReceived
+
+**Type:** `({ response: Response; request: Request }) => Response | void | Promise<Response | void>`
+
+Runs when the embedded API client receives a response, before Scalar processes its body, status, and headers. Return a new `Response` to replace them, or return nothing to keep the current response. The callback receives a clone, so you can read its body to save a token without consuming the response shown in the client.
+
+```javascript
+{
+  onResponseReceived: async ({ response }) => {
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      return
+    }
+
+    const data = await response.json()
+    const headers = new Headers(response.headers)
+    headers.delete('content-length')
+
+    return Response.json({ ...data, additionalField: 'value' }, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    })
+  }
+}
+```
+
+Client plugins can use `hooks.responseReceived` with the same return behavior. Plugins run in order, and each receives a clone of the latest response. To change headers, return a new `Response`; mutating the clone and returning nothing leaves the response unchanged.
+
+For streaming responses, avoid `response.text()` or `response.json()` unless the stream is finite. To transform a stream, return a `Response` backed by a stream instead. Post-response scripts continue to receive stream status and headers with an empty body. Hook errors are reported as request failures.
+
+If a hook acquires a stream reader with `response.body.getReader()`, release its lock in a `finally` block with `reader.releaseLock()` before the hook returns or throws. Scalar cannot cancel a discarded clone while its body is locked. A returned streaming response may retain the reader while consuming the stream, but it must release the reader when it finishes or is canceled.
 
 ### onRequestSent
 

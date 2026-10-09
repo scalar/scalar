@@ -4,9 +4,6 @@ import type { Context } from 'hono'
 /** Available HTTP methods for Hono routes */
 export const httpMethods = ['get', 'put', 'post', 'delete', 'options', 'patch'] as const
 
-/** Valid HTTP method */
-export type HttpMethod = (typeof httpMethods)[number]
-
 /**
  * Represents a partial object where at least one of the given properties is required.
  */
@@ -19,6 +16,9 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyo
 export type MockServerLogger = (line: string) => void
 
 type BaseMockServerOptions = {
+  /** Source file path or URL used to resolve relative references in an already loaded document. */
+  origin?: string
+
   /**
    * The OpenAPI document to use for mocking.
    * Can be a string (URL or file path) or an object.

@@ -1,3 +1,5 @@
+import { snippetz } from '@scalar/snippetz'
+import { getExampleFromBody } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -5,6 +7,255 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it.each([
+    { array: false, encodingType: undefined, expectedType: 'image/png' },
+    { array: true, encodingType: undefined, expectedType: 'image/png' },
+    { array: false, encodingType: 'image/webp', expectedType: 'image/webp' },
+    { array: true, encodingType: 'image/webp', expectedType: 'image/webp' },
+  ])(
+    'retains file media types with array=$array and encoding=$encodingType',
+    ({ array, encodingType, expectedType }) => {
+      const file = new File(['image bytes'], 'picture.png', { type: 'image/png' })
+      const result = processBody({
+        contentType: 'multipart/form-data',
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              example: { upload: array ? [file] : file },
+              ...(encodingType ? { encoding: { upload: { contentType: encodingType } } } : {}),
+            },
+          },
+        },
+      })
+      expect(result).toStrictEqual({
+        mimeType: 'multipart/form-data',
+        params: [{ name: 'upload', value: '@picture.png', fileName: 'picture.png', contentType: expectedType }],
+      })
+    },
+  )
+
+  it.each([
+    {
+      contentType: 'text/event-stream',
+      value: { event: 'update', data: 'hello' },
+      expected: 'event: update\ndata: hello\n\n',
+    },
+    { contentType: 'application/jsonl', value: [{ id: 1 }, { id: 2 }], expected: '{"id":1}\n{"id":2}\n' },
+    { contentType: 'application/json-seq', value: [false, 0, null], expected: '\u001efalse\n\u001e0\n\u001enull\n' },
+    { contentType: 'application/jsonl', value: null, expected: 'null\n' },
+    { contentType: 'application/jsonl', value: false, expected: 'false\n' },
+    { contentType: 'application/jsonl', value: 0, expected: '0\n' },
+    { contentType: 'text/event-stream', value: 'data: unchanged\n\n', expected: 'data: unchanged\n\n' },
+  ])('frames authored stream content for $contentType: $value', ({ contentType, value, expected }) => {
+    const requestBody = { content: { [contentType]: { example: value } } }
+    expect(processBody({ requestBody, contentType })).toStrictEqual({ mimeType: contentType, text: expected })
+  })
+
+  it.each([
+    { type: 'integer', value: 0, contentType: 'application/json', text: '0' },
+    { type: 'boolean', value: false, contentType: 'application/json', text: 'false' },
+    { type: 'string', value: '', contentType: 'text/plain', text: '' },
+  ] as const)('keeps generated $value in the request example and cURL body', ({ type, value, contentType, text }) => {
+    const requestBody = { content: { [contentType]: { schema: { type, const: value } } } }
+    expect(getExampleFromBody(requestBody, contentType, 'default')).toStrictEqual({ value })
+    const postData = processBody({ requestBody, contentType })
+    expect(postData).toStrictEqual({ mimeType: contentType, text })
+    expect(
+      snippetz().print('shell', 'curl', {
+        url: 'https://example.com',
+        method: 'POST',
+        headers: [{ name: 'Content-Type', value: contentType }],
+        postData,
+      }),
+    ).toBe(
+      [
+        'curl https://example.com',
+        '--request POST',
+        `--header 'Content-Type: ${contentType}'`,
+        `--data '${text}'`,
+      ].join(' \\\n  '),
+    )
+  })
+
+  it('includes a framed streaming body in generated code samples', () => {
+    expect(
+      processBody({
+        requestBody: {
+          content: {
+            'application/jsonl': {
+              itemSchema: { type: 'object', properties: { message: { type: 'string', const: 'Hello' } } },
+            },
+          },
+        },
+        contentType: 'application/jsonl',
+      }),
+    ).toStrictEqual({ mimeType: 'application/jsonl', text: '{"message":"Hello"}\n' })
+  })
+
+  it.each([
+    ['application/xml', '<name>wire</name>'],
+    ['application/x-www-form-urlencoded', 'name=wire'],
+    ['application/json', ' { "name": "wire" } '],
+  ])('keeps serialized %s snippet payloads when dataValue also exists', (contentType, serializedValue) => {
+    expect(
+      processBody({
+        requestBody: {
+          content: {
+            [contentType]: { examples: { selected: { dataValue: { name: 'structured' }, serializedValue } } },
+          },
+        },
+        contentType,
+        example: 'selected',
+      }),
+    ).toStrictEqual({ mimeType: contentType, text: serializedValue })
+  })
+
+  it.each([
+    [{ dataValue: 'hello' }, '"hello"'],
+    [{ dataValue: false }, 'false'],
+    [{ dataValue: null }, 'null'],
+    [{ serializedValue: ' { "id": 1 }\n' }, ' { "id": 1 }\n'],
+  ])('preserves the selected example source %j in snippets', (example, expected) => {
+    expect(
+      processBody({
+        requestBody: { content: { 'application/json': { examples: { selected: example } } } },
+        contentType: 'application/json',
+        example: 'selected',
+      }),
+    ).toStrictEqual({ mimeType: 'application/json', text: expected })
+  })
+
+  it('uses the explicit item content type instead of schema defaults in snippets', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { default: { value: ['hello', { id: 1 }] } },
+            schema: {
+              type: 'array',
+              prefixItems: [coerceValue(SchemaObjectSchema, {}), { type: 'object' }],
+            },
+            itemEncoding: { contentType: 'application/vnd.example+json; charset=utf-8' },
+          },
+        },
+      },
+      example: 'default',
+    })
+    const boundary = result?.mimeType.match(/boundary="?([^";]+)/)?.[1]
+    expect(result?.text?.split(`--${boundary}`).slice(1, -1)).toStrictEqual([
+      '\r\nContent-Type: application/vnd.example+json; charset=utf-8\r\n\r\n"hello"\r\n',
+      '\r\nContent-Type: application/vnd.example+json; charset=utf-8\r\n\r\n{"id":1}\r\n',
+    ])
+  })
+
+  it.each([1, 2, 3])('preserves snippet part order with a prefix of length %i', (length) => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { default: { value: ['first', 'second'] } },
+            schema: { type: 'array', items: { type: 'string' } },
+            prefixEncoding: Array.from({ length }, () => ({ contentType: 'application/json' })),
+            itemEncoding: { contentType: 'text/plain; charset=utf-8' },
+          },
+        },
+      },
+      example: 'default',
+    })
+    const boundary = result?.mimeType.match(/boundary="?([^";]+)/)?.[1]
+    expect(result?.text?.split(`--${boundary}`).slice(1, -1)).toStrictEqual([
+      '\r\nContent-Type: application/json\r\n\r\n"first"\r\n',
+      length === 1
+        ? '\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nsecond\r\n'
+        : '\r\nContent-Type: application/json\r\n\r\n"second"\r\n',
+    ])
+  })
+
+  it('includes in snippets XML roots, untyped defaults, and wildcard parameters consistently', () => {
+    const requestBody = {
+      content: {
+        'multipart/mixed': {
+          examples: { default: { value: [{ id: 1 }, 'untyped', 'plain'] } },
+          schema: {
+            type: 'array' as const,
+            prefixItems: [
+              { type: 'object' as const, xml: { name: 'user' } },
+              coerceValue(SchemaObjectSchema, {}),
+              { type: 'string' as const },
+            ],
+          },
+          prefixEncoding: [{ contentType: 'application/xml' }, {}, { contentType: 'text/*; charset=utf-8' }],
+        },
+      },
+    }
+    const wire = processBody({ requestBody, example: 'default' })?.text
+    expect(wire).toContain(
+      'Content-Type: application/xml\r\n\r\n<?xml version="1.0" encoding="UTF-8"?>\n<user>\n  <id>1</id>\n</user>',
+    )
+    expect(wire).toContain('Content-Type: application/octet-stream\r\n\r\nuntyped')
+    expect(wire).toContain('Content-Type: text/plain; charset=utf-8\r\n\r\nplain')
+  })
+
+  it('uses the first named multipart example when no name is selected', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { upload: { value: ['provided'] } },
+            schema: { type: 'array', items: { type: 'string', default: 'generated' } },
+            itemEncoding: { contentType: 'text/plain' },
+          },
+        },
+      },
+    })
+    expect(result?.text).toContain('Content-Type: text/plain\r\n\r\nprovided')
+    expect(result?.text).not.toContain('generated')
+  })
+
+  it('serializes positional multipart snippets with a matching boundary', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/mixed': {
+            examples: { default: { value: [{ id: 1 }, 'hello'] } },
+            prefixEncoding: [{ contentType: 'application/json' }],
+            itemEncoding: { contentType: 'text/plain' },
+          },
+        },
+      },
+      example: 'default',
+    })
+    const boundary = result?.mimeType.match(/boundary="?([^";]+)/)?.[1]
+    expect(result?.text).toBe(
+      '--' +
+        boundary +
+        '\r\nContent-Type: application/json\r\n\r\n{"id":1}\r\n--' +
+        boundary +
+        '\r\nContent-Type: text/plain\r\n\r\nhello\r\n--' +
+        boundary +
+        '--\r\n',
+    )
+  })
+
+  it('serializes nested multipart snippets as MIME text', () => {
+    const result = processBody({
+      requestBody: {
+        content: {
+          'multipart/form-data': {
+            examples: { default: { value: { batch: [['hello']] } } },
+            encoding: { batch: { contentType: 'multipart/mixed', itemEncoding: { contentType: 'text/plain' } } },
+          },
+        },
+      },
+      example: 'default',
+    })
+    expect(result?.text).toContain(
+      'Content-Disposition: form-data; name="batch"\r\nContent-Type: multipart/mixed; boundary=',
+    )
+    expect(result?.text).toContain('Content-Type: text/plain\r\n\r\nhello')
+    expect(result?.params).toBeUndefined()
+  })
+
   it('extracts example from simple object schema', () => {
     const content = {
       'application/json': {
@@ -345,7 +596,7 @@ describe('processBody', () => {
     })
   })
 
-  it('handles custom content type with schema examples', () => {
+  it('serializes schema string examples as XML text', () => {
     const content = {
       'application/xml': {
         schema: coerceValue(SchemaObjectSchema, {
@@ -362,7 +613,7 @@ describe('processBody', () => {
 
     expect(result).toEqual({
       mimeType: 'application/xml',
-      text: '<user><name>Bob</name></user>',
+      text: '<?xml version="1.0" encoding="UTF-8"?>\n<root>&lt;user&gt;&lt;name&gt;Bob&lt;/name&gt;&lt;/user&gt;</root>',
     })
   })
 
@@ -713,6 +964,7 @@ describe('processBody', () => {
           {
             name: 'file',
             value: '@filename',
+            fileName: 'filename',
           },
           {
             name: 'name',
@@ -756,7 +1008,7 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'file', value: '@mars.jpg' },
+          { name: 'file', value: '@mars.jpg', fileName: 'mars.jpg' },
           { name: 'name', value: 'Mars Rover Photo' },
           { name: 'category', value: 'space' },
           {
@@ -936,7 +1188,7 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'file', value: '@filename' },
+          { name: 'file', value: '@filename', fileName: 'filename' },
           {
             name: 'props',
             value: JSON.stringify({ name: '', description: '', created_at: null }),
@@ -1458,8 +1710,8 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'attachments', value: '@a.txt' },
-          { name: 'attachments', value: '@b.txt' },
+          { name: 'attachments', value: '@a.txt', fileName: 'a.txt', contentType: 'text/plain' },
+          { name: 'attachments', value: '@b.txt', fileName: 'b.txt', contentType: 'text/plain' },
         ],
       })
     })
@@ -1536,6 +1788,80 @@ describe('processBody', () => {
           { name: 'notes', value: 'Important document' },
         ],
       })
+    })
+
+    it('sets fileName on a binary property so snippet generators emit a real file upload (issue #10455)', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            required: ['upload'],
+            properties: {
+              upload: { type: 'string', format: 'binary' },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result?.params).toStrictEqual([{ name: 'upload', value: '@filename', fileName: 'filename' }])
+
+      const python = snippetz().print('python', 'requests', {
+        method: 'POST',
+        url: 'https://api.example.invalid/upload/',
+        postData: result,
+      })
+      expect(python).toContain('files=')
+      expect(python).toContain('open("filename", "rb")')
+      expect(python).not.toContain('@filename')
+    })
+
+    it('keeps a text property that starts with @ as a text field', () => {
+      const content = {
+        'multipart/form-data': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              handle: { type: 'string', example: '@scalar' },
+              upload: { type: 'string', format: 'binary' },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'multipart/form-data',
+      })
+
+      expect(result?.params).toStrictEqual([
+        { name: 'handle', value: '@scalar' },
+        { name: 'upload', value: '@filename', fileName: 'filename' },
+      ])
+    })
+
+    it('does not treat an @ string as a file in urlencoded bodies', () => {
+      const content = {
+        'application/x-www-form-urlencoded': {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              upload: { type: 'string', format: 'binary' },
+            },
+          }),
+        },
+      }
+
+      const result = processBody({
+        requestBody: { content },
+        contentType: 'application/x-www-form-urlencoded',
+      })
+
+      expect(result?.params?.[0]?.fileName).toBeUndefined()
     })
   })
 
@@ -2189,7 +2515,7 @@ describe('processBody', () => {
       expect(result).toEqual({
         mimeType: 'multipart/form-data',
         params: [
-          { name: 'scalar.jpeg', value: '@scalar.jpeg' },
+          { name: 'scalar.jpeg', value: '@scalar.jpeg', fileName: 'scalar.jpeg', contentType: 'text/plain' },
           { name: 'test', value: 'me' },
         ],
       })
@@ -2252,4 +2578,27 @@ describe('processBody', () => {
       ],
     })
   })
+  it.each(['application/xml', 'text/xml', 'application/problem+xml; charset=utf-8'])(
+    'shares schema-aware XML body serialization for %s',
+    (contentType) => {
+      const requestBody = {
+        content: {
+          [contentType]: {
+            schema: coerceValue(SchemaObjectSchema, {
+              type: 'object',
+              xml: { name: 'person' },
+              properties: {
+                id: { example: 7, xml: { attribute: true } },
+                names: { type: 'array', example: ['Ada', 'Grace'], items: { type: 'string', xml: { name: 'name' } } },
+              },
+            }),
+          },
+        },
+      }
+      expect(processBody({ requestBody, contentType })).toStrictEqual({
+        mimeType: contentType,
+        text: '<?xml version="1.0" encoding="UTF-8"?>\n<person id="7">\n  <name>Ada</name>\n  <name>Grace</name>\n</person>',
+      })
+    },
+  )
 })

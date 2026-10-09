@@ -5,7 +5,9 @@ import type { Hono } from 'hono'
 import { respondWithAuthorizePage } from '@/routes/respond-with-authorize-page'
 import { respondWithToken } from '@/routes/respond-with-token'
 
+import { getOAuth2Metadata } from './get-oauth2-metadata'
 import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls'
+import { setUpDeviceAuthorization } from './set-up-device-authorization'
 
 /**
  * Helper function to set up authentication routes for OAuth 2.0 flows
@@ -13,6 +15,8 @@ import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls
 export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) {
   const securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject> =
     schema?.components?.securitySchemes || {}
+
+  setUpDeviceAuthorization(app, schema)
 
   // Set up authentication routes for OAuth 2.0 flows
   getOpenAuthTokenUrls(schema).forEach((tokenUrl) => {
@@ -51,12 +55,24 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
     }
 
     if (scheme.type === 'oauth2') {
+      if (
+        'oauth2MetadataUrl' in scheme &&
+        typeof scheme.oauth2MetadataUrl === 'string' &&
+        scheme.oauth2MetadataUrl.trim()
+      ) {
+        const metadataPath = getPathFromUrl(scheme.oauth2MetadataUrl, { preserveTrailingSlash: true })
+        if (schema?.paths && Object.hasOwn(schema.paths, metadataPath)) {
+          console.warn(`OAuth2 metadata route "${metadataPath}" collides with a declared API path.`)
+        }
+        app.get(metadataPath, (c) => c.json(getOAuth2Metadata(scheme.flows, new URL(c.req.url).origin)))
+      }
+
       if (scheme.flows?.authorizationCode) {
         const authorizeRoute = scheme.flows.authorizationCode.authorizationUrl ?? '/oauth/authorize'
         const tokenRoute = scheme.flows.authorizationCode.tokenUrl ?? '/oauth/token'
 
         authorizeUrls.add(getPathFromUrl(authorizeRoute))
-        tokenUrls.add(tokenRoute)
+        tokenUrls.add(getPathFromUrl(tokenRoute))
       }
 
       if (scheme.flows?.implicit) {
@@ -66,12 +82,12 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
 
       if (scheme.flows?.password) {
         const tokenRoute = scheme.flows.password.tokenUrl ?? '/oauth/token'
-        tokenUrls.add(tokenRoute)
+        tokenUrls.add(getPathFromUrl(tokenRoute))
       }
 
       if (scheme.flows?.clientCredentials) {
         const tokenRoute = scheme.flows.clientCredentials.tokenUrl ?? '/oauth/token'
-        tokenUrls.add(tokenRoute)
+        tokenUrls.add(getPathFromUrl(tokenRoute))
       }
     } else if (scheme.type === 'openIdConnect') {
       // Handle OpenID Connect configuration
@@ -95,7 +111,7 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
         const tokenRoute = '/oauth/token'
 
         authorizeUrls.add(getPathFromUrl(authorizeRoute))
-        tokenUrls.add(tokenRoute)
+        tokenUrls.add(getPathFromUrl(tokenRoute))
       }
     }
   })

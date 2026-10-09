@@ -42,6 +42,55 @@ beforeEach(() => {
 })
 
 describe('ScalarCodeBlock', () => {
+  it('names the code region while keeping it keyboard-scrollable', async () => {
+    const wrapper = createWrapper()
+    const region = wrapper.get('[role="group"]')
+
+    expect(region.attributes('aria-label')).toBe('Code sample')
+    expect(region.attributes('tabindex')).toBe('0')
+    expect(region.text()).toBe('console.log()')
+
+    await wrapper.setProps({ label: 'Request example' })
+    expect(region.attributes('aria-label')).toBe('Request example')
+  })
+
+  it.each([
+    ['console.log()', 'Copy code'],
+    ['console.log()\nconsole.log()', 'Copy js code'],
+  ])('keeps a descriptive copy name for %j', async (content, copyName) => {
+    const wrapper = mount(ScalarCodeBlock, { props: { content, lang: 'js' } })
+    const button = wrapper.get('button')
+
+    expect(button.attributes('aria-label')).toBe(copyName)
+    await button.trigger('click')
+    expect(mockCopy).toHaveBeenCalledWith(content)
+
+    mockCopied.value = true
+    await flushPromises()
+
+    expect(button.attributes('aria-label')).toBe(copyName)
+    expect(wrapper.get('[role="alert"]').text()).toBe('Copied')
+  })
+  describe('keyboard access to the scroller', () => {
+    it('uses the label prop as the accessible name', async () => {
+      const labelled = mount(ScalarCodeBlock, {
+        props: { content: 'console.log()', lang: 'js', label: 'Codebeispiel' },
+      })
+      await flushPromises()
+
+      expect(labelled.get('.custom-scroll').attributes('aria-label')).toBe('Codebeispiel')
+    })
+
+    it('keeps the copy button outside the scroll region', async () => {
+      wrapper = createWrapper()
+      await flushPromises()
+
+      // A focusable control inside the scroller could be focused while scrolled out of view
+      const copyButton = wrapper.findComponent(ScalarCopyButton)
+      expect(wrapper.get('.custom-scroll').element.contains(copyButton.element)).toBe(false)
+    })
+  })
+
   it('renders properly', async () => {
     wrapper = createWrapper()
 
@@ -145,6 +194,34 @@ describe('ScalarCodeBlock', () => {
       // Check that the button is not rendered
       const button = wrapper.find('button.copy-button')
       expect(button.exists()).toBe(false)
+    })
+
+    it('names the copy button after the language it copies', async () => {
+      wrapper = mount(ScalarCodeBlock, {
+        props: { content: 'line one\nline two', lang: 'javascript' },
+      })
+      await flushPromises()
+
+      const button = wrapper.findComponent(ScalarCopyButton).get('button')
+      expect(button.attributes('aria-label')).toBe('Copy JavaScript code')
+      // The visible word stays part of the name (WCAG 2.5.3)
+      expect(button.text()).toContain('Copy')
+    })
+
+    it('uses a plain name for a one-line block that shows no language', async () => {
+      wrapper = createWrapper()
+      await flushPromises()
+
+      expect(wrapper.findComponent(ScalarCopyButton).get('button').attributes('aria-label')).toBe('Copy code')
+    })
+
+    it('forwards a localized copy label', async () => {
+      wrapper = mount(ScalarCodeBlock, {
+        props: { content: 'console.log()', lang: 'js', copyLabel: 'Code kopieren' },
+      })
+      await flushPromises()
+
+      expect(wrapper.findComponent(ScalarCopyButton).get('button').attributes('aria-label')).toBe('Code kopieren')
     })
   })
 })

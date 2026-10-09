@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 
-const { label = 'Save', variant = 'solid' } = defineProps<{
+import { useLocalization } from '@/v2/features/localization'
+
+const { label, variant = 'solid' } = defineProps<{
   /** The label of the submit button */
   label?: string
   /** Sets the style of the submit button */
@@ -12,6 +14,8 @@ const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'submit'): void
 }>()
+
+const { translate } = useLocalization()
 </script>
 <template>
   <form
@@ -26,7 +30,7 @@ const emit = defineEmits<{
         type="button"
         variant="outlined"
         @click="emit('cancel')">
-        Cancel
+        {{ translate('apiClient.confirmationForm.cancel') }}
       </ScalarButton>
 
       <!-- Submit -->
@@ -34,7 +38,7 @@ const emit = defineEmits<{
         size="sm"
         type="submit"
         :variant="variant">
-        {{ label }}
+        {{ label ?? translate('apiClient.confirmationForm.save') }}
       </ScalarButton>
     </div>
   </form>

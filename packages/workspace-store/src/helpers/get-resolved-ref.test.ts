@@ -1,7 +1,7 @@
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
-import { type Dereference, type RefNode, getResolvedRef } from './get-resolved-ref'
+import { type Dereference, type RefNode, getResolvedRef, mergeSiblingReferences } from './get-resolved-ref'
 
 describe('get-resolved-ref', () => {
   it('keeps unresolved references optional in the return type', () => {
@@ -18,7 +18,7 @@ describe('get-resolved-ref', () => {
     expect(result).toBeNull()
   })
 
-  describe.todo('multiple ref depth', () => {
+  describe('multiple ref depth', () => {
     it('should resolved deeply nested $refs #1', () => {
       const input = createMagicProxy({
         a: { $ref: '#/b' },
@@ -302,6 +302,102 @@ describe('get-resolved-ref', () => {
       expect(result).toHaveLength(2)
       expect((result as any)[0].name).toBe('User 1')
       expect((result as any)[1].name).toBe('User 2')
+    })
+  })
+})
+
+describe('reference chains', () => {
+  /** What `resolve()` leaves behind: the component is a `$global` stub and the content sits under `x-ext`. */
+  const buildStubChain = () => {
+    const schema = { type: 'object', properties: { id: { type: 'string' } } }
+    const stub = { $ref: '#/x-ext/89db6c7', $global: true, $status: 'loaded', '$ref-value': schema }
+    const property = { $ref: '#/components/schemas/User', '$ref-value': stub }
+
+    return { schema, stub, property }
+  }
+
+  it('resolves a two-hop chain through a $global stub to the schema', () => {
+    const { schema, property } = buildStubChain()
+
+    expect(getResolvedRef(property as any)).toBe(schema)
+  })
+
+  it('resolves a two-hop chain with mergeSiblingReferences', () => {
+    const { property } = buildStubChain()
+
+    expect(getResolvedRef(property as any, mergeSiblingReferences)).toEqual({
+      type: 'object',
+      properties: { id: { type: 'string' } },
+      $ref: '#/components/schemas/User',
+    })
+  })
+
+  it('does not merge the stub bookkeeping keys onto the resolved value', () => {
+    const { property } = buildStubChain()
+
+    const resolved = getResolvedRef(property as any, mergeSiblingReferences) as Record<string, unknown>
+
+    expect('$global' in resolved).toBe(false)
+    expect('$status' in resolved).toBe(false)
+  })
+
+  it('resolves a three-hop chain of pass-through references', () => {
+    const schema = { type: 'string' }
+    const inner = { $ref: '#/x-ext/two', '$ref-value': schema }
+    const middle = { $ref: '#/x-ext/one', '$ref-value': inner }
+    const outer = { $ref: '#/components/schemas/Name', '$ref-value': middle }
+
+    expect(getResolvedRef(outer as any)).toBe(schema)
+  })
+
+  it('stops at an inner reference that carries keywords of its own', () => {
+    // A reference with siblings is a schema in its own right — here the `$defs`/`$dynamicAnchor`
+    // binding of a generic — so it stays its own hop and the caller resolves it as it descends.
+    const generic = {
+      $id: 'https://example.com/PaginatedUser',
+      $defs: { itemType: { $dynamicAnchor: 'itemType', $ref: '#/components/schemas/User' } },
+      '$ref': '#/components/schemas/PaginatedTemplate',
+      '$ref-value': { type: 'object', properties: { items: { type: 'array' } } },
+    }
+    const property = { $ref: '#/components/schemas/PaginatedUser', '$ref-value': generic }
+
+    expect(getResolvedRef(property as any)).toBe(generic)
+  })
+
+  it('stops at an inner reference that has not been resolved yet', () => {
+    const stub = { $ref: './chunks/User.json#', $global: true }
+    const property = { $ref: '#/components/schemas/User', '$ref-value': stub }
+
+    expect(getResolvedRef(property as any)).toBe(stub)
+    expect(getResolvedRef(property as any, mergeSiblingReferences)).toEqual({
+      $ref: '#/components/schemas/User',
+      $global: true,
+    })
+  })
+
+  it('terminates on a reference cycle', () => {
+    const first: Record<string, unknown> = { $ref: '#/a' }
+    const second: Record<string, unknown> = { $ref: '#/b', '$ref-value': first }
+    first['$ref-value'] = second
+
+    expect(getResolvedRef(first as any)).toBe(first)
+  })
+
+  it('terminates on a reference that points at itself', () => {
+    const self: Record<string, unknown> = { $ref: '#/self' }
+    self['$ref-value'] = self
+
+    expect(getResolvedRef(self as any)).toBe(self)
+  })
+
+  it('leaves a single hop onto a plain value unchanged', () => {
+    const target = { type: 'object' }
+    const node = { $ref: '#/components/schemas/User', '$ref-value': target }
+
+    expect(getResolvedRef(node as any)).toBe(target)
+    expect(getResolvedRef(node as any, mergeSiblingReferences)).toEqual({
+      type: 'object',
+      $ref: '#/components/schemas/User',
     })
   })
 })

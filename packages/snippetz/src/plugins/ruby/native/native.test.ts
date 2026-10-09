@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { rubyNative } from './native'
 
 describe('rubyNative', () => {
+  it('preserves reserved path characters and existing percent-encoded triples', () => {
+    const url = 'https://example.com/items/a:b@c+$d&x=y;%2f%3F%23%25%5B%5D'
+    expect(rubyNative.generate({ url })).toContain(`url = URI("${url}")`)
+  })
+
   const baseHttpsRequest = `require 'uri'
 require 'net/http'
 
@@ -272,8 +277,7 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toBe(
-      `require 'uri'
+    expect(result).toBe(`require 'uri'
 require 'net/http'
 
 url = URI("https://example.com")
@@ -283,13 +287,12 @@ http.use_ssl = true
 
 request = Net::HTTP::Post.new(url)
 form_data = []
-form_data << ['file', File.open('test.txt')]
+form_data << ['file', File.open('test.txt', 'rb')]
 form_data << ['field', 'value']
 request.set_form(form_data, 'multipart/form-data')
 
 response = http.request(request)
-puts response.read_body`,
-    )
+puts response.read_body`)
   })
 
   it('handles multipart form data content types on string parts', () => {
@@ -329,9 +332,21 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toContain(
-      `form_data << ['file', File.open('test.txt'), { filename: 'test.txt', content_type: 'text/plain' }]`,
-    )
+    expect(result).toBe(`require 'uri'
+require 'net/http'
+
+url = URI("https://example.com")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+form_data = []
+form_data << ['file', File.open('test.txt', 'rb'), { filename: 'test.txt', content_type: 'text/plain' }]
+request.set_form(form_data, 'multipart/form-data')
+
+response = http.request(request)
+puts response.read_body`)
   })
 
   it('handles multipart form data with single quotes in parameter name', () => {
@@ -353,8 +368,22 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toContain(`form_data << ['field\\'name', 'value']`)
-    expect(result).toContain(`form_data << ['file\\'name', File.open('test.txt')]`)
+    expect(result).toBe(`require 'uri'
+require 'net/http'
+
+url = URI("https://example.com")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+form_data = []
+form_data << ['field\\'name', 'value']
+form_data << ['file\\'name', File.open('test.txt', 'rb')]
+request.set_form(form_data, 'multipart/form-data')
+
+response = http.request(request)
+puts response.read_body`)
   })
 
   it('handles multipart form data with JSON payload', () => {
@@ -540,11 +569,11 @@ puts response.read_body`,
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -586,7 +615,21 @@ puts response.read_body`,
       },
     })
 
-    expect(result).toContain(`form_data << ['file', File.open('')]`)
+    expect(result).toBe(`require 'uri'
+require 'net/http'
+
+url = URI("https://example.com")
+
+http = Net::HTTP.new(url.host, url.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+form_data = []
+form_data << ['file', File.open('', 'rb')]
+request.set_form(form_data, 'multipart/form-data')
+
+response = http.request(request)
+puts response.read_body`)
   })
 
   it('handles JSON body with special characters', () => {
@@ -669,11 +712,11 @@ puts response.read_body`,
       queryString: [
         {
           name: 'price',
-          value: '%24100',
+          value: '$100',
         },
         {
           name: 'currency',
-          value: 'USD%24',
+          value: 'USD$',
         },
       ],
     })
@@ -687,7 +730,7 @@ puts response.read_body`,
       queryString: [
         {
           name: 'amount',
-          value: '%2450.00',
+          value: '$50.00',
         },
       ],
     })
@@ -712,16 +755,16 @@ puts response.read_body`,
   it('supports custom HTTP methods', () => {
     const result = rubyNative.generate({
       url: 'https://example.com',
-      method: 'PROPFIND',
+      method: 'customMethod',
       postData: {
         mimeType: 'application/json',
         text: '{}',
       },
     })
 
-    expect(result).toContain('class Net::HTTP::Propfind < Net::HTTPRequest')
-    expect(result).toContain("METHOD = 'PROPFIND'")
+    expect(result).toContain('class Net::HTTP::CustomRequest < Net::HTTPRequest')
+    expect(result).toContain("METHOD = 'customMethod'")
     expect(result).toContain("REQUEST_HAS_BODY = 'true'")
-    expect(result).toContain('request = Net::HTTP::Propfind.new(url)')
+    expect(result).toContain('request = Net::HTTP::CustomRequest.new(url)')
   })
 })

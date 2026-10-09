@@ -51,6 +51,20 @@ Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-serve
 pnpm script run test-servers
 ```
 
+## Unused-code checks
+
+In a fresh worktree, install dependencies and build the small set of packages loaded by tooling configurations before running Knip:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
+pnpm lint:knip
+```
+
+Turbo also builds `@scalar/themes`, which helpers needs. Playwright configurations load helpers, and the Scalar App configuration loads validation. No integration build or full monorepo build is required.
+
+To check only Docusaurus after installing dependencies, run `pnpm knip --workspace integrations/docusaurus`. This check does not require any workspace packages to be built. Knip analyzes the playground configuration statically, so configuration-only references such as sidebars must remain listed in `knip.jsonc`.
+
 ## Auto-Generated Files
 
 Some files in this repository are auto-generated and should not be edited manually. Manual changes to these files will be lost when they are regenerated.

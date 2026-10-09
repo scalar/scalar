@@ -1,5 +1,130 @@
 [
   {
+    "version": "0.12.35",
+    "date": "2026-09-22",
+    "title": "Faster startup and smarter OpenAPI reference resolution",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release makes the agent chat load faster by deferring the API client modal until you actually need it. We also improved how relative references resolve in OpenAPI 3.2 documents, honoring the $self identifier and preserving authored reference spellings."
+      },
+      {
+        "type": "list",
+        "items": [
+          "The API client modal now loads on demand when you open a request, saving 292 KB (28%) on initial page load.",
+          "Added support for OpenAPI 3.2 $self to resolve relative references against the document's declared identity instead of its network location.",
+          "Preserved authored reference spellings through partial bundles and editable exports, so schema labels and anchors keep their existing behavior.",
+          "URI resolution now correctly handles root-relative URLs, protocol-relative URLs, query strings, and fragments across all bundler workflows."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01235",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.12.28",
+    "date": "2026-08-20",
+    "title": "Security and infrastructure improvements",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01228",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.12.27",
+    "date": "2026-08-20",
+    "title": "Polish and bug fixes shipped",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01227",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.12.25",
+    "date": "2026-08-13",
+    "title": "Better international input and NDJSON response rendering",
+    "content": [
+      {
+        "type": "list",
+        "items": [
+          "Fixed Enter key sending messages too early when typing Japanese, Chinese, or Korean text on macOS Chrome and Safari.",
+          "NDJSON responses now render as pretty-printed JSON records instead of showing as a binary file.",
+          "Removed a debug log statement that fired every time you toggled the response view."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01225",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.12.22",
+    "date": "2026-07-16",
+    "title": "Updated package README with refreshed platform overview",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01222",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.12.21",
+    "date": "2026-07-16",
+    "title": "Border radius now scales from a single variable",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Setting --scalar-radius now rescales every corner in the interface, including larger radii and pills. Previously, overriding the base radius left some corners rounded because tokens were independent."
+      },
+      {
+        "type": "list",
+        "items": [
+          "All border radius tokens now derive from --scalar-radius, so setting it to 0 squares off the entire interface",
+          "Two new tokens, --scalar-radius-2xl (12px) and --scalar-radius-3xl (16px), fill out the scale",
+          "The rounded-2xl and rounded-3xl Tailwind utilities now work correctly",
+          "Default values are unchanged, so existing themes render identically unless you were overriding --scalar-radius alone"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01221",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "0.12.16",
+    "date": "2026-07-02",
+    "title": "Remove duplicate heading from start panel",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The Agent Chat start panel no longer renders a hidden heading tag, preventing SEO issues on API reference pages where crawlers were detecting duplicate headings."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01216",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.7",
     "date": "2026-06-08",
     "title": "Polish and bug fixes shipped",

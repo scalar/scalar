@@ -1,7 +1,6 @@
 import { useModal } from '@scalar/components/modal'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.1/strict/openapi-document'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, ref } from 'vue'
@@ -57,11 +56,11 @@ const createTestSetup = async () => {
   store.update('x-scalar-active-document', 'test-doc')
 
   const path = ref<string | undefined>(undefined)
-  const method = ref<HttpMethod | undefined>(undefined)
+  const method = ref<string | undefined>(undefined)
   const exampleName = ref<string | undefined>(undefined)
   const isWebhook = ref(false)
 
-  const route = vi.fn((payload: { path?: string; method?: HttpMethod; example?: string; isWebhook?: boolean }) => {
+  const route = vi.fn((payload: { path?: string; method?: string; example?: string; isWebhook?: boolean }) => {
     path.value = payload.path
     method.value = payload.method
     exampleName.value = payload.example
@@ -97,7 +96,7 @@ const createTestSetup = async () => {
     store,
   })
 
-  const getEntryId = (location: { path?: string; method?: HttpMethod; isWebhook?: boolean }) =>
+  const getEntryId = (location: { path?: string; method?: string; isWebhook?: boolean }) =>
     sidebarState.getEntryByLocation({ document: 'test-doc', method: 'post', ...location })?.id ?? ''
 
   const openClientModal = async (payload: Record<string, unknown>) => {
@@ -105,10 +104,33 @@ const createTestSetup = async () => {
     await waitForUpdates()
   }
 
-  return { getEntryId, modalState, openClientModal, requestBodyCompositionSelection, route }
+  return { getEntryId, handlers, modalState, openClientModal, requestBodyCompositionSelection, route }
 }
 
 describe('modal-events', () => {
+  it('selects a newly created example after rebuilding the sidebar', async () => {
+    const { getEntryId, handlers, openClientModal, requestBodyCompositionSelection, route } = await createTestSetup()
+    await openClientModal({
+      id: getEntryId({ path: '/pets' }),
+      requestBodyCompositionSelection: { 'requestBody.oneOf': 1 },
+    })
+
+    handlers['operation:create:draft-example']?.({
+      documentName: 'test-doc',
+      meta: { path: '/pets', method: 'post' },
+      exampleName: 'Generated from schema',
+    })
+    await waitForUpdates()
+
+    expect(route).toHaveBeenLastCalledWith({
+      documentSlug: 'test-doc',
+      path: '/pets',
+      method: 'post',
+      example: 'Generated from schema',
+    })
+    expect(requestBodyCompositionSelection.value).toEqual({ 'requestBody.oneOf': 1 })
+  })
+
   it('keeps the request body composition selection when the operation is already open', async () => {
     const { getEntryId, openClientModal, requestBodyCompositionSelection, route } = await createTestSetup()
     const id = getEntryId({ path: '/pets' })

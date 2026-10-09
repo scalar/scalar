@@ -1,10 +1,16 @@
 import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
-import { createAsyncApiMockServer, createMockServer, isAsyncApiDocument } from '@scalar/mock-server'
+import {
+  type AsyncApiMockServer,
+  createAsyncApiMockServer,
+  createMockServer,
+  isAsyncApiDocument,
+} from '@scalar/mock-server'
 import type { Hono } from 'hono'
 
 interface ServerConfig {
   document: string
+  origin?: string
   format: 'json' | 'yaml'
   port?: number
 }
@@ -32,21 +38,22 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   const isAsyncApi = isAsyncApiDocument(parseDocument(document, format))
 
   let app: Hono
-  // AsyncAPI WebSocket channels must be injected into the HTTP server after `serve()`.
-  let injectWebSocket: ((server: ReturnType<typeof serve>) => void) | undefined
+  let websocket: AsyncApiMockServer['websocket'] | undefined
 
   if (isAsyncApi) {
     const mock = await createAsyncApiMockServer({
       document,
+      origin: config.origin,
       logger: (line) => console.log(line),
       onMessage: ({ channel, direction, payload }) =>
         console.log(`${direction === 'in' ? '→' : '←'} ${channel}`, payload),
     })
     app = mock.app
-    injectWebSocket = mock.injectWebSocket
+    websocket = mock.websocket
   } else {
     app = await createMockServer({
       document,
+      origin: config.origin,
       onRequest({ context }) {
         console.log(context.req.method, context.req.path)
       },
@@ -66,17 +73,15 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   // API Reference at /scalar (renders both OpenAPI and AsyncAPI documents)
   app.get('/scalar', Scalar({ url: endpoint, theme: 'default' }))
 
-  const server = serve(
+  serve(
     {
       fetch: app.fetch,
       port,
+      ...(websocket ? { websocket } : {}),
     },
     (info) => {
       console.log(`🚀 Mock Server listening on http://${info.address}:${info.port}`)
       console.log(`📖 API Reference: http://${info.address}:${info.port}/scalar`)
     },
   )
-
-  // Attach WebSocket handling for AsyncAPI ws/wss channels.
-  injectWebSocket?.(server)
 }

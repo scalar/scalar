@@ -18,7 +18,7 @@ Scalar is a Vue 3 + TypeScript monorepo for API documentation and testing.
 ## Prerequisites
 
 - **Node.js**: v24 (see `.nvmrc`)
-- **Package manager**: pnpm (v10.16.1+)
+- **Package manager**: pnpm (v12.2.1+)
 
 ## First-Time Setup
 
@@ -191,6 +191,23 @@ If the helper you need already exists there, import it from `@scalar/helpers`. O
 - Add JSDoc for exported types and functions
 - Leave TODO comments for temporary solutions
 
+### Accessibility
+
+Apply these rules when changing UI in shared components, API reference, or API client. Reuse accessible primitives from `@scalar/components` and verify them in the consuming layout. Consult the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/practices/read-me-first/) for widget behavior and [WCAG 2.2](https://www.w3.org/WAI/WCAG22/quickref/) for applicable criteria and exceptions.
+
+- **Names and labels:** Give every interactive control a descriptive accessible name before hover or focus. Include its visible label in that name. Name icon-only actions by purpose, such as "Copy code sample", and distinguish actions such as JSON and YAML downloads. Associate field labels with the actual editable element, including masked and revealed inputs; a placeholder or tooltip alone is not a label.
+- **Roles and state:** Prefer native HTML. Custom widgets must implement the keyboard behavior promised by their role. Bind `aria-selected`, `aria-pressed`, `aria-current`, and `aria-expanded` to the actual state of the relevant control. A dropdown inside an open dialog is not necessarily expanded. Decorative checkmarks inside listbox options are not separate checkboxes or Tab stops.
+- **Keyboard and focus:** Preserve logical Tab order, visible focus rings, and focus visibility within scrolling containers. Avoid positive `tabindex`. Remove accidental focus stops on plain text, but preserve keyboard access to scrollable code and tab panels that need it. Give focusable code scrolling surfaces suitable semantics and a concise accessible name. Modal dialogs need an accessible name, intentional initial focus, contained keyboard focus, Escape handling, and focus restoration on close.
+- **Structure and announcements:** Choose heading levels from the surrounding document hierarchy, not visual size; an operation under a tag differs from a standalone operation or dialog. Preserve meaningful list items and counts without counting layout wrappers. Avoid redundant named landmarks and duplicate controls. Announce action feedback such as "Copied" without repeating whole panels or moving focus. Do not remove required ARIA relationships solely to suppress speech without reproducing the issue and checking the widget pattern.
+- **Contrast and layout:** Check text, syntax colors, controls, and focus indicators against their actual backgrounds in affected light and dark themes and states. Theme tokens alone do not establish contrast. Check 200% zoom and reflow at 320 CSS pixels, including long headings, code, and modal headers. Keep necessary code scrolling local so it does not force page-wide horizontal scrolling. Measure the interactive hit area, not its decorative SVG, when assessing target size and spacing.
+
+For UI accessibility changes, verify the affected behavior before and after:
+
+1. Exercise the relevant keyboard path, including opening, selection, scrolling, and closing. Inspect accessible names, roles, and states before focus and after state changes; check copy feedback and selected states where applicable.
+2. Add focused regression coverage for the behavior being fixed, using role/name queries and user interactions where supported. Include shared-component consumers when the issue depends on their layout or attribute forwarding.
+3. Reproduce speech-specific reports with the reported browser and screen reader when available. An accessibility-tree inspection or automated check does not prove what NVDA announces. Record unavailable combinations and unverified acceptance checks explicitly.
+4. When working from an audit, confirm the deployed version, customer theme, content, and embedding layout where relevant. Treat suggested fixes as hypotheses: do not flatten valid headings, remove useful keyboard access, or change widget roles just to match a report. Distinguish verified fixes, unreproduced findings, and product-specific requests.
+
 ## Testing
 
 - **Unit tests**: Vitest, `*.test.ts` next to source
@@ -263,6 +280,12 @@ Only use the root `pnpm test` (no path argument) when you intentionally want to 
 - Prefer scope when relevant
 
 ## PR Requirements
+
+### PR descriptions
+
+- Explain the problem and resulting behavior with concrete examples. For OpenAPI-related changes, include the smallest complete, copy-pasteable OpenAPI document that demonstrates the change and describe the expected before/after behavior. Add screenshots when they help illustrate the result; UI changes require visual artifacts as described below.
+- Upload or attach screenshots used in PR descriptions as PR assets. Do not commit them or include them in the PR diff.
+- Do not mention tests, type checks, lint, formatting, or Knip checks you ran in the PR description; CI shows these results. Continue to run all required checks before opening or updating a PR.
 
 ### Semantic PR titles
 
@@ -348,6 +371,10 @@ If a package version should bump, add a changeset:
 pnpm changeset
 ```
 
+Do not add a changeset for an **ignored package**. The `ignore` list in `.changeset/config.json` currently covers `proxy-scalar-com`, `@scalar-examples/*`, and `@scalar-internal/*`. These are private or deployed separately, so they are never published to npm.
+
+A changeset that targets only an ignored package is never consumed by `changeset version`, so it stays in `.changeset/` indefinitely. That pins the release workflow to the "version" path: it keeps opening a `chore: release` PR and never runs `publish`, silently blocking every other package from being released. If `pnpm changeset status` reports a bump for one of these packages, delete that changeset rather than merging it.
+
 ### After-change checklist
 
 After making **any** code changes, run lint, format, and type-check scoped to only the files and packages you touched. Do not run whole-repo checks.
@@ -387,6 +414,9 @@ pnpm --filter @scalar/<package-name> types:check
 Then, before opening or updating a PR, also run:
 
 ```bash
+# In a fresh worktree, build the packages loaded by tooling configurations.
+# Turbo also builds @scalar/themes; no integration build is needed.
+pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
 pnpm knip          # Detect unused exports, files, and dependencies
 ```
 
@@ -434,6 +464,8 @@ The `api-client` has multiple layouts (web, app, modal) - see its package `AGENT
 
 When making UI changes, embed artifacts directly in the PR description. Cursor Cloud Agents can upload these when referenced as absolute paths.
 
+Keep screenshots for PR descriptions outside the tracked source tree and upload or attach them as PR assets. Do not stage or commit these screenshots; they must not appear in the PR diff.
+
 #### How it works
 
 1. Save artifacts to `/opt/cursor/artifacts/` using descriptive snake_case names.
@@ -468,6 +500,16 @@ Add a `## Visual` section:
 <video src="/opt/cursor/artifacts/demo_feature.mp4" controls></video>
 ```
 
+## OpenAPI Specification
+
+Before making any OpenAPI-related code changes, always read the [OpenAPI Specification 3.2.1](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/3.2.1.md) first. Use its relevant requirements to guide implementation and tests, rather than relying on memory or existing code alone. When changing behavior for an earlier OpenAPI version, also consult that version's specification for differences.
+
+- [OpenAPI 3.1.2](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/3.1.2.md)
+- [OpenAPI 3.0.4](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/3.0.4.md)
+- [OpenAPI 2.0](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/2.0.md)
+
+Respect the version declared by the API description (`openapi` or `swagger`). Do not apply newer-version behavior to older documents unless that version's specification supports it.
+
 ## OpenAPI Terminology
 
 Use consistent terminology:
@@ -484,7 +526,7 @@ Use consistent terminology:
 ### Environment
 
 - **Node.js v24** is managed via nvm. The update script handles installation automatically.
-- **pnpm v10.16.1** is activated via corepack. No global install needed.
+- **pnpm v12.2.1** is activated via corepack. No global install needed.
 - After `pnpm install`, you may see a warning about ignored esbuild build scripts. This is safe to ignore — Vite 8 uses Rolldown and the build succeeds without esbuild's platform binary.
 
 ### Running dev servers
@@ -502,7 +544,7 @@ Use consistent terminology:
 
 ### Lint and format
 
-- `pnpm lint:check` runs Biome on all TS files. This is the primary lint command.
+- `pnpm lint:check` checks Biome lint and import organization, then checks Vue ESLint errors. Warnings remain advisory.
 - For Vue files: `pnpm lint:vue` (ESLint).
 - For formatting: `pnpm format:check` (Prettier + Biome format).
 

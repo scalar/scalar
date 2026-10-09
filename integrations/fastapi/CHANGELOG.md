@@ -1,5 +1,13 @@
 # scalar-fastapi
 
+## 1.9.1
+
+### Patch Changes
+
+- [#10339](https://github.com/scalar/scalar/pull/10339): Escape JavaScript and favicon URL attributes to prevent values from injecting HTML.
+
+  Apply the same attribute escaping to Django Ninja JavaScript and favicon URLs.
+
 ## 1.9.0
 
 ### Minor Changes

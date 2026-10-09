@@ -77,20 +77,23 @@ describe('httpHttp11', () => {
       },
     })
 
-    expect(result).toMatch(
-      'POST / HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        'Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="field"\r\n' +
-        '\r\n' +
-        'value\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n',
-    )
+    expect(result).toBe(`// Files and boundary variables use VS Code REST Client syntax.\r
+@boundary = {{$guid}}\r
+\r
+POST / HTTP/1.1\r
+Host: example.com\r
+Content-Type: multipart/form-data; boundary={{boundary}}\r
+\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="file"; filename="test.txt"\r
+\r
+< test.txt\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="field"\r
+\r
+value\r
+--{{boundary}}--\r
+`)
   })
 
   it('handles multipart form data with per-part content types', () => {
@@ -114,22 +117,25 @@ describe('httpHttp11', () => {
       },
     })
 
-    expect(result).toMatch(
-      'POST / HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        'Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="file"; filename="test.txt"\r\n' +
-        'Content-Type: text/plain\r\n' +
-        '\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n' +
-        'Content-Disposition: form-data; name="metadata"\r\n' +
-        'Content-Type: application/json\r\n' +
-        '\r\n' +
-        '{"foo":"bar"}\r\n' +
-        '------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n',
-    )
+    expect(result).toBe(`// Files and boundary variables use VS Code REST Client syntax.\r
+@boundary = {{$guid}}\r
+\r
+POST / HTTP/1.1\r
+Host: example.com\r
+Content-Type: multipart/form-data; boundary={{boundary}}\r
+\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="file"; filename="test.txt"\r
+Content-Type: text/plain\r
+\r
+< test.txt\r
+--{{boundary}}\r
+Content-Disposition: form-data; name="metadata"\r
+Content-Type: application/json\r
+\r
+{"foo":"bar"}\r
+--{{boundary}}--\r
+`)
   })
 
   it('handles url-encoded form data with special characters', () => {
@@ -251,11 +257,11 @@ describe('httpHttp11', () => {
       queryString: [
         {
           name: 'q',
-          value: 'hello%20world%20%26%20more',
+          value: 'hello world & more',
         },
         {
           name: 'special',
-          value: '!%40%23%24%25%5E%26*()',
+          value: '!@#$%^&*()',
         },
       ],
     })
@@ -263,5 +269,37 @@ describe('httpHttp11', () => {
     expect(result).toBe(
       'GET /?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*() HTTP/1.1\r\n' + 'Host: example.com\r\n\r\n',
     )
+  })
+  it('sends a JSON body when the media type has parameters', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      postData: { mimeType: 'application/json; charset=utf-8', text: '{"a":1}' },
+    })
+
+    expect(result).toContain('Content-Type: application/json; charset=utf-8')
+    expect(result.endsWith('\r\n\r\n{"a":1}')).toBe(true)
+  })
+
+  it('sends a JSON body for a +json media type', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      postData: { mimeType: 'application/vnd.api+json', text: '{"a":1}' },
+    })
+
+    expect(result).toContain('Content-Type: application/vnd.api+json')
+    expect(result.endsWith('\r\n\r\n{"a":1}')).toBe(true)
+  })
+
+  it('sends a plain text body', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com/a',
+      method: 'POST',
+      postData: { mimeType: 'text/plain', text: 'hello there' },
+    })
+
+    expect(result).toContain('Content-Type: text/plain')
+    expect(result.endsWith('\r\n\r\nhello there')).toBe(true)
   })
 })

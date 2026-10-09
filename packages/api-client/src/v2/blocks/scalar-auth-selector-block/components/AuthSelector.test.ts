@@ -49,6 +49,9 @@ describe('AuthSelector', () => {
       eventBus: WorkspaceEventBus
       environment: any
       envVariables: any[]
+      heading: boolean
+      hideSingleRequiredScheme: boolean
+      createAnySecurityScheme: boolean
       isStatic: boolean
       canDeleteSchemes: boolean
       securityRequirements: any
@@ -85,6 +88,84 @@ describe('AuthSelector', () => {
     })
   }
 
+  it('hides a sole required reference choice while retaining its credential input', async () => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      canDeleteSchemes: false,
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth },
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    expect(wrapper.find('input').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="auth-indicator"]').text()).toBe('Required')
+    await wrapper.get('[data-testid="auth-indicator"]').trigger('click')
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('keeps the sole required client choice selectable by default', () => {
+    const wrapper = mountWithProps({ securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth } })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it.each([
+    { name: 'optional authentication', securityRequirements: [{ BearerAuth: [] }, {}] },
+    { name: 'no security requirements', securityRequirements: [] },
+    { name: 'additional available schemes', securitySchemes: baseSecuritySchemes },
+    { name: 'new authentication actions', createAnySecurityScheme: true },
+    { name: 'an empty saved selection', selectedSecurity: { selectedIndex: -1, selectedSchemes: [] } },
+    {
+      name: 'multiple required alternatives',
+      securityRequirements: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+      securitySchemes: baseSecuritySchemes,
+    },
+    {
+      name: 'an optional combined requirement',
+      securityRequirements: [{ BearerAuth: [], ApiKeyAuth: [] }, {}],
+      securitySchemes: baseSecuritySchemes,
+      selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [], ApiKeyAuth: [] }] },
+    },
+  ])('keeps the reference selector for $name', ({ name: _name, ...props }) => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      canDeleteSchemes: false,
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth },
+      ...props,
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('hides a sole combined requirement without hiding either credential input', () => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      canDeleteSchemes: false,
+      securityRequirements: [{ BearerAuth: [], ApiKeyAuth: [] }],
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth, ApiKeyAuth: baseSecuritySchemes.ApiKeyAuth },
+      selectedSecurity: { selectedIndex: 0, selectedSchemes: [{ BearerAuth: [], ApiKeyAuth: [] }] },
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    expect(wrapper.text()).toContain('Bearer Token')
+    expect(wrapper.text()).toContain('X-API-Key')
+    wrapper.unmount()
+  })
+
+  it('shows the selector again when the saved selection is cleared', async () => {
+    const wrapper = mountWithProps({
+      hideSingleRequiredScheme: true,
+      securitySchemes: { BearerAuth: baseSecuritySchemes.BearerAuth },
+    })
+
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(false)
+    await wrapper.setProps({ selectedSecurity: { selectedIndex: -1, selectedSchemes: [] } })
+    expect(wrapper.findComponent({ name: 'ScalarComboboxMultiselect' }).exists()).toBe(true)
+    wrapper.unmount()
+  })
+
   describe('rendering', () => {
     it('renders with custom title', () => {
       const wrapper = mountWithProps({ title: 'Custom Auth Title' })
@@ -104,6 +185,22 @@ describe('AuthSelector', () => {
 
       const dataTable = wrapper.findComponent({ name: 'RequestAuthDataTable' })
       expect(dataTable.exists()).toBe(true)
+    })
+
+    it('renders the title as a heading by default', () => {
+      const wrapper = mountWithProps()
+
+      expect(wrapper.find('h2').text()).toContain('Authentication')
+    })
+
+    it('names the card as a group instead of a heading when the heading is turned off', () => {
+      const wrapper = mountWithProps({ heading: false })
+
+      expect(wrapper.find('h1, h2, h3, h4, h5, h6').exists()).toBe(false)
+
+      const section = wrapper.get('section')
+      expect(section.attributes('role')).toBe('group')
+      expect(wrapper.get(`[id="${section.attributes('aria-labelledby')}"]`).text()).toContain('Authentication')
     })
   })
 
@@ -286,7 +383,7 @@ describe('AuthSelector', () => {
     }
 
     /** Mounts attached to the DOM (so the teleported popover mounts) and opens the auth combobox. */
-    const mountAndOpen = async (canDeleteSchemes: boolean) => {
+    const mountAndOpen = async (canDeleteSchemes: boolean, eventBus = createWorkspaceEventBus()) => {
       const wrapper = mount(AuthSelector, {
         attachTo: document.body,
         props: {
@@ -299,7 +396,7 @@ describe('AuthSelector', () => {
           proxyUrl: '',
           server: baseServer as any,
           title: 'Authentication',
-          eventBus: createWorkspaceEventBus(),
+          eventBus,
           meta: { type: 'document' },
         },
       })
@@ -333,6 +430,24 @@ describe('AuthSelector', () => {
       // The dropdown is open (schemes are listed) but no delete affordance is offered.
       expect(document.body.textContent).toContain('BearerAuth')
       expect(deleteControlCount()).toBe(0)
+
+      wrapper.unmount()
+    })
+
+    it('toggles the active scheme with Space while the search is empty', async () => {
+      const eventBus = createWorkspaceEventBus()
+      const fn = vi.fn()
+      eventBus.on('auth:update:selected-security-schemes', fn)
+      const wrapper = await mountAndOpen(false, eventBus)
+
+      // The selected scheme is active when the dropdown opens, so Space deselects it
+      const input = document.body.querySelector('input[role="combobox"]')
+      expect(input).not.toBeNull()
+      input?.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }))
+      await nextTick()
+
+      expect(fn).toHaveBeenCalledOnce()
+      expect(fn.mock.calls[0]?.[0]?.selectedRequirements).not.toContainEqual({ BearerAuth: [] })
 
       wrapper.unmount()
     })

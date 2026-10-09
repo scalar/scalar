@@ -1,0 +1,663 @@
+import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+
+import SchemaComposition from './SchemaComposition.vue'
+
+describe('SchemaComposition', () => {
+  describe('schema name display', () => {
+    it('displays schema title when name is not present', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'anyOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            anyOf: [
+              {
+                title: 'Any',
+                type: 'object',
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const tab = wrapper.find('.composition-selector-label')
+      expect(tab.text()).toBe('Any')
+    })
+
+    it('displays type when neither name nor title are present', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              {
+                type: 'object',
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const tab = wrapper.find('.composition-selector-label')
+      expect(tab.text()).toBe('object')
+    })
+
+    it('humanizes array types with item type', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'anyOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            anyOf: [
+              {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const tab = wrapper.find('.composition-selector-label')
+      expect(tab.text()).toBe('array string[]')
+    })
+
+    it('uses the referenced model name for array composition options', () => {
+      const resourceObject = {
+        '$ref': '#/components/schemas/ResourceObject',
+        '$ref-value': {
+          title: 'ResourceObject',
+          type: 'object',
+        },
+      }
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              resourceObject,
+              {
+                type: 'array',
+                items: resourceObject,
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(listbox.props('options')).toEqual([
+        { id: '0', label: 'ResourceObject' },
+        { id: '1', label: 'ResourceObject[]' },
+      ])
+    })
+
+    // Same as above, but the referenced schema has no `title`, so the label has
+    // to be derived from the `$ref` key alone — closer to the document in the
+    // original report (https://github.com/scalar/scalar/issues/10059).
+    it('derives the array item name from the $ref key when it has no title', () => {
+      const resourceObject = {
+        '$ref': '#/components/schemas/ResourceObject',
+        '$ref-value': {
+          type: 'object',
+          properties: { id: { type: 'string' } },
+        },
+      }
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              resourceObject,
+              {
+                type: 'array',
+                items: resourceObject,
+              },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      expect(listbox.props('options')).toEqual([
+        { id: '0', label: 'ResourceObject' },
+        { id: '1', label: 'ResourceObject[]' },
+      ])
+    })
+  })
+
+  describe('composition display', () => {
+    it('humanizes composition', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [{ type: 'object' }],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      expect(wrapper.find('.composition-selector').text()).toContain('One of')
+    })
+
+    it('renders primitive type in composition panel', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [{ type: 'boolean' }, { type: 'object', properties: { foo: { type: 'string' } } }],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      expect(wrapper.text()).toContain('boolean')
+    })
+
+    it('renders nullable schema in composition panel', async () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'anyOf',
+          schema: {
+            anyOf: [
+              {
+                type: 'object',
+                properties: { foo: { type: 'string' } },
+              },
+              // @ts-expect-error - Test nullable here
+              { nullable: true },
+            ],
+          },
+          options: {},
+          level: 0,
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '1', label: 'Schema' })
+      await wrapper.vm.$nextTick()
+
+      const panel = wrapper.find('.composition-panel')
+      expect(panel.text()).toContain('nullable')
+    })
+
+    it('renders const schema in composition panel', async () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'anyOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            anyOf: [
+              {
+                type: 'object',
+                properties: { foo: { const: 'Foo' } },
+                required: ['foo'],
+              },
+              {
+                type: 'object',
+                properties: { bar: { const: 'Bar' } },
+              },
+              { const: 'Baz' },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '2', label: 'Schema' })
+      await wrapper.vm.$nextTick()
+
+      const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+      expect(schemaComponent.exists()).toBe(true)
+      expect(schemaComponent.props('schema')).toEqual({ '__scalar_': '', const: 'Baz' })
+    })
+
+    it('renders enum schema in composition panel', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              {
+                type: 'string',
+                enum: ['option1', 'option2', 'option3'],
+              },
+              {
+                type: 'number',
+              },
+            ],
+          }),
+          options: {},
+          level: 0,
+        },
+      })
+
+      const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+      expect(schemaComponent.exists()).toBe(true)
+      expect(schemaComponent.props('schema')).toEqual({
+        type: 'string',
+        enum: ['option1', 'option2', 'option3'],
+      })
+    })
+
+    it('handles nested compositions with titles', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              { title: 'Planet', type: 'object' },
+              { type: 'object', properties: { test: { type: 'string' } } },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+      })
+
+      const tab = wrapper.findAll('.composition-selector-label')[0]
+      expect(tab?.text()).toBe('Planet')
+    })
+  })
+
+  it('passes required array to Schema component for schema composition', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        eventBus: null,
+        composition: 'anyOf',
+        schema: coerceValue(SchemaObjectSchema, {
+          anyOf: [
+            {
+              type: 'object',
+              properties: {
+                foo: { const: 'Foo' },
+              },
+              required: ['foo'],
+            },
+            {
+              type: 'object',
+              properties: {
+                bar: { const: 'Bar' },
+              },
+            },
+          ],
+        }),
+        level: 0,
+        options: {},
+      },
+    })
+
+    const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+    expect(schemaComponent.props('schema')).toEqual({
+      type: 'object',
+      properties: {
+        foo: { '__scalar_': '', const: 'Foo' },
+      },
+      required: ['foo'],
+    })
+    expect(schemaComponent.props('level')).toBe(1)
+  })
+
+  it('passes merged schema to Schema component for schema composition with allOf', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        eventBus: null,
+        composition: 'allOf',
+        schema: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                foo: { const: 'Foo' },
+              },
+              required: ['foo'],
+            },
+            {
+              type: 'object',
+              properties: {
+                bar: { const: 'Bar' },
+              },
+            },
+          ],
+        }),
+        level: 0,
+        options: {},
+      },
+    })
+
+    const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+    expect(schemaComponent.props('schema')).toEqual({
+      '__scalar_': '',
+      type: 'object',
+      properties: {
+        foo: { '__scalar_': '', const: 'Foo' },
+        bar: { '__scalar_': '', const: 'Bar' },
+      },
+      required: ['foo'],
+    })
+    expect(schemaComponent.props('level')).toBe(1)
+  })
+
+  it('does not merge allOf schemas within anyOf composition', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        eventBus: null,
+        composition: 'anyOf',
+        schema: coerceValue(SchemaObjectSchema, {
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              allOf: [
+                {
+                  type: 'object',
+                  properties: {
+                    bar: {
+                      type: 'string',
+                    },
+                  },
+                },
+                {
+                  type: 'object',
+                  properties: {
+                    baz: {
+                      type: 'string',
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+        level: 0,
+        options: {},
+      },
+    })
+
+    // Check that the listbox options show the correct labels
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    const options = listbox.props('options')
+
+    expect(options).toHaveLength(2)
+    expect(options[0].label).toBe('string')
+    expect(options[1].label).toBe('Schema')
+
+    // Check that the first schema (string) is rendered correctly
+    const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+    expect(schemaComponent.props('schema')).toEqual({
+      type: 'string',
+    })
+  })
+
+  it('does not merge allOf object schemas within anyOf composition', async () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        eventBus: null,
+        composition: 'anyOf',
+        schema: coerceValue(SchemaObjectSchema, {
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              allOf: [
+                {
+                  type: 'object',
+                  properties: {
+                    bar: {
+                      type: 'string',
+                    },
+                  },
+                },
+                {
+                  type: 'object',
+                  properties: {
+                    baz: {
+                      type: 'string',
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+        level: 0,
+        options: {},
+      },
+    })
+
+    // Select the second option (merged allOf schema)
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    await listbox.vm.$emit('update:modelValue', { id: '1', label: 'Schema' })
+    await wrapper.vm.$nextTick()
+
+    // Check that the merged schema is rendered with both properties
+    const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+    const schemaValue = schemaComponent.props('schema')
+
+    expect(typeof schemaValue).toBe('object')
+    expect(schemaValue.allOf).toEqual([
+      {
+        type: 'object',
+        properties: {
+          bar: {
+            type: 'string',
+          },
+        },
+      },
+      {
+        type: 'object',
+        properties: {
+          baz: {
+            type: 'string',
+          },
+        },
+      },
+    ])
+  })
+
+  it('keeps a oneOf composition nested inside allOf (issue #5577)', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        eventBus: null,
+        composition: 'allOf',
+        schema: coerceValue(SchemaObjectSchema, {
+          title: 'ConversionCreationRequest',
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                customerComment: { type: 'string' },
+              },
+            },
+            {
+              oneOf: [
+                { title: 'With Quote Id', type: 'object', properties: { quoteId: { type: 'string' } } },
+                { title: 'With Currency Pair', type: 'object', properties: { sourceCurrencyCode: { type: 'string' } } },
+              ],
+            },
+          ],
+        }),
+        level: 0,
+        options: {},
+      },
+    })
+
+    // The base object property is rendered by the merged Schema...
+    const baseSchema = wrapper.findComponent({ name: 'Schema' }).props('schema') as any
+    expect(baseSchema.properties).toMatchObject({ customerComment: { type: 'string' } })
+
+    // ...and the oneOf is preserved as its own composition (rendered as a sibling
+    // picker), not dropped. This is the structure that lets multiple independent
+    // oneOf groups inside one allOf each render their own selector.
+    const nestedOneOf = wrapper
+      .findAllComponents({ name: 'SchemaComposition' })
+      .find((component) => component.props('composition') === 'oneOf')
+    expect(nestedOneOf).toBeTruthy()
+
+    const oneOfSchema = nestedOneOf!.props('schema') as any
+    expect(oneOfSchema.oneOf).toHaveLength(2)
+    expect(oneOfSchema.oneOf[0].title).toBe('With Quote Id')
+    expect(oneOfSchema.oneOf[1].title).toBe('With Currency Pair')
+  })
+
+  describe('variant picker', () => {
+    it('renders the variant picker as a single pass-through element', () => {
+      const errors: unknown[] = []
+
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          eventBus: null,
+          composition: 'oneOf',
+          schema: coerceValue(SchemaObjectSchema, {
+            oneOf: [
+              { type: 'object', properties: { foo: { type: 'string' } } },
+              { type: 'object', properties: { bar: { type: 'integer' } } },
+            ],
+          }),
+          level: 0,
+          options: {},
+        },
+        global: {
+          config: {
+            errorHandler: (error) => {
+              errors.push(error)
+            },
+          },
+        },
+      })
+
+      // Headless UI renders its listbox button as a fragment and hands its
+      // props to the slot's single root node. A comment or a second node in
+      // that slot makes it throw instead, which took the whole reference down
+      // in dev builds (where template comments survive compilation). The
+      // pass-through attributes landing on the trigger proves the slot is
+      // exactly one element.
+      const trigger = wrapper.find('.composition-selector--tree')
+      expect(trigger.exists()).toBe(true)
+      expect(trigger.attributes('aria-haspopup')).toBeDefined()
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(errors).toEqual([])
+    })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('shows mapping values alongside %s schema names and titles', (composition) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      discriminator: {
+        propertyName: 'payoutCountry',
+        mapping: {
+          CN: '#/components/schemas/AllowedCurrenciesForCN',
+          HK: 'AllowedCurrenciesForCN',
+          DK: '#/components/schemas/AllowedCurrenciesForDK',
+        },
+      },
+      [composition]: [
+        {
+          '$ref': '#/components/schemas/AllowedCurrenciesForCN',
+          '$ref-value': { type: 'object', title: 'China account' },
+        },
+        { '$ref': '#/components/schemas/AllowedCurrenciesForDK', '$ref-value': { type: 'object' } },
+        { title: 'Other account', type: 'object' },
+      ],
+    })
+    const wrapper = mount(SchemaComposition, { props: { schema, composition, level: 0, eventBus: null, options: {} } })
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    expect(listbox.props('options')).toStrictEqual([
+      { id: '0', label: 'CN, HK · China account' },
+      { id: '1', label: 'DK · AllowedCurrenciesForDK' },
+      { id: '2', label: 'Other account' },
+    ])
+    expect(wrapper.get('button').text()).toContain('CN, HK · China account')
+    wrapper.unmount()
+  })
+
+  it('uses a passed discriminator for a selector without its own discriminator', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          oneOf: [{ '$ref': '#/components/schemas/Account', '$ref-value': { type: 'object' } }],
+        }),
+        discriminator: { propertyName: 'country', mapping: { CN: 'Account' } },
+        composition: 'oneOf',
+        level: 0,
+        eventBus: null,
+        options: {},
+      },
+    })
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).props('options')).toStrictEqual([
+      { id: '0', label: 'CN · Account' },
+    ])
+    wrapper.unmount()
+  })
+
+  it('keeps nested discriminator values separate from the outer selector', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        schema: coerceValue(SchemaObjectSchema, {
+          discriminator: { propertyName: 'country', mapping: { CN: 'Account' } },
+          oneOf: [
+            {
+              '$ref': '#/components/schemas/Account',
+              '$ref-value': {
+                type: 'object',
+                properties: {
+                  payment: {
+                    discriminator: { propertyName: 'method', mapping: { bank: 'Bank' } },
+                    oneOf: [
+                      { '$ref': '#/components/schemas/Bank', '$ref-value': { type: 'object' } },
+                      { title: 'Cash', type: 'object' },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        }),
+        discriminator: { propertyName: 'ignored', mapping: { wrong: 'Account' } },
+        composition: 'oneOf',
+        level: 0,
+        eventBus: null,
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    expect(
+      wrapper.findAllComponents({ name: 'ScalarListbox' }).map((listbox) => listbox.props('options')),
+    ).toStrictEqual([
+      [{ id: '0', label: 'CN · Account' }],
+      [
+        { id: '0', label: 'bank · Bank' },
+        { id: '1', label: 'Cash' },
+      ],
+    ])
+    wrapper.unmount()
+  })
+})

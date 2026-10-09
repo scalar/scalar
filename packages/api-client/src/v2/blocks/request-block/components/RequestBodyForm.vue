@@ -15,10 +15,18 @@ import {
   getFormBodyValue,
 } from '@/v2/blocks/request-block/helpers/get-form-body-rows'
 
-const { example, bodySchema, selectedContentType, environment } = defineProps<{
+const {
+  example,
+  bodySchema,
+  selectedContentType,
+  environment,
+  compositionSelection,
+} = defineProps<{
   example: ExampleObject | undefined | null
   /** Resolved schema for the form body so the table can show enums and validation per field */
   bodySchema?: SchemaObject
+  /** Selected request-body variants, shared with example generation and serialization. */
+  compositionSelection?: Record<string, number>
   selectedContentType: string
   environment: XScalarEnvironment
 }>()
@@ -35,9 +43,15 @@ const localFormBodyRows = ref<TableRow[]>([])
 
 /** Sync the local form body rows with the example and schema */
 watch(
-  () => [example, bodySchema, selectedContentType] as const,
-  ([newExample, schema, contentType]) => {
-    localFormBodyRows.value = getFormBodyRows(newExample, contentType, schema)
+  () =>
+    [example, bodySchema, selectedContentType, compositionSelection] as const,
+  ([newExample, schema, contentType, selection]) => {
+    localFormBodyRows.value = getFormBodyRows(
+      newExample,
+      contentType,
+      schema,
+      selection,
+    )
   },
   { immediate: true },
 )
@@ -52,6 +66,7 @@ const handleUpdateFormValue = (rows: TableRow[]) => {
           ? getFormBodyValue(row)
           : (row.value as string | File),
       isDisabled: row.isDisabled ?? false,
+      ...(row.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
       ...(selectedContentType === 'multipart/form-data' && row.isArray
         ? { isArray: true }
         : {}),
@@ -78,9 +93,27 @@ const handleUpsertRow = (
     return
   }
 
-  localFormBodyRows.value = localFormBodyRows.value.map((row, i) =>
-    i === index ? { ...row, ...payload } : row,
-  )
+  localFormBodyRows.value = localFormBodyRows.value.map((row, i) => {
+    if (i !== index) {
+      return row
+    }
+
+    const valueChanged = 'value' in payload && payload.value !== row.value
+    const disabledChanged =
+      payload.isDisabled !== undefined && payload.isDisabled !== row.isDisabled
+
+    return {
+      ...row,
+      ...payload,
+      // File selection bypasses the text input, but also expresses intent to send a value.
+      ...(valueChanged && payload.value !== undefined && row.isDisabledByDefault
+        ? { isDisabled: false }
+        : {}),
+      // Preserve untouched defaults while keeping deliberate checkbox choices explicit.
+      isDisabledByDefault:
+        row.isDisabledByDefault && !valueChanged && !disabledChanged,
+    }
+  })
   handleUpdateFormValue(localFormBodyRows.value)
 }
 

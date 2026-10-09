@@ -1,7 +1,6 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
-import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 import { normalizeHeaders } from '@scalar/helpers/http/normalize-headers'
 import { X_SCALAR_SET_COOKIE } from '@scalar/helpers/http/scalar-headers'
@@ -16,6 +15,7 @@ import {
   resolveResponseContentType,
   resolveResponseMimeType,
 } from '@/v2/blocks/response-block/helpers/resolve-response-content-type'
+import { getResponseStreamFormat } from '@/v2/blocks/response-block/helpers/response-stream'
 
 import { decodeBuffer } from './decode-buffer'
 
@@ -32,7 +32,7 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   /** The response status text */
   statusText: string
   /** The response method */
-  method: HttpMethod
+  method: string
   /** The request path */
   path: string
 } & (
@@ -73,6 +73,7 @@ export const sendRequest = async ({
   request,
   plugins = [],
   customFetch = fetch,
+  onResponseReceived,
 }: {
   isUsingProxy: boolean
   requestPayload: RequestPayload
@@ -86,6 +87,8 @@ export const sendRequest = async ({
   plugins?: ClientPlugin[]
   /** Optional custom fetch implementation, overrides the global fetch */
   customFetch?: CustomFetch
+  /** Runs before response processing and returns the response to use. */
+  onResponseReceived?: (response: Response, responseDuration: number) => Promise<Response>
 }): Promise<
   ErrorResponse<{
     response: ResponseInstance
@@ -99,7 +102,7 @@ export const sendRequest = async ({
     const startTime = performance.now()
 
     // In electron we allow GET requests to have a body
-    const response = isElectron()
+    const fetchedResponse = isElectron()
       ? await customFetch(...requestPayload)
       : await customFetch(request ?? buildSafeBodyRequest(...requestPayload))
 
@@ -107,22 +110,25 @@ export const sendRequest = async ({
     const timestamp = Date.now()
     const duration = endTime - startTime
 
+    const response = onResponseReceived ? await onResponseReceived(fetchedResponse, duration) : fetchedResponse
+
     // Extract response metadata early for reuse
     const contentType = response.headers.get('content-type')
     const responseHeaders = normalizeHeaders(response.headers, isUsingProxy)
-    // A Response built with the Response constructor has an empty url, so fall back to the requested one
-    const responseUrl = new URL(response.url || requestPayload[0])
+    // A Response built with the Response constructor has an empty url. For intercepted responses,
+    // fall back to the original network response destination, and finally to the requested URL.
+    const responseUrl = new URL(response.url || fetchedResponse.url || requestPayload[0])
     const fullPath = responseUrl.pathname + responseUrl.search
     const statusText = response.statusText || httpStatusCodes[response.status]?.name || ''
-    const method = (requestPayload[1].method ?? 'GET') as HttpMethod
+    const method = (requestPayload[1].method ?? 'GET') as string
     const shouldSkipBody = NO_BODY_STATUS_CODES.includes(response.status)
 
     /**
-     * Handle server-sent event streams separately.
+     * Handle sequential response formats without buffering the complete body.
      * These responses need a reader instead of buffered data.
      * We check this early to avoid unnecessary body reading.
      */
-    if (contentType?.startsWith('text/event-stream') && response.body) {
+    if (!shouldSkipBody && contentType && getResponseStreamFormat(contentType) && response.body) {
       return buildStreamingResponse({
         response,
         requestPayload,
@@ -176,7 +182,7 @@ const getCustomCookie = (response: Response): string[] | null => {
 }
 
 /**
- * Build a streaming response for server-sent events.
+ * Build a streaming response for sequential media types.
  * Streaming responses use a reader instead of buffering the entire body.
  */
 const buildStreamingResponse = ({
@@ -195,7 +201,7 @@ const buildStreamingResponse = ({
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
-  method: HttpMethod
+  method: string
   fullPath: string
 }): ErrorResponse<{
   response: ResponseInstance
@@ -219,6 +225,8 @@ const buildStreamingResponse = ({
       requestPayload,
       response: {
         ...normalizedResponse,
+        status: response.status,
+        statusText,
         headers: responseHeaders,
         cookieHeaderKeys,
         reader: response.body!.getReader(),
@@ -254,7 +262,7 @@ const buildStandardResponse = async ({
   duration: number
   responseHeaders: Record<string, string>
   statusText: string
-  method: HttpMethod
+  method: string
   fullPath: string
   contentType: string | null
   shouldSkipBody: boolean
@@ -298,13 +306,14 @@ const buildStandardResponse = async ({
       requestPayload,
       response: {
         ...normalizedResponse,
+        status: response.status,
+        statusText,
         headers: responseHeaders,
         cookieHeaderKeys,
         data: responseData,
         size: arrayBuffer.byteLength,
         duration,
         method,
-        status: response.status,
         path: fullPath,
       },
       originalResponse: response.clone(),

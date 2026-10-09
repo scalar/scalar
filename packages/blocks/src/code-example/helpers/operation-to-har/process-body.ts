@@ -1,14 +1,20 @@
-import { json2xml } from '@scalar/helpers/file/json2xml'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
+import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
+import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
+  buildRequestBody,
   coerceLeafValueToSchemaType,
   getExample,
+  getExampleFromBody,
   getExampleFromSchema,
+  needsMultipartEncoding,
   resolveLeafSchema,
   serializeFormPropertyWithEncoding,
   serializeMultipartArray,
+  serializeMultipartBody,
 } from '@scalar/workspace-store/request-example'
 import type {
   MediaTypeObject,
@@ -19,11 +25,37 @@ import type { Param, PostData } from 'har-format'
 
 import type { OperationToHarProps } from './operation-to-har'
 
-type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'example' | 'requestBodyCompositionSelection'> & {
+type ProcessBodyProps = Pick<
+  OperationToHarProps,
+  'contentType' | 'example' | 'requestBodyCompositionSelection' | 'openapiVersion'
+> & {
   requestBody: RequestBodyObject
 }
 
 type MultipartEncodingMap = MediaTypeObject['encoding']
+
+/**
+ * Builds a HAR param for an uploaded file. `fileName` is what snippet generators read to emit real
+ * file handling (for example `files=` in Python or `new Blob` in fetch). `value` keeps the
+ * `@filename` placeholder for consumers that only read the text value.
+ */
+const buildFileParam = (name: string, fileName: string, contentType?: string): Param => ({
+  name,
+  value: `@${fileName}`,
+  fileName,
+  ...(contentType ? { contentType } : {}),
+})
+
+/** True when the schema describes a binary file (`type: string, format: binary`). */
+const isBinarySchema = (schema: SchemaObject | undefined): boolean =>
+  !!schema && 'type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary'
+
+/**
+ * Example generation turns a binary property into the `@filename` placeholder string.
+ * Use the schema to tell that apart from a normal text field that happens to start with `@`.
+ */
+const getBinaryPlaceholderFileName = (value: unknown, schema: SchemaObject | undefined): string | undefined =>
+  typeof value === 'string' && value.startsWith('@') && isBinarySchema(schema) ? value.slice(1) : undefined
 
 /**
  * Converts a form-data body into HAR `Param[]` entries for `multipart/form-data`
@@ -71,9 +103,13 @@ const objectToFormParams = (
       const arrayParts = serializeMultipartArray(key, Array.isArray(restored) ? restored : value, partEncoding)
       if (arrayParts) {
         for (const part of arrayParts) {
+          if (part.value instanceof File) {
+            params.push(buildFileParam(part.key, part.value.name, part.contentType ?? part.value.type))
+            continue
+          }
           params.push({
             name: part.key,
-            value: part.value instanceof File ? `@${part.value.name}` : part.value,
+            value: part.value,
             ...(part.contentType ? { contentType: part.contentType } : {}),
           })
         }
@@ -105,6 +141,8 @@ const objectToFormParams = (
      * then fall through to the dedicated branches below. HAR represents multipart and urlencoded
      * the same way via `PostData.params`, so the resulting parts work for both.
      */
+    const binaryPlaceholderFileName =
+      isMultipart && !parentKey ? getBinaryPlaceholderFileName(value, resolveLeafSchema(schema, [key])) : undefined
     const styleParams = parentKey ? null : serializeFormPropertyWithEncoding(key, value, partEncoding)
     if (styleParams) {
       for (const param of styleParams) {
@@ -116,11 +154,10 @@ const objectToFormParams = (
        * attached file. Picked up by snippet renderers downstream (e.g. `--form 'x=@file.png'`).
        */
       const file = unpackProxyObject(value)
-      params.push({
-        name: key,
-        value: `@${file.name}`,
-        ...(explicitContentType ? { contentType: explicitContentType } : {}),
-      })
+      params.push(buildFileParam(key, file.name, explicitContentType ?? (isMultipart ? file.type : undefined)))
+    } else if (binaryPlaceholderFileName !== undefined) {
+      /** A binary property filled in by example generation, so it is a file and not a text field. */
+      params.push(buildFileParam(key, binaryPlaceholderFileName, explicitContentType))
     } else if (explicitContentType && typeof value === 'object') {
       /**
        * Per OAS 3.1.x Encoding Object: an explicit `encoding[key].contentType` on a
@@ -148,7 +185,7 @@ const objectToFormParams = (
       for (const item of value) {
         if (item instanceof File) {
           const file = unpackProxyObject(item)
-          params.push({ name: key, value: `@${file.name}` })
+          params.push(buildFileParam(key, file.name, isMultipart ? file.type : undefined))
         } else {
           params.push({ name: key, value: String(item) })
         }
@@ -187,6 +224,7 @@ export const processBody = ({
   requestBody,
   contentType,
   example,
+  openapiVersion,
   requestBodyCompositionSelection,
 }: ProcessBodyProps): PostData | undefined => {
   const _contentType = contentType || Object.keys(requestBody.content)[0] || ''
@@ -198,14 +236,50 @@ export const processBody = ({
   }
   const encoding = requestBody.content[_contentType]?.encoding
 
+  const media = requestBody.content[_contentType]
+  if (media && needsMultipartEncoding(_contentType, media)) {
+    const exampleName = example ?? Object.keys(media.examples ?? {})[0] ?? 'default'
+    const body = buildRequestBody(
+      { ...requestBody, 'x-scalar-selected-content-type': { [exampleName]: _contentType } },
+      exampleName,
+      requestBodyCompositionSelection,
+    )
+    if (body?.mode === 'multipart') {
+      const encoded = serializeMultipartBody(body.value, body.contentType)
+      return {
+        mimeType: encoded.contentType,
+        // HAR text cannot embed file bytes synchronously. Keep visible file placeholders.
+        text: encoded.chunks
+          .map((chunk) =>
+            chunk instanceof File ? formatBinaryFile(chunk) : chunk instanceof Blob ? 'BINARY' : String(chunk),
+          )
+          .join(''),
+      }
+    }
+  }
+
   // Check if this is a form data content type
   const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'
 
   // Check if this is an XML content type
-  const isXml = _contentType === 'application/xml'
+  if (isXmlMediaType(_contentType)) {
+    const xmlExample = getExampleFromBody(
+      requestBody,
+      _contentType,
+      example ?? '',
+      requestBodyCompositionSelection,
+      openapiVersion,
+    )
+    return xmlExample ? { mimeType: harMimeType, text: xmlExample.value as string } : undefined
+  }
 
   // Get the example value
-  const _example = getExample(requestBody, example, contentType)?.value
+  const selected = getExampleValue(getExample(requestBody, example, contentType))
+  const explicitText = getExplicitExampleText(selected, _contentType)
+  if (explicitText !== undefined) {
+    return { mimeType: harMimeType, text: explicitText }
+  }
+  const _example = selected?.value
 
   // Return the provided top level example
   if (typeof _example !== 'undefined') {
@@ -224,13 +298,6 @@ export const processBody = ({
       }
     }
 
-    if (isXml && typeof exampleValue === 'object' && exampleValue !== null) {
-      return {
-        mimeType: harMimeType,
-        text: json2xml(exampleValue),
-      }
-    }
-
     if (exampleValue instanceof File) {
       return {
         mimeType: harMimeType,
@@ -240,12 +307,16 @@ export const processBody = ({
 
     return {
       mimeType: harMimeType,
-      text: typeof exampleValue === 'string' ? exampleValue : JSON.stringify(exampleValue),
+      text:
+        typeof exampleValue === 'string'
+          ? exampleValue
+          : (serializeStreamExample(exampleValue, _contentType, false) ?? JSON.stringify(exampleValue)),
     }
   }
 
   // Try to extract examples from the schema
-  const contentSchema = getResolvedRef(requestBody.content[_contentType]?.schema)
+  const mediaType = requestBody.content[_contentType]
+  const contentSchema = getResolvedRef(mediaType?.schema ?? mediaType?.itemSchema)
   if (typeof contentSchema !== 'undefined') {
     const resolvedContentSchema = getResolvedRefDeep(contentSchema) as SchemaObject
     const extractedExample = getExampleFromSchema(
@@ -253,7 +324,7 @@ export const processBody = ({
       {
         compositionSelection: requestBodyCompositionSelection,
         mode: 'write',
-        xml: isXml,
+        binaryAsFile: _contentType === 'multipart/form-data',
       },
       {
         schemaPath: ['requestBody'],
@@ -264,20 +335,21 @@ export const processBody = ({
       if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
         return {
           mimeType: harMimeType,
-          params: objectToFormParams(extractedExample, encoding, undefined, _contentType === 'multipart/form-data'),
-        }
-      }
-
-      if (isXml && typeof extractedExample === 'object' && extractedExample !== null) {
-        return {
-          mimeType: harMimeType,
-          text: json2xml(extractedExample),
+          params: objectToFormParams(
+            extractedExample,
+            encoding,
+            undefined,
+            _contentType === 'multipart/form-data',
+            resolvedContentSchema,
+          ),
         }
       }
 
       return {
         mimeType: harMimeType,
-        text: typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample),
+        text:
+          serializeStreamExample(extractedExample, _contentType, mediaType?.schema === undefined) ??
+          (typeof extractedExample === 'string' ? extractedExample : JSON.stringify(extractedExample)),
       }
     }
   }

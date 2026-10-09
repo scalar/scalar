@@ -36,6 +36,8 @@ import { ScalarButton } from '@scalar/components/button'
 import type { LoadingState } from '@scalar/components/loading'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
+import { useLocalization } from '@/v2/features/localization'
+
 const { loader, disabled = false } = defineProps<{
   /** Loading state from useLoadingState composable to show spinner on submit button */
   loader?: LoadingState
@@ -51,6 +53,8 @@ const emit = defineEmits<{
   /** Emitted when user presses back (e.g., Escape key) */
   (event: 'back', e: KeyboardEvent): void
 }>()
+
+const { translate } = useLocalization()
 
 defineSlots<{
   /** Main content area for form inputs */
@@ -94,7 +98,9 @@ const handleSubmit = (): void => {
         :disabled="disabled"
         :loader
         type="submit">
-        <slot name="submit">Continue</slot>
+        <slot name="submit">
+          {{ translate('apiClient.commandActionForm.continue') }}
+        </slot>
       </ScalarButton>
     </div>
   </form>

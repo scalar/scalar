@@ -1,5 +1,3 @@
-import type { ContentType } from '@scalar/types/legacy'
-
 /**
  * Normalizes a MIME type to a standard format.
  *
@@ -7,8 +5,9 @@ import type { ContentType } from '@scalar/types/legacy'
  * Output: application/json
  */
 export function normalizeMimeType(contentType: undefined): undefined
-export function normalizeMimeType(contentType: string): ContentType
-export function normalizeMimeType(contentType: string | undefined): ContentType | undefined {
+export function normalizeMimeType(contentType: string): string
+export function normalizeMimeType(contentType: string | undefined): string | undefined
+export function normalizeMimeType(contentType: string | undefined): string | undefined {
   if (typeof contentType !== 'string') {
     return undefined
   }
@@ -20,6 +19,6 @@ export function normalizeMimeType(contentType: string | undefined): ContentType 
       // Remove 'problem+' but keep vendor-specific vnd and fhir mime types
       .replace(/\/(?!.*vnd\.|fhir\+).*\+/, '/')
       // Remove whitespace
-      .trim() as ContentType
+      .trim()
   )
 }

@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { CodeExample } from '@scalar/blocks/code-example'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarMarkdown } from '@scalar/components/markdown'
@@ -27,11 +32,17 @@ import { SectionAccordion } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
+import {
+  GenerateSdkButton,
+  useGenerateSdkContext,
+} from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
+import OperationTags from '@/features/Operation/components/OperationTags.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import {
   getRequiredScopeGroups,
@@ -43,10 +54,6 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import {
-  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
-  type RequestBodyCompositionSelection,
-} from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -81,11 +88,24 @@ const {
     requiredSecurity: RequiredSecurity
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
-  }
+  } & SchemaRenderingProps
 >()
+defineSlots<{
+  actions?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
+
+/**
+ * Generate SDK takes the start of the code example footer, but only while it is offered: passing
+ * the slot at all would otherwise render an empty footer on deployed references.
+ */
+const generateSdk = useGenerateSdkContext()
+const showGenerateSdk = computed(() =>
+  Boolean(generateSdk.value?.enabled.value),
+)
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
 /** Whether the operation requires any OAuth scopes, used to skip the empty card item. */
@@ -153,7 +173,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             @copyAnchorUrl="() => eventBus?.emit('copy-url:nav-item', { id })">
             <component
               :is="`h${headingLevel}`"
-              class="endpoint-label">
+              class="endpoint-label flex-wrap">
               <div class="endpoint-label-path">
                 <OperationPath
                   :deprecated="isOperationDeprecated(operation)"
@@ -178,6 +198,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
                 {{ translate('operation.webhook') }}
               </Badge>
 
+              <OperationTags
+                :document
+                :tags="operation.tags" />
               <!-- x-badges before -->
               <XBadges
                 :badges="operation['x-badges']"
@@ -224,10 +247,22 @@ const { level: headingLevel } = useDocumentOutline('operation')
         variant="ghost"
         @click.stop="copyToClipboard(path)" />
     </template>
-    <template
-      v-if="operation.description"
-      #description>
+    <template #description>
+      <div
+        v-if="document"
+        class="mb-3 flex justify-end">
+        <slot
+          v-if="$slots.actions"
+          name="actions" />
+        <CopyMarkdownButton
+          v-else
+          :document
+          :isWebhook
+          :method
+          :path />
+      </div>
       <ScalarMarkdown
+        v-if="operation.description"
         :anchorPrefix="id"
         :aria-label="translate('common.description')"
         role="group"
@@ -241,7 +276,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <div
           v-if="Object.keys(operationExtensions).length > 0"
           class="operation-details-card-item">
-          <SpecificationExtension :value="operationExtensions" />
+          <SpecificationExtension
+            :showExtensions="options.showExtensions"
+            :value="operationExtensions" />
         </div>
         <div
           v-if="hasRequiredScopes"
@@ -254,21 +291,27 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :breadcrumb="[id]"
             :document
             :eventBus
+            :expansion="expansion"
             :options
             :parameters="operation.parameters"
-            :requestBody="getResolvedRef(operation.requestBody)" />
+            :requestBody="getResolvedRef(operation.requestBody)"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </div>
         <div class="operation-details-card-item">
           <!-- Responses are disclosures unless the configuration expands every
                response, in which case they render as static panels -->
           <OperationResponses
-            :collapsableItems="!options.expandAllResponses"
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
+            :collapsableItems="!options.expandAllResponses"
             :document
             :eventBus
+            :expansion="expansion"
             :options
-            :responses="operation.responses" />
+            :responses="operation.responses"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </div>
 
         <!-- Callbacks -->
@@ -280,8 +323,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :callbacks="operation.callbacks"
             :document
             :eventBus
+            :expansion="expansion"
             :options
-            :path />
+            :path
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
         </div>
       </div>
 
@@ -289,6 +335,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
         v-if="operation.responses"
         class="operation-example-card"
         :eventBus
+        :openapiVersion="document?.openapi"
         :responses="operation.responses"
         :selectedContentTypes="selectedResponseContentTypes"
         :selectedExample />
@@ -305,10 +352,17 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :key="requestBodyCompositionSelectionKey"
             class="operation-example-card"
             :clientOptions
+            :clientPickerLabel="translate('clientLibraries.changeClient')"
+            :clientSearchLabel="translate('clientLibraries.searchLabel')"
+            :codeSampleLabel="translate('operation.codeSample')"
+            :codeSampleUnavailable="
+              translate('operation.codeSampleUnavailable')
+            "
             :eventBus
             fallback
             :isWebhook
             :method
+            :openapiVersion="document?.openapi"
             :operation
             :path
             :requestBodyCompositionSelection="
@@ -319,7 +373,13 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :selectedContentType="selectedRequestBodyContentType"
             :selectedExample
             :selectedServer
-            @update:exampleKey="resolvedExampleKey = $event" />
+            @update:exampleKey="resolvedExampleKey = $event">
+            <template
+              v-if="showGenerateSdk"
+              #footer-start>
+              <GenerateSdkButton variant="footer" />
+            </template>
+          </CodeExample>
         </ScalarErrorBoundary>
       </div>
     </div>

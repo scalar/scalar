@@ -20,6 +20,8 @@ scalar auth login --token your-secret-scalar-api-key
 
 To generate an API key, go to [https://dashboard.scalar.com](https://dashboard.scalar.com) and navigate to Account > API Keys.
 
+You can also set `SCALAR_API_KEY` and run `scalar auth login`. When both are set, `SCALAR_API_KEY` takes precedence over `--token`.
+
 ## Check the Current User
 
 ```bash

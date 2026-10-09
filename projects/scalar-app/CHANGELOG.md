@@ -1,5 +1,70 @@
 # scalar-app
 
+## 1.1.39
+
+### Patch Changes
+
+- [#10493](https://github.com/scalar/scalar/pull/10493): Floating surfaces now paint their own background, border, and shadow instead of using an absolutely positioned backdrop layer. The `#backdrop` slot on `ScalarDropdown`, `ScalarPopover`, `ScalarListbox`, and `ScalarCombobox` is removed; style the floating element with `class` instead. `ScalarFloatingBackdrop`, `--scalar-lifted-brightness`, and the `brightness-lifted` utility are deprecated in favor of `bg-b-1 dark:bg-b-1.5`. `ScalarFloatingBackdrop` itself now uses the same surface styles, so it no longer clips its slot or draws a real border. A new `inset-shadow-border` utility draws the hairline border so it can stack with `shadow-*` without taking up layout space; Tailwind's default `inset-shadow-*` sizes are reset, matching the other theme namespaces.
+
+## 1.1.38
+
+### Patch Changes
+
+- [#10453](https://github.com/scalar/scalar/pull/10453): Update Electron to 44.5.1. The desktop app now requires macOS 13 or later.
+
+## 1.1.37
+
+### Patch Changes
+
+- [#10412](https://github.com/scalar/scalar/pull/10412): Update the shared Undici dependency to 7.29.1 to fix security advisories while preserving Node 22 compatibility, and update Scalar App’s separate Undici pin to 8.11.2.
+- [#10411](https://github.com/scalar/scalar/pull/10411): Import API descriptions from reference page URLs, including Hono pages, and retain discovered document URLs for watch mode.
+
+  Ignore JSON-LD website metadata during URL discovery and preserve link and escaped-JSON fallbacks for URLs with unsupported JavaScript escapes.
+
+## 1.1.36
+
+## 1.1.35
+
+## 1.1.34
+
+### Patch Changes
+
+- [#10352](https://github.com/scalar/scalar/pull/10352): Fix desktop login callback port allocation and allow the dashboard to confirm successful login.
+
+## 1.1.33
+
+### Patch Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Accept custom HTTP methods in operation events and collection runner types.
+
+## 1.1.32
+
+### Patch Changes
+
+- [#10177](https://github.com/scalar/scalar/pull/10177): Use OpenAPI 3.2 schemas throughout workspace-store consumers, stories, tests, and type generation. Update the app editor to offer OpenAPI 3.2 validation and completion while continuing to accept existing 3.1 documents.
+
+  Preserve OpenAPI 3.2 fields in the loose workspace schema, including tag hierarchy, streaming media types, nested encoding, additional operations, and OAuth device authorization.
+
+  The editor intentionally offers the 3.2 field set to documents declaring 3.1 as well; it does not flag 3.2-only fields solely because the declared version is 3.1. This does not certify conformance to the declared version or automatically update it. Before using 3.2-only fields, migrate and explicitly declare OpenAPI 3.2, and verify support in other validators and generators. Remove the unused 3.1 loose-schema generator to prevent schema drift.
+
+  Migration: the OpenAPI 3.1 loose-schema generator (`@scalar/workspace-store/schemas/v3.1/openapi`, published through the wildcard as `@scalar/workspace-store/schemas/v3.1/openapi/index`) and its `@scalar/workspace-store/schemas/v3.1/openapi/reference` helpers have been removed. Import the generator from `@scalar/workspace-store/schemas/v3.2/openapi/index` and the reference helpers from `@scalar/workspace-store/schemas/v3.2/openapi/reference` instead. The `./schemas/*` wildcard and the 3.1 strict-schema exports remain available; the explicit 3.2 strict-schema exports are additive. Locally generated types now use the `OpenAPIV3_2` namespace instead of `OpenAPIV3_1`.
+
+  Inline the editor path-extension reference so Monaco retains the leading-slash path pattern and does not report valid paths as unknown properties.
+
+  Document ingestion continues to upgrade only to OpenAPI 3.1, so existing inline XML bodies without `xml.name` remain loadable. This schema migration does not opt consumers into the stricter OpenAPI 3.2 XML upgrade.
+
+## 1.1.31
+
+## 1.1.30
+
+## 1.1.29
+
+## 1.1.28
+
+### Patch Changes
+
+- [#10166](https://github.com/scalar/scalar/pull/10166): Fix the workspace settings options turning into an unreadable dark row while being clicked, give the selected option a visible highlight and make light theme swatches visible against the background
+
 ## 1.1.27
 
 ## 1.1.26

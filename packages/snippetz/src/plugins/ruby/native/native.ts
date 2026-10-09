@@ -1,6 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString } from '@/libs/http'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 const escapeRubyDoubleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
@@ -23,7 +23,8 @@ const standardMethods = new Set([
   'TRACE',
 ])
 
-const toRubyMethodClass = (method: string): string => method.charAt(0) + method.slice(1).toLowerCase()
+const toRubyMethodClass = (method: string): string =>
+  standardMethods.has(method) ? method.charAt(0) + method.slice(1).toLowerCase() : 'CustomRequest'
 
 const maybeAddCustomMethodClass = (lines: string[], method: string, hasBody: boolean): void => {
   if (standardMethods.has(method)) {
@@ -32,7 +33,7 @@ const maybeAddCustomMethodClass = (lines: string[], method: string, hasBody: boo
 
   const methodClass = toRubyMethodClass(method)
   lines.push(`class Net::HTTP::${methodClass} < Net::HTTPRequest`)
-  lines.push(`  METHOD = '${method}'`)
+  lines.push(`  METHOD = '${escapeRubySingleQuoted(method)}'`)
   lines.push(`  REQUEST_HAS_BODY = '${hasBody ? 'true' : 'false'}'`)
   lines.push('  RESPONSE_HAS_BODY = true')
   lines.push('end')
@@ -42,12 +43,10 @@ const maybeAddCustomMethodClass = (lines: string[], method: string, hasBody: boo
 const encodeUrlWithPathPreservedBrackets = (url: string): string => {
   try {
     const parsedUrl = new URL(url)
-    const encodedPath = parsedUrl.pathname
-      .split('/')
-      .map((segment) =>
-        encodeURIComponent(decodeURIComponent(segment)).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%24/g, '$'),
-      )
-      .join('/')
+    // Preserve existing escapes and reserved path characters from the request builder.
+    const encodedPath = parsedUrl.pathname.replace(/%[0-9a-f]{2}|[\s\S]/giu, (character) =>
+      /^%[0-9a-f]{2}$/i.test(character) || character === '[' || character === ']' ? character : encodeURI(character),
+    )
 
     // Keep legacy behavior from the previous converter: omit trailing slash for origin-only URLs.
     if (parsedUrl.pathname === '/') {
@@ -73,10 +72,9 @@ export const rubyNative: Plugin = {
       ...request,
     }
 
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
-    const queryString = buildQueryString(normalizedRequest.queryString)
-    const rawUrl = `${normalizedRequest.url ?? ''}${queryString}`
+    const rawUrl = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
     const encodedUrl = encodeUrlWithPathPreservedBrackets(rawUrl)
 
     const lines: string[] = ["require 'uri'", "require 'net/http'", '']
@@ -140,10 +138,10 @@ export const rubyNative: Plugin = {
             if (param.contentType) {
               const contentType = escapeRubySingleQuoted(param.contentType)
               lines.push(
-                `form_data << ['${name}', File.open('${fileName}'), { filename: '${fileName}', content_type: '${contentType}' }]`,
+                `form_data << ['${name}', File.open('${fileName}', 'rb'), { filename: '${fileName}', content_type: '${contentType}' }]`,
               )
             } else {
-              lines.push(`form_data << ['${name}', File.open('${fileName}')]`)
+              lines.push(`form_data << ['${name}', File.open('${fileName}', 'rb')]`)
             }
           } else if (param.contentType) {
             const value = escapeRubySingleQuoted(param.value ?? '')

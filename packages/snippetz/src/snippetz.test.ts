@@ -3,6 +3,32 @@ import { describe, expect, it } from 'vitest'
 import { snippetz } from './snippetz'
 
 describe('snippetz', () => {
+  it.each(snippetz().plugins())('uses raw query data in $target/$client', ({ target, client }) => {
+    const mapClients = new Set([
+      'clojure/clj_http',
+      'js/axios',
+      'js/ofetch',
+      'julia/http',
+      'node/axios',
+      'node/ofetch',
+      'php/guzzle',
+      'python/requests',
+      'python/aiohttp',
+      'python/httpx_sync',
+      'python/httpx_async',
+      'r/httr2',
+    ])
+    const value = '2026-09-30T02:00:00Z/%2F'
+    const snippet = snippetz()
+      .findPlugin(target, client)
+      ?.generate({
+        method: 'GET',
+        url: 'https://example.com/events',
+        queryString: [{ name: 'since', value }],
+      })
+    expect(snippet).toContain(mapClients.has(`${target}/${client}`) ? value : encodeURIComponent(value))
+  })
+
   it('returns code for undici', () => {
     const snippet = snippetz().print('node', 'undici', {
       url: 'https://example.com',

@@ -1,0 +1,528 @@
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { Nodes, RootContent } from 'mdast'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
+import { unified } from 'unified'
+import { describe, expect, it } from 'vitest'
+
+import { type SchemaRenderer, createSchemaRenderer } from './render-schema'
+
+/** Serialize rendered nodes, parsing deferred descriptions the way the page renderer does. */
+const stringify = (children: RootContent[]): string => {
+  const expand = (nodes: Nodes[]): Nodes[] =>
+    nodes.flatMap((node): Nodes[] => {
+      if (node.type === 'descriptionPlaceholder') return unified().use(remarkParse).parse(node.value).children
+      if ('children' in node) (node as { children: Nodes[] }).children = expand(node.children)
+      return [node]
+    })
+  return unified()
+    .use(remarkStringify, { bullet: '-' })
+    .stringify({ type: 'root', children: expand(children) as RootContent[] })
+}
+
+const render = (value: SchemaObject | boolean, depth = 0): string =>
+  stringify(createSchemaRenderer().render(value, depth))
+
+const renderText = (value: SchemaObject | boolean, depth = 0): string =>
+  render(value, depth).replaceAll('`', '').replaceAll('**', '').replaceAll('\\[', '[').trim()
+
+const schema = (value: Record<string, unknown>) => value as SchemaObject
+
+describe('render-schema', () => {
+  it('preserves constraints beside a single-branch composition', () => {
+    expect(render(schema({ allOf: [{ type: 'string', pattern: '^a' }], pattern: 'z$', minLength: 5 }))).toBe(
+      '**All of:**\n\n- `string`, pattern: `^a`\n\nminLength: `5`, pattern: `z$`\n',
+    )
+  })
+
+  it('preserves constraints beside a nullable union', () => {
+    expect(render(schema({ anyOf: [{ type: 'string' }, { type: 'null' }], maxLength: 10 }))).toBe(
+      '`string | null`, maxLength: `10`\n',
+    )
+  })
+
+  it('renders composition keywords (allOf)', () => {
+    const schemaValue = schema({
+      allOf: [
+        { type: 'object', properties: { name: { type: 'string' } } },
+        { type: 'object', properties: { age: { type: 'number' } } },
+      ],
+    })
+
+    const output = render(schemaValue)
+
+    expect(output.replaceAll('`', '')).toContain('All of:')
+    expect(output.replaceAll('`', '')).toContain('name')
+    expect(output.replaceAll('`', '')).toContain('age')
+  })
+
+  it('renders composition keywords (anyOf)', () => {
+    const schemaValue = schema({
+      anyOf: [{ type: 'string' }, { type: 'number' }],
+    })
+
+    // A union of plain types reads as one type instead of a list of branches.
+    expect(render(schemaValue)).toBe('`string | number`\n')
+    expect(render(schema({ anyOf: [{ type: 'string', format: 'uuid' }, { type: 'number' }] }))).toContain('Any of:')
+  })
+
+  it('renders composition keywords (oneOf)', () => {
+    const schemaValue = schema({
+      oneOf: [{ type: 'boolean' }, { type: 'integer' }],
+    })
+
+    expect(render(schemaValue)).toBe('`boolean | integer`\n')
+    expect(render(schema({ oneOf: [{ type: 'boolean', description: 'Flag' }, { type: 'integer' }] }))).toContain(
+      'One of:',
+    )
+  })
+
+  it('renders composition keywords (not)', () => {
+    const schemaValue = schema({
+      not: { type: 'string' },
+    })
+
+    const output = render(schemaValue)
+
+    expect(output.replaceAll('`', '')).toContain('Not:')
+    expect(output.replaceAll('`', '')).toContain('string')
+  })
+
+  it('renders object type schema with properties', () => {
+    const schemaValue = schema({
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'User name' },
+        age: { type: 'number', description: 'User age' },
+      },
+      required: ['name'],
+    })
+
+    const output = render(schemaValue)
+
+    expect(output.replaceAll('`', '')).toContain('name')
+    expect(output.replaceAll('`', '')).toContain('(required)')
+    expect(output.replaceAll('`', '')).toContain('User name')
+    expect(output.replaceAll('`', '')).toContain('age')
+    expect(output.replaceAll('`', '')).toContain('User age')
+  })
+
+  it('renders array type schema with items', () => {
+    const schemaValue = schema({
+      type: 'array',
+      items: { type: 'string' },
+      minItems: 1,
+      maxItems: 10,
+      uniqueItems: true,
+    })
+
+    const output = render(schemaValue)
+
+    expect(output).toBe('`array of string`, minItems: `1`, maxItems: `10`, uniqueItems: `true`\n')
+  })
+
+  it('renders primitive type schema with format and enum', () => {
+    const schemaValue = schema({
+      type: 'string',
+      format: 'email',
+      enum: ['user@example.com', 'admin@example.com'],
+      default: 'user@example.com',
+      description: 'User email address',
+    })
+
+    const output = render(schemaValue)
+
+    expect(output.replaceAll('`', '')).toContain('string')
+    expect(output.replaceAll('`', '')).toContain('format: email')
+    expect(output.replaceAll('`', '')).toContain('possible values: "user@example.com", "admin@example.com"')
+    expect(output.replaceAll('`', '')).toContain('default: "user@example.com"')
+    expect(output.replaceAll('`', '')).toContain('User email address')
+  })
+
+  it('renders nested object schema', () => {
+    const schemaValue = schema({
+      type: 'object',
+      properties: {
+        user: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            address: {
+              type: 'object',
+              properties: {
+                street: { type: 'string' },
+                city: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const output = render(schemaValue)
+
+    expect(output.replaceAll('`', '')).toContain('user')
+    expect(output.replaceAll('`', '')).toContain('name')
+    expect(output.replaceAll('`', '')).toContain('address')
+    expect(output.replaceAll('`', '')).toContain('street')
+    expect(output.replaceAll('`', '')).toContain('city')
+  })
+
+  it('preserves the type of an array without an items schema', () => {
+    expect(renderText(schema({ type: 'array' }))).toBe('array')
+  })
+
+  it('preserves nullable array types alongside their items', () => {
+    expect(render(schema({ type: ['array', 'null'], items: { type: 'string' } }))).toBe('`(array of string) | null`\n')
+    expect(render(schema({ type: ['array', 'null'], items: { type: 'string', format: 'uuid' } }))).toBe(
+      '`array | null`\n\n**Array of:**\n\n`string`, format: `uuid`\n',
+    )
+  })
+
+  it('preserves nullable object types alongside their properties', () => {
+    expect(render(schema({ type: ['object', 'null'], properties: { name: { type: 'string' } } }))).toBe(
+      '`object | null`\n\n- **`name`**: `string`\n',
+    )
+  })
+
+  it('renders array of objects schema', () => {
+    const schemaValue = schema({
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+        },
+      },
+    })
+
+    const output = render(schemaValue)
+
+    expect(output.replaceAll('`', '')).toContain('Array of:')
+    expect(output.replaceAll('`', '')).toContain('id')
+    expect(output.replaceAll('`', '')).toContain('name')
+  })
+  it('reuses normalized views without conflating reference sibling overrides', () => {
+    const renderer = createSchemaRenderer()
+    const target = { type: 'string', description: 'Base' }
+    const first = schema({ $ref: '#/components/schemas/Value', '$ref-value': target, description: 'First' })
+    const second = schema({ $ref: '#/components/schemas/Value', '$ref-value': target, description: 'Second' })
+    expect(renderer.view(first)).toBe(renderer.view(first))
+    expect(renderer.view(first).description).toBe('First')
+    expect(renderer.view(second).description).toBe('Second')
+    expect(target).toStrictEqual({ type: 'string', description: 'Base' })
+  })
+
+  it('does not reuse ancestry-dependent expansions across separate roots', () => {
+    const renderer = createSchemaRenderer()
+    const value = schema({ type: 'object', properties: { value: { type: 'string' } } })
+    const serialize = (ancestors: readonly unknown[]): string => stringify(renderer.render(value, 0, ancestors))
+    expect(serialize([value])).toBe('*\\[Circular Reference]*\n')
+    expect(serialize([])).toBe('- **`value`**: `string`\n')
+  })
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)('renders %s inside an object property', (keyword) => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          choice: {
+            [keyword]: [
+              { type: 'string', format: 'uuid' },
+              { type: 'integer', format: 'int64' },
+            ],
+          },
+        },
+      }),
+    )
+    expect(output).toContain('uuid')
+    expect(output).toContain('int64')
+  })
+
+  it('renders not inside an object property', () => {
+    const output = renderText(
+      schema({ type: 'object', properties: { choice: { not: { type: 'string', enum: ['forbidden'] } } } }),
+    )
+    expect(output).toContain('Not:')
+    expect(output).toContain('"forbidden"')
+  })
+
+  it('preserves zero bounds and constraints on object properties', () => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          count: { type: 'integer', minimum: 0, maximum: 10, multipleOf: 2 },
+          name: { type: 'string', minLength: 0, maxLength: 20, pattern: '^[a-z]+$' },
+        },
+      }),
+    )
+    const text = output.replace(/\s+/g, ' ')
+    expect(text).toContain('minimum: 0')
+    expect(text).toContain('maximum: 10')
+    expect(text).toContain('multipleOf: 2')
+    expect(text).toContain('minLength: 0')
+    expect(text).toContain('maxLength: 20')
+    expect(text).toContain('pattern: ^[a-z]+$')
+  })
+  it('retains sibling properties alongside multiple composition keywords', () => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: { sibling: { type: 'string' } },
+        allOf: [{ properties: { inherited: { type: 'integer' } } }],
+        oneOf: [{ properties: { first: { type: 'boolean' } } }, { properties: { second: { type: 'number' } } }],
+      }),
+    )
+    for (const expected of ['sibling', 'inherited', 'first', 'second', 'All of:', 'One of:']) {
+      expect(output).toContain(expected)
+    }
+  })
+
+  it('renders access annotations, additional properties, constants, and discriminator mappings', () => {
+    const output = renderText(
+      schema({
+        type: 'object',
+        additionalProperties: { type: 'integer' },
+        discriminator: { propertyName: 'kind', mapping: { cat: '#/components/schemas/Cat' } },
+        properties: {
+          id: { type: 'string', readOnly: true },
+          secret: { type: 'string', writeOnly: true },
+          kind: { const: 'cat' },
+        },
+      }),
+    )
+    const text = output.replace(/\s+/g, ' ')
+    for (const expected of [
+      'readOnly',
+      'writeOnly',
+      'Additional properties:',
+      'integer',
+      'Discriminator:',
+      'kind',
+      '#/components/schemas/Cat',
+      'const: "cat"',
+    ]) {
+      expect(text).toContain(expected)
+    }
+  })
+
+  it.each([true, false])('renders a boolean schema %s without coercing it to an object', (value) => {
+    expect(renderText(value)).toBe(value ? 'any (true schema)' : 'never (false schema)')
+  })
+
+  it('renders false schemas inside composition and array items', () => {
+    const output = renderText(
+      schema({
+        type: 'array',
+        items: false,
+        not: false,
+        allOf: [true, false],
+      }),
+    )
+    const text = output
+    expect(text).toContain('Array of:')
+    expect(text).toContain('Not:')
+    expect(text.match(/never \(false schema\)/g)?.length).toBe(3)
+  })
+
+  it('identifies actual ancestor cycles without truncating deep nonrecursive schemas', () => {
+    const recursive: Record<string, unknown> = { type: 'object' }
+    recursive.properties = { child: { $ref: '#/Node', '$ref-value': recursive } }
+    expect(renderText(schema(recursive))).toContain('[Circular Reference]')
+    const deep = Array.from({ length: 24 }).reduce<Record<string, unknown>>(
+      (child, _, index) => ({ type: 'object', properties: { [`level${index}`]: child } }),
+      { type: 'string', description: 'Deep leaf' },
+    )
+    const text = renderText(schema(deep))
+    expect(text).toContain('Deep leaf')
+    expect(text).not.toContain('Circular')
+  })
+
+  it('renders a shared schema once and refers back to it afterwards', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string', description: 'Shared name' } } }
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          first: { $ref: '#/components/schemas/Shared', '$ref-value': shared },
+          second: { $ref: '#/components/schemas/Shared', '$ref-value': shared },
+        },
+      }),
+    )
+    expect(output.match(/Shared name/g)?.length).toBe(1)
+    expect(output).toContain('schema: Shared')
+    expect(output).toContain('Schema Shared is shown above.')
+    expect(output).not.toContain('Circular')
+  })
+
+  it('keeps sibling annotations beside a reference to a schema that was already shown', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const output = renderText(
+      schema({
+        allOf: [
+          { $ref: '#/components/schemas/Shared', '$ref-value': shared },
+          { $ref: '#/components/schemas/Shared', '$ref-value': shared, description: 'Sibling note' },
+        ],
+      }),
+    )
+    expect(output.match(/- name/g)?.length).toBe(1)
+    expect(output).toContain('Sibling note')
+    expect(output).toContain('Schema Shared is shown above.')
+  })
+
+  it('expands a reference with structural siblings instead of pointing back to the shared schema', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const output = renderText(
+      schema({
+        allOf: [
+          { $ref: '#/components/schemas/Shared', '$ref-value': shared },
+          {
+            $ref: '#/components/schemas/Shared',
+            '$ref-value': shared,
+            properties: { extra: { type: 'string' } },
+          },
+        ],
+      }),
+    )
+    expect(output).toContain('extra')
+    expect(output).not.toContain('shown above')
+  })
+
+  it('renders small shared primitive schemas in place', () => {
+    const shared = { type: 'string', enum: ['usd', 'eur'] }
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          first: { $ref: '#/components/schemas/Currency', '$ref-value': shared },
+          second: { $ref: '#/components/schemas/Currency', '$ref-value': shared },
+        },
+      }),
+    )
+    expect(output.match(/possible values: "usd", "eur"/g)?.length).toBe(2)
+    expect(output).not.toContain('shown above')
+  })
+
+  it('keeps output linear for a densely shared schema graph', () => {
+    const levels = Array.from({ length: 11 }, () => ({ type: 'object', properties: {} as Record<string, unknown> }))
+    levels.forEach((level, index) => {
+      for (let branch = 0; branch < 5; branch++) {
+        level.properties[`p${branch}`] =
+          index < 10
+            ? { $ref: `#/components/schemas/L${index + 1}`, '$ref-value': levels[index + 1] }
+            : { type: 'string', description: 'LEAF' }
+      }
+    })
+    const output = renderText(schema(levels[0]!))
+    expect(output.match(/LEAF/g)?.length).toBe(5)
+    expect(output.match(/is shown above/g)?.length).toBe(40)
+  })
+
+  it('distinguishes a true cycle from a schema that was already shown', () => {
+    const node: Record<string, unknown> = { type: 'object' }
+    node.properties = {
+      name: { type: 'string' },
+      child: { $ref: '#/components/schemas/Node', '$ref-value': node },
+    }
+    const output = renderText(
+      schema({
+        type: 'object',
+        properties: {
+          first: { $ref: '#/components/schemas/Node', '$ref-value': node },
+          second: { $ref: '#/components/schemas/Node', '$ref-value': node },
+        },
+      }),
+    )
+    expect(output.match(/\[Circular Reference\]/g)?.length).toBe(1)
+    expect(output.match(/Schema Node is shown above\./g)?.length).toBe(1)
+  })
+
+  it('truncates output with a visible marker once the node budget is spent', () => {
+    const renderer = createSchemaRenderer({ maxNodes: 3 })
+    const properties = Object.fromEntries(
+      Array.from({ length: 5 }, (_, index) => [`field${index}`, { type: 'object', properties: { value: {} } }]),
+    )
+    const output = stringify(renderer.render(schema({ type: 'object', properties })))
+    expect(output).toContain('[Schema output truncated]')
+    expect(output).toContain('field4')
+  })
+
+  it('tracks shown schemas and the node budget separately for each document', () => {
+    const renderer = createSchemaRenderer({ maxNodes: 2 })
+    const shared = { type: 'object', properties: { name: { type: 'string' } } }
+    const value = schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared })
+    // One-line properties need no expansion, so only the nested object spends the budget.
+    const other = schema({
+      type: 'object',
+      properties: { other: { type: 'object', properties: { value: { type: 'string' } } } },
+    })
+    const serialize = (target: SchemaRenderer, input: SchemaObject): string => stringify(target.render(input))
+    const first = renderer.forDocument()
+    expect(serialize(first, value)).toContain('name')
+    expect(serialize(first, value)).toContain('is shown above')
+    expect(serialize(first, other)).toContain('truncated')
+    first.beginSection()
+    expect(serialize(first, other)).not.toContain('truncated')
+    const second = renderer.forDocument()
+    expect(serialize(second, value)).toContain('name')
+    expect(renderer.view(value)).toBe(second.view(value))
+  })
+
+  it('refers a model section back to a schema the document already expanded', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string', description: 'Shared name' } } }
+    const renderer = createSchemaRenderer().forDocument({ Shared: schema(shared) })
+    const serialize = (children: ReturnType<SchemaRenderer['render']>): string =>
+      stringify(children).replaceAll('`', '')
+    expect(serialize(renderer.render(schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared })))).toContain(
+      'Shared name',
+    )
+    expect(serialize(renderer.render(schema(shared), 0, [], { name: 'Shared' }))).toBe(
+      '*Schema Shared is shown above.*\n',
+    )
+  })
+
+  it('points a deep reference to its schema section instead of truncating it', () => {
+    const shared = { type: 'object', properties: { name: { type: 'string', description: 'Deep name' } } }
+    const renderer = createSchemaRenderer().forDocument({ Shared: schema(shared) })
+    const output = stringify(
+      renderer.render(schema({ $ref: '#/components/schemas/Shared', '$ref-value': shared }), 64),
+    ).replaceAll('`', '')
+    expect(output).toContain('Schema Shared is shown below under Schemas.')
+    expect(output).not.toContain('Maximum schema depth')
+  })
+
+  it('labels the depth guard separately from a circular reference', () => {
+    const output = renderText(schema({ type: 'string' }), 64)
+    expect(output).toBe('[Maximum schema depth reached]')
+  })
+  it.each([true, false])('preserves sibling constraints beside a reference to %s', (target) => {
+    const output = renderText(schema({ $ref: '#/Base', '$ref-value': target, type: 'string', minLength: 3 }))
+    expect(output).toContain('string')
+    expect(output).toContain('minLength: 3')
+    expect(output.includes('never (false schema)')).toBe(!target)
+  })
+  it.each([false, true])('keeps structural model siblings with extended model first: %s', (extendedFirst) => {
+    const base = schema({ type: 'object', properties: { original: { type: 'string' } } })
+    const extended = schema({
+      $ref: '#/components/schemas/Base',
+      '$ref-value': base,
+      properties: { extra: { type: 'number' } },
+    })
+    const renderer = createSchemaRenderer().forDocument({ Base: base, Extended: extended })
+    const models = extendedFirst
+      ? ([
+          ['Extended', extended],
+          ['Base', base],
+        ] as const)
+      : ([
+          ['Base', base],
+          ['Extended', extended],
+        ] as const)
+    const outputs = Object.fromEntries(
+      models.map(([name, model]) => [name, stringify(renderer.render(model, 0, [], { name }))]),
+    )
+    expect(outputs.Base).toContain('original')
+    expect(outputs.Extended).toContain('extra')
+  })
+})

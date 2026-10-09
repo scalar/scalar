@@ -47,6 +47,11 @@ const showMore = computed(() => sectionCollapsed.value && hasChildren.value)
 /** Nested sections remain transparent so only first-level tags establish a surface. */
 const hasCollapsedSurface = computed(() => showMore.value && !nested)
 
+defineSlots<{
+  default?: () => unknown
+  actions?: () => unknown
+}>()
+
 const { level: headingLevel } = useDocumentOutline('tag')
 </script>
 
@@ -61,11 +66,17 @@ const { level: headingLevel } = useDocumentOutline('tag')
     role="region">
     <TagSection
       v-if="moreThanOneDefaultTag"
-      :headingLevel
       :eventBus="eventBus"
       :headerId="headerId"
+      :headingLevel
       :isCollapsed="isCollapsed"
-      :tag="tag" />
+      :tag="tag">
+      <template
+        v-if="$slots.actions"
+        #actions>
+        <slot name="actions" />
+      </template>
+    </TagSection>
     <ShowMoreButton
       v-if="showMore"
       :id="tag.id"

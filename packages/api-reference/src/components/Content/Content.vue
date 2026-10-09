@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { mapHiddenClientsConfig } from '@scalar/api-client/modal/map-hidden-clients-config'
 import { generateClientOptions } from '@scalar/blocks/code-example'
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { Heading } from '@scalar/types/legacy'
@@ -65,49 +66,56 @@ const {
   authStore,
   documentSlug,
   contextChain = [],
-} = defineProps<{
-  infoSectionId: string
-  /**
-   * Ancestor tags (root → section in view) for the sticky context bar. Empty
-   * unless the section currently in view is nested under a parent tag.
-   */
-  contextChain?: { id: string; title: string }[]
-  /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
-  documentSlug: string
-  /** The subset of the configuration object required for the content component */
-  options: Pick<
-    ApiReferenceConfigurationRaw,
-    | 'authentication'
-    | 'baseServerURL'
-    | 'documentDownloadType'
-    | 'expandAllResponses'
-    | 'hiddenClients'
-    | 'hideTestRequestButton'
-    | 'layout'
-    | 'oauth2RedirectUri'
-    | 'orderRequiredPropertiesFirst'
-    | 'orderSchemaPropertiesBy'
-    | 'expandAllSchemaProperties'
-    | 'schemaKeyboardNav'
-    | 'persistAuth'
-    | 'proxyUrl'
-    | 'servers'
-    | 'showOperationId'
-    | 'hideModels'
-    | 'modelsSectionLabel'
-  >
-  document: WorkspaceDocument | undefined
-  clientDocument: WorkspaceDocument | undefined
-  authStore: AuthStore
-  xScalarDefaultClient: Workspace['x-scalar-default-client']
-  xScalarDefaultExample: Workspace['x-scalar-default-example']
-  items: TraversedEntryType[]
-  expandedItems: Record<string, boolean>
-  eventBus: WorkspaceEventBus
-  environment: XScalarEnvironment
-  /** Heading id generator for Markdown headings */
-  headingSlugGenerator: (heading: Heading) => string
-}>()
+} = defineProps<
+  {
+    infoSectionId: string
+    /**
+     * Ancestor tags (root → section in view) for the sticky context bar. Empty
+     * unless the section currently in view is nested under a parent tag.
+     */
+    contextChain?: { id: string; title: string }[]
+    /** Slug of the active document, used to scope plugin view ids for navigation and deep-linking */
+    documentSlug: string
+    /** The subset of the configuration object required for the content component */
+    options: Pick<
+      ApiReferenceConfigurationRaw,
+      | 'expandAllParameters'
+      | 'authentication'
+      | 'baseServerURL'
+      | 'documentDownloadType'
+      | 'expandAllResponses'
+      | 'featuredClients'
+      | 'hiddenClients'
+      | 'hideTestRequestButton'
+      | 'layout'
+      | 'oauth2RedirectUri'
+      | 'orderRequiredPropertiesFirst'
+      | 'orderSchemaPropertiesBy'
+      | 'expandAllSchemaProperties'
+      | 'schemaKeyboardNav'
+      | 'hideModelNames'
+      | 'showExtensions'
+      | 'maxVisibleRequestBodyProperties'
+      | 'persistAuth'
+      | 'proxyUrl'
+      | 'servers'
+      | 'showOperationId'
+      | 'hideModels'
+      | 'modelsSectionLabel'
+    >
+    document: WorkspaceDocument | undefined
+    clientDocument: WorkspaceDocument | undefined
+    authStore: AuthStore
+    xScalarDefaultClient: Workspace['x-scalar-default-client']
+    xScalarDefaultExample: Workspace['x-scalar-default-example']
+    items: TraversedEntryType[]
+    expandedItems: Record<string, boolean>
+    eventBus: WorkspaceEventBus
+    environment: XScalarEnvironment
+    /** Heading id generator for Markdown headings */
+    headingSlugGenerator: (heading: Heading) => string
+  } & SchemaRenderingProps
+>()
 
 /** Generate all client options so that it can be shared between the top client picker and the operations */
 const clientOptions = computed(() =>
@@ -229,7 +237,7 @@ const securitySchemes = computed(() => {
 })
 
 /**
- * Whether to show the document-level auth selector.
+ * Wait for the active client document so initial auth updates can be persisted.
  *
  * For OpenAPI it stays tied to `hideTestRequestButton`, since the auth feeds the interactive
  * test client. AsyncAPI has no document-level test request, so its auth display is decoupled
@@ -238,6 +246,7 @@ const securitySchemes = computed(() => {
 const showAuthSelector = computed(
   () =>
     Boolean(document) &&
+    Boolean(clientDocument) &&
     (Boolean(asyncApiDocument.value) || !options.hideTestRequestButton),
 )
 
@@ -253,7 +262,7 @@ provideDocumentOutline('document')
 <template>
   <SectionFlare />
 
-  <div class="narrow-references-container">
+  <div class="references-container">
     <slot name="start" />
 
     <!-- Render plugins at content.start view -->
@@ -267,6 +276,7 @@ provideDocumentOutline('document')
 
     <InfoBlock
       :id="infoSectionId"
+      :applicationIdentifier="asyncApiDocument?.id"
       :documentDownloadType="options.documentDownloadType"
       :documentExtensions
       :documentType
@@ -337,6 +347,7 @@ provideDocumentOutline('document')
               class="introduction-card-item scalar-reference-intro-clients"
               :clientOptions
               :eventBus
+              :featuredClients="options.featuredClients"
               :selectedClient="xScalarDefaultClient" />
           </IntroductionCardItem>
         </ScalarErrorBoundary>
@@ -363,11 +374,14 @@ provideDocumentOutline('document')
       :entries="items"
       :eventBus
       :expandedItems
+      :expansion="expansion"
       :options
+      :scrollTargetId="scrollTargetId"
       :securitySchemes
       :selectedClient="xScalarDefaultClient"
       :selectedExample="xScalarDefaultExample"
-      :selectedServer>
+      :selectedServer
+      :specificationExtension="specificationExtension">
     </TraversedEntry>
 
     <!-- AsyncAPI: render channels grouped by tag, mirroring the sidebar order. -->
@@ -377,7 +391,10 @@ provideDocumentOutline('document')
       :entries="items"
       :eventBus
       :expandedItems
-      :options />
+      :expansion="expansion"
+      :options
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
 
     <!-- Render plugins at content.end view -->
     <RenderPlugins
@@ -395,8 +412,8 @@ provideDocumentOutline('document')
 </template>
 
 <style>
-.narrow-references-container {
-  container-name: narrow-references-container;
+.references-container {
+  container-name: references-container;
   container-type: inline-size;
 }
 </style>

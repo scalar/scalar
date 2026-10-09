@@ -1,6 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
-import { buildQueryString } from '@/libs/http'
+import { buildFormData, formDataHeaders } from '@/libs/form-data'
+import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
 /**
@@ -20,7 +21,7 @@ export const nodeFetch: Plugin = {
     let prefix = ''
 
     // Normalization
-    normalizedRequest.method = normalizedRequest.method.toUpperCase()
+    normalizedRequest.method = normalizeMethod(normalizedRequest.method)
 
     // Reset fetch defaults
     const options: Record<string, any> = {
@@ -28,13 +29,13 @@ export const nodeFetch: Plugin = {
     }
 
     // Query
-    const queryString = buildQueryString(normalizedRequest.queryString)
+    const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers
-    if (normalizedRequest.headers?.length) {
+    const headers = formDataHeaders(normalizedRequest)
+    if (headers?.length) {
       options.headers = {}
-
-      normalizedRequest.headers.forEach((header) => {
+      headers.forEach((header) => {
         options.headers![header.name] = header.value
       })
     }
@@ -60,7 +61,6 @@ export const nodeFetch: Plugin = {
     // Add body
     if (normalizedRequest.postData) {
       const { mimeType, text, params } = normalizedRequest.postData
-      let hasFsImport = false
 
       if (mimeType === 'application/json' && text) {
         try {
@@ -69,19 +69,7 @@ export const nodeFetch: Plugin = {
           options.body = text
         }
       } else if (mimeType === 'multipart/form-data' && params) {
-        prefix = 'const formData = new FormData()\n'
-        params.forEach((param) => {
-          if (param.fileName !== undefined) {
-            if (!hasFsImport) {
-              prefix = `import fs from 'node:fs'\n\n${prefix}`
-              hasFsImport = true
-            }
-            prefix += `formData.append('${param.name}', new Blob([fs.readFileSync('${param.fileName}')]), '${param.fileName}')\n`
-          } else if (param.value !== undefined) {
-            prefix += `formData.append('${param.name}', '${param.value}')\n`
-          }
-        })
-        prefix += '\n'
+        prefix = `${buildFormData(params, 'node').join('\n')}\n\n`
         options.body = new Raw('formData')
       } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
         const form = Object.fromEntries(params.map((p) => [p.name, p.value]))
@@ -95,6 +83,6 @@ export const nodeFetch: Plugin = {
     const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''
 
     // Code Template
-    return `${prefix}fetch('${normalizedRequest.url}${queryString}'${jsonOptions})`
+    return `${prefix}fetch('${url}'${jsonOptions})`
   },
 }

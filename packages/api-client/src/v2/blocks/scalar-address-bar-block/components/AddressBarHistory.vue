@@ -1,25 +1,15 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import {
-  ScalarFloating,
-  ScalarFloatingBackdrop,
-} from '@scalar/components/floating'
+import { ScalarFloating } from '@scalar/components/floating'
 import { ScalarIcon } from '@scalar/components/icon'
 import { formatMilliseconds } from '@scalar/helpers/formatters/format-milliseconds'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { httpStatusCodes } from '@scalar/helpers/http/http-status-codes'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import ValueEmitter from '@/v2/components/layout/ValueEmitter.vue'
+import { useLocalization } from '@/v2/features/localization'
 
 import { getStatusCodeColor } from './httpStatusCodeColors'
-
-export type History = {
-  method: HttpMethodType
-  path: string
-  duration: number
-  status: number
-}
 
 const { target } = defineProps<{
   /** The id of the target to use for the popover (e.g. address bar) */
@@ -34,6 +24,15 @@ const emits = defineEmits<{
   /** Update the open state of the history popover */
   (e: 'update:open', value: boolean): void
 }>()
+
+const { translate } = useLocalization()
+
+export type History = {
+  method: string
+  path: string
+  duration: number
+  status: number
+}
 </script>
 <template>
   <Menu
@@ -57,7 +56,9 @@ const emits = defineEmits<{
           icon="History"
           size="sm"
           thickness="2.25" />
-        <span class="sr-only">Request History</span>
+        <span class="sr-only">{{
+          translate('apiClient.addressBarHistory.requestHistory')
+        }}</span>
       </MenuButton>
       <!-- History shadow and placement-->
       <template
@@ -65,7 +66,7 @@ const emits = defineEmits<{
         #floating="{ width }">
         <!-- History Item -->
         <MenuItems
-          class="custom-scroll grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center p-0.75"
+          class="custom-scroll bg-b-1 dark:bg-b-1.5 grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center rounded-b-lg border border-t-0 p-0.75 shadow-md"
           static
           :style="{ width }">
           <MenuItem
@@ -92,7 +93,6 @@ const emits = defineEmits<{
             </div>
           </MenuItem>
         </MenuItems>
-        <ScalarFloatingBackdrop class="inset-x-px rounded-none rounded-b-lg" />
       </template>
     </ScalarFloating>
   </Menu>

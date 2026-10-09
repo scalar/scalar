@@ -1,5 +1,19 @@
 <script lang="ts">
 export type CodeExampleProps = {
+  /** Localized status text shown when the selected example has no linked code sample. */
+  codeSampleUnavailable?: string
+  /**
+   * Localized purpose of the client picker. It opens the button's accessible name and the
+   * selected client's title is appended, so the name still contains the visible label.
+   */
+  clientPickerLabel?: string
+  /** Localized accessible name for the search field inside the client picker. */
+  clientSearchLabel?: string
+  /**
+   * Localized accessible name for the focusable code sample. The selected client's title is
+   * appended so the announcement also says which language the sample is in.
+   */
+  codeSampleLabel?: string
   /**
    * Integration type: determines if the code sample is displayed in a client environment
    * or in an API reference environment.
@@ -74,7 +88,7 @@ export type CodeExampleProps = {
   /**
    * HTTP method of the operation
    */
-  method: HttpMethodType
+  method: string
   /**
    * Path of the operation
    */
@@ -103,6 +117,8 @@ export type CodeExampleProps = {
    * When the request body schema uses oneOf/anyOf, use these selected variants
    * for the example snippet (e.g. from the schema dropdowns in the API reference).
    */
+  /** Originating OpenAPI version, used for XML mapping rules. */
+  openapiVersion?: string
   requestBodyCompositionSelection?: Record<string, number>
 }
 
@@ -130,10 +146,17 @@ import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import {
+  getOperationExamples,
+  resolveOperationExamples,
+} from '@scalar/workspace-store/helpers/operation-examples'
+import {
+  useExampleVisibility,
+  useExternalExamples,
+} from '@scalar/workspace-store/helpers/use-external-examples'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
@@ -167,6 +190,10 @@ import HttpMethod from './HttpMethod.vue'
 
 const {
   integration,
+  codeSampleUnavailable = 'No code sample available for this example.',
+  clientPickerLabel = 'Change code sample language',
+  clientSearchLabel = 'Search clients',
+  codeSampleLabel = 'Code sample',
   clientOptions,
   selectedClient,
   selectedServer = null,
@@ -180,6 +207,7 @@ const {
   isWebhook,
   generateLabel,
   globalCookies,
+  openapiVersion,
   requestBodyCompositionSelection,
 } = defineProps<CodeExampleProps>()
 
@@ -195,8 +223,10 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  header: () => unknown
-  footer: ({ exampleName }: { exampleName: string }) => unknown
+  'header': () => unknown
+  /** Rendered at the start of the footer, only while the example picker does not need that space */
+  'footer-start'?: () => unknown
+  'footer': ({ exampleName }: { exampleName: string }) => unknown
 }>()
 
 /** Grab the examples for the given content type */
@@ -306,16 +336,63 @@ watch([() => selectedClient, clients], ([newClient]) => {
   }
 })
 
+/**
+ * Accessible name for the client picker.
+ *
+ * On its own the button reads as its current value ("C Libcurl"), which never
+ * says what activating it does. The visible title stays part of the name so it
+ * still matches what is on screen.
+ */
+const clientPickerAriaLabel = computed(() =>
+  [clientPickerLabel, localSelectedClient.value?.title]
+    .filter(Boolean)
+    .join(': '),
+)
+
+/**
+ * Accessible name for the focusable code sample, e.g. "Code sample: Shell cURL".
+ *
+ * Screen readers announce only the name and role when focus lands on the scroller, so the
+ * name tells the user both what the region is and which client it is generated for.
+ */
+const codeSampleAriaLabel = computed(() =>
+  [codeSampleLabel, localSelectedClient.value?.title]
+    .filter(Boolean)
+    .join(': '),
+)
+
+const elem = ref<ComponentPublicInstance | null>(null)
+const visible = useExampleVisibility(elem)
+const externalExamples = useExternalExamples(
+  () =>
+    getOperationExamples(operation, localExampleKey.value, selectedContentType),
+  () => visible.value,
+)
+const resolvedOperation = computed(() =>
+  resolveOperationExamples(
+    operation,
+    localExampleKey.value,
+    selectedContentType,
+    externalExamples.resolve,
+  ),
+)
+
+/** Keep the picker available because it also selects the example opened by Test Request. */
+const showExamplePicker = computed(
+  () => Object.keys(requestBodyExamples.value).length > 1,
+)
+
 /** Generate HAR data for webhook requests */
 const webhookHar = computed(() => {
   if (!isWebhook) return null
 
   try {
     return operationToHar({
-      operation,
+      operation: resolvedOperation.value,
       method,
       path,
       example: localExampleKey.value,
+      openapiVersion,
       requestBodyCompositionSelection,
       // Only required parameters are shown in code examples; optional parameters
       // are omitted unless explicitly enabled via `x-disabled: false`.
@@ -328,7 +405,7 @@ const webhookHar = computed(() => {
 })
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string>(() => {
+const generatedCode = computed<string | null>(() => {
   if (isWebhook) {
     return webhookHar.value?.postData?.text ?? ''
   }
@@ -340,7 +417,7 @@ const generatedCode = computed<string>(() => {
     includeDefaultHeaders: integration === 'client',
     clientId: localSelectedClient.value?.id,
     customCodeSamples: customCodeSamples.value.samples,
-    operation,
+    operation: resolvedOperation.value,
     method,
     path,
     contentType: selectedContentType,
@@ -348,6 +425,7 @@ const generatedCode = computed<string>(() => {
     securitySchemes,
     example: localExampleKey.value,
     globalCookies,
+    openapiVersion,
     requestBodyCompositionSelection,
   })
 })
@@ -378,9 +456,6 @@ const webhookLanguage = computed<string>(() => {
 /**  Block secrets from being shown in the code block */
 const secretCredentials = computed(() => getSecrets(securitySchemes))
 
-/** Grab the ref to freeze the ui as the clients change so there's no jump as the size of the dom changes */
-const elem = ref<ComponentPublicInstance | null>(null)
-
 /** Set custom example, or update the selected HTTP client globally */
 const selectClient = (option: ClientOption) => {
   // We need to freeze the ui to prevent scrolling as the clients change
@@ -407,14 +482,16 @@ const selectClient = (option: ClientOption) => {
 const VIRTUALIZATION_THRESHOLD = 20_000
 
 const shouldVirtualize = computed(
-  () => (generatedCode.value.length ?? 0) > VIRTUALIZATION_THRESHOLD,
+  () => (generatedCode.value?.length ?? 0) > VIRTUALIZATION_THRESHOLD,
 )
 
 const id = useId()
 </script>
 <template>
   <ScalarCard
-    v-if="generatedCode"
+    v-if="
+      generatedCode === null || generatedCode || externalExamples.pending.value
+    "
     ref="elem"
     class="request-card dark-mode">
     <!-- Header -->
@@ -437,12 +514,14 @@ const id = useId()
           v-if="clientCount > 1"
           class="max-h-80"
           :filterFn="filterClientsByQuery"
+          :inputLabel="clientSearchLabel"
           :modelValue="localSelectedClient"
           :options="clients"
           placement="bottom-end"
           teleport
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
+            :aria-label="clientPickerAriaLabel"
             class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
             data-testid="client-picker"
             variant="ghost">
@@ -465,6 +544,28 @@ const id = useId()
     <!-- Code snippet -->
     <ScalarCardSection class="request-editor-section custom-scroll p-0">
       <div
+        v-if="externalExamples.pending.value"
+        class="text-c-2 p-4"
+        role="status">
+        <template v-if="externalExamples.failed.value">
+          Could not load this example.
+          <ScalarButton
+            size="sm"
+            variant="ghost"
+            @click="externalExamples.retry">
+            Retry
+          </ScalarButton>
+        </template>
+        <template v-else>Loading example…</template>
+      </div>
+      <div
+        v-else-if="generatedCode === null"
+        class="text-c-2 p-4"
+        role="status">
+        {{ codeSampleUnavailable }}
+      </div>
+      <div
+        v-else
         :id="`${id}-example`"
         class="code-snippet">
         <ScalarCodeBlock
@@ -472,24 +573,31 @@ const id = useId()
           class="bg-b-2 h-full"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
+          :label="codeSampleAriaLabel"
           :lang="codeBlockLanguage"
           lineNumbers />
         <ScalarVirtualText
           v-else
+          aria-label="Request code sample"
           containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
           contentClass="language-plaintext whitespace-pre font-code text-base p-2"
           :lineHeight="20"
+          role="region"
           :text="generatedCode" />
       </div>
     </ScalarCardSection>
 
     <!-- Footer -->
     <ScalarCardFooter
-      v-if="Object.keys(requestBodyExamples).length > 1 || $slots.footer"
-      class="request-card-footer bg-b-3">
+      v-if="showExamplePicker || $slots.footer || $slots['footer-start']"
+      class="request-card-footer bg-b-3"
+      :class="{
+        'request-card-footer--wraps':
+          !showExamplePicker && $slots['footer-start'],
+      }">
       <!-- Example picker -->
       <div
-        v-if="Object.keys(requestBodyExamples).length > 1"
+        v-if="showExamplePicker"
         class="request-card-footer-addon">
         <template v-if="Object.keys(requestBodyExamples).length">
           <ExamplePicker
@@ -497,6 +605,12 @@ const id = useId()
             :modelValue="localExampleKey"
             @update:modelValue="selectExample" />
         </template>
+      </div>
+      <!-- Otherwise the start of the footer is free for the caller -->
+      <div
+        v-else-if="$slots['footer-start']"
+        class="request-card-footer-start">
+        <slot name="footer-start" />
       </div>
 
       <!-- Footer -->
@@ -531,7 +645,6 @@ const id = useId()
 }
 .request-method {
   font-family: var(--scalar-font-code);
-  text-transform: uppercase;
   margin-right: 6px;
 }
 .request-card-footer {
@@ -540,6 +653,19 @@ const id = useId()
   padding: 6px;
   flex-shrink: 0;
   position: relative;
+}
+/*
+ * Footer-start content keeps its full width; when the footer is too narrow for everything,
+ * the end controls wrap onto a second line instead of squeezing or covering it.
+ */
+.request-card-footer--wraps {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.request-card-footer-start {
+  display: flex;
+  align-items: center;
+  flex: 1 0 auto;
 }
 .request-card-footer-addon {
   display: flex;

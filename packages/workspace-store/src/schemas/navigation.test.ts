@@ -1,22 +1,52 @@
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Static } from '@scalar/typebox'
 import { Value } from '@scalar/typebox/value'
 import type { RequiredDeep } from 'type-fest'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import type { TraversedEntrySchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import {
+  type OperationMethod,
   TraversedDescriptionSchemaDefinition,
   type TraversedEntry,
   TraversedEntrySchemaDefinition,
+  type TraversedOperation,
   TraversedOperationSchemaDefinition,
   TraversedSchemaSchemaDefinition,
   TraversedTagSchemaDefinition,
+  type TraversedWebhook,
   TraversedWebhookSchemaDefinition,
 } from './navigation'
 
 describe('navigation', () => {
+  it('exposes an open operation method type to navigation consumers', () => {
+    expectTypeOf<TraversedOperation['method']>().toEqualTypeOf<OperationMethod>()
+    expectTypeOf<TraversedWebhook['method']>().toEqualTypeOf<OperationMethod>()
+    expectTypeOf<'get'>().toExtend<OperationMethod>()
+    expectTypeOf<'PURGE'>().toExtend<OperationMethod>()
+    expectTypeOf<string>().toExtend<OperationMethod>()
+    expectTypeOf<number>().not.toExtend<OperationMethod>()
+
+    // Fixed-field consumers retain typo checking despite the open navigation boundary.
+    expectTypeOf<'get'>().toExtend<HttpMethod>()
+    expectTypeOf<'gte'>().not.toExtend<HttpMethod>()
+    expectTypeOf<'PURGE'>().not.toExtend<HttpMethod>()
+    expectTypeOf<string>().not.toExtend<HttpMethod>()
+
+    const describeMethod = (method: OperationMethod): string => {
+      switch (method) {
+        case 'get':
+          return 'Read'
+        default:
+          return `Other: ${method}`
+      }
+    }
+    expect(describeMethod('get')).toBe('Read')
+    expect(describeMethod('PURGE')).toBe('Other: PURGE')
+  })
+
   describe('strict type checking', () => {
     it('performs deep type checking on all schemas', () => {
       type SchemaType = RequiredDeep<Static<typeof TraversedEntrySchema>>
@@ -98,13 +128,13 @@ describe('navigation', () => {
         expect(Value.Check(TraversedOperationSchemaDefinition, result)).toBe(true)
       })
 
-      it('rejects operation entry with invalid HTTP method', () => {
+      it('rejects operation entry with a non-string HTTP method', () => {
         const invalidInput = {
           id: 'op-3',
           title: 'Invalid Operation',
           type: 'operation',
           ref: '#/paths/~1users/get',
-          method: 'invalid-method', // not a valid HTTP method
+          method: 123,
           path: '/users',
         }
 

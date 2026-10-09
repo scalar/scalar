@@ -10,6 +10,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import HelpfulLink from '@/components/HelpfulLink.vue'
 import type { ResponseInstance } from '@/v2/blocks/operation-block/helpers/send-request'
 import { getContentLength } from '@/v2/blocks/response-block/helpers/get-content-length'
+import { useLocalization } from '@/v2/features/localization'
 
 const { response, eventBus } = defineProps<{
   /** Response */
@@ -17,6 +18,8 @@ const { response, eventBus } = defineProps<{
   /** Workspace event bus */
   eventBus: WorkspaceEventBus
 }>()
+
+const { translate } = useLocalization()
 
 const interval = ref<ReturnType<typeof setInterval>>()
 const stopwatch = ref(0)
@@ -60,15 +63,21 @@ const statusCodeInformation = computed((): HttpStatusCode | undefined => {
     }}</span>
     <template v-else>
       <span>
-        <span class="sr-only">Response Information, Duration:</span>
+        <span class="sr-only">{{
+          translate('apiClient.responseMetaInformation.duration')
+        }}</span>
         {{ prettyMilliseconds(response.duration) }}
       </span>
       <span v-if="getContentLength(response)">
-        <span class="sr-only">, Size:</span>
+        <span class="sr-only">{{
+          translate('apiClient.responseMetaInformation.size')
+        }}</span>
         {{ getContentLength(response) }}
       </span>
       <template v-if="statusCodeInformation">
-        <span class="sr-only">, Status:</span>
+        <span class="sr-only">{{
+          translate('apiClient.responseMetaInformation.status')
+        }}</span>
         <HelpfulLink
           v-if="statusCodeInformation.url"
           class="flex items-center gap-1.5"

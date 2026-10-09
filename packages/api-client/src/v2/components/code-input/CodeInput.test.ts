@@ -1,6 +1,7 @@
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import CodeInput from './CodeInput.vue'
 
@@ -13,6 +14,30 @@ const mockEnvironment: XScalarEnvironment = {
 }
 
 describe('CodeInput', () => {
+  it('toggles request body wrapping while keeping keyboard focus and content', async () => {
+    const wrapper = mount(CodeInput, {
+      attachTo: document.body,
+      props: { modelValue: 'long request body', layout: 'web', environment: undefined, lineNumbers: true },
+    })
+    await nextTick()
+    const button = wrapper.get<HTMLButtonElement>('button[aria-label="Wrap lines"]')
+    button.element.focus()
+
+    await button.trigger('click')
+
+    expect(document.activeElement).toBe(button.element)
+    expect(button.attributes('aria-pressed')).toBe('true')
+    await vi.waitFor(() => expect(wrapper.vm.codeMirror?.contentDOM.classList.contains('cm-lineWrapping')).toBe(true))
+    expect(wrapper.vm.codeMirror?.state.doc.toString()).toBe('long request body')
+
+    await button.trigger('click')
+
+    expect(document.activeElement).toBe(button.element)
+    expect(button.attributes('aria-pressed')).toBe('false')
+    await vi.waitFor(() => expect(wrapper.vm.codeMirror?.contentDOM.classList.contains('cm-lineWrapping')).toBe(false))
+    wrapper.unmount()
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
   })

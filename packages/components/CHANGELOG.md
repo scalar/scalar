@@ -1,5 +1,86 @@
 # @scalar/components
 
+## 0.31.0
+
+### Minor Changes
+
+- [#10493](https://github.com/scalar/scalar/pull/10493): Floating surfaces now paint their own background, border, and shadow instead of using an absolutely positioned backdrop layer. The `#backdrop` slot on `ScalarDropdown`, `ScalarPopover`, `ScalarListbox`, and `ScalarCombobox` is removed; style the floating element with `class` instead. `ScalarFloatingBackdrop`, `--scalar-lifted-brightness`, and the `brightness-lifted` utility are deprecated in favor of `bg-b-1 dark:bg-b-1.5`. `ScalarFloatingBackdrop` itself now uses the same surface styles, so it no longer clips its slot or draws a real border. A new `inset-shadow-border` utility draws the hairline border so it can stack with `shadow-*` without taking up layout space; Tailwind's default `inset-shadow-*` sizes are reset, matching the other theme namespaces.
+
+## 0.30.7
+
+### Patch Changes
+
+- [#10467](https://github.com/scalar/scalar/pull/10467): Use the design system border, shadow, and extra-large radius for all floating surfaces. Backdrops now inherit their radius from the floating element, and the lifted brightness no longer brightens the border.
+
+## 0.30.6
+
+### Patch Changes
+
+- [#10372](https://github.com/scalar/scalar/pull/10372): fix: improve keyboard and screen reader access to code blocks and multiselect comboboxes
+  - The code block scroller is exposed as a named group ("Code sample: Shell cURL" in the API Reference, localizable via `operation.codeSample`) so screen readers announce it when it receives focus
+  - The code block copy button now has a stable accessible name ("Copy Shell code") in every state, including while its visible label is hidden
+  - In multiselect comboboxes such as the auth scheme picker, Space toggles the active option while the search query is empty instead of hiding the whole list
+
+## 0.30.5
+
+### Patch Changes
+
+- [#10401](https://github.com/scalar/scalar/pull/10401): Preserve inline code styling in collapsed Markdown summaries, including authentication descriptions.
+
+## 0.30.4
+
+### Patch Changes
+
+- [#10392](https://github.com/scalar/scalar/pull/10392): Give code samples, including virtualized large examples, a named keyboard-scrollable region and keep copy buttons descriptively named before hover or focus.
+- [#10385](https://github.com/scalar/scalar/pull/10385): feat: add UTM parameters identifying the integration to the "Powered by Scalar" link
+- [#10369](https://github.com/scalar/scalar/pull/10369): fix: address a batch of screen reader and keyboard accessibility findings
+
+  Corrects programmatic semantics only, with no change to how anything renders:
+  the current sidebar item now reports `aria-current`, the single content type
+  readout leaves the tab order, collapsible sections no longer announce their
+  title twice, the password toggle reports its state through `aria-pressed`, the
+  two document download buttons get distinct accessible names, response status
+  tabs announce what each code means, and the client picker and its search field
+  get accessible names.
+
+## 0.30.3
+
+## 0.30.2
+
+## 0.30.1
+
+## 0.30.0
+
+### Minor Changes
+
+- [#10269](https://github.com/scalar/scalar/pull/10269): Add title filtering and keyboard-friendly search to the multi-document API selector.
+
+## 0.29.3
+
+### Patch Changes
+
+- [#10245](https://github.com/scalar/scalar/pull/10245): Use design system borders, shadows, and radii for dropdown surfaces and items.
+
+## 0.29.2
+
+### Patch Changes
+
+- [#10133](https://github.com/scalar/scalar/pull/10133): Restore the empty Astro logo.
+- [#10074](https://github.com/scalar/scalar/pull/10074): perf(components): defer ScalarFloating's first positioning to the next tick
+
+  `useFloating`'s `autoUpdate` ran `computePosition` inside the mount flush, so every floating element forced a style and layout pass while it was mounting, whether or not it was open. A page that mounts ten closed dropdowns paid ten forced passes before anything appeared.
+
+  `whileElementsMounted` now starts `autoUpdate` from `nextTick`, chained on the current flush so it still runs before paint, with a disposed flag so an element unmounted within that tick never starts one. On a large API reference document this takes layout events per interaction from eleven to two, and the layout objects walked from 278,715 to 49,539.
+
+  This affects every consumer of `ScalarFloating`, including the dropdown, listbox, popover, combobox, menu and tooltip components. The full component end-to-end suite (203 tests, 219 screenshots) shows no snapshot change, and `ScalarFloating`'s own suite covers all twelve placements, resizing and the constrained max-size case.
+
+- [#10138](https://github.com/scalar/scalar/pull/10138): Test sidebar content and accessible attribute forwarding.
+- [#10140](https://github.com/scalar/scalar/pull/10140): Replace redundant type assertions with compiler-checked annotations, typed accumulators, and existing guards across helpers, API conversion, request handling, and schema rendering.
+
+  Narrow DOM elements and caught errors before accessing their properties. Correct header lookup to include missing values and handle them during PowerShell snippet generation.
+
+  Validate release-note provider responses, represent unresolved references and absent groups in helper return types, and require narrowing merged object values. Preserve AsyncAPI broker credentials separately from HTTP authentication schemes.
+
 ## 0.29.1
 
 ### Patch Changes

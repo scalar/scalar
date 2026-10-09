@@ -1,5 +1,136 @@
 # @scalar/openapi-to-markdown
 
+## 1.5.3
+
+### Patch Changes
+
+- [#10484](https://github.com/scalar/scalar/pull/10484): Use OpenAPI 3.2 tag summaries as Markdown headings, falling back to tag names.
+
+## 1.5.2
+
+## 1.5.1
+
+### Patch Changes
+
+- [#10457](https://github.com/scalar/scalar/pull/10457): Render a selected operation, model, tag or webhook in time proportional to the selection instead of the whole document.
+
+## 1.5.0
+
+### Minor Changes
+
+- [#10425](https://github.com/scalar/scalar/pull/10425): Make single-page Markdown easier to read, especially for AI agents reading `llms.txt` exports.
+  - An operation, webhook or model page now starts with that item as its `#` title and uses `##` sections, without the API's document header. An empty API version is never printed.
+  - Schema property descriptions keep their Markdown: paragraphs, links, inline code and fenced code blocks are no longer flattened into one escaped line. A parameter description is no longer repeated by its schema.
+  - Each property is one line with its name, type and annotations. Nullable unions read as `string | null`, single-branch `allOf` wrappers as the wrapped type, unions of plain types as one type, `const` and `enum` schemas without a `type` as their inferred JSON type, and arrays of simple items as `array of …`. Composition branches are listed one per item, with discriminator values beside their branch.
+  - Parameters are grouped by location. Responses that return the same schema and media type are grouped into one entry, such as a list of error statuses.
+  - In linked mode, references are shown as a link in the property's type. Primitive, enum and `const` schemas and aliases of them are written in place instead of linked; set `schemaReferences.inlinePrimitives: false` to link them. Generated examples are left out without a placeholder, while a model page generates an example of its own schema with linked schemas as empty stubs.
+  - The Authentication section is left out when the API description declares no security requirements, and only an explicit `security: []` says that no authentication is required. Security schemes are summarized on one line, for example "API key in header `X-Api-Key`", instead of printed as JSON.
+  - Selected pages retain empty server overrides as `/` and include server variable choices and descriptions. Model pages retain authored examples for primitive and array schemas as well as objects.
+
+- [#10425](https://github.com/scalar/scalar/pull/10425): Give shared schemas canonical definitions and internal links in whole-document Markdown exports, retaining primitive types inline and constraints beside references.
+
+  Deduplicate generated examples within each schema and request/response/media-type context, label them as generated, and retain authored examples at their original locations.
+
+  Explain inherited servers and authentication once, with links from operations, while retaining path and operation overrides, server variables, and explicit anonymous access.
+
+  Add a compact contents index linking to operations, webhooks, and schemas through unique explicit anchors.
+
+### Patch Changes
+
+- [#10425](https://github.com/scalar/scalar/pull/10425): Add a browser playground for previewing and downloading per-page, linked, and whole-document Markdown exports from Galaxy, Stripe, GitHub, and Cloudflare examples.
+- [#10425](https://github.com/scalar/scalar/pull/10425): Shorten the `## Schemas` section for schemas a page already expanded. Such a model is now a single line, for example `` `Customer` — shown above. ``, instead of a heading, type, "shown above" note and generated example. The line keeps the model's title and any description that a reference sibling replaced where the schema was expanded. A selected model, leaf schemas, models the page has not expanded, and object models with authored examples keep their full sections. A Stripe operation page such as `GET /v1/customers/{customer}` drops from about 2.5 MB to about 1.3 MB, with 819 of its 918 model sections reduced to one line. Everything above `## Schemas` is unchanged.
+
+## 1.4.0
+
+### Minor Changes
+
+- [#10394](https://github.com/scalar/scalar/pull/10394): Add opt-in linked schema rendering with caller-supplied model URLs for bounded operation, model, and webhook pages. Keep default expansion unchanged, retain reference siblings and inline schemas, and omit generated examples in linked mode.
+
+## 1.3.0
+
+### Minor Changes
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Mock-server XML response bytes now use the shared schema-aware serializer instead of `json2xml`, including attributes, namespaces, and root naming. Existing XML response snapshots may need updating. Supplied serialized XML remains unchanged.
+
+  Generate XML examples from schema metadata, preserving attributes, namespaces, array wrappers, repeated elements, and OpenAPI 3.2 text and CDATA nodes. Use the same XML serialization for request bodies, code snippets, response examples, mock responses, and Markdown documentation. Preserve serialized media examples and escape schema string examples as element text.
+
+  Explain XML generation failures in response example panels, including the serialized-example escape hatch for large payloads. Expose XML generation failures in mock response headers with `X-Scalar-XML-Error`, containing the first error diagnostic code. Report diagnostics to other consumers through a callback or the developer console, and format element-only descendants within mixed content without changing text values.
+
+### Patch Changes
+
+- [#10356](https://github.com/scalar/scalar/pull/10356): Load densely cross-linked API descriptions with far less memory. References are now linked after coercion, so TypeBox no longer copies the reference graph each time it checks a union or array. Stripe's API description loads in about 2 seconds with a peak of about 190 MB, down from about 17 seconds and 1.4 GB, so it now loads and renders with a 768 MB heap limit.
+
+  Coercion now checks each reference target in its own position, not through every reference that points to it. Before, a target that failed a strict schema check (for example, a schema with `oneOf` references) could turn the reference into an empty schema and drop sibling `x-` extensions. Those references and extensions are now kept, so affected response schemas render in full.
+
+  References to targets that coercion drops, such as a root-level `definitions` block, now link to a copy cast as the schema, parameter, response or other object the reference stands in for, and their anchors resolve against the resource that contains them. A `$ref: '#'` inside a schema with an `$id` now links to that schema.
+
+  Coerce reference targets stored in extension data and schema siblings on fallback references before rendering, avoiding crashes from malformed fields while preserving recursive links.
+
+- [#10192](https://github.com/scalar/scalar/pull/10192): Apply edited XML bodies instead of their original serialized or data examples, render schema-free XML examples in Markdown, and share reference decoding and response provenance selection.
+
+## 1.2.0
+
+### Minor Changes
+
+- [#10186](https://github.com/scalar/scalar/pull/10186): Support document-defined additional operations in Markdown operation, webhook, and tag selections. Preserve custom method spelling and inherited parameters, servers, and security when copying an operation as Markdown.
+
+### Patch Changes
+
+- [#10329](https://github.com/scalar/scalar/pull/10329): Render each shared schema once per page. The first reference to a structured schema expands it and labels it with its name (for example `schema: Account`). Later references print "Schema `Account` is shown above." instead of expanding it again. Model sections for schemas already expanded on the page refer back to them too. True cycles still print `[Circular Reference]`. This keeps Markdown output proportional to the schema graph, rather than to the number of paths through it. Before this change, densely linked descriptions such as Stripe's ran out of memory when rendering a single operation.
+
+  A node budget per operation and model section adds a visible `[Schema output truncated]` marker as a last resort. Generated examples that would exceed 10,000 values are omitted with a note. References past the depth limit now point to the model's own section instead of being cut off.
+
+## 1.1.0
+
+### Minor Changes
+
+- [#10251](https://github.com/scalar/scalar/pull/10251): Preserve chained path-item references with non-enumerable links.
+
+  Remove the HTML output APIs `createHtmlFromOpenApi` and `renderer.renderHtml` from `@scalar/openapi-to-markdown`. Use `createMarkdownFromOpenApi` or `renderer.render` and convert the resulting Markdown with an application-provided renderer when HTML is needed.
+
+- [#10222](https://github.com/scalar/scalar/pull/10222): Add a Copy as Markdown button to operations and webhooks in both API Reference layouts. Add a browser entry point for converting resolved OpenAPI documents to Markdown.
+
+### Patch Changes
+
+- [#10275](https://github.com/scalar/scalar/pull/10275): Preserve operation and schema details, supplied and named examples, response headers and links, and request encoding metadata in Markdown output. Render composition siblings and schema annotations, respect readOnly/writeOnly when generating examples, and distinguish recursive references from deep schemas.
+- [#10211](https://github.com/scalar/scalar/pull/10211): Preserve literal data and tag groups when upgrading to OpenAPI 3.2, migrate XML metadata only in schemas, and remove incompatible legacy XML flags. Make 3.2 upgrades leave the input unchanged, match the complete source version, prevent previously inactive parameter settings from changing serialization, and report path-specific errors for detected compatibility issues that require an author's decision.
+
+  Tag `kind` values may change: navigation groups are classified from actual operation-tag usage instead of name substrings. Malformed 3.1 versions now report explicit errors, and successful 3.2 upgrades clone the input only once.
+
+  Expose `UpgradeIncompatibilityError` so Markdown generation can retain OpenAPI 3.1 for descriptions requiring author decisions instead of failing or silently changing semantics. Clone safety and malformed-version errors still propagate.
+
+  The mock server also retains OpenAPI 3.1 when the strict 3.2 migration reports compatibility diagnostics. Existing inline XML descriptions continue loading without inventing element names.
+
+  Read only own data properties during migration so inherited parameter lists, XML metadata, and reference targets cannot modify prototype-owned objects.
+
+  Add `upgrade(input, '3.2', { onIncompatible: 'collect' })` to return a complete document and compatibility diagnostics. Compatible descriptions upgrade to 3.2; incompatible descriptions retain 3.1 without partial transformations. Strict mode remains the default, and malformed-version and clone-safety errors still propagate. The Markdown converter and mock server now use the shared collect mode.
+
+## 1.0.2
+
+## 1.0.1
+
+## 1.0.0
+
+### Major Changes
+
+- [#10233](https://github.com/scalar/scalar/pull/10233): Generate Markdown directly from a Markdown syntax tree, avoiding Vue server rendering and the generated HTML conversion pipeline. Reuse normalized schemas and parsed descriptions across pages while preserving selection, schema coercion, reference resolution, and raw HTML description sanitization.
+
+  Keep the HTML API through an on-demand Markdown conversion. Markdown and HTML spacing and escaping may differ from previous output.
+
+### Minor Changes
+
+- [#10224](https://github.com/scalar/scalar/pull/10224): Add a reusable renderer that loads an OpenAPI document once and generates multiple Markdown or HTML pages from it.
+
+### Patch Changes
+
+- [#10241](https://github.com/scalar/scalar/pull/10241): Simplify reference link rebuilding after OpenAPI document coercion.
+
+## 0.6.0
+
+### Minor Changes
+
+- [#10169](https://github.com/scalar/scalar/pull/10169): Render scoped operation, tag, model, webhook, and introduction pages in Markdown and HTML while preserving referenced schemas and inherited context.
+
 ## 0.5.44
 
 ## 0.5.43

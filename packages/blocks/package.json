@@ -17,15 +17,21 @@
     "blocks",
     "docs"
   ],
-  "version": "0.1.16",
+  "version": "0.5.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "vite build && pnpm build:styles && vue-tsc -p tsconfig.build.json",
+    "build:storybook": "storybook build",
     "build:styles": "shx cp -r src/styles dist && tailwindcss --optimize -i src/style.css -o dist/style.css && cat dist/vue-styles.css >> dist/style.css",
     "dev": "vite --config playground/vite.config.ts",
+    "dev:storybook": "storybook dev -p 6006 --ci",
+    "preview:storybook": "vite preview --outDir storybook-static -c test/vite.config.ts 1>&2",
     "test": "vitest",
+    "test:e2e:storybook": "PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:5001/ playwright test -c playwright.config.ts",
+    "test:e2e:storybook:ci": "playwright test -c playwright.config.ts",
+    "test:e2e:storybook:update-snapshots": "pnpm test:e2e:storybook --update-snapshots",
     "types:check": "vue-tsc --noEmit"
   },
   "type": "module",
@@ -37,6 +43,31 @@
       "import": "./dist/code-example/index.js",
       "types": "./dist/code-example/index.d.ts",
       "default": "./dist/code-example/index.js"
+    },
+    "./schema": {
+      "import": "./dist/schema/index.js",
+      "types": "./dist/schema/index.d.ts",
+      "default": "./dist/schema/index.js"
+    },
+    "./specification-extensions": {
+      "import": "./dist/specification-extensions/index.js",
+      "types": "./dist/specification-extensions/index.d.ts",
+      "default": "./dist/specification-extensions/index.js"
+    },
+    "./shared": {
+      "import": "./dist/shared/index.js",
+      "types": "./dist/shared/index.d.ts",
+      "default": "./dist/shared/index.js"
+    },
+    "./schema/helpers": {
+      "import": "./dist/schema/helpers/index.js",
+      "types": "./dist/schema/helpers/index.d.ts",
+      "default": "./dist/schema/helpers/index.js"
+    },
+    "./schema/expansion": {
+      "import": "./dist/schema/expansion/index.js",
+      "types": "./dist/schema/expansion/index.d.ts",
+      "default": "./dist/schema/expansion/index.js"
     }
   },
   "files": [
@@ -47,21 +78,28 @@
     "@scalar/components": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
+    "@scalar/localization": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.16",
+    "@vueuse/core": "catalog:*",
     "js-base64": "catalog:*",
     "vue": "catalog:*"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:*",
+    "@storybook/addon-docs": "10.5.10",
+    "@storybook/addon-links": "10.5.10",
+    "@storybook/vue3-vite": "10.5.10",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "@vueuse/core": "catalog:*",
     "jsdom": "catalog:*",
+    "storybook": "10.5.10",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",

@@ -19,8 +19,11 @@ toTest.forEach((source) => {
 
     await page.getByText('Test Request').first().click()
 
-    await expect(page.getByRole('dialog')).toBeVisible()
+    const dialog = page.getByRole('dialog', { name: 'API Client' })
+    await expect(dialog).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Close Client', exact: true })).toBeVisible()
 
-    await expect(page).toHaveScreenshot(`${slug}.png`)
+    // The documentation behind the modal can still scroll while lazy sections settle.
+    await expect(dialog).toHaveScreenshot(`${slug}.png`)
   })
 })

@@ -14,6 +14,7 @@ import type {
   ApiReferenceEvents,
   WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
+import { canResetSecretField } from '@scalar/workspace-store/helpers/auth-secret-fields'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import {
   getEnvironmentVariables,
@@ -42,18 +43,12 @@ import {
   DataTableCell,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import OAuth2, { type OAuth2Options } from './OAuth2.vue'
+import OAuth2Metadata from './OAuth2Metadata.vue'
 import OpenIDConnect from './OpenIDConnect.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
-
-type SecurityItem = {
-  scheme: SecuritySchemeObjectSecret | undefined
-  name: string
-  scopes: string[]
-  /** Ordered, non-hidden oauth2/openIdConnect flow keys for this scheme (empty for other types). */
-  visibleFlowKeys: (keyof OAuthFlowsObjectSecret)[]
-}
 
 const {
   environment,
@@ -86,15 +81,6 @@ const {
   documentType?: 'openapi' | 'asyncapi'
 }>()
 
-/**
- * Human-readable name of the document type.
- * Used in the missing-type warning so it points at the correct document
- * (e.g. "AsyncAPI") instead of always naming OpenAPI.
- */
-const documentTypeLabel = computed<string>(() =>
-  getDocumentTypeLabel(documentType),
-)
-
 const emits = defineEmits<{
   (
     e: 'update:selectedScopes',
@@ -103,6 +89,25 @@ const emits = defineEmits<{
   (e: 'upsert:scope', payload: ApiReferenceEvents['auth:upsert:scopes']): void
   (e: 'delete:scope', payload: ApiReferenceEvents['auth:delete:scopes']): void
 }>()
+
+const { translate } = useLocalization()
+
+type SecurityItem = {
+  scheme: SecuritySchemeObjectSecret | undefined
+  name: string
+  scopes: string[]
+  /** Ordered, non-hidden oauth2/openIdConnect flow keys for this scheme (empty for other types). */
+  visibleFlowKeys: (keyof OAuthFlowsObjectSecret)[]
+}
+
+/**
+ * Human-readable name of the document type.
+ * Used in the missing-type warning so it points at the correct document
+ * (e.g. "AsyncAPI") instead of always naming OpenAPI.
+ */
+const documentTypeLabel = computed<string>(() =>
+  getDocumentTypeLabel(documentType),
+)
 
 /**
  * Resolves security schemes from the OpenAPI document and combines them with their selected scopes.
@@ -328,7 +333,10 @@ const handleAcquisitionAuthorize = async (
   })
   await acquisitionLoader.clear()
   if (error) {
-    toast(error?.message ?? 'Failed to authorize', 'error')
+    toast(
+      error?.message ?? translate('apiClient.requestAuthTab.failedToauthorize'),
+      'error',
+    )
   }
 }
 
@@ -361,7 +369,10 @@ const handleAcquisitionRefresh = async (bearerName: string): Promise<void> => {
       tokens,
     })
   } else if (error) {
-    toast(error?.message ?? 'Failed to refresh', 'error')
+    toast(
+      error?.message ?? translate('apiClient.requestAuthTab.failedToRefresh'),
+      'error',
+    )
   }
 }
 
@@ -419,49 +430,76 @@ const handleConfigAuthorize = (): void => {
       <!-- Bearer Token -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
+          :canReset="
+            canResetSecretField(
+              scheme,
+              'x-scalar-secret-token',
+              scheme['x-scalar-secret-token'],
+            )
+          "
           :containerClass="getStaticBorderClass()"
           :environment
           :modelValue="scheme['x-scalar-secret-token']"
-          placeholder="Token"
+          :placeholder="translate('apiClient.requestAuthTab.token')"
           type="password"
+          @reset="
+            eventBus.emit('auth:reset:security-scheme-secret', {
+              name,
+              field: 'x-scalar-secret-token',
+            })
+          "
           @update:modelValue="
             (v) => handleHttpSecretsUpdate({ 'x-scalar-secret-token': v }, name)
           ">
-          Bearer Token
+          {{ translate('apiClient.requestAuthTab.bearerToken') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
 
       <!-- OAuth2 token-acquisition shortcut (shown when an interactive oauth2 flow exists) -->
       <DataTableRow v-if="scheme.scheme === 'bearer' && oauth2Target">
-        <div class="flex h-8 items-center gap-2 border-t px-3">
-          <span class="text-c-3 mr-auto text-xs">Get a token</span>
-          <ScalarButton
-            class="p-0 px-2 py-0.5"
-            :loader="acquisitionLoader"
-            size="sm"
-            type="button"
-            variant="outlined"
-            @click="handleAcquisitionAuthorize(name)">
-            Authorize via {{ oauth2Target.name }}
-          </ScalarButton>
+        <!--
+          Authorize stays rightmost so it never moves: Refresh only appears once there is a token,
+          and it slots in between the gear and Authorize instead of pushing Authorize aside.
+        -->
+        <div class="flex h-8 items-center gap-2 border-t pr-1 pl-3 text-base">
+          <span class="text-c-1 mr-auto">{{
+            translate('apiClient.requestAuthTab.getAToken')
+          }}</span>
+          <ScalarIconButton
+            class="h-6 w-6 p-1.25"
+            :icon="ScalarIconGear"
+            :label="
+              translate('apiClient.requestAuthTab.configure', {
+                name: oauth2Target.name,
+              })
+            "
+            @click="openAcquisitionConfig(name)" />
           <ScalarButton
             v-if="
               scheme['x-scalar-secret-token'] &&
               oauth2Target.flowType === 'authorizationCode'
             "
-            class="p-0 px-2 py-0.5"
+            class="px-3 py-1"
             :disabled="acquisitionLoader.isLoading"
             size="sm"
             type="button"
             variant="outlined"
             @click="handleAcquisitionRefresh(name)">
-            Refresh
+            {{ translate('apiClient.requestAuthTab.refresh') }}
           </ScalarButton>
-          <ScalarIconButton
-            :icon="ScalarIconGear"
-            :label="`Configure ${oauth2Target.name}`"
-            size="xs"
-            @click="openAcquisitionConfig(name)" />
+          <ScalarButton
+            class="text-c-1 px-3 py-1"
+            :loader="acquisitionLoader"
+            size="sm"
+            type="button"
+            variant="gradient"
+            @click="handleAcquisitionAuthorize(name)">
+            {{
+              translate('apiClient.requestAuthTab.authorizeVia', {
+                name: oauth2Target.name,
+              })
+            }}
+          </ScalarButton>
         </div>
       </DataTableRow>
 
@@ -469,29 +507,55 @@ const handleConfigAuthorize = (): void => {
       <template v-else-if="scheme?.scheme === 'basic'">
         <DataTableRow>
           <RequestAuthDataTableInput
+            :canReset="
+              canResetSecretField(
+                scheme,
+                'x-scalar-secret-username',
+                scheme['x-scalar-secret-username'],
+              )
+            "
             class="text-c-2"
             :environment
             :modelValue="scheme['x-scalar-secret-username']"
             placeholder="janedoe"
             required
+            @reset="
+              eventBus.emit('auth:reset:security-scheme-secret', {
+                name,
+                field: 'x-scalar-secret-username',
+              })
+            "
             @update:modelValue="
               (v) =>
                 handleHttpSecretsUpdate({ 'x-scalar-secret-username': v }, name)
             ">
-            Username
+            {{ translate('apiClient.requestAuthTab.username') }}
           </RequestAuthDataTableInput>
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
+            :canReset="
+              canResetSecretField(
+                scheme,
+                'x-scalar-secret-password',
+                scheme['x-scalar-secret-password'],
+              )
+            "
             :environment
             :modelValue="scheme['x-scalar-secret-password']"
             placeholder="********"
             type="password"
+            @reset="
+              eventBus.emit('auth:reset:security-scheme-secret', {
+                name,
+                field: 'x-scalar-secret-password',
+              })
+            "
             @update:modelValue="
               (v) =>
                 handleHttpSecretsUpdate({ 'x-scalar-secret-password': v }, name)
             ">
-            Password
+            {{ translate('apiClient.requestAuthTab.password') }}
           </RequestAuthDataTableInput>
         </DataTableRow>
       </template>
@@ -508,11 +572,18 @@ const handleConfigAuthorize = (): void => {
           @update:modelValue="
             (v) => handleApiKeySecuritySchemeUpdate({ name: v }, name)
           ">
-          Name
+          {{ translate('apiClient.requestAuthTab.name') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
+          :canReset="
+            canResetSecretField(
+              scheme,
+              'x-scalar-secret-token',
+              scheme['x-scalar-secret-token'],
+            )
+          "
           :containerClass="
             apiKeyHasName(scheme) ? undefined : getStaticBorderClass()
           "
@@ -520,11 +591,17 @@ const handleConfigAuthorize = (): void => {
           :modelValue="scheme['x-scalar-secret-token']"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           type="password"
+          @reset="
+            eventBus.emit('auth:reset:security-scheme-secret', {
+              name,
+              field: 'x-scalar-secret-token',
+            })
+          "
           @update:modelValue="
             (v) =>
               handleApiKeySecretsUpdate({ 'x-scalar-secret-token': v }, name)
           ">
-          Value
+          {{ translate('apiClient.requestAuthTab.value') }}
         </RequestAuthDataTableInput>
       </DataTableRow>
     </template>
@@ -532,6 +609,17 @@ const handleConfigAuthorize = (): void => {
     <!-- OAuth 2.0  / OpenID Connect Authentication -->
     <template
       v-else-if="scheme?.type === 'oauth2' || scheme?.type === 'openIdConnect'">
+      <OAuth2Metadata
+        v-if="
+          scheme.type === 'oauth2' && (!isStatic || scheme.oauth2MetadataUrl)
+        "
+        :customFetch="options?.customFetch"
+        :environment
+        :eventBus
+        :name
+        :proxyUrl
+        :scheme />
+
       <!-- OpenID Connect -->
       <OpenIDConnect
         v-if="scheme?.type === 'openIdConnect' && !visibleFlowKeys.length"
@@ -594,49 +682,57 @@ const handleConfigAuthorize = (): void => {
         scheme?.type === 'gssapi'
       "
       class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      Credentials for this AsyncAPI security scheme are not sent by the browser
-      client.
+      {{ translate('apiClient.requestAuthTab.unsupportedCredentials') }}
     </div>
 
     <!-- Mutual TLS credentials are chosen during the browser-managed TLS handshake. -->
     <div
       v-else-if="scheme?.type === 'mutualTLS'"
       class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      Mutual TLS authenticates with a client certificate presented during the
-      TLS handshake, so there is nothing to enter here.
+      {{ translate('apiClient.requestAuthTab.mutualTlsHint') }}
     </div>
 
     <!-- Scheme has a type we do not render inputs for -->
     <div
       v-else-if="getUnsupportedSchemeType(scheme)"
       class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      The <code>{{ getUnsupportedSchemeType(scheme) }}</code> security scheme
-      type is not supported yet.
+      {{
+        translate('apiClient.requestAuthTab.unsupportedType', {
+          type: getUnsupportedSchemeType(scheme) ?? '',
+        })
+      }}
     </div>
 
     <!-- Scheme is missing type -->
     <div
       v-else
       class="text-c-3 flex items-center justify-center border-t p-4 px-4 text-center text-xs text-balance">
-      The security scheme is missing a type, please double check your
-      {{ documentTypeLabel }} document or Authentication Configuration
+      {{
+        translate('apiClient.requestAuthTab.missingType', {
+          type: documentTypeLabel,
+        })
+      }}
     </div>
   </template>
 
   <!-- OAuth2 configuration modal (opened from the bearer scheme's gear) -->
   <ScalarModal
     v-if="oauth2Target && oauth2Scheme"
-    :state="configModal"
     size="sm"
-    :title="`Configure ${oauth2Target.name}`">
+    :state="configModal"
+    :title="
+      translate('apiClient.requestAuthTab.configure', {
+        name: oauth2Target.name,
+      })
+    ">
     <DataTable
       :columns="['']"
       presentational>
       <OAuth2
-        hideActions
         :environment
         :eventBus
         :flows="oauth2Target.flows"
+        hideActions
         :name="oauth2Target.name"
         :options
         :proxyUrl
@@ -658,14 +754,14 @@ const handleConfigAuthorize = (): void => {
         size="sm"
         variant="outlined"
         @click="configModal.hide()">
-        Cancel
+        {{ translate('apiClient.requestAuthTab.cancel') }}
       </ScalarButton>
       <ScalarButton
         class="p-0 px-2 py-0.5"
         :loader="acquisitionLoader"
         size="sm"
         @click="handleConfigAuthorize">
-        Authorize
+        {{ translate('apiClient.requestAuthTab.authorize') }}
       </ScalarButton>
     </div>
   </ScalarModal>

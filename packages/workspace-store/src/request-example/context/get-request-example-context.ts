@@ -168,7 +168,7 @@ export const getRequestExampleContext = (
   )
 
   const serverMeta: ServerMeta =
-    !isWebhook && operation.servers != null
+    !isWebhook && options.servers == null && operation.servers != null
       ? { type: 'operation', path: path ?? '', method: method ?? 'get' }
       : { type: 'document' }
 

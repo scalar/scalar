@@ -34,7 +34,7 @@ const { row } = defineProps<{
   flex: 1;
   min-width: min-content;
 }
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .introduction-card-row {
     flex-direction: column;
     align-items: stretch;

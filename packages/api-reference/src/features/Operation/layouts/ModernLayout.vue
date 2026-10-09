@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { CodeExample } from '@scalar/blocks/code-example'
+import {
+  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
+  type RequestBodyCompositionSelection,
+  type SchemaRenderingProps,
+} from '@scalar/blocks/schema'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
@@ -21,11 +26,17 @@ import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
+import {
+  GenerateSdkButton,
+  useGenerateSdkContext,
+} from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
+import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
+import OperationTags from '@/features/Operation/components/OperationTags.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import {
@@ -34,10 +45,6 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import {
-  REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
-  type RequestBodyCompositionSelection,
-} from '@/features/Operation/request-body-composition-index'
 import { getXKeysFromObject } from '@/features/specification-extension'
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { TestRequestButton } from '@/features/test-request-button'
@@ -77,11 +84,24 @@ const {
     requiredSecurity: RequiredSecurity
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
-  }
+  } & SchemaRenderingProps
 >()
+defineSlots<{
+  actions?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
+
+/**
+ * Generate SDK takes the start of the code example footer, but only while it is offered: passing
+ * the slot at all would otherwise render an empty footer on deployed references.
+ */
+const generateSdk = useGenerateSdkContext()
+const showGenerateSdk = computed(() =>
+  Boolean(generateSdk.value?.enabled.value),
+)
 
 const labelId = useId()
 
@@ -125,7 +145,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
       <!-- Badges -->
       <div class="flex flex-row justify-between gap-1">
         <!-- Left -->
-        <div class="flex gap-1">
+        <div class="flex flex-wrap gap-1">
           <!-- Operation ID -->
           <Badge v-if="options?.showOperationId && operation.operationId">
             {{ operation.operationId }}
@@ -144,13 +164,16 @@ const { level: headingLevel } = useDocumentOutline('operation')
             <ScalarIconWebhooksLogo weight="bold" />
             {{ translate('operation.webhook') }}
           </Badge>
+          <OperationTags
+            :document
+            :tags="operation.tags" />
           <!-- x-badges before -->
           <XBadges
             :badges="operation['x-badges']"
             position="before" />
         </div>
         <!-- Right -->
-        <div class="flex gap-1">
+        <div class="flex items-center gap-1">
           <!-- x-badges after -->
           <XBadges
             :badges="operation['x-badges']"
@@ -172,14 +195,25 @@ const { level: headingLevel } = useDocumentOutline('operation')
           </Anchor>
         </div>
 
-        <!-- Required auth badge -->
-        <div class="operation-auth">
+        <!-- Operation actions -->
+        <div class="operation-auth mb-1.5 flex min-h-8 items-center gap-3">
           <SecurityRequirementBadge :requiredSecurity />
+          <slot
+            v-if="$slots.actions"
+            name="actions" />
+          <CopyMarkdownButton
+            v-else-if="document"
+            :document
+            :isWebhook
+            :method
+            :path />
         </div>
 
         <!-- Description -->
         <div class="operation-description">
-          <SpecificationExtension :value="operationExtensions" />
+          <SpecificationExtension
+            :showExtensions="options.showExtensions"
+            :value="operationExtensions" />
           <ScalarMarkdown
             :anchorPrefix="id"
             :aria-label="translate('common.description')"
@@ -209,17 +243,23 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :breadcrumb="[id]"
             :document
             :eventBus
+            :expansion="expansion"
             :options
             :parameters="operation.parameters"
-            :requestBody="getResolvedRef(operation.requestBody)" />
+            :requestBody="getResolvedRef(operation.requestBody)"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
           <OperationResponses
             v-model:selectedContentTypes="selectedResponseContentTypes"
             :breadcrumb="[id]"
             :collapsableItems="!options.expandAllResponses"
             :document
             :eventBus
+            :expansion="expansion"
             :options
-            :responses="operation.responses" />
+            :responses="operation.responses"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
 
           <!-- Callbacks -->
           <ScalarErrorBoundary>
@@ -230,8 +270,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
               class="mt-6"
               :document
               :eventBus
+              :expansion="expansion"
               :options
-              :path />
+              :path
+              :scrollTargetId="scrollTargetId"
+              :specificationExtension="specificationExtension" />
           </ScalarErrorBoundary>
         </div>
 
@@ -247,10 +290,17 @@ const { level: headingLevel } = useDocumentOutline('operation')
             <CodeExample
               :key="requestBodyCompositionSelectionKey"
               :clientOptions
+              :clientPickerLabel="translate('clientLibraries.changeClient')"
+              :clientSearchLabel="translate('clientLibraries.searchLabel')"
+              :codeSampleLabel="translate('operation.codeSample')"
+              :codeSampleUnavailable="
+                translate('operation.codeSampleUnavailable')
+              "
               :eventBus
               fallback
               :isWebhook
               :method
+              :openapiVersion="document?.openapi"
               :operation
               :path
               :requestBodyCompositionSelection="
@@ -266,6 +316,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
                   class="font-code text-c-2 [&_em]:text-c-1 min-w-0 [&_em]:not-italic"
                   :deprecated="operation?.deprecated"
                   :path="path" />
+              </template>
+              <template
+                v-if="showGenerateSdk"
+                #footer-start>
+                <GenerateSdkButton variant="footer" />
               </template>
               <template #footer="{ exampleName }">
                 <div class="flex">
@@ -289,6 +344,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
             <ExampleResponses
               v-if="operation.responses"
               :eventBus
+              :openapiVersion="document?.openapi"
               :responses="operation.responses"
               :selectedContentTypes="selectedResponseContentTypes"
               :selectedExample
@@ -385,7 +441,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
  * example is lifted directly under the description, and the auth badge becomes
  * an eyebrow above the title.
  */
-@container narrow-references-container (max-width: 900px) {
+@container references-container (max-width: 900px) {
   .operation-layout {
     grid-template-columns: 1fr;
     grid-template-areas:

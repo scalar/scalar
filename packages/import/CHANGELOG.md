@@ -1,5 +1,27 @@
 # @scalar/import
 
+## 0.5.31
+
+## 0.5.30
+
+## 0.5.29
+
+### Patch Changes
+
+- [#10411](https://github.com/scalar/scalar/pull/10411): Import API descriptions from reference page URLs, including Hono pages, and retain discovered document URLs for watch mode.
+
+  Ignore JSON-LD website metadata during URL discovery and preserve link and escaped-JSON fallbacks for URLs with unsupported JavaScript escapes.
+
+## 0.5.28
+
+## 0.5.27
+
+## 0.5.26
+
+## 0.5.25
+
+## 0.5.24
+
 ## 0.5.23
 
 ## 0.5.22

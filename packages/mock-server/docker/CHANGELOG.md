@@ -1,5 +1,43 @@
 # @scalar/mock-server-docker
 
+## 0.2.69
+
+## 0.2.68
+
+## 0.2.67
+
+## 0.2.66
+
+## 0.2.65
+
+## 0.2.64
+
+### Patch Changes
+
+- [#10343](https://github.com/scalar/scalar/pull/10343): Restrict AsyncAPI external references to the source directory and public network addresses, and preserve the source location for preloaded documents.
+
+  URL inputs to `createAsyncApiMockServer` also reject private network addresses, including localhost. Load local files or pass preloaded document content for local development. Docker documents supplied through `OPENAPI_DOCUMENT` resolve relative references from their temporary `/tmp/openapi.json` or `/tmp/openapi.yaml` file, confined to `/tmp`. Both OpenAPI and AsyncAPI Docker documents preserve the selected source origin.
+
+## 0.2.63
+
+## 0.2.62
+
+### Patch Changes
+
+- [#10290](https://github.com/scalar/scalar/pull/10290): Update Hono and its Node.js server, WebSocket, and OpenAPI integration dependencies.
+
+  Replace the deprecated `@hono/node-ws` adapter with Node server v2 WebSocket support. `createAsyncApiMockServer()` now returns `websocket` instead of `injectWebSocket`. Start the server with `serve({ fetch: app.fetch, websocket })` instead of calling `injectWebSocket(server)`.
+
+  AsyncAPI callers must upgrade to `@hono/node-server` v2. Node server v1 ignores the `websocket` option, so WebSocket channels will silently stop accepting connections if the server dependency is not upgraded.
+
+## 0.2.61
+
+## 0.2.60
+
+## 0.2.59
+
+## 0.2.58
+
 ## 0.2.57
 
 ## 0.2.56

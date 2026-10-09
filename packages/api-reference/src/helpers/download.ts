@@ -33,13 +33,17 @@ async function parseContent(content: string) {
 }
 
 /**
- * Detect if content is JSON or YAML using lightweight string heuristics
- * to avoid the cost of a full JSON.parse call.
+ * Detect JSON by parsing it: flow-style YAML can also start with braces or brackets.
  */
 function detectFormat(content: string): 'json' | 'yaml' {
   const trimmed = content.trimStart()
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-    return 'json'
+    try {
+      JSON.parse(content)
+      return 'json'
+    } catch {
+      // Flow-style YAML is not necessarily valid JSON.
+    }
   }
   return 'yaml'
 }

@@ -1,5 +1,11 @@
 # galaxy-scalar-com
 
+## 0.2.26
+
+### Patch Changes
+
+- [#10308](https://github.com/scalar/scalar/pull/10308): Always load the ESM API reference in Galaxy, using the published build in production and the branch-built entry point and chunks in staging and PR previews.
+
 ## 0.2.25
 
 ### Patch Changes

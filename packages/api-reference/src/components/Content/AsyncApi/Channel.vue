@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
@@ -22,6 +23,7 @@ import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
+import ChannelMessages from './ChannelMessages.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
@@ -46,22 +48,24 @@ const {
   options,
   expandedItems = {},
   level = 0,
-} = defineProps<{
-  channel: TraversedAsyncApiChannel
-  document: AsyncApiDocument
-  layout: 'classic' | 'modern'
-  isCollapsed: boolean
-  eventBus: WorkspaceEventBus | null
-  options?: Partial<ParameterListOptions>
-  /** Map of navigation item id to expanded state, shared with the sidebar. */
-  expandedItems?: Record<string, boolean>
-  /**
-   * Nesting depth in the navigation tree. A channel nested inside a tag
-   * (`level !== 0`) inherits the tag's horizontal padding, so it skips its own
-   * `SectionContainer` padding to avoid doubling the indentation.
-   */
-  level?: number
-}>()
+} = defineProps<
+  {
+    channel: TraversedAsyncApiChannel
+    document: AsyncApiDocument
+    layout: 'classic' | 'modern'
+    isCollapsed: boolean
+    eventBus: WorkspaceEventBus | null
+    options?: Partial<ParameterListOptions>
+    /** Map of navigation item id to expanded state, shared with the sidebar. */
+    expandedItems?: Record<string, boolean>
+    /**
+     * Nesting depth in the navigation tree. A channel nested inside a tag
+     * (`level !== 0`) inherits the tag's horizontal padding, so it skips its own
+     * `SectionContainer` padding to avoid doubling the indentation.
+     */
+    level?: number
+  } & SchemaRenderingProps
+>()
 
 const headerId = useId()
 
@@ -153,8 +157,11 @@ const { level: headingLevel } = useDocumentOutline('channel')
     <ParameterList
       v-if="parameters.length"
       :eventBus="eventBus"
+      :expansion="expansion"
       :options="parameterListOptions"
-      :parameters="parameters">
+      :parameters="parameters"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension">
       <template #title>Parameters</template>
     </ParameterList>
     <Operation
@@ -163,8 +170,20 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
+      :expansion="expansion"
       :operation="operation"
-      :options="options" />
+      :options="options"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
+    <ChannelMessages
+      :channel="channel"
+      :document="document"
+      :eventBus="eventBus"
+      :expandedItems="expandedItems"
+      :expansion="expansion"
+      :options="options"
+      :scrollTargetId="scrollTargetId"
+      :specificationExtension="specificationExtension" />
   </SectionContainerAccordion>
 
   <SectionContainer
@@ -201,8 +220,11 @@ const { level: headingLevel } = useDocumentOutline('channel')
         <ParameterList
           v-if="parameters.length"
           :eventBus="eventBus"
+          :expansion="expansion"
           :options="parameterListOptions"
-          :parameters="parameters">
+          :parameters="parameters"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension">
           <template #title>Parameters</template>
         </ParameterList>
         <Operation
@@ -211,8 +233,20 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :document="document"
           :eventBus="eventBus"
           :expandedItems="expandedItems"
+          :expansion="expansion"
           :operation="operation"
-          :options="options" />
+          :options="options"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
+        <ChannelMessages
+          :channel="channel"
+          :document="document"
+          :eventBus="eventBus"
+          :expandedItems="expandedItems"
+          :expansion="expansion"
+          :options="options"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
       </SectionContent>
     </Section>
   </SectionContainer>

@@ -1,3 +1,6 @@
+---
+date: 2026-03-05
+---
 
 # Your API? 0.2% of your context window
 

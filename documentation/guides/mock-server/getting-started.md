@@ -189,6 +189,19 @@ The given OpenAPI document is automatically exposed:
 
 - `/openapi.json` and `/openapi.yaml`
 
+### Already loaded documents
+
+When passing a parsed object or inline JSON/YAML with relative references, set `origin` to its source file path or URL. The mock server uses that location to resolve references without reading the root document again.
+
+```ts
+const app = await createMockServer({
+  document,
+  origin: 'https://example.com/openapi.json',
+})
+```
+
+For file and URL inputs, the JSON and YAML export routes return the loaded, bundled API description. Inline inputs without `origin` keep their original format version.
+
 ### Path keys with a query string
 
 Some documents describe a variant of an operation by putting a query string in the path key:
@@ -366,6 +379,12 @@ How the events are picked:
 - An array example is read as the event sequence too, one event per item.
 - An example that already spells out the wire format — `data:` and `event:` lines, or a `:` comment heartbeat — is written as its own framing, with only its terminating blank line normalized, instead of being wrapped in a second `data:` line. Examples like that describe a whole stream, so a map of them lists alternatives: the first one is served, and `Prefer: example=<name>` picks another.
 - When the response only has a schema, the generated payload is sent three times, so a client's read loop sees more than one event before the stream ends. A schema that already generates a sequence — an `array` with more than one item, or a string that spells the wire format out — is sent once, not repeated.
+
+### XML generation errors
+
+If an XML example cannot be generated, the mock response includes an `X-Scalar-XML-Error` header with the first diagnostic code, such as `limit-exceeded` or `unresolved-reference`. The declared response status is preserved and the body is empty. This also applies when a custom handler returns `undefined` and falls back to a response example.
+
+Resolve missing schema references or supply a complete XML payload with an Example Object's `serializedValue` field in an OpenAPI 3.2 API description to bypass generation limits.
 
 ### Error Responses
 

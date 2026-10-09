@@ -2,6 +2,7 @@ import { Command } from 'commander'
 
 import { cat } from '@/commands/cat'
 import { generateBlog } from '@/commands/generate-blog'
+import { generateCliDocs } from '@/commands/generate-cli-docs'
 import { generateMonthlyContributors } from '@/commands/generate-monthly-contributors'
 import { generateReadme } from '@/commands/generate-readme'
 import { packages } from '@/commands/packages'
@@ -27,5 +28,6 @@ program.addCommand(run)
 program.addCommand(updatePlaywrightDocker)
 program.addCommand(generateReadme)
 program.addCommand(generateBlog)
+program.addCommand(generateCliDocs)
 program.addCommand(generateMonthlyContributors)
 program.parse()

@@ -18,6 +18,7 @@ import {
   DataTableCheckbox,
   DataTableRow,
 } from '@/v2/components/data-table'
+import { useLocalization } from '@/v2/features/localization'
 
 import OAuthScopesAddModal from './OAuthScopesAddModal.vue'
 
@@ -41,6 +42,8 @@ const emits = defineEmits<{
     payload: Omit<ApiReferenceEvents['auth:delete:scopes'], 'name'>,
   ): void
 }>()
+
+const { translate } = useLocalization()
 
 const searchQuery = ref('')
 
@@ -211,11 +214,16 @@ const handleDeleteScope = (scopeKey: string) => {
             ]"
             :disabled="!hasScopes">
             <template v-if="hasScopes">
-              Scopes Selected
-              {{ selectedScopes.length || 0 }} /
-              {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
+              {{
+                translate('apiClient.oauthScopesInput.selectedScopes', {
+                  count: selectedScopes.length,
+                  total: Object.keys(flow?.scopes ?? {}).length,
+                })
+              }}
             </template>
-            <template v-else> No Scopes Defined </template>
+            <template v-else>
+              {{ translate('apiClient.oauthScopesInput.noScopesDefined') }}
+            </template>
           </DisclosureButton>
 
           <div class="flex shrink-0 items-center gap-1.75">
@@ -225,7 +233,7 @@ const handleDeleteScope = (scopeKey: string) => {
               size="sm"
               variant="ghost"
               @click.stop="openAddScopeModal">
-              Add Scope
+              {{ translate('apiClient.oauthScopesInput.addScope') }}
             </ScalarButton>
 
             <!-- Deselect All -->
@@ -235,7 +243,7 @@ const handleDeleteScope = (scopeKey: string) => {
               size="sm"
               variant="ghost"
               @click.stop="deselectAllScopes">
-              Deselect All
+              {{ translate('apiClient.oauthScopesInput.deselectAll') }}
             </ScalarButton>
 
             <!-- Select All -->
@@ -245,7 +253,7 @@ const handleDeleteScope = (scopeKey: string) => {
               size="sm"
               variant="ghost"
               @click.stop="selectAllScopes">
-              Select All
+              {{ translate('apiClient.oauthScopesInput.selectAll') }}
             </ScalarButton>
 
             <DisclosureButton
@@ -269,53 +277,75 @@ const handleDeleteScope = (scopeKey: string) => {
             <table
               class="grid max-h-40 auto-rows-auto overflow-x-hidden overflow-y-auto"
               :style="{ gridTemplateColumns: '1fr auto' }">
-              <DataTableRow
-                v-for="{ id, label, description } in filteredScopes"
-                :key="id"
-                class="text-c-2 group/scope-row"
-                @click="setScope(id, !selectedScopes.includes(id))">
-                <DataTableCell
-                  class="box-border flex !max-h-[initial] w-full min-w-0 cursor-pointer items-stretch overflow-hidden px-0 py-0">
-                  <!-- Text scrolls horizontally; action rail stays fixed -->
-                  <div
-                    class="no-scrollbar text-c-2 group-hover/scope-row:text-c-1 flex min-h-8 min-w-0 flex-1 items-center gap-1 overflow-x-auto px-3 py-1.5 pr-20 text-xs text-nowrap">
-                    <span class="font-code shrink-0 text-xs">{{ label }}</span>
-                    <template v-if="String(description ?? '').trim()">
-                      <span class="shrink-0">&ndash;</span>
-                      <span class="whitespace-nowrap">{{ description }}</span>
-                    </template>
-                  </div>
-                  <div
-                    class="oauth-scope-row-action-rail absolute top-0 right-0 z-[1] flex h-full min-w-[4.5rem] items-center justify-end gap-0.5 py-1 pr-2 pl-4 opacity-0 transition-opacity group-focus-within/scope-row:opacity-100 group-hover/scope-row:opacity-100"
-                    @click.stop>
-                    <ScalarIconButton
-                      :icon="ScalarIconPencilSimple"
-                      :label="`Edit ${label}`"
-                      size="sm"
-                      @click.stop="
-                        openEditScopeModal({
-                          id,
-                          description: description ?? '',
-                        })
-                      " />
-                    <ScalarIconButton
-                      :icon="ScalarIconTrash"
-                      :label="`Delete ${label}`"
-                      size="sm"
-                      @click.stop="handleDeleteScope(id)" />
-                  </div>
-                </DataTableCell>
-                <!--
+              <!--
+                The HTML parser inserts a `tbody` around rows that sit directly under a `table`,
+                so the rows are wrapped in one here to keep server-rendered markup hydratable.
+                `contents` keeps it out of the table's grid, the same way the rows lay
+                themselves out.
+              -->
+              <tbody class="contents">
+                <DataTableRow
+                  v-for="{ id, label, description } in filteredScopes"
+                  :key="id"
+                  class="text-c-2 group/scope-row"
+                  @click="setScope(id, !selectedScopes.includes(id))">
+                  <DataTableCell
+                    class="box-border flex !max-h-[initial] w-full min-w-0 cursor-pointer items-stretch overflow-hidden px-0 py-0">
+                    <!-- Text scrolls horizontally; action rail stays fixed -->
+                    <div
+                      class="no-scrollbar text-c-2 group-hover/scope-row:text-c-1 flex min-h-8 min-w-0 flex-1 items-center gap-1 overflow-x-auto px-3 py-1.5 pr-20 text-xs text-nowrap">
+                      <span class="font-code shrink-0 text-xs">{{
+                        label
+                      }}</span>
+                      <template v-if="String(description ?? '').trim()">
+                        <span class="shrink-0">&ndash;</span>
+                        <span class="whitespace-nowrap">{{ description }}</span>
+                      </template>
+                    </div>
+                    <div
+                      class="oauth-scope-row-action-rail absolute top-0 right-0 z-[1] flex h-full min-w-[4.5rem] items-center justify-end gap-0.5 py-1 pr-2 pl-4 opacity-0 transition-opacity group-focus-within/scope-row:opacity-100 group-hover/scope-row:opacity-100"
+                      @click.stop>
+                      <ScalarIconButton
+                        :icon="ScalarIconPencilSimple"
+                        :label="
+                          translate('apiClient.oauthScopesInput.editScope', {
+                            name: label,
+                          })
+                        "
+                        size="sm"
+                        @click.stop="
+                          openEditScopeModal({
+                            id,
+                            description: description ?? '',
+                          })
+                        " />
+                      <ScalarIconButton
+                        :icon="ScalarIconTrash"
+                        :label="
+                          translate('apiClient.oauthScopesInput.deleteScope', {
+                            name: label,
+                          })
+                        "
+                        size="sm"
+                        @click.stop="handleDeleteScope(id)" />
+                    </div>
+                  </DataTableCell>
+                  <!--
                   Stop the click here so it does not also bubble to the row's `@click`
                   toggle. The checkbox already drives the change via `@update:modelValue`;
                   letting the row fire too would toggle the scope a second time.
                 -->
-                <DataTableCheckbox
-                  :ariaLabel="`Select ${label} scope`"
-                  :modelValue="selectedScopes.includes(id)"
-                  @click.stop
-                  @update:modelValue="setScope(id, $event)" />
-              </DataTableRow>
+                  <DataTableCheckbox
+                    :ariaLabel="
+                      translate('apiClient.oauthScopesInput.selectScope', {
+                        name: label,
+                      })
+                    "
+                    :modelValue="selectedScopes.includes(id)"
+                    @click.stop
+                    @update:modelValue="setScope(id, $event)" />
+                </DataTableRow>
+              </tbody>
             </table>
           </div>
         </DisclosurePanel>
