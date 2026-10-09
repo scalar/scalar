@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { computed } from 'vue'
+import { computed, type ComponentPublicInstance } from 'vue'
 
 import RequestTableRow, {
   type TableRow,
@@ -115,6 +115,17 @@ type DisplayRow = {
 const pendingUpdates = new Map<symbol, TableRowUpsertPayload>()
 const rowRefs = new Map<symbol, InstanceType<typeof RequestTableRow>>()
 
+const setRowRef = (
+  key: symbol,
+  element: Element | ComponentPublicInstance | null,
+): void => {
+  if (element) {
+    rowRefs.set(key, element as InstanceType<typeof RequestTableRow>)
+  } else {
+    rowRefs.delete(key)
+  }
+}
+
 const matchesPendingUpdate = (key: symbol, row: TableRow): boolean => {
   const update = pendingUpdates.get(key)
   return update?.name === row.name && update.value === row.value
@@ -194,12 +205,7 @@ defineExpose({
     <RequestTableRow
       v-for="(row, index) in keyedRows"
       :key="row.key"
-      :ref="
-        (el) =>
-          el
-            ? rowRefs.set(row.key, el as InstanceType<typeof RequestTableRow>)
-            : rowRefs.delete(row.key)
-      "
+      :ref="(el) => setRowRef(row.key, el)"
       :data="row.data"
       :deferKeyUpdates="deferKeyUpdates"
       :environment="environment"

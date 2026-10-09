@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 import { createParameterRows } from '../helpers/create-parameter-rows'
 import RequestParams from './RequestParams.vue'
 import RequestTable from './RequestTable.vue'
+import type { TableRow } from './RequestTableRow.vue'
 
 const filter = {
   name: 'filters',
@@ -26,7 +27,7 @@ const filter = {
   examples: { ex: { value: { populated: 'keep', zero: 0 }, 'x-disabled': true } },
 } satisfies ParameterObject
 
-const createRows = () => [
+const createRows = (): TableRow[] => [
   ...createParameterRows(filter, 'ex'),
   ...createParameterRows({ name: 'take', in: 'query', schema: { type: 'integer' } }, 'ex'),
 ]

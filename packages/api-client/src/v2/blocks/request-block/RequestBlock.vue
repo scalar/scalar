@@ -764,7 +764,7 @@ const filterLabels = computed(() => ({
       <RequestParams
         v-show="isSectionVisible('Query')"
         :id="filterIds.Query"
-        :key="JSON.stringify([method, path, exampleKey])"
+        :key="JSON.stringify([documentSlug, method, path, exampleKey])"
         :description="
           hasQuerystringParameter
             ? translate('apiClient.requestBlock.queryStringDescription')

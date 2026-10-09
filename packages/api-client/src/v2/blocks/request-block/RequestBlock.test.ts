@@ -1,6 +1,6 @@
 import { type ApiReferenceEvents, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { flushPromises, mount } from '@vue/test-utils'
+import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { type DefineComponent, defineComponent, markRaw, nextTick } from 'vue'
 
@@ -42,7 +42,7 @@ const defaultProps = {
 } satisfies RequestBlockProps
 
 describe('RequestBlock', () => {
-  it('preserves sibling values when editing a selected filter and resets selection across examples and operations', async () => {
+  it('preserves sibling values when editing a selected filter and resets selection across examples, operations, and documents', async () => {
     const eventBus = createWorkspaceEventBus()
     const upsert = vi.fn()
     eventBus.on('operation:upsert:parameter', upsert)
@@ -55,11 +55,13 @@ describe('RequestBlock', () => {
       examples: { 'example-1': { value: { status: 'active' } } },
     } satisfies NonNullable<OperationObject['parameters']>[number]
     const wrapper = mount(RequestBlock, { props: { ...defaultProps, eventBus, operation: { parameters: [filter] } } })
-    const query = () => {
+    const query = (): VueWrapper<InstanceType<typeof RequestParams>> => {
       const section = wrapper
         .findAllComponents(RequestParams)
         .find((component) => component.props('selectExpandedParameters'))
-      if (!section) throw new Error('Missing query section')
+      if (!section) {
+        throw new Error('Missing query section')
+      }
       return section
     }
     const select = async (): Promise<void> => {
@@ -90,6 +92,14 @@ describe('RequestBlock', () => {
     ).toStrictEqual([])
     await select()
     await wrapper.setProps({ path: '/other' })
+    expect(
+      query()
+        .getComponent({ name: 'RequestTable' })
+        .props('data')
+        .map((row: TableRow) => row.name),
+    ).toStrictEqual([])
+    await select()
+    await wrapper.setProps({ documentSlug: 'other-document' })
     expect(
       query()
         .getComponent({ name: 'RequestTable' })

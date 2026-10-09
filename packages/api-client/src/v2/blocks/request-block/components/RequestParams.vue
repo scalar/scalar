@@ -60,13 +60,21 @@ const { translate } = useLocalization()
 const showTooltip = computed(() => rows.length > 1)
 const table = useTemplateRef('table')
 const pickerContainer = useTemplateRef('pickerContainer')
-const selectedFields = ref(new Set<string>())
+const selectedFields = ref<Set<string>>(new Set())
+
+type IndexedRow = { row: TableRow; index: number }
+type AvailableField = {
+  id: string
+  label: string
+  description: TableRow['description']
+  index: number
+}
 
 const getFieldKey = (row: TableRow, name = row.name): string =>
   JSON.stringify([row.originalParameter?.in, row.originalParameter?.name, name])
 
 /** Single-field objects and ordinary parameters keep their existing presentation. */
-const expandedParameters = computed(() => {
+const expandedParameters = computed<Set<TableRow['originalParameter']>>(() => {
   const counts = new Map<TableRow['originalParameter'], number>()
   for (const row of rows) {
     if (row.originalParameter?.in === 'query' && row.sourceParameterValuePath) {
@@ -89,8 +97,10 @@ const isSelectable = (row: TableRow): boolean =>
   expandedParameters.value.has(row.originalParameter)
 
 /** Keep original indexes: handlers rebuild object values from all rows, including hidden fields. */
-const indexedRows = computed(() => rows.map((row, index) => ({ row, index })))
-const visibleRows = computed(() =>
+const indexedRows = computed<IndexedRow[]>(() =>
+  rows.map((row, index) => ({ row, index })),
+)
+const visibleRows = computed<IndexedRow[]>(() =>
   indexedRows.value.filter(
     ({ row }) =>
       !isSelectable(row) ||
@@ -99,8 +109,10 @@ const visibleRows = computed(() =>
       selectedFields.value.has(getFieldKey(row)),
   ),
 )
-const tableRows = computed(() => visibleRows.value.map(({ row }) => row))
-const availableFields = computed(() =>
+const tableRows = computed<TableRow[]>(() =>
+  visibleRows.value.map(({ row }) => row),
+)
+const availableFields = computed<AvailableField[]>(() =>
   indexedRows.value
     .filter(
       (entry) => !visibleRows.value.some(({ index }) => index === entry.index),
@@ -124,11 +136,17 @@ const selectField = async (
   )
 }
 
+/** The appended placeholder belongs after all stored rows, including hidden fields. */
+const getOriginalIndex = (index: number): number =>
+  visibleRows.value[index]?.index ??
+  rows.length + index - visibleRows.value.length
+
 const deleteRow = (index: number): void => {
+  const originalIndex = getOriginalIndex(index)
   const entry = visibleRows.value[index]
   if (entry) selectedFields.value.delete(getFieldKey(entry.row))
   emit('delete', {
-    index: entry?.index ?? rows.length + index - visibleRows.value.length,
+    index: originalIndex,
   })
 }
 
@@ -159,11 +177,7 @@ const handleUpserRow = (
       ),
     )
   }
-  emit(
-    'upsert',
-    entry?.index ?? rows.length + index - visibleRows.value.length,
-    { ...rest, value: value ?? '' },
-  )
+  emit('upsert', getOriginalIndex(index), { ...rest, value: value ?? '' })
 }
 </script>
 <template>
