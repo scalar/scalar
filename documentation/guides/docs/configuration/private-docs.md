@@ -10,7 +10,12 @@ Access groups decide who outside your team can view a private site. Creating one
 
 In the [dashboard](https://dashboard.scalar.com), open **Settings** and go to **Configuration → Access Groups**. Click **New Access Group**, give it a name and a slug, then click **Create Access Group**.
 
-<!-- TODO screenshot: Access Groups page with the New Access Group dialog -->
+<scalar-image
+  src="/access-groups-new.png"
+  src-dark="/access-groups-new-dark.png"
+  alt="The Access Groups settings page with the New Access Group dialog open"
+  size="full">
+</scalar-image>
 
 Now that you have an access group, you can allow a whole email domain, specific email addresses, or both.
 
@@ -22,7 +27,12 @@ Under **Email Domain**, type a domain like `example.com` and click **Allow**. An
 
 Under **Specific Email Addresses**, type an email address and click **Add**.
 
-<!-- TODO screenshot: an access group with a domain and an email address -->
+<scalar-image
+  src="/access-group-detail.png"
+  src-dark="/access-group-detail-dark.png"
+  alt="An access group that allows an email domain and a specific email address"
+  size="full">
+</scalar-image>
 
 ## Make your docs private
 
@@ -32,7 +42,12 @@ Open your [Docs](../getting-started.md) project in the editor and go to **Settin
 2. Optionally, pick a **Login portal** to brand the sign-in page. Without one, visitors see the default sign-in page.
 3. Under **Access groups**, add the groups that should be able to view the site.
 
-<!-- TODO screenshot: Settings → Privacy with Private site on and an access group selected -->
+<scalar-image
+  src="/docs-settings-privacy.png"
+  src-dark="/docs-settings-privacy-dark.png"
+  alt="Settings → Privacy in the editor, with Private site turned on and an access group selected"
+  size="full">
+</scalar-image>
 
 Save and publish your changes for them to take effect. If you delete an access group later, its members lose access immediately.
 

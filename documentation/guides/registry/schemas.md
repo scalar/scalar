@@ -1,23 +1,32 @@
 # Schemas
+
 This guide will help you start using Scalar Schemas to manage and share JSON Schema objects across your registry APIs in our dashboard on scalar.com, which can be done alongside our [CLI](cli.md).
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](getting-started.md#create-your-scalar-account))
 
 ## What are Scalar Schemas?
+
 Scalar Schemas allow you to publish and manage standalone JSON Schema objects outside of OpenAPI documents. These reusable JSON Schema components can be referenced across multiple APIs in your registry, providing a centralized way to manage shared data models and validation rules.
 
 Unlike schemas defined within OpenAPI documents, Scalar Schemas are:
+
 - **Standalone**: Managed independently from any specific API
 - **Reusable**: Can be referenced by multiple APIs in your registry
 - **Versioned**: Each schema has its own versioning independent of your APIs
 - **Shareable**: Can be shared publicly or kept private within your team
 
 ## Create your first schema
+
 Schemas allow you to reference shared components across your registry APIs.
 
 Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis). In the **Schemas** section, click **New Schema**.
 
-<!-- TODO screenshot: APIs studio overview with the Schemas section and the New Schema button -->
+<scalar-image
+  src="/registry-apis-overview.png"
+  src-dark="/registry-apis-overview-dark.png"
+  alt="The APIs studio, with the Schemas and Rulesets sections and their New Schema and New Ruleset buttons"
+  size="full">
+</scalar-image>
 
 The **Create Schema** dialog asks for:
 
@@ -27,7 +36,12 @@ The **Create Schema** dialog asks for:
 
 Click **Create**, and Scalar opens the schema's **Source** page.
 
-<!-- TODO screenshot: Create Schema dialog -->
+<scalar-image
+  src="/registry-create-schema.png"
+  src-dark="/registry-create-schema-dark.png"
+  alt="The Create Schema dialog with a schema title, a JSON Schema, and its registry path"
+  size="full">
+</scalar-image>
 
 ### Configure Schema Details
 
@@ -46,16 +60,27 @@ Open the schema's **Settings** page to change its details:
 Name and description save automatically. Changes to the path, version, and namespace apply when you click **Save**.
 
 Open the schema's **Access** page to choose whether it is:
+
 - **Public**: Share your schema with the world - anyone can reference it via the registry URL
 - **Private**: Keep your schema within your team - only invited users and access groups can view and reference it
 
-<!-- TODO screenshot: schema Settings page -->
+<scalar-image
+  src="/registry-schema-settings.png"
+  src-dark="/registry-schema-settings-dark.png"
+  alt="A schema's Settings page, with its name, registry path, description, current version, and namespace"
+  size="full">
+</scalar-image>
 
 ### Define Your JSON Schema
 
 Edit the schema on its **Source** page.
 
-<!-- TODO screenshot: schema Source page -->
+<scalar-image
+  src="/registry-schema-source.png"
+  src-dark="/registry-schema-source-dark.png"
+  alt="A schema's Source page, showing the JSON Schema in the editor"
+  size="full">
+</scalar-image>
 
 Here's an example JSON Schema you might create:
 
@@ -104,6 +129,7 @@ Here's an example JSON Schema you might create:
 After defining your JSON Schema, click **Save** on the Source page to make it available in the registry. You can then reference it by its registry path.
 
 The registry path follows this format:
+
 ```
 registry.scalar.com/@your-team/schemas/your-schema-name@version
 ```
@@ -192,11 +218,13 @@ scalar schema publish ./schema.json --namespace your-team --name user --version 
 ```
 
 **Required Parameters:**
+
 - `file`: Path to your JSON Schema file
 - `--namespace`: Your Scalar team namespace
 - `--name`: Name identifier for the schema
 
 **Optional Parameters:**
+
 - `--version`: Schema version (e.g., 1.0.0, defaults to 0.0.1 if not specified)
 - `--private`: Make schema private (default: false)
 - `--force`: Force override an existing version (default: false)

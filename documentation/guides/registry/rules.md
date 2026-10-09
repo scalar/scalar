@@ -8,17 +8,32 @@ Make sure you have created a Scalar Account and are logged in ([see create accou
 
 Open **APIs** in the [dashboard](https://dashboard.scalar.com/apis). In the **Rulesets** section, click **New Ruleset**.
 
-<!-- TODO screenshot: APIs studio overview with the Rulesets section and the New Ruleset button -->
+<scalar-image
+  src="/registry-apis-overview.png"
+  src-dark="/registry-apis-overview-dark.png"
+  alt="The APIs studio, with the Schemas and Rulesets sections and their New Schema and New Ruleset buttons"
+  size="full">
+</scalar-image>
 
 In the **Create Ruleset** dialog, give your ruleset a title and choose its path: a namespace and a slug. Click **Create**, and Scalar opens the ruleset's **Source** page, where you edit it.
 
-<!-- TODO screenshot: Create Ruleset dialog -->
+<scalar-image
+  src="/registry-create-ruleset.png"
+  src-dark="/registry-create-ruleset-dark.png"
+  alt="The Create Ruleset dialog with a ruleset title and its registry path"
+  size="full">
+</scalar-image>
 
 ### Configure your ruleset
 
 A new ruleset extends the default Spectral OSS ruleset (`spectral:oas`). This provides a solid foundation of OpenAPI linting rules from the [Spectral project](https://stoplight.io/open-source/spectral).
 
-<!-- TODO screenshot: ruleset Source page with the default ruleset -->
+<scalar-image
+  src="/registry-ruleset-source.png"
+  src-dark="/registry-ruleset-source-dark.png"
+  alt="A new ruleset's Source page, showing the default ruleset that extends spectral:oas"
+  size="full">
+</scalar-image>
 
 The default rule configuration looks like this:
 
