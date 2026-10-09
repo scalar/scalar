@@ -4246,6 +4246,32 @@ describe('create-workspace-store', () => {
   })
 
   describe('asyncapi documents', () => {
+    it('retains boolean schemas during ingestion', async () => {
+      const store = createWorkspaceStore()
+      const schema = { type: 'object', properties: { anything: true, nothing: false } }
+
+      await store.addDocument({
+        name: 'booleans',
+        document: {
+          asyncapi: '3.1.0',
+          info: { title: 'Boolean schemas', version: '1.0.0' },
+          channels: { events: { messages: { event: { payload: schema, headers: schema } } } },
+          components: { schemas: { Anything: true, Nothing: false, Object: schema } },
+        },
+      })
+
+      const document = store.workspace.documents['booleans']
+      assert(isAsyncApiDocument(document))
+      const message = getResolvedRef(getResolvedRef(document.channels?.events)?.messages?.event)
+      expect(getResolvedRef(message?.payload)).toMatchObject(schema)
+      expect(getResolvedRef(message?.headers)).toMatchObject(schema)
+      expect(getResolvedRef(document.components)?.schemas).toMatchObject({
+        Anything: true,
+        Nothing: false,
+        Object: schema,
+      })
+    })
+
     it('preserves the asyncapi discriminator and sets workspace metadata on ingestion', async () => {
       const store = createWorkspaceStore()
 

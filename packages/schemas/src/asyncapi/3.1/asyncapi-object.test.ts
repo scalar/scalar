@@ -5,6 +5,24 @@ import { describe, expect, it } from 'vitest'
 import { asyncApiObjectSchema } from './asyncapi-object'
 
 describe('asyncapi-object', () => {
+  it('preserves boolean schemas recursively in payloads, headers, and models', () => {
+    const schema = {
+      type: 'object',
+      properties: { anything: true, nothing: false, nested: { type: 'array', items: false } },
+      allOf: [true, { not: false }],
+    }
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Boolean schemas', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      channels: { events: { messages: { event: { payload: schema, headers: schema } } } },
+      components: { schemas: { Anything: true, Nothing: false, Object: schema } },
+    }
+
+    expect(validate(asyncApiObjectSchema, document)).toBe(true)
+    expect(coerce(asyncApiObjectSchema, document)).toEqual(document)
+  })
+
   it('accepts a value that satisfies the generated AsyncApiDocument type', () => {
     const doc: AsyncApiDocument = {
       asyncapi: '3.0.0',

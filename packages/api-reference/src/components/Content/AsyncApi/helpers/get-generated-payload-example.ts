@@ -45,6 +45,14 @@ export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unkn
   }
 
   const payload = getResolvedRef(message.payload)
+  // Boolean schemas describe validation, but do not suggest a representative payload.
+  if (
+    typeof payload === 'boolean' ||
+    (isObject(payload) && 'schemaFormat' in payload && typeof getResolvedRef(payload.schema) === 'boolean')
+  ) {
+    return undefined
+  }
+
   if (isObject(payload) && 'schemaFormat' in payload) {
     // Avro and other formats can also be objects, but the shared generator only understands JSON Schema.
     const mediaType = String(payload.schemaFormat).split(';')[0]?.trim().toLowerCase()
