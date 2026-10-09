@@ -3,6 +3,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import type {
   AsyncApiDocument,
   AsyncApiOperationObject,
+  AsyncApiSecuritySchemeObject,
 } from '@scalar/types/asyncapi/3.1'
 import { getAsyncApiSecuritySchemes } from '@scalar/workspace-store/channel-example'
 import { computed } from 'vue'
@@ -11,22 +12,35 @@ import { useLocalization } from '@/features/localization'
 
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
 
-const { document, operation } = defineProps<{
+const { document, operation, operationName } = defineProps<{
+  operationName: string
   document: AsyncApiDocument
   operation: AsyncApiOperationObject | null | undefined
 }>()
 const { translate } = useLocalization()
 
 /** Keep scope-free alternatives visible alongside OAuth requirements. */
-const alternatives = computed(() => {
-  const definitions = getAsyncApiSecuritySchemes(document)
-  return getAsyncApiRequiredSecurity(document, operation).requirements.flatMap(
-    (group) =>
-      group.schemes.map(({ name, scopes }) => ({
-        name,
-        scopes,
-        scheme: definitions[name],
-      })),
+type SecurityAlternative = {
+  name: string
+  scopes: string[]
+  scheme: AsyncApiSecuritySchemeObject | undefined
+}
+
+const alternatives = computed<SecurityAlternative[]>(() => {
+  const definitions = getAsyncApiSecuritySchemes(document, {
+    servers: {},
+    operations: operation ? { [operationName]: operation } : {},
+  })
+  return getAsyncApiRequiredSecurity(
+    document,
+    operation,
+    operationName,
+  ).requirements.flatMap((group) =>
+    group.schemes.map(({ name, scopes }) => ({
+      name,
+      scopes,
+      scheme: definitions[name],
+    })),
   )
 })
 </script>

@@ -230,7 +230,9 @@ const securitySchemes = computed(() => {
 
   return mergeSecurity(
     asyncApiClientDocument.value
-      ? getAsyncApiSecuritySchemes(asyncApiClientDocument.value, false)
+      ? getAsyncApiSecuritySchemes(asyncApiClientDocument.value, {
+          operations: {},
+        })
       : components?.securitySchemes,
     options.authentication?.securitySchemes,
     authStore,

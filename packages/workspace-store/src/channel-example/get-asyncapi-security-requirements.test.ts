@@ -7,6 +7,8 @@ import {
   getAsyncApiSecuritySchemes,
 } from '@/channel-example/get-asyncapi-security-requirements'
 
+import { resolveOperationWithTraits } from './resolve-operation-with-traits'
+
 const documentWithInlineSecurity = {
   asyncapi: '3.0.0',
   info: { title: 'Inline security', version: '1.0.0' },
@@ -34,28 +36,33 @@ const documentWithInlineSecurity = {
 
 describe('getAsyncApiSecurityRequirements', () => {
   it('registers inline server and operation schemes without changing the description', () => {
-    const server = { host: 'example.com', protocol: 'wss', security: [{ type: 'http', scheme: 'bearer' }] }
+    const server = {
+      host: 'example.com',
+      protocol: 'wss',
+      security: [{ type: 'http', scheme: 'bearer' }],
+    } satisfies AsyncApiServerObject
     const operation = {
       action: 'send',
       channel: { $ref: '#/channels/events' },
       security: [{ type: 'oauth2', flows: {}, scopes: ['events:read'] }],
-    }
+    } satisfies AsyncApiOperationObject
     const document = {
       asyncapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test',
       info: { title: 'Inline', version: '1' },
       servers: { production: server },
       operations: { events: operation },
-    } as unknown as AsyncApiDocument
+    } satisfies AsyncApiDocument
     const original = JSON.stringify(document)
     expect(getAsyncApiSecuritySchemes(document)).toStrictEqual({
       'Server production · http 1': server.security[0],
       'Operation events · oauth2 1': operation.security[0],
     })
-    expect(getAsyncApiSecurityRequirements(document, operation as AsyncApiOperationObject)).toStrictEqual([
+    expect(getAsyncApiSecurityRequirements(document, operation)).toStrictEqual([
       { 'Operation events · oauth2 1': ['events:read'] },
     ])
     expect(getAsyncApiDocumentSecurityRequirements(document)).toStrictEqual([{ 'Server production · http 1': [] }])
-    expect(getAsyncApiSecuritySchemes(document, false)).toStrictEqual({
+    expect(getAsyncApiSecuritySchemes(document, { operations: {} })).toStrictEqual({
       'Server production · http 1': server.security[0],
     })
     expect(JSON.stringify(document)).toBe(original)
@@ -64,6 +71,7 @@ describe('getAsyncApiSecurityRequirements', () => {
   it('keeps identical inline declarations at different locations separate and avoids component name collisions', () => {
     const document = {
       asyncapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test',
       info: { title: 'Inline', version: '1' },
       components: {
         securitySchemes: {
@@ -75,7 +83,7 @@ describe('getAsyncApiSecurityRequirements', () => {
         a: { host: 'a.example.com', protocol: 'wss', security: [{ type: 'http', scheme: 'bearer' }] },
         b: { host: 'b.example.com', protocol: 'wss', security: [{ type: 'http', scheme: 'bearer' }] },
       },
-    } as unknown as AsyncApiDocument
+    } satisfies AsyncApiDocument
     expect(getAsyncApiDocumentSecurityRequirements(document)).toStrictEqual([
       { 'Server a · http 1 (inline) (inline)': [] },
       { 'Server b · http 1': [] },
@@ -87,19 +95,24 @@ describe('getAsyncApiSecurityRequirements', () => {
       action: 'send',
       channel: { $ref: '#/channels/events' },
       security: [{ type: 'oauth2', flows: {}, scopes: ['read'] }],
-    } as AsyncApiOperationObject
+    } satisfies AsyncApiOperationObject
     const document = {
       asyncapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test',
       info: { title: 'Scopes', version: '1' },
       components: { securitySchemes: { oauth: { type: 'oauth2', flows: {}, scopes: ['write'] } } },
       operations: { events: operation },
-    } as unknown as AsyncApiDocument
+    } satisfies AsyncApiDocument
     expect(getAsyncApiSecurityRequirements(document, operation)).toStrictEqual([{ oauth: ['read'] }])
     expect(Object.keys(getAsyncApiSecuritySchemes(document))).toStrictEqual(['oauth'])
   })
 
   it('requires server security together with one operation alternative', () => {
-    const server = { host: 'example.com', protocol: 'wss', security: [{ type: 'http', scheme: 'bearer' }] }
+    const server = {
+      host: 'example.com',
+      protocol: 'wss',
+      security: [{ type: 'http', scheme: 'bearer' }],
+    } satisfies AsyncApiServerObject
     const operation = {
       action: 'send',
       channel: { $ref: '#/channels/events' },
@@ -107,19 +120,52 @@ describe('getAsyncApiSecurityRequirements', () => {
         { type: 'oauth2', flows: {}, scopes: ['read'] },
         { type: 'httpApiKey', in: 'header', name: 'X-Key' },
       ],
-    }
+    } satisfies AsyncApiOperationObject
     const document = {
       asyncapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test',
       info: { title: 'Layers', version: '1' },
       servers: { main: server },
       operations: { events: operation },
-    } as unknown as AsyncApiDocument
-    expect(
-      getAsyncApiSecurityRequirements(document, operation as AsyncApiOperationObject, server as AsyncApiServerObject),
-    ).toStrictEqual([
+    } satisfies AsyncApiDocument
+    expect(getAsyncApiSecurityRequirements(document, operation, server)).toStrictEqual([
       { 'Server main · http 1': [], 'Operation events · oauth2 1': ['read'] },
       { 'Server main · http 1': [], 'Operation events · httpApiKey 2': [] },
     ])
+  })
+
+  it('keeps shared trait security associated with each operation without visiting unrelated operations', () => {
+    const trait = { security: [{ type: 'http', scheme: 'bearer' }] } satisfies NonNullable<
+      AsyncApiOperationObject['traits']
+    >[number]
+    const operation = {
+      action: 'send',
+      channel: { $ref: '#/channels/events' },
+      traits: [trait],
+    } satisfies AsyncApiOperationObject
+    const document = {
+      asyncapi: '3.1.0',
+      'x-scalar-original-document-hash': 'test',
+      info: { title: 'Shared traits', version: '1' },
+      operations: {
+        first: operation,
+        second: { ...operation },
+        get unrelated(): AsyncApiOperationObject {
+          throw new Error('Unrelated operations must not be visited')
+        },
+      },
+    } satisfies AsyncApiDocument
+
+    for (const operationName of ['first', 'second']) {
+      const resolved = resolveOperationWithTraits(operation)
+      const schemes = getAsyncApiSecuritySchemes(document, {
+        servers: {},
+        operations: { [operationName]: resolved },
+      })
+      const requirements = getAsyncApiSecurityRequirements(document, resolved, null, { operationName })
+      expect(schemes).toStrictEqual({ [`Operation ${operationName} · http 1`]: trait.security[0] })
+      expect(requirements).toStrictEqual([{ [`Operation ${operationName} · http 1`]: [] }])
+    }
   })
 
   it('maps inline security entries to a matching components.securitySchemes name', () => {

@@ -40,7 +40,10 @@ const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecu
  */
 export const getAsyncApiSecuritySchemes = (
   document: AsyncApiDocument,
-  includeOperations = true,
+  owners: {
+    servers?: Record<string, AsyncApiServerObject>
+    operations?: Record<string, AsyncApiOperationObject>
+  } = {},
 ): Record<string, AsyncApiSecuritySchemeObject> => {
   const components = document.components ? getResolvedRef(document.components) : undefined
   const schemes: Record<string, AsyncApiSecuritySchemeObject> = {}
@@ -52,9 +55,6 @@ export const getAsyncApiSecuritySchemes = (
     }
   }
 
-  const availableName = (name: string): string =>
-    Object.hasOwn(schemes, name) ? availableName(`${name} (inline)`) : name
-
   const register = (security: AsyncApiSecurityEntry[] | undefined, location: string): void => {
     for (const [index, entry] of (security ?? []).entries()) {
       const scheme = getResolvedRef(entry)
@@ -65,20 +65,15 @@ export const getAsyncApiSecuritySchemes = (
       if (componentName !== undefined) {
         continue
       }
-      // A user-defined component may have the same name as our generated label.
-      const base = `${location} · ${scheme.type} ${index + 1}`
-      schemes[availableName(base)] = scheme
+      schemes[getInlineSecuritySchemeName(document, scheme, location, index)] = scheme
     }
   }
 
-  const servers = document.servers ? getResolvedRef(document.servers) : undefined
+  const servers = owners.servers ?? (document.servers ? getResolvedRef(document.servers) : undefined)
   for (const [name, reference] of Object.entries(servers ?? {})) {
     register(getResolvedRef(reference)?.security, `Server ${name}`)
   }
-  if (!includeOperations) {
-    return schemes
-  }
-  const operations = document.operations ? getResolvedRef(document.operations) : undefined
+  const operations = owners.operations ?? (document.operations ? getResolvedRef(document.operations) : undefined)
   for (const [name, reference] of Object.entries(operations ?? {})) {
     const operation = getResolvedRef(reference)
     if (operation) {
@@ -108,25 +103,36 @@ const getComponentSecuritySchemeName = (
   )?.[0]
 }
 
-const getSecuritySchemeName = (document: AsyncApiDocument, entry: AsyncApiSecurityEntry): string | undefined => {
-  const componentName = getComponentSecuritySchemeName(document, entry)
-  if (componentName !== undefined) {
-    return componentName
-  }
-  const resolved = getResolvedRef(entry)
-  return Object.entries(getAsyncApiSecuritySchemes(document)).find(([, scheme]) => scheme === resolved)?.[0]
+/** Use declaration locations rather than object identity: traits can share the same object. */
+const getInlineSecuritySchemeName = (
+  document: AsyncApiDocument,
+  scheme: AsyncApiSecuritySchemeObject,
+  location: string,
+  index: number,
+): string => {
+  const components = document.components ? getResolvedRef(document.components) : undefined
+  const availableName = (name: string): string =>
+    Object.hasOwn(components?.securitySchemes ?? {}, name) ? availableName(`${name} (inline)`) : name
+  return availableName(`${location} · ${scheme.type} ${index + 1}`)
 }
 
 const securityEntryToRequirement = (
   document: AsyncApiDocument,
   entry: AsyncApiSecurityEntry,
+  index: number,
+  location: string | undefined,
+  schemes: Record<string, AsyncApiSecuritySchemeObject>,
 ): SecurityRequirementObject | undefined => {
-  const schemeName = getSecuritySchemeName(document, entry)
+  const resolved = getResolvedRef(entry)
+  const schemeName =
+    getComponentSecuritySchemeName(document, entry) ??
+    (resolved && 'type' in resolved && location !== undefined
+      ? getInlineSecuritySchemeName(document, resolved, location, index)
+      : Object.entries(schemes).find(([, scheme]) => scheme === resolved)?.[0])
   if (schemeName === undefined) {
     return undefined
   }
 
-  const resolved = getResolvedRef(entry)
   const scopes = resolved != null && 'scopes' in resolved && Array.isArray(resolved.scopes) ? [...resolved.scopes] : []
 
   return { [schemeName]: scopes }
@@ -135,13 +141,15 @@ const securityEntryToRequirement = (
 const collectSecurityRequirements = (
   document: AsyncApiDocument,
   security: AsyncApiSecurityEntry[] | undefined,
+  location: string | undefined,
+  schemes: Record<string, AsyncApiSecuritySchemeObject>,
 ): SecurityRequirementObject[] => {
   if (!security?.length) {
     return []
   }
 
   return security
-    .map((entry) => securityEntryToRequirement(document, entry))
+    .map((entry, index) => securityEntryToRequirement(document, entry, index, location, schemes))
     .filter((requirement): requirement is SecurityRequirementObject => requirement != null)
 }
 
@@ -152,24 +160,41 @@ export const getAsyncApiSecurityRequirements = (
   document: AsyncApiDocument,
   operation?: AsyncApiOperationObject | null,
   server?: AsyncApiServerObject | null,
+  locations: { operationName?: string; serverName?: string } = {},
 ): SecurityRequirementObject[] => {
-  const operationRequirements = collectSecurityRequirements(document, operation?.security)
-  const serverRequirements = collectSecurityRequirements(document, server?.security)
+  // Existing callers can omit locations. Build their fallback registry once, not once per entry.
+  const needsRegistry =
+    (operation?.security?.length && locations.operationName === undefined) ||
+    (server?.security?.length && locations.serverName === undefined)
+  const schemes = needsRegistry ? getAsyncApiSecuritySchemes(document) : {}
+  const operationRequirements = collectSecurityRequirements(
+    document,
+    operation?.security,
+    locations.operationName === undefined ? undefined : `Operation ${locations.operationName}`,
+    schemes,
+  )
+  const serverRequirements = collectSecurityRequirements(
+    document,
+    server?.security,
+    locations.serverName === undefined ? undefined : `Server ${locations.serverName}`,
+    schemes,
+  )
 
-  const combined =
-    operationRequirements.length === 0
-      ? serverRequirements
-      : serverRequirements.length === 0
-        ? operationRequirements
-        : operationRequirements.flatMap((operationRequirement) =>
-            serverRequirements.map((serverRequirement) => {
-              const combined = { ...serverRequirement }
-              for (const [name, scopes] of Object.entries(operationRequirement)) {
-                combined[name] = [...new Set([...(combined[name] ?? []), ...(scopes ?? [])])]
-              }
-              return combined
-            }),
-          )
+  if (operationRequirements.length === 0) {
+    return dedupeRequirements(serverRequirements)
+  }
+  if (serverRequirements.length === 0) {
+    return dedupeRequirements(operationRequirements)
+  }
+  const combined = operationRequirements.flatMap((operationRequirement) =>
+    serverRequirements.map((serverRequirement) => {
+      const combined = { ...serverRequirement }
+      for (const [name, scopes] of Object.entries(operationRequirement)) {
+        combined[name] = [...new Set([...(combined[name] ?? []), ...(scopes ?? [])])]
+      }
+      return combined
+    }),
+  )
 
   return dedupeRequirements(combined)
 }
@@ -187,9 +212,14 @@ export const getAsyncApiDocumentSecurityRequirements = (document: AsyncApiDocume
     return []
   }
 
-  const resolvedServers = Object.values(servers).map((serverRef) => getResolvedRef(serverRef))
+  const resolvedServers = Object.entries(servers).map(([name, serverRef]) => ({
+    name,
+    server: getResolvedRef(serverRef),
+  }))
 
-  const perServerRequirements = resolvedServers.map((server) => getAsyncApiSecurityRequirements(document, null, server))
+  const perServerRequirements = resolvedServers.map(({ name, server }) =>
+    getAsyncApiSecurityRequirements(document, null, server, { serverName: name }),
+  )
 
   const combined = perServerRequirements.flat()
 
@@ -199,7 +229,7 @@ export const getAsyncApiDocumentSecurityRequirements = (document: AsyncApiDocume
   // security failed to resolve to a scheme — that server still requires auth. If no server
   // requires auth at all, we return `[]` and let the selector treat every scheme as optional.
   const someRequireAuth = perServerRequirements.some((requirements) => requirements.length > 0)
-  const someDeclareNoAuth = resolvedServers.some((server) => !server?.security?.length)
+  const someDeclareNoAuth = resolvedServers.some(({ server }) => !server?.security?.length)
   if (someRequireAuth && someDeclareNoAuth) {
     combined.push({})
   }

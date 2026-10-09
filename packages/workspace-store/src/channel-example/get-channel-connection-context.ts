@@ -116,7 +116,7 @@ export const getChannelConnectionContext = (
   })
 
   const securitySchemes = mergeSecurity(
-    getAsyncApiSecuritySchemes(document, false),
+    getAsyncApiSecuritySchemes(document, { operations: {} }),
     options.authentication?.securitySchemes ?? {},
     workspaceStore.auth,
     documentName,
@@ -127,6 +127,7 @@ export const getChannelConnectionContext = (
     channel,
     selectedServer?.server ?? null,
     channelOperations,
+    selectedServer?.name,
   )
 
   const selectedSecurity = getSelectedSecurity(

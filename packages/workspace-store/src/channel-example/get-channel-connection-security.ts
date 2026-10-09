@@ -7,12 +7,14 @@ import type { ChannelOperationSummary } from './get-channel-operations'
 
 /**
  * Connection authentication belongs to the selected server; operation security is documented separately.
+ * Keep the channel arguments for compatibility with existing consumers of this public helper.
  */
 export const getChannelConnectionSecurityRequirements = (
   document: AsyncApiDocument,
   _channel: AsyncApiChannelObject,
   server: AsyncApiServerObject | null,
   _channelOperations: ChannelOperationSummary[],
+  serverName?: string,
 ): SecurityRequirementObject[] => {
-  return getAsyncApiSecurityRequirements(document, null, server)
+  return getAsyncApiSecurityRequirements(document, null, server, { serverName })
 }

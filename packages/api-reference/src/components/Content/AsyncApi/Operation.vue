@@ -117,7 +117,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
     <OperationSecurity
       :document="document"
-      :operation="resolvedOperation" />
+      :operation="resolvedOperation"
+      :operationName="operation.operationName" />
 
     <Message
       v-for="message in messages"
