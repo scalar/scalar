@@ -21,12 +21,13 @@ import { computed } from 'vue'
 import { useLocalization } from '@/features/localization'
 import type { EntryType, FuseData } from '@/features/Search/types'
 
-const { modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } = defineProps<{
-  id: string
-  isSelected: boolean
-  result: FuseResult<FuseData>
-  modelsSectionLabel?: ModelsSectionLabel
-}>()
+const { result, modelsSectionLabel = DEFAULT_MODELS_SECTION_LABEL } =
+  defineProps<{
+    id: string
+    isSelected: boolean
+    result: FuseResult<FuseData>
+    modelsSectionLabel?: ModelsSectionLabel
+  }>()
 const { translate } = useLocalization()
 
 const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
@@ -50,6 +51,15 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
   'model': modelsSectionLabel,
   'webhook': translate('search.entryWebhook'),
 }))
+const showDescriptionMetadata = computed(
+  (): boolean =>
+    result.item.type !== 'webhook' &&
+    Boolean(
+      result.item.action ||
+      ((result.item.method || result.item.path) &&
+        result.item.path !== result.item.title),
+    ),
+)
 </script>
 
 <template>
@@ -77,12 +87,7 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
       <span class="sr-only">,</span>
     </span>
     <template
-      v-if="
-        result.item.type !== 'webhook' &&
-        (result.item.action ||
-          ((result.item.method || result.item.path) &&
-            result.item.path !== result.item.title))
-      "
+      v-if="showDescriptionMetadata"
       #description>
       <span class="inline-flex items-center gap-1">
         <span

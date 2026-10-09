@@ -81,6 +81,15 @@ describe('create-async-api-search-entry', () => {
     ).toStrictEqual(['receive', 'send'])
   })
 
+  it('finds the message title rendered from a referenced trait', () => {
+    const document = createDocument({
+      title: undefined,
+      traits: [{ $ref: '#/components/messageTraits/Invoice', '$ref-value': { title: 'Invoice issued' } }],
+    })
+    expect(search(document, 'Invoice issued')).toStrictEqual(['Invoice issued'])
+    expect(search(document, 'accountCreated')).toStrictEqual(['Invoice issued'])
+  })
+
   it('uses one channel catalog anchor even when two operations reference the message', () => {
     const document = createDocument()
     const channel = traverseAsyncApiDocument('events', document).children?.find(

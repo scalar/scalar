@@ -3,6 +3,7 @@ import type { AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/as
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
+import { pickHeading } from '@/components/Content/AsyncApi/helpers/pick-heading'
 import {
   resolveAsyncApiChannel,
   resolveAsyncApiMessage,
@@ -105,7 +106,7 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
     return {
       type: entry.type,
       id: entry.id,
-      title: entry.title,
+      title: pickHeading(message?.title, entry.title, entry.messageName),
       entry,
       identifiers: message?.name ? [entry.messageName, message.name] : [entry.messageName],
       path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? entry.channelName,
