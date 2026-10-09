@@ -73,6 +73,50 @@ describe('getResponseCookieActions', () => {
     ])
   })
 
+  it('adds a cookie with positive Max-Age even when Expires is in the past', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: ['session=new; Max-Age=3600; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/'],
+      documentCookies: [],
+      requestUrl: 'https://example.com/api',
+      now: 1_000_000,
+    })
+
+    expect(actions).toStrictEqual([
+      {
+        type: 'upsert',
+        cookie: { name: 'session', value: 'new', domain: 'example.com', path: '/' },
+      },
+    ])
+  })
+
+  it('updates a cookie with positive Max-Age even when Expires is in the past', () => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: ['session=new; Max-Age=3600; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/'],
+      documentCookies: [{ name: 'session', value: 'old', domain: 'example.com', path: '/' }],
+      requestUrl: 'https://example.com/api',
+      now: 1_000_000,
+    })
+
+    expect(actions).toStrictEqual([
+      {
+        type: 'upsert',
+        cookie: { name: 'session', value: 'new', domain: 'example.com', path: '/' },
+        index: 0,
+      },
+    ])
+  })
+
+  it.each([0, -1])('deletes a cookie with Max-Age=%s even when Expires is in the future', (maxAge) => {
+    const actions = getResponseCookieActions({
+      cookieHeaderKeys: [`session=new; Max-Age=${maxAge}; Expires=Tue, 19 Jan 2038 03:14:07 GMT; Path=/`],
+      documentCookies: [{ name: 'session', value: 'old', domain: 'example.com', path: '/' }],
+      requestUrl: 'https://example.com/api',
+      now: 1_000_000,
+    })
+
+    expect(actions).toStrictEqual([{ type: 'delete', cookieName: 'session', index: 0 }])
+  })
+
   it('deletes a cookie when the server expires it via Max-Age', () => {
     const documentCookies: XScalarCookie[] = [{ name: 'csrftoken', value: 'abc', domain: 'example.com', path: '/' }]
 
