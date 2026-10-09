@@ -26,6 +26,4 @@ You can also set `theme` to:
 - the path to a `.css` file in your project, like `"./theme.css"`
 - the slug of one of your team's custom themes
 
-Unlike the API Reference, Docs has no `none` theme. If `theme` is not a built-in theme, a `.css` file, or one of your team's themes, publishing fails with "Could not fetch the custom theme". `scalar project preview` falls back to the default theme with a warning, but preview deployments fail like a publish.
-
 Your documentation site and your API references share the same theme system. To see what each theme looks like, and to customize colors, fonts, and layouts with CSS variables, see the [Themes reference](../../../themes.md).
