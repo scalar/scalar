@@ -95,7 +95,14 @@ const dereferenceSiblingRef = (node: UnknownObject): UnknownObject => {
   return { ...value, ...rest }
 }
 
-const anchorCaches = new WeakMap<Unwrap, WeakMap<object, Map<string, UnknownObject>>>()
+let anchorCaches = new WeakMap<Unwrap, WeakMap<object, Map<string, UnknownObject>>>()
+
+/** Clear cached resource views after a document is edited through a magic proxy. */
+export const clearDynamicAnchorCaches = (): void => {
+  // Both raw and store-unwrapped views can depend on an edited descendant. Dropping the weak cache
+  // avoids retaining or walking those views merely to track every ancestor dependency.
+  anchorCaches = new WeakMap()
+}
 
 /**
  * Collect the `$dynamicAnchor` declarations of a single schema resource, keyed by anchor name.
