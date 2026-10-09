@@ -41,7 +41,12 @@ Adding guides is just as simple. Click **+** in the editor's sidebar and choose 
 
 Just like API Hub Portal this is completely customizable. Change your logo, theme, footer, and versions from the editor's **Settings**, edit the header from the **Header** button in the editor's top bar, and configure everything else in `scalar.config.json`.
 
-<!-- TODO screenshot: the editor's Settings → Appearance with a theme selected -->
+<scalar-image
+  src="/docs-settings-appearance.png"
+  src-dark="/docs-settings-appearance-dark.png"
+  alt="Settings → Appearance in the editor, with the site's theme, light/dark mode, and logo settings"
+  size="full">
+</scalar-image>
 
 ### (Optional) Using Git Sync with scalar.config.json
 

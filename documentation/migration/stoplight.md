@@ -62,8 +62,6 @@ Migrating a Stoplight "Git Project" is as simple as enabling Git Sync for Scalar
 
 To use Git Sync, open **Docs** in the [dashboard](https://dashboard.scalar.com/docs) and click **New Project**. Name your project, choose **Import Docs**, and click **Continue**. Pick **GitHub** and click **Connect to GitHub**, then select your organization and repository and click **Connect repository**. (On Bitbucket, pick a workspace and click **Link Repository** next to the repository.)
 
-<!-- TODO screenshot: the Import Docs flow with a repository selected -->
-
 If you keep your docs on a special branch, like `docs` or a version branch like `v3` instead of `main`, change the branch Scalar publishes from in the editor under **Settings → Git Sync**.
 
 New projects are public: once published, anyone with the address can read them. To keep your site private while you get it ready, turn on **Private site** under **Settings → Privacy** before you publish. See [Private Docs](../guides/docs/configuration/private-docs.md).
@@ -126,7 +124,12 @@ Once the project is hooked up to Scalar, the next step is to set up the Scalar c
 
 Automatic deployment is the **Publish on merge** toggle under **Auto-publish** in the editor's **Settings → Git Sync**. It publishes your site whenever changes land on your tracked branch, and it is on by default. The **Tracked branch** is set on the same page.
 
-<!-- TODO screenshot: Settings → Git Sync -->
+<scalar-image
+  src="/docs-settings-git-sync.png"
+  src-dark="/docs-settings-git-sync-dark.png"
+  alt="Settings → Git Sync in the editor, showing the connected GitHub repository, the tracked branch, and the auto-publish toggles"
+  size="full">
+</scalar-image>
 
 The Stoplight sidebar content can be found in `toc.json`, and converted in your favorite text editor.
 
