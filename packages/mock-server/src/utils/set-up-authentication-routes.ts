@@ -96,10 +96,12 @@ export function setUpAuthenticationRoutes(app: Hono, schema?: OpenAPI.Document) 
 
         // Add route for OpenID Connect configuration
         app.get(configPath, (c) => {
+          // Discovery URLs must stay on the HTTP mock origin, even for WebSocket APIs.
+          const origin = new URL(c.req.url).origin
           return c.json({
-            issuer: 'https://example.com',
-            authorization_endpoint: '/oauth/authorize',
-            token_endpoint: '/oauth/token',
+            issuer: origin,
+            authorization_endpoint: `${origin}/oauth/authorize`,
+            token_endpoint: `${origin}/oauth/token`,
             response_types_supported: ['code', 'token', 'id_token'],
             subject_types_supported: ['public'],
             id_token_signing_alg_values_supported: ['RS256'],
