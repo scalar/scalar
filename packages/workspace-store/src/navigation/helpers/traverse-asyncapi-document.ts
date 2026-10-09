@@ -2,6 +2,7 @@ import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
+import { resolveOperationWithTraits } from '@/channel-example/resolve-operation-with-traits'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -563,7 +564,7 @@ const collectChannelBuckets = (document: AsyncApiDocument): Map<string, ChannelB
       continue
     }
 
-    const operation = getResolvedRef(operationNode, mergeSiblingReferences)
+    const operation = resolveOperationWithTraits(getResolvedRef(operationNode, mergeSiblingReferences))
     const resolved = resolveOperationChannel(document, operation)
     if (!resolved) {
       continue

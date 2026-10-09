@@ -2,6 +2,7 @@ import { array, object, optional, string } from '@scalar/validation'
 
 import { asyncApiOperationBindingsObject } from './bindings'
 import { asyncApiExternalDocumentationObject } from './external-documentation'
+import { asyncApiOperationReplyObject } from './operation-reply'
 import { recursiveRef } from './reference'
 import { asyncApiSecuritySchemeObject } from './security-scheme'
 import { asyncApiTagsObject } from './tag'
@@ -27,6 +28,7 @@ export const asyncApiOperationTraitObject = recursiveRef(
       tags: optional(asyncApiTagsObject),
       externalDocs: optional(asyncApiExternalDocumentationObject),
       bindings: optional(recursiveRef(asyncApiOperationBindingsObject)),
+      reply: optional(asyncApiOperationReplyObject),
     },
     { typeName: 'AsyncApiOperationTraitObject' },
   ),
