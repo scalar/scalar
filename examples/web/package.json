@@ -17,8 +17,8 @@
   "scripts": {
     "build": "vue-tsc && vite build",
     "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:check": "biome ci --diagnostic-level=error && eslint . --quiet",
+    "lint:fix": "biome check --write && eslint . --fix",
     "preview": "vite preview",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },
