@@ -348,6 +348,9 @@ export const fr = {
     'body': 'Corps',
   },
   'requestParams': {
+    'addParameter': 'Ajouter un paramètre',
+    'searchParameters': 'Rechercher des paramètres',
+    'noParametersFound': 'Aucun paramètre correspondant',
     'clearAll': 'Tout effacer : {title}',
     'clear': 'Effacer',
     'clearOptionalParameters': 'Effacer les paramètres facultatifs',

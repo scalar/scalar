@@ -12,6 +12,7 @@ import {
 } from '@scalar/workspace-store/helpers/querystring-parameter'
 import {
   deSerializeParameter,
+  filterDisabledProperties,
   getExampleFromSchema,
   isParamDisabled,
   serializeContentValue,
@@ -98,6 +99,18 @@ const getParameterValue = (param: ParameterObject, example: string | undefined, 
   // Try to get value from example first
   const selected = getParameterExample(param, example)
   const exampleValue = selected.example
+
+  const propertyStates =
+    param.in === 'query' && !selected.serialized && !selected.mediaSerialized
+      ? exampleValue?.['x-scalar-disabled-properties']
+      : undefined
+  if (propertyStates) {
+    return filterDisabledProperties(
+      deSerializeParameter(selected.value, param),
+      propertyStates,
+      isParamDisabled(param, exampleValue, defaultDisabled),
+    )
+  }
 
   // If the parameter is disabled, return undefined so we can skip it.
   if (isParamDisabled(param, exampleValue, defaultDisabled)) {

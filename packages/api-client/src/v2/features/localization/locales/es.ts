@@ -347,6 +347,9 @@ export const es = {
     'body': 'Cuerpo',
   },
   'requestParams': {
+    'addParameter': 'Añadir parámetro',
+    'searchParameters': 'Buscar parámetros',
+    'noParametersFound': 'No hay parámetros coincidentes',
     'clearAll': 'Borrar todo: {title}',
     'clear': 'Borrar',
     'clearOptionalParameters': 'Borrar parámetros opcionales',

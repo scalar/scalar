@@ -34,6 +34,7 @@ export {
   coerceUntypedValue,
   deSerializeParameter,
   deSerializeSchemaValue,
+  filterDisabledProperties,
   filterGlobalCookie,
   getEnvironmentVariables,
   getExample,

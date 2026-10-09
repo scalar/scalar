@@ -193,6 +193,13 @@ export type OperationEvents = {
       name: string
       value: string | Record<string, unknown>
       isDisabled: boolean
+      /** Update one expanded property without changing the parent parameter's enabled state. */
+      propertyState?: {
+        path: string[]
+        /** Omitted when removing a property and its saved override. */
+        isDisabled?: boolean
+        previousPath?: string[]
+      }
     }
     /**
      * Identifies the target operation and example variant for the updated parameter.

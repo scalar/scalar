@@ -336,6 +336,9 @@ export type ApiClientTranslations = {
     body: string
   }
   requestParams: {
+    addParameter: string
+    searchParameters: string
+    noParametersFound: string
     clearAll: string
     clear: string
     clearOptionalParameters: string

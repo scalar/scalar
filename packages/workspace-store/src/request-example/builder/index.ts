@@ -18,6 +18,7 @@ export {
   resolveExecutableRequestUrl,
 } from './build-request'
 export { deSerializeParameter, deSerializeSchemaValue } from './header/de-serialize-parameter'
+export { filterDisabledProperties } from './header/filter-disabled-properties'
 export { filterGlobalCookie } from './header/filter-global-cookies'
 export { isParamDisabled } from './header/is-param-disabled'
 export {

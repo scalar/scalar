@@ -350,6 +350,9 @@ export const de = {
     'body': 'Inhalt',
   },
   'requestParams': {
+    'addParameter': 'Parameter hinzufügen',
+    'searchParameters': 'Parameter suchen',
+    'noParametersFound': 'Keine passenden Parameter',
     'clearAll': 'Alle {title} leeren',
     'clear': 'Leeren',
     'clearOptionalParameters': 'Optionale Parameter leeren',

@@ -344,6 +344,9 @@ export const en = {
     body: 'Body',
   },
   requestParams: {
+    addParameter: 'Add parameter',
+    searchParameters: 'Search parameters',
+    noParametersFound: 'No matching parameters',
     clearAll: 'Clear All {title}',
     clear: 'Clear',
     clearOptionalParameters: 'Clear optional parameters',

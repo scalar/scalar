@@ -153,24 +153,14 @@ const getHiddenValuePaths = (parameter: {
 }): string[][] =>
   deletedExpandedParameterPaths.value[getExpandedParameterKey(parameter)] ?? []
 
-const getRenamedValuePaths = (parameter: {
-  in: string
-  name: string
-}): { from: string[]; to: string[] }[] =>
-  renamedExpandedParameterPaths.value[getExpandedParameterKey(parameter)] ?? []
-
-const pathsEqual = (a: string[], b: string[]): boolean =>
-  a.length === b.length && a.every((segment, index) => segment === b[index])
-
-/**
- * Hides the schema path of an expanded row so it does not reappear as an empty suggestion. Used
- * both when a row is deleted and when its key is renamed (the old key should not pop back up).
- */
+/** Multi-field objects remain available in the picker; single-field objects retain ordinary deletion. */
 const hideExpandedRowPath = (row: TableRow): void => {
-  if (!row.originalParameter || !row.sourceParameterValuePath) {
-    return
-  }
-
+  if (!row.originalParameter || !row.sourceParameterValuePath) return
+  const siblings =
+    sections.value.query?.filter(
+      (entry) => entry.originalParameter === row.originalParameter,
+    ) ?? []
+  if (siblings.length > 1) return
   const key = getExpandedParameterKey(row.originalParameter)
   deletedExpandedParameterPaths.value = {
     ...deletedExpandedParameterPaths.value,
@@ -180,6 +170,15 @@ const hideExpandedRowPath = (row: TableRow): void => {
     ],
   }
 }
+
+const getRenamedValuePaths = (parameter: {
+  in: string
+  name: string
+}): { from: string[]; to: string[] }[] =>
+  renamedExpandedParameterPaths.value[getExpandedParameterKey(parameter)] ?? []
+
+const pathsEqual = (a: string[], b: string[]): boolean =>
+  a.length === b.length && a.every((segment, index) => segment === b[index])
 
 /**
  * Records that an expanded row was renamed from its current value path to the typed one, so the
@@ -765,6 +764,7 @@ const filterLabels = computed(() => ({
       <RequestParams
         v-show="isSectionVisible('Query')"
         :id="filterIds.Query"
+        :key="JSON.stringify([documentSlug, method, path, exampleKey])"
         :description="
           hasQuerystringParameter
             ? translate('apiClient.requestBlock.queryStringDescription')
@@ -774,6 +774,7 @@ const filterLabels = computed(() => ({
         :eventBus
         :exampleKey
         :rows="sections.query ?? []"
+        selectExpandedParameters
         :showAddRowPlaceholder="!hasQuerystringParameter"
         :title="
           hasQuerystringParameter

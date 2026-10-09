@@ -45,4 +45,6 @@ export type ExampleObject = {
    * example is "on" (checkbox checked) and will be sent.
    */
   'x-disabled'?: boolean
+  /** Per-property disabled overrides keyed by JSON-encoded value paths. */
+  'x-scalar-disabled-properties'?: Record<string, boolean>
 }

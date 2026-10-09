@@ -241,12 +241,21 @@ describe('use-document-watcher', () => {
 
   it('stops polling when the component unmounts', async () => {
     vi.useFakeTimers()
-    const store = createWorkspaceStore({ fetch: () => Promise.resolve(Response.json(createDocument('My API'))) })
-    await store.addDocument({ name: 'default', url: 'https://example.com/openapi.json' })
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: createDocument('My API'),
+    })
     const document = store.workspace.documents['default'] as OpenApiDocument | undefined
     assert(document)
+    document['x-scalar-original-source-url'] = 'https://example.com/openapi.json'
     document['x-scalar-watch-mode'] = true
-    const rebase = vi.spyOn(store, 'rebaseDocument')
+    // Keep response-stream scheduling out of the polling timer assertions.
+    const rebase = vi.spyOn(store, 'rebaseDocument').mockResolvedValue({
+      ok: false,
+      type: 'NO_CHANGES_DETECTED',
+      message: 'No changes',
+    })
     const initialTimeout = 200
     mountWatcher({ documentName: ref('default'), store, initialTimeout })
     await vi.advanceTimersByTimeAsync(initialTimeout)

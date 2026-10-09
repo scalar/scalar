@@ -28,6 +28,96 @@ const createDocument = (initial?: Partial<OpenApiDocument>): OpenApiDocument => 
 }
 
 describe('upsertOperationParameter', () => {
+  it.each(['deepObject', 'form'] as const)(
+    'keeps %s property toggles independent and preserves their values',
+    (style) => {
+      const parameter: ParameterWithSchemaObject = {
+        name: 'filters',
+        in: 'query',
+        style,
+        explode: true,
+        schema: { type: 'object', properties: { email: { type: 'string' }, city: { type: 'string' } } },
+        examples: {
+          default: { value: { email: 'alice', city: 'Paris' }, 'x-disabled': true },
+          other: { value: { email: 'other' }, 'x-disabled': true },
+        },
+      }
+      const meta = { method: 'get', path: '/licenses', exampleKey: 'default' } as const
+      const value = { email: 'alice', city: 'Paris' }
+      const update = (isDisabled: boolean): void => {
+        upsertOperationParameter(null, {
+          type: 'query',
+          originalParameter: parameter,
+          meta,
+          payload: { name: 'filters', value, isDisabled, propertyState: { path: ['city'], isDisabled } },
+        })
+      }
+      update(false)
+      expect([...buildRequestParameters([parameter]).urlParams]).toStrictEqual([
+        [style === 'deepObject' ? 'filters[city]' : 'city', 'Paris'],
+      ])
+      expect([...buildRequestParameters([parameter], 'other').urlParams]).toStrictEqual([])
+      update(true)
+      expect([...buildRequestParameters([parameter]).urlParams]).toStrictEqual([])
+      expect(getResolvedRef(parameter.examples?.default)?.value).toStrictEqual(value)
+      update(false)
+      expect([...buildRequestParameters([parameter]).urlParams]).toStrictEqual([
+        [style === 'deepObject' ? 'filters[city]' : 'city', 'Paris'],
+      ])
+    },
+  )
+
+  it('freezes untouched fields at their initial state and moves or removes overrides with a field', () => {
+    const parameter: ParameterWithSchemaObject = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: { type: 'object', properties: { email: { type: 'string' }, user: { type: 'object' } } },
+    }
+    const meta = { method: 'get', path: '/licenses', exampleKey: 'default' } as const
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta,
+      payload: {
+        name: 'filters',
+        value: { user: { city: 'Paris' }, email: 'saved' },
+        isDisabled: false,
+        propertyState: { path: ['user', 'city'], isDisabled: false },
+      },
+    })
+    expect([...buildRequestParameters([parameter]).urlParams]).toStrictEqual([['filters[user][city]', 'Paris']])
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta,
+      payload: {
+        name: 'filters',
+        value: { user: { town: 'Paris' }, email: 'saved' },
+        isDisabled: false,
+        propertyState: { path: ['user', 'town'], previousPath: ['user', 'city'], isDisabled: false },
+      },
+    })
+    expect(getResolvedRef(parameter.examples?.default)?.['x-scalar-disabled-properties']).toStrictEqual({
+      '[]': true,
+      '["user","town"]': false,
+    })
+    expect([...buildRequestParameters([parameter]).urlParams]).toStrictEqual([['filters[user][town]', 'Paris']])
+    upsertOperationParameter(null, {
+      type: 'query',
+      originalParameter: parameter,
+      meta,
+      payload: {
+        name: 'filters',
+        value: { email: 'saved' },
+        isDisabled: false,
+        propertyState: { path: ['user', 'town'] },
+      },
+    })
+    expect(getResolvedRef(parameter.examples?.default)?.['x-scalar-disabled-properties']).toStrictEqual({ '[]': true })
+    expect([...buildRequestParameters([parameter]).urlParams]).toStrictEqual([])
+  })
   it.each([
     { authored: { dataValue: 'old', externalValue: 'old.json' }, expected: { value: 'new', 'x-disabled': false } },
     {
