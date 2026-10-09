@@ -113,16 +113,10 @@ defineExpose({
       manual
       :selectedIndex="tabIndex"
       @change="onTabSelect">
-      <!-- The button sits outside the labelling span so it does not leak into the tab list's name -->
-      <div class="client-libraries-heading">
-        <span
-          :id="headingId"
-          class="client-libraries-heading-label">
-          {{ translate('clientLibraries.heading') }}
-        </span>
-
-        <!-- Local development only: hand the document to the dashboard to generate an SDK -->
-        <GenerateSdkButton variant="card" />
+      <div
+        :id="headingId"
+        class="client-libraries-heading">
+        {{ translate('clientLibraries.heading') }}
       </div>
 
       <!--
@@ -167,73 +161,81 @@ defineExpose({
           :selectedClient="activeClient" />
       </div>
 
-      <!-- Content -->
-      <TabPanels>
-        <template v-if="tabIndex >= 0">
-          <TabPanel
-            v-for="client in featuredClients"
-            :key="client.id"
-            class="selected-client card-footer -outline-offset-2">
-            {{ client.title }}
-          </TabPanel>
-        </template>
-        <div
-          v-else
-          :id="morePanel"
-          :aria-labelledby="headingId"
-          class="selected-client card-footer -outline-offset-2"
-          role="tabpanel"
-          tabindex="0">
-          {{ selectedClientOption?.title }}
-        </div>
-      </TabPanels>
+      <!-- Content: the selected client, with Generate SDK beside it rather than inside the tab panel -->
+      <div class="selected-client-row card-footer">
+        <TabPanels class="selected-client-panels">
+          <template v-if="tabIndex >= 0">
+            <TabPanel
+              v-for="client in featuredClients"
+              :key="client.id"
+              class="selected-client -outline-offset-2">
+              {{ client.title }}
+            </TabPanel>
+          </template>
+          <div
+            v-else
+            :id="morePanel"
+            :aria-labelledby="headingId"
+            class="selected-client -outline-offset-2"
+            role="tabpanel"
+            tabindex="0">
+            {{ selectedClientOption?.title }}
+          </div>
+        </TabPanels>
+
+        <!-- Local development only: opens the Explore Scalar dialog to generate an SDK -->
+        <GenerateSdkButton
+          class="selected-client-action"
+          variant="card" />
+      </div>
     </TabGroup>
   </div>
 </template>
 <style scoped>
-.selected-client {
-  color: var(--scalar-color-1);
-  font-size: var(--scalar-small);
-  font-family: var(--scalar-font-code);
-  padding: 9px 12px;
-  border-top: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* The card's footer box; Generate SDK sits on its end edge when the reference runs locally */
+.selected-client-row {
+  display: flex;
+  align-items: center;
   background: var(--scalar-background-1);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
   min-height: fit-content;
 }
-/*
- * A 32px row like "Get a token" in the authentication card, so the Generate SDK button
- * (24px tall, same as "Authorize via OAuth2") sits 4px in from the top, bottom and end edges.
- * Logical padding keeps the label inset on the correct side in right-to-left locales, and
- * nowrap keeps long translations on one line so the button never outgrows the row.
- */
+/* The client name gives way to the button on narrow cards and truncates instead */
+.selected-client-panels {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.selected-client {
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-small);
+  font-family: var(--scalar-font-code);
+  padding: 9px 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Keeps the inset focus ring inside the card's rounded corners */
+  border-bottom-left-radius: var(--scalar-radius-xl);
+  border-bottom-right-radius: var(--scalar-radius-xl);
+}
+.selected-client-action {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-inline-end: 5px;
+}
 .client-libraries-heading {
   font-size: var(--scalar-small);
   font-weight: var(--scalar-font-medium);
   color: var(--scalar-color-1);
-  padding-block: 0;
-  padding-inline: 12px 4px;
+  padding: 9px 12px;
   background-color: var(--scalar-background-2);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  height: 32px;
-  white-space: nowrap;
+  max-height: 32px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top-left-radius: var(--scalar-radius-xl);
   border-top-right-radius: var(--scalar-radius-xl);
-}
-/* The label gives way to the button on narrow cards */
-.client-libraries-heading-label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .client-libraries-list {
   container: client-libraries-list / inline-size;

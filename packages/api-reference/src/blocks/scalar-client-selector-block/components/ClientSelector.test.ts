@@ -292,7 +292,7 @@ describe('ClientLibraries', () => {
     const findGenerateSdkButton = (wrapper: ReturnType<typeof mount>) =>
       wrapper.findAll('button').find((button) => button.text() === 'Generate SDK')
 
-    it('offers Generate SDK beside the heading without renaming the tab list', async () => {
+    it('offers Generate SDK beside the selected client, outside the tabs and their panel', async () => {
       const context = createContext(true)
       const wrapper = mountWithContext(context)
       await flushPromises()
@@ -301,7 +301,10 @@ describe('ClientLibraries', () => {
       expect(button?.exists()).toBe(true)
 
       const tablist = wrapper.get('[role="tablist"]')
+      const panel = wrapper.get('[role="tabpanel"]')
       expect(tablist.element.contains(button?.element ?? null)).toBe(false)
+      expect(panel.element.contains(button?.element ?? null)).toBe(false)
+      expect(panel.text()).toBe('Shell cURL')
       expect(wrapper.get(`#${tablist.attributes('aria-labelledby')}`).text()).toBe('Client Libraries')
 
       await button?.trigger('click')
