@@ -1127,6 +1127,51 @@
               ]
             }
           },
+          "products": {
+            "type": "group",
+            "title": "Products",
+            "icon": "phosphor/regular/compass",
+            "mode": "folder",
+            "open": true,
+            "children": {
+              "docs": {
+                "type": "link",
+                "title": "Docs",
+                "icon": "phosphor/regular/book",
+                "url": "/products/docs"
+              },
+              "agent": {
+                "type": "link",
+                "title": "MCP & Agent",
+                "icon": "phosphor/regular/sparkle",
+                "url": "/products/agent"
+              },
+              "sdk-generator": {
+                "type": "link",
+                "title": "SDK Generator",
+                "icon": "phosphor/regular/package",
+                "url": "/products/sdk-generator"
+              },
+              "registry": {
+                "type": "link",
+                "title": "Registry",
+                "icon": "phosphor/regular/brackets-curly",
+                "url": "/products/registry"
+              },
+              "api-references": {
+                "type": "link",
+                "title": "API References",
+                "icon": "phosphor/regular/notebook",
+                "url": "/products/api-references"
+              },
+              "api-client": {
+                "type": "link",
+                "title": "API Client",
+                "icon": "phosphor/regular/paper-plane-tilt",
+                "url": "/products/api-client"
+              }
+            }
+          },
           "/customers": {
             "title": "Customers",
             "icon": "phosphor/regular/user-focus",
@@ -1607,65 +1652,6 @@
             "description": "Scalar joins the Open Source Pledge, committing at least $2,000 per developer per year to open source maintainers.",
             "filepath": "documentation/blog/2024-09-01-oss-pledge.md",
             "showInSidebar": false
-          },
-          "/products": {
-            "type": "group",
-            "title": "Products",
-            "icon": "phosphor/regular/compass",
-            "open": true,
-            "showInSidebar": true,
-            "hidden": false,
-            "mode": "folder",
-            "children": {
-              "docs": {
-                "type": "link",
-                "url": "/products/docs",
-                "title": "Docs",
-                "icon": "phosphor/regular/book",
-                "showInSidebar": true,
-                "hidden": false
-              },
-              "agent": {
-                "type": "link",
-                "url": "/products/agent",
-                "title": "MCP & Agent",
-                "icon": "phosphor/regular/sparkle",
-                "showInSidebar": true,
-                "hidden": false
-              },
-              "sdk-generator": {
-                "type": "link",
-                "url": "/products/sdk-generator",
-                "title": "SDK Generator",
-                "icon": "phosphor/regular/package",
-                "showInSidebar": true,
-                "hidden": false
-              },
-              "registry": {
-                "type": "link",
-                "url": "/products/registry",
-                "title": "Registry",
-                "icon": "phosphor/regular/brackets-curly",
-                "showInSidebar": true,
-                "hidden": false
-              },
-              "api-references": {
-                "type": "link",
-                "url": "/products/api-references",
-                "title": "API References",
-                "icon": "phosphor/regular/notebook",
-                "showInSidebar": true,
-                "hidden": false
-              },
-              "api-client": {
-                "type": "link",
-                "url": "/products/api-client",
-                "title": "API Client",
-                "icon": "phosphor/regular/paper-plane-tilt",
-                "showInSidebar": true,
-                "hidden": false
-              }
-            }
           }
         }
       },
