@@ -391,19 +391,19 @@ describe('Channel', () => {
       ).toStrictEqual(['eventA'])
       expect(wrapper.findAllComponents(Message).map((message) => message.props('message').id)).toStrictEqual([
         'catalog/channel/events/operation/listen/message/eventa',
-        'catalog/channel/events/message/eventa',
         messageId,
       ])
-      expect(wrapper.text()).toContain('Channel messages')
+      expect(wrapper.text()).toContain('Other Channel Messages')
       expect(wrapper.text()).not.toContain('Channel-only details')
       await wrapper.setProps({ expandedItems: { [messageId]: true } })
       expect(wrapper.text()).toContain('Channel-only details')
-      expect(wrapper.findAll('h1,h2,h3').map((heading) => heading.text())).toStrictEqual([
+      expect(wrapper.findAll('h1,h2,h3,h4,h5,h6').map((heading) => heading.text())).toStrictEqual([
         '/events',
+        'Operations',
         'Listen',
+        'Messages',
         'Event A',
-        'Channel messages',
-        'Event A',
+        'Other Channel Messages',
         'Event B',
       ])
     },
@@ -433,7 +433,11 @@ describe('Channel', () => {
       'signup',
     ])
     expect(wrapper.findComponent({ name: 'Operation' }).exists()).toBe(false)
-    expect(wrapper.text()).toContain('Channel messages')
+    expect(wrapper.findAll('h1,h2,h3').map((heading) => heading.text())).toStrictEqual([
+      'user/signedup',
+      'Messages',
+      'Signup',
+    ])
   })
 
   it('omits the channel catalog heading when there are no visible catalog messages', () => {
@@ -446,6 +450,6 @@ describe('Channel', () => {
         eventBus: null,
       },
     })
-    expect(wrapper.text()).not.toContain('Channel messages')
+    expect(wrapper.text()).not.toContain('Other Channel Messages')
   })
 })

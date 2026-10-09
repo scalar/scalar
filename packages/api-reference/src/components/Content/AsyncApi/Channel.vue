@@ -19,7 +19,10 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { useDocumentOutline } from '@/features/document-outline'
+import {
+  useDocumentOutline,
+  type HeadingLevel,
+} from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
@@ -122,6 +125,7 @@ const operations = computed(() =>
 )
 
 const { level: headingLevel } = useDocumentOutline('channel')
+const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
 
 <template>
@@ -164,6 +168,13 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :specificationExtension="specificationExtension">
       <template #title>Parameters</template>
     </ParameterList>
+    <SectionHeaderTag
+      v-if="operations.length"
+      class="text-c-1 mt-8 mb-3 block! text-lg leading-[1.45] font-medium"
+      :level="operationsHeadingLevel"
+      rule>
+      Operations
+    </SectionHeaderTag>
     <Operation
       v-for="operation in operations"
       :key="operation.id"
@@ -227,6 +238,13 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :specificationExtension="specificationExtension">
           <template #title>Parameters</template>
         </ParameterList>
+        <SectionHeaderTag
+          v-if="operations.length"
+          class="text-c-1 mt-8 mb-3 block! text-lg leading-[1.45] font-medium"
+          :level="operationsHeadingLevel"
+          rule>
+          Operations
+        </SectionHeaderTag>
         <Operation
           v-for="operation in operations"
           :key="operation.id"
