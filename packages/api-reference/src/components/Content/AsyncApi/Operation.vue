@@ -11,7 +11,10 @@ import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
-import { useDocumentOutline } from '@/features/document-outline'
+import {
+  useDocumentOutline,
+  type HeadingLevel,
+} from '@/features/document-outline'
 import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import { useIntersection } from '@/hooks/use-intersection'
 
@@ -87,7 +90,8 @@ const requiredSecurity = computed(() =>
   getAsyncApiRequiredSecurity(document, resolvedOperation.value),
 )
 
-const { level: headingLevel } = useDocumentOutline('operation')
+const { level: headingLevel } = useDocumentOutline('asyncApiOperation')
+const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
 
 <template>
@@ -123,6 +127,13 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
     <OperationScopes :requiredSecurity="requiredSecurity" />
 
+    <SectionHeaderTag
+      v-if="messages.length"
+      class="text-c-1 mt-6 mb-3 block! text-lg leading-[1.45] font-medium"
+      :level="messagesHeadingLevel"
+      rule>
+      Messages
+    </SectionHeaderTag>
     <Message
       v-for="message in messages"
       :key="message.id"
@@ -139,7 +150,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
 <style scoped>
 .operation {
-  margin-top: 32px;
+  margin-top: 24px;
   scroll-margin-top: var(--refs-viewport-offset);
 }
 

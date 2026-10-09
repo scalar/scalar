@@ -12,6 +12,7 @@ export type OutlineRole =
   | 'tag'
   | 'channel'
   | 'channelMessages'
+  | 'asyncApiOperation'
   | 'modelGroup'
   | 'operation'
   | 'model'
@@ -35,9 +36,10 @@ const OUTLINE: Record<OutlineRole, number> = {
   modelGroup: 2,
   operation: 3,
   channelMessages: 3,
+  asyncApiOperation: 4,
   model: 3,
-  channelMessage: 3,
-  message: 4,
+  channelMessage: 4,
+  message: 6,
   /** A titled group inside an operation: Body, Responses, Query Parameters */
   operationSection: 4,
 }

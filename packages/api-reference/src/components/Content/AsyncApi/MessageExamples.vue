@@ -123,7 +123,7 @@ const showFooter = computed(
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="showFooter"
-      class="text-c-2 flex flex-wrap items-center gap-2">
+      class="text-c-2 flex flex-col items-start gap-1 px-3 py-2">
       <ExamplePicker
         v-if="hasMultipleExamples"
         v-model="selectedKey"
