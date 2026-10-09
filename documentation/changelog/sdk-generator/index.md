@@ -6,7 +6,7 @@
   instead.
 -->
 
-Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in a `@scalar/sdk-generator` release.
+Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
 ## 0.36.4 (2026-10-09)
 
@@ -174,12 +174,11 @@ This release fixes how nullable references handle documentation and defaults, re
 
 ## 0.33.0 (2026-09-15)
 
-### Warn when re-derived placement breaks public API, and add explicit config opt-out
+### Warn when re-derived placement breaks public API
 
-Adding operations can silently move methods to new subresources when SDK structure is derived from the spec. This release warns when public accessors change or disappear, and adds `--no-config` to regenerate from spec alone without persisting placement decisions.
+Adding operations can silently move methods to new subresources when SDK structure is derived from the spec. This release warns when public accessors change or disappear.
 
 - Generated SDKs now warn when re-deriving resource placement renames or removes public methods, helping catch breaking changes before publish
-- Add `--no-config` flag to generate from a local spec without writing or reading a config file, matching the behavior remote documents already had
 - Improved CLI error messages that no longer reference SDK constructor APIs unavailable to command-line users
 - TypeScript SDKs can now type `format: date-time` fields as JavaScript `Date` objects with `targets.typescript.options.dateTimeType: 'Date'`
 - Documents can now declare pagination schemes, response unwrapping, and client settings directly via extensions like `x-scalar-pagination` and `x-scalar-sdk-settings`
@@ -261,7 +260,6 @@ This release advances Go SDK generation with dialect-aware code samples and impr
 - Go header and cookie parameters are now correctly guarded and unwrapped based on the SDK dialect, with proper handling of optional and required fields
 - TypeScript SDKs now correctly serve ES modules for deep imports like core.js and funcs/, fixing dual-build loading issues
 - Speakeasy compatibility profile now automatically applies positional params, property casing, and serverURL aliases when importing gen.yaml
-- SDK configuration gains new write APIs for setting package names, publish registries, and organization details
 
 ## 0.32.7 (2026-09-09)
 
@@ -273,7 +271,6 @@ This release brings substantial performance improvements to SDK generation acros
 - TypeScript generation performance improved by 40%, with byte-identical output maintained across all optimizations.
 - Fixed C# response handling for non-JSON binary content, now returning raw HTTP responses instead of attempting JSON deserialization.
 - Improved JVM (Java and Kotlin) SDK generation with correct handling of query parameters in path segments and nested class references in code samples.
-- The config transform command no longer aborts on broken references inside vendor extensions, allowing preview of configurations for documents that reference external files.
 
 ## 0.32.6 (2026-09-08)
 
@@ -282,7 +279,6 @@ This release brings substantial performance improvements to SDK generation acros
 This release removes the unsupported Terraform target from configuration, improves how publish registries are mapped to language targets, and fixes metadata handling in Ruby SDKs.
 
 - Removed the Terraform target from configuration schema, as no emitter ever shipped for it.
-- Added utilities to map language targets to their publish registries, making it easier to build publishing workflows.
 - Fixed Ruby SDK metadata to correctly strip branch suffixes from repository URLs in generated gemspecs.
 - Improved configuration schema type safety for Python compatibility options.
 
@@ -294,7 +290,6 @@ This release fixes critical issues with generated CLIs and JVM SDKs, and improve
 
 - CLI file uploads now read actual file contents instead of sending path strings, using curl-style syntax like `@file.pdf` or `--document @openapi.json`
 - Generated Java and Kotlin SDKs now compile successfully, fixing conflicts with reserved method names and null handling in builder patterns
-- Mock server contract validation can now measure API compliance violations during smoke tests without enforcing them, via `--validate-audit` flag
 - Package install commands in augmented OpenAPI documents now use standardized templates from the registry catalog for npm and PyPI
 - Fern OpenAPI extensions are now fully supported when importing Fern projects, including audience filtering and custom naming
 
@@ -324,13 +319,12 @@ This release brings support for importing Speakeasy pagination configurations an
 
 ## 0.32.2 (2026-09-04)
 
-### Improved Fern project support and config reading
+### Improved Fern project support
 
-This release adds support for more Fern OpenAPI extensions and introduces new APIs for reading stored generator configurations. Projects using Fern's audience filtering, custom naming conventions, and SDK variables will now generate correctly.
+This release adds support for more Fern OpenAPI extensions. Projects using Fern's audience filtering, custom naming conventions, and SDK variables will now generate correctly.
 
 - Fern projects now respect audience filtering via x-fern-audiences, converting excluded endpoints and properties to the equivalent Scalar configuration.
 - Fern's naming extensions (x-fern-type-name, x-fern-property-name, x-fern-enum) are now read alongside x-scalar-* markers and behave identically.
-- New config reading APIs (readConfig, configTargetPackageName, isRegistryEnabled) make it easier to inspect stored generator configurations.
 - Fern projects declaring both Node and browser TypeScript generators no longer mix packaging — one client now runs in both environments.
 
 ## 0.32.1 (2026-09-03)
@@ -347,11 +341,10 @@ This release improves how generated SDKs handle numeric constraints, cursor-base
 
 ## 0.32.0 (2026-08-29)
 
-### Audit contract violations in smoke tests and Ruby trusted publishing
+### Ruby trusted publishing and mock server fixes
 
-This release introduces an optional audit mode for smoke tests that measures how many requests would violate OpenAPI contract constraints without enforcing them. Ruby SDKs can now publish to RubyGems using trusted publishing (OIDC) instead of long-lived API keys.
+Ruby SDKs can now publish to RubyGems using trusted publishing (OIDC) instead of long-lived API keys, and the mock server handles literal paths and string bodies correctly.
 
-- Smoke tests can now measure contract violations with the new `--validate-audit` flag, reporting constraints like pattern mismatches or minimum values without failing the test run.
 - Ruby SDKs now default to RubyGems trusted publishing (OIDC), eliminating the need to store long-lived credentials in destination repositories.
 - Mock servers now correctly handle literal paths before templated ones, so `/profiles/legacy-search` is answered by its own operation instead of the `/profiles/{profileId}` template.
 - String response bodies from the mock server are now properly encoded as JSON, removing the need for client-side workarounds.
@@ -369,12 +362,10 @@ This release improves publishing for generated CLIs and fixes several issues acr
 
 ## 0.31.0 (2026-08-28)
 
-### Performance improvements and Speakeasy compatibility support
+### Speakeasy compatibility support and CLI package naming
 
-This release brings faster SDK generation, better control over code samples, and improved compatibility with Speakeasy projects. Several compilation issues across targets have been fixed, and CLI package naming now uses more readable kebab-case by default.
+This release improves compatibility with Speakeasy projects and honors more naming overrides. CLI package naming now uses more readable kebab-case by default.
 
-- Generate code samples for specific languages with `--sample-languages` to speed up single-target builds (up to 50% faster on large documents)
-- New `generateOperationCodeSamples` API returns SDK snippets without loading or augmenting the OpenAPI document
 - Imported Speakeasy projects now automatically read `x-speakeasy-name-override` and `x-speakeasy-globals`, and emit compatibility modules by default
 - CLI packages now use kebab-case names (e.g. `scalar-galaxy-cli` instead of `scalargalaxy-cli`) with explicit override support via `targets.cli.packageName`
 - Honor `x-stainless-naming` property name overrides across TypeScript, Go, Ruby, C#, PHP, Rust, Java, and Kotlin targets
@@ -422,7 +413,6 @@ Smoke tests verify API integration by calling every operation. Previously, they 
 This release extends vendor configuration support to AsyncAPI documents and improves how configured examples appear across all generated SDKs.
 
 - Vendor configurations (Fern, Speakeasy) now derive their resource tree from AsyncAPI documents, enabling full WebSocket client generation when paired with third-party config files.
-- The `--name` and `--package` CLI flags now correctly override the SDK name and package across all targets, fixing cases where generated SDKs were named after generic API titles.
 - README examples now respect the `readme.exampleRequests` configuration across all targets, opening with the operation you specify rather than the first one in alphabetical order.
 - Generated Python, Go, C#, and JVM samples now render configured parameter values exactly as written and print the response property you nominate.
 - Rust SDKs gain properly named sub-clients and request builders (no more model name collisions), box recursive union variants so they compile, and escape crate names that start with digits.
@@ -441,12 +431,10 @@ This release adds formatting for generated Kotlin and Java code samples, brings 
 
 ## 0.27.2 (2026-08-20)
 
-### Code generation runs in the browser
+### WebAssembly rustfmt, least-privilege CI, and security policies
 
-The SDK generator can now run in browser environments. Code sample builders and the document loader no longer require Node, making it possible to generate SDKs and code samples directly in the browser.
+Rust SDK generation no longer needs a Rust toolchain, generated CI workflows ask for only the permissions they use, and every SDK ships a security policy.
 
-- Code sample builders are now browser-compatible and free of Node dependencies.
-- The OpenAPI document loader can run in the browser through a new /browser entry point.
 - Rust SDK generation no longer requires a Rust toolchain installed, using WebAssembly-compiled rustfmt instead.
 - Generated CI workflows now declare least-privilege GitHub token permissions.
 - Every target now ships a SECURITY.md file that clearly separates SDK and API vulnerability reporting.
@@ -459,7 +447,6 @@ This release improves SDK documentation across multiple targets and makes code s
 
 - JVM SDKs now ship with real API documentation in their javadoc jars, replacing the previously empty artifacts published to Maven Central.
 - README files for Java and Kotlin SDKs now include pasteable dependency coordinates for Gradle and Maven, rather than only build-from-source instructions.
-- Code sample builders are now published behind dedicated export entries, so generating samples no longer pulls in entire emitter bundles.
 - Generated resources are now documented with the OpenAPI tag descriptions their operations carry, lighting up service class documentation that was previously missing.
 - Per-operation request timeouts are now respected on JVM, TypeScript and Python targets, fixing an issue where configured slow endpoints would time out early.
 
@@ -472,7 +459,6 @@ This release brings full Connect RPC support to the TypeScript target and improv
 - TypeScript SDKs generated from proto files now send working Connect calls with proper protocol headers, error handling, and server-streaming support.
 - Eight gRPC diagnostic rules registered with file locations and safe fixes, including query format mismatches and service placement issues.
 - Generated SDKs now ship a .gitignore file that prevents build output from polluting the repository on first run.
-- The generator process now requires Node 24.15 or later, while generated SDK requirements remain unchanged.
 - Java and Kotlin SDKs gained runtime improvements including proper async pagination, Optional returns from core APIs, and corrected JVM enum constant naming.
 
 ## 0.26.0 (2026-08-14)
@@ -505,7 +491,7 @@ This release adds support for generating SDKs from Protocol Buffer definitions u
 
 This release adds full AsyncAPI 3.x document support alongside OpenAPI, enabling SDK generation from AsyncAPI channels served over HTTP and WebSocket. The diagnostics engine now gates rules by document type and registers twelve previously anonymous AsyncAPI findings with their own documentation pages.
 
-- AsyncAPI 3.x documents are now accepted by both generate and diagnose commands, with channels lowered to streaming methods where the runtime supports them
+- AsyncAPI 3.x documents are now accepted, with channels lowered to streaming methods where the runtime supports them
 - AsyncAPI channels served over http or https compile to streaming methods with the same framing logic OpenAPI operations already use—text/event-stream as SSE, NDJSON as JSON Lines
 - Diagnostics rules now declare which document types they apply to, preventing OpenAPI-specific rules from reporting findings under the wrong grammar for AsyncAPI documents
 - Twelve AsyncAPI-related diagnostic codes now have dedicated rules and documentation pages, including protocol support, schema format compatibility, and channel configuration issues
@@ -537,13 +523,13 @@ This release adds support for Fern's server naming, base path, and global parame
 
 ## 0.23.7 (2026-08-11)
 
-### Agent-friendly CLIs, package attribution, and library formatting
+### Agent-friendly CLIs and package attribution
 
-Generated CLIs are now agent-friendly with structured output formats and actionable error codes. All generated packages now properly attribute their publisher organization, and the library API exposes formatting controls. Multiple fixes improve TypeScript, Python, and Ruby SDK quality.
+Generated CLIs are now agent-friendly with structured output formats and actionable error codes. All generated packages now properly attribute their publisher organization. Multiple fixes improve TypeScript, Python, and Ruby SDK quality.
 
 - Generated CLIs ship with a token-efficient toon output format, classified error codes for branching, and actionable hints for authentication and permission failures
 - All generated packages now attribute publisher name, contact, and documentation URL from organization config across TypeScript, Python, Rust, PHP, C#, Java, Kotlin, and Dart
-- Formatting is now reachable from the library API via exported registry and postProcessTargets, and the CLI target now ships formatted source
+- The CLI target now ships formatted source
 - Python SDK auth validation errors name the client options to set rather than request headers, and HTTP Basic auth correctly pairs credentials per scheme
 - TypeScript clients now validate required credentials at construction time and expose protected auth hooks per security scheme for customization
 
@@ -622,7 +608,6 @@ This release ships automatic formatting for PHP, Dart, and C++ SDKs, validates a
 
 - Removed the experimental `docs` target. Generated SDKs still write `openapi.augmented.json`, which can be served with `@scalar/api-reference` directly.
 - PHP, Dart, and C++ SDKs are now formatted automatically using WebAssembly-based tooling. Each SDK ships its formatter config so downstream format runs stay no-ops.
-- Generating a Rust SDK without `rustfmt` installed now fails with a clear message. Use `--no-format` to skip formatting deliberately.
 - Kotlin and Java clients validate authentication at construction and fail with a helpful message when credentials are missing, rather than building a client that sends unauthenticated requests.
 - Generated SDK CI now verifies formatting for TypeScript, Python, Go, Dart, C++, and Rust, ensuring shipped code stays formatter-clean.
 
@@ -741,15 +726,13 @@ This release refines how Kotlin and Java SDKs are structured, with clearer model
 
 ## 0.22.0 (2026-07-31)
 
-### Diagnostics engine, standalone executables, and split packages
+### Diagnostics engine and standalone CLI executables
 
-This release introduces a structured diagnostics system for analyzing OpenAPI specs and SDK configs, ships CLI targets as compiled binaries that run without Node, and publishes the generator as independent npm packages instead of a single bundle.
+This release introduces a structured diagnostics system for analyzing OpenAPI specs and SDK configs, and ships CLI targets as compiled binaries that run without Node.
 
-- New diagnostics engine with 23 validation rules, suppressions, and auto-fixable config suggestions — run `scalar diagnose` to lint your spec and config before generation.
+- New diagnostics engine with 23 validation rules, suppressions, and auto-fixable config suggestions that check your spec and config before generation.
 - CLI targets now ship as standalone Bun-compiled executables for Linux, macOS, and Windows, so `brew install` or direct downloads work without requiring Node.
 - Generated CLIs include shell completion scripts for bash, zsh, and fish — run `mycli completion zsh` and eval it for Tab completion on commands and flags.
-- The generator is now split into individual npm packages. Install `@scalar/sdk-diagnostics` on its own or use emitters directly without the full CLI.
-- Breaking: `loadAndCompile()` no longer throws on invalid configs. Check `result.config` instead, or use `generate()` which still fails hard via the diagnostics gate.
 
 ## 0.21.1 (2026-07-30)
 
@@ -921,9 +904,8 @@ This release streamlines how generated SDKs are versioned and released. Release 
 
 The generator can now produce Conventional Commits messages that describe what changed in your SDK between builds, making it easier to track and version generated code.
 
-- New `--commit-message` flag diffs the generated SDK against the previous build and outputs a commit message that follows Conventional Commits
+- Each build diffs the generated SDK against the previous one and describes the change in a commit message that follows Conventional Commits
 - Breaking changes are automatically flagged with `!` and `BREAKING CHANGE:` in the generated message
-- The commit message pipes directly into `git commit -m` for seamless integration with your workflow
 - Missing or invalid previous builds degrade gracefully to a generic `chore` message instead of crashing
 - Generated packages now use a fixed `0.1.0` version, letting your release tooling control versioning independently
 
@@ -1071,16 +1053,6 @@ This release improves how the generator handles name collisions across all langu
 
 - TypeScript SDK generation now avoids name collisions when operation models are configured on parent resources
 
-## 0.15.0 (2026-07-04)
-
-### Config validation improvements for in-memory workflows
-
-This release streamlines config validation for programmatic callers by separating file-based and in-memory flows. The coerceConfig function now works directly with parsed config objects, while file-based validation moves to a new coerceConfigPath function.
-
-- The coerceConfig function now accepts parsed config objects directly, removing the need to write temporary files for validation
-- File-based config validation moves to a new coerceConfigPath function that takes a file path
-- Config objects are cloned during validation and never mutated, ensuring safer in-memory workflows
-
 ## 0.14.0 (2026-07-03)
 
 ### Generator version tracking and TypeScript naming improvements
@@ -1089,7 +1061,6 @@ Generated SDKs now include provenance metadata that records which generator vers
 
 - Every generated SDK now includes a manifest file with a generatorVersion field that captures the exact version of the generator that created it.
 - TypeScript resource class names no longer collide unnecessarily across unrelated nested resources, reducing numeric suffixes in generated code.
-- Set the SCALAR_SDK_GENERATOR_VERSION environment variable to pin the recorded version for reproducible builds and snapshots.
 - Generated TypeScript SDKs now expose WebSocket send and receive event aliases through resource barrels and client namespaces.
 
 ## 0.4.8 (2026-07-03)
