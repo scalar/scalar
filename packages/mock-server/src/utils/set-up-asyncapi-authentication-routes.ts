@@ -48,7 +48,7 @@ export const setUpAsyncApiAuthenticationRoutes = (app: Hono, document: AsyncApiD
     securitySchemes[index] = { type: 'oauth2', flows }
   }
 
-  // Only the OAuth fields are adapted; broker authentication has no OpenAPI equivalent.
+  // Only OAuth and OpenID Connect schemes are adapted; broker authentication has no OpenAPI equivalent.
   setUpAuthenticationRoutes(app, {
     openapi: '3.1.0',
     info: { title: document.info.title, version: document.info.version },
