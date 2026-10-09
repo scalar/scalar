@@ -302,6 +302,51 @@ describe('proxy-dynamic-ref', () => {
     expect(items['$dynamicRef-value']).toMatchObject({ title: 'User' })
   })
 
+  it('refreshes anchors and scoped references after set and delete edits', () => {
+    const proxy = createMagicProxy({
+      $id: 'urn:root',
+      $defs: { item: { $dynamicAnchor: 'item', type: 'string' } },
+      properties: { value: { $dynamicRef: '#item' }, ref: { $ref: '#/$defs/item' } },
+    })
+    const read = (): unknown => Reflect.get(proxy.properties.value, '$dynamicRef-value')
+    const initial = read()
+    expect(initial).toStrictEqual({ $dynamicAnchor: 'item', type: 'string' })
+    expect(read()).toBe(initial)
+    expect(Reflect.get(proxy.properties.ref, '$ref-value').type).toBe('string')
+
+    proxy.$defs.item = { $dynamicAnchor: 'item', type: 'number' }
+    expect(read()).toStrictEqual({ $dynamicAnchor: 'item', type: 'number' })
+    expect(Reflect.get(proxy.properties.ref, '$ref-value').type).toBe('number')
+
+    Reflect.deleteProperty(proxy.$defs.item, '$dynamicAnchor')
+    expect(read()).toBeUndefined()
+    proxy.$defs.item.$dynamicAnchor = 'item'
+    const restored = read()
+    expect(restored).toStrictEqual({ $dynamicAnchor: 'item', type: 'number' })
+    expect(read()).toBe(restored)
+  })
+
+  it('keeps ordinary proxy identities after an unrelated edit', () => {
+    const proxy = createMagicProxy({ shared: { type: 'string' }, title: 'Before' })
+    const shared = proxy.shared
+    proxy.title = 'After'
+    expect(proxy.shared).toBe(shared)
+  })
+
+  it('activates a previously scanned anchor-free resource after an in-place edit', () => {
+    const proxy = createMagicProxy({
+      $id: 'urn:root',
+      $defs: { item: { type: 'string' } },
+      properties: { value: { $dynamicRef: '#item' } },
+    })
+    expect(Reflect.get(proxy.properties.value, '$dynamicRef-value')).toBeUndefined()
+    Reflect.set(proxy.$defs.item, '$dynamicAnchor', 'item')
+    expect(Reflect.get(proxy.properties.value, '$dynamicRef-value')).toStrictEqual({
+      $dynamicAnchor: 'item',
+      type: 'string',
+    })
+  })
+
   it('binds a recursive anchor on a schema reached through a $ref from an explicit resource', () => {
     // `User` has no `$id`, so it does not belong to `urn:user-page` even though that resource led here.
     // Its own `#node` anchor must enter the scope so `friends` binds back to `User`.
