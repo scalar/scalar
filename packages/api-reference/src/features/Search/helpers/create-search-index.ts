@@ -112,6 +112,7 @@ const getSearchableAsyncApiSchema = (value: unknown): SchemaObject | undefined =
       ![
         'application/schema+json',
         'application/schema+yaml',
+        'application/vnd.aai.asyncapi',
         'application/vnd.aai.asyncapi+json',
         'application/vnd.aai.asyncapi+yaml',
       ].includes(mediaType ?? '')

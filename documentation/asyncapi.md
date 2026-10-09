@@ -134,7 +134,7 @@ Rendering works in both the `modern` and `classic` layouts.
 
 Search finds channels, operations, and messages by their titles, names, summaries, and descriptions. Channel addresses and parameter names and descriptions are searchable too. For messages, search also includes payload and application-header field names and descriptions, including nested objects and array items in supported JSON Schema formats.
 
-Select a result to navigate to its content. Selecting a message opens its accordion.
+Select a result to navigate to its content. Selecting a message opens its accordion. Search covers the full document; selecting a result hidden by a protocol or server filter clears those filters to reveal its content.
 
 ## Payload examples
 

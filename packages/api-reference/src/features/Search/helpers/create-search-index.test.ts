@@ -1134,7 +1134,7 @@ describe('createSearchIndex', () => {
               summary: 'Changed orbital properties',
               traits: [{ $ref: '#/components/messageTraits/Envelope' }],
               payload: {
-                schemaFormat: 'application/schema+json;version=draft-07',
+                schemaFormat: 'application/vnd.aai.asyncapi;version=3.1.0',
                 schema: {
                   type: 'object',
                   properties: {
