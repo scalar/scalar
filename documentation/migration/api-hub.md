@@ -27,7 +27,12 @@ To start, go into Swagger Studio (API Hub Design) and find the API you want to e
 
 With this exported JSON file, you can [sign up for Scalar](https://dashboard.scalar.com/register), create a new docs project, then click **+** in the editor's sidebar and choose **Add API Reference**. Pick **Import a new API**, click **Continue**, and upload the file you exported from API Hub. This adds your OpenAPI document to your team's Registry and links it in your docs, ready to preview and publish.
 
-![Scalar](../assets/migration/ah-scalar.png)
+<scalar-image
+  src="/docs-add-api-import.png"
+  src-dark="/docs-add-api-import-dark.png"
+  alt="The Add an API to your docs dialog in the editor, with Import a new API selected"
+  size="full">
+</scalar-image>
 
 ## How to migrate from API Hub Portal to Scalar
 
@@ -35,7 +40,12 @@ API Hub Portal enables you to publish an interactive version of your OpenAPI doc
 
 In Scalar, you do not need to go to another product to do this. Just click **Publish** in the top right of the editor. The first time you publish, Scalar shows your site's visibility and domain so you can check them before it goes live. Set your subdomain or custom domain under **Settings → Site**.
 
-![API Hub Portal](../assets/migration/ah-portal.png)
+<scalar-image
+  src="/docs-settings-site.png"
+  src-dark="/docs-settings-site-dark.png"
+  alt="Settings → Site in the editor, with the site's subdomain, custom domain, and subpath"
+  size="full">
+</scalar-image>
 
 Adding guides is just as simple. Click **+** in the editor's sidebar and choose **Add Page**. To bring over Markdown from your API Hub Portal project, paste it into the editor's code view, or add the `.md` files to your project. Markdown pasted into the visual editor stays as plain text.
 
@@ -98,7 +108,12 @@ Scalar's API client is a direct replacement for API Hub Explore. Both you and yo
 
 Just like API Hub Explore, you can import existing API docs into the API client to get all the endpoints set up for testing. Once you have these, you can modify and send requests, add new routes, and much more to help explore and debug APIs.
 
-![Scalar API client](../assets/migration/ah-client.png)
+<scalar-image
+  src="/api-client.png"
+  src-dark="/api-client-dark.png"
+  alt="The Scalar API client with an imported OpenAPI document, showing a sent request and its response"
+  size="full">
+</scalar-image>
 
 ## Link APIs from Design
 

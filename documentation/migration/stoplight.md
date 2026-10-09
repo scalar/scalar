@@ -44,7 +44,12 @@ If the generated OpenAPI is being powered by Stoplight CLI without Git then that
 
 Teams following the design-first workflow with Stoplight are probably using the OpenAPI editor Stoplight Studio, either the desktop application or the hosted editor in Stoplight Platform. Scalar has an [editor in the dashboard](https://dashboard.scalar.com/apis) which can be used in the same way, allowing for changes to be made and pushed to the Registry. The registry makes OpenAPI documents available for other tools in the workflow, so they can access the latest OpenAPI, or peg to a particular version.
 
-![](../assets/migration/editor.png)
+<scalar-image
+  src="/apis-editor.png"
+  src-dark="/apis-editor-dark.png"
+  alt="The API editor in the dashboard, with the API reference preview, the OpenAPI source, and diagnostics"
+  size="full">
+</scalar-image>
 
 With that in mind, let us look at how to make the switch.
 
