@@ -25,10 +25,13 @@ describe('getAsyncApiModelSchema', () => {
     expect(getAsyncApiModelSchema(document, 'Planet')).toEqual(inner)
   })
 
-  it('skips boolean schemas', () => {
-    const document = asDocument({ schemas: { Anything: true } })
-
-    expect(getAsyncApiModelSchema(document, 'Anything')).toBeUndefined()
+  it.each([true, false])('explains reusable boolean schemas: %j', (value) => {
+    const components = { schemas: { Model: value } }
+    const document = asDocument(components)
+    expect(getAsyncApiModelSchema(document, 'Model')).toStrictEqual(
+      value ? { description: 'Accepts any value.' } : { not: {}, description: 'Accepts no value.' },
+    )
+    expect(components.schemas.Model).toBe(value)
   })
 
   it('resolves a `$ref` schema entry to its target', () => {

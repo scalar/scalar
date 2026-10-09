@@ -1,5 +1,6 @@
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
 import type { CompositionKeyword } from './schema-composition'
@@ -22,6 +23,7 @@ const CHOICE_KEYWORDS: ChoiceKeyword[] = ['oneOf', 'anyOf']
 
 type Member =
   | { kind: 'object'; schema: SchemaObject }
+  | { kind: 'boolean'; schema: SchemaObject }
   | { kind: 'choice'; composition: ChoiceKeyword; value: SchemaObject; inheritedSelection: boolean }
 
 /**
@@ -33,7 +35,18 @@ type Member =
  * visual variant and Scalar would otherwise render `not` as a bogus picker. The
  * rule still lives in the schema (validation) and in field descriptions.
  */
-const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<string>): void => {
+const collectMembers = (
+  input: SchemaReferenceType<SchemaObject> | boolean,
+  out: Member[],
+  seenRefs: Set<string>,
+): void => {
+  const target = getResolvedRef(input)
+  if (typeof target === 'boolean') {
+    // Keep the explanation separate: merging it with an object's description would hide it.
+    out.push({ kind: 'boolean', schema: resolve.schema(target) })
+    return
+  }
+  const schema = resolve.schema(input)
   const {
     allOf,
     oneOf,
@@ -80,7 +93,7 @@ const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<strin
 
   if (Array.isArray(allOf)) {
     for (const rawMember of allOf) {
-      if (rawMember && typeof rawMember === 'object') {
+      if (typeof rawMember === 'boolean' || (rawMember && typeof rawMember === 'object')) {
         const resolved: SchemaObject & { $ref?: string } = resolve.schema(rawMember)
         // Break `$ref` cycles reached through `allOf` (e.g. a member that
         // references an ancestor). Without this guard a recursive `allOf`
@@ -90,9 +103,9 @@ const collectMembers = (schema: SchemaObject, out: Member[], seenRefs: Set<strin
           if (seenRefs.has(ref)) {
             continue
           }
-          collectMembers(resolved, out, new Set(seenRefs).add(ref))
+          collectMembers(rawMember, out, new Set(seenRefs).add(ref))
         } else {
-          collectMembers(resolved, out, seenRefs)
+          collectMembers(rawMember, out, seenRefs)
         }
       }
     }
@@ -148,10 +161,10 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   const schemaRef = '$ref' in schema ? schema.$ref : undefined
   const seenRefs = new Set<string>(typeof schemaRef === 'string' ? [schemaRef] : [])
   for (const rawMember of allOf) {
-    if (rawMember && typeof rawMember === 'object') {
+    if (typeof rawMember === 'boolean' || (rawMember && typeof rawMember === 'object')) {
       const resolved: SchemaObject & { $ref?: string } = resolve.schema(rawMember)
       const ref = resolved.$ref
-      collectMembers(resolved, members, typeof ref === 'string' ? new Set(seenRefs).add(ref) : seenRefs)
+      collectMembers(rawMember, members, typeof ref === 'string' ? new Set(seenRefs).add(ref) : seenRefs)
     }
   }
 
@@ -173,6 +186,9 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   for (const member of members) {
     if (member.kind === 'object') {
       objectRun.push(member.schema)
+    } else if (member.kind === 'boolean') {
+      flushObjectRun()
+      segments.push({ kind: 'object', schema: member.schema })
     } else if (member.inheritedSelection) {
       // Hidden inherited choices still occupy an ordinal in the request example.
       choiceIndex++

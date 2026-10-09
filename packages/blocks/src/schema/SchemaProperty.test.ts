@@ -1,6 +1,8 @@
 import { ScalarListbox } from '@scalar/components/listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { resolve } from '@scalar/workspace-store/resolve'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -18,6 +20,26 @@ const SpecificationExtension = defineComponent({
 })
 
 describe('SchemaProperty', () => {
+  it.each([
+    { items: true, nested: false },
+    { items: false, nested: false },
+    { items: true, nested: true },
+    { items: false, nested: true },
+  ])('explains boolean array items ($items, nested: $nested)', ({ items, nested }) => {
+    const schema = { type: 'array', items: nested ? { type: 'array', items } : items }
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        schema: resolve.schema(schema as unknown as SchemaObject),
+        noncollapsible: true,
+        options: { expandAllSchemaProperties: true },
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain(items ? 'Accepts any value.' : 'Accepts no value.')
+    expect(schema).toStrictEqual({ type: 'array', items: nested ? { type: 'array', items } : items })
+  })
+
   it('keeps nameless noncollapsible array containers flat', () => {
     const wrapper = mount(SchemaProperty, {
       props: {

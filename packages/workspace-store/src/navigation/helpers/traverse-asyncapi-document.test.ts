@@ -449,6 +449,32 @@ describe('traverseAsyncApiDocument', () => {
     })
   })
 
+  it('retains boolean model names and reference targets in navigation', () => {
+    const document: AsyncApiDocument = {
+      asyncapi: '3.1.0',
+      info: { title: 'Boolean schemas', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      components: {
+        schemas: {
+          Anything: true,
+          Nothing: false,
+          Alias: { $ref: '#/components/schemas/Anything', '$ref-value': true },
+        },
+      },
+    }
+    const result = traverseAsyncApiDocument('schemas', document, mockOptions)
+    const models = result.children?.find((entry) => entry.type === 'models')
+    expect(
+      models?.children?.map((entry) =>
+        entry.type === 'model' ? { name: entry.name, title: entry.title, ref: entry.ref } : undefined,
+      ),
+    ).toStrictEqual([
+      { name: 'Anything', title: 'Anything', ref: '#/components/schemas/Anything' },
+      { name: 'Nothing', title: 'Nothing', ref: '#/components/schemas/Nothing' },
+      { name: 'Alias', title: 'Alias', ref: '#/components/schemas/Alias' },
+    ])
+  })
+
   it('omits the Models section when hideModels is set', () => {
     const document = {
       asyncapi: '3.0.0',

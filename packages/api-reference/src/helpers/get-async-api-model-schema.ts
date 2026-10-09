@@ -13,7 +13,7 @@ import { unwrapAsyncApiSchema } from './get-async-api-message-payload-schema'
  *   a `$ref` are kept rather than dropped.
  * - A Multi Format Schema Object (`schemaFormat` plus a nested `schema`) is unwrapped to its payload,
  *   so we index and render the inner JSON Schema rather than the wrapper.
- * - Boolean (`true`/`false`) and non-JSON-Schema payloads are skipped.
+ * - Boolean schemas are adapted for display; non-JSON-Schema primitives are skipped.
  */
 export const getAsyncApiModelSchema = (document: AsyncApiDocument, name: string): SchemaObject | undefined => {
   if (!document.components) {

@@ -2,8 +2,28 @@ import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import { describe, expect, it } from 'vitest'
 
 import { resolve } from './resolve'
+import type { SchemaObject } from './schemas/v3.2/strict/openapi-document'
 
 describe('resolve.schema', () => {
+  it('preserves boolean properties while resolving their enclosing object', () => {
+    const schema = { type: 'object', properties: { anything: true, forbidden: false } }
+    const resolved = resolve.schema(schema as unknown as SchemaObject)
+    expect(resolved).toStrictEqual(schema)
+    if (!resolved || !('properties' in resolved)) {
+      throw new Error('Expected an object schema')
+    }
+    expect(resolve.schema(resolved.properties?.anything)).toStrictEqual({ description: 'Accepts any value.' })
+    expect(resolve.schema(resolved.properties?.forbidden)).toStrictEqual({ not: {}, description: 'Accepts no value.' })
+  })
+
+  it.each([true, false])('explains boolean schemas and reference targets without modifying them: %j', (value) => {
+    const expected = value ? { description: 'Accepts any value.' } : { not: {}, description: 'Accepts no value.' }
+    expect(resolve.schema(value)).toStrictEqual(expected)
+    const document = { components: { schemas: { Model: value } }, body: { $ref: '#/components/schemas/Model' } }
+    expect(resolve.schema(createMagicProxy(document).body)).toStrictEqual(expected)
+    expect(document.components.schemas.Model).toBe(value)
+  })
+
   it('returns undefined for an undefined schema', () => {
     expect(resolve.schema(undefined)).toBeUndefined()
   })

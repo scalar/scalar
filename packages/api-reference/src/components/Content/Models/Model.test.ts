@@ -1,4 +1,5 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getBooleanSchema } from '@scalar/workspace-store/helpers/get-boolean-schema'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -6,6 +7,52 @@ import { describe, expect, it } from 'vitest'
 import Model from './Model.vue'
 
 describe('Model', () => {
+  it.each([
+    { layout: 'classic', value: true },
+    { layout: 'classic', value: false },
+    { layout: 'modern', value: true },
+    { layout: 'modern', value: false },
+  ] as const)('explains a $value allOf model member in the $layout layout', ({ layout, value }) => {
+    const wrapper = mount(Model, {
+      props: {
+        id: 'boolean-allof-model',
+        name: 'Boolean allOf model',
+        schema: { allOf: [value] } as unknown as SchemaObject,
+        eventBus: createWorkspaceEventBus(),
+        isCollapsed: false,
+        options: layout === 'classic' ? mockConfigClassic : mockConfigModern,
+      },
+    })
+    expect(wrapper.text()).toContain(value ? 'Accepts any value.' : 'Accepts no value.')
+  })
+
+  it.each([
+    { layout: 'classic', value: true },
+    { layout: 'classic', value: false },
+    { layout: 'modern', value: true },
+    { layout: 'modern', value: false },
+  ] as const)('renders a $value boolean model in the $layout layout', ({ layout, value }) => {
+    const wrapper = mount(Model, {
+      props: {
+        id: 'boolean-model',
+        name: 'Boolean model',
+        schema: getBooleanSchema(value),
+        eventBus: createWorkspaceEventBus(),
+        isCollapsed: false,
+        options: {
+          layout,
+          hideModels: false,
+          orderRequiredPropertiesFirst: false,
+          orderSchemaPropertiesBy: 'alpha',
+          expandAllSchemaProperties: false,
+          schemaKeyboardNav: false,
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('Boolean model')
+    expect(wrapper.text()).toContain(value ? 'Accepts any value.' : 'Accepts no value.')
+  })
+
   const mockDocument = {
     'x-scalar-original-document-hash': 'test-hash',
     openapi: '3.1.0',

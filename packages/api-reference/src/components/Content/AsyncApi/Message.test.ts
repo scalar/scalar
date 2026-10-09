@@ -39,6 +39,45 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it.each([true, false])('explains boolean allOf payload members: %j', (value) => {
+    const document = createDocument({ payload: { allOf: [value] } })
+    const wrapper = mount(Message, {
+      props: { message: createMessage(), eventBus: null, expandedItems: expanded, document },
+    })
+    expect(wrapper.text()).toContain(value ? 'Accepts any value.' : 'Accepts no value.')
+    if (!value) {
+      expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
+    }
+  })
+
+  it.each([true, false])('renders a boolean payload with its validation meaning: %j', (payload) => {
+    const document = createDocument({ payload })
+    const wrapper = mount(Message, {
+      props: { message: createMessage(), eventBus: null, expandedItems: expanded, document },
+    })
+    expect(wrapper.text()).toContain('Payload')
+    expect(wrapper.text()).toContain(payload ? 'Accepts any value.' : 'Accepts no value.')
+    expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
+    expect(document).toStrictEqual(createDocument({ payload }))
+  })
+
+  it.each(['payload', 'headers'])('renders boolean properties in %s without dropping false', (field) => {
+    const schema = { type: 'object', properties: { anything: true, forbidden: false }, required: ['anything'] }
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({ [field]: schema }),
+      },
+    })
+    expect(wrapper.text()).toContain('anything')
+    expect(wrapper.text()).toContain('forbidden')
+    expect(wrapper.text()).toContain('Accepts any value.')
+    expect(wrapper.text()).toContain('Accepts no value.')
+    expect(schema.properties).toStrictEqual({ anything: true, forbidden: false })
+  })
+
   it('regenerates displayed and copied payloads after nested schema edits', async () => {
     const payload = reactive({ type: 'object', properties: { id: { type: 'string', const: 'first' } } })
     const wrapper = mount(Message, {
