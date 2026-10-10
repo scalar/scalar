@@ -32,8 +32,8 @@ A few consequences worth knowing:
 
 - **A document where no channel speaks a supported protocol fails to load**, rather than quietly producing an SDK with no methods. The error names the protocols it found.
 - **Mixed documents still generate.** A document with a `wss` channel and a `kafka` channel produces a client for the first and a warning for the second.
-- **When a channel's servers disagree, declaration order wins.** A channel served over both `wss` and `kafka` becomes a WebSocket method, and `AsyncApi/AmbiguousProtocol` names what was dropped. Order the `servers` map — or scope the channel with `channel.servers` — to control which transport survives.
-- **A channel's base URL is restricted to the servers matching its transport.** A WebSocket channel that inherits a document-wide server list will not be pointed at a Kafka broker's host.
+- **When a channel's servers disagree, the first supported protocol in declaration order wins.** A channel served over `wss` and `kafka` becomes a WebSocket method in either order, and one served over `https` and `wss` takes whichever is declared first. `AsyncApi/AmbiguousProtocol` names what was dropped. Order the `servers` map — or scope the channel with `channel.servers` — to control which transport survives.
+- **A channel records only the servers matching its transport.** The generated TypeScript client still dials a WebSocket channel from the client's selected base URL, so don't select an environment built from a broker server such as a Kafka host.
 
 ## Send and receive
 
@@ -95,9 +95,9 @@ const connection = client.chat.connect({
 connection.send({ type: 'chat.message.send', body: 'Hello' });
 
 try {
-  for await (const event of connection) {
-    if (event.type === 'chat.message.created') {
-      console.log(event.body);
+  for await (const item of connection) {
+    if (item.type === 'message' && item.message.type === 'chat.message.created') {
+      console.log(item.message.body);
     }
   }
 } finally {
@@ -109,14 +109,14 @@ What feeds that method:
 
 - **The channel address** is the endpoint, and every `{braced}` segment becomes a required path parameter. `channel.parameters` supplies each one's description, default, and allowed values — an AsyncAPI parameter is always a string substituted into the address, with an optional enum.
 - **The `ws` binding** describes the handshake. Its `query` and `headers` object schemas become ordinary query parameters and headers on the connect call, with the schema's `required` list deciding which are mandatory. A binding on an operation refines the channel's, key by key.
-- **Reconnection, send queueing, and raw frame access** come from the generated WebSocket runtime, the same one used for WebSocket operations declared in an OpenAPI document.
+- **Reconnection, send queueing, and raw frame access** come from the generated WebSocket runtime, the same one used for WebSocket operations declared in an OpenAPI document. In TypeScript (and the CLI), iterating a connection yields lifecycle items (`connecting`, `open`, `closing`, `close`, `reconnecting`, `reconnected`, `raw`, `error`) alongside `{ type: 'message', message }` for each event received; Python and Rust yield the received events directly. The TypeScript and Python runtimes queue sends and can reconnect once you supply a reconnect handler; the Rust runtime connects, sends, and receives typed events without reconnection.
 - The handshake is always a `GET`, because that is what a WebSocket upgrade is. A `ws` binding asking for another method is reported.
 
 ### Target support
 
 WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, and the generated **CLI**. Other targets emit the event types but nothing that opens a connection, which is why generated starter configs gate every connect method to those four targets with `only`.
 
-If you generate a target outside that list from an all-WebSocket document, you get `Unsupported/WebSocketMethod` per method and `AsyncApi/NoMethodsGenerated` for the target: models, auth, and a client, but nothing to call.
+If you generate a target outside that list from an all-WebSocket document, you get `AsyncApi/NoMethodsGenerated` for the target: models, auth, and a client, but nothing to call. A connect method you leave ungated also reports `Unsupported/WebSocketMethod` for that target.
 
 ## HTTP channels
 
@@ -177,7 +177,7 @@ A single `https` base URL serves both transports: HTTP methods use it as-is, and
 
 AsyncAPI has no root-level `security`. Each server declares its own alternatives instead, and the specification is explicit that only one alternative needs to be satisfied — so the SDK's authentication is the union of every dialable server's `security`, with each alternative becoming one requirement.
 
-A credential is generated as **required** only when it is the sole alternative on every server the client can reach. Anything else is optional, so a client can be constructed with the one credential you actually hold.
+A credential is generated as **required** only when it is the sole alternative on every server that declares a `protocol` and a `host`. That includes broker servers the SDK cannot dial, so a broker server without `security` makes every credential optional. Anything else is optional, so a client can be constructed with the one credential you actually hold.
 
 Four scheme families lower into credentials:
 
@@ -241,7 +241,7 @@ As with OpenAPI, the config is the source of truth for the SDK's public shape: a
 }
 ```
 
-The resource is named after the channel's `title`, falling back to the first segment of its address and then to the channel id. Its endpoint path is the channel's `address`, or `/<channelId>` when the channel declares none. Component schemas no channel reaches are parked under a `$shared` resource rather than dropped, since an AsyncAPI `components.schemas` entry is a payload model however it is reached.
+The resource is named after the channel's `title`, falling back to the first segment of its address when the address is a path (starts with `/`), and then to the channel id. Its endpoint path is the channel's `address`, or `/<channelId>` when the channel declares none or another channel already uses it. Component schemas no channel reaches are parked under a `$shared` resource rather than dropped, since an AsyncAPI `components.schemas` entry is a payload model however it is reached.
 
 ### The `asyncapi` method block
 
@@ -251,7 +251,7 @@ The resource is named after the channel's `title`, falling back to the first seg
 | `operations` | Operation ids folded into this method. Omit to bind every operation targeting the channel. |
 | `perspective` | `provider` (default) or `client`. Whose point of view the document's `action` values are written from. |
 
-Everything else about the method is ordinary config. Rename it with `name`, gate it per target with `only`/`skip`, give it `defaultRequestOptions`, or point an HTTP channel at a `paginated` scheme — all of it works exactly as it does for an operation from an OpenAPI document.
+Everything else about the method is ordinary config. Rename it by changing its key under `methods` (or pin the exact identifier with `publicIdentifier`), gate it per target with `only`/`skip`, give it `defaultRequestOptions`, or point an HTTP channel at a `paginated` scheme — all of it works exactly as it does for an operation from an OpenAPI document.
 
 Narrowing a method to a subset of its channel's operations is the one AsyncAPI-specific knob you are likely to reach for:
 
@@ -305,7 +305,8 @@ Parts of the specification that are read and reported rather than generated. Mos
 The starter config a first run writes has two rough edges for HTTP channels, both fixable by hand and both reported:
 
 - Every channel is written with `"verb": "get"`. A channel whose SDK-sent messages carry payloads needs a body-carrying verb — change it to `post` — or those payloads are dropped, which is what `AsyncApi/UnsendablePayload` reports.
-- Every channel is gated with `only: ["typescript", "python", "rust", "cli"]`, including HTTP channels that every target could generate. Remove the gate on those channels to generate them everywhere.
+- Every channel is gated with `only: ["typescript", "python", "rust", "cli"]`, including HTTP channels that every target could generate. Remove the gate on those channels and change their `kind` to `http` to generate them everywhere.
+- Every channel's method is keyed `connect`, HTTP channels included. Rename the key (for example to `stream`) for a more natural method name.
 
 **Not produced**
 

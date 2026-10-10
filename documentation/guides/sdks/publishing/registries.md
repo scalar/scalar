@@ -9,16 +9,16 @@ For how publishing works end to end, see [Publishing](overview.md).
 | Target | `publish` key | Registry | Default auth | Secrets to add |
 | ------ | ------------- | -------- | ------------ | -------------- |
 | [TypeScript](typescript.md) | `npm` | npm | OIDC | none (OIDC) or `NPM_TOKEN` |
-| [Python](python.md) | `pypi` | PyPI | OIDC | none (OIDC) or `PYPI_API_TOKEN` |
+| [Python](python.md) | `pypi` | PyPI | OIDC | none (OIDC) or `PYPI_API_TOKEN` (or `PYPI_TOKEN`) |
 | [Go](go.md) | `go` | Go modules | Git tag | none |
 | [Rust](rust.md) | `cargo` | crates.io | OIDC | none (OIDC) or `CARGO_REGISTRY_TOKEN` |
-| [Java and Kotlin](java.md) | `maven` | Maven Central | Token + GPG | `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, `MAVEN_GPG_PASSPHRASE` |
+| [Java and Kotlin](java.md) | `maven` | Maven Central | Token + GPG | `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, `MAVEN_GPG_PASSPHRASE` (or `SONATYPE_USERNAME`, `SONATYPE_PASSWORD`, `GPG_SIGNING_KEY`, `GPG_SIGNING_PASSWORD`) |
 | [C#](csharp.md) | `nuget` | NuGet | OIDC | `NUGET_USER` (OIDC) or `NUGET_API_KEY` |
-| [Ruby](ruby.md) | `rubygems` | RubyGems | API key | `RUBYGEMS_API_KEY` |
+| [Ruby](ruby.md) | `rubygems` | RubyGems | OIDC | none (OIDC) or `RUBYGEMS_API_KEY` (or `GEM_HOST_API_KEY`) |
 | [PHP](php.md) | `packagist` | Packagist | Git tag | none |
 | [Swift](swift.md) | `swiftpm` | Swift Package Manager | Git tag | none |
-| [Dart](dart.md) | `pub` | pub.dev | OIDC | none (OIDC) or `PUB_TOKEN` |
-| [CLI](cli.md) | `npm`, `binaries`, `homebrew` | npm / GitHub Release / Homebrew | OIDC or token | none (npm OIDC) or `NPM_TOKEN`, plus `HOMEBREW_TAP_TOKEN` for Homebrew |
+| [Dart](dart.md) | `pub` | pub.dev | OIDC, which the generated workflows cannot use; set `access-token` | `PUB_TOKEN` |
+| [CLI](cli.md) | `npm`, `binaries`, `homebrew` | npm / GitHub Release / Homebrew | OIDC or token | none (npm OIDC) or `NPM_TOKEN`, plus `HOMEBREW_TAP_TOKEN` (or `HOMEBREW_TAP_GITHUB_TOKEN`) for Homebrew |
 | C++ | — | — | — | none (built in CI, no registry) |
 
 > [!NOTE]
@@ -26,10 +26,10 @@ For how publishing works end to end, see [Publishing](overview.md).
 
 ## Two ways to authenticate
 
-Registries that support OIDC (`npm`, `pypi`, `cargo`, `nuget`, `pub`) default to it. Pick one option per target.
+Registries that support OIDC (`npm`, `pypi`, `cargo`, `nuget`, `rubygems`, `pub`) default to it. Pick one option per target. pub.dev is the exception in practice: it accepts OIDC only from a run that a tag push triggered, which the generated workflows are not, so a Dart target sets `authMethod` to `access-token` (see [Dart](dart.md)).
 
-- **OIDC trusted publishing** (the default where available): the `publish` job proves its identity to the registry with a short-lived GitHub token, so there is **nothing to store or rotate**. You register the repository and workflow as a trusted publisher on the registry once. This is what `"<registry>": true` gives you.
-- **API token / key**: you create a token on the registry and add it as a [repository secret](github.md#adding-repository-secrets). Switch a target to this with `authMethod: "access-token"`. Maven Central and RubyGems only support this style; Maven Central also requires a GPG key for signing.
+- **OIDC trusted publishing** (the default where available): the `publish` job proves its identity to the registry with a short-lived GitHub token, so there is **nothing to store or rotate**. You register the repository and workflow as a trusted publisher on the registry once. This is what `"<registry>": true` gives you. PyPI and RubyGems accept a *pending* publisher for a package that does not exist yet; npm and crates.io only register one on a package that already exists, so their first release uses a token.
+- **API token / key**: you create a token on the registry and add it as a [repository secret](github.md#adding-repository-secrets). Switch a target to this with `authMethod: "access-token"`. Maven Central only supports this style, and also requires a GPG key for signing.
 
 ```json
 {
@@ -42,10 +42,10 @@ Registries that support OIDC (`npm`, `pypi`, `cargo`, `nuget`, `pub`) default to
 ```
 
 > [!IMPORTANT]
-> When you register a trusted publisher, the workflow filename is **`release-please.yml`** — the workflow whose inline `publish` job does the automated publish. `sdk-release.yml` is the manual re-publish path; add it as a second trusted publisher only if you dispatch it.
+> When you register a trusted publisher, the workflow filename is **`release-please.yml`** — the workflow whose inline `publish` job does the automated publish. NuGet's OIDC login also reads your nuget.org profile name from a `NUGET_USER` secret. `sdk-release.yml` is the manual re-publish path; add it as a second trusted publisher only if you dispatch it.
 
 > [!NOTE]
-> Tag-served ecosystems (Swift Package Manager, Packagist) have no upload step and no secrets. The `vX.Y.Z` Git tag and GitHub Release cut when a release pull request merges are the published version. Go is served from its tag too, but still gets a release workflow that warms the public module proxy.
+> Tag-served ecosystems (Swift Package Manager, Packagist) have no upload step and no secrets. The `vX.Y.Z` Git tag and GitHub Release cut when a release pull request merges are the published version. Go versions are tags too, but Go still gets a release workflow, which uploads nothing and warms the public module proxy.
 
 ## C++
 

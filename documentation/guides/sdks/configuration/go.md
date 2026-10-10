@@ -1,3 +1,9 @@
+<!--
+Generated from scalar-sdk.config.schema.json. Do not edit by hand.
+
+Published at https://scalar.com/docs/guides/sdks/configuration, which is where the links to
+pages outside this reference resolve.
+-->
 # Go
 
 Add `go` under `targets` to generate a Go SDK package.
@@ -20,88 +26,128 @@ Add `go` under `targets` to generate a Go SDK package.
 }
 ```
 
-## Target Options
+Setting up publishing: [Go publishing guide](../publishing/go.md). How releases are cut: [Publishing](../publishing/overview.md).
 
-| Property               | Type      | Description                                                      |
-| ---------------------- | --------- | ---------------------------------------------------------------- |
-| `packageName`          | `string`  | Go module or package name.                                       |
-| `goModulePathOverride` | `string`  | Module path written to `go.mod` and every generated import, when it must differ from the one derived from the destination repository. |
-| `pointerServices`      | `boolean` | Generate a pointer-shaped client surface. Defaults to `false`.   |
-| `skip`                 | `boolean` | Set to `true` to keep the config without generating this target. |
-| `destinations`         | `object`  | GitHub destinations for generated output.                        |
-| `publish`              | `object`  | Go module publishing configuration.                              |
+## packageName
 
-## Module Path
+**Type:** `string`
 
-The module path is normally derived from `destinations.production.repo`: `acme/acme-go` becomes `github.com/acme/acme-go`. Set `goModulePathOverride` when the path consumers import differs from the repository the code is pushed to — a vanity import domain, or a module served from a subdirectory.
+Go package identifier, and a module-path fallback. It names the `package <name>` clause in every emitted file, normalized to a Go-legal identifier — `Acme` becomes `acme`, `pagination-api` becomes `paginationapi` — which is also how consumers spell every call (`acme.NewClient(...)`), so renaming it on a published SDK breaks their source. It is normally *not* what the module path is built from: `go.mod` and every generated import come from `destinations.production.repo`, or from `goModulePathOverride` when the published module path and the repository have diverged. This is only the module-path fallback for a target that configures neither. Defaults to `clientSettings.defaultClientName`, then the SDK's own name — the client name first because it is the short, deliberate one, and this is spelled at every call site.
 
-```json
-{
-  "targets": {
-    "go": {
-      "goModulePathOverride": "go.acme.com/api"
-    }
-  }
-}
-```
+## destinations
 
-## Client Shape
+**Type:** `object`
 
-By default the generated client is value-shaped: `NewClient` returns a `Client` and service fields are plain values. Set `pointerServices` to `true` for the pointer-shaped surface instead — `NewClient` returns `*Client` and service fields are `*XService`.
+Per-target GitHub destinations for pushing generated output.
 
-```json
-{
-  "targets": {
-    "go": {
-      "pointerServices": true
-    }
-  }
-}
-```
+### production
 
-## Destinations
+**Type:** `object`
 
-Use `destinations.production` to push generated output to a GitHub repository.
+Primary published-output repository for this target. Configuring it is what gives the target generated GitHub Actions at all: it turns on the CI workflow, the release-please configuration, and the versioning policy. The release workflow that uploads at release time is added on top of those only when `publish` enables a registry that needs one — a tag-served ecosystem publishes from the platform-created tag alone. A target with no production destination is still generated, but emits no workflows, which is what local and preview generation wants.
 
-```json
-{
-  "targets": {
-    "go": {
-      "destinations": {
-        "production": {
-          "repo": "acme/acme-go",
-          "branch": "main"
-        }
-      }
-    }
-  }
-}
-```
+| Property | Description |
+| --- | --- |
+| `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
+| `branch` | Default branch of the destination repository, and the base that release PRs are opened against. Generated output itself is always pushed to the fixed `scalar-generated` branch, which the platform merges with custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release PR is raised from the integration branch against the branch named here, so merging it is the promotion. The branch is resolved by trying this value, then a `#branch` suffix on `repo`, then `main`, skipping any candidate that is not a safe git ref — the name is interpolated into generated workflow YAML, so an unsafe one is passed over rather than emitted, and an unsafe value here does not mask a usable suffix. |
+| `integrationBranch` | The branch where generated output is combined with custom code; defaults to `scalar-next`. Commit customizations here: the platform merges each regeneration from `scalar-generated` into it, raises release PRs from it, and the emitted release workflow syncs each released version back to it. An empty string means the default. Names are case-sensitive, like git. A value is rejected rather than replaced by the default when it is not a safe git ref (it must start with a letter or digit, use only letters, digits, `.`, `_`, `/` and `-`, and be a name git accepts: no `..`, no empty or `.`-leading path component, no `.lock` component suffix, no trailing `.`, and not `HEAD`), when it equals the default branch, `scalar-generated` or `scalar-merge-conflict`, when it and one of those or `scalar-next` are `/`-separated path prefixes of each other (`scalar-next/v2`), when it starts with `scalar-generated--`, `scalar-merge-conflict--`, `scalar-heal--` or `release-please--`, or when it contains `--components--`: the name is interpolated into generated workflow YAML, and those names are reserved for branches the platform and release-please manage. |
 
-| Property | Description                                                                 |
-| -------- | --------------------------------------------------------------------------- |
-| `repo`   | GitHub repository in `owner/name` form.                                     |
-| `branch` | Default branch of the destination repository that releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
+## publish
 
-## Publishing
+**Type:** `object`
 
-Set `publish.go` to `true` to tag each release so the Go module proxy can serve it. Go has no registry upload and needs no secrets — see [Go publishing](../publishing/go.md).
+Go module publishing configuration (git version tags).
 
-```json
-{
-  "targets": {
-    "go": {
-      "publish": {
-        "go": true
-      }
-    }
-  }
-}
-```
+### go
 
-| Property             | Description                                                   |
-| -------------------- | ------------------------------------------------------------- |
-| `go`                 | Set to `true` to tag each release and warm the Go module proxy. |
-| `releaseEnvironment` | Release environment the generated publish job runs in.        |
+**Type:** `boolean | object`
 
-Go publishes through the Git tag, so there is nothing to authenticate against: the release workflow just warms the public module proxy so it caches the new version. The shared `authMethod` option has nothing to act on here and is ignored.
+Publishes the Go module. `true` publishes with the defaults; an object tunes them.
+
+A Go module version is the `vX.Y.Z` git tag the release cuts, so nothing is uploaded and no secret or `authMethod` applies. The release workflow only asks [proxy.golang.org](https://proxy.golang.org/) for the new version so it is indexed straight away. Consumers install it with `go get <module path>@v1.2.3`, where the module path is `github.com/<owner>/<repo>` unless `goModulePathOverride` sets another.
+
+#### releaseEnvironment
+
+**Type:** `string`
+
+Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's [environment protection rules](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) — required reviewers, wait timers, environment secrets — gate the release. Under OIDC trusted publishing the name must also match the environment registered on the trusted publisher, which is how a registry constrains who in a repository may publish; leave the registry's environment field blank when this is unset, since a publisher that names an environment rejects a run without one. When it is set, the publish job can read that environment's secrets as well as the repository's, and an environment secret takes precedence over a repository secret of the same name.
+
+#### homepage
+
+**Type:** `string`
+
+Registry or package homepage metadata.
+
+#### description
+
+**Type:** `string`
+
+Registry or package description metadata.
+
+## goModulePathOverride
+
+**Type:** `string`
+
+Go module path for `go.mod` and every generated import, when it must differ from the destination repository. The module path is normally derived from `destinations.production.repo` (e.g. `acme/acme-go` becomes `github.com/acme/acme-go`); set this when the published module path and the repository name have diverged, e.g. a repo renamed to `acme/widget-sdk-go` whose module must stay `github.com/acme/widget-go-sdk`. Accepts a full module path or an `owner/name` shorthand that is expanded to `github.com/owner/name`. The value is spliced into `go.mod` and every generated import, so it is restricted to Go path characters (`A-Za-z0-9._~+-` per `/`-separated element).
+
+**Constraints:** `pattern: ^[A-Za-z0-9][A-Za-z0-9._~+-]*(/[A-Za-z0-9][A-Za-z0-9._~+-]*)*$`
+
+## pointerServices
+
+**Type:** `boolean`
+
+Currently ignored, under either Go shape. Whether the client surface is pointer- or value-shaped follows the shape `options.codeStyle` selects rather than this key, and the `v1` shape the emitter writes today is always pointer-shaped (`NewClient` returns `*Client`; service fields are `*XService`), whatever this is set to. Kept declared so configs that already carry it stay valid. Honoring it would retype the client surface of every published SDK that leaves it unset, so it is a breaking change on its own rather than something to switch on quietly.
+
+## prereleaseType
+
+**Type:** `string`
+
+Prerelease channel this target's releases publish on, as a bare semver prerelease identifier (`next`, `beta`, `rc`). It becomes the released version's prerelease suffix — a channel of `next` releases `1.2.0-next.1` — so the value is held to the shape a semver identifier may take: a letter, then letters, digits and hyphens.
+
+Omit it to release on the stable line. A release train promoting to a conventionally named prerelease branch (`alpha`, `beta`, `canary`, `next`, `preview`, `rc`) adopts that branch's name as its channel, so this only has to be set to name a channel the branch does not, or to put a target on a prerelease line while promoting to a branch named something else.
+
+**Constraints:** `pattern: ^[A-Za-z][0-9A-Za-z-]*$`
+
+## options
+
+**Type:** `object`
+
+Go emitter options: which generated Go shape (dialect) the SDK is written in, and whether the service option field is exported.
+
+### codeStyle
+
+**Type:** `"v1" | "v2"`
+
+Which generated Go shape the SDK is written in. `v1` (the default) types every parameter as `param.Field[T]`, marshals params through `apijson.MarshalRoot`, carries response metadata in a named sidecar struct of `apijson.Field`, and renders unions as interfaces with `AsUnion()`. `v2` types a plain scalar parameter as `param.Opt[T]` where it is optional or nullable and as its bare Go type otherwise, leaves every enum and composite parameter bare, embeds `paramObj` and marshals through `param.MarshalObject`, inlines response metadata as an anonymous `JSON` struct of `respjson.Field`, and flattens unions into a struct with `As<Variant>()`/`AsAny()` accessors. The two shapes export different root helpers (`F`/`Null`/`Raw`/`FileParam` against `Opt`/`Ptr`/`Time`/`File`), and four names they share return different types, so switching an already-published SDK from `v1` to `v2` is a source-breaking change for every consumer of it — and reverting is a second one. Set it only for a Go SDK with no published consumers, or in a coordinated major release. A config the generator synthesizes for a document that ships none of its own leaves the key unset, so a new project starts on `v1` too; set `v2` explicitly to opt in. Every construct now has a `v2` form: a response `oneOf` mixing a scalar or array branch with an object branch, which `v1` renders as a marker interface, becomes one flattened struct there — the scalar branches as inline `Of<Type>` fields beside the object branches' merged properties, each reachable through its own `As<Variant>()`.
+
+**Default:** `"v1"`
+
+### optionsFieldExported
+
+**Type:** `boolean`
+
+Name the per-service request-option field `Options` rather than the unexported `options`, so callers can read or replace a service's default request options. True by default, which is the shape every Go SDK we generate ships today; set it to false only for an SDK whose published services already hide the field, since setting it to false on a live SDK removes a field its consumers can read. It is a separate axis from `codeStyle`: either shape can carry either spelling, and the Go emitter honors it under both.
+
+**Default:** `true`
+
+## skip
+
+**Type:** `boolean`
+
+When true, the target is not generated.
+
+## readmeTitle
+
+**Type:** `string`
+
+Heading of this target's generated README, overriding the SDK-wide `readme.title`. Free-form prose, so it carries no pattern and a renderer has to emit it as escaped text rather than as markdown.
+
+## promotion
+
+**Type:** `"automatic" | "manual"`
+
+When a successful build's generated output reaches this target's production destination. `automatic`, the default, pushes every build, which opens a release pull request. `manual` holds each build at the staging playground until it is promoted explicitly, so reaching production is a deliberate act rather than a consequence of building.
+
+This governs when the push happens, never what is generated: a `manual` target still emits the GitHub Actions, release-please configuration and versioning policy that `destinations.production` turns on, so a promoted build behaves exactly like an automatic one. A target declaring no production destination pushes nowhere either way, and is unaffected.
+
+**Default:** `"automatic"`
