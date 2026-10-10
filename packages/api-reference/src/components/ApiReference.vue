@@ -67,6 +67,7 @@ import { useScrollLock } from '@vueuse/core'
 import {
   computed,
   defineAsyncComponent,
+  nextTick,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -579,9 +580,7 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
- * documents are surfaced so the search index can pick up info.description
- * headings from either spec; AsyncAPI-specific entries (channels, operations,
- * messages) are not indexed yet.
+ * documents are surfaced so the search index can include their navigation content.
  */
 const activeSearchableDocument = computed(
   () => workspaceStore.workspace.activeDocument,
@@ -1559,7 +1558,23 @@ eventBus.on('ui:download:document', ({ format }) => {
  * - Operation:
  *        Open all parents and scroll to the operation
  */
-const handleSelectSidebarEntry = (id: string, caller?: 'sidebar') => {
+const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
+  // Search covers the full document, so reveal a target hidden by sidebar filters.
+  if (!caller && activeAsyncApiDocument.value) {
+    const containsTarget = (entries: TraversedEntry[]): boolean =>
+      entries.some(
+        (entry) =>
+          entry.id === id ||
+          ('children' in entry &&
+            !!entry.children &&
+            containsTarget(entry.children)),
+      )
+    if (!containsTarget(sidebarItems.value)) {
+      selectedProtocol.value = ''
+      selectedServer.value = ''
+      await nextTick()
+    }
+  }
   const item = sidebarState.getEntryById(id)
 
   updatePageTitle(id)

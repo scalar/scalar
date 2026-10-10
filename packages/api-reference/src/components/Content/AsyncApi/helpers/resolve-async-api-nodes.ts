@@ -48,5 +48,22 @@ export const resolveAsyncApiOperation = (
   operationName: string,
 ): AsyncApiOperationObject | undefined => {
   const node = document.operations?.[operationName]
-  return node ? resolveOperationWithTraits(getResolvedRef(node, mergeSiblingReferences)) : undefined
+  if (!node) {
+    return undefined
+  }
+  const operation = resolveOperationWithTraits(getResolvedRef(node, mergeSiblingReferences))
+  // The workspace resolver handles connection fields; rendering and search also need trait prose.
+  const metadata = operation.traits?.reduce<Pick<AsyncApiOperationObject, 'title' | 'summary' | 'description'>>(
+    (inherited, traitNode) => {
+      const trait = getResolvedRef(traitNode)
+      return {
+        ...inherited,
+        ...(trait && Object.hasOwn(trait, 'title') ? { title: trait.title } : {}),
+        ...(trait && Object.hasOwn(trait, 'summary') ? { summary: trait.summary } : {}),
+        ...(trait && Object.hasOwn(trait, 'description') ? { description: trait.description } : {}),
+      }
+    },
+    {},
+  )
+  return { ...metadata, ...operation }
 }

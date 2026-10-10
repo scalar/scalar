@@ -1,6 +1,14 @@
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
-export type EntryType = 'operation' | 'webhook' | 'model' | 'heading' | 'tag'
+export type EntryType =
+  | 'operation'
+  | 'webhook'
+  | 'model'
+  | 'heading'
+  | 'tag'
+  | 'asyncapi-channel'
+  | 'asyncapi-operation'
+  | 'asyncapi-message'
 
 export type FuseData = {
   type: EntryType
@@ -15,6 +23,10 @@ export type FuseData = {
   parameters?: string | string[]
   /** Descriptions of parameters. Verbose prose, weighted lower than `parameters`. */
   parameterDescriptions?: string[]
+  /** AsyncAPI map keys and machine-friendly message names, separate from display titles. */
+  identifiers?: string[]
+  /** AsyncAPI action displayed without an HTTP method badge. */
+  action?: 'send' | 'receive'
   responseExamples?: string[]
   method?: string
   path?: string

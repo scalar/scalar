@@ -28,6 +28,8 @@ export const es = {
     entryOperation: 'Operación',
     entryTag: 'Etiqueta',
     entryTagGroup: 'Grupo de etiquetas',
+    entryChannel: 'Canal',
+    entryMessage: 'Mensaje',
     entryWebhook: 'Webhook',
   },
   navigation: {

@@ -28,6 +28,8 @@ export const ar = {
     entryOperation: 'عملية',
     entryTag: 'وسم',
     entryTagGroup: 'مجموعة وسوم',
+    entryChannel: 'قناة',
+    entryMessage: 'رسالة',
     entryWebhook: 'خطاف ويب',
   },
   navigation: {
