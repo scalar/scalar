@@ -4,7 +4,7 @@ Configure your documentation site's domain using either a free subdomain on `api
 
 ## Subdomain
 
-The `subdomain` property provides a free domain at `https://<subdomain>.apidocumentation.com`. This is available for all Docs projects.
+The `subdomain` property publishes your site at `https://<subdomain>.apidocumentation.com`, at no extra cost. Publishing a Docs site needs a paid plan or an active trial.
 
 ```json
 // scalar.config.json
