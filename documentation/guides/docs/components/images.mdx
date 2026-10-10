@@ -10,7 +10,7 @@ The examples below reference images from your [assets directory](../content/asse
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `src` | `string` | _required_ | URL or relative path to the image. Relative paths resolve against `assetsDir` from `scalar.config.json`. |
+| `src` | `string` | _required_ | URL or path to the image. See [Image paths](#image-paths). |
 | `src-dark` | `string` | — | Dark-mode variant of `src`. Falls back to `src` when not set. |
 | `alt` | `string` | — | Alt text for accessibility. |
 | `caption` | `string` | — | Caption shown below the image. |
@@ -18,6 +18,14 @@ The examples below reference images from your [assets directory](../content/asse
 | `height` | `number` | — | Display height in pixels. |
 | `href` | `string` | — | When set, wraps the image in a link to this URL. |
 | `size` | `'actual'` `'custom'` `'full'` | `actual` | Sizing strategy. `actual` uses the image's natural size, `custom` uses `width`/`height`, `full` stretches to container width. |
+
+## Image paths
+
+- A path that starts with `/` points at a file in your `assetsDir`. `/logo.png` serves `assets/logo.png`.
+- Any other path is relative to the page file.
+- A full URL loads the image from that address.
+
+If the file does not exist, the publish still succeeds, but the build log warns that the asset was not copied and the image does not load.
 
 ## Examples
 
