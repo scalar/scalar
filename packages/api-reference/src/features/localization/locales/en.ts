@@ -24,6 +24,8 @@ export const en = {
     navigate: 'Navigate',
     select: 'Select',
     instructions: 'Press up arrow / down arrow to navigate, enter to select, type to filter results',
+    entryChannel: 'Channel',
+    entryMessage: 'Message',
     entryHeading: 'Heading',
     entryOperation: 'Operation',
     entryTag: 'Tag',

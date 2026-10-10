@@ -24,6 +24,8 @@ export const es = {
     navigate: 'Navegar',
     select: 'Seleccionar',
     instructions: 'Pulsa flecha arriba o abajo para navegar, Enter para seleccionar y escribe para filtrar resultados',
+    entryChannel: 'Canal',
+    entryMessage: 'Mensaje',
     entryHeading: 'Encabezado',
     entryOperation: 'Operación',
     entryTag: 'Etiqueta',

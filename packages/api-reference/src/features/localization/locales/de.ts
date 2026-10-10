@@ -25,6 +25,8 @@ export const de = {
     select: 'Auswählen',
     instructions:
       'Drücken Sie Pfeil nach oben oder unten zum Navigieren, Enter zum Auswählen und tippen Sie zum Filtern der Ergebnisse',
+    entryChannel: 'Kanal',
+    entryMessage: 'Nachricht',
     entryHeading: 'Überschrift',
     entryOperation: 'Operation',
     entryTag: 'Tag',

@@ -394,6 +394,8 @@ export type ApiReferenceTranslations = {
     instructions: string
     entryHeading: string
     entryOperation: string
+    entryChannel: string
+    entryMessage: string
     entryTag: string
     entryTagGroup: string
     entryWebhook: string

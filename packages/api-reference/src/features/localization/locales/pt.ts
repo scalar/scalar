@@ -25,6 +25,8 @@ export const pt = {
     select: 'Selecionar',
     instructions:
       'Pressione seta para cima / seta para baixo para navegar, enter para selecionar, digite para filtrar resultados',
+    entryChannel: 'Canal',
+    entryMessage: 'Mensagem',
     entryHeading: 'Título',
     entryOperation: 'Operação',
     entryTag: 'Tag',

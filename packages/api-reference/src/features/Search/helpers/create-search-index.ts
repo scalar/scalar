@@ -18,7 +18,9 @@ import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
 import { isIntroductionEntry } from '@/helpers/is-introduction-entry'
 import { createSearchFieldExtractor, extractParameterDescriptions, extractParameterNames } from '@/helpers/openapi'
 
-/** Documents the search index can ingest. AsyncAPI is supported for headings, tags, and models; channels/operations/messages are not indexed yet. */
+import { createAsyncApiSearchEntry } from './create-async-api-search-entry'
+
+/** Documents the search index can ingest. */
 type SearchableDocument = OpenApiDocument | AsyncApiDocument
 
 /**
@@ -131,13 +133,35 @@ export function createSearchIndex(
   /**
    * Recursively processes entries and their children to build the search index.
    */
-  function processEntries(entriesToProcess: TraversedEntry[]): void {
+  const asyncApiEntries = new Set<string>()
+
+  function processEntries(entriesToProcess: TraversedEntry[], parentType?: TraversedEntry['type']): void {
     entriesToProcess.forEach((entry) => {
-      addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields)
+      if (isAsyncApiDocument(document) && entry.type.startsWith('asyncapi-')) {
+        // Messages also appear under operations. Prefer their channel catalog anchor, and
+        // collapse repeated tag appearances without merging distinct channels sharing a message.
+        const key =
+          entry.type === 'asyncapi-message'
+            ? JSON.stringify([entry.type, entry.channelName, entry.messageName])
+            : entry.type === 'asyncapi-channel'
+              ? JSON.stringify([entry.type, entry.channelName])
+              : entry.type === 'asyncapi-operation'
+                ? JSON.stringify([entry.type, entry.operationName])
+                : entry.id
+        if (!(entry.type === 'asyncapi-message' && parentType === 'asyncapi-operation') && !asyncApiEntries.has(key)) {
+          const result = createAsyncApiSearchEntry(document, entry)
+          if (result) {
+            index.push(result)
+            asyncApiEntries.add(key)
+          }
+        }
+      } else {
+        addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields)
+      }
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
-        processEntries(entry.children)
+        processEntries(entry.children, entry.type)
       }
     })
   }
@@ -150,8 +174,7 @@ export function createSearchIndex(
 /**
  * Adds a single entry to the search index, handling all entry types recursively.
  *
- * AsyncAPI documents contribute heading, tag, and model entries here. Their
- * channels, operations, and messages are not indexed yet.
+ * AsyncAPI channels, operations, and messages are handled by the traversal above.
  */
 function addEntryToIndex(
   entry: TraversedEntry,

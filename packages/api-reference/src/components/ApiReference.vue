@@ -579,13 +579,22 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
- * documents are surfaced so the search index can pick up info.description
- * headings from either spec; AsyncAPI-specific entries (channels, operations,
- * messages) are not indexed yet.
+ * documents are surfaced. AsyncAPI uses the visible navigation tree so search
+ * results remain reachable when protocol/server filters are active.
  */
-const activeSearchableDocument = computed(
-  () => workspaceStore.workspace.activeDocument,
-)
+const activeSearchableDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  if (isAsyncApiDocument(document) && document['x-scalar-navigation']) {
+    return {
+      ...document,
+      'x-scalar-navigation': {
+        ...document['x-scalar-navigation'],
+        children: sidebarItems.value,
+      },
+    }
+  }
+  return document
+})
 
 /**
  * Sidebar entries contributed by plugin views (content.start / content.end).
