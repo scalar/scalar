@@ -1,5 +1,19 @@
 # @scalar/workspace-store
 
+## 0.68.3
+
+### Patch Changes
+
+- [#10551](https://github.com/scalar/scalar/pull/10551): Show **Reset to default** on authentication fields only when the field has a default that differs from its current value (the document or configured value, or the current page URL for the OAuth2 redirect URL). A cleared OAuth2 access token keeps the action so you can get back to the Authorize form. The show password toggle only appears once a field has a value, and an emptied field goes back to masked.
+- [#10527](https://github.com/scalar/scalar/pull/10527): Document every visible AsyncAPI channel message in a channel catalog while preserving operation-specific message subsets, links, and server/protocol filtering.
+- [#10544](https://github.com/scalar/scalar/pull/10544): Match cookie paths with the RFC 6265 path-match algorithm so a cookie restricted to `/api` is not sent with requests to `/apiv2`.
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10529](https://github.com/scalar/scalar/pull/10529): Align import and export ordering with the Biome checks.
+- [#10524](https://github.com/scalar/scalar/pull/10524): Keep optional enum parameters disabled until explicitly enabled when no default or example is declared. Prefer declared schema examples over enum suggestions.
+- [#10520](https://github.com/scalar/scalar/pull/10520): Sort imports and exports to satisfy the Biome checks.
+- [#10528](https://github.com/scalar/scalar/pull/10528): Render AsyncAPI channels and their messages when no operations reference them, including server and protocol filtering.
+- [#10526](https://github.com/scalar/scalar/pull/10526): Align import and export ordering with the repository CI checks.
+
 ## 0.68.2
 
 ### Patch Changes

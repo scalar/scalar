@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.12.43",
+    "date": "2026-10-10",
+    "title": "Polish and bug fixes shipped",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01243",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.35",
     "date": "2026-09-22",
     "title": "Faster startup and smarter OpenAPI reference resolution",

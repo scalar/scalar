@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.12.43
+
+### Patch Changes
+
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+
 ## 0.12.42
 
 ## 0.12.41

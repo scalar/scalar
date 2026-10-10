@@ -1,5 +1,11 @@
 # @scalar/postman-to-openapi
 
+## 0.7.27
+
+### Patch Changes
+
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+
 ## 0.7.26
 
 ## 0.7.25

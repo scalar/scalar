@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.43 (2026-10-10)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01243)
+
 ## 0.12.35 (2026-09-22)
 
 ### Faster startup and smarter OpenAPI reference resolution

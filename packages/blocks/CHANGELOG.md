@@ -1,5 +1,13 @@
 # @scalar/blocks
 
+## 0.5.2
+
+### Patch Changes
+
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10534](https://github.com/scalar/scalar/pull/10534): feat(api-reference): add Generate SDK buttons to the developer tools, client libraries and request examples that open the Explore Scalar dialog when running locally and the document does not list its own SDKs
+- [#10508](https://github.com/scalar/scalar/pull/10508): Add built-in Traditional Chinese (Taiwan) translations for `zh-TW`, including case and underscore variants, across API Reference, API Client, and schema blocks.
+
 ## 0.5.1
 
 ### Patch Changes

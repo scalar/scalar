@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.31.1
+
+### Patch Changes
+
+- [#10537](https://github.com/scalar/scalar/pull/10537): fix(components): stop host page `pre` styles from adding borders and padding to code blocks
+- [#10529](https://github.com/scalar/scalar/pull/10529): Align import and export ordering with the Biome checks.
+- [#10520](https://github.com/scalar/scalar/pull/10520): Sort imports and exports to satisfy the Biome checks.
+- [#10526](https://github.com/scalar/scalar/pull/10526): Align import and export ordering with the repository CI checks.
+- [#10536](https://github.com/scalar/scalar/pull/10536): fix(components): keep the tooltip open when the pointer moves from it onto a child of its target, and draw its border with the theme hairline instead of the text colour
+
 ## 0.31.0
 
 ### Minor Changes

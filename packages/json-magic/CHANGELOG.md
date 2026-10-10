@@ -1,5 +1,14 @@
 # @scalar/json-magic
 
+## 0.15.7
+
+### Patch Changes
+
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10529](https://github.com/scalar/scalar/pull/10529): Align import and export ordering with the Biome checks.
+- [#10520](https://github.com/scalar/scalar/pull/10520): Sort imports and exports to satisfy the Biome checks.
+- [#10526](https://github.com/scalar/scalar/pull/10526): Align import and export ordering with the repository CI checks.
+
 ## 0.15.6
 
 ## 0.15.5

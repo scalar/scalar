@@ -1,5 +1,19 @@
 # @scalar/aws-lambda
 
+## 0.3.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.74.0
+
+### Minor Changes
+
+- [#10521](https://github.com/scalar/scalar/pull/10521): Add native configuration and fluent helpers for OAuth2 device authorization flows.
+- [#10519](https://github.com/scalar/scalar/pull/10519): Add ShowExtensions and WithShowExtensions to display selected specification extensions from .NET integrations.
+- [#10517](https://github.com/scalar/scalar/pull/10517): Add FeaturedClients and WithFeaturedClients to configure which HTTP clients appear as tabs in the Client Libraries block, in order.
+- [#10520](https://github.com/scalar/scalar/pull/10520): Add native .NET localization options for locale, text direction, and nested translation overrides in the API Reference and embedded API Client.
+- [#10518](https://github.com/scalar/scalar/pull/10518): Expose schema display controls in the shared .NET options: model names, visible request body properties, parameter expansion, and nested schema expansion.
+
 ## 0.2.19
 
 ### Bundled API Reference

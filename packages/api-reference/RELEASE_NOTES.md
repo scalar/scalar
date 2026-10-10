@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.74.0 (2026-10-10)
+
+### Explore Scalar call to action, AsyncAPI enhancements, and Traditional Chinese localization
+
+This release introduces a new Explore Scalar dialog on localhost that invites developers to generate SDKs and book demos, improves AsyncAPI documentation with complete channel catalogs and server metadata, and adds built-in Traditional Chinese translations.
+
+- Show an Explore Scalar call to action in the sidebar footer on localhost with morphing transitions to a registration dialog
+- Add Generate SDK buttons to developer tools, client libraries, and request examples when running locally
+- Document every AsyncAPI channel message in a complete catalog while preserving operation-specific subsets
+- Display AsyncAPI server titles, summaries, protocol versions, and application identifiers
+- Add built-in Traditional Chinese localization for Taiwan readers across API Reference and API Client
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1740)
+
 ## 1.73.0 (2026-10-05)
 
 ### Featured client tabs, visible extensions, and better schema composition
