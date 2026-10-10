@@ -1,5 +1,5 @@
 import { ScalarSidebar, ScalarSidebarItems } from '@scalar/components/sidebar'
-import { mount } from '@vue/test-utils'
+import { type DOMWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { DraggingItem, HoveredItem } from '@/hooks/use-draggable'
@@ -10,6 +10,81 @@ import ScalarSidebarComponent from './ScalarSidebar.vue'
 import SidebarItem from './SidebarItem.vue'
 
 describe('ScalarSidebar', () => {
+  it.each([true, false])(
+    'collapses nested reference tags and preserves child state (legacy group: %s)',
+    async (legacy) => {
+      const items: Item[] = [
+        {
+          id: 'root',
+          title: 'Root',
+          name: 'root',
+          type: 'tag',
+          isGroup: true,
+          isTagGroup: legacy,
+          children: [
+            {
+              id: 'parent',
+              title: 'Parent',
+              name: 'parent',
+              type: 'tag',
+              isGroup: true,
+              children: [
+                {
+                  id: 'child',
+                  title: 'Child',
+                  name: 'child',
+                  type: 'tag',
+                  isGroup: false,
+                  children: [
+                    {
+                      id: 'operation',
+                      title: 'Read item',
+                      type: 'operation',
+                      ref: 'operation',
+                      method: 'get',
+                      path: '/item',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ]
+      const state = createSidebarState(items)
+      const wrapper = mount(ScalarSidebarComponent, {
+        props: {
+          layout: 'reference',
+          items,
+          isSelected: state.isSelected,
+          isExpanded: state.isExpanded,
+          getHref: (item) => `#${item.id}`,
+          onToggleGroup: (id) => state.setExpanded(id, !state.isExpanded(id)),
+        },
+      })
+      const toggle = (label: string): DOMWrapper<HTMLButtonElement> => {
+        const button = wrapper.findAll('button').find((button) => button.text() === label)
+        if (!button) {
+          throw new Error(`Missing toggle: ${label}`)
+        }
+        return button
+      }
+
+      expect(wrapper.find('a[href="#parent"]').exists()).toBe(false)
+      for (const title of ['Root', 'Parent', 'Child']) {
+        await toggle(`Open Group - ${title}`).trigger('click')
+        expect(toggle(`Close Group - ${title}`).attributes('aria-expanded')).toBe('true')
+      }
+      expect(wrapper.get('a[href="#operation"]').text()).toContain('Read item')
+      await toggle('Close Group - Root').trigger('click')
+      expect(wrapper.find('a[href="#operation"]').exists()).toBe(false)
+      expect(state.isExpanded('parent')).toBe(true)
+      expect(state.isExpanded('child')).toBe(true)
+      await toggle('Open Group - Root').trigger('click')
+      expect(wrapper.get('a[href="#operation"]').text()).toContain('Read item')
+    },
+  )
+
   describe('filtering items by layout', () => {
     it('shows all items in reference layout', () => {
       const items: Item[] = [
@@ -48,6 +123,7 @@ describe('ScalarSidebar', () => {
       ]
 
       const state = createSidebarState(items)
+      state.setExpanded('1', true)
 
       const wrapper = mount(ScalarSidebarComponent, {
         props: {
