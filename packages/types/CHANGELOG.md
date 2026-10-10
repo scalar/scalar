@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.23.2
+
+### Patch Changes
+
+- [#10536](https://github.com/scalar/scalar/pull/10536): feat(api-reference): show an "Explore Scalar" call to action in the sidebar footer on localhost instead of the "Generate MCP" fan-out. The button expands on hover or focus into a card with the Scalar stickers and opens a dialog (morphing into it where the View Transitions API is available) with "Sign up for Scalar" and "Book a demo" actions. Public hosts, configured MCP servers and `mcp.disabled` keep their current footer. Adds `exploreScalar` translations to `ApiReferenceTranslations` and a `startViewTransition` helper to `@scalar/helpers/dom`.
+- [#10534](https://github.com/scalar/scalar/pull/10534): feat(api-reference): add Generate SDK buttons to the developer tools, client libraries and request examples that open the Explore Scalar dialog when running locally and the document does not list its own SDKs
+- [#10525](https://github.com/scalar/scalar/pull/10525): Display the AsyncAPI application identifier in the introduction when present.
+- [#10508](https://github.com/scalar/scalar/pull/10508): Add built-in Traditional Chinese (Taiwan) translations for `zh-TW`, including case and underscore variants, across API Reference, API Client, and schema blocks.
+
 ## 0.23.1
 
 ### Patch Changes

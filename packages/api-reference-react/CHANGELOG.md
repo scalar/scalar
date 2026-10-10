@@ -1,5 +1,11 @@
 # @scalar/api-reference-react
 
+## 0.9.80
+
+### Patch Changes
+
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+
 ## 0.9.79
 
 ## 0.9.78

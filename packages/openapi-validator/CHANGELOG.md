@@ -1,5 +1,7 @@
 # @scalar/openapi-validator
 
+## 0.1.12
+
 ## 0.1.11
 
 ### Patch Changes

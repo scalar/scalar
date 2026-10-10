@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 1.2.29
+
+### Patch Changes
+
+- [#10513](https://github.com/scalar/scalar/pull/10513): Document browser-loaded plugins with NestJS and add a custom extension example.
+
 ## 1.2.28
 
 ## 1.2.27

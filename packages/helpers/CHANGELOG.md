@@ -1,5 +1,13 @@
 # @scalar/helpers
 
+## 0.16.3
+
+### Patch Changes
+
+- [#10536](https://github.com/scalar/scalar/pull/10536): feat(api-reference): show an "Explore Scalar" call to action in the sidebar footer on localhost instead of the "Generate MCP" fan-out. The button expands on hover or focus into a card with the Scalar stickers and opens a dialog (morphing into it where the View Transitions API is available) with "Sign up for Scalar" and "Book a demo" actions. Public hosts, configured MCP servers and `mcp.disabled` keep their current footer. Adds `exploreScalar` translations to `ApiReferenceTranslations` and a `startViewTransition` helper to `@scalar/helpers/dom`.
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+
 ## 0.16.2
 
 ### Patch Changes

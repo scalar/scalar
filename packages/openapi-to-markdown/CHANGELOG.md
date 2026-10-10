@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 1.5.4
+
+### Patch Changes
+
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+
 ## 1.5.3
 
 ### Patch Changes

@@ -14,7 +14,7 @@
     "helpers",
     "js"
   ],
-  "version": "0.16.2",
+  "version": "0.16.3",
   "engines": {
     "node": ">=22"
   },

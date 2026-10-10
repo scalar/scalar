@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.29.13
+
+### Patch Changes
+
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+
 ## 0.29.12
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/use-hooks
 
+## 0.4.20
+
+### Patch Changes
+
+- [#10529](https://github.com/scalar/scalar/pull/10529): Align import and export ordering with the Biome checks.
+- [#10520](https://github.com/scalar/scalar/pull/10520): Sort imports and exports to satisfy the Biome checks.
+- [#10526](https://github.com/scalar/scalar/pull/10526): Align import and export ordering with the repository CI checks.
+
 ## 0.4.19
 
 ### Patch Changes
