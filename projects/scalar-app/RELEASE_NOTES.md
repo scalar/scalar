@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.40 (2026-10-10)
+
+### Authentication field improvements and Traditional Chinese localization
+
+This release refines the authentication experience with smarter credential field interactions and adds full Traditional Chinese translations for users in Taiwan.
+
+- Authentication fields now show reset and visibility icons only when they have something to do, reducing visual clutter.
+- Traditional Chinese (Taiwan) localization is available by setting locale to zh-TW.
+- OAuth2 redirect URL shows reset action only when it differs from the current page URL.
+- Cookie persistence now correctly respects Max-Age over Expires when both are present.
+- OAuth2 authorize button stays in the same position when the refresh action appears.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1140)
+
 ## 1.1.38 (2026-10-05)
 
 ### macOS 13 requirement and authentication polish

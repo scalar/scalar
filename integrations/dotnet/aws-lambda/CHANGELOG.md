@@ -2,6 +2,10 @@
 
 ## 0.3.0
 
+### Bundled API Reference
+
+- @scalar/api-reference@1.74.0
+
 ### Minor Changes
 
 - [#10521](https://github.com/scalar/scalar/pull/10521): Add native configuration and fluent helpers for OAuth2 device authorization flows.
