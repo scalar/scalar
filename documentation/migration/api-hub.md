@@ -25,27 +25,42 @@ To start, go into Swagger Studio (API Hub Design) and find the API you want to e
 
 ![API Hub Design](../assets/migration/ah-design.png)
 
-With this exported JSON file, you can [sign up for Scalar](https://dashboard.scalar.com/register), create a new docs project, click the **References** tab of the newly created project, click **Upload File**, and select the file you exported from API Hub. This adds your OpenAPI doc to Scalar, ready to be edited, previewed, and published.
+With this exported JSON file, you can [sign up for Scalar](https://dashboard.scalar.com/register), create a new docs project, then click **+** in the editor's sidebar and choose **Add API Reference**. Pick **Import a new API**, click **Continue**, and upload the file you exported from API Hub. This adds your OpenAPI document to your team's Registry and links it in your docs, ready to preview and publish.
 
-![Scalar](../assets/migration/ah-scalar.png)
+<scalar-image
+  src="/docs-add-api-import.png"
+  src-dark="/docs-add-api-import-dark.png"
+  alt="The Add an API to your docs dialog in the editor, with Import a new API selected"
+  size="full">
+</scalar-image>
 
 ## How to migrate from API Hub Portal to Scalar
 
 API Hub Portal enables you to publish an interactive version of your OpenAPI doc along with markdown guides.
 
-In Scalar, you do not need to go to another product to do this. Just click the **Publish** button in the top right of your docs project. This brings you to a page where you can set your domain name, metadata, and more. Once ready, click **Publish** once more to deploy your site.
+In Scalar, you do not need to go to another product to do this. Just click **Publish** in the top right of the editor. The first time you publish, Scalar shows your site's visibility and domain so you can check them before it goes live. Set your subdomain or custom domain under **Settings → Site**.
 
-![API Hub Portal](../assets/migration/ah-portal.png)
+<scalar-image
+  src="/docs-settings-site.png"
+  src-dark="/docs-settings-site-dark.png"
+  alt="Settings → Site in the editor, with the site's subdomain, custom domain, and subpath"
+  size="full">
+</scalar-image>
 
-Adding guides is just as simple. In your Scalar docs project, click the **Guides** tab. There you can add and edit pages. The editor supports Markdown, so you can simply copy and paste docs from your API Hub Portal project.
+Adding guides is just as simple. Click **+** in the editor's sidebar and choose **Add Page**. To bring over Markdown from your API Hub Portal project, paste it into the editor's code view, or add the `.md` files to your project. Markdown pasted into the visual editor stays as plain text.
 
-Just like API Hub Portal this is completely customizable. Just click the **Customize** button to edit your header, logo, style, footer, version, code, and config.
+Just like API Hub Portal this is completely customizable. Change your logo, theme, footer, and versions from the editor's **Settings**, edit the header from the **Header** button in the editor's top bar, and configure everything else in `scalar.config.json`.
 
-![Scalar theme](../assets/migration/ah-theme.png)
+<scalar-image
+  src="/docs-settings-appearance.png"
+  src-dark="/docs-settings-appearance-dark.png"
+  alt="Settings → Appearance in the editor, with the site's theme, light/dark mode, and logo settings"
+  size="full">
+</scalar-image>
 
-### (Optional) Using GitHub Sync with scalar.config.json
+### (Optional) Using Git Sync with scalar.config.json
 
-If you prefer to manage your documentation via Git (similar to how API Hub Portal can work with version control), you can use Scalar's GitHub Sync feature. This allows you to keep your OpenAPI documents and Markdown guides in a Git repository and automatically publish when changes are merged.
+If you prefer to manage your documentation via Git (similar to how API Hub Portal can work with version control), you can use Scalar's Git Sync feature. This allows you to keep your OpenAPI documents and Markdown guides in a Git repository and automatically publish when changes are merged.
 
 To set this up, create a `scalar.config.json` file in your repository root:
 
@@ -85,7 +100,7 @@ To set this up, create a `scalar.config.json` file in your repository root:
 }
 ```
 
-Configure automatic deployment (publish when a branch is merged into your main branch) in the [Scalar Dashboard](https://dashboard.scalar.com) under your project settings.
+Automatic deployment is the **Publish on merge** toggle under **Auto-publish** in the editor's **Settings → Git Sync**. It publishes your site whenever changes land on your tracked branch, and it is on by default. The **Tracked branch** is set on the same page.
 
 ## How to migrate from API Hub Explore to Scalar
 
@@ -93,7 +108,12 @@ Scalar's API client is a direct replacement for API Hub Explore. Both you and yo
 
 Just like API Hub Explore, you can import existing API docs into the API client to get all the endpoints set up for testing. Once you have these, you can modify and send requests, add new routes, and much more to help explore and debug APIs.
 
-![Scalar API client](../assets/migration/ah-client.png)
+<scalar-image
+  src="/api-client.png"
+  src-dark="/api-client-dark.png"
+  alt="The Scalar API client with an imported OpenAPI document, showing a sent request and its response"
+  size="full">
+</scalar-image>
 
 ## Link APIs from Design
 
@@ -106,7 +126,7 @@ Yes. SwaggerHub was renamed API Hub for Design, and SmartBear [renamed that to S
 </scalar-detail>
 
 <scalar-detail title="Do I have to change my OpenAPI documents to move to Scalar?">
-No. Export the document as JSON or YAML and upload it, or commit it to a Git repository and connect it with GitHub Sync. Scalar reads Swagger 2.0 and OpenAPI 3.x documents as they are.
+No. Export the document as JSON or YAML and upload it, or commit it to a Git repository and connect it with Git Sync. Scalar reads Swagger 2.0 and OpenAPI 3.x documents as they are.
 </scalar-detail>
 
 <scalar-detail title="What replaces Swagger Portal in Scalar?">
