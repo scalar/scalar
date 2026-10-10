@@ -2,7 +2,7 @@
 
 The Python target publishes to [PyPI](https://pypi.org/). The distribution name is the target's `projectName` (or `packageName`). See the [Python configuration](../configuration/python.md) for naming options.
 
-Authenticate the release with **OIDC trusted publishing** (recommended) or a **PyPI API token**.
+Authenticate the release with **OIDC trusted publishing** (the default, recommended) or a **PyPI API token**. PyPI accepts a *pending* trusted publisher for a project that does not exist yet, so even a brand-new SDK can publish its first version without a token.
 
 ## Enable publishing
 
@@ -27,12 +27,17 @@ Recommended. PyPI exchanges the workflow's identity token for a short-lived uplo
 <scalar-steps>
   <scalar-step id="pypi-oidc-add" title="Add a trusted publisher on PyPI">
 
-On [pypi.org](https://pypi.org/), open your project's **Publishing** tab (for a brand-new project, use **Your account → Publishing → Add a pending publisher**) and add a **GitHub** publisher:
+On [pypi.org](https://pypi.org/), add a **GitHub** publisher:
+
+- For a project that does not exist yet, add a *pending* publisher at [pypi.org/manage/account/publishing](https://pypi.org/manage/account/publishing/). It also asks for the **PyPI project name** to reserve (the target's `projectName`), and becomes an ordinary publisher on the first successful upload.
+- For an existing project, open it from [your projects](https://pypi.org/manage/projects/) and go to **Manage → Publishing**.
+
+Both forms ask for:
 
 - **Owner**: the owner of your [linked repository](github.md)
 - **Repository name**: the repository name
 - **Workflow name**: `release-please.yml`
-- **Environment**: leave blank (unless you set `releaseEnvironment`)
+- **Environment**: `publish.pypi.releaseEnvironment`, or blank when none is set
 
 The automated publish runs as the `publish` job inside `release-please.yml`, so that is the workflow PyPI sees. If you also dispatch `sdk-release.yml` to re-publish a tag by hand, add it as a second publisher.
 
@@ -58,7 +63,7 @@ On pypi.org, go to **Account settings → API tokens → Add API token**. Scope 
 
   <scalar-step id="pypi-token-secret" title="Add it to the repository">
 
-Add the token as a repository secret named **`PYPI_API_TOKEN`**. See [Adding repository secrets](github.md#adding-repository-secrets).
+Add the token as a repository secret named **`PYPI_API_TOKEN`**. See [Adding repository secrets](github.md#adding-repository-secrets). An existing `PYPI_TOKEN` secret is read when `PYPI_API_TOKEN` is unset. When `publish.pypi.releaseEnvironment` is set, an environment secret of the same name overrides the repository one.
 
   </scalar-step>
 
@@ -77,7 +82,7 @@ Add the token as a repository secret named **`PYPI_API_TOKEN`**. See [Adding rep
   </scalar-step>
 </scalar-steps>
 
-The workflow uses `pypa/gh-action-pypi-publish` and passes `PYPI_API_TOKEN` as the upload password.
+The workflow uses `pypa/gh-action-pypi-publish` and passes the token as the upload password.
 
 ## Notes
 

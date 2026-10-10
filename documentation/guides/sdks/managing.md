@@ -43,7 +43,7 @@ Every build analyzes your OpenAPI document and configuration before it generates
 
   <scalar-step id="build-sync" title="Builds sync to GitHub">
 
-If a target is [linked to a repository](publishing/github.md), the build pushes to `scalar-generated`, merges into `scalar-next`, and updates the release pull request against your default branch. If [publishing is enabled](publishing/overview.md), merging that release pull request tags and publishes the version.
+If a target is [linked to a repository](publishing/github.md), the build pushes to `scalar-generated`, merges into `scalar-next`, and updates the release pull request against your default branch. Merging that release pull request tags the version and creates a GitHub Release; if [publishing is enabled](publishing/overview.md), the same workflow run also publishes it to the registry.
 
 A target set to [promote manually](publishing/github.md#promotion) stops short of that: the build is generated and mirrored to staging, and reaches the production repository when you promote it.
 

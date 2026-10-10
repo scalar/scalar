@@ -93,7 +93,7 @@
       {
         "path": "/resources/changelog",
         "title": "Scalar Changelog",
-        "description": "Releases across Scalar products — API Client, API Reference, Agent, and Mock Server"
+        "description": "Releases across Scalar products — API Client, API Reference, Agent, Mock Server, and SDK Generator"
       },
       {
         "path": "/blog",
@@ -4355,7 +4355,7 @@
                   "type": "page",
                   "title": "Changelog",
                   "filepath": "documentation/changelog/index.md",
-                  "description": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server.",
+                  "description": "Curated release notes for Scalar API Client, API Reference, Agent, Mock Server, and SDK Generator.",
                   "layout": {
                     "toc": false
                   },
@@ -4369,7 +4369,7 @@
                     "meta": [
                       {
                         "name": "description",
-                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, Mock Server, and SDK Generator."
                       },
                       {
                         "property": "og:title",
@@ -4377,7 +4377,7 @@
                       },
                       {
                         "property": "og:description",
-                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, Mock Server, and SDK Generator."
                       },
                       {
                         "name": "robots",
@@ -4447,6 +4447,22 @@
                         {
                           "rel": "canonical",
                           "href": "https://scalar.com/resources/changelog/mock-server"
+                        }
+                      ]
+                    }
+                  },
+                  "/sdk-generator": {
+                    "type": "page",
+                    "title": "SDK Generator",
+                    "icon": "phosphor/regular/package",
+                    "filepath": "documentation/changelog/sdk-generator/index.md",
+                    "changelog": true,
+                    "description": "Release notes for the Scalar SDK Generator and every language it targets.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/changelog/sdk-generator"
                         }
                       ]
                     }

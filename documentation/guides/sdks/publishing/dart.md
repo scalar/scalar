@@ -1,8 +1,9 @@
 # Dart (pub.dev)
 
-The Dart target publishes to [pub.dev](https://pub.dev/). The package name is the target's `packageName`. See the [Dart configuration](../configuration/dart.md) for options.
+The Dart target publishes to [pub.dev](https://pub.dev/). The package name is the target's `packageName`. See the [Dart configuration](../configuration/dart.md#publish) for options.
 
-Authenticate the release with **OIDC trusted publishing** (recommended) or a **pub.dev token**.
+> [!WARNING]
+> pub.dev's [automated publishing](https://dart.dev/tools/pub/automated-publishing) (OIDC) only accepts a publish from a GitHub Actions run that a matching **tag push** triggered. The generated release workflows are not: `release-please.yml` runs on the push to your release branch, and `sdk-release.yml` is dispatched by hand. So although `pub` defaults to `oidc`, a Dart target has to set `authMethod` to `access-token`.
 
 ## Enable publishing
 
@@ -11,48 +12,22 @@ Authenticate the release with **OIDC trusted publishing** (recommended) or a **p
   "targets": {
     "dart": {
       "packageName": "acme",
-      "publish": { "pub": true }
+      "publish": { "pub": { "authMethod": "access-token" } }
     }
   }
 }
 ```
 
-## Trusted publishing (OIDC)
+## Set up the token
 
-Recommended. pub.dev supports automated publishing from GitHub Actions using the workflow's identity token, so no secret is stored.
-
-<scalar-steps>
-  <scalar-step id="pub-oidc-enable" title="Enable automated publishing on pub.dev">
-
-On [pub.dev](https://pub.dev/), open the package's **Admin** tab and enable **Automated publishing → Publishing from GitHub Actions**. Set:
-
-- **Repository**: your [linked repository](github.md) (`owner/repo`)
-- **Tag pattern**: `v{{version}}` (the tag Scalar creates)
-- **Environment**: leave blank (unless you set `releaseEnvironment`)
-
-  </scalar-step>
-
-  <scalar-step id="pub-oidc-config" title="Keep the default config">
-
-```json
-{ "targets": { "dart": { "publish": { "pub": true } } } }
-```
-
-  </scalar-step>
-</scalar-steps>
-
-## Publishing with a token
+You need uploader rights on the package on pub.dev.
 
 <scalar-steps>
-  <scalar-step id="pub-token-create" title="Get a pub.dev token">
+  <scalar-step id="pub-token-secret" title="Add the credential to the repository">
 
-Obtain an OAuth/refresh token for your pub.dev account (for example with `dart pub token add https://pub.dev` locally and copying the stored credential).
+Add a pub.dev credential as a repository secret named **`PUB_TOKEN`**. See [Adding repository secrets](github.md#adding-repository-secrets). When `publish.pub.releaseEnvironment` is set, an environment secret of the same name overrides the repository one.
 
-  </scalar-step>
-
-  <scalar-step id="pub-token-secret" title="Add it to the repository">
-
-Add the token as a repository secret named **`PUB_TOKEN`**. See [Adding repository secrets](github.md#adding-repository-secrets).
+The workflow registers it with `dart pub token add https://pub.dev --env-var PUB_TOKEN` before running `dart pub publish`.
 
   </scalar-step>
 
@@ -71,9 +46,9 @@ Add the token as a repository secret named **`PUB_TOKEN`**. See [Adding reposito
   </scalar-step>
 </scalar-steps>
 
-The workflow registers `PUB_TOKEN` with `dart pub token add` before publishing.
+> [!NOTE]
+> pub.dev's documented credentials for publishing from CI are short-lived: a Google Cloud identity token, for example, expires within an hour. Make sure the `PUB_TOKEN` secret is valid before each release.
 
 ## Notes
 
-- The workflow checks the pub.dev API for the version and skips publishing if it already exists.
-- Trusted publishing is strongly preferred; tokens for pub.dev are longer-lived and harder to scope.
+- The workflow checks the pub.dev API for the version and skips publishing if it already exists, so re-merges are safe.
