@@ -1,4 +1,3 @@
-import { isObject } from '@scalar/helpers/object/is-object'
 import { DEFAULT_MODELS_SECTION_LABEL, type ModelsSectionLabel } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getPathItemOperation, getResolvedPathItem } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
@@ -14,19 +13,14 @@ import type {
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { adaptAsyncApiParameters } from '@/components/Content/AsyncApi/helpers/adapt-async-api-parameters'
-import {
-  resolveAsyncApiChannel,
-  resolveAsyncApiMessage,
-  resolveAsyncApiOperation,
-} from '@/components/Content/AsyncApi/helpers/resolve-async-api-nodes'
 import type { FuseData } from '@/features/Search/types'
-import { unwrapAsyncApiSchema } from '@/helpers/get-async-api-message-payload-schema'
 import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
 import { isIntroductionEntry } from '@/helpers/is-introduction-entry'
 import { createSearchFieldExtractor, extractParameterDescriptions, extractParameterNames } from '@/helpers/openapi'
 
-/** Documents the search index can ingest. Includes OpenAPI and AsyncAPI navigation content. */
+import { createAsyncApiSearchEntry } from './create-async-api-search-entry'
+
+/** Documents the search index can ingest. */
 type SearchableDocument = OpenApiDocument | AsyncApiDocument
 
 /**
@@ -103,26 +97,6 @@ function extractResponseExamples(responses: ResponsesObject | undefined): string
     .filter((value) => value.length > 0)
 }
 
-/** Only JSON Schema-compatible formats can be searched by the shared property walker. */
-const getSearchableAsyncApiSchema = (value: unknown): SchemaObject | undefined => {
-  const resolved = getResolvedRef(value)
-  if (isObject(resolved) && 'schemaFormat' in resolved) {
-    const mediaType = String(resolved.schemaFormat).split(';')[0]?.trim().toLowerCase()
-    if (
-      ![
-        'application/schema+json',
-        'application/schema+yaml',
-        'application/vnd.aai.asyncapi',
-        'application/vnd.aai.asyncapi+json',
-        'application/vnd.aai.asyncapi+yaml',
-      ].includes(mediaType ?? '')
-    ) {
-      return undefined
-    }
-  }
-  return unwrapAsyncApiSchema(resolved)
-}
-
 type CreateSearchIndexOptions = {
   labels?: SearchIndexLabels
   modelsSectionLabel?: ModelsSectionLabel
@@ -153,23 +127,39 @@ export function createSearchIndex(
 ): FuseData[] {
   const index: FuseData[] = []
   const extractFields = createSearchFieldExtractor()
-  const extractAsyncApiFields = createSearchFieldExtractor({
-    maxPropertyDepth: Number.POSITIVE_INFINITY,
-    includeArrayItems: true,
-  })
   const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
   const labels = options?.labels ?? DEFAULT_SEARCH_INDEX_LABELS
 
-  /**
-   * Recursively processes entries and their children to build the search index.
-   */
-  function processEntries(entriesToProcess: TraversedEntry[]): void {
+  const asyncApiEntries = new Set<string>()
+
+  /** Recursively processes entries and their children to build the search index. */
+  function processEntries(entriesToProcess: TraversedEntry[], parentType?: TraversedEntry['type']): void {
     entriesToProcess.forEach((entry) => {
-      addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields, extractAsyncApiFields)
+      if (isAsyncApiDocument(document) && entry.type.startsWith('asyncapi-')) {
+        // Messages also appear under operations. Prefer their channel catalog anchor, and
+        // collapse repeated tag appearances without merging distinct channels sharing a message.
+        let key = entry.id
+        if (entry.type === 'asyncapi-message') {
+          key = JSON.stringify([entry.type, entry.channelName, entry.messageName])
+        } else if (entry.type === 'asyncapi-channel') {
+          key = JSON.stringify([entry.type, entry.channelName])
+        } else if (entry.type === 'asyncapi-operation') {
+          key = JSON.stringify([entry.type, entry.operationName])
+        }
+        if (!(entry.type === 'asyncapi-message' && parentType === 'asyncapi-operation') && !asyncApiEntries.has(key)) {
+          const result = createAsyncApiSearchEntry(document, entry)
+          if (result) {
+            index.push(result)
+            asyncApiEntries.add(key)
+          }
+        }
+      } else {
+        addEntryToIndex(entry, index, document, modelsSectionTitle, labels, extractFields)
+      }
 
       // Recursively process children if they exist
       if ('children' in entry && entry.children) {
-        processEntries(entry.children)
+        processEntries(entry.children, entry.type)
       }
     })
   }
@@ -181,6 +171,8 @@ export function createSearchIndex(
 
 /**
  * Adds a single entry to the search index, handling all entry types recursively.
+ *
+ * AsyncAPI channels, operations, and messages are handled by the traversal above.
  */
 function addEntryToIndex(
   entry: TraversedEntry,
@@ -189,72 +181,10 @@ function addEntryToIndex(
   modelsSectionTitle: string,
   labels: SearchIndexLabels,
   extractFields: ReturnType<typeof createSearchFieldExtractor>,
-  extractAsyncApiFields: ReturnType<typeof createSearchFieldExtractor>,
 ): void {
   // OpenAPI-only branches read fields that do not exist on AsyncAPI documents (paths, webhooks,
   // components.schemas). Narrow once here so each branch can dereference safely.
   const openApiDocument = isOpenApiDocument(document) ? document : undefined
-
-  if (isAsyncApiDocument(document)) {
-    if (entry.type === 'asyncapi-channel') {
-      const channel = resolveAsyncApiChannel(document, entry.channelName)
-      const parameters = adaptAsyncApiParameters(channel?.parameters)
-      index.push({
-        type: entry.type,
-        id: entry.id,
-        title: entry.title,
-        description: channel?.description ?? channel?.summary ?? '',
-        identifiers: [entry.channelName],
-        path: entry.channelAddress,
-        parameters: extractParameterNames(parameters),
-        parameterDescriptions: extractParameterDescriptions(parameters),
-        bodyDescriptions: channel?.summary ? [channel.summary] : [],
-        entry,
-      })
-      return
-    }
-
-    if (entry.type === 'asyncapi-operation') {
-      const operation = resolveAsyncApiOperation(document, entry.operationName)
-      index.push({
-        type: entry.type,
-        id: entry.id,
-        title: operation?.title || entry.title,
-        description: operation?.description ?? operation?.summary ?? '',
-        identifiers: [entry.operationName],
-        action: entry.action,
-        path: entry.channelAddress,
-        bodyDescriptions: operation?.summary ? [operation.summary] : [],
-        entry,
-      })
-      return
-    }
-
-    if (entry.type === 'asyncapi-message') {
-      const message = resolveAsyncApiMessage(document, entry.channelName, entry.messageName)
-      const channel = resolveAsyncApiChannel(document, entry.channelName)
-      const schemas = [message?.payload, message?.headers].map(getSearchableAsyncApiSchema)
-      const fields = schemas.map(extractAsyncApiFields.schema)
-      index.push({
-        type: entry.type,
-        id: entry.id,
-        title: message?.title || entry.title,
-        description: message?.description ?? message?.summary ?? '',
-        identifiers: [entry.messageName, ...(message?.name ? [message.name] : [])],
-        path: channel?.address ?? entry.channelName,
-        body: [...new Set(fields.flatMap((field) => field.names))],
-        bodyDescriptions: [
-          ...new Set([
-            ...(message?.summary ? [message.summary] : []),
-            ...schemas.flatMap((schema) => (schema?.description ? [schema.description] : [])),
-            ...fields.flatMap((field) => field.descriptions),
-          ]),
-        ],
-        entry,
-      })
-      return
-    }
-  }
 
   // Operation
   if (entry.type === 'operation') {

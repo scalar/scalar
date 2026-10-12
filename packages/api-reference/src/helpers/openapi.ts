@@ -37,7 +37,6 @@ type CollectOptions = {
   visit: (key: string, schema: SchemaObject | undefined) => void
   visited: Set<SchemaObject>
   maxPropertyDepth: number
-  includeArrayItems?: boolean
 }
 
 /**
@@ -50,7 +49,7 @@ type CollectOptions = {
  * guards against recursive (`Tree → Tree`) schemas.
  */
 function collectSchemaProperties(schema: SchemaObject | undefined, options: CollectOptions, propertyDepth = 0): void {
-  if (!isSchemaObject(schema) || options.visited.has(schema)) {
+  if (!schema || options.visited.has(schema)) {
     return
   }
   options.visited.add(schema)
@@ -59,11 +58,6 @@ function collectSchemaProperties(schema: SchemaObject | undefined, options: Coll
   variants.forEach((variantRef) => {
     collectSchemaProperties(resolveSchemaRef(variantRef), options, propertyDepth)
   })
-
-  if (options.includeArrayItems && 'items' in schema && schema.items) {
-    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
-    items.forEach((item) => collectSchemaProperties(resolveSchemaRef(item), options, propertyDepth))
-  }
 
   if (isObjectSchema(schema) && schema.properties) {
     Object.entries(schema.properties).forEach(([key, propRef]) => {
@@ -213,9 +207,7 @@ type SchemaSearchFields = {
  * Creates extraction caches for one synchronous index build. Discarding them after the build
  * ensures edits to existing schema objects are visible the next time search is indexed.
  */
-export const createSearchFieldExtractor = (
-  options: { maxPropertyDepth?: number; includeArrayItems?: boolean } = {},
-): {
+export const createSearchFieldExtractor = (): {
   schema: (schema: SchemaObject | undefined) => SchemaSearchFields
   body: (operation: OperationObject) => SchemaSearchFields
 } => {
@@ -248,12 +240,7 @@ export const createSearchFieldExtractor = (
       return cached
     }
     const fields = collect((visit) =>
-      collectSchemaProperties(value, {
-        visit,
-        visited: new Set<SchemaObject>(),
-        maxPropertyDepth: options.maxPropertyDepth ?? 2,
-        includeArrayItems: options.includeArrayItems,
-      }),
+      collectSchemaProperties(value, { visit, visited: new Set<SchemaObject>(), maxPropertyDepth: 2 }),
     )
     schemas.set(value, fields)
     return fields
