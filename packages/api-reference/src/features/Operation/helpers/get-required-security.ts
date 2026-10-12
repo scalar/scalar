@@ -1,3 +1,4 @@
+import type { AsyncApiSecuritySchemeObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { isNonOptionalSecurityRequirement } from '@scalar/workspace-store/helpers/is-non-optional-security-requirement'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -10,7 +11,7 @@ export type RequiredSecurityScheme = {
   /** Scheme key as declared in `components.securitySchemes`. */
   name: string
   /** Resolved scheme object. `undefined` if the referenced scheme isn't defined on the document. */
-  scheme: SecuritySchemeObject | undefined
+  scheme: SecuritySchemeObject | AsyncApiSecuritySchemeObject | undefined
   /** Scopes required by the operation for this scheme (OAuth2 / OpenID Connect). Empty otherwise. */
   scopes: string[]
 }

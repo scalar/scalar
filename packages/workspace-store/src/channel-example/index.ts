@@ -32,6 +32,7 @@ export {
 export {
   getAsyncApiDocumentSecurityRequirements,
   getAsyncApiSecurityRequirements,
+  getAsyncApiSecuritySchemes,
 } from './get-asyncapi-security-requirements'
 export { getChannelConnectionContext } from './get-channel-connection-context'
 export { getChannelConnectionSecurityRequirements } from './get-channel-connection-security'
