@@ -449,12 +449,384 @@ const initHeroCards = debounce(() => {
   if (bound) console.log(`Initialized ${bound} hero cards`)
 })
 
+/* Landing scroller: the sticky panel beside the copy shows the hero scene
+   or one product card depending on which section is in the middle of the
+   viewport. Sections carry data-lp-scene and the wrapper takes the active
+   one; the layouts themselves live in CSS. */
+const initLandingScenes = debounce(() => {
+  const root = document.querySelector('.lp[data-lp-scene]')
+  if (!root || root.dataset.lpScenesBound === 'true') {
+    return
+  }
+
+  const sections = [...root.querySelectorAll('.lp-section[data-lp-scene]')]
+  if (!sections.length) {
+    return
+  }
+
+  root.dataset.lpScenesBound = 'true'
+
+  // Single-column layout keeps the hero scene as a still
+  const narrow = window.matchMedia('(max-width: 1100px)')
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (narrow.matches) {
+        return
+      }
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          root.dataset.lpScene = entry.target.dataset.lpScene
+        }
+      })
+    },
+    // a thin band across the middle of the viewport: a section becomes the
+    // scene the moment it crosses it
+    { rootMargin: '-45% 0px -45% 0px', threshold: 0 },
+  )
+
+  sections.forEach((section) => observer.observe(section))
+
+  narrow.addEventListener('change', () => {
+    if (narrow.matches) {
+      root.dataset.lpScene = 'hero'
+    }
+  })
+
+  console.log(`Initialized ${sections.length} landing scenes`)
+})
+
+/* Landing boxes: a click on a product box, or on its folded band in the
+   stack, scrolls to that product's section. The open card is the current
+   section already, so it does nothing. */
+const initLandingBoxLinks = debounce(() => {
+  const root = document.querySelector('.lp[data-lp-scene]')
+  if (!root || root.dataset.lpBoxLinksBound === 'true') {
+    return
+  }
+
+  const boxes = [...root.querySelectorAll('.lp-box[data-lp-target]')]
+  if (!boxes.length) {
+    return
+  }
+
+  root.dataset.lpBoxLinksBound = 'true'
+
+  const narrow = window.matchMedia('(max-width: 1100px)')
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  boxes.forEach((box) => {
+    box.addEventListener('click', (event) => {
+      const target = box.dataset.lpTarget
+      const section = root.querySelector(`.lp-section[data-lp-scene="${target}"]`)
+      if (!section) {
+        return
+      }
+
+      event.preventDefault()
+
+      if (root.dataset.lpScene === target && !narrow.matches) {
+        return
+      }
+
+      const header = Number.parseFloat(getComputedStyle(root).getPropertyValue('--scalar-header-height')) || 48
+      const top = section.getBoundingClientRect().top + window.scrollY - header
+      window.scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' })
+    })
+  })
+
+  console.log(`Initialized ${boxes.length} landing box links`)
+})
+
+/* MCP card chat: plays the conversation (prompt, thinking, tool steps,
+   reply, then the next prompt typed and sent) every time the MCP card
+   becomes the scene, after the chat mockup on equals.com. Without the
+   script, or with reduced motion, the finished conversation shows. */
+const initLandingChat = debounce(() => {
+  const root = document.querySelector('.lp[data-lp-scene]')
+  const chat = root ? root.querySelector('.lp-chat') : null
+  if (!root || !chat || chat.dataset.lpChatBound === 'true') {
+    return
+  }
+
+  chat.dataset.lpChatBound = 'true'
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return
+  }
+
+  const messages = chat.querySelector('.lp-chat-messages')
+  const composer = chat.querySelector('.lp-chat-composer')
+  const placeholder = chat.querySelector('.lp-chat-placeholder')
+  const send = chat.querySelector('.lp-chat-send')
+  const turns = [...chat.querySelectorAll('.lp-chat-turn')]
+  if (!messages || !composer || !placeholder || !turns.length) {
+    return
+  }
+
+  const idleText = placeholder.textContent
+  const timers = new Set()
+  const later = (fn, ms) => {
+    const id = window.setTimeout(() => {
+      timers.delete(id)
+      fn()
+    }, ms)
+    timers.add(id)
+  }
+  const clearTimers = () => {
+    timers.forEach((id) => {
+      window.clearTimeout(id)
+      window.clearInterval(id)
+    })
+    timers.clear()
+  }
+
+  // keeps the newest line in view
+  const reveal = (el) => {
+    const over = el.getBoundingClientRect().bottom - messages.getBoundingClientRect().bottom + 20
+    if (over > 0) {
+      messages.scrollTop += over
+    }
+  }
+
+  // the old text lifts and blurs out while the new one rises in
+  const swap = (think, text, delay = 25) => {
+    const old = think.querySelector('.lp-chat-think-text')
+    old.classList.add('is-exit')
+    const next = document.createElement('span')
+    next.className = 'lp-chat-think-text is-enter-start'
+    next.textContent = text
+    next.setAttribute('data-text', text)
+    think.appendChild(next)
+    later(() => {
+      void next.offsetWidth
+      next.classList.remove('is-enter-start')
+    }, delay)
+    later(() => old.remove(), 150 + delay)
+  }
+
+  // a thinking or tool line starts: running text, shimmer on
+  const start = (line) => {
+    const think = line.querySelector('.lp-chat-think')
+    const text = think.querySelector('.lp-chat-think-text')
+    line.classList.remove('is-done')
+    text.textContent = think.dataset.running
+    text.setAttribute('data-text', think.dataset.running)
+    think.classList.add('is-running')
+    return think
+  }
+
+  // ...and settles: shimmer off, done text in
+  const settle = (line, delay) => {
+    const think = line.querySelector('.lp-chat-think')
+    think.classList.remove('is-running')
+    line.classList.add('is-settling')
+    later(() => line.classList.add('is-done'), 150)
+    swap(think, think.dataset.done, delay)
+  }
+
+  // every step does its thing and returns how long to wait for the next
+  const steps = []
+  turns.forEach((turn, index) => {
+    const prompt = turn.querySelector('.lp-chat-prompt')
+    const thinking = turn.querySelector('.lp-chat-thinking')
+    const tool = turn.querySelector('.lp-chat-tool')
+    const toolSteps = [...turn.querySelectorAll('.lp-chat-step')]
+    const lines = [...turn.querySelectorAll('.lp-chat-line')]
+    const spark = turn.querySelector('.lp-chat-spark')
+
+    if (index > 0) {
+      const text = prompt.textContent.trim()
+      steps.push(() => {
+        placeholder.classList.add('is-typing')
+        composer.classList.add('is-composing')
+        placeholder.textContent = ''
+        let typed = 0
+        const id = window.setInterval(() => {
+          typed += 1
+          placeholder.textContent = text.slice(0, typed)
+          if (typed >= text.length) {
+            window.clearInterval(id)
+            timers.delete(id)
+          }
+        }, 22)
+        timers.add(id)
+        return 700 + 22 * text.length + 250
+      })
+      steps.push(() => {
+        send.classList.add('is-pressed')
+        later(() => {
+          placeholder.classList.remove('is-typing')
+          composer.classList.remove('is-composing')
+          placeholder.textContent = idleText
+          send.classList.remove('is-pressed')
+        }, 130)
+        return 130
+      })
+    }
+
+    steps.push(() => {
+      if (index > 0) {
+        const previous = turns[index - 1].querySelector('.lp-chat-spark')
+        if (previous) {
+          previous.classList.add('is-out')
+        }
+      }
+      prompt.classList.add('is-in')
+      reveal(prompt)
+      return 300
+    })
+
+    if (thinking) {
+      steps.push(() => {
+        start(thinking)
+        thinking.classList.add('is-in')
+        reveal(thinking)
+        return 650
+      })
+    }
+
+    if (tool) {
+      let toolThink = null
+      steps.push(() => {
+        toolThink = start(tool)
+        tool.classList.add('is-open', 'is-in')
+        reveal(tool)
+        return 650
+      })
+      toolSteps.forEach((step) => {
+        steps.push(() => {
+          step.classList.add('is-in')
+          reveal(step)
+          return 450
+        })
+      })
+      steps.push(() => {
+        toolThink.classList.remove('is-running')
+        swap(toolThink, toolThink.dataset.done)
+        tool.classList.remove('is-open')
+        later(() => tool.classList.add('is-done'), 175)
+        if (thinking) {
+          later(() => settle(thinking, 150), 250)
+        }
+        return 870
+      })
+    } else if (thinking) {
+      steps.push(() => {
+        settle(thinking, 150)
+        return 400
+      })
+    }
+
+    if (spark) {
+      steps.push(() => {
+        spark.classList.add('is-in', 'is-working')
+        reveal(spark)
+        return 200
+      })
+    }
+
+    lines.forEach((line) => {
+      steps.push(() => {
+        line.classList.add('is-laid-out')
+        void line.offsetWidth
+        line.classList.add('is-in')
+        reveal(line)
+        return 300
+      })
+    })
+
+    if (spark) {
+      steps.push(() => {
+        spark.classList.remove('is-working')
+        return 0
+      })
+    }
+  })
+
+  const step = (index) => {
+    if (index >= steps.length) {
+      return
+    }
+    const wait = steps[index]()
+    later(() => step(index + 1), wait)
+  }
+
+  // back to the finished conversation, with nothing shown yet
+  const reset = () => {
+    clearTimers()
+    chat.querySelectorAll('[class*="is-"]').forEach((el) => {
+      ;[...el.classList].filter((name) => name.startsWith('is-')).forEach((name) => el.classList.remove(name))
+    })
+    chat.querySelectorAll('.lp-chat-thinking, .lp-chat-tool').forEach((line) => line.classList.add('is-done'))
+    chat.querySelectorAll('.lp-chat-think').forEach((think) => {
+      const texts = [...think.querySelectorAll('.lp-chat-think-text')]
+      texts.slice(0, -1).forEach((text) => text.remove())
+      const text = texts[texts.length - 1]
+      text.className = 'lp-chat-think-text'
+      text.textContent = think.dataset.done
+      text.setAttribute('data-text', think.dataset.done)
+    })
+    placeholder.textContent = idleText
+    messages.scrollTop = 0
+  }
+
+  const play = () => {
+    reset()
+    chat.classList.add('is-armed')
+    later(() => step(0), 450)
+  }
+
+  let current = root.dataset.lpScene
+  const sync = () => {
+    const scene = root.dataset.lpScene
+    if (scene === current) {
+      return
+    }
+    current = scene
+    if (scene === 'mcp') {
+      play()
+    } else {
+      clearTimers()
+    }
+  }
+  new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-lp-scene'] })
+  if (current === 'mcp') {
+    play()
+  }
+
+  console.log('Initialized landing chat')
+})
+
+/* Docs card windows: the last one hovered stays in front */
+const initLandingDocsWindows = debounce(() => {
+  const root = document.querySelector('.lp[data-lp-scene]')
+  const windows = root ? [...root.querySelectorAll('.lp-browser')] : []
+  if (!windows.length || root.dataset.lpDocsWindowsBound === 'true') {
+    return
+  }
+
+  root.dataset.lpDocsWindowsBound = 'true'
+
+  windows.forEach((win) => {
+    win.addEventListener('mouseenter', () => {
+      windows.forEach((other) => other.classList.toggle('is-front', other === win))
+    })
+  })
+
+  console.log(`Initialized ${windows.length} landing docs windows`)
+})
+
 initDraggableElements()
 initFooterAnimation()
 initGallery()
 initHeroSdkTabs()
 initHeroScenes()
 initHeroCards()
+initLandingScenes()
+initLandingBoxLinks()
+initLandingChat()
+initLandingDocsWindows()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
@@ -467,6 +839,10 @@ const observer = new MutationObserver((records) => {
   initHeroSdkTabs()
   initHeroScenes()
   initHeroCards()
+  initLandingScenes()
+  initLandingBoxLinks()
+  initLandingChat()
+  initLandingDocsWindows()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })

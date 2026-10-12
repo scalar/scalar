@@ -1,4 +1,7 @@
-<div class="relative flex flex-col gap-3 hero small-test small-test-marc">
+<div class="lp" data-lp-scene="hero">
+<section class="lp-section lp-section--hero" data-lp-scene="hero">
+<div class="lp-copy">
+<div class="hero relative flex flex-col gap-3">
   <a
     class="absolute z-10 inline-flex max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
     style="top: -36px; left: 0"
@@ -20,710 +23,429 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
-  <!--
-  <div class="stickers stickers-marc">
-    <div class="draggable sticker-5">
-      <scalar-icon src="../assets/remote/cdn-65c266e3cb.svg"></scalar-icon>
+  <div class="lp-trusted">
+    <div class="lp-trusted-viewport" role="img" aria-label="Trusted by Thomson Reuters, Maersk, Tailscale, Supabase, Fly.io, Clerk, Bobcat and PAR Technology">
+    <div class="lp-trusted-track">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-partech.svg"></scalar-icon></div>
     </div>
-    <div class="draggable sticker-1">
-      <scalar-icon src="../assets/remote/cdn-6ce5b6dd90.svg"></scalar-icon>
+    <div class="lp-trusted-track" aria-hidden="true">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-partech.svg"></scalar-icon></div>
     </div>
-    <div class="draggable sticker-6">
-      <scalar-icon src="../assets/remote/sticker-6.svg"></scalar-icon>
+    <div class="lp-trusted-track" aria-hidden="true">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-partech.svg"></scalar-icon></div>
     </div>
-    <div class="draggable sticker-7">
-      <scalar-icon src="../assets/remote/cdn-141596b701.svg"></scalar-icon>
     </div>
   </div>
-  -->
 </div>
-
-<div class="hero-visual">
-<div class="hero-grid">
-<div class="hero-cell" data-hero-cell="profound-sdk">
-<svg id="hero-art" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract blue sky artwork with motion-blurred cloud streaks" style="width: 100%; height: auto; display: block">
+  <dl class="lp-stats">
+    <div class="lp-stat">
+      <dt>1</dt>
+      <dd>OpenAPI document behind your docs, SDKs and MCP server</dd>
+    </div>
+    <div class="lp-stat">
+      <dt>10k+</dt>
+      <dd>API teams building with Scalar</dd>
+    </div>
+  </dl>
+</div>
+</section>
+<div class="lp-visual bg-b-2 rounded-lg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&amp;display=swap" />
+<svg class="lp-art" viewBox="0 0 540 700" fill="none" aria-hidden="true" shape-rendering="geometricPrecision" xmlns="http://www.w3.org/2000/svg">
+<line class="lp-art-dash" data-reveal="divider" x1="-600" y1="347" x2="1140" y2="347" />
+<g data-reveal="pop" style="--d: 700"><rect class="lp-art-ink" x="9" y="344" width="6" height="6" /></g>
+<g data-reveal="pop" style="--d: 700"><rect class="lp-art-ink" x="525" y="344" width="6" height="6" /></g>
+<g data-reveal="fade" style="--d: 100">
+<rect class="lp-art-panel" x="210.5" y="52.5" width="120" height="24" />
+<rect class="lp-art-ink" x="210.5" y="52.5" width="24" height="24" />
+<path class="lp-art-mask" transform="translate(215.5 57.5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z" />
+<text class="lp-art-chip-text" x="242" y="68.5">openapi.yaml</text>
+</g>
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 250" x1="270" y1="76.5" x2="270" y2="150" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 500" x1="270" y1="150" x2="100" y2="150" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 500" x1="270" y1="150" x2="440" y2="150" />
+<g data-reveal="pop" style="--d: 800"><rect class="lp-art-ring" x="266.3" y="146.3" width="7.4" height="7.4" transform="rotate(45 270 150)" /></g>
+<g data-reveal="pop" style="--d: 1000"><rect class="lp-art-ink" x="97" y="147" width="6" height="6" /></g>
+<g data-reveal="pop" style="--d: 1000"><rect class="lp-art-ink" x="437" y="147" width="6" height="6" /></g>
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 1000" x1="100" y1="150" x2="100" y2="251" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 1000" x1="270" y1="150" x2="270" y2="251" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 1000" x1="440" y1="150" x2="440" y2="251" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2000" x1="100" y1="446" x2="50" y2="600" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2080" x1="100" y1="446" x2="140" y2="636" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2160" x1="100" y1="446" x2="24" y2="556" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2040" x1="270" y1="446" x2="236" y2="590" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2120" x1="270" y1="446" x2="316" y2="646" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2200" x1="270" y1="446" x2="270" y2="662" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2080" x1="440" y1="446" x2="404" y2="600" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2160" x1="440" y1="446" x2="490" y2="630" />
+<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2240" x1="440" y1="446" x2="526" y2="560" />
+<g data-reveal="pop" style="--d: 2760"><circle class="lp-art-dot" cx="24" cy="556" r="2.25" /></g>
+<g data-reveal="pop" style="--d: 2800"><circle class="lp-art-ring" cx="270" cy="662" r="3.5" /></g>
+<g data-reveal="pop" style="--d: 2840"><circle class="lp-art-dot" cx="526" cy="560" r="2.25" /></g>
+</svg>
+<a class="lp-box lp-box--docs" href="#lp-docs" data-lp-target="docs" data-reveal="fade" style="--d: 1500; --bx: 30; --by: 251; --lp-box-spine: #2E9AF0">
+<div class="lp-box-body">
+<svg class="lp-box-front" viewBox="0 0 152 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
 <defs>
-<clipPath id="hero-art-clip"><rect width="1600" height="1000"/></clipPath>
-<filter id="hero-art-wisps" x="-20%" y="-20%" width="140%" height="140%">
-<feTurbulence type="fractalNoise" baseFrequency="0.005 0.045" numOctaves="4" seed="8" stitchTiles="stitch"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0.78  0 0 0 0 0.87  0 0 0 0 0.96  0.4 0.4 0.4 0 -0.28"/>
-<feComponentTransfer><feFuncA type="linear" slope="2.2" intercept="-0.6"/></feComponentTransfer>
-</filter>
-<filter id="hero-art-smear" x="-40%" y="-40%" width="180%" height="180%">
-<feGaussianBlur in="SourceGraphic" stdDeviation="55 6" result="smear"/>
-<feTurbulence type="fractalNoise" baseFrequency="0.007 0.013" numOctaves="2" seed="4" result="disp"/>
-<feDisplacementMap in="smear" in2="disp" scale="55" xChannelSelector="R" yChannelSelector="G"/>
-</filter>
-<filter id="hero-art-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="70"/></filter>
-<filter id="hero-art-grain-fine" x="0" y="0" width="100%" height="100%">
-<feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="2" seed="7" stitchTiles="stitch"/>
-<feColorMatrix type="saturate" values="0"/>
-<feComponentTransfer>
-<feFuncR type="linear" slope="1.8" intercept="-0.4"/>
-<feFuncG type="linear" slope="1.8" intercept="-0.4"/>
-<feFuncB type="linear" slope="1.8" intercept="-0.4"/>
-<feFuncA type="linear" slope="0" intercept="1"/>
-</feComponentTransfer>
-</filter>
+<linearGradient id="lpbx-face-docs" x1="76" y1="0" x2="76" y2="210" gradientUnits="userSpaceOnUse"><stop stop-color="#4CC3FF"/><stop offset="1" stop-color="#2EA3FF"/></linearGradient>
+<linearGradient id="lpbx-sheen-docs" x1="0" y1="0" x2="152" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="rgb(128,127,128)"/><stop offset="0.2077" stop-color="rgb(128,180,128)"/><stop offset="0.4863" stop-color="rgb(128,137,128)"/><stop offset="0.6175" stop-color="rgb(128,128,128)"/><stop offset="1" stop-color="rgb(128,110,128)"/></linearGradient>
+<clipPath id="lpbx-clip-docs"><rect width="152" height="210" rx="1.5"/></clipPath>
+<path id="lpbx-ring-docs" fill-rule="evenodd" d="M-32.5 -32.5H32.5V32.5H-32.5ZM-20.47 -20.47H20.47V20.47H-20.47Z"/>
 </defs>
-<g clip-path="url(#hero-art-clip)">
-<g>
-<rect x="-160" y="-160" width="1920" height="1320" fill="#212121"/>
-<g filter="url(#hero-art-soft)">
-<ellipse cx="150" cy="100" rx="520" ry="320" fill="#000"/>
-<ellipse cx="1500" cy="120" rx="420" ry="240" fill="#000"/>
-<ellipse cx="1550" cy="950" rx="440" ry="260" fill="#000"/>
-<ellipse cx="700" cy="500" rx="500" ry="280" fill="#000"/>
+<g clip-path="url(#lpbx-clip-docs)">
+<rect width="152" height="210" fill="url(#lpbx-face-docs)"/>
+<g class="lp-box-tunnel">
+<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(2.7)" fill="#3E8FFF"/>
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--8" transform="translate(72.3 150) scale(9.49045)" fill="#52CBFF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--7" transform="translate(72.3 150) scale(6.16263)" fill="#4BB7FF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--6" transform="translate(72.3 150) scale(4.00171)" fill="#45A3FF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--5" transform="translate(72.3 150) scale(2.59851)" fill="#3E8FFF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--4" transform="translate(72.3 150) scale(1.68735)" fill="#387BFF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--3" transform="translate(72.3 150) scale(1.09568)" fill="#3167FF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--2" transform="translate(72.3 150) scale(.71148)" fill="#2A53FF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--1" transform="translate(72.3 150) scale(.462)" fill="#243FFF" />
+<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--0" transform="translate(72.3 150) scale(.3)" fill="#1D2BFF" />
+<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(.44)" fill="#1D2BFF"/>
 </g>
-<g transform="rotate(-32 800 500)">
-<g filter="url(#hero-art-smear)">
-<rect x="-600" y="-600" width="2800" height="2200" filter="url(#hero-art-wisps)" opacity="0.42"/>
-<ellipse cx="546" cy="247" rx="380" ry="110" fill="#000"/>
-<ellipse cx="1235" cy="465" rx="420" ry="120" fill="#000"/>
-<ellipse cx="789" cy="706" rx="360" ry="100" fill="#000"/>
-<ellipse cx="185" cy="257" rx="300" ry="90" fill="#000"/>
-<ellipse cx="516" cy="-102" rx="420" ry="110" fill="#000" opacity="0.5"/>
-<ellipse cx="737" cy="260" rx="380" ry="80" fill="#000" opacity="0.5"/>
-<ellipse cx="1001" cy="649" rx="460" ry="100" fill="#000" opacity="0.58"/>
-<ellipse cx="1245" cy="1014" rx="380" ry="90" fill="#000" opacity="0.5"/>
-<ellipse cx="397" cy="578" rx="420" ry="95" fill="#000" opacity="0.5"/>
-<ellipse cx="954" cy="1103" rx="400" ry="80" fill="#000" opacity="0.5"/>
-<ellipse cx="1637" cy="670" rx="300" ry="70" fill="#000" opacity="0.5"/>
-</g>
-</g>
-</g>
-<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-grain-fine)" style="mix-blend-mode:soft-light;opacity:1"/>
+<rect width="152" height="210" fill="url(#lpbx-sheen-docs)" style="mix-blend-mode: soft-light"/>
 </g>
 </svg>
-<div class="hero-cell-logo"><svg class="hero-logo" viewBox="0 0 340 55" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z" /> <path fill="currentColor" d="M157.241 16.4419C160.648 16.442 163.629 17.2098 166.184 18.7466C168.74 20.2825 170.727 22.4227 172.147 25.1665C173.588 27.8885 174.309 31.049 174.309 34.6489C174.309 38.2489 173.588 41.4093 172.147 44.1313C170.727 46.8532 168.74 48.9821 166.184 50.5181C163.629 52.0329 160.648 52.7895 157.241 52.7896C153.857 52.7896 150.875 52.033 148.298 50.5181C145.742 48.9821 143.744 46.8532 142.303 44.1313C140.883 41.4093 140.173 38.2489 140.173 34.6489C140.173 31.049 140.883 27.8885 142.303 25.1665C143.744 22.4227 145.742 20.2825 148.298 18.7466C150.875 17.2097 153.857 16.4419 157.241 16.4419ZM214.279 16.4419C217.685 16.4419 220.667 17.2097 223.223 18.7466C225.778 20.2825 227.765 22.4227 229.185 25.1665C230.626 27.8885 231.347 31.049 231.347 34.6489C231.347 38.2489 230.626 41.4093 229.185 44.1313C227.765 46.8532 225.778 48.9821 223.223 50.5181C220.667 52.033 217.686 52.7896 214.279 52.7896C210.894 52.7895 207.913 52.0329 205.336 50.5181C202.781 48.9821 200.782 46.8532 199.341 44.1313C197.921 41.4093 197.212 38.2489 197.212 34.6489C197.212 31.049 197.921 27.8885 199.341 25.1665C200.782 22.4227 202.781 20.2825 205.336 18.7466C207.913 17.2098 210.894 16.442 214.279 16.4419ZM243.323 37.645C243.323 40.191 243.934 42.1229 245.157 43.4399C246.402 44.7568 248.116 45.4146 250.3 45.4146C251.764 45.4145 253.063 45.1189 254.199 44.5259C255.334 43.9339 256.23 43.012 256.885 41.7612C257.54 40.4873 257.868 38.8631 257.868 36.8882V17.2319H266.156V51.9995H258.032V46.5913C257.153 48.0643 256.116 49.2854 254.92 50.2554C252.91 51.8793 250.399 52.6909 247.385 52.6909C244.982 52.6909 242.853 52.1759 240.997 51.144C239.14 50.0901 237.688 48.5433 236.64 46.5024C235.591 44.4385 235.067 41.9252 235.067 38.9624V17.2319H243.323V37.645ZM340 51.9995H331.876V46.6997H331.81C331.089 48.0377 330.194 49.1581 329.124 50.0571C328.071 50.938 326.859 51.6083 325.553 52.0327C324.243 52.4717 322.834 52.6909 321.327 52.6909C318.335 52.6909 315.703 51.9343 313.432 50.4204C311.183 48.9054 309.435 46.7869 308.19 44.0649C306.967 41.344 306.356 38.1825 306.356 34.5825C306.356 31.0267 306.978 27.8884 308.223 25.1665C309.468 22.4447 311.215 20.3269 313.465 18.812C315.714 17.2981 318.313 16.5405 321.262 16.5405C322.768 16.5405 324.166 16.7485 325.455 17.1655C326.765 17.5605 327.944 18.1763 328.993 19.0103C330.041 19.8442 330.937 20.8986 331.679 22.1704H331.745V2.94385H340V51.9995ZM99.7766 2.94287C103.359 2.94287 106.449 3.58003 109.048 4.85303C111.669 6.12602 113.677 7.93771 115.075 10.2856C116.494 12.6345 117.204 15.41 117.204 18.6147C117.204 21.8417 116.483 24.629 115.042 26.978C113.6 29.326 111.558 31.1479 108.916 32.4429C106.295 33.7158 103.194 34.353 99.6125 34.353H89.7844V52.0005H81.137V2.94287H99.7766ZM136.715 16.9028C137.283 16.9028 137.785 16.913 138.222 16.936C138.681 16.958 139.074 16.9907 139.402 17.0347V24.4097C138.89 24.3406 138.376 24.2855 137.862 24.2446C137.077 24.1769 136.29 24.1442 135.503 24.146C134.215 24.146 133.035 24.4529 131.965 25.0679C130.917 25.6609 130.076 26.5611 129.443 27.7681C128.831 28.975 128.525 30.4901 128.525 32.311V51.9995H120.27V17.2319H128.231V22.9937H128.329C128.962 20.9969 129.956 19.4816 131.31 18.4497C132.686 17.4187 134.488 16.9028 136.715 16.9028ZM196.473 9.62744H193.295C191.897 9.62744 190.903 9.92311 190.314 10.5161C189.724 11.1081 189.429 12.1186 189.429 13.5454V17.2319H196.473V23.9155H189.429V51.9995H181.141V23.9155H174.917V17.2319H181.141V12.1616C181.141 10.1638 181.545 8.48445 182.353 7.12354C183.161 5.74166 184.341 4.69854 185.891 3.99658C187.464 3.29359 189.386 2.94287 191.657 2.94287H196.473V9.62744ZM290.253 16.5405C292.677 16.5406 294.817 17.0667 296.674 18.1206C298.53 19.1526 299.982 20.6891 301.031 22.731C302.079 24.771 302.603 27.285 302.603 30.271V51.9995H294.315V31.5874C294.315 29.0414 293.703 27.1085 292.48 25.7915C291.279 24.4748 289.565 23.8169 287.337 23.8169C285.896 23.8169 284.607 24.1126 283.471 24.7056C282.336 25.2986 281.429 26.2202 280.752 27.4712C280.097 28.7232 279.77 30.3473 279.77 32.3442V51.9995H271.514V17.2319H279.639V22.6157C280.509 21.1488 281.54 19.93 282.718 18.9771C284.749 17.3531 287.261 16.5405 290.253 16.5405ZM157.241 23.3892C155.473 23.3892 153.932 23.8491 152.622 24.772C151.312 25.6719 150.296 26.9669 149.575 28.6567C148.876 30.3247 148.527 32.322 148.527 34.6489C148.527 36.9759 148.876 38.9731 149.575 40.6411C150.296 42.309 151.312 43.5927 152.622 44.4927C153.932 45.3926 155.472 45.8433 157.241 45.8433C159.01 45.8432 160.54 45.3926 161.827 44.4927C163.138 43.5927 164.142 42.3089 164.841 40.6411C165.562 38.9511 165.922 36.9539 165.922 34.6489C165.922 32.322 165.562 30.3247 164.841 28.6567C164.142 26.9669 163.138 25.6719 161.827 24.772C160.54 23.8501 159.01 23.3892 157.241 23.3892ZM214.279 23.3892C212.51 23.3892 210.971 23.8492 209.66 24.772C208.35 25.672 207.334 26.9668 206.614 28.6567C205.915 30.3247 205.565 32.322 205.565 34.6489C205.565 36.9759 205.915 38.9731 206.614 40.6411C207.334 42.3091 208.35 43.5927 209.66 44.4927C210.971 45.3925 212.51 45.8432 214.279 45.8433C216.047 45.8433 217.577 45.3926 218.865 44.4927C220.175 43.5927 221.181 42.3091 221.88 40.6411C222.6 38.9511 222.961 36.9539 222.961 34.6489C222.961 32.322 222.6 30.3247 221.88 28.6567C221.181 26.9668 220.175 25.6719 218.865 24.772C217.577 23.8501 216.047 23.3892 214.279 23.3892ZM323.26 23.4224C321.578 23.4224 320.093 23.8608 318.805 24.7388C317.516 25.5947 316.511 26.857 315.791 28.5249C315.07 30.1708 314.71 32.1907 314.71 34.5825C314.71 36.9755 315.07 39.0063 315.791 40.6743C316.511 42.3421 317.516 43.6045 318.805 44.4604C320.093 45.3164 321.578 45.7437 323.26 45.7437C325.073 45.7436 326.645 45.294 327.977 44.394C329.309 43.4731 330.347 42.1782 331.089 40.5103C331.832 38.8203 332.203 36.8435 332.203 34.5825C332.203 32.3227 331.832 30.3578 331.089 28.6899C330.347 27.0219 329.309 25.7272 327.977 24.8052C326.645 23.8832 325.073 23.4224 323.26 23.4224ZM89.7844 26.9126H99.2844C101.228 26.9126 102.9 26.5833 104.298 25.9243C105.717 25.2443 106.797 24.2889 107.54 23.0601C108.304 21.8091 108.687 20.3267 108.687 18.6147C108.687 16.903 108.304 15.4427 107.54 14.2358C106.797 13.0071 105.717 12.0637 104.298 11.4038C102.9 10.7238 101.228 10.3843 99.2844 10.3843H89.7844V26.9126Z" /></svg><span class="hero-cell-kind">SDK</span></div>
-<div class="hero-cell-body">
-<div class="hero-glass">
-<div class="hero-glass-ide">
-<div class="hero-glass-ide-main">
-<div class="hero-glass-tabs">
-<button type="button" class="active" data-sdk-lang="typescript">index.ts</button>
-<button type="button" data-sdk-lang="python">main.py</button>
-<button type="button" data-sdk-lang="java">Main.java</button>
-<button type="button" data-sdk-lang="kotlin">Main.kt</button>
-<button type="button" data-sdk-lang="rust">main.rs</button>
+<div class="lp-box-grain" aria-hidden="true"></div>
+<div class="lp-box-screen" aria-hidden="true">
+<div class="lp-win lp-win--pair">
+<div class="lp-browser lp-browser--md">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings.md</span></div>
+<div class="lp-md">
+<span class="lp-md-line lp-md-h"># Delete a meeting&#8217;s archived files</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line"><span class="lp-md-code">`DELETE /past_meetings/&#123;meetingUUID&#125;/archive_files`</span></span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line">Delete all of a meeting&#8217;s archived files.</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line lp-md-h">## Path Parameters</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line">- <span class="lp-md-code">`meetingUUID`</span> (string, required): The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID.</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line lp-md-h">## Responses</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line">- <span class="lp-md-code">`204`</span> Meeting archived file deleted.</span>
+<span class="lp-md-line">- <span class="lp-md-code">`400`</span> Bad Request</span>
+<span class="lp-md-line">- <span class="lp-md-code">`401`</span> Not Found</span>
+<span class="lp-md-line">- <span class="lp-md-code">`429`</span> Too Many Requests</span>
 </div>
-<div class="hero-glass-codewrap dark-mode" data-sdk-lang="typescript" data-sdk-abbr="TS">
-
-```typescript
-import Profound from '@profoundai/client';
-
-const client = new Profound({
-  apiKey: process.env['PROFOUND_API_KEY'], // defaults to the PROFOUND_API_KEY env var
-  environment: 'production',
-});
-
-const category = await client.organizations.categories.list();
-
-console.log(category);
-```
-
 </div>
-<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="python" data-sdk-abbr="PY">
-
-```python
-import os
-
-from profound import Profound
-
-client = Profound(
-    api_key=os.environ.get("PROFOUND_API_KEY"),
-)
-
-category = client.organizations.categories.list()
-
-print(category)
-```
-
-</div>
-<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="java" data-sdk-abbr="JV">
-
-```java
-import com.profound.api.client.ProfoundClient;
-import com.profound.api.client.okhttp.ProfoundOkHttpClient;
-
-ProfoundClient client =
-    ProfoundOkHttpClient.builder().apiKey(System.getenv("PROFOUND_API_KEY")).build();
-
-var category = client.organizations().categories().list();
-
-System.out.println(category);
-```
-
-</div>
-<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="kotlin" data-sdk-abbr="KT">
-
-```kotlin
-import com.profound.api.client.ProfoundClient
-import com.profound.api.client.okhttp.ProfoundOkHttpClient
-import com.profound.api.models.organizations.categories.CategoryListParams
-
-val client: ProfoundClient =
-    ProfoundOkHttpClient.builder().apiKey(System.getenv("PROFOUND_API_KEY")).build()
-
-val category = client.organizations().categories().list(CategoryListParams.none())
-
-println(category)
-```
-
-</div>
-<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="rust" data-sdk-abbr="RS">
-
-```rust
-use profound_rust::*;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = ProfoundClient::builder()
-        .api_key(std::env::var("PROFOUND_API_KEY")?)
-        .build()?;
-
-    let response = client.organizations().categories().list().send().await?;
-
-    println!("{:?}", response);
-
-    Ok(())
-}
-```
-
+<div class="lp-browser lp-browser--site">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings</span></div>
+<div class="lp-site">
+<div class="lp-site-header"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="lp-doc-logo" aria-hidden="true" viewBox="0 1.1 74.19 16.87"><path d="M15.56 17.72H2.29c-.93 0-1.76-.55-2.11-1.41a2.29 2.29 0 0 1 .5-2.5l9.18-9.19H3.28A3.27 3.27 0 0 1 0 1.34h12.23a2.29 2.29 0 0 1 1.62 3.92l-9.18 9.19h7.61a3.28 3.28 0 0 1 3.28 3.27M74.19 7.5a6.4 6.4 0 0 0-6.39-6.4c-1.88 0-3.58.83-4.75 2.13A6.37 6.37 0 0 0 58.3 1.1a6.4 6.4 0 0 0-6.38 6.39v10.23a3.27 3.27 0 0 0 3.27-3.27V7.49a3.12 3.12 0 0 1 3.11-3.11 3.12 3.12 0 0 1 3.12 3.1v6.97a3.28 3.28 0 0 0 3.27 3.27V7.5a3.12 3.12 0 0 1 3.11-3.12 3.12 3.12 0 0 1 3.12 3.12v6.96a3.28 3.28 0 0 0 3.27 3.27zM50.28 9.53a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.28 0a5.16 5.16 0 1 0-10.31 0 5.16 5.16 0 0 0 10.31 0m-14.9 0a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.27 0a5.16 5.16 0 1 0-10.32 0 5.16 5.16 0 0 0 10.32 0"/></svg><span class="lp-doc-brand">Developers</span><span class="lp-doc-search"><scalar-icon src="phosphor/regular/magnifying-glass"></scalar-icon></span></div>
+<div class="lp-site-main">
+<div class="lp-doc-title">Delete a meeting&#8217;s archived files</div>
+<div class="lp-doc-request"><div class="lp-doc-request-bar"><span class="lp-doc-method">DELETE</span><span class="lp-doc-path">/past_meetings/&#123;meetingUUID&#125;/archive_files</span></div><div class="lp-doc-request-code"><span class="lp-doc-line"><span class="lp-doc-n">1</span><span><span class="lp-doc-k">curl</span> <span class="lp-doc-url">https://api.zoom.us/v2/past_meetings/4444AAAiAA</span> <span class="lp-doc-f">\</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">2</span><span>&#160;&#160;<span class="lp-doc-f">--request DELETE \</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">3</span><span>&#160;&#160;<span class="lp-doc-f">--header</span> <span class="lp-doc-s">&#39;Authorization: Bearer YOUR_SECRET_TOKEN&#39;</span></span></span></div><div class="lp-doc-request-foot"><span class="lp-doc-test"><scalar-icon src="phosphor/fill/play"></scalar-icon>Test Request</span></div></div>
+<div class="lp-doc-label">Path Parameters</div>
+<div class="lp-doc-param"><span class="lp-doc-code">meetingUUID</span><span class="lp-doc-type">string</span><span class="lp-doc-required">Required</span></div>
+<div class="lp-doc-help">The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID. For example, after a meeting ends, a new UUID is generated for the next meeting instance.</div>
 </div>
 </div>
 </div>
 </div>
 </div>
+<div class="lp-box-label"><span class="lp-box-title">Docs</span><span class="lp-box-subtitle">For Agents &amp; Humans</span></div>
+<div class="lp-box-spine" aria-hidden="true">
+<span class="lp-box-volume">Volume 1</span>
+<svg class="lp-box-mark" viewBox="0 0 54.2 55"><path d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg>
 </div>
-<div class="hero-cell" data-hero-cell="zoom-api">
-<svg id="hero-art-zoom" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract blue streaked artwork" style="width: 100%; height: auto; display: block">
+</div>
+</a>
+<a class="lp-box lp-box--sdk" href="#lp-sdk" data-lp-target="sdk" data-reveal="fade" style="--d: 1600; --bx: 200; --by: 251; --lp-box-spine: #9C7CF2">
+<div class="lp-box-body">
+<svg class="lp-box-front" viewBox="0 0 152 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
 <defs>
-<clipPath id="hero-art-zoom-clip"><rect width="1600" height="1000"/></clipPath>
-<filter id="hero-art-zoom-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="60"/></filter>
-<filter id="hero-art-zoom-streak" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="110 18"/></filter>
-<filter id="hero-art-zoom-core" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="55 7"/></filter>
-<filter id="hero-art-zoom-grain" x="0" y="0" width="100%" height="100%">
-<feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="9" stitchTiles="stitch"/>
-<feColorMatrix type="saturate" values="0"/>
-<feComponentTransfer>
-<feFuncR type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncG type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncB type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncA type="linear" slope="0" intercept="1"/>
-</feComponentTransfer>
-</filter>
+<linearGradient id="lpbx-face-sdk" x1="76" y1="0" x2="76" y2="210" gradientUnits="userSpaceOnUse"><stop stop-color="#B79BFF"/><stop offset="1" stop-color="#9C7BFF"/></linearGradient>
+<linearGradient id="lpbx-sheen-sdk" x1="0" y1="0" x2="152" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="rgb(128,127,128)"/><stop offset="0.2077" stop-color="rgb(128,180,128)"/><stop offset="0.4863" stop-color="rgb(128,137,128)"/><stop offset="0.6175" stop-color="rgb(128,128,128)"/><stop offset="1" stop-color="rgb(128,110,128)"/></linearGradient>
+<clipPath id="lpbx-clip-sdk"><rect width="152" height="210" rx="1.5"/></clipPath>
+<path id="lpbx-ring-sdk" fill-rule="evenodd" d="M-32.5 -32.5H32.5V32.5H-32.5ZM-20.47 -20.47H20.47V20.47H-20.47Z"/>
 </defs>
-<g clip-path="url(#hero-art-zoom-clip)">
-<g>
-<g filter="url(#hero-art-zoom-soft)">
-<rect x="-160" y="-160" width="1920" height="1320" fill="#16a8e0"/>
-<ellipse cx="120" cy="120" rx="560" ry="350" fill="#0a7fc4"/>
-<ellipse cx="700" cy="0" rx="620" ry="170" fill="#0c8ecd"/>
-<ellipse cx="1470" cy="120" rx="440" ry="250" fill="#0973b8"/>
-<ellipse cx="1120" cy="500" rx="420" ry="260" fill="#109ad6"/>
-<ellipse cx="1000" cy="560" rx="350" ry="200" fill="#0e97d2"/>
-<ellipse cx="430" cy="540" rx="420" ry="250" fill="#0fa2dc"/>
-<ellipse cx="1560" cy="1010" rx="420" ry="210" fill="#0e97d0"/>
+<g clip-path="url(#lpbx-clip-sdk)">
+<rect width="152" height="210" fill="url(#lpbx-face-sdk)"/>
+<g class="lp-box-tunnel">
+<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(2.7)" fill="#9B68F6"/>
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--8" transform="translate(72.3 150) scale(9.49045)" fill="#C2A6FF" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--7" transform="translate(72.3 150) scale(6.16263)" fill="#B591FC" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--6" transform="translate(72.3 150) scale(4.00171)" fill="#A87CF9" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--5" transform="translate(72.3 150) scale(2.59851)" fill="#9B68F6" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--4" transform="translate(72.3 150) scale(1.68735)" fill="#8E53F2" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--3" transform="translate(72.3 150) scale(1.09568)" fill="#813EEF" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--2" transform="translate(72.3 150) scale(.71148)" fill="#742AEC" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--1" transform="translate(72.3 150) scale(.462)" fill="#6715E9" />
+<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--0" transform="translate(72.3 150) scale(.3)" fill="#5A00E6" />
+<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(.44)" fill="#5A00E6"/>
 </g>
-<g transform="rotate(-22 800 500)">
-<g filter="url(#hero-art-zoom-streak)">
-<ellipse cx="675" cy="169" rx="420" ry="95" fill="#c9ecfa"/>
-<ellipse cx="605" cy="103" rx="280" ry="55" fill="#e6f7fd"/>
-<ellipse cx="948" cy="161" rx="400" ry="40" fill="#9fdcf4"/>
-<ellipse cx="1256" cy="253" rx="430" ry="42" fill="#d9f2fb"/>
-<ellipse cx="1458" cy="259" rx="380" ry="55" fill="#b7e6f7"/>
-<ellipse cx="1533" cy="527" rx="400" ry="30" fill="#c4eaf8"/>
-<ellipse cx="1749" cy="474" rx="320" ry="60" fill="#a9e0f5"/>
-<ellipse cx="115" cy="407" rx="320" ry="24" fill="#8fd8f2"/>
-<ellipse cx="131" cy="715" rx="430" ry="48" fill="#ade2f6"/>
-<ellipse cx="544" cy="866" rx="480" ry="45" fill="#c9ecf9"/>
-<ellipse cx="1021" cy="967" rx="500" ry="58" fill="#daf3fc"/>
-<ellipse cx="1178" cy="1165" rx="420" ry="38" fill="#a9dff4"/>
-<ellipse cx="1396" cy="1161" rx="340" ry="42" fill="#c4eaf7"/>
-</g>
-<g filter="url(#hero-art-zoom-core)">
-<ellipse cx="606" cy="98" rx="270" ry="16" fill="#f4fcfe"/>
-<ellipse cx="1248" cy="244" rx="300" ry="12" fill="#eef9fd"/>
-<ellipse cx="1535" cy="522" rx="240" ry="10" fill="#ddf3fb"/>
-<ellipse cx="1023" cy="962" rx="330" ry="16" fill="#f6fdfe"/>
-<ellipse cx="546" cy="861" rx="290" ry="13" fill="#eaf8fd"/>
-<ellipse cx="170" cy="725" rx="240" ry="11" fill="#d8f1fb"/>
-</g>
-</g>
-</g>
-<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-zoom-grain)" style="mix-blend-mode:soft-light;opacity:.2"/>
+<rect width="152" height="210" fill="url(#lpbx-sheen-sdk)" style="mix-blend-mode: soft-light"/>
 </g>
 </svg>
-<div class="hero-cell-logo"><svg class="hero-logo" viewBox="0 1.1 74.19 16.87" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"><path fill="currentColor" d="M15.56 17.72H2.29c-.93 0-1.76-.55-2.11-1.41a2.29 2.29 0 0 1 .5-2.5l9.18-9.19H3.28A3.27 3.27 0 0 1 0 1.34h12.23a2.29 2.29 0 0 1 1.62 3.92l-9.18 9.19h7.61a3.28 3.28 0 0 1 3.28 3.27ZM74.19 7.5a6.4 6.4 0 0 0-6.39-6.4c-1.88 0-3.58.83-4.75 2.13A6.37 6.37 0 0 0 58.3 1.1a6.4 6.4 0 0 0-6.38 6.39v10.23a3.27 3.27 0 0 0 3.27-3.27V7.49a3.12 3.12 0 0 1 3.11-3.11 3.12 3.12 0 0 1 3.12 3.1v6.97a3.28 3.28 0 0 0 3.27 3.27V7.5a3.12 3.12 0 0 1 3.11-3.12 3.12 3.12 0 0 1 3.12 3.12v6.96a3.28 3.28 0 0 0 3.27 3.27V7.5ZM50.28 9.53a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0Zm-3.28 0a5.16 5.16 0 1 0-10.31 0 5.16 5.16 0 0 0 10.31 0Zm-14.9 0a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0Zm-3.27 0a5.16 5.16 0 1 0-10.32 0 5.16 5.16 0 0 0 10.32 0Z"/></svg><span class="hero-cell-kind">Docs</span></div>
-<div class="hero-cell-body">
-<div class="hero-zoom-docs">
-<img class="light-image" src="/api-docs-static-zoom-glass.svg" alt="Zoom API documentation preview" fetchpriority="high" />
-<img class="dark-image" src="/api-docs-static-zoom-glass-dark.svg" alt="Zoom API documentation preview" fetchpriority="high" />
+<div class="lp-box-grain" aria-hidden="true"></div>
+<div class="lp-box-screen" aria-hidden="true">
+<div class="lp-win lp-win--app lp-win--code">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="lp-win-brand" aria-hidden="true" viewBox="0 0 1236 351"><g fill="currentColor" clip-path="url(#warp-logo-clip-wall)"><path d="M341.87 122.39A175.4 175.4 0 0 0 224.76 7.21c21.37 68.74 71.94 110.54 117.11 115.18"/><path d="m345.73 136.78-.61-2.66C276.82 131.98 208.24 86.83 189.65.61q-7.28-.61-14.72-.62c-12.08 0-23.87 1.22-35.26 3.55 26.94 83.98 123.11 131.57 206.06 133.23z"/><path d="M348.13 149.95c-118.71-.69-218.72-60.46-249.67-132.4a176 176 0 0 0-53.29 40.03c66.49 57.59 183.26 94.65 303.33 95q-.17-1.32-.37-2.63"/><path d="M349.68 165.77c-101.84-.05-244.09-15.45-332.26-67.13a174 174 0 0 0-15.43 49.35c97.11 17.89 226.18 20.16 347.78 20.17zM224.85 342.76a175.4 175.4 0 0 0 116.93-114.88c-45.08 4.68-95.52 46.36-116.93 114.88"/><path d="m345.05 216.13.62-2.66c-82.86 1.68-178.88 49.18-205.93 132.98a176 176 0 0 0 49.96 2.91c18.67-86.02 87.15-131.08 155.35-133.24z"/><path d="m348.09 200.31.37-2.63c-119.98.35-236.66 37.37-303.16 94.88a176 176 0 0 0 53.26 39.93C129.61 260.66 229.52 201 348.1 200.31z"/><path d="M349.77 182.11c-121.58 0-250.62 2.28-347.73 20.16a174 174 0 0 0 15.48 49.3c88.17-51.63 230.33-67.02 332.14-67.07z"/></g><path fill="currentColor" d="M1149.21 278.42c-22.92 0-41.64-7.64-55.78-22.54V351h-55.77V74.82h55.77v18.72c14.14-14.9 32.86-22.54 55.78-22.54 48.89 0 85.94 37.82 85.94 103.9 0 65.7-37.05 103.52-85.94 103.52m-13.76-47.75c25.98 0 42.02-20.62 42.02-55.77 0-35.14-16.04-56.15-42.02-56.15-25.97 0-42.02 21-42.02 56.15s16.05 55.77 42.02 55.77M897.77 274.6V74.82h55.77v28.27C969.2 80.55 991.74 71 1012 71h7.64v56.54H1012c-29.42 0-58.45 12.6-58.45 45.07v102zm-73.46 0v-17.57c-15.28 14.52-36.67 21.4-57.68 21.4-36.67 0-66.85-21.78-66.85-61.5 0-44.7 35.53-60.36 87.48-64.18 27.12-3.44 38.58-7.26 38.58-19.49 0-11.07-10.7-18.71-30.56-18.71-18.72 0-32.47 8.78-34 23.3h-54.24C710.48 92.39 751.35 71 795.66 71c45.84 0 84.42 19.1 84.42 68.76V274.6zm-68.76-61.12c0 15.28 11.46 22.92 27.12 22.92 19.49 0 41.64-11.08 41.64-35.9v-16.81c-10.31 2.67-21.77 4.2-33.23 5.34-21.78 2.68-35.53 9.17-35.53 24.45m-297.1 61.12L400 74.82h58.06l32.09 135.99 37.82-135.99h53.86l36.67 135.99 33.23-135.99h53.86L646.77 274.6h-56.92L552.8 143.96 515.74 274.6z"/><defs><clipPath id="warp-logo-clip-wall"><path fill="#fff" d="M0 0h350v350H0z"/></clipPath></defs></svg><span class="lp-win-repo">warp-sdk-typescript</span></span></div>
+<div class="lp-win-tabs"><span class="is-active">TypeScript</span><span>Python</span><span>Go</span><span>CLI</span></div>
+<div class="lp-win-code">
+<span class="lp-win-line"><span class="lp-win-k">import</span> Warp <span class="lp-win-k">from</span> <span class="lp-win-s">'warp-hr'</span></span>
+<span class="lp-win-line"></span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> client = <span class="lp-win-k">new</span> Warp({</span>
+<span class="lp-win-line">&#160;&#160;apiKey: process.env.WARP_API_KEY,</span>
+<span class="lp-win-line">})</span>
+<span class="lp-win-line"></span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> plans = <span class="lp-win-k">await</span> client.benefits.healthPlans.list({</span>
+<span class="lp-win-line">&#160;&#160;statuses: [<span class="lp-win-s">'active'</span>],</span>
+<span class="lp-win-line">})</span>
+<span class="lp-win-line"></span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> requests = <span class="lp-win-k">await</span> client.timeOff.listRequests()</span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> payroll = <span class="lp-win-k">await</span> client.payroll.get(<span class="lp-win-s">'pay_1234'</span>)</span>
 </div>
 </div>
 </div>
-<div class="hero-cell" data-hero-cell="clerk-api">
-<svg id="hero-art-clerk" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract violet streaked artwork" style="width: 100%; height: auto; display: block">
+<div class="lp-box-label"><span class="lp-box-title">SDKs</span><span class="lp-box-subtitle">For Every Language</span></div>
+<div class="lp-box-spine" aria-hidden="true">
+<span class="lp-box-volume">Volume 2</span>
+<svg class="lp-box-mark" viewBox="0 0 54.2 55"><path d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg>
+</div>
+</div>
+</a>
+<a class="lp-box lp-box--mcp" href="#lp-mcp" data-lp-target="mcp" data-reveal="fade" style="--d: 1700; --bx: 370; --by: 251; --lp-box-spine: #EF9609">
+<div class="lp-box-body">
+<svg class="lp-box-front" viewBox="0 0 152 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
 <defs>
-<clipPath id="hero-art-clerk-clip"><rect width="1600" height="1000"/></clipPath>
-<filter id="hero-art-clerk-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="60"/></filter>
-<filter id="hero-art-clerk-streak" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="110 18"/></filter>
-<filter id="hero-art-clerk-core" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="55 7"/></filter>
-<filter id="hero-art-clerk-grain" x="0" y="0" width="100%" height="100%">
-<feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="13" stitchTiles="stitch"/>
-<feColorMatrix type="saturate" values="0"/>
-<feComponentTransfer>
-<feFuncR type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncG type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncB type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncA type="linear" slope="0" intercept="1"/>
-</feComponentTransfer>
-</filter>
+<linearGradient id="lpbx-face-mcp" x1="76" y1="0" x2="76" y2="210" gradientUnits="userSpaceOnUse"><stop stop-color="#F5AF00"/><stop offset="1" stop-color="#FB9500"/></linearGradient>
+<linearGradient id="lpbx-sheen-mcp" x1="0" y1="0" x2="152" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="rgb(128,127,128)"/><stop offset="0.2077" stop-color="rgb(128,180,128)"/><stop offset="0.4863" stop-color="rgb(128,137,128)"/><stop offset="0.6175" stop-color="rgb(128,128,128)"/><stop offset="1" stop-color="rgb(128,110,128)"/></linearGradient>
+<clipPath id="lpbx-clip-mcp"><rect width="152" height="210" rx="1.5"/></clipPath>
+<path id="lpbx-ring-mcp" fill-rule="evenodd" d="M-32.5 -32.5H32.5V32.5H-32.5ZM-20.47 -20.47H20.47V20.47H-20.47Z"/>
 </defs>
-<g clip-path="url(#hero-art-clerk-clip)">
-<g>
-<g filter="url(#hero-art-clerk-soft)">
-<rect x="-160" y="-160" width="1920" height="1320" fill="#453a8c"/>
-<ellipse cx="800" cy="-40" rx="900" ry="260" fill="#987aa8"/>
-<ellipse cx="200" cy="60" rx="480" ry="240" fill="#8f74a4"/>
-<ellipse cx="1450" cy="20" rx="360" ry="180" fill="#87709f"/>
-<ellipse cx="1580" cy="240" rx="280" ry="160" fill="#64559f"/>
-<ellipse cx="400" cy="400" rx="500" ry="240" fill="#5b4fa4"/>
-<ellipse cx="1250" cy="600" rx="480" ry="280" fill="#3c3280"/>
-<ellipse cx="700" cy="900" rx="520" ry="240" fill="#372e78"/>
-<ellipse cx="120" cy="900" rx="360" ry="220" fill="#453b8b"/>
+<g clip-path="url(#lpbx-clip-mcp)">
+<rect width="152" height="210" fill="url(#lpbx-face-mcp)"/>
+<g class="lp-box-tunnel">
+<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(2.7)" fill="#FF7800"/>
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--8" transform="translate(72.3 150) scale(9.49045)" fill="#FFA500" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--7" transform="translate(72.3 150) scale(6.16263)" fill="#FF9600" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--6" transform="translate(72.3 150) scale(4.00171)" fill="#FF8700" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--5" transform="translate(72.3 150) scale(2.59851)" fill="#FF7800" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--4" transform="translate(72.3 150) scale(1.68735)" fill="#FF6A00" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--3" transform="translate(72.3 150) scale(1.09568)" fill="#FF5B00" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--2" transform="translate(72.3 150) scale(.71148)" fill="#FF4C00" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--1" transform="translate(72.3 150) scale(.462)" fill="#FF3D00" />
+<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--0" transform="translate(72.3 150) scale(.3)" fill="#FF2E00" />
+<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(.44)" fill="#FF2E00"/>
 </g>
-<g transform="rotate(-34 800 500)">
-<g filter="url(#hero-art-clerk-streak)">
-<ellipse cx="551" cy="-114" rx="400" ry="70" fill="#9a7fbe"/>
-<ellipse cx="1029" cy="160" rx="500" ry="80" fill="#a687c0"/>
-<ellipse cx="1452" cy="517" rx="420" ry="70" fill="#9880ba"/>
-<ellipse cx="1643" cy="538" rx="300" ry="60" fill="#ab8bc2"/>
-<ellipse cx="374" cy="237" rx="350" ry="35" fill="#7c6fbe"/>
-<ellipse cx="922" cy="498" rx="400" ry="30" fill="#6f63b4"/>
-<ellipse cx="1226" cy="763" rx="380" ry="40" fill="#7d70c0"/>
-<ellipse cx="531" cy="451" rx="400" ry="45" fill="#362e6f"/>
-<ellipse cx="959" cy="800" rx="420" ry="40" fill="#342c6b"/>
-<ellipse cx="1111" cy="1023" rx="400" ry="40" fill="#332b68"/>
-<ellipse cx="600" cy="618" rx="300" ry="22" fill="#565a82"/>
-<ellipse cx="172" cy="269" rx="300" ry="30" fill="#8579c2"/>
-<ellipse cx="171" cy="449" rx="400" ry="45" fill="#7a6cba"/>
-<ellipse cx="258" cy="677" rx="420" ry="50" fill="#8073c0"/>
-<ellipse cx="930" cy="1022" rx="450" ry="50" fill="#6f61b2"/>
-<ellipse cx="1145" cy="1276" rx="380" ry="45" fill="#7d6fbe"/>
-</g>
-<g filter="url(#hero-art-clerk-core)">
-<ellipse cx="1065" cy="196" rx="320" ry="14" fill="#c4a6d6"/>
-<ellipse cx="140" cy="405" rx="240" ry="10" fill="#9184c8"/>
-<ellipse cx="206" cy="594" rx="280" ry="14" fill="#978ac9"/>
-<ellipse cx="983" cy="1034" rx="300" ry="12" fill="#8c7ec4"/>
-</g>
-</g>
-</g>
-<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-clerk-grain)" style="mix-blend-mode:soft-light;opacity:.18"/>
+<rect width="152" height="210" fill="url(#lpbx-sheen-mcp)" style="mix-blend-mode: soft-light"/>
 </g>
 </svg>
-<div class="hero-cell-logo"><svg class="hero-logo" viewBox="0 0 441 128" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"><path d="M166.971 40.917c11.605 0 23.824 4.606 31.392 13.519a.14.14 0 0 1-.015.196l-11.393 9.858a.14.14 0 0 1-.198-.013 24.4 24.4 0 0 0-8.422-6.174 24.9 24.9 0 0 0-10.437-2.133c-13.41 0-22.35 9.192-22.35 22.63 0 6.713 2.223 12.345 6.087 16.29a22.1 22.1 0 0 0 7.464 4.805 22.5 22.5 0 0 0 8.799 1.511 26.7 26.7 0 0 0 10.378-1.996 26.25 26.25 0 0 0 8.635-5.752.14.14 0 0 1 .192-.007l11.645 10.047a.13.13 0 0 1 .034.044.14.14 0 0 1 .015.053.14.14 0 0 1-.036.103c-6.497 7.175-17.999 12.866-32.397 12.866-11.139 0-20.793-3.91-27.569-10.565S128 90.12 128 78.928c0-22.63 16.169-38.011 38.971-38.011M272.297 40.924c22.067 0 36.337 15.52 36.337 36.95a61 61 0 0 1-.457 6.659.14.14 0 0 1-.047.088.14.14 0 0 1-.093.035h-54.261a.14.14 0 0 0-.136.171c2.321 10.287 10.27 16.557 21.26 16.557a23.64 23.64 0 0 0 10.369-2.151 23.24 23.24 0 0 0 8.236-6.335.14.14 0 0 1 .096-.051.14.14 0 0 1 .103.032l.447.373 11.163 9.719a.14.14 0 0 1 .049.093.14.14 0 0 1-.031.101c-6.316 7.834-16.808 13.599-31.355 13.599-21.772 0-38.196-15.077-38.196-37.983 0-11.238 3.87-20.663 10.319-27.317a35.7 35.7 0 0 1 11.989-7.934 36.2 36.2 0 0 1 14.208-2.606m.887 15.229a19.4 19.4 0 0 0-8.036 1.46 19.2 19.2 0 0 0-6.683 4.624 20.44 20.44 0 0 0-4.538 8.68.2.2 0 0 0-.001.062q.007.031.027.057a.14.14 0 0 0 .109.054h37.036a.14.14 0 0 0 .135-.174c-2.156-8.804-8.293-14.763-18.049-14.763M225.661 11.976a.14.14 0 0 1 .1.04.142.142 0 0 1 .041.1v103.509a.14.14 0 0 1-.01.054.144.144 0 0 1-.077.077.14.14 0 0 1-.054.01h-16.684a.14.14 0 0 1-.054-.01.14.14 0 0 1-.077-.077.14.14 0 0 1-.01-.054V12.117a.14.14 0 0 1 .141-.14zM361.385 40.92q.029 0 .054.01a.14.14 0 0 1 .077.076.14.14 0 0 1 .011.054v18.552c0 .081-.07.146-.151.14-1.944-.147-3.88-.29-5.072-.29-13.058 0-20.725 9.19-20.725 21.253v34.91a.14.14 0 0 1-.01.054.144.144 0 0 1-.077.077.14.14 0 0 1-.054.01h-16.683a.14.14 0 0 1-.054-.01.14.14 0 0 1-.077-.077.14.14 0 0 1-.01-.054v-73.52a.14.14 0 0 1 .087-.13.14.14 0 0 1 .054-.01h16.683a.14.14 0 0 1 .1.04.142.142 0 0 1 .041.1V53.04a.104.104 0 0 0 .15.092.1.1 0 0 0 .037-.03c5.851-7.815 14.488-12.162 23.613-12.162l2.006-.022zm26.947-28.944a.14.14 0 0 1 .1.04.142.142 0 0 1 .041.1v63.165c0 .13.157.19.244.095l30.691-33.455a.14.14 0 0 1 .104-.046h20.063c.122 0 .187.145.105.236l-26.752 29.515a.13.13 0 0 0-.036.082.14.14 0 0 0 .02.088l27.119 43.755a.15.15 0 0 1 .022.071.144.144 0 0 1-.069.125.14.14 0 0 1-.072.019h-19.033a.14.14 0 0 1-.12-.067l-19.234-30.912a.14.14 0 0 0-.119-.066h-.18a.2.2 0 0 0-.057.012.14.14 0 0 0-.047.033l-12.612 13.55a.14.14 0 0 0-.037.096v17.213a.1.1 0 0 1-.011.054.14.14 0 0 1-.076.077.14.14 0 0 1-.054.01h-16.685a.14.14 0 0 1-.099-.041.14.14 0 0 1-.031-.046.14.14 0 0 1-.01-.054V12.117q0-.028.01-.054a.14.14 0 0 1 .13-.087zM84 64c0 11.046-8.954 20-20 20s-20-8.954-20-20 8.954-20 20-20 20 8.954 20 20m16.04 47.354c1.702 1.702 1.531 4.519-.468 5.858C89.399 124.026 77.163 128 64 128s-25.4-3.974-35.572-10.788c-2-1.339-2.17-4.156-.468-5.858l14.615-14.616c1.321-1.32 3.37-1.53 5.033-.678A35.84 35.84 0 0 0 64 100a35.85 35.85 0 0 0 16.391-3.94c1.663-.85 3.712-.643 5.033.678z" /> <path d="M99.572 10.788c1.999 1.34 2.17 4.156.468 5.858L85.424 31.262c-1.32 1.32-3.37 1.53-5.033.678A35.85 35.85 0 0 0 64 28c-19.882 0-36 16.118-36 36a35.85 35.85 0 0 0 3.94 16.391c.851 1.663.643 3.712-.678 5.033L16.646 100.04c-1.702 1.702-4.519 1.531-5.858-.468C3.974 89.399 0 77.163 0 64 0 28.654 28.654 0 64 0c13.163 0 25.399 3.974 35.572 10.788" /></svg><span class="hero-cell-kind">Docs</span></div>
-<div class="hero-cell-body">
-<div class="hero-clerk-docs">
-<img class="light-image" src="/clerk-docs-glass.svg" alt="Clerk API documentation preview" fetchpriority="high" />
-<img class="dark-image" src="/clerk-docs-glass-dark.svg" alt="Clerk API documentation preview" fetchpriority="high" />
+<div class="lp-box-grain" aria-hidden="true"></div>
+<div class="lp-box-screen" aria-hidden="true">
+<div class="lp-win lp-win--app lp-chat">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title">Missing planet images<scalar-icon src="phosphor/regular/caret-down"></scalar-icon></span></div>
+<div class="lp-chat-messages">
+<div class="lp-chat-turn">
+<div class="lp-chat-prompt">Which planets in the Galaxy API are still missing an image?</div>
+<div class="lp-chat-response">
+<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 3s"><span class="lp-chat-think-sizer">Thought for 3s</span><span class="lp-chat-think-text" data-text="Thought for 3s">Thought for 3s</span></span></div>
+<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Searched operations for <span class="lp-chat-code">planet image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">GET /planets</span></span></div></div></div></div>
+<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
+<div class="lp-chat-line">Kepler-22b is the only planet without an image. The other eleven all have one.</div>
+</div>
+</div>
+<div class="lp-chat-turn">
+<div class="lp-chat-prompt">Upload the Kepler-22b render to it</div>
+<div class="lp-chat-response">
+<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 2s"><span class="lp-chat-think-sizer">Thought for 2s</span><span class="lp-chat-think-text" data-text="Thought for 2s">Thought for 2s</span></span></div>
+<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">POST /planets/kepler-22b/image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Checked the response</span></div></div></div></div>
+<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
+<div class="lp-chat-line">Done. The API returned 201 Created, so Kepler-22b has its render now.</div>
+<div class="lp-chat-line">Want me to add the TRAPPIST-1e one next?</div>
 </div>
 </div>
 </div>
-<div class="hero-cell" data-hero-cell="warp-sdk">
-<svg id="hero-art-warp" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abstract red-orange silk artwork" style="width: 100%; height: auto; display: block">
-<defs>
-<clipPath id="hero-art-warp-clip"><rect width="1600" height="1000"/></clipPath>
-<filter id="hero-art-warp-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="70"/></filter>
-<filter id="hero-art-warp-crest" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="28"/></filter>
-<filter id="hero-art-warp-grain" x="0" y="0" width="100%" height="100%">
-<feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="2" seed="17" stitchTiles="stitch"/>
-<feColorMatrix type="saturate" values="0"/>
-<feComponentTransfer>
-<feFuncR type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncG type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncB type="linear" slope="1.4" intercept="-0.2"/>
-<feFuncA type="linear" slope="0" intercept="1"/>
-</feComponentTransfer>
-</filter>
-</defs>
-<g clip-path="url(#hero-art-warp-clip)">
-<g>
-<g filter="url(#hero-art-warp-soft)">
-<rect x="-160" y="-160" width="1920" height="1320" fill="#f0821c"/>
-<ellipse cx="700" cy="40" rx="700" ry="220" fill="#f5a029"/>
-<ellipse cx="60" cy="-10" rx="260" ry="100" fill="#f6ecd8"/>
-<ellipse cx="1450" cy="80" rx="420" ry="200" fill="#f2911f"/>
-<ellipse cx="500" cy="420" rx="620" ry="220" fill="#d94e12" transform="rotate(-14 500 420)"/>
-<ellipse cx="1200" cy="520" rx="560" ry="240" fill="#dd5514" transform="rotate(-10 1200 520)"/>
-<ellipse cx="800" cy="560" rx="900" ry="150" fill="#d04a10" transform="rotate(-11 800 560)"/>
-<ellipse cx="250" cy="800" rx="440" ry="260" fill="#f9b53f" transform="rotate(-18 250 800)"/>
-<ellipse cx="900" cy="920" rx="520" ry="200" fill="#ee7317" transform="rotate(-8 900 920)"/>
-<ellipse cx="1500" cy="900" rx="420" ry="240" fill="#f07d1a" transform="rotate(-12 1500 900)"/>
-</g>
-<g filter="url(#hero-art-warp-crest)">
-<ellipse cx="380" cy="700" rx="380" ry="46" fill="#fbc954" transform="rotate(-20 380 700)"/>
-<ellipse cx="240" cy="850" rx="300" ry="34" fill="#fdda75" transform="rotate(-22 240 850)"/>
-<ellipse cx="720" cy="330" rx="420" ry="36" fill="#ec6d13" transform="rotate(-14 720 330)"/>
-<ellipse cx="520" cy="770" rx="360" ry="30" fill="#c9430e" transform="rotate(-20 520 770)"/>
-<ellipse cx="1150" cy="700" rx="420" ry="40" fill="#f7a832" transform="rotate(-9 1150 700)"/>
-<ellipse cx="1050" cy="180" rx="380" ry="42" fill="#f8ad38" transform="rotate(-8 1050 180)"/>
-</g>
-</g>
-<rect class="hero-art-noise" width="1600" height="1000" filter="url(#hero-art-warp-grain)" style="mix-blend-mode:soft-light;opacity:.2"/>
-</g>
-</svg>
-<div class="hero-cell-logo"><svg class="hero-logo" viewBox="0 0 1236 351" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true"><g fill="currentColor" clip-path="url(#warp-logo-clip)"><path d="M341.87 122.39A175.4 175.4 0 0 0 224.76 7.21c21.37 68.74 71.94 110.54 117.11 115.18"></path><path d="m345.73 136.78-.61-2.66C276.82 131.98 208.24 86.83 189.65.61q-7.28-.61-14.72-.62c-12.08 0-23.87 1.22-35.26 3.55 26.94 83.98 123.11 131.57 206.06 133.23z"></path><path d="M348.13 149.95c-118.71-.69-218.72-60.46-249.67-132.4a176 176 0 0 0-53.29 40.03c66.49 57.59 183.26 94.65 303.33 95q-.17-1.32-.37-2.63"></path><path d="M349.68 165.77c-101.84-.05-244.09-15.45-332.26-67.13a174 174 0 0 0-15.43 49.35c97.11 17.89 226.18 20.16 347.78 20.17zM224.85 342.76a175.4 175.4 0 0 0 116.93-114.88c-45.08 4.68-95.52 46.36-116.93 114.88"></path><path d="m345.05 216.13.62-2.66c-82.86 1.68-178.88 49.18-205.93 132.98a176 176 0 0 0 49.96 2.91c18.67-86.02 87.15-131.08 155.35-133.24z"></path><path d="m348.09 200.31.37-2.63c-119.98.35-236.66 37.37-303.16 94.88a176 176 0 0 0 53.26 39.93C129.61 260.66 229.52 201 348.1 200.31z"></path><path d="M349.77 182.11c-121.58 0-250.62 2.28-347.73 20.16a174 174 0 0 0 15.48 49.3c88.17-51.63 230.33-67.02 332.14-67.07z"></path></g><path fill="currentColor" d="M1149.21 278.42c-22.92 0-41.64-7.64-55.78-22.54V351h-55.77V74.82h55.77v18.72c14.14-14.9 32.86-22.54 55.78-22.54 48.89 0 85.94 37.82 85.94 103.9 0 65.7-37.05 103.52-85.94 103.52m-13.76-47.75c25.98 0 42.02-20.62 42.02-55.77 0-35.14-16.04-56.15-42.02-56.15-25.97 0-42.02 21-42.02 56.15s16.05 55.77 42.02 55.77M897.77 274.6V74.82h55.77v28.27C969.2 80.55 991.74 71 1012 71h7.64v56.54H1012c-29.42 0-58.45 12.6-58.45 45.07v102zm-73.46 0v-17.57c-15.28 14.52-36.67 21.4-57.68 21.4-36.67 0-66.85-21.78-66.85-61.5 0-44.7 35.53-60.36 87.48-64.18 27.12-3.44 38.58-7.26 38.58-19.49 0-11.07-10.7-18.71-30.56-18.71-18.72 0-32.47 8.78-34 23.3h-54.24C710.48 92.39 751.35 71 795.66 71c45.84 0 84.42 19.1 84.42 68.76V274.6zm-68.76-61.12c0 15.28 11.46 22.92 27.12 22.92 19.49 0 41.64-11.08 41.64-35.9v-16.81c-10.31 2.67-21.77 4.2-33.23 5.34-21.78 2.68-35.53 9.17-35.53 24.45m-297.1 61.12L400 74.82h58.06l32.09 135.99 37.82-135.99h53.86l36.67 135.99 33.23-135.99h53.86L646.77 274.6h-56.92L552.8 143.96 515.74 274.6z"></path><defs><clipPath id="warp-logo-clip"><path fill="white" d="M0 0h350v350H0z"></path></clipPath></defs></svg><span class="hero-cell-kind">SDK</span></div>
-<div class="hero-cell-body">
-<div class="hero-glass">
-<div class="hero-glass-ide">
-<div class="hero-glass-ide-main">
-<div class="hero-glass-tabs">
-<button type="button" class="active" data-sdk-lang="typescript">index.ts</button>
-<button type="button" data-sdk-lang="python">main.py</button>
-<button type="button" data-sdk-lang="go">main.go</button>
-<button type="button" data-sdk-lang="bash">warp.sh</button>
-</div>
-<div class="hero-glass-codewrap dark-mode" data-sdk-lang="typescript" data-sdk-abbr="TS">
-
-```typescript
-import WarpAPI from "warp-hr";
-
-const client = new WarpAPI({
-  apiKey: process.env["WARP_API_KEY"], // defaults to the WARP_API_KEY env var
-});
-
-// Auto-paginating: the next cursor page is fetched as you iterate.
-for await (const assignment of client.timeOff.listAssignments({ limit: 50 })) {
-  console.log(assignment.id, assignment.policy.name);
-}
-```
-
-</div>
-<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="python" data-sdk-abbr="PY">
-
-```python
-import os
-
-from warp import Warp
-
-client = Warp(api_key=os.environ.get("WARP_API_KEY"))
-
-# Auto-paginating: the next cursor page is fetched as you iterate.
-for assignment in client.time_off.list_assignments(limit=50):
-    print(assignment.id, assignment.policy.name)
-```
-
-</div>
-<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="go" data-sdk-abbr="GO">
-
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"os"
-
-	sdk "github.com/TeamWarp/warp-go-sdk"
-	"github.com/TeamWarp/warp-go-sdk/option"
-)
-
-func main() {
-	client := sdk.NewClient(option.WithAPIKey(os.Getenv("WARP_API_KEY")))
-
-	iter := client.TimeOff.ListAssignmentsAutoPaging(context.Background(),
-		sdk.TimeOffListAssignmentsParams{Limit: sdk.Int(50)})
-
-	for iter.Next() {
-		assignment := iter.Current()
-		fmt.Println(assignment.ID, assignment.Policy.Name)
-	}
-
-	if err := iter.Err(); err != nil {
-		panic(err)
-	}
-}
-```
-
-</div>
-<div class="hero-glass-codewrap dark-mode is-hidden" data-sdk-lang="bash" data-sdk-abbr="CLI">
-
-```bash
-# Install from Homebrew, or run it with npx warp
-brew install teamwarp/tap/warp
-
-export WARP_API_KEY="wrp_live_..."
-
-# Flags are typed from the OpenAPI parameters
-warp time-off list-assignments --limit 50 --output table
-
-# Every command speaks JSON too, so it composes
-warp time-off list-assignments --output json | jq '.data[].policy.name'
-```
-
+<div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/key-return"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model">Opus 5 <span>High</span></span></div></div>
 </div>
 </div>
+<div class="lp-box-label"><span class="lp-box-title">MCP</span><span class="lp-box-subtitle">For Agents &amp; Chat Apps</span></div>
+<div class="lp-box-spine" aria-hidden="true">
+<span class="lp-box-volume">Volume 3</span>
+<svg class="lp-box-mark" viewBox="0 0 54.2 55"><path d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg>
 </div>
 </div>
-</div>
-</div>
-</div>
-<style>@supports (-moz-appearance:none){#hero-art .hero-art-noise{display:none}}</style>
-</svg>
-<style>@supports (-moz-appearance:none){#hero-art-zoom .hero-art-noise{display:none}}</style>
-</svg>
-<style>@supports (-moz-appearance:none){#hero-art-clerk .hero-art-noise{display:none}}</style>
-</svg>
-<style>@supports (-moz-appearance:none){#hero-art-warp .hero-art-noise{display:none}}</style>
+</a>
+<div class="lp-node" data-reveal="fade" style="--d: 2600; --nx: 50; --ny: 600"><scalar-icon src="phosphor/regular/globe"></scalar-icon></div>
+<div class="lp-node" data-reveal="fade" style="--d: 2680; --nx: 140; --ny: 636"><scalar-icon src="phosphor/regular/browser"></scalar-icon></div>
+<div class="lp-node" data-reveal="fade" style="--d: 2640; --nx: 236; --ny: 590"><scalar-icon src="phosphor/regular/package"></scalar-icon></div>
+<div class="lp-node" data-reveal="fade" style="--d: 2720; --nx: 316; --ny: 646"><scalar-icon src="phosphor/regular/terminal"></scalar-icon></div>
+<div class="lp-node" data-reveal="fade" style="--d: 2680; --nx: 404; --ny: 600"><scalar-icon src="phosphor/regular/chat-circle-dots"></scalar-icon></div>
+<div class="lp-node" data-reveal="fade" style="--d: 2760; --nx: 490; --ny: 630"><scalar-icon src="phosphor/regular/robot"></scalar-icon></div>
+<svg class="lp-grain" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+<filter id="lp-speckle" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="2" seed="11" stitchTiles="stitch" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.8 0 0 0 0.4" result="dk"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0.9 0 0 -0.45" result="lt"/><feMerge><feMergeNode in="dk"/><feMergeNode in="lt"/></feMerge></filter>
+<rect width="100%" height="100%" filter="url(#lp-speckle)" opacity="0.2"/>
 </svg>
 </div>
-
-<div class="logowall">
-  <div class="logowall-item logowall-item-tr">
-    <scalar-icon class="logowall-logo" src="../assets/remote/logo-tr.svg"></scalar-icon>
+<section class="lp-section" id="lp-docs" data-lp-scene="docs">
+<div class="lp-copy">
+  <span class="lp-kicker text-blue">Docs</span>
+  <scalar-heading level="2" slug="scalar-docs" class="c">
+    The modern documentation platform for your API and everything else
+  </scalar-heading>
+  <p>
+    Write documentation with Markdown and MDX, generate API references from OpenAPI and AsyncAPI, and keep everything up to date with two-way Git sync.
+  </p>
+  <div class="lp-features text-blue">
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
+      Markdown and MDX
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
+      OpenAPI + AsyncAPI
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
+      Two-way Git sync
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
+      Custom HTML/CSS/JS
+    </b>
   </div>
-  <div class="logowall-item">
-    <scalar-icon class="logowall-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon>
+  <div class="lp-actions">
+    <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Create documentation with Scalar">Create Docs</a>
+    <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/docs" aria-label="Learn more about Scalar Docs">Learn more &rarr;</a>
   </div>
-  <div class="logowall-item">
-    <scalar-icon class="logowall-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon class="logowall-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon class="logowall-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon class="logowall-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon>
-  </div>
+  <dl class="lp-stats">
+    <div class="lp-stat">
+      <dt>50M+</dt>
+      <dd>API reference page views served every month</dd>
+    </div>
+    <div class="lp-stat">
+      <dt>2 min</dt>
+      <dd>From OpenAPI document to published docs</dd>
+    </div>
+  </dl>
 </div>
-
-<div class="logowall logowall-secondary">
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/profound.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/zoom.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/warp.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/ibm.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/intel.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/metabase.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/nvidia.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/siemens.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/target.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/tesla.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/gem.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/partech.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/polymarket.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/hetzner.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/eli-lilly.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/qualcomm.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/airwallex.svg"></scalar-icon></div>
-  <div class="logowall-item"><scalar-icon class="logowall-logo" src="../assets/logos/steel.svg"></scalar-icon></div>
+  <div class="lp-section-figure">
+    <img alt="Scalar Docs rendering the Zoom API reference" class="light-image" src="/api-docs-static-zoom.svg" loading="lazy" />
+    <img alt="Scalar Docs rendering the Zoom API reference" class="dark-image" src="/api-docs-static-zoom-dark.svg" loading="lazy" />
+  </div>
+</section>
+<section class="lp-section" id="lp-sdk" data-lp-scene="sdk">
+<div class="lp-copy">
+  <span class="lp-kicker text-purple">SDK Generation</span>
+  <scalar-heading level="2" slug="scalar-sdk-generation" class="c">
+    One commit to update all your SDKs
+  </scalar-heading>
+  <p>
+    Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Go, PHP, Java and Ruby, with more languages coming soon.
+  </p>
+  <div class="lp-features text-purple">
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
+      OpenAPI-first
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/brackets-square"></scalar-icon>
+      Custom code
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/code"></scalar-icon>
+      Code samples
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
+      Syncs with Docs
+    </b>
+  </div>
+  <div class="lp-actions">
+    <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Generate an SDK with Scalar">Generate SDK</a>
+    <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/sdk-generator" aria-label="Learn more about Scalar SDK Generation">Learn more &rarr;</a>
+  </div>
+  <dl class="lp-stats">
+    <div class="lp-stat">
+      <dt>6</dt>
+      <dd>Languages generated from one OpenAPI document</dd>
+    </div>
+    <div class="lp-stat">
+      <dt>1 commit</dt>
+      <dd>Ships an update to every SDK at once</dd>
+    </div>
+  </dl>
 </div>
-
-<div class="quotes">
-  <h2>Take their word for it</h2>
-  <div class="flex flex-wrap quotes-container">
-    <div class="quotes-item">
-      <p>
-        <strong>“After years of helping enterprises implement API strategies at SmartBear, I can confidently say Scalar is what the industry has been waiting for.</strong>
-      </p>
-      <p>
-        The strict OpenAPI compliance, robust CLI/API registry, and seamless CI/CD integration solve the exact pain points I watched customers struggle with daily. This is the modern API platform developers deserve.”
-      </p>
-      <p class="text-c-3">
-        Michael, Former Solutions Architect @ Smartbear
-      </p>
-    </div>
-    <div class="quotes-item">
-      <p>
-        “One of my most recent favorites is a in-browser ad hoc testing UI called Scalar.
-      </p>
-      <p>
-        One of the things that I really love about Scalar, it's got this modern UI experience, and it provides <b>built-in test generation code for a variety of targets, from cURL to HttpClient in C#.</b>”
-      </p>
-      <p class="text-c-3">Captain Safia, Engineer @ Microsoft ASP.NET</p>
-    </div>
-    <div class="quotes-item">
-      <p>
-        “Scalar's ‘golden ticket’ is… Scalar!
-      </p>
-      <p>
-        <strong>They are (in my own words) building a product ecosystem for API design, docs, testing, and governance</strong> – with offerings at every price point.
-      </p>
-      <p>
-        They are open source. So I can get in on free features and stay with Scalar no matter how big my API needs blow up.”
-      </p>
-      <p class="text-c-3">Eron, Documentation Engineer @ Qrvey</p>
-    </div>
+  <div class="lp-section-figure">
+    <img alt="A generated SDK next to the API client" class="light-image" src="/sdks-static.svg" loading="lazy" />
+    <img alt="A generated SDK next to the API client" class="dark-image" src="/sdks-static-dark.svg" loading="lazy" />
   </div>
+</section>
+<section class="lp-section" id="lp-mcp" data-lp-scene="mcp">
+<div class="lp-copy">
+  <span class="lp-kicker text-orange">MCP &amp; Agent</span>
+  <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
+    Turn your OpenAPI documents into an MCP server
+  </scalar-heading>
+  <p>
+    Upload your OpenAPI documents and expose them as a hosted MCP server: just-in-time tool calls, secure delegated auth, and only 0.2% of your context window no matter how many APIs you connect. Works with every chat app that speaks MCP.
+  </p>
+  <div class="lp-features text-orange">
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/grid-four"></scalar-icon>
+      Just-in-time tool calls
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/shield-check"></scalar-icon>
+      Secure delegated auth
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/users-three"></scalar-icon>
+      Scoped access
+    </b>
+    <b class="flex items-center icon-text gap-3 font-medium">
+      <scalar-icon src="phosphor/bold/infinity"></scalar-icon>
+      Public and internal APIs
+    </b>
+  </div>
+  <div class="lp-actions">
+    <a class="t-editor__button" href="https://dashboard.scalar.com/register" target="_blank" rel="noopener noreferrer" aria-label="Get started with Scalar MCP and Agent">Get Started</a>
+    <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">Learn more &rarr;</a>
+  </div>
+  <dl class="lp-stats">
+    <div class="lp-stat">
+      <dt>0.2%</dt>
+      <dd>Of the context window, however many APIs you connect</dd>
+    </div>
+    <div class="lp-stat">
+      <dt>10+</dt>
+      <dd>Chat apps and agents connect over MCP</dd>
+    </div>
+  </dl>
 </div>
-
-<div>
-  <div class="product product-reversed">
-    <div class="product-copy">
-      <span class="font-bold text-blue">Docs</span>
-      <scalar-heading level="2" slug="scalar-docs" class="c">
-        The Modern Documentation Platform for Your API and Everything Else
-      </scalar-heading>
-      <p>
-        Write documentation with Markdown and MDX, generate API references from OpenAPI and AsyncAPI, and keep everything up to date with two-way Git sync.
-      </p>
-      <div class="flex flex-wrap text-blue gap-y-2">
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
-          Markdown and MDX
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI + AsyncAPI
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-          Two-Way Git Sync
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
-          <span><span class="lg-only">Custom </span>HTML/CSS/JS</span>
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/headset"></scalar-icon>
-          Chat with AI/MCP
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/lock-simple"></scalar-icon>
-          Private or Public
-        </b>
-      </div>
-      <div class="product-actions mt-3">
-        <a class="product-action t-editor__anchor" href="https://dashboard.scalar.com/register" aria-label="Create documentation with Scalar">
-          Create Docs &rarr;
-        </a>
-        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/docs" aria-label="Learn more about Scalar Docs">
-          Learn More &rarr;
-        </a>
-      </div>
-    </div>
-    <div class="product-image">
-      <div class="product-image-transform">
-        <img alt="Docs" class="light-image" src="/api-docs-static-zoom.svg"/>
-        <img alt="Docs" class="dark-image" src="/api-docs-static-zoom-dark.svg"/>
-      </div>
-    </div>
-    <div class="draggable sticker-3">
-      <scalar-icon src="../assets/remote/sticker-3.svg"></scalar-icon>
-    </div>
+  <div class="lp-section-figure">
+    <img alt="Claude connected to a Scalar MCP server" class="light-image" src="/agent-static.svg" loading="lazy" />
+    <img alt="Claude connected to a Scalar MCP server" class="dark-image" src="/agent-static-dark.svg" loading="lazy" />
   </div>
-  <div class="product">
-    <div class="product-copy">
-      <span class="font-bold text-purple">Scalar SDK Generation</span>
-      <scalar-heading level="2" slug="scalar-sdk-generation" class="c">
-        One Commit To Update All Your SDKs
-      </scalar-heading>
-      <p>
-        Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Golang, PHP, Java and Ruby with more languages coming soon.
-      </p>
-      <div class="flex flex-wrap text-purple gap-y-2">
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-          OpenAPI-First
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/brackets-square"></scalar-icon>
-          Custom-code
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/code"></scalar-icon>
-          Code Samples
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/fingerprint"></scalar-icon>
-          <span><span class="lg-only">OpenAPI </span>Authentication</span>
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
-          Syncs with Docs
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/file-cloud"></scalar-icon>
-          File Streaming Support
-        </b>
-      </div>
-      <div class="product-actions mt-3">
-        <a class="product-action t-editor__anchor" href="https://dashboard.scalar.com/register" aria-label="Generate an SDK with Scalar">
-          Generate SDK &rarr;
-        </a>
-        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/sdk-generator" aria-label="Learn more about Scalar SDK Generation">
-          Learn More &rarr;
-        </a>
-      </div>
-    </div>
-    <div class="product-image">
-      <div class="product-image-transform">
-        <img alt="SDKs" class="light-image" src="/sdks-static.svg" />
-        <img alt="SDKs" class="dark-image" src="/sdks-static-dark.svg" />
-      </div>
-    </div>
-    <div class="draggable sticker-2">
-      <scalar-icon src="../assets/remote/cdn-a0d352f9ce.svg"></scalar-icon>
-    </div>
-  </div>
-  <div class="product product-reversed">
-    <div class="product-copy">
-      <span class="font-bold text-orange">MCP &amp; Agent</span>
-      <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
-        Turn Your OpenAPI Documents Into an MCP Server
-      </scalar-heading>
-      <p>
-        Upload your OpenAPI documents and expose them as a hosted MCP server: just-in-time tool calls, secure delegated auth, and only 0.2% of your context window no matter how many APIs you connect.
-      </p>
-      <div class="flex flex-wrap text-orange gap-y-2">
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/grid-four"></scalar-icon>
-          Just-in-time tool calls
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/shield-check"></scalar-icon>
-          Secure delegated auth
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/users-three"></scalar-icon>
-          Scoped access
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/arrows-out-line-horizontal"></scalar-icon>
-          Isolated execution
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/article"></scalar-icon>
-          Markdown in MCP
-        </b>
-        <b class="flex items-center icon-text gap-3 font-medium w-1/2 min-h-8">
-          <scalar-icon src="phosphor/bold/infinity"></scalar-icon>
-          Public and internal APIs
-        </b>
-      </div>
-      <div class="product-actions mt-3">
-        <a class="product-action t-editor__anchor" href="https://dashboard.scalar.com/register" target="_blank" rel="noopener noreferrer" aria-label="Get started with Scalar MCP and Agent">
-          Get Started &rarr;
-        </a>
-        <a class="product-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">
-          Learn More &rarr;
-        </a>
-      </div>
-    </div>
-    <div class="product-image">
-      <div class="product-image-transform">
-        <img alt="Claude connected to a Scalar MCP server" class="light-image" src="/agent-static.svg"/>
-        <img alt="Claude connected to a Scalar MCP server" class="dark-image" src="/agent-static-dark.svg"/>
-      </div>
-    </div>
-    <div class="draggable sticker-8">
-      <scalar-icon src="../assets/agent-scalar-sticker.svg"></scalar-icon>
-    </div>
-  </div>
+</section>
 </div>
 
 <div class="founder-quote border rounded-lg p-12 relative">
@@ -859,10 +581,12 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   <scalar-icon src="../assets/remote/cdn-031ac82fbf.svg"></scalar-icon>
 </div>
 
+
 <style>
   :root {
     --scalar-text-decoration: underline;
     --scalar-text-decoration-hover: underline;
+    --scalar-container-width: 960px;
   }
   .t-editor__page-title,
   .t-editor__page-nav,
@@ -892,27 +616,7 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
   h3.t-editor__heading,
   h2.t-editor__heading {
     --font-size: var(--scalar-heading-1);
-      margin-top: 0;
-  }
-  :root {
-    --scalar-container-width: 960px;
-  }
-  .hero.hero {
-    margin-top: 88px;
-  }
-  .small-test {
-    max-width: 440px;
-    text-wrap: balance;
-    margin-top: 44px;
-    position: relative;
-  }
-  .small-test-marc {
-    max-width: 680px;
-  }
-  @media only screen and (min-width: 1000px) {
-    .stickers-marc {
-      right: 240px;
-    }
+    margin-top: 0;
   }
   .t-editor.page {
     margin-right: unset;
@@ -925,695 +629,1616 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     margin-bottom: 0;
     margin-top: 0;
   }
-  .container {
-    width: var(--scalar-container-width);
-    margin: auto;
-    position: relative;
-  }
-  .container-full {
-    --scalar-container-sidebar-gap: calc(
-      (
-        (100dvw - var(--scalar-container-width) - var(--scalar-sidebar-width)) /
-          2
-      )
-    );
-    width: calc(100dvw - var(--scalar-sidebar-width));
-    margin-left: min(-1 * var(--scalar-container-sidebar-gap), -50px);
-  }
-  .gallery {
-    display: flex;
-    --scalar-gallery-item-offset: 140px;
-    overflow: scroll;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    padding: 0 max(var(--scalar-container-sidebar-gap) - 70px, 50px) !important;
-    position: relative;
-    margin-top: 32px;
-  }
-  .gallery::-webkit-scrollbar {
-    display: none;
-  }
-  .gallery li {
-    max-width: calc(100dvw - var(--scalar-sidebar-width) - 50px);
-    scroll-snap-align: start;
-    display: inline-block;
-    font-size: 0;
-    aspect-ratio: 16/9;
-    padding-left: 50px;
-    margin-right: 50px;
-  }
-  .gallery li img {
-    min-width: 100%;
-    max-width: unset;
-    height: 100%;
-    max-height: 600px;
-    object-fit: cover;
-  }
-  .slider {
-    padding-top: 100px;
-  }
-  .hero-visual {
-    position: relative;
-    margin-top: 0;
-    padding-top: 64px;
-    /* 76px wider per side than the content column, so the cards line up with
-       the product images below -- those sit at -76px (see
-       .product-reversed .product-image-transform). Shrinks when the viewport
-       cannot fit the overhang, and always centred on the column. */
-    --hero-art-overhang: max(
-      0px,
-      min(
-        76px,
-        (100dvw - var(--scalar-sidebar-width) - 100%) / 2
-      )
-    );
-    width: calc(100% + 2 * var(--hero-art-overhang));
-    margin-left: calc(-1 * var(--hero-art-overhang));
-  }
-  /* Zoom API docs mock over the blue artwork: glass topbar baked into the
-     asset, bottom fade identical to the Profound SDK card. */
-  .hero-zoom-docs,
-  .hero-clerk-docs {
-    position: relative;
-    /* Full width of the cell body, but the box keeps the SDK cards' code-panel
-       height -- 316px of content at their zoom -- so widening the mock cannot
-       push the mark off the line the SDK cards sit on. */
-    width: 100%;
-    height: calc(100cqw * 316 / 720);
-    margin-inline: auto;
-    /* The mock is taller than that box and is deliberately let out of it: it
-       runs off the bottom of the card and the card's own rounded clip cuts it,
-       rather than fading out well short of the edge. */
-    overflow: visible;
-  }
-  .hero-zoom-docs img,
-  .hero-clerk-docs img {
-    display: block;
-    width: 100%;
-    height: auto;
-    /* matches the codeblock's rendered radius (16px x its 0.708 zoom); the
-       bottom corners sit below the card edge */
-    border-radius: 11px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-  }
-  /* SDK card: the same frosted browser shell the Zoom and Clerk mocks are
-     baked into, with an editor pane inset in it. Chrome sizes follow the
-     mock's own values at the 1000/1360 render scale. Fixed 720x440 window,
-     centred on the artwork, no bottom fade. */
-  .hero-glass {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    /* Authored at full scale, then zoomed into the cell. The zoom divisor
-       stays 720 while the width is 576, so the card renders 20% narrower
-       than the cell body with the same type size, centred. Height is the
-       content's own: the window is fully contained, no bottom fade. */
-    width: 576px;
-    margin-inline: auto;
-    zoom: 0.64;
-    zoom: calc(100cqw / 720px);
-    border-radius: 16px;
-    overflow: hidden;
-    background-color: var(--hero-glass-tint, rgba(255, 255, 255, 0.08));
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-  }
-  /* Editor pane, inset in the glass exactly like the docs card in the mocks */
-  .hero-glass-ide {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-    margin: 0;
-    border-radius: 0;
-    overflow: hidden;
-    background-color: transparent;
-  }
-  .hero-glass-ide-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  /* Editor tab strip: open files, active one blends into the code below */
-  .hero-glass-tabs {
-    flex: none;
-    display: flex;
-    align-items: stretch;
-    overflow: hidden;
-    background-color: var(--hero-glass-tabs-tint, rgba(255, 255, 255, 0.06));
-    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-  }
-  .hero-glass-tabs button {
-    appearance: none;
-    background: none;
-    border: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.12);
-    cursor: pointer;
-    font-family: inherit;
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    padding: 0 16px;
-    height: 33px;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    color: rgba(255, 255, 255, 0.55);
-  }
-  .hero-glass-tabs button:hover {
-    color: rgb(255, 255, 255);
-  }
-  .hero-glass-tabs button.active {
-    color: rgb(255, 255, 255);
-    background-color: var(--hero-glass-tab-active-tint, rgba(255, 255, 255, 0.18));
-  }
-  /* Warp reads as one solid tinted panel instead of stacked translucent
-     layers: the card's own backing carries the brand wash, so the tab strip
-     and the active tab sit on it without adding a band of their own. */
-  .hero-cell[data-hero-cell="warp-sdk"] {
-    --hero-glass-tint: #b74b0f8a;
-    --hero-glass-tabs-tint: transparent;
-    --hero-glass-tab-active-tint: transparent;
-  }
-  /* no copy chrome on the SDK panes */
-  .hero-glass-codewrap .t-editor__language-picker {
-    display: none;
-  }
-  .hero-glass-codewrap code {
-    counter-reset: line;
-  }
-  .hero-glass-codewrap .t-code__line {
-    display: block;
-    counter-increment: line;
-  }
-  .hero-glass-codewrap .t-code__line::before {
-    content: counter(line);
-    display: inline-block;
-    width: 2ch;
-    margin-right: 18px;
-    text-align: right;
-    color: rgba(255, 255, 255, 0.45);
-  }
-  .hero-glass-codewrap.is-hidden {
-    display: none;
-  }
-  .hero-glass-codewrap {
-    position: relative;
-    width: 100%;
-    /* locked to the 10-line snippet's height; longer languages scroll */
-    height: 283px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
-  }
-  .hero-glass-codewrap::-webkit-scrollbar {
-    width: 6px;
-  }
-  .hero-glass-codewrap::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-    background-color: rgba(255, 255, 255, 0.25);
-  }
-  .hero-glass-codewrap::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  /* Brightened dark-mode palette: same hues the theme uses, pushed toward
-     white so they hold on the artwork through the glass. */
-  .hero-glass-codewrap code,
-  .hero-glass-codewrap .t-code__line {
-    color: rgba(255, 255, 255, 0.96);
-  }
-  .hero-glass-codewrap .hljs-comment {
-    color: rgba(255, 255, 255, 0.58);
-  }
-  .hero-glass-codewrap .hljs-property {
-    color: rgba(255, 255, 255, 0.85);
-  }
-  .hero-glass-codewrap .hljs-keyword {
-    color: #c9b8ff;
-  }
-  .hero-glass-codewrap .hljs-string {
-    color: #8ed3ff;
-  }
-  .hero-glass-codewrap .function_ {
-    color: #ffb47e;
-  }
-  .hero-glass-codewrap .hljs-attr,
-  .hero-glass-codewrap .hljs-title,
-  .hero-glass-codewrap .hljs-variable,
-  .hero-glass-codewrap .class_,
-  .hero-glass-codewrap .language_ {
-    color: rgb(255, 255, 255);
-  }
-  .hero-glass-codewrap pre {
-    margin: 0;
-    padding: 18px 20px 20px 6px;
-    background: transparent;
-    font-size: 14px;
-    line-height: 1.75;
-    box-shadow: none;
-  }
-  /* Each mark is normalised by eye rather than by box: the wordmarks share a
-     cap height, and the square Warp icon needs more of it to sit level. */
-  .hero-logo {
-    display: block;
-    width: auto;
-    height: 20px;
-  }
-  .hero-cell[data-hero-cell="profound-sdk"] .hero-logo {
-    height: 20px;
-  }
-  .hero-cell[data-hero-cell="zoom-api"] .hero-logo {
-    height: 20px;
-  }
-  .hero-cell[data-hero-cell="clerk-api"] .hero-logo {
-    height: 23px;
-  }
-  .hero-cell[data-hero-cell="warp-sdk"] .hero-logo {
-    height: 24px;
-  }
-  /* Four scenes at once: every cell is its own artwork with that brand's mark
-     centred on top and its product panel below. */
-  .hero-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    align-items: start;
-    gap: 12px;
-  }
-  /* One column once cells would drop under ~440px wide */
-  @media screen and (max-width: 900px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  .hero-cell {
-    position: relative;
-    /* Desktop framing (554x330) held proportionally at every width */
-    aspect-ratio: 554 / 330;
-    /* The mark and the panel it labels read as one block, centred in the card:
-       the two panel kinds are different heights, so a shared offset would sit
-       one of them low. */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 18px;
-    /* The card edge lives here rather than on the artwork, so the hover zoom
-       breathes inside a fixed rounded frame instead of scaling the edge. */
-    border-radius: 8px;
-    overflow: hidden;
-    /* Panels are authored full size and scaled into the cell, so they stay in
-       proportion at any cell width -- no px cap, or they stop growing once a
-       cell goes full-width in the single-column layout. */
-  }
-  .hero-cell-logo {
-    position: relative;
-    z-index: 2;
-    flex: none;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    /* Fixed row height rather than one derived from the mark: the four logos
-       are 17-20px tall, so without this each cell's row centres on a slightly
-       different line. */
-    height: 28px;
-    color: rgb(255, 255, 255);
-  }
-  /* Brand mark, a hairline rule, then what the panel actually shows */
-  .hero-cell-kind {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    line-height: 1;
-    color: rgba(255, 255, 255, 0.72);
-    /* nudge the word down 2px for optical alignment with the wordmarks */
-    transform: translateY(2px);
-  }
-  .hero-cell-kind::before {
-    content: "";
-    /* stays put: only the word moves */
-    transform: translateY(-2px);
-    width: 1px;
-    height: 20px;
-    background-color: rgba(255, 255, 255, 0.32);
-  }
-  .hero-cell-body {
-    position: relative;
-    z-index: 1;
-    flex: none;
-    width: 92%;
-    container-type: inline-size;
-  }
-  /* Cards are clickable: the artwork breathes on hover. Transform only, on a
-     promoted layer, so the turbulence filter is rasterised once and the hover
-     runs entirely on the compositor. */
-  .hero-cell {
-    cursor: pointer;
-  }
-  .hero-cell > svg {
-    will-change: transform;
-    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .hero-cell:hover > svg {
-    transform: scale(1.02);
-  }
-  .hero-cell:focus-visible {
-    outline: 2px solid var(--scalar-color-1);
-    outline-offset: 4px;
-  }
-  /* Opened card sits in a plain fixed overlay rather than a <dialog>: the top
-     layer and view transitions do not compose reliably. */
-  .hero-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: grid;
-    place-items: center;
-  }
-  .hero-modal[hidden] {
-    display: none;
-  }
-  .hero-modal-scrim {
-    position: absolute;
-    inset: 0;
-    /* Deliberately no backdrop-filter: blurring the whole viewport forced the
-       browser to re-rasterise all four turbulence artworks for the transition
-       snapshot, which cost a ~42ms frame. A flat scrim holds every frame
-       under 10ms. */
-    background: rgba(10, 12, 18, 0.68);
-  }
-  .hero-modal-stage {
-    position: relative;
-    z-index: 1;
-  }
-  .hero-modal-close {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    z-index: 2;
-    appearance: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.12);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-    color: rgba(255, 255, 255, 0.85);
-    transition: background-color 160ms ease, color 160ms ease;
-  }
-  .hero-modal-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: rgb(255, 255, 255);
-  }
-  .hero-modal-close:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.9);
-    outline-offset: 3px;
-  }
-  .hero-modal-close svg {
-    width: 18px;
-    height: 18px;
-  }
-  .hero-modal .hero-cell {
-    cursor: default;
-  }
-  .hero-modal .hero-cell > svg {
-    transform: none;
-  }
-  /* The card morphs; the rest of the page cross-fades faster so it reads as
-     the card moving rather than the page changing. */
-  ::view-transition-group(hero-card) {
-    animation-duration: 420ms;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  ::view-transition-old(hero-card),
-  ::view-transition-new(hero-card) {
-    animation-duration: 420ms;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 240ms;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-cell > svg {
-      transition: none;
-    }
-    .hero-cell:hover > svg {
-      transform: none;
-    }
-  }
-  /* Brand tints for the FF/Safari fallback cards */
-  .hero-cell[data-hero-cell="profound-sdk"] {
-    --hero-fallback-tint: rgb(0, 0, 0);
-  }
-  .hero-cell[data-hero-cell="zoom-api"] {
-    --hero-fallback-tint: color-mix(in srgb, var(--scalar-color-blue) 100%, transparent);
-  }
-  .hero-cell[data-hero-cell="clerk-api"] {
-    --hero-fallback-tint: color-mix(in srgb, var(--scalar-color-purple) 100%, transparent);
-  }
-  .hero-cell[data-hero-cell="warp-sdk"] {
-    --hero-fallback-tint: color-mix(in srgb, var(--scalar-color-orange) 100%, transparent);
-  }
-  /* Firefox and Safari cannot rasterise the turbulence artwork at usable
-     speed, so both are gated to a plain bg-3 card instead of the filtered
-     scenes -- same technique as the starter-kit marketing svg's -moz gate.
-     display:none skips the filter evaluation entirely. */
-  @supports ((-moz-orient: inline) or (-moz-appearance: none) or (-moz-osx-font-smoothing: auto)) {
-    .hero-cell > svg:not(.hero-logo) {
-      display: none !important;
-    }
-    .hero-cell::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-color: var(--scalar-background-3);
-      /* diffused brand wash: wide, shallow, from the top centre */
-      background-image: radial-gradient(
-        70% 32% at 50% 6%,
-        var(--hero-fallback-tint) 30%,
-        transparent 130%
-      );
-    }
-    /* the brand tint behind the logo row keeps the authored white text
-       readable, so no ink flip; the code panel still goes solid dark for
-       its white type and dark-mode syntax palette */
-    .hero-glass {
-      background-color: #15171c;
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    }
-
-  }
-  @supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
-    .hero-cell > svg:not(.hero-logo) {
-      display: none !important;
-    }
-    .hero-cell::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-color: var(--scalar-background-3);
-      /* diffused brand wash: wide, shallow, from the top centre */
-      background-image: radial-gradient(
-        70% 32% at 50% 6%,
-        var(--hero-fallback-tint) 30%,
-        transparent 130%
-      );
-    }
-    /* the brand tint behind the logo row keeps the authored white text
-       readable, so no ink flip; the code panel still goes solid dark for
-       its white type and dark-mode syntax palette */
-    .hero-glass {
-      background-color: #15171c;
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    }
-
-  }
-  /* One artwork per cell, cropped to fill it; the cell's rounded clip is the
-     card edge, so the artwork carries no mask of its own. */
-  .hero-cell > svg {
-    position: absolute;
-    inset: 0;
-    width: 100% !important;
-    height: 100% !important;
-  }
-  .founder-quote {
-    padding: 80px 160px 260px 160px;
-  }
-  .founder-quote.founder-quote {
-    margin-top: 120px;
-  }
-  /* product */
-  .product {
-    display: flex;
-    position: relative;
-    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-    gap: 44px;
-    padding: 80px 0;
-  }
-  .product > * {
-    flex: 1;
-  }
-  .product-reversed {
-    flex-direction: row-reverse;
-  }
-  .product:last-of-type {
-    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-  }
-  .product-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 100px 0;
-    position: relative;
-  }
-  .product-image {
-    position: relative;
-    border-radius: var(--scalar-radius-lg);
-    pointer-events: none;
-  }
-  .product-image-transform {
-    position: absolute;
-    mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-    left: 0;
-  }
-  .product-reversed .product-image-transform {
-    left: -76px;
-  }
-  .product-image img {
-    all: unset;
-    width: 1100px;
-    pointer-events: none;
-    mask-image: linear-gradient(to right, black 20%, transparent 45%);
-  }
-  object.product-image-sticker {
-    all: unset;
-    position: absolute;
-    left: -93px;
-    bottom: 90px;
-    transform: rotate(-7deg);
-  }
-  object.product-image-sticker-right {
-    transform: rotate(7deg);
-    left: initial;
-    right: -80px;
-  }
-  .product-copy h2 {
-    margin-top: 0;
-  }
-  .product-actions {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-  }
-  .product-action {
-    display: inline-block;
-    width: fit-content;
-  }
-  /* Every row's sticker sits on the same side as its product image. The API
-     Client row is image-left like the Docs row, so its sticker belongs on the
-     left too -- the shared sticker sheet parks sticker-8 on the right. */
-  .sticker-8 {
-    left: -100px;
-    right: initial;
-    top: initial;
-    bottom: 80px;
-  }
   .icon-text svg {
     width: 18px;
   }
-  .gap-y-2 {
-    row-gap: 8px;
+  .light-mode .dark-image {
+    display: none;
   }
-  .gap-y-3 {
-    row-gap: 12px;
+  .dark-mode .light-image {
+    display: none;
   }
-  /* logos */
-  .logowall.logowall {
-    padding: 24px 0;
+
+  /* --------------------------------------------------------------------
+     Landing scroller
+     Copy scrolls down the left column in viewport-tall sections; the
+     panel on the right is sticky and follows the section in the middle
+     of the viewport (data-lp-scene on .lp, set by landing.js): the hero
+     scene first, then one product card at a time with the others folded
+     into bands above and below it.
+     -------------------------------------------------------------------- */
+  .lp {
+    --lp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --lp-move: 720ms;
+    /* up to 76px past the content column on the right, so the panel lines
+       up with the old product images; shrinks when the viewport cannot
+       fit it */
+    --lp-overhang: max(
+      0px,
+      min(76px, (100dvw - var(--scalar-sidebar-width, 0px) - 100%) / 2 - 32px)
+    );
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+    grid-template-rows: repeat(4, auto);
+    column-gap: 56px;
+    align-items: start;
+    width: calc(100% + var(--lp-overhang));
+  }
+  /* Copy starts at the top of the block rather than centring. The 88px
+     matches where the other pages put their heading: on the previous home
+     page and on pricing the h1 sits 98px below the header, on the product
+     pages 94px. */
+  .lp-section {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - var(--scalar-header-height, 48px));
+    padding: 88px 0 48px;
+    min-width: 0;
+  }
+  .lp-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1;
+    gap: 12px;
+    min-width: 0;
+  }
+  .lp-copy .t-editor__heading {
+    margin-top: 0;
+  }
+  .lp-copy > p {
+    margin: 0;
+  }
+  .lp-kicker {
+    display: inline-flex;
     align-items: center;
-    gap: 40px;
+    gap: 8px;
+    font-weight: var(--scalar-bold);
+    font-size: var(--scalar-font-size-3);
   }
-  /* Clerk's mark is two paths: wordmark+lower crescent, then the C's upper
-     arc. Fading that arc with currentColor (the tailscale-dot treatment) makes
-     it read two-tone and track light/dark instead of sitting at a fixed tone. */
-  svg[viewBox="0 0 441 128"] path:last-of-type {
-    opacity: 0.4;
+  /* Customer logos as one endless row. The track holds three copies of
+     the list and slides exactly one copy's width, so the loop has no seam;
+     the spacing is padding on each item rather than a flex gap for the same
+     reason. Three copies rather than two because one copy is narrower than
+     the full-width column on tablet widths, and the copies behind the first
+     have to cover the viewport right up to the end of the cycle. The edges
+     fade out so logos never look cut off. */
+  .lp-trusted {
+    --lp-trusted-speed: 36s;
+    padding-top: 28px;
   }
-  /* second wall: full brand logos under the wordmark row. Higher specificity
-     than the <=1000px rules, which switch items to justify-content: start and
-     cap svg height -- these stay centred and sized at every breakpoint. */
-  .logowall.logowall-secondary {
-    padding-top: 0;
+  .lp-trusted-viewport {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 12%,
+      black 88%,
+      transparent
+    );
   }
-  .logowall.logowall-secondary .logowall-item {
-    justify-content: center;
-  }
-  .logowall.logowall-secondary .logowall-item .logowall-logo {
-    width: auto;
-    height: 24px;
-    max-height: 24px;
-    max-width: 100%;
-  }
-  .logowall-item {
+  .lp-trusted-track {
+    flex: none;
     display: flex;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 10;
+    width: max-content;
+    animation: lp-trusted-slide var(--lp-trusted-speed) linear infinite;
   }
-  /* Targeted by class, not by `svg`. A local `src` inlines as <svg> on the
-     published page but renders as an <img> in the docs editor, so an element
-     selector only ever sizes one of the two surfaces. The class lands on the
-     graphic either way. `object-fit` is the other half of that: <svg> defaults
-     to preserveAspectRatio="xMidYMid meet", <img> to `fill`, so without this an
-     <img> stretches to whatever box the max-height clamp leaves behind.
-     `object-fit` is inert on inline <svg>, so one declaration serves both. */
-  .logowall-item .logowall-logo {
-    width: 100%;
-    height: auto;
-    max-height: 24px;
-    object-fit: contain;
+  /* Only real pointers pause it: a tap leaves :hover stuck on touch screens */
+  @media (hover: hover) {
+    .lp-trusted-viewport:hover .lp-trusted-track {
+      animation-play-state: paused;
+    }
   }
+  @keyframes lp-trusted-slide {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  .lp-trusted-item {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    padding-right: 44px;
+    color: var(--scalar-color-1);
+  }
+  .lp-trusted-item .lp-trusted-logo {
+    display: block;
+    width: auto;
+    height: 20px;
+    max-width: none;
+  }
+  /* stacked lockup, see styles.css for the logowall version of this */
+  .lp-trusted-item-tr .lp-trusted-logo {
+    height: 28px;
+  }
+  /* Clerk's upper arc fades like it does on the logo wall */
+  .lp-trusted-item svg[viewBox="0 0 441 128"] path:last-of-type {
+    opacity: 0.4;
+  }
+  /* Knockouts inside the Maersk and Fly.io marks (the star and the balloon
+     face) are drawn in the page background colour */
   .ign-logo__fill {
     fill: var(--scalar-color-1);
   }
   .fill-current-bg {
     fill: var(--scalar-background-1);
   }
-  /* quotes */
-  .quotes {
-    padding: 120px 0 !important;
+  .lp-features {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 16px;
+    margin-top: 8px;
   }
-  .quotes-container {
-    gap: 44px;
-    margin-top: 32px;
+  .lp-features b {
+    min-height: 28px;
   }
-  .quotes-item {
-    flex: 0 0 calc(50% - 22px);
+  .lp-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 12px;
   }
-  .quotes-item p {
-    margin-bottom: 10px;
+  .lp-action {
+    display: inline-block;
+    width: fit-content;
+    font-weight: var(--scalar-semibold);
+  }
+  /* Stat rows: a hairline above each, the figure in a fixed column on
+     the left and its label beside it. The auto margin pushes them to the
+     bottom of the section, so they close each viewport-tall block. */
+  .lp-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: auto 0 0;
+    padding: 28px 0 0;
+  }
+  .lp-stat {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding-top: 12px;
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
+  .lp-stat dt {
+    flex: none;
+    width: 150px;
+    margin: 0;
+    color: var(--scalar-color-1);
+    font-size: 32px;
+    font-weight: var(--scalar-semibold);
+    letter-spacing: -0.01em;
+    line-height: 36px;
+  }
+  .lp-stat dd {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding-top: 2px;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-font-size-4);
+    font-weight: var(--scalar-semibold);
+    line-height: 1.5;
+  }
+  /* per-section stills, only for the single-column layout */
+  .lp-section-figure {
+    display: none;
+    border-radius: var(--scalar-radius-lg);
+    overflow: hidden;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
+  .lp-section-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
-  /* new stuff  */
+  /* The scroll state, as numbers CSS transitions carry between scenes:
+     --lp-s is how far the hero row has become the stack of cards, and
+     --lp-pd / --lp-ps are how much of the open card Docs and SDKs hold
+     (MCP takes whatever is left). Every position below is derived from
+     these, so a seam is the same number on both of its sides and the
+     stack can never open a gap, however fast the scenes change; and the
+     boxes turn flat on the same clock as they move. */
+  @property --lp-s {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+  @property --lp-pd {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 1;
+  }
+  @property --lp-ps {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+  @property --lp-h {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+  /* Hero scene ----------------------------------------------------------
+     The panel is the stage. Drawing, boxes and nodes share a 540x700
+     scene fitted inside it (one scene unit is --lp-u), in the vocabulary
+     of the business.x.com product pages: the OpenAPI document comes in
+     at the top and flows down a bus into the three products on the
+     dashed divider, and each product flows on into the things it makes.
+     The products are software boxes (the products page starter kit's
+     cover, one per product colour): CSS cuboids turned in 3D so their
+     spines show. In the product scenes the drawing fades and the boxes
+     re-lay out as a stack of cards: the active product fills the panel,
+     the others fold into bands. A speckle layer covers the whole panel. */
+  .lp-visual {
+    --lp-u: min((100cqw - 48px) / 540, (100cqh - 48px) / 700);
+    --lp-ox: calc((100cqw - 540 * var(--lp-u)) / 2);
+    --lp-oy: calc((100cqh - 700 * var(--lp-u)) / 2);
+    --lp-band: 56px;
+    --lp-s: 0;
+    --lp-pd: 1;
+    --lp-ps: 0;
+    --lp-r: calc(1 - var(--lp-s));
+    /* what the open card gets on top of a band */
+    --lp-open: calc(100cqh - 3 * var(--lp-band));
+    grid-column: 2;
+    grid-row: 1 / -1;
+    position: sticky;
+    top: calc(var(--scalar-header-height, 48px) + 88px);
+    height: calc(100dvh - var(--scalar-header-height, 48px) - 136px);
+    margin-top: 88px;
+    min-width: 0;
+    overflow: hidden;
+    container-type: size;
+    transition-property: --lp-s, --lp-pd, --lp-ps;
+    transition-duration: var(--lp-move);
+    transition-timing-function: var(--lp-ease);
+  }
+  .lp-art {
+    position: absolute;
+    left: var(--lp-ox);
+    top: var(--lp-oy);
+    width: calc(540 * var(--lp-u));
+    height: calc(700 * var(--lp-u));
+    display: block;
+    overflow: visible;
+    color: var(--scalar-color-1);
+    font-family: inherit;
+    opacity: var(--lp-r);
+  }
+  .lp-art .lp-art-line,
+  .lp-art .lp-art-dash {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+  }
+  .lp-art .lp-art-dash {
+    stroke-dasharray: 6 6;
+  }
+  .lp-art .lp-art-panel,
+  .lp-art .lp-art-ring {
+    fill: var(--scalar-background-2);
+    stroke: currentColor;
+    stroke-width: 1;
+  }
+  .lp-art .lp-art-dot,
+  .lp-art .lp-art-ink {
+    fill: currentColor;
+  }
+  .lp-art .lp-art-mask {
+    fill: var(--scalar-background-2);
+  }
+  .lp-art text {
+    fill: currentColor;
+  }
+  .lp-art .lp-art-chip-text {
+    font-family: var(--scalar-font-code);
+    font-size: 11px;
+    font-weight: var(--scalar-semibold);
+  }
+  /* the things downstream: hollow circles with a line icon, in the
+     drawing's own stroke */
+  .lp-node {
+    position: absolute;
+    left: calc(var(--lp-ox) + var(--nx) * var(--lp-u));
+    top: calc(var(--lp-oy) + var(--ny) * var(--lp-u));
+    width: calc(28 * var(--lp-u));
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--scalar-color-1);
+    background: var(--scalar-background-2);
+    color: var(--scalar-color-1);
+    /* faded through filter rather than opacity: the load reveal's
+       fill-mode keeps opacity at 1 */
+    filter: opacity(var(--lp-r));
+  }
+  .lp-node svg {
+    width: 54%;
+    height: 54%;
+  }
+  /* One-shot reveal on load: the divider opens from the middle, then each
+     line draws along the flow and its marker, node or box lands at the
+     end, top to bottom. Delays are per element (--d, in ms). Without
+     motion preference everything is simply there. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-visual [data-reveal] {
+      animation-delay: calc(var(--d, 0) * 1ms);
+      animation-fill-mode: forwards;
+      animation-timing-function: var(--lp-ease);
+    }
+    .lp-visual [data-reveal="divider"] {
+      transform-box: fill-box;
+      transform-origin: 50% 50%;
+      transform: scaleX(0);
+      animation-name: lp-art-open;
+      animation-duration: 900ms;
+    }
+    .lp-visual [data-reveal="line"] {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation-name: lp-art-draw;
+      animation-duration: 700ms;
+    }
+    .lp-visual [data-reveal="pop"] {
+      transform-box: fill-box;
+      transform-origin: 50% 50%;
+      transform: scale(0);
+      animation-name: lp-art-pop;
+      animation-duration: 400ms;
+    }
+    .lp-visual [data-reveal="fade"] {
+      opacity: 0;
+      animation-name: lp-art-fade;
+      animation-duration: 500ms;
+      animation-timing-function: ease-out;
+    }
+  }
+  @keyframes lp-art-open {
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes lp-art-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes lp-art-pop {
+    to {
+      transform: scale(1);
+    }
+  }
+  @keyframes lp-art-fade {
+    to {
+      opacity: 1;
+    }
+  }
+  /* The boxes. In the hero scene each sits in the drawing at --bx/--by
+     (scene units); in the product scenes they are a stack of full-width
+     cards, each one starting where the one above ends (--lp-st is the
+     slot's top, --lp-sh its height). --lp-s blends the two. */
+  .lp-box {
+    --lp-h: 0;
+    position: absolute;
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    left: calc(var(--lp-r) * (var(--lp-ox) + var(--bx) * var(--lp-u)));
+    top: calc(
+      var(--lp-r) * (var(--lp-oy) + var(--by) * var(--lp-u)) + var(--lp-s) *
+        var(--lp-st)
+    );
+    width: calc(var(--lp-r) * 140 * var(--lp-u) + var(--lp-s) * 100cqw);
+    height: calc(var(--lp-r) * 193.4 * var(--lp-u) + var(--lp-s) * var(--lp-sh));
+    perspective: 900px;
+    transition: --lp-h var(--lp-move) var(--lp-ease);
+  }
+  .lp-box:hover {
+    text-decoration: none;
+  }
+  .lp-box:focus-visible {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 3px;
+  }
+  .lp-box--docs {
+    --lp-share: var(--lp-pd);
+    --lp-st: 0px;
+    --lp-sh: calc(var(--lp-band) + var(--lp-open) * var(--lp-pd));
+  }
+  .lp-box--sdk {
+    --lp-share: var(--lp-ps);
+    --lp-st: calc(var(--lp-band) + var(--lp-open) * var(--lp-pd));
+    --lp-sh: calc(var(--lp-band) + var(--lp-open) * var(--lp-ps));
+  }
+  .lp-box--mcp {
+    --lp-share: calc(1 - var(--lp-pd) - var(--lp-ps));
+    --lp-st: calc(
+      2 * var(--lp-band) + var(--lp-open) * (var(--lp-pd) + var(--lp-ps))
+    );
+    --lp-sh: calc(100cqh - var(--lp-st));
+  }
+  /* turned in 3D in the hero (less so, and lifted, while hovered), flat
+     once stacked */
+  .lp-box-body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateY(calc((24deg - 14deg * var(--lp-h)) * var(--lp-r)))
+      translateY(calc(-6px * var(--lp-h) * var(--lp-r)))
+      translateZ(calc(10px * var(--lp-h) * var(--lp-r)));
+  }
+  .lp[data-lp-scene="hero"] .lp-box:hover {
+    --lp-h: 1;
+    z-index: 5;
+  }
+  .lp-box-front {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+  }
+  /* grain as a tiled noise image in screen pixels, so it stays fine
+     whether the cover is a small box or fills the panel. Dark and light
+     speckles are carried in the alpha channel (the kit's speckle recipe)
+     rather than a blend mode: a blended child would flatten the box's 3D. */
+  .lp-box-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='7' stitchTiles='stitch' result='t'/><feColorMatrix in='t' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.8 0 0 0 0.4' result='dk'/><feColorMatrix in='t' type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0.9 0 0 -0.45' result='lt'/><feMerge><feMergeNode in='dk'/><feMergeNode in='lt'/></feMerge></filter><rect width='160' height='160' filter='url(%23g)'/></svg>");
+    background-size: 160px 160px;
+    opacity: 0.45;
+  }
+  /* The product inside the open card: a window that peeks in from the
+     card's top-left and runs off its right and bottom edges. It rises and
+     fades in with that card's share of the open space (--lp-share), so a
+     card folding into a band takes its window with it. */
+  .lp-box-screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 1cqw;
+    opacity: calc(var(--lp-s) * var(--lp-share));
+    pointer-events: none;
+  }
+  .lp-win {
+    position: absolute;
+    left: 24px;
+    top: 68px;
+    width: 140cqw;
+    height: calc(100% - 44px);
+    transform: translateY(calc((1 - var(--lp-share)) * 24px));
+    overflow: hidden;
+    border-radius: 8px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+  }
+  /* The Docs screen is two browser windows in the frame the other
+     screens use, with the Warp window's bar: in front, almost the full
+     size of the other windows, the page as people see it; behind it,
+     offset so its bar and first heading show, the same page as Markdown
+     for agents. */
+  .lp-win--pair {
+    --lp-chat-side: calc((100cqw - min(470px, 100cqw - 48px)) / 2);
+    left: var(--lp-chat-side);
+    width: min(470px, 100cqw - 48px);
+    height: calc(100% - 68px - var(--lp-chat-side));
+    overflow: visible;
+    border: 0;
+    background: none;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .lp-browser {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 30px);
+    height: calc(100% - 64px);
+    overflow: hidden;
+    pointer-events: auto;
+    border-radius: 12px;
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    box-shadow:
+      0 0 0 1px rgba(38, 38, 38, 0.08),
+      0 2px 8px -4px rgba(0, 0, 0, 0.2);
+  }
+  .lp-browser--md {
+    left: 0;
+    top: 0;
+  }
+  .lp-browser--site {
+    left: 30px;
+    top: 64px;
+    z-index: 1;
+  }
+  /* the last window hovered stays in front (landing.js sets is-front) */
+  .lp-browser.is-front {
+    z-index: 2;
+  }
+  .lp-app-title--file {
+    font-family: var(--scalar-font-code);
+  }
+  /* the Markdown page */
+  .lp-md {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 12px 20px;
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+    font-family: var(--scalar-font-code);
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--scalar-color-2);
+  }
+  .lp-md-line {
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .lp-md-h {
+    font-weight: var(--scalar-semibold);
+    color: var(--scalar-color-1);
+  }
+  .lp-md-code {
+    color: var(--scalar-color-blue);
+  }
+  /* the site: logo header, then the operation */
+  .lp-site {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .lp-site-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    height: 44px;
+    padding: 0 20px;
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
+  .lp-site-main {
+    flex: 1;
+    min-height: 0;
+    padding: 18px 20px 20px;
+  }
+  /* the request block is a dark code block whatever the page's mode;
+     lines never wrap, so the backslashes stay on their lines */
+  .lp-site .lp-doc-request {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: #121214;
+    color: #e6e6ea;
+    font-size: 10.5px;
+  }
+  .lp-site .lp-doc-request-bar {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background: #121214;
+  }
+  .lp-site .lp-doc-method {
+    color: #ff6b6b;
+  }
+  .lp-site .lp-doc-path {
+    color: #b5b5bd;
+  }
+  .lp-site .lp-doc-lang {
+    color: #8a8a92;
+  }
+  .lp-site .lp-doc-line {
+    white-space: pre;
+  }
+  .lp-site .lp-doc-url {
+    word-break: normal;
+  }
+  .lp-site .lp-doc-n {
+    color: #5f5f66;
+  }
+  .lp-site .lp-doc-k {
+    color: #c9a7ff;
+  }
+  .lp-site .lp-doc-f {
+    color: #9a9aa2;
+  }
+  .lp-site .lp-doc-s {
+    color: #8ecbff;
+  }
+  .lp-site .lp-doc-request-foot {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    background: #121214;
+  }
+  .lp-site .lp-doc-test {
+    background: #ffffff;
+    color: #121214;
+  }
+  .lp-site-header .lp-doc-logo {
+    height: 14px;
+    width: auto;
+    color: #0b5cff;
+  }
+  .lp-doc-brand {
+    font-size: 15px;
+    font-weight: var(--scalar-semibold);
+    letter-spacing: -0.01em;
+  }
+  .lp-doc-search {
+    margin-left: auto;
+    color: var(--scalar-color-3);
+  }
+  .lp-doc-search svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+  .lp-doc-title {
+    font-size: 17px;
+    font-weight: var(--scalar-semibold);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .lp-doc-desc {
+    margin-top: 8px;
+  }
+  .lp-doc-label {
+    margin-top: 18px;
+    padding-bottom: 6px;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    font-weight: var(--scalar-semibold);
+  }
+  .lp-doc-param {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .lp-doc-code {
+    font-family: var(--scalar-font-code);
+    font-size: 12px;
+  }
+  .lp-doc-type {
+    color: var(--scalar-color-3);
+  }
+  .lp-doc-required {
+    color: var(--scalar-color-orange);
+  }
+  .lp-doc-help {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--scalar-color-2);
+  }
+  .lp-doc-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    font-size: 12px;
+    color: var(--scalar-color-2);
+  }
+  .lp-doc-row svg {
+    display: block;
+    width: 10px;
+    height: 10px;
+    color: var(--scalar-color-3);
+  }
+  .lp-doc-row .lp-doc-code {
+    color: var(--scalar-color-1);
+  }
+  /* the request example, as the still shows it: method and path in the
+     bar with the language at the right, numbered coloured lines that
+     wrap under their number, and the Test Request button in the foot */
+  .lp-doc-request {
+    margin-top: 16px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: var(--scalar-font-code);
+    font-size: 11px;
+  }
+  .lp-doc-request-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    background: var(--scalar-background-2);
+    white-space: nowrap;
+  }
+  .lp-doc-method {
+    flex: none;
+    font-weight: var(--scalar-semibold);
+    color: var(--scalar-color-red);
+  }
+  .lp-doc-path {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--scalar-color-2);
+  }
+  .lp-doc-lang {
+    flex: none;
+    margin-left: auto;
+    font-family: var(--scalar-font);
+    color: var(--scalar-color-3);
+  }
+  .lp-doc-request-code {
+    padding: 10px 12px 10px 10px;
+    line-height: 1.7;
+  }
+  .lp-doc-line {
+    display: grid;
+    grid-template-columns: 14px 1fr;
+    gap: 8px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .lp-doc-url {
+    word-break: break-all;
+  }
+  .lp-doc-n {
+    text-align: right;
+    color: var(--scalar-color-3);
+  }
+  .lp-doc-k {
+    color: var(--scalar-color-purple);
+  }
+  .lp-doc-f {
+    color: var(--scalar-color-2);
+  }
+  .lp-doc-s {
+    color: var(--scalar-color-blue);
+  }
+  .lp-doc-request-foot {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 10px;
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+    background: var(--scalar-background-2);
+  }
+  .lp-doc-test {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: var(--scalar-color-1);
+    color: var(--scalar-background-1);
+    font-family: var(--scalar-font);
+    font-size: 11px;
+    font-weight: var(--scalar-semibold);
+    line-height: 1;
+  }
+  .lp-doc-test svg {
+    display: block;
+    width: 9px;
+    height: 9px;
+  }
+  /* The SDK and MCP windows are app windows of their own, centred in the
+     card rather than bleeding off it, as far from the bottom as from the
+     sides, with the same 32px title bar. */
+  .lp-win--app {
+    --lp-chat-side: calc((100cqw - min(470px, 100cqw - 48px)) / 2);
+    display: flex;
+    flex-direction: column;
+    left: var(--lp-chat-side);
+    width: min(470px, 100cqw - 48px);
+    height: calc(100% - 68px - var(--lp-chat-side));
+    border: 0;
+    border-radius: 12px;
+    box-shadow:
+      0 0 0 1px rgba(38, 38, 38, 0.08),
+      0 2px 8px -4px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .lp-app-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    height: 32px;
+    padding: 0 14px;
+  }
+  .lp-app-lights {
+    position: absolute;
+    left: 14px;
+    top: 10px;
+    display: flex;
+    gap: 8px;
+  }
+  .lp-app-lights i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ff5f57;
+  }
+  .lp-app-lights i:nth-child(2) {
+    background: #febc2e;
+  }
+  .lp-app-lights i:nth-child(3) {
+    background: #28c840;
+  }
+  .lp-app-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    line-height: 24px;
+    color: var(--scalar-color-3);
+  }
+  .lp-app-title svg {
+    width: 12px;
+    height: 12px;
+  }
+  /* the code window: the Warp repo in the bar, language tabs, numbered
+     lines */
+  .lp-app-title .lp-win-brand {
+    width: 42px;
+    height: 12px;
+    color: var(--scalar-color-1);
+  }
+  .lp-win-repo {
+    font-family: var(--scalar-font-code);
+  }
+  .lp-win-repo::before {
+    content: "/";
+    margin: 0 8px 0 6px;
+  }
+  /* language tabs, a row as tall as the title bar; the active tab's
+     underline sits on the row's border */
+  .lp-win-tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 0 20px;
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    font-size: 13px;
+    color: var(--scalar-color-3);
+  }
+  .lp-win-tabs span {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .lp-win-tabs .is-active {
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+  }
+  .lp-win-tabs .is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(-1 * var(--scalar-border-width));
+    height: var(--scalar-border-width);
+    background: var(--scalar-color-1);
+  }
+  .lp-win-code {
+    counter-reset: lp-line;
+    padding: 16px 0;
+    font-family: var(--scalar-font-code);
+    font-size: 12px;
+    line-height: 20px;
+  }
+  .lp-win-line {
+    display: block;
+    white-space: pre;
+    counter-increment: lp-line;
+  }
+  .lp-win-line::before {
+    content: counter(lp-line);
+    display: inline-block;
+    width: 44px;
+    padding-right: 16px;
+    box-sizing: border-box;
+    text-align: right;
+    color: var(--scalar-color-3);
+  }
+  .lp-win-k {
+    color: var(--scalar-color-purple);
+  }
+  .lp-win-s {
+    color: var(--scalar-color-blue);
+  }
+  /* The MCP card's window is a small chat window, after the one on
+     equals.com: 470 wide, a 32px title bar with the lights and a 12px
+     grey title, 14px prompts in bubbles on the right, 13px grey thinking
+     and tool lines, a 15px serif reply, and a bordered composer. It keeps
+     its composer whatever the card's height: the messages give.
+     landing.js plays the conversation (.is-armed and the is-* states)
+     each time the MCP card becomes the scene; without motion, or without
+     the script, it simply shows the finished conversation. */
+  /* new lines scroll up under a soft fade below the chat's bar */
+  .lp-chat .lp-app-bar::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 28px;
+    background: linear-gradient(var(--scalar-background-1), transparent);
+    pointer-events: none;
+  }
+  .lp-chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 20px;
+  }
+  .lp-chat-turn {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  .lp-chat-prompt {
+    align-self: flex-end;
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--scalar-background-2);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .lp-chat-response {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lp-chat-line {
+    font-family: "Source Serif 4", ui-serif, Georgia, serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .lp-chat-thinking,
+  .lp-chat-summary,
+  .lp-chat-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--scalar-color-3);
+  }
+  .lp-chat-thinking + .lp-chat-tool {
+    margin-top: -4px;
+  }
+  .lp-chat-code {
+    font-family: var(--scalar-font-code);
+    font-size: 12px;
+  }
+  /* the spark (the Claude mark) ticks round in eight steps while
+     something is happening */
+  .lp-chat-working svg,
+  .lp-chat-spark svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .lp-chat-working {
+    flex-shrink: 0;
+    width: 0;
+    height: 14px;
+    margin-right: -6px;
+    opacity: 0;
+    transition: opacity 140ms ease;
+  }
+  .lp-chat-working svg {
+    animation: lp-chat-spin 0.8s steps(8) infinite;
+  }
+  .lp-chat-thinking:not(.is-done) .lp-chat-working {
+    width: 14px;
+    margin-right: 0;
+    opacity: 1;
+  }
+  .lp-chat-thinking.is-settling .lp-chat-working {
+    opacity: 0;
+  }
+  .lp-chat-thinking.is-done .lp-chat-working svg {
+    animation-play-state: paused;
+  }
+  .lp-chat-spark {
+    display: block;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin: 8px 0;
+  }
+  .lp-chat-spark.is-working svg {
+    animation: lp-chat-spin 0.8s steps(8) infinite;
+  }
+  /* the tool line: its steps unfold while it runs, then fold away behind
+     a chevron */
+  .lp-chat-chevron {
+    display: block;
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    opacity: 0;
+    transition:
+      transform 220ms ease,
+      opacity 160ms ease;
+  }
+  .lp-chat-chevron svg {
+    display: block;
+    width: 8px;
+    height: 8px;
+  }
+  .lp-chat-tool.is-done .lp-chat-chevron {
+    opacity: 1;
+  }
+  .lp-chat-tool.is-open .lp-chat-chevron {
+    transform: rotate(180deg);
+  }
+  .lp-chat-steps {
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-top: 0;
+    opacity: 0;
+    transition:
+      grid-template-rows 220ms ease,
+      margin-top 220ms ease,
+      opacity 160ms ease;
+  }
+  .lp-chat-tool.is-open .lp-chat-steps {
+    grid-template-rows: 1fr;
+    margin-top: 8px;
+    opacity: 1;
+  }
+  .lp-chat-steps-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .lp-chat-step-icon {
+    display: block;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    color: var(--scalar-color-1);
+  }
+  /* a line whose text changes: the old text lifts and blurs out, the
+     new one rises in; while running, a highlight sweeps across it */
+  .lp-chat-think {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+  }
+  .lp-chat-think-sizer {
+    display: block;
+    visibility: hidden;
+    white-space: nowrap;
+  }
+  .lp-chat-think-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: block;
+    white-space: nowrap;
+    transform: translateY(0);
+    filter: blur(0);
+    opacity: 1;
+    transition:
+      transform 150ms ease-in-out,
+      filter 150ms ease-in-out,
+      opacity 150ms ease-in-out;
+    will-change: transform, filter, opacity;
+  }
+  .lp-chat-think.is-running .lp-chat-think-text::before {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 40%,
+      var(--scalar-color-1) 50%,
+      transparent 60%,
+      transparent 100%
+    );
+    background-size: 400% 100%;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: lp-chat-shimmer 2000ms linear infinite;
+  }
+  .lp-chat-think-text.is-exit {
+    transform: translateY(-8px);
+    filter: blur(2px);
+    opacity: 0;
+  }
+  .lp-chat-think-text.is-enter-start {
+    transition: none;
+    transform: translateY(8px);
+    filter: blur(2px);
+    opacity: 0;
+  }
+  /* armed by the script: everything waits, hidden, for its turn */
+  .lp-chat.is-armed .lp-chat-prompt,
+  .lp-chat.is-armed .lp-chat-response > *,
+  .lp-chat.is-armed .lp-chat-step {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .lp-chat.is-armed .lp-chat-line:not(.is-laid-out) {
+    display: none;
+  }
+  .lp-chat.is-armed .lp-chat-prompt.is-in,
+  .lp-chat.is-armed .lp-chat-response > .is-in,
+  .lp-chat.is-armed .lp-chat-step.is-in {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.2s ease-out,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-chat.is-armed .lp-chat-spark.is-out {
+    opacity: 0;
+    transform: scale(0.7);
+    margin-bottom: -52px;
+    pointer-events: none;
+    transition:
+      opacity 160ms ease-out,
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      margin-bottom 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* the composer, after the Claude app's: a single-line field with the
+     return glyph, and the controls on a row beneath it. The next prompt
+     is typed here and sent. */
+  .lp-chat-composer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: none;
+    margin: 8px 12px 12px;
+  }
+  .lp-chat-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+    padding: 0 12px 0 14px;
+    border: 1px solid var(--scalar-border-color);
+    border-radius: 14px;
+  }
+  .lp-chat-placeholder {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--scalar-color-3);
+  }
+  .lp-chat-placeholder.is-typing {
+    color: var(--scalar-color-1);
+  }
+  .lp-chat-return,
+  .lp-chat-left svg {
+    display: block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--scalar-color-3);
+  }
+  .lp-chat-return svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+  .lp-chat-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 24px;
+    padding: 0 6px;
+  }
+  .lp-chat-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .lp-chat-left svg {
+    color: var(--scalar-color-1);
+  }
+  .lp-chat-left svg:last-child {
+    width: 12px;
+    height: 12px;
+    color: var(--scalar-color-3);
+  }
+  .lp-chat-model {
+    font-size: 12px;
+    line-height: 24px;
+  }
+  .lp-chat-model span {
+    color: var(--scalar-color-3);
+  }
+  .lp-chat-send {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    margin-right: -4px;
+    border-radius: 8px;
+    background: #c1613f;
+    color: #fff;
+    transition: transform 130ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-chat-send svg {
+    width: 16px;
+    height: 16px;
+  }
+  .lp-chat-send.is-pressed {
+    transform: scale(0.88);
+  }
+  .lp-chat-composer.is-composing .lp-chat-return {
+    display: none;
+  }
+  .lp-chat-composer.is-composing .lp-chat-send {
+    display: flex;
+  }
+  @keyframes lp-chat-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes lp-chat-shimmer {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: 0 0;
+    }
+  }
+  /* the tunnel belongs to the small box; the full-size card is just the
+     gradient and the grain */
+  .lp-box-tunnel {
+    opacity: var(--lp-r);
+  }
+  .lp-box-label {
+    position: absolute;
+    left: calc(var(--lp-r) * 8% + var(--lp-s) * 24px);
+    top: calc(var(--lp-r) * 9% + var(--lp-s) * 15px);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .lp-box-title {
+    font-size: clamp(16px, 28 * var(--lp-u), 26px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .lp-box-subtitle {
+    font-size: clamp(8px, 11 * var(--lp-u), 11px);
+    line-height: 1.2;
+    opacity: var(--lp-r);
+  }
+  /* depth is a share of the cover width, 32 of 152 on the kit */
+  .lp-box-spine {
+    --lp-box-depth: 21%;
+    position: absolute;
+    top: 0;
+    left: calc(-1 * var(--lp-box-depth));
+    width: var(--lp-box-depth);
+    height: 100%;
+    transform-origin: right center;
+    transform: rotateY(-90deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10% 0 7%;
+    background: var(--lp-box-spine);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.12);
+  }
+  /* once the boxes are cards the spines go: edge-on, the perspective
+     would still show a sliver of them. They hide the moment the open
+     transition ends and come straight back for the turn home. */
+  .lp:not([data-lp-scene="hero"]) .lp-box-spine {
+    visibility: hidden;
+    transition: visibility 0s linear var(--lp-move);
+  }
+  .lp-box-volume {
+    writing-mode: vertical-rl;
+    font-size: clamp(6px, 1.5cqw, 9px);
+    color: rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+  }
+  .lp-box-mark {
+    width: 40%;
+    height: auto;
+    fill: rgba(0, 0, 0, 0.5);
+  }
+  /* the kit's square-tunnel zoom: nine rings on one keyframe track,
+     staggered so the pattern is periodic. It waits, parked at its first
+     frame, until that box is hovered. */
+  .lp-box-ring {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: 12.6s linear infinite;
+    animation-play-state: paused;
+  }
+  .lp-box:hover .lp-box-ring {
+    animation-play-state: running;
+  }
+  .lp-box--docs .lp-box-ring {
+    animation-name: lp-box-zoom-docs;
+  }
+  .lp-box--sdk .lp-box-ring {
+    animation-name: lp-box-zoom-sdk;
+  }
+  .lp-box--mcp .lp-box-ring {
+    animation-name: lp-box-zoom-mcp;
+  }
+  .lp-box-ring--1 {
+    animation-delay: -1.4s;
+  }
+  .lp-box-ring--2 {
+    animation-delay: -2.8s;
+  }
+  .lp-box-ring--3 {
+    animation-delay: -4.2s;
+  }
+  .lp-box-ring--4 {
+    animation-delay: -5.6s;
+  }
+  .lp-box-ring--5 {
+    animation-delay: -7s;
+  }
+  .lp-box-ring--6 {
+    animation-delay: -8.4s;
+  }
+  .lp-box-ring--7 {
+    animation-delay: -9.8s;
+  }
+  .lp-box-ring--8 {
+    animation-delay: -11.2s;
+  }
+  @keyframes lp-box-zoom-docs {
+    0.0000% {
+      transform: translate(72.3px, 150px) scale(.3);
+      fill: #1d2bff;
+    }
+    11.1111% {
+      transform: translate(72.3px, 150px) scale(.462);
+      fill: #243fff;
+    }
+    22.2222% {
+      transform: translate(72.3px, 150px) scale(.71148);
+      fill: #2a53ff;
+    }
+    33.3333% {
+      transform: translate(72.3px, 150px) scale(1.09568);
+      fill: #3167ff;
+    }
+    44.4444% {
+      transform: translate(72.3px, 150px) scale(1.68735);
+      fill: #387bff;
+    }
+    55.5556% {
+      transform: translate(72.3px, 150px) scale(2.59851);
+      fill: #3e8fff;
+    }
+    66.6667% {
+      transform: translate(72.3px, 150px) scale(4.00171);
+      fill: #45a3ff;
+    }
+    77.7778% {
+      transform: translate(72.3px, 150px) scale(6.16263);
+      fill: #4bb7ff;
+    }
+    88.8889% {
+      transform: translate(72.3px, 150px) scale(9.49045);
+      fill: #52cbff;
+    }
+    100% {
+      transform: translate(72.3px, 150px) scale(14.6153);
+      fill: #52cbff;
+    }
+  }
+  @keyframes lp-box-zoom-sdk {
+    0.0000% {
+      transform: translate(72.3px, 150px) scale(.3);
+      fill: #5a00e6;
+    }
+    11.1111% {
+      transform: translate(72.3px, 150px) scale(.462);
+      fill: #6715e9;
+    }
+    22.2222% {
+      transform: translate(72.3px, 150px) scale(.71148);
+      fill: #742aec;
+    }
+    33.3333% {
+      transform: translate(72.3px, 150px) scale(1.09568);
+      fill: #813eef;
+    }
+    44.4444% {
+      transform: translate(72.3px, 150px) scale(1.68735);
+      fill: #8e53f2;
+    }
+    55.5556% {
+      transform: translate(72.3px, 150px) scale(2.59851);
+      fill: #9b68f6;
+    }
+    66.6667% {
+      transform: translate(72.3px, 150px) scale(4.00171);
+      fill: #a87cf9;
+    }
+    77.7778% {
+      transform: translate(72.3px, 150px) scale(6.16263);
+      fill: #b591fc;
+    }
+    88.8889% {
+      transform: translate(72.3px, 150px) scale(9.49045);
+      fill: #c2a6ff;
+    }
+    100% {
+      transform: translate(72.3px, 150px) scale(14.6153);
+      fill: #c2a6ff;
+    }
+  }
+  @keyframes lp-box-zoom-mcp {
+    0.0000% {
+      transform: translate(72.3px, 150px) scale(.3);
+      fill: #ff2e00;
+    }
+    11.1111% {
+      transform: translate(72.3px, 150px) scale(.462);
+      fill: #ff3d00;
+    }
+    22.2222% {
+      transform: translate(72.3px, 150px) scale(.71148);
+      fill: #ff4c00;
+    }
+    33.3333% {
+      transform: translate(72.3px, 150px) scale(1.09568);
+      fill: #ff5b00;
+    }
+    44.4444% {
+      transform: translate(72.3px, 150px) scale(1.68735);
+      fill: #ff6a00;
+    }
+    55.5556% {
+      transform: translate(72.3px, 150px) scale(2.59851);
+      fill: #ff7800;
+    }
+    66.6667% {
+      transform: translate(72.3px, 150px) scale(4.00171);
+      fill: #ff8700;
+    }
+    77.7778% {
+      transform: translate(72.3px, 150px) scale(6.16263);
+      fill: #ff9600;
+    }
+    88.8889% {
+      transform: translate(72.3px, 150px) scale(9.49045);
+      fill: #ffa500;
+    }
+    100% {
+      transform: translate(72.3px, 150px) scale(14.6153);
+      fill: #ffa500;
+    }
+  }
+  .lp-grain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* Product scenes: the drawing goes, the boxes become a stack of cards.
+     The active product fills the panel, the others fold into bands of
+     --lp-band at the top (already seen) or bottom (still to come). */
+  .lp[data-lp-scene="docs"] .lp-visual {
+    --lp-s: 1;
+    --lp-pd: 1;
+    --lp-ps: 0;
+  }
+  .lp[data-lp-scene="docs"] .lp-box--docs {
+    z-index: 2;
+    cursor: default;
+  }
+  .lp[data-lp-scene="sdk"] .lp-visual {
+    --lp-s: 1;
+    --lp-pd: 0;
+    --lp-ps: 1;
+  }
+  .lp[data-lp-scene="sdk"] .lp-box--sdk {
+    z-index: 2;
+    cursor: default;
+  }
+  .lp[data-lp-scene="mcp"] .lp-visual {
+    --lp-s: 1;
+    --lp-pd: 0;
+    --lp-ps: 0;
+  }
+  .lp[data-lp-scene="mcp"] .lp-box--mcp {
+    z-index: 2;
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-box-ring {
+      animation: none;
+    }
+    .lp-visual,
+    .lp-box,
+    .lp-box-spine {
+      transition: none;
+    }
+    .lp-chat-working svg,
+    .lp-chat-spark svg {
+      animation: none;
+    }
+    .lp-chat-think-text {
+      transition: none;
+      transform: none;
+      filter: none;
+    }
+    /* Without motion, lay the logos out in rows so every one is visible */
+    .lp-trusted-viewport {
+      mask-image: none;
+    }
+    .lp-trusted-track {
+      animation: none;
+      flex: auto;
+      min-width: 0;
+      flex-wrap: wrap;
+      row-gap: 12px;
+      width: auto;
+    }
+    .lp-trusted-track[aria-hidden] {
+      display: none;
+    }
+  }
+
+  /* Founder quote and the closing grid ---------------------------------- */
+  .founder-quote {
+    padding: 80px 160px 260px 160px;
+  }
+  .founder-quote.founder-quote {
+    margin-top: 120px;
+  }
   .expander {
     display: grid;
     grid-template-rows: 0fr;
@@ -1717,14 +2342,14 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     padding: 80px 0;
     margin-top: 0 !important;
   }
+  .small-test {
+    max-width: 440px;
+    text-wrap: balance;
+    margin-top: 44px;
+    position: relative;
+  }
   .mb-11 {
     margin-bottom: 44px;
-  }
-  .light-mode .dark-image {
-    display: none;
-  }
-  .dark-mode .light-image {
-    display: none;
   }
   .sticker-clip-sdk {
     clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
@@ -1741,134 +2366,63 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     clip-path: path("M128.27 0C134.19 0 139 4.8 139 10.73V134.6c0 5.93-4.8 10.73-10.73 10.73H22.72L7.46 160.3A4.39 4.39 0 0 1 0 157.17V128.3h.17V10.73C.17 4.81 4.97 0 10.9 0z");
   }
 
-  @media screen and (max-width: 590px) {
-    .gallery li {
-      padding-left: 0 !important;
-      margin-right: 25px;
+  /* With the sidebar still open the content column gets narrow, so the
+     copy gives up some width to keep the stage legible */
+  @media screen and (max-width: 1320px) {
+    .lp {
+      grid-template-columns: minmax(0, 11fr) minmax(0, 13fr);
+      column-gap: 40px;
     }
   }
 
+  /* Single column ------------------------------------------------------- */
   @media screen and (max-width: 1000px) {
     .t-doc {
       --scalar-sidebar-width: 0px;
     }
-    .sticker-1,
-    .sticker-2,
-    .sticker-3,
-    .sticker-4,
-    .sticker-5,
-    .sticker-6,
-    .sticker-7,
-    .sticker-8,
-    .sticker-9 {
-      transform: scale(0.8);
-    }
-    .sticker-1 {
-      top: -140px;
-      left: -280px;
-    }
-    .sticker-2 {
-      left: 220px;
-      bottom: 80px;
-    }
-    .sticker-3 {
-      left: 90px;
-      bottom: 20px;
-    }
-    .sticker-4 {
-      left: 60px;
-      bottom: 20px;
-      --sticker-rotate: 15deg;
-    }
-    .sticker-5 {
-      top: -220px;
-      left: -440px;
-    }
-    .sticker-6 {
-      top: 160px;
-      left: -30px;
-      --sticker-rotate: -10deg;
-    }
-    .sticker-7 {
-      top: -220px;
-      left: -100px;
-    }
-    .sticker-8 {
-      top: 840px;
-      left: 260px;
-    }
-    .sticker-9 {
-      bottom: 70px;
-      right: 30px;
-    }
     .t-editor.page {
       padding-inline: 30px;
     }
-    .container-full {
-      --scalar-container-sidebar-gap: 30px;
-      width: 100dvw;
-      padding-inline: 30px;
-      margin-inline: -30px;
-    }
-    .hero-visual {
+  }
+  @media screen and (max-width: 1100px) {
+    .lp {
+      display: block;
       width: 100%;
-      margin-left: unset;
     }
-    .gallery {
-      --scalar-gallery-item-offset: 10px;
-      margin-top: 14px;
+    .lp-section {
+      min-height: 0;
+      padding: 40px 0;
     }
-
-    .gallery li img {
-      height: 300px;
-     }
-    .gallery li {
-      max-width: unset;
-      max-height: 300px;
-      padding-left: 30px;
-      margin-right: 30px;
+    .lp-section--hero {
+      padding-top: 88px;
+      padding-bottom: 0;
     }
-    .logowall.logowall {
-      grid-template-columns: repeat(3, 1fr);
-      column-gap: 20px;
-      row-gap: 40px;
+    /* The scene sits under the hero copy here, the stills under theirs */
+    .lp-visual {
+      position: static;
+      height: auto;
+      margin-top: 40px;
+      aspect-ratio: 540 / 700;
     }
-    .logowall-item {
-      justify-content: start;
+    .lp-section-figure {
+      display: block;
+      margin-top: 24px;
     }
-    .logowall-item .logowall-logo {
-      max-width: 100%;
-      height: 100%;
-      max-height: 20px;
+    .lp-trusted-item {
+      padding-right: 36px;
     }
-    .quotes-item {
-      flex: 0 0 calc(100% - 22px);
+    .lp-trusted-item .lp-trusted-logo {
+      height: 18px;
     }
-    .product,
-    .product-reversed {
-      flex-direction: column;
-      gap: 60px;
+    .lp-trusted-item-tr .lp-trusted-logo {
+      height: 24px;
     }
-    .product > * {
-      flex: initial;
-    }
-    .product-copy {
-      padding-block: 0;
-    }
-    .product-copy .lg-only {
-      display: none;
-    }
-    .product-image {
-      height: 500px;
-    }
-    .product-image-transform.product-image-transform {
-      inset: 0;
-      mask-image: none;
-    }
-    .product-image img {
-      height: 100%;
-      width: auto;
-      mask-image: linear-gradient(to right, black 40%, transparent 60%);
+  }
+  @media screen and (max-width: 1000px) {
+    .sticker-9 {
+      transform: scale(0.8);
+      bottom: 70px;
+      right: 30px;
     }
     .founder-quote {
       padding: 40px 40px 60px 40px;
@@ -1888,6 +2442,15 @@ warp time-off list-assignments --output json | jq '.data[].policy.name'
     }
     .expander .expander-content {
       visibility: visible;
+    }
+  }
+  @media screen and (max-width: 560px) {
+    .lp-features {
+      grid-template-columns: 1fr;
+    }
+    /* narrower figure column so the labels keep to two lines on phones */
+    .lp-stat dt {
+      width: 120px;
     }
   }
 </style>
