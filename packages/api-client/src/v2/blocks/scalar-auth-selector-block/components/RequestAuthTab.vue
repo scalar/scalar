@@ -344,11 +344,7 @@ const handleAcquisitionAuthorize = async (
 const handleAcquisitionRefresh = async (bearerName: string): Promise<void> => {
   const target = oauth2Target.value
   // Only the authorization-code flow carries a refresh token; implicit can't be refreshed.
-  if (
-    !target ||
-    target.flowType !== 'authorizationCode' ||
-    acquisitionLoader.isLoading
-  ) {
+  if (target?.flowType !== 'authorizationCode' || acquisitionLoader.isLoading) {
     return
   }
   acquisitionLoader.start()

@@ -250,9 +250,12 @@ export const processBody = ({
         mimeType: encoded.contentType,
         // HAR text cannot embed file bytes synchronously. Keep visible file placeholders.
         text: encoded.chunks
-          .map((chunk) =>
-            chunk instanceof File ? formatBinaryFile(chunk) : chunk instanceof Blob ? 'BINARY' : String(chunk),
-          )
+          .map((chunk) => {
+            if (chunk instanceof File) {
+              return formatBinaryFile(chunk)
+            }
+            return chunk instanceof Blob ? 'BINARY' : String(chunk)
+          })
           .join(''),
       }
     }

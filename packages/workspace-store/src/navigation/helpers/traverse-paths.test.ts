@@ -324,7 +324,6 @@ describe('traversePaths', () => {
         get: {
           'x-internal': true,
           $ref: '#/components/operations/HiddenOp',
-          // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
           '$ref-value': {
             tags: ['Hidden'],
             summary: 'Should not show',
@@ -359,7 +358,6 @@ describe('traversePaths', () => {
         get: {
           'x-scalar-ignore': true,
           $ref: '#/components/operations/IgnoredOp',
-          // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
           '$ref-value': {
             tags: ['Ignored'],
             summary: 'Should not show',
@@ -392,7 +390,6 @@ describe('traversePaths', () => {
     document.paths = {
       '/users': {
         $ref: '#/components/pathItems/UsersPath',
-        // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
         '$ref-value': {
           get: {
             tags: ['Users'],
@@ -457,7 +454,6 @@ describe('traversePaths', () => {
     document.paths = {
       '/health': {
         $ref: '#/components/pathItems/HealthPath',
-        // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
         '$ref-value': {
           get: {
             summary: 'Health check',

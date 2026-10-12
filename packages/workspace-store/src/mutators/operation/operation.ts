@@ -358,7 +358,9 @@ export const deleteOperationExample = (
   // Remove the example from all operation parameters
   operation.parameters?.forEach((parameter) => {
     const resolvedParameter = getResolvedRef(parameter)
-    if (!resolvedParameter) return
+    if (!resolvedParameter) {
+      return
+    }
 
     // Remove from content-level examples (if parameter uses content)
     if ('content' in resolvedParameter && resolvedParameter.content) {
@@ -421,7 +423,9 @@ export const renameOperationExample = (
 
   operation.parameters?.forEach((parameter) => {
     const resolvedParameter = getResolvedRef(parameter)
-    if (!resolvedParameter) return
+    if (!resolvedParameter) {
+      return
+    }
 
     if ('examples' in resolvedParameter && resolvedParameter.examples) {
       records.push(resolvedParameter.examples)

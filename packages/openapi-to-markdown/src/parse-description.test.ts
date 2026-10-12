@@ -35,8 +35,9 @@ describe('parse-description', () => {
       'A **bold** word',
       'A &amp; B',
       '    indented code',
-    ])
+    ]) {
       expect(withoutPositions(await parse(value))).toStrictEqual(withoutPositions(parser.parse(value).children))
+    }
   })
 
   it('preserves Markdown blocks, inline syntax, and code without HTML conversion', async () => {

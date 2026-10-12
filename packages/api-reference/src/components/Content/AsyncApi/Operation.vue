@@ -11,8 +11,12 @@ import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
-import { useDocumentOutline } from '@/features/document-outline'
-import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
+import {
+  useDocumentOutline,
+  type HeadingLevel,
+} from '@/features/document-outline'
+import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
@@ -67,6 +71,14 @@ const headingText = computed(() =>
   ),
 )
 
+const requiredSecurity = computed<RequiredSecurity>(() =>
+  getAsyncApiRequiredSecurity(
+    document,
+    resolvedOperation.value,
+    operation.operationName,
+  ),
+)
+
 const description = computed(
   () =>
     resolvedOperation.value?.description ||
@@ -82,12 +94,8 @@ const messages = computed(() =>
   ),
 )
 
-/** OAuth scopes required by this operation, rendered below the description. */
-const requiredSecurity = computed(() =>
-  getAsyncApiRequiredSecurity(document, resolvedOperation.value),
-)
-
-const { level: headingLevel } = useDocumentOutline('operation')
+const { level: headingLevel } = useDocumentOutline('asyncApiOperation')
+const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
 
 <template>
@@ -113,6 +121,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
           {{ headingText }}
         </SectionHeaderTag>
       </Anchor>
+      <SecurityRequirementBadge :requiredSecurity />
     </div>
 
     <ScalarMarkdown
@@ -121,8 +130,13 @@ const { level: headingLevel } = useDocumentOutline('operation')
       :value="description"
       withImages />
 
-    <OperationScopes :requiredSecurity="requiredSecurity" />
-
+    <SectionHeaderTag
+      v-if="messages.length"
+      class="text-c-1 mt-6 mb-3 block! text-lg leading-[1.45] font-medium"
+      :level="messagesHeadingLevel"
+      rule>
+      Messages
+    </SectionHeaderTag>
     <Message
       v-for="message in messages"
       :key="message.id"
@@ -139,7 +153,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
 <style scoped>
 .operation {
-  margin-top: 32px;
+  margin-top: 24px;
   scroll-margin-top: var(--refs-viewport-offset);
 }
 

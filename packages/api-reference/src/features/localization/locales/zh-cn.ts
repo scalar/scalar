@@ -28,6 +28,8 @@ export const zhCn = {
     entryOperation: '操作',
     entryTag: '标签',
     entryTagGroup: '标签组',
+    entryChannel: '通道',
+    entryMessage: '消息',
     entryWebhook: 'Webhook',
   },
   navigation: {

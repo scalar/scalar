@@ -1,5 +1,5 @@
 import { Type } from '@scalar/typebox'
-import { boolean, object, optional } from '@scalar/validation'
+import { boolean, object, optional, record, string } from '@scalar/validation'
 
 /**
  * OpenAPI extension to control whether a parameter example is enabled (checkbox on) or disabled (checkbox off).
@@ -17,15 +17,19 @@ import { boolean, object, optional } from '@scalar/validation'
  */
 export const XDisabledSchema = Type.Object({
   'x-disabled': Type.Optional(Type.Boolean()),
+  'x-scalar-disabled-properties': Type.Optional(Type.Record(Type.String(), Type.Boolean())),
 })
 
 export type XDisabled = {
   'x-disabled'?: boolean
+  /** Per-property overrides keyed by JSON-encoded paths. The empty path stores the inherited default. */
+  'x-scalar-disabled-properties'?: Record<string, boolean>
 }
 
 export const XDisabled = object(
   {
     'x-disabled': optional(boolean()),
+    'x-scalar-disabled-properties': optional(record(string(), boolean())),
   },
   {
     typeName: 'XDisabled',

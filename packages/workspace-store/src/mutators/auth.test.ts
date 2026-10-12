@@ -2090,7 +2090,9 @@ describe('AsyncAPI document auth', () => {
       description: 'Write',
     })
 
-    const flow = getResolvedRef((getScheme(document, 'oauth')?.flows as Record<string, unknown>).clientCredentials) as {
+    const flow = getResolvedRef(
+      (getScheme(document, 'oauth')?.flows as Record<string, unknown> | undefined)?.clientCredentials,
+    ) as {
       availableScopes?: Record<string, string>
     }
     expect(flow.availableScopes).toMatchObject({ read: 'Read', write: 'Write' })

@@ -2,6 +2,18 @@
 
 The API Reference renders a modern documentation for your API documents and all you need is a few lines of code.
 
+## Set up with your coding agent
+
+Install the `scalar-api-reference` skill to give your coding agent guidance for framework integration, configuration, and troubleshooting:
+
+```bash
+npx skills add scalar/scalar --skill scalar-api-reference
+```
+
+Then ask your agent: “Set up Scalar API Reference in this project using its existing API description.”
+
+## Set up with HTML
+
 The quickest way to start is a HTML page, that loads our JavaScript:
 
 ```html

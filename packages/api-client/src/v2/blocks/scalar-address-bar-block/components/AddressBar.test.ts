@@ -611,7 +611,7 @@ describe('AddressBar', () => {
       })
       vi.spyOn(eventBus, 'emit').mockImplementation((eventName, _payload) => {
         if (eventName === 'server:add:server') {
-          wrapper.setProps({ server: selectedServer, servers: [selectedServer] })
+          void wrapper.setProps({ server: selectedServer, servers: [selectedServer] })
         }
 
         const payload = _payload as ApiReferenceEvents['operation:update:pathMethod']

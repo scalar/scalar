@@ -110,7 +110,7 @@ describe('ResponseBodyStreaming', () => {
           static override revokeObjectURL = revokeObjectURL
         },
       )
-      const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+      const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
       const stream = new ReadableStream<Uint8Array>({
         start: (controller) => {
           controller.enqueue(bytes)

@@ -15,7 +15,7 @@ type DefaultScopeScheme = {
 
 /** Extracts the default scopes for a security scheme (only OAuth2 schemes support this) */
 const getDefaultScopes = (scheme: DefaultScopeScheme | undefined): string[] => {
-  if (!scheme || scheme.type !== 'oauth2') {
+  if (scheme?.type !== 'oauth2') {
     return []
   }
   return scheme['x-default-scopes'] ?? []

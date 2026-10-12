@@ -118,7 +118,8 @@ const buildCall = (callee: string, required: string[], optional: string[], keywo
 
   positional.forEach((argument, index) => {
     const isLast = index === positional.length - 1
-    const separator = isLast ? (keywords.length ? ';' : '') : ','
+    const lastSeparator = keywords.length ? ';' : ''
+    const separator = isLast ? lastSeparator : ','
 
     lines.push(`${indent(ARGUMENT_LEVEL, argument)}${separator}`)
   })

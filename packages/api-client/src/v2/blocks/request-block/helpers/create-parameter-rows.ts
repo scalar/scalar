@@ -469,5 +469,18 @@ export const createParameterRows = (
     renamedValuePaths,
   })
 
-  return [...rows, ...unmappedRows]
+  return [...rows, ...unmappedRows].map((row) => {
+    const states = example?.['x-scalar-disabled-properties']
+    const path = row.sourceParameterValuePath ?? []
+    // A saved object-level override also applies if the schema later expands its children.
+    const disabled = path
+      .map((_, index) => states?.[JSON.stringify(path.slice(0, index + 1))])
+      .reverse()
+      .find((state) => state !== undefined)
+    return {
+      ...row,
+      isDisabled: disabled ?? states?.['[]'] ?? row.isDisabled,
+      ...(disabled === undefined ? {} : { isDisabledByDefault: false }),
+    }
+  })
 }

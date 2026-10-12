@@ -598,11 +598,11 @@ describe('create-workspace-store', () => {
 
     // We expect the ref to have been resolved with the correct contents
     expect(
-      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value'].summary,
+      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)?.['$ref-value'].summary,
     ).toEqual(getDocument().paths['/users'].get.summary)
 
     expect(
-      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)['$ref-value']
+      (getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any)?.['$ref-value']
         ?.responses?.[200]?.content['application/json']?.schema?.items['$ref-value']['$ref-value'],
     ).toEqual({
       ...getDocument().components.schemas.User,
@@ -664,7 +664,9 @@ describe('create-workspace-store', () => {
       const get = getPathItemOperation(getActiveOpenApiDocument(store)?.paths?.['/users'], 'get') as any
       expect(get['$ref-value'].summary).toBe('Get all users')
       // The shared schema lands in the document's components, once
-      expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
+      expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)?.['$ref-value'].type).toBe(
+        'object',
+      )
       expect(requests.slice(1).sort()).toEqual([
         '/chunks/default/components/schemas/User.json',
         '/chunks/default/operations/~1users/get.json',
@@ -802,7 +804,7 @@ describe('create-workspace-store', () => {
     // We resolve the ref
     await store.resolve(['paths', '/users', 'get'])
 
-    expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)['$ref-value'].type).toBe('object')
+    expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)?.['$ref-value'].type).toBe('object')
   })
 
   it('build the sidebar client side', async () => {
@@ -4246,6 +4248,32 @@ describe('create-workspace-store', () => {
   })
 
   describe('asyncapi documents', () => {
+    it('retains boolean schemas during ingestion', async () => {
+      const store = createWorkspaceStore()
+      const schema = { type: 'object', properties: { anything: true, nothing: false } }
+
+      await store.addDocument({
+        name: 'booleans',
+        document: {
+          asyncapi: '3.1.0',
+          info: { title: 'Boolean schemas', version: '1.0.0' },
+          channels: { events: { messages: { event: { payload: schema, headers: schema } } } },
+          components: { schemas: { Anything: true, Nothing: false, Object: schema } },
+        },
+      })
+
+      const document = store.workspace.documents['booleans']
+      assert(isAsyncApiDocument(document))
+      const message = getResolvedRef(getResolvedRef(document.channels?.events)?.messages?.event)
+      expect(getResolvedRef(message?.payload)).toStrictEqual(schema)
+      expect(getResolvedRef(message?.headers)).toStrictEqual(schema)
+      expect(getResolvedRef(document.components)?.schemas).toStrictEqual({
+        Anything: true,
+        Nothing: false,
+        Object: schema,
+      })
+    })
+
     it('preserves the asyncapi discriminator and sets workspace metadata on ingestion', async () => {
       const store = createWorkspaceStore()
 
@@ -4623,20 +4651,6 @@ describe('create-workspace-store', () => {
                 'operationName': 'receiveChatMessage',
                 'title': 'receiveChatMessage',
                 'type': 'asyncapi-operation',
-              },
-              {
-                'channelName': 'chat',
-                'id': 'chatapp/channel/chat/message/receivemessage',
-                'messageName': 'receiveMessage',
-                'title': 'Receive a chat message',
-                'type': 'asyncapi-message',
-              },
-              {
-                'channelName': 'chat',
-                'id': 'chatapp/channel/chat/message/sendmessage',
-                'messageName': 'sendMessage',
-                'title': 'Send a chat message',
-                'type': 'asyncapi-message',
               },
             ],
             'id': 'chatapp/channel/chat',

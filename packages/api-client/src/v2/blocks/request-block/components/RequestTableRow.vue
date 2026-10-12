@@ -11,7 +11,7 @@ import type {
   ParameterObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
@@ -55,6 +55,9 @@ const emit = defineEmits<{
 }>()
 
 const { translate } = useLocalization()
+
+const valueInput = useTemplateRef('valueInput')
+defineExpose({ focusValue: (): void => valueInput.value?.focus() })
 
 export type TableRow = {
   /** The parameter or field name/key */
@@ -122,7 +125,9 @@ watch(
     // Do not overwrite a valid local name with an empty incoming prop — this
     // can happen when the placeholder row (appended by displayData) is briefly
     // mapped onto this component instance before Vue re-keys the list.
-    if (!newName && name.value && !deferKeyUpdates) return
+    if (!newName && name.value && !deferKeyUpdates) {
+      return
+    }
     name.value = newName ?? ''
   },
 )
@@ -307,6 +312,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
         @update:modelValue="(v) => emit('selectPreset', v)" />
       <CodeInputLite
         v-else
+        ref="valueInput"
         :aria-label="
           translate('apiClient.requestTableRow.valueLabel', {
             name: label ?? '',

@@ -38,7 +38,7 @@ describe('updateOperationPathMethod (method only)', () => {
       meta: { method: 'COPY', path: '/pets' },
       payload: { method: 'customMethod', path: '/pets' },
       blurTargetSelector: null,
-      callback: () => {},
+      callback: () => undefined,
     })
     expect(getPathItemOperation(document.paths?.['/pets'], 'COPY')).toBeUndefined()
     expect(getResolvedRef(getPathItemOperation(document.paths?.['/pets'], 'customMethod'))?.summary).toBe('Copy')

@@ -118,7 +118,9 @@ const slotsFor = (mode: 'light' | 'dark'): Slot[] => {
   const resolved = new Map<string, Slot>()
 
   for (const [, selector, body] of rules.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-    if (!selector!.split(',').some((part) => part.trim() === cls)) continue
+    if (!selector!.split(',').some((part) => part.trim() === cls)) {
+      continue
+    }
 
     for (const [, name, value] of body!.matchAll(/--scalar-hl-([\w-]+):\s*([^;]+);/g)) {
       const mixed = value!.match(/color-mix\(in oklab,\s*var\(--scalar-color-([\w-]+)\)\s*(\d+)%/)
@@ -127,7 +129,9 @@ const slotsFor = (mode: 'light' | 'dark'): Slot[] => {
         continue
       }
       const plain = value!.match(/var\(--scalar-color-([\w-]+)\)/)
-      if (plain) resolved.set(name!, { name: name!, hue: plain[1]!, pct: 100 })
+      if (plain) {
+        resolved.set(name!, { name: name!, hue: plain[1]!, pct: 100 })
+      }
     }
   }
   return [...resolved.values()]

@@ -281,7 +281,7 @@ describe('useColorMode', () => {
     vi.spyOn(window, 'matchMedia').mockImplementation(createMatchMediaMock('dark'))
 
     // The first instance never mounts, so it still reports the server default on its own.
-    vi.mocked(onMounted).mockImplementationOnce(() => {})
+    vi.mocked(onMounted).mockImplementationOnce(() => undefined)
     const first = useColorMode()
     expect(first.darkLightMode.value).toBe('light')
 

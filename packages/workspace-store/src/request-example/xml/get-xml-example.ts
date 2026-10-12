@@ -299,8 +299,8 @@ const buildXmlExample = (
     }
     const xml = schema.xml ?? {}
     validateXmlMetadata(xml, context.path)
-    const kind =
-      xml.nodeType ?? (xml.attribute ? 'attribute' : Array.isArray(data) && !xml.wrapped ? 'none' : 'element')
+    const elementKind = Array.isArray(data) && !xml.wrapped ? 'none' : 'element'
+    const kind = xml.nodeType ?? (xml.attribute ? 'attribute' : elementKind)
     const selectedComponentName =
       context.depth === 0 && '$ref' in schema && typeof schema.$ref === 'string'
         ? componentNameFromRef(schema.$ref, context.path)

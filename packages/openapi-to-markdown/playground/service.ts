@@ -29,8 +29,9 @@ export const getManifest = (document: OpenApiDocument): Manifest => {
       }),
     )
   }
-  for (const name of Object.keys(document.components?.schemas ?? {}))
+  for (const name of Object.keys(document.components?.schemas ?? {})) {
     pages.push({ label: `Model: ${name}`, options: { model: name } })
+  }
   for (const name of new Set([
     ...(document.tags?.map((tag) => tag.name) ?? []),
     ...Object.values(document.paths ?? {}).flatMap((item) => {
@@ -38,8 +39,9 @@ export const getManifest = (document: OpenApiDocument): Manifest => {
       forEachPathItemOperation(item, (_, operation) => tags.push(...(operation.tags ?? [])))
       return tags
     }),
-  ]))
+  ])) {
     pages.push({ label: `Tag: ${name}`, options: { tag: name } })
+  }
   return {
     title: document.info.title,
     pages,
@@ -65,14 +67,20 @@ export const createExportService = (): ((
     | undefined
   const load = (id: string): NonNullable<typeof current>['value'] => {
     const example = documents.find((entry) => entry.id === id)
-    if (!example) throw new Error('Unknown example document')
-    if (current?.id === id) return current.value
+    if (!example) {
+      throw new Error('Unknown example document')
+    }
+    if (current?.id === id) {
+      return current.value
+    }
     const value = (async () => {
       const input =
         id === 'galaxy'
           ? await readFile(new URL(import.meta.resolve('@scalar/galaxy/latest.yaml')), 'utf8')
           : await fetch(example.source, { signal: AbortSignal.timeout(120_000) }).then((response) => {
-              if (!response.ok) throw new Error(`Could not load ${example.name}: HTTP ${response.status}`)
+              if (!response.ok) {
+                throw new Error(`Could not load ${example.name}: HTTP ${response.status}`)
+              }
               return response.text()
             })
       const document = await loadDocument(input)
@@ -80,7 +88,9 @@ export const createExportService = (): ((
     })()
     current = { id, value }
     void value.catch(() => {
-      if (current?.value === value) current = undefined
+      if (current?.value === value) {
+        current = undefined
+      }
     })
     return value
   }
@@ -88,10 +98,14 @@ export const createExportService = (): ((
     const url = new URL(`${pathname}?${search}`, 'http://localhost')
     const id = url.searchParams.get('document') ?? 'galaxy'
     const { document, manifest, render } = await load(id)
-    if (pathname === '/__markdown/document') return manifest
+    if (pathname === '/__markdown/document') {
+      return manifest
+    }
     const index = url.searchParams.get('page')
     const page = index === null ? undefined : manifest.pages[Number(index)]
-    if (index !== null && (!/^\d+$/.test(index) || !page)) throw new Error('Unknown page selection')
+    if (index !== null && (!/^\d+$/.test(index) || !page)) {
+      throw new Error('Unknown page selection')
+    }
     const options = {
       ...page?.options,
       ...(url.searchParams.get('linked') === 'true'
@@ -110,7 +124,9 @@ export const createExportService = (): ((
     const markdown = await render(selectDocument(document, options), options)
     const milliseconds = performance.now() - start
     console.info(`${id}: exported ${Buffer.byteLength(markdown)} bytes in ${Math.round(milliseconds)} ms`)
-    if (pathname === '/llms.txt') return markdown
+    if (pathname === '/llms.txt') {
+      return markdown
+    }
     const html = renderPreview(markdown)
     console.info(`${id}: preview ready`)
     return { markdown, html, milliseconds, bytes: Buffer.byteLength(markdown) }

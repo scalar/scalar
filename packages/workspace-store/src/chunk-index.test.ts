@@ -300,7 +300,9 @@ describe('chunk-index', () => {
     expect(paths['/users']?.['summary']).toBe('Users')
     expect(paths['/users']?.['description']).toBe('Everything about users')
     expect(paths['/users']?.['servers']).toStrictEqual([{ url: 'https://example.com' }])
-    expect((paths['/users']?.['parameters'] as { $ref: string }[])[0]?.$ref).toBe('#/components/parameters/PageSize')
+    expect((paths['/users']?.['parameters'] as { $ref: string }[] | undefined)?.[0]?.$ref).toBe(
+      '#/components/parameters/PageSize',
+    )
     expect(paths['/users']?.['x-internal']).toStrictEqual({ team: 'core' })
     // The `$ref` path item is externalized per operation, so its reference plumbing is gone and
     // the summary it merged in stays.

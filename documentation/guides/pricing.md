@@ -50,6 +50,7 @@
   </table>
   <h3>Usage and add-ons</h3>
   <ul>
+    <li>Every new team starts with a 7-day trial with Pro limits, including Docs publishing. After the trial, publishing a Docs site needs a paid plan.</li>
     <li>Every plan can be billed monthly or yearly. Yearly billing gives you two months free: Pro is $125 per month billed yearly ($1,500 per year) and Business is $500 per month billed yearly ($6,000 per year).</li>
     <li>Max APIs: 3 on Free, 15 on Pro, 25 on Business, unlimited on Enterprise.</li>
     <li>SDK size is measured by the number of endpoints in your OpenAPI document. Free covers SDKs up to 25 endpoints; Pro includes 100 endpoints; Business includes 250 endpoints; Enterprise is custom.</li>
@@ -333,8 +334,8 @@
           <tbody class="st_wrap_table pricing-table-group text-sm" data-table_id="1" role="rowgroup">
 <tr class="pricing-table-group-heading-row"><th class="pricing-table-group-heading flex gap-1.5 items-center" colspan="5" scope="rowgroup"><scalar-icon src="phosphor/bold/book" aria-hidden="true"></scalar-icon>Docs</th></tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Free Scalar subdomain</th>
-<td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
+<th class="pricing-table-column" scope="row">Scalar subdomain</th>
+<td class="pricing-table-column free-price"><span class="pricing-table-visually-hidden">Not included</span></td>
 <td class="pricing-table-column pro-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column business-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>
 <td class="pricing-table-column enterprise-price"><span class="pricing-table-visually-hidden">Included</span><scalar-icon src="phosphor/bold/check" aria-hidden="true"></scalar-icon></td>

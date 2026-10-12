@@ -17,7 +17,7 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
   const fail = (code: string, message: string, path: string[]): void => {
     diagnostics.push({ severity: 'error', code, message, path })
   }
-  const escape = (value: string, attribute: boolean, path: string[]): string => {
+  const escapeXml = (value: string, attribute: boolean, path: string[]): string => {
     if (invalidCharacter.test(value)) {
       fail('invalid-character', 'The value contains a character XML 1.0 cannot represent.', path)
     }
@@ -40,7 +40,7 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
     }
     if (node.type !== 'element') {
       if (node.type === 'text') {
-        return escape(node.value, false, path)
+        return escapeXml(node.value, false, path)
       }
       if (invalidCharacter.test(node.value)) {
         fail('invalid-character', 'The CDATA contains a character XML 1.0 cannot represent.', path)
@@ -57,7 +57,8 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
         fail('invalid-name', `Invalid XML name: ${input.prefix ? `${input.prefix}:` : ''}${input.name}`, path)
       }
       let prefix = input.prefix ?? ''
-      const namespace = input.namespace ?? (prefix ? bindings.get(prefix) : attribute ? '' : bindings.get('')) ?? ''
+      const defaultNamespace = attribute ? '' : bindings.get('')
+      const namespace = input.namespace ?? (prefix ? bindings.get(prefix) : defaultNamespace) ?? ''
       if (prefix === 'xmlns' || namespace === XMLNS_NAMESPACE || (attribute && !prefix && input.name === 'xmlns')) {
         fail('reserved-namespace', 'Namespace declarations must be expressed through XML namespace metadata.', path)
       }
@@ -104,11 +105,11 @@ export const writeXml = (nodes: XmlNode[], options: WriteXmlOptions = {}): XmlEx
           fail('duplicate-attribute', `Duplicate XML attribute: ${qualified.name}`, path)
         }
         attributeNames.add(key)
-        return ` ${qualified.name}="${escape(attribute.value, true, path)}"`
+        return ` ${qualified.name}="${escapeXml(attribute.value, true, path)}"`
       })
       .join('')
     const namespaces = [...declarations]
-      .map(([prefix, uri]) => ` xmlns${prefix ? `:${prefix}` : ''}="${escape(uri, true, path)}"`)
+      .map(([prefix, uri]) => ` xmlns${prefix ? `:${prefix}` : ''}="${escapeXml(uri, true, path)}"`)
       .join('')
     const opening = `<${element.name}${namespaces}${attributes}`
     if (node.children.length === 0) {

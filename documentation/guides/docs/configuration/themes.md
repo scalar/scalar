@@ -19,4 +19,11 @@ Set the theme in the `siteConfig` object of your `scalar.config.json` file:
 
 ## Available Themes
 
-Your documentation site and your API references share the same theme system. For the full list of built-in themes, how to disable theming with `none`, and how to customize colors, fonts, and layouts with CSS variables, see the [Themes reference](../../../themes.md).
+Docs sites support these built-in themes: `default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`, `laserwave`, `elysiajs`, and `fastify`. The names `blue-planet`, `deep-space`, and `kepler-11e` work too.
+
+You can also set `theme` to:
+
+- the path to a `.css` file in your project, like `"./theme.css"`
+- the slug of one of your team's custom themes
+
+Your documentation site and your API references share the same theme system. To see what each theme looks like, and to customize colors, fonts, and layouts with CSS variables, see the [Themes reference](../../../themes.md).

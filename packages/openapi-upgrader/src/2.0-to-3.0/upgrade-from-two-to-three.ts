@@ -107,7 +107,9 @@ function removeEmptySchemaOnlyContentEntries(content: Record<string, unknown>): 
 
   for (const key of keys) {
     const entry = content[key]
-    if (!isObjectLike(entry)) continue
+    if (!isObjectLike(entry)) {
+      continue
+    }
 
     const hasExample = entry.example !== undefined || entry.examples !== undefined
     const hasOnlySchema = entry.schema !== undefined && !hasExample && Object.keys(entry).length === 1

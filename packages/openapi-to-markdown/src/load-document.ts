@@ -73,7 +73,9 @@ const attachRefValues = (
       kind = kind && getChildKind(kind, key)
       position = Array.isArray(parent) ? position : position && getChildPosition(position, key)
       // Arbitrary extension and example data has not passed an OpenAPI object schema.
-      if (position === 'document' && kind === undefined) position = undefined
+      if (position === 'document' && kind === undefined) {
+        position = undefined
+      }
       parent = getValueByPath(parent, [key]).value
     }
     const schema = getTargetSchema(position, kind)
@@ -118,16 +120,18 @@ const attachRefValues = (
       // support summary and description; casting them as their targets would add defaults.
       // Path Item Objects declare their own $ref field, so their siblings are cast normally.
       const reference = typeof value.$ref === 'string' ? value.$ref : undefined
-      const cast =
-        reference === undefined || schema === referenceTargetSchemas.pathItem
-          ? coerceValue(schema, value)
-          : position === 'schema'
-            ? { ...coerceValue(SchemaObjectSchema, value), $ref: reference }
-            : {
-                $ref: reference,
-                ...(typeof value.summary === 'string' ? { summary: value.summary } : {}),
-                ...(typeof value.description === 'string' ? { description: value.description } : {}),
-              }
+      let cast: unknown
+      if (reference === undefined || schema === referenceTargetSchemas.pathItem) {
+        cast = coerceValue(schema, value)
+      } else if (position === 'schema') {
+        cast = { ...coerceValue(SchemaObjectSchema, value), $ref: reference }
+      } else {
+        cast = {
+          $ref: reference,
+          ...(typeof value.summary === 'string' ? { summary: value.summary } : {}),
+          ...(typeof value.description === 'string' ? { description: value.description } : {}),
+        }
+      }
       if (fallback?.booleanSchemas) {
         restoreBooleanSchemas(value, cast, position)
       }

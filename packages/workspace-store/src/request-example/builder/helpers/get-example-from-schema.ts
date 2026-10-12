@@ -422,7 +422,8 @@ export const selectExampleComposition = (
   arrayItem = false,
   value?: Record<string, unknown>,
 ): SchemaObject | undefined => {
-  const keyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
+  const anyOfKeyword = schema.anyOf ? 'anyOf' : undefined
+  const keyword = schema.oneOf ? 'oneOf' : anyOfKeyword
   const members = keyword ? schema[keyword] : undefined
   if (!keyword || !members?.length) {
     return undefined
@@ -610,9 +611,8 @@ const handleObjectSchema = (
 
     const additionalName = hasCustomName ? customName.trim() : DEFAULT_ADDITIONAL_PROPERTIES_NAME
 
-    const additionalValue = isAnyType
-      ? 'anything'
-      : typeof additional === 'object'
+    const additionalValue =
+      !isAnyType && typeof additional === 'object'
         ? getExampleFromSchema(additional, options, {
             level: level + 1,
             schemaPath: [...schemaPath, additionalName],
@@ -629,7 +629,9 @@ const handleObjectSchema = (
     }
   }
 
-  const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
+  const anyOfKeyword = schema.anyOf ? 'anyOf' : undefined
+
+  const compositionKeyword = schema.oneOf ? 'oneOf' : anyOfKeyword
   const oneOfAnyOf = compositionKeyword ? schema[compositionKeyword] : undefined
   if (compositionKeyword && oneOfAnyOf?.length) {
     const chosen = selectExampleComposition(schema, schemaPath, options, false, response)
@@ -757,7 +759,9 @@ const handleArraySchema = (
       return cache(schema, wrapItems ? examples.map((e) => ({ [itemsXmlTagName]: e })) : examples, cacheKey, skipCache)
     }
 
-    const compositionKeyword = items.oneOf ? 'oneOf' : items.anyOf ? 'anyOf' : undefined
+    const anyOfKeyword = items.anyOf ? 'anyOf' : undefined
+
+    const compositionKeyword = items.oneOf ? 'oneOf' : anyOfKeyword
     const union = compositionKeyword ? items[compositionKeyword] : undefined
     if (compositionKeyword && union && union.length > 0) {
       const selectedIndex =
@@ -951,7 +955,8 @@ const getSelectedVariant = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
 ): SchemaObject | undefined => {
-  const compositionKeyword = schema.oneOf ? 'oneOf' : schema.anyOf ? 'anyOf' : undefined
+  const anyOfKeyword = schema.anyOf ? 'anyOf' : undefined
+  const compositionKeyword = schema.oneOf ? 'oneOf' : anyOfKeyword
   const variants = compositionKeyword ? schema[compositionKeyword] : undefined
   if (!compositionKeyword || !Array.isArray(variants) || variants.length === 0) {
     return undefined
@@ -1273,7 +1278,8 @@ const generateExampleFromSchema = (
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
-  const selectedComposition = _schema.oneOf ? 'oneOf' : _schema.anyOf ? 'anyOf' : undefined
+  const selectedAnyOf = _schema.anyOf ? 'anyOf' : undefined
+  const selectedComposition = _schema.oneOf ? 'oneOf' : selectedAnyOf
   const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
     const rootType = 'type' in _schema ? _schema.type : undefined
@@ -1329,7 +1335,8 @@ const generateExampleFromSchema = (
   }
 
   // Handle composition schemas (oneOf, anyOf)
-  const compositionKeyword = _schema.oneOf ? 'oneOf' : _schema.anyOf ? 'anyOf' : undefined
+  const anyOfKeyword = _schema.anyOf ? 'anyOf' : undefined
+  const compositionKeyword = _schema.oneOf ? 'oneOf' : anyOfKeyword
   const discriminate = compositionKeyword ? _schema[compositionKeyword] : undefined
   if (compositionKeyword && Array.isArray(discriminate) && discriminate.length > 0) {
     const candidate = selectExampleComposition(_schema, schemaPath, options)

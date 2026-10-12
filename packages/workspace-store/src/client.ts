@@ -1330,7 +1330,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
    * @returns The editable document object, or null if not found.
    */
   const getEditableDocument = async (documentName: string) => {
-    if (!Object.hasOwn(workspace.documents, documentName)) return null
+    if (!Object.hasOwn(workspace.documents, documentName)) {
+      return null
+    }
     preventPollution(documentName, 'workspace document name')
 
     const rawDocument = unpackProxyObject(workspace.documents[documentName], { depth: 1 })
@@ -1502,9 +1504,13 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     externalExamples: (documentName) => {
       const name = documentName ?? getActiveDocumentName()
       const document = workspace.documents[name]
-      if (!document) return fallbackExternalExamples
+      if (!document) {
+        return fallbackExternalExamples
+      }
       const existing = externalExampleResolvers.get(document)
-      if (existing) return existing
+      if (existing) {
+        return existing
+      }
       const resolver = createExternalExampleResolver({
         origin: document['x-scalar-original-source-url'],
         fileLoader: workspaceProps?.fileLoader,
@@ -1615,7 +1621,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const visitedNodes = activeDocument
         ? (visitedNodesCaches.get(activeDocument) ?? new Set<unknown>())
         : new Set<unknown>()
-      if (activeDocument) visitedNodesCaches.set(activeDocument, visitedNodes)
+      if (activeDocument) {
+        visitedNodesCaches.set(activeDocument, visitedNodes)
+      }
 
       return bundle(target, {
         root: activeDocument,

@@ -523,7 +523,7 @@ Set `hidden` to `true` to fully hide an API reference. The setting cascades to e
 
 ### API Reference configuration
 
-When you add an API reference route (`type: "openapi"` or `type: "asyncapi"`) in your navigation, you can pass API Reference options by adding a `config` object. The same options supported by the [API Reference configuration](../../../configuration.md) (e.g. `authentication`, `theme`) can be used here.
+When you add an API reference route (`type: "openapi"` or `type: "asyncapi"`) in your navigation, you can pass API Reference options by adding a `config` object. Only the options listed below can be set here. Other [API Reference options](../../../configuration.md), like `theme` or `layout`, are ignored here. Set the site's theme with [`siteConfig.theme`](themes.md) instead.
 
 Example:
 
@@ -549,7 +549,25 @@ Example:
 }
 ```
 
-For all available options, see [Configuration](../../../configuration.md).
+- [`authentication`](../../../configuration.md#authentication)
+- [`baseServerURL`](../../../configuration.md#baseserverurl)
+- [`defaultHttpClient`](../../../configuration.md#defaulthttpclient)
+- [`defaultOpenAllTags`](../../../configuration.md#defaultopenalltags)
+- [`documentDownloadType`](../../../configuration.md#documentdownloadtype)
+- [`expandAllModelSections`](../../../configuration.md#expandallmodelsections)
+- [`expandAllResponses`](../../../configuration.md#expandallresponses)
+- [`hiddenClients`](../../../configuration.md#hiddenclients)
+- [`hideClientButton`](../../../configuration.md#hideclientbutton)
+- [`hideModels`](../../../configuration.md#hidemodels)
+- [`hideTestRequestButton`](../../../configuration.md#hidetestrequestbutton)
+- [`operationTitleSource`](../../../configuration.md#operationtitlesource)
+- [`orderRequiredPropertiesFirst`](../../../configuration.md#orderrequiredpropertiesfirst)
+- [`orderSchemaPropertiesBy`](../../../configuration.md#orderschemapropertiesby)
+- [`proxyUrl`](../../../configuration.md#proxyurl)
+- [`servers`](../../../configuration.md#servers)
+- [`showOperationId`](../../../configuration.md#showoperationid)
+
+Each option works the same way as in the API Reference, except that `proxyUrl` defaults to `https://proxy.scalar.com`.
 
 ## Groups
 

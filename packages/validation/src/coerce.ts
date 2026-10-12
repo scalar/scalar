@@ -186,12 +186,12 @@ const scoreUnion = (
         // scored in full: they are finite trees of literals, optionals and unions (never `lazy`)
         // that do not descend into the value, so this stays cheap. It also keeps a tag like
         // `kind: literal('b')` deciding the branch when it sits below the budget.
+        const depthExceeded = valueDepth >= MAX_VALUE_DEPTH
+        const childValueDepth = depthExceeded ? valueDepth : valueDepth + 1
         const base =
-          valueDepth >= MAX_VALUE_DEPTH
-            ? isDiscriminator
-              ? scoreUnion(propSchema, raw, lazyCache, scoringCache, valueDepth, lazyDepth)
-              : 1
-            : scoreUnion(propSchema, raw, lazyCache, scoringCache, valueDepth + 1, lazyDepth)
+          depthExceeded && !isDiscriminator
+            ? 1
+            : scoreUnion(propSchema, raw, lazyCache, scoringCache, childValueDepth, lazyDepth)
         if (isDiscriminator) {
           return acc + (base > 0 ? base * 10 : 0)
         }

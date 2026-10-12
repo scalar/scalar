@@ -600,13 +600,14 @@ export async function createServerWorkspaceStore(
         if (group) {
           const values = (chunks[escapeJsonPointer(group)] ??= {}) as Record<string, unknown>
           Object.defineProperty(values, key, { value, enumerable: true, configurable: true, writable: true })
-        } else
+        } else {
           Object.defineProperty(chunks, escapeJsonPointer(key), {
             value,
             enumerable: true,
             configurable: true,
             writable: true,
           })
+        }
         const fragment = group ? `#/${encodeURIComponent(escapeJsonPointer(key))}` : '#'
         return [
           key,
@@ -810,7 +811,8 @@ export async function createServerWorkspaceStore(
       const isThreeTwo = typeof loaded.openapi === 'string' && /^3\.2\.\d+$/.test(loaded.openapi)
       // URI resolution adds working aliases; keep the caller's authored object unchanged.
       const data: Record<string, unknown> = isThreeTwo ? JSON.parse(document.raw) : loaded
-      const origin = 'url' in input ? input.url : 'path' in input ? input.path : undefined
+      const fileOrigin = 'path' in input ? input.path : undefined
+      const origin = 'url' in input ? input.url : fileOrigin
       const loaders = [fetchUrls(), readFiles()]
       if (isThreeTwo) {
         await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })

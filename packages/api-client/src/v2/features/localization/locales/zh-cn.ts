@@ -341,6 +341,9 @@ export const zhCn = {
     'body': '正文',
   },
   'requestParams': {
+    'addParameter': '添加参数',
+    'searchParameters': '搜索参数',
+    'noParametersFound': '没有匹配的参数',
     'clearAll': '清除所有{title}',
     'clear': '清除',
     'clearOptionalParameters': '清除可选参数',

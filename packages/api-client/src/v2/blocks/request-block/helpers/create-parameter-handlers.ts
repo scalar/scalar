@@ -1,5 +1,5 @@
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
-import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { ApiReferenceEvents, OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { deSerializeSchemaValue } from '@scalar/workspace-store/request-example'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
@@ -62,7 +62,7 @@ const getExpandedObjectPayload = (
   row: TableRow,
   context: TableRow[],
   payload?: ParameterUpsertPayload,
-): { name: string; value: Record<string, unknown>; isDisabled: boolean } => {
+): ApiReferenceEvents['operation:upsert:parameter']['payload'] => {
   const value: Record<string, unknown> = {}
 
   // Only deepObject leaves use the comma-to-array coercion below. The trailing-bracket array
@@ -89,11 +89,10 @@ const getExpandedObjectPayload = (
 
     // Key edits are debounced while the user is still typing. Only committed key edits can move
     // the value to a new object path; regular value updates keep the stable source path.
-    const path = isEditedRow
-      ? payload.shouldRenameExpandedRow
+    const path =
+      isEditedRow && payload.shouldRenameExpandedRow
         ? getEditedValuePath(payload.name, row.originalParameter?.name, contextRow.sourceParameterValuePath)
         : contextRow.sourceParameterValuePath
-      : contextRow.sourceParameterValuePath
 
     // Rows always hold the string the user sees, so a deepObject array leaf arrives comma-joined
     // ("1,2"). Coerce it back to an array before storing — otherwise deepObject serialization
@@ -108,11 +107,8 @@ const getExpandedObjectPayload = (
     // have no reliable schema, so they rely on the marker alone.
     const isCommittedRename = isEditedRow && Boolean(payload.shouldRenameExpandedRow)
     const hasArrayLeafMarker = hasArrayMarker(isCommittedRename ? payload.name : contextRow.name)
-    const leafSchema = hasArrayLeafMarker
-      ? ({ type: 'array' } as const)
-      : isCommittedRename
-        ? undefined
-        : contextRow.schema
+    const existingLeafSchema = isCommittedRename ? undefined : contextRow.schema
+    const leafSchema = hasArrayLeafMarker ? ({ type: 'array' } as const) : existingLeafSchema
     const leafValue = isDeepObjectParameter && leafSchema ? deSerializeSchemaValue(nextValue, leafSchema) : nextValue
 
     setValueAtPath(value, path, leafValue)
@@ -122,6 +118,13 @@ const getExpandedObjectPayload = (
     name: row.originalParameter?.name ?? payload?.name ?? row.name,
     value,
     isDisabled: payload?.isDisabled ?? row.isDisabled ?? false,
+    propertyState: {
+      path: payload?.shouldRenameExpandedRow
+        ? getEditedValuePath(payload.name, row.originalParameter?.name, row.sourceParameterValuePath ?? [])
+        : (row.sourceParameterValuePath ?? []),
+      ...(payload ? { isDisabled: payload.isDisabled } : {}),
+      ...(payload?.shouldRenameExpandedRow ? { previousPath: row.sourceParameterValuePath } : {}),
+    },
   }
 }
 

@@ -206,7 +206,6 @@ describe('traverse-webhooks', () => {
             post: {
               'x-internal': true,
               $ref: '#/components/pathItems/HiddenWebhook',
-              // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
               '$ref-value': {
                 summary: 'Should not show',
                 operationId: 'hiddenWebhook',
@@ -245,7 +244,6 @@ describe('traverse-webhooks', () => {
             post: {
               'x-scalar-ignore': true,
               $ref: '#/components/pathItems/IgnoredWebhook',
-              // biome-ignore lint/suspicious/noExplicitAny: simulating bundled $ref-value
               '$ref-value': {
                 summary: 'Should not show',
                 operationId: 'ignoredWebhook',

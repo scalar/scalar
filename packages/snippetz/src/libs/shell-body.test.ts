@@ -53,7 +53,9 @@ describe('shell-body', () => {
         headers: { 'Content-Type': `multipart/form-data; boundary=${boundary}` },
       }).formData()
       const upload = parsed.get('upload')
-      if (!(upload instanceof File)) throw new Error('Expected a binary file part')
+      if (!(upload instanceof File)) {
+        throw new Error('Expected a binary file part')
+      }
       expect(upload.name).toBe(filename)
       expect(upload.type).toBe('application/octet-stream')
       expect(new Uint8Array(await upload.arrayBuffer())).toStrictEqual(bytes)

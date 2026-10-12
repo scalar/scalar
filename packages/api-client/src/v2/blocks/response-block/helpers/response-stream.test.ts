@@ -112,7 +112,7 @@ describe('response-stream', () => {
   })
 
   it.each(['application/jsonl', 'application/json-seq'])('bounds unfinished %s records in UTF-8 bytes', (type) => {
-    const parser = createResponseStreamParser(type, () => {})
+    const parser = createResponseStreamParser(type, () => undefined)
     const prefix = type === 'application/json-seq' ? '\x1e"' : '"'
     const bytes = encode(`${prefix}${'月'.repeat(2_796_202)}`)
     parser.push(bytes)

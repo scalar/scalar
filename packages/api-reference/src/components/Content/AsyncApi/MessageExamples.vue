@@ -7,7 +7,6 @@ import {
   ScalarCardSection,
 } from '@scalar/components/card'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
-import { ScalarCopy } from '@scalar/components/copy'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { iterateTitle } from '@scalar/helpers/string/iterate-title'
@@ -100,16 +99,8 @@ const showFooter = computed(
     :label="translate('schema.examples')">
     <ScalarCardHeader>
       {{ translate('schema.examples') }}
-      <template #actions>
-        <ScalarCopy
-          :aria-label="translate('common.copyExample')"
-          :content="content"
-          placement="left">
-          <template #copy>{{ translate('common.copyExample') }}</template>
-        </ScalarCopy>
-      </template>
     </ScalarCardHeader>
-    <ScalarCardSection>
+    <ScalarCardSection class="flex-col">
       <ScalarVirtualCodeBlock
         v-if="content.length > 20_000"
         class="bg-b-2"
@@ -123,13 +114,18 @@ const showFooter = computed(
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="showFooter"
-      class="text-c-2 flex flex-wrap items-center gap-2">
+      class="text-c-2 flex flex-col items-start gap-2 px-3 py-3">
       <ExamplePicker
         v-if="hasMultipleExamples"
         v-model="selectedKey"
         :aria-label="translate('schema.examples')"
+        class="-ml-1.5"
         :examples="pickerExamples" />
-      <span v-else-if="selected?.example.name">{{ selected.label }}</span>
+      <span
+        v-else-if="selected?.example.name"
+        class="text-c-1 font-medium"
+        >{{ selected.label }}</span
+      >
       <ScalarMarkdown
         v-if="selected?.example.summary"
         class="min-w-0"

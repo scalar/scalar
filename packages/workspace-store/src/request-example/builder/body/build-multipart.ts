@@ -130,38 +130,39 @@ export const buildMultipart = (
   }
   const named = parseMimeType(contentType).essence === 'multipart/form-data'
   const positional = Array.isArray(value)
-  const entries: [string | undefined, unknown, EncodingObject | undefined, SchemaObject | undefined][] = positional
-    ? value.map((item, index) => {
-        const itemEncoding =
-          index < (encoding.prefixEncoding?.length ?? 0) ? encoding.prefixEncoding?.[index] : encoding.itemEncoding
-        const itemSchema = getMultipartItemSchema(schema, index, encoding.itemSchema)
-        if (named && item !== null && typeof item === 'object' && !Array.isArray(item)) {
-          // Each position describes one named part; accepting more keys would silently discard data.
-          const entries = Object.entries(item)
-          const entry = entries[0]
-          if (entries.length !== 1 || !entry) {
-            throw new Error('Named positional multipart items must contain exactly one property')
-          }
-          return [entry[0], entry[1], itemEncoding, resolveLeafSchema(itemSchema, [entry[0]])]
+  let entries: [string | undefined, unknown, EncodingObject | undefined, SchemaObject | undefined][] = []
+  if (positional) {
+    entries = value.map((item, index) => {
+      const itemEncoding =
+        index < (encoding.prefixEncoding?.length ?? 0) ? encoding.prefixEncoding?.[index] : encoding.itemEncoding
+      const itemSchema = getMultipartItemSchema(schema, index, encoding.itemSchema)
+      if (named && item !== null && typeof item === 'object' && !Array.isArray(item)) {
+        // Each position describes one named part; accepting more keys would silently discard data.
+        const entries = Object.entries(item)
+        const entry = entries[0]
+        if (entries.length !== 1 || !entry) {
+          throw new Error('Named positional multipart items must contain exactly one property')
         }
-        return [undefined, item, itemEncoding, itemSchema]
-      })
-    : value !== null && typeof value === 'object'
-      ? Object.entries(value).flatMap(([key, item]) => {
-          const propertySchema = resolveLeafSchema(schema, [key])
-          return (Array.isArray(item) ? item : [item]).map((part): (typeof entries)[number] => [
-            key,
-            part,
-            encoding.encoding?.[key],
-            Array.isArray(item)
-              ? (getResolvedRef(
-                  propertySchema && isArraySchema(propertySchema) ? propertySchema.items : undefined,
-                  mergeSiblingReferences,
-                ) as SchemaObject | undefined)
-              : propertySchema,
-          ])
-        })
-      : []
+        return [entry[0], entry[1], itemEncoding, resolveLeafSchema(itemSchema, [entry[0]])]
+      }
+      return [undefined, item, itemEncoding, itemSchema]
+    })
+  } else if (value !== null && typeof value === 'object') {
+    entries = Object.entries(value).flatMap(([key, item]) => {
+      const propertySchema = resolveLeafSchema(schema, [key])
+      return (Array.isArray(item) ? item : [item]).map((part): (typeof entries)[number] => [
+        key,
+        part,
+        encoding.encoding?.[key],
+        Array.isArray(item)
+          ? (getResolvedRef(
+              propertySchema && isArraySchema(propertySchema) ? propertySchema.items : undefined,
+              mergeSiblingReferences,
+            ) as SchemaObject | undefined)
+          : propertySchema,
+      ])
+    })
+  }
 
   return entries.flatMap(([key, item, partEncoding, partSchema]): MultipartPart[] => {
     const style = named && hasEncodingStyle(partEncoding)

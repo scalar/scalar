@@ -132,7 +132,7 @@ Configure your site's domain, appearance, and custom assets:
 | `isPrivate`      | `boolean`           | Require visitors to sign in. See [Access Control](site-config.md#access-control)                                            |
 | `accessGroups`   | `string[]`          | Slugs of the access groups allowed to view a private site. See [Access Control](site-config.md#access-control)              |
 | `loginPortal`    | `string`            | Slug of a custom login portal for a private site. See [Access Control](site-config.md#access-control)                       |
-| `theme`          | `string`            | Visual theme (`default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `deepSpace`, `saturn`, `kepler`, `mars`) |
+| `theme`          | `string`            | Built-in theme name, path to a `.css` file, or one of your team's themes. See [Themes](themes.md)                           |
 | `logo`           | `object`            | Logo URLs for dark and light modes                                                                                          |
 | `head`           | `object`            | Custom scripts, styles, meta tags, and links                                                                                |
 | `routing`        | `object`            | URL redirects configuration                                                                                                 |

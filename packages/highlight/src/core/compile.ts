@@ -25,20 +25,26 @@ const countGroups = (src: string): number => {
       continue
     }
     if (inClass) {
-      if (c === 93 /* ] */) inClass = false
+      if (c === 93 /* ] */) {
+        inClass = false
+      }
       continue
     }
     if (c === 91 /* [ */) {
       inClass = true
       continue
     }
-    if (c !== 40 /* ( */) continue
+    if (c !== 40 /* ( */) {
+      continue
+    }
     if (src.charCodeAt(i + 1) !== 63 /* ? */) {
       count++
     } else if (src.charCodeAt(i + 2) === 60 /* < */) {
       // (?<name> captures; (?<= and (?<! are lookbehind.
       const after = src.charCodeAt(i + 3)
-      if (after !== 61 /* = */ && after !== 33 /* ! */) count++
+      if (after !== 61 /* = */ && after !== 33 /* ! */) {
+        count++
+      }
     }
   }
   return count
@@ -63,7 +69,9 @@ const flatten = (
   // `constructor` would otherwise resolve off Object.prototype and sail past
   // this check, failing later with something far less legible.
   const state = Object.hasOwn(states, name) ? states[name] : undefined
-  if (!state) throw new Error(`[${grammarName}] include of unknown state "${name}"`)
+  if (!state) {
+    throw new Error(`[${grammarName}] include of unknown state "${name}"`)
+  }
 
   const out: Rule[] = []
   for (const entry of state.rules) {

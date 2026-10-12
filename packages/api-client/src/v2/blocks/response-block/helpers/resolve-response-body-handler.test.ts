@@ -69,7 +69,7 @@ describe('resolveResponseBodyHandler', () => {
   it('skips plugins without responseBody', () => {
     const pluginWithoutHandler: ClientPlugin = {
       hooks: {
-        beforeRequest: () => {},
+        beforeRequest: () => undefined,
       },
     }
     const handler: ResponseBodyHandler = {

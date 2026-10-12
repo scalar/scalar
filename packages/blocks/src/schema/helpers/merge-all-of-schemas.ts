@@ -22,11 +22,9 @@ const mergeEnums = (
   override: boolean = false,
 ): Partial<SchemaObject> => {
   const values =
-    existing.enum === undefined
-      ? incoming.enum?.slice()
-      : incoming.enum === undefined
-        ? existing.enum.slice()
-        : existing.enum.filter((value) => incoming.enum?.some((candidate) => isObjectEqual(value, candidate)))
+    existing.enum?.filter(
+      (value) => incoming.enum === undefined || incoming.enum.some((candidate) => isObjectEqual(value, candidate)),
+    ) ?? incoming.enum?.slice()
 
   if (values === undefined) {
     return {}
@@ -78,7 +76,7 @@ export const mergeAllOfSchemas = (
 
   // Process allOf schemas first
   for (const _schema of schemas.allOf) {
-    if (!_schema || typeof _schema !== 'object') {
+    if (typeof _schema !== 'boolean' && (!_schema || typeof _schema !== 'object')) {
       continue
     }
 

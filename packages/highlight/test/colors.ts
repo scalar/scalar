@@ -56,13 +56,19 @@ function colorForClass(className: string): string | null {
   const names = className.split(/\s+/)
 
   if (names.includes('hljs-title')) {
-    if (names.includes('function_')) return 'orange'
-    if (names.includes('class_')) return 'color-1'
+    if (names.includes('function_')) {
+      return 'orange'
+    }
+    if (names.includes('class_')) {
+      return 'color-1'
+    }
   }
 
   for (const name of names) {
     const color = COLORS[name]
-    if (color) return color
+    if (color) {
+      return color
+    }
   }
 
   return null
@@ -99,10 +105,14 @@ export function colorPerCharacter(html: string): { char: string; color: string }
     if (className !== undefined) {
       stack.push(colorForClass(className) ?? stack[stack.length - 1]!)
     } else if (text === '</span>') {
-      if (stack.length > 1) stack.pop()
+      if (stack.length > 1) {
+        stack.pop()
+      }
     } else {
       const color = stack[stack.length - 1]!
-      for (const char of decodeEntities(text)) out.push({ char, color })
+      for (const char of decodeEntities(text)) {
+        out.push({ char, color })
+      }
     }
   }
 
@@ -126,9 +136,13 @@ export function colorAgreement(
   let differing = 0
 
   for (let i = 0; i < Math.min(a.length, b.length); i++) {
-    if (/\s/.test(a[i]!.char)) continue
+    if (/\s/.test(a[i]!.char)) {
+      continue
+    }
     compared++
-    if (a[i]!.color !== b[i]!.color) differing++
+    if (a[i]!.color !== b[i]!.color) {
+      differing++
+    }
   }
 
   return {

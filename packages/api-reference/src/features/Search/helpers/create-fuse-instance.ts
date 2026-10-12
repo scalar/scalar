@@ -20,6 +20,8 @@ export function createFuseInstance(): Fuse<FuseData> {
       { name: 'title', weight: 0.7 },
       // High weight - operationIds are explicit unique identifiers.
       { name: 'operationId', weight: 0.6 },
+      { name: 'identifiers', weight: 0.6 },
+      { name: 'action', weight: 0.3 },
       // Clean parameter names. Above `path` so `userId` ranks the operation that defines the param
       // higher than another operation that merely contains it in its path string.
       { name: 'parameters', weight: 0.55 },

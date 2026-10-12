@@ -16,12 +16,15 @@ const semanticTree = (node: Nodes): unknown => {
   const entries = Object.entries(node).filter(([key]) => key !== 'position' && key !== 'spread')
   return Object.fromEntries(
     entries.map(([key, value]) => {
-      if (key === 'value' && node.type === 'text') return [key, node.value.replace(/\s+/g, ' ').trim()]
+      if (key === 'value' && node.type === 'text') {
+        return [key, node.value.replace(/\s+/g, ' ').trim()]
+      }
       if (key === 'value' && node.type === 'code' && node.lang === 'json') {
         return [key, JSON.stringify(JSON.parse(node.value))]
       }
-      if (key === 'children' && 'children' in node)
+      if (key === 'children' && 'children' in node) {
         return [key, node.children.filter((child) => child.type !== 'text' || child.value.trim()).map(semanticTree)]
+      }
       return [key, value]
     }),
   )

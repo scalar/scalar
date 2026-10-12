@@ -64,13 +64,14 @@ const contextTooltipHtml = computed(() => {
   return el.innerHTML
 })
 
-const environmentTooltipText = computed(() =>
-  props.context.type === 'environment'
-    ? props.context.isDefined
-      ? props.context.value
-      : translate('apiClient.pillTooltipHost.noValue')
-    : '',
-)
+const environmentTooltipText = computed(() => {
+  if (props.context.type !== 'environment') {
+    return ''
+  }
+  return props.context.isDefined
+    ? props.context.value
+    : translate('apiClient.pillTooltipHost.noValue')
+})
 
 const targetRef = ref<HTMLElement>(props.target)
 

@@ -1,8 +1,10 @@
 import { ScalarListbox } from '@scalar/components/listbox'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { resolve } from '@scalar/workspace-store/resolve'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
@@ -18,6 +20,44 @@ const SpecificationExtension = defineComponent({
 })
 
 describe('SchemaProperty', () => {
+  it('renders a host-linked deep property anchor without adding links to its siblings', () => {
+    const options = { linkablePropertyPath: ['message', 'payload', 'metadata', 'id'] }
+    const mountProperty = (name: string): VueWrapper =>
+      mount(SchemaProperty, {
+        props: {
+          name,
+          level: 5,
+          breadcrumb: ['message', 'payload', 'metadata'],
+          schema: { type: 'string' },
+          options,
+          eventBus: null,
+        },
+      })
+    const target = mountProperty('id')
+    expect(target.get('[id="message.payload.metadata.id"]').text()).toBe('id')
+    expect(mountProperty('other').findComponent(WithBreadcrumb).exists()).toBe(false)
+  })
+
+  it.each([
+    { items: true, nested: false },
+    { items: false, nested: false },
+    { items: true, nested: true },
+    { items: false, nested: true },
+  ])('explains boolean array items ($items, nested: $nested)', ({ items, nested }) => {
+    const schema = { type: 'array', items: nested ? { type: 'array', items } : items }
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        schema: resolve.schema(schema as unknown as SchemaObject),
+        noncollapsible: true,
+        options: { expandAllSchemaProperties: true },
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain(items ? 'Accepts any value.' : 'Accepts no value.')
+    expect(schema).toStrictEqual({ type: 'array', items: nested ? { type: 'array', items } : items })
+  })
+
   it('keeps nameless noncollapsible array containers flat', () => {
     const wrapper = mount(SchemaProperty, {
       props: {
@@ -45,11 +85,12 @@ describe('SchemaProperty', () => {
         ...(variant === 'typed' ? { type: 'object' } : {}),
         allOf: [
           { type: 'object', properties: { email: { type: 'string' } }, required: ['email'] },
-          variant === 'referenced'
-            ? { $ref: '#/components/schemas/TagsLastUpdated', '$ref-value': tags }
-            : variant === 'nested'
-              ? { allOf: [tags] }
-              : tags,
+          {
+            referenced: { $ref: '#/components/schemas/TagsLastUpdated', '$ref-value': tags },
+            nested: { allOf: [tags] },
+            inline: tags,
+            typed: tags,
+          }[variant],
         ],
       })
       const wrapper = mount(SchemaProperty, {

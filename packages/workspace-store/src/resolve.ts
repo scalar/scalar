@@ -1,5 +1,6 @@
 import { Type } from '@scalar/typebox'
 
+import { getBooleanSchema } from '@/helpers/get-boolean-schema'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { compose } from '@/schemas/compose'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -23,12 +24,27 @@ type ResolvedSchema<T> = T extends undefined ? undefined : Readonly<SchemaObject
  * scope. `resolve.schema` runs once per property of every schema a render walks, and rebuilding the
  * composite per call dominated that walk.
  */
-const resolvedSchemaSchema = compose(SchemaObjectSchema, Type.Object({ $ref: Type.Optional(Type.String()) }))
+// Rendering also consumes AsyncAPI schemas. Keep boolean children intact until their own rows
+// resolve them, without widening the object-based OpenAPI document validation types.
+const displaySchemaObject = {
+  ...SchemaObjectSchema,
+  $defs: {
+    ...SchemaObjectSchema.$defs,
+    SchemaObject: Type.Union([SchemaObjectSchema.$defs.SchemaObject, Type.Boolean()]),
+  },
+}
+const resolvedSchemaSchema = compose(displaySchemaObject, Type.Object({ $ref: Type.Optional(Type.String()) }))
 
 export const resolve = {
-  schema: <T extends MaybeRefSchemaObject | undefined>(schema: T): ResolvedSchema<T> => {
+  schema: <T extends MaybeRefSchemaObject | boolean | undefined>(schema: T): ResolvedSchema<T> => {
     if (schema === undefined) {
       return undefined as ResolvedSchema<T>
+    }
+
+    // Resolve boolean targets before merging siblings, which assumes an object target.
+    const target = getResolvedRef(schema)
+    if (typeof target === 'boolean') {
+      return getBooleanSchema(target) as ResolvedSchema<T>
     }
 
     const resoled = getResolvedRef(schema, mergeSiblingReferences)

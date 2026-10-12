@@ -341,6 +341,9 @@ export const zhTw = {
     'body': '主體',
   },
   'requestParams': {
+    'addParameter': '新增參數',
+    'searchParameters': '搜尋參數',
+    'noParametersFound': '沒有符合的參數',
     'clearAll': '清除所有{title}',
     'clear': '清除',
     'clearOptionalParameters': '清除選填參數',

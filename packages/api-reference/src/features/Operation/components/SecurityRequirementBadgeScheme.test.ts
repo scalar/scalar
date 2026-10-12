@@ -27,6 +27,16 @@ describe('SecurityRequirementBadgeScheme', () => {
     wrapper.unmount()
   })
 
+  it('explains an AsyncAPI HTTP API key', () => {
+    const wrapper = mount(SecurityRequirementBadgeScheme, {
+      props: {
+        scheme: { name: 'Inline key', scheme: { type: 'httpApiKey', in: 'header', name: 'X-Events-Key' }, scopes: [] },
+      },
+    })
+    expect(wrapper.get('p').text()).toBe('Send the API key in the “X-Events-Key” header.')
+    wrapper.unmount()
+  })
+
   it('renders the author description as Markdown', () => {
     const wrapper = mount(SecurityRequirementBadgeScheme, {
       props: {
@@ -53,6 +63,8 @@ describe('SecurityRequirementBadgeScheme', () => {
     [{ type: 'oauth2', flows: {} }, 'OAuth 2.0'],
     [{ type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' }, 'OpenID Connect'],
     [{ type: 'mutualTLS' }, 'Mutual TLS'],
+    [{ type: 'userPassword' }, 'userPassword'],
+    [{ type: 'apiKey', in: 'user' }, 'API key'],
   ] satisfies [RequiredSecurityScheme['scheme'], string][])(
     'labels %j without API key instructions',
     (scheme, label) => {

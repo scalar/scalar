@@ -65,7 +65,7 @@ describe('get-xml-example', () => {
   })
 
   it('reports a failed serialization when consumers only read xml', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       expect(
         serializeXmlExample('value', schema({ type: 'string', xml: { name: '1invalid' } }), compact).xml,
@@ -88,7 +88,7 @@ describe('get-xml-example', () => {
 
   it('allows consumers to handle diagnostics without console output', () => {
     const onDiagnostic = vi.fn()
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
       const result = serializeXmlExample('value', schema({ type: 'string', xml: { name: '1invalid' } }), {
         ...compact,
