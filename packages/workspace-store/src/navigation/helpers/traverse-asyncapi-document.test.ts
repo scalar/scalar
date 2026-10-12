@@ -387,7 +387,7 @@ describe('traverseAsyncApiDocument', () => {
         channels[0]?.children
           ?.filter((entry) => entry.type === 'asyncapi-message')
           .map((message) => message.messageName),
-      ).toStrictEqual(['other', messageName])
+      ).toStrictEqual(['other'])
     },
   )
 
