@@ -2,7 +2,7 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { objectKeys } from '@scalar/helpers/object/object-keys'
 import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 
 import { normalizeProtocol } from './build-connection-url'
 import { resolveOperationChannel } from './resolve-operation-channel'
@@ -27,7 +27,7 @@ const getServerProtocols = (document: AsyncApiDocument): Map<string, string> => 
   const protocols = new Map<string, string>()
 
   for (const [name, serverNode] of objectEntries(document.servers ?? {})) {
-    const protocol = normalizeProtocol(getResolvedRef(serverNode)?.protocol)
+    const protocol = normalizeProtocol(getResolvedAsyncApiRef(serverNode)?.protocol)
     if (protocol) {
       protocols.set(name, protocol)
     }
@@ -70,7 +70,7 @@ export type AsyncApiServerOption = {
  */
 export const getAsyncApiServerOptions = (document: AsyncApiDocument): AsyncApiServerOption[] => {
   const options: AsyncApiServerOption[] = objectEntries(document.servers ?? {}).map(([name, serverNode]) => {
-    const protocol = normalizeProtocol(getResolvedRef(serverNode)?.protocol)
+    const protocol = normalizeProtocol(getResolvedAsyncApiRef(serverNode)?.protocol)
     return { id: name, label: protocol ? `${name} (${protocol})` : name }
   })
 

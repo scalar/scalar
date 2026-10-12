@@ -11,7 +11,7 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { iterateTitle } from '@scalar/helpers/string/iterate-title'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
@@ -37,7 +37,7 @@ const availableExamples = computed(() => {
       ? examples
       : [...examples, { name: 'Generated example', payload: generatedPayload }]
   const entries = candidates.flatMap((value, index) => {
-    const example = getResolvedRef(value)
+    const example = getResolvedAsyncApiRef(value)
     if (
       !example ||
       (example.headers === undefined && example.payload === undefined)

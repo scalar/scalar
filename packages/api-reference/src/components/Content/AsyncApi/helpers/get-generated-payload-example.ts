@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
@@ -8,7 +8,7 @@ import { getAsyncApiMessagePayloadSchema } from '@/helpers/get-async-api-message
 
 /** An allOf containing a false schema cannot have a valid example. */
 const hasFalseAllOfMember = (source: unknown, seen = new Set<unknown>()): boolean => {
-  const schema = getResolvedRef(source)
+  const schema = getResolvedAsyncApiRef(source)
   if (schema === false) {
     return true
   }
@@ -21,15 +21,15 @@ const hasFalseAllOfMember = (source: unknown, seen = new Set<unknown>()): boolea
 
 /** Generate a payload only when the document does not already provide one. */
 export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unknown => {
-  if (message.examples?.some((example) => getResolvedRef(example)?.payload !== undefined)) {
+  if (message.examples?.some((example) => getResolvedAsyncApiRef(example)?.payload !== undefined)) {
     return undefined
   }
 
-  const payload = getResolvedRef(message.payload)
+  const payload = getResolvedAsyncApiRef(message.payload)
   // Boolean schemas describe validation, but do not suggest a representative payload.
   if (
     typeof payload === 'boolean' ||
-    (isObject(payload) && 'schemaFormat' in payload && typeof getResolvedRef(payload.schema) === 'boolean')
+    (isObject(payload) && 'schemaFormat' in payload && typeof getResolvedAsyncApiRef(payload.schema) === 'boolean')
   ) {
     return undefined
   }

@@ -1,6 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getBooleanSchema } from '@scalar/workspace-store/helpers/get-boolean-schema'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import { getAsyncApiSchemaView } from '@scalar/workspace-store/helpers/get-async-api-schema-view'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Keep non-JSON schema languages out of JSON Schema rendering and traversal. */
@@ -29,9 +30,9 @@ type AsyncApiSchema = { kind: 'schema'; schema: SchemaObject } | { kind: 'source
 
 /** Resolve the wrapper and its schema without discarding the declared schema language. */
 export const resolveAsyncApiSchema = (value: unknown): AsyncApiSchema | undefined => {
-  const resolved = getResolvedRef(value)
+  const resolved = getResolvedAsyncApiRef(value)
   const wrapped = isObject(resolved) && 'schemaFormat' in resolved
-  const schema = wrapped ? getResolvedRef(resolved.schema) : resolved
+  const schema = wrapped ? getResolvedAsyncApiRef(resolved.schema) : resolved
   if (schema === undefined) {
     return undefined
   }
@@ -41,6 +42,7 @@ export const resolveAsyncApiSchema = (value: unknown): AsyncApiSchema | undefine
   if (typeof schema === 'boolean') {
     return { kind: 'schema', schema: getBooleanSchema(schema) }
   }
+  const view = getAsyncApiSchemaView(schema, wrapped ? String(resolved.schemaFormat) : undefined)
   // AsyncAPI and OpenAPI schemas share the object renderer, whose type requires a `type` field.
-  return isObject(schema) ? { kind: 'schema', schema: schema as SchemaObject } : undefined
+  return isObject(view) ? { kind: 'schema', schema: view as SchemaObject } : undefined
 }

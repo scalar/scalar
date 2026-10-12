@@ -13,7 +13,7 @@ import {
   isWebSocketProtocol,
 } from '@/channel-example/build-connection-url'
 import { getNameFromRef } from '@/helpers/get-name-from-ref'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import type { WorkspaceDocument } from '@/schemas/workspace'
 
@@ -44,7 +44,7 @@ export type AsyncApiServerEntry = {
 }
 
 const resolveServer = (server: NonNullable<AsyncApiDocument['servers']>[string]): AsyncApiServerObject | undefined =>
-  getResolvedRef(server)
+  getResolvedAsyncApiRef(server)
 
 const getServerNameFromRef = (ref: string): string | undefined => getNameFromRef(ref, ['servers'])
 

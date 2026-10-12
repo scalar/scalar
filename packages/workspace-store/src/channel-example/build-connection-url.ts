@@ -9,7 +9,7 @@ import type {
   AsyncApiWsBindingObject,
 } from '@scalar/types/asyncapi/3.1'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 
 /** AsyncAPI server protocols supported for WebSocket connections in the API client MVP. */
 export const ASYNCAPI_WEBSOCKET_PROTOCOLS = ['ws', 'wss'] as const
@@ -40,7 +40,7 @@ export const getAsyncApiServerVariables = (server: AsyncApiServerObject | null):
   }
 
   return objectEntries(server.variables).reduce<Record<string, string>>((acc, [name, variable]) => {
-    const resolved = getResolvedRef(variable)
+    const resolved = getResolvedAsyncApiRef(variable)
     if (resolved?.default != null) {
       acc[String(name)] = String(resolved.default)
     }
@@ -110,7 +110,7 @@ const resolveWsBinding = (
     return undefined
   }
 
-  const resolved = getResolvedRef(bindings)
+  const resolved = getResolvedAsyncApiRef(bindings)
   return resolved?.ws
 }
 
@@ -141,7 +141,7 @@ const resolveWsQuerySchema = (query: AsyncApiWsBindingObject['query']): WsQueryS
     return undefined
   }
 
-  const resolved = getResolvedRef(query)
+  const resolved = getResolvedAsyncApiRef(query)
   if (resolved === true || resolved === false || !isObject(resolved)) {
     return undefined
   }

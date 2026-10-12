@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { getResolvedRef } from './get-resolved-ref'
+import { getResolvedAsyncApiRef } from './get-resolved-async-api-ref'
 
 type MergeContext = 'object' | 'map' | 'data' | 'reference'
 
@@ -40,7 +40,7 @@ const mergeTraitFields = (
   }
 
   const resolvedPatch =
-    context === 'object' && isObject(patch) && typeof patch.$ref === 'string' ? getResolvedRef(patch) : patch
+    context === 'object' && isObject(patch) && typeof patch.$ref === 'string' ? getResolvedAsyncApiRef(patch) : patch
   if (!isObject(resolvedPatch)) {
     return resolvedPatch
   }
@@ -50,7 +50,9 @@ const mergeTraitFields = (
     return ancestors.get(resolvedPatch)
   }
   const resolvedTarget =
-    context === 'object' && isObject(target) && typeof target.$ref === 'string' ? getResolvedRef(target) : target
+    context === 'object' && isObject(target) && typeof target.$ref === 'string'
+      ? getResolvedAsyncApiRef(target)
+      : target
   const result: Record<string, unknown> = isObject(resolvedTarget) ? { ...resolvedTarget } : {}
   ancestors.set(resolvedPatch, result)
   for (const [key, value] of Object.entries(resolvedPatch)) {
@@ -79,7 +81,7 @@ export const resolveTraits = <T extends object>(target: T, traits: readonly obje
   }
 
   const inherited = traits.reduce<Record<string, unknown>>((fields, trait) => {
-    const resolved = getResolvedRef(trait)
+    const resolved = getResolvedAsyncApiRef(trait)
     return resolved ? (mergeTraitFields(fields, resolved) as Record<string, unknown>) : fields
   }, {})
 

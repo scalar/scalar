@@ -78,6 +78,26 @@ describe('create-async-api-search-entry', () => {
     },
   )
 
+  it('indexes the schema target without sibling descriptions or properties', () => {
+    const document = createDocument({
+      payload: {
+        $ref: '#/components/schemas/Target',
+        '$ref-value': { type: 'object', description: 'Target description', properties: { actual: { type: 'string' } } },
+        description: 'Ignored description',
+        properties: { ignored: { type: 'string' } },
+      },
+    } as unknown as AsyncApiMessageObject)
+    const entry = createAsyncApiSearchEntry(document, {
+      type: 'asyncapi-message',
+      id: 'message',
+      title: 'Account created',
+      channelName: 'accountEvents',
+      messageName: 'accountCreated',
+    })
+    expect(entry?.body).toStrictEqual(['actual'])
+    expect(entry?.bodyDescriptions).toStrictEqual(['Signup notification', 'Target description'])
+  })
+
   it('finds channels, parameters, operations, messages and inherited descriptions', () => {
     const document = createDocument()
     for (const [term, title] of [
