@@ -1,5 +1,17 @@
 # @scalar/blocks
 
+## 0.5.2
+
+### Patch Changes
+
+- [#10554](https://github.com/scalar/scalar/pull/10554): Render AsyncAPI boolean schemas with explanations in message payloads, headers, and reusable models.
+- [#10559](https://github.com/scalar/scalar/pull/10559): Clean up Biome warnings in package code and tests. Handle rejected debounced callbacks and await streaming writes.
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10550](https://github.com/scalar/scalar/pull/10550): Display AsyncAPI message correlation ID descriptions and runtime expressions, with links to identifiable header and payload fields.
+- [#10534](https://github.com/scalar/scalar/pull/10534): feat(api-reference): add Generate SDK buttons to the developer tools, client libraries and request examples that open the Explore Scalar dialog when running locally and the document does not list its own SDKs
+- [#10555](https://github.com/scalar/scalar/pull/10555): Keep expanded query parameter checkboxes independent and preserve disabled field values while excluding them from requests.
+- [#10508](https://github.com/scalar/scalar/pull/10508): Add built-in Traditional Chinese (Taiwan) translations for `zh-TW`, including case and underscore variants, across API Reference, API Client, and schema blocks.
+
 ## 0.5.1
 
 ### Patch Changes

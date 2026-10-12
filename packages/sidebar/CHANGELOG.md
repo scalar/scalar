@@ -1,5 +1,15 @@
 # @scalar/sidebar
 
+## 0.12.0
+
+### Minor Changes
+
+- [#10570](https://github.com/scalar/scalar/pull/10570): Make modern sidebar tag groups and nested parent tags collapsible by default, using the same controls as ordinary tags. Reveal ancestor tags when scrolling to a different operation.
+
+### Patch Changes
+
+- [#10559](https://github.com/scalar/scalar/pull/10559): Clean up Biome warnings in package code and tests. Handle rejected debounced callbacks and await streaming writes.
+
 ## 0.11.13
 
 ## 0.11.12

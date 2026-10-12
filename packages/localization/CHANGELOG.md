@@ -1,5 +1,11 @@
 # @scalar/localization
 
+## 0.2.7
+
+### Patch Changes
+
+- [#10508](https://github.com/scalar/scalar/pull/10508): Add built-in Traditional Chinese (Taiwan) translations for `zh-TW`, including case and underscore variants, across API Reference, API Client, and schema blocks.
+
 ## 0.2.6
 
 ## 0.2.5

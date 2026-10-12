@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 3.23.0
+
+### Minor Changes
+
+- [#10555](https://github.com/scalar/scalar/pull/10555): Show empty optional fields of expanded object query parameters in a searchable Add parameter picker.
+
+### Patch Changes
+
+- [#10551](https://github.com/scalar/scalar/pull/10551): Show **Reset to default** on authentication fields only when the field has a default that differs from its current value (the document or configured value, or the current page URL for the OAuth2 redirect URL). A cleared OAuth2 access token keeps the action so you can get back to the Authorize form. The show password toggle only appears once a field has a value, and an emptied field goes back to masked.
+- [#10559](https://github.com/scalar/scalar/pull/10559): Clean up Biome warnings in package code and tests. Handle rejected debounced callbacks and await streaming writes.
+- [#10555](https://github.com/scalar/scalar/pull/10555): Keep expanded query parameter checkboxes independent and preserve disabled field values while excluding them from requests.
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+- [#10534](https://github.com/scalar/scalar/pull/10534): Keep **Authorize via OAuth2** rightmost in the bearer token's "Get a token" row, with the settings gear to its left and **Refresh** in between, so the button never moves when Refresh appears.
+- [#10547](https://github.com/scalar/scalar/pull/10547): Respect Max-Age precedence over Expires when persisting response cookies.
+- [#10508](https://github.com/scalar/scalar/pull/10508): Add built-in Traditional Chinese (Taiwan) translations for `zh-TW`, including case and underscore variants, across API Reference, API Client, and schema blocks.
+
 ## 3.22.0
 
 ### Minor Changes
