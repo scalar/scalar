@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.17.6 (2026-10-12)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0176)
+
 ## 0.17.0 (2026-09-25)
 
 ### Schema-aware XML generation and AsyncAPI security hardening

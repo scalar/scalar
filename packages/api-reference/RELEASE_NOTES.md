@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.74.0 (2026-10-12)
+
+### AsyncAPI documentation improvements and SDK generation tools
+
+This release brings major improvements to AsyncAPI support, including complete channel and message documentation, better trait inheritance, and full-document search. Local development now includes SDK generation tools alongside the existing MCP workflow.
+
+- Search AsyncAPI channels, operations, messages, parameters, and nested payload fields by name or description
+- Document all channel messages including those not referenced by operations, with server and protocol filtering
+- Make modern sidebar tag groups and nested parent tags collapsible by default, revealing ancestors when navigating
+- Add Generate SDK buttons to developer tools, client libraries, and request examples when running on localhost
+- Show an Explore Scalar call to action in the sidebar footer on localhost with expandable card and demo booking dialog
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1740)
+
 ## 1.73.0 (2026-10-05)
 
 ### Featured client tabs, visible extensions, and better schema composition
