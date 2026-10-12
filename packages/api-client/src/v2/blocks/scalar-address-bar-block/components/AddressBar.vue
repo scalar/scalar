@@ -478,7 +478,7 @@ defineExpose({
     to the URL they act on rather than floating beside it.
   -->
   <div
-    class="order-last flex h-auto w-full max-w-3xl grow-3 flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl:order-0 @3xl:flex-nowrap">
+    class="order-last flex h-auto w-full max-w-3xl grow-3 flex-wrap items-stretch [--scalar-address-bar-height:32px] @3xl/scalar-address-bar:order-0 @3xl/scalar-address-bar:flex-nowrap">
     <!-- Address Bar -->
     <div
       :id="id"
@@ -582,9 +582,10 @@ defineExpose({
         </div>
       </div>
 
+      <!-- Hide only below the breakpoint to avoid host-page `.hidden` rules. -->
       <ScalarButton
         ref="sendButtonRef"
-        class="relative hidden h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold @3xl:flex"
+        class="relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold @max-3xl/scalar-address-bar:hidden"
         data-addressbar-action="send"
         :disabled="isLoading || executionDisabled"
         @click="emit('execute')">
@@ -617,7 +618,7 @@ defineExpose({
     -->
     <ScalarButton
       ref="mobileSendButtonRef"
-      class="relative mt-2 h-(--scalar-address-bar-height) w-full shrink-0 justify-center overflow-hidden py-1 font-bold @3xl:hidden"
+      class="relative mt-2 h-(--scalar-address-bar-height) w-full shrink-0 justify-center overflow-hidden py-1 font-bold @3xl/scalar-address-bar:hidden"
       data-addressbar-action="send"
       :disabled="isLoading || executionDisabled"
       @click="emit('execute')">

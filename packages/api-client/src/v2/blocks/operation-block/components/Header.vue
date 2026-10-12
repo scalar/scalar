@@ -99,14 +99,16 @@ const handleAddEnvironment = () => {
 
 <template>
   <!--
-    `@container` declares an unnamed container so the AddressBar can
+    `@container/scalar-address-bar` lets the AddressBar
     adapt to the right column's actual width (which shrinks when the
     sidebar opens) instead of the viewport. The query is declared here
     on the parent rather than on the AddressBar itself so the bar's
-    `w-full` mobile state cannot feed back into its own breakpoint.
+    `w-full` mobile state cannot feed back into its own breakpoint. Naming
+    it keeps both Send buttons on the same breakpoint when host CSS adds
+    another query container inside the bar.
   -->
   <div
-    class="lg:min-h-header t-app__top-container @container flex w-full flex-wrap items-center justify-center p-2">
+    class="lg:min-h-header t-app__top-container @container/scalar-address-bar flex w-full flex-wrap items-center justify-center p-2">
     <!-- Left spacer to center bar -->
     <div class="flex flex-1"></div>
     <AddressBar
@@ -130,7 +132,8 @@ const handleAddEnvironment = () => {
       @select:history:item="(payload) => emit('select:history:item', payload)"
       @update:webhook-url="(value) => emit('update:webhook-url', value)" />
 
-    <div class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl:mb-0">
+    <div
+      class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl/scalar-address-bar:mb-0">
       <!--
         Environment Selector
         Hidden for `modal` layout

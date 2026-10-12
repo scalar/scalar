@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Embedded API client</title>
+    <meta charset="utf-8" />
+    <style>
+      #host {
+        width: 1200px;
+        max-width: 95vw;
+      }
+      #reference {
+        container-type: inline-size;
+      }
+    </style>
+  </head>
+  <body>
+    <dialog id="host"><div id="reference"></div></dialog>
+    <script type="module">
+      import { createApiReference } from '/dist/browser/standalone.esm.js'
+
+      document.querySelector('#host').showModal()
+      createApiReference('#reference', {
+        content: {
+          openapi: '3.1.0',
+          info: { title: 'Embedded API', version: '1.0.0' },
+          servers: [{ url: 'https://api.example.test' }],
+          paths: {
+            '/ping': { get: { responses: { 200: { description: 'OK' } } } },
+          },
+        },
+      })
+    </script>
+  </body>
+</html>
