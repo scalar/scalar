@@ -167,6 +167,14 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension">
       <template #title>Parameters</template>
+      <template #parameter-details="{ parameter }">
+        <div
+          v-if="parameter.location"
+          class="text-c-2 mb-2 text-sm">
+          Location:
+          <code class="font-code break-all">{{ parameter.location }}</code>
+        </div>
+      </template>
     </ParameterList>
     <SectionHeaderTag
       v-if="operations.length"
@@ -237,6 +245,14 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension">
           <template #title>Parameters</template>
+          <template #parameter-details="{ parameter }">
+            <div
+              v-if="parameter.location"
+              class="text-c-2 mb-2 text-sm">
+              Location:
+              <code class="font-code break-all">{{ parameter.location }}</code>
+            </div>
+          </template>
         </ParameterList>
         <SectionHeaderTag
           v-if="operations.length"

@@ -1,6 +1,9 @@
-import type { AsyncApiChannelObject } from '@scalar/types/asyncapi/3.1'
+import type { AsyncApiChannelObject, AsyncApiParameterObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { ParameterObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+
+/** Preserve AsyncAPI metadata without adding it to the OpenAPI parameter schema. */
+type AdaptedAsyncApiParameter = ParameterObject & Pick<AsyncApiParameterObject, 'location'>
 
 /**
  * Adapt AsyncAPI channel parameters into the OpenAPI `ParameterObject` shape so we can reuse the
@@ -10,9 +13,11 @@ import type { ParameterObject, SchemaObject } from '@scalar/workspace-store/sche
  * They are string-only and, because every placeholder in the address must be supplied, always
  * required. We therefore map them to `path` parameters (the closest OpenAPI analog) and fold the
  * `enum`, `default`, and `examples` fields onto a synthetic string schema so the schema renderer
- * can display them. The `location` runtime expression has no display equivalent and is dropped.
+ * can display them. Keep `location` separately so the channel can render its runtime expression.
  */
-export const adaptAsyncApiParameters = (parameters: AsyncApiChannelObject['parameters']): ParameterObject[] => {
+export const adaptAsyncApiParameters = (
+  parameters: AsyncApiChannelObject['parameters'],
+): AdaptedAsyncApiParameter[] => {
   if (!parameters) {
     return []
   }
@@ -32,7 +37,7 @@ export const adaptAsyncApiParameters = (parameters: AsyncApiChannelObject['param
       schema.examples = parameter.examples
     }
 
-    const result: ParameterObject = {
+    const result: AdaptedAsyncApiParameter = {
       name,
       in: 'path',
       required: true,
@@ -40,6 +45,10 @@ export const adaptAsyncApiParameters = (parameters: AsyncApiChannelObject['param
     }
     if (parameter.description) {
       result.description = parameter.description
+    }
+
+    if (parameter.location !== undefined) {
+      result.location = parameter.location
     }
 
     return result
