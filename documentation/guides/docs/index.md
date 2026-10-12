@@ -67,7 +67,7 @@ Every published site serves [`/llms.txt` and `/llms-full.txt`](configuration/llm
 
 If your API is not documented yet, begin with the framework you already use: [.NET](/docs-for/dotnet), [FastAPI](/docs-for/fastapi), [NestJS](/docs-for/nestjs), or [Hono](/docs-for/hono). New to OpenAPI? The [learn hub](/learn) covers the basics.
 
-[Start free](https://dashboard.scalar.com/register) with a hosted subdomain, or [book a demo](https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a) to plan a migration.
+[Start a free 7-day trial](https://dashboard.scalar.com/register) and publish to a hosted subdomain, or [book a demo](https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a) to plan a migration.
 
 <div class="feature">
   <h2>Your documentation, always up to date</h2>
@@ -149,9 +149,11 @@ Ready to build? Follow the [Getting Started guide](getting-started.md) to publis
 
 | Feature | Free | Pro | Enterprise |
 | ------- | ---- | --- | ---------- |
-| Subdomains, API references, themes, email domain access | Included | Included | Included |
+| Subdomains, API references, themes, email domain access | - | Included | Included |
 | Custom domains, guides, versions, Git Sync, Markdown, MDX, and landing pages | - | Included | Included |
 | SSO/SAML, RBAC, priority support, and dedicated Slack or Teams support | - | - | Included |
+
+Publishing a Docs site needs a paid plan. Every new team starts with a 7-day trial that includes Docs publishing.
 
 [See the full comparison](../pricing.md) for Docs and the other Scalar products.
 
@@ -174,7 +176,7 @@ It is a tool that publishes everything a developer needs to use your API in one 
 
 <scalar-detail title="Is there a free plan?">
 
-Yes. The Free plan includes a Scalar subdomain, API references, themes, and landing pages for up to 3 APIs. Custom domains, Git Sync, Markdown, and MDX start on Pro at $150 per month. See [pricing](/pricing) for every plan.
+Every new team starts with a free 7-day trial that includes Docs publishing. After the trial, publishing a Docs site needs a paid plan, starting with Pro at $150 per month, which adds custom domains, Git Sync, Markdown, and MDX. See [pricing](/pricing) for every plan.
 
 </scalar-detail>
 
