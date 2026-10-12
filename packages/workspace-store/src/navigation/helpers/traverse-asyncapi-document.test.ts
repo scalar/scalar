@@ -339,6 +339,92 @@ describe('traverseAsyncApiDocument', () => {
     ])
   })
 
+  it.each([
+    {
+      channelName: 'events/tenant',
+      channelRef: 'events~1tenant',
+      messageName: 'created/v1',
+      messageRef: 'created~1v1',
+    },
+    {
+      channelName: 'events~tenant',
+      channelRef: 'events~0tenant',
+      messageName: 'created~v1',
+      messageRef: 'created~0v1',
+    },
+    { channelName: 'events/~1', channelRef: 'events~1~01', messageName: 'created/~1', messageRef: 'created~1~01' },
+    { channelName: 'events', channelRef: 'events', messageName: 'created/v1', messageRef: 'created~1v1' },
+    { channelName: 'events/tenant', channelRef: 'events~1tenant', messageName: 'created', messageRef: 'created' },
+  ])(
+    'resolves escaped channel and message keys $channelName / $messageName',
+    ({ channelName, channelRef, messageName, messageRef }) => {
+      const document = {
+        asyncapi: '3.0.0',
+        info: { title: 'Escaped Identifiers API', version: '1.0.0' },
+        'x-scalar-original-document-hash': 'escaped-identifiers-fixture',
+        channels: {
+          [channelName]: {
+            messages: {
+              [messageName]: { title: 'Selected message' },
+              other: { title: 'Other message' },
+            },
+          },
+        },
+        operations: {
+          listen: {
+            action: 'receive',
+            channel: { $ref: `#/channels/${channelRef}` },
+            messages: [{ $ref: `#/channels/${channelRef}/messages/${messageRef}` }],
+          },
+        },
+      } satisfies AsyncApiDocument
+
+      const result = traverseAsyncApiDocument('escaped', document, mockOptions)
+      const channels = collectAsyncApiChannels(result.children)
+      const operations = collectAsyncApiOperations(result.children)
+
+      expect(channels.map((channel) => channel.channelName)).toStrictEqual([channelName])
+      expect(operations.map((operation) => [operation.operationName, operation.channelName])).toStrictEqual([
+        ['listen', channelName],
+      ])
+      expect(
+        collectAsyncApiMessages(operations[0]?.children).map((message) => [message.channelName, message.messageName]),
+      ).toStrictEqual([[channelName, messageName]])
+      expect(
+        channels[0]?.children
+          ?.filter((entry) => entry.type === 'asyncapi-message')
+          .map((message) => message.messageName),
+      ).toStrictEqual(['other', messageName])
+    },
+  )
+
+  it.each([
+    '#/channels/other/messages/created~1v1',
+    '#/channels/events~1tenant/messages/created~1v1/extra',
+    '#/channels/events~1tenant/messages/missing',
+  ])('excludes an operation message with an unmatched reference %s', (messageRef) => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Unmatched References API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'unmatched-references-fixture',
+      channels: {
+        'events/tenant': { messages: { 'created/v1': { title: 'Created' } } },
+      },
+      operations: {
+        listen: {
+          action: 'receive',
+          channel: { $ref: '#/channels/events~1tenant' },
+          messages: [{ $ref: messageRef }],
+        },
+      },
+    } satisfies AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('unmatched', document, mockOptions)
+    const operations = collectAsyncApiOperations(result.children)
+    expect(operations.map((operation) => operation.operationName)).toStrictEqual(['listen'])
+    expect(operations[0]?.children).toBeUndefined()
+  })
+
   it('ignores operation-level tags and keeps the channel at the document root', () => {
     const document = {
       asyncapi: '3.0.0',
