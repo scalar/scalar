@@ -127,6 +127,33 @@ const collectAsyncApiMessages = (children: TraversedEntry[] | undefined): Traver
   collectEntries(children, 'asyncapi-message')
 
 describe('traverseAsyncApiDocument', () => {
+  it('uses inherited operation titles and summaries in navigation', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1.0.0' },
+      'x-scalar-original-document-hash': '',
+      channels: { events: { address: 'events' } },
+      operations: {
+        send: {
+          action: 'send',
+          channel: { $ref: '#/channels/events' },
+          traits: [{ $ref: '#/components/operationTraits/common', '$ref-value': { title: 'Inherited title' } }],
+        },
+        receive: {
+          action: 'receive',
+          channel: { $ref: '#/channels/events' },
+          traits: [{ summary: 'Inherited summary' }],
+        },
+      },
+    } satisfies AsyncApiDocument
+
+    const navigation = traverseAsyncApiDocument('events', document)
+    expect(collectAsyncApiOperations(navigation.children).map(({ title }) => title)).toStrictEqual([
+      'Inherited title',
+      'Inherited summary',
+    ])
+  })
+
   it.each([undefined, []])('keeps channels with no operations and their visible messages with tags %j', (tags) => {
     const document = {
       asyncapi: '3.1.0',
