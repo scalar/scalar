@@ -170,9 +170,12 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       <template #parameter-details="{ parameter }">
         <div
           v-if="parameter.location"
-          class="text-c-2 mb-2 text-sm">
+          class="text-c-2 mb-2 font-sans text-(length:--scalar-small) leading-[1.625]">
           Location:
-          <code class="font-code break-all">{{ parameter.location }}</code>
+          <code
+            class="bg-b-2 shadow-border font-code rounded box-decoration-clone px-0.75 text-(length:--scalar-micro) break-all"
+            >{{ parameter.location }}</code
+          >
         </div>
       </template>
     </ParameterList>
@@ -248,9 +251,12 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           <template #parameter-details="{ parameter }">
             <div
               v-if="parameter.location"
-              class="text-c-2 mb-2 text-sm">
+              class="text-c-2 mb-2 font-sans text-(length:--scalar-small) leading-[1.625]">
               Location:
-              <code class="font-code break-all">{{ parameter.location }}</code>
+              <code
+                class="bg-b-2 shadow-border font-code rounded box-decoration-clone px-0.75 text-(length:--scalar-micro) break-all"
+                >{{ parameter.location }}</code
+              >
             </div>
           </template>
         </ParameterList>
