@@ -286,7 +286,6 @@ const handleSelect = (event: MouseEvent) => {
     :data-sidebar-id="item.id"
     v-bind="draggableAttrs"
     :discrete="isDiscrete"
-    :indentChildren="!isGroup(item)"
     :open="isExpanded(item.id)"
     v-on="draggableEvents">
     <template #button="{ open, level }">

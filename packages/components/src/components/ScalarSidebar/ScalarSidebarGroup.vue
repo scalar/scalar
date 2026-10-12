@@ -39,7 +39,6 @@ import { useSidebarGroups } from './useSidebarGroups'
 const {
   controlled,
   discrete,
-  indentChildren = true,
   is = 'li',
 } = defineProps<ScalarSidebarGroupProps>()
 
@@ -58,7 +57,7 @@ const open = defineModel<boolean>('open', { default: false })
 
 defineSlots<ScalarSidebarGroupSlots>()
 
-const { level } = useSidebarGroups({ increment: indentChildren })
+const { level } = useSidebarGroups({ increment: true })
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()

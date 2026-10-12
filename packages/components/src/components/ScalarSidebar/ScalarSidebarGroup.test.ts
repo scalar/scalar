@@ -51,42 +51,6 @@ describe('ScalarSidebarGroup', () => {
     expect(allButtons[1]?.props('indent')).toBe(1) // Item button (one level deeper)
   })
 
-  it('keeps a collapsible section aligned within an indented group', async () => {
-    const wrapper = mount(
-      defineComponent({
-        components: { ScalarSidebarGroup, ScalarSidebarItem },
-        template: `
-        <ScalarSidebarGroup open>
-          Outer group
-          <template #items>
-            <ScalarSidebarGroup :indentChildren="false">
-              Section
-              <template #items>
-                <ScalarSidebarGroup open>
-                  Nested group
-                  <template #items>
-                    <ScalarSidebarItem>Item</ScalarSidebarItem>
-                  </template>
-                </ScalarSidebarGroup>
-              </template>
-            </ScalarSidebarGroup>
-          </template>
-        </ScalarSidebarGroup>
-      `,
-      }),
-    )
-
-    const sectionButton = wrapper.findAllComponents(ScalarSidebarButton)[1]!
-    await sectionButton.trigger('click')
-    expect(sectionButton.attributes('aria-expanded')).toBe('true')
-    expect(wrapper.findAllComponents(ScalarSidebarButton).map((button) => button.props('indent'))).toStrictEqual([
-      0, 1, 1, 2,
-    ])
-    await sectionButton.trigger('click')
-    expect(sectionButton.attributes('aria-expanded')).toBe('false')
-    expect(wrapper.text()).not.toContain('Nested group')
-  })
-
   it('allows a group to be controlled externally', async () => {
     const TestComponent = defineComponent({
       components: { ScalarSidebarGroup, ScalarSidebarItem },

@@ -64,16 +64,18 @@ for (const { name, content, ancestors } of documents) {
         'true',
       )
     }
-    // Parent sections retain the horizontal space available before they were collapsible.
-    const rootLink = sidebar.getByRole('link', { name: ancestors[0], exact: true })
-    const rootBounds = await rootLink.getByText(ancestors[0]!, { exact: true }).boundingBox()
-    expect(rootBounds).not.toBeNull()
-    const firstChildBounds = await sidebar
+    // Indentation makes the parent-child relationship visible when a group opens.
+    const parentBounds = await sidebar
+      .getByRole('link', { name: ancestors[0], exact: true })
+      .getByText(ancestors[0]!, { exact: true })
+      .boundingBox()
+    const childBounds = await sidebar
       .getByRole('link', { name: ancestors[1], exact: true })
       .getByText(ancestors[1]!, { exact: true })
       .boundingBox()
-    expect(firstChildBounds).not.toBeNull()
-    expect(firstChildBounds!.x).toBe(rootBounds!.x)
+    expect(parentBounds).not.toBeNull()
+    expect(childBounds).not.toBeNull()
+    expect(childBounds!.x).toBeGreaterThan(parentBounds!.x)
 
     const operation = sidebar.getByRole('link', { name: 'List items HTTP Method: GET', exact: true })
     const href = await operation.getAttribute('href')
