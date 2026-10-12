@@ -1,3 +1,5 @@
+import { isObject } from '@scalar/helpers/object/is-object'
+
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { getNavigationTagNames } from '@/navigation/helpers/get-navigation-tag-names'
@@ -34,7 +36,7 @@ const createSchemaEntry = ({
 
   // Use schema.title if available, otherwise fall back to name
   // @see https://json-schema.org/draft/2020-12/json-schema-core#section-4.3.5
-  const title = (schema && 'title' in schema && (schema.title as string)) || name
+  const title = (isObject(schema) && 'title' in schema && (schema.title as string)) || name
 
   const entry = {
     id,

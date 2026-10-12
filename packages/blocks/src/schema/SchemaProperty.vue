@@ -318,7 +318,7 @@ const shouldRenderObjectProperties = computed(() => {
 /** Determine if array of objects should be rendered */
 const shouldRenderArrayOfObjects = computed(() => {
   const value = optimizedValue.value
-  if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
+  if (!value || !isArraySchema(value) || value.items === undefined) {
     return false
   }
 
@@ -441,7 +441,7 @@ const getCompositionDiscriminator = (
  */
 const resolvedArrayItems = computed(() => {
   const value = arrayValueWithBoundItems.value
-  if (!value || !isArraySchema(value) || typeof value.items !== 'object') {
+  if (!value || !isArraySchema(value) || value.items === undefined) {
     return undefined
   }
 

@@ -136,7 +136,7 @@ const additionalPropertiesKeySchema = computed(() => {
 const getPropertySchema = (
   property: SchemaReferenceType<SchemaObject> | undefined,
 ): SchemaObject | undefined => {
-  if (!property) {
+  if (property === undefined) {
     return undefined
   }
   return resolve.schema(property)

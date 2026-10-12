@@ -24,7 +24,7 @@ type SchemaModelName = {
 export const getModelNameFromSchema = (
   schemaOrRef: SchemaObject | SchemaReferenceType<SchemaObject>,
 ): SchemaModelName | null => {
-  if (!schemaOrRef) {
+  if (!schemaOrRef || typeof schemaOrRef !== 'object') {
     return null
   }
 
