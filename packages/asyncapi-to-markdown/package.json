@@ -1,0 +1,61 @@
+{
+  "name": "@scalar/asyncapi-to-markdown",
+  "description": "Create plain Markdown from AsyncAPI documents (for LLMs)",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/asyncapi-to-markdown"
+  },
+  "keywords": [
+    "asyncapi",
+    "markdown",
+    "llm"
+  ],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "test": "vitest --run",
+    "types:check": "tsgo --noEmit"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "import": "./dist/browser.js",
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/asyncapi-upgrader": "workspace:*",
+    "@scalar/helpers": "workspace:*",
+    "@scalar/json-magic": "workspace:*",
+    "@scalar/openapi-to-markdown": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
+    "remark-gfm": "^4.0.1",
+    "remark-stringify": "^11.0.0",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "vitest": "catalog:*"
+  }
+}

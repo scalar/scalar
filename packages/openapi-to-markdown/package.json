@@ -39,6 +39,11 @@
       "import": "./dist/browser.js",
       "types": "./dist/browser.d.ts",
       "default": "./dist/browser.js"
+    },
+    "./markdown": {
+      "import": "./dist/markdown/index.js",
+      "types": "./dist/markdown/index.d.ts",
+      "default": "./dist/markdown/index.js"
     }
   },
   "files": [

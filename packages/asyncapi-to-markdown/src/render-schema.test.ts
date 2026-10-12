@@ -1,0 +1,99 @@
+import { describe, expect, it } from 'vitest'
+
+import { createMarkdownFromAsyncApi } from './index'
+
+const model = async (schema: unknown): Promise<string> =>
+  createMarkdownFromAsyncApi(
+    { asyncapi: '3.1.0', info: { title: 'API', version: '1' }, components: { schemas: { Example: schema } } },
+    { model: 'Example' },
+  )
+
+describe('render-schema', () => {
+  it('renders boolean schemas explicitly', async () => {
+    expect(await model(false)).toBe('# Example\n\nNo value is allowed.\n')
+    expect(await model(true)).toBe('# Example\n\nAny value is allowed.\n')
+  })
+
+  it('preserves JSON Schema constraints and required properties', async () => {
+    const result = await model({
+      type: 'object',
+      required: ['count'],
+      properties: {
+        count: { type: 'integer', minimum: 0, maximum: 10 },
+        label: { type: ['string', 'null'], enum: ['ok', null] },
+      },
+      additionalProperties: false,
+    })
+    expect(result).toContain('`count`')
+    expect(result).toContain('(required)')
+    expect(result).toContain('`integer`')
+    expect(result).toContain('`string | null`')
+    expect(result).toContain('`0`')
+    expect(result).toContain('`10`')
+    expect(result).toContain('No value is allowed.')
+  })
+
+  it('renders composition, tuple items and conditional schemas', async () => {
+    const result = await model({
+      allOf: [{ type: 'array', items: [{ type: 'string' }, { type: 'number' }] }],
+      if: { const: 1 },
+      then: false,
+      else: true,
+    })
+    expect(result).toContain('allOf:')
+    expect(result).toContain('`number`')
+    expect(result).toContain('if:')
+    expect(result).toContain('No value is allowed.')
+  })
+
+  it('renders multi-format JSON Schema and labelled source for other formats', async () => {
+    expect(await model({ schemaFormat: 'application/schema+json;version=draft-07', schema: { type: 'string' } })).toBe(
+      '# Example\n\n`string`\n',
+    )
+    const result = await model({
+      schemaFormat: 'application/vnd.google.protobuf;version=3',
+      schema: 'message Order { string id = 1; }',
+    })
+    expect(result).toContain('application/vnd.google.protobuf;version=3')
+    expect(result).toContain('message Order { string id = 1; }')
+  })
+
+  it('preserves Markdown and sanitizes HTML descriptions', async () => {
+    const result = await model({
+      type: 'string',
+      description: 'Text **bold**.\n\n```js\nconst value = 1\n```\n\n<script>alert(1)</script><p>Safe</p><img src="x">',
+    })
+    expect(result).toContain('**bold**')
+    expect(result).toContain('const value = 1')
+    expect(result).toContain('Safe')
+    expect(result).not.toContain('<script>')
+    expect(result).not.toContain('<img')
+  })
+
+  it('retains literal references in authored examples without interpreting them', async () => {
+    const result = await model({
+      type: 'object',
+      examples: [{ $ref: './literal-not-a-schema.json', nested: { value: 1 } }],
+    })
+    expect(result).toContain('"$ref": "./literal-not-a-schema.json"')
+    expect(result).toContain('"value": 1')
+  })
+
+  it('resolves schemas whose names match data or map keywords', async () => {
+    const result = await model({
+      type: 'object',
+      properties: {
+        examples: { type: 'string', examples: [{ $ref: './literal.json' }] },
+        properties: { type: 'number', default: { $ref: './another-literal.json' } },
+      },
+    })
+    expect(result).toContain('`examples`')
+    expect(result).toContain('`properties`')
+    expect(result).toContain('./literal.json')
+    expect(result).toContain('./another-literal.json')
+  })
+
+  it('serializes authored strings as JSON values', async () => {
+    expect(await model({ type: 'string', examples: ['hello'] })).toContain('```json\n"hello"\n```')
+  })
+})

@@ -1,0 +1,60 @@
+{
+  "asyncapi": "3.1.0",
+  "info": {
+    "title": "Event API",
+    "version": "1.0.0",
+    "description": "Events for **orders**."
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "host": "broker.example.com",
+      "protocol": "kafka",
+      "security": [{ "$ref": "#/components/securitySchemes/token" }]
+    }
+  },
+  "channels": {
+    "orders/~events": {
+      "address": "orders.{tenant}",
+      "title": "Order events",
+      "parameters": {
+        "tenant": { "description": "Tenant ID", "default": "public" }
+      },
+      "messages": {
+        "created": { "$ref": "#/components/messages/OrderCreated" },
+        "deleted": { "title": "Order deleted", "payload": { "type": "string" } }
+      },
+      "bindings": { "kafka": { "topic": "orders", "bindingVersion": "0.5.0" } }
+    },
+    "unrelated": { "address": "unrelated", "messages": {} }
+  },
+  "operations": {
+    "onOrder": {
+      "action": "receive",
+      "title": "Receive an order",
+      "channel": { "$ref": "#/channels/orders~1~0events" },
+      "messages": [{ "$ref": "#/channels/orders~1~0events/messages/created" }]
+    }
+  },
+  "components": {
+    "securitySchemes": { "token": { "type": "http", "scheme": "bearer" } },
+    "messages": {
+      "OrderCreated": {
+        "title": "Order created",
+        "payload": { "$ref": "#/components/schemas/Order" },
+        "examples": [{ "payload": { "id": "order_1" } }]
+      }
+    },
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "description": "The order ID." },
+          "parent": { "$ref": "#/components/schemas/Order" }
+        }
+      },
+      "Unrelated": { "type": "string", "description": "Unrelated model" }
+    }
+  }
+}
