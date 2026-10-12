@@ -4,6 +4,8 @@ import type { TraversedAsyncApiChannel } from '@scalar/workspace-store/schemas/n
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import ParameterListItem from '@/features/Operation/components/ParameterListItem.vue'
+
 import Channel from './Channel.vue'
 import Message from './Message.vue'
 
@@ -210,7 +212,7 @@ describe('Channel', () => {
       },
     })
 
-    const rows = wrapper.findAll('li.parameter-item')
+    const rows = wrapper.findAllComponents(ParameterListItem)
     const locations = rows.map((row) =>
       row
         .findAll('code')
