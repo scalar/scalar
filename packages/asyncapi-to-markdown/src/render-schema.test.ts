@@ -24,13 +24,9 @@ describe('render-schema', () => {
       },
       additionalProperties: false,
     })
-    expect(result).toContain('`count`')
-    expect(result).toContain('(required)')
-    expect(result).toContain('`integer`')
-    expect(result).toContain('`string | null`')
-    expect(result).toContain('`0`')
-    expect(result).toContain('`10`')
-    expect(result).toContain('No value is allowed.')
+    expect(result).toBe(
+      '# Example\n\n`object`\n\n- **`count`** (required)\n\n  `integer`\n  - **minimum:** `0`\n  - **maximum:** `10`\n- **`label`**\n\n  `string | null`\n  - **enum:** `["ok",null]`\n\n**additionalProperties:**\n\nNo value is allowed.\n',
+    )
   })
 
   it('renders composition, tuple items and conditional schemas', async () => {
@@ -95,5 +91,9 @@ describe('render-schema', () => {
 
   it('serializes authored strings as JSON values', async () => {
     expect(await model({ type: 'string', examples: ['hello'] })).toContain('```json\n"hello"\n```')
+  })
+
+  it('preserves required constraints without property definitions', async () => {
+    expect(await model({ required: ['id'] })).toBe('# Example\n\n**Required properties:** `id`\n')
   })
 })

@@ -271,4 +271,94 @@ describe('index', () => {
       await rm(directory, { recursive: true, force: true })
     }
   })
+
+  it('upgrades externally referenced legacy channels and servers before rendering', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'asyncapi-legacy-'))
+    try {
+      const path = join(directory, 'api.json')
+      await writeFile(
+        path,
+        JSON.stringify({
+          asyncapi: '2.6.0',
+          info: minimal.info,
+          channels: { events: { $ref: './channel.json' } },
+          servers: { production: { $ref: './server.json' } },
+        }),
+      )
+      await writeFile(
+        join(directory, 'channel.json'),
+        JSON.stringify({ publish: { operationId: 'consume', message: { payload: { type: 'string' } } } }),
+      )
+      await writeFile(
+        join(directory, 'server.json'),
+        JSON.stringify({ url: 'kafka://broker.example.com:9092', protocol: 'kafka' }),
+      )
+      const result = await createMarkdownFromAsyncApi(path, { operation: 'consume' })
+      expect(result).toContain('**action:** `receive`')
+      expect(result).toContain('broker.example.com:9092')
+      expect(result).toContain('## Message 1\n\n### Payload\n\n`string`')
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('includes schemas needed to connect through protocol bindings', async () => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...minimal,
+        channels: {
+          events: {
+            address: '/events',
+            bindings: { ws: { method: 'GET', query: { $ref: '#/components/schemas/Auth' } } },
+          },
+        },
+        components: {
+          schemas: {
+            Auth: {
+              type: 'object',
+              required: ['token'],
+              properties: { token: { type: 'string', description: 'Connection token' } },
+            },
+          },
+        },
+      },
+      { channel: 'events' },
+    )
+    expect(result).toContain('**Referenced schema:** `#/components/schemas/Auth`')
+    expect(result).toContain('**`token`** (required)')
+    expect(result).toContain('Connection token')
+  })
+
+  it('preserves array-based servers from AsyncAPI 1.x', async () => {
+    const result = await createMarkdownFromAsyncApi({
+      asyncapi: '1.2.0',
+      info: minimal.info,
+      servers: [{ url: 'mqtt://broker.example.com', scheme: 'mqtt' }],
+    })
+    expect(result).toContain('broker.example.com')
+    expect(result).toContain('mqtt')
+  })
+
+  it('preserves legacy message schema formats', async () => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        asyncapi: '2.6.0',
+        info: minimal.info,
+        channels: {
+          events: {
+            publish: {
+              operationId: 'consume',
+              message: {
+                schemaFormat: 'application/vnd.apache.avro+json;version=1.9.0',
+                payload: { type: 'record', name: 'Event', fields: [{ name: 'id', type: 'string' }] },
+              },
+            },
+          },
+        },
+      },
+      { operation: 'consume' },
+    )
+    expect(result).toContain('application/vnd.apache.avro+json;version=1.9.0')
+    expect(result).toContain('"name": "Event"')
+  })
 })

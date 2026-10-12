@@ -82,6 +82,12 @@ export const createSchemaRenderer = (): ((input: unknown) => RootContent[]) => {
       blocks.push(list(details))
     }
     const required = new Set(Array.isArray(schema.required) ? schema.required : [])
+    const unlistedRequired = [...required].filter(
+      (name) => typeof name === 'string' && !Object.hasOwn(object(schema.properties), name),
+    )
+    if (unlistedRequired.length) {
+      blocks.push(paragraph(strong(text('Required properties:')), text(' '), inlineCode(unlistedRequired.join(', '))))
+    }
     const properties = Object.entries(object(schema.properties)).map(
       ([name, property]): ListItem =>
         item(

@@ -50,12 +50,12 @@
     "@scalar/openapi-to-markdown": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
-    "remark-gfm": "^4.0.1",
-    "remark-stringify": "^11.0.0",
-    "unified": "^11.0.5"
+    "remark-gfm": "catalog:*",
+    "remark-stringify": "catalog:*",
+    "unified": "catalog:*"
   },
   "devDependencies": {
-    "@types/mdast": "^4.0.4",
+    "@types/mdast": "catalog:*",
     "vitest": "catalog:*"
   }
 }

@@ -6,6 +6,7 @@ import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 
+import { object } from './document'
 import { preserveData } from './preserve-data'
 import type { AsyncApiInput } from './types'
 
@@ -39,7 +40,7 @@ export const loadDocument = async (input: AsyncApiInput): Promise<Record<string,
   }
   const originalVersion = value.asyncapi
   const errors: string[] = []
-  const bundled = await bundle(upgrade(value), {
+  const bundled = await bundle(value, {
     origin,
     plugins: [fetchUrls(), readFiles(), preserveData()],
     treeShake: false,
@@ -48,5 +49,25 @@ export const loadDocument = async (input: AsyncApiInput): Promise<Record<string,
   if (errors.length) {
     throw new Error(errors.join('\n'))
   }
-  return createMagicProxy({ ...bundled, 'x-original-aas-version': originalVersion })
+  // Migration reads structural fields directly. Resolve wrappers after bundling so older
+  // channels and servers loaded from other files participate in the same upgrade.
+  const prepared: Record<string, unknown> = { ...bundled }
+  const resolved = createMagicProxy(prepared)
+  for (const key of ['channels', 'servers', 'operations'] as const) {
+    if (prepared[key] !== undefined && !Array.isArray(prepared[key])) {
+      prepared[key] = Object.fromEntries(
+        Object.entries(object(resolved[key])).map(([name, entry]) => [name, getRaw(object(entry))]),
+      )
+    }
+  }
+  const components = object(resolved.components)
+  if (components.securitySchemes) {
+    prepared.components = {
+      ...getRaw(components),
+      securitySchemes: Object.fromEntries(
+        Object.entries(object(components.securitySchemes)).map(([name, entry]) => [name, getRaw(object(entry))]),
+      ),
+    }
+  }
+  return createMagicProxy({ ...upgrade(prepared), 'x-original-aas-version': originalVersion })
 }

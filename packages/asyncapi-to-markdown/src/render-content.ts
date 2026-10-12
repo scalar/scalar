@@ -13,6 +13,7 @@ import {
 import { resolveTraits } from '@scalar/workspace-store/helpers/resolve-traits'
 import type { Heading, RootContent } from 'mdast'
 
+import { getBindingSchemas } from './binding-schemas'
 import { object, string } from './document'
 import { code, createSchemaRenderer } from './render-schema'
 
@@ -78,7 +79,14 @@ export const createContentRenderer = (document: Record<string, unknown>): Conten
     }
     blocks.push(heading(depth, text('Bindings')))
     for (const [protocol, binding] of protocols) {
-      blocks.push(paragraph(strong(text(protocol))), code(object(binding)))
+      const resolved = object(binding)
+      blocks.push(paragraph(strong(text(protocol))), code(resolved))
+      for (const reference of getBindingSchemas(resolved)) {
+        blocks.push(
+          paragraph(strong(text('Referenced schema:')), text(' '), inlineCode(reference.$ref)),
+          ...schema(reference),
+        )
+      }
     }
   }
   const security = (value: unknown, depth: Heading['depth']): void => {
@@ -130,7 +138,14 @@ export const createContentRenderer = (document: Record<string, unknown>): Conten
     }
     for (const key of ['headers', 'payload'] as const) {
       if (msg[key] !== undefined) {
-        blocks.push(heading(deeper(depth), text(key === 'headers' ? 'Headers' : 'Payload')), ...schema(msg[key]))
+        blocks.push(
+          heading(deeper(depth), text(key === 'headers' ? 'Headers' : 'Payload')),
+          ...schema(
+            key === 'payload' && typeof msg.schemaFormat === 'string'
+              ? { schemaFormat: msg.schemaFormat, schema: msg[key] }
+              : msg[key],
+          ),
+        )
       }
     }
     if (Array.isArray(msg.examples)) {

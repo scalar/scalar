@@ -107,6 +107,18 @@ settings:
 
 catalogs:
   '*':
+    '@types/mdast':
+      specifier: ^4.0.4
+      version: 4.0.4
+    remark-gfm:
+      specifier: ^4.0.1
+      version: 4.0.1
+    remark-stringify:
+      specifier: ^11.0.0
+      version: 11.0.0
+    unified:
+      specifier: ^11.0.5
+      version: 11.0.5
     '@ai-sdk/vue':
       specifier: 3.0.33
       version: 3.0.33
@@ -1778,17 +1790,17 @@ importers:
         specifier: workspace:*
         version: link:../workspace-store
       remark-gfm:
-        specifier: ^4.0.1
+        specifier: catalog:*
         version: 4.0.1(supports-color@10.0.0)
       remark-stringify:
-        specifier: ^11.0.0
+        specifier: catalog:*
         version: 11.0.0
       unified:
-        specifier: ^11.0.5
+        specifier: catalog:*
         version: 11.0.5
     devDependencies:
       '@types/mdast':
-        specifier: ^4.0.4
+        specifier: catalog:*
         version: 4.0.4
       vitest:
         specifier: catalog:*
@@ -2548,16 +2560,16 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       remark-gfm:
-        specifier: ^4.0.1
+        specifier: catalog:*
         version: 4.0.1
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
       remark-stringify:
-        specifier: ^11.0.0
+        specifier: catalog:*
         version: 11.0.0
       unified:
-        specifier: ^11.0.5
+        specifier: catalog:*
         version: 11.0.5
     devDependencies:
       '@scalar/components':
@@ -2573,7 +2585,7 @@ importers:
         specifier: catalog:*
         version: 4.3.3(vite@8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0))
       '@types/mdast':
-        specifier: ^4.0.4
+        specifier: catalog:*
         version: 4.0.4
       '@vitejs/plugin-vue':
         specifier: catalog:*
