@@ -552,7 +552,7 @@ describe('SidebarItem', () => {
   })
 
   describe('rendering with children', () => {
-    it('renders ScalarSidebarSection for group items with children', () => {
+    it('keeps client group items as sections', () => {
       const item: Item = {
         id: '1',
         title: 'User Operations',
@@ -565,6 +565,7 @@ describe('SidebarItem', () => {
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
+          layout: 'client',
           item,
         },
       })
@@ -650,6 +651,7 @@ describe('SidebarItem', () => {
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
+          isExpanded: () => true,
           item,
         },
       })
@@ -804,6 +806,7 @@ describe('SidebarItem', () => {
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
+          isExpanded: () => true,
           layout: 'reference',
           item,
         },
@@ -993,6 +996,7 @@ describe('SidebarItem', () => {
       const wrapper = mount(SidebarItem, {
         props: {
           ...baseProps,
+          isExpanded: () => true,
           item,
           isDraggable: false,
         },

@@ -223,9 +223,9 @@ const handleSelect = (event: MouseEvent) => {
 }
 </script>
 <template>
-  <!-- Sidebar section -->
+  <!-- Keep the client section layout; reference tags all use collapsible groups. -->
   <ScalarSidebarSection
-    v-if="children.length > 0 && isGroup(item)"
+    v-if="layout === 'client' && children.length > 0 && isGroup(item)"
     :data-sidebar-id="item.id"
     v-bind="draggableAttrs"
     v-on="draggableEvents">
