@@ -10,8 +10,8 @@ const model = async (schema: unknown): Promise<string> =>
 
 describe('render-schema', () => {
   it('renders boolean schemas explicitly', async () => {
-    expect(await model(false)).toBe('# Example\n\nNo value is allowed.\n')
-    expect(await model(true)).toBe('# Example\n\nAny value is allowed.\n')
+    expect(await model(false)).toBe('<a id="scalar-model-example"></a>\n\n# Example\n\nNo value is allowed.\n')
+    expect(await model(true)).toBe('<a id="scalar-model-example"></a>\n\n# Example\n\nAny value is allowed.\n')
   })
 
   it('preserves JSON Schema constraints and required properties', async () => {
@@ -25,7 +25,7 @@ describe('render-schema', () => {
       additionalProperties: false,
     })
     expect(result).toBe(
-      '# Example\n\n`object`\n\n- **`count`** (required)\n\n  `integer`\n  - **minimum:** `0`\n  - **maximum:** `10`\n- **`label`**\n\n  `string | null`\n  - **enum:** `["ok",null]`\n\n**additionalProperties:**\n\nNo value is allowed.\n',
+      '<a id="scalar-model-example"></a>\n\n# Example\n\n`object`\n\n- **`count`**: `integer` (required)\n  - **minimum:** `0`\n  - **maximum:** `10`\n- **`label`**: `string | null`\n  - **enum:** `["ok",null]`\n\n**additionalProperties:**\n\nNo value is allowed.\n\n<a id="scalar-example-1"></a>\n\n**Generated example:**\n\n```json\n{\n  "count": 0,\n  "label": "ok"\n}\n```\n',
     )
   })
 
@@ -44,7 +44,7 @@ describe('render-schema', () => {
 
   it('renders multi-format JSON Schema and labelled source for other formats', async () => {
     expect(await model({ schemaFormat: 'application/schema+json;version=draft-07', schema: { type: 'string' } })).toBe(
-      '# Example\n\n`string`\n',
+      '<a id="scalar-model-example"></a>\n\n# Example\n\n`string`\n',
     )
     const result = await model({
       schemaFormat: 'application/vnd.google.protobuf;version=3',
@@ -94,6 +94,8 @@ describe('render-schema', () => {
   })
 
   it('preserves required constraints without property definitions', async () => {
-    expect(await model({ required: ['id'] })).toBe('# Example\n\n**Required properties:** `id`\n')
+    expect(await model({ required: ['id'] })).toBe(
+      '<a id="scalar-model-example"></a>\n\n# Example\n\n**Required properties:** `id`\n',
+    )
   })
 })

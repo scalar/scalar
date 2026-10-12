@@ -28,7 +28,7 @@ describe('index', () => {
     expect(result).toContain('# Event API')
     expect(result).toContain('Order deleted')
     expect(result).toContain('Schema: Unrelated')
-    expect(result).toContain('Recursive schema')
+    expect(result).toContain('[Order](#scalar-model-order)')
     expect(result).toContain('orders.{tenant}')
     expect(result).toContain('broker.example.com')
     expect(result).toContain('bearer')
@@ -66,13 +66,14 @@ describe('index', () => {
     expect(intro).not.toContain('Order created')
     const model = await createMarkdownFromAsyncApi(document, { model: 'Order' })
     expect(model).toContain('# Order')
-    expect(model).toContain('Recursive schema')
+    expect(model).toContain('[Order](#scalar-model-order)')
     expect(model).not.toContain('broker.example.com')
   })
 
   it('rejects invalid and combined selectors and recovers for subsequent renders', async () => {
     const renderer = await createAsyncApiMarkdownRenderer(document)
     await expect(renderer.render({ operation: 'missing' })).rejects.toThrow('Unknown operation')
+    // @ts-expect-error Combined selectors are also rejected for JavaScript callers.
     await expect(renderer.render({ operation: 'onOrder', introduction: true })).rejects.toThrow('Choose exactly one')
     await expect(renderer.render({ model: { pointer: '#/info' } })).rejects.toThrow('Invalid model')
     await expect(renderer.render({ channel: 'orders.{tenant}' })).rejects.toThrow('Unknown channel')
@@ -296,7 +297,7 @@ describe('index', () => {
       const result = await createMarkdownFromAsyncApi(path, { operation: 'consume' })
       expect(result).toContain('**action:** `receive`')
       expect(result).toContain('broker.example.com:9092')
-      expect(result).toContain('## Message 1\n\n### Payload\n\n`string`')
+      expect(result).toContain('## Message 1\n\n<a id="scalar-section-payload"></a>\n\n### Payload\n\n`string`')
     } finally {
       await rm(directory, { recursive: true, force: true })
     }
@@ -325,7 +326,7 @@ describe('index', () => {
       { channel: 'events' },
     )
     expect(result).toContain('**Referenced schema:** `#/components/schemas/Auth`')
-    expect(result).toContain('**`token`** (required)')
+    expect(result).toContain('**`token`**: `string` (required)')
     expect(result).toContain('Connection token')
   })
 

@@ -7,14 +7,31 @@ export type AsyncApiInput = AsyncApiDocument | Record<string, unknown> | string
 export type AsyncApiSelector = string | { pointer: string }
 
 /** Choose at most one page. Omitting all selectors renders the complete API description. */
-export type AsyncApiRenderOptions = {
-  introduction?: true
-  channel?: AsyncApiSelector
-  operation?: AsyncApiSelector
+type PageSelectors = {
+  introduction: true
+  channel: AsyncApiSelector
+  operation: AsyncApiSelector
   /** A string selects components.messages; a pointer can also select a channel message. */
-  message?: AsyncApiSelector
-  model?: AsyncApiSelector
+  message: AsyncApiSelector
+  model: AsyncApiSelector
+  tag: string
 }
+
+/** Control shared model links without assuming a documentation URL layout. */
+export type AsyncApiRenderOptions = {
+  schemaReferences?: {
+    mode: 'linked'
+    /** Return a published URL, or undefined to render the model name as text. */
+    resolveUrl?: (reference: { ref: string; name: string }) => string | undefined
+    /** Keep small primitive definitions inline. Defaults to true. */
+    inlinePrimitives?: boolean
+  }
+} & (
+  | {
+      [Key in keyof PageSelectors]: Pick<PageSelectors, Key> & Partial<Record<Exclude<keyof PageSelectors, Key>, never>>
+    }[keyof PageSelectors]
+  | Partial<Record<keyof PageSelectors, never>>
+)
 
 /** A prepared document snapshot, reusable across independent page renders. */
 export type AsyncApiMarkdownRenderer = {

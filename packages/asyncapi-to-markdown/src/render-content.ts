@@ -1,5 +1,7 @@
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import {
+  anchor,
+  createDocumentAnchors,
   describe,
   heading,
   inlineCode,
@@ -15,7 +17,9 @@ import type { Heading, RootContent } from 'mdast'
 
 import { getBindingSchemas } from './binding-schemas'
 import { object, string } from './document'
+import { createExampleRenderer } from './render-examples'
 import { code, createSchemaRenderer } from './render-schema'
+import type { createSchemaRegistry } from './schema-references'
 
 const deeper = (depth: Heading['depth']): Heading['depth'] => Math.min(depth + 1, 6) as Heading['depth']
 const title = (value: Record<string, unknown>, fallback: string): string =>
@@ -30,6 +34,7 @@ const withTraits = (value: unknown): Record<string, unknown> => {
 type ContentRenderer = {
   blocks: RootContent[]
   introduction: () => void
+  finish: () => void
   channel: (name: string, value: unknown, depth: Heading['depth']) => void
   operation: (name: string, value: unknown, depth: Heading['depth'], includeChannel: boolean) => void
   message: (name: string, value: unknown, depth: Heading['depth']) => void
@@ -37,8 +42,20 @@ type ContentRenderer = {
 }
 
 /** Build the sections of one AsyncAPI page without retaining mutable state between calls. */
-export const createContentRenderer = (document: Record<string, unknown>): ContentRenderer => {
-  const schema = createSchemaRenderer()
+export const createContentRenderer = (
+  document: Record<string, unknown>,
+  references: ReturnType<ReturnType<typeof createSchemaRegistry>['forPage']>,
+  view: (input: Record<string, unknown>) => Record<string, unknown>,
+  linked: boolean,
+  selectedModel: boolean,
+): ContentRenderer => {
+  const examples = createExampleRenderer()
+  const renderSchema = createSchemaRenderer(references.reference, view)
+  const schema = (input: unknown, expand = false): RootContent[] =>
+    expand ? renderSchema(input, true) : references.root(input, () => renderSchema(input))
+  const anchors = createDocumentAnchors()
+  const shownServers = new Map<unknown, string>()
+  const shownSecurity = new Map<unknown, string>()
   const blocks: RootContent[] = []
   const metadata = (value: Record<string, unknown>): void => {
     if (value.summary && value.summary !== value.title) {
@@ -96,6 +113,16 @@ export const createContentRenderer = (document: Record<string, unknown>): Conten
     blocks.push(heading(depth, text('Authentication')), paragraph(text('Supported security schemes:')))
     for (const entry of value) {
       const scheme = object(entry)
+      const identity = getRaw(scheme)
+      const previous = shownSecurity.get(identity)
+      const label = string(scheme.name) || string(scheme.type) || 'Security scheme'
+      if (previous) {
+        blocks.push(paragraph(link(`#${previous}`, label)))
+        continue
+      }
+      const id = anchors.get('security', String(shownSecurity.size), label)
+      shownSecurity.set(identity, id)
+      blocks.push(anchor(id))
       fields(scheme, ['type', 'name', 'in', 'scheme', 'bearerFormat', 'openIdConnectUrl', 'scopes'])
       blocks.push(...describe(scheme.description))
       if (scheme.flows) {
@@ -110,6 +137,15 @@ export const createContentRenderer = (document: Record<string, unknown>): Conten
     blocks.push(heading(depth, text('Servers')))
     for (const [name, entry] of value) {
       const server = object(entry)
+      const identity = getRaw(server)
+      const previous = shownServers.get(identity)
+      if (previous) {
+        blocks.push(paragraph(link(`#${previous}`, title(server, name))))
+        continue
+      }
+      const serverId = anchors.get('server', String(shownServers.size), name)
+      shownServers.set(identity, serverId)
+      blocks.push(anchor(serverId))
       blocks.push(heading(deeper(depth), text(title(server, name))))
       fields(server, ['host', 'pathname', 'protocol', 'protocolVersion'])
       metadata(server)
@@ -158,6 +194,20 @@ export const createContentRenderer = (document: Record<string, unknown>): Conten
           if (authored[key] !== undefined) {
             blocks.push(paragraph(strong(text(`${key}:`))), code(authored[key]))
           }
+        }
+      }
+    }
+    if (!Array.isArray(msg.examples) || !msg.examples.length) {
+      for (const key of ['headers', 'payload'] as const) {
+        if (msg[key] !== undefined) {
+          blocks.push(
+            ...examples(
+              key === 'payload' && typeof msg.schemaFormat === 'string'
+                ? { schemaFormat: msg.schemaFormat, schema: msg[key] }
+                : msg[key],
+              linked,
+            ),
+          )
         }
       }
     }
@@ -246,7 +296,23 @@ export const createContentRenderer = (document: Record<string, unknown>): Conten
     servers(entries(document.servers), 2)
   }
   const model = (name: string, value: unknown, depth: Heading['depth']): void => {
-    blocks.push(heading(depth, text(title(object(value), name))), ...schema(value))
+    blocks.push(
+      ...references.model(value, () => [
+        heading(depth, text(title(object(value), name))),
+        ...schema(value, true),
+        ...(object(value).type === 'object' ? examples(value, linked && !selectedModel, linked && selectedModel) : []),
+      ]),
+    )
   }
-  return { blocks, introduction, channel, operation, message, model }
+  return {
+    blocks,
+    introduction,
+    channel,
+    operation,
+    message,
+    model,
+    finish: () => {
+      blocks.push(...references.appendix((value) => schema(value, true)))
+    },
+  }
 }

@@ -261,7 +261,13 @@
       "entry": ["src/*/index.ts"]
     },
     "packages/asyncapi-to-markdown": {
-      "entry": ["src/index.ts", "src/browser.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/browser.ts",
+        "playground/src/main.ts",
+        "playground/vite.config.ts",
+        "playground/worker.mjs"
+      ]
     },
     "packages/openapi-to-markdown": {
       // Run manually to compare the old and new renderers.

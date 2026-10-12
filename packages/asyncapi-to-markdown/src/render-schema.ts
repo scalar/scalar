@@ -4,6 +4,7 @@ import { describe, inlineCode, item, list, paragraph, strong, text } from '@scal
 import type { Code, ListItem, RootContent } from 'mdast'
 
 import { object, resolve, string } from './document'
+import { createSchemaView } from './schema-view'
 
 /** Serialize authored data without adding workspace reference metadata or interpreting literal $ref keys. */
 export const code = (value: unknown, lang = 'json'): Code => ({
@@ -36,9 +37,16 @@ const annotations = [
 ] as const
 
 /** Render AsyncAPI / Draft 7 schemas without coercing them through OpenAPI's schema dialect. */
-export const createSchemaRenderer = (): ((input: unknown) => RootContent[]) => {
+export const createSchemaRenderer = (
+  reference: (input: unknown, depth: number) => RootContent[] | undefined = () => undefined,
+  view = createSchemaView(),
+): ((input: unknown, expand?: boolean) => RootContent[]) => {
   const state = { remaining: 5000 }
-  const render = (input: unknown, ancestors: Set<unknown>, depth: number): RootContent[] => {
+  const render = (input: unknown, ancestors: Set<unknown>, depth: number, expand = false): RootContent[] => {
+    const linked = expand ? undefined : reference(input, depth)
+    if (linked) {
+      return linked
+    }
     const resolved = resolve(input)
     if (typeof resolved === 'boolean') {
       return [paragraph(text(resolved ? 'Any value is allowed.' : 'No value is allowed.'))]
@@ -46,14 +54,14 @@ export const createSchemaRenderer = (): ((input: unknown) => RootContent[]) => {
     if (!isObject(resolved)) {
       return [code(resolved)]
     }
-    const schema = object(resolved)
+    const schema = view(object(resolved))
     if ('schema' in schema) {
       const format = string(schema.schemaFormat)
       if (
         !format ||
         /^application\/(?:vnd\.aai\.asyncapi(?:\+json|\+yaml)?|schema\+(?:json|yaml))(?:;|$)/.test(format)
       ) {
-        return render(schema.schema, ancestors, depth)
+        return render(schema.schema, ancestors, depth, expand)
       }
       return [
         paragraph(strong(text('Schema format:')), text(' '), inlineCode(format)),
@@ -88,13 +96,20 @@ export const createSchemaRenderer = (): ((input: unknown) => RootContent[]) => {
     if (unlistedRequired.length) {
       blocks.push(paragraph(strong(text('Required properties:')), text(' '), inlineCode(unlistedRequired.join(', '))))
     }
-    const properties = Object.entries(object(schema.properties)).map(
-      ([name, property]): ListItem =>
-        item(
-          paragraph(strong(inlineCode(name)), ...(required.has(name) ? [text(' (required)')] : [])),
-          ...(render(property, next, depth + 1) as ListItem['children']),
+    const properties = Object.entries(object(schema.properties)).map(([name, property]): ListItem => {
+      const children = render(property, next, depth + 1)
+      const first = children[0]
+      const compact =
+        first?.type === 'paragraph' && first.children.length === 1 && first.children[0]?.type === 'inlineCode'
+      return item(
+        paragraph(
+          strong(inlineCode(name)),
+          ...(compact ? [text(': '), ...first.children] : []),
+          ...(required.has(name) ? [text(' (required)')] : []),
         ),
-    )
+        ...((compact ? children.slice(1) : children) as ListItem['children']),
+      )
+    })
     if (properties.length) {
       blocks.push(list(properties))
     }
@@ -151,5 +166,8 @@ export const createSchemaRenderer = (): ((input: unknown) => RootContent[]) => {
     }
     return blocks.length ? blocks : [paragraph(text('Any value is allowed.'))]
   }
-  return (input) => render(input, new Set(), 0)
+  return (input, expand = false) => {
+    state.remaining = 5000
+    return render(input, new Set(), 0, expand)
+  }
 }

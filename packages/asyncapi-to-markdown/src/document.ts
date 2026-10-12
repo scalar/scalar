@@ -53,9 +53,14 @@ const locations = {
 export const select = (
   document: Record<string, unknown>,
   options: AsyncApiRenderOptions,
-): Selection | 'introduction' | undefined => {
-  const keys = Object.keys(options).filter((key) => options[key as keyof AsyncApiRenderOptions] !== undefined)
-  if (keys.length > 1 || keys.some((key) => key !== 'introduction' && !Object.hasOwn(locations, key))) {
+): Selection | { kind: 'tag'; name: string } | 'introduction' | undefined => {
+  const keys = Object.keys(options).filter(
+    (key) => key !== 'schemaReferences' && options[key as keyof AsyncApiRenderOptions] !== undefined,
+  )
+  if (
+    keys.length > 1 ||
+    keys.some((key) => key !== 'introduction' && key !== 'tag' && !Object.hasOwn(locations, key))
+  ) {
     throw new Error('Choose exactly one AsyncAPI page selector')
   }
   const key = keys[0]
@@ -68,8 +73,17 @@ export const select = (
     }
     return 'introduction'
   }
+  if (key === 'tag') {
+    if (typeof options.tag !== 'string' || !options.tag) {
+      throw new Error('Invalid tag selector')
+    }
+    return { kind: 'tag', name: options.tag }
+  }
   const kind = key as Selection['kind']
   const selector = options[kind] as AsyncApiSelector
+  if (isObject(selector) && typeof selector.pointer === 'string' && /~(?![01])/.test(selector.pointer)) {
+    throw new Error(`Invalid JSON pointer escape in ${selector.pointer}`)
+  }
   const segments =
     typeof selector === 'string'
       ? [...locations[kind], selector]
