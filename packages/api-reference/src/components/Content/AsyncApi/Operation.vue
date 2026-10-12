@@ -11,7 +11,10 @@ import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
-import { useDocumentOutline } from '@/features/document-outline'
+import {
+  useDocumentOutline,
+  type HeadingLevel,
+} from '@/features/document-outline'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { useIntersection } from '@/hooks/use-intersection'
@@ -91,7 +94,8 @@ const messages = computed(() =>
   ),
 )
 
-const { level: headingLevel } = useDocumentOutline('operation')
+const { level: headingLevel } = useDocumentOutline('asyncApiOperation')
+const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
 
 <template>
@@ -126,6 +130,13 @@ const { level: headingLevel } = useDocumentOutline('operation')
       :value="description"
       withImages />
 
+    <SectionHeaderTag
+      v-if="messages.length"
+      class="text-c-1 mt-6 mb-3 block! text-lg leading-[1.45] font-medium"
+      :level="messagesHeadingLevel"
+      rule>
+      Messages
+    </SectionHeaderTag>
     <Message
       v-for="message in messages"
       :key="message.id"
@@ -142,7 +153,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
 <style scoped>
 .operation {
-  margin-top: 32px;
+  margin-top: 24px;
   scroll-margin-top: var(--refs-viewport-offset);
 }
 

@@ -52,7 +52,7 @@ const {
   expansion,
 } = defineProps<
   {
-    /** Direct channel messages sit one heading level above operation messages. */
+    /** Direct channel messages sit beneath the channel catalog heading. */
     parent?: 'channel' | 'operation'
     message: TraversedAsyncApiMessage
     document: AsyncApiDocument
@@ -233,7 +233,7 @@ const { level: headingLevel } = useDocumentOutline(
     ref="section"
     class="message">
     <SectionAccordion
-      class="message-accordion"
+      class="message-accordion [&_.section-accordion-content-card]:bg-b-1 border [&_.section-accordion-content-card]:rounded-b-lg [&_.section-accordion-content-card]:p-4 [&_.section-accordion-header]:px-4 [&_.section-accordion-header]:py-3"
       :modelValue="isExpanded"
       @update:modelValue="onToggle">
       <template #title>
@@ -293,6 +293,7 @@ const { level: headingLevel } = useDocumentOutline(
             <div class="message-schema-title">Headers</div>
             <Schema
               :breadcrumb="[message.id, 'headers']"
+              class="ps-8"
               compact
               :eventBus="eventBus"
               :expansion="expansion"
@@ -312,6 +313,7 @@ const { level: headingLevel } = useDocumentOutline(
             <div class="message-schema-title">Payload</div>
             <Schema
               :breadcrumb="[message.id, 'payload']"
+              class="ps-8"
               compact
               :eventBus="eventBus"
               :expansion="expansion"
@@ -351,10 +353,6 @@ const { level: headingLevel } = useDocumentOutline(
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-}
-/* Pad the expanded body so the description and schemas don't sit flush against the border. */
-.message-accordion :deep(.section-accordion-content-card) {
-  padding: 12px;
 }
 .message-description {
   padding-bottom: 4px;
