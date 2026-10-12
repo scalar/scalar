@@ -121,7 +121,9 @@ describe('whole-document', () => {
     expect(new Set(anchors).size).toBe(anchors.length)
     const links = [...output.matchAll(/\]\(#(scalar-[^)]+)\)/g)].map((match) => decodeURIComponent(match[1]!))
     expect(links.length).toBeGreaterThan(5)
-    for (const destination of links) expect(anchors).toContain(destination)
+    for (const destination of links) {
+      expect(anchors).toContain(destination)
+    }
     expect(await renderer.render({ tag: 'Orders' })).not.toContain('## Contents')
     expect(await renderer.render({ model: 'Order' })).not.toContain('## Contents')
   })

@@ -71,8 +71,12 @@ export const getQuerystringParameter = (
   }
   const value = example?.serializedValue ?? (example?.dataValue !== undefined ? example.dataValue : example?.value)
   const schema = getResolvedRef(mediaType?.schema)
+  let resolvedValue = value
+  if (resolvedValue === undefined) {
+    resolvedValue = schema ? getExampleFromSchema(schema) : ''
+  }
   return {
-    value: value !== undefined ? value : schema ? getExampleFromSchema(schema) : '',
+    value: resolvedValue,
     contentType,
     encoding: mediaType?.encoding,
     kind: getQuerystringValueKind(example, parameterExample === undefined ? 'media' : 'parameter'),
@@ -135,11 +139,7 @@ export const serializeQuerystringParameter = (
     return applyAllowReservedToUrl(`?${params}`, reservedKeys).slice(1)
   }
   const serialized =
-    parameter.kind === 'serialized'
-      ? String(value)
-      : isJsonMediaType(contentType)
-        ? JSON.stringify(value)
-        : String(value)
+    parameter.kind !== 'serialized' && isJsonMediaType(contentType) ? JSON.stringify(value) : String(value)
   return encodeURIComponent(serialized).replace(
     /[!'()*]/g,
     (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`,

@@ -67,11 +67,10 @@ export const mergeUrls = (
   // Extract and merge all query params
   if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
     /** Prefix the url with the origin if it is relative and we wish to */
-    const base = disableOriginPrefix
-      ? url
-      : isRelativePath(url)
-        ? combineUrlAndPath(window.location.origin, url)
-        : ensureProtocol(url)
+    let base = url
+    if (!disableOriginPrefix) {
+      base = isRelativePath(url) ? combineUrlAndPath(window.location.origin, url) : ensureProtocol(url)
+    }
 
     // Extract search params from base URL if any
     const [baseUrl = '', baseQuery] = base.split('?')

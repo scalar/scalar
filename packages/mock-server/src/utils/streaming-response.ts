@@ -71,7 +71,7 @@ export const getStreamingResponse = (
     return generateResponseExample(coerceValue(SchemaObjectSchema, completeSchema), options.variables)
   }
   const body = example ? example.value : generateBody()
-  const items = body === undefined ? [] : Array.isArray(body) ? body : [body]
+  const items = Array.isArray(body) ? body : [body]
   const chunks = items
     .filter((item) => item !== undefined)
     .map((item) => serializeStreamExample(item, contentType, true) ?? '')

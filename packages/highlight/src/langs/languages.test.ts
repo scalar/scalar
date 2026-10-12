@@ -15,8 +15,11 @@ const runs = (code: string, lang: string): [string, string | null][] => {
   const out: [string, string | null][] = []
   for (const token of tokenize(code, lang)) {
     const last = out[out.length - 1]
-    if (last && last[1] === token.scope) last[0] += token.text
-    else out.push([token.text, token.scope])
+    if (last && last[1] === token.scope) {
+      last[0] += token.text
+    } else {
+      out.push([token.text, token.scope])
+    }
   }
   return out
 }
@@ -107,8 +110,11 @@ describe('every bundled language', () => {
     for (const grammar of bundled) {
       for (const alias of [grammar.name, ...(grammar.aliases ?? [])]) {
         const target = resolveLanguageName(alias)
-        if (!target) unresolved.push(alias)
-        else if (target !== grammar.name) misdirected.push(`${alias} -> ${target}, want ${grammar.name}`)
+        if (!target) {
+          unresolved.push(alias)
+        } else if (target !== grammar.name) {
+          misdirected.push(`${alias} -> ${target}, want ${grammar.name}`)
+        }
       }
     }
     expect(unresolved, 'aliases a grammar declares that src/lazy.ts cannot resolve').toEqual([])
@@ -138,15 +144,23 @@ describe('every bundled language', () => {
 
     const disagreeing: string[] = []
     const check = (name: string, want: string | null): void => {
-      if (!want) return
+      if (!want) {
+        return
+      }
       const got = resolveLanguageName(name)
-      if (got !== want) disagreeing.push(`${name} -> ${got ?? 'nothing'}, want ${want}`)
+      if (got !== want) {
+        disagreeing.push(`${name} -> ${got ?? 'nothing'}, want ${want}`)
+      }
     }
 
-    for (const [name, grammar] of Object.entries(byName)) check(name, grammar)
+    for (const [name, grammar] of Object.entries(byName)) {
+      check(name, grammar)
+    }
     // The lowlight aliases resolve in two hops: to a canonical name first,
     // and to that name's grammar second.
-    for (const [alias, canonical] of Object.entries(lowlightLanguageMappings)) check(alias, byName[canonical] ?? null)
+    for (const [alias, canonical] of Object.entries(lowlightLanguageMappings)) {
+      check(alias, byName[canonical] ?? null)
+    }
 
     expect(disagreeing, 'names the compat layer highlights that src/lazy.ts resolves differently').toEqual([])
   })
@@ -390,7 +404,9 @@ describe.skip('cost stays linear in line length', () => {
   for (const [lang, code, what, limit] of ratioBudgets) {
     it(`${lang}: ${what}`, () => {
       const baseline = samples[lang]
-      if (!baseline) throw new Error(`${lang} has no sample in test/samples.ts to measure against`)
+      if (!baseline) {
+        throw new Error(`${lang} has no sample in test/samples.ts to measure against`)
+      }
 
       tokenize(code, lang) // compile the grammar outside the measurement
       tokenize(baseline, lang)

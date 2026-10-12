@@ -20,7 +20,9 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
     const re = top.re
     re.lastIndex = pos
     const m = re.exec(code)
-    if (m === null) break
+    if (m === null) {
+      break
+    }
 
     const start = m.index
     if (start > pos) {
@@ -30,14 +32,15 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
 
     const rules = top.rules
     let rule: CompiledRule | undefined
-    for (let i = 0; i < rules.length; i++) {
-      const r = rules[i]!
+    for (const r of rules) {
       if (m[r.group] !== undefined) {
         rule = r
         break
       }
     }
-    if (rule === undefined) break // unreachable: some alternative matched
+    if (rule === undefined) {
+      break // unreachable: some alternative matched
+    }
 
     const end = start + m[0].length
     if (end > start) {
@@ -74,7 +77,9 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
     }
   }
 
-  if (pos < len) emit(top.default, pos, len)
+  if (pos < len) {
+    emit(top.default, pos, len)
+  }
 }
 
 /**
@@ -95,7 +100,9 @@ const emitCaptures = (code: string, start: number, rule: CompiledRule, state: Co
   const own = rule.own!
   own.lastIndex = start
   const m = own.exec(code)
-  if (m === null) return // unreachable: the merged regex matched this rule here
+  if (m === null) {
+    return // unreachable: the merged regex matched this rule here
+  }
 
   const indices = m.indices!
   const whole = indices[0]!
@@ -106,16 +113,26 @@ const emitCaptures = (code: string, start: number, rule: CompiledRule, state: Co
   const limit = whole[1]
   for (let i = 0; i < captures.length; i++) {
     const span = indices[i + 1]
-    if (span === undefined) continue // group did not participate
+    if (span === undefined) {
+      continue // group did not participate
+    }
     const to = span[1] > limit ? limit : span[1] // a lookahead group can overrun
-    if (to <= cursor) continue // already covered by an enclosing group
+    if (to <= cursor) {
+      continue // already covered by an enclosing group
+    }
     const from = span[0] > cursor ? span[0] : cursor
-    if (from > cursor) emit(fallback, cursor, from)
-    if (to > from) emit(captures[i] ?? fallback, from, to) // a group can match empty
+    if (from > cursor) {
+      emit(fallback, cursor, from)
+    }
+    if (to > from) {
+      emit(captures[i] ?? fallback, from, to) // a group can match empty
+    }
     cursor = to
   }
 
-  if (limit > cursor) emit(fallback, cursor, limit)
+  if (limit > cursor) {
+    emit(fallback, cursor, limit)
+  }
 }
 
 /**

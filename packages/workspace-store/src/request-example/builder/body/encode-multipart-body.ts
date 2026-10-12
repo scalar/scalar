@@ -45,7 +45,8 @@ export const serializeMultipartBody = (
       part.type === 'multipart'
         ? serializeMultipartBody(part.value, part.contentType, replace, nesting + 1)
         : { chunks: [part.type === 'text' ? replace(part.value) : part.value], contentType: part.contentType }
-    const filename = part.type === 'file' ? part.value.name : part.type === 'blob' ? 'blob' : undefined
+    const blobFilename = part.type === 'blob' ? 'blob' : undefined
+    const filename = part.type === 'file' ? part.value.name : blobFilename
     const partContentType =
       encoded.contentType ??
       (part.type === 'file' || part.type === 'blob' ? part.value.type || 'application/octet-stream' : undefined)

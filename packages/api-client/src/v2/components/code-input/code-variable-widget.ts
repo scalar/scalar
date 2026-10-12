@@ -47,7 +47,7 @@ class PillWidget extends WidgetType {
     this.pillColor = environment?.color || 'var(--scalar-color-1)'
 
     const variable = environment?.variables?.find((v) => v.name === variableName)
-    const value = variable ? (typeof variable.value === 'string' ? variable.value : variable.value?.default) : undefined
+    const value = typeof variable?.value === 'string' ? variable.value : variable?.value?.default
     this.variableInfo = {
       type: 'environment',
       name: variableName,

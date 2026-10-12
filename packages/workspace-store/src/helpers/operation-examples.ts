@@ -44,7 +44,9 @@ export const resolveOperationExamples = (
       : {}),
     parameters: operation.parameters?.map((parameter) => {
       const resolved = getResolvedRef(parameter)
-      if (!resolved) return parameter
+      if (!resolved) {
+        return parameter
+      }
       const content = 'content' in resolved ? resolved.content : undefined
       const mediaType = Object.keys(content ?? {})[0]
       if (mediaType && content?.[mediaType]) {

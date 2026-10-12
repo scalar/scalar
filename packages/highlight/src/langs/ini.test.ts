@@ -20,8 +20,11 @@ const runs = (code: string, lang: string): [string, string | null][] => {
   const out: [string, string | null][] = []
   for (const token of tokenize(code, lang)) {
     const last = out[out.length - 1]
-    if (last && last[1] === token.scope) last[0] += token.text
-    else out.push([token.text, token.scope])
+    if (last && last[1] === token.scope) {
+      last[0] += token.text
+    } else {
+      out.push([token.text, token.scope])
+    }
   }
   return out
 }
@@ -300,7 +303,9 @@ describe('ini', () => {
     // it punishes big merged alternations hardest.
     for (const [name, state] of Object.entries(ini.states)) {
       for (const rule of state.rules) {
-        if ('include' in rule) continue
+        if ('include' in rule) {
+          continue
+        }
         const src = typeof rule.match === 'string' ? rule.match : rule.match.source
         expect(src.startsWith('(?<'), `ini:${name} rule starts with a lookbehind: ${src}`).toBeFalsy()
       }
@@ -336,7 +341,9 @@ describe('ini', () => {
     budget(`x = { ${word.repeat(Math.ceil((512 * 1024) / word.length))}\n`, 'an unclosed inline table')
     // Every key spelling is still found, after the brace and after a comma.
     const table = 'x = { a.b = 1, "c" = 2, \'d\' = 3, -e = 4 }\n'
-    for (const key of ['a.b', '"c"', "'d'", '-e']) assertHas(table, 'ini', key, 'property')
+    for (const key of ['a.b', '"c"', "'d'", '-e']) {
+      assertHas(table, 'ini', key, 'property')
+    }
     assertHas('x = {a=1,b=2}\n', 'ini', 'b', 'property')
     // A nested table gets the same treatment.
     assertHas('x = { a = { b = 1 } }\n', 'ini', 'b', 'property')

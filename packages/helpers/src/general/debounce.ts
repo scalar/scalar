@@ -65,7 +65,8 @@ export const debounce = (options: DebounceOptions = {}) => {
     // Execute the function if it exists
     if (fn !== undefined) {
       try {
-        fn()
+        // Async failures follow the same best-effort policy as synchronous errors.
+        void Promise.resolve(fn()).catch(() => undefined)
       } catch {
         // Errors are silently caught to prevent the debounce mechanism from breaking
       }

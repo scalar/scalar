@@ -161,11 +161,16 @@ export const normalizeBooleanSchemas = <T extends Record<string, unknown>>(docum
         // Vendor extensions are opaque. x-ext additionally contains bundled documents
         // and schema targets whose context can be supplied by a local reference.
         if (child !== null && typeof child === 'object') {
+          let mapDepth = task.mapDepth - 1
+          if (!isMapEntry) {
+            const mapLevels = openApiMaps.has(key) ? 1 : 0
+            mapDepth = key === 'callbacks' ? 2 : mapLevels
+          }
           tasks.push({
             node: link(node, key, child),
             kind: 'document',
             path: childPath,
-            mapDepth: isMapEntry ? task.mapDepth - 1 : key === 'callbacks' ? 2 : openApiMaps.has(key) ? 1 : 0,
+            mapDepth,
           })
         }
       }

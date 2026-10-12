@@ -29,7 +29,7 @@ describe('ScalarHeader', () => {
   })
 
   it('warns when a consumer passes the removed layout slots', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     mount(ScalarHeader, { slots: { start: 'Menu' } })
 
@@ -38,7 +38,7 @@ describe('ScalarHeader', () => {
   })
 
   it('stays quiet for the composed API', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     mount(ScalarHeader, { slots: { default: 'Composed' } })
 

@@ -67,7 +67,9 @@ export const externalValueResolver = (options?: { lazy?: boolean }): LifecyclePl
 
       if (options?.lazy) {
         const path = context.path.at(-2) === 'examples' ? context.path : (context.referencedFromPath ?? context.path)
-        if (path.at(-2) !== 'examples' || isSchemaPath(path)) return
+        if (path.at(-2) !== 'examples' || isSchemaPath(path)) {
+          return
+        }
         // Preserve the referenced document origin before bundling loses that context.
         node['externalValue'] = resolvedValue
         return

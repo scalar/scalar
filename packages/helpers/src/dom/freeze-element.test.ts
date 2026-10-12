@@ -30,7 +30,7 @@ describe('freezeElement', () => {
       height: 100,
       x: 0,
       y: 100,
-      toJSON: () => {},
+      toJSON: () => undefined,
     })
 
     // Set up spies
@@ -70,7 +70,7 @@ describe('freezeElement', () => {
       height: 100,
       x: 0,
       y: 150,
-      toJSON: () => {},
+      toJSON: () => undefined,
     })
 
     // Trigger a mutation by modifying the DOM
@@ -97,7 +97,7 @@ describe('freezeElement', () => {
       height: 100,
       x: 0,
       y: 100,
-      toJSON: () => {},
+      toJSON: () => undefined,
     })
 
     // Trigger a mutation by modifying the DOM

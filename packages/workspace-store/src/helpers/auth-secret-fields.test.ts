@@ -54,7 +54,9 @@ describe('auth-secret-fields', () => {
     const mutators = authMutatorsFactory({ store, document: store.workspace.activeDocument ?? null })
     const read = (): OAuthFlowsObjectSecret => {
       const scheme = mergeSecurity({}, { OAuth: defaults }, store.auth, 'document').OAuth
-      if (scheme?.type !== 'oauth2') throw new Error('Expected OAuth2 scheme')
+      if (scheme?.type !== 'oauth2') {
+        throw new Error('Expected OAuth2 scheme')
+      }
       return scheme.flows
     }
     return { store, mutators, read }
@@ -90,7 +92,9 @@ describe('auth-secret-fields', () => {
     const restored = createAuthStore()
     restored.load(store.auth.export())
     const persisted = mergeSecurity({}, { OAuth: defaults }, restored, 'document').OAuth
-    if (persisted?.type !== 'oauth2') throw new Error('Expected OAuth2 scheme')
+    if (persisted?.type !== 'oauth2') {
+      throw new Error('Expected OAuth2 scheme')
+    }
     expect(persisted.flows).toStrictEqual(expected)
     mutators.resetSecuritySchemeSecret({ name: 'OAuth', flow: 'authorizationCode', field })
     expect(read()).toStrictEqual(initial)
@@ -187,7 +191,9 @@ describe('auth-secret-fields', () => {
       payload: { type: 'openIdConnect', authorizationCode: { 'x-scalar-secret-auth-url': '' } },
     })
     const cleared = read()
-    if (cleared?.type !== 'openIdConnect') throw new Error('Expected OpenID Connect')
+    if (cleared?.type !== 'openIdConnect') {
+      throw new Error('Expected OpenID Connect')
+    }
     expect(cleared.flows?.authorizationCode?.['x-scalar-secret-auth-url']).toBe('')
     mutators.resetSecuritySchemeSecret({ name: 'OIDC', flow: 'authorizationCode', field: 'x-scalar-secret-auth-url' })
     expect(read()).toStrictEqual(initial)

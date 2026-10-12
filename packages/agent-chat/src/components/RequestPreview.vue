@@ -80,10 +80,16 @@ function toggleDisplay(mode: 'preview' | 'raw') {
 }
 
 const displayMode = computed(() => {
-  if (displayToggle.value) return displayToggle.value
+  if (displayToggle.value) {
+    return displayToggle.value
+  }
 
-  if (mediaConfig.value?.raw && !mediaConfig.value.preview) return 'raw'
-  if (mediaConfig.value?.preview) return 'preview'
+  if (mediaConfig.value?.raw && !mediaConfig.value.preview) {
+    return 'raw'
+  }
+  if (mediaConfig.value?.preview) {
+    return 'preview'
+  }
 
   return 'raw'
 })

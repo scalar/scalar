@@ -20,8 +20,11 @@ const runs = (code: string, lang: string): [string, string | null][] => {
   const out: [string, string | null][] = []
   for (const token of tokenize(code, lang)) {
     const last = out[out.length - 1]
-    if (last && last[1] === token.scope) last[0] += token.text
-    else out.push([token.text, token.scope])
+    if (last && last[1] === token.scope) {
+      last[0] += token.text
+    } else {
+      out.push([token.text, token.scope])
+    }
   }
   return out
 }
@@ -341,9 +344,13 @@ describe('dockerfile', () => {
     const offenders: string[] = []
     for (const [name, state] of Object.entries(dockerfile.states)) {
       for (const rule of state.rules) {
-        if (!('match' in rule)) continue
+        if (!('match' in rule)) {
+          continue
+        }
         const src = typeof rule.match === 'string' ? rule.match : rule.match.source
-        if (src.includes('(?<=') || src.includes('(?<!')) offenders.push(`${name}: ${src}`)
+        if (src.includes('(?<=') || src.includes('(?<!')) {
+          offenders.push(`${name}: ${src}`)
+        }
       }
     }
     expect(offenders).toEqual([])

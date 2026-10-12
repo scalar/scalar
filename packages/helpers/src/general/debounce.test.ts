@@ -226,6 +226,20 @@ describe('debounce', () => {
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
+  it('handles rejected async callbacks and continues scheduling the same key', async () => {
+    const { execute } = debounce({ delay: 100 })
+    const reject = vi.fn(() => Promise.reject(new Error('Async callback failed')))
+    const next = vi.fn()
+
+    execute('test', reject)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(reject).toHaveBeenCalledTimes(1)
+
+    execute('test', next)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(next).toHaveBeenCalledTimes(1)
+  })
+
   it('handles errors in the callback function', () => {
     const { execute } = debounce({ delay: 100 })
     const errorFn = vi.fn(() => {

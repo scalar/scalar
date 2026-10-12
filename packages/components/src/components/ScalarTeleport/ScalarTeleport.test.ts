@@ -83,7 +83,7 @@ describe('ScalarTeleport', () => {
     expect(root.find('#teleported').exists()).toBe(false)
 
     // Content should teleport when disabled is removed
-    wrapper.setProps({ disabled: false })
+    await wrapper.setProps({ disabled: false })
 
     await wrapper.vm.$nextTick()
 

@@ -125,8 +125,12 @@ const wrap = (value: string | undefined): string[] | undefined => (value === und
 
 // An empty value is an empty list, not a one-element list of the empty string. Otherwise `?ids=`
 // would satisfy a `minItems: 1` array while failing the element type check on `''`.
-const split = (value: string | undefined, delimiter: string): string[] | undefined =>
-  value === undefined ? undefined : value === '' ? [] : value.split(delimiter)
+const split = (value: string | undefined, delimiter: string): string[] | undefined => {
+  if (value === undefined) {
+    return undefined
+  }
+  return value === '' ? [] : value.split(delimiter)
+}
 
 /**
  * Build an exploded array from the repeated values (query) or the single value (other locations).
@@ -242,7 +246,7 @@ export const deserializeArrayParameter = ({
     case 'simple':
       // Path and header arrays are comma-separated; `explode` does not change the delimiter. HTTP allows
       // optional whitespace after the comma in header list values (`a, b, c`), so trim each element.
-      return single === undefined ? undefined : single === '' ? [] : single.split(',').map((element) => element.trim())
+      return split(single, ',')?.map((element) => element.trim())
     case 'label':
       // Path `label` arrays are dot-prefixed. Non-exploded values are comma-separated (`.1,2,3`),
       // exploded values are dot-separated (`.1.2.3`).

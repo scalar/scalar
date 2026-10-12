@@ -43,7 +43,9 @@ const summarizeScheme = (scheme: SecurityScheme): PhrasingContent[] => {
           ['refreshUrl', 'refresh'],
         ] as const) {
           // Coercion fills in optional URLs as empty strings.
-          if (typeof urls[key] === 'string' && urls[key]) nodes.push(text(`, ${label} `), inlineCode(urls[key]))
+          if (typeof urls[key] === 'string' && urls[key]) {
+            nodes.push(text(`, ${label} `), inlineCode(urls[key]))
+          }
         }
       }
       return nodes
@@ -68,11 +70,17 @@ export const renderSecurity = async (
   description: DescriptionParser,
   level: Heading['depth'] = 4,
 ): Promise<RootContent[]> => {
-  if (!requirements) return []
+  if (!requirements) {
+    return []
+  }
   const nodes: RootContent[] = [heading(level, text('Authentication'))]
-  if (!requirements.length) nodes.push(paragraph(text('No authentication required.')))
+  if (!requirements.length) {
+    nodes.push(paragraph(text('No authentication required.')))
+  }
   for (const [index, requirement] of requirements.entries()) {
-    if (index) nodes.push(paragraph(text('Or:')))
+    if (index) {
+      nodes.push(paragraph(text('Or:')))
+    }
     const entries = Object.entries(requirement)
     if (!entries.length) {
       nodes.push(paragraph(text('No authentication required.')))
@@ -82,8 +90,12 @@ export const renderSecurity = async (
     for (const [name, scopes] of entries) {
       const scheme = getResolvedRef(schemes?.[name])
       const line: PhrasingContent[] = [strong(text(name))]
-      if (scheme) line.push(text(': '), ...summarizeScheme(scheme))
-      if (scopes?.length) line.push(text(', scopes: '), inlineCode(scopes.join(', ')))
+      if (scheme) {
+        line.push(text(': '), ...summarizeScheme(scheme))
+      }
+      if (scopes?.length) {
+        line.push(text(', scopes: '), inlineCode(scopes.join(', ')))
+      }
       entriesNodes.push(item(paragraph(...line), ...((await description(scheme?.description)) as ListItem['children'])))
     }
     nodes.push(list(entriesNodes))

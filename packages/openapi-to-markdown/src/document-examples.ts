@@ -15,7 +15,9 @@ const bookkeeping = new Set(['$ref', '$ref-value', '$global', '$status', '__scal
 
 /** Sibling constraints make a reference a different example source from its target. */
 const identity = (source: ExampleSource): object | undefined => {
-  if (!isObject(source.schema)) return undefined
+  if (!isObject(source.schema)) {
+    return undefined
+  }
   const schema = source.schema
   const target =
     '$ref' in schema && Object.keys(schema).every((key) => bookkeeping.has(key)) ? getResolvedRef(schema) : schema
@@ -32,11 +34,14 @@ export const createDocumentExamples = (anchors: ReturnType<typeof createDocument
     get: (...args) => {
       const [source, ...settings] = args
       const schema = identity(source)
-      if (!schema || source.example !== undefined || Object.keys(source.examples ?? {}).length)
+      if (!schema || source.example !== undefined || Object.keys(source.examples ?? {}).length) {
         return getMarkdownExamples(...args)
+      }
       const scope = JSON.stringify(settings)
       const previous = cache.get(schema)?.get(scope)
-      if (previous) return previous
+      if (previous) {
+        return previous
+      }
       // Large APIs must not retain every generated object until the export finishes.
       if (cachedCount >= 256) {
         cache.clear()
@@ -53,10 +58,14 @@ export const createDocumentExamples = (anchors: ReturnType<typeof createDocument
       const schema = identity(source)
       const entries = schema ? (shown.get(schema) ?? new Map()) : new Map()
       const previous = entries.get(scope)
-      if (previous?.value === code.value) return { id: previous.id, previous: true }
+      if (previous?.value === code.value) {
+        return { id: previous.id, previous: true }
+      }
       const id = anchors.get('example', String(++nextId))
       entries.set(scope, { id, value: code.value })
-      if (schema) shown.set(schema, entries)
+      if (schema) {
+        shown.set(schema, entries)
+      }
       return { id, previous: false }
     },
   }

@@ -41,8 +41,12 @@ export function buildQueryString(queryParams?: Array<{ name: string; value: stri
 /**
  * Normalizes a request method.
  */
-export const normalizeMethod = (method?: string): string =>
-  method ? (isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method) : 'GET'
+export const normalizeMethod = (method?: string): string => {
+  if (!method) {
+    return 'GET'
+  }
+  return isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method
+}
 
 /**
  * Normalizes URL formatting while preserving origin-only paths.

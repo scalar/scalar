@@ -26,7 +26,7 @@ export function useFileDialog({ multiple, accept, onChange, onError }: UseFileDi
       }
       const result = event.target
       files.value = result.files
-      onChange?.(files.value)
+      return onChange?.(files.value)
     }
 
     input.onerror = () => onError?.()

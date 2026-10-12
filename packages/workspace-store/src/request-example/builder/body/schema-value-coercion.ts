@@ -5,7 +5,10 @@ import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type
 /** Normalize a schema's `type` (string | string[] | absent) into a plain string array. */
 const normalizeSchemaTypes = (schema: SchemaObject): string[] => {
   const type = 'type' in schema ? schema.type : undefined
-  return Array.isArray(type) ? [...type] : type == null ? [] : [type]
+  if (Array.isArray(type)) {
+    return [...type]
+  }
+  return type == null ? [] : [type]
 }
 
 /**

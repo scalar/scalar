@@ -124,8 +124,8 @@ export function processItem(
   const operationExampleName = preserveCollapsedVariants ? sourceRequestName : exampleName
   const method = (typeof request === 'string' ? 'get' : request.method || 'get').toLowerCase() as HttpMethods
 
-  const requestUrl =
-    typeof request === 'string' ? request : typeof request.url === 'string' ? request.url : (request.url?.raw ?? '')
+  const url = typeof request === 'string' ? request : request.url
+  const requestUrl = typeof url === 'string' ? url : (url?.raw ?? '')
 
   const path = extractPathFromUrl(requestUrl)
 
@@ -149,14 +149,12 @@ export function processItem(
   // Extract operation ID if present
   const { operationId, summary } = extractOperationInfo(name)
 
-  const description =
-    typeof request === 'string'
-      ? ''
-      : typeof request.description === 'string'
-        ? request.description
-        : (request.description?.content ?? '')
-  const tagName =
-    parentTags.length > 0 ? (resolveTagName ? resolveTagName(parentTags) : parentTags.join(' > ')) : undefined
+  const requestDescription = typeof request === 'string' ? '' : request.description
+  const description = typeof requestDescription === 'string' ? requestDescription : (requestDescription?.content ?? '')
+  let tagName: string | undefined
+  if (parentTags.length > 0) {
+    tagName = resolveTagName ? resolveTagName(parentTags) : parentTags.join(' > ')
+  }
 
   // Derive media-type signals from request headers before they are filtered out
   // of `parameters[in=header]`. Content-Type drives the request body media type;

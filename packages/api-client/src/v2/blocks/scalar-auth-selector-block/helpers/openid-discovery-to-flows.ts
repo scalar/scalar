@@ -11,11 +11,8 @@ export const openIDDiscoveryToFlows = (discovery: OpenIDConnectDiscovery): Secre
   const authorizationUrl = discovery.authorization_endpoint
   const tokenUrl = discovery.token_endpoint
 
-  const usePkce = discovery.code_challenge_methods_supported?.includes('S256')
-    ? 'SHA-256'
-    : discovery.code_challenge_methods_supported?.includes('plain')
-      ? 'plain'
-      : 'no'
+  const fallbackPkce = discovery.code_challenge_methods_supported?.includes('plain') ? 'plain' : 'no'
+  const usePkce = discovery.code_challenge_methods_supported?.includes('S256') ? 'SHA-256' : fallbackPkce
 
   const flows: OAuthFlowsObject = {}
   if (

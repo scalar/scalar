@@ -24,12 +24,12 @@ export function rehypeAlert() {
 
       const head = node.children[headIndex]
 
-      if (!head || head.type !== 'element' || head.tagName !== 'p') {
+      if (head?.type !== 'element' || head.tagName !== 'p') {
         return
       }
 
       const text = head.children[0]
-      if (!text || text.type !== 'text' || !text.value.startsWith('[!')) {
+      if (text?.type !== 'text' || !text.value.startsWith('[!')) {
         return
       }
 

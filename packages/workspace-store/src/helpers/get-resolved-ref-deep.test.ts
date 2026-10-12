@@ -295,7 +295,7 @@ describe('edge cases', () => {
     expect(result[0]).toHaveProperty('name', 'file')
     expect(result[0]).toHaveProperty('value')
     expect(result[0]?.value).toBeInstanceOf(File)
-    expect((result[0]?.value as File).name).toBe('test.txt')
+    expect((result[0]?.value as File | undefined)?.name).toBe('test.txt')
     expect(result[1]).toEqual({ name: 'description', value: 'Test file' })
   })
 

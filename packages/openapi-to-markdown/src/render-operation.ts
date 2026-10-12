@@ -56,17 +56,27 @@ const contentType = (mediaType: string): RootContent =>
  * return the same error schema, share one key. Anything else a response declares keeps it separate.
  */
 const getResponseKey = (response: ResponseObject, ids: Map<object, number>): string | undefined => {
-  if (Object.keys(response.headers ?? {}).length || Object.keys(response.links ?? {}).length) return undefined
+  if (Object.keys(response.headers ?? {}).length || Object.keys(response.links ?? {}).length) {
+    return undefined
+  }
   const content = Object.entries(response.content ?? {})
-  if (!content.length) return undefined
+  if (!content.length) {
+    return undefined
+  }
   const parts: unknown[] = []
   for (const [mediaType, media] of content) {
     const schema = getResolvedRef(media.schema)
-    if (!isObject(schema) || media.example !== undefined || media.examples || media.encoding) return undefined
-    if (!ids.has(schema)) ids.set(schema, ids.size)
+    if (!isObject(schema) || media.example !== undefined || media.examples || media.encoding) {
+      return undefined
+    }
+    if (!ids.has(schema)) {
+      ids.set(schema, ids.size)
+    }
     // Reference siblings change the schema, so only a plain reference shares its target's identity.
     const siblings = isObject(media.schema) ? Object.keys(media.schema).filter((key) => !key.startsWith('$')) : []
-    if (siblings.length) return undefined
+    if (siblings.length) {
+      return undefined
+    }
     parts.push(mediaType, ids.get(schema))
   }
   return JSON.stringify(parts)
@@ -90,13 +100,18 @@ export const renderOperation = async (
   const displayMethod = formatOperationMethod(method)
   const openapiVersion = document['x-original-oas-version'] ?? document.openapi
   const stability = operation['x-scalar-stability']
-  const title =
-    (operation.summary || `${displayMethod} ${path}`) +
-    (stability ? ` (${stability})` : operation.deprecated ? ' ⚠️ Deprecated' : '')
+  const deprecatedLabel = operation.deprecated ? ' ⚠️ Deprecated' : ''
+  const title = (operation.summary || `${displayMethod} ${path}`) + (stability ? ` (${stability})` : deprecatedLabel)
   const metadata = [field('Method', inlineCode(displayMethod)), field(webhook ? 'Webhook' : 'Path', inlineCode(path))]
-  if (operation.operationId) metadata.push(field('Operation ID', inlineCode(operation.operationId)))
-  if (operation.tags) metadata.push(field('Tags', text(operation.tags.join(', '))))
-  if (stability) metadata.push(field('Stability', text(stability)))
+  if (operation.operationId) {
+    metadata.push(field('Operation ID', inlineCode(operation.operationId)))
+  }
+  if (operation.tags) {
+    metadata.push(field('Tags', text(operation.tags.join(', '))))
+  }
+  if (stability) {
+    metadata.push(field('Stability', text(stability)))
+  }
   const nodes: RootContent[] = [
     heading(h(0), text(title)),
     list(metadata),
@@ -106,8 +121,9 @@ export const renderOperation = async (
   let inheritedServers: string | undefined
   let serverAnchor: string | undefined
   if (documentContext && operation.servers === undefined) {
-    if (pathItem.servers === undefined) inheritedServers = documentContext.servers
-    else {
+    if (pathItem.servers === undefined) {
+      inheritedServers = documentContext.servers
+    } else {
       inheritedServers = documentContext.pathServers.get(pathItem)
       if (inheritedServers === undefined) {
         serverAnchor = documentContext.anchors.get(
@@ -122,7 +138,9 @@ export const renderOperation = async (
   if (inheritedServers) {
     nodes.push(paragraph(strong(text('Servers:')), text(' '), link(`#${inheritedServers}`, 'Inherited servers')))
   } else if (servers !== undefined) {
-    if (serverAnchor) nodes.push(anchor(serverAnchor))
+    if (serverAnchor) {
+      nodes.push(anchor(serverAnchor))
+    }
     nodes.push(heading(h(1), text('Effective servers')))
     const serverItems: ListItem[] = []
     // An explicit empty server array overrides inherited servers with the OAS default `/`.
@@ -133,7 +151,7 @@ export const renderOperation = async (
         ...((await description(server.description)) as ListItem['children']),
       ]
       const variables = Object.entries(server.variables ?? {})
-      if (variables.length)
+      if (variables.length) {
         blocks.push(
           list(
             await Promise.all(
@@ -152,11 +170,12 @@ export const renderOperation = async (
             ),
           ),
         )
+      }
       serverItems.push(item(...blocks))
     }
     nodes.push(list(serverItems))
   }
-  if (documentContext?.authentication && operation.security === undefined)
+  if (documentContext?.authentication && operation.security === undefined) {
     nodes.push(
       paragraph(
         strong(text('Authentication:')),
@@ -164,7 +183,7 @@ export const renderOperation = async (
         link(`#${documentContext.authentication}`, 'Global authentication'),
       ),
     )
-  else
+  } else {
     nodes.push(
       ...(await renderSecurity(
         operation.security ?? document.security,
@@ -173,10 +192,13 @@ export const renderOperation = async (
         h(1),
       )),
     )
+  }
   const parameters = new Map<string, ParameterObject>()
   for (const reference of [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]) {
     const parameter = getResolvedRef(reference, mergeSiblingReferences)
-    if (parameter) parameters.set(`${parameter.in}:${parameter.name}`, parameter)
+    if (parameter) {
+      parameters.set(`${parameter.in}:${parameter.name}`, parameter)
+    }
   }
   const locations = [
     ...parameterLocations,
@@ -187,19 +209,26 @@ export const renderOperation = async (
   for (const [location, sectionTitle] of locations) {
     const entries: ListItem[] = []
     for (const parameter of parameters.values()) {
-      if (parameter.in !== location) continue
+      if (parameter.in !== location) {
+        continue
+      }
       entries.push(await renderParameter(parameter, { description, schemas, examples, openapiVersion, document }))
     }
-    if (entries.length) nodes.push(heading(h(1), text(sectionTitle)), list(entries))
+    if (entries.length) {
+      nodes.push(heading(h(1), text(sectionTitle)), list(entries))
+    }
   }
   const body: RequestBodyObject | undefined = getResolvedRef(operation.requestBody, mergeSiblingReferences)
   if (body) {
     nodes.push(heading(h(1), text('Request body')), ...(await description(body.description)))
-    if (typeof body.required === 'boolean')
+    if (typeof body.required === 'boolean') {
       nodes.push(paragraph(strong(text('Required:')), text(' '), inlineCode(body.required)))
+    }
     for (const [mediaType, content] of Object.entries(body.content ?? {})) {
       nodes.push(contentType(mediaType))
-      if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
+      if (content.schema !== undefined) {
+        nodes.push(...schemas.render(content.schema))
+      }
       nodes.push(
         ...(await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi, {
           linked: schemas.linked,
@@ -230,7 +259,9 @@ export const renderOperation = async (
     const key = getResponseKey(entry.response, ids) ?? `status:${entry.status}`
     groups.set(key, [...(groups.get(key) ?? []), entry])
   }
-  if (responses.length) nodes.push(heading(h(1), text('Responses')))
+  if (responses.length) {
+    nodes.push(heading(h(1), text('Responses')))
+  }
   for (const group of groups.values()) {
     const { response } = group[0]!
     if (group.length > 1) {
@@ -252,7 +283,9 @@ export const renderOperation = async (
     )
     for (const [mediaType, content] of Object.entries(response.content ?? {})) {
       nodes.push(contentType(mediaType))
-      if (content.schema !== undefined) nodes.push(...schemas.render(content.schema))
+      if (content.schema !== undefined) {
+        nodes.push(...schemas.render(content.schema))
+      }
       nodes.push(
         ...(await renderExamples(content, description, mediaType, 'read', openapiVersion, document.openapi, {
           linked: schemas.linked,
@@ -288,13 +321,25 @@ const renderParameter = async (
   const schema = 'schema' in parameter ? parameter.schema : undefined
   const summary = schema === undefined ? [] : schemas.summarize(schema)
   const add = (label: string, value: unknown): void => {
-    if (value !== undefined) summary.push(text(`${summary.length ? ', ' : ''}${label}: `), inlineCode(value))
+    if (value !== undefined) {
+      summary.push(text(`${summary.length ? ', ' : ''}${label}: `), inlineCode(value))
+    }
   }
-  if ('style' in parameter) add('style', parameter.style)
-  if ('explode' in parameter && typeof parameter.explode === 'boolean') add('explode', parameter.explode)
-  if (parameter.allowEmptyValue) add('allowEmptyValue', true)
-  if ('allowReserved' in parameter && parameter.allowReserved) add('allowReserved', true)
-  if (summary.length) title.push(text(': '), ...summary)
+  if ('style' in parameter) {
+    add('style', parameter.style)
+  }
+  if ('explode' in parameter && typeof parameter.explode === 'boolean') {
+    add('explode', parameter.explode)
+  }
+  if (parameter.allowEmptyValue) {
+    add('allowEmptyValue', true)
+  }
+  if ('allowReserved' in parameter && parameter.allowReserved) {
+    add('allowReserved', true)
+  }
+  if (summary.length) {
+    title.push(text(': '), ...summary)
+  }
   const blocks: ListItem['children'] = [
     paragraph(...title),
     ...((await description(parameter.description)) as ListItem['children']),
@@ -302,10 +347,12 @@ const renderParameter = async (
   if (schema !== undefined) {
     // The schema's own description usually repeats the parameter's, so print it only when it differs.
     const schemaDescription = schemas.view(schema).description
-    if (schemaDescription?.trim() !== parameter.description?.trim()) blocks.push(...describe(schemaDescription))
+    if (schemaDescription?.trim() !== parameter.description?.trim()) {
+      blocks.push(...describe(schemaDescription))
+    }
     blocks.push(...(schemas.render(schema, 0, [], { hideDetails: true }) as ListItem['children']))
   }
-  if ('example' in parameter || 'examples' in parameter)
+  if ('example' in parameter || 'examples' in parameter) {
     blocks.push(
       ...((await renderExamples(
         { example: parameter.example, examples: parameter.examples },
@@ -317,9 +364,12 @@ const renderParameter = async (
         { examples },
       )) as ListItem['children']),
     )
+  }
   for (const [mediaType, content] of Object.entries('content' in parameter ? (parameter.content ?? {}) : {})) {
     blocks.push(contentType(mediaType) as ListItem['children'][number])
-    if (content.schema !== undefined) blocks.push(...(schemas.render(content.schema) as ListItem['children']))
+    if (content.schema !== undefined) {
+      blocks.push(...(schemas.render(content.schema) as ListItem['children']))
+    }
     blocks.push(
       ...((await renderExamples(content, description, mediaType, 'write', openapiVersion, document.openapi, {
         linked: schemas.linked,

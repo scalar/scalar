@@ -22,12 +22,17 @@ export const playgroundApi = (): Plugin => ({
     worker.on('message', ({ id, value, error }: { id: number; value: Result; error?: string }) => {
       const job = pending.get(id)
       pending.delete(id)
-      if (error) job?.reject(new Error(error))
-      else job?.resolve(value)
+      if (error) {
+        job?.reject(new Error(error))
+      } else {
+        job?.resolve(value)
+      }
     })
     const fail = (cause: Error): void => {
       failure = cause
-      for (const job of pending.values()) job.reject(cause)
+      for (const job of pending.values()) {
+        job.reject(cause)
+      }
       pending.clear()
     }
     worker.on('error', fail)
@@ -37,7 +42,9 @@ export const playgroundApi = (): Plugin => ({
     })
     server.middlewares.use((request, response, next) => {
       const url = new URL(request.url ?? '/', 'http://localhost')
-      if (!url.pathname.startsWith('/__markdown/') && url.pathname !== '/llms.txt') return next()
+      if (!url.pathname.startsWith('/__markdown/') && url.pathname !== '/llms.txt') {
+        return next()
+      }
       if (!['/__markdown/document', '/__markdown/render', '/llms.txt'].includes(url.pathname)) {
         response.statusCode = 404
         response.end('Unknown playground route')
@@ -58,7 +65,9 @@ export const playgroundApi = (): Plugin => ({
       worker.postMessage({ id, pathname: url.pathname, search: url.searchParams.toString() })
       void job
         .then((value) => {
-          if (response.destroyed) return
+          if (response.destroyed) {
+            return
+          }
           response.setHeader(
             'Content-Type',
             typeof value === 'string' ? 'text/plain; charset=utf-8' : 'application/json',
@@ -66,7 +75,9 @@ export const playgroundApi = (): Plugin => ({
           response.end(typeof value === 'string' ? value : JSON.stringify(value))
         })
         .catch((cause: unknown) => {
-          if (response.destroyed) return
+          if (response.destroyed) {
+            return
+          }
           response.statusCode = 400
           response.setHeader('Content-Type', 'application/json')
           response.end(JSON.stringify({ error: cause instanceof Error ? cause.message : 'Export failed' }))
