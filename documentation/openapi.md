@@ -347,6 +347,8 @@ paths:
         - pl4n3t5
 ```
 
+In the modern sidebar, every tag with children can be expanded or collapsed, including parent tags at any nesting depth. Collapsing a parent preserves the expansion state of its children. Deep links and search results open the ancestors of the target. The `defaultOpenFirstTag` and `defaultOpenAllTags` configuration options also apply to parent tags and tag groups.
+
 ## x-tagGroups
 
 You can group your tags with `x-tagGroups`. This remains supported for existing API descriptions and OpenAPI versions before 3.2. For OpenAPI 3.2, use [native nested tags](#nested-tags-openapi-32) with `parent` instead.

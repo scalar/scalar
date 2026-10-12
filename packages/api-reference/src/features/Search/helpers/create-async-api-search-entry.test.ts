@@ -1,7 +1,6 @@
 import type { AsyncApiDocument, AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
-import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { describe, expect, it } from 'vitest'
 import { reactive } from 'vue'
 
@@ -90,17 +89,18 @@ describe('create-async-api-search-entry', () => {
     expect(search(document, 'accountCreated')).toStrictEqual(['Invoice issued'])
   })
 
-  it('uses one channel catalog anchor even when two operations reference the message', () => {
+  it('uses the first rendered message anchor when two operations reference the message', () => {
     const document = createDocument()
     const channel = traverseAsyncApiDocument('events', document).children?.find(
       (entry) => entry.type === 'asyncapi-channel',
     )
-    const catalog =
-      channel && 'children' in channel
-        ? channel.children?.find((entry: TraversedEntry) => entry.type === 'asyncapi-message')
-        : undefined
+    const operation = channel?.type === 'asyncapi-channel' ? channel.children?.[0] : undefined
+    const message = operation?.type === 'asyncapi-operation' ? operation.children?.[0] : undefined
+    if (message?.type !== 'asyncapi-message') {
+      throw new Error('Expected a rendered operation message')
+    }
     const messages = createSearchIndex(document).filter((entry) => entry.type === 'asyncapi-message')
-    expect(messages.map(({ id }) => id)).toStrictEqual([catalog?.id])
+    expect(messages.map(({ id }) => id)).toStrictEqual([message.id])
     expect(messages.map(({ identifiers }) => identifiers)).toStrictEqual([['accountCreated', 'account.created.v1']])
   })
 
