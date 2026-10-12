@@ -109,6 +109,24 @@ describe('AsyncApiServerSelector', () => {
     expect(variablesForm.props('layout')).toBe('reference')
   })
 
+  it('ignores siblings throughout chained server variable references', () => {
+    const target = { default: 'prod', description: 'Target environment', enum: ['prod', 'staging'] }
+    const alias = { $ref: '#/components/serverVariables/target', '$ref-value': target, default: 'wrong-alias' }
+    const variable = { $ref: '#/components/serverVariables/alias', '$ref-value': alias, default: 'wrong' }
+    const server = createEntry({
+      name: 'production',
+      url: 'mqtt://prod.example.com',
+      server: { host: '{environment}.example.com', protocol: 'mqtt', variables: { environment: variable } },
+    })
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: { servers: [server], selectedServer: server, eventBus },
+    })
+
+    expect(wrapper.findComponent({ name: 'ServerVariablesForm' }).props('variables')).toEqual({
+      environment: target,
+    })
+  })
+
   it('emits the selected server name when a server is chosen', async () => {
     const emit = vi.spyOn(eventBus, 'emit')
     const wrapper = mount(AsyncApiServerSelector, {

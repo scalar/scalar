@@ -183,7 +183,8 @@ const mergeWsQuerySchemas = (
   })
 }
 
-const getDefaultValueFromPropertySchema = (propertySchema: unknown): unknown | undefined => {
+const getDefaultValueFromPropertySchema = (source: unknown): unknown | undefined => {
+  const propertySchema = getResolvedAsyncApiRef(source)
   if (propertySchema === true || propertySchema === false || !isObject(propertySchema)) {
     return undefined
   }
