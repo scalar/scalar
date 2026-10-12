@@ -1,5 +1,5 @@
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
-import type { OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { ApiReferenceEvents, OperationExampleMeta, WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { deSerializeSchemaValue } from '@scalar/workspace-store/request-example'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
@@ -62,7 +62,7 @@ const getExpandedObjectPayload = (
   row: TableRow,
   context: TableRow[],
   payload?: ParameterUpsertPayload,
-): { name: string; value: Record<string, unknown>; isDisabled: boolean } => {
+): ApiReferenceEvents['operation:upsert:parameter']['payload'] => {
   const value: Record<string, unknown> = {}
 
   // Only deepObject leaves use the comma-to-array coercion below. The trailing-bracket array
@@ -122,6 +122,13 @@ const getExpandedObjectPayload = (
     name: row.originalParameter?.name ?? payload?.name ?? row.name,
     value,
     isDisabled: payload?.isDisabled ?? row.isDisabled ?? false,
+    propertyState: {
+      path: payload?.shouldRenameExpandedRow
+        ? getEditedValuePath(payload.name, row.originalParameter?.name, row.sourceParameterValuePath ?? [])
+        : (row.sourceParameterValuePath ?? []),
+      ...(payload ? { isDisabled: payload.isDisabled } : {}),
+      ...(payload?.shouldRenameExpandedRow ? { previousPath: row.sourceParameterValuePath } : {}),
+    },
   }
 }
 

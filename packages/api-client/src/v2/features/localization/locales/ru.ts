@@ -345,6 +345,9 @@ export const ru = {
     'body': 'Тело',
   },
   'requestParams': {
+    'addParameter': 'Добавить параметр',
+    'searchParameters': 'Поиск параметров',
+    'noParametersFound': 'Нет подходящих параметров',
     'clearAll': 'Очистить всё: {title}',
     'clear': 'Очистить',
     'clearOptionalParameters': 'Очистить необязательные параметры',

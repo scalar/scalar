@@ -4,6 +4,60 @@ import { describe, expect, it } from 'vitest'
 import { createParameterRows } from './create-parameter-rows'
 
 describe('createParameterRows', () => {
+  it.each([true, false])('inherits a saved parent property override of %s', (disabled) => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: { type: 'object', properties: { user: { type: 'object', properties: { city: { type: 'string' } } } } },
+      examples: {
+        default: {
+          value: { user: { city: 'Paris' } },
+          'x-scalar-disabled-properties': { '[]': !disabled, '["user"]': disabled },
+        },
+      },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ isDisabled, isDisabledByDefault }) => ({
+        isDisabled,
+        isDisabledByDefault,
+      })),
+    ).toStrictEqual([{ isDisabled: disabled, isDisabledByDefault: false }])
+  })
+  it('applies property overrides independently and leaves untouched empty fields ready for typing', () => {
+    const parameter: ParameterObject = {
+      name: 'filters',
+      in: 'query',
+      style: 'deepObject',
+      explode: true,
+      schema: {
+        type: 'object',
+        properties: {
+          email: { type: 'string' },
+          user: { type: 'object', properties: { city: { type: 'string' }, country: { type: 'string' } } },
+        },
+      },
+      examples: {
+        default: {
+          value: { email: 'saved', user: { city: 'Paris' } },
+          'x-scalar-disabled-properties': { '[]': true, '["user","city"]': false, '["email"]': true },
+        },
+      },
+    }
+    expect(
+      createParameterRows(parameter, 'default').map(({ name, value, isDisabled, isDisabledByDefault }) => ({
+        name,
+        value,
+        isDisabled,
+        isDisabledByDefault,
+      })),
+    ).toStrictEqual([
+      { name: 'filters[email]', value: 'saved', isDisabled: true, isDisabledByDefault: false },
+      { name: 'filters[user][city]', value: 'Paris', isDisabled: false, isDisabledByDefault: false },
+      { name: 'filters[user][country]', value: '', isDisabled: true, isDisabledByDefault: true },
+    ])
+  })
   it.each(['query', 'header', 'cookie'] as const)(
     'displays optional %s enum suggestions without enabling them',
     (location) => {
