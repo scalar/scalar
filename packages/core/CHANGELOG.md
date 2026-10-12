@@ -1,5 +1,11 @@
 # @scalar/core
 
+## 0.5.43
+
+### Patch Changes
+
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+
 ## 0.5.42
 
 ## 0.5.41

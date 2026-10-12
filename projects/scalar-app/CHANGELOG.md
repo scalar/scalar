@@ -1,5 +1,14 @@
 # scalar-app
 
+## 1.1.40
+
+### Patch Changes
+
+- [#10526](https://github.com/scalar/scalar/pull/10526): Make document watcher tests independent of HTTP socket timers and cover polling backoff and cleanup.
+- [#10521](https://github.com/scalar/scalar/pull/10521): Wait for initial operation focusing before replacing the document in Monaco validation tests.
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+- [#10555](https://github.com/scalar/scalar/pull/10555): Make the document watcher unmount regression test independent of response-stream scheduling.
+
 ## 1.1.39
 
 ### Patch Changes

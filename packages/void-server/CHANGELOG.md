@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.5.17
+
+### Patch Changes
+
+- [#10559](https://github.com/scalar/scalar/pull/10559): Clean up Biome warnings in package code and tests. Handle rejected debounced callbacks and await streaming writes.
+
 ## 2.5.16
 
 ## 2.5.15

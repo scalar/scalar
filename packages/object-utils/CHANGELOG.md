@@ -1,5 +1,12 @@
 # @scalar/object-utils
 
+## 1.3.31
+
+### Patch Changes
+
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+
 ## 1.3.30
 
 ## 1.3.29

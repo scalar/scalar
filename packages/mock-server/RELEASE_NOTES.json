@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.17.6",
+    "date": "2026-10-12",
+    "title": "Polish and bug fixes shipped",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0176",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.17.0",
     "date": "2026-09-25",
     "title": "Schema-aware XML generation and AsyncAPI security hardening",

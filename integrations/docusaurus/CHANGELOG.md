@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.8.50
+
+### Patch Changes
+
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10549](https://github.com/scalar/scalar/pull/10549): Order theme overrides by specificity while preserving existing styles.
+
 ## 0.8.49
 
 ## 0.8.48
