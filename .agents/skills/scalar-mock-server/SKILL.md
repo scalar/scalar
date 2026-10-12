@@ -1,5 +1,5 @@
 ---
-name: mock-server
+name: scalar-mock-server
 description: Build, customize, and troubleshoot OpenAPI mock servers with @scalar/mock-server, including x-handler, x-seed, authentication, and Docker.
 ---
 

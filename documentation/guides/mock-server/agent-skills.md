@@ -7,7 +7,7 @@ You can install a reusable Mock Server skill for coding agents with the [`skills
 Install directly from GitHub:
 
 ```bash
-npx skills add scalar/scalar --skill mock-server
+npx skills add scalar/scalar --skill scalar-mock-server
 ```
 
 ## Install to specific agents
@@ -16,7 +16,7 @@ Example for Cursor and Codex:
 
 ```bash
 npx skills add scalar/scalar \
-  --skill mock-server \
+  --skill scalar-mock-server \
   --agent cursor \
   --agent codex
 ```
@@ -27,7 +27,7 @@ If you also manage `scalar.config.json`, install both skills:
 
 ```bash
 npx skills add scalar/scalar --skill scalar-docs
-npx skills add scalar/scalar --skill mock-server
+npx skills add scalar/scalar --skill scalar-mock-server
 ```
 
 ## Install globally
@@ -35,7 +35,7 @@ npx skills add scalar/scalar --skill mock-server
 To make the skill available across projects:
 
 ```bash
-npx skills add scalar/scalar --skill mock-server --global
+npx skills add scalar/scalar --skill scalar-mock-server --global
 ```
 
 ## Use Scalar Docs as an MCP
@@ -44,7 +44,7 @@ Use `https://scalar.com/mcp` to add Scalar Documentation as an MCP server for yo
 
 ## What this skill covers
 
-The `mock-server` skill includes guidance for:
+The `scalar-mock-server` skill includes guidance for:
 
 - Setting up `createMockServer()` with `document` and `onRequest`
 - Using `x-handler` for dynamic request handling
