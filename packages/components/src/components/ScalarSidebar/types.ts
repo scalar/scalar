@@ -60,6 +60,13 @@ export type ScalarSidebarGroupProps = ScalarSidebarItemProps & {
    */
   discrete?: boolean
   /**
+   * Indent children one level deeper than the group heading.
+   * Disable for collapsible sections whose children stay aligned with the heading.
+   *
+   * @default true
+   */
+  indentChildren?: boolean
+  /**
    * Whether the group items are loading
    *
    * Will render a loading skeleton for the contents of the group

@@ -64,6 +64,17 @@ for (const { name, content, ancestors } of documents) {
         'true',
       )
     }
+    // Parent sections retain the horizontal space available before they were collapsible.
+    const rootLink = sidebar.getByRole('link', { name: ancestors[0], exact: true })
+    const rootBounds = await rootLink.getByText(ancestors[0]!, { exact: true }).boundingBox()
+    expect(rootBounds).not.toBeNull()
+    const firstChildBounds = await sidebar
+      .getByRole('link', { name: ancestors[1], exact: true })
+      .getByText(ancestors[1]!, { exact: true })
+      .boundingBox()
+    expect(firstChildBounds).not.toBeNull()
+    expect(firstChildBounds!.x).toBe(rootBounds!.x)
+
     const operation = sidebar.getByRole('link', { name: 'List items HTTP Method: GET', exact: true })
     const href = await operation.getAttribute('href')
     expect(href).not.toBeNull()
