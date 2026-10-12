@@ -52,6 +52,34 @@ const exchange = (app: Hono, parameters: Record<string, string>): Promise<Respon
   )
 
 describe('set-up-openid-connect', () => {
+  it('sets up routes without request-only cryptographic operations', () => {
+    const randomUUID = vi.spyOn(crypto, 'randomUUID').mockImplementation(() => {
+      throw new Error('Random values are unavailable outside a request handler')
+    })
+    const generateKey = vi.spyOn(crypto.subtle, 'generateKey').mockImplementation(() => {
+      throw new Error('Key generation is unavailable outside a request handler')
+    })
+    try {
+      expect(() => create()).not.toThrow()
+    } finally {
+      randomUUID.mockRestore()
+      generateKey.mockRestore()
+    }
+  })
+
+  it('keeps the key ID stable when JWKS is requested before issuing tokens', async () => {
+    const app = create()
+    const jwks = await (await app.request(`${origin}/oauth/jwks`)).json()
+    expect(jwks.keys[0].kid).toEqual(expect.any(String))
+    const code = await authorize(app)
+    const response = await exchange(app, { grant_type: 'authorization_code', code })
+    expect(response.status).toBe(200)
+    const tokens = await response.json()
+    const header = JSON.parse(Buffer.from(tokens.id_token.split('.')[0], 'base64url').toString())
+    expect(header.kid).toBe(jwks.keys[0].kid)
+    expect(await (await app.request(`${origin}/oauth/jwks`)).json()).toStrictEqual(jwks)
+  })
+
   it('issues verifiable ID tokens and scoped UserInfo, then rotates refresh tokens', async () => {
     const app = create()
     const code = await authorize(app)

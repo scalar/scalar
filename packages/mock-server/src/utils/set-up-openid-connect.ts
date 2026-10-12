@@ -44,7 +44,9 @@ export const setUpOpenIdConnect = (
   allowOAuthFallback = false,
 ): void => {
   if (discoveryUrls.length === 0) return
-  const keyId = crypto.randomUUID()
+  // Workers forbid random number generation until a request handler runs.
+  let keyId: string | undefined
+  const getKeyId = (): string => (keyId ??= crypto.randomUUID())
   const codes = new Map<string, Authorization>()
   const refreshTokens = new Map<string, Authorization>()
   const accessTokens = new Map<string, Authorization>()
@@ -84,7 +86,7 @@ export const setUpOpenIdConnect = (
 
   app.get('/oauth/jwks', async (c) => {
     const key = await crypto.subtle.exportKey('jwk', (await getKeys()).publicKey)
-    return c.json({ keys: [{ ...key, kid: keyId, use: 'sig', alg: 'RS256' }] })
+    return c.json({ keys: [{ ...key, kid: getKeyId(), use: 'sig', alg: 'RS256' }] })
   })
 
   app.get('/oauth/authorize', (c, next) => {
@@ -170,7 +172,7 @@ export const setUpOpenIdConnect = (
     if (source.get(credential) !== session) return tokenError(c, 'invalid_grant', 'Authorization has already been used')
     source.delete(credential)
     const issuedAt = now()
-    const header = encodeJson({ alg: 'RS256', typ: 'JWT', kid: keyId })
+    const header = encodeJson({ alg: 'RS256', typ: 'JWT', kid: getKeyId() })
     const claims = encodeJson({
       iss: session.issuer,
       sub: SUBJECT,
