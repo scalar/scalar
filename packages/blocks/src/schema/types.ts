@@ -10,6 +10,8 @@ import type { SchemaExpansionStore } from './helpers/schema-expansion'
  * These options should be prop drilled through the Schema component tree and shouldn't be changed
  */
 export type SchemaOptions = {
+  /** Keep a host-linked property anchor available beyond the usual heading levels. */
+  linkablePropertyPath?: readonly string[]
   /** Hide read-only properties */
   hideReadOnly?: boolean
   /** Hide write-only properties */
