@@ -1,6 +1,6 @@
 import * as apiClientModalModule from '@scalar/api-client/modal'
 import type { ClientOptionGroup } from '@scalar/blocks/code-example'
-import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
+import type { TraversedEntry, TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { toValue } from 'vue'
@@ -826,6 +826,59 @@ describe('ApiReference custom fetch forwarding', () => {
 })
 
 describe('ApiReference AsyncAPI onServerChange', () => {
+  it('reveals a filtered-out message when selected through search', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          layout: 'modern',
+          content: {
+            asyncapi: '3.1.0',
+            info: { title: 'Events', version: '1.0.0' },
+            servers: {
+              mqtt: { host: 'mqtt.example.com', protocol: 'mqtt' },
+              websocket: { host: 'ws.example.com', protocol: 'wss' },
+            },
+            channels: {
+              mqttEvents: {
+                address: 'mqtt/events',
+                servers: [{ $ref: '#/servers/mqtt' }],
+                messages: { updated: { title: 'MQTT Updated', payload: { type: 'string' } } },
+              },
+              wsEvents: {
+                address: 'ws/events',
+                servers: [{ $ref: '#/servers/websocket' }],
+                messages: { updated: { title: 'WS Updated', payload: { type: 'string' } } },
+              },
+            },
+          },
+        },
+      },
+    })
+    await flushPromises()
+    const content = wrapper.findComponent({ name: 'Content' })
+    const items = content.props('items') as TraversedEntry[]
+    const channel = items.find((entry) => entry.type === 'asyncapi-channel' && entry.channelName === 'mqttEvents')
+    if (!channel || !('children' in channel)) {
+      throw new Error('Expected the MQTT channel')
+    }
+    const message = channel.children?.find((entry) => entry.type === 'asyncapi-message')
+    if (!message) {
+      throw new Error('Expected the MQTT message')
+    }
+    const filters = wrapper.findComponent({ name: 'AsyncApiSidebarFilters' })
+    filters.vm.$emit('update:protocol', 'wss')
+    filters.vm.$emit('update:server', 'websocket')
+    await flushPromises()
+    expect((content.props('items') as TraversedEntry[]).map((entry) => entry.id)).not.toContain(channel.id)
+
+    content.props('eventBus').emit('scroll-to:nav-item', { id: message.id })
+    await flushPromises()
+
+    expect(filters.props('protocol')).toBe('')
+    expect(filters.props('server')).toBe('')
+    expect((content.props('items') as TraversedEntry[]).map((entry) => entry.id)).toContain(channel.id)
+    expect(wrapper.find(`[id="${message.id}"]`).exists()).toBe(true)
+  })
   it('fires onServerChange with the connection URL when an AsyncAPI server is selected', async () => {
     const onServerChange = vi.fn()
 

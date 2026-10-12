@@ -29,6 +29,8 @@ export const fr = {
     entryOperation: 'Opération',
     entryTag: 'Balise',
     entryTagGroup: 'Groupe de balises',
+    entryChannel: 'Canal',
+    entryMessage: 'Message',
     entryWebhook: 'Webhook',
   },
   navigation: {
