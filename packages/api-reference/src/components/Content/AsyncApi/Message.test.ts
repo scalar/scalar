@@ -40,6 +40,47 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it.each([
+    [{ contentType: 'application/xml' }, 'application/xml'],
+    [{ traits: [{ contentType: 'text/plain' }] }, 'text/plain'],
+    [{}, 'application/json'],
+  ])('displays the effective content type without examples: %j', (message, expected) => {
+    const document = { ...createDocument(message), defaultContentType: 'application/json' }
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document,
+      },
+    })
+    expect(wrapper.text()).toContain(`Content type: ${expected}`)
+    expect(wrapper.getComponent(MessageExamples).props('contentType')).toBe(expected)
+  })
+
+  it('reactively passes document defaults and message overrides to examples', async () => {
+    const document = createDocument({ examples: [{ payload: '<event />' }] })
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document,
+      },
+    })
+    expect(wrapper.text()).not.toContain('Content type:')
+    expect(wrapper.getComponent(MessageExamples).props('contentType')).toBeUndefined()
+    await wrapper.setProps({ document: { ...document, defaultContentType: 'application/xml' } })
+    expect(wrapper.getComponent(MessageExamples).props('contentType')).toBe('application/xml')
+    await wrapper.setProps({
+      document: {
+        ...createDocument({ contentType: 'text/plain', examples: [{ payload: '<event />' }] }),
+        defaultContentType: 'application/xml',
+      },
+    })
+    expect(wrapper.getComponent(MessageExamples).props('contentType')).toBe('text/plain')
+  })
+
   it.each([true, false])('explains boolean allOf payload members: %j', (value) => {
     const document = createDocument({ payload: { allOf: [value] } })
     const wrapper = mount(Message, {

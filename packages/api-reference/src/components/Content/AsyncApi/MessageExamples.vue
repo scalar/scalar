@@ -18,9 +18,14 @@ import { useLocalization } from '@/features/localization'
 
 import { getMessageExampleContent } from './helpers/get-message-example-content'
 
-const { examples = [], generatedPayload } = defineProps<{
+const {
+  examples = [],
+  generatedPayload,
+  contentType,
+} = defineProps<{
   examples?: AsyncApiMessageObject['examples']
   generatedPayload?: unknown
+  contentType?: string
 }>()
 
 const { translate } = useLocalization()
@@ -75,9 +80,17 @@ watch(
 const selected = computed(() =>
   availableExamples.value.find(({ key }) => key === selectedKey.value),
 )
-const content = computed(() =>
-  selected.value ? getMessageExampleContent(selected.value.example) : undefined,
-)
+const blocks = computed(() => {
+  const example = selected.value?.example
+  if (!example) return []
+  return [
+    { label: 'Headers', value: getMessageExampleContent(example.headers) },
+    {
+      label: 'Payload',
+      value: getMessageExampleContent(example.payload, contentType),
+    },
+  ].flatMap(({ label, value }) => (value ? [{ label, ...value }] : []))
+})
 const pickerExamples = computed(() =>
   Object.fromEntries(
     availableExamples.value.map(({ key, label }) => [key, { summary: label }]),
@@ -94,23 +107,35 @@ const showFooter = computed(
 
 <template>
   <ScalarCard
-    v-if="content !== undefined"
+    v-if="blocks.length"
     class="min-w-0 self-start text-base"
     :label="translate('schema.examples')">
     <ScalarCardHeader>
       {{ translate('schema.examples') }}
     </ScalarCardHeader>
-    <ScalarCardSection class="flex-col">
+    <ScalarCardSection
+      v-for="block in blocks"
+      :key="block.label"
+      class="flex-col">
+      <div
+        v-if="blocks.length > 1 || block.structural"
+        class="text-c-2 px-3 py-2 text-sm">
+        {{ block.label
+        }}<span v-if="block.structural"> (structure only; not encoded)</span>
+      </div>
       <ScalarVirtualCodeBlock
-        v-if="content.length > 20_000"
+        v-if="block.content.length > 20_000"
         class="bg-b-2"
-        :content="content"
-        lang="json" />
+        :content="block.content"
+        :label="block.label"
+        :lang="block.lang" />
       <ScalarCodeBlock
         v-else
         class="bg-b-2"
-        lang="json"
-        :prettyPrintedContent="content" />
+        :copyLabel="`Copy ${block.label.toLowerCase()}`"
+        :label="block.label"
+        :lang="block.lang"
+        :prettyPrintedContent="block.content" />
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="showFooter"

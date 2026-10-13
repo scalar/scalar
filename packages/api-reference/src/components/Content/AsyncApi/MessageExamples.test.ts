@@ -9,6 +9,49 @@ import { nextTick } from 'vue'
 import MessageExamples from './MessageExamples.vue'
 
 describe('MessageExamples', () => {
+  it('separates JSON headers from an XML payload and copies each displayed value', () => {
+    const payload = '<event>created</event>\n'
+    const wrapper = mount(MessageExamples, {
+      props: {
+        contentType: 'application/xml',
+        examples: [{ headers: { trace: 'abc' }, payload }],
+      },
+    })
+    expect(wrapper.findAllComponents(ScalarCodeBlock).map((block) => block.props('lang'))).toStrictEqual([
+      'json',
+      'xml',
+    ])
+    expect(wrapper.findAllComponents(ScalarCopy).map((copy) => copy.props('content'))).toStrictEqual([
+      '{\n  "trace": "abc"\n}',
+      payload,
+    ])
+    expect(wrapper.text()).toContain('Headers')
+    expect(wrapper.text()).toContain('Payload')
+  })
+
+  it('updates formatting when the content type changes', async () => {
+    const payload = '{"id":1}'
+    const wrapper = mount(MessageExamples, { props: { contentType: 'text/plain', examples: [{ payload }] } })
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(payload)
+    expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('plaintext')
+    await wrapper.setProps({ contentType: 'application/json' })
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe('{\n  "id": 1\n}')
+    expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('json')
+  })
+
+  it('labels generated non-JSON structures without claiming they are encoded', () => {
+    const wrapper = mount(MessageExamples, { props: { contentType: 'application/xml', generatedPayload: { id: 1 } } })
+    expect(wrapper.text()).toContain('Payload (structure only; not encoded)')
+    expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('json')
+  })
+
+  it('preserves the media type and clipboard for virtualized XML', () => {
+    const payload = `<event>${'x'.repeat(20_001)}</event>`
+    const wrapper = mount(MessageExamples, { props: { contentType: 'application/xml', examples: [{ payload }] } })
+    expect(wrapper.getComponent(ScalarVirtualCodeBlock).props('lang')).toBe('xml')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(payload)
+  })
+
   it('keeps header-only examples selectable alongside the generated payload', async () => {
     const wrapper = mount(MessageExamples, {
       props: {
