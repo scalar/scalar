@@ -49,11 +49,7 @@ To step through one page at a time, the page exposes `page.HasNext()` and `page.
         "production": { "repo": "acme/acme-csharp" }
       },
       "publish": {
-        "nuget": {
-          "authMethod": "oidc",
-          "homepage": "https://acme.com",
-          "description": "Acme API .NET SDK"
-        }
+        "nuget": { "authMethod": "oidc" }
       }
     }
   }

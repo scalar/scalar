@@ -44,11 +44,7 @@ For page-level control, the guide documents `Pager::next_page`. Treat the exact 
         "production": { "repo": "acme/acme-rust" }
       },
       "publish": {
-        "cargo": {
-          "authMethod": "oidc",
-          "homepage": "https://acme.com",
-          "description": "Acme API Rust SDK"
-        }
+        "cargo": { "authMethod": "oidc" }
       }
     }
   }
