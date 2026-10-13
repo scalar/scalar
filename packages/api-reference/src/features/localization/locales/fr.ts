@@ -56,6 +56,8 @@ export const fr = {
     termsOfService: 'Conditions d’utilisation',
   },
   asyncapi: {
+    address: 'Adresse',
+    unknownAddress: 'Inconnue',
     applicationIdentifier: 'Identifiant de l’application',
     servers: 'Serveurs',
     protocols: 'Protocoles',

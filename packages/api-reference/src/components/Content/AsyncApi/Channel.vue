@@ -27,6 +27,7 @@ import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
 import ChannelMessages from './ChannelMessages.vue'
+import ChannelMetadata from './ChannelMetadata.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
@@ -73,7 +74,7 @@ const {
 const headerId = useId()
 
 /**
- * Resolve the channel from the document so we can read its description.
+ * Resolve channel metadata from the document, including the actual nullable address.
  * The navigation entry only carries the address and identifying keys.
  */
 const resolvedChannel = computed(() =>
@@ -153,6 +154,9 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         class="channel-labels"
         :protocols="labels.protocols"
         :servers="labels.servers" />
+      <ChannelMetadata
+        :address="resolvedChannel?.address"
+        :summary="resolvedChannel?.summary" />
       <ScalarMarkdown
         class="channel-description"
         :value="description"
@@ -225,6 +229,9 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           class="channel-labels"
           :protocols="labels.protocols"
           :servers="labels.servers" />
+        <ChannelMetadata
+          :address="resolvedChannel?.address"
+          :summary="resolvedChannel?.summary" />
         <ScalarMarkdown
           :value="description"
           withImages />

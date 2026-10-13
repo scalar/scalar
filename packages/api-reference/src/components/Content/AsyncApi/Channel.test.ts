@@ -42,6 +42,66 @@ function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDo
 }
 
 describe('Channel', () => {
+  it.each(['modern', 'classic'] as const)('shows title, actual address, summary and description in %s', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: createDocumentWithChannel({
+          title: 'User signups',
+          address: 'users.{tenantId}.signedup',
+          summary: 'Account lifecycle notifications',
+          description: 'Read **every** signup.',
+        }),
+        layout,
+        isCollapsed: true,
+        eventBus: null,
+      },
+    })
+    expect(wrapper.get('h1').text()).toBe('User signups')
+    expect(wrapper.get('dt').text()).toBe('Address:')
+    expect(wrapper.get('dd').text()).toBe('users.{tenantId}.signedup')
+    expect(wrapper.text()).toContain('Account lifecycle notifications')
+    expect(wrapper.get('strong').text()).toBe('every')
+    wrapper.unmount()
+  })
+
+  it.each(['modern', 'classic'] as const)('distinguishes unknown addresses from identifiers in %s', async (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel({ channelAddress: 'userSignedUp' }),
+        document: createDocumentWithChannel({ summary: 'Account lifecycle notifications' }),
+        layout,
+        isCollapsed: true,
+        eventBus: null,
+      },
+    })
+    for (const address of [undefined, null, '', '  events  ']) {
+      await wrapper.setProps({ document: createDocumentWithChannel({ address }) })
+      expect(wrapper.get('dd').element.textContent).toBe(address ?? 'Unknown')
+      expect(wrapper.get('h1').text()).toBe('userSignedUp')
+    }
+    wrapper.unmount()
+  })
+
+  it.each(['modern', 'classic'] as const)('reads metadata from a resolved channel reference in %s', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: createDocumentWithChannel({
+          $ref: '#/components/channels/signups',
+          '$ref-value': { title: 'Signup events', address: 'signup.events', summary: 'New accounts' },
+        }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+    expect(wrapper.get('h1').text()).toBe('Signup events')
+    expect(wrapper.get('dd').text()).toBe('signup.events')
+    expect(wrapper.text()).toContain('New accounts')
+    wrapper.unmount()
+  })
+
   it.each(['modern', 'classic'] as const)('renders and expands direct messages in the %s layout', (layout) => {
     const id = 'doc/channel/userSignedUp/message/signup'
     const wrapper = mount(Channel, {

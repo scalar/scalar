@@ -55,6 +55,8 @@ export const zhCn = {
     termsOfService: '服务条款',
   },
   asyncapi: {
+    address: '地址',
+    unknownAddress: '未知',
     applicationIdentifier: '应用标识符',
     servers: '服务器',
     protocols: '协议',

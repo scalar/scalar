@@ -55,6 +55,8 @@ export const en = {
     termsOfService: 'Terms of Service',
   },
   asyncapi: {
+    address: 'Address',
+    unknownAddress: 'Unknown',
     applicationIdentifier: 'Application identifier',
     servers: 'Servers',
     protocols: 'Protocols',

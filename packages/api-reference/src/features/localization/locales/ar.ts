@@ -55,6 +55,8 @@ export const ar = {
     termsOfService: 'شروط الخدمة',
   },
   asyncapi: {
+    address: 'العنوان',
+    unknownAddress: 'غير معروف',
     applicationIdentifier: 'معرّف التطبيق',
     servers: 'الخوادم',
     protocols: 'البروتوكولات',

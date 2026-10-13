@@ -51,10 +51,17 @@ const entryLabels = computed((): { [x in EntryType]: string } => ({
   'model': modelsSectionLabel,
   'webhook': translate('search.entryWebhook'),
 }))
+const isAsyncApiEntry = computed(
+  (): boolean =>
+    result.item.type === 'asyncapi-channel' ||
+    result.item.type === 'asyncapi-operation' ||
+    result.item.type === 'asyncapi-message',
+)
 const showDescriptionMetadata = computed(
   (): boolean =>
     result.item.type !== 'webhook' &&
     Boolean(
+      isAsyncApiEntry.value ||
       result.item.action ||
       ((result.item.method || result.item.path) &&
         result.item.path !== result.item.title),
@@ -104,8 +111,16 @@ const showDescriptionMetadata = computed(
             {{ result.item.method ?? 'get' }}
           </span>
         </template>
-        <span class="sr-only">{{ translate('common.path') }}:&nbsp;</span>
-        {{ result.item.path }}
+        <template v-if="isAsyncApiEntry">
+          <span>{{ translate('asyncapi.address') }}:{{ ' ' }}</span>
+          <span class="whitespace-pre-wrap">{{
+            result.item.path ?? translate('asyncapi.unknownAddress')
+          }}</span>
+        </template>
+        <template v-else>
+          <span class="sr-only">{{ translate('common.path') }}:&nbsp;</span>
+          {{ result.item.path }}
+        </template>
       </span>
     </template>
     <template
