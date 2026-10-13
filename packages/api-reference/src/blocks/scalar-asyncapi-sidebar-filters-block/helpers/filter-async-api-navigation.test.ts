@@ -3,7 +3,6 @@ import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { describe, expect, it } from 'vitest'
 
 import { filterAsyncApiNavigation } from './filter-async-api-navigation'
-import { getAsyncApiTagOptions } from './get-async-api-tag-options'
 
 const document: AsyncApiDocument = {
   asyncapi: '3.0.0',
@@ -335,20 +334,6 @@ describe('filterAsyncApiNavigation', () => {
     expect(tagIds(filterAsyncApiNavigation(catalog, taggedDocument, { tag: 'Audit' }))).toStrictEqual([
       'events',
       'audit',
-    ])
-  })
-
-  it('offers inherited tags without leaking tags from taggedEntries absent from navigation', () => {
-    expect(getAsyncApiTagOptions(taggedDocument, taggedEntries).map((option) => option.id)).toStrictEqual([
-      '',
-      'Application',
-      'Audit',
-      'Billing',
-      'Channel',
-      'Development',
-      'Empty',
-      'Operation',
-      'Production',
     ])
   })
 

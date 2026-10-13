@@ -26,8 +26,8 @@ type AsyncApiNavigationFilter = {
   tag?: string
 }
 
-/** Whether the filter would keep every entry, so the tree can be returned untouched. */
-const isNoopFilter = ({ protocol, server }: AsyncApiNavigationFilter): boolean =>
+/** Whether protocol and server selections leave reachability unrestricted. */
+const isNoopReachabilityFilter = ({ protocol, server }: AsyncApiNavigationFilter): boolean =>
   (!protocol || protocol === ALL) && (!server || server === ALL)
 
 /** Whether a selection (protocol or server) keeps an operation, given the set it is reachable through. */
@@ -123,14 +123,14 @@ export const filterAsyncApiNavigation = (
   document: AsyncApiDocument,
   filter: AsyncApiNavigationFilter,
 ): TraversedEntry[] => {
-  if (isNoopFilter(filter) && !filter.tag) {
+  if (isNoopReachabilityFilter(filter) && !filter.tag) {
     return entries
   }
 
   // Build the document-level reachability lookups once for the whole pass.
   const context = createReachabilityContext(document)
 
-  const reachableEntries = isNoopFilter(filter)
+  const reachableEntries = isNoopReachabilityFilter(filter)
     ? entries
     : entries.flatMap((entry) => {
         const filtered = filterEntry(entry, document, filter, context)
