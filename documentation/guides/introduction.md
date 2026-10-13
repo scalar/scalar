@@ -209,7 +209,7 @@
   <div class="lp-card lp-card--docs" aria-hidden="true">
 <div class="lp-card-screen">
 <div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
-<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
+<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">API + .md/.mdx</span></div>
 <div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
 <div class="lp-win lp-win--shot"><img class="light-image" src="/api-docs-static-zoom.svg" alt="" loading="lazy" /><img class="dark-image" src="/api-docs-static-zoom-dark.svg" alt="" loading="lazy" /></div>
 </div>
@@ -631,7 +631,9 @@
     grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
     column-gap: 56px;
     align-items: center;
-    min-height: calc(100dvh - var(--scalar-header-height, 48px));
+    /* a screen on short windows, never more than 720px: a tall window
+       must not stretch a section around a card that needs 700 */
+    min-height: min(calc(100dvh - var(--scalar-header-height, 48px)), 720px);
     padding: 48px 0;
     min-width: 0;
   }
