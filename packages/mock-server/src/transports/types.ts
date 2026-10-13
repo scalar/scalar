@@ -1,4 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { AsyncApiSecuritySchemeObject } from '@scalar/types/asyncapi/3.1'
 import type { Hono } from 'hono'
 import type { UpgradeWebSocket } from 'hono/ws'
 
@@ -17,8 +18,13 @@ export type ResolvedMessage = {
   contentType?: string
 }
 
+/** Alternatives in an AsyncAPI security array; unresolved references remain unsatisfied. */
+export type AsyncApiSecurity = Array<AsyncApiSecuritySchemeObject | undefined>
+
 /** A single AsyncAPI operation (`send`/`receive`) bound to its channel. */
 export type ResolvedOperation = {
+  /** Operation security, after merging traits. Empty or absent means no additional requirement. */
+  security?: AsyncApiSecurity
   /** The operation id (its key in the document's `operations` map). */
   id: string
   /**
@@ -33,6 +39,8 @@ export type ResolvedOperation = {
 
 /** A normalized, dereferenced view of an AsyncAPI channel that a transport can serve. */
 export type ResolvedChannel = {
+  /** Alternative servers and their security alternatives. */
+  security?: Array<{ protocol: string; schemes: AsyncApiSecurity }>
   /** The channel id (its key in the document's `channels` map). */
   id: string
   /** The raw channel address, e.g. `user/signedup` or `rooms/{roomId}`. */

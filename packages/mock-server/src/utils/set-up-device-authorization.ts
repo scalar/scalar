@@ -20,7 +20,7 @@ const getClientId = (clientId: unknown, authorization: string | undefined): stri
   if (typeof clientId === 'string') {
     return clientId
   }
-  if (!authorization?.startsWith('Basic ')) {
+  if (!authorization || !/^Basic /i.test(authorization)) {
     return ''
   }
   const credentials = Buffer.from(authorization.slice(6), 'base64').toString()
