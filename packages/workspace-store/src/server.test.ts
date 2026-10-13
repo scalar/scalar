@@ -697,6 +697,7 @@ describe('create-server-store', () => {
 
         const store = await createServerWorkspaceStore({
           baseUrl: url,
+          documentLoading: { allowPrivateNetworks: true },
           documents: [
             {
               name: 'default',
@@ -720,6 +721,7 @@ describe('create-server-store', () => {
         const store = await createServerWorkspaceStore({
           mode: 'ssr',
           baseUrl: url,
+          documentLoading: { allowPrivateNetworks: true },
           documents: [],
         })
 
@@ -742,6 +744,7 @@ describe('create-server-store', () => {
 
         const store = await createServerWorkspaceStore({
           baseUrl: 'example.com',
+          documentLoading: { basePath: cwd() },
           documents: [
             {
               path: fileName,
@@ -763,6 +766,7 @@ describe('create-server-store', () => {
 
         const store = await createServerWorkspaceStore({
           baseUrl: 'example.com',
+          documentLoading: { basePath: cwd() },
           documents: [],
           mode: 'ssr',
         })
