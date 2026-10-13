@@ -781,6 +781,10 @@
           "to": "/resources/changelog/mock-server"
         },
         {
+          "from": "/changelog/sdk-generator",
+          "to": "/resources/changelog/sdk-generator"
+        },
+        {
           "from": "/guides",
           "to": "/resources/migration/swagger-ui"
         },

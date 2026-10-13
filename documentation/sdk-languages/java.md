@@ -48,7 +48,7 @@ The artifact is `dev.warp:warp-java`, added in Gradle with `implementation("dev.
         "production": { "repo": "acme/acme-java" }
       },
       "publish": {
-        "maven": { "authMethod": "access-token", "sonatypePlatform": "portal" }
+        "maven": { "authMethod": "access-token" }
       }
     }
   }

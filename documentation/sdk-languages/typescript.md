@@ -57,7 +57,6 @@ Add `typescript` under `targets` in your SDK configuration:
   "targets": {
     "typescript": {
       "packageName": "@acme/api",
-      "packageManager": "pnpm",
       "options": { "propertyCasing": "sdk" },
       "destinations": {
         "production": { "repo": "acme/acme-typescript", "branch": "main" }
@@ -68,7 +67,7 @@ Add `typescript` under `targets` in your SDK configuration:
 }
 ```
 
-The TypeScript target also has a `compatibility` option for teams moving from another generator. Set it to `speakeasy` and the generator additionally emits `src/compat/speakeasy.ts`, a module of deprecated wrappers that reproduce Speakeasy's standalone-function surface and forward to the new SDK. Existing call sites keep compiling while your users move over. The full reference is in the [TypeScript configuration](/products/sdk-generator/configuration/typescript) docs.
+The TypeScript target also has a `compatibility` option for teams moving from another generator. Set it to `speakeasy` and the generator additionally emits `src/compat/speakeasy.ts`, a module of deprecated wrappers that reproduce Speakeasy's standalone-function surface and forward to the new SDK. Existing call sites keep compiling while your users move over. The compatibility module is experimental: it does not yet reproduce every part of a Speakeasy SDK's surface, so check your most-used call sites against it before relying on it. The full reference is in the [TypeScript configuration](/products/sdk-generator/configuration/typescript) docs.
 
 ## Publishing to npm
 
@@ -123,7 +122,7 @@ Yes. Edit files in your repository as usual. Every rebuild does a three-way merg
 
 <scalar-detail title="Can I migrate from Speakeasy or Stainless without breaking my users?">
 
-For Speakeasy, set `"compatibility": "speakeasy"` on the TypeScript target to emit wrappers that keep existing call sites compiling. For Stainless, Scalar reads your `stainless.yml` directly, so resource and method names carry across. The [Stainless migration guide](/resources/migration/stainless) has the steps.
+For Speakeasy, set `"compatibility": "speakeasy"` on the TypeScript target to emit wrappers that keep existing call sites compiling (experimental, and not yet complete). For Stainless, Scalar reads your `stainless.yml` directly, so resource and method names carry across. The [Stainless migration guide](/resources/migration/stainless) has the steps.
 
 </scalar-detail>
 

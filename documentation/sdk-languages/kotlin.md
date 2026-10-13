@@ -37,7 +37,6 @@ Beyond that, judge the preview by the things that make a Kotlin client feel nati
       "publish": {
         "maven": {
           "authMethod": "access-token",
-          "sonatypePlatform": "portal",
           "homepage": "https://acme.com",
           "description": "Acme API Kotlin SDK"
         }
