@@ -411,6 +411,70 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
+    /** Upgrades a document whose `Wrapper.value` property is `value`, beside a `Pet` component. */
+    const upgradeValue = (value: Record<string, unknown>) => {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.3',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { type: 'object', properties: { id: { type: 'integer' } } },
+            Wrapper: { type: 'object', properties: { value } },
+          },
+        },
+      })
+
+      return result.components?.schemas?.Wrapper?.properties?.value
+    }
+
+    it('migrates a `oneOf` arm that is only `nullable: true` to a null arm', () => {
+      expect(upgradeValue({ oneOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }] })).toEqual({
+        oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/Pet' }],
+      })
+    })
+
+    it('migrates a nullable-only `anyOf` arm and keeps its annotations', () => {
+      expect(
+        upgradeValue({
+          anyOf: [
+            { $ref: '#/components/schemas/Pet' },
+            { nullable: true, description: 'No pet', 'x-note': 1 },
+            { type: 'string' },
+          ],
+        }),
+      ).toEqual({
+        anyOf: [
+          { $ref: '#/components/schemas/Pet' },
+          { type: 'null', description: 'No pet', 'x-note': 1 },
+          { type: 'string' },
+        ],
+      })
+    })
+
+    it('migrates a nullable-only arm inside an `allOf` member', () => {
+      expect(
+        upgradeValue({ allOf: [{ oneOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }] }, {}] }),
+      ).toEqual({
+        allOf: [{ oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/Pet' }] }, {}],
+      })
+    })
+
+    it('leaves a nullable arm that carries other keywords alone', () => {
+      expect(
+        upgradeValue({ oneOf: [{ nullable: true, required: ['id'] }, { $ref: '#/components/schemas/Pet' }] }),
+      ).toEqual({
+        oneOf: [{ nullable: true, required: ['id'] }, { $ref: '#/components/schemas/Pet' }],
+      })
+    })
+
+    it('leaves a bare `nullable: true` outside a union alone', () => {
+      expect(upgradeValue({ nullable: true })).toEqual({ nullable: true })
+      expect(upgradeValue({ allOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }] })).toEqual({
+        allOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }],
+      })
+    })
+
     it('keeps other keywords when unwrapping a nullable `$ref`', () => {
       const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
         openapi: '3.0.3',

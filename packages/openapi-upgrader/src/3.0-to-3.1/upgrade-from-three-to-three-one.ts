@@ -64,6 +64,42 @@ function isInsideDataValue(path: string[] | undefined): boolean {
   return false
 }
 
+// Keywords that only describe a schema. An arm made of these and `nullable` constrains nothing else.
+const ANNOTATION_KEYWORDS = new Set([
+  'title',
+  'description',
+  'deprecated',
+  'example',
+  'examples',
+  'externalDocs',
+  'readOnly',
+  'writeOnly',
+])
+
+/**
+ * Determine if the node at `path` is one arm of a `oneOf` or `anyOf`.
+ *
+ * Only array elements get a numeric segment from the traversal, and a named member (a property
+ * called `oneOf`) never holds an array, so `oneOf/0` is always an arm.
+ */
+function isUnionArm(path: string[] | undefined): boolean {
+  if (!path || path.length < 2) {
+    return false
+  }
+
+  const keyword = path[path.length - 2]
+  const index = path[path.length - 1]
+
+  return (keyword === 'oneOf' || keyword === 'anyOf') && index !== undefined && /^\d+$/.test(index)
+}
+
+/**
+ * Determine if a schema carries `nullable: true` and nothing else but annotations and extensions.
+ */
+function isNullableOnly(schema: UnknownObject): boolean {
+  return Object.keys(schema).every((key) => key === 'nullable' || ANNOTATION_KEYWORDS.has(key) || key.startsWith('x-'))
+}
+
 /**
  * Upgrade from OpenAPI 3.0.x to 3.1.1
  *
@@ -113,6 +149,14 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
       // A single-member `allOf` unwraps so the union reads `anyOf: [<member>, { type: 'null' }]`.
       const base = allOf.length === 1 ? allOf[0] : { allOf }
       return { ...rest, anyOf: [base, { type: 'null' }] }
+    }
+
+    // A union arm that says nothing but `nullable: true` is how some 3.0 exporters spell "or null":
+    // `oneOf: [{ nullable: true }, { $ref: X }]`. Left alone, the arm reads as "any value" in 3.1 and
+    // swallows the real arm, so it becomes the `{ type: 'null' }` arm it was meant to be.
+    if (isUnionArm(path) && isNullableOnly(schema)) {
+      delete schema.nullable
+      schema.type = 'null'
     }
 
     // Otherwise there is nothing for `nullable` to attach to, so leave the schema untouched.
