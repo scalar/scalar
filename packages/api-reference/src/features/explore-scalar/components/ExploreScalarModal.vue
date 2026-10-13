@@ -10,8 +10,9 @@ import {
   ScalarIconX,
 } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useId, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { useRegisterLink } from '@/hooks/use-register-link'
@@ -45,6 +46,10 @@ const {
 }>()
 
 const { translate } = useLocalization()
+const root = useDocumentRoot()
+const isEmbedded =
+  typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot
+const titleId = useId()
 
 const { loader, href, open } = useRegisterLink({
   externalUrls: () => externalUrls,
@@ -205,7 +210,7 @@ const wrapper = computed(() =>
 
 /** DialogTitle names the dialog, and only works inside one; the panel gets the same heading as an h2 */
 const titleTag = computed(() =>
-  presentation === 'dialog' ? DialogTitle : 'h2',
+  presentation === 'dialog' && !isEmbedded ? DialogTitle : 'h2',
 )
 </script>
 
@@ -213,6 +218,7 @@ const titleTag = computed(() =>
   <component
     :is="wrapper.is"
     v-bind="wrapper.props"
+    :aria-labelledby="isEmbedded ? titleId : undefined"
     class="explore-scalar-modal"
     :class="{
       'explore-scalar-modal--vt': usesViewTransition,
@@ -243,6 +249,7 @@ const titleTag = computed(() =>
           <!-- Both render an h2 (DialogTitle's default element) -->
           <component
             :is="titleTag"
+            :id="isEmbedded ? titleId : undefined"
             class="text-c-1 m-0 text-xl leading-snug font-bold tracking-tight text-balance">
             {{ translate('exploreScalar.title') }}
           </component>
@@ -374,6 +381,7 @@ const titleTag = computed(() =>
         <!-- The calendar speaks for itself, so the title only names the dialog for assistive technology -->
         <component
           :is="titleTag"
+          :id="isEmbedded ? titleId : undefined"
           class="sr-only">
           {{ translate('exploreScalar.bookDemo') }}
         </component>

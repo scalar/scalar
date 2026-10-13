@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { useToasts } from './useToasts'
 
 describe('useToasts', () => {
-  it('should initialize and call the toast function with default parameters', () => {
+  it('initializes and call the toast function with default parameters', () => {
     const mockToastFunction = vi.fn()
     const { initializeToasts, toast } = useToasts()
 
@@ -17,7 +17,7 @@ describe('useToasts', () => {
     })
   })
 
-  it('should handle calls with specific parameters', () => {
+  it('handles calls with specific parameters', () => {
     const mockToastFunction = vi.fn()
     const { initializeToasts, toast } = useToasts()
 

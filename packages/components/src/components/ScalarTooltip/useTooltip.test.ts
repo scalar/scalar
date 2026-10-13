@@ -1,5 +1,6 @@
+import { DOCUMENT_ROOT_SYMBOL } from '@scalar/use-hooks/useDocumentRoot'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { createApp, effectScope, nextTick, ref } from 'vue'
 
 import { ELEMENT_ID } from './constants'
 import { cleanupTooltipElement, useTooltip } from './useTooltip'
@@ -23,6 +24,83 @@ describe('useTooltip', () => {
 
     // Restore the real timers
     vi.useRealTimers()
+  })
+
+  it('keeps the tooltip inside its shadow root and removes it when the embed unmounts', async () => {
+    const root = document.createElement('div').attachShadow({ mode: 'open' })
+    const target = document.createElement('button')
+    root.append(target)
+    const app = createApp({})
+    app.provide(DOCUMENT_ROOT_SYMBOL, root)
+    const scope = effectScope()
+    app.runWithContext(() => scope.run(() => useTooltip({ content: 'Embedded', targetRef: target, delay: 0 })))
+
+    target.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+    expect(root.getElementById(ELEMENT_ID)?.textContent).toBe('Embedded')
+    expect(document.getElementById(ELEMENT_ID)).toBeNull()
+
+    const hostScope = effectScope()
+    hostScope.run(() => useTooltip({ content: 'Host', targetRef: targetElement, delay: 50 }))
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    scope.stop()
+    expect(root.getElementById(ELEMENT_ID)).toBeNull()
+    expect(target.hasAttribute('aria-describedby')).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.getElementById(ELEMENT_ID)?.textContent).toBe('Host')
+    hostScope.stop()
+  })
+
+  it('leaves host tooltip dismissal to events from the host document', async () => {
+    const scope = effectScope()
+    scope.run(() => useTooltip({ content: 'Host', targetRef: targetElement, delay: 0 }))
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+
+    const host = document.createElement('div')
+    const root = host.attachShadow({ mode: 'open' })
+    const embedded = document.createElement('button')
+    root.append(embedded)
+    document.body.append(host)
+    embedded.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }))
+    await nextTick()
+    expect(document.getElementById(ELEMENT_ID)?.style.display).toBe('block')
+
+    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(document.getElementById(ELEMENT_ID)?.style.display).toBe('none')
+    scope.stop()
+  })
+
+  it('keeps a sibling tooltip delay when another target unmounts', async () => {
+    const first = effectScope()
+    const second = effectScope()
+    const secondTarget = document.createElement('button')
+    first.run(() => useTooltip({ content: 'First', targetRef: targetElement, delay: 100 }))
+    second.run(() => useTooltip({ content: 'Second', targetRef: secondTarget, delay: 100 }))
+    secondTarget.dispatchEvent(new MouseEvent('mouseenter'))
+    first.stop()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(document.getElementById(ELEMENT_ID)?.textContent).toBe('Second')
+    second.stop()
+  })
+
+  it('continues to dismiss on Escape after another key and removes its listener when hidden', async () => {
+    const scope = effectScope()
+    scope.run(() => useTooltip({ content: 'Tooltip', targetRef: targetElement, delay: 0 }))
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
+    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(document.getElementById(ELEMENT_ID)?.style.display).toBe('none')
+    const listener = vi.fn()
+    document.body.addEventListener('keydown', listener)
+    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(listener).toHaveBeenCalledTimes(1)
+    document.body.removeEventListener('keydown', listener)
+    scope.stop()
   })
 
   it('should initialize tooltip element on first use', () => {

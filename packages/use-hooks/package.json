@@ -40,6 +40,11 @@
       "import": "./dist/useColorMode/index.js",
       "types": "./dist/useColorMode/index.d.ts",
       "default": "./dist/useColorMode/index.js"
+    },
+    "./useDocumentRoot": {
+      "types": "./dist/useDocumentRoot/index.d.ts",
+      "import": "./dist/useDocumentRoot/index.js",
+      "default": "./dist/useDocumentRoot/index.js"
     }
   },
   "files": [
