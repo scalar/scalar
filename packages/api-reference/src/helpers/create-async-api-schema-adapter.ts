@@ -82,8 +82,8 @@ export const createAsyncApiSchemaAdapter = (
   }
 
   // A concrete variant and a selectable base need different views of the same source object.
-  const selectable = new WeakMap<object, DiscriminatorSchema>()
-  const concrete = new WeakMap<object, DiscriminatorSchema>()
+  const selectable = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
+  const concrete = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
   const adapt = (input: unknown, name?: string, suppressSelector = false): SchemaObject | undefined => {
     const source = unwrap(input)
     if (typeof source === 'boolean') return getBooleanSchema(source)
@@ -91,13 +91,21 @@ export const createAsyncApiSchemaAdapter = (
     // Other schema formats have their own discriminator semantics.
     if (isForeignSchema(input)) return source as SchemaObject
     const cache = suppressSelector ? concrete : selectable
-    const cached = cache.get(unpackProxyShallow(source))
+    const referenceName =
+      isObject(input) && typeof input.$ref === 'string'
+        ? entries.find(([entryName]) => `#/components/schemas/${escapeJsonPointer(entryName)}` === input.$ref)?.[0]
+        : undefined
+    const schemaName =
+      name ??
+      referenceName ??
+      named.find((entry) => unpackProxyShallow(entry.schema) === unpackProxyShallow(source))?.name
+    const views = cache.get(unpackProxyShallow(source)) ?? new Map<string | undefined, DiscriminatorSchema>()
+    const cached = views.get(schemaName)
     if (cached) return cached
     // AsyncAPI and OpenAPI share schema fields; the discriminator is normalized below.
     const result = { ...source } as DiscriminatorSchema
-    cache.set(unpackProxyShallow(source), result)
-    const schemaName =
-      name ?? named.find((entry) => unpackProxyShallow(entry.schema) === unpackProxyShallow(source))?.name
+    views.set(schemaName, result)
+    cache.set(unpackProxyShallow(source), views)
     const propertyName = discriminatorName(source)
     if (typeof source.discriminator === 'string') delete result.discriminator
     if (propertyName) result.discriminator = { propertyName }

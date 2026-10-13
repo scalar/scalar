@@ -44,13 +44,43 @@ describe('create-async-api-schema-adapter', () => {
     await store.addDocument({ name: 'pets', document: createDocument() })
     const document = store.workspace.documents.pets as AsyncApiDocument
     const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
-    expect(result[schemaDiscriminator]?.variantLabels).toEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
+    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
     const wrapper = mount(Schema, {
       props: { schema: result, eventBus: null, noncollapsible: true, options: { expandAllSchemaProperties: true } },
     })
     expect(wrapper.text()).toContain('Variants')
     expect(wrapper.text()).toContain('Discriminator value:')
     wrapper.unmount()
+  })
+
+  it('keeps component alias values distinct in selectors and direct references', () => {
+    const document = createDocument()
+    document.components = {
+      schemas: {
+        ...getResolvedRef(document.components)?.schemas,
+        Alias: { $ref: '#/components/schemas/Cat' },
+      },
+    }
+    const adapt = createAsyncApiSchemaAdapter(document)
+    const result = adapt({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
+    const value = (schema: DiscriminatorSchema | undefined): string | undefined =>
+      (schema?.discriminator as { [schemaDiscriminator]?: { value: string } })?.[schemaDiscriminator]?.value
+    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual([
+      'Pet',
+      'Cat',
+      'StickBug · StickInsect',
+      'Kitten',
+      'Alias',
+    ])
+    expect(result.oneOf?.map((variant) => value(variant as DiscriminatorSchema))).toStrictEqual([
+      'Pet',
+      'Cat',
+      'StickBug',
+      'Kitten',
+      'Alias',
+    ])
+    expect(value(adapt({ $ref: '#/components/schemas/Alias' }))).toBe('Alias')
+    expect(value(adapt({ $ref: '#/components/schemas/Cat' }))).toBe('Cat')
   })
 
   it('leaves foreign schema-format discriminators untouched', () => {
@@ -74,7 +104,7 @@ describe('create-async-api-schema-adapter', () => {
         },
       }
       const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
-      expect(result[schemaDiscriminator]?.variantLabels).toEqual([
+      expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual([
         'Pet',
         'Cat',
         'StickBug · StickInsect',
@@ -89,10 +119,10 @@ describe('create-async-api-schema-adapter', () => {
     const original = structuredClone(document)
     const adapt = createAsyncApiSchemaAdapter(document)
     const result = adapt({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
-    expect(result[schemaDiscriminator]?.variantLabels).toEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
+    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
     expect(
       result.oneOf?.map((variant) => (variant as DiscriminatorSchema)[schemaDiscriminator]?.variantLabels),
-    ).toEqual([undefined, undefined, undefined, undefined])
+    ).toStrictEqual([undefined, undefined, undefined, undefined])
     expect(document).toStrictEqual(original)
   })
 
@@ -101,7 +131,7 @@ describe('create-async-api-schema-adapter', () => {
     const cat = adapt({ $ref: '#/components/schemas/Cat' })
     const field = cat && 'properties' in cat ? (cat.properties?.petType as DiscriminatorSchema) : undefined
     expect(cat?.discriminator?.propertyName).toBe('petType')
-    expect((cat?.discriminator as { [schemaDiscriminator]?: { value: string } })?.[schemaDiscriminator]).toEqual({
+    expect((cat?.discriminator as { [schemaDiscriminator]?: { value: string } })?.[schemaDiscriminator]).toStrictEqual({
       value: 'Cat',
     })
     expect(field?.const).toBeUndefined()
@@ -116,7 +146,7 @@ describe('create-async-api-schema-adapter', () => {
     })
     const pet =
       result && 'properties' in result ? (getResolvedRef(result.properties?.pet) as DiscriminatorSchema) : undefined
-    expect(pet?.[schemaDiscriminator]?.variantLabels).toEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
+    expect(pet?.[schemaDiscriminator]?.variantLabels).toStrictEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
   })
 
   it('does not invent an implicit name for an anonymous schema', () => {
@@ -141,7 +171,7 @@ describe('create-async-api-schema-adapter', () => {
       },
     }
     const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/A' }) as DiscriminatorSchema
-    expect(result[schemaDiscriminator]?.variantLabels).toEqual(['A', 'B'])
+    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual(['A', 'B'])
   })
 
   it('renders a selector and discriminator value using the shared schema component', async () => {
@@ -156,7 +186,7 @@ describe('create-async-api-schema-adapter', () => {
     await button.trigger('click')
     await flushPromises()
     const options = Array.from(document.querySelectorAll('[role="option"]'))
-    expect(options.map((option) => option.textContent?.trim())).toEqual([
+    expect(options.map((option) => option.textContent?.trim())).toStrictEqual([
       'Pet',
       'Cat',
       'StickBug · StickInsect',
